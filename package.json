@@ -1,0 +1,20 @@
+{
+  "name": "lorcana-sim",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "pnpm --filter ui dev",
+    "test": "pnpm --filter engine test",
+    "test:watch": "pnpm --filter engine test:watch",
+    "build": "pnpm --filter engine build && pnpm --filter ui build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  }
+}
