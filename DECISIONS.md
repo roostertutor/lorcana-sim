@@ -1,284 +1,323 @@
 # DECISIONS.md
-# Lorcana Simulator — Project Decisions & Strategy Log
-
-This file captures architectural decisions, strategic discussions, and open
-questions from planning sessions. Update it as decisions change.
-Paste the relevant sections into new Claude.ai or Claude Code sessions for context.
+# Lorcana Analytics Engine — Project Decisions & Strategy Log
+#
+# This file captures the "why" behind decisions.
+# SPEC.md captures the "what" and "how".
+# Keep both updated as decisions evolve.
+# Paste into new Claude.ai or Claude Code sessions for context.
 
 ---
 
-## Project Overview
+## What This Project Is
 
-A web-based Disney Lorcana TCG simulator with a working rule engine.
-Primary goal for v1: **learn by building**, not to compete with existing tools.
+A headless Lorcana TCG game engine and deck analytics platform.
 
-### Existing competition (as of early 2026)
+**Not** a human-playable tabletop simulator.
+**Not** competing with Lorcanito, Duels.ink, or Pixelborn.
+
+The engine simulates thousands of games programmatically to answer
+questions like:
+- How consistent is this deck at hitting ink on curve?
+- What is the win rate of deck A vs deck B?
+- Which cards in this deck are underperforming?
+- How first-player dependent is this matchup?
+
+---
+
+## Why This Direction
+
+### The competition problem
+The human simulator space already has:
 - **Lorcanito** — web-based, open source, well established
 - **Duels.ink** — web-based simulator
-- **Pixelborn** — desktop app, webcam overlay play (like MTG Spelltable)
+- **Pixelborn** — desktop app, webcam overlay (like MTG Spelltable)
 
-### Honest assessment
-Building a direct competitor to Lorcanito for player adoption is not the
-primary goal. The project has value as a learning exercise and potentially
-as a foundation for tools that fill genuine gaps (see Future Projects below).
+Building a fourth option competes for the same small pool of Lorcana
+players who want to play online. Not worth it.
+
+### The gap we fill
+No Lorcana tool does quantitative deck analysis. Every competitive card
+game needs this — MTG has had it for decades (Frank Karsten, Moxfield
+hand analysis, goldfish simulators). Lorcana has nothing.
+
+### Why not just do probability math?
+Pure hypergeometric math treats all cards as identical. In Lorcana they
+are not — a 3-cost card with Rush plays very differently from a 3-cost
+vanilla. The engine knows what each card actually does, so simulation
+results are more accurate than pure math.
+
+We use pure math where it's sufficient (ink curve probability, opening
+hand statistics) and Monte Carlo simulation where card specifics matter
+(win rates, card performance, matchup analysis).
 
 ---
 
-## V1 Scope (Decided — Build This)
+## What We Considered and Rejected
 
-Deliberately minimal. The rule engine is the hard part; everything else is
-secondary until it works.
+### Human-playable simulator
+Started here, pivoted away. The UI complexity (pending choice resolution,
+board rendering, turn flow) is significant work that does not serve the
+analytics goal. Can revisit as a thin layer later once analytics works.
 
-- ✅ Rule engine as pure TypeScript library
-- ✅ ~20 sample cards covering every mechanic (not all cards)
-- ✅ Paste-in decklist parser (no deck builder UI needed yet)
-- ✅ Singleplayer vs yourself — both sides in one browser tab
-- ✅ No backend, no auth, no networking — pure client-side
-- ✅ Basic board UI (functional, not pretty)
-- ✅ Vitest test suite for the engine
+### Rule engine as open source library
+The overlap of "Lorcana players" and "developers who would use a rules
+library" is too small. MTG has this ecosystem after 30 years. Lorcana
+does not yet.
 
-### What was explicitly cut from v1
-- Deck builder UI (paste decklist instead)
-- Bot/AI opponent
-- Multiplayer
-- Auth
-- Card images / polished UI
-- Full card set data
+### Pack opening simulation
+Already done by other sites. Low value add.
+
+### Set spoiler testing tool
+Only useful once you have a working simulator underneath it. It is a
+feature of the analytics platform, not a standalone project.
+
+---
+
+## Judge / Rules Oracle Tool (Future)
+
+**Concept:** Answer rules questions in natural language.
+
+**Architecture decision: hybrid engine + RAG**
+Two sources of truth that complement each other:
+1. The comprehensive rules PDF — covers mechanics abstractly
+2. Our card implementations — covers exactly what each card does
+
+The rules PDF does not mention individual cards. Our engine does not
+have prose explanations of rule interactions. Together they cover
+almost everything.
+
+**Question routing:**
+- "What does Gaston cost?" -> card definition lookup, deterministic, no LLM
+- "What does Bodyguard do?" -> RAG over rules PDF, cite the rule section
+- "Can Gaston be challenged while Elsa is in play?" -> both sources + LLM
+  reasoning, always show sources
+
+**Hallucination mitigations:**
+1. RAG — model reasons from retrieved text, not memory
+2. Forced citation — must cite rule section or card implementation
+3. Engine cross-check — LLM claims can be verified against card data
+4. Confidence flagging — low confidence answers get visible warnings
+5. Frame as learning tool, not tournament authority
+
+**When to build:** After meaningful card pool exists (50+ cards properly
+implemented). Not worth building now.
+
+---
+
+## Sealed / Draft Simulation (Future)
+
+**Concept:** Generate accurate booster packs, build sealed deck,
+playtest against the analytics engine.
+
+**Key requirement:** Accurate pull rates per set. Community has documented
+these. Do not guess.
+
+**Dependency:** Needs meaningful card pool and working analytics engine.
 
 ---
 
 ## Architecture Decisions
 
-### Monorepo with pnpm workspaces (Decided)
-Single repo, two packages: `engine` and `ui`.
+### Four packages, clear separation of concerns
 
-**Why:** Engine and UI share TypeScript types directly via `workspace:*`.
-Splitting into two repos would require publishing the engine to npm on every
-type change, which is painful during early development.
-
-**Future:** When/if the engine becomes a standalone library, the package
-separation is already clean. Migration is straightforward.
-
-### Engine is a pure function (Decided)
 ```
-applyAction(state, action, definitions) → { newState, events, success, error }
+engine/      <- pure rules, no UI, no simulation strategy
+simulator/   <- headless runner, bot strategies, game loop
+analytics/   <- stats aggregation, deck analysis, pure math
+ui/          <- thin layer over analytics, build last
 ```
 
-No classes, no mutation, no side effects. `GameState` is a plain serializable
-object. Same inputs always produce same outputs (except shuffle).
+Each package has one job. Engine does not know about bots. Simulator
+does not know about charts. Analytics does not know about React.
 
-**Why:** Makes testing trivial. Makes multiplayer straightforward later —
-just run the same function on the server and sync state. Makes replay/undo
-possible. Makes bugs traceable.
+### Engine stays pure (Decided, firm)
+applyAction(state, action, definitions) -> ActionResult
 
-### Card abilities are data, not code (Decided)
-Each `CardDefinition` has an `abilities: Ability[]` array of structured data.
-The engine interprets these via `applyEffect()`. Adding a new card never
-requires changing the engine — only the card data file.
+No side effects. No mutation. Same inputs = same outputs (except shuffle).
+GameState is a plain serializable object — no classes, no methods.
 
-**Why:** Extensible without engine changes. Cards can be stored as JSON.
-Future judge tool can read ability data directly.
+### Card abilities are data not code (Decided, firm)
+Abilities are structured JSON interpreted by the engine. Adding a new
+card never requires changing the engine. The judge tool can also read
+ability data directly as a source of truth.
 
-**The key types:**
-- `TriggeredAbility` — fires when an event occurs (enters play, quests, etc.)
-- `ActivatedAbility` — player pays costs to use
-- `KeywordAbility` — Evasive, Rush, Bodyguard, Ward, etc.
-- `StaticAbility` — ongoing passive effects
+### getAllLegalActions is a first-class engine export (Decided)
+Makes headless simulation possible. The engine generates all legal moves
+for a player — the bot just picks one. Reuses the existing validator
+internally so no logic is duplicated.
 
-### Tech Stack (Decided)
+### Bot strategies are pluggable (Decided)
+```typescript
+interface BotStrategy {
+  name: string
+  decideAction: (state, playerId, definitions) => GameAction
+}
+```
+
+RandomBot and GreedyBot to start. Interface allows future strategies
+without touching engine or simulator infrastructure.
+
+RandomBot: useful for stress testing and invariant checks.
+GreedyBot: useful for directional analytics, approximates a reasonable pilot.
+
+### CLI before UI (Decided)
+Build a terminal CLI that outputs analytics before any React UI.
+Validates the entire pipeline cheaply. Wrong numbers in the CLI
+means the UI will not save you.
+
+### UI is charts over analytics, not a game board (Decided)
+When we build UI it shows deck composition, simulation results, and
+deck comparison. It does NOT show a game board or interactive game play.
+
+---
+
+## Testing Philosophy
+
+### The core problem
+Subtle rule bugs silently corrupt all simulation output. 10,000 games
+with a wrong Bodyguard implementation produce confident but wrong stats.
+Accuracy must be solved before scale.
+
+### Four layers of confidence
+
+**Layer 1 — Unit tests** (fast, many)
+Every mechanic isolated. Use injectCard() pattern — never rely on random
+opening hand. Grow with every new card implemented.
+
+**Layer 2 — Integration scenarios** (medium, targeted)
+Multi-card interactions. Two triggers same turn. Ward blocking abilities.
+Shift damage inheritance. Every non-obvious interaction gets a test.
+
+**Layer 3 — Game invariants** (automated, run during sim)
+After every action assert:
+- 60 cards always accounted for per player
+- Lore never decreases
+- Inkwell cards never leave inkwell
+- Banished cards go to discard only
+- availableInk never exceeds inkwell size
+- Game ends exactly at 20 lore
+
+Run 1000 RandomBot games. Any invariant failure = engine bug.
+
+**Layer 4 — Known replays** (slow, high confidence)
+3-5 real human-played games encoded as action sequences.
+Engine must agree at every step. Most expensive but highest confidence.
+
+### Simulation sanity checks
+- Mirror match win rate should be ~50%
+- Going first win rate should be 50-65%
+- Average game length should be 6-15 turns
+
+---
+
+## Tech Stack
 
 | Layer | Choice | Reason |
 |-------|--------|--------|
-| Language | TypeScript strict mode | Catches rule logic bugs at compile time |
-| Package manager | pnpm | Fast, local installs, monorepo support |
-| Frontend | React 18 + Vite | Ecosystem, fast dev server |
-| State management | Zustand | Simpler than Redux for game state |
-| Styling | Tailwind CSS | Fast iteration |
-| Tests | Vitest | TS-native, fast, same syntax as Jest |
-| Future DB | Supabase | Postgres + Auth + Realtime in one |
-| Future realtime | Liveblocks or Supabase Realtime | Purpose-built for multiplayer |
-
-### Future multiplayer path (Planned, not built)
-1. Extract engine to server (it's already pure — no changes needed)
-2. Client becomes thin view layer
-3. Add Supabase for auth (Google/Discord OAuth)
-4. Add Liveblocks or Supabase Realtime for WebSocket state sync
-5. Public matchmaking + private lobbies
-
-Auth was explicitly chosen as "third party only" — Google, Discord, or
-similar. No custom auth.
+| Language | TypeScript strict mode | Catches rule bugs at compile time |
+| Package manager | pnpm workspaces | Fast, local, monorepo support |
+| Tests | Vitest | TS-native, fast, watch mode for TDD |
+| Frontend (later) | React + Vite | Ecosystem, fast dev |
+| Charts (later) | Recharts | Lightweight, React-native |
+| Styling (later) | Tailwind | Fast iteration |
+| Future DB | Supabase | If persistence ever needed |
+| Future auth | Supabase (Google/Discord) | Third party only, no custom auth |
 
 ---
 
-## What's Currently Built
+## Card Data
 
-### Engine (`packages/engine/src/`)
+### Current state
+20 hand-crafted sample cards covering every mechanic.
+Sufficient for engine development and testing.
+Not sufficient for meaningful analytics.
 
-**`types/index.ts`** — Single source of truth for all game concepts.
-All other files import from here. Read this first.
-Key types: `CardDefinition`, `CardInstance`, `GameState`, `GameAction`,
-`Ability`, `Effect`, `PlayerState`, `PendingChoice`
+### Path to real data
+Community dataset: https://github.com/lorcanito/lorcana-data
+Write a one-time migration script. Do not hand-enter full sets.
 
-**`engine/validator.ts`** — Checks if an action is legal. Pure function.
-Returns `{ valid: true }` or `{ valid: false, reason: string }`.
+### Implementation priority
+Group 1 (done): Vanilla, Evasive, Rush, Bodyguard, Ward, Challenger,
+Support, triggered abilities, activated abilities, items, actions, songs
 
-**`engine/reducer.ts`** — Applies validated actions to produce new state.
-Main entry: `applyAction()`. Handles trigger stack processing and win condition.
+Group 2 (next): Shift (full testing), Singer + Song interaction,
+Resist, Reckless, Location cards
 
-**`engine/initializer.ts`** — Creates games from decklists. Parses plaintext
-decklists (`4 Card Name` format). Shuffles and deals opening hands.
-
-**`cards/sampleCards.ts`** — 20 card definitions covering every mechanic:
-vanilla, Evasive, Rush, Bodyguard, Ward, Challenger, Support, Singer, Shift,
-Resist, Reckless, triggered abilities (enters play / quests / banished),
-activated abilities, actions, items, songs.
-
-**`utils/index.ts`** — Pure helpers: `moveCard`, `updateInstance`,
-`getInstance`, `getZone`, `hasKeyword`, `getEffectiveStrength`, etc.
-
-### UI (`packages/ui/src/`)
-
-**`store/gameStore.ts`** — Zustand store. Only place that calls the engine.
-Exposes `dispatch(action)` and `gameState` to React components.
-
-**`App.tsx`** — Setup screen (paste decklists) + game board. Currently one
-file, intentionally minimal. Renders both players' zones, hands, action bar,
-game log.
-
-### Tests
-43 tests, all passing. Pattern: inject cards directly into state via
-`injectCard()` helper rather than relying on random opening hands.
-Tests cover: initialization, playing cards, playing ink, questing,
-challenging, keywords, triggered abilities, turn management, win condition.
+Group 3 (later): Full set data via community dataset migration
 
 ---
 
-## Known Gaps / Next Steps (Priority Order)
+## Explicitly Out of Scope
 
-### 1. Pending choice UI (Most Important)
-**Problem:** When an effect requires target selection (Merlin's ability,
-Fire the Cannons), the engine sets `state.pendingChoice` and the game
-freezes. The UI has no way to resolve it.
-
-**What needs building:**
-- Detect `pendingChoice` in state
-- Highlight valid target cards (`pendingChoice.validTargets`)
-- On click, dispatch `RESOLVE_CHOICE` with the chosen instanceId
-- Handle the "no valid targets" edge case
-
-### 2. Expand card pool
-After pending choice works, add the next 20-30 cards. Strategy: pick cards
-that cover mechanics not yet implemented, not just popular cards.
-
-Community card data source: https://github.com/lorcanito/lorcana-data
-
-### 3. Better board UI
-Current cards are tiny stat boxes. Need:
-- Proper card layout with name, stats, abilities text
-- Visual distinction between exerted/ready
-- Damage counter display
-- Zone labels and card counts
-
-### 4. Full set data ingestion
-Pull from community JSON dataset instead of hand-entering cards.
-Requires mapping their schema to our `CardDefinition` type.
-
-### 5. Multiplayer (Future)
-See multiplayer path above. Don't start until engine is solid and
-card pool is meaningful.
+- Human-playable game board UI
+- Multiplayer / networking
+- Auth / user accounts
+- Deck builder UI (paste decklist is sufficient)
+- Card images
+- Mobile support
+- Real-time game play
+- Bot AI beyond GreedyBot heuristics
 
 ---
 
-## Future Projects (Not V1)
+## Open Questions
 
-### Judge / Rules Oracle Tool
-**Concept:** Hybrid of engine data + RAG over comprehensive rules PDF.
+**IP / Legal**
+Fan simulators operate in a grey zone (Disney/Ravensburger own Lorcana).
+Research before going public. Affects distribution approach.
 
-**Architecture:**
-- Simple card questions ("what does Gaston cost?") → answered directly
-  from card definitions, deterministically, no LLM needed
-- Rules questions ("what does Bodyguard do?") → RAG over rules PDF with
-  strict citation requirement
-- Complex interactions → both sources + LLM reasoning, always show sources,
-  flag low confidence
+**Card images**
+Not needed for analytics. Decision deferred until UI phase.
 
-**Key insight:** Card implementations in the engine are a first-class data
-source for the judge tool. As more cards are implemented, the judge tool
-gets more accurate automatically. The two projects reinforce each other.
+**Replay encoding format**
+For Layer 4 tests, need a format to encode real games as action sequences.
+JSON seems right but exact schema TBD.
 
-**Hallucination mitigations:**
-1. RAG — model reasons from retrieved text, not memory
-2. Forced citation — must cite rule section, can't answer without one
-3. Engine validation — LLM claims can be spot-checked against engine
-4. Confidence flagging — low confidence answers get visible warnings
-5. Community correction layer (later) — users flag wrong answers
-
-**When to build:** After meaningful card pool exists (50+ cards).
-Not worth building now with only 20 sample cards.
-
-**Note:** The comprehensive rules PDF covers mechanics abstractly.
-Individual card rulings are covered by card implementations in the engine.
-Neither source alone is complete — the hybrid approach covers both.
-
-### Sealed/Draft Simulator
-**Concept:** Generate accurate booster packs, build a sealed deck, playtest it.
-Useful for prerelease practice.
-
-**Why it's interesting:** Less covered than full simulator or pack opening
-sites. The sealed deck building + playtesting loop has standalone value.
-
-**Dependency:** Needs the full simulator working underneath it.
-Pack generation needs accurate pull rates (documented by community).
-
-**When to build:** After v1 simulator is solid and has real card data.
+**GreedyBot ink selection heuristic**
+When inking a card, which should GreedyBot choose?
+Options: lowest cost, highest cost, most copies in deck.
+Deferred until GreedyBot implementation.
 
 ---
 
-## Workflow Notes
+## Workflow
 
-### Claude.ai vs Claude Code
-- **Claude.ai** (here) — strategy, architecture, tradeoffs, planning
-- **Claude Code** — implementation, running tests, editing files, refactoring
+### Claude.ai
+Strategy, architecture, tradeoffs, spec refinement.
+Use for: thinking through problems before coding them.
 
-They don't share memory. To maintain context:
-1. Keep this file updated with decisions
-2. Keep README.md updated with technical details
-3. Paste relevant sections at start of new sessions
+### Claude Code
+Implementation, running tests, editing files, refactoring.
+Use for: building what was decided here.
+
+Neither tool has memory between sessions.
+
+### Maintaining context
+1. Keep SPEC.md updated — what to build
+2. Keep DECISIONS.md updated — why decisions were made
+3. Keep README.md updated — how to set things up
+4. Update "Current status" in SPEC.md Claude Code prompt each session
 
 ### Starting a new Claude Code session
-Paste this at the start:
 ```
-This is a Lorcana TCG simulator monorepo. Engine in packages/engine 
-(pure TypeScript rule engine, no browser deps). UI in packages/ui 
-(React + Zustand). All 43 tests passing. Read DECISIONS.md and README.md 
-for full context. 
-```
+Read SPEC.md, DECISIONS.md, and README.md.
 
-Then describe what you want to work on.
+Current status:
+- engine package: [done / in progress / not started]
+- simulator package: [done / in progress / not started]
+- analytics package: [done / in progress / not started]
+- ui package: [done / in progress / not started]
+
+[Describe what you want to work on this session]
+```
 
 ### Starting a new Claude.ai session
-Paste this at the start:
 ```
-I'm building a Lorcana TCG simulator. Read the attached DECISIONS.md 
-for full context on what's been decided and what's next.
+I am building a Lorcana TCG headless analytics engine.
+Read DECISIONS.md and SPEC.md for full context.
+[Describe what you want to discuss]
 ```
-Then attach or paste the relevant sections of this file.
 
 ---
 
-## Open Questions (Unresolved)
-
-- **Card images:** Host them ourselves, link to community sources, or skip
-  for now and use text-only cards? Legal/IP implications unclear.
-- **IP/Legal:** Fan simulators operate in a grey zone. How Duels.ink handles
-  this is worth researching before going public.
-- **Mobile:** Desktop-first for now. Touch interactions for a card game UI
-  are non-trivial. Revisit after desktop is solid.
-- **Spectator mode:** Interesting for multiplayer but significantly
-  complicates real-time architecture. Defer.
-- **Replay system:** Useful for debugging engine bugs and fun for users.
-  GameState is already serializable so technically feasible. Defer.
-
----
-
-*Last updated: Session 1 — Initial architecture and v1 boilerplate*
+*Last updated: Session 2 — Pivot to headless analytics direction*
