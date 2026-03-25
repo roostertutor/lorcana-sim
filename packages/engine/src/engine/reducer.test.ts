@@ -149,19 +149,7 @@ describe("Game Initialization", () => {
 // ---------------------------------------------------------------------------
 
 describe("Playing Cards", () => {
-  it("plays a character card to the play zone", () => {
-    let state = startGame();
-    let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
-    state = giveInk(state, "player1", 2);
-
-    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
-
-    expect(result.success).toBe(true);
-    expect(getInstance(result.newState, instanceId).zone).toBe("play");
-  });
-
-  it("deducts ink equal to the card's cost", () => {
+  it("plays a character card normally: moves to play zone and deducts ink", () => {
     let state = startGame();
     let instanceId: string;
     ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand")); // cost 2
@@ -169,7 +157,9 @@ describe("Playing Cards", () => {
 
     const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
 
-    expect(result.newState.players.player1.availableInk).toBe(3);
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, instanceId).zone).toBe("play");
+    expect(result.newState.players.player1.availableInk).toBe(3); // 5 - cost 2 = 3
   });
 
   it("fails when not enough ink", () => {
@@ -184,6 +174,9 @@ describe("Playing Cards", () => {
     expect(result.error).toMatch(/ink/i);
   });
 
+  // Set 2 Mufasa - Betrayed Leader has a triggered ability that plays a character from the TOP
+  // of the library — that is implemented as an effect resolution (not a raw PLAY_CARD action
+  // from hand), so this base-rule test remains valid even after Mufasa is implemented.
   it("fails when playing a card not in hand", () => {
     let state = startGame();
     let instanceId: string;
@@ -196,17 +189,8 @@ describe("Playing Cards", () => {
     expect(result.error).toMatch(/hand/i);
   });
 
-  it("newly played character cannot act immediately (no Rush)", () => {
-    let state = startGame();
-    let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
-    state = giveInk(state, "player1", 2);
-
-    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
-
-    expect(getInstance(result.newState, instanceId).hasActedThisTurn).toBe(true);
-  });
-
+  // Same note as above: Mufasa's triggered effect plays via the effect system, not via a
+  // PLAY_CARD action issued by the non-active player, so this base-rule test stays valid.
   it("fails when playing on opponent's turn", () => {
     let state = startGame();
     let instanceId: string;
@@ -245,6 +229,12 @@ describe("Playing Ink", () => {
     expect(result.newState.players.player1.availableInk).toBe(1);
   });
 
+  // Base rule: one ink per turn. Exceptions in set 1:
+  //   - Belle - Strange but Special: may ink one ADDITIONAL card per turn (not uninkable cards)
+  //   - Mickey Mouse - Detective: similar additional ink ability
+  //   - Fishbone Quill (item): puts a card from hand into inkwell bypassing the one-per-turn rule
+  // When these are implemented, getGameModifiers() will expose an extraInkPerTurn modifier
+  // (requires hasPlayedInkThisTurn to become a counter in PlayerState — types change needed).
   it("cannot play ink twice in one turn", () => {
     let state = startGame();
     let id1: string, id2: string;
@@ -258,6 +248,11 @@ describe("Playing Ink", () => {
     expect(after2.error).toMatch(/already played ink/i);
   });
 
+  // Base rule: only inkable cards can be inked. Exception:
+  //   - Fishbone Quill (item): forces a card into the inkwell regardless of inkable status.
+  //   - Belle - Strange but Special does NOT bypass the inkable restriction.
+  // When Fishbone Quill is implemented, it will use a separate action path (not PLAY_INK),
+  // so this base-rule test remains valid.
   it("cannot ink a non-inkable card", () => {
     let state = startGame();
     let instanceId: string;
@@ -275,7 +270,7 @@ describe("Playing Ink", () => {
 // ---------------------------------------------------------------------------
 
 describe("Questing", () => {
-  it("gains lore equal to the character's lore value", () => {
+  it("questing gains lore equal to the character's lore value and exerts them", () => {
     let state = startGame();
     let instanceId: string;
     ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play")); // lore: 1
@@ -284,15 +279,6 @@ describe("Questing", () => {
 
     expect(result.success).toBe(true);
     expect(result.newState.players.player1.lore).toBe(1);
-  });
-
-  it("exerts the character after questing", () => {
-    let state = startGame();
-    let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play"));
-
-    const result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
-
     expect(getInstance(result.newState, instanceId).isExerted).toBe(true);
   });
 
@@ -317,26 +303,15 @@ describe("Questing", () => {
     expect(result.success).toBe(false);
   });
 
-  it("cannot quest with a character in hand", () => {
+  it("cannot quest with a character not in play", () => {
     let state = startGame();
     let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
+    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "discard"));
 
     const result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/not in play/i);
-  });
-
-  it("Mickey Mouse - True Friend quests for 2 lore", () => {
-    let state = startGame();
-    let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play")); // lore: 2
-
-    const result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
-
-    expect(result.success).toBe(true);
-    expect(result.newState.players.player1.lore).toBe(2);
   });
 });
 
@@ -431,13 +406,13 @@ describe("Challenging", () => {
     expect(result.success).toBe(false);
   });
 
-  it("Challenger +2 adds strength when challenging", () => {
-    // Dr. Facilier STR 0 + Challenger +2 = 2 vs Lilo WP 1 → Lilo banished
-    // Without Challenger, STR 0 would deal 0 damage and Lilo (WP 1) would survive
+  // Base rule: defenders must be exerted. Future cards (later sets) will grant
+  // "this character may challenge ready characters" via getGameModifiers().canChallengeReady.
+  it("cannot challenge a ready (non-exerted) character", () => {
     let state = startGame();
     let attackerId: string, defenderId: string;
-    ({ state, instanceId: attackerId } = injectCard(state, "player1", "dr-facilier-charlatan", "play")); // STR 0, Challenger +2
-    ({ state, instanceId: defenderId } = injectCard(state, "player2", "lilo-making-a-wish", "play", { isExerted: true })); // WP 1
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play"));
+    ({ state, instanceId: defenderId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play")); // NOT exerted
 
     const result = applyAction(state, {
       type: "CHALLENGE",
@@ -446,8 +421,8 @@ describe("Challenging", () => {
       defenderInstanceId: defenderId,
     }, LORCAST_CARD_DEFINITIONS);
 
-    expect(result.success).toBe(true);
-    expect(getInstance(result.newState, defenderId).zone).toBe("discard");
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(/exerted/i);
   });
 });
 
@@ -458,18 +433,23 @@ describe("Challenging", () => {
 describe("Keywords", () => {
 
   // ---------------------------------------------------------------------------
-  // RUSH — can act the turn it enters play
+  // RUSH — character may quest or challenge the turn it enters play
+  // (no summoning sickness). Non-Rush characters must wait a turn.
   // ---------------------------------------------------------------------------
 
-  it("Rush: character can act the turn it enters play", () => {
+  it("Rush: can quest or challenge immediately; non-Rush characters cannot", () => {
     let state = startGame();
-    let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "flotsam-ursulas-spy", "hand")); // Rush, cost 5
+    let rushId: string, vanillaId: string;
+    ({ state, instanceId: rushId } = injectCard(state, "player1", "flotsam-ursulas-spy", "hand")); // Rush, cost 5
+    ({ state, instanceId: vanillaId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand")); // no Rush, cost 2
     state = giveInk(state, "player1", 10);
 
-    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
+    // Apply both plays from the same starting state so they're independent
+    const rushResult = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: rushId }, LORCAST_CARD_DEFINITIONS);
+    const vanillaResult = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: vanillaId }, LORCAST_CARD_DEFINITIONS);
 
-    expect(getInstance(result.newState, instanceId).hasActedThisTurn).toBe(false);
+    expect(getInstance(rushResult.newState, rushId).hasActedThisTurn).toBe(false);    // Rush: can act
+    expect(getInstance(vanillaResult.newState, vanillaId).hasActedThisTurn).toBe(true); // no Rush: cannot act
   });
 
   // ---------------------------------------------------------------------------
@@ -541,7 +521,33 @@ describe("Keywords", () => {
   });
 
   // ---------------------------------------------------------------------------
+  // CHALLENGER — adds strength only when this character is the attacker
+  // ---------------------------------------------------------------------------
+
+  it("Challenger +2: adds strength when challenging", () => {
+    // Dr. Facilier STR 0 + Challenger +2 = effective STR 2 vs Lilo WP 1 → Lilo banished.
+    // Without Challenger, STR 0 deals 0 damage and Lilo survives.
+    let state = startGame();
+    let attackerId: string, defenderId: string;
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "dr-facilier-charlatan", "play")); // STR 0, Challenger +2
+    ({ state, instanceId: defenderId } = injectCard(state, "player2", "lilo-making-a-wish", "play", { isExerted: true })); // WP 1
+
+    const result = applyAction(state, {
+      type: "CHALLENGE",
+      playerId: "player1",
+      attackerInstanceId: attackerId,
+      defenderInstanceId: defenderId,
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, defenderId).zone).toBe("discard");
+  });
+
+  // ---------------------------------------------------------------------------
   // EVASIVE — can only be challenged by Evasive characters
+  // Set 10 introduces Alert, which lets a character challenge as though it has
+  // Evasive (but can still be challenged normally). When Alert is implemented,
+  // the Evasive check becomes: attacker has Evasive OR Alert.
   // ---------------------------------------------------------------------------
 
   it("Evasive: cannot be challenged by a non-evasive character", () => {

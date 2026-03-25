@@ -20,7 +20,7 @@ deck analytics, win rates, consistency metrics, and card evaluation.
 
 | Package | Status | Notes |
 |---|---|---|
-| `@lorcana-sim/engine` | ✅ Done | 43 tests passing |
+| `@lorcana-sim/engine` | ✅ Done | 51 tests passing |
 | `@lorcana-sim/simulator` | ✅ Done | Layer 3 invariants (1000 games) passing |
 | `@lorcana-sim/analytics` | ✅ Done | 15 tests passing |
 | `@lorcana-sim/cli` | ✅ Done | analyze, compare, optimize, sweep |

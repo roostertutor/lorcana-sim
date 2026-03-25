@@ -19,6 +19,7 @@ import {
   hasKeyword,
   isMainPhase,
 } from "../utils/index.js";
+import { getGameModifiers } from "./gameModifiers.js";
 
 export interface ValidationResult {
   valid: boolean;
@@ -159,6 +160,19 @@ function validateChallenge(
   const opponent = getOpponent(playerId);
   if (defender.ownerId !== opponent) return fail("Can only challenge opponent's cards.");
   if (defender.zone !== "play") return fail("Defender is not in play.");
+
+  const modifiers = getGameModifiers(state, definitions);
+
+  // Default rule: only exerted characters can be challenged.
+  // Future cards (e.g. a card granting "this character may challenge ready characters")
+  // add the attacker's instanceId to modifiers.canChallengeReady to bypass this.
+  if (!defender.isExerted && !modifiers.canChallengeReady.has(attackerInstanceId)) {
+    return fail("Can only challenge exerted characters.");
+  }
+
+  if (modifiers.cantBeChallenged.has(defenderInstanceId)) {
+    return fail("This character cannot be challenged.");
+  }
 
   const defenderDef = getDefinition(state, defenderInstanceId, definitions);
   const opponentPlay = getZone(state, opponent, "play");
