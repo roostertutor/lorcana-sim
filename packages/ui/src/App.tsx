@@ -1,0 +1,101 @@
+import React, { useState } from "react";
+import { SAMPLE_CARD_DEFINITIONS, parseDecklist } from "@lorcana-sim/engine";
+import type { DeckEntry } from "@lorcana-sim/engine";
+import DeckInput from "./pages/DeckInput.js";
+import CompositionView from "./pages/CompositionView.js";
+import SimulationView from "./pages/SimulationView.js";
+import ComparisonView from "./pages/ComparisonView.js";
+import WeightExplorer from "./pages/WeightExplorer.js";
+
+type Tab = "deck" | "composition" | "simulate" | "compare" | "weights";
+
+const TABS: { id: Tab; label: string; requiresDeck?: boolean }[] = [
+  { id: "deck", label: "Deck Input" },
+  { id: "composition", label: "Composition", requiresDeck: true },
+  { id: "simulate", label: "Simulate", requiresDeck: true },
+  { id: "compare", label: "Compare" },
+  { id: "weights", label: "Weight Explorer", requiresDeck: true },
+];
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState<Tab>("deck");
+  const [deckText, setDeckText] = useState("");
+  const [deck, setDeck] = useState<DeckEntry[] | null>(null);
+  const [parseErrors, setParseErrors] = useState<string[]>([]);
+
+  function handleDeckChange(text: string) {
+    setDeckText(text);
+    if (!text.trim()) {
+      setDeck(null);
+      setParseErrors([]);
+      return;
+    }
+    const { entries, errors } = parseDecklist(text, SAMPLE_CARD_DEFINITIONS);
+    setDeck(entries.length > 0 ? entries : null);
+    setParseErrors(errors);
+  }
+
+  const totalCards = deck?.reduce((s, e) => s + e.count, 0) ?? 0;
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      {/* Header */}
+      <header className="border-b border-gray-800 bg-gray-950/80 backdrop-blur sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
+          <span className="text-amber-400 text-xl font-bold tracking-tight">⬡ Lorcana Sim</span>
+          <span className="text-gray-600 text-sm hidden sm:block">headless analytics engine</span>
+          {deck && (
+            <span className="ml-auto text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded-full">
+              {totalCards} cards loaded
+            </span>
+          )}
+        </div>
+      </header>
+
+      {/* Tabs */}
+      <nav className="border-b border-gray-800 bg-gray-950">
+        <div className="max-w-6xl mx-auto px-4 py-2 flex gap-1 flex-wrap">
+          {TABS.map((t) => {
+            const disabled = t.requiresDeck && !deck;
+            return (
+              <button
+                key={t.id}
+                onClick={() => !disabled && setActiveTab(t.id)}
+                className={activeTab === t.id ? "tab-active" : "tab-inactive"}
+                disabled={disabled}
+                title={disabled ? "Load a deck first" : undefined}
+              >
+                {t.label}
+              </button>
+            );
+          })}
+        </div>
+      </nav>
+
+      {/* Content */}
+      <main className="flex-1 max-w-6xl mx-auto w-full px-4 py-6">
+        {activeTab === "deck" && (
+          <DeckInput
+            deckText={deckText}
+            parseErrors={parseErrors}
+            deck={deck}
+            onChange={handleDeckChange}
+            onAnalyze={() => deck && setActiveTab("composition")}
+          />
+        )}
+        {activeTab === "composition" && deck && (
+          <CompositionView deck={deck} definitions={SAMPLE_CARD_DEFINITIONS} />
+        )}
+        {activeTab === "simulate" && deck && (
+          <SimulationView deck={deck} definitions={SAMPLE_CARD_DEFINITIONS} />
+        )}
+        {activeTab === "compare" && (
+          <ComparisonView definitions={SAMPLE_CARD_DEFINITIONS} />
+        )}
+        {activeTab === "weights" && deck && (
+          <WeightExplorer deck={deck} definitions={SAMPLE_CARD_DEFINITIONS} />
+        )}
+      </main>
+    </div>
+  );
+}
