@@ -1,7 +1,7 @@
 # CLAUDE.md
 # Automatically read by Claude Code every session.
 # Keep this file current. Update "Current Status" at the start of each session.
-# For full context: SPEC.md (what/how) and DECISIONS.md (why).
+# For full context: docs/SPEC.md (what/how) and docs/DECISIONS.md (why).
 
 ---
 

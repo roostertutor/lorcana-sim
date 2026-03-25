@@ -1,8 +1,8 @@
 # SPEC.md
 # Full specification: what to build and how.
 # Read this when starting a new package or major feature.
-# For standing instructions Claude Code needs every session, see CLAUDE.md.
-# For why decisions were made, see DECISIONS.md.
+# For standing instructions Claude Code needs every session, see CLAUDE.md (root).
+# For why decisions were made, see docs/DECISIONS.md.
 
 ---
 

@@ -1,7 +1,7 @@
 # DECISIONS.md
 # Why decisions were made. What was considered and rejected.
-# For what to build: SPEC.md
-# For standing Claude Code instructions: CLAUDE.md
+# For what to build: docs/SPEC.md
+# For standing Claude Code instructions: CLAUDE.md (root)
 
 ---
 
@@ -187,7 +187,7 @@ Deferred until crowdsourcing phase.
 
 Claude.ai — strategy, architecture, tradeoffs, spec refinement.
 Claude Code — implementation, tests, file editing.
-Neither has memory between sessions. CLAUDE.md, SPEC.md, DECISIONS.md
+Neither has memory between sessions. CLAUDE.md, docs/SPEC.md, docs/DECISIONS.md
 are the project memory. Update them at the end of every significant session.
 
 ---
