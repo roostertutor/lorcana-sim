@@ -460,8 +460,8 @@ average game length 6-15 turns, draw rate near 0%.
 ## Card Data
 
 Current: 20 sample cards. Sufficient for engine dev only.
-Path to real data: https://github.com/lorcanito/lorcana-data
-Write a migration script. Do not hand-enter full sets.
+Path to real data: TBD — needs research. Do not hand-enter full sets.
+Write a migration script once a reliable source is confirmed.
 
 ---
 
