@@ -6,7 +6,7 @@
 // Prints the winning weights and their win rate.
 // =============================================================================
 
-import { SAMPLE_CARD_DEFINITIONS } from "@lorcana-sim/engine";
+import { LORCAST_CARD_DEFINITIONS } from "@lorcana-sim/engine";
 import { findOptimalWeights, runGame } from "@lorcana-sim/simulator";
 import { ProbabilityBot, MidrangeWeights } from "@lorcana-sim/simulator";
 import { loadDeck } from "../loadDeck.js";
@@ -19,7 +19,7 @@ export interface OptimizeArgs {
 }
 
 export function runOptimize(args: OptimizeArgs): void {
-  const definitions = SAMPLE_CARD_DEFINITIONS;
+  const definitions = LORCAST_CARD_DEFINITIONS;
   const deck = loadDeck(args.deck, definitions);
   const opponentBot = resolveBot(args.opponent);
 

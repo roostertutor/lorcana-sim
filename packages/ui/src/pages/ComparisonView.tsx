@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react";
 import type { CardDefinition, DeckEntry } from "@lorcana-sim/engine";
-import { parseDecklist, SAMPLE_CARD_DEFINITIONS } from "@lorcana-sim/engine";
+import { parseDecklist, LORCAST_CARD_DEFINITIONS } from "@lorcana-sim/engine";
 import {
   runSimulation, GreedyBot, ProbabilityBot,
   AggroWeights, ControlWeights, MidrangeWeights, RushWeights,
@@ -17,12 +17,21 @@ const BOT_OPTIONS: { id: string; label: string; bot: () => BotStrategy }[] = [
   { id: "rush", label: "Rush", bot: () => ProbabilityBot(RushWeights) },
 ];
 
-const SAMPLE = `10 Simba - Protective Cub
-10 Stitch - Rock Star
-10 Beast - Hardheaded
-10 Moana - Of Motunui
-10 Hercules - Hero in Training
-10 Tinker Bell - Tiny Tactician`;
+const SAMPLE = `4 HeiHei - Boat Snack
+4 Stitch - New Dog
+4 Simba - Protective Cub
+4 Minnie Mouse - Beloved Princess
+4 Sebastian - Court Composer
+4 Mickey Mouse - True Friend
+4 Mr. Smee - Loyal First Mate
+4 Cinderella - Gentle and Kind
+4 Elsa - Queen Regent
+4 Pumbaa - Friendly Warthog
+4 Maximus - Palace Horse
+4 The Queen - Wicked and Vain
+4 Sven - Official Ice Deliverer
+4 Stitch - Abomination
+4 Mufasa - King of the Pride Lands`;
 
 function pct(n: number) {
   return (n * 100).toFixed(1) + "%";
@@ -74,7 +83,7 @@ export default function ComparisonView({ definitions }: Props) {
   const [matchup, setMatchup] = useState<MatchupStats | null>(null);
 
   function parseDeck(text: string): { entries: DeckEntry[]; errors: string[] } {
-    return parseDecklist(text, SAMPLE_CARD_DEFINITIONS);
+    return parseDecklist(text, LORCAST_CARD_DEFINITIONS);
   }
 
   const parsed1 = parseDeck(text1);

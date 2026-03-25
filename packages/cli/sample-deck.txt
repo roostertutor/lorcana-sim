@@ -1,7 +1,17 @@
-# Sample deck — uses SAMPLE_CARD_DEFINITIONS
-10 Simba - Protective Cub
-10 Stitch - Rock Star
-10 Beast - Hardheaded
-10 Moana - Of Motunui
-10 Hercules - Hero in Training
-10 Tinker Bell - Tiny Tactician
+# Sample deck — The First Chapter (set 1), keyword-only cards
+# Balanced cost curve across all six ink colors
+4 HeiHei - Boat Snack
+4 Stitch - New Dog
+4 Simba - Protective Cub
+4 Minnie Mouse - Beloved Princess
+4 Sebastian - Court Composer
+4 Mickey Mouse - True Friend
+4 Mr. Smee - Loyal First Mate
+4 Cinderella - Gentle and Kind
+4 Elsa - Queen Regent
+4 Pumbaa - Friendly Warthog
+4 Maximus - Palace Horse
+4 The Queen - Wicked and Vain
+4 Sven - Official Ice Deliverer
+4 Stitch - Abomination
+4 Mufasa - King of the Pride Lands

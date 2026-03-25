@@ -1,13 +1,22 @@
 import React from "react";
 import type { DeckEntry } from "@lorcana-sim/engine";
 
-const SAMPLE_DECKLIST = `# Sample deck — 60 cards
-10 Simba - Protective Cub
-10 Stitch - Rock Star
-10 Beast - Hardheaded
-10 Moana - Of Motunui
-10 Hercules - Hero in Training
-10 Tinker Bell - Tiny Tactician`;
+const SAMPLE_DECKLIST = `# Sample deck — The First Chapter (set 1)
+4 HeiHei - Boat Snack
+4 Stitch - New Dog
+4 Simba - Protective Cub
+4 Minnie Mouse - Beloved Princess
+4 Sebastian - Court Composer
+4 Mickey Mouse - True Friend
+4 Mr. Smee - Loyal First Mate
+4 Cinderella - Gentle and Kind
+4 Elsa - Queen Regent
+4 Pumbaa - Friendly Warthog
+4 Maximus - Palace Horse
+4 The Queen - Wicked and Vain
+4 Sven - Official Ice Deliverer
+4 Stitch - Abomination
+4 Mufasa - King of the Pride Lands`;
 
 interface Props {
   deckText: string;
@@ -42,7 +51,7 @@ export default function DeckInput({ deckText, parseErrors, deck, onChange, onAna
         </div>
         <textarea
           className="w-full h-64 bg-gray-950 border border-gray-700 rounded-lg p-3 text-sm font-mono text-gray-200 focus:outline-none focus:border-amber-500 resize-none"
-          placeholder={"10 Simba - Protective Cub\n10 Stitch - Rock Star\n..."}
+          placeholder={"4 HeiHei - Boat Snack\n4 Stitch - New Dog\n4 Mickey Mouse - True Friend\n..."}
           value={deckText}
           onChange={(e) => onChange(e.target.value)}
           spellCheck={false}
@@ -70,25 +79,13 @@ export default function DeckInput({ deckText, parseErrors, deck, onChange, onAna
         )}
       </div>
 
-      {/* Available cards hint */}
+      {/* Card data hint */}
       <div className="card">
-        <p className="label">Available sample cards</p>
-        <p className="text-xs text-gray-500 mb-2">
-          Currently using SAMPLE_CARD_DEFINITIONS (20 cards). Real card data: github.com/lorcanito/lorcana-data
+        <p className="label">Card database</p>
+        <p className="text-xs text-gray-500">
+          The First Chapter — 216 cards. Source: Lorcast API (lorcast.com/docs/api).
+          Cards with named abilities are simulated as vanilla until implemented.
         </p>
-        <div className="grid grid-cols-2 gap-1 text-xs text-gray-400 font-mono">
-          <span>Simba - Protective Cub</span>
-          <span>Stitch - Rock Star</span>
-          <span>Beast - Hardheaded</span>
-          <span>Moana - Of Motunui</span>
-          <span>Hercules - Hero in Training</span>
-          <span>Tinker Bell - Tiny Tactician</span>
-          <span>Rapunzel - Gifted Artist</span>
-          <span>Mickey Mouse - True Friend</span>
-          <span>Genie - On the Job</span>
-          <span>Elsa - Snow Queen</span>
-          <span>+ 10 more...</span>
-        </div>
       </div>
     </div>
   );

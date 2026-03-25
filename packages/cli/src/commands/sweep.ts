@@ -6,7 +6,7 @@
 // prints a win-rate table, and runs analyzeWeightSensitivity.
 // =============================================================================
 
-import { SAMPLE_CARD_DEFINITIONS } from "@lorcana-sim/engine";
+import { LORCAST_CARD_DEFINITIONS } from "@lorcana-sim/engine";
 import { sweepWeightSpace, MidrangeWeights } from "@lorcana-sim/simulator";
 import type { BotWeights } from "@lorcana-sim/simulator";
 import { analyzeWeightSensitivity } from "@lorcana-sim/analytics";
@@ -36,7 +36,7 @@ function buildWeightGrid(): BotWeights[] {
 }
 
 export function runSweep(args: SweepArgs): void {
-  const definitions = SAMPLE_CARD_DEFINITIONS;
+  const definitions = LORCAST_CARD_DEFINITIONS;
   const deck = loadDeck(args.deck, definitions);
   const opponentBot = resolveBot(args.opponent);
 

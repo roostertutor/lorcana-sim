@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { SAMPLE_CARD_DEFINITIONS, parseDecklist } from "@lorcana-sim/engine";
+import { LORCAST_CARD_DEFINITIONS, parseDecklist } from "@lorcana-sim/engine";
 import type { DeckEntry } from "@lorcana-sim/engine";
 import DeckInput from "./pages/DeckInput.js";
 import CompositionView from "./pages/CompositionView.js";
@@ -30,7 +30,7 @@ export default function App() {
       setParseErrors([]);
       return;
     }
-    const { entries, errors } = parseDecklist(text, SAMPLE_CARD_DEFINITIONS);
+    const { entries, errors } = parseDecklist(text, LORCAST_CARD_DEFINITIONS);
     setDeck(entries.length > 0 ? entries : null);
     setParseErrors(errors);
   }
@@ -84,16 +84,16 @@ export default function App() {
           />
         )}
         {activeTab === "composition" && deck && (
-          <CompositionView deck={deck} definitions={SAMPLE_CARD_DEFINITIONS} />
+          <CompositionView deck={deck} definitions={LORCAST_CARD_DEFINITIONS} />
         )}
         {activeTab === "simulate" && deck && (
-          <SimulationView deck={deck} definitions={SAMPLE_CARD_DEFINITIONS} />
+          <SimulationView deck={deck} definitions={LORCAST_CARD_DEFINITIONS} />
         )}
         {activeTab === "compare" && (
-          <ComparisonView definitions={SAMPLE_CARD_DEFINITIONS} />
+          <ComparisonView definitions={LORCAST_CARD_DEFINITIONS} />
         )}
         {activeTab === "weights" && deck && (
-          <WeightExplorer deck={deck} definitions={SAMPLE_CARD_DEFINITIONS} />
+          <WeightExplorer deck={deck} definitions={LORCAST_CARD_DEFINITIONS} />
         )}
       </main>
     </div>
