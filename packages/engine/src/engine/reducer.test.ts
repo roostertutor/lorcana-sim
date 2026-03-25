@@ -27,7 +27,8 @@ import type { CardInstance, GameState, DeckEntry } from "../index.js";
 // hades-lord-of-the-underworld   STR 3  WP 2  lore 1  cost 4  inkable: false
 // hades-king-of-olympus          STR 6  WP 7  lore 1  cost 8  inkable: false  Shift 6  shiftCost 6
 // maleficent-sorceress           STR 2  WP 2  lore 1  cost 3  inkable         enters_play: draw 1
-// the-queen-wicked-and-vain      STR 4  WP 5  lore 1  cost 5  inkable         ↷,2⬡: chosen char -2 STR
+// the-queen-wicked-and-vain      STR 4  WP 5  lore 1  cost 5  inkable         ↷: draw a card (I SUMMON THEE)
+// eye-of-the-fates               item          cost 4  inkable                 ↷: chosen char +1 lore this turn (SEE THE FUTURE)
 // ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
@@ -492,16 +493,16 @@ describe("Keywords", () => {
   });
 
   it("Ward: character cannot be chosen as the target of an opponent's effect", () => {
+    // Eye of the Fates: ↷ → chosen character gets +1 lore this turn
     let state = startGame();
-    let queenId: string, aladdinId: string;
-    ({ state, instanceId: queenId } = injectCard(state, "player1", "the-queen-wicked-and-vain", "play"));
+    let eyeId: string, aladdinId: string;
+    ({ state, instanceId: eyeId } = injectCard(state, "player1", "eye-of-the-fates", "play"));
     ({ state, instanceId: aladdinId } = injectCard(state, "player2", "aladdin-prince-ali", "play")); // Ward
-    state = giveInk(state, "player1", 10);
 
     const activateResult = applyAction(state, {
       type: "ACTIVATE_ABILITY",
       playerId: "player1",
-      instanceId: queenId,
+      instanceId: eyeId,
       abilityIndex: 0,
     }, LORCAST_CARD_DEFINITIONS);
     expect(activateResult.success).toBe(true);
@@ -518,15 +519,14 @@ describe("Keywords", () => {
 
   it("Ward: your own character with Ward CAN be targeted by your own effects", () => {
     let state = startGame();
-    let queenId: string, aladdinId: string;
-    ({ state, instanceId: queenId } = injectCard(state, "player1", "the-queen-wicked-and-vain", "play"));
+    let eyeId: string, aladdinId: string;
+    ({ state, instanceId: eyeId } = injectCard(state, "player1", "eye-of-the-fates", "play"));
     ({ state, instanceId: aladdinId } = injectCard(state, "player1", "aladdin-prince-ali", "play")); // own Ward character
-    state = giveInk(state, "player1", 10);
 
     const activateResult = applyAction(state, {
       type: "ACTIVATE_ABILITY",
       playerId: "player1",
-      instanceId: queenId,
+      instanceId: eyeId,
       abilityIndex: 0,
     }, LORCAST_CARD_DEFINITIONS);
     expect(activateResult.success).toBe(true);
@@ -731,37 +731,35 @@ describe("Keywords", () => {
 // ---------------------------------------------------------------------------
 
 describe("Activated Abilities", () => {
-  it("exerts the card and deducts ink on activation", () => {
-    // The Queen: ↷, 2⬡ → exerts herself and costs 2 ink
+  it("The Queen I SUMMON THEE: exerts her and draws a card", () => {
+    // The Queen - Wicked and Vain: ↷ → draw a card
     let state = startGame();
-    let queenId: string, targetId: string;
+    let queenId: string;
     ({ state, instanceId: queenId } = injectCard(state, "player1", "the-queen-wicked-and-vain", "play"));
-    ({ state, instanceId: targetId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play"));
-    state = giveInk(state, "player1", 5);
+    const handBefore = getZone(state, "player1", "hand").length;
 
-    const activateResult = applyAction(state, {
+    const result = applyAction(state, {
       type: "ACTIVATE_ABILITY",
       playerId: "player1",
       instanceId: queenId,
       abilityIndex: 0,
     }, LORCAST_CARD_DEFINITIONS);
 
-    expect(activateResult.success).toBe(true);
-    expect(getInstance(activateResult.newState, queenId).isExerted).toBe(true);
-    expect(activateResult.newState.players.player1.availableInk).toBe(3);
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, queenId).isExerted).toBe(true);
+    expect(getZone(result.newState, "player1", "hand").length).toBe(handBefore + 1);
   });
 
-  it("applies -2 STR to the chosen target this turn", () => {
+  it("Eye of the Fates SEE THE FUTURE: exerts and gives chosen character +1 lore this turn", () => {
     let state = startGame();
-    let queenId: string, targetId: string;
-    ({ state, instanceId: queenId } = injectCard(state, "player1", "the-queen-wicked-and-vain", "play"));
+    let eyeId: string, targetId: string;
+    ({ state, instanceId: eyeId } = injectCard(state, "player1", "eye-of-the-fates", "play"));
     ({ state, instanceId: targetId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play"));
-    state = giveInk(state, "player1", 5);
 
     const activateResult = applyAction(state, {
       type: "ACTIVATE_ABILITY",
       playerId: "player1",
-      instanceId: queenId,
+      instanceId: eyeId,
       abilityIndex: 0,
     }, LORCAST_CARD_DEFINITIONS);
 
@@ -772,14 +770,13 @@ describe("Activated Abilities", () => {
     }, LORCAST_CARD_DEFINITIONS);
 
     expect(resolveResult.success).toBe(true);
-    expect(getInstance(resolveResult.newState, targetId).tempStrengthModifier).toBe(-2);
+    expect(getInstance(resolveResult.newState, targetId).tempLoreModifier).toBe(1);
   });
 
   it("cannot activate when the card is already exerted", () => {
     let state = startGame();
     let queenId: string;
     ({ state, instanceId: queenId } = injectCard(state, "player1", "the-queen-wicked-and-vain", "play", { isExerted: true }));
-    state = giveInk(state, "player1", 5);
 
     const result = applyAction(state, {
       type: "ACTIVATE_ABILITY",
@@ -790,23 +787,6 @@ describe("Activated Abilities", () => {
 
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/exerted/i);
-  });
-
-  it("cannot activate without enough ink", () => {
-    let state = startGame();
-    let queenId: string;
-    ({ state, instanceId: queenId } = injectCard(state, "player1", "the-queen-wicked-and-vain", "play"));
-    state = giveInk(state, "player1", 1); // needs 2
-
-    const result = applyAction(state, {
-      type: "ACTIVATE_ABILITY",
-      playerId: "player1",
-      instanceId: queenId,
-      abilityIndex: 0,
-    }, LORCAST_CARD_DEFINITIONS);
-
-    expect(result.success).toBe(false);
-    expect(result.error).toMatch(/ink/i);
   });
 });
 

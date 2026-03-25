@@ -1370,16 +1370,15 @@
     "abilities": [
       {
         "type": "activated",
-        "costs": [{ "type": "exert" }, { "type": "pay_ink", "amount": 2 }],
+        "costs": [{ "type": "exert" }],
         "effects": [
           {
-            "type": "gain_stats",
-            "strength": -2,
-            "duration": "this_turn",
-            "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } }
+            "type": "draw",
+            "amount": 1,
+            "target": { "type": "self" }
           }
         ],
-        "reminderText": "↷, 2 ⬡: Chosen character gets -2 {S} this turn."
+        "reminderText": "I SUMMON THEE – ↷: Draw a card."
       }
     ],
     "setId": "1",
@@ -3946,14 +3945,25 @@
     "cost": 4,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "costs": [{ "type": "exert" }],
+        "effects": [
+          {
+            "type": "gain_stats",
+            "lore": 1,
+            "duration": "this_turn",
+            "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } }
+          }
+        ],
+        "reminderText": "SEE THE FUTURE – ↷: Chosen character gets +1 lore this turn."
+      }
+    ],
     "setId": "1",
     "number": 167,
     "rarity": "uncommon",
-    "flavorText": "You can change the future once you know what you're looking at.",
-    "_namedAbilityStubs": [
-      "SEE THE FUTURE {E} — Chosen character gets +1 {L} this turn."
-    ]
+    "flavorText": "You can change the future once you know what you're looking at."
   },
   {
     "id": "fishbone-quill",

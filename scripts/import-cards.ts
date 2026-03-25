@@ -221,8 +221,16 @@ function detectNamedAbilityLines(text: string | null): string[] {
     );
     if (isKeywordLine) continue;
 
-    // Named abilities start with an ALL-CAPS word (2+ capital letters in a row)
-    if (/^[A-Z]{2}/.test(line)) {
+    // Named abilities have an all-caps title (e.g. "I SUMMON THEE", "MIRROR, MIRROR").
+    // Take text before the first separator (em-dash, hyphen, or open-paren),
+    // trim it, and check that it's entirely uppercase letters/spaces/punctuation.
+    // This catches single-word names like "I" that the old ^[A-Z]{2} regex missed.
+    const titlePart = line.split(/\s[–—-]\s|\s*\(/)[0]!.trim();
+    if (
+      titlePart.length > 0 &&
+      titlePart === titlePart.toUpperCase() &&
+      /[A-Z]/.test(titlePart)
+    ) {
       stubs.push(line);
     }
   }
