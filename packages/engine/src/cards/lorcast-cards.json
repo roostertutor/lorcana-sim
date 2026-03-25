@@ -82,7 +82,10 @@
     "subtitle": "Gentle and Kind",
     "strength": 2,
     "willpower": 5,
-    "lore": 2
+    "lore": 2,
+    "_namedAbilityStubs": [
+      "A WONDERFUL DREAM {E} — Remove up to 3 damage from chosen Princess character."
+    ]
   },
   {
     "id": "goofy-musketeer",
@@ -645,7 +648,11 @@
     "abilities": [],
     "setId": "1",
     "number": 25,
-    "rarity": "uncommon"
+    "rarity": "uncommon",
+    "_namedAbilityStubs": [
+      "(A character with cost 2 or more can {E} to sing this song for free.)",
+      "Look at the top 4 cards of your deck. You may reveal a character card and put it into your hand. Put the rest on the bottom of your deck in any order."
+    ]
   },
   {
     "id": "control-your-temper",
@@ -659,7 +666,10 @@
     "abilities": [],
     "setId": "1",
     "number": 26,
-    "rarity": "common"
+    "rarity": "common",
+    "_namedAbilityStubs": [
+      "Chosen character gets -2 {S} this turn."
+    ]
   },
   {
     "id": "hakuna-matata",
@@ -674,7 +684,11 @@
     "setId": "1",
     "number": 27,
     "rarity": "common",
-    "flavorText": "What a wonderful phrase!"
+    "flavorText": "What a wonderful phrase!",
+    "_namedAbilityStubs": [
+      "(A character with cost 4 or more can {E} to sing this song for free.)",
+      "Remove up to 3 damage from each of your characters."
+    ]
   },
   {
     "id": "healing-glow",
@@ -689,7 +703,10 @@
     "setId": "1",
     "number": 28,
     "rarity": "common",
-    "flavorText": "\"Don't freak out!\"\n—Rapunzel"
+    "flavorText": "\"Don't freak out!\"\n—Rapunzel",
+    "_namedAbilityStubs": [
+      "Remove up to 2 damage from chosen character."
+    ]
   },
   {
     "id": "just-in-time",
@@ -704,7 +721,10 @@
     "setId": "1",
     "number": 29,
     "rarity": "rare",
-    "flavorText": "The best heroes always arrive at the perfect moment—whether they know it or not."
+    "flavorText": "The best heroes always arrive at the perfect moment—whether they know it or not.",
+    "_namedAbilityStubs": [
+      "You may play a character with cost 5 or less for free."
+    ]
   },
   {
     "id": "part-of-your-world",
@@ -719,7 +739,11 @@
     "setId": "1",
     "number": 30,
     "rarity": "rare",
-    "flavorText": "What would I give\nIf I could live out of these waters?"
+    "flavorText": "What would I give\nIf I could live out of these waters?",
+    "_namedAbilityStubs": [
+      "(A character with cost 3 or more can {E} to sing this song for free.)",
+      "Return a character card from your discard to your hand."
+    ]
   },
   {
     "id": "you-have-forgotten-me",
@@ -734,7 +758,10 @@
     "setId": "1",
     "number": 31,
     "rarity": "uncommon",
-    "flavorText": "\"You are more than what you have become.\"\n—Mufasa"
+    "flavorText": "\"You are more than what you have become.\"\n—Mufasa",
+    "_namedAbilityStubs": [
+      "Each opponent chooses and discards 2 cards."
+    ]
   },
   {
     "id": "dinglehopper",
@@ -1188,9 +1215,17 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "enters_play" },
+        "trigger": {
+          "on": "enters_play"
+        },
         "effects": [
-          { "type": "draw", "amount": 1, "target": { "type": "self" } }
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
         ]
       }
     ],
@@ -1370,12 +1405,18 @@
     "abilities": [
       {
         "type": "activated",
-        "costs": [{ "type": "exert" }],
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "draw",
             "amount": 1,
-            "target": { "type": "self" }
+            "target": {
+              "type": "self"
+            }
           }
         ],
         "reminderText": "I SUMMON THEE – ↷: Draw a card."
@@ -1388,7 +1429,10 @@
     "strength": 4,
     "willpower": 5,
     "lore": 1,
-    "flavorText": "Sublime beauty matched with peerless cunning. Is there any question who is fairest?"
+    "flavorText": "Sublime beauty matched with peerless cunning. Is there any question who is fairest?",
+    "_namedAbilityStubs": [
+      "I SUMMON THEE {E} — Draw a card."
+    ]
   },
   {
     "id": "the-wardrobe-belles-confidant",
@@ -1539,7 +1583,10 @@
     "setId": "1",
     "number": 62,
     "rarity": "uncommon",
-    "flavorText": "Never be afraid to have your mind boggled now and then."
+    "flavorText": "Never be afraid to have your mind boggled now and then.",
+    "_namedAbilityStubs": [
+      "Return a character or item with cost 2 or less to their player's hand."
+    ]
   },
   {
     "id": "freeze",
@@ -1554,7 +1601,10 @@
     "setId": "1",
     "number": 63,
     "rarity": "common",
-    "flavorText": "It's time for you to chill."
+    "flavorText": "It's time for you to chill.",
+    "_namedAbilityStubs": [
+      "Exert chosen opposing character."
+    ]
   },
   {
     "id": "friends-on-the-other-side",
@@ -1569,7 +1619,11 @@
     "setId": "1",
     "number": 64,
     "rarity": "common",
-    "flavorText": "The cards, the cards\nthe cards will tell..."
+    "flavorText": "The cards, the cards\nthe cards will tell...",
+    "_namedAbilityStubs": [
+      "(A character with cost 3 or more can {E} to sing this song for free.)",
+      "Draw 2 cards."
+    ]
   },
   {
     "id": "reflection",
@@ -1584,7 +1638,11 @@
     "setId": "1",
     "number": 65,
     "rarity": "uncommon",
-    "flavorText": "When will my reflection show\nWho I am inside?"
+    "flavorText": "When will my reflection show\nWho I am inside?",
+    "_namedAbilityStubs": [
+      "(A character with cost 1 or more can {E} to sing this song for free.)",
+      "Look at the top 3 cards of your deck. Put them back on the top of your deck in any order."
+    ]
   },
   {
     "id": "magic-mirror",
@@ -1635,7 +1693,10 @@
     "setId": "1",
     "number": 68,
     "rarity": "rare",
-    "flavorText": "\"No wonder you're late. Why, this watch is exactly two days slow.\" —The Mad Hatter"
+    "flavorText": "\"No wonder you're late. Why, this watch is exactly two days slow.\" —The Mad Hatter",
+    "_namedAbilityStubs": [
+      "I'M LATE! {E}, 1 {I} — Chosen character gains Rush this turn. (They can challenge the turn they're played.)"
+    ]
   },
   {
     "id": "aladdin-prince-ali",
@@ -2300,7 +2361,10 @@
     "setId": "1",
     "number": 94,
     "rarity": "rare",
-    "flavorText": "\"...Then scrub the terrace, sweep the halls and the stairs, clean the chimneys. And of course there's the mending, and the sewing, and the laundry...\"\n—Lady Tremaine"
+    "flavorText": "\"...Then scrub the terrace, sweep the halls and the stairs, clean the chimneys. And of course there's the mending, and the sewing, and the laundry...\"\n—Lady Tremaine",
+    "_namedAbilityStubs": [
+      "Return an action card from your discard to your hand."
+    ]
   },
   {
     "id": "mother-knows-best",
@@ -2315,7 +2379,11 @@
     "setId": "1",
     "number": 95,
     "rarity": "uncommon",
-    "flavorText": "One way or another\nSomething will go wrong, I swear"
+    "flavorText": "One way or another\nSomething will go wrong, I swear",
+    "_namedAbilityStubs": [
+      "(A character with cost 3 or more can {E} to sing this song for free.)",
+      "Return chosen character to their player's hand."
+    ]
   },
   {
     "id": "stampede",
@@ -2330,7 +2398,10 @@
     "setId": "1",
     "number": 96,
     "rarity": "common",
-    "flavorText": "A wildebeest stampede is like a raging river: best experienced from a distance."
+    "flavorText": "A wildebeest stampede is like a raging river: best experienced from a distance.",
+    "_namedAbilityStubs": [
+      "Deal 2 damage to chosen damaged character."
+    ]
   },
   {
     "id": "steal-from-the-rich",
@@ -2345,7 +2416,10 @@
     "setId": "1",
     "number": 97,
     "rarity": "rare",
-    "flavorText": "\"Wonder how much ol' Prince John spent on all those fancy locks.\"\n—Little John"
+    "flavorText": "\"Wonder how much ol' Prince John spent on all those fancy locks.\"\n—Little John",
+    "_namedAbilityStubs": [
+      "Whenever one of your characters quests this turn, each opponent loses 1 lore."
+    ]
   },
   {
     "id": "sudden-chill",
@@ -2360,7 +2434,11 @@
     "setId": "1",
     "number": 98,
     "rarity": "common",
-    "flavorText": "Cruella De Vil, Cruella De Vil\nIf she doesn't scare you, no evil thing will"
+    "flavorText": "Cruella De Vil, Cruella De Vil\nIf she doesn't scare you, no evil thing will",
+    "_namedAbilityStubs": [
+      "(A character with cost 2 or more can {E} to sing this song for free.)",
+      "Each opponent chooses and discards a card."
+    ]
   },
   {
     "id": "the-beast-is-mine",
@@ -2375,7 +2453,10 @@
     "setId": "1",
     "number": 99,
     "rarity": "uncommon",
-    "flavorText": "\"It's only fitting that the finest hunter gets the foulest beast!\"\n—Gaston"
+    "flavorText": "\"It's only fitting that the finest hunter gets the foulest beast!\"\n—Gaston",
+    "_namedAbilityStubs": [
+      "Chosen character gains Reckless during their next turn. (They can't quest and must challenge if able.)"
+    ]
   },
   {
     "id": "vicious-betrayal",
@@ -2390,7 +2471,10 @@
     "setId": "1",
     "number": 100,
     "rarity": "common",
-    "flavorText": "\"A true king takes matters into his own claws.\"\n—Scar"
+    "flavorText": "\"A true king takes matters into his own claws.\"\n—Scar",
+    "_namedAbilityStubs": [
+      "Chosen character gets +2 {S} this turn. If a Villain character is chosen, they get +3 {S} instead."
+    ]
   },
   {
     "id": "dr-faciliers-cards",
@@ -3094,7 +3178,11 @@
     "setId": "1",
     "number": 128,
     "rarity": "rare",
-    "flavorText": "Our teeth and ambitions are bared!"
+    "flavorText": "Our teeth and ambitions are bared!",
+    "_namedAbilityStubs": [
+      "(A character with cost 7 or more can {E} to sing this song for free.)",
+      "Banish all characters."
+    ]
   },
   {
     "id": "cut-to-the-chase",
@@ -3109,7 +3197,10 @@
     "setId": "1",
     "number": 129,
     "rarity": "uncommon",
-    "flavorText": "\"Surprise!\""
+    "flavorText": "\"Surprise!\"",
+    "_namedAbilityStubs": [
+      "Chosen character gains Rush this turn. (They can challenge the turn they're played.)"
+    ]
   },
   {
     "id": "dragon-fire",
@@ -3124,7 +3215,10 @@
     "setId": "1",
     "number": 130,
     "rarity": "uncommon",
-    "flavorText": "Rare is the hero who can withstand a dragon's wrath."
+    "flavorText": "Rare is the hero who can withstand a dragon's wrath.",
+    "_namedAbilityStubs": [
+      "Banish chosen character."
+    ]
   },
   {
     "id": "fan-the-flames",
@@ -3139,7 +3233,10 @@
     "setId": "1",
     "number": 131,
     "rarity": "uncommon",
-    "flavorText": "Pretty words can move a crowd, but so can ugly ones."
+    "flavorText": "Pretty words can move a crowd, but so can ugly ones.",
+    "_namedAbilityStubs": [
+      "Ready chosen character. They can't quest for the rest of this turn."
+    ]
   },
   {
     "id": "hes-got-a-sword",
@@ -3154,7 +3251,10 @@
     "setId": "1",
     "number": 132,
     "rarity": "common",
-    "flavorText": "\"We've all got swords!\"\n—Razoul"
+    "flavorText": "\"We've all got swords!\"\n—Razoul",
+    "_namedAbilityStubs": [
+      "Chosen character gets +2 {S} this turn."
+    ]
   },
   {
     "id": "tangle",
@@ -3169,7 +3269,10 @@
     "setId": "1",
     "number": 133,
     "rarity": "common",
-    "flavorText": "\"Stay right there! I mean, you don't have a choice, I guess. But still! Don't move!\"\n—Rapunzel"
+    "flavorText": "\"Stay right there! I mean, you don't have a choice, I guess. But still! Don't move!\"\n—Rapunzel",
+    "_namedAbilityStubs": [
+      "Each opponent loses 1 lore."
+    ]
   },
   {
     "id": "poisoned-apple",
@@ -3485,7 +3588,10 @@
     "strength": 1,
     "willpower": 1,
     "lore": 1,
-    "flavorText": "Moana: \"Is there something you want to tell me?\"\nGramma Tala: \"Is there something you want to hear?\""
+    "flavorText": "Moana: \"Is there something you want to tell me?\"\nGramma Tala: \"Is there something you want to hear?\"",
+    "_namedAbilityStubs": [
+      "I WILL BE WITH YOU When this character is banished, you may put this card into your inkwell facedown and exerted."
+    ]
   },
   {
     "id": "hades-infernal-schemer",
@@ -3856,7 +3962,10 @@
     "setId": "1",
     "number": 161,
     "rarity": "common",
-    "flavorText": "\"Knowledge, wisdom—there's the real power!\"\n—Merlin"
+    "flavorText": "\"Knowledge, wisdom—there's the real power!\"\n—Merlin",
+    "_namedAbilityStubs": [
+      "Look at the top 2 cards of your deck. Put one into your hand and the other on the bottom of the deck."
+    ]
   },
   {
     "id": "if-its-not-baroque",
@@ -3871,7 +3980,10 @@
     "setId": "1",
     "number": 162,
     "rarity": "rare",
-    "flavorText": "\"...Don't fix it.\""
+    "flavorText": "\"...Don't fix it.\"",
+    "_namedAbilityStubs": [
+      "Return an item card from your discard to your hand."
+    ]
   },
   {
     "id": "let-it-go",
@@ -3886,7 +3998,11 @@
     "setId": "1",
     "number": 163,
     "rarity": "rare",
-    "flavorText": "It's time to see what I can do\nTo test the limits and break through"
+    "flavorText": "It's time to see what I can do\nTo test the limits and break through",
+    "_namedAbilityStubs": [
+      "(A character with cost 5 or more can {E} to sing this song for free.)",
+      "Put chosen character into their player's inkwell facedown and exerted."
+    ]
   },
   {
     "id": "one-jump-ahead",
@@ -3901,7 +4017,11 @@
     "setId": "1",
     "number": 164,
     "rarity": "uncommon",
-    "flavorText": "Gotta eat to live, gotta steal to eat—\nTell you all about it when I got the time"
+    "flavorText": "Gotta eat to live, gotta steal to eat—\nTell you all about it when I got the time",
+    "_namedAbilityStubs": [
+      "(A character with cost 2 or more can {E} to sing this song for free.)",
+      "Put the top card of your deck into your inkwell facedown and exerted."
+    ]
   },
   {
     "id": "work-together",
@@ -3916,7 +4036,10 @@
     "setId": "1",
     "number": 165,
     "rarity": "common",
-    "flavorText": "Pacha: \"Put your whole back into it!\"\nKuzco: \"This is my whole back!\""
+    "flavorText": "Pacha: \"Put your whole back into it!\"\nKuzco: \"This is my whole back!\"",
+    "_namedAbilityStubs": [
+      "Chosen character gains Support this turn. (Whenever they quest, you may add their {S} to another chosen character's {S} this turn.)"
+    ]
   },
   {
     "id": "coconut-basket",
@@ -3948,13 +4071,25 @@
     "abilities": [
       {
         "type": "activated",
-        "costs": [{ "type": "exert" }],
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "gain_stats",
             "lore": 1,
             "duration": "this_turn",
-            "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } }
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
           }
         ],
         "reminderText": "SEE THE FUTURE – ↷: Chosen character gets +1 lore this turn."
@@ -3963,7 +4098,10 @@
     "setId": "1",
     "number": 167,
     "rarity": "uncommon",
-    "flavorText": "You can change the future once you know what you're looking at."
+    "flavorText": "You can change the future once you know what you're looking at.",
+    "_namedAbilityStubs": [
+      "SEE THE FUTURE {E} — Chosen character gets +1 {L} this turn."
+    ]
   },
   {
     "id": "fishbone-quill",
@@ -4541,7 +4679,10 @@
     "strength": 3,
     "willpower": 5,
     "lore": 2,
-    "flavorText": "\"I can't hide anymore. It's time to accept my destiny.\""
+    "flavorText": "\"I can't hide anymore. It's time to accept my destiny.\"",
+    "_namedAbilityStubs": [
+      "I KNOW WHAT I HAVE TO DO During your turn, whenever this character banishes another character in a challenge, you gain 1 lore."
+    ]
   },
   {
     "id": "starkey-hooks-henchman",
@@ -4667,7 +4808,11 @@
     "setId": "1",
     "number": 195,
     "rarity": "super_rare",
-    "flavorText": "Shining, shimmering, splendid..."
+    "flavorText": "Shining, shimmering, splendid...",
+    "_namedAbilityStubs": [
+      "(A character with cost 5 or more can {E} to sing this song for free.)",
+      "Each player discards their hand and draws 7 cards."
+    ]
   },
   {
     "id": "break",
@@ -4682,7 +4827,10 @@
     "setId": "1",
     "number": 196,
     "rarity": "common",
-    "flavorText": "No one throws a tantrum like a beast."
+    "flavorText": "No one throws a tantrum like a beast.",
+    "_namedAbilityStubs": [
+      "Banish chosen item."
+    ]
   },
   {
     "id": "fire-the-cannons",
@@ -4697,7 +4845,10 @@
     "setId": "1",
     "number": 197,
     "rarity": "common",
-    "flavorText": "Captain Hook: \"Double the powder and shorten the fuse!\"\nMr. Smee: \"Shorten the powder and double the fuse!\""
+    "flavorText": "Captain Hook: \"Double the powder and shorten the fuse!\"\nMr. Smee: \"Shorten the powder and double the fuse!\"",
+    "_namedAbilityStubs": [
+      "Deal 2 damage to chosen character."
+    ]
   },
   {
     "id": "grab-your-sword",
@@ -4712,7 +4863,11 @@
     "setId": "1",
     "number": 198,
     "rarity": "rare",
-    "flavorText": "We don't like\nWhat we don't understand\nIn fact, it scares us"
+    "flavorText": "We don't like\nWhat we don't understand\nIn fact, it scares us",
+    "_namedAbilityStubs": [
+      "(A character with cost 5 or more can {E} to sing this song for free.)",
+      "Deal 2 damage to each opposing character."
+    ]
   },
   {
     "id": "ransack",
@@ -4727,7 +4882,10 @@
     "setId": "1",
     "number": 199,
     "rarity": "uncommon",
-    "flavorText": "Who has time to read labels?"
+    "flavorText": "Who has time to read labels?",
+    "_namedAbilityStubs": [
+      "Draw 2 cards, then choose and discard 2 cards."
+    ]
   },
   {
     "id": "smash",
@@ -4742,7 +4900,10 @@
     "setId": "1",
     "number": 200,
     "rarity": "uncommon",
-    "flavorText": "\"Go away!\""
+    "flavorText": "\"Go away!\"",
+    "_namedAbilityStubs": [
+      "Deal 3 damage to chosen character."
+    ]
   },
   {
     "id": "beasts-mirror",

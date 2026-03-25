@@ -58,7 +58,7 @@
 | 1.8.1.1 | Player with 20+ lore wins | ✅ `checkWinConditions` / `getLoreThreshold` |
 | 1.8.1.2 | Player who ends turn with empty deck loses | ✅ Checked in `applyPassTurn`; game ends immediately with opponent as winner |
 | 1.8.1.4 | Character/location with damage >= willpower is banished | ✅ `banishCard` called from damage resolution |
-| 1.8.2 | Triggered abilities from state check added to bag before resolving | 🐛 `condition` field exists on `TriggeredAbility` type but `processTriggerStack()` never evaluates it. CRD 6.2.4 says conditions must be checked at resolution time. See missing features table |
+| 1.8.2 | Triggered abilities from state check added to bag before resolving | 🐛 `condition` field exists on `TriggeredAbility` type but `processTriggerStack()` never evaluates it. CRD 6.2.4 says conditions must be checked at resolution time. Example: Stitch - Carefree Surfer ("if you have 2 or more other characters in play"). See missing features table |
 
 ### 1.9 Damage
 | Rule | Quote | Status |
@@ -335,9 +335,9 @@
 ### 8.7 Reckless
 | Rule | Quote | Status |
 |------|-------|--------|
-| 8.7.2 | Reckless: character can't quest | ❌ `it.todo` |
-| 8.7.3 | Reckless: can't declare end of turn if this character is ready and can challenge | ❌ |
-| 8.7.4 | Reckless character can still exert to sing songs or use abilities | ❌ |
+| 8.7.2 | Reckless: character can't quest | ❌ `it.todo`. Simple validator check. See DECISIONS.md Reckless plan |
+| 8.7.3 | Reckless: can't declare end of turn if this character is ready and can challenge | ❌ First "forced action" — PASS_TURN becomes conditional. See DECISIONS.md |
+| 8.7.4 | Reckless character can still exert to sing songs or use abilities | ❌ Escape valve for 8.7.3 obligation |
 
 ### 8.8 Resist
 | Rule | Quote | Status |
@@ -405,7 +405,7 @@
 | Feature | CRD Ref | Notes |
 |---------|---------|-------|
 | Bodyguard enters play exerted | 8.3.2 | |
-| Reckless can't quest + can't pass if able to challenge | 8.7.2–3 | `it.todo` |
+| Reckless can't quest + can't pass if able to challenge | 8.7.2–3 | `it.todo`. Two enforcement points; 8.7.3 is first forced action. See DECISIONS.md |
 | Support (quest to buff another character's {S}) | 8.13.1 | `it.todo` |
 | Singer (exert to sing songs) | 8.11 | `it.todo` |
 | ~~Starting player skips first draw~~ | 3.2.3.1 | ✅ Was already implicit in code structure |
@@ -418,6 +418,7 @@
 | Mulligan | 2.2.2 | |
 | Trigger condition evaluation | 1.8.2 / 6.2.4 | `processTriggerStack` never evaluates `TriggeredAbility.condition` at resolution time. Small fix in `reducer.ts` ~line 804 |
 | Split applyPassTurn into end-of-turn / start-of-turn | 3.2 / 3.4 | Currently one monolithic function. Draw is a start-of-turn action (3.2.3) but lives in end-of-turn code. Matters for start-of-turn triggers (3.2.1.4, 3.2.2.3) |
+| Timed effects system | 3.4.1.2 / 6.4 | Replace `grantedKeywords` + `tempModifiers` with unified `timedEffects[]` with expiry durations. Prerequisite for Tinker Bell, John Silver. See DECISIONS.md |
 
 ---
 

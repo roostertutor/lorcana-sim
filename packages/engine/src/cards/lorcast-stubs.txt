@@ -4,6 +4,9 @@ ariel-on-human-legs
 ariel-spectacular-singer
   MUSICAL DEBUT When you play this character, look at the top 4 cards of your deck. You may reveal a song card and put it into your hand. Put the rest on the bottom of your deck in any order.
 
+cinderella-gentle-and-kind
+  A WONDERFUL DREAM {E} — Remove up to 3 damage from chosen Princess character.
+
 goofy-musketeer
   AND TWO FOR TEA! When you play this character, you may remove up to 2 damage from each of your Musketeer characters.
 
@@ -36,6 +39,30 @@ stitch-rock-star
 
 timon-grub-rustler
   TASTES LIKE CHICKEN When you play this character, you may remove up to 1 damage from chosen character.
+
+be-our-guest
+  (A character with cost 2 or more can {E} to sing this song for free.)
+  Look at the top 4 cards of your deck. You may reveal a character card and put it into your hand. Put the rest on the bottom of your deck in any order.
+
+control-your-temper
+  Chosen character gets -2 {S} this turn.
+
+hakuna-matata
+  (A character with cost 4 or more can {E} to sing this song for free.)
+  Remove up to 3 damage from each of your characters.
+
+healing-glow
+  Remove up to 2 damage from chosen character.
+
+just-in-time
+  You may play a character with cost 5 or less for free.
+
+part-of-your-world
+  (A character with cost 3 or more can {E} to sing this song for free.)
+  Return a character card from your discard to your hand.
+
+you-have-forgotten-me
+  Each opponent chooses and discards 2 cards.
 
 dinglehopper
   STRAIGHTEN HAIR {E} — Remove up to 1 damage from chosen character.
@@ -86,6 +113,9 @@ mickey-mouse-wayward-sorcerer
 pascal-rapunzels-companion
   CAMOUFLAGE While you have another character in play, this character gains Evasive. (Only characters with Evasive can challenge them.)
 
+the-queen-wicked-and-vain
+  I SUMMON THEE {E} — Draw a card.
+
 tinker-bell-peter-pans-ally
   LOYAL AND DEVOTED Your characters named Peter Pan gain Challenger +1. (They get +1 {S} while challenging.)
 
@@ -95,11 +125,28 @@ ursula-power-hungry
 yzma-alchemist
   YOU'RE EXCUSED Whenever this character quests, look at the top card of your deck. Put it on either the top or the bottom of your deck.
 
+befuddle
+  Return a character or item with cost 2 or less to their player's hand.
+
+freeze
+  Exert chosen opposing character.
+
+friends-on-the-other-side
+  (A character with cost 3 or more can {E} to sing this song for free.)
+  Draw 2 cards.
+
+reflection
+  (A character with cost 1 or more can {E} to sing this song for free.)
+  Look at the top 3 cards of your deck. Put them back on the top of your deck in any order.
+
 magic-mirror
   SPEAK! {E}, 4 {I} — Draw a card.
 
 ursulas-cauldron
   PEER INTO THE DEPTHS {E} — Look at the top 2 cards of your deck. Put one on the top of your deck and the other on the bottom.
+
+white-rabbits-pocket-watch
+  I'M LATE! {E}, 1 {I} — Chosen character gains Rush this turn. (They can challenge the turn they're played.)
 
 beast-wolfsbane
   ROAR When you play this character, exert all opposing damaged characters.
@@ -149,6 +196,29 @@ mother-gothel-selfish-manipulator
 tinker-bell-most-helpful
   PIXIE DUST When you play this character, chosen character gains Evasive this turn.
 
+do-it-again
+  Return an action card from your discard to your hand.
+
+mother-knows-best
+  (A character with cost 3 or more can {E} to sing this song for free.)
+  Return chosen character to their player's hand.
+
+stampede
+  Deal 2 damage to chosen damaged character.
+
+steal-from-the-rich
+  Whenever one of your characters quests this turn, each opponent loses 1 lore.
+
+sudden-chill
+  (A character with cost 2 or more can {E} to sing this song for free.)
+  Each opponent chooses and discards a card.
+
+the-beast-is-mine
+  Chosen character gains Reckless during their next turn. (They can't quest and must challenge if able.)
+
+vicious-betrayal
+  Chosen character gets +2 {S} this turn. If a Villain character is chosen, they get +3 {S} instead.
+
 dr-faciliers-cards
   THE CARDS WILL TELL {E} — You pay 1 {I} less for the next action you play this turn.
 
@@ -185,6 +255,25 @@ rapunzel-letting-down-her-hair
 scar-shameless-firebrand
   ROUSING SPEECH When you play this character, ready your characters with cost 3 or less. They can't quest for the rest of this turn.
 
+be-prepared
+  (A character with cost 7 or more can {E} to sing this song for free.)
+  Banish all characters.
+
+cut-to-the-chase
+  Chosen character gains Rush this turn. (They can challenge the turn they're played.)
+
+dragon-fire
+  Banish chosen character.
+
+fan-the-flames
+  Ready chosen character. They can't quest for the rest of this turn.
+
+hes-got-a-sword
+  Chosen character gets +2 {S} this turn.
+
+tangle
+  Each opponent loses 1 lore.
+
 poisoned-apple
   TAKE A BITE... 1 {I}, Banish this item — Exert chosen character. If a Princess character is chosen, banish her instead.
 
@@ -210,6 +299,9 @@ belle-strange-but-special
   READ A BOOK During your turn, you may put an additional card from your hand into your inkwell facedown.
   MY FAVORITE PART! While you have 10 or more cards in your inkwell, this character gets +4 {L}.
 
+gramma-tala-storyteller
+  I WILL BE WITH YOU When this character is banished, you may put this card into your inkwell facedown and exerted.
+
 hades-infernal-schemer
   IS THERE A DOWNSIDE TO THIS? When you play this character, you may put chosen opposing character into their player's inkwell facedown.
 
@@ -233,6 +325,23 @@ scar-mastermind
 tamatoa-so-shiny
   WHAT HAVE WE HERE? When you play this character and whenever he quests, you may return an item card from your discard to your hand.
   GLAM This character gets +1 {L} for each item you have in play.
+
+develop-your-brain
+  Look at the top 2 cards of your deck. Put one into your hand and the other on the bottom of the deck.
+
+if-its-not-baroque
+  Return an item card from your discard to your hand.
+
+let-it-go
+  (A character with cost 5 or more can {E} to sing this song for free.)
+  Put chosen character into their player's inkwell facedown and exerted.
+
+one-jump-ahead
+  (A character with cost 2 or more can {E} to sing this song for free.)
+  Put the top card of your deck into your inkwell facedown and exerted.
+
+work-together
+  Chosen character gains Support this turn. (Whenever they quest, you may add their {S} to another chosen character's {S} this turn.)
 
 coconut-basket
   CONSIDER THE COCONUT Whenever you play a character, you may remove up to 2 damage from chosen character.
@@ -276,6 +385,9 @@ simba-future-king
 simba-returned-king
   POUNCE During your turn, this character gains Evasive. (They can challenge characters with Evasive.)
 
+simba-rightful-heir
+  I KNOW WHAT I HAVE TO DO During your turn, whenever this character banishes another character in a challenge, you gain 1 lore.
+
 starkey-hooks-henchman
   AYE AYE, CAPTAIN While you have a Captain character in play, this character gets +1 {L}.
 
@@ -288,6 +400,26 @@ tinker-bell-giant-fairy
 
 tinker-bell-tiny-tactician
   BATTLE PLANS {E} — Draw a card, then choose and discard a card.
+
+a-whole-new-world
+  (A character with cost 5 or more can {E} to sing this song for free.)
+  Each player discards their hand and draws 7 cards.
+
+break
+  Banish chosen item.
+
+fire-the-cannons
+  Deal 2 damage to chosen character.
+
+grab-your-sword
+  (A character with cost 5 or more can {E} to sing this song for free.)
+  Deal 2 damage to each opposing character.
+
+ransack
+  Draw 2 cards, then choose and discard 2 cards.
+
+smash
+  Deal 3 damage to chosen character.
 
 beasts-mirror
   SHOW ME {E}, 3 {I} — If you have no cards in your hand, draw a card.

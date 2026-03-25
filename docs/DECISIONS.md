@@ -259,6 +259,83 @@ for future RL/MCTS approaches.
 
 ---
 
+## Planned: Timed Effects System
+
+### Problem
+Multiple fields on `CardInstance` represent temporary effects that expire:
+- `grantedKeywords: Keyword[]` — blanket-cleared at end of turn
+- `tempStrengthModifier`, `tempWillpowerModifier`, `tempLoreModifier` — same
+
+This breaks when effects have different durations. Examples from set 1:
+- Tinker Bell - Most Helpful: "chosen character gains Evasive **this turn**"
+- John Silver - Alien Pirate: "chosen opposing character gains Reckless **during their next turn**"
+
+Stat modifiers will have the same problem — some effects last "this turn,"
+others last "until end of their next turn" or longer.
+
+### Design
+Replace per-field temps with a unified `timedEffects` array on `CardInstance`:
+
+```typescript
+interface TimedEffect {
+  type: "grant_keyword" | "modify_strength" | "modify_willpower" | "modify_lore";
+  keyword?: Keyword;       // for grant_keyword
+  amount?: number;         // for modify_* effects
+  expiresAt: EffectDuration;
+}
+
+type EffectDuration = "end_of_turn" | "end_of_owner_next_turn";
+// Extend as needed for later sets
+```
+
+Cleanup in end-of-turn checks each effect's `expiresAt` condition instead
+of blanket-clearing. `hasKeyword()` and `getEffectiveStrength/Willpower/Lore`
+read from `timedEffects` instead of dedicated fields.
+
+### Impact
+- Types change: `CardInstance` loses 4 fields, gains `timedEffects: TimedEffect[]`
+- `hasKeyword()`, `getEffectiveStrength()`, `getEffectiveWillpower()`, `getEffectiveLore()` updated
+- End-of-turn cleanup filters by expiry instead of zeroing
+- Prerequisite for: Tinker Bell, John Silver, and any duration-based effect
+
+### When to build
+When implementing the first card that grants a keyword (Tinker Bell - Most Helpful
+is the simplest). Do the types refactor first, then wire up the card.
+
+---
+
+## Planned: Reckless Implementation
+
+### Two enforcement points for one keyword
+
+**CRD 8.7.2 — Can't quest**: Validator check, same pattern as isDrying.
+Block QUEST action for characters with Reckless keyword.
+
+**CRD 8.7.3 — Must challenge if able**: First "forced action" in the engine.
+PASS_TURN becomes conditionally illegal. Validator must check: does the active
+player have any ready Reckless character with at least one valid challenge target
+(exerted opponent, respecting Bodyguard/Evasive)?
+
+**CRD 8.7.4 — Escape valve**: Player can exert Reckless characters via activated
+abilities or singing to satisfy the obligation without challenging. So the check
+is "ready AND has valid targets," not just "Reckless exists."
+
+### New concept: mandatory actions
+Currently PASS_TURN is always legal. Reckless makes it conditional — the first
+keyword to do so. The comment `// PASS_TURN — always legal on your turn` in
+`getAllLegalActions()` would need to change.
+
+### Edge case: multiple Reckless characters
+If one has targets and one doesn't, you still can't pass until all Reckless
+characters with valid targets have been dealt with (challenge or exert).
+
+### Dependency
+John Silver - Alien Pirate grants Reckless to opponent's characters, which
+requires the timed effects system (see above). Implementing the keyword
+enforcement first, then John Silver later.
+
+---
+
 ## Session 5: CRD Audit and Bug Fixes
 
 ### CRD-to-Engine Mapping (docs/CRD_TRACKER.md)

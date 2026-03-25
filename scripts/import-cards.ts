@@ -13,7 +13,7 @@
 // Rate limit: 100ms between requests per Lorcast docs.
 // =============================================================================
 
-import { writeFileSync, mkdirSync } from "fs";
+import { writeFileSync, readFileSync, existsSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
@@ -248,7 +248,21 @@ function mapCard(c: LorcastCard): CardDefinitionOut | null {
   if (!inkColor) return null;
 
   const { abilities, shiftCost } = parseKeywordAbilities(c.keywords, c.text);
-  const namedStubs = detectNamedAbilityLines(c.text);
+  let namedStubs = detectNamedAbilityLines(c.text);
+
+  // For cards with text but no detected named abilities (e.g., action/song cards
+  // whose entire text IS the effect without an ALL-CAPS header), preserve the
+  // full card text as a stub so it's never silently dropped.
+  if (namedStubs.length === 0 && c.text) {
+    const textLines = c.text.split("\n").map((l) => l.trim()).filter(Boolean);
+    // Exclude lines that are purely keyword lines (already parsed above)
+    const nonKeywordLines = textLines.filter(
+      (line) => !KEYWORD_LINE_PREFIXES.some((kw) => line.startsWith(kw))
+    );
+    if (nonKeywordLines.length > 0) {
+      namedStubs.push(...nonKeywordLines);
+    }
+  }
 
   const out: CardDefinitionOut = {
     id: slugify(c.name, c.version),
@@ -373,6 +387,32 @@ async function main() {
     console.log("\nDry run — first 3 cards:");
     console.log(JSON.stringify(allCards.slice(0, 3), null, 2));
     return;
+  }
+
+  // Merge: preserve manually-implemented abilities from existing JSON.
+  // The importer only generates keyword abilities from Lorcast data.
+  // Non-keyword abilities (triggered, activated, static) are manually added
+  // after import and must not be overwritten.
+  if (existsSync(OUT_JSON)) {
+    const existing: CardDefinitionOut[] = JSON.parse(readFileSync(OUT_JSON, "utf-8"));
+    const existingById = new Map(existing.map((c) => [c.id, c]));
+    let preserved = 0;
+
+    for (const card of allCards) {
+      const prev = existingById.get(card.id);
+      if (!prev) continue;
+
+      // Find manually-added abilities (non-keyword) from existing data
+      const manualAbilities = prev.abilities.filter((a) => a.type !== "keyword");
+      if (manualAbilities.length > 0) {
+        card.abilities = [...card.abilities, ...manualAbilities] as KeywordAbility[];
+        preserved++;
+      }
+    }
+
+    if (preserved > 0) {
+      console.log(`  Preserved manual abilities on ${preserved} card(s).`);
+    }
   }
 
   // Write JSON

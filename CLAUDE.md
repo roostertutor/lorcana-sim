@@ -14,7 +14,7 @@ to produce deck analytics and win rates. NOT a human-playable simulator.
 - analytics: done. 15 tests passing.
 - cli:       done. analyze, compare, optimize, sweep.
 - ui:        done. 5 screens, React+Vite.
-- cards:     set 1 (216 cards, 106 ready, 110 stubs).
+- cards:     set 1 (216 cards, 66 keyword-ready, 150 stubs with card text).
 
 ## Quick Reference
 
