@@ -260,6 +260,51 @@ Likely: implement more named abilities in set 1 first, then add set 2.
 
 ---
 
+## Session 5: CRD Audit and Bug Fixes
+
+### CRD-to-Engine Mapping (docs/CRD_TRACKER.md)
+
+**Decision:** Systematically audit the engine against Disney Lorcana Comprehensive
+Rules v2.0.1 (effective Feb 5, 2026). Every mechanically relevant rule mapped to
+implementation status. Result: `docs/CRD_TRACKER.md`.
+
+**Why:** The engine was built from card text and community knowledge, not the official
+rules document. The audit found 6 bugs and 12 missing features that wouldn't have
+been caught by testing alone.
+
+### `hasActedThisTurn` → `isDrying` Rename
+
+**Decision:** Rename `CardInstance.hasActedThisTurn` (boolean) to `isDrying` to match
+CRD terminology (5.1.1.11 "drying" = entered play this turn).
+
+**Why:** The old name conflated two concepts: (1) entered play this turn (drying), and
+(2) already used an action. This made Rush (CRD 8.9.1) impossible to implement
+correctly — Rush should allow challenging but not questing while drying. After the
+rename, drying is a first-class CRD concept and Rush is handled in the validator by
+checking the keyword.
+
+**What we considered:** Adding a second boolean (`isDrying` alongside `hasActedThisTurn`).
+Rejected because `hasActedThisTurn` was redundant — exerting already prevents re-use.
+
+### Unprotecting Previously Protected Files
+
+**Decision:** Unprotect `types/index.ts`, `sampleCards.ts`, `validator.ts`, `initializer.ts`.
+
+**Why:** The CRD audit revealed bugs in validator.ts (Rush checking) and types/index.ts
+(field semantics). Protecting files that contain bugs creates a contradiction.
+
+### Resist `ignoreResist` Parameter (B6)
+
+**Decision:** Add optional `ignoreResist` parameter to `dealDamageToCard()` rather than
+creating separate `putDamageOnCard()` function.
+
+**Why:** CRD 8.8.3 distinguishes "dealt" damage (Resist applies) from "put/moved"
+damage (Resist doesn't apply). One function with a flag is simpler than two functions
+with near-identical logic. No set 1 cards currently "put" damage, so the parameter
+defaults to `false` and callers opt in when needed.
+
+---
+
 ## Workflow
 
 Claude.ai — strategy, architecture, tradeoffs, spec refinement.
@@ -269,10 +314,6 @@ are the project memory. Update them at the end of every significant session.
 
 ---
 
-*Last updated: Session 3*
-*Changes: Full stack built and shipped — engine, simulator, analytics, CLI, UI.*
-*Lorcast API identified as card data source. Import script written.*
-*Set 1 imported: 216 cards, 106 ready, 110 named ability stubs.*
-*New decisions documented: JSON import strategy, named ability stubs,*
-*in-browser simulation, no router/no Zustand, random weight search.*
-*Resolved: weight search strategy (random implemented), card data source (Lorcast).*
+*Last updated: Session 5*
+*Changes: CRD v2.0.1 audit completed. 6 bugs fixed (B1–B6). isDrying refactor.*
+*Protected files unprotected. CRD_TRACKER.md created as ongoing reference.*

@@ -12,7 +12,7 @@ Simulates thousands of games to produce deck analytics and win rates.
 
 ## Current Status
 (Update at the start of every Claude Code session)
-- engine:    done — reducer, utils, getAllLegalActions, checkWinConditions, gameModifiers; 54 tests passing; 5 todo (Resist, Reckless, Support, Singer); CRD bugs B1–B6 fixed (isDrying refactor, Rush, Shift, inkwell ready, Resist)
+- engine:    done — reducer, utils, getAllLegalActions, checkWinConditions, gameModifiers; 49 passing, 5 todo (Resist, Reckless×2, Support, Singer); CRD bugs B1–B6 fixed (isDrying refactor, Rush, Shift, inkwell ready, Resist); CRD bugs B1–B6 fixed (isDrying refactor, Rush, Shift, inkwell ready, Resist)
 - simulator: done — RandomBot, GreedyBot, ProbabilityBot, PersonalBot, presets, runGame, runSimulation, optimizer; Layer 3 invariants (1000 games) + sanity checks passing
 - analytics: done — aggregateResults, analyzeDeckComposition, compareDecks, analyzeOpeningHands, calibratePersonalBot, analyzeWeightSensitivity; 15 tests passing
 - cli:       done — analyze, compare, optimize, sweep commands; tsx runner; sample-deck.txt
@@ -175,7 +175,7 @@ interface BotWeights {
 ## Run Commands
 
 ```bash
-pnpm test          # run all package tests (61 tests)
+pnpm test          # run all package tests (67 passing, 5 todo)
 pnpm test:watch    # watch mode for TDD (engine)
 pnpm typecheck     # type check all packages (3 pre-existing errors in sampleCards.ts only)
 pnpm dev           # start UI dev server at http://localhost:5173
@@ -196,6 +196,6 @@ pnpm import-cards --sets 1 --dry   # dry run, print without writing
 
 ## Full Documentation
 
-docs/SPEC.md    — full specification: what to build, how, build order
-docs/DECISIONS.md — why decisions were made, what was considered and rejected
-README.md  — project setup and local dev instructions
+docs/SPEC.md       — full specification: what to build, how, build order
+docs/DECISIONS.md  — why decisions were made, what was considered and rejected
+docs/CRD_TRACKER.md — CRD v2.0.1 rule-to-engine mapping, bugs, missing features

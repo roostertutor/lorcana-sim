@@ -20,7 +20,7 @@ deck analytics, win rates, consistency metrics, and card evaluation.
 
 | Package | Status | Notes |
 |---|---|---|
-| `@lorcana-sim/engine` | ✅ Done | 51 tests passing |
+| `@lorcana-sim/engine` | ✅ Done | 49 passing, 5 todo; CRD bugs B1–B6 fixed |
 | `@lorcana-sim/simulator` | ✅ Done | Layer 3 invariants (1000 games) passing |
 | `@lorcana-sim/analytics` | ✅ Done | 15 tests passing |
 | `@lorcana-sim/cli` | ✅ Done | analyze, compare, optimize, sweep |
@@ -34,9 +34,11 @@ deck analytics, win rates, consistency metrics, and card evaluation.
 
 ---
 
-## Protected Files — Never Modify
+## Previously Protected Files (unprotected after CRD audit)
 
-These four files are correct as-is. Do not touch them:
+These files were previously protected but CRD v2.0.1 audit (Session 5)
+revealed bugs in validator.ts and types/index.ts. All four are now
+unprotected and may be modified when fixing CRD-identified issues.
 - `packages/engine/src/types/index.ts`
 - `packages/engine/src/cards/sampleCards.ts`
 - `packages/engine/src/engine/validator.ts`
@@ -313,8 +315,8 @@ Re-running the import script overwrites the JSON and regenerates the stub report
 To add a set: `pnpm import-cards --sets 2` (appends; or `--sets 1,2` to regenerate all).
 
 ### Known Pre-existing Typecheck Issue
-`sampleCards.ts` (protected file) has 3 errors under `exactOptionalPropertyTypes`
-(`subtitle: undefined` instead of omitting the property). Cannot fix — protected file.
+`sampleCards.ts` has 3 errors under `exactOptionalPropertyTypes`
+(`subtitle: undefined` instead of omitting the property). Low priority fix.
 All other engine code typechecks clean.
 
 ---

@@ -165,14 +165,14 @@
 | Rule | Quote | Status |
 |------|-------|--------|
 | 4.4.1 | Activated ability: cost → effect | ✅ |
-| 4.4.2 | {E} ability on a character requires character to be dry | ✅ `hasActedThisTurn` check in `validateActivateAbility` |
+| 4.4.2 | {E} ability on a character requires character to be dry | ✅ `isDrying` check in `validateActivateAbility` (characters only; CRD 6.3.1.2 items exempt) |
 | 4.4.2 | Items and locations: activated ability can be used turn played | ✅ For items (Eye of Fates test). ❌ Locations not implemented |
 
 ### 4.5 Quest
 | Rule | Quote | Status |
 |------|-------|--------|
 | 4.5.1.1 | Declare questing character | ✅ |
-| 4.5.1.2 | Check restrictions (not dry, Reckless, etc.) | ⚠️ Dry/hasActedThisTurn checked. Reckless not yet implemented |
+| 4.5.1.2 | Check restrictions (not dry, Reckless, etc.) | ⚠️ `isDrying` checked. Reckless not yet implemented |
 | 4.5.1.3 | Exert questing character | ✅ |
 | 4.5.1.4 | Gain lore equal to character's {L} | ✅ |
 | 4.5.3.1 | If character has negative lore, player gains 0 lore | ✅ `getEffectiveLore` uses `Math.max(0, ...)` |
@@ -180,7 +180,7 @@
 ### 4.6 Challenge
 | Rule | Quote | Status |
 |------|-------|--------|
-| 4.6.4.1 | Challenging character must have been in play since beginning of Set step and be ready | ✅ `hasActedThisTurn` + `isExerted` checks |
+| 4.6.4.1 | Challenging character must have been in play since beginning of Set step and be ready | ✅ `isDrying` + `isExerted` checks; Rush bypasses `isDrying` |
 | 4.6.4.2 | Choose an **exerted** opposing character to challenge | ✅ `defender.isExerted` check (added this session) |
 | 4.6.4.3 | Check challenging restrictions (Evasive, Bodyguard) | ✅ Evasive + Bodyguard checked |
 | 4.6.4.4 | Exert the challenging character | ✅ |
