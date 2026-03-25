@@ -294,7 +294,9 @@
       "Dreamborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      { "type": "triggered", "trigger": { "on": "enters_play" }, "effects": [{ "type": "gain_stats", "strength": -2, "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } }, "duration": "this_turn" }] }
+    ],
     "setId": "1",
     "number": 11,
     "rarity": "uncommon",
@@ -664,6 +666,7 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
+    "actionEffects": [{ "type": "gain_stats", "strength": -2, "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } }, "duration": "this_turn" }],
     "setId": "1",
     "number": 26,
     "rarity": "common",
@@ -700,6 +703,7 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
+    "actionEffects": [{ "type": "heal", "amount": 2, "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } } }],
     "setId": "1",
     "number": 28,
     "rarity": "common",
@@ -736,6 +740,7 @@
     "inkable": false,
     "traits": ["Song"],
     "abilities": [],
+    "actionEffects": [{ "type": "return_to_hand", "target": { "type": "chosen", "filter": { "zone": "discard", "cardType": ["character"], "owner": { "type": "self" } } } }],
     "setId": "1",
     "number": 30,
     "rarity": "rare",
@@ -1580,6 +1585,7 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
+    "actionEffects": [{ "type": "return_to_hand", "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character", "item"], "costAtMost": 2 } } }],
     "setId": "1",
     "number": 62,
     "rarity": "uncommon",
@@ -1598,6 +1604,7 @@
     "inkable": false,
     "traits": [],
     "abilities": [],
+    "actionEffects": [{ "type": "exert", "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"], "owner": { "type": "opponent" } } } }],
     "setId": "1",
     "number": 63,
     "rarity": "common",
@@ -1871,7 +1878,8 @@
       {
         "type": "keyword",
         "keyword": "evasive"
-      }
+      },
+      { "type": "triggered", "trigger": { "on": "enters_play" }, "effects": [{ "type": "return_to_hand", "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } }, "isMay": true }] }
     ],
     "setId": "1",
     "number": 75,
@@ -2129,7 +2137,9 @@
       "Dreamborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      { "type": "triggered", "trigger": { "on": "enters_play" }, "effects": [{ "type": "return_to_hand", "target": { "type": "chosen", "filter": { "zone": "discard", "cardType": ["action"], "owner": { "type": "self" } } }, "isMay": true }] }
+    ],
     "setId": "1",
     "number": 85,
     "rarity": "rare",
@@ -2178,7 +2188,9 @@
       "Dreamborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      { "type": "triggered", "trigger": { "on": "enters_play" }, "effects": [{ "type": "gain_stats", "strength": 2, "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } }, "duration": "this_turn" }] }
+    ],
     "setId": "1",
     "number": 87,
     "rarity": "common",
@@ -2359,6 +2371,7 @@
     "inkable": false,
     "traits": [],
     "abilities": [],
+    "actionEffects": [{ "type": "return_to_hand", "target": { "type": "chosen", "filter": { "zone": "discard", "cardType": ["action"], "owner": { "type": "self" } } } }],
     "setId": "1",
     "number": 94,
     "rarity": "rare",
@@ -2377,6 +2390,7 @@
     "inkable": false,
     "traits": ["Song"],
     "abilities": [],
+    "actionEffects": [{ "type": "return_to_hand", "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } } }],
     "setId": "1",
     "number": 95,
     "rarity": "uncommon",
@@ -2396,6 +2410,7 @@
     "inkable": false,
     "traits": [],
     "abilities": [],
+    "actionEffects": [{ "type": "deal_damage", "amount": 2, "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } } }],
     "setId": "1",
     "number": 96,
     "rarity": "common",
@@ -2578,7 +2593,9 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      { "type": "triggered", "trigger": { "on": "enters_play" }, "effects": [{ "type": "gain_lore", "amount": -1, "target": { "type": "opponent" } }] }
+    ],
     "setId": "1",
     "number": 105,
     "rarity": "common",
@@ -2786,7 +2803,9 @@
       "Villain",
       "Dragon"
     ],
-    "abilities": [],
+    "abilities": [
+      { "type": "triggered", "trigger": { "on": "enters_play" }, "effects": [{ "type": "banish", "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } }, "isMay": true }] }
+    ],
     "setId": "1",
     "number": 113,
     "rarity": "legendary",
@@ -2998,7 +3017,9 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      { "type": "triggered", "trigger": { "on": "enters_play" }, "effects": [{ "type": "gain_lore", "amount": -1, "target": { "type": "opponent" } }] }
+    ],
     "setId": "1",
     "number": 121,
     "rarity": "uncommon",
@@ -3251,6 +3272,7 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
+    "actionEffects": [{ "type": "gain_stats", "strength": 2, "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } }, "duration": "this_turn" }],
     "setId": "1",
     "number": 132,
     "rarity": "common",
@@ -3269,6 +3291,7 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
+    "actionEffects": [{ "type": "gain_lore", "amount": -1, "target": { "type": "opponent" } }],
     "setId": "1",
     "number": 133,
     "rarity": "common",
@@ -3370,7 +3393,9 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      { "type": "triggered", "trigger": { "on": "enters_play" }, "effects": [{ "type": "gain_stats", "strength": -2, "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } }, "duration": "this_turn" }] }
+    ],
     "setId": "1",
     "number": 138,
     "rarity": "common",
@@ -3891,7 +3916,9 @@
       "Storyborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      { "type": "triggered", "trigger": { "on": "enters_play" }, "effects": [{ "type": "gain_stats", "strength": -5, "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"], "owner": { "type": "opponent" } } }, "duration": "this_turn" }] }
+    ],
     "setId": "1",
     "number": 158,
     "rarity": "rare",
@@ -3980,6 +4007,7 @@
     "inkable": false,
     "traits": [],
     "abilities": [],
+    "actionEffects": [{ "type": "return_to_hand", "target": { "type": "chosen", "filter": { "zone": "discard", "cardType": ["item"], "owner": { "type": "self" } } } }],
     "setId": "1",
     "number": 162,
     "rarity": "rare",
@@ -4194,7 +4222,9 @@
       "Hero",
       "Prince"
     ],
-    "abilities": [],
+    "abilities": [
+      { "type": "triggered", "trigger": { "on": "enters_play" }, "effects": [{ "type": "banish", "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["item"] } }, "isMay": true }] }
+    ],
     "setId": "1",
     "number": 172,
     "rarity": "uncommon",
@@ -4757,7 +4787,8 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
-      }
+      },
+      { "type": "triggered", "trigger": { "on": "enters_play" }, "effects": [{ "type": "deal_damage", "amount": 1, "target": { "type": "all", "filter": { "zone": "play", "cardType": ["character"], "owner": { "type": "opponent" } } } }] }
     ],
     "setId": "1",
     "number": 193,
@@ -4827,6 +4858,7 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
+    "actionEffects": [{ "type": "banish", "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["item"] } } }],
     "setId": "1",
     "number": 196,
     "rarity": "common",
@@ -4845,6 +4877,7 @@
     "inkable": false,
     "traits": [],
     "abilities": [],
+    "actionEffects": [{ "type": "deal_damage", "amount": 2, "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } } }],
     "setId": "1",
     "number": 197,
     "rarity": "common",
@@ -4863,6 +4896,7 @@
     "inkable": false,
     "traits": ["Song"],
     "abilities": [],
+    "actionEffects": [{ "type": "deal_damage", "amount": 2, "target": { "type": "all", "filter": { "zone": "play", "cardType": ["character"], "owner": { "type": "opponent" } } } }],
     "setId": "1",
     "number": 198,
     "rarity": "rare",
@@ -4900,6 +4934,7 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
+    "actionEffects": [{ "type": "deal_damage", "amount": 3, "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } } }],
     "setId": "1",
     "number": 200,
     "rarity": "uncommon",
@@ -5112,7 +5147,8 @@
       {
         "type": "keyword",
         "keyword": "evasive"
-      }
+      },
+      { "type": "triggered", "trigger": { "on": "enters_play" }, "effects": [{ "type": "return_to_hand", "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } }, "isMay": true }] }
     ],
     "setId": "1",
     "number": 209,
@@ -5325,7 +5361,8 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
-      }
+      },
+      { "type": "triggered", "trigger": { "on": "enters_play" }, "effects": [{ "type": "deal_damage", "amount": 1, "target": { "type": "all", "filter": { "zone": "play", "cardType": ["character"], "owner": { "type": "opponent" } } } }] }
     ],
     "setId": "1",
     "number": 216,

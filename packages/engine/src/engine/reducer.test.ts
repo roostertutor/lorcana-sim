@@ -697,6 +697,308 @@ describe("§5.4.4 Songs & Singing", () => {
 });
 
 // =============================================================================
+// §5.4 Action & Character card effects (data-driven)
+// Tests that newly wired actionEffects and triggered abilities resolve correctly.
+// =============================================================================
+
+describe("§5.4 Action card effects (data-driven)", () => {
+  // --- gain_stats actions ---
+
+  it("He's Got a Sword gives +2 STR to chosen character", () => {
+    let state = startGame(["hes-got-a-sword"]);
+    let swordId: string, targetId: string;
+    ({ state, instanceId: swordId } = injectCard(state, "player1", "hes-got-a-sword", "hand"));
+    ({ state, instanceId: targetId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play"));
+    state = giveInk(state, "player1", 3);
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: swordId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.pendingChoice).not.toBeNull();
+
+    const resolve = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(resolve.success).toBe(true);
+    expect(getInstance(resolve.newState, targetId).tempStrengthModifier).toBe(2);
+    expect(getInstance(resolve.newState, swordId).zone).toBe("discard");
+  });
+
+  it("Control Your Temper gives -2 STR to chosen character", () => {
+    let state = startGame(["control-your-temper"]);
+    let cardId: string, targetId: string;
+    ({ state, instanceId: cardId } = injectCard(state, "player1", "control-your-temper", "hand"));
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play"));
+    state = giveInk(state, "player1", 3);
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: cardId }, LORCAST_CARD_DEFINITIONS);
+    const resolve = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(getInstance(resolve.newState, targetId).tempStrengthModifier).toBe(-2);
+  });
+
+  // --- deal_damage actions ---
+
+  it("Fire the Cannons deals 2 damage to chosen character", () => {
+    let state = startGame(["fire-the-cannons"]);
+    let cardId: string, targetId: string;
+    ({ state, instanceId: cardId } = injectCard(state, "player1", "fire-the-cannons", "hand"));
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play")); // 3 WP
+    state = giveInk(state, "player1", 5);
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: cardId }, LORCAST_CARD_DEFINITIONS);
+    const resolve = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(getInstance(resolve.newState, targetId).damage).toBe(2);
+    expect(getInstance(resolve.newState, cardId).zone).toBe("discard");
+  });
+
+  it("Smash deals 3 damage, banishing a 3-WP character", () => {
+    let state = startGame(["smash"]);
+    let cardId: string, targetId: string;
+    ({ state, instanceId: cardId } = injectCard(state, "player1", "smash", "hand"));
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play")); // 3 WP
+    state = giveInk(state, "player1", 5);
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: cardId }, LORCAST_CARD_DEFINITIONS);
+    const resolve = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId],
+    }, LORCAST_CARD_DEFINITIONS);
+    // 3 damage >= 3 WP → banished
+    expect(getInstance(resolve.newState, targetId).zone).toBe("discard");
+  });
+
+  it("Grab Your Sword deals 2 damage to all opposing characters (song)", () => {
+    let state = startGame(["grab-your-sword"]);
+    let cardId: string, opp1Id: string, opp2Id: string, ownId: string;
+    ({ state, instanceId: cardId } = injectCard(state, "player1", "grab-your-sword", "hand"));
+    ({ state, instanceId: opp1Id } = injectCard(state, "player2", "mickey-mouse-true-friend", "play"));
+    ({ state, instanceId: opp2Id } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play"));
+    ({ state, instanceId: ownId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play"));
+    state = giveInk(state, "player1", 5);
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: cardId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Opposing characters take 2 damage
+    expect(getInstance(result.newState, opp1Id).damage).toBe(2);
+    expect(getInstance(result.newState, opp2Id).damage).toBe(2);
+    // Own character unaffected
+    expect(getInstance(result.newState, ownId).damage).toBe(0);
+  });
+
+  // --- exert action ---
+
+  it("Freeze exerts chosen opposing character", () => {
+    let state = startGame(["freeze"]);
+    let cardId: string, targetId: string;
+    ({ state, instanceId: cardId } = injectCard(state, "player1", "freeze", "hand"));
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play"));
+    state = giveInk(state, "player1", 2);
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: cardId }, LORCAST_CARD_DEFINITIONS);
+    const resolve = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(resolve.success).toBe(true);
+    expect(getInstance(resolve.newState, targetId).isExerted).toBe(true);
+    expect(getInstance(resolve.newState, cardId).zone).toBe("discard");
+  });
+
+  // --- heal action ---
+
+  it("Healing Glow removes up to 2 damage from chosen character", () => {
+    let state = startGame(["healing-glow"]);
+    let cardId: string, targetId: string;
+    ({ state, instanceId: cardId } = injectCard(state, "player1", "healing-glow", "hand"));
+    ({ state, instanceId: targetId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { damage: 3 }));
+    state = giveInk(state, "player1", 2);
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: cardId }, LORCAST_CARD_DEFINITIONS);
+    const resolve = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(resolve.success).toBe(true);
+    expect(getInstance(resolve.newState, targetId).damage).toBe(1); // 3 - 2 = 1
+  });
+
+  // --- return_to_hand actions ---
+
+  it("Mother Knows Best returns chosen character to hand (song)", () => {
+    let state = startGame(["mother-knows-best"]);
+    let cardId: string, targetId: string;
+    ({ state, instanceId: cardId } = injectCard(state, "player1", "mother-knows-best", "hand"));
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play"));
+    state = giveInk(state, "player1", 3);
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: cardId }, LORCAST_CARD_DEFINITIONS);
+    const resolve = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(resolve.success).toBe(true);
+    expect(getInstance(resolve.newState, targetId).zone).toBe("hand");
+  });
+
+  it("Befuddle only targets characters/items with cost 2 or less", () => {
+    let state = startGame(["befuddle"]);
+    let cardId: string, cheapId: string, expensiveId: string;
+    ({ state, instanceId: cardId } = injectCard(state, "player1", "befuddle", "hand"));
+    ({ state, instanceId: cheapId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play")); // cost 2
+    ({ state, instanceId: expensiveId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play")); // cost 3
+    state = giveInk(state, "player1", 2);
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: cardId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Only the cost-2 card should be a valid target
+    expect(result.newState.pendingChoice!.validTargets).toContain(cheapId);
+    expect(result.newState.pendingChoice!.validTargets).not.toContain(expensiveId);
+  });
+
+  it("Break banishes chosen item", () => {
+    let state = startGame(["break"]);
+    let cardId: string, itemId: string, charId: string;
+    ({ state, instanceId: cardId } = injectCard(state, "player1", "break", "hand"));
+    ({ state, instanceId: itemId } = injectCard(state, "player2", "eye-of-the-fates", "play"));
+    ({ state, instanceId: charId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play"));
+    state = giveInk(state, "player1", 3);
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: cardId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Only the item should be a valid target, not the character
+    expect(result.newState.pendingChoice!.validTargets).toContain(itemId);
+    expect(result.newState.pendingChoice!.validTargets).not.toContain(charId);
+  });
+
+  it("Part of Your World returns character from own discard to hand (song)", () => {
+    let state = startGame(["part-of-your-world"]);
+    let cardId: string, discardedId: string;
+    ({ state, instanceId: cardId } = injectCard(state, "player1", "part-of-your-world", "hand"));
+    ({ state, instanceId: discardedId } = injectCard(state, "player1", "mickey-mouse-true-friend", "discard"));
+    state = giveInk(state, "player1", 3);
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: cardId }, LORCAST_CARD_DEFINITIONS);
+    const resolve = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [discardedId],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(resolve.success).toBe(true);
+    expect(getInstance(resolve.newState, discardedId).zone).toBe("hand");
+  });
+
+  // --- lore loss action ---
+
+  it("Tangle causes opponent to lose 1 lore", () => {
+    let state = startGame(["tangle"]);
+    let cardId: string;
+    ({ state, instanceId: cardId } = injectCard(state, "player1", "tangle", "hand"));
+    state = giveInk(state, "player1", 3);
+    state = setLore(state, "player2", 5);
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: cardId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.players.player2.lore).toBe(4);
+  });
+
+  it("Lore loss cannot go below 0 (CRD 1.11.1)", () => {
+    let state = startGame(["tangle"]);
+    let cardId: string;
+    ({ state, instanceId: cardId } = injectCard(state, "player1", "tangle", "hand"));
+    state = giveInk(state, "player1", 3);
+    state = setLore(state, "player2", 0);
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: cardId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.players.player2.lore).toBe(0);
+  });
+});
+
+describe("§6.2 Triggered abilities (data-driven)", () => {
+  it("Maximus enters play → chosen character gets -2 STR", () => {
+    let state = startGame(["maximus-relentless-pursuer"]);
+    let maxId: string, targetId: string;
+    ({ state, instanceId: maxId } = injectCard(state, "player1", "maximus-relentless-pursuer", "hand"));
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play"));
+    state = giveInk(state, "player1", 6);
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: maxId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.pendingChoice).not.toBeNull();
+
+    const resolve = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(getInstance(resolve.newState, targetId).tempStrengthModifier).toBe(-2);
+  });
+
+  it("Rapunzel Letting Down Her Hair enters play → opponent loses 1 lore", () => {
+    let state = startGame(["rapunzel-letting-down-her-hair"]);
+    let rapId: string;
+    ({ state, instanceId: rapId } = injectCard(state, "player1", "rapunzel-letting-down-her-hair", "hand"));
+    state = giveInk(state, "player1", 6); // cost 6
+    state = setLore(state, "player2", 3);
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: rapId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.players.player2.lore).toBe(2);
+  });
+
+  it("Tinker Bell Giant Fairy enters play → 1 damage to all opposing characters", () => {
+    let state = startGame(["tinker-bell-giant-fairy"]);
+    let tinkId: string, opp1Id: string, opp2Id: string, ownId: string;
+    ({ state, instanceId: tinkId } = injectCard(state, "player1", "tinker-bell-giant-fairy", "hand"));
+    ({ state, instanceId: opp1Id } = injectCard(state, "player2", "mickey-mouse-true-friend", "play"));
+    ({ state, instanceId: opp2Id } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play"));
+    ({ state, instanceId: ownId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play"));
+    state = giveInk(state, "player1", 10);
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: tinkId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, opp1Id).damage).toBe(1);
+    expect(getInstance(result.newState, opp2Id).damage).toBe(1);
+    expect(getInstance(result.newState, ownId).damage).toBe(0);
+  });
+
+  it("Maleficent Monstrous Dragon enters play → may banish chosen character", () => {
+    let state = startGame(["maleficent-monstrous-dragon"]);
+    let malId: string, targetId: string;
+    ({ state, instanceId: malId } = injectCard(state, "player1", "maleficent-monstrous-dragon", "hand"));
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play"));
+    state = giveInk(state, "player1", 10);
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: malId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // isMay → choose_may first
+    expect(result.newState.pendingChoice?.type).toBe("choose_may");
+
+    const accept = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept",
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(accept.newState.pendingChoice?.type).toBe("choose_target");
+
+    const resolve = applyAction(accept.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(getInstance(resolve.newState, targetId).zone).toBe("discard");
+  });
+
+  it("Genie On the Job enters play → may return chosen character to hand", () => {
+    let state = startGame(["genie-on-the-job"]);
+    let genieId: string, targetId: string;
+    ({ state, instanceId: genieId } = injectCard(state, "player1", "genie-on-the-job", "hand"));
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play"));
+    state = giveInk(state, "player1", 10);
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: genieId }, LORCAST_CARD_DEFINITIONS);
+    const accept = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept",
+    }, LORCAST_CARD_DEFINITIONS);
+    const resolve = applyAction(accept.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(getInstance(resolve.newState, targetId).zone).toBe("hand");
+  });
+});
+
+// =============================================================================
 // §8.11 Singer keyword (CRD 8.11.1, 8.11.2)
 // =============================================================================
 

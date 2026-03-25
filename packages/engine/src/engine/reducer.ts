@@ -33,6 +33,7 @@ import {
   getZone,
   hasKeyword,
   isSong,
+  matchesFilter,
   moveCard,
   updateInstance,
 } from "../utils/index.js";
@@ -785,7 +786,7 @@ export function applyEffect(
         return dealDamageToCard(state, sourceInstanceId, amount, definitions, events);
       }
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId);
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
         return {
           ...state,
           pendingChoice: {
@@ -798,7 +799,7 @@ export function applyEffect(
         };
       }
       if (effect.target.type === "all") {
-        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId);
+        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
         const amount = effect.amount === "X" ? 1 : effect.amount;
         for (const targetId of targets) {
           state = dealDamageToCard(state, targetId, amount, definitions, events);
@@ -810,7 +811,7 @@ export function applyEffect(
 
     case "banish": {
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId);
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
         return {
           ...state,
           pendingChoice: {
@@ -824,7 +825,7 @@ export function applyEffect(
       }
       if (effect.target.type === "all") {
         // CRD 5.4.1.2: "banish all" resolves immediately
-        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId);
+        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
         for (const targetId of targets) {
           // Skip if already banished by a previous iteration (e.g. cascading triggers)
           const inst = state.cards[targetId];
@@ -841,7 +842,7 @@ export function applyEffect(
 
     case "return_to_hand": {
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId);
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
         return {
           ...state,
           pendingChoice: {
@@ -866,6 +867,30 @@ export function applyEffect(
           damage: Math.max(0, instance.damage - effect.amount),
         });
       }
+      if (effect.target.type === "chosen") {
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_target",
+            choosingPlayerId: controllingPlayerId,
+            prompt: "Choose a character to heal.",
+            validTargets,
+            pendingEffect: effect,
+            optional: true, // "Remove up to N" — player can decline
+          },
+        };
+      }
+      if (effect.target.type === "all") {
+        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        for (const targetId of targets) {
+          const inst = getInstance(state, targetId);
+          state = updateInstance(state, targetId, {
+            damage: Math.max(0, inst.damage - effect.amount),
+          });
+        }
+        return state;
+      }
       return state;
     }
 
@@ -879,7 +904,7 @@ export function applyEffect(
         });
       }
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId);
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
         return {
           ...state,
           pendingChoice: {
@@ -895,9 +920,28 @@ export function applyEffect(
     }
 
     case "exert": {
-      // CRD 8.3.2: Bodyguard — enter play exerted
       if (effect.target.type === "this") {
         return updateInstance(state, sourceInstanceId, { isExerted: true });
+      }
+      if (effect.target.type === "chosen") {
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_target",
+            choosingPlayerId: controllingPlayerId,
+            prompt: "Choose a character to exert.",
+            validTargets,
+            pendingEffect: effect,
+          },
+        };
+      }
+      if (effect.target.type === "all") {
+        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        for (const targetId of targets) {
+          state = updateInstance(state, targetId, { isExerted: true });
+        }
+        return state;
       }
       return state;
     }
@@ -1043,7 +1087,8 @@ function gainLore(
   amount: number,
   events: GameEvent[]
 ): GameState {
-  const newLore = state.players[playerId].lore + amount;
+  // CRD 1.11.1: Lore can't go below 0
+  const newLore = Math.max(0, state.players[playerId].lore + amount);
   events.push({ type: "lore_gained", playerId, amount });
   return {
     ...state,
@@ -1135,6 +1180,14 @@ function applyEffectToTarget(
         tempLoreModifier: instance.tempLoreModifier + (effect.lore ?? 0),
       });
     }
+    case "heal": {
+      const instance = getInstance(state, targetInstanceId);
+      return updateInstance(state, targetInstanceId, {
+        damage: Math.max(0, instance.damage - effect.amount),
+      });
+    }
+    case "exert":
+      return updateInstance(state, targetInstanceId, { isExerted: true });
     default:
       return state;
   }
@@ -1177,18 +1230,14 @@ function updatePlayerInk(state: GameState, playerId: PlayerID, delta: number): G
 function findValidTargets(
   state: GameState,
   filter: import("../types/index.js").CardFilter,
-  controllingPlayerId: PlayerID
+  controllingPlayerId: PlayerID,
+  definitions: Record<string, CardDefinition>
 ): string[] {
   return Object.values(state.cards)
     .filter((instance) => {
-      if (filter.zone) {
-        const zones = Array.isArray(filter.zone) ? filter.zone : [filter.zone];
-        if (!zones.includes(instance.zone)) return false;
-      }
-      if (filter.owner?.type === "opponent" && instance.ownerId === controllingPlayerId) return false;
-      if (filter.owner?.type === "self" && instance.ownerId !== controllingPlayerId) return false;
-      if (filter.excludeInstanceId && instance.instanceId === filter.excludeInstanceId) return false;
-      return true;
+      const def = definitions[instance.definitionId];
+      if (!def) return false;
+      return matchesFilter(instance, def, filter, state, controllingPlayerId);
     })
     .map((i) => i.instanceId);
 }
