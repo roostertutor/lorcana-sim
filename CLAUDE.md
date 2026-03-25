@@ -17,6 +17,7 @@ Simulates thousands of games to produce deck analytics and win rates.
 - analytics: done — aggregateResults, analyzeDeckComposition, compareDecks, analyzeOpeningHands, calibratePersonalBot, analyzeWeightSensitivity; 15 tests passing
 - cli:       done — analyze, compare, optimize, sweep commands; tsx runner; sample-deck.txt
 - ui:        done — Deck Input, Composition, Simulate, Compare, Weight Explorer; React+Vite+Recharts+Tailwind
+- cards:     set 1 imported (216 cards, 106 keyword-only ready, 110 need named ability stubs)
 
 ## Known Pre-existing Typecheck Issue
 

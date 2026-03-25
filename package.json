@@ -12,9 +12,11 @@
     "analyze": "pnpm --filter cli analyze",
     "compare": "pnpm --filter cli compare",
     "optimize": "pnpm --filter cli optimize",
-    "sweep": "pnpm --filter cli sweep"
+    "sweep": "pnpm --filter cli sweep",
+    "import-cards": "tsx scripts/import-cards.ts"
   },
   "devDependencies": {
+    "tsx": "^4.7.0",
     "typescript": "^5.4.0"
   },
   "engines": {
