@@ -67,7 +67,7 @@ function injectCard(
     zone,
     isExerted: false,
     damage: 0,
-    hasActedThisTurn: false,
+    isDrying: false,
     tempStrengthModifier: 0,
     tempWillpowerModifier: 0,
     tempLoreModifier: 0,
@@ -293,14 +293,15 @@ describe("Questing", () => {
     expect(result.error).toMatch(/exerted/i);
   });
 
-  it("cannot quest with a character that has already acted this turn", () => {
+  it("cannot quest with a drying character", () => {
     let state = startGame();
     let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { hasActedThisTurn: true }));
+    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { isDrying: true }));
 
     const result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.success).toBe(false);
+    expect(result.error).toMatch(/drying/i);
   });
 
   it("cannot quest with a character not in play", () => {
@@ -433,23 +434,53 @@ describe("Challenging", () => {
 describe("Keywords", () => {
 
   // ---------------------------------------------------------------------------
-  // RUSH — character may quest or challenge the turn it enters play
-  // (no summoning sickness). Non-Rush characters must wait a turn.
+  // RUSH — CRD 8.9.1: character can challenge the turn it enters play
+  // (but NOT quest). Non-Rush characters must wait a turn for both.
   // ---------------------------------------------------------------------------
 
-  it("Rush: can quest or challenge immediately; non-Rush characters cannot", () => {
+  it("Rush: can challenge immediately but cannot quest (CRD 8.9.1)", () => {
     let state = startGame();
-    let rushId: string, vanillaId: string;
+    let rushId: string, defenderId: string;
     ({ state, instanceId: rushId } = injectCard(state, "player1", "flotsam-ursulas-spy", "hand")); // Rush, cost 5
+    ({ state, instanceId: defenderId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play", { isExerted: true }));
+    state = giveInk(state, "player1", 10);
+
+    const playResult = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: rushId }, LORCAST_CARD_DEFINITIONS);
+    expect(playResult.success).toBe(true);
+    expect(getInstance(playResult.newState, rushId).isDrying).toBe(true); // still drying
+
+    // Rush: CAN challenge while drying
+    const challengeResult = applyAction(playResult.newState, {
+      type: "CHALLENGE", playerId: "player1", attackerInstanceId: rushId, defenderInstanceId: defenderId,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(challengeResult.success).toBe(true);
+  });
+
+  it("Rush: cannot quest while drying (CRD 8.9.1)", () => {
+    let state = startGame();
+    let rushId: string;
+    ({ state, instanceId: rushId } = injectCard(state, "player1", "flotsam-ursulas-spy", "hand")); // Rush, cost 5
+    state = giveInk(state, "player1", 10);
+
+    const playResult = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: rushId }, LORCAST_CARD_DEFINITIONS);
+    expect(playResult.success).toBe(true);
+
+    // Rush: CANNOT quest while drying
+    const questResult = applyAction(playResult.newState, {
+      type: "QUEST", playerId: "player1", instanceId: rushId,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(questResult.success).toBe(false);
+    expect(questResult.error).toMatch(/drying/i);
+  });
+
+  it("non-Rush characters enter play drying and cannot act", () => {
+    let state = startGame();
+    let vanillaId: string;
     ({ state, instanceId: vanillaId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand")); // no Rush, cost 2
     state = giveInk(state, "player1", 10);
 
-    // Apply both plays from the same starting state so they're independent
-    const rushResult = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: rushId }, LORCAST_CARD_DEFINITIONS);
-    const vanillaResult = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: vanillaId }, LORCAST_CARD_DEFINITIONS);
-
-    expect(getInstance(rushResult.newState, rushId).hasActedThisTurn).toBe(false);    // Rush: can act
-    expect(getInstance(vanillaResult.newState, vanillaId).hasActedThisTurn).toBe(true); // no Rush: cannot act
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: vanillaId }, LORCAST_CARD_DEFINITIONS);
+    expect(getInstance(result.newState, vanillaId).isDrying).toBe(true);
   });
 
   // ---------------------------------------------------------------------------
@@ -683,10 +714,10 @@ describe("Keywords", () => {
     expect(getInstance(result.newState, shiftId).isExerted).toBe(true);
   });
 
-  it("Shift: shifted card starts with 0 damage (does not inherit the original's damage)", () => {
+  it("Shift: inherits damage from base card (CRD 8.10.6)", () => {
     let state = startGame();
     let baseId: string, shiftId: string;
-    ({ state, instanceId: baseId } = injectCard(state, "player1", "hades-lord-of-the-underworld", "play", { damage: 1 }));
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "hades-lord-of-the-underworld", "play", { damage: 2 }));
     ({ state, instanceId: shiftId } = injectCard(state, "player1", "hades-king-of-olympus", "hand"));
     state = giveInk(state, "player1", 6);
 
@@ -698,13 +729,14 @@ describe("Keywords", () => {
     }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.success).toBe(true);
-    expect(getInstance(result.newState, shiftId).damage).toBe(0);
+    expect(getInstance(result.newState, shiftId).damage).toBe(2);
   });
 
-  it("Shift: shifted character cannot act the same turn (no Rush)", () => {
+  it("Shift: inherits dry state from base — dry base means shifted card is dry (CRD 8.10.4)", () => {
     let state = startGame();
     let baseId: string, shiftId: string;
-    ({ state, instanceId: baseId } = injectCard(state, "player1", "hades-lord-of-the-underworld", "play"));
+    // Base is dry (isDrying: false) — been in play since start of turn
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "hades-lord-of-the-underworld", "play", { isDrying: false }));
     ({ state, instanceId: shiftId } = injectCard(state, "player1", "hades-king-of-olympus", "hand"));
     state = giveInk(state, "player1", 6);
 
@@ -716,7 +748,26 @@ describe("Keywords", () => {
     }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.success).toBe(true);
-    expect(getInstance(result.newState, shiftId).hasActedThisTurn).toBe(true);
+    expect(getInstance(result.newState, shiftId).isDrying).toBe(false); // inherits dry
+  });
+
+  it("Shift: inherits drying state from base — drying base means shifted card is drying (CRD 8.10.4)", () => {
+    let state = startGame();
+    let baseId: string, shiftId: string;
+    // Base is drying (isDrying: true) — entered play this turn
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "hades-lord-of-the-underworld", "play", { isDrying: true }));
+    ({ state, instanceId: shiftId } = injectCard(state, "player1", "hades-king-of-olympus", "hand"));
+    state = giveInk(state, "player1", 6);
+
+    const result = applyAction(state, {
+      type: "PLAY_CARD",
+      playerId: "player1",
+      instanceId: shiftId,
+      shiftTargetInstanceId: baseId,
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, shiftId).isDrying).toBe(true); // inherits drying
   });
 
   // ---------------------------------------------------------------------------
@@ -836,15 +887,15 @@ describe("Turn Management", () => {
     expect(getZone(result.newState, "player2", "hand").length).toBe(p2HandBefore + 1);
   });
 
-  it("readies exerted characters at start of their owner's next turn", () => {
+  it("readies exerted characters and clears drying at start of their owner's next turn", () => {
     let state = startGame();
     let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { isExerted: true, hasActedThisTurn: true }));
+    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { isExerted: true, isDrying: true }));
 
     state = passTurns(state, 2); // p1 → p2 → p1
 
     expect(getInstance(state, instanceId).isExerted).toBe(false);
-    expect(getInstance(state, instanceId).hasActedThisTurn).toBe(false);
+    expect(getInstance(state, instanceId).isDrying).toBe(false);
   });
 
   it("cannot pass on opponent's turn", () => {

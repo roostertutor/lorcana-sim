@@ -49,7 +49,7 @@
 | Rule | Quote | Status |
 |------|-------|--------|
 | 1.7.2 | Effects must fully resolve before next can happen | ⚠️ Trigger stack enforces this for triggered abilities; simultaneous resolution not modeled |
-| 1.7.5 | **Drying**: characters can't quest/challenge/exert unless in play since beginning of their player's turn | 🐛 `hasActedThisTurn` boolean doesn't distinguish quest vs challenge restriction — Rush bug (see below) |
+| 1.7.5 | **Drying**: characters can't quest/challenge/exert unless in play since beginning of their player's turn | ✅ `isDrying` boolean; Rush bypasses for challenges only |
 | 1.7.6 | Illegal action: undo all steps, payments reversed | ⚠️ We return `success: false` and don't mutate state, but don't log "undo" |
 
 ### 1.8 Game State Check
@@ -107,7 +107,7 @@
 #### 3.2.1 Ready step
 | Rule | Quote | Status |
 |------|-------|--------|
-| 3.2.1.1 | Active player readies all cards **in play and in inkwell** | 🐛 `applyPassTurn` readies only play zone; inkwell cards not readied |
+| 3.2.1.1 | Active player readies all cards **in play and in inkwell** | ✅ Both play and inkwell cards readied |
 | 3.2.1.2 | "During your turn" effects start applying | ❌ No duration tracking for "during your turn" static effects |
 | 3.2.1.3 | "Start of your turn" / "start of your next turn" effects end | ❌ Not implemented |
 | 3.2.1.4 | "At the start of your turn" triggered abilities added to bag | ❌ Not implemented |
@@ -115,7 +115,7 @@
 #### 3.2.2 Set step
 | Rule | Quote | Status |
 |------|-------|--------|
-| 3.2.2.1 | Active player's characters are no longer drying; can quest/challenge/{E} | ✅ `hasActedThisTurn` reset on turn start. NOTE: drying vs dry distinction not fully modeled (see Rush bug) |
+| 3.2.2.1 | Active player's characters are no longer drying; can quest/challenge/{E} | ✅ `isDrying` cleared on turn start |
 | 3.2.2.2 | Active player gains lore from locations with {L} | ❌ Locations not implemented |
 | 3.2.2.3 | Resolve triggered abilities from Ready + Set steps | ❌ No start-of-turn trigger resolution |
 
@@ -209,15 +209,15 @@
 | 5.1.1.3–4 | Damaged / undamaged | ✅ `damage > 0` |
 | 5.1.1.5–7 | Under / on top / in a stack (Shift stacks) | ⚠️ `shiftedOntoInstanceId` tracked but stack mechanics not fully modeled (see CRD 8.10) |
 | 5.1.1.8 | In Play: faceup in Play zone with no cards on top | ✅ `zone === "play"` |
-| 5.1.1.11 | **Drying**: entered play this turn; can't quest/challenge/exert | 🐛 `hasActedThisTurn` conflates drying with "has acted." Need distinct `isDrying` concept. |
-| 5.1.1.12 | **Dry**: been in play since start of their player's turn; can quest/challenge/exert | 🐛 Same as above |
-| 5.1.2.1 | Characters enter play ready, undamaged, faceup, **drying** | ✅ (`hasActedThisTurn: true`) except Rush misimplemented |
+| 5.1.1.11 | **Drying**: entered play this turn; can't quest/challenge/exert | ✅ `isDrying: true` on play; validator enforces restrictions |
+| 5.1.1.12 | **Dry**: been in play since start of their player's turn; can quest/challenge/exert | ✅ `isDrying: false` after turn start |
+| 5.1.2.1 | Characters enter play ready, undamaged, faceup, **drying** | ✅ `isDrying: true`; Rush bypasses for challenges only |
 
 ### 5.3 Characters
 | Rule | Quote | Status |
 |------|-------|--------|
 | 5.3.4 | Only characters can quest or challenge | ✅ `def.cardType !== "character"` checks |
-| 5.3.5 | Character must have been in play at beginning of Set step to quest/challenge/{E} | 🐛 See drying bug |
+| 5.3.5 | Character must have been in play at beginning of Set step to quest/challenge/{E} | ✅ `isDrying` check in validator |
 
 ### 5.4 Actions
 | Rule | Quote | Status |
@@ -344,21 +344,21 @@
 |------|-------|--------|
 | 8.8.1 | Resist +N: damage dealt to this character/location reduced by N | ✅ `getKeywordValue(_, _, "resist")` in challenge + `dealDamageToCard` |
 | 8.8.2 | If damage reduced to 0, no damage is considered dealt | ✅ `Math.max(0, ...)` |
-| 8.8.3 | Damage **put or moved** onto character is NOT affected by Resist | ⚠️ `dealDamageToCard` applies Resist to all damage including "put" — may need separate paths |
+| 8.8.3 | Damage **put or moved** onto character is NOT affected by Resist | ✅ `ignoreResist` parameter added to `dealDamageToCard` |
 
 ### 8.9 Rush
 | Rule | Quote | Status |
 |------|-------|--------|
-| 8.9.1 | Rush: character can **challenge** as though in play at beginning of turn (challenge only, NOT quest) | 🐛 `hasActedThisTurn = false` allows questing too |
+| 8.9.1 | Rush: character can **challenge** as though in play at beginning of turn (challenge only, NOT quest) | ✅ Validator checks Rush keyword; bypasses isDrying for challenges only |
 
 ### 8.10 Shift
 | Rule | Quote | Status |
 |------|-------|--------|
 | 8.10.1 | Shift: pay shift cost, put on top of same-named character | ✅ |
 | 8.10.2 | If shifted onto exerted character, enters exerted | ✅ Tested |
-| 8.10.4 | If shifted onto **dry** character, enters **dry** (can challenge); if drying, enters drying | 🐛 Code unconditionally sets `hasActedThisTurn: true` (drying) regardless of base card state |
+| 8.10.4 | If shifted onto **dry** character, enters **dry** (can challenge); if drying, enters drying | ✅ `isDrying: shiftTarget.isDrying` inherits from base |
 | 8.10.5 | Shifted character inherits ability to sing if base was dry | ❌ Singing not implemented |
-| 8.10.6 | **Shifted character retains damage from character it's on top of** | 🐛 Code sets `damage: 0`; CRD says damage IS inherited |
+| 8.10.6 | **Shifted character retains damage from character it's on top of** | ✅ `damage: shiftTarget.damage` |
 | 8.10.7 | When shifted card leaves play, all cards in stack go to same zone | ❌ Only top card moved to discard |
 
 ### 8.11 Singer
@@ -389,22 +389,21 @@
 
 ---
 
-## SUMMARY: Bugs to Fix
+## SUMMARY: Bugs Fixed (Session 5)
 
-| # | Bug | CRD Ref | Priority |
-|---|-----|---------|----------|
-| B1 | Rush allows questing; should only allow challenging | 8.9.1 | High |
-| B2 | Shift sets `damage: 0`; should inherit damage from base | 8.10.6 | High |
-| B3 | Shift sets `hasActedThisTurn: true` unconditionally; should inherit dry/drying from base | 8.10.4 | High |
-| B4 | `applyPassTurn` readies only play zone; inkwell cards not readied | 3.2.1.1 | Medium |
-| B5 | `hasActedThisTurn` boolean conflates questing restriction with challenging restriction; need distinct `isDrying` | 5.1.1.11 | High |
-| B6 | Resist applies to "put/moved" damage; should only reduce "dealt" damage | 8.8.3 | Low |
+| # | Bug | CRD Ref | Fix |
+|---|-----|---------|-----|
+| B1 | Rush allows questing; should only allow challenging | 8.9.1 | ✅ Validator checks Rush keyword; bypasses isDrying for challenges only |
+| B2 | Shift sets `damage: 0`; should inherit damage from base | 8.10.6 | ✅ `damage: shiftTarget.damage` |
+| B3 | Shift sets `hasActedThisTurn: true` unconditionally; should inherit dry/drying from base | 8.10.4 | ✅ `isDrying: shiftTarget.isDrying` |
+| B4 | `applyPassTurn` readies only play zone; inkwell cards not readied | 3.2.1.1 | ✅ Added inkwell loop |
+| B5 | `hasActedThisTurn` boolean conflates questing restriction with challenging restriction | 5.1.1.11 | ✅ Renamed to `isDrying`; drying is now a proper CRD concept |
+| B6 | Resist applies to "put/moved" damage; should only reduce "dealt" damage | 8.8.3 | ✅ Added `ignoreResist` parameter to `dealDamageToCard` |
 
 ## SUMMARY: Missing Features (set 1 scope)
 
 | Feature | CRD Ref | Notes |
 |---------|---------|-------|
-| Drying vs Dry as distinct states | 5.1.1.11–12 | Prerequisite for fixing Rush and Shift bugs |
 | Bodyguard enters play exerted | 8.3.2 | |
 | Reckless can't quest + can't pass if able to challenge | 8.7.2–3 | `it.todo` |
 | Support (quest to buff another character's {S}) | 8.13.1 | `it.todo` |
@@ -420,5 +419,5 @@
 
 ---
 
-*Last updated: Session 4*
+*Last updated: Session 5*
 *CRD version: 2.0.1, effective Feb 5, 2026*

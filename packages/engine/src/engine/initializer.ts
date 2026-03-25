@@ -94,7 +94,7 @@ function buildDeckInstances(
         zone: "deck",
         isExerted: false,
         damage: 0,
-        hasActedThisTurn: false,
+        isDrying: false,
         tempStrengthModifier: 0,
         tempWillpowerModifier: 0,
         tempLoreModifier: 0,

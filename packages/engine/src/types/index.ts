@@ -329,8 +329,10 @@ export interface CardInstance {
   isExerted: boolean;
   /** Damage counters on the card */
   damage: number;
-  /** Can this card quest/challenge? False on the turn it enters play (unless Rush) */
-  hasActedThisTurn: boolean;
+  /** True when this card entered play this turn (CRD 5.1.1.11 "drying").
+   *  Drying characters can't quest, challenge, or exert.
+   *  Rush bypasses this for challenges only (CRD 8.9.1). */
+  isDrying: boolean;
 
   // --- Temporary modifiers from effects (cleared at end of turn unless permanent) ---
   tempStrengthModifier: number;

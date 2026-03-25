@@ -274,8 +274,8 @@ function applyPlayCard(
     state = moveCard(state, instanceId, playerId, "play");
     state = updateInstance(state, instanceId, {
       isExerted: shiftTarget.isExerted,
-      damage: 0, // Shifted card enters play fresh — damage counters are not inherited
-      hasActedThisTurn: true, // Shifted characters can't act immediately (no Rush by default)
+      damage: shiftTarget.damage, // CRD 8.10.6: shifted character retains damage from base
+      isDrying: shiftTarget.isDrying, // CRD 8.10.4: inherit dry/drying from base card
       shiftedOntoInstanceId: shiftTargetInstanceId,
     });
     state = moveCard(state, shiftTargetInstanceId, playerId, "discard");
@@ -287,10 +287,9 @@ function applyPlayCard(
     });
   } else {
     state = moveCard(state, instanceId, playerId, "play");
-    const hasRush = def.abilities.some((a) => a.type === "keyword" && a.keyword === "rush");
-    state = updateInstance(state, instanceId, {
-      hasActedThisTurn: !hasRush, // Rush allows acting immediately
-    });
+    // All characters enter play drying (CRD 5.1.2.1). Rush is handled in
+    // the validator — it bypasses isDrying for challenges only (CRD 8.9.1).
+    state = updateInstance(state, instanceId, { isDrying: true });
     events.push({ type: "card_moved", instanceId, from: "hand", to: "play" });
     state = appendLog(state, {
       turn: state.turnNumber,
@@ -347,7 +346,7 @@ function applyQuest(
   const def = getDefinition(state, instanceId, definitions);
   const loreGained = getEffectiveLore(instance, def);
 
-  state = updateInstance(state, instanceId, { isExerted: true, hasActedThisTurn: true });
+  state = updateInstance(state, instanceId, { isExerted: true });
   state = gainLore(state, playerId, loreGained, events);
 
   events.push({ type: "lore_gained", playerId, amount: loreGained });
@@ -387,7 +386,7 @@ function applyChallenge(
     attackerStr += challengerBonus.value ?? 0;
   }
 
-  state = updateInstance(state, attackerInstanceId, { isExerted: true, hasActedThisTurn: true });
+  state = updateInstance(state, attackerInstanceId, { isExerted: true });
 
   // Apply Resist: reduce incoming damage by the Resist value (min 0)
   const attackerResist = getKeywordValue(attacker, attackerDef, "resist");
@@ -496,10 +495,14 @@ function applyPassTurn(
     },
   };
 
-  // Ready all of opponent's exerted cards
+  // Ready all of opponent's cards in play and inkwell (CRD 3.2.1.1)
   const opponentPlay = getZone(state, opponent, "play");
   for (const id of opponentPlay) {
-    state = updateInstance(state, id, { isExerted: false, hasActedThisTurn: false });
+    state = updateInstance(state, id, { isExerted: false, isDrying: false });
+  }
+  const opponentInkwell = getZone(state, opponent, "inkwell");
+  for (const id of opponentInkwell) {
+    state = updateInstance(state, id, { isExerted: false });
   }
 
   // Clear temp modifiers on ALL cards (end of turn)
@@ -861,13 +864,15 @@ function dealDamageToCard(
   instanceId: string,
   amount: number,
   definitions: Record<string, CardDefinition>,
-  events: GameEvent[]
+  events: GameEvent[],
+  /** CRD 8.8.3: Resist only reduces "dealt" damage, not "put" or "moved" damage */
+  ignoreResist = false
 ): GameState {
   const instance = getInstance(state, instanceId);
   const def = definitions[instance.definitionId];
   if (!def) return state;
 
-  const resistValue = getKeywordValue(instance, def, "resist");
+  const resistValue = ignoreResist ? 0 : getKeywordValue(instance, def, "resist");
   const actualDamage = Math.max(0, amount - resistValue);
 
   const newDamage = instance.damage + actualDamage;

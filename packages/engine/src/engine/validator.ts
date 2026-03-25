@@ -129,7 +129,7 @@ function validateQuest(
   if (instance.ownerId !== playerId) return fail("You don't own this card.");
   if (instance.zone !== "play") return fail("Card is not in play.");
   if (instance.isExerted) return fail("This character is already exerted.");
-  if (instance.hasActedThisTurn) return fail("This character has already acted this turn.");
+  if (instance.isDrying) return fail("This character is still drying and cannot quest.");
 
   const def = getDefinition(state, instanceId, definitions);
   if (def.cardType !== "character") return fail("Only characters can quest.");
@@ -151,9 +151,13 @@ function validateChallenge(
   if (attacker.ownerId !== playerId) return fail("You don't own the attacker.");
   if (attacker.zone !== "play") return fail("Attacker is not in play.");
   if (attacker.isExerted) return fail("Attacker is exerted and cannot challenge.");
-  if (attacker.hasActedThisTurn) return fail("Attacker has already acted this turn.");
 
   const attackerDef = getDefinition(state, attackerInstanceId, definitions);
+  // Rush bypasses drying for challenges only (CRD 8.9.1)
+  if (attacker.isDrying && !hasKeyword(attacker, attackerDef, "rush")) {
+    return fail("Attacker is still drying and cannot challenge.");
+  }
+
   if (attackerDef.cardType !== "character") return fail("Only characters can challenge.");
 
   const defender = getInstance(state, defenderInstanceId);
@@ -221,6 +225,11 @@ function validateActivateAbility(
   for (const cost of ability.costs) {
     if (cost.type === "exert") {
       if (instance.isExerted) return fail("Card is already exerted.");
+      // CRD 6.3.1.1: {E} ability on character requires dry character
+      // CRD 6.3.1.2: Items/locations can use activated abilities turn played
+      if (instance.isDrying && def.cardType === "character") {
+        return fail("This character is still drying and cannot use exert abilities.");
+      }
     }
     if (cost.type === "pay_ink") {
       if (!canAfford(state, playerId, cost.amount)) {

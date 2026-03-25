@@ -12,7 +12,7 @@ Simulates thousands of games to produce deck analytics and win rates.
 
 ## Current Status
 (Update at the start of every Claude Code session)
-- engine:    done — reducer, utils, getAllLegalActions, checkWinConditions, gameModifiers; 51 tests passing; 5 todo (Resist, Reckless, Support, Singer)
+- engine:    done — reducer, utils, getAllLegalActions, checkWinConditions, gameModifiers; 54 tests passing; 5 todo (Resist, Reckless, Support, Singer); CRD bugs B1–B6 fixed (isDrying refactor, Rush, Shift, inkwell ready, Resist)
 - simulator: done — RandomBot, GreedyBot, ProbabilityBot, PersonalBot, presets, runGame, runSimulation, optimizer; Layer 3 invariants (1000 games) + sanity checks passing
 - analytics: done — aggregateResults, analyzeDeckComposition, compareDecks, analyzeOpeningHands, calibratePersonalBot, analyzeWeightSensitivity; 15 tests passing
 - cli:       done — analyze, compare, optimize, sweep commands; tsx runner; sample-deck.txt
@@ -21,9 +21,9 @@ Simulates thousands of games to produce deck analytics and win rates.
 
 ## Known Pre-existing Typecheck Issue
 
-`pnpm typecheck` reports 3 errors in `packages/engine/src/cards/sampleCards.ts` (protected file):
+`pnpm typecheck` reports 3 errors in `packages/engine/src/cards/sampleCards.ts`:
 three cards use `subtitle: undefined` instead of omitting the property, which fails
-`exactOptionalPropertyTypes`. Cannot fix without modifying a protected file.
+`exactOptionalPropertyTypes`. Low priority fix.
 All other engine code typechecks clean.
 
 ---
@@ -52,9 +52,11 @@ Build order: engine → simulator → analytics → cli → ui
 
 ---
 
-## Files That Must Not Be Modified
+## Previously Protected Files (unprotected after CRD audit)
 
-These four files are correct. Do not touch them:
+These files were previously marked "do not touch" but the CRD v2.0.1 audit
+revealed bugs in validator.ts (Rush) and types/index.ts (drying semantics).
+All four are now unprotected and may be modified when fixing CRD bugs.
 - packages/engine/src/types/index.ts
 - packages/engine/src/cards/sampleCards.ts
 - packages/engine/src/engine/validator.ts
