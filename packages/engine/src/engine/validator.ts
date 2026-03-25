@@ -252,12 +252,25 @@ function validatePassTurn(state: GameState, playerId: PlayerID): ValidationResul
 function validateResolveChoice(
   state: GameState,
   playerId: PlayerID,
-  choice: string[] | number,
+  choice: string[] | number | "accept" | "decline",
   definitions: Record<string, CardDefinition>
 ): ValidationResult {
   if (!state.pendingChoice) return fail("No pending choice to resolve.");
   if (state.pendingChoice.choosingPlayerId !== playerId) {
     return fail("It's not your choice to make.");
+  }
+
+  // CRD 6.1.4: "may" choices accept "accept" or "decline"
+  if (state.pendingChoice.type === "choose_may") {
+    if (choice !== "accept" && choice !== "decline") {
+      return fail("Must accept or decline a 'may' choice.");
+    }
+    return OK;
+  }
+
+  // CRD 6.1.4: optional target choices can be declined with empty array
+  if (state.pendingChoice.optional && Array.isArray(choice) && choice.length === 0) {
+    return OK;
   }
 
   // CRD 8.15.1: Ward — opponents can't choose this character for their effects

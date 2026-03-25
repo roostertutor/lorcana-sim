@@ -99,12 +99,15 @@ export type Effect =
   | GainStatsEffect
   | CreateCardEffect
   | SearchEffect
-  | ChooseEffect;
+  | ChooseEffect
+  | ExertEffect;
 
 export interface DrawEffect {
   type: "draw";
   amount: number | "X";
   target: PlayerTarget;
+  /** CRD 6.1.4: player may choose not to apply this effect */
+  isMay?: boolean;
 }
 
 export interface DealDamageEffect {
@@ -143,6 +146,8 @@ export interface GainStatsEffect {
   target: CardTarget;
   /** "this_turn" = wears off at end of turn, "permanent" = stays */
   duration: "this_turn" | "permanent";
+  /** CRD 6.1.4: player may choose not to apply this effect */
+  isMay?: boolean;
 }
 
 export interface CreateCardEffect {
@@ -166,6 +171,13 @@ export interface ChooseEffect {
   type: "choose";
   options: Effect[][];
   count: number;
+}
+
+export interface ExertEffect {
+  type: "exert";
+  target: CardTarget;
+  /** CRD 6.1.4: player may choose not to apply this effect */
+  isMay?: boolean;
 }
 
 // -----------------------------------------------------------------------------
@@ -223,6 +235,8 @@ export interface CardFilter {
   isExerted?: boolean;
   costAtMost?: number;
   costAtLeast?: number;
+  /** Exclude a specific card instance (e.g. Support can't target itself) */
+  excludeInstanceId?: string;
 }
 
 // -----------------------------------------------------------------------------
@@ -405,7 +419,7 @@ export interface TriggerContext {
 }
 
 export interface PendingChoice {
-  type: "choose_target" | "choose_option" | "choose_cards";
+  type: "choose_target" | "choose_option" | "choose_cards" | "choose_may";
   /** Which player must make the choice */
   choosingPlayerId: PlayerID;
   prompt: string;
@@ -418,6 +432,10 @@ export interface PendingChoice {
   count?: number;
   /** The effect waiting for this choice to resolve */
   pendingEffect: Effect;
+  /** CRD 6.1.4: player can decline with empty choice */
+  optional?: boolean;
+  /** For choose_may: the source card's instanceId (needed to resume trigger processing) */
+  sourceInstanceId?: string;
 }
 
 export interface GameLogEntry {
@@ -505,8 +523,8 @@ export interface PassTurnAction {
 export interface ResolveChoiceAction {
   type: "RESOLVE_CHOICE";
   playerId: PlayerID;
-  /** instanceIds of chosen targets, or indices of chosen options */
-  choice: string[] | number;
+  /** instanceIds of chosen targets, index of chosen option, or "accept"/"decline" for may */
+  choice: string[] | number | "accept" | "decline";
 }
 
 export interface DrawCardAction {

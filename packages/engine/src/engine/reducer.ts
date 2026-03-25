@@ -16,6 +16,7 @@ import type {
   TriggeredAbility,
   Effect,
   Cost,
+  PendingTrigger,
 } from "../types/index.js";
 import { validateAction } from "./validator.js";
 import {
@@ -300,6 +301,26 @@ function applyPlayCard(
   // Queue "enters play" triggers
   state = queueTrigger(state, "enters_play", instanceId, definitions, { triggeringPlayerId: playerId });
 
+  // CRD 8.3.2: Bodyguard — may enter play exerted
+  const playedInstance = getInstance(state, instanceId);
+  const playedDef = getDefinition(state, instanceId, definitions);
+  if (hasKeyword(playedInstance, playedDef, "bodyguard")) {
+    const bodyguardTrigger: PendingTrigger = {
+      ability: {
+        type: "triggered",
+        trigger: { on: "enters_play" },
+        effects: [{
+          type: "exert",
+          target: { type: "this" },
+          isMay: true, // CRD 6.1.4
+        }],
+      },
+      sourceInstanceId: instanceId,
+      context: { triggeringPlayerId: playerId },
+    };
+    state = { ...state, triggerStack: [...state.triggerStack, bodyguardTrigger] };
+  }
+
   return state;
 }
 
@@ -358,6 +379,49 @@ function applyQuest(
   });
 
   state = queueTrigger(state, "quests", instanceId, definitions, { triggeringPlayerId: playerId });
+
+  // CRD 8.13.1: Support — synthesize triggered ability for the bag
+  const questingInstance = getInstance(state, instanceId);
+  const questingDef = getDefinition(state, instanceId, definitions);
+  if (hasKeyword(questingInstance, questingDef, "support")) {
+    const supportStrength = getEffectiveStrength(questingInstance, questingDef);
+    if (supportStrength > 0) {
+      // Check there is at least one other character in play to target
+      const otherChars = getZone(state, playerId, "play").filter((id) => {
+        if (id === instanceId) return false;
+        const inst = state.cards[id];
+        if (!inst) return false;
+        const d = definitions[inst.definitionId];
+        return d?.cardType === "character";
+      });
+      if (otherChars.length > 0) {
+        const supportTrigger: PendingTrigger = {
+          ability: {
+            type: "triggered",
+            trigger: { on: "quests" },
+            effects: [{
+              type: "gain_stats",
+              strength: supportStrength,
+              target: {
+                type: "chosen",
+                filter: {
+                  owner: { type: "self" },
+                  zone: "play",
+                  cardType: ["character"],
+                  excludeInstanceId: instanceId,
+                },
+              },
+              duration: "this_turn",
+              isMay: true, // CRD 6.1.4
+            }],
+          },
+          sourceInstanceId: instanceId,
+          context: { triggeringPlayerId: playerId },
+        };
+        state = { ...state, triggerStack: [...state.triggerStack, supportTrigger] };
+      }
+    }
+  }
 
   return state;
 }
@@ -579,7 +643,7 @@ function applyDraw(
 function applyResolveChoice(
   state: GameState,
   playerId: PlayerID,
-  choice: string[] | number,
+  choice: string[] | number | "accept" | "decline",
   definitions: Record<string, CardDefinition>,
   events: GameEvent[]
 ): GameState {
@@ -589,7 +653,22 @@ function applyResolveChoice(
   const pendingEffect = pendingChoice.pendingEffect;
   state = { ...state, pendingChoice: null };
 
+  // CRD 6.1.4: "may" effect — accept or decline
+  if (pendingChoice.type === "choose_may") {
+    if (choice === "accept") {
+      // Apply the effect — which may itself create a target choice (e.g. Support)
+      const sourceId = pendingChoice.sourceInstanceId ?? "";
+      state = applyEffect(state, pendingEffect, sourceId, playerId, definitions, events);
+    }
+    // "decline" → skip, clear pendingChoice (already done above)
+    return state;
+  }
+
   if (pendingChoice.type === "choose_target" && Array.isArray(choice)) {
+    // CRD 6.1.4: optional target choice — empty array = skip
+    if (pendingChoice.optional && choice.length === 0) {
+      return state;
+    }
     for (const targetId of choice) {
       state = applyEffectToTarget(state, pendingEffect, targetId, playerId, definitions, events);
     }
@@ -732,6 +811,14 @@ export function applyEffect(
       return state;
     }
 
+    case "exert": {
+      // CRD 8.3.2: Bodyguard — enter play exerted
+      if (effect.target.type === "this") {
+        return updateInstance(state, sourceInstanceId, { isExerted: true });
+      }
+      return state;
+    }
+
     default:
       return state; // Unimplemented effect type — no-op for now
   }
@@ -819,6 +906,22 @@ function processTriggerStack(
     events.push({ type: "ability_triggered", instanceId: trigger.sourceInstanceId, abilityType: "triggered" });
 
     for (const effect of trigger.ability.effects) {
+      // CRD 6.1.4: "may" effects require player decision before resolving
+      if ("isMay" in effect && effect.isMay) {
+        state = {
+          ...state,
+          pendingChoice: {
+            type: "choose_may",
+            choosingPlayerId: source.ownerId,
+            prompt: "You may use this effect. Accept or decline?",
+            pendingEffect: effect,
+            optional: true,
+            sourceInstanceId: trigger.sourceInstanceId,
+          },
+        };
+        break; // Pause trigger processing — will resume after choice
+      }
+
       state = applyEffect(
         state,
         effect,
@@ -986,6 +1089,7 @@ function findValidTargets(
       }
       if (filter.owner?.type === "opponent" && instance.ownerId === controllingPlayerId) return false;
       if (filter.owner?.type === "self" && instance.ownerId !== controllingPlayerId) return false;
+      if (filter.excludeInstanceId && instance.instanceId === filter.excludeInstanceId) return false;
       return true;
     })
     .map((i) => i.instanceId);

@@ -244,7 +244,7 @@
 |------|-------|--------|
 | 6.1.1 | Abilities apply when source is in play | ✅ |
 | 6.1.3 | Choices made as effect resolves | ✅ `pendingChoice` / `RESOLVE_CHOICE` |
-| 6.1.4 | "May" = optional; choosing not to has no effect | ⚠️ Effects without "may" always apply; optional choice not consistently modeled |
+| 6.1.4 | "May" = optional; choosing not to has no effect | ✅ `isMay` flag on effects; `choose_may` PendingChoice; accept/decline flow in processTriggerStack |
 | 6.1.7 | "For free" = ignore all costs | ❌ |
 
 ### 6.2 Triggered Abilities
@@ -313,7 +313,7 @@
 ### 8.3 Bodyguard
 | Rule | Quote | Status |
 |------|-------|--------|
-| 8.3.2 | Bodyguard may **enter play exerted** | ❌ Not implemented — only the challenge restriction is |
+| 8.3.2 | Bodyguard may **enter play exerted** | ✅ Synthesized trigger in `applyPlayCard`; `choose_may` → exert flow |
 | 8.3.3 | Opponent must challenge Bodyguard before other characters if able | ✅ Tested |
 
 ### 8.4 Boost (Set 10+)
@@ -374,7 +374,7 @@
 ### 8.13 Support
 | Rule | Quote | Status |
 |------|-------|--------|
-| 8.13.1 | Support: when questing, may add this character's {S} to another chosen character's {S} this turn | ❌ `it.todo` |
+| 8.13.1 | Support: when questing, may add this character's {S} to another chosen character's {S} this turn | ✅ Synthesized trigger in applyQuest; 7 tests |
 
 ### 8.14 Vanish (Set 7+)
 | Rule | Quote | Status |
@@ -404,9 +404,9 @@
 
 | Feature | CRD Ref | Notes |
 |---------|---------|-------|
-| Bodyguard enters play exerted | 8.3.2 | |
+| ~~Bodyguard enters play exerted~~ | 8.3.2 | ✅ 4 tests |
 | Reckless can't quest + can't pass if able to challenge | 8.7.2–3 | `it.todo`. Two enforcement points; 8.7.3 is first forced action. See DECISIONS.md |
-| Support (quest to buff another character's {S}) | 8.13.1 | `it.todo` |
+| Support (quest to buff another character's {S}) | 8.13.1 | ✅ 7 tests |
 | Singer (exert to sing songs) | 8.11 | `it.todo` |
 | ~~Starting player skips first draw~~ | 3.2.3.1 | ✅ Was already implicit in code structure |
 | Actions card type | 5.4.1 | Not set 1 priority but needed for songs |

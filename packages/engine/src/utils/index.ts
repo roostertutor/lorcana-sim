@@ -186,6 +186,10 @@ export function matchesFilter(
     if (definition.cost < filter.costAtLeast) return false;
   }
 
+  if (filter.excludeInstanceId) {
+    if (instance.instanceId === filter.excludeInstanceId) return false;
+  }
+
   return true;
 }
 

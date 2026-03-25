@@ -698,6 +698,81 @@ describe("§8 Keywords", () => {
   // §8.3 Bodyguard
   // ---------------------------------------------------------------------------
 
+  // CRD 8.3.2: Bodyguard may enter play exerted
+  it("Bodyguard triggers may choice on play (CRD 8.3.2)", () => {
+    let state = startGame(["goofy-musketeer"]);
+    let goofyId: string;
+    ({ state, instanceId: goofyId } = injectCard(state, "player1", "goofy-musketeer", "hand"));
+    state = giveInk(state, "player1", 5);
+
+    const result = applyAction(state, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: goofyId,
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    expect(result.newState.pendingChoice).not.toBeNull();
+    expect(result.newState.pendingChoice!.type).toBe("choose_may");
+    expect(result.newState.pendingChoice!.choosingPlayerId).toBe("player1");
+  });
+
+  it("Bodyguard accepted — enters exerted (CRD 8.3.2)", () => {
+    let state = startGame(["goofy-musketeer"]);
+    let goofyId: string;
+    ({ state, instanceId: goofyId } = injectCard(state, "player1", "goofy-musketeer", "hand"));
+    state = giveInk(state, "player1", 5);
+
+    const playResult = applyAction(state, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: goofyId,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(playResult.newState.pendingChoice?.type).toBe("choose_may");
+
+    const acceptResult = applyAction(playResult.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept",
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(acceptResult.success).toBe(true);
+    const goofy = getInstance(acceptResult.newState, goofyId);
+    expect(goofy.isExerted).toBe(true);
+    expect(goofy.isDrying).toBe(true); // still drying
+  });
+
+  it("Bodyguard declined — stays ready (CRD 8.3.2 / 6.1.4)", () => {
+    let state = startGame(["goofy-musketeer"]);
+    let goofyId: string;
+    ({ state, instanceId: goofyId } = injectCard(state, "player1", "goofy-musketeer", "hand"));
+    state = giveInk(state, "player1", 5);
+
+    const playResult = applyAction(state, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: goofyId,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(playResult.newState.pendingChoice?.type).toBe("choose_may");
+
+    const declineResult = applyAction(playResult.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: "decline",
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(declineResult.success).toBe(true);
+    const goofy = getInstance(declineResult.newState, goofyId);
+    expect(goofy.isExerted).toBe(false);
+    expect(goofy.isDrying).toBe(true); // still drying
+  });
+
+  it("Non-Bodyguard has no may choice on play (CRD 8.3.2)", () => {
+    let state = startGame(["minnie-mouse-beloved-princess"]);
+    let minnieId: string;
+    ({ state, instanceId: minnieId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
+    state = giveInk(state, "player1", 2);
+
+    const result = applyAction(state, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: minnieId,
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    // Minnie has no Bodyguard — no may choice (unless she has another enters_play trigger)
+    // She doesn't, so pendingChoice should be null
+    expect(result.newState.pendingChoice).toBeNull();
+  });
+
   // CRD 8.3.3: Opponent must challenge Bodyguard before other characters
   it("Bodyguard: must be challenged before other characters (CRD 8.3.3)", () => {
     let state = startGame();
@@ -1040,6 +1115,131 @@ describe("§8 Keywords", () => {
   it.todo("Resist: reduces incoming challenge damage by N (CRD 8.8.1)");
   it.todo("Reckless: character cannot quest (CRD 8.7.2)");
   it.todo("Reckless: character CAN challenge when not exerted (CRD 8.7.3)");
-  it.todo("Support: when questing, may add this character's strength to another chosen ready character's strength (CRD 8.13.1)");
   it.todo("Singer N: character can exert to sing a song of cost ≤ N without paying its ink cost (CRD 8.11)");
+});
+
+// =============================================================================
+// §8.13 Support (CRD 8.13.1)
+// =============================================================================
+
+describe("§8.13 Support", () => {
+  // philoctetes-trainer-of-heroes: cost 2, STR 3, WP 1, lore 1, Support
+
+  it("Support triggers may choice when questing with another character in play (CRD 8.13.1)", () => {
+    let state = startGame(["philoctetes-trainer-of-heroes"]);
+    let philId: string, targetId: string;
+    ({ state, instanceId: philId } = injectCard(state, "player1", "philoctetes-trainer-of-heroes", "play"));
+    ({ state, instanceId: targetId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play"));
+
+    const result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: philId }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    expect(result.newState.pendingChoice).not.toBeNull();
+    expect(result.newState.pendingChoice!.type).toBe("choose_may");
+    expect(result.newState.pendingChoice!.choosingPlayerId).toBe("player1");
+  });
+
+  it("Support accepted — presents target choice, then target gains strength (CRD 8.13.1)", () => {
+    let state = startGame(["philoctetes-trainer-of-heroes"]);
+    let philId: string, targetId: string;
+    ({ state, instanceId: philId } = injectCard(state, "player1", "philoctetes-trainer-of-heroes", "play"));
+    ({ state, instanceId: targetId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play"));
+
+    // Quest triggers Support
+    const questResult = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: philId }, LORCAST_CARD_DEFINITIONS);
+    expect(questResult.newState.pendingChoice?.type).toBe("choose_may");
+
+    // Accept the may effect
+    const acceptResult = applyAction(questResult.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept",
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(acceptResult.success).toBe(true);
+    expect(acceptResult.newState.pendingChoice).not.toBeNull();
+    expect(acceptResult.newState.pendingChoice!.type).toBe("choose_target");
+
+    // Choose target
+    const resolveResult = applyAction(acceptResult.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(resolveResult.success).toBe(true);
+    // Philoctetes has STR 3, so target gets +3 strength this turn
+    expect(getInstance(resolveResult.newState, targetId).tempStrengthModifier).toBe(3);
+  });
+
+  it("Support declined — no effect (CRD 6.1.4)", () => {
+    let state = startGame(["philoctetes-trainer-of-heroes"]);
+    let philId: string, targetId: string;
+    ({ state, instanceId: philId } = injectCard(state, "player1", "philoctetes-trainer-of-heroes", "play"));
+    ({ state, instanceId: targetId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play"));
+
+    const questResult = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: philId }, LORCAST_CARD_DEFINITIONS);
+
+    // Decline the may effect
+    const declineResult = applyAction(questResult.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: "decline",
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(declineResult.success).toBe(true);
+    expect(declineResult.newState.pendingChoice).toBeNull();
+    // Target should have no modifier
+    expect(getInstance(declineResult.newState, targetId).tempStrengthModifier).toBe(0);
+  });
+
+  it("Support skipped when alone — no may choice (CRD 8.13.1)", () => {
+    let state = startGame(["philoctetes-trainer-of-heroes"]);
+    let philId: string;
+    ({ state, instanceId: philId } = injectCard(state, "player1", "philoctetes-trainer-of-heroes", "play"));
+
+    const result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: philId }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    // No other character in play → no Support trigger → no pending choice
+    expect(result.newState.pendingChoice).toBeNull();
+  });
+
+  it("Support strength clears at end of turn (CRD 3.4.1.2)", () => {
+    let state = startGame(["philoctetes-trainer-of-heroes"]);
+    let philId: string, targetId: string;
+    ({ state, instanceId: philId } = injectCard(state, "player1", "philoctetes-trainer-of-heroes", "play"));
+    ({ state, instanceId: targetId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play"));
+
+    // Quest → accept → choose target
+    let result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: philId }, LORCAST_CARD_DEFINITIONS);
+    result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId] }, LORCAST_CARD_DEFINITIONS);
+    expect(getInstance(result.newState, targetId).tempStrengthModifier).toBe(3);
+
+    // Pass turn — modifiers clear
+    result = applyAction(result.newState, { type: "PASS_TURN", playerId: "player1" }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, targetId).tempStrengthModifier).toBe(0);
+  });
+
+  it("Support cannot target the questing character itself (CRD 8.13.1)", () => {
+    let state = startGame(["philoctetes-trainer-of-heroes"]);
+    let philId: string, otherId: string;
+    ({ state, instanceId: philId } = injectCard(state, "player1", "philoctetes-trainer-of-heroes", "play"));
+    ({ state, instanceId: otherId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play"));
+
+    const questResult = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: philId }, LORCAST_CARD_DEFINITIONS);
+    const acceptResult = applyAction(questResult.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept",
+    }, LORCAST_CARD_DEFINITIONS);
+
+    // The valid targets should not include the questing character
+    expect(acceptResult.newState.pendingChoice).not.toBeNull();
+    expect(acceptResult.newState.pendingChoice!.validTargets).not.toContain(philId);
+    expect(acceptResult.newState.pendingChoice!.validTargets).toContain(otherId);
+  });
+
+  it("Non-Support character questing has no may choice", () => {
+    let state = startGame();
+    let mickeyId: string, otherId: string;
+    ({ state, instanceId: mickeyId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play"));
+    ({ state, instanceId: otherId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play"));
+
+    const result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: mickeyId }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    expect(result.newState.pendingChoice).toBeNull();
+  });
 });
