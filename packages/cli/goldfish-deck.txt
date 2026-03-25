@@ -1,0 +1,4 @@
+# Goldfish deck — 60 uninkable cards, does nothing
+# Use as opponent to test solo questing/challenge performance
+# Elsa - Spirit of Winter is uninkable (cost 8), so the bot can never ink or play anything.
+60 Elsa - Spirit of Winter
