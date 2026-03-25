@@ -21,6 +21,7 @@ import type {
 import { validateAction } from "./validator.js";
 import {
   appendLog,
+  canSingSong,
   generateId,
   getDefinition,
   getEffectiveLore,
@@ -31,6 +32,7 @@ import {
   getOpponent,
   getZone,
   hasKeyword,
+  isSong,
   moveCard,
   updateInstance,
 } from "../utils/index.js";
@@ -181,6 +183,23 @@ export function getAllLegalActions(
     }
   }
 
+  // SING — each song in hand × each eligible singer in play (CRD 5.4.4.2)
+  for (const songId of hand) {
+    const songDef = definitions[state.cards[songId]?.definitionId ?? ""];
+    if (!songDef || !isSong(songDef)) continue;
+    for (const singerId of myPlay) {
+      const singAction: GameAction = {
+        type: "PLAY_CARD",
+        playerId,
+        instanceId: songId,
+        singerInstanceId: singerId,
+      };
+      if (validateAction(state, singAction, definitions).valid) {
+        actions.push(singAction);
+      }
+    }
+  }
+
   // QUEST — each ready, unacted character in play with a lore value
   for (const instanceId of myPlay) {
     const action: GameAction = { type: "QUEST", playerId, instanceId };
@@ -234,7 +253,7 @@ function applyActionInner(
 ): GameState {
   switch (action.type) {
     case "PLAY_CARD":
-      return applyPlayCard(state, action.playerId, action.instanceId, definitions, events, action.shiftTargetInstanceId);
+      return applyPlayCard(state, action.playerId, action.instanceId, definitions, events, action.shiftTargetInstanceId, action.singerInstanceId);
     case "PLAY_INK":
       return applyPlayInk(state, action.playerId, action.instanceId, definitions, events);
     case "QUEST":
@@ -260,13 +279,27 @@ function applyPlayCard(
   instanceId: string,
   definitions: Record<string, CardDefinition>,
   events: GameEvent[],
-  shiftTargetInstanceId?: string
+  shiftTargetInstanceId?: string,
+  singerInstanceId?: string
 ): GameState {
   const def = getDefinition(state, instanceId, definitions);
-  const cost = shiftTargetInstanceId ? (def.shiftCost ?? def.cost) : def.cost;
 
-  // Deduct ink
-  state = updatePlayerInk(state, playerId, -cost);
+  // CRD 5.4.4.2: Singing — exert character instead of paying ink
+  if (singerInstanceId) {
+    // Don't deduct ink — singing is the alternate cost (CRD 1.5.5.1)
+    state = updateInstance(state, singerInstanceId, { isExerted: true });
+    const singerDef = getDefinition(state, singerInstanceId, definitions);
+    state = appendLog(state, {
+      turn: state.turnNumber,
+      playerId,
+      message: `${playerId} played ${def.fullName} (sung by ${singerDef.fullName}).`,
+      type: "card_played",
+    });
+  } else {
+    const cost = shiftTargetInstanceId ? (def.shiftCost ?? def.cost) : def.cost;
+    // Deduct ink
+    state = updatePlayerInk(state, playerId, -cost);
+  }
 
   if (shiftTargetInstanceId) {
     const shiftTarget = getInstance(state, shiftTargetInstanceId);
@@ -284,6 +317,40 @@ function applyPlayCard(
       message: `${playerId} shifted ${def.fullName} onto ${definitions[shiftTarget.definitionId]?.fullName}.`,
       type: "card_played",
     });
+  } else if (def.cardType === "action") {
+    // CRD 4.3.3.2: Action enters play zone, effect resolves, then moves to discard
+    state = moveCard(state, instanceId, playerId, "play");
+    // Actions do NOT set isDrying — they leave immediately
+    events.push({ type: "card_moved", instanceId, from: "hand", to: "play" });
+
+    if (!singerInstanceId) {
+      // Log only if not already logged by singing branch above
+      state = appendLog(state, {
+        turn: state.turnNumber,
+        playerId,
+        message: `${playerId} played ${def.fullName}.`,
+        type: "card_played",
+      });
+    }
+
+    // Queue enters_play triggers (CRD 4.3.4.1)
+    state = queueTrigger(state, "enters_play", instanceId, definitions, { triggeringPlayerId: playerId });
+
+    // CRD 5.4.1.2: Resolve action effects inline (NOT through trigger stack)
+    if (def.actionEffects) {
+      for (const effect of def.actionEffects) {
+        state = applyEffect(state, effect, instanceId, playerId, definitions, events);
+        // If effect created a pendingChoice, pause — card stays in play (CRD 4.3.3.2)
+        if (state.pendingChoice) {
+          state = { ...state, pendingActionInstanceId: instanceId };
+          return state;
+        }
+      }
+    }
+
+    // No pending choice — move action to discard immediately
+    state = moveCard(state, instanceId, playerId, "discard");
+    return state;
   } else {
     state = moveCard(state, instanceId, playerId, "play");
     // All characters enter play drying (CRD 5.1.2.1). Rush is handled in
@@ -298,7 +365,7 @@ function applyPlayCard(
     });
   }
 
-  // Queue "enters play" triggers
+  // Queue "enters play" triggers (for non-action cards)
   state = queueTrigger(state, "enters_play", instanceId, definitions, { triggeringPlayerId: playerId });
 
   // CRD 8.3.2: Bodyguard — may enter play exerted
@@ -667,12 +734,17 @@ function applyResolveChoice(
   if (pendingChoice.type === "choose_target" && Array.isArray(choice)) {
     // CRD 6.1.4: optional target choice — empty array = skip
     if (pendingChoice.optional && choice.length === 0) {
+      // Still need to clean up action if pending
+      state = cleanupPendingAction(state, playerId);
       return state;
     }
     for (const targetId of choice) {
       state = applyEffectToTarget(state, pendingEffect, targetId, playerId, definitions, events);
     }
   }
+
+  // CRD 4.3.3.2: After action effect's choice resolves, move action to discard
+  state = cleanupPendingAction(state, playerId);
 
   return state;
 }
@@ -749,6 +821,17 @@ export function applyEffect(
             pendingEffect: effect,
           },
         };
+      }
+      if (effect.target.type === "all") {
+        // CRD 5.4.1.2: "banish all" resolves immediately
+        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId);
+        for (const targetId of targets) {
+          // Skip if already banished by a previous iteration (e.g. cascading triggers)
+          const inst = state.cards[targetId];
+          if (!inst || inst.zone !== "play") continue;
+          state = banishCard(state, targetId, definitions, events);
+        }
+        return state;
       }
       if (effect.target.type === "this") {
         return banishCard(state, sourceInstanceId, definitions, events);
@@ -938,6 +1021,21 @@ function processTriggerStack(
 // -----------------------------------------------------------------------------
 // HELPER FUNCTIONS
 // -----------------------------------------------------------------------------
+
+/** CRD 4.3.3.2: After action effect resolves, move action card from play to discard */
+function cleanupPendingAction(state: GameState, playerId: PlayerID): GameState {
+  if (state.pendingActionInstanceId && !state.pendingChoice) {
+    const actionInstanceId = state.pendingActionInstanceId;
+    // Verify the card is still in play before moving (it might have been moved by an effect)
+    const instance = state.cards[actionInstanceId];
+    if (instance && instance.zone === "play") {
+      state = moveCard(state, actionInstanceId, playerId, "discard");
+    }
+    const { pendingActionInstanceId: _, ...rest } = state;
+    state = rest as GameState;
+  }
+  return state;
+}
 
 function gainLore(
   state: GameState,

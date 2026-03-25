@@ -434,6 +434,327 @@ describe("§4.3 Play a Card", () => {
   });
 });
 
+// =============================================================================
+// §5.4 Actions (CRD 5.4.1.2, 4.3.3.2)
+// =============================================================================
+
+describe("§5.4 Actions", () => {
+  // Card reference:
+  // friends-on-the-other-side  action (Song)  cost 3  actionEffects: draw 2
+  // dragon-fire                action         cost 5  actionEffects: banish chosen character
+  // be-prepared                action (Song)  cost 7  actionEffects: banish all characters
+
+  it("action with simple effect resolves and goes to discard (CRD 4.3.3.2)", () => {
+    let state = startGame(["friends-on-the-other-side"]);
+    let songId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "friends-on-the-other-side", "hand"));
+    state = giveInk(state, "player1", 5);
+    const handBefore = getZone(state, "player1", "hand").length;
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    // Card goes to discard after resolving
+    expect(getInstance(result.newState, songId).zone).toBe("discard");
+    // Drew 2 cards (net +1 since song left hand)
+    expect(getZone(result.newState, "player1", "hand").length).toBe(handBefore - 1 + 2);
+    // Ink was deducted
+    expect(result.newState.players.player1.availableInk).toBe(2); // 5 - 3
+  });
+
+  it("action with chosen target creates pendingChoice (CRD 5.4.1.2)", () => {
+    let state = startGame(["dragon-fire"]);
+    let fireId: string, targetId: string;
+    ({ state, instanceId: fireId } = injectCard(state, "player1", "dragon-fire", "hand"));
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play"));
+    state = giveInk(state, "player1", 5);
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: fireId }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    expect(result.newState.pendingChoice).not.toBeNull();
+    expect(result.newState.pendingChoice!.type).toBe("choose_target");
+    // Action stays in play while awaiting choice (CRD 4.3.3.2)
+    expect(getInstance(result.newState, fireId).zone).toBe("play");
+    expect(result.newState.pendingActionInstanceId).toBe(fireId);
+  });
+
+  it("action goes to discard after choice resolves (CRD 4.3.3.2)", () => {
+    let state = startGame(["dragon-fire"]);
+    let fireId: string, targetId: string;
+    ({ state, instanceId: fireId } = injectCard(state, "player1", "dragon-fire", "hand"));
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play"));
+    state = giveInk(state, "player1", 5);
+
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: fireId }, LORCAST_CARD_DEFINITIONS);
+    // Resolve the choice
+    result = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId],
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    // Target was banished
+    expect(getInstance(result.newState, targetId).zone).toBe("discard");
+    // Dragon Fire moved to discard
+    expect(getInstance(result.newState, fireId).zone).toBe("discard");
+    // pendingActionInstanceId cleared
+    expect(result.newState.pendingActionInstanceId).toBeUndefined();
+  });
+
+  it("action does not set isDrying (CRD 5.4.1.2)", () => {
+    let state = startGame(["dragon-fire"]);
+    let fireId: string, targetId: string;
+    ({ state, instanceId: fireId } = injectCard(state, "player1", "dragon-fire", "hand"));
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play"));
+    state = giveInk(state, "player1", 5);
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: fireId }, LORCAST_CARD_DEFINITIONS);
+
+    // Action is in play (pending choice) but NOT drying
+    expect(getInstance(result.newState, fireId).isDrying).toBe(false);
+  });
+
+  it("action effect does NOT enter trigger stack (CRD 5.4.1.2)", () => {
+    let state = startGame(["friends-on-the-other-side"]);
+    let songId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "friends-on-the-other-side", "hand"));
+    state = giveInk(state, "player1", 5);
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    // Trigger stack should be empty — action effects resolve inline
+    expect(result.newState.triggerStack.length).toBe(0);
+  });
+
+  it("action with 'all' target resolves immediately (CRD 5.4.1.2)", () => {
+    let state = startGame(["be-prepared"]);
+    let bePreparedId: string, char1Id: string, char2Id: string;
+    ({ state, instanceId: bePreparedId } = injectCard(state, "player1", "be-prepared", "hand"));
+    ({ state, instanceId: char1Id } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play"));
+    ({ state, instanceId: char2Id } = injectCard(state, "player2", "mickey-mouse-true-friend", "play"));
+    state = giveInk(state, "player1", 7);
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: bePreparedId }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    // Both characters banished
+    expect(getInstance(result.newState, char1Id).zone).toBe("discard");
+    expect(getInstance(result.newState, char2Id).zone).toBe("discard");
+    // Be Prepared in discard
+    expect(getInstance(result.newState, bePreparedId).zone).toBe("discard");
+    // No pending choice
+    expect(result.newState.pendingChoice).toBeNull();
+  });
+});
+
+// =============================================================================
+// §5.4.4 Songs & Singing (CRD 5.4.4.2, 1.5.5.1)
+// =============================================================================
+
+describe("§5.4.4 Songs & Singing", () => {
+  // Card reference:
+  // ariel-spectacular-singer     char  cost 3  Singer 5
+  // sebastian-court-composer     char  cost 2  Singer 4
+  // mickey-mouse-true-friend     char  cost 3  (no Singer)
+  // friends-on-the-other-side    song  cost 3
+  // be-prepared                  song  cost 7
+
+  it("character with cost >= song cost can sing (CRD 5.4.4.2)", () => {
+    let state = startGame(["friends-on-the-other-side", "mickey-mouse-true-friend"]);
+    let songId: string, singerId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "friends-on-the-other-side", "hand"));
+    // Mickey cost 3 >= song cost 3
+    ({ state, instanceId: singerId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play"));
+
+    const result = applyAction(state, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: songId, singerInstanceId: singerId,
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, songId).zone).toBe("discard");
+  });
+
+  it("character with cost < song cost cannot sing (CRD 5.4.4.2)", () => {
+    let state = startGame(["be-prepared", "mickey-mouse-true-friend"]);
+    let songId: string, singerId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "be-prepared", "hand"));
+    // Mickey cost 3 < song cost 7
+    ({ state, instanceId: singerId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play"));
+
+    const result = applyAction(state, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: songId, singerInstanceId: singerId,
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(/cost.*too low/i);
+  });
+
+  it("singing does not deduct ink (CRD 1.5.5.1)", () => {
+    let state = startGame(["friends-on-the-other-side", "mickey-mouse-true-friend"]);
+    let songId: string, singerId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "friends-on-the-other-side", "hand"));
+    ({ state, instanceId: singerId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play"));
+    state = giveInk(state, "player1", 3);
+
+    const result = applyAction(state, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: songId, singerInstanceId: singerId,
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    // Ink unchanged — singing is the alternate cost
+    expect(result.newState.players.player1.availableInk).toBe(3);
+  });
+
+  it("singer character becomes exerted (CRD 5.4.4.2)", () => {
+    let state = startGame(["friends-on-the-other-side", "mickey-mouse-true-friend"]);
+    let songId: string, singerId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "friends-on-the-other-side", "hand"));
+    ({ state, instanceId: singerId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play"));
+
+    const result = applyAction(state, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: songId, singerInstanceId: singerId,
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, singerId).isExerted).toBe(true);
+  });
+
+  it("drying character cannot sing (CRD 5.1.1.11)", () => {
+    let state = startGame(["friends-on-the-other-side", "mickey-mouse-true-friend"]);
+    let songId: string, singerId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "friends-on-the-other-side", "hand"));
+    ({ state, instanceId: singerId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: true }));
+
+    const result = applyAction(state, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: songId, singerInstanceId: singerId,
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(/drying/i);
+  });
+
+  it("already-exerted character cannot sing (CRD 5.4.4.2)", () => {
+    let state = startGame(["friends-on-the-other-side", "mickey-mouse-true-friend"]);
+    let songId: string, singerId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "friends-on-the-other-side", "hand"));
+    ({ state, instanceId: singerId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isExerted: true }));
+
+    const result = applyAction(state, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: songId, singerInstanceId: singerId,
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(/exerted/i);
+  });
+
+  it("non-song action cannot be sung (CRD 5.4.4.1)", () => {
+    let state = startGame(["dragon-fire", "mickey-mouse-true-friend"]);
+    let fireId: string, singerId: string;
+    ({ state, instanceId: fireId } = injectCard(state, "player1", "dragon-fire", "hand"));
+    ({ state, instanceId: singerId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play"));
+
+    const result = applyAction(state, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: fireId, singerInstanceId: singerId,
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(/song/i);
+  });
+
+  it("song resolves effects and discards after singing (CRD 4.3.3.2)", () => {
+    let state = startGame(["friends-on-the-other-side", "mickey-mouse-true-friend"]);
+    let songId: string, singerId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "friends-on-the-other-side", "hand"));
+    ({ state, instanceId: singerId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play"));
+    const handBefore = getZone(state, "player1", "hand").length;
+
+    const result = applyAction(state, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: songId, singerInstanceId: singerId,
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, songId).zone).toBe("discard");
+    // Drew 2 cards (net +1 since song left hand)
+    expect(getZone(result.newState, "player1", "hand").length).toBe(handBefore - 1 + 2);
+  });
+
+  it("song can still be played by paying ink normally (CRD 5.4.4.2)", () => {
+    let state = startGame(["friends-on-the-other-side"]);
+    let songId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "friends-on-the-other-side", "hand"));
+    state = giveInk(state, "player1", 5);
+
+    // Play without singerInstanceId — pay ink normally
+    const result = applyAction(state, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: songId,
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    expect(result.newState.players.player1.availableInk).toBe(2); // 5 - 3
+    expect(getInstance(result.newState, songId).zone).toBe("discard");
+  });
+});
+
+// =============================================================================
+// §8.11 Singer keyword (CRD 8.11.1, 8.11.2)
+// =============================================================================
+
+describe("§8.11 Singer", () => {
+  // ariel-spectacular-singer: cost 3, Singer 5
+  // sebastian-court-composer: cost 2, Singer 4
+
+  it("Singer 5 (cost 3 char) can sing cost 5 song — uses Singer value (CRD 8.11.1)", () => {
+    // Ariel cost 3, Singer 5 → can sing a cost-5 song
+    let state = startGame(["ariel-spectacular-singer", "let-it-go"]);
+    let songId: string, arielId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "let-it-go", "hand"));
+    ({ state, instanceId: arielId } = injectCard(state, "player1", "ariel-spectacular-singer", "play"));
+
+    const result = applyAction(state, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: songId, singerInstanceId: arielId,
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, arielId).isExerted).toBe(true);
+  });
+
+  it("Singer 5 (cost 3 char) cannot sing cost 6+ song (CRD 8.11.2)", () => {
+    // Ariel has Singer 5, be-prepared costs 7
+    let state = startGame(["ariel-spectacular-singer", "be-prepared"]);
+    let songId: string, arielId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "be-prepared", "hand"));
+    ({ state, instanceId: arielId } = injectCard(state, "player1", "ariel-spectacular-singer", "play"));
+
+    const result = applyAction(state, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: songId, singerInstanceId: arielId,
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(false);
+  });
+
+  it("non-Singer cost 5 char can still sing cost 5 song — Singer not required (CRD 5.4.4.2)", () => {
+    // flotsam-ursulas-spy: cost 5, no Singer
+    let state = startGame(["flotsam-ursulas-spy", "let-it-go"]);
+    let songId: string, flotsamId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "let-it-go", "hand"));
+    ({ state, instanceId: flotsamId } = injectCard(state, "player1", "flotsam-ursulas-spy", "play"));
+
+    const result = applyAction(state, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: songId, singerInstanceId: flotsamId,
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+  });
+
+  it("Singer doesn't change cost for other purposes (CRD 8.11.2)", () => {
+    // Ariel has Singer 5, but her actual cost is 3 for ink/shift purposes
+    const arielDef = LORCAST_CARD_DEFINITIONS["ariel-spectacular-singer"];
+    expect(arielDef).toBeDefined();
+    expect(arielDef!.cost).toBe(3); // Actual cost remains 3
+  });
+});
+
 // ---------------------------------------------------------------------------
 // §4.4 Use an Activated Ability
 // ---------------------------------------------------------------------------
@@ -1115,7 +1436,6 @@ describe("§8 Keywords", () => {
   it.todo("Resist: reduces incoming challenge damage by N (CRD 8.8.1)");
   it.todo("Reckless: character cannot quest (CRD 8.7.2)");
   it.todo("Reckless: character CAN challenge when not exerted (CRD 8.7.3)");
-  it.todo("Singer N: character can exert to sing a song of cost ≤ N without paying its ink cost (CRD 8.11)");
 });
 
 // =============================================================================

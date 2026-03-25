@@ -337,6 +337,29 @@ export function appendLog(
 }
 
 // -----------------------------------------------------------------------------
+// SONG / SINGER HELPERS
+// -----------------------------------------------------------------------------
+
+/** CRD 5.4.4.1: Songs have "Song" trait and cardType "action" */
+export function isSong(def: CardDefinition): boolean {
+  return def.cardType === "action" && def.traits.includes("Song");
+}
+
+/** CRD 5.4.4.2 / 8.11: Can this character sing this song? */
+export function canSingSong(
+  singerInstance: CardInstance,
+  singerDef: CardDefinition,
+  songDef: CardDefinition
+): boolean {
+  // CRD 8.11.1: Singer N — count as cost N for singing
+  let effectiveCost = singerDef.cost;
+  if (hasKeyword(singerInstance, singerDef, "singer")) {
+    effectiveCost = getKeywordValue(singerInstance, singerDef, "singer");
+  }
+  return effectiveCost >= songDef.cost;
+}
+
+// -----------------------------------------------------------------------------
 // UUID GENERATION
 // Simple, dependency-free UUID for card instances
 // -----------------------------------------------------------------------------

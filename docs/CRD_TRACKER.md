@@ -30,8 +30,8 @@
 | Rule | Quote | Status |
 |------|-------|--------|
 | 1.5.3 | Cost must be paid in full; can't play if unable | ✅ Validated in `validatePlayCard` / `validateActivateAbility` |
-| 1.5.5 | Alternate costs (Shift, Singer, "for free") | ✅ Shift implemented; Singer ❌; "for free" ❌ |
-| 1.5.5.1 | Singing a song is an alternate cost | ❌ |
+| 1.5.5 | Alternate costs (Shift, Singer, "for free") | ✅ Shift and Singer implemented; "for free" ❌ |
+| 1.5.5.1 | Singing a song is an alternate cost | ✅ `singerInstanceId` skips ink deduction |
 | 1.5.5.2 | Shift is an alternate cost | ✅ |
 | 1.5.5.3 | "For free" means ignore all costs | ❌ |
 
@@ -157,7 +157,7 @@
 | 4.3.1 | Play card from hand, announce and pay cost | ✅ |
 | 4.3.2 | Can normally be played only from hand | ✅ Validated. Mufasa exception will use effect system |
 | 4.3.3.1 | Characters/items/locations enter Play zone; Shift goes on top of named card | ✅ Characters + items; ❌ Locations |
-| 4.3.3.2 | Actions enter Play zone, effect resolves immediately, then move to discard | ❌ Actions not implemented |
+| 4.3.3.2 | Actions enter Play zone, effect resolves immediately, then move to discard | ✅ `applyPlayCard` action branch; `pendingActionInstanceId` for deferred choices |
 | 4.3.4.1 | "When [Player] play(s) this" triggered conditions met as card enters play | ✅ `queueTrigger("enters_play", ...)` |
 | 4.3.5 | Payment modifiers (e.g., Singer) don't change the card's ink cost | ❌ Singer not implemented |
 
@@ -222,8 +222,10 @@
 ### 5.4 Actions
 | Rule | Quote | Status |
 |------|-------|--------|
-| 5.4.1.2 | Actions played from hand; effect resolves immediately; moved to discard | ❌ Not implemented (set 1 has songs; actions not a priority yet) |
-| 5.4.4.2 | Songs: alternate cost = exert character with ink cost ≥ song cost | ❌ Singer/singing not implemented |
+| 5.4.1.2 | Actions played from hand; effect resolves immediately; moved to discard | ✅ `applyPlayCard` action branch; action effects resolve inline, not through trigger stack |
+| 5.4.3 | Actions have effects, not abilities | ✅ `actionEffects` field on `CardDefinition` |
+| 5.4.4.1 | Songs have "Action" and "Song" on classification line | ✅ `isSong()` checks `cardType === "action" && traits.includes("Song")` |
+| 5.4.4.2 | Songs: alternate cost = exert character with ink cost ≥ song cost | ✅ `singerInstanceId` on `PlayCardAction`; validated in `validatePlayCard` |
 
 ### 5.5 Items
 | Rule | Quote | Status |
@@ -364,7 +366,8 @@
 ### 8.11 Singer
 | Rule | Quote | Status |
 |------|-------|--------|
-| 8.11 | Singer N: character can {E} to pay alternate cost of songs ≤ cost N | ❌ `it.todo` |
+| 8.11.1 | Singer N: character counts as cost N for singing songs | ✅ `canSingSong()` uses `getKeywordValue` for Singer |
+| 8.11.2 | Singer only changes cost for singing, not other purposes | ✅ Tested: actual card cost unchanged |
 
 ### 8.12 Sing Together
 | Rule | Quote | Status |
@@ -407,9 +410,9 @@
 | ~~Bodyguard enters play exerted~~ | 8.3.2 | ✅ 4 tests |
 | Reckless can't quest + can't pass if able to challenge | 8.7.2–3 | `it.todo`. Two enforcement points; 8.7.3 is first forced action. See DECISIONS.md |
 | Support (quest to buff another character's {S}) | 8.13.1 | ✅ 7 tests |
-| Singer (exert to sing songs) | 8.11 | `it.todo` |
+| Singer (exert to sing songs) | 8.11 | ✅ Implemented |
 | ~~Starting player skips first draw~~ | 3.2.3.1 | ✅ Was already implicit in code structure |
-| Actions card type | 5.4.1 | Not set 1 priority but needed for songs |
+| Actions card type | 5.4.1 | ✅ Implemented with actionEffects; 3 cards have data (Friends, Dragon Fire, Be Prepared) |
 | Locations card type | 5.6 | Full section missing |
 | Shift stack: all stack cards leave play together | 8.10.7 | |
 | Replacement effects | 6.5 | Complex; needed for many later-set cards |

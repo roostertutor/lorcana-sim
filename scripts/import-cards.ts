@@ -90,6 +90,8 @@ interface CardDefinitionOut {
   setId: string;
   number: number;
   rarity: "common" | "uncommon" | "rare" | "super_rare" | "legendary" | "enchanted";
+  // CRD 5.4.3: Action effects (manually added, not from API)
+  actionEffects?: object[];
   // Extra field written to JSON, stripped in lorcastCards.ts
   _namedAbilityStubs?: string[];
 }
@@ -264,6 +266,12 @@ function mapCard(c: LorcastCard): CardDefinitionOut | null {
     }
   }
 
+  // CRD 5.4.4.1: Songs have "Song" on their type line — add to traits
+  const traits = c.classifications ?? [];
+  if (c.type.map((t) => t.toLowerCase()).includes("song") && !traits.includes("Song")) {
+    traits.push("Song");
+  }
+
   const out: CardDefinitionOut = {
     id: slugify(c.name, c.version),
     name: c.name,
@@ -272,7 +280,7 @@ function mapCard(c: LorcastCard): CardDefinitionOut | null {
     inkColor,
     cost: c.cost,
     inkable: c.inkwell,
-    traits: c.classifications ?? [],
+    traits,
     abilities,
     setId: c.set.code,
     number: parseInt(c.collector_number, 10) || 0,
@@ -406,6 +414,13 @@ async function main() {
       const manualAbilities = prev.abilities.filter((a) => a.type !== "keyword");
       if (manualAbilities.length > 0) {
         card.abilities = [...card.abilities, ...manualAbilities] as KeywordAbility[];
+        preserved++;
+      }
+
+      // Preserve manually-added actionEffects
+      const prevAny = prev as CardDefinitionOut;
+      if (prevAny.actionEffects && prevAny.actionEffects.length > 0) {
+        card.actionEffects = prevAny.actionEffects;
         preserved++;
       }
     }

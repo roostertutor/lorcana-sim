@@ -312,6 +312,9 @@ export interface CardDefinition {
 
   abilities: Ability[];
 
+  /** CRD 5.4.3: Actions have effects, not abilities. Resolved inline, not through trigger stack. */
+  actionEffects?: Effect[];
+
   /** Flavor text for UI display */
   flavorText?: string;
   /** Set identifier, e.g. "TFC", "ROF" */
@@ -391,6 +394,9 @@ export interface GameState {
 
   /** Pending choice that must be resolved before game can continue */
   pendingChoice: PendingChoice | null;
+
+  /** CRD 4.3.3.2: Action card waiting in play zone while its effect resolves (pending choice) */
+  pendingActionInstanceId?: string;
 
   /** Log of all actions taken, useful for UI and debugging */
   actionLog: GameLogEntry[];
@@ -485,6 +491,8 @@ export interface PlayCardAction {
   instanceId: string;
   /** For Shift: the instanceId of the character being shifted onto */
   shiftTargetInstanceId?: string;
+  /** CRD 5.4.4.2: For singing — the character exerted to pay for this song */
+  singerInstanceId?: string;
 }
 
 export interface PlayInkAction {

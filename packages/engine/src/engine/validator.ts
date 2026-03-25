@@ -12,12 +12,14 @@ import type {
 } from "../types/index.js";
 import {
   canAfford,
+  canSingSong,
   getDefinition,
   getInstance,
   getOpponent,
   getZone,
   hasKeyword,
   isMainPhase,
+  isSong,
 } from "../utils/index.js";
 import { getGameModifiers } from "./gameModifiers.js";
 
@@ -41,7 +43,7 @@ export function validateAction(
 
   switch (action.type) {
     case "PLAY_CARD":
-      return validatePlayCard(state, action.playerId, action.instanceId, definitions, action.shiftTargetInstanceId);
+      return validatePlayCard(state, action.playerId, action.instanceId, definitions, action.shiftTargetInstanceId, action.singerInstanceId);
     case "PLAY_INK":
       return validatePlayInk(state, action.playerId, action.instanceId, definitions);
     case "QUEST":
@@ -63,12 +65,14 @@ export function validateAction(
 
 // CRD 4.3: Play a Card — from hand, pay cost
 // CRD 8.10.1: Shift — pay shift cost, put on top of same-named character
+// CRD 5.4.4.2: Singing — exert character to play song for free
 function validatePlayCard(
   state: GameState,
   playerId: PlayerID,
   instanceId: string,
   definitions: Record<string, CardDefinition>,
-  shiftTargetInstanceId?: string
+  shiftTargetInstanceId?: string,
+  singerInstanceId?: string
 ): ValidationResult {
   if (!isMainPhase(state, playerId)) return fail("Not your main phase.");
 
@@ -90,6 +94,21 @@ function validatePlayCard(
       return fail(`Not enough ink. Need ${def.shiftCost}, have ${state.players[playerId].availableInk}.`);
     }
     return OK;
+  }
+
+  // CRD 5.4.4.2: Singing — exert character to play song for free (alternate cost)
+  if (singerInstanceId) {
+    if (!isSong(def)) return fail("Only songs can be sung.");
+    const singer = getInstance(state, singerInstanceId);
+    if (singer.zone !== "play") return fail("Singer is not in play.");
+    if (singer.ownerId !== playerId) return fail("You don't own the singer.");
+    if (singer.isExerted) return fail("Singer is already exerted.");
+    if (singer.isDrying) return fail("Singer is still drying and cannot sing.");
+    const singerDef = getDefinition(state, singerInstanceId, definitions);
+    if (!canSingSong(singer, singerDef, def)) {
+      return fail(`Singer's cost is too low to sing this song.`);
+    }
+    return OK; // No ink check — singing replaces ink cost entirely (CRD 1.5.5.1)
   }
 
   if (!canAfford(state, playerId, def.cost)) { // CRD 1.5.3: cost must be paid in full
