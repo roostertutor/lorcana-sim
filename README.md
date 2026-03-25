@@ -125,5 +125,5 @@ trigger yet. Keyword-only cards (Rush, Evasive, Bodyguard, etc.) work correctly.
 ```bash
 pnpm test           # all packages (engine: 49 pass + 5 todo, simulator: 3, analytics: 15)
 pnpm test:watch     # engine TDD mode
-pnpm typecheck      # 3 known errors in sampleCards.ts only
+pnpm typecheck      # known errors in cli (missing @types/node) only
 ```

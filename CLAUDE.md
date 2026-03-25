@@ -21,7 +21,7 @@ to produce deck analytics and win rates. NOT a human-playable simulator.
 ```bash
 pnpm test                # all tests
 pnpm test:watch          # TDD (engine)
-pnpm typecheck           # 3 known errors in sampleCards.ts only
+pnpm typecheck           # known errors in cli (missing @types/node) only
 pnpm dev                 # UI at localhost:5173
 pnpm import-cards        # fetch cards from Lorcast API
 ```
