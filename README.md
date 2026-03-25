@@ -20,12 +20,12 @@ pnpm dev            # http://localhost:5173
 
 ## CLI Commands
 
-All commands run from the repo root.
+All commands run from the repo root. Deck file paths are relative to `packages/cli/`.
 
 ### Analyze a single deck (mirror match)
 
 ```bash
-pnpm analyze -- --deck packages/cli/sample-deck.txt --bot greedy --iterations 1000
+pnpm analyze -- --deck ./sample-deck.txt --bot greedy --iterations 1000
 ```
 
 Runs the deck against itself and prints win rate, average game length, and per-card performance stats.
@@ -39,7 +39,7 @@ pnpm compare -- --deck1 my-deck.txt --deck2 their-deck.txt --bot aggro --iterati
 ### Goldfish (solo questing, opponent does nothing)
 
 ```bash
-pnpm compare -- --deck1 packages/cli/sample-deck.txt --deck2 packages/cli/goldfish-deck.txt --bot greedy --iterations 500
+pnpm compare -- --deck1 ./sample-deck.txt --deck2 ./goldfish-deck.txt --bot greedy --iterations 500
 ```
 
 The goldfish deck is 60 uninkable cards — the opponent can never ink or play anything and just passes every turn.
@@ -47,7 +47,7 @@ The goldfish deck is 60 uninkable cards — the opponent can never ink or play a
 ### Optimize bot weights
 
 ```bash
-pnpm optimize -- --deck packages/cli/sample-deck.txt --opponent aggro --iterations 500
+pnpm optimize -- --deck ./sample-deck.txt --opponent aggro --iterations 500
 ```
 
 Searches for the best `BotWeights` for a deck against a given opponent style.
@@ -55,7 +55,7 @@ Searches for the best `BotWeights` for a deck against a given opponent style.
 ### Weight sweep (3x3 grid)
 
 ```bash
-pnpm sweep -- --deck packages/cli/sample-deck.txt --opponent control --iterations 200
+pnpm sweep -- --deck ./sample-deck.txt --opponent control --iterations 200
 ```
 
 ## Bot Strategies
