@@ -1185,7 +1185,15 @@
       "Villain",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "enters_play" },
+        "effects": [
+          { "type": "draw", "amount": 1, "target": { "type": "self" } }
+        ]
+      }
+    ],
     "setId": "1",
     "number": 49,
     "rarity": "common",
@@ -1359,7 +1367,21 @@
       "Villain",
       "Queen"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "costs": [{ "type": "exert" }, { "type": "pay_ink", "amount": 2 }],
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": -2,
+            "duration": "this_turn",
+            "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } }
+          }
+        ],
+        "reminderText": "↷, 2 ⬡: Chosen character gets -2 {S} this turn."
+      }
+    ],
     "setId": "1",
     "number": 56,
     "rarity": "super_rare",

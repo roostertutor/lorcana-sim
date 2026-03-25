@@ -694,6 +694,19 @@ export function applyEffect(
           tempLoreModifier: instance.tempLoreModifier + (effect.lore ?? 0),
         });
       }
+      if (effect.target.type === "chosen") {
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId);
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_target",
+            choosingPlayerId: controllingPlayerId,
+            prompt: "Choose a target.",
+            validTargets,
+            pendingEffect: effect,
+          },
+        };
+      }
       return state;
     }
 
@@ -887,6 +900,14 @@ function applyEffectToTarget(
     case "return_to_hand": {
       const instance = getInstance(state, targetInstanceId);
       return moveCard(state, targetInstanceId, instance.ownerId, "hand");
+    }
+    case "gain_stats": {
+      const instance = getInstance(state, targetInstanceId);
+      return updateInstance(state, targetInstanceId, {
+        tempStrengthModifier: instance.tempStrengthModifier + (effect.strength ?? 0),
+        tempWillpowerModifier: instance.tempWillpowerModifier + (effect.willpower ?? 0),
+        tempLoreModifier: instance.tempLoreModifier + (effect.lore ?? 0),
+      });
     }
     default:
       return state;

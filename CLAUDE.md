@@ -12,7 +12,7 @@ Simulates thousands of games to produce deck analytics and win rates.
 
 ## Current Status
 (Update at the start of every Claude Code session)
-- engine:    done — reducer, utils, getAllLegalActions, checkWinConditions; 43 tests passing
+- engine:    done — reducer, utils, getAllLegalActions, checkWinConditions; 50 tests passing (migrated to real set 1 cards); 5 todo (Resist, Reckless, Support, Singer)
 - simulator: done — RandomBot, GreedyBot, ProbabilityBot, PersonalBot, presets, runGame, runSimulation, optimizer; Layer 3 invariants (1000 games) + sanity checks passing
 - analytics: done — aggregateResults, analyzeDeckComposition, compareDecks, analyzeOpeningHands, calibratePersonalBot, analyzeWeightSensitivity; 15 tests passing
 - cli:       done — analyze, compare, optimize, sweep commands; tsx runner; sample-deck.txt

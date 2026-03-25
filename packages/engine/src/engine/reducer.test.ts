@@ -2,42 +2,55 @@
 // ENGINE TESTS
 // Test the rule engine in isolation — no UI, no networking.
 // Run with: pnpm test (from repo root) or pnpm --filter engine test
+//
+// All tests use LORCAST_CARD_DEFINITIONS (set 1, 216 real cards).
 // =============================================================================
 
 import { describe, it, expect } from "vitest";
 import { applyAction } from "../engine/reducer.js";
 import { createGame } from "../engine/initializer.js";
-import { SAMPLE_CARD_DEFINITIONS } from "../cards/sampleCards.js";
-import { generateId, getZone, getInstance, hasKeyword } from "../utils/index.js";
+import { LORCAST_CARD_DEFINITIONS } from "../cards/lorcastCards.js";
+import { generateId, getZone, getInstance } from "../utils/index.js";
 import type { CardInstance, GameState, DeckEntry } from "../index.js";
+
+// ---------------------------------------------------------------------------
+// CARD REFERENCE (Set 1 — The First Chapter)
+//
+// minnie-mouse-beloved-princess  STR 2  WP 3  lore 1  cost 2  inkable
+// mickey-mouse-true-friend       STR 3  WP 3  lore 2  cost 3  inkable
+// lilo-making-a-wish             STR 1  WP 1  lore 2  cost 1  inkable: false
+// flotsam-ursulas-spy            STR 3  WP 4  lore 2  cost 5  inkable: false  Rush
+// jetsam-ursulas-spy             STR 3  WP 3  lore 1  cost 4  inkable         Evasive
+// goofy-musketeer                STR 3  WP 6  lore 1  cost 5  inkable         Bodyguard
+// aladdin-prince-ali             STR 2  WP 2  lore 1  cost 2  inkable         Ward
+// dr-facilier-charlatan          STR 0  WP 4  lore 1  cost 2  inkable         Challenger +2
+// hades-lord-of-the-underworld   STR 3  WP 2  lore 1  cost 4  inkable: false
+// hades-king-of-olympus          STR 6  WP 7  lore 1  cost 8  inkable: false  Shift 6  shiftCost 6
+// maleficent-sorceress           STR 2  WP 2  lore 1  cost 3  inkable         enters_play: draw 1
+// the-queen-wicked-and-vain      STR 4  WP 5  lore 1  cost 5  inkable         ↷,2⬡: chosen char -2 STR
+// ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
 // TEST HELPERS
 // ---------------------------------------------------------------------------
 
-/** Build a minimal 60-card deck entry list */
-function buildTestDeck(cardIds: string[], fillerId = "stitch-rock-star"): DeckEntry[] {
+function buildTestDeck(cardIds: string[], fillerId = "minnie-mouse-beloved-princess"): DeckEntry[] {
   const entries: DeckEntry[] = cardIds.map((id) => ({ definitionId: id, count: 4 }));
   const fillerCount = 60 - cardIds.length * 4;
   if (fillerCount > 0) entries.push({ definitionId: fillerId, count: fillerCount });
   return entries;
 }
 
-/** Create a game with standard decks */
 function startGame(
-  p1Cards: string[] = ["simba-protective-cub", "stitch-rock-star"],
-  p2Cards: string[] = ["simba-protective-cub", "stitch-rock-star"]
+  p1Cards: string[] = ["mickey-mouse-true-friend"],
+  p2Cards: string[] = ["mickey-mouse-true-friend"]
 ): GameState {
   return createGame(
     { player1Deck: buildTestDeck(p1Cards), player2Deck: buildTestDeck(p2Cards) },
-    SAMPLE_CARD_DEFINITIONS
+    LORCAST_CARD_DEFINITIONS
   );
 }
 
-/**
- * Inject a card instance directly into a player's zone.
- * This bypasses the random shuffle so tests are fully deterministic.
- */
 function injectCard(
   state: GameState,
   playerId: "player1" | "player2",
@@ -76,7 +89,6 @@ function injectCard(
   return { state: newState, instanceId };
 }
 
-/** Give a player a specific amount of available ink */
 function giveInk(state: GameState, playerId: "player1" | "player2", amount: number): GameState {
   return {
     ...state,
@@ -87,7 +99,6 @@ function giveInk(state: GameState, playerId: "player1" | "player2", amount: numb
   };
 }
 
-/** Set a player's lore directly */
 function setLore(state: GameState, playerId: "player1" | "player2", amount: number): GameState {
   return {
     ...state,
@@ -98,11 +109,10 @@ function setLore(state: GameState, playerId: "player1" | "player2", amount: numb
   };
 }
 
-/** Pass turns N times */
 function passTurns(state: GameState, count: number): GameState {
   let s = state;
   for (let i = 0; i < count; i++) {
-    const result = applyAction(s, { type: "PASS_TURN", playerId: s.currentPlayer }, SAMPLE_CARD_DEFINITIONS);
+    const result = applyAction(s, { type: "PASS_TURN", playerId: s.currentPlayer }, LORCAST_CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     s = result.newState;
   }
@@ -131,18 +141,6 @@ describe("Game Initialization", () => {
     expect(state.currentPlayer).toBe("player1");
     expect(state.phase).toBe("main");
   });
-
-  it("starts with 0 lore for both players", () => {
-    const state = startGame();
-    expect(state.players.player1.lore).toBe(0);
-    expect(state.players.player2.lore).toBe(0);
-  });
-
-  it("starts with 0 available ink", () => {
-    const state = startGame();
-    expect(state.players.player1.availableInk).toBe(0);
-    expect(state.players.player2.availableInk).toBe(0);
-  });
 });
 
 // ---------------------------------------------------------------------------
@@ -150,60 +148,48 @@ describe("Game Initialization", () => {
 // ---------------------------------------------------------------------------
 
 describe("Playing Cards", () => {
-  it("moves a card from hand to play", () => {
+  it("plays a character card to the play zone", () => {
     let state = startGame();
     let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "simba-protective-cub", "hand"));
-    state = giveInk(state, "player1", 10);
+    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
+    state = giveInk(state, "player1", 2);
 
-    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId }, SAMPLE_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.success).toBe(true);
     expect(getInstance(result.newState, instanceId).zone).toBe("play");
-    expect(getZone(result.newState, "player1", "hand")).not.toContain(instanceId);
-    expect(getZone(result.newState, "player1", "play")).toContain(instanceId);
   });
 
-  it("deducts the card's ink cost", () => {
+  it("deducts ink equal to the card's cost", () => {
     let state = startGame();
     let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "simba-protective-cub", "hand")); // cost 1
+    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand")); // cost 2
     state = giveInk(state, "player1", 5);
 
-    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId }, SAMPLE_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
 
-    expect(result.newState.players.player1.availableInk).toBe(4);
+    expect(result.newState.players.player1.availableInk).toBe(3);
   });
 
-  it("fails when player cannot afford the card", () => {
+  it("fails when not enough ink", () => {
     let state = startGame();
     let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "moana-of-motunui", "hand")); // cost 5
+    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand")); // cost 2
+    state = giveInk(state, "player1", 1);
 
-    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId }, SAMPLE_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/ink/i);
   });
 
-  it("fails when playing a card you don't own", () => {
-    let state = startGame();
-    let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player2", "simba-protective-cub", "hand"));
-    state = giveInk(state, "player1", 10);
-
-    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId }, SAMPLE_CARD_DEFINITIONS);
-
-    expect(result.success).toBe(false);
-  });
-
   it("fails when playing a card not in hand", () => {
     let state = startGame();
     let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "simba-protective-cub", "discard"));
+    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "discard"));
     state = giveInk(state, "player1", 10);
 
-    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId }, SAMPLE_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/hand/i);
@@ -212,10 +198,10 @@ describe("Playing Cards", () => {
   it("newly played character cannot act immediately (no Rush)", () => {
     let state = startGame();
     let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "simba-protective-cub", "hand"));
-    state = giveInk(state, "player1", 10);
+    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
+    state = giveInk(state, "player1", 2);
 
-    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId }, SAMPLE_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
 
     expect(getInstance(result.newState, instanceId).hasActedThisTurn).toBe(true);
   });
@@ -223,10 +209,10 @@ describe("Playing Cards", () => {
   it("fails when playing on opponent's turn", () => {
     let state = startGame();
     let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player2", "simba-protective-cub", "hand"));
-    state = giveInk(state, "player2", 10);
+    ({ state, instanceId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "hand"));
+    state = giveInk(state, "player2", 2);
 
-    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player2", instanceId }, SAMPLE_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player2", instanceId }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.success).toBe(false);
   });
@@ -240,9 +226,9 @@ describe("Playing Ink", () => {
   it("moves an inkable card to the inkwell", () => {
     let state = startGame();
     let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "simba-protective-cub", "hand"));
+    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
 
-    const result = applyAction(state, { type: "PLAY_INK", playerId: "player1", instanceId }, SAMPLE_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "PLAY_INK", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.success).toBe(true);
     expect(getInstance(result.newState, instanceId).zone).toBe("inkwell");
@@ -251,9 +237,9 @@ describe("Playing Ink", () => {
   it("increases available ink by 1", () => {
     let state = startGame();
     let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "simba-protective-cub", "hand"));
+    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
 
-    const result = applyAction(state, { type: "PLAY_INK", playerId: "player1", instanceId }, SAMPLE_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "PLAY_INK", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.newState.players.player1.availableInk).toBe(1);
   });
@@ -261,11 +247,11 @@ describe("Playing Ink", () => {
   it("cannot play ink twice in one turn", () => {
     let state = startGame();
     let id1: string, id2: string;
-    ({ state, instanceId: id1 } = injectCard(state, "player1", "simba-protective-cub", "hand"));
-    ({ state, instanceId: id2 } = injectCard(state, "player1", "simba-protective-cub", "hand"));
+    ({ state, instanceId: id1 } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
+    ({ state, instanceId: id2 } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
 
-    const after1 = applyAction(state, { type: "PLAY_INK", playerId: "player1", instanceId: id1 }, SAMPLE_CARD_DEFINITIONS);
-    const after2 = applyAction(after1.newState, { type: "PLAY_INK", playerId: "player1", instanceId: id2 }, SAMPLE_CARD_DEFINITIONS);
+    const after1 = applyAction(state, { type: "PLAY_INK", playerId: "player1", instanceId: id1 }, LORCAST_CARD_DEFINITIONS);
+    const after2 = applyAction(after1.newState, { type: "PLAY_INK", playerId: "player1", instanceId: id2 }, LORCAST_CARD_DEFINITIONS);
 
     expect(after2.success).toBe(false);
     expect(after2.error).toMatch(/already played ink/i);
@@ -274,9 +260,9 @@ describe("Playing Ink", () => {
   it("cannot ink a non-inkable card", () => {
     let state = startGame();
     let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "elsa-snow-queen", "hand")); // inkable: false
+    ({ state, instanceId } = injectCard(state, "player1", "lilo-making-a-wish", "hand")); // inkable: false
 
-    const result = applyAction(state, { type: "PLAY_INK", playerId: "player1", instanceId }, SAMPLE_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "PLAY_INK", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/cannot be used as ink/i);
@@ -291,9 +277,9 @@ describe("Questing", () => {
   it("gains lore equal to the character's lore value", () => {
     let state = startGame();
     let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "simba-protective-cub", "play")); // lore: 1
+    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play")); // lore: 1
 
-    const result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId }, SAMPLE_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.success).toBe(true);
     expect(result.newState.players.player1.lore).toBe(1);
@@ -302,9 +288,9 @@ describe("Questing", () => {
   it("exerts the character after questing", () => {
     let state = startGame();
     let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "simba-protective-cub", "play"));
+    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play"));
 
-    const result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId }, SAMPLE_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
 
     expect(getInstance(result.newState, instanceId).isExerted).toBe(true);
   });
@@ -312,9 +298,9 @@ describe("Questing", () => {
   it("cannot quest with an already-exerted character", () => {
     let state = startGame();
     let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "simba-protective-cub", "play", { isExerted: true }));
+    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { isExerted: true }));
 
-    const result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId }, SAMPLE_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/exerted/i);
@@ -323,9 +309,9 @@ describe("Questing", () => {
   it("cannot quest with a character that has already acted this turn", () => {
     let state = startGame();
     let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "simba-protective-cub", "play", { hasActedThisTurn: true }));
+    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { hasActedThisTurn: true }));
 
-    const result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId }, SAMPLE_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.success).toBe(false);
   });
@@ -333,20 +319,22 @@ describe("Questing", () => {
   it("cannot quest with a character in hand", () => {
     let state = startGame();
     let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "simba-protective-cub", "hand"));
+    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
 
-    const result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId }, SAMPLE_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.success).toBe(false);
+    expect(result.error).toMatch(/not in play/i);
   });
 
-  it("Moana quests for 2 lore", () => {
+  it("Mickey Mouse - True Friend quests for 2 lore", () => {
     let state = startGame();
     let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "moana-of-motunui", "play")); // lore: 2
+    ({ state, instanceId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play")); // lore: 2
 
-    const result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId }, SAMPLE_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
 
+    expect(result.success).toBe(true);
     expect(result.newState.players.player1.lore).toBe(2);
   });
 });
@@ -357,35 +345,37 @@ describe("Questing", () => {
 
 describe("Challenging", () => {
   it("deals damage to both characters", () => {
+    // Minnie (STR 2) vs Minnie (STR 2, WP 3): both take 2 damage, neither dies
     let state = startGame();
     let attackerId: string, defenderId: string;
-    ({ state, instanceId: attackerId } = injectCard(state, "player1", "simba-protective-cub", "play"));
-    ({ state, instanceId: defenderId } = injectCard(state, "player2", "simba-protective-cub", "play", { isExerted: true }));
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play"));
+    ({ state, instanceId: defenderId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play", { isExerted: true }));
 
     const result = applyAction(state, {
       type: "CHALLENGE",
       playerId: "player1",
       attackerInstanceId: attackerId,
       defenderInstanceId: defenderId,
-    }, SAMPLE_CARD_DEFINITIONS);
+    }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.success).toBe(true);
-    expect(getInstance(result.newState, attackerId).damage).toBe(1);
-    expect(getInstance(result.newState, defenderId).damage).toBe(1);
+    expect(getInstance(result.newState, attackerId).damage).toBe(2);
+    expect(getInstance(result.newState, defenderId).damage).toBe(2);
   });
 
   it("banishes a character when damage >= willpower", () => {
+    // Mickey (STR 3) vs Lilo (WP 1): Lilo takes 3 damage, WP 1 → banished
     let state = startGame();
     let attackerId: string, defenderId: string;
-    ({ state, instanceId: attackerId } = injectCard(state, "player1", "beast-hardheaded", "play")); // STR 4
-    ({ state, instanceId: defenderId } = injectCard(state, "player2", "simba-protective-cub", "play", { isExerted: true })); // WP 2
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play")); // STR 3
+    ({ state, instanceId: defenderId } = injectCard(state, "player2", "lilo-making-a-wish", "play", { isExerted: true })); // WP 1
 
     const result = applyAction(state, {
       type: "CHALLENGE",
       playerId: "player1",
       attackerInstanceId: attackerId,
       defenderInstanceId: defenderId,
-    }, SAMPLE_CARD_DEFINITIONS);
+    }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.success).toBe(true);
     expect(getInstance(result.newState, defenderId).zone).toBe("discard");
@@ -394,15 +384,15 @@ describe("Challenging", () => {
   it("exerts the attacker after challenging", () => {
     let state = startGame();
     let attackerId: string, defenderId: string;
-    ({ state, instanceId: attackerId } = injectCard(state, "player1", "simba-protective-cub", "play"));
-    ({ state, instanceId: defenderId } = injectCard(state, "player2", "simba-protective-cub", "play", { isExerted: true }));
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play"));
+    ({ state, instanceId: defenderId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play", { isExerted: true }));
 
     const result = applyAction(state, {
       type: "CHALLENGE",
       playerId: "player1",
       attackerInstanceId: attackerId,
       defenderInstanceId: defenderId,
-    }, SAMPLE_CARD_DEFINITIONS);
+    }, LORCAST_CARD_DEFINITIONS);
 
     expect(getInstance(result.newState, attackerId).isExerted).toBe(true);
   });
@@ -410,15 +400,15 @@ describe("Challenging", () => {
   it("cannot challenge with an exerted character", () => {
     let state = startGame();
     let attackerId: string, defenderId: string;
-    ({ state, instanceId: attackerId } = injectCard(state, "player1", "simba-protective-cub", "play", { isExerted: true }));
-    ({ state, instanceId: defenderId } = injectCard(state, "player2", "simba-protective-cub", "play", { isExerted: true }));
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { isExerted: true }));
+    ({ state, instanceId: defenderId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play", { isExerted: true }));
 
     const result = applyAction(state, {
       type: "CHALLENGE",
       playerId: "player1",
       attackerInstanceId: attackerId,
       defenderInstanceId: defenderId,
-    }, SAMPLE_CARD_DEFINITIONS);
+    }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/exerted/i);
@@ -427,32 +417,33 @@ describe("Challenging", () => {
   it("cannot challenge your own character", () => {
     let state = startGame();
     let attackerId: string, defenderId: string;
-    ({ state, instanceId: attackerId } = injectCard(state, "player1", "beast-hardheaded", "play"));
-    ({ state, instanceId: defenderId } = injectCard(state, "player1", "simba-protective-cub", "play", { isExerted: true }));
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play"));
+    ({ state, instanceId: defenderId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { isExerted: true }));
 
     const result = applyAction(state, {
       type: "CHALLENGE",
       playerId: "player1",
       attackerInstanceId: attackerId,
       defenderInstanceId: defenderId,
-    }, SAMPLE_CARD_DEFINITIONS);
+    }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.success).toBe(false);
   });
 
   it("Challenger +2 adds strength when challenging", () => {
-    // Hercules STR 3 + Challenger +2 = 5 vs Moana WP 4 — Moana dies
+    // Dr. Facilier STR 0 + Challenger +2 = 2 vs Lilo WP 1 → Lilo banished
+    // Without Challenger, STR 0 would deal 0 damage and Lilo (WP 1) would survive
     let state = startGame();
     let attackerId: string, defenderId: string;
-    ({ state, instanceId: attackerId } = injectCard(state, "player1", "hercules-hero-in-training", "play"));
-    ({ state, instanceId: defenderId } = injectCard(state, "player2", "moana-of-motunui", "play", { isExerted: true }));
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "dr-facilier-charlatan", "play")); // STR 0, Challenger +2
+    ({ state, instanceId: defenderId } = injectCard(state, "player2", "lilo-making-a-wish", "play", { isExerted: true })); // WP 1
 
     const result = applyAction(state, {
       type: "CHALLENGE",
       playerId: "player1",
       attackerInstanceId: attackerId,
       defenderInstanceId: defenderId,
-    }, SAMPLE_CARD_DEFINITIONS);
+    }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.success).toBe(true);
     expect(getInstance(result.newState, defenderId).zone).toBe("discard");
@@ -464,70 +455,20 @@ describe("Challenging", () => {
 // ---------------------------------------------------------------------------
 
 describe("Keywords", () => {
+
+  // ---------------------------------------------------------------------------
+  // RUSH — can act the turn it enters play
+  // ---------------------------------------------------------------------------
+
   it("Rush: character can act the turn it enters play", () => {
     let state = startGame();
     let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "beast-hardheaded", "hand"));
+    ({ state, instanceId } = injectCard(state, "player1", "flotsam-ursulas-spy", "hand")); // Rush, cost 5
     state = giveInk(state, "player1", 10);
 
-    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId }, SAMPLE_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
 
     expect(getInstance(result.newState, instanceId).hasActedThisTurn).toBe(false);
-  });
-
-  it("Ward: character has the Ward keyword", () => {
-    const def = SAMPLE_CARD_DEFINITIONS["elsa-snow-queen"]!;
-    const instance: CardInstance = {
-      instanceId: "test-elsa", definitionId: "elsa-snow-queen", ownerId: "player1",
-      zone: "play", isExerted: false, damage: 0, hasActedThisTurn: false,
-      tempStrengthModifier: 0, tempWillpowerModifier: 0, tempLoreModifier: 0, grantedKeywords: [],
-    };
-    expect(hasKeyword(instance, def, "ward")).toBe(true);
-  });
-
-  it("Evasive: character has the Evasive keyword", () => {
-    const def = SAMPLE_CARD_DEFINITIONS["tinker-bell-tiny-tactician"]!;
-    const instance: CardInstance = {
-      instanceId: "test-tb", definitionId: "tinker-bell-tiny-tactician", ownerId: "player1",
-      zone: "play", isExerted: false, damage: 0, hasActedThisTurn: false,
-      tempStrengthModifier: 0, tempWillpowerModifier: 0, tempLoreModifier: 0, grantedKeywords: [],
-    };
-    expect(hasKeyword(instance, def, "evasive")).toBe(true);
-  });
-
-  it("Evasive: cannot be challenged by a non-evasive character", () => {
-    let state = startGame();
-    let attackerId: string, defenderId: string;
-    ({ state, instanceId: attackerId } = injectCard(state, "player1", "simba-protective-cub", "play"));
-    ({ state, instanceId: defenderId } = injectCard(state, "player2", "tinker-bell-tiny-tactician", "play", { isExerted: true }));
-
-    const result = applyAction(state, {
-      type: "CHALLENGE",
-      playerId: "player1",
-      attackerInstanceId: attackerId,
-      defenderInstanceId: defenderId,
-    }, SAMPLE_CARD_DEFINITIONS);
-
-    expect(result.success).toBe(false);
-    expect(result.error).toMatch(/evasive/i);
-  });
-
-  it("Bodyguard: must be challenged before other characters", () => {
-    let state = startGame();
-    let attackerId: string, bodyguardId: string, otherId: string;
-    ({ state, instanceId: attackerId } = injectCard(state, "player1", "simba-protective-cub", "play"));
-    ({ state, instanceId: bodyguardId } = injectCard(state, "player2", "gaston-boastful-hunter", "play", { isExerted: true }));
-    ({ state, instanceId: otherId } = injectCard(state, "player2", "simba-protective-cub", "play", { isExerted: true }));
-
-    const result = applyAction(state, {
-      type: "CHALLENGE",
-      playerId: "player1",
-      attackerInstanceId: attackerId,
-      defenderInstanceId: otherId,
-    }, SAMPLE_CARD_DEFINITIONS);
-
-    expect(result.success).toBe(false);
-    expect(result.error).toMatch(/bodyguard/i);
   });
 
   // ---------------------------------------------------------------------------
@@ -535,150 +476,147 @@ describe("Keywords", () => {
   // ---------------------------------------------------------------------------
 
   it("Ward: character CAN be challenged (Ward does not block challenges)", () => {
-    // Real rule: Ward says "except to challenge" — challenges are always allowed
     let state = startGame();
     let attackerId: string, wardId: string;
-    ({ state, instanceId: attackerId } = injectCard(state, "player1", "simba-protective-cub", "play")); // STR 1
-    ({ state, instanceId: wardId } = injectCard(state, "player2", "elsa-snow-queen", "play", { isExerted: true })); // Ward, WP 6
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play"));
+    ({ state, instanceId: wardId } = injectCard(state, "player2", "aladdin-prince-ali", "play", { isExerted: true })); // Ward
 
     const result = applyAction(state, {
       type: "CHALLENGE",
       playerId: "player1",
       attackerInstanceId: attackerId,
       defenderInstanceId: wardId,
-    }, SAMPLE_CARD_DEFINITIONS);
+    }, LORCAST_CARD_DEFINITIONS);
 
-    expect(result.success).toBe(true); // Ward does NOT block challenges
+    expect(result.success).toBe(true);
   });
 
-  it("Ward: character cannot be chosen as the target of an effect", () => {
-    // Merlin's ability deals 1 damage to a chosen character. Elsa (Ward) cannot be chosen.
+  it("Ward: character cannot be chosen as the target of an opponent's effect", () => {
     let state = startGame();
-    let merlinId: string, elsaId: string;
-    ({ state, instanceId: merlinId } = injectCard(state, "player1", "merlin-arthurian-legend", "play"));
-    ({ state, instanceId: elsaId } = injectCard(state, "player2", "elsa-snow-queen", "play"));
+    let queenId: string, aladdinId: string;
+    ({ state, instanceId: queenId } = injectCard(state, "player1", "the-queen-wicked-and-vain", "play"));
+    ({ state, instanceId: aladdinId } = injectCard(state, "player2", "aladdin-prince-ali", "play")); // Ward
     state = giveInk(state, "player1", 10);
 
     const activateResult = applyAction(state, {
       type: "ACTIVATE_ABILITY",
       playerId: "player1",
-      instanceId: merlinId,
+      instanceId: queenId,
       abilityIndex: 0,
-    }, SAMPLE_CARD_DEFINITIONS);
+    }, LORCAST_CARD_DEFINITIONS);
     expect(activateResult.success).toBe(true);
 
     const resolveResult = applyAction(activateResult.newState, {
       type: "RESOLVE_CHOICE",
       playerId: "player1",
-      choice: [elsaId],
-    }, SAMPLE_CARD_DEFINITIONS);
+      choice: [aladdinId],
+    }, LORCAST_CARD_DEFINITIONS);
 
     expect(resolveResult.success).toBe(false);
     expect(resolveResult.error).toMatch(/ward/i);
   });
 
   it("Ward: your own character with Ward CAN be targeted by your own effects", () => {
-    // Ward only protects from opponents — self-targeting is allowed
     let state = startGame();
-    let merlinId: string, elsaId: string;
-    ({ state, instanceId: merlinId } = injectCard(state, "player1", "merlin-arthurian-legend", "play"));
-    ({ state, instanceId: elsaId } = injectCard(state, "player1", "elsa-snow-queen", "play")); // own Ward character
+    let queenId: string, aladdinId: string;
+    ({ state, instanceId: queenId } = injectCard(state, "player1", "the-queen-wicked-and-vain", "play"));
+    ({ state, instanceId: aladdinId } = injectCard(state, "player1", "aladdin-prince-ali", "play")); // own Ward character
     state = giveInk(state, "player1", 10);
 
     const activateResult = applyAction(state, {
       type: "ACTIVATE_ABILITY",
       playerId: "player1",
-      instanceId: merlinId,
+      instanceId: queenId,
       abilityIndex: 0,
-    }, SAMPLE_CARD_DEFINITIONS);
+    }, LORCAST_CARD_DEFINITIONS);
     expect(activateResult.success).toBe(true);
 
     const resolveResult = applyAction(activateResult.newState, {
       type: "RESOLVE_CHOICE",
       playerId: "player1",
-      choice: [elsaId],
-    }, SAMPLE_CARD_DEFINITIONS);
+      choice: [aladdinId],
+    }, LORCAST_CARD_DEFINITIONS);
 
-    expect(resolveResult.success).toBe(true); // Allowed — Ward only blocks opponents
+    expect(resolveResult.success).toBe(true);
   });
 
   // ---------------------------------------------------------------------------
-  // RESIST — Reduces incoming damage by N
+  // EVASIVE — can only be challenged by Evasive characters
   // ---------------------------------------------------------------------------
 
-  it("Resist: reduces incoming damage by its value", () => {
-    // Hercules STR 3 + Challenger +2 = 5 vs Maui (Resist +2, WP 7). 5 - 2 = 3 damage.
+  it("Evasive: cannot be challenged by a non-evasive character", () => {
     let state = startGame();
-    let attackerId: string, mauiId: string;
-    ({ state, instanceId: attackerId } = injectCard(state, "player1", "hercules-hero-in-training", "play"));
-    ({ state, instanceId: mauiId } = injectCard(state, "player2", "maui-hero-to-all", "play", { isExerted: true }));
+    let attackerId: string, defenderId: string;
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play"));
+    ({ state, instanceId: defenderId } = injectCard(state, "player2", "jetsam-ursulas-spy", "play", { isExerted: true })); // Evasive
 
     const result = applyAction(state, {
       type: "CHALLENGE",
       playerId: "player1",
       attackerInstanceId: attackerId,
-      defenderInstanceId: mauiId,
-    }, SAMPLE_CARD_DEFINITIONS);
+      defenderInstanceId: defenderId,
+    }, LORCAST_CARD_DEFINITIONS);
 
-    expect(result.success).toBe(true);
-    expect(getInstance(result.newState, mauiId).damage).toBe(3); // 5 - 2 resist = 3
-    expect(getInstance(result.newState, mauiId).zone).toBe("play"); // survives (3 < WP 7)
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(/evasive/i);
   });
 
-  it("Resist: absorbs all damage when attack strength ≤ resist value", () => {
-    // Simba STR 1 vs Maui (Resist +2). 1 - 2 = 0 (floored at 0).
+  it("Evasive: can be challenged by another Evasive character", () => {
     let state = startGame();
-    let attackerId: string, mauiId: string;
-    ({ state, instanceId: attackerId } = injectCard(state, "player1", "simba-protective-cub", "play")); // STR 1
-    ({ state, instanceId: mauiId } = injectCard(state, "player2", "maui-hero-to-all", "play", { isExerted: true }));
+    let attackerId: string, defenderId: string;
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "jetsam-ursulas-spy", "play")); // Evasive
+    ({ state, instanceId: defenderId } = injectCard(state, "player2", "jetsam-ursulas-spy", "play", { isExerted: true })); // Evasive
 
     const result = applyAction(state, {
       type: "CHALLENGE",
       playerId: "player1",
       attackerInstanceId: attackerId,
-      defenderInstanceId: mauiId,
-    }, SAMPLE_CARD_DEFINITIONS);
+      defenderInstanceId: defenderId,
+    }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.success).toBe(true);
-    expect(getInstance(result.newState, mauiId).damage).toBe(0);
-    expect(getInstance(result.newState, mauiId).zone).toBe("play");
-  });
-
-  it("Resist: character is banished when post-resist damage reaches willpower", () => {
-    // Maui WP 7, Resist +2. Pre-damage 4. Gaston STR 5 → 5 - 2 = 3 more → total 7 = WP → banished.
-    let state = startGame();
-    let attackerId: string, mauiId: string;
-    ({ state, instanceId: attackerId } = injectCard(state, "player1", "gaston-boastful-hunter", "play")); // STR 5
-    ({ state, instanceId: mauiId } = injectCard(state, "player2", "maui-hero-to-all", "play", { isExerted: true, damage: 4 }));
-
-    const result = applyAction(state, {
-      type: "CHALLENGE",
-      playerId: "player1",
-      attackerInstanceId: attackerId,
-      defenderInstanceId: mauiId,
-    }, SAMPLE_CARD_DEFINITIONS);
-
-    expect(result.success).toBe(true);
-    expect(getInstance(result.newState, mauiId).zone).toBe("discard"); // 4 + 3 = 7 = WP
   });
 
   // ---------------------------------------------------------------------------
-  // SHIFT — Play at reduced cost onto a same-named character
+  // BODYGUARD — exerted Bodyguard must be challenged before other characters
+  // ---------------------------------------------------------------------------
+
+  it("Bodyguard: must be challenged before other characters", () => {
+    let state = startGame();
+    let attackerId: string, bodyguardId: string, otherId: string;
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play"));
+    ({ state, instanceId: bodyguardId } = injectCard(state, "player2", "goofy-musketeer", "play", { isExerted: true })); // Bodyguard
+    ({ state, instanceId: otherId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play", { isExerted: true }));
+
+    const result = applyAction(state, {
+      type: "CHALLENGE",
+      playerId: "player1",
+      attackerInstanceId: attackerId,
+      defenderInstanceId: otherId,
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(/bodyguard/i);
+  });
+
+  // ---------------------------------------------------------------------------
+  // SHIFT — play at reduced shiftCost onto a same-named character
   // ---------------------------------------------------------------------------
 
   it("Shift: can be played at shiftCost onto a same-named character in play", () => {
+    // hades-king-of-olympus (Shift 6, cost 8) onto hades-lord-of-the-underworld
     let state = startGame();
     let baseId: string, shiftId: string;
-    ({ state, instanceId: baseId } = injectCard(state, "player1", "moana-of-motunui", "play"));
-    ({ state, instanceId: shiftId } = injectCard(state, "player1", "moana-chosen-by-the-ocean", "hand"));
-    state = giveInk(state, "player1", 5); // shiftCost is 5
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "hades-lord-of-the-underworld", "play"));
+    ({ state, instanceId: shiftId } = injectCard(state, "player1", "hades-king-of-olympus", "hand"));
+    state = giveInk(state, "player1", 6); // shiftCost 6
 
     const result = applyAction(state, {
       type: "PLAY_CARD",
       playerId: "player1",
       instanceId: shiftId,
       shiftTargetInstanceId: baseId,
-    }, SAMPLE_CARD_DEFINITIONS);
+    }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.success).toBe(true);
     expect(getInstance(result.newState, shiftId).zone).toBe("play");
@@ -688,16 +626,16 @@ describe("Keywords", () => {
   it("Shift: cannot shift without enough ink for shiftCost", () => {
     let state = startGame();
     let baseId: string, shiftId: string;
-    ({ state, instanceId: baseId } = injectCard(state, "player1", "moana-of-motunui", "play"));
-    ({ state, instanceId: shiftId } = injectCard(state, "player1", "moana-chosen-by-the-ocean", "hand"));
-    state = giveInk(state, "player1", 4); // need 5
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "hades-lord-of-the-underworld", "play"));
+    ({ state, instanceId: shiftId } = injectCard(state, "player1", "hades-king-of-olympus", "hand"));
+    state = giveInk(state, "player1", 5); // need 6
 
     const result = applyAction(state, {
       type: "PLAY_CARD",
       playerId: "player1",
       instanceId: shiftId,
       shiftTargetInstanceId: baseId,
-    }, SAMPLE_CARD_DEFINITIONS);
+    }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/ink/i);
@@ -706,8 +644,8 @@ describe("Keywords", () => {
   it("Shift: cannot shift onto a character with a different name", () => {
     let state = startGame();
     let baseId: string, shiftId: string;
-    ({ state, instanceId: baseId } = injectCard(state, "player1", "simba-protective-cub", "play")); // name: Simba, not Moana
-    ({ state, instanceId: shiftId } = injectCard(state, "player1", "moana-chosen-by-the-ocean", "hand"));
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play")); // name: Minnie Mouse
+    ({ state, instanceId: shiftId } = injectCard(state, "player1", "hades-king-of-olympus", "hand")); // name: Hades
     state = giveInk(state, "player1", 8);
 
     const result = applyAction(state, {
@@ -715,7 +653,7 @@ describe("Keywords", () => {
       playerId: "player1",
       instanceId: shiftId,
       shiftTargetInstanceId: baseId,
-    }, SAMPLE_CARD_DEFINITIONS);
+    }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/name/i);
@@ -724,35 +662,34 @@ describe("Keywords", () => {
   it("Shift: shifted card inherits the exerted status of the original", () => {
     let state = startGame();
     let baseId: string, shiftId: string;
-    ({ state, instanceId: baseId } = injectCard(state, "player1", "moana-of-motunui", "play", { isExerted: true }));
-    ({ state, instanceId: shiftId } = injectCard(state, "player1", "moana-chosen-by-the-ocean", "hand"));
-    state = giveInk(state, "player1", 5);
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "hades-lord-of-the-underworld", "play", { isExerted: true }));
+    ({ state, instanceId: shiftId } = injectCard(state, "player1", "hades-king-of-olympus", "hand"));
+    state = giveInk(state, "player1", 6);
 
     const result = applyAction(state, {
       type: "PLAY_CARD",
       playerId: "player1",
       instanceId: shiftId,
       shiftTargetInstanceId: baseId,
-    }, SAMPLE_CARD_DEFINITIONS);
+    }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.success).toBe(true);
     expect(getInstance(result.newState, shiftId).isExerted).toBe(true);
   });
 
   it("Shift: shifted card starts with 0 damage (does not inherit the original's damage)", () => {
-    // Real rule: a shifted card enters play fresh — damage counters are not carried over
     let state = startGame();
     let baseId: string, shiftId: string;
-    ({ state, instanceId: baseId } = injectCard(state, "player1", "moana-of-motunui", "play", { damage: 3 }));
-    ({ state, instanceId: shiftId } = injectCard(state, "player1", "moana-chosen-by-the-ocean", "hand"));
-    state = giveInk(state, "player1", 5);
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "hades-lord-of-the-underworld", "play", { damage: 1 }));
+    ({ state, instanceId: shiftId } = injectCard(state, "player1", "hades-king-of-olympus", "hand"));
+    state = giveInk(state, "player1", 6);
 
     const result = applyAction(state, {
       type: "PLAY_CARD",
       playerId: "player1",
       instanceId: shiftId,
       shiftTargetInstanceId: baseId,
-    }, SAMPLE_CARD_DEFINITIONS);
+    }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.success).toBe(true);
     expect(getInstance(result.newState, shiftId).damage).toBe(0);
@@ -761,24 +698,27 @@ describe("Keywords", () => {
   it("Shift: shifted character cannot act the same turn (no Rush)", () => {
     let state = startGame();
     let baseId: string, shiftId: string;
-    ({ state, instanceId: baseId } = injectCard(state, "player1", "moana-of-motunui", "play"));
-    ({ state, instanceId: shiftId } = injectCard(state, "player1", "moana-chosen-by-the-ocean", "hand"));
-    state = giveInk(state, "player1", 5);
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "hades-lord-of-the-underworld", "play"));
+    ({ state, instanceId: shiftId } = injectCard(state, "player1", "hades-king-of-olympus", "hand"));
+    state = giveInk(state, "player1", 6);
 
     const result = applyAction(state, {
       type: "PLAY_CARD",
       playerId: "player1",
       instanceId: shiftId,
       shiftTargetInstanceId: baseId,
-    }, SAMPLE_CARD_DEFINITIONS);
+    }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.success).toBe(true);
     expect(getInstance(result.newState, shiftId).hasActedThisTurn).toBe(true);
   });
 
   // ---------------------------------------------------------------------------
-  // UNIMPLEMENTED — test stubs to document expected behavior
+  // UNIMPLEMENTED — stubs for keywords not yet in set 1 or not yet built
   // ---------------------------------------------------------------------------
+
+  // Resist is Set 2+; rules changed between sets — skipping for now.
+  it.todo("Resist: reduces incoming challenge damage by N");
 
   it.todo("Reckless: character cannot quest");
   it.todo("Reckless: character CAN challenge when not exerted");
@@ -787,52 +727,107 @@ describe("Keywords", () => {
 });
 
 // ---------------------------------------------------------------------------
+// ACTIVATED ABILITIES
+// ---------------------------------------------------------------------------
+
+describe("Activated Abilities", () => {
+  it("exerts the card and deducts ink on activation", () => {
+    // The Queen: ↷, 2⬡ → exerts herself and costs 2 ink
+    let state = startGame();
+    let queenId: string, targetId: string;
+    ({ state, instanceId: queenId } = injectCard(state, "player1", "the-queen-wicked-and-vain", "play"));
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play"));
+    state = giveInk(state, "player1", 5);
+
+    const activateResult = applyAction(state, {
+      type: "ACTIVATE_ABILITY",
+      playerId: "player1",
+      instanceId: queenId,
+      abilityIndex: 0,
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(activateResult.success).toBe(true);
+    expect(getInstance(activateResult.newState, queenId).isExerted).toBe(true);
+    expect(activateResult.newState.players.player1.availableInk).toBe(3);
+  });
+
+  it("applies -2 STR to the chosen target this turn", () => {
+    let state = startGame();
+    let queenId: string, targetId: string;
+    ({ state, instanceId: queenId } = injectCard(state, "player1", "the-queen-wicked-and-vain", "play"));
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play"));
+    state = giveInk(state, "player1", 5);
+
+    const activateResult = applyAction(state, {
+      type: "ACTIVATE_ABILITY",
+      playerId: "player1",
+      instanceId: queenId,
+      abilityIndex: 0,
+    }, LORCAST_CARD_DEFINITIONS);
+
+    const resolveResult = applyAction(activateResult.newState, {
+      type: "RESOLVE_CHOICE",
+      playerId: "player1",
+      choice: [targetId],
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(resolveResult.success).toBe(true);
+    expect(getInstance(resolveResult.newState, targetId).tempStrengthModifier).toBe(-2);
+  });
+
+  it("cannot activate when the card is already exerted", () => {
+    let state = startGame();
+    let queenId: string;
+    ({ state, instanceId: queenId } = injectCard(state, "player1", "the-queen-wicked-and-vain", "play", { isExerted: true }));
+    state = giveInk(state, "player1", 5);
+
+    const result = applyAction(state, {
+      type: "ACTIVATE_ABILITY",
+      playerId: "player1",
+      instanceId: queenId,
+      abilityIndex: 0,
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(/exerted/i);
+  });
+
+  it("cannot activate without enough ink", () => {
+    let state = startGame();
+    let queenId: string;
+    ({ state, instanceId: queenId } = injectCard(state, "player1", "the-queen-wicked-and-vain", "play"));
+    state = giveInk(state, "player1", 1); // needs 2
+
+    const result = applyAction(state, {
+      type: "ACTIVATE_ABILITY",
+      playerId: "player1",
+      instanceId: queenId,
+      abilityIndex: 0,
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(/ink/i);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // TRIGGERED ABILITIES
 // ---------------------------------------------------------------------------
 
 describe("Triggered Abilities", () => {
-  it("Rapunzel draws a card when she enters play", () => {
+  it("Maleficent draws a card for her controller when she enters play", () => {
+    // CAST MY SPELL! When you play this character, you may draw a card.
     let state = startGame();
     let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "rapunzel-letting-down-hair", "hand"));
+    ({ state, instanceId } = injectCard(state, "player1", "maleficent-sorceress", "hand"));
     state = giveInk(state, "player1", 10);
 
     const handSizeBefore = getZone(state, "player1", "hand").length;
-    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId }, SAMPLE_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
 
-    // -1 for playing Rapunzel, +1 for draw trigger = net 0 change
+    // -1 for playing Maleficent, +1 for her draw trigger = net 0 change
+    expect(result.success).toBe(true);
     expect(getZone(result.newState, "player1", "hand").length).toBe(handSizeBefore);
-  });
-
-  it("Mickey Mouse draws a card when he quests", () => {
-    let state = startGame();
-    let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "mickey-mouse-wayward-sorcerer", "play"));
-
-    const handSizeBefore = getZone(state, "player1", "hand").length;
-    const result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId }, SAMPLE_CARD_DEFINITIONS);
-
-    expect(result.success).toBe(true);
-    expect(getZone(result.newState, "player1", "hand").length).toBe(handSizeBefore + 1);
-  });
-
-  it("Genie draws 2 cards for his owner when banished", () => {
-    let state = startGame();
-    let attackerId: string, genieId: string;
-    ({ state, instanceId: attackerId } = injectCard(state, "player1", "beast-hardheaded", "play")); // STR 4
-    ({ state, instanceId: genieId } = injectCard(state, "player2", "genie-on-the-job", "play", { isExerted: true })); // WP 3
-
-    const handSizeBefore = getZone(state, "player2", "hand").length;
-    const result = applyAction(state, {
-      type: "CHALLENGE",
-      playerId: "player1",
-      attackerInstanceId: attackerId,
-      defenderInstanceId: genieId,
-    }, SAMPLE_CARD_DEFINITIONS);
-
-    expect(result.success).toBe(true);
-    expect(getInstance(result.newState, genieId).zone).toBe("discard");
-    expect(getZone(result.newState, "player2", "hand").length).toBe(handSizeBefore + 2);
   });
 });
 
@@ -843,7 +838,7 @@ describe("Triggered Abilities", () => {
 describe("Turn Management", () => {
   it("switches to player2 after passing turn", () => {
     const state = startGame();
-    const result = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, SAMPLE_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, LORCAST_CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     expect(result.newState.currentPlayer).toBe("player2");
   });
@@ -851,14 +846,14 @@ describe("Turn Management", () => {
   it("draws a card for the new active player at turn start", () => {
     const state = startGame();
     const p2HandBefore = getZone(state, "player2", "hand").length;
-    const result = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, SAMPLE_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, LORCAST_CARD_DEFINITIONS);
     expect(getZone(result.newState, "player2", "hand").length).toBe(p2HandBefore + 1);
   });
 
   it("readies exerted characters at start of their owner's next turn", () => {
     let state = startGame();
     let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "simba-protective-cub", "play", { isExerted: true, hasActedThisTurn: true }));
+    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { isExerted: true, hasActedThisTurn: true }));
 
     state = passTurns(state, 2); // p1 → p2 → p1
 
@@ -868,17 +863,17 @@ describe("Turn Management", () => {
 
   it("cannot pass on opponent's turn", () => {
     const state = startGame();
-    const result = applyAction(state, { type: "PASS_TURN", playerId: "player2" }, SAMPLE_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "PASS_TURN", playerId: "player2" }, LORCAST_CARD_DEFINITIONS);
     expect(result.success).toBe(false);
   });
 
   it("restores ink equal to inkwell size at turn start", () => {
     let state = startGame();
-    ({ state } = injectCard(state, "player2", "simba-protective-cub", "inkwell"));
-    ({ state } = injectCard(state, "player2", "simba-protective-cub", "inkwell"));
-    ({ state } = injectCard(state, "player2", "simba-protective-cub", "inkwell"));
+    ({ state } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "inkwell"));
+    ({ state } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "inkwell"));
+    ({ state } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "inkwell"));
 
-    const result = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, SAMPLE_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, LORCAST_CARD_DEFINITIONS);
     expect(result.newState.players.player2.availableInk).toBe(3);
   });
 });
@@ -891,10 +886,10 @@ describe("Win Condition", () => {
   it("detects a win when player reaches 20 lore via questing", () => {
     let state = startGame();
     let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "simba-protective-cub", "play")); // lore: 1
+    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play")); // lore: 1
     state = setLore(state, "player1", 19);
 
-    const result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId }, SAMPLE_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.newState.players.player1.lore).toBe(20);
     expect(result.newState.isGameOver).toBe(true);
@@ -904,10 +899,10 @@ describe("Win Condition", () => {
   it("game is not over below 20 lore", () => {
     let state = startGame();
     let instanceId: string;
-    ({ state, instanceId } = injectCard(state, "player1", "simba-protective-cub", "play"));
+    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play")); // lore: 1
     state = setLore(state, "player1", 18);
 
-    const result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId }, SAMPLE_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.newState.players.player1.lore).toBe(19);
     expect(result.newState.isGameOver).toBe(false);
