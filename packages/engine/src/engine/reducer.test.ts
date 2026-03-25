@@ -980,6 +980,90 @@ describe("§6.2 Triggered abilities (data-driven)", () => {
     expect(getInstance(resolve.newState, targetId).zone).toBe("discard");
   });
 
+  it("Hades Lord of the Underworld enters play → return character from own discard", () => {
+    let state = startGame(["hades-lord-of-the-underworld"]);
+    let hadesId: string, discardedId: string;
+    ({ state, instanceId: hadesId } = injectCard(state, "player1", "hades-lord-of-the-underworld", "hand"));
+    ({ state, instanceId: discardedId } = injectCard(state, "player1", "mickey-mouse-true-friend", "discard"));
+    state = giveInk(state, "player1", 5);
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: hadesId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.pendingChoice?.type).toBe("choose_target");
+
+    const resolve = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [discardedId],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(getInstance(resolve.newState, discardedId).zone).toBe("hand");
+  });
+
+  it("Hans quests → may deal 1 damage to chosen character", () => {
+    let state = startGame(["hans-thirteenth-in-line"]);
+    let hansId: string, targetId: string;
+    ({ state, instanceId: hansId } = injectCard(state, "player1", "hans-thirteenth-in-line", "play"));
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play"));
+
+    const result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: hansId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.pendingChoice?.type).toBe("choose_may");
+
+    const accept = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept",
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(accept.newState.pendingChoice?.type).toBe("choose_target");
+
+    const resolve = applyAction(accept.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(getInstance(resolve.newState, targetId).damage).toBe(1);
+  });
+
+  it("Marshmallow is_banished → may return self to hand", () => {
+    let state = startGame(["marshmallow-persistent-guardian"]);
+    let marshId: string, attackerId: string;
+    ({ state, instanceId: marshId } = injectCard(state, "player2", "marshmallow-persistent-guardian", "play", { isExerted: true }));
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play"));
+    // Marshmallow has 5 WP, Mickey has 3 STR — won't banish from one challenge
+    // Use a stronger attacker: hades-king-of-olympus (6 STR, 7 WP)
+    // Actually let's just use flotsam (3 STR). Marshmallow has 5 WP so we need more.
+    // Simpler: put enough damage on Marshmallow first so challenge banishes it.
+    state = { ...state, cards: { ...state.cards, [marshId]: { ...state.cards[marshId]!, damage: 4 } } };
+
+    // player1 challenges marshmallow (3 STR >= 1 remaining WP → banished)
+    const result = applyAction(state, {
+      type: "CHALLENGE", playerId: "player1", attackerInstanceId: attackerId, defenderInstanceId: marshId,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // is_banished triggers → choose_may
+    expect(result.newState.pendingChoice?.type).toBe("choose_may");
+
+    const accept = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player2", choice: "accept",
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(accept.success).toBe(true);
+    expect(getInstance(accept.newState, marshId).zone).toBe("hand");
+  });
+
+  it("Mad Hatter is_challenged → may draw a card", () => {
+    let state = startGame(["mad-hatter-gracious-host"]);
+    let hatterId: string, attackerId: string;
+    ({ state, instanceId: hatterId } = injectCard(state, "player2", "mad-hatter-gracious-host", "play", { isExerted: true }));
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play"));
+    const handBefore = getZone(state, "player2", "hand").length;
+
+    const result = applyAction(state, {
+      type: "CHALLENGE", playerId: "player1", attackerInstanceId: attackerId, defenderInstanceId: hatterId,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.pendingChoice?.type).toBe("choose_may");
+
+    const accept = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player2", choice: "accept",
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(accept.success).toBe(true);
+    expect(getZone(accept.newState, "player2", "hand").length).toBe(handBefore + 1);
+  });
+
   it("Genie On the Job enters play → may return chosen character to hand", () => {
     let state = startGame(["genie-on-the-job"]);
     let genieId: string, targetId: string;
@@ -1118,6 +1202,46 @@ describe("§4.4 Activated Abilities", () => {
 
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/exerted/i);
+  });
+
+  it("Elsa Snow Queen: exerts to exert chosen opposing character", () => {
+    let state = startGame(["elsa-snow-queen"]);
+    let elsaId: string, targetId: string;
+    ({ state, instanceId: elsaId } = injectCard(state, "player1", "elsa-snow-queen", "play"));
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play"));
+
+    const result = applyAction(state, {
+      type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: elsaId, abilityIndex: 0,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.pendingChoice?.type).toBe("choose_target");
+
+    const resolve = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(resolve.success).toBe(true);
+    expect(getInstance(resolve.newState, targetId).isExerted).toBe(true);
+    expect(getInstance(resolve.newState, elsaId).isExerted).toBe(true);
+  });
+
+  it("Plasma Blaster: exert + 2 ink to deal 1 damage", () => {
+    let state = startGame(["plasma-blaster"]);
+    let blasterId: string, targetId: string;
+    ({ state, instanceId: blasterId } = injectCard(state, "player1", "plasma-blaster", "play"));
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play"));
+    state = giveInk(state, "player1", 3);
+
+    const result = applyAction(state, {
+      type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: blasterId, abilityIndex: 0,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.pendingChoice?.type).toBe("choose_target");
+
+    const resolve = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(getInstance(resolve.newState, targetId).damage).toBe(1);
+    expect(resolve.newState.players.player1.availableInk).toBe(1); // 3 - 2
   });
 });
 
