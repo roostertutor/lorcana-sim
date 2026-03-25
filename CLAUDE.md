@@ -170,6 +170,6 @@ pnpm optimize --deck ./deck.txt --opponent aggro --iterations 500
 
 ## Full Documentation
 
-SPEC.md    — full specification: what to build, how, build order
-DECISIONS.md — why decisions were made, what was considered and rejected
+docs/SPEC.md    — full specification: what to build, how, build order
+docs/DECISIONS.md — why decisions were made, what was considered and rejected
 README.md  — project setup and local dev instructions
