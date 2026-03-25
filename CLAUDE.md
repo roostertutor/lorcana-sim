@@ -34,11 +34,21 @@ All other engine code typechecks clean.
 engine/      ← pure rules only. Zero UI deps. Zero bot logic.
 simulator/   ← imports from engine only
 analytics/   ← imports from engine and simulator only
-ui/          ← imports from analytics only
+cli/         ← imports from analytics only (terminal output)
+ui/          ← imports from analytics only (browser, no Node APIs)
 ```
 
 Never cross these boundaries. Each package has exactly one job.
-Build order: engine → simulator → analytics → ui
+Build order: engine → simulator → analytics → cli → ui
+
+## Card Data
+
+- Source: Lorcast API (`https://api.lorcast.com/v0`) — no auth, ~10 req/sec limit
+- Import: `pnpm import-cards [--sets 1,2] [--dry]`
+- Output: `packages/engine/src/cards/lorcast-cards.json` + `lorcastCards.ts`
+- Stub report: `packages/engine/src/cards/lorcast-stubs.txt` — cards needing manual ability implementation
+- Named ability stubs ship as `abilities: []` (vanilla). They work in sim, just don't trigger effects.
+- Current: set 1 only (216 cards, 106 ready, 110 stubs)
 
 ---
 
@@ -163,16 +173,21 @@ interface BotWeights {
 ## Run Commands
 
 ```bash
-pnpm test          # run engine tests
-pnpm test:watch    # watch mode for TDD
-pnpm typecheck     # type check all packages
-pnpm -r build      # build all packages
-pnpm dev           # start UI dev server (when built)
+pnpm test          # run all package tests (61 tests)
+pnpm test:watch    # watch mode for TDD (engine)
+pnpm typecheck     # type check all packages (3 pre-existing errors in sampleCards.ts only)
+pnpm dev           # start UI dev server at http://localhost:5173
 
-# CLI (when built)
-pnpm analyze --deck ./deck.txt --bot greedy --iterations 1000
-pnpm compare --deck1 ./a.txt --deck2 ./b.txt --bot probability --iterations 5000
-pnpm optimize --deck ./deck.txt --opponent aggro --iterations 500
+# CLI
+pnpm analyze  --deck packages/cli/sample-deck.txt --bot greedy --iterations 1000
+pnpm compare  --deck1 ./a.txt --deck2 ./b.txt --bot aggro --iterations 5000
+pnpm optimize --deck packages/cli/sample-deck.txt --opponent control --iterations 500
+pnpm sweep    --deck packages/cli/sample-deck.txt --opponent greedy --iterations 200
+
+# Card import
+pnpm import-cards                  # fetch all sets from Lorcast API
+pnpm import-cards --sets 1,2       # fetch specific sets
+pnpm import-cards --sets 1 --dry   # dry run, print without writing
 ```
 
 ---

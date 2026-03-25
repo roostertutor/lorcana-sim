@@ -74,11 +74,13 @@ can break them. Game rule assertions (inkwell contents, lore direction,
 win threshold) CAN be changed by cards and belong in integration tests,
 not invariant checks.
 
-### Four packages with strict separation
-engine / simulator / analytics / ui — each has exactly one job.
-Cross-concern leakage is the primary source of architectural debt.
-Bot type separation (algorithm/personal/crowd) is enforced the same way:
-aggregateResults() throws if called with mixed types.
+### Five packages with strict separation
+engine / simulator / analytics / cli / ui — each has exactly one job.
+The CLI was added between analytics and UI to validate the full pipeline
+with terminal output before building React. Cross-concern leakage is the
+primary source of architectural debt. Bot type separation
+(algorithm/personal/crowd) is enforced the same way: aggregateResults()
+throws if called with mixed types.
 
 ### CLI before UI
 Validate the entire pipeline with terminal output before building React.
@@ -109,11 +111,12 @@ This improves ink selection, quest vs hold back decisions, mulligan
 evaluation, and late-game mode switching. It's "perfect information
 about your own deck" — not cheating, it's what skilled players do.
 
-### Weight optimization without ML
-Grid/random search over weight space using the simulation infrastructure.
-Finds strong weight vectors for specific matchups. Not ML — brute force.
-Essentially computational metagame analysis. The architecture is
-compatible with future ML if we ever go there.
+### Weight optimization: random search now, ML later
+Random search over weight space is implemented. Grid and genetic
+strategies are deferred — random is sufficient for initial analytics
+and is the simplest to validate. The architecture is compatible with
+future ML: a neural net would implement the same BotWeights interface
+via gradient descent instead of random search.
 
 ### PersonalBot / RyanBot
 Any player creates a named bot by setting weights that reflect their
@@ -121,6 +124,77 @@ playstyle and adding explicit override rules for specific tendencies.
 Calibrate by measuring agreement rate against real recorded decisions.
 Gap between PersonalBot and OptimalBot is a quantified coaching map.
 PersonalBots are type "personal" — never mixed with algorithm results.
+
+---
+
+## Card Data Decisions
+
+### Lorcast API as the data source
+`https://api.lorcast.com/v0` — real REST API, no auth required,
+well-documented, returns clean JSON with all fields we need.
+Rate limit ~10 req/sec (100ms between requests), gameplay data
+stable enough to cache weekly.
+
+Previous sessions hallucinated a GitHub URL. Lorcast API was the
+correct source, identified by navigating to the actual documentation.
+
+**What we considered:**
+- Hand-entering cards — rejected immediately, hundreds of cards per set
+- Scraping a fan wiki — fragile, no structured schema
+- The official Lorcana companion app — no public API
+- Lorcast API — chosen: structured, stable, complete
+
+### Named ability stub strategy
+Cards with unimplemented named abilities ship as vanilla stubs
+(`abilities: []`). They are playable in simulation — they just don't
+trigger their effects. This means:
+- 49% of set 1 works perfectly right now (keyword-only cards)
+- The remaining 51% work as vanilla until manually implemented
+- The stub report (`lorcast-stubs.txt`) is the prioritized work queue
+- Re-running the importer is safe — it regenerates everything
+
+Rejected alternative: block import until all abilities are implemented.
+That would have prevented using the platform at all. Incremental is better.
+
+### JSON import over TypeScript codegen
+The importer outputs `lorcast-cards.json` (data) + `lorcastCards.ts`
+(thin TS module that imports and exports the JSON).
+
+**Why JSON not TypeScript array:**
+- Regeneratable from API without a TS compilation step
+- Safe to overwrite — git diff shows only data changes
+- Vite bundles JSON imports natively
+- TypeScript's `resolveJsonModule` handles it cleanly
+
+**The `exactOptionalPropertyTypes` cast:**
+TypeScript's JSON import inference includes `undefined` in optional
+property types, which conflicts with our strict `exactOptionalPropertyTypes`
+setting. We use `as unknown as CardDefinition[]` to bypass this — the
+data is correct at runtime, it's purely a static inference limitation.
+This is documented in lorcastCards.ts.
+
+---
+
+## UI Architecture Decisions
+
+### Simulation runs in-browser
+All engine/simulator/analytics code is pure TypeScript with no Node.js
+APIs. Vite bundles it into the frontend. No server needed.
+
+**Tradeoff:** long simulations (1000 games of ProbabilityBot) block the
+main thread. Mitigated by:
+- `setTimeout(fn, 10)` before running — lets the loading spinner render first
+- Default iterations capped at 200 in the UI
+- Web Workers deferred — complexity not justified yet
+
+### No React Router
+Single-page with tab state in `useState`. Five screens don't need a router.
+Adding React Router later is trivial if deep-linking becomes useful.
+
+### No Zustand
+Deck state is a small `useState` in App.tsx passed as props.
+One layer of prop drilling is fine. Zustand is unnecessary complexity
+for the current scope.
 
 ---
 
@@ -171,8 +245,8 @@ Dependency: working analytics engine first.
 **GreedyBot ink selection** — ProbabilityBot solves this via deckQuality.
 Deferred for GreedyBot specifically.
 
-**Weight search strategy** — grid vs random sampling vs genetic algorithm?
-Deferred until optimization phase.
+**Named ability implementation priority** — no formal system yet.
+Start with most-played competitive cards from set 1.
 
 **Crowd skill segmentation** — self-reported vs consistency-derived?
 Deferred until crowdsourcing phase.
@@ -180,6 +254,9 @@ Deferred until crowdsourcing phase.
 **Replay encoding format** — JSON action sequences, exact schema TBD.
 
 **IP / Legal** — research before going public. Disney/Ravensburger own Lorcana.
+
+**Additional sets** — import all 11 sets or start with 1–3?
+Likely: implement more named abilities in set 1 first, then add set 2.
 
 ---
 
@@ -192,12 +269,10 @@ are the project memory. Update them at the end of every significant session.
 
 ---
 
-*Last updated: Session 2*
-*Changes: Pivot to headless analytics. Corrected invariants (inkwell,
-lore direction, win threshold). Modular win conditions. Card complexity
-ladder. Bot progression: RandomBot → GreedyBot → ProbabilityBot →
-weight presets → optimization. Weights as tunable vectors with static
-+ dynamic components. Deck probability as first-class factor. Weight
-  optimization as ML bridge. PersonalBot with calibration. Crowdsourcing
-  as strictly separated labeled data track with puzzle format. Added
-  CLAUDE.md as per-session standing instructions, stripped duplicates.*
+*Last updated: Session 3*
+*Changes: Full stack built and shipped — engine, simulator, analytics, CLI, UI.*
+*Lorcast API identified as card data source. Import script written.*
+*Set 1 imported: 216 cards, 106 ready, 110 named ability stubs.*
+*New decisions documented: JSON import strategy, named ability stubs,*
+*in-browser simulation, no router/no Zustand, random weight search.*
+*Resolved: weight search strategy (random implemented), card data source (Lorcast).*
