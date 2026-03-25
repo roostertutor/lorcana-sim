@@ -4,6 +4,7 @@
 // =============================================================================
 
 import type { DeckStats, DeckComposition, MatchupStats } from "@lorcana-sim/analytics";
+import type { GameLogEntry } from "@lorcana-sim/engine";
 
 const BAR_WIDTH = 30;
 
@@ -82,6 +83,25 @@ export function printDeckComposition(comp: DeckComposition): void {
     console.log(`  Turn ${label}: ${bar(prob)} ${pct(prob)}`);
   }
   console.log(sep("═"));
+}
+
+export function printActionLog(log: GameLogEntry[]): void {
+  console.log(sep("═"));
+  console.log("  GAME LOG (verbose mode)");
+  console.log(sep("═"));
+
+  let currentTurn = -1;
+  for (const entry of log) {
+    if (entry.turn !== currentTurn) {
+      currentTurn = entry.turn;
+      console.log(sep());
+      console.log(`  TURN ${currentTurn}`);
+      console.log(sep());
+    }
+    console.log(`  ${entry.message}`);
+  }
+  console.log(sep("═"));
+  console.log();
 }
 
 export function printMatchupStats(matchup: MatchupStats): void {

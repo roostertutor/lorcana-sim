@@ -10,28 +10,34 @@ import { runSimulation } from "@lorcana-sim/simulator";
 import { aggregateResults, analyzeDeckComposition } from "@lorcana-sim/analytics";
 import { loadDeck } from "../loadDeck.js";
 import { resolveBot } from "../resolveBot.js";
-import { printDeckStats, printDeckComposition } from "../format.js";
+import { printDeckStats, printDeckComposition, printActionLog } from "../format.js";
 
 export interface AnalyzeArgs {
   deck: string;
   bot: string;
   iterations: number;
+  verbose: boolean;
 }
 
 export function runAnalyze(args: AnalyzeArgs): void {
   const definitions = LORCAST_CARD_DEFINITIONS;
   const deck = loadDeck(args.deck, definitions);
   const bot = resolveBot(args.bot);
+  const iterations = args.verbose ? 1 : args.iterations;
 
-  console.log(`\nRunning ${args.iterations} games with ${bot.name}...`);
+  console.log(`\nRunning ${iterations} game${iterations > 1 ? "s" : ""} with ${bot.name}...`);
   const results = runSimulation({
     player1Deck: deck,
     player2Deck: deck,
     player1Strategy: bot,
     player2Strategy: bot,
     definitions,
-    iterations: args.iterations,
+    iterations,
   });
+
+  if (args.verbose) {
+    printActionLog(results[0]!.actionLog);
+  }
 
   const stats = aggregateResults(results);
   const comp = analyzeDeckComposition(deck, definitions);
