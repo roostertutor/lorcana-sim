@@ -417,6 +417,7 @@
 | "For free" play | 1.5.5.3 | Needed for Mufasa, Pride Lands, etc. |
 | Mulligan | 2.2.2 | |
 | Trigger condition evaluation | 1.8.2 / 6.2.4 | `processTriggerStack` never evaluates `TriggeredAbility.condition` at resolution time. Small fix in `reducer.ts` ~line 804 |
+| Split applyPassTurn into end-of-turn / start-of-turn | 3.2 / 3.4 | Currently one monolithic function. Draw is a start-of-turn action (3.2.3) but lives in end-of-turn code. Matters for start-of-turn triggers (3.2.1.4, 3.2.2.3) |
 
 ---
 
