@@ -529,6 +529,261 @@ describe("Keywords", () => {
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/bodyguard/i);
   });
+
+  // ---------------------------------------------------------------------------
+  // WARD — "Opponents can't choose this character except to challenge."
+  // ---------------------------------------------------------------------------
+
+  it("Ward: character CAN be challenged (Ward does not block challenges)", () => {
+    // Real rule: Ward says "except to challenge" — challenges are always allowed
+    let state = startGame();
+    let attackerId: string, wardId: string;
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "simba-protective-cub", "play")); // STR 1
+    ({ state, instanceId: wardId } = injectCard(state, "player2", "elsa-snow-queen", "play", { isExerted: true })); // Ward, WP 6
+
+    const result = applyAction(state, {
+      type: "CHALLENGE",
+      playerId: "player1",
+      attackerInstanceId: attackerId,
+      defenderInstanceId: wardId,
+    }, SAMPLE_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true); // Ward does NOT block challenges
+  });
+
+  it("Ward: character cannot be chosen as the target of an effect", () => {
+    // Merlin's ability deals 1 damage to a chosen character. Elsa (Ward) cannot be chosen.
+    let state = startGame();
+    let merlinId: string, elsaId: string;
+    ({ state, instanceId: merlinId } = injectCard(state, "player1", "merlin-arthurian-legend", "play"));
+    ({ state, instanceId: elsaId } = injectCard(state, "player2", "elsa-snow-queen", "play"));
+    state = giveInk(state, "player1", 10);
+
+    const activateResult = applyAction(state, {
+      type: "ACTIVATE_ABILITY",
+      playerId: "player1",
+      instanceId: merlinId,
+      abilityIndex: 0,
+    }, SAMPLE_CARD_DEFINITIONS);
+    expect(activateResult.success).toBe(true);
+
+    const resolveResult = applyAction(activateResult.newState, {
+      type: "RESOLVE_CHOICE",
+      playerId: "player1",
+      choice: [elsaId],
+    }, SAMPLE_CARD_DEFINITIONS);
+
+    expect(resolveResult.success).toBe(false);
+    expect(resolveResult.error).toMatch(/ward/i);
+  });
+
+  it("Ward: your own character with Ward CAN be targeted by your own effects", () => {
+    // Ward only protects from opponents — self-targeting is allowed
+    let state = startGame();
+    let merlinId: string, elsaId: string;
+    ({ state, instanceId: merlinId } = injectCard(state, "player1", "merlin-arthurian-legend", "play"));
+    ({ state, instanceId: elsaId } = injectCard(state, "player1", "elsa-snow-queen", "play")); // own Ward character
+    state = giveInk(state, "player1", 10);
+
+    const activateResult = applyAction(state, {
+      type: "ACTIVATE_ABILITY",
+      playerId: "player1",
+      instanceId: merlinId,
+      abilityIndex: 0,
+    }, SAMPLE_CARD_DEFINITIONS);
+    expect(activateResult.success).toBe(true);
+
+    const resolveResult = applyAction(activateResult.newState, {
+      type: "RESOLVE_CHOICE",
+      playerId: "player1",
+      choice: [elsaId],
+    }, SAMPLE_CARD_DEFINITIONS);
+
+    expect(resolveResult.success).toBe(true); // Allowed — Ward only blocks opponents
+  });
+
+  // ---------------------------------------------------------------------------
+  // RESIST — Reduces incoming damage by N
+  // ---------------------------------------------------------------------------
+
+  it("Resist: reduces incoming damage by its value", () => {
+    // Hercules STR 3 + Challenger +2 = 5 vs Maui (Resist +2, WP 7). 5 - 2 = 3 damage.
+    let state = startGame();
+    let attackerId: string, mauiId: string;
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "hercules-hero-in-training", "play"));
+    ({ state, instanceId: mauiId } = injectCard(state, "player2", "maui-hero-to-all", "play", { isExerted: true }));
+
+    const result = applyAction(state, {
+      type: "CHALLENGE",
+      playerId: "player1",
+      attackerInstanceId: attackerId,
+      defenderInstanceId: mauiId,
+    }, SAMPLE_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, mauiId).damage).toBe(3); // 5 - 2 resist = 3
+    expect(getInstance(result.newState, mauiId).zone).toBe("play"); // survives (3 < WP 7)
+  });
+
+  it("Resist: absorbs all damage when attack strength ≤ resist value", () => {
+    // Simba STR 1 vs Maui (Resist +2). 1 - 2 = 0 (floored at 0).
+    let state = startGame();
+    let attackerId: string, mauiId: string;
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "simba-protective-cub", "play")); // STR 1
+    ({ state, instanceId: mauiId } = injectCard(state, "player2", "maui-hero-to-all", "play", { isExerted: true }));
+
+    const result = applyAction(state, {
+      type: "CHALLENGE",
+      playerId: "player1",
+      attackerInstanceId: attackerId,
+      defenderInstanceId: mauiId,
+    }, SAMPLE_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, mauiId).damage).toBe(0);
+    expect(getInstance(result.newState, mauiId).zone).toBe("play");
+  });
+
+  it("Resist: character is banished when post-resist damage reaches willpower", () => {
+    // Maui WP 7, Resist +2. Pre-damage 4. Gaston STR 5 → 5 - 2 = 3 more → total 7 = WP → banished.
+    let state = startGame();
+    let attackerId: string, mauiId: string;
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "gaston-boastful-hunter", "play")); // STR 5
+    ({ state, instanceId: mauiId } = injectCard(state, "player2", "maui-hero-to-all", "play", { isExerted: true, damage: 4 }));
+
+    const result = applyAction(state, {
+      type: "CHALLENGE",
+      playerId: "player1",
+      attackerInstanceId: attackerId,
+      defenderInstanceId: mauiId,
+    }, SAMPLE_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, mauiId).zone).toBe("discard"); // 4 + 3 = 7 = WP
+  });
+
+  // ---------------------------------------------------------------------------
+  // SHIFT — Play at reduced cost onto a same-named character
+  // ---------------------------------------------------------------------------
+
+  it("Shift: can be played at shiftCost onto a same-named character in play", () => {
+    let state = startGame();
+    let baseId: string, shiftId: string;
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "moana-of-motunui", "play"));
+    ({ state, instanceId: shiftId } = injectCard(state, "player1", "moana-chosen-by-the-ocean", "hand"));
+    state = giveInk(state, "player1", 5); // shiftCost is 5
+
+    const result = applyAction(state, {
+      type: "PLAY_CARD",
+      playerId: "player1",
+      instanceId: shiftId,
+      shiftTargetInstanceId: baseId,
+    }, SAMPLE_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, shiftId).zone).toBe("play");
+    expect(getInstance(result.newState, baseId).zone).toBe("discard");
+  });
+
+  it("Shift: cannot shift without enough ink for shiftCost", () => {
+    let state = startGame();
+    let baseId: string, shiftId: string;
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "moana-of-motunui", "play"));
+    ({ state, instanceId: shiftId } = injectCard(state, "player1", "moana-chosen-by-the-ocean", "hand"));
+    state = giveInk(state, "player1", 4); // need 5
+
+    const result = applyAction(state, {
+      type: "PLAY_CARD",
+      playerId: "player1",
+      instanceId: shiftId,
+      shiftTargetInstanceId: baseId,
+    }, SAMPLE_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(/ink/i);
+  });
+
+  it("Shift: cannot shift onto a character with a different name", () => {
+    let state = startGame();
+    let baseId: string, shiftId: string;
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "simba-protective-cub", "play")); // name: Simba, not Moana
+    ({ state, instanceId: shiftId } = injectCard(state, "player1", "moana-chosen-by-the-ocean", "hand"));
+    state = giveInk(state, "player1", 8);
+
+    const result = applyAction(state, {
+      type: "PLAY_CARD",
+      playerId: "player1",
+      instanceId: shiftId,
+      shiftTargetInstanceId: baseId,
+    }, SAMPLE_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(/name/i);
+  });
+
+  it("Shift: shifted card inherits the exerted status of the original", () => {
+    let state = startGame();
+    let baseId: string, shiftId: string;
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "moana-of-motunui", "play", { isExerted: true }));
+    ({ state, instanceId: shiftId } = injectCard(state, "player1", "moana-chosen-by-the-ocean", "hand"));
+    state = giveInk(state, "player1", 5);
+
+    const result = applyAction(state, {
+      type: "PLAY_CARD",
+      playerId: "player1",
+      instanceId: shiftId,
+      shiftTargetInstanceId: baseId,
+    }, SAMPLE_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, shiftId).isExerted).toBe(true);
+  });
+
+  it("Shift: shifted card starts with 0 damage (does not inherit the original's damage)", () => {
+    // Real rule: a shifted card enters play fresh — damage counters are not carried over
+    let state = startGame();
+    let baseId: string, shiftId: string;
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "moana-of-motunui", "play", { damage: 3 }));
+    ({ state, instanceId: shiftId } = injectCard(state, "player1", "moana-chosen-by-the-ocean", "hand"));
+    state = giveInk(state, "player1", 5);
+
+    const result = applyAction(state, {
+      type: "PLAY_CARD",
+      playerId: "player1",
+      instanceId: shiftId,
+      shiftTargetInstanceId: baseId,
+    }, SAMPLE_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, shiftId).damage).toBe(0);
+  });
+
+  it("Shift: shifted character cannot act the same turn (no Rush)", () => {
+    let state = startGame();
+    let baseId: string, shiftId: string;
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "moana-of-motunui", "play"));
+    ({ state, instanceId: shiftId } = injectCard(state, "player1", "moana-chosen-by-the-ocean", "hand"));
+    state = giveInk(state, "player1", 5);
+
+    const result = applyAction(state, {
+      type: "PLAY_CARD",
+      playerId: "player1",
+      instanceId: shiftId,
+      shiftTargetInstanceId: baseId,
+    }, SAMPLE_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, shiftId).hasActedThisTurn).toBe(true);
+  });
+
+  // ---------------------------------------------------------------------------
+  // UNIMPLEMENTED — test stubs to document expected behavior
+  // ---------------------------------------------------------------------------
+
+  it.todo("Reckless: character cannot quest");
+  it.todo("Reckless: character CAN challenge when not exerted");
+  it.todo("Support: when questing, may add this character's strength to another chosen ready character's strength");
+  it.todo("Singer N: character can exert to sing a song of cost ≤ N without paying its ink cost");
 });
 
 // ---------------------------------------------------------------------------

@@ -52,7 +52,7 @@ export function validateAction(
     case "PASS_TURN":
       return validatePassTurn(state, action.playerId);
     case "RESOLVE_CHOICE":
-      return validateResolveChoice(state, action.playerId);
+      return validateResolveChoice(state, action.playerId, action.choice, definitions);
     case "DRAW_CARD":
       return OK; // Always legal (used internally)
     default:
@@ -176,11 +176,6 @@ function validateChallenge(
     return fail("Must challenge an exerted Bodyguard character first.");
   }
 
-  // Ward: cannot be targeted by opponent abilities
-  if (hasKeyword(defender, defenderDef, "ward")) {
-    return fail("Cannot target a character with Ward.");
-  }
-
   // Evasive: can only be challenged by Evasive characters
   if (hasKeyword(defender, defenderDef, "evasive")) {
     if (!hasKeyword(attacker, attackerDef, "evasive")) {
@@ -228,10 +223,30 @@ function validatePassTurn(state: GameState, playerId: PlayerID): ValidationResul
   return OK;
 }
 
-function validateResolveChoice(state: GameState, playerId: PlayerID): ValidationResult {
+function validateResolveChoice(
+  state: GameState,
+  playerId: PlayerID,
+  choice: string[] | number,
+  definitions: Record<string, CardDefinition>
+): ValidationResult {
   if (!state.pendingChoice) return fail("No pending choice to resolve.");
   if (state.pendingChoice.choosingPlayerId !== playerId) {
     return fail("It's not your choice to make.");
   }
+
+  // Ward: opponents can't choose this character for their effects
+  if (state.pendingChoice.type === "choose_target" && Array.isArray(choice)) {
+    const opponent = getOpponent(playerId);
+    for (const targetId of choice) {
+      const target = getInstance(state, targetId);
+      if (target.ownerId === opponent) {
+        const targetDef = definitions[target.definitionId];
+        if (targetDef && hasKeyword(target, targetDef, "ward")) {
+          return fail("Cannot choose a character with Ward as the target of an effect.");
+        }
+      }
+    }
+  }
+
   return OK;
 }

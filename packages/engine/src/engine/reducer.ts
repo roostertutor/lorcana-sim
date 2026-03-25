@@ -26,6 +26,7 @@ import {
   getEffectiveStrength,
   getEffectiveWillpower,
   getInstance,
+  getKeywordValue,
   getOpponent,
   getZone,
   hasKeyword,
@@ -273,7 +274,7 @@ function applyPlayCard(
     state = moveCard(state, instanceId, playerId, "play");
     state = updateInstance(state, instanceId, {
       isExerted: shiftTarget.isExerted,
-      damage: shiftTarget.damage,
+      damage: 0, // Shifted card enters play fresh — damage counters are not inherited
       hasActedThisTurn: true, // Shifted characters can't act immediately (no Rush by default)
       shiftedOntoInstanceId: shiftTargetInstanceId,
     });
@@ -388,14 +389,20 @@ function applyChallenge(
 
   state = updateInstance(state, attackerInstanceId, { isExerted: true, hasActedThisTurn: true });
 
-  const newAttackerDamage = attacker.damage + defenderStr;
-  const newDefenderDamage = defender.damage + attackerStr;
+  // Apply Resist: reduce incoming damage by the Resist value (min 0)
+  const attackerResist = getKeywordValue(attacker, attackerDef, "resist");
+  const defenderResist = getKeywordValue(defender, defenderDef, "resist");
+  const actualAttackerDamage = Math.max(0, defenderStr - attackerResist);
+  const actualDefenderDamage = Math.max(0, attackerStr - defenderResist);
+
+  const newAttackerDamage = attacker.damage + actualAttackerDamage;
+  const newDefenderDamage = defender.damage + actualDefenderDamage;
 
   state = updateInstance(state, attackerInstanceId, { damage: newAttackerDamage });
   state = updateInstance(state, defenderInstanceId, { damage: newDefenderDamage });
 
-  events.push({ type: "damage_dealt", instanceId: attackerInstanceId, amount: defenderStr });
-  events.push({ type: "damage_dealt", instanceId: defenderInstanceId, amount: attackerStr });
+  events.push({ type: "damage_dealt", instanceId: attackerInstanceId, amount: actualAttackerDamage });
+  events.push({ type: "damage_dealt", instanceId: defenderInstanceId, amount: actualDefenderDamage });
 
   state = appendLog(state, {
     turn: state.turnNumber,
@@ -847,9 +854,7 @@ function dealDamageToCard(
   const def = definitions[instance.definitionId];
   if (!def) return state;
 
-  const resistValue = instance.grantedKeywords.includes("resist")
-    ? 1
-    : (def.abilities.find((a) => a.type === "keyword" && a.keyword === "resist") as { value?: number } | undefined)?.value ?? 0;
+  const resistValue = getKeywordValue(instance, def, "resist");
   const actualDamage = Math.max(0, amount - resistValue);
 
   const newDamage = instance.damage + actualDamage;
