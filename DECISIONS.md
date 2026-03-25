@@ -1,323 +1,203 @@
 # DECISIONS.md
-# Lorcana Analytics Engine — Project Decisions & Strategy Log
-#
-# This file captures the "why" behind decisions.
-# SPEC.md captures the "what" and "how".
-# Keep both updated as decisions evolve.
-# Paste into new Claude.ai or Claude Code sessions for context.
+# Why decisions were made. What was considered and rejected.
+# For what to build: SPEC.md
+# For standing Claude Code instructions: CLAUDE.md
 
 ---
 
 ## What This Project Is
 
-A headless Lorcana TCG game engine and deck analytics platform.
-
-**Not** a human-playable tabletop simulator.
-**Not** competing with Lorcanito, Duels.ink, or Pixelborn.
-
-The engine simulates thousands of games programmatically to answer
-questions like:
-- How consistent is this deck at hitting ink on curve?
-- What is the win rate of deck A vs deck B?
-- Which cards in this deck are underperforming?
-- How first-player dependent is this matchup?
+Headless Lorcana TCG analytics engine. NOT a human-playable simulator.
+Simulates thousands of games to produce deck analytics and win rates.
 
 ---
 
 ## Why This Direction
 
 ### The competition problem
-The human simulator space already has:
-- **Lorcanito** — web-based, open source, well established
-- **Duels.ink** — web-based simulator
-- **Pixelborn** — desktop app, webcam overlay (like MTG Spelltable)
+Lorcanito, Duels.ink, and Pixelborn already cover human-playable simulation.
+Building a fourth fights for the same small player pool.
 
-Building a fourth option competes for the same small pool of Lorcana
-players who want to play online. Not worth it.
+### The gap
+No Lorcana tool does quantitative deck analysis. MTG has had this for decades
+(Frank Karsten, Moxfield, goldfish simulators). Lorcana has nothing.
 
-### The gap we fill
-No Lorcana tool does quantitative deck analysis. Every competitive card
-game needs this — MTG has had it for decades (Frank Karsten, Moxfield
-hand analysis, goldfish simulators). Lorcana has nothing.
-
-### Why not just do probability math?
-Pure hypergeometric math treats all cards as identical. In Lorcana they
-are not — a 3-cost card with Rush plays very differently from a 3-cost
-vanilla. The engine knows what each card actually does, so simulation
-results are more accurate than pure math.
-
-We use pure math where it's sufficient (ink curve probability, opening
-hand statistics) and Monte Carlo simulation where card specifics matter
-(win rates, card performance, matchup analysis).
+### Why not pure probability math?
+Hypergeometric math treats all cards as identical. A 3-cost Rush character
+plays differently from a 3-cost vanilla. The engine knows what each card
+does — Monte Carlo is more accurate than math for win rates and card
+performance. We use pure math where it's sufficient (ink curve, hand stats)
+and simulation where card specifics matter.
 
 ---
 
 ## What We Considered and Rejected
 
-### Human-playable simulator
-Started here, pivoted away. The UI complexity (pending choice resolution,
-board rendering, turn flow) is significant work that does not serve the
-analytics goal. Can revisit as a thin layer later once analytics works.
+**Human-playable simulator** — pivoted away. UI complexity (pending choice,
+board rendering) doesn't serve the analytics goal. Can revisit as thin
+layer later once analytics is solid.
 
-### Rule engine as open source library
-The overlap of "Lorcana players" and "developers who would use a rules
-library" is too small. MTG has this ecosystem after 30 years. Lorcana
-does not yet.
+**Rule engine as open source library** — Lorcana developer ecosystem is too
+small today. MTG has this after 30 years. Lorcana doesn't yet.
 
-### Pack opening simulation
-Already done by other sites. Low value add.
+**Pack opening simulation** — already done by other sites. Low value add.
 
-### Set spoiler testing tool
-Only useful once you have a working simulator underneath it. It is a
-feature of the analytics platform, not a standalone project.
-
----
-
-## Judge / Rules Oracle Tool (Future)
-
-**Concept:** Answer rules questions in natural language.
-
-**Architecture decision: hybrid engine + RAG**
-Two sources of truth that complement each other:
-1. The comprehensive rules PDF — covers mechanics abstractly
-2. Our card implementations — covers exactly what each card does
-
-The rules PDF does not mention individual cards. Our engine does not
-have prose explanations of rule interactions. Together they cover
-almost everything.
-
-**Question routing:**
-- "What does Gaston cost?" -> card definition lookup, deterministic, no LLM
-- "What does Bodyguard do?" -> RAG over rules PDF, cite the rule section
-- "Can Gaston be challenged while Elsa is in play?" -> both sources + LLM
-  reasoning, always show sources
-
-**Hallucination mitigations:**
-1. RAG — model reasons from retrieved text, not memory
-2. Forced citation — must cite rule section or card implementation
-3. Engine cross-check — LLM claims can be verified against card data
-4. Confidence flagging — low confidence answers get visible warnings
-5. Frame as learning tool, not tournament authority
-
-**When to build:** After meaningful card pool exists (50+ cards properly
-implemented). Not worth building now.
-
----
-
-## Sealed / Draft Simulation (Future)
-
-**Concept:** Generate accurate booster packs, build sealed deck,
-playtest against the analytics engine.
-
-**Key requirement:** Accurate pull rates per set. Community has documented
-these. Do not guess.
-
-**Dependency:** Needs meaningful card pool and working analytics engine.
+**Set spoiler testing** — a feature of the analytics platform, not a
+standalone project. Only useful once simulator works.
 
 ---
 
 ## Architecture Decisions
 
-### Four packages, clear separation of concerns
+### Engine is pure
+No side effects. No mutation. GameState is a plain serializable object.
+Makes testing trivial, multiplayer straightforward if ever needed,
+replay and debugging easy. Same inputs always produce same outputs
+(except shuffle randomness).
 
-```
-engine/      <- pure rules, no UI, no simulation strategy
-simulator/   <- headless runner, bot strategies, game loop
-analytics/   <- stats aggregation, deck analysis, pure math
-ui/          <- thin layer over analytics, build last
-```
+### Card abilities are data not code
+Abilities are structured JSON interpreted by the engine. Adding cards
+never requires changing engine code. Also means the future judge tool
+can read ability data directly as a source of truth.
 
-Each package has one job. Engine does not know about bots. Simulator
-does not know about charts. Analytics does not know about React.
+### Win conditions are modular
+Hardcoding `lore >= 20` is wrong. Donald Duck - Musketeer changes it.
+Deck exhaustion is a separate loss condition checked at end of turn.
+checkWinConditions() and getLoreThreshold() scan in-play cards for
+static effects that modify game rules. More conditions will be
+discovered as sets are implemented.
 
-### Engine stays pure (Decided, firm)
-applyAction(state, action, definitions) -> ActionResult
+### True invariants vs game rule assertions
+The distinction matters for testing. True invariants (total cards = 60,
+no card in two zones) are unconditional data integrity checks — no card
+can break them. Game rule assertions (inkwell contents, lore direction,
+win threshold) CAN be changed by cards and belong in integration tests,
+not invariant checks.
 
-No side effects. No mutation. Same inputs = same outputs (except shuffle).
-GameState is a plain serializable object — no classes, no methods.
+### Four packages with strict separation
+engine / simulator / analytics / ui — each has exactly one job.
+Cross-concern leakage is the primary source of architectural debt.
+Bot type separation (algorithm/personal/crowd) is enforced the same way:
+aggregateResults() throws if called with mixed types.
 
-### Card abilities are data not code (Decided, firm)
-Abilities are structured JSON interpreted by the engine. Adding a new
-card never requires changing the engine. The judge tool can also read
-ability data directly as a source of truth.
-
-### getAllLegalActions is a first-class engine export (Decided)
-Makes headless simulation possible. The engine generates all legal moves
-for a player — the bot just picks one. Reuses the existing validator
-internally so no logic is duplicated.
-
-### Bot strategies are pluggable (Decided)
-```typescript
-interface BotStrategy {
-  name: string
-  decideAction: (state, playerId, definitions) => GameAction
-}
-```
-
-RandomBot and GreedyBot to start. Interface allows future strategies
-without touching engine or simulator infrastructure.
-
-RandomBot: useful for stress testing and invariant checks.
-GreedyBot: useful for directional analytics, approximates a reasonable pilot.
-
-### CLI before UI (Decided)
-Build a terminal CLI that outputs analytics before any React UI.
-Validates the entire pipeline cheaply. Wrong numbers in the CLI
-means the UI will not save you.
-
-### UI is charts over analytics, not a game board (Decided)
-When we build UI it shows deck composition, simulation results, and
-deck comparison. It does NOT show a game board or interactive game play.
+### CLI before UI
+Validate the entire pipeline with terminal output before building React.
+Wrong numbers in the CLI means the UI won't save you.
 
 ---
 
-## Testing Philosophy
+## Bot Strategy Decisions
 
-### The core problem
-Subtle rule bugs silently corrupt all simulation output. 10,000 games
-with a wrong Bodyguard implementation produce confident but wrong stats.
-Accuracy must be solved before scale.
+### Why weights not hardcoded personalities
+Personalities are named weight vectors for the position evaluator.
+Same algorithm, different priorities. Benefits:
+- Tweakable without changing code
+- Searchable across weight space via simulation
+- Comparable results (same algorithm, different weights)
+- Future ML bridge: a neural net discovers these weights via gradient
+  descent instead of grid search. The BotWeights interface stays identical.
 
-### Four layers of confidence
+### Static vs dynamic weights
+Static scalars (0-1) capture personality traits that don't change
+mid-game. Dynamic functions capture how priorities shift with game state.
+Urgency ramping exponentially as lore approaches 20 is closer to how
+humans actually think than a fixed urgency value.
 
-**Layer 1 — Unit tests** (fast, many)
-Every mechanic isolated. Use injectCard() pattern — never rely on random
-opening hand. Grow with every new card implemented.
+### Deck probability as first-class factor
+ProbabilityBot knows exactly what's left in its deck at all times.
+This improves ink selection, quest vs hold back decisions, mulligan
+evaluation, and late-game mode switching. It's "perfect information
+about your own deck" — not cheating, it's what skilled players do.
 
-**Layer 2 — Integration scenarios** (medium, targeted)
-Multi-card interactions. Two triggers same turn. Ward blocking abilities.
-Shift damage inheritance. Every non-obvious interaction gets a test.
+### Weight optimization without ML
+Grid/random search over weight space using the simulation infrastructure.
+Finds strong weight vectors for specific matchups. Not ML — brute force.
+Essentially computational metagame analysis. The architecture is
+compatible with future ML if we ever go there.
 
-**Layer 3 — Game invariants** (automated, run during sim)
-After every action assert:
-- 60 cards always accounted for per player
-- Lore never decreases
-- Inkwell cards never leave inkwell
-- Banished cards go to discard only
-- availableInk never exceeds inkwell size
-- Game ends exactly at 20 lore
-
-Run 1000 RandomBot games. Any invariant failure = engine bug.
-
-**Layer 4 — Known replays** (slow, high confidence)
-3-5 real human-played games encoded as action sequences.
-Engine must agree at every step. Most expensive but highest confidence.
-
-### Simulation sanity checks
-- Mirror match win rate should be ~50%
-- Going first win rate should be 50-65%
-- Average game length should be 6-15 turns
-
----
-
-## Tech Stack
-
-| Layer | Choice | Reason |
-|-------|--------|--------|
-| Language | TypeScript strict mode | Catches rule bugs at compile time |
-| Package manager | pnpm workspaces | Fast, local, monorepo support |
-| Tests | Vitest | TS-native, fast, watch mode for TDD |
-| Frontend (later) | React + Vite | Ecosystem, fast dev |
-| Charts (later) | Recharts | Lightweight, React-native |
-| Styling (later) | Tailwind | Fast iteration |
-| Future DB | Supabase | If persistence ever needed |
-| Future auth | Supabase (Google/Discord) | Third party only, no custom auth |
+### PersonalBot / RyanBot
+Any player creates a named bot by setting weights that reflect their
+playstyle and adding explicit override rules for specific tendencies.
+Calibrate by measuring agreement rate against real recorded decisions.
+Gap between PersonalBot and OptimalBot is a quantified coaching map.
+PersonalBots are type "personal" — never mixed with algorithm results.
 
 ---
 
-## Card Data
+## Crowdsourcing Decision
 
-### Current state
-20 hand-crafted sample cards covering every mechanic.
-Sufficient for engine development and testing.
-Not sufficient for meaningful analytics.
+Human decision data is valuable but must be strictly separated from
+algorithm bot results. They measure different things and cannot be
+meaningfully aggregated.
 
-### Path to real data
-Community dataset: https://github.com/lorcanito/lorcana-data
-Write a one-time migration script. Do not hand-enter full sets.
+**Why keep it at all:**
+Aggregate human judgment can't be produced by any algorithm. Useful as
+a benchmark for algorithm correctness and as labeled training data if
+we ever go ML. The "puzzle of the day" format (show state, vote, reveal
+with analysis) generates this data as a side effect of community
+engagement — MTG has done this as content for decades. Making it
+interactive and quantified is a genuine improvement.
 
-### Implementation priority
-Group 1 (done): Vanilla, Evasive, Rush, Bodyguard, Ward, Challenger,
-Support, triggered abilities, activated abilities, items, actions, songs
+**Why keep it separate:**
+Unknown crowd skill distribution, selection bias, observer effect,
+inconsistency across respondents. Mixing crowd data into simulation
+would corrupt clean algorithm bot results.
 
-Group 2 (next): Shift (full testing), Singer + Song interaction,
-Resist, Reckless, Location cards
-
-Group 3 (later): Full set data via community dataset migration
+**Guardrail: BotType enum enforced in aggregation.**
 
 ---
 
-## Explicitly Out of Scope
+## Future Projects
 
-- Human-playable game board UI
-- Multiplayer / networking
-- Auth / user accounts
-- Deck builder UI (paste decklist is sufficient)
-- Card images
-- Mobile support
-- Real-time game play
-- Bot AI beyond GreedyBot heuristics
+### Judge / Rules Oracle Tool
+Hybrid architecture: card implementations (engine) + RAG over rules PDF.
+Simple card questions → deterministic lookup, no LLM.
+Rules questions → RAG with forced citation.
+Complex interactions → both sources + LLM with sources shown.
+Hallucination mitigations: RAG grounding, forced citation, engine
+cross-check, confidence flagging, frame as learning tool not authority.
+When to build: after 50+ cards implemented. Gets better automatically
+as card pool grows — compounding return on engine work.
+
+### Sealed / Draft Simulation
+Accurate pack generation + sealed deck building + analytics.
+Needs accurate pull rates (community documented) and full card pool.
+Dependency: working analytics engine first.
 
 ---
 
 ## Open Questions
 
-**IP / Legal**
-Fan simulators operate in a grey zone (Disney/Ravensburger own Lorcana).
-Research before going public. Affects distribution approach.
+**GreedyBot ink selection** — ProbabilityBot solves this via deckQuality.
+Deferred for GreedyBot specifically.
 
-**Card images**
-Not needed for analytics. Decision deferred until UI phase.
+**Weight search strategy** — grid vs random sampling vs genetic algorithm?
+Deferred until optimization phase.
 
-**Replay encoding format**
-For Layer 4 tests, need a format to encode real games as action sequences.
-JSON seems right but exact schema TBD.
+**Crowd skill segmentation** — self-reported vs consistency-derived?
+Deferred until crowdsourcing phase.
 
-**GreedyBot ink selection heuristic**
-When inking a card, which should GreedyBot choose?
-Options: lowest cost, highest cost, most copies in deck.
-Deferred until GreedyBot implementation.
+**Replay encoding format** — JSON action sequences, exact schema TBD.
+
+**IP / Legal** — research before going public. Disney/Ravensburger own Lorcana.
 
 ---
 
 ## Workflow
 
-### Claude.ai
-Strategy, architecture, tradeoffs, spec refinement.
-Use for: thinking through problems before coding them.
-
-### Claude Code
-Implementation, running tests, editing files, refactoring.
-Use for: building what was decided here.
-
-Neither tool has memory between sessions.
-
-### Maintaining context
-1. Keep SPEC.md updated — what to build
-2. Keep DECISIONS.md updated — why decisions were made
-3. Keep README.md updated — how to set things up
-4. Update "Current status" in SPEC.md Claude Code prompt each session
-
-### Starting a new Claude Code session
-```
-Read SPEC.md, DECISIONS.md, and README.md.
-
-Current status:
-- engine package: [done / in progress / not started]
-- simulator package: [done / in progress / not started]
-- analytics package: [done / in progress / not started]
-- ui package: [done / in progress / not started]
-
-[Describe what you want to work on this session]
-```
-
-### Starting a new Claude.ai session
-```
-I am building a Lorcana TCG headless analytics engine.
-Read DECISIONS.md and SPEC.md for full context.
-[Describe what you want to discuss]
-```
+Claude.ai — strategy, architecture, tradeoffs, spec refinement.
+Claude Code — implementation, tests, file editing.
+Neither has memory between sessions. CLAUDE.md, SPEC.md, DECISIONS.md
+are the project memory. Update them at the end of every significant session.
 
 ---
 
-*Last updated: Session 2 — Pivot to headless analytics direction*
+*Last updated: Session 2*
+*Changes: Pivot to headless analytics. Corrected invariants (inkwell,
+lore direction, win threshold). Modular win conditions. Card complexity
+ladder. Bot progression: RandomBot → GreedyBot → ProbabilityBot →
+weight presets → optimization. Weights as tunable vectors with static
++ dynamic components. Deck probability as first-class factor. Weight
+  optimization as ML bridge. PersonalBot with calibration. Crowdsourcing
+  as strictly separated labeled data track with puzzle format. Added
+  CLAUDE.md as per-session standing instructions, stripped duplicates.*
