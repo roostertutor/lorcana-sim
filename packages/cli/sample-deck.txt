@@ -1,0 +1,7 @@
+# Sample deck — uses SAMPLE_CARD_DEFINITIONS
+10 Simba - Protective Cub
+10 Stitch - Rock Star
+10 Beast - Hardheaded
+10 Moana - Of Motunui
+10 Hercules - Hero in Training
+10 Tinker Bell - Tiny Tactician

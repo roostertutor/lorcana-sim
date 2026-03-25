@@ -1,0 +1,26 @@
+{
+  "name": "@lorcana-sim/cli",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "lorcana": "./src/main.ts"
+  },
+  "scripts": {
+    "analyze": "node --import tsx/esm src/main.ts analyze",
+    "compare": "node --import tsx/esm src/main.ts compare",
+    "optimize": "node --import tsx/esm src/main.ts optimize",
+    "sweep": "node --import tsx/esm src/main.ts sweep",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@lorcana-sim/engine": "workspace:*",
+    "@lorcana-sim/simulator": "workspace:*",
+    "@lorcana-sim/analytics": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0"
+  }
+}

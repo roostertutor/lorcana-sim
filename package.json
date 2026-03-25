@@ -8,7 +8,11 @@
     "test:watch": "pnpm --filter engine test:watch",
     "build": "pnpm --filter engine build && pnpm --filter ui build",
     "typecheck": "pnpm -r typecheck",
-    "lint": "pnpm -r lint"
+    "lint": "pnpm -r lint",
+    "analyze": "pnpm --filter cli analyze",
+    "compare": "pnpm --filter cli compare",
+    "optimize": "pnpm --filter cli optimize",
+    "sweep": "pnpm --filter cli sweep"
   },
   "devDependencies": {
     "typescript": "^5.4.0"

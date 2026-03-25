@@ -15,6 +15,7 @@ Simulates thousands of games to produce deck analytics and win rates.
 - engine:    done — reducer, utils, getAllLegalActions, checkWinConditions; 43 tests passing
 - simulator: done — RandomBot, GreedyBot, ProbabilityBot, PersonalBot, presets, runGame, runSimulation, optimizer; Layer 3 invariants (1000 games) + sanity checks passing
 - analytics: done — aggregateResults, analyzeDeckComposition, compareDecks, analyzeOpeningHands, calibratePersonalBot, analyzeWeightSensitivity; 15 tests passing
+- cli:       done — analyze, compare, optimize, sweep commands; tsx runner; sample-deck.txt
 - ui:        not started
 
 ## Known Pre-existing Typecheck Issue
