@@ -12,8 +12,8 @@ Simulates thousands of games to produce deck analytics and win rates.
 
 ## Current Status
 (Update at the start of every Claude Code session)
-- engine:    in progress — core reducer, utils, getAllLegalActions, checkWinConditions done; 43 tests passing
-- simulator: not started
+- engine:    done — reducer, utils, getAllLegalActions, checkWinConditions; 43 tests passing
+- simulator: done — RandomBot, GreedyBot, ProbabilityBot, PersonalBot, presets, runGame, runSimulation, optimizer; Layer 3 invariants (1000 games) + sanity checks passing
 - analytics: not started
 - ui:        not started
 
