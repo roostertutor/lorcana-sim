@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "paths": {
+      "@lorcana-sim/engine": ["../engine/src/index.ts"],
+      "@lorcana-sim/simulator": ["../simulator/src/index.ts"]
+    }
+  },
+  "references": [
+    { "path": "../engine" },
+    { "path": "../simulator" }
+  ],
+  "include": ["src/**/*"],
+  "exclude": ["dist", "node_modules"]
+}

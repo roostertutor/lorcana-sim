@@ -12,6 +12,22 @@ importers:
         specifier: ^5.4.0
         version: 5.9.3
 
+  packages/analytics:
+    dependencies:
+      '@lorcana-sim/engine':
+        specifier: workspace:*
+        version: link:../engine
+      '@lorcana-sim/simulator':
+        specifier: workspace:*
+        version: link:../simulator
+    devDependencies:
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+      vitest:
+        specifier: ^1.6.0
+        version: 1.6.1
+
   packages/engine:
     devDependencies:
       '@vitest/coverage-v8':
