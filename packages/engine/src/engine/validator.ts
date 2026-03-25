@@ -61,6 +61,8 @@ export function validateAction(
   }
 }
 
+// CRD 4.3: Play a Card — from hand, pay cost
+// CRD 8.10.1: Shift — pay shift cost, put on top of same-named character
 function validatePlayCard(
   state: GameState,
   playerId: PlayerID,
@@ -72,32 +74,32 @@ function validatePlayCard(
 
   const instance = getInstance(state, instanceId);
   if (instance.ownerId !== playerId) return fail("You don't own this card.");
-  if (instance.zone !== "hand") return fail("Card is not in your hand.");
+  if (instance.zone !== "hand") return fail("Card is not in your hand."); // CRD 4.3.2
 
   const def = getDefinition(state, instanceId, definitions);
 
-  // Check shift
+  // CRD 8.10.1: Shift — alternate cost onto same-named character in play
   if (shiftTargetInstanceId) {
     if (!def.shiftCost) return fail("This card doesn't have Shift.");
     const shiftTarget = getInstance(state, shiftTargetInstanceId);
     if (shiftTarget.zone !== "play") return fail("Shift target is not in play.");
     if (shiftTarget.ownerId !== playerId) return fail("You don't own the shift target.");
-    // Shift target must share a name
     const shiftTargetDef = getDefinition(state, shiftTargetInstanceId, definitions);
     if (shiftTargetDef.name !== def.name) return fail("Shift target must share this character's name.");
-    if (!canAfford(state, playerId, def.shiftCost)) {
+    if (!canAfford(state, playerId, def.shiftCost)) { // CRD 1.5.3
       return fail(`Not enough ink. Need ${def.shiftCost}, have ${state.players[playerId].availableInk}.`);
     }
     return OK;
   }
 
-  if (!canAfford(state, playerId, def.cost)) {
+  if (!canAfford(state, playerId, def.cost)) { // CRD 1.5.3: cost must be paid in full
     return fail(`Not enough ink. Need ${def.cost}, have ${state.players[playerId].availableInk}.`);
   }
 
   return OK;
 }
 
+// CRD 4.2: Ink a Card — once per turn, inkable card from hand
 function validatePlayInk(
   state: GameState,
   playerId: PlayerID,
@@ -105,7 +107,7 @@ function validatePlayInk(
   definitions: Record<string, CardDefinition>
 ): ValidationResult {
   if (!isMainPhase(state, playerId)) return fail("Not your main phase.");
-  if (state.players[playerId].hasPlayedInkThisTurn) return fail("Already played ink this turn.");
+  if (state.players[playerId].hasPlayedInkThisTurn) return fail("Already played ink this turn."); // CRD 4.2.3
 
   const instance = getInstance(state, instanceId);
   if (instance.ownerId !== playerId) return fail("You don't own this card.");
@@ -117,6 +119,7 @@ function validatePlayInk(
   return OK;
 }
 
+// CRD 4.5: Quest — exert dry character, gain lore
 function validateQuest(
   state: GameState,
   playerId: PlayerID,
@@ -128,16 +131,17 @@ function validateQuest(
   const instance = getInstance(state, instanceId);
   if (instance.ownerId !== playerId) return fail("You don't own this card.");
   if (instance.zone !== "play") return fail("Card is not in play.");
-  if (instance.isExerted) return fail("This character is already exerted.");
-  if (instance.isDrying) return fail("This character is still drying and cannot quest.");
+  if (instance.isExerted) return fail("This character is already exerted."); // CRD 4.5.1.3
+  if (instance.isDrying) return fail("This character is still drying and cannot quest."); // CRD 5.1.1.11
 
   const def = getDefinition(state, instanceId, definitions);
-  if (def.cardType !== "character") return fail("Only characters can quest.");
-  if (!def.lore || def.lore <= 0) return fail("This character has no lore value.");
+  if (def.cardType !== "character") return fail("Only characters can quest."); // CRD 5.3.4
+  if (!def.lore || def.lore <= 0) return fail("This character has no lore value."); // CRD 4.5.3.1
 
   return OK;
 }
 
+// CRD 4.6: Challenge — exert dry attacker, choose exerted defender, deal simultaneous damage
 function validateChallenge(
   state: GameState,
   playerId: PlayerID,
@@ -150,15 +154,15 @@ function validateChallenge(
   const attacker = getInstance(state, attackerInstanceId);
   if (attacker.ownerId !== playerId) return fail("You don't own the attacker.");
   if (attacker.zone !== "play") return fail("Attacker is not in play.");
-  if (attacker.isExerted) return fail("Attacker is exerted and cannot challenge.");
+  if (attacker.isExerted) return fail("Attacker is exerted and cannot challenge."); // CRD 4.6.4.1
 
   const attackerDef = getDefinition(state, attackerInstanceId, definitions);
-  // Rush bypasses drying for challenges only (CRD 8.9.1)
+  // CRD 8.9.1: Rush bypasses drying for challenges only (not quest)
   if (attacker.isDrying && !hasKeyword(attacker, attackerDef, "rush")) {
-    return fail("Attacker is still drying and cannot challenge.");
+    return fail("Attacker is still drying and cannot challenge."); // CRD 5.1.1.11
   }
 
-  if (attackerDef.cardType !== "character") return fail("Only characters can challenge.");
+  if (attackerDef.cardType !== "character") return fail("Only characters can challenge."); // CRD 5.3.4
 
   const defender = getInstance(state, defenderInstanceId);
   const opponent = getOpponent(playerId);
@@ -167,9 +171,7 @@ function validateChallenge(
 
   const modifiers = getGameModifiers(state, definitions);
 
-  // Default rule: only exerted characters can be challenged.
-  // Future cards (e.g. a card granting "this character may challenge ready characters")
-  // add the attacker's instanceId to modifiers.canChallengeReady to bypass this.
+  // CRD 4.6.4.2: defender must be exerted (unless modifier overrides)
   if (!defender.isExerted && !modifiers.canChallengeReady.has(attackerInstanceId)) {
     return fail("Can only challenge exerted characters.");
   }
@@ -181,7 +183,7 @@ function validateChallenge(
   const defenderDef = getDefinition(state, defenderInstanceId, definitions);
   const opponentPlay = getZone(state, opponent, "play");
 
-  // Bodyguard: exerted bodyguards must be challenged before any other character
+  // CRD 8.3.3: Bodyguard — exerted bodyguards must be challenged first
   const exertedBodyguards = opponentPlay.filter((id) => {
     if (id === defenderInstanceId) return false;
     const inst = getInstance(state, id);
@@ -194,7 +196,7 @@ function validateChallenge(
     return fail("Must challenge an exerted Bodyguard character first.");
   }
 
-  // Evasive: can only be challenged by Evasive characters
+  // CRD 8.6.1: Evasive — can only be challenged by Evasive characters
   if (hasKeyword(defender, defenderDef, "evasive")) {
     if (!hasKeyword(attacker, attackerDef, "evasive")) {
       return fail("Only Evasive characters can challenge an Evasive character.");
@@ -204,6 +206,7 @@ function validateChallenge(
   return OK;
 }
 
+// CRD 4.4: Use an Activated Ability — pay cost, resolve effect
 function validateActivateAbility(
   state: GameState,
   playerId: PlayerID,
@@ -257,7 +260,7 @@ function validateResolveChoice(
     return fail("It's not your choice to make.");
   }
 
-  // Ward: opponents can't choose this character for their effects
+  // CRD 8.15.1: Ward — opponents can't choose this character for their effects
   if (state.pendingChoice.type === "choose_target" && Array.isArray(choice)) {
     const opponent = getOpponent(playerId);
     for (const targetId of choice) {

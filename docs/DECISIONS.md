@@ -5,13 +5,6 @@
 
 ---
 
-## What This Project Is
-
-Headless Lorcana TCG analytics engine. NOT a human-playable simulator.
-Simulates thousands of games to produce deck analytics and win rates.
-
----
-
 ## Why This Direction
 
 ### The competition problem

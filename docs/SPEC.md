@@ -20,9 +20,9 @@ deck analytics, win rates, consistency metrics, and card evaluation.
 
 | Package | Status | Notes |
 |---|---|---|
-| `@lorcana-sim/engine` | ✅ Done | 49 passing, 5 todo; CRD bugs B1–B6 fixed |
-| `@lorcana-sim/simulator` | ✅ Done | Layer 3 invariants (1000 games) passing |
-| `@lorcana-sim/analytics` | ✅ Done | 15 tests passing |
+| `@lorcana-sim/engine` | ✅ Done | CRD audited; run `pnpm test` for current count |
+| `@lorcana-sim/simulator` | ✅ Done | Layer 3 invariants (1000 games) |
+| `@lorcana-sim/analytics` | ✅ Done | Composition + simulation + comparison |
 | `@lorcana-sim/cli` | ✅ Done | analyze, compare, optimize, sweep |
 | `@lorcana-sim/ui` | ✅ Done | 5 screens, runs in-browser |
 | Card import script | ✅ Done | Set 1 imported (216 cards) |
@@ -31,18 +31,6 @@ deck analytics, win rates, consistency metrics, and card evaluation.
 | PersonalBot calibration UI | ⬜ Pending | Analytics function exists, UI screen not built |
 | Layer 4 — Known replays | ⬜ Pending | Schema TBD |
 | Puzzle of the day / crowd UI | ⬜ Pending | Needs backend |
-
----
-
-## Previously Protected Files (unprotected after CRD audit)
-
-These files were previously protected but CRD v2.0.1 audit (Session 5)
-revealed bugs in validator.ts and types/index.ts. All four are now
-unprotected and may be modified when fixing CRD-identified issues.
-- `packages/engine/src/types/index.ts`
-- `packages/engine/src/cards/sampleCards.ts`
-- `packages/engine/src/engine/validator.ts`
-- `packages/engine/src/engine/initializer.ts`
 
 ---
 
@@ -314,11 +302,6 @@ Re-running the import script overwrites the JSON and regenerates the stub report
 
 To add a set: `pnpm import-cards --sets 2` (appends; or `--sets 1,2` to regenerate all).
 
-### Known Pre-existing Typecheck Issue
-`sampleCards.ts` has 3 errors under `exactOptionalPropertyTypes`
-(`subtitle: undefined` instead of omitting the property). Low priority fix.
-All other engine code typechecks clean.
-
 ---
 
 ## Testing Strategy
@@ -364,18 +347,4 @@ Every `GameResult` carries `botLabels` and `botType`.
 
 ## Open Questions
 
-**GreedyBot ink selection** — lowest cost? highest cost? most copies left?
-ProbabilityBot solves this via deckQuality. Deferred for GreedyBot.
-
-**Named ability implementation priority** — which cards from lorcast-stubs.txt first?
-Start with the most-played competitive cards from set 1. No formal system yet.
-
-**Crowd skill segmentation** — self-reported vs consistency-derived?
-Deferred until crowdsourcing phase.
-
-**Layer 4 replay encoding format** — exact JSON schema TBD.
-
-**IP / Legal** — research before going public. Disney/Ravensburger own Lorcana.
-
-**Additional sets** — import all 11 sets or start with 1–3?
-Set 1 is complete. Sets 2+ when named ability implementation catches up.
+See docs/DECISIONS.md §Open Questions for the current list.

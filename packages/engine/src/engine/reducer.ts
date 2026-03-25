@@ -83,10 +83,9 @@ export function applyAction(
 // -----------------------------------------------------------------------------
 
 /**
- * Returns the lore threshold required to win.
- * Default is 20. Scans in-play cards for static effects that modify it
- * (e.g. Donald Duck - Musketeer). When modify_lore_threshold StaticEffect
- * type is added to types/index.ts, scan will happen here.
+ * CRD 1.8.1.1: Default lore threshold is 20.
+ * Scans in-play cards for static effects that modify it
+ * (e.g. Donald Duck - Musketeer).
  */
 export function getLoreThreshold(
   _state: GameState,
@@ -96,9 +95,8 @@ export function getLoreThreshold(
 }
 
 /**
- * Query the current win state without mutating. Use this in bots and analytics.
- * Deck exhaustion is a separate end-of-turn condition handled in applyPassTurn —
- * this function only reflects conditions checkable at any point in state.
+ * CRD 2.3.3.1 / 1.8.1.1: Check lore threshold win condition.
+ * Deck exhaustion (CRD 2.3.3.2) is a separate end-of-turn condition in applyPassTurn.
  */
 export function checkWinConditions(
   state: GameState,
@@ -305,6 +303,7 @@ function applyPlayCard(
   return state;
 }
 
+// CRD 4.2: Ink a Card — move inkable card from hand to inkwell, once per turn
 function applyPlayInk(
   state: GameState,
   playerId: PlayerID,
@@ -335,6 +334,7 @@ function applyPlayInk(
   return state;
 }
 
+// CRD 4.5: Quest — exert character, gain lore equal to {L}
 function applyQuest(
   state: GameState,
   playerId: PlayerID,
@@ -362,6 +362,7 @@ function applyQuest(
   return state;
 }
 
+// CRD 4.6: Challenge — exert attacker, deal simultaneous damage (CRD 4.6.6.2)
 function applyChallenge(
   state: GameState,
   playerId: PlayerID,
@@ -378,7 +379,7 @@ function applyChallenge(
   let attackerStr = getEffectiveStrength(attacker, attackerDef);
   const defenderStr = getEffectiveStrength(defender, defenderDef);
 
-  // Challenger bonus
+  // CRD 8.5.1: Challenger +N bonus (only when attacking, not defending — CRD 8.5.2)
   const challengerBonus = attackerDef.abilities.find(
     (a) => a.type === "keyword" && a.keyword === "challenger"
   );
@@ -388,7 +389,7 @@ function applyChallenge(
 
   state = updateInstance(state, attackerInstanceId, { isExerted: true });
 
-  // Apply Resist: reduce incoming damage by the Resist value (min 0)
+  // CRD 8.8.1: Resist +N reduces incoming challenge damage (min 0)
   const attackerResist = getKeywordValue(attacker, attackerDef, "resist");
   const defenderResist = getKeywordValue(defender, defenderDef, "resist");
   const actualAttackerDamage = Math.max(0, defenderStr - attackerResist);
@@ -474,7 +475,7 @@ function applyPassTurn(
     type: "turn_end",
   });
 
-  // Fire end-of-turn triggers
+  // CRD 3.4.1.1: end-of-turn triggered abilities
   state = queueTriggersByEvent(state, "turn_end", playerId, definitions, {});
   state = processTriggerStack(state, definitions, events);
 
@@ -505,7 +506,7 @@ function applyPassTurn(
     state = updateInstance(state, id, { isExerted: false });
   }
 
-  // Clear temp modifiers on ALL cards (end of turn)
+  // CRD 3.4.1.2: effects that end "this turn" — clear temp modifiers
   for (const id of Object.keys(state.cards)) {
     const instance = getInstance(state, id);
     if (
@@ -523,7 +524,7 @@ function applyPassTurn(
     }
   }
 
-  // Draw a card for the opponent (beginning phase)
+  // CRD 3.2.3.1: draw step — active player draws a card
   state = applyDraw(state, opponent, 1, events);
 
   state = { ...state, phase: "main" };
@@ -540,6 +541,7 @@ function applyPassTurn(
   return state;
 }
 
+// CRD 1.12: Drawing — top card of deck to hand, one at a time
 function applyDraw(
   state: GameState,
   playerId: PlayerID,
@@ -791,8 +793,8 @@ function processTriggerStack(
     state = { ...state, triggerStack: rest };
 
     const source = state.cards[trigger.sourceInstanceId];
-    // Correct fizzle: banished/leaves_play triggers fire even after card leaves play.
-    // Only fizzle if the card instance doesn't exist at all.
+    // CRD 6.2.3 / 1.6.1: triggers fire from bag. Banished/leaves_play triggers
+    // fire even after card leaves play — only fizzle if instance doesn't exist.
     if (!source) continue;
     const requiresInPlay = !["is_banished", "leaves_play"].includes(trigger.ability.trigger.on);
     if (requiresInPlay && source.zone !== "play") continue;
@@ -834,6 +836,7 @@ function gainLore(
   };
 }
 
+// CRD 1.8.1.4: character with damage >= willpower is banished
 function banishCard(
   state: GameState,
   instanceId: string,
@@ -971,7 +974,7 @@ function findValidTargets(
     .map((i) => i.instanceId);
 }
 
-/** Internal: mutates state to set isGameOver/winner. Uses getLoreThreshold — never hardcodes 20. */
+/** CRD 1.8: Game state check — uses getLoreThreshold, never hardcodes 20. */
 function applyWinCheck(
   state: GameState,
   definitions: Record<string, CardDefinition>,
