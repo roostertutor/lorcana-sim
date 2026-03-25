@@ -22,11 +22,11 @@ export type {
   GamePhase,
   PendingChoice,
   GameLogEntry,
-  DeckEntry as DeckEntryType,
 } from "./types/index.js";
 
 // Engine functions
-export { applyAction } from "./engine/reducer.js";
+export { applyAction, getAllLegalActions, checkWinConditions, getLoreThreshold } from "./engine/reducer.js";
+export type { WinResult } from "./engine/reducer.js";
 export { createGame, parseDecklist } from "./engine/initializer.js";
 export type { GameConfig, DeckEntry } from "./engine/initializer.js";
 

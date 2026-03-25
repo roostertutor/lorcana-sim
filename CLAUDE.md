@@ -12,10 +12,17 @@ Simulates thousands of games to produce deck analytics and win rates.
 
 ## Current Status
 (Update at the start of every Claude Code session)
-- engine:    not started
+- engine:    in progress — core reducer, utils, getAllLegalActions, checkWinConditions done; 43 tests passing
 - simulator: not started
 - analytics: not started
 - ui:        not started
+
+## Known Pre-existing Typecheck Issue
+
+`pnpm typecheck` reports 3 errors in `packages/engine/src/cards/sampleCards.ts` (protected file):
+three cards use `subtitle: undefined` instead of omitting the property, which fails
+`exactOptionalPropertyTypes`. Cannot fix without modifying a protected file.
+All other engine code typechecks clean.
 
 ---
 
