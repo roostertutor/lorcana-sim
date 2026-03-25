@@ -259,6 +259,25 @@ for future RL/MCTS approaches.
 
 ---
 
+## "Up To" Amounts (CRD 6.1.3)
+
+### Decision
+Add `isUpTo?: boolean` to effect types (`HealEffect`, `DealDamageEffect`, `DrawEffect`,
+`ExertEffect`). Mark it in card data. Engine resolves at maximum value for now.
+
+### Why
+CRD 6.1.3: "Up to" includes 0 as a legal choice. "Remove up to 2 damage" means
+the player picks 0, 1, or 2. For headless analytics, bots always pick max — but
+future sets may have cards where choosing less is strategically optimal (e.g.,
+"remove up to N damage, opponent draws a card for each damage removed").
+
+### Extension point
+When a card makes sub-max choices relevant: add `choose_amount` to `PendingChoice`
+type with `min: 0, max: N`. Route `isUpTo` effects through it. Bot strategy layer
+picks optimal amount. Data already has `isUpTo: true` so no card data changes needed.
+
+---
+
 ## Planned: Timed Effects System
 
 ### Problem

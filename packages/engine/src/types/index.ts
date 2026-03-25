@@ -108,18 +108,24 @@ export interface DrawEffect {
   target: PlayerTarget;
   /** CRD 6.1.4: player may choose not to apply this effect */
   isMay?: boolean;
+  /** CRD 6.1.3: "up to" — player may choose 0..amount. Engine resolves at max for now. */
+  isUpTo?: boolean;
 }
 
 export interface DealDamageEffect {
   type: "deal_damage";
   amount: number | "X";
   target: CardTarget;
+  /** CRD 6.1.3: "up to" — player may choose 0..amount. Engine resolves at max for now. */
+  isUpTo?: boolean;
 }
 
 export interface HealEffect {
   type: "heal";
   amount: number;
   target: CardTarget;
+  /** CRD 6.1.3: "up to" — player may choose 0..amount. Engine resolves at max for now. */
+  isUpTo?: boolean;
 }
 
 export interface BanishEffect {
@@ -178,6 +184,8 @@ export interface ExertEffect {
   target: CardTarget;
   /** CRD 6.1.4: player may choose not to apply this effect */
   isMay?: boolean;
+  /** CRD 6.1.3: "up to" — for "exert up to N chosen characters". Engine resolves all for now. */
+  isUpTo?: boolean;
 }
 
 // -----------------------------------------------------------------------------

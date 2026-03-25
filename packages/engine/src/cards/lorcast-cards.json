@@ -703,7 +703,7 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
-    "actionEffects": [{ "type": "heal", "amount": 2, "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } } }],
+    "actionEffects": [{ "type": "heal", "amount": 2, "isUpTo": true, "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } } }],
     "setId": "1",
     "number": 28,
     "rarity": "common",
