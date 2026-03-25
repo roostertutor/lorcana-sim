@@ -9,7 +9,7 @@ to produce deck analytics and win rates. NOT a human-playable simulator.
 
 ## Status
 
-- engine:    done (49 passing, 5 todo). CRD bugs B1–B6 fixed.
+- engine:    done (53 passing, 5 todo). CRD bugs B1–B6 fixed. Tests organized by CRD.
 - simulator: done. Layer 3 invariants passing.
 - analytics: done. 15 tests passing.
 - cli:       done. analyze, compare, optimize, sweep.
@@ -37,6 +37,11 @@ pnpm import-cards        # fetch cards from Lorcast API
 ---
 
 ## Rules (always follow)
+
+### No hallucinated cards or rules
+- ALWAYS look up card data from `lorcast-cards.json` — never guess card text, costs, stats, or abilities from training data.
+- ALWAYS cite CRD rule numbers from `docs/CRD_TRACKER.md` — never invent rules or assume how a mechanic works.
+- If card data or rule text is not available, say so and look it up. Do not make things up.
 
 ### Package boundaries — never cross
 ```

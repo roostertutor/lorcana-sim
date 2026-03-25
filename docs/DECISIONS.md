@@ -390,6 +390,8 @@ are the project memory. Update them at the end of every significant session.
 
 ---
 
-*Last updated: Session 5*
-*Changes: CRD v2.0.1 audit completed. 6 bugs fixed (B1–B6). isDrying refactor.*
-*Protected files unprotected. CRD_TRACKER.md created as ongoing reference.*
+*Last updated: Session 6*
+*Changes: Deck exhaustion implemented. Tests restructured by CRD. Card importer*
+*fixed (captures all card text, preserves manual abilities). README + goldfish deck*
+*added. --verbose CLI flag. sampleCards.ts removed. Timed effects and Reckless*
+*designs documented. Max turns bumped to 120.*

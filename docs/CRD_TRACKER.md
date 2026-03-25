@@ -422,5 +422,5 @@
 
 ---
 
-*Last updated: Session 5*
+*Last updated: Session 6*
 *CRD version: 2.0.1, effective Feb 5, 2026*
