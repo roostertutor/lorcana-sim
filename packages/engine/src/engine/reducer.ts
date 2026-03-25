@@ -479,6 +479,23 @@ function applyPassTurn(
   state = queueTriggersByEvent(state, "turn_end", playerId, definitions, {});
   state = processTriggerStack(state, definitions, events);
 
+  // CRD 2.3.3.2: Player who ends turn with empty deck loses
+  const deckAtEndOfTurn = getZone(state, playerId, "deck");
+  if (deckAtEndOfTurn.length === 0) {
+    const winner = getOpponent(playerId);
+    state = appendLog(state, {
+      turn: state.turnNumber,
+      playerId,
+      message: `${playerId} has no cards in deck at end of turn. ${winner} wins!`,
+      type: "game_over",
+    });
+    return {
+      ...state,
+      isGameOver: true,
+      winner,
+    };
+  }
+
   // Transition to opponent's turn
   const newTurnNumber = state.turnNumber + 1;
   state = {

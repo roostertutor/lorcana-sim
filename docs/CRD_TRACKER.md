@@ -56,7 +56,7 @@
 | Rule | Quote | Status |
 |------|-------|--------|
 | 1.8.1.1 | Player with 20+ lore wins | ✅ `checkWinConditions` / `getLoreThreshold` |
-| 1.8.1.2 | Player who ends turn with empty deck loses | ✅ Checked in `applyPassTurn` |
+| 1.8.1.2 | Player who ends turn with empty deck loses | ✅ Checked in `applyPassTurn`; game ends immediately with opponent as winner |
 | 1.8.1.4 | Character/location with damage >= willpower is banished | ✅ `banishCard` called from damage resolution |
 | 1.8.2 | Triggered abilities from state check added to bag before resolving | 🐛 `condition` field exists on `TriggeredAbility` type but `processTriggerStack()` never evaluates it. CRD 6.2.4 says conditions must be checked at resolution time. See missing features table |
 
@@ -123,7 +123,7 @@
 | Rule | Quote | Status |
 |------|-------|--------|
 | 3.2.3.1 | Active player draws a card | ✅ Tested: "draws a card for the new active player at turn start" |
-| 3.2.3.1 | **Starting player skips draw on first turn of the game** | ❌ Not implemented; not tested |
+| 3.2.3.1 | **Starting player skips draw on first turn of the game** | ✅ Implicit: `createGame` deals opening hands only; first draw happens in `applyPassTurn` when transitioning to next player |
 
 ### 3.3 Main Phase
 | Rule | Quote | Status |
@@ -408,7 +408,7 @@
 | Reckless can't quest + can't pass if able to challenge | 8.7.2–3 | `it.todo` |
 | Support (quest to buff another character's {S}) | 8.13.1 | `it.todo` |
 | Singer (exert to sing songs) | 8.11 | `it.todo` |
-| Starting player skips first draw | 3.2.3.1 | Small test gap |
+| ~~Starting player skips first draw~~ | 3.2.3.1 | ✅ Was already implicit in code structure |
 | Actions card type | 5.4.1 | Not set 1 priority but needed for songs |
 | Locations card type | 5.6 | Full section missing |
 | Shift stack: all stack cards leave play together | 8.10.7 | |

@@ -7,7 +7,7 @@ import type { GameAction, GameState, PlayerID } from "@lorcana-sim/engine";
 import { applyAction, createGame, getEffectiveLore, getZone } from "@lorcana-sim/engine";
 import type { CardGameStats, GameResult, SimGameConfig } from "./types.js";
 
-const DEFAULT_MAX_TURNS = 50;
+const DEFAULT_MAX_TURNS = 120;
 
 // -----------------------------------------------------------------------------
 // STATS TRACKING
@@ -167,7 +167,10 @@ export function runGame(config: SimGameConfig): GameResult {
 
   if (state.isGameOver && state.winner) {
     winner = state.winner;
-    winReason = "lore_threshold";
+    // Determine reason: if the loser's deck is empty, it's deck exhaustion
+    const loser = winner === "player1" ? "player2" : "player1";
+    const loserDeck = getZone(state, loser as PlayerID, "deck");
+    winReason = loserDeck.length === 0 ? "deck_exhausted" : "lore_threshold";
   } else if (state.turnNumber > maxTurns) {
     const p1Lore = state.players.player1.lore;
     const p2Lore = state.players.player2.lore;
