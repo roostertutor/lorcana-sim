@@ -16,19 +16,19 @@ import type { CardInstance, GameState, DeckEntry } from "../index.js";
 // ---------------------------------------------------------------------------
 // CARD REFERENCE (Set 1 — The First Chapter)
 //
-// minnie-mouse-beloved-princess  STR 2  WP 3  lore 1  cost 2  inkable
-// mickey-mouse-true-friend       STR 3  WP 3  lore 2  cost 3  inkable
-// lilo-making-a-wish             STR 1  WP 1  lore 2  cost 1  inkable: false
-// flotsam-ursulas-spy            STR 3  WP 4  lore 2  cost 5  inkable: false  Rush
-// jetsam-ursulas-spy             STR 3  WP 3  lore 1  cost 4  inkable         Evasive
-// goofy-musketeer                STR 3  WP 6  lore 1  cost 5  inkable         Bodyguard
-// aladdin-prince-ali             STR 2  WP 2  lore 1  cost 2  inkable         Ward
-// dr-facilier-charlatan          STR 0  WP 4  lore 1  cost 2  inkable         Challenger +2
-// hades-lord-of-the-underworld   STR 3  WP 2  lore 1  cost 4  inkable: false
-// hades-king-of-olympus          STR 6  WP 7  lore 1  cost 8  inkable: false  Shift 6  shiftCost 6
-// maleficent-sorceress           STR 2  WP 2  lore 1  cost 3  inkable         enters_play: draw 1
-// the-queen-wicked-and-vain      STR 4  WP 5  lore 1  cost 5  inkable         ↷: draw a card (I SUMMON THEE)
-// eye-of-the-fates               item          cost 4  inkable                 ↷: chosen char +1 lore this turn (SEE THE FUTURE)
+// minnie-mouse-beloved-princess  char   STR 2  WP 3  lore 1  cost 2  inkable
+// mickey-mouse-true-friend       char   STR 3  WP 3  lore 2  cost 3  inkable
+// lilo-making-a-wish             char   STR 1  WP 1  lore 2  cost 1  inkable: false
+// flotsam-ursulas-spy            char   STR 3  WP 4  lore 2  cost 5  inkable: false  Rush
+// jetsam-ursulas-spy             char   STR 3  WP 3  lore 1  cost 4  inkable         Evasive
+// goofy-musketeer                char   STR 3  WP 6  lore 1  cost 5  inkable         Bodyguard
+// aladdin-prince-ali             char   STR 2  WP 2  lore 1  cost 2  inkable         Ward
+// dr-facilier-charlatan          char   STR 0  WP 4  lore 1  cost 2  inkable         Challenger +2
+// hades-lord-of-the-underworld   char   STR 3  WP 2  lore 1  cost 4  inkable: false
+// hades-king-of-olympus          char   STR 6  WP 7  lore 1  cost 8  inkable: false  Shift 6  shiftCost 6
+// maleficent-sorceress           char   STR 2  WP 2  lore 1  cost 3  inkable         enters_play: draw 1
+// the-queen-wicked-and-vain      char   STR 4  WP 5  lore 1  cost 5  inkable         ↷: draw a card (I SUMMON THEE)
+// eye-of-the-fates               item                        cost 4  inkable         ↷: chosen char +1 lore this turn (SEE THE FUTURE)
 // ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
