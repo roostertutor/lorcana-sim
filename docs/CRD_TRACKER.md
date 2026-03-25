@@ -24,7 +24,7 @@
 |------|-------|--------|
 | 1.2.1 | Card text supersedes game rules | ⚠️ Architecture exists (`gameModifiers.ts`) but not all override mechanisms built yet |
 | 1.2.2 | Preventing effects supersede allowing effects | ❌ Not implemented (e.g., Tiana vs Genie scenario) |
-| 1.2.3 | Do as much as possible ("do as much as you can") | ⚠️ Partially — effects that can't resolve silently no-op, but not formally tracked |
+| 1.2.3 | Do as much as possible ("do as much as you can") | ✅ Engine behavior is correct: effects no-op when no valid targets, actions remain legal. Examples: Dragon Fire on empty board, Sudden Chill with one opposing character, The Queen's "each opponent" with one opponent. No formal tracking needed — silent no-op IS the correct behavior |
 
 ### 1.5 Costs
 | Rule | Quote | Status |
@@ -50,7 +50,7 @@
 |------|-------|--------|
 | 1.7.2 | Effects must fully resolve before next can happen | ⚠️ Trigger stack enforces this for triggered abilities; simultaneous resolution not modeled |
 | 1.7.5 | **Drying**: characters can't quest/challenge/exert unless in play since beginning of their player's turn | ✅ `isDrying` boolean; Rush bypasses for challenges only |
-| 1.7.6 | Illegal action: undo all steps, payments reversed | ⚠️ We return `success: false` and don't mutate state, but don't log "undo" |
+| 1.7.6 | Illegal action: undo all steps, payments reversed | ⚠️ We return `success: false` and don't mutate state, but don't log "undo". Open question: would undo help bot learning? See DECISIONS.md Open Questions |
 
 ### 1.8 Game State Check
 | Rule | Quote | Status |
@@ -58,7 +58,7 @@
 | 1.8.1.1 | Player with 20+ lore wins | ✅ `checkWinConditions` / `getLoreThreshold` |
 | 1.8.1.2 | Player who ends turn with empty deck loses | ✅ Checked in `applyPassTurn` |
 | 1.8.1.4 | Character/location with damage >= willpower is banished | ✅ `banishCard` called from damage resolution |
-| 1.8.2 | Triggered abilities from state check added to bag before resolving | ⚠️ Triggers queue correctly but state check timing is approximate |
+| 1.8.2 | Triggered abilities from state check added to bag before resolving | 🐛 `condition` field exists on `TriggeredAbility` type but `processTriggerStack()` never evaluates it. CRD 6.2.4 says conditions must be checked at resolution time. See missing features table |
 
 ### 1.9 Damage
 | Rule | Quote | Status |
@@ -78,7 +78,7 @@
 |------|-------|--------|
 | 1.12.1 | Draw: top card of deck to hand | ✅ `applyDraw` |
 | 1.12.2 | Cards drawn one at a time | ✅ Loop in `applyDraw` |
-| 1.12.3 | "Put into hand" is not "drawing" | ❌ Not distinguished in our effect types |
+| 1.12.3 | "Put into hand" is not "drawing" | ⚠️ `return_to_hand` effect exists and is separate from `draw`. Missing: "put into hand from deck" without triggering draw abilities. Example: Mother Knows Best (return card from discard to hand ≠ draw) |
 
 ---
 
@@ -89,14 +89,14 @@
 |------|-------|--------|
 | 2.2.1.3 | Each player begins with 0 lore | ✅ `createGame` initializer |
 | 2.2.1.4 | Each player draws 7 cards (opening hand) | ✅ Tested: "deals 7 cards to each player" |
-| 2.2.2 | Players may alter their opening hand (mulligan) | ❌ Not implemented |
+| 2.2.2 | Players may alter their opening hand (mulligan) | ❌ Not implemented. Very important — needs deeper design thinking for bot mulligan strategy |
 
 ### 2.3 In-Game Stage
 | Rule | Quote | Status |
 |------|-------|--------|
 | 2.3.3.1 | Win at 20+ lore | ✅ |
 | 2.3.3.2 | Lose when turn ends with empty deck | ✅ |
-| 2.3.3.4 | Concede at any time | ❌ Not implemented |
+| 2.3.3.4 | Concede at any time | N/A Bots play to completion; concession has no analytical value |
 
 ---
 
@@ -109,14 +109,14 @@
 |------|-------|--------|
 | 3.2.1.1 | Active player readies all cards **in play and in inkwell** | ✅ Both play and inkwell cards readied |
 | 3.2.1.2 | "During your turn" effects start applying | ❌ No duration tracking for "during your turn" static effects |
-| 3.2.1.3 | "Start of your turn" / "start of your next turn" effects end | ❌ Not implemented |
-| 3.2.1.4 | "At the start of your turn" triggered abilities added to bag | ❌ Not implemented |
+| 3.2.1.3 | "Start of your turn" / "start of your next turn" effects end | ❌ Not implemented (no set 1 cards) |
+| 3.2.1.4 | "At the start of your turn" triggered abilities added to bag | ❌ Not implemented (no set 1 cards) |
 
 #### 3.2.2 Set step
 | Rule | Quote | Status |
 |------|-------|--------|
 | 3.2.2.1 | Active player's characters are no longer drying; can quest/challenge/{E} | ✅ `isDrying` cleared on turn start |
-| 3.2.2.2 | Active player gains lore from locations with {L} | ❌ Locations not implemented |
+| 3.2.2.2 | Active player gains lore from locations with {L} | ❌ Locations not implemented (no set 1 locations) |
 | 3.2.2.3 | Resolve triggered abilities from Ready + Set steps | ❌ No start-of-turn trigger resolution |
 
 #### 3.2.3 Draw step
@@ -135,7 +135,7 @@
 ### 3.4 End-of-Turn Phase
 | Rule | Quote | Status |
 |------|-------|--------|
-| 3.4.1.1 | "At the end of the turn" / "at the end of your turn" triggered abilities added and resolved | ❌ `queueTriggersByEvent("turn_end")` exists but no cards use it yet |
+| 3.4.1.1 | "At the end of the turn" / "at the end of your turn" triggered abilities added and resolved | ❌ `queueTriggersByEvent("turn_end")` exists but no cards use it yet. Future example: Maximus - Relentless Pursuer |
 | 3.4.1.2 | Effects that end "this turn" end (Support, temp stat boosts, etc.) | ✅ `tempStrengthModifier`, `tempWillpowerModifier`, `tempLoreModifier`, `grantedKeywords` all cleared |
 | 3.4.2 | Final game state check at turn end | ⚠️ `applyWinCheck` runs after every action, but a final explicit check at end-of-turn is not separately called |
 
@@ -253,7 +253,7 @@
 | 6.2.1 | Trigger fires once per condition met | ✅ |
 | 6.2.3 | Triggered abilities go to bag (our: `triggerStack`) | ✅ |
 | 6.2.4 | Secondary "if" condition checked when effect resolves (not when triggered) | ⚠️ Not consistently enforced |
-| 6.2.7.1 | Floating triggered abilities (created by resolving effects; last a duration) | ❌ |
+| 6.2.7.1 | Floating triggered abilities (created by resolving effects; last a duration) | ❌ Future example: Maximus - Relentless Pursuer |
 | 6.2.7.2 | Delayed triggered abilities (fire at a specific later moment) | ❌ |
 
 ### 6.3 Activated Abilities
@@ -316,7 +316,7 @@
 | 8.3.2 | Bodyguard may **enter play exerted** | ❌ Not implemented — only the challenge restriction is |
 | 8.3.3 | Opponent must challenge Bodyguard before other characters if able | ✅ Tested |
 
-### 8.4 Boost (Set 3+)
+### 8.4 Boost (Set 10+)
 | Rule | Quote | Status |
 |------|-------|--------|
 | 8.4 | Boost keyword | ❌ Not in set 1 |
@@ -376,7 +376,7 @@
 |------|-------|--------|
 | 8.13.1 | Support: when questing, may add this character's {S} to another chosen character's {S} this turn | ❌ `it.todo` |
 
-### 8.14 Vanish (Set 5+)
+### 8.14 Vanish (Set 7+)
 | Rule | Quote | Status |
 |------|-------|--------|
 | 8.14 | Vanish: when chosen by opponent for action's effect, banish this character | ❌ Not in set 1 |
@@ -416,6 +416,7 @@
 | Floating/delayed triggered abilities | 6.2.7 | Needed for action cards that create ongoing effects |
 | "For free" play | 1.5.5.3 | Needed for Mufasa, Pride Lands, etc. |
 | Mulligan | 2.2.2 | |
+| Trigger condition evaluation | 1.8.2 / 6.2.4 | `processTriggerStack` never evaluates `TriggeredAbility.condition` at resolution time. Small fix in `reducer.ts` ~line 804 |
 
 ---
 

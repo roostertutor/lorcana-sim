@@ -251,6 +251,12 @@ Deferred until crowdsourcing phase.
 **Additional sets** — import all 11 sets or start with 1–3?
 Likely: implement more named abilities in set 1 first, then add set 2.
 
+**Undo for bot learning (CRD 1.7.6)** — Currently illegal actions return
+`success: false` without mutating state. Would logging "undo" events or
+allowing bots to explore illegal-then-reversed action sequences improve
+learning? Probably not for current weight-based bots, but could matter
+for future RL/MCTS approaches.
+
 ---
 
 ## Session 5: CRD Audit and Bug Fixes

@@ -68,7 +68,7 @@ interface WinResult {
 ```
 
 `getLoreThreshold()` scans in-play cards for static effects that modify
-the threshold. Default 20. Donald Duck - Musketeer changes it.
+the threshold. Default 20. Donald Duck - Flustered Sorcerer (Set 7) changes it.
 Deck exhaustion triggers at end of a player's turn when they cannot draw.
 `max_turns_exceeded` is for simulation safety only, not a real game rule.
 
