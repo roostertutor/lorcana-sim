@@ -499,7 +499,7 @@ export type PlayerTarget =
 
 export type CardTarget =
   | { type: "this" } // The card itself
-  | { type: "chosen"; filter: CardFilter } // Player picks a card
+  | { type: "chosen"; filter: CardFilter; count?: number } // Player picks count card(s) (default 1)
   | { type: "all"; filter: CardFilter } // All matching cards
   | { type: "random"; filter: CardFilter } // Random matching card
   | { type: "triggering_card" }; // The card that caused the trigger

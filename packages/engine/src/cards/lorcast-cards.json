@@ -1514,7 +1514,8 @@
                 "cardType": [
                   "character"
                 ]
-              }
+              },
+              "count": 2
             },
             "isUpTo": true,
             "followUpEffects": [
@@ -7615,7 +7616,8 @@
                 "cardType": [
                   "character"
                 ]
-              }
+              },
+              "count": 2
             },
             "isUpTo": true,
             "followUpEffects": [

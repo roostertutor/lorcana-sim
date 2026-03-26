@@ -424,6 +424,17 @@ function validateResolveChoice(
 
   // CRD 8.15.1: Ward — opponents can't choose this character for their effects
   if (state.pendingChoice.type === "choose_target" && Array.isArray(choice)) {
+    // CRD 6.1.3: "up to N" — validate count
+    const maxCount = state.pendingChoice.count ?? 1;
+    if (choice.length > maxCount) {
+      return fail(`Must choose at most ${maxCount} target(s).`);
+    }
+    // Empty choice is allowed if optional, or if there are no valid targets
+    const hasValidTargets = (state.pendingChoice.validTargets?.length ?? 0) > 0;
+    if (!state.pendingChoice.optional && hasValidTargets && choice.length === 0) {
+      return fail("Must choose at least one target.");
+    }
+
     const opponent = getOpponent(playerId);
     for (const targetId of choice) {
       const target = getInstance(state, targetId);

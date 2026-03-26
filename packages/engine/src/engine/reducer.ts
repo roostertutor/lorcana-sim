@@ -1110,15 +1110,18 @@ export function applyEffect(
       }
       if (effect.target.type === "chosen") {
         const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        const count = effect.target.count ?? 1;
         return {
           ...state,
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: "Choose a character to exert.",
+            prompt: count > 1 ? `Choose up to ${count} characters to exert.` : "Choose a character to exert.",
             validTargets,
             pendingEffect: effect,
             followUpEffects: effect.followUpEffects,
+            optional: effect.isUpTo ?? false,
+            count,
           },
         };
       }
