@@ -285,7 +285,7 @@ Generates per-set files in `packages/engine/src/cards/`:
 - `lorcastCards.ts` — auto-generated loader that imports and merges all set files
 
 Re-running the import script preserves manually-implemented abilities (non-keyword)
-on re-import. Track unimplemented abilities in `docs/CARD_ISSUES.md`.
+on re-import.
 
 ### Current Import Status
 | Set | Code | File | Cards | Status |
@@ -296,7 +296,65 @@ on re-import. Track unimplemented abilities in `docs/CARD_ISSUES.md`.
 | Ursula's Return | 4 | — | — | Not imported |
 | (sets 5–11) | … | — | — | Not imported |
 
-To add a set: `pnpm import-cards --sets 2` (writes `lorcast-set-002.json` + updates `lorcastCards.ts`).
+### Workflow: Adding a New Set
+
+#### Step 1 — Import from Lorcast API
+```bash
+pnpm import-cards --sets 2
+```
+This creates `lorcast-set-002.json` with keyword abilities auto-parsed and
+`_namedAbilityStubs` on cards that have non-keyword abilities needing implementation.
+It also regenerates `lorcastCards.ts` with the new import.
+
+#### Step 2 — Triage new cards
+Run the verification script to see what needs work:
+```bash
+node -e "
+const cards = JSON.parse(require('fs').readFileSync('packages/engine/src/cards/lorcast-set-002.json', 'utf8'));
+const stubs = cards.filter(c => c._namedAbilityStubs?.length > 0);
+console.log(stubs.length + ' cards need ability implementation');
+stubs.forEach(c => console.log('  ' + c.id + ': ' + c._namedAbilityStubs.length + ' abilities'));
+"
+```
+Add these to `docs/CARD_ISSUES.md` under a new set heading.
+
+#### Step 3 — Check if new engine primitives are needed
+Most abilities use existing effect types. Compare each stub's text to existing
+patterns in Set 1. Common patterns already supported:
+- Triggered abilities (enters_play, quests, banished_in_challenge, card_played, etc.)
+- Static abilities (grant_keyword, modify_stat, modify_stat_per_count, cost_reduction, etc.)
+- Activated abilities (exert, pay_ink, banish_self costs)
+- Sequential effects ("[A] to [B]" patterns like "pay 1 ink to draw")
+- Cost reductions (one-shot, static, self-from-hand)
+- Floating triggers (action cards creating turn-scoped triggers)
+- Multi-target selection (count on chosen target)
+- Challenge/quest restrictions
+- heal_and_draw, lose_lore, cant_challenge
+
+If a card needs a new effect type, add it to `types/index.ts` and handle it in
+`reducer.ts` before wiring up the card data.
+
+#### Step 4 — Implement abilities
+For each card with `_namedAbilityStubs`:
+1. Read the stub text and the CRD PDF for the relevant rules
+2. Add the ability to the card's `abilities` array in the set JSON file
+3. Add `storyName` (CRD 5.2.8 — the bold ability name) and `rulesText`
+   (the printed rules text excluding the story name) to each ability
+4. Remove `_namedAbilityStubs` from the card once all abilities are implemented
+5. For enchanted variants (same `id`, different `number`/`rarity`), apply identical changes
+
+#### Step 5 — Verify
+```bash
+pnpm test                          # all tests still pass
+npx tsc --build packages/engine    # typecheck clean
+```
+Run the English translation audit to verify implementations match card text:
+compare each ability's `rulesText` against what the engine actually does.
+
+#### Step 6 — Update docs
+- Update the import status table above
+- Update `docs/CARD_ISSUES.md` (remove implemented cards, track remaining)
+- Update `CLAUDE.md` status line
 
 ---
 
