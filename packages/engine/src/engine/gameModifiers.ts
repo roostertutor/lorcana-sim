@@ -31,6 +31,12 @@ export interface GameModifiers {
    * Key = instanceId, value = { strength, willpower, lore } deltas.
    */
   statBonuses: Map<string, { strength: number; willpower: number; lore: number }>;
+
+  /** Characters that can't exert to sing songs (Ariel - On Human Legs). */
+  cantSing: Set<string>;
+
+  /** Keywords granted by conditional static abilities (e.g. Pascal gains Evasive). */
+  grantedKeywords: Map<string, import("../types/index.js").Keyword[]>;
 }
 
 /**
@@ -46,6 +52,8 @@ export function getGameModifiers(
     cantBeChallenged: new Set(),
     canChallengeReady: new Set(),
     statBonuses: new Map(),
+    cantSing: new Set(),
+    grantedKeywords: new Map(),
   };
 
   for (const instance of Object.values(state.cards)) {
@@ -115,6 +123,23 @@ export function getGameModifiers(
                 addStatBonus(modifiers, candidate.instanceId, effect.stat, effect.modifier);
               }
             }
+          }
+          break;
+        }
+
+        case "cant_sing": {
+          if (effect.target.type === "this") {
+            modifiers.cantSing.add(instance.instanceId);
+          }
+          break;
+        }
+
+        case "grant_keyword": {
+          // Conditional static keyword granting (e.g. Pascal gains Evasive while condition met)
+          if (effect.target.type === "this") {
+            const existing = modifiers.grantedKeywords.get(instance.instanceId) ?? [];
+            existing.push(effect.keyword);
+            modifiers.grantedKeywords.set(instance.instanceId, existing);
           }
           break;
         }

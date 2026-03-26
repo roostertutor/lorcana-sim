@@ -105,6 +105,11 @@ function validatePlayCard(
     if (singer.ownerId !== playerId) return fail("You don't own the singer.");
     if (singer.isExerted) return fail("Singer is already exerted.");
     if (singer.isDrying) return fail("Singer is still drying and cannot sing.");
+    // Ariel - On Human Legs: can't exert to sing
+    const modifiers = getGameModifiers(state, definitions);
+    if (modifiers.cantSing.has(singerInstanceId)) {
+      return fail("This character can't sing songs.");
+    }
     const singerDef = getDefinition(state, singerInstanceId, definitions);
     if (!canSingSong(singer, singerDef, def)) {
       return fail(`Singer's cost is too low to sing this song.`);
@@ -218,8 +223,12 @@ function validateChallenge(
   }
 
   // CRD 8.6.1: Evasive — can only be challenged by Evasive characters
-  if (hasKeyword(defender, defenderDef, "evasive")) {
-    if (!hasKeyword(attacker, attackerDef, "evasive")) {
+  const defHasEvasive = hasKeyword(defender, defenderDef, "evasive") ||
+    (modifiers.grantedKeywords.get(defenderInstanceId)?.includes("evasive") ?? false);
+  const atkHasEvasive = hasKeyword(attacker, attackerDef, "evasive") ||
+    (modifiers.grantedKeywords.get(attackerInstanceId)?.includes("evasive") ?? false);
+  if (defHasEvasive) {
+    if (!atkHasEvasive) {
       return fail("Only Evasive characters can challenge an Evasive character.");
     }
   }

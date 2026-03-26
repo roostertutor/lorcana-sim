@@ -1336,6 +1336,68 @@ export function applyEffect(
       return state;
     }
 
+    case "conditional_on_target": {
+      if (effect.target.type === "chosen") {
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_target",
+            choosingPlayerId: controllingPlayerId,
+            prompt: "Choose a target.",
+            validTargets,
+            pendingEffect: effect,
+          },
+        };
+      }
+      return state;
+    }
+
+    case "play_for_free": {
+      // Choose a card from hand matching filter, play it without paying ink
+      const hand = getZone(state, controllingPlayerId, "hand");
+      const validCards = hand.filter((id) => {
+        const inst = state.cards[id];
+        if (!inst) return false;
+        const def = definitions[inst.definitionId];
+        if (!def) return false;
+        return matchesFilter(inst, def, effect.filter, state, controllingPlayerId);
+      });
+      if (validCards.length === 0) return state;
+      return {
+        ...state,
+        pendingChoice: {
+          type: "choose_target",
+          choosingPlayerId: controllingPlayerId,
+          prompt: "Choose a card to play for free.",
+          validTargets: validCards,
+          pendingEffect: effect,
+          optional: effect.isMay ?? false,
+        },
+      };
+    }
+
+    case "shuffle_into_deck": {
+      if (effect.target.type === "chosen") {
+        // "any discard" = all discard piles
+        const filter = effect.target.filter;
+        const validTargets = findValidTargets(state, filter, controllingPlayerId, definitions);
+        if (validTargets.length === 0) return state;
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_target",
+            choosingPlayerId: controllingPlayerId,
+            prompt: "Choose a card to shuffle into its owner's deck.",
+            validTargets,
+            pendingEffect: effect,
+            optional: effect.isMay ?? false,
+          },
+        };
+      }
+      return state;
+    }
+
     default:
       return state; // Unimplemented effect type — no-op for now
   }
@@ -1793,6 +1855,47 @@ function applyEffectToTarget(
       }
       return state;
     }
+    case "conditional_on_target": {
+      // Check if target matches the condition filter
+      const inst = getInstance(state, targetInstanceId);
+      const def = definitions[inst.definitionId];
+      const matches = def ? matchesFilter(inst, def, effect.conditionFilter, state, controllingPlayerId) : false;
+      const effects = matches ? effect.ifMatchEffects : effect.defaultEffects;
+      for (const e of effects) {
+        state = applyEffectToTarget(state, e, targetInstanceId, controllingPlayerId, definitions, events);
+      }
+      return state;
+    }
+    case "play_for_free": {
+      // Play the chosen card from hand without paying ink
+      const inst = getInstance(state, targetInstanceId);
+      if (inst.zone !== "hand") return state;
+      const def = definitions[inst.definitionId];
+      if (!def) return state;
+      // Move to play via zoneTransition (fires enters_play, card_played triggers)
+      state = zoneTransition(state, targetInstanceId, "play", definitions, events, {
+        reason: "played", triggeringPlayerId: controllingPlayerId,
+      });
+      // Characters enter drying
+      if (def.cardType === "character") {
+        state = updateInstance(state, targetInstanceId, { isDrying: true });
+      }
+      state = appendLog(state, {
+        turn: state.turnNumber,
+        playerId: controllingPlayerId,
+        message: `${controllingPlayerId} played ${def.fullName} for free.`,
+        type: "card_played",
+      });
+      return state;
+    }
+    case "shuffle_into_deck": {
+      const inst = getInstance(state, targetInstanceId);
+      // Move to deck
+      state = zoneTransition(state, targetInstanceId, "deck", definitions, events, { reason: "effect" });
+      // Shuffle the owner's deck
+      state = shuffleDeck(state, inst.ownerId);
+      return state;
+    }
     default:
       return state;
   }
@@ -1817,6 +1920,19 @@ function reorderDeckTopToBottom(
       ...state.zones,
       [playerId]: { ...state.zones[playerId], deck: newDeck },
     },
+  };
+}
+
+/** Fisher-Yates shuffle a player's deck */
+function shuffleDeck(state: GameState, playerId: PlayerID): GameState {
+  const deck = [...getZone(state, playerId, "deck")];
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j]!, deck[i]!];
+  }
+  return {
+    ...state,
+    zones: { ...state.zones, [playerId]: { ...state.zones[playerId], deck } },
   };
 }
 

@@ -3037,3 +3037,114 @@ describe("A Whole New World", () => {
     expect(getZone(result.newState, "player2", "hand")).toHaveLength(7);
   });
 });
+
+// =============================================================================
+// CONDITIONAL ON TARGET
+// =============================================================================
+
+describe("Conditional on target", () => {
+  // Vicious Betrayal: +2 STR, or +3 if Villain
+  it("Vicious Betrayal gives +3 STR to Villain, +2 to non-Villain", () => {
+    let state = startGame();
+    let vbId: string, villainId: string, heroId: string;
+    ({ state, instanceId: vbId } = injectCard(state, "player1", "vicious-betrayal", "hand"));
+    // dr-facilier-charlatan is a Villain
+    ({ state, instanceId: villainId } = injectCard(state, "player1", "dr-facilier-charlatan", "play"));
+    ({ state, instanceId: heroId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play"));
+    state = giveInk(state, "player1", 10);
+
+    // Play on Villain target
+    let result = applyAction(state, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: vbId,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(result.newState.pendingChoice?.type).toBe("choose_target");
+
+    let resolveResult = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [villainId],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(resolveResult.success).toBe(true);
+    expect(getInstance(resolveResult.newState, villainId).tempStrengthModifier).toBe(3);
+  });
+
+  // Poisoned Apple: exert, or banish if Princess
+  it("Poisoned Apple banishes a Princess, exerts a non-Princess", () => {
+    let state = startGame();
+    let appleId: string, princessId: string;
+    ({ state, instanceId: appleId } = injectCard(state, "player1", "poisoned-apple", "play"));
+    // moana-chosen-by-the-ocean has Princess trait
+    ({ state, instanceId: princessId } = injectCard(state, "player2", "moana-chosen-by-the-ocean", "play"));
+    state = giveInk(state, "player1", 10);
+
+    const result = applyAction(state, {
+      type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: appleId, abilityIndex: 0,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Apple banished as cost
+    expect(getInstance(result.newState, appleId).zone).toBe("discard");
+    expect(result.newState.pendingChoice?.type).toBe("choose_target");
+
+    const resolveResult = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [princessId],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(resolveResult.success).toBe(true);
+    // Princess → banished
+    expect(getInstance(resolveResult.newState, princessId).zone).toBe("discard");
+  });
+});
+
+// =============================================================================
+// PLAY FOR FREE / SHUFFLE INTO DECK
+// =============================================================================
+
+describe("Play for free", () => {
+  it("Just In Time lets you play a character for free", () => {
+    let state = startGame();
+    let jitId: string, charId: string;
+    ({ state, instanceId: jitId } = injectCard(state, "player1", "just-in-time", "hand"));
+    ({ state, instanceId: charId } = injectCard(state, "player1", "mickey-mouse-true-friend", "hand")); // cost 3
+    state = giveInk(state, "player1", 3); // only enough for JIT (cost 3), not Mickey too
+
+    const inkBefore = state.players.player1.availableInk;
+    const result = applyAction(state, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: jitId,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.pendingChoice?.type).toBe("choose_target");
+
+    const resolveResult = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [charId],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(resolveResult.success).toBe(true);
+    expect(getInstance(resolveResult.newState, charId).zone).toBe("play");
+    // No additional ink spent — only the 3 for JIT itself
+    expect(resolveResult.newState.players.player1.availableInk).toBe(inkBefore - 3);
+  });
+});
+
+describe("Shuffle into deck", () => {
+  it("Magic Broom shuffles a card from discard into deck", () => {
+    let state = startGame(["magic-broom-bucket-brigade"]);
+    let broomId: string, discardedId: string;
+    ({ state, instanceId: broomId } = injectCard(state, "player1", "magic-broom-bucket-brigade", "hand"));
+    ({ state, instanceId: discardedId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "discard"));
+    state = giveInk(state, "player1", 10);
+
+    const result = applyAction(state, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: broomId,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Enters play → may trigger
+    expect(result.newState.pendingChoice?.type).toBe("choose_may");
+
+    const acceptResult = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept",
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(acceptResult.newState.pendingChoice?.type).toBe("choose_target");
+
+    const resolveResult = applyAction(acceptResult.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [discardedId],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(resolveResult.success).toBe(true);
+    expect(getInstance(resolveResult.newState, discardedId).zone).toBe("deck");
+  });
+});

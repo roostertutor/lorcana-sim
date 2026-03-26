@@ -110,7 +110,10 @@ export type Effect =
   | LookAtTopEffect
   | DiscardEffect
   | MoveToInkwellEffect
-  | DiscardHandEffect;
+  | DiscardHandEffect
+  | ConditionalOnTargetEffect
+  | PlayForFreeEffect
+  | ShuffleIntoDeckEffect;
 
 export interface DrawEffect {
   type: "draw";
@@ -264,6 +267,38 @@ export interface DiscardHandEffect {
 }
 
 /**
+ * "If target matches condition, apply ifMatch effects, otherwise apply default effects."
+ * Used by: Vicious Betrayal (+2/+3), Stolen Scimitar (+1/+2), Poisoned Apple (exert/banish).
+ */
+export interface ConditionalOnTargetEffect {
+  type: "conditional_on_target";
+  target: CardTarget;
+  /** Effects if target does NOT match condition */
+  defaultEffects: Effect[];
+  /** Filter to check against the chosen target */
+  conditionFilter: CardFilter;
+  /** Effects if target DOES match condition */
+  ifMatchEffects: Effect[];
+}
+
+/** Play a card from hand for free (skip ink payment). */
+export interface PlayForFreeEffect {
+  type: "play_for_free";
+  /** Filter for which cards can be played (e.g. character with cost ≤ 5) */
+  filter: CardFilter;
+  /** CRD 6.1.4 */
+  isMay?: boolean;
+}
+
+/** Move a card from one zone into its owner's deck, then shuffle. */
+export interface ShuffleIntoDeckEffect {
+  type: "shuffle_into_deck";
+  target: CardTarget;
+  /** CRD 6.1.4 */
+  isMay?: boolean;
+}
+
+/**
  * Move a card to a player's inkwell.
  * "exerted" = doesn't add available ink this turn (used next turn).
  * Some cards say "facedown" — digital engine ignores that (all inkwell cards are equal).
@@ -288,7 +323,8 @@ export type StaticEffect =
   | GainKeywordStatic
   | ModifyStatStatic
   | ModifyStatPerCountStatic
-  | CantBeChallengedException;
+  | CantBeChallengedException
+  | CantSingStatic;
 
 export interface GainKeywordStatic {
   type: "grant_keyword";
@@ -322,6 +358,12 @@ export interface ModifyStatPerCountStatic {
 
 export interface CantBeChallengedException {
   type: "cant_be_challenged";
+  target: CardTarget;
+}
+
+/** This character can't exert to sing songs (Ariel - On Human Legs). */
+export interface CantSingStatic {
+  type: "cant_sing";
   target: CardTarget;
 }
 
