@@ -1477,7 +1477,7 @@ export function applyEffect(
     case "sequential": {
       // Check if all cost effects can be performed
       for (const costEffect of effect.costEffects) {
-        if (!canPerformCostEffect(state, costEffect, controllingPlayerId)) {
+        if (!canPerformCostEffect(state, costEffect, controllingPlayerId, triggeringCardInstanceId)) {
           return state; // CRD 6.1.5.1: can't perform [A] → entire effect skipped
         }
       }
@@ -1605,12 +1605,25 @@ export function applyEffect(
 }
 
 /** CRD 6.1.5.1: Check if a cost effect can be performed before committing to it. */
-function canPerformCostEffect(state: GameState, effect: Effect, controllingPlayerId: PlayerID): boolean {
+function canPerformCostEffect(
+  state: GameState,
+  effect: Effect,
+  controllingPlayerId: PlayerID,
+  triggeringCardInstanceId?: string
+): boolean {
   switch (effect.type) {
     case "pay_ink":
       return state.players[controllingPlayerId].availableInk >= effect.amount;
     case "discard_from_hand":
       return getZone(state, controllingPlayerId, "hand").length >= effect.amount;
+    case "exert": {
+      // CRD 6.1.5.1: exert cost on triggering_card — check not already exerted
+      if (effect.target.type === "triggering_card" && triggeringCardInstanceId) {
+        const inst = state.cards[triggeringCardInstanceId];
+        return inst ? !inst.isExerted : false;
+      }
+      return true;
+    }
     default:
       return true; // assume performable
   }
@@ -1762,7 +1775,7 @@ function processTriggerStack(
       // CRD 6.1.5.1: Sequential effects with isMay — skip prompt if cost can't be paid
       if (effect.type === "sequential" && effect.isMay) {
         const canAfford = effect.costEffects.every(
-          (ce) => canPerformCostEffect(state, ce, source.ownerId)
+          (ce) => canPerformCostEffect(state, ce, source.ownerId, trigger.context.triggeringCardInstanceId)
         );
         if (!canAfford) continue; // Can't pay [A] → skip entirely, no prompt
       }
