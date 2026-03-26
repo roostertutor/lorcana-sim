@@ -7,6 +7,7 @@ import type {
   CardDefinition,
   CardFilter,
   CardInstance,
+  Condition,
   GameState,
   Keyword,
   PlayerID,
@@ -65,26 +66,48 @@ export function getTopOfDeck(state: GameState, playerId: PlayerID): CardInstance
 
 export function getEffectiveStrength(
   instance: CardInstance,
-  definition: CardDefinition
+  definition: CardDefinition,
+  staticBonus = 0
 ): number {
   const base = definition.strength ?? 0;
-  return Math.max(0, base + instance.tempStrengthModifier);
+  const timedBonus = instance.timedEffects
+    .filter((te) => te.type === "modify_strength")
+    .reduce((sum, te) => sum + (te.amount ?? 0), 0);
+  return Math.max(0, base + instance.tempStrengthModifier + timedBonus + staticBonus);
 }
 
 export function getEffectiveWillpower(
   instance: CardInstance,
-  definition: CardDefinition
+  definition: CardDefinition,
+  staticBonus = 0
 ): number {
   const base = definition.willpower ?? 0;
-  return Math.max(0, base + instance.tempWillpowerModifier);
+  const timedBonus = instance.timedEffects
+    .filter((te) => te.type === "modify_willpower")
+    .reduce((sum, te) => sum + (te.amount ?? 0), 0);
+  return Math.max(0, base + instance.tempWillpowerModifier + timedBonus + staticBonus);
 }
 
 export function getEffectiveLore(
   instance: CardInstance,
-  definition: CardDefinition
+  definition: CardDefinition,
+  staticBonus = 0
 ): number {
   const base = definition.lore ?? 0;
-  return Math.max(0, base + instance.tempLoreModifier);
+  const timedBonus = instance.timedEffects
+    .filter((te) => te.type === "modify_lore")
+    .reduce((sum, te) => sum + (te.amount ?? 0), 0);
+  return Math.max(0, base + instance.tempLoreModifier + timedBonus + staticBonus);
+}
+
+/** Check if a card has a "can't quest" timed effect active */
+export function hasCantQuest(instance: CardInstance): boolean {
+  return instance.timedEffects.some((te) => te.type === "cant_quest");
+}
+
+/** Check if a card has a "can't ready" timed effect active */
+export function hasCantReady(instance: CardInstance): boolean {
+  return instance.timedEffects.some((te) => te.type === "cant_ready");
 }
 
 /** Get the effective ink cost (may be reduced by effects in future) */
@@ -107,6 +130,11 @@ export function hasKeyword(
 ): boolean {
   // Check granted keywords first (from effects)
   if (instance.grantedKeywords.includes(keyword)) return true;
+
+  // Check timed effects for granted keywords
+  if (instance.timedEffects.some(
+    (te) => te.type === "grant_keyword" && te.keyword === keyword
+  )) return true;
 
   // Check static keyword abilities on the definition
   return definition.abilities.some(
@@ -188,6 +216,15 @@ export function matchesFilter(
 
   if (filter.excludeInstanceId) {
     if (instance.instanceId === filter.excludeInstanceId) return false;
+  }
+
+  if (filter.hasName) {
+    if (definition.name !== filter.hasName) return false;
+  }
+
+  if (filter.hasDamage !== undefined) {
+    if (filter.hasDamage && instance.damage <= 0) return false;
+    if (!filter.hasDamage && instance.damage > 0) return false;
   }
 
   return true;
@@ -357,6 +394,75 @@ export function canSingSong(
     effectiveCost = getKeywordValue(singerInstance, singerDef, "singer");
   }
   return effectiveCost >= songDef.cost;
+}
+
+// -----------------------------------------------------------------------------
+// CONDITION EVALUATION
+// Pure function — used by reducer (triggers/activated) and gameModifiers (statics)
+// -----------------------------------------------------------------------------
+
+/** CRD 6.2.1: Evaluate a condition guard */
+export function evaluateCondition(
+  condition: Condition,
+  state: GameState,
+  definitions: Record<string, CardDefinition>,
+  controllingPlayerId: PlayerID,
+  sourceInstanceId: string
+): boolean {
+  const opponent = getOpponent(controllingPlayerId);
+  switch (condition.type) {
+    case "you_have_lore_gte":
+      return state.players[controllingPlayerId].lore >= condition.amount;
+    case "opponent_has_lore_gte":
+      return state.players[opponent].lore >= condition.amount;
+    case "cards_in_hand_gte": {
+      const targetPlayer = condition.player.type === "self" ? controllingPlayerId
+        : condition.player.type === "opponent" ? opponent : controllingPlayerId;
+      return getZone(state, targetPlayer, "hand").length >= condition.amount;
+    }
+    case "cards_in_hand_eq": {
+      const targetPlayer = condition.player.type === "self" ? controllingPlayerId
+        : condition.player.type === "opponent" ? opponent : controllingPlayerId;
+      return getZone(state, targetPlayer, "hand").length === condition.amount;
+    }
+    case "characters_in_play_gte": {
+      const targetPlayer = condition.player.type === "self" ? controllingPlayerId
+        : condition.player.type === "opponent" ? opponent : controllingPlayerId;
+      const charsInPlay = getZone(state, targetPlayer, "play").filter((id) => {
+        if (condition.excludeSelf && id === sourceInstanceId) return false;
+        const inst = state.cards[id];
+        if (!inst) return false;
+        const def = definitions[inst.definitionId];
+        return def?.cardType === "character";
+      });
+      return charsInPlay.length >= condition.amount;
+    }
+    case "has_character_named": {
+      const targetPlayer = condition.player.type === "self" ? controllingPlayerId
+        : condition.player.type === "opponent" ? opponent : controllingPlayerId;
+      return getZone(state, targetPlayer, "play").some((id) => {
+        const inst = state.cards[id];
+        if (!inst) return false;
+        const def = definitions[inst.definitionId];
+        return def?.cardType === "character" && def.name === condition.name;
+      });
+    }
+    case "has_character_with_trait": {
+      const targetPlayer = condition.player.type === "self" ? controllingPlayerId
+        : condition.player.type === "opponent" ? opponent : controllingPlayerId;
+      return getZone(state, targetPlayer, "play").some((id) => {
+        const inst = state.cards[id];
+        if (!inst) return false;
+        const def = definitions[inst.definitionId];
+        return def?.cardType === "character" && def.traits.includes(condition.trait);
+      });
+    }
+    case "card_has_trait":
+    case "card_is_type":
+      return true;
+    default:
+      return true;
+  }
 }
 
 // -----------------------------------------------------------------------------

@@ -83,6 +83,8 @@ export interface StaticAbility {
   type: "static";
   /** Describes an ongoing effect that modifies game rules */
   effect: StaticEffect;
+  /** Optional condition — static only applies while condition is true */
+  condition?: Condition;
 }
 
 // -----------------------------------------------------------------------------
@@ -100,7 +102,15 @@ export type Effect =
   | CreateCardEffect
   | SearchEffect
   | ChooseEffect
-  | ExertEffect;
+  | ExertEffect
+  | GrantKeywordEffect
+  | ReadyEffect
+  | CantQuestEffect
+  | CantReadyEffect
+  | LookAtTopEffect
+  | DiscardEffect
+  | MoveToInkwellEffect
+  | DiscardHandEffect;
 
 export interface DrawEffect {
   type: "draw";
@@ -186,6 +196,88 @@ export interface ExertEffect {
   isMay?: boolean;
   /** CRD 6.1.3: "up to" — for "exert up to N chosen characters". Engine resolves all for now. */
   isUpTo?: boolean;
+  /** Effects to apply to the same target after exerting (e.g. "they can't ready") */
+  followUpEffects?: Effect[];
+}
+
+export interface GrantKeywordEffect {
+  type: "grant_keyword";
+  keyword: Keyword;
+  value?: number;
+  target: CardTarget;
+  duration: EffectDuration;
+  /** CRD 6.1.4: player may choose not to apply this effect */
+  isMay?: boolean;
+}
+
+export interface ReadyEffect {
+  type: "ready";
+  target: CardTarget;
+  /** CRD 6.1.4: player may choose not to apply this effect */
+  isMay?: boolean;
+  /** Effects to apply to the same target after readying (e.g. "they can't quest") */
+  followUpEffects?: Effect[];
+}
+
+export interface CantQuestEffect {
+  type: "cant_quest";
+  target: CardTarget;
+  duration: EffectDuration;
+}
+
+export interface CantReadyEffect {
+  type: "cant_ready";
+  target: CardTarget;
+  duration: EffectDuration;
+}
+
+/**
+ * Look at top N cards of deck. Bot resolves automatically:
+ * - "one_to_hand_rest_bottom": pick one card (optionally matching filter) to hand, rest to bottom
+ * - "top_or_bottom": look at one card, put on top or bottom
+ * - "reorder": look at N cards, put back in any order (bot uses default order)
+ */
+export interface LookAtTopEffect {
+  type: "look_at_top";
+  count: number;
+  action: "one_to_hand_rest_bottom" | "top_or_bottom" | "reorder";
+  /** Optional filter — only matching cards can go to hand (for "may reveal matching" patterns) */
+  filter?: CardFilter;
+  target: PlayerTarget;
+}
+
+/**
+ * Each target player chooses and discards cards from hand.
+ */
+export interface DiscardEffect {
+  type: "discard_from_hand";
+  amount: number;
+  target: PlayerTarget;
+  /** Who picks what to discard — "target_player" = they choose, "controller" = you choose from their hand */
+  chooser: "target_player" | "controller";
+}
+
+/** Discard entire hand (no choice). Used by A Whole New World. */
+export interface DiscardHandEffect {
+  type: "discard_hand";
+  target: PlayerTarget;
+}
+
+/**
+ * Move a card to a player's inkwell.
+ * "exerted" = doesn't add available ink this turn (used next turn).
+ * Some cards say "facedown" — digital engine ignores that (all inkwell cards are equal).
+ */
+export interface MoveToInkwellEffect {
+  type: "move_to_inkwell";
+  /** What to move: chosen card, top of deck, self, etc. */
+  target: CardTarget;
+  /** If true, enters exerted (no ink this turn). Most effects say "exerted". */
+  enterExerted: boolean;
+  /** CRD 6.1.4: player may choose not to apply this effect */
+  isMay?: boolean;
+  /** Source zone to pick from — defaults to "play" if not specified */
+  fromZone?: ZoneName;
 }
 
 // -----------------------------------------------------------------------------
@@ -195,6 +287,7 @@ export interface ExertEffect {
 export type StaticEffect =
   | GainKeywordStatic
   | ModifyStatStatic
+  | ModifyStatPerCountStatic
   | CantBeChallengedException;
 
 export interface GainKeywordStatic {
@@ -208,6 +301,22 @@ export interface ModifyStatStatic {
   type: "modify_stat";
   stat: "strength" | "willpower" | "lore";
   modifier: number;
+  target: CardTarget;
+}
+
+/**
+ * "+N stat per matching card" — flexible per-count bonus.
+ * Examples: Jafar (+1 STR per card in hand), Tamatoa (+1 lore per item in play),
+ * future sets: "+1 STR per card in opponent's hand", "+1 STR per card in discard"
+ */
+export interface ModifyStatPerCountStatic {
+  type: "modify_stat_per_count";
+  stat: "strength" | "willpower" | "lore";
+  /** Bonus per matching card */
+  perCount: number;
+  /** What to count */
+  countFilter: CardFilter;
+  /** Who this bonus applies to (usually "this") */
   target: CardTarget;
 }
 
@@ -245,6 +354,10 @@ export interface CardFilter {
   costAtLeast?: number;
   /** Exclude a specific card instance (e.g. Support can't target itself) */
   excludeInstanceId?: string;
+  /** Match by card name (e.g. "Fire the Cannons!", "Te Kā") */
+  hasName?: string;
+  /** Match characters with damage > 0 */
+  hasDamage?: boolean;
 }
 
 // -----------------------------------------------------------------------------
@@ -268,10 +381,14 @@ export type TriggerEvent =
   | { on: "challenges"; filter?: CardFilter }
   | { on: "is_challenged"; filter?: CardFilter }
   | { on: "is_banished"; filter?: CardFilter }
+  | { on: "banished_in_challenge"; filter?: CardFilter }
   | { on: "turn_start"; player: PlayerTarget }
   | { on: "turn_end"; player: PlayerTarget }
   | { on: "card_drawn"; player: PlayerTarget }
-  | { on: "ink_played"; player: PlayerTarget };
+  | { on: "ink_played"; player: PlayerTarget }
+  | { on: "card_played"; filter?: CardFilter }
+  | { on: "item_played"; filter?: CardFilter }
+  | { on: "banished_other_in_challenge"; filter?: CardFilter };
 
 // -----------------------------------------------------------------------------
 // CONDITIONS — Guards on triggered/activated abilities
@@ -282,9 +399,33 @@ export type Condition =
   | { type: "opponent_has_lore_gte"; amount: number }
   | { type: "cards_in_hand_gte"; amount: number; player: PlayerTarget }
   | { type: "card_has_trait"; trait: string }
-  | { type: "card_is_type"; cardType: CardType };
+  | { type: "card_is_type"; cardType: CardType }
+  | { type: "characters_in_play_gte"; amount: number; player: PlayerTarget; excludeSelf?: boolean }
+  | { type: "cards_in_hand_eq"; amount: number; player: PlayerTarget }
+  | { type: "has_character_named"; name: string; player: PlayerTarget }
+  | { type: "has_character_with_trait"; trait: string; player: PlayerTarget };
 
 export type AbilityTiming = "your_turn_main" | "any_time" | "opponent_turn";
+
+// -----------------------------------------------------------------------------
+// TIMED EFFECTS — Temporary modifiers with explicit expiry
+// -----------------------------------------------------------------------------
+
+export type EffectDuration =
+  | "end_of_turn"
+  | "rest_of_turn"
+  | "end_of_owner_next_turn";
+
+export interface TimedEffect {
+  type: "grant_keyword" | "modify_strength" | "modify_willpower" | "modify_lore"
+    | "cant_quest" | "cant_ready";
+  keyword?: Keyword | undefined;
+  value?: number | undefined;       // for keyword values (e.g. Challenger +N)
+  amount?: number | undefined;      // for modify_* effects
+  expiresAt: EffectDuration;
+  /** Turn number when this effect was applied (for multi-turn expiry) */
+  appliedOnTurn: number;
+}
 
 // -----------------------------------------------------------------------------
 // CARD DEFINITION — The static blueprint for a card
@@ -366,6 +507,9 @@ export interface CardInstance {
   /** Keywords granted by effects this turn */
   grantedKeywords: Keyword[];
 
+  /** Timed effects with explicit duration-based expiry */
+  timedEffects: TimedEffect[];
+
   // --- Shift tracking ---
   /** If this card was shifted, the instanceId of the card it shifted onto */
   shiftedOntoInstanceId?: string;
@@ -406,6 +550,9 @@ export interface GameState {
   /** CRD 4.3.3.2: Action card waiting in play zone while its effect resolves (pending choice) */
   pendingActionInstanceId?: string;
 
+  /** Effects waiting to resolve after a pending choice is resolved */
+  pendingEffectQueue?: { effects: Effect[]; sourceInstanceId: string; controllingPlayerId: PlayerID } | undefined;
+
   /** Log of all actions taken, useful for UI and debugging */
   actionLog: GameLogEntry[];
 
@@ -433,7 +580,7 @@ export interface TriggerContext {
 }
 
 export interface PendingChoice {
-  type: "choose_target" | "choose_option" | "choose_cards" | "choose_may";
+  type: "choose_target" | "choose_option" | "choose_cards" | "choose_may" | "choose_discard" | "choose_from_revealed";
   /** Which player must make the choice */
   choosingPlayerId: PlayerID;
   prompt: string;
@@ -450,6 +597,8 @@ export interface PendingChoice {
   optional?: boolean;
   /** For choose_may: the source card's instanceId (needed to resume trigger processing) */
   sourceInstanceId?: string;
+  /** Additional effects to apply to the same chosen target(s) after the primary effect resolves */
+  followUpEffects?: Effect[] | undefined;
 }
 
 export interface GameLogEntry {

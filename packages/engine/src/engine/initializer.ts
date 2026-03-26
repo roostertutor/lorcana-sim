@@ -99,6 +99,7 @@ function buildDeckInstances(
         tempWillpowerModifier: 0,
         tempLoreModifier: 0,
         grantedKeywords: [],
+        timedEffects: [],
       });
     }
   }

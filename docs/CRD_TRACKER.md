@@ -58,7 +58,7 @@
 | 1.8.1.1 | Player with 20+ lore wins | ✅ `checkWinConditions` / `getLoreThreshold` |
 | 1.8.1.2 | Player who ends turn with empty deck loses | ✅ Checked in `applyPassTurn`; game ends immediately with opponent as winner |
 | 1.8.1.4 | Character/location with damage >= willpower is banished | ✅ `banishCard` called from damage resolution |
-| 1.8.2 | Triggered abilities from state check added to bag before resolving | 🐛 `condition` field exists on `TriggeredAbility` type but `processTriggerStack()` never evaluates it. CRD 6.2.4 says conditions must be checked at resolution time. Example: Stitch - Carefree Surfer ("if you have 2 or more other characters in play"). See missing features table |
+| 1.8.2 | Triggered abilities from state check added to bag before resolving | ✅ `evaluateCondition()` checks `trigger.ability.condition` before resolving effects in `processTriggerStack()`. Supports `characters_in_play_gte`, `cards_in_hand_eq`, lore conditions. Tested with Stitch - Carefree Surfer, Beast's Mirror |
 
 ### 1.9 Damage
 | Rule | Quote | Status |
@@ -159,7 +159,7 @@
 | 4.3.3.1 | Characters/items/locations enter Play zone; Shift goes on top of named card | ✅ Characters + items; ❌ Locations |
 | 4.3.3.2 | Actions enter Play zone, effect resolves immediately, then move to discard | ✅ `applyPlayCard` action branch; `pendingActionInstanceId` for deferred choices |
 | 4.3.4.1 | "When [Player] play(s) this" triggered conditions met as card enters play | ✅ `queueTrigger("enters_play", ...)` |
-| 4.3.5 | Payment modifiers (e.g., Singer) don't change the card's ink cost | ❌ Singer not implemented |
+| 4.3.5 | Payment modifiers (e.g., Singer) don't change the card's ink cost | ✅ Singer implemented; `singerInstanceId` path |
 
 ### 4.4 Use an Activated Ability
 | Rule | Quote | Status |

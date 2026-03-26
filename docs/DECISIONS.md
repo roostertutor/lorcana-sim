@@ -278,48 +278,87 @@ picks optimal amount. Data already has `isUpTo: true` so no card data changes ne
 
 ---
 
-## Planned: Timed Effects System
+## Done: Timed Effects System
 
-### Problem
-Multiple fields on `CardInstance` represent temporary effects that expire:
-- `grantedKeywords: Keyword[]` — blanket-cleared at end of turn
-- `tempStrengthModifier`, `tempWillpowerModifier`, `tempLoreModifier` — same
+**Implemented in session 6.** Added `timedEffects: TimedEffect[]` to `CardInstance`
+alongside legacy temp modifier fields (kept for backward compat). New effect types:
+`grant_keyword`, `cant_quest`, `cant_ready` with durations `end_of_turn`,
+`rest_of_turn`, `end_of_owner_next_turn`. Duration-aware cleanup in `applyPassTurn`.
+`hasKeyword()` and `getEffective*()` check timed effects.
 
-This breaks when effects have different durations. Examples from set 1:
-- Tinker Bell - Most Helpful: "chosen character gains Evasive **this turn**"
-- John Silver - Alien Pirate: "chosen opposing character gains Reckless **during their next turn**"
+Also added: `followUpEffects` on `ReadyEffect`/`ExertEffect` for compound patterns
+("ready chosen character, they can't quest"), `pendingEffectQueue` on `GameState`
+for multi-effect action sequencing (draw then discard).
 
-Stat modifiers will have the same problem — some effects last "this turn,"
-others last "until end of their next turn" or longer.
+Cards using it: Cut to the Chase, Tinker Bell - Most Helpful, White Rabbit's Pocket Watch,
+Scepter of Arendelle, Work Together, Fan the Flames, LeFou - Instigator,
+Scar - Shameless Firebrand, Elsa - Spirit of Winter, Jasper - Common Crook.
 
-### Design
-Replace per-field temps with a unified `timedEffects` array on `CardInstance`:
+## Done: Cross-Card Triggers
 
-```typescript
-interface TimedEffect {
-  type: "grant_keyword" | "modify_strength" | "modify_willpower" | "modify_lore";
-  keyword?: Keyword;       // for grant_keyword
-  amount?: number;         // for modify_* effects
-  expiresAt: EffectDuration;
-}
+**Implemented in session 6.** `queueTrigger` now scans ALL in-play cards for
+triggered abilities with matching `filter` on the trigger event. New trigger events:
+`card_played`, `item_played`, `banished_in_challenge`. `triggering_card` target
+type supported in banish/return_to_hand effects.
 
-type EffectDuration = "end_of_turn" | "end_of_owner_next_turn";
-// Extend as needed for later sets
-```
+Cards using it: Coconut Basket, Ariel - Whoseit Collector, Musketeer Tabard,
+Cheshire Cat - Not All There, Kuzco - Temperamental Emperor, Cruella De Vil.
 
-Cleanup in end-of-turn checks each effect's `expiresAt` condition instead
-of blanket-clearing. `hasKeyword()` and `getEffectiveStrength/Willpower/Lore`
-read from `timedEffects` instead of dedicated fields.
+## Done: Condition Evaluation
 
-### Impact
-- Types change: `CardInstance` loses 4 fields, gains `timedEffects: TimedEffect[]`
-- `hasKeyword()`, `getEffectiveStrength()`, `getEffectiveWillpower()`, `getEffectiveLore()` updated
-- End-of-turn cleanup filters by expiry instead of zeroing
-- Prerequisite for: Tinker Bell, John Silver, and any duration-based effect
+**Implemented in session 6.** `evaluateCondition()` called in `processTriggerStack`
+and `applyActivateAbility`. Conditions: `characters_in_play_gte`, `cards_in_hand_eq`,
+lore comparisons. Fixed CRD_TRACKER bug B7 (condition field never checked).
 
-### When to build
-When implementing the first card that grants a keyword (Tinker Bell - Most Helpful
-is the simplest). Do the types refactor first, then wire up the card.
+## Done: Discard from Hand + Look at Top N
+
+**Implemented in session 6.** `DiscardEffect` with `chooser` field and
+`choose_discard` pending choice. `LookAtTopEffect` with bot auto-resolution
+for headless analytics. Cards: Sudden Chill, You Have Forgotten Me,
+Develop Your Brain, Be Our Guest, Reflection, Yzma - Alchemist, Ursula's Cauldron.
+
+## Done: Zone Transition Abstraction
+
+**Implemented in session 6.** All game-meaningful card moves go through
+`zoneTransition(state, instanceId, targetZone, definitions, events, ctx)` which
+wraps the pure `moveCard` utility with automatic trigger firing:
+
+- **Leaving play** (`play → *`): fires `leaves_play`, plus `is_banished` and
+  `banished_in_challenge` if reason is "banished" with challenge context
+- **Entering play** (`* → play`): fires `enters_play`, `card_played`, `item_played`
+- **Challenge kills**: fires `banished_other_in_challenge` on the surviving opponent
+
+`TransitionContext` carries `reason`, `fromChallenge`, `challengeOpponentId`, and
+`silent` (for suppressing triggers on cleanup moves like action → discard or shift
+base removal).
+
+**Why:** Every zone transition was manually orchestrated with scattered `queueTrigger`
+calls — easy to forget, impossible to add `leaves_play` consistently. Now Set 2's
+"when this character leaves play" triggers will work automatically for any
+`play → *` transition (banish, return to hand, shuffle into deck, move to inkwell).
+
+Cards unblocked: Simba - Rightful Heir, Te Kā - Heartless, Mulan - Imperial Soldier,
+Prince Phillip - Dragonslayer (all use `banished_other_in_challenge` or
+`banished_in_challenge` with `triggering_card` target).
+
+---
+
+## Note: Batch vs Per-Card Trigger Semantics
+
+Card text distinguishes between batch and per-card events:
+
+- **"whenever they draw a card"** (Set 4) → per-card. Drawing 7 = 7 triggers.
+  `applyDraw` already loops one card at a time (CRD 1.12.2), so per-card
+  triggers will fire naturally when added.
+
+- **"whenever an opponent discards 1 or more cards"** (Set 2) → batch.
+  Discarding 7 = 1 trigger with count. `discard_hand` and `discard_from_hand`
+  should fire ONE batch event, not per-card events. Current implementation
+  doesn't fire any discard triggers (no Set 1 cards listen), so we're not
+  locked into the wrong pattern.
+
+When implementing discard triggers for Set 2, fire a single
+`{ on: "cards_discarded", count: N }` event, not N individual events.
 
 ---
 

@@ -17,6 +17,7 @@ import {
   getInstance,
   getOpponent,
   getZone,
+  hasCantQuest,
   hasKeyword,
   isMainPhase,
   isSong,
@@ -152,6 +153,7 @@ function validateQuest(
   if (instance.zone !== "play") return fail("Card is not in play.");
   if (instance.isExerted) return fail("This character is already exerted."); // CRD 4.5.1.3
   if (instance.isDrying) return fail("This character is still drying and cannot quest."); // CRD 5.1.1.11
+  if (hasCantQuest(instance)) return fail("This character can't quest this turn.");
 
   const def = getDefinition(state, instanceId, definitions);
   if (def.cardType !== "character") return fail("Only characters can quest."); // CRD 5.3.4
@@ -289,6 +291,20 @@ function validateResolveChoice(
 
   // CRD 6.1.4: optional target choices can be declined with empty array
   if (state.pendingChoice.optional && Array.isArray(choice) && choice.length === 0) {
+    return OK;
+  }
+
+  // Discard choice validation
+  if (state.pendingChoice.type === "choose_discard" && Array.isArray(choice)) {
+    const count = state.pendingChoice.count ?? 1;
+    if (choice.length !== count) {
+      return fail(`Must choose exactly ${count} card(s) to discard.`);
+    }
+    for (const id of choice) {
+      if (!state.pendingChoice.validTargets?.includes(id)) {
+        return fail("Invalid card chosen for discard.");
+      }
+    }
     return OK;
   }
 
