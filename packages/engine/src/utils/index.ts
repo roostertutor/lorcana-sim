@@ -100,20 +100,15 @@ export function getEffectiveLore(
   return Math.max(0, base + instance.tempLoreModifier + timedBonus + staticBonus);
 }
 
-/** Check if a card has a "can't quest" timed effect active */
-export function hasCantQuest(instance: CardInstance): boolean {
-  return instance.timedEffects.some((te) => te.type === "cant_quest");
+/** Check if a card has a "can't X" timed effect active */
+export function hasCantAction(instance: CardInstance, action: "quest" | "challenge" | "ready"): boolean {
+  return instance.timedEffects.some((te) => te.type === "cant_action" && te.action === action);
 }
 
-/** Check if a card has a "can't ready" timed effect active */
-export function hasCantReady(instance: CardInstance): boolean {
-  return instance.timedEffects.some((te) => te.type === "cant_ready");
-}
-
-/** Check if a card has a "can't challenge" timed effect active */
-export function hasCantChallenge(instance: CardInstance): boolean {
-  return instance.timedEffects.some((te) => te.type === "cant_challenge");
-}
+// Convenience wrappers for backward compat with validator/reducer calls
+export function hasCantQuest(instance: CardInstance): boolean { return hasCantAction(instance, "quest"); }
+export function hasCantReady(instance: CardInstance): boolean { return hasCantAction(instance, "ready"); }
+export function hasCantChallenge(instance: CardInstance): boolean { return hasCantAction(instance, "challenge"); }
 
 /** Get the effective ink cost (may be reduced by effects in future) */
 export function getEffectiveCost(

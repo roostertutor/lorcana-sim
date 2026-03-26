@@ -32,9 +32,6 @@ export interface GameModifiers {
    */
   statBonuses: Map<string, { strength: number; willpower: number; lore: number }>;
 
-  /** Characters that can't exert to sing songs (Ariel - On Human Legs). */
-  cantSing: Set<string>;
-
   /** Keywords granted by conditional static abilities (e.g. Pascal gains Evasive). */
   grantedKeywords: Map<string, import("../types/index.js").Keyword[]>;
 
@@ -43,7 +40,7 @@ export interface GameModifiers {
 
   /** Action restrictions (quest/challenge/play) from static abilities. */
   actionRestrictions: {
-    restricts: "quest" | "challenge" | "play";
+    restricts: "quest" | "challenge" | "play" | "sing";
     /** The player whose characters are restricted */
     affectedPlayerId: import("../types/index.js").PlayerID;
     /** Only characters matching this filter are restricted (undefined = all) */
@@ -67,7 +64,6 @@ export function getGameModifiers(
     cantBeChallenged: new Map(),
     canChallengeReady: new Set(),
     statBonuses: new Map(),
-    cantSing: new Set(),
     grantedKeywords: new Map(),
     costReductions: new Map(),
     actionRestrictions: [],
@@ -146,12 +142,6 @@ export function getGameModifiers(
           break;
         }
 
-        case "cant_sing": {
-          if (effect.target.type === "this") {
-            modifiers.cantSing.add(instance.instanceId);
-          }
-          break;
-        }
 
         case "grant_keyword": {
           // Conditional static keyword granting (e.g. Pascal gains Evasive while condition met)

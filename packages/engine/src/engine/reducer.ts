@@ -1226,9 +1226,10 @@ export function applyEffect(
       return state;
     }
 
-    case "cant_quest": {
+    case "cant_action": {
       const timedEffect: TimedEffect = {
-        type: "cant_quest",
+        type: "cant_action",
+        action: effect.action,
         amount: 0,
         expiresAt: effect.duration,
         appliedOnTurn: state.turnNumber,
@@ -1243,40 +1244,7 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: "Choose a character that can't quest.",
-            validTargets,
-            pendingEffect: effect,
-          },
-        };
-      }
-      if (effect.target.type === "all") {
-        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
-        for (const targetId of targets) {
-          state = addTimedEffect(state, targetId, timedEffect);
-        }
-        return state;
-      }
-      return state;
-    }
-
-    case "cant_ready": {
-      const timedEffect: TimedEffect = {
-        type: "cant_ready",
-        amount: 0,
-        expiresAt: effect.duration,
-        appliedOnTurn: state.turnNumber,
-      };
-      if (effect.target.type === "this") {
-        return addTimedEffect(state, sourceInstanceId, timedEffect);
-      }
-      if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
-        return {
-          ...state,
-          pendingChoice: {
-            type: "choose_target",
-            choosingPlayerId: controllingPlayerId,
-            prompt: "Choose a character that can't ready.",
+            prompt: `Choose a character that can't ${effect.action}.`,
             validTargets,
             pendingEffect: effect,
           },
@@ -1509,24 +1477,6 @@ export function applyEffect(
             validTargets,
             pendingEffect: effect,
             optional: effect.isMay ?? false,
-          },
-        };
-      }
-      return state;
-    }
-
-    // Frying Pan: "Chosen character can't challenge during their next turn"
-    case "cant_challenge": {
-      if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
-        return {
-          ...state,
-          pendingChoice: {
-            type: "choose_target",
-            choosingPlayerId: controllingPlayerId,
-            prompt: "Choose a character that can't challenge.",
-            validTargets,
-            pendingEffect: effect,
           },
         };
       }
@@ -2059,18 +2009,10 @@ function applyEffectToTarget(
     }
     case "ready":
       return updateInstance(state, targetInstanceId, { isExerted: false });
-    case "cant_quest": {
+    case "cant_action": {
       const timedEffect: TimedEffect = {
-        type: "cant_quest",
-        amount: 0,
-        expiresAt: effect.duration,
-        appliedOnTurn: state.turnNumber,
-      };
-      return addTimedEffect(state, targetInstanceId, timedEffect);
-    }
-    case "cant_ready": {
-      const timedEffect: TimedEffect = {
-        type: "cant_ready",
+        type: "cant_action",
+        action: effect.action,
         amount: 0,
         expiresAt: effect.duration,
         appliedOnTurn: state.turnNumber,
@@ -2127,15 +2069,6 @@ function applyEffectToTarget(
       // Shuffle the owner's deck
       state = shuffleDeck(state, inst.ownerId);
       return state;
-    }
-    case "cant_challenge": {
-      const timedEffect: TimedEffect = {
-        type: "cant_challenge",
-        amount: 0,
-        expiresAt: effect.duration,
-        appliedOnTurn: state.turnNumber,
-      };
-      return addTimedEffect(state, targetInstanceId, timedEffect);
     }
     default:
       return state;

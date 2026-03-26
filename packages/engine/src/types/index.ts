@@ -115,8 +115,7 @@ export type Effect =
   | ExertEffect
   | GrantKeywordEffect
   | ReadyEffect
-  | CantQuestEffect
-  | CantReadyEffect
+  | CantActionEffect
   | LookAtTopEffect
   | DiscardEffect
   | MoveToInkwellEffect
@@ -125,7 +124,6 @@ export type Effect =
   | ShuffleIntoDeckEffect
   | PayInkEffect
   | SequentialEffect
-  | CantChallengeEffect
   | CostReductionEffect
   | LoseLoreEffect
   | CreateFloatingTriggerEffect;
@@ -239,14 +237,10 @@ export interface ReadyEffect {
   followUpEffects?: Effect[];
 }
 
-export interface CantQuestEffect {
-  type: "cant_quest";
-  target: CardTarget;
-  duration: EffectDuration;
-}
-
-export interface CantReadyEffect {
-  type: "cant_ready";
+/** Unified "can't do X" timed debuff. Replaces cant_quest, cant_ready, cant_challenge. */
+export interface CantActionEffect {
+  type: "cant_action";
+  action: "quest" | "challenge" | "ready";
   target: CardTarget;
   duration: EffectDuration;
 }
@@ -349,12 +343,6 @@ export interface SequentialEffect {
   isMay?: boolean;
 }
 
-/** Prevent a chosen character from challenging (Frying Pan). */
-export interface CantChallengeEffect {
-  type: "cant_challenge";
-  target: CardTarget;
-  duration: EffectDuration;
-}
 
 /**
  * "You pay N less for the next [type] you play this turn."
@@ -393,7 +381,6 @@ export type StaticEffect =
   | ModifyStatStatic
   | ModifyStatPerCountStatic
   | CantBeChallengedException
-  | CantSingStatic
   | CostReductionStatic
   | ActionRestrictionStatic
   | ExtraInkPlayStatic
@@ -436,11 +423,6 @@ export interface CantBeChallengedException {
   attackerFilter?: CardFilter;
 }
 
-/** This character can't exert to sing songs (Ariel - On Human Legs). */
-export interface CantSingStatic {
-  type: "cant_sing";
-  target: CardTarget;
-}
 
 /** Static cost reduction (Mickey Wayward Sorcerer: Broom chars cost 1 less). */
 export interface CostReductionStatic {
@@ -459,7 +441,7 @@ export interface CostReductionStatic {
 export interface ActionRestrictionStatic {
   type: "action_restriction";
   /** Which action is restricted */
-  restricts: "quest" | "challenge" | "play";
+  restricts: "quest" | "challenge" | "play" | "sing";
   /** Which player's characters are restricted (from the card owner's perspective) */
   affectedPlayer: PlayerTarget;
   /** Optional: only characters matching this filter are restricted */
@@ -581,10 +563,12 @@ export type EffectDuration =
 
 export interface TimedEffect {
   type: "grant_keyword" | "modify_strength" | "modify_willpower" | "modify_lore"
-    | "cant_quest" | "cant_ready" | "cant_challenge";
+    | "cant_action";
   keyword?: Keyword | undefined;
   value?: number | undefined;       // for keyword values (e.g. Challenger +N)
   amount?: number | undefined;      // for modify_* effects
+  /** For cant_action: which action is restricted */
+  action?: "quest" | "challenge" | "ready" | undefined;
   expiresAt: EffectDuration;
   /** Turn number when this effect was applied (for multi-turn expiry) */
   appliedOnTurn: number;

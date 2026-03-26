@@ -108,10 +108,15 @@ function validatePlayCard(
     if (singer.ownerId !== playerId) return fail("You don't own the singer.");
     if (singer.isExerted) return fail("Singer is already exerted.");
     if (singer.isDrying) return fail("Singer is still drying and cannot sing.");
-    // Ariel - On Human Legs: can't exert to sing
+    // Check sing restrictions (Ariel - On Human Legs, and future cards)
     const modifiers = getGameModifiers(state, definitions);
-    if (modifiers.cantSing.has(singerInstanceId)) {
-      return fail("This character can't sing songs.");
+    const singerInst = getInstance(state, singerInstanceId);
+    const singerDef2 = getDefinition(state, singerInstanceId, definitions);
+    for (const r of modifiers.actionRestrictions) {
+      if (r.restricts !== "sing" || r.affectedPlayerId !== playerId) continue;
+      if (!r.filter || matchesFilter(singerInst, singerDef2, r.filter, state, playerId)) {
+        return fail("This character can't sing songs.");
+      }
     }
     const singerDef = getDefinition(state, singerInstanceId, definitions);
     if (!canSingSong(singer, singerDef, def)) {

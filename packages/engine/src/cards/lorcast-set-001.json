@@ -16,10 +16,9 @@
       {
         "type": "static",
         "effect": {
-          "type": "cant_sing",
-          "target": {
-            "type": "this"
-          }
+          "type": "action_restriction",
+          "restricts": "sing",
+          "affectedPlayer": { "type": "self" }
         },
         "storyName": "VOICELESS",
         "rulesText": "This character can't {E} to sing songs."
@@ -554,7 +553,7 @@
             "isMay": true,
             "followUpEffects": [
               {
-                "type": "cant_quest",
+                "type": "cant_action", "action": "quest",
                 "target": {
                   "type": "this"
                 },
@@ -1343,7 +1342,7 @@
         },
         "effects": [
           {
-            "type": "cant_ready",
+            "type": "cant_action", "action": "ready",
             "target": {
               "type": "chosen",
               "filter": {
@@ -1639,7 +1638,7 @@
             "isUpTo": true,
             "followUpEffects": [
               {
-                "type": "cant_ready",
+                "type": "cant_action", "action": "ready",
                 "target": {
                   "type": "this"
                 },
@@ -3102,7 +3101,7 @@
         },
         "effects": [
           {
-            "type": "cant_quest",
+            "type": "cant_action", "action": "quest",
             "target": {
               "type": "chosen",
               "filter": {
@@ -3447,7 +3446,7 @@
         },
         "effects": [
           {
-            "type": "cant_quest",
+            "type": "cant_action", "action": "quest",
             "target": {
               "type": "chosen",
               "filter": {
@@ -4225,7 +4224,7 @@
             },
             "followUpEffects": [
               {
-                "type": "cant_quest",
+                "type": "cant_action", "action": "quest",
                 "target": {
                   "type": "this"
                 },
@@ -4333,7 +4332,7 @@
             },
             "followUpEffects": [
               {
-                "type": "cant_quest",
+                "type": "cant_action", "action": "quest",
                 "target": {
                   "type": "this"
                 },
@@ -4741,7 +4740,7 @@
             },
             "followUpEffects": [
               {
-                "type": "cant_quest",
+                "type": "cant_action", "action": "quest",
                 "target": {
                   "type": "this"
                 },
@@ -4982,7 +4981,7 @@
         },
         "followUpEffects": [
           {
-            "type": "cant_quest",
+            "type": "cant_action", "action": "quest",
             "target": {
               "type": "this"
             },
@@ -5149,7 +5148,7 @@
             },
             "followUpEffects": [
               {
-                "type": "cant_quest",
+                "type": "cant_action", "action": "quest",
                 "target": {
                   "type": "this"
                 },
@@ -7759,7 +7758,7 @@
         ],
         "effects": [
           {
-            "type": "cant_challenge",
+            "type": "cant_action", "action": "challenge",
             "target": {
               "type": "chosen",
               "filter": {
@@ -8013,7 +8012,7 @@
             "isUpTo": true,
             "followUpEffects": [
               {
-                "type": "cant_ready",
+                "type": "cant_action", "action": "ready",
                 "target": {
                   "type": "this"
                 },
@@ -8174,7 +8173,7 @@
         },
         "effects": [
           {
-            "type": "cant_quest",
+            "type": "cant_action", "action": "quest",
             "target": {
               "type": "chosen",
               "filter": {

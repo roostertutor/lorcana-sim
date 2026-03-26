@@ -2472,7 +2472,7 @@ describe("Ready + Can't Quest (Fan the Flames pattern)", () => {
     // Character should be readied
     expect(inst.isExerted).toBe(false);
     // Character should have cant_quest
-    expect(inst.timedEffects.some((te) => te.type === "cant_quest")).toBe(true);
+    expect(inst.timedEffects.some((te) => te.type === "cant_action" && te.action === "quest")).toBe(true);
 
     // Verify they can't quest
     const questResult = applyAction(resolveResult.newState, {
@@ -2503,7 +2503,7 @@ describe("Ready + Can't Quest (Fan the Flames pattern)", () => {
     expect(resolveResult.success).toBe(true);
     const inst = getInstance(resolveResult.newState, charId);
     expect(inst.isExerted).toBe(false);
-    expect(inst.timedEffects.some((te) => te.type === "cant_quest")).toBe(true);
+    expect(inst.timedEffects.some((te) => te.type === "cant_action" && te.action === "quest")).toBe(true);
   });
 
   // Scar - Shameless Firebrand: enters_play → ready all own chars cost ≤ 3, can't quest
@@ -2524,8 +2524,8 @@ describe("Ready + Can't Quest (Fan the Flames pattern)", () => {
     expect(getInstance(result.newState, cheapId).isExerted).toBe(false);
     expect(getInstance(result.newState, expensiveId).isExerted).toBe(false);
     // Both should have cant_quest
-    expect(getInstance(result.newState, cheapId).timedEffects.some((te) => te.type === "cant_quest")).toBe(true);
-    expect(getInstance(result.newState, expensiveId).timedEffects.some((te) => te.type === "cant_quest")).toBe(true);
+    expect(getInstance(result.newState, cheapId).timedEffects.some((te) => te.type === "cant_action" && te.action === "quest")).toBe(true);
+    expect(getInstance(result.newState, expensiveId).timedEffects.some((te) => te.type === "cant_action" && te.action === "quest")).toBe(true);
   });
 });
 
@@ -2549,7 +2549,7 @@ describe("Can't Ready (Elsa - Spirit of Winter)", () => {
     expect(resolveResult.success).toBe(true);
     const inst = getInstance(resolveResult.newState, targetId);
     expect(inst.isExerted).toBe(true);
-    expect(inst.timedEffects.some((te) => te.type === "cant_ready")).toBe(true);
+    expect(inst.timedEffects.some((te) => te.type === "cant_action" && te.action === "ready")).toBe(true);
   });
 
   it("Can't ready prevents readying at start of next turn", () => {
@@ -2876,7 +2876,7 @@ describe("Triggered: quests cant_quest", () => {
     }, LORCAST_CARD_DEFINITIONS);
     expect(resolveResult.success).toBe(true);
     expect(getInstance(resolveResult.newState, targetId).timedEffects.some(
-      (te) => te.type === "cant_quest"
+      (te) => te.type === "cant_action" && te.action === "quest"
     )).toBe(true);
   });
 });
