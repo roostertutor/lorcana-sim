@@ -2,7 +2,7 @@
 
 216 cards analyzed. ~185 match perfectly. Findings below.
 
-## Critical Bugs (wrong behavior)
+## Critical Bugs — ALL FIXED (2026-03-26)
 
 ### 1. Marshmallow - Persistent Guardian (`marshmallow-persistent-guardian`)
 - **Card text:** "When this character is banished **in a challenge**, you may return this card to your hand."

@@ -959,7 +959,7 @@ export function applyEffect(
         return dealDamageToCard(state, sourceInstanceId, amount, definitions, events);
       }
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         return {
           ...state,
           pendingChoice: {
@@ -972,7 +972,7 @@ export function applyEffect(
         };
       }
       if (effect.target.type === "all") {
-        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         const amount = effect.amount === "X" ? 1 : effect.amount;
         for (const targetId of targets) {
           state = dealDamageToCard(state, targetId, amount, definitions, events);
@@ -984,7 +984,7 @@ export function applyEffect(
 
     case "banish": {
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         return {
           ...state,
           pendingChoice: {
@@ -998,7 +998,7 @@ export function applyEffect(
       }
       if (effect.target.type === "all") {
         // CRD 5.4.1.2: "banish all" resolves immediately
-        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         for (const targetId of targets) {
           // Skip if already banished by a previous iteration (e.g. cascading triggers)
           const inst = state.cards[targetId];
@@ -1021,7 +1021,7 @@ export function applyEffect(
 
     case "return_to_hand": {
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         return {
           ...state,
           pendingChoice: {
@@ -1053,7 +1053,7 @@ export function applyEffect(
         });
       }
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         return {
           ...state,
           pendingChoice: {
@@ -1067,7 +1067,7 @@ export function applyEffect(
         };
       }
       if (effect.target.type === "all") {
-        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         for (const targetId of targets) {
           const inst = getInstance(state, targetId);
           state = updateInstance(state, targetId, {
@@ -1089,7 +1089,7 @@ export function applyEffect(
         });
       }
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         return {
           ...state,
           pendingChoice: {
@@ -1109,7 +1109,7 @@ export function applyEffect(
         return updateInstance(state, sourceInstanceId, { isExerted: true });
       }
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         return {
           ...state,
           pendingChoice: {
@@ -1123,7 +1123,7 @@ export function applyEffect(
         };
       }
       if (effect.target.type === "all") {
-        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         for (const targetId of targets) {
           state = updateInstance(state, targetId, { isExerted: true });
           if (effect.followUpEffects) {
@@ -1150,7 +1150,7 @@ export function applyEffect(
         return addTimedEffect(state, sourceInstanceId, timedEffect);
       }
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         return {
           ...state,
           pendingChoice: {
@@ -1163,7 +1163,7 @@ export function applyEffect(
         };
       }
       if (effect.target.type === "all") {
-        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         for (const targetId of targets) {
           state = addTimedEffect(state, targetId, timedEffect);
         }
@@ -1184,7 +1184,7 @@ export function applyEffect(
         return state;
       }
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         return {
           ...state,
           pendingChoice: {
@@ -1198,7 +1198,7 @@ export function applyEffect(
         };
       }
       if (effect.target.type === "all") {
-        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         for (const targetId of targets) {
           state = updateInstance(state, targetId, { isExerted: false });
           if (effect.followUpEffects) {
@@ -1223,7 +1223,7 @@ export function applyEffect(
         return addTimedEffect(state, sourceInstanceId, timedEffect);
       }
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         return {
           ...state,
           pendingChoice: {
@@ -1236,7 +1236,7 @@ export function applyEffect(
         };
       }
       if (effect.target.type === "all") {
-        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         for (const targetId of targets) {
           state = addTimedEffect(state, targetId, timedEffect);
         }
@@ -1256,7 +1256,7 @@ export function applyEffect(
         return addTimedEffect(state, sourceInstanceId, timedEffect);
       }
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         return {
           ...state,
           pendingChoice: {
@@ -1269,7 +1269,7 @@ export function applyEffect(
         };
       }
       if (effect.target.type === "all") {
-        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         for (const targetId of targets) {
           state = addTimedEffect(state, targetId, timedEffect);
         }
@@ -1399,7 +1399,7 @@ export function applyEffect(
       }
 
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         return {
           ...state,
           pendingChoice: {
@@ -1416,7 +1416,7 @@ export function applyEffect(
 
     case "conditional_on_target": {
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         return {
           ...state,
           pendingChoice: {
@@ -1485,7 +1485,7 @@ export function applyEffect(
       if (effect.target.type === "chosen") {
         // "any discard" = all discard piles
         const filter = effect.target.filter;
-        const validTargets = findValidTargets(state, filter, controllingPlayerId, definitions);
+        const validTargets = findValidTargets(state, filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state;
         return {
           ...state,
@@ -1505,7 +1505,7 @@ export function applyEffect(
     // Frying Pan: "Chosen character can't challenge during their next turn"
     case "cant_challenge": {
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         return {
           ...state,
           pendingChoice: {
@@ -1523,7 +1523,7 @@ export function applyEffect(
     // Rapunzel: "remove up to 3 damage, draw for each removed"
     case "heal_and_draw": {
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state;
         return {
           ...state,
@@ -2217,10 +2217,13 @@ function findValidTargets(
   state: GameState,
   filter: import("../types/index.js").CardFilter,
   controllingPlayerId: PlayerID,
-  definitions: Record<string, CardDefinition>
+  definitions: Record<string, CardDefinition>,
+  sourceInstanceId?: string
 ): string[] {
   return Object.values(state.cards)
     .filter((instance) => {
+      // CRD 6.1.6: "other" — exclude the source card
+      if (filter.excludeSelf && sourceInstanceId && instance.instanceId === sourceInstanceId) return false;
       const def = definitions[instance.definitionId];
       if (!def) return false;
       return matchesFilter(instance, def, filter, state, controllingPlayerId);

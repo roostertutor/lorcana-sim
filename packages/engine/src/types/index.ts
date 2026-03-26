@@ -516,6 +516,8 @@ export interface CardFilter {
   costAtLeast?: number;
   /** Exclude a specific card instance (e.g. Support can't target itself) */
   excludeInstanceId?: string;
+  /** Exclude the source card (for "other" effects — resolved at runtime) */
+  excludeSelf?: boolean;
   /** Match by card name (e.g. "Fire the Cannons!", "Te Kā") */
   hasName?: string;
   /** Match characters with damage > 0 */

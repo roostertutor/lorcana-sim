@@ -1421,6 +1421,7 @@ describe("§4.6 Challenge", () => {
 
 describe("§6.2 Triggered Abilities", () => {
   // CRD 4.3.4.1: "When you play this character" triggers on enters_play
+  // CRD 6.1.4: "you may draw" — isMay requires accept/decline
   it("Maleficent draws a card for her controller when she enters play (CRD 4.3.4.1)", () => {
     let state = startGame();
     let instanceId: string;
@@ -1428,11 +1429,19 @@ describe("§6.2 Triggered Abilities", () => {
     state = giveInk(state, "player1", 10);
 
     const handSizeBefore = getZone(state, "player1", "hand").length;
-    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
+    const playResult = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId }, LORCAST_CARD_DEFINITIONS);
 
-    // -1 for playing Maleficent, +1 for her draw trigger = net 0 change
-    expect(result.success).toBe(true);
-    expect(getZone(result.newState, "player1", "hand").length).toBe(handSizeBefore);
+    expect(playResult.success).toBe(true);
+    // isMay → choose_may prompt
+    expect(playResult.newState.pendingChoice?.type).toBe("choose_may");
+
+    const acceptResult = applyAction(playResult.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept",
+    }, LORCAST_CARD_DEFINITIONS);
+
+    // -1 for playing Maleficent, +1 for accepted draw = net 0 change
+    expect(acceptResult.success).toBe(true);
+    expect(getZone(acceptResult.newState, "player1", "hand").length).toBe(handSizeBefore);
   });
 });
 

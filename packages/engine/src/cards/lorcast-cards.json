@@ -465,7 +465,8 @@
                 "cardType": [
                   "character"
                 ],
-                "hasTrait": "Princess"
+                "hasTrait": "Princess",
+                "excludeSelf": true
               }
             },
             "isMay": true,
@@ -1767,7 +1768,8 @@
             "amount": 1,
             "target": {
               "type": "self"
-            }
+            },
+            "isMay": true
           }
         ]
       }
@@ -1800,7 +1802,7 @@
       {
         "type": "triggered",
         "trigger": {
-          "on": "is_banished"
+          "on": "banished_in_challenge"
         },
         "effects": [
           {
@@ -4333,7 +4335,8 @@
                 "zone": "play",
                 "cardType": [
                   "character"
-                ]
+                ],
+                "excludeSelf": true
               }
             },
             "duration": "this_turn"
@@ -6814,8 +6817,15 @@
             "amount": 1,
             "target": {
               "type": "self"
+            }
+          },
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "self"
             },
-            "isMay": true
+            "chooser": "target_player"
           }
         ]
       }
