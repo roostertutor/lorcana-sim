@@ -329,7 +329,8 @@ patterns in Set 1. Common patterns already supported:
 - Floating triggers (action cards creating turn-scoped triggers)
 - Multi-target selection (count on chosen target)
 - Challenge/quest restrictions
-- heal_and_draw, lose_lore, cant_challenge
+- Result passing (`amount: "cost_result"` for "[A]. For each X, [B]" patterns)
+- lose_lore, cant_challenge
 
 If a card needs a new effect type, add it to `types/index.ts` and handle it in
 `reducer.ts` before wiring up the card data.
@@ -348,8 +349,24 @@ For each card with `_namedAbilityStubs`:
 pnpm test                          # all tests still pass
 npx tsc --build packages/engine    # typecheck clean
 ```
-Run the English translation audit to verify implementations match card text:
-compare each ability's `rulesText` against what the engine actually does.
+
+Two complementary verification approaches:
+
+**English translation audit** (for humans):
+Generate a side-by-side comparison of each ability's `rulesText` (real card text)
+vs a plain-English translation of what the JSON structure actually does. Scan for
+mismatches visually. Fast for catching "this doesn't sound right" errors.
+Not a permanent doc — run on demand, output to stdout. Goes stale on any card change.
+
+**Rule-based checker** (for Claude/CI):
+Programmatic checks for common structural bugs:
+- Card says "other" → filter must have `excludeSelf: true`
+- Card says "may" → effect must have `isMay: true`
+- Card says "opponent" → target must not be `self`
+- Card says "cost N or less" → filter must have `costAtMost: N`
+- Trigger type matches card text ("banished in a challenge" ≠ `is_banished`)
+
+Both are verification tools, not reference data. Neither is built yet (TODO).
 
 #### Step 6 — Update docs
 - Update the import status table above
