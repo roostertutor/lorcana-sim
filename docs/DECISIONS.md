@@ -67,6 +67,13 @@ can break them. Game rule assertions (inkwell contents, lore direction,
 win threshold) CAN be changed by cards and belong in integration tests,
 not invariant checks.
 
+### 2-player only — "each opponent" = single opponent
+`PlayerID` is `"player1" | "player2"`. `getOpponent()` returns one ID.
+Card text like "each opponent loses 1 lore" resolves to the single opponent.
+This is correct for 1v1 analytics. Multiplayer (CRD Section 9) would need
+`PlayerID` to support N players, variable-length `GameState.players`, turn
+order, and team rules — a full redesign, not a tweak.
+
 ### Five packages with strict separation
 engine / simulator / analytics / cli / ui — each has exactly one job.
 The CLI was added between analytics and UI to validate the full pipeline
