@@ -683,7 +683,7 @@
         },
         "effects": [
           {
-            "type": "heal_and_draw",
+            "type": "heal",
             "amount": 3,
             "target": {
               "type": "chosen",
@@ -698,7 +698,12 @@
                 "hasDamage": true
               }
             },
-            "drawTarget": {
+            "isUpTo": true
+          },
+          {
+            "type": "draw",
+            "amount": "cost_result",
+            "target": {
               "type": "self"
             }
           }
@@ -2288,8 +2293,15 @@
             "amount": 1,
             "target": {
               "type": "opponent"
+            }
+          },
+          {
+            "type": "draw",
+            "amount": "cost_result",
+            "target": {
+              "type": "self"
             },
-            "drawPerLoreLost": true
+            "isMay": true
           }
         ],
         "storyName": "IT'S TOO EASY!",

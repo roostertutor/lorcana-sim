@@ -127,14 +127,13 @@ export type Effect =
   | PayInkEffect
   | SequentialEffect
   | CantChallengeEffect
-  | HealAndDrawEffect
   | CostReductionEffect
   | LoseLoreEffect
   | CreateFloatingTriggerEffect;
 
 export interface DrawEffect {
   type: "draw";
-  amount: number | "X";
+  amount: number | "X" | "cost_result";
   target: PlayerTarget;
   /** CRD 6.1.4: player may choose not to apply this effect */
   isMay?: boolean;
@@ -364,17 +363,6 @@ export interface CantChallengeEffect {
 }
 
 /**
- * Rapunzel - Gifted with Healing: remove up to N damage, draw per damage removed.
- * Compound effect needed because draw amount depends on actual healing performed.
- */
-export interface HealAndDrawEffect {
-  type: "heal_and_draw";
-  amount: number;
-  target: CardTarget;
-  drawTarget: PlayerTarget;
-}
-
-/**
  * "You pay N less for the next [type] you play this turn."
  * Creates a one-shot cost reduction on the controlling player.
  */
@@ -386,15 +374,13 @@ export interface CostReductionEffect {
 }
 
 /**
- * "Each opponent loses N lore." Separate from gain_lore because it needs to
- * track actual lore lost for "draw for each lore lost" patterns.
+ * "Each opponent loses N lore." Tracks actual lore lost in lastEffectResult
+ * for "[A]. For each lore lost, [B]" patterns (CRD 6.1.5.1).
  */
 export interface LoseLoreEffect {
   type: "lose_lore";
   amount: number;
   target: PlayerTarget;
-  /** If true, controlling player may draw 1 card for each 1 lore actually lost */
-  drawPerLoreLost?: boolean;
 }
 
 /** CRD 6.2.7.1: Create a floating triggered ability that lasts until end of turn. */
@@ -748,6 +734,9 @@ export interface GameState {
 
   /** CRD 6.2.7.1: Floating triggered abilities that last until end of turn */
   floatingTriggers?: FloatingTrigger[];
+
+  /** CRD 6.1.5.1: Result of the last cost effect in a sequential (for "[A]. For each X, [B]" patterns) */
+  lastEffectResult?: number;
 
   winner: PlayerID | null;
   isGameOver: boolean;

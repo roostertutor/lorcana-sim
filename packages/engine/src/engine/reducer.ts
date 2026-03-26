@@ -933,7 +933,10 @@ export function applyEffect(
 ): GameState {
   switch (effect.type) {
     case "draw": {
-      const amount = effect.amount === "X" ? 1 : effect.amount;
+      const amount = effect.amount === "X" ? 1
+        : effect.amount === "cost_result" ? (state.lastEffectResult ?? 0)
+        : effect.amount;
+      if (amount <= 0) return state;
       if (effect.target.type === "both") {
         state = applyDraw(state, controllingPlayerId, amount, events);
         state = applyDraw(state, getOpponent(controllingPlayerId), amount, events);
@@ -1531,26 +1534,6 @@ export function applyEffect(
       return state;
     }
 
-    // Rapunzel: "remove up to 3 damage, draw for each removed"
-    case "heal_and_draw": {
-      if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
-        if (validTargets.length === 0) return state;
-        return {
-          ...state,
-          pendingChoice: {
-            type: "choose_target",
-            choosingPlayerId: controllingPlayerId,
-            prompt: "Choose a character to heal.",
-            validTargets,
-            pendingEffect: effect,
-            optional: true, // "up to" implies optional
-          },
-        };
-      }
-      return state;
-    }
-
     // "You pay N less for the next X you play this turn"
     case "cost_reduction": {
       const existing = state.players[controllingPlayerId].costReductions ?? [];
@@ -1575,14 +1558,8 @@ export function applyEffect(
       state = gainLore(state, targetPlayer, -effect.amount, events);
       const loreAfter = state.players[targetPlayer].lore;
       const actualLost = loreBefore - loreAfter;
-      // "Draw for each lore lost this way"
-      if (effect.drawPerLoreLost && actualLost > 0) {
-        // CRD 6.1.4: "may draw" — present as may choice
-        if (actualLost > 0) {
-          const drawEffect: Effect = { type: "draw", amount: actualLost, target: { type: "self" }, isMay: true };
-          state = applyEffect(state, drawEffect, sourceInstanceId, controllingPlayerId, definitions, events);
-        }
-      }
+      // CRD 6.1.5.1: Store result for "[A]. For each lore lost, [B]" patterns
+      state = { ...state, lastEffectResult: actualLost };
       return state;
     }
 
@@ -1805,6 +1782,24 @@ function processTriggerStack(
         events,
         trigger.context.triggeringCardInstanceId
       );
+
+      // If the effect created a pending choice, queue remaining effects and pause
+      if (state.pendingChoice) {
+        const remainingEffects = trigger.ability.effects.slice(
+          trigger.ability.effects.indexOf(effect) + 1
+        );
+        if (remainingEffects.length > 0) {
+          state = {
+            ...state,
+            pendingEffectQueue: {
+              effects: remainingEffects,
+              sourceInstanceId: trigger.sourceInstanceId,
+              controllingPlayerId: source.ownerId,
+            },
+          };
+        }
+        break;
+      }
     }
   }
   return state;
@@ -2042,9 +2037,13 @@ function applyEffectToTarget(
     }
     case "heal": {
       const instance = getInstance(state, targetInstanceId);
-      return updateInstance(state, targetInstanceId, {
-        damage: Math.max(0, instance.damage - effect.amount),
+      const actualHeal = Math.min(effect.amount, instance.damage);
+      state = updateInstance(state, targetInstanceId, {
+        damage: instance.damage - actualHeal,
       });
+      // CRD 6.1.5.1: Store result for "[A]. For each damage removed, [B]" patterns
+      state = { ...state, lastEffectResult: actualHeal };
+      return state;
     }
     case "exert":
       return updateInstance(state, targetInstanceId, { isExerted: true });
@@ -2138,21 +2137,6 @@ function applyEffectToTarget(
         appliedOnTurn: state.turnNumber,
       };
       return addTimedEffect(state, targetInstanceId, timedEffect);
-    }
-    case "heal_and_draw": {
-      // Rapunzel: heal min(amount, damage), draw for each healed
-      const inst = getInstance(state, targetInstanceId);
-      const actualHeal = Math.min(effect.amount, inst.damage);
-      if (actualHeal > 0) {
-        state = updateInstance(state, targetInstanceId, {
-          damage: inst.damage - actualHeal,
-        });
-        // Draw cards equal to damage actually removed
-        const drawPlayer = effect.drawTarget.type === "self" ? controllingPlayerId
-          : getOpponent(controllingPlayerId);
-        state = applyDraw(state, drawPlayer, actualHeal, events);
-      }
-      return state;
     }
     default:
       return state;

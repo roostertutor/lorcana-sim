@@ -194,6 +194,14 @@ may(X)     := player decides → X or skip            // CRD 6.1.4: "you may"
 - `canPerformCostEffect()` pre-checks [A] affordability before prompting
 - `isMay` wraps the whole thing in a player choice (CRD 6.1.4)
 
+**Result passing: "[A]. For each X done this way, [B]":**
+- Effects that produce a measurable result (heal, lose_lore) store it in
+  `state.lastEffectResult` after resolving
+- Subsequent effects can reference this via `amount: "cost_result"` (e.g. on DrawEffect)
+- This eliminates compound effect types — Rapunzel (heal → draw per healed) and
+  Ursula Power Hungry (lose lore → draw per lost) both use standard effects
+  with result passing instead of one-off types
+
 **CRD 6.1.5.2 "[A] or [B]"** — **NOT YET IMPLEMENTED**:
 - No Set 1 card uses this form
 - `ChooseEffect` exists but doesn't enforce the forced fallback rule:
