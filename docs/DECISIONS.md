@@ -167,6 +167,48 @@ setting. We use `as unknown as CardDefinition[]` to bypass this — the
 data is correct at runtime, it's purely a static inference limitation.
 This is documented in lorcastCards.ts.
 
+### Effect grammar (CRD 6.1)
+
+The engine models card text as a grammar of composable effect primitives.
+This maps CRD 6.1 directly so any card text can be decomposed into known forms.
+
+```
+ability  := keyword | triggered(trigger, effects) | activated(costs, effects) | static(effect)
+effect   := simple | sequential | choose | may(effect)
+
+simple   := draw | deal_damage | heal | banish | return_to_hand | gain_lore
+           | gain_stats | exert | ready | grant_keyword | cost_reduction
+           | lose_lore | pay_ink | cant_quest | cant_ready | cant_challenge
+           | look_at_top | discard_from_hand | discard_hand | move_to_inkwell
+           | play_for_free | shuffle_into_deck | heal_and_draw
+           | create_floating_trigger | conditional_on_target
+
+sequential := costEffects[] → rewardEffects[]      // CRD 6.1.5.1: "[A] to [B]", "[A]. If you do, [B]"
+choose     := options[][] (pick count)              // CRD 6.1.5.2: "[A] or [B]"
+may(X)     := player decides → X or skip            // CRD 6.1.4: "you may"
+```
+
+**CRD 6.1.5.1 "[A] to [B]"** — implemented as `SequentialEffect`:
+- `costEffects: Effect[]` = [A] (can be multiple parts, can include paying ink)
+- `rewardEffects: Effect[]` = [B] (only applied if [A] fully resolves)
+- `canPerformCostEffect()` pre-checks [A] affordability before prompting
+- `isMay` wraps the whole thing in a player choice (CRD 6.1.4)
+
+**CRD 6.1.5.2 "[A] or [B]"** — **NOT YET IMPLEMENTED**:
+- No Set 1 card uses this form
+- `ChooseEffect` exists but doesn't enforce the forced fallback rule:
+  "If [A] can't be chosen, then [B] has to be chosen, and vice versa"
+- To implement: check each option's affordability via `canPerformCostEffect`,
+  filter to performable options, auto-apply if only one remains
+- Example: "choose and discard a card or banish this character" — if hand
+  is empty, can't discard, must banish (CRD 6.1.5.2 Example C)
+
+When encountering ambiguous card text, decompose it into this grammar:
+1. Identify the form: is it "[A] to [B]", "[A] or [B]", or plain sequential?
+2. Identify [A] and [B] — each can be multiple effects
+3. Check if "may" wraps the whole thing
+4. Map to the corresponding type (`SequentialEffect`, `ChooseEffect`, `isMay`)
+
 ---
 
 ## UI Architecture Decisions
