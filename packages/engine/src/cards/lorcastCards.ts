@@ -10,10 +10,9 @@ import set001 from "./lorcast-set-001.json" assert { type: "json" };
 // Add future sets here:
 // import set002 from "./lorcast-set-002.json" assert { type: "json" };
 
-// Strip the _namedAbilityStubs field before exporting (it's not on CardDefinition).
+// Strip _namedAbilityStubs (import-time metadata, not part of CardDefinition).
 // `as unknown as` is intentional — TypeScript's JSON inference includes `undefined`
 // in optional property types, which conflicts with exactOptionalPropertyTypes.
-// The JSON data is correct at runtime; this cast is safe.
 type RawCard = CardDefinition & { _namedAbilityStubs?: string[] };
 
 function loadSet(raw: unknown[]): CardDefinition[] {

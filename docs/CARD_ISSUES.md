@@ -1,16 +1,9 @@
-# Card Issues — Set 1
+# Card Issues
 
-216 cards. All abilities implemented. No known open issues.
+Track unimplemented card abilities here. When importing new sets, cards with
+`_namedAbilityStubs` in their JSON need abilities manually implemented and
+story names (CRD 5.2.8) added via `storyName` on each ability.
 
-When importing new sets, cards with unimplemented abilities should be tracked here:
+## Set 1 — The First Chapter
 
-```
-## Unimplemented Abilities
-
-| Card ID | Ability | Notes |
-|---------|---------|-------|
-| example-card | ABILITY NAME: description | blocked by X / needs new effect type |
-```
-
-106 cards still have `_namedAbilityStubs` metadata fields — documentation artifacts
-from development that don't affect engine behavior. Can be cleaned up in a future pass.
+216 cards. All abilities implemented. All story names tagged. No open issues.

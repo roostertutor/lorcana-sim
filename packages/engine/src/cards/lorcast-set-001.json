@@ -20,7 +20,8 @@
           "target": {
             "type": "this"
           }
-        }
+        },
+        "storyName": "VOICELESS"
       }
     ],
     "setId": "1",
@@ -30,10 +31,7 @@
     "strength": 3,
     "willpower": 4,
     "lore": 2,
-    "flavorText": "\"...\"",
-    "_namedAbilityStubs": [
-      "VOICELESS This character can't {E} to sing songs."
-    ]
+    "flavorText": "\"...\""
   },
   {
     "id": "ariel-spectacular-singer",
@@ -74,7 +72,8 @@
               "type": "self"
             }
           }
-        ]
+        ],
+        "storyName": "MUSICAL DEBUT"
       }
     ],
     "setId": "1",
@@ -83,10 +82,7 @@
     "subtitle": "Spectacular Singer",
     "strength": 2,
     "willpower": 3,
-    "lore": 1,
-    "_namedAbilityStubs": [
-      "MUSICAL DEBUT When you play this character, look at the top 4 cards of your deck. You may reveal a song card and put it into your hand. Put the rest on the bottom of your deck in any order."
-    ]
+    "lore": 1
   },
   {
     "id": "cinderella-gentle-and-kind",
@@ -135,7 +131,8 @@
             "isUpTo": true
           }
         ],
-        "reminderText": "A WONDERFUL DREAM — ↷ — Remove up to 3 damage from chosen Princess character."
+        "reminderText": "A WONDERFUL DREAM — ↷ — Remove up to 3 damage from chosen Princess character.",
+        "storyName": "A WONDERFUL DREAM"
       }
     ],
     "setId": "1",
@@ -189,7 +186,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "AND TWO FOR TEA!"
       }
     ],
     "setId": "1",
@@ -241,7 +239,8 @@
           "target": {
             "type": "this"
           }
-        }
+        },
+        "storyName": "SINISTER PLOT"
       }
     ],
     "setId": "1",
@@ -289,7 +288,8 @@
               }
             }
           }
-        ]
+        ],
+        "storyName": "WELL OF SOULS"
       }
     ],
     "setId": "1",
@@ -299,10 +299,7 @@
     "strength": 3,
     "willpower": 2,
     "lore": 1,
-    "flavorText": "\"Production is up, costs are down, the rivers are full. Time to talk expansion.\"",
-    "_namedAbilityStubs": [
-      "WELL OF SOULS When you play this character, return a character card from your discard to your hand."
-    ]
+    "flavorText": "\"Production is up, costs are down, the rivers are full. Time to talk expansion.\""
   },
   {
     "id": "heihei-boat-snack",
@@ -356,7 +353,8 @@
         "effect": {
           "type": "self_cost_reduction",
           "amount": 1
-        }
+        },
+        "storyName": "LOYAL"
       }
     ],
     "setId": "1",
@@ -453,7 +451,8 @@
             },
             "duration": "this_turn"
           }
-        ]
+        ],
+        "storyName": "HORSE KICK"
       }
     ],
     "setId": "1",
@@ -463,10 +462,7 @@
     "strength": 3,
     "willpower": 3,
     "lore": 1,
-    "flavorText": "He pursues his quarry with courage, discipline, and a touch of class.",
-    "_namedAbilityStubs": [
-      "HORSE KICK When you play this character, chosen character gets -2 {S} this turn."
-    ]
+    "flavorText": "He pursues his quarry with courage, discipline, and a touch of class."
   },
   {
     "id": "mickey-mouse-true-friend",
@@ -559,7 +555,8 @@
               }
             ]
           }
-        ]
+        ],
+        "storyName": "WE CAN FIX IT"
       }
     ],
     "setId": "1",
@@ -569,10 +566,7 @@
     "strength": 1,
     "willpower": 6,
     "lore": 3,
-    "flavorText": "\"I am Moana of Motunui. You will board my boat, sail across the sea, and restore the heart of Te Fiti.\"",
-    "_namedAbilityStubs": [
-      "WE CAN FIX IT Whenever this character quests, you may ready your other Princess characters. They can't quest for the rest of this turn."
-    ]
+    "flavorText": "\"I am Moana of Motunui. You will board my boat, sail across the sea, and restore the heart of Te Fiti.\""
   },
   {
     "id": "mr-smee-loyal-first-mate",
@@ -624,7 +618,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "HEROISM"
       }
     ],
     "setId": "1",
@@ -634,10 +629,7 @@
     "strength": 3,
     "willpower": 3,
     "lore": 2,
-    "flavorText": "\"The road to true love may be barred by still many more dangers, which you alone will have to face.\"\n—Flora",
-    "_namedAbilityStubs": [
-      "HEROISM When this character challenges and is banished, you may banish the challenged character."
-    ]
+    "flavorText": "\"The road to true love may be barred by still many more dangers, which you alone will have to face.\"\n—Flora"
   },
   {
     "id": "pumbaa-friendly-warthog",
@@ -701,7 +693,8 @@
               "type": "self"
             }
           }
-        ]
+        ],
+        "storyName": "GLEAM AND GLOW"
       }
     ],
     "setId": "1",
@@ -804,7 +797,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "OHANA"
       }
     ],
     "setId": "1",
@@ -814,10 +808,7 @@
     "strength": 4,
     "willpower": 8,
     "lore": 2,
-    "flavorText": "\"So you're from outer space, huh? I hear the surfing's choice.\"\n—David",
-    "_namedAbilityStubs": [
-      "OHANA When you play this character, if you have 2 or more other characters in play, you may draw 2 cards."
-    ]
+    "flavorText": "\"So you're from outer space, huh? I hear the surfing's choice.\"\n—David"
   },
   {
     "id": "stitch-new-dog",
@@ -897,7 +888,8 @@
             ],
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "ADORING FANS"
       }
     ],
     "setId": "1",
@@ -944,7 +936,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "TASTES LIKE CHICKEN"
       }
     ],
     "setId": "1",
@@ -954,10 +947,7 @@
     "strength": 1,
     "willpower": 2,
     "lore": 1,
-    "flavorText": "\"There's all manner of tasty treats in the world—ya just gotta know where to look.\"",
-    "_namedAbilityStubs": [
-      "TASTES LIKE CHICKEN When you play this character, you may remove up to 1 damage from chosen character."
-    ]
+    "flavorText": "\"There's all manner of tasty treats in the world—ya just gotta know where to look.\""
   },
   {
     "id": "be-our-guest",
@@ -988,11 +978,7 @@
     ],
     "setId": "1",
     "number": 25,
-    "rarity": "uncommon",
-    "_namedAbilityStubs": [
-      "(A character with cost 2 or more can {E} to sing this song for free.)",
-      "Look at the top 4 cards of your deck. You may reveal a character card and put it into your hand. Put the rest on the bottom of your deck in any order."
-    ]
+    "rarity": "uncommon"
   },
   {
     "id": "control-your-temper",
@@ -1022,10 +1008,7 @@
     ],
     "setId": "1",
     "number": 26,
-    "rarity": "common",
-    "_namedAbilityStubs": [
-      "Chosen character gets -2 {S} this turn."
-    ]
+    "rarity": "common"
   },
   {
     "id": "hakuna-matata",
@@ -1061,11 +1044,7 @@
     "setId": "1",
     "number": 27,
     "rarity": "common",
-    "flavorText": "What a wonderful phrase!",
-    "_namedAbilityStubs": [
-      "(A character with cost 4 or more can {E} to sing this song for free.)",
-      "Remove up to 3 damage from each of your characters."
-    ]
+    "flavorText": "What a wonderful phrase!"
   },
   {
     "id": "healing-glow",
@@ -1096,10 +1075,7 @@
     "setId": "1",
     "number": 28,
     "rarity": "common",
-    "flavorText": "\"Don't freak out!\"\n—Rapunzel",
-    "_namedAbilityStubs": [
-      "Remove up to 2 damage from chosen character."
-    ]
+    "flavorText": "\"Don't freak out!\"\n—Rapunzel"
   },
   {
     "id": "just-in-time",
@@ -1130,10 +1106,7 @@
     "setId": "1",
     "number": 29,
     "rarity": "rare",
-    "flavorText": "The best heroes always arrive at the perfect moment—whether they know it or not.",
-    "_namedAbilityStubs": [
-      "You may play a character with cost 5 or less for free."
-    ]
+    "flavorText": "The best heroes always arrive at the perfect moment—whether they know it or not."
   },
   {
     "id": "part-of-your-world",
@@ -1167,11 +1140,7 @@
     "setId": "1",
     "number": 30,
     "rarity": "rare",
-    "flavorText": "What would I give\nIf I could live out of these waters?",
-    "_namedAbilityStubs": [
-      "(A character with cost 3 or more can {E} to sing this song for free.)",
-      "Return a character card from your discard to your hand."
-    ]
+    "flavorText": "What would I give\nIf I could live out of these waters?"
   },
   {
     "id": "you-have-forgotten-me",
@@ -1196,10 +1165,7 @@
     "setId": "1",
     "number": 31,
     "rarity": "uncommon",
-    "flavorText": "\"You are more than what you have become.\"\n—Mufasa",
-    "_namedAbilityStubs": [
-      "Each opponent chooses and discards 2 cards."
-    ]
+    "flavorText": "\"You are more than what you have become.\"\n—Mufasa"
   },
   {
     "id": "dinglehopper",
@@ -1233,16 +1199,14 @@
               }
             }
           }
-        ]
+        ],
+        "storyName": "STRAIGHTEN HAIR"
       }
     ],
     "setId": "1",
     "number": 32,
     "rarity": "common",
-    "flavorText": "Enjoy the finest of human hairstyles!",
-    "_namedAbilityStubs": [
-      "STRAIGHTEN HAIR {E} — Remove up to 1 damage from chosen character."
-    ]
+    "flavorText": "Enjoy the finest of human hairstyles!"
   },
   {
     "id": "lantern",
@@ -1272,7 +1236,8 @@
             }
           }
         ],
-        "reminderText": "BIRTHDAY LIGHTS — ↷ — You pay 1 ink less for the next character you play this turn."
+        "reminderText": "BIRTHDAY LIGHTS — ↷ — You pay 1 ink less for the next character you play this turn.",
+        "storyName": "BIRTHDAY LIGHTS"
       }
     ],
     "setId": "1",
@@ -1321,7 +1286,8 @@
             ],
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "NOW, SING!"
       }
     ],
     "setId": "1",
@@ -1372,7 +1338,8 @@
             },
             "duration": "end_of_owner_next_turn"
           }
-        ]
+        ],
+        "storyName": "LOVING HEART"
       }
     ],
     "setId": "1",
@@ -1382,10 +1349,7 @@
     "strength": 2,
     "willpower": 4,
     "lore": 2,
-    "flavorText": "\"Two sisters, one mind.\"",
-    "_namedAbilityStubs": [
-      "LOVING HEART When you play this character, if you have a character named Elsa in play, choose an opposing character. The chosen character doesn't ready at the start of their next turn."
-    ]
+    "flavorText": "\"Two sisters, one mind.\""
   },
   {
     "id": "archimedes-highly-educated-owl",
@@ -1446,7 +1410,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "INTO THE SHADOWS"
       }
     ],
     "setId": "1",
@@ -1522,7 +1487,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "DREAMS MADE REAL"
       }
     ],
     "setId": "1",
@@ -1595,7 +1561,8 @@
               }
             }
           }
-        ]
+        ],
+        "storyName": "FREEZE"
       }
     ],
     "setId": "1",
@@ -1605,10 +1572,7 @@
     "strength": 2,
     "willpower": 3,
     "lore": 1,
-    "flavorText": "Recreated by magical ink, Elsa found herself in an entirely new world. Fortunately, ice works the same way everywhere.",
-    "_namedAbilityStubs": [
-      "FREEZE {E} — Exert chosen opposing character."
-    ]
+    "flavorText": "Recreated by magical ink, Elsa found herself in an entirely new world. Fortunately, ice works the same way everywhere."
   },
   {
     "id": "elsa-spirit-of-winter",
@@ -1659,7 +1623,8 @@
               }
             ]
           }
-        ]
+        ],
+        "storyName": "DEEP FREEZE"
       }
     ],
     "setId": "1",
@@ -1670,10 +1635,7 @@
     "willpower": 6,
     "lore": 3,
     "shiftCost": 6,
-    "flavorText": "Ice is stronger than you may think.",
-    "_namedAbilityStubs": [
-      "DEEP FREEZE When you play this character, exert up to 2 chosen characters. They can't ready at the start of their next turn."
-    ]
+    "flavorText": "Ice is stronger than you may think."
   },
   {
     "id": "flotsam-ursulas-spy",
@@ -1710,7 +1672,8 @@
               "hasName": "Jetsam"
             }
           }
-        }
+        },
+        "storyName": "DEXTEROUS LUNGE"
       }
     ],
     "setId": "1",
@@ -1751,7 +1714,8 @@
           "target": {
             "type": "this"
           }
-        }
+        },
+        "storyName": "HIDDEN WONDERS"
       }
     ],
     "setId": "1",
@@ -1761,10 +1725,7 @@
     "strength": 0,
     "willpower": 5,
     "lore": 2,
-    "flavorText": "There's more than one way to bury secrets.",
-    "_namedAbilityStubs": [
-      "HIDDEN WONDERS This character gets +1 {S} for each card in your hand."
-    ]
+    "flavorText": "There's more than one way to bury secrets."
   },
   {
     "id": "jafar-wicked-sorcerer",
@@ -1830,7 +1791,8 @@
               "hasName": "Flotsam"
             }
           }
-        }
+        },
+        "storyName": "SINISTER SLITHER"
       }
     ],
     "setId": "1",
@@ -1871,7 +1833,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "SWEEP"
       }
     ],
     "setId": "1",
@@ -1881,10 +1844,7 @@
     "strength": 2,
     "willpower": 2,
     "lore": 1,
-    "flavorText": "In the immense story-forge known as the Great Illuminary, there is always work to be done.",
-    "_namedAbilityStubs": [
-      "SWEEP When you play this character, you may shuffle a card from any discard into its player's deck."
-    ]
+    "flavorText": "In the immense story-forge known as the Great Illuminary, there is always work to be done."
   },
   {
     "id": "maleficent-biding-her-time",
@@ -1937,7 +1897,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "CAST MY SPELL!"
       }
     ],
     "setId": "1",
@@ -1947,10 +1908,7 @@
     "strength": 2,
     "willpower": 2,
     "lore": 1,
-    "flavorText": "\"You dare challenge me? Fool, my magic is more powerful than you could possibly imagine!\"",
-    "_namedAbilityStubs": [
-      "CAST MY SPELL! When you play this character, you may draw a card."
-    ]
+    "flavorText": "\"You dare challenge me? Fool, my magic is more powerful than you could possibly imagine!\""
   },
   {
     "id": "marshmallow-persistent-guardian",
@@ -1978,7 +1936,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "DURABLE"
       }
     ],
     "setId": "1",
@@ -1988,10 +1947,7 @@
     "strength": 5,
     "willpower": 5,
     "lore": 1,
-    "flavorText": "\"Hey! We were just talking about you! All good things, all good things.\"\n—Olaf",
-    "_namedAbilityStubs": [
-      "DURABLE When this character is banished in a challenge, you may return this card to your hand."
-    ]
+    "flavorText": "\"Hey! We were just talking about you! All good things, all good things.\"\n—Olaf"
   },
   {
     "id": "mickey-mouse-wayward-sorcerer",
@@ -2014,7 +1970,8 @@
           "filter": {
             "hasTrait": "Broom"
           }
-        }
+        },
+        "storyName": "ANIMATE BROOM"
       },
       {
         "type": "triggered",
@@ -2035,7 +1992,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "CEASELESS WORKER"
       }
     ],
     "setId": "1",
@@ -2098,7 +2056,8 @@
           "target": {
             "type": "this"
           }
-        }
+        },
+        "storyName": "CAMOUFLAGE"
       }
     ],
     "setId": "1",
@@ -2108,10 +2067,7 @@
     "strength": 1,
     "willpower": 1,
     "lore": 1,
-    "flavorText": "A true friend is always there for you, whether you can see them or not.",
-    "_namedAbilityStubs": [
-      "CAMOUFLAGE While you have another character in play, this character gains Evasive. (Only characters with Evasive can challenge them.)"
-    ]
+    "flavorText": "A true friend is always there for you, whether you can see them or not."
   },
   {
     "id": "rafiki-mysterious-sage",
@@ -2193,7 +2149,8 @@
             }
           }
         ],
-        "reminderText": "I SUMMON THEE – ↷: Draw a card."
+        "reminderText": "I SUMMON THEE – ↷: Draw a card.",
+        "storyName": "I SUMMON THEE"
       }
     ],
     "setId": "1",
@@ -2203,10 +2160,7 @@
     "strength": 4,
     "willpower": 5,
     "lore": 1,
-    "flavorText": "Sublime beauty matched with peerless cunning. Is there any question who is fairest?",
-    "_namedAbilityStubs": [
-      "I SUMMON THEE {E} — Draw a card."
-    ]
+    "flavorText": "Sublime beauty matched with peerless cunning. Is there any question who is fairest?"
   },
   {
     "id": "the-wardrobe-belles-confidant",
@@ -2267,7 +2221,8 @@
               "hasName": "Peter Pan"
             }
           }
-        }
+        },
+        "storyName": "LOYAL AND DEVOTED"
       }
     ],
     "setId": "1",
@@ -2306,7 +2261,8 @@
             },
             "drawPerLoreLost": true
           }
-        ]
+        ],
+        "storyName": "IT'S TOO EASY!"
       }
     ],
     "setId": "1",
@@ -2346,7 +2302,8 @@
               "type": "self"
             }
           }
-        ]
+        ],
+        "storyName": "YOU'RE EXCUSED"
       }
     ],
     "setId": "1",
@@ -2356,10 +2313,7 @@
     "strength": 2,
     "willpower": 2,
     "lore": 1,
-    "flavorText": "\"When I want your opinion, I will give it to you!\"",
-    "_namedAbilityStubs": [
-      "YOU'RE EXCUSED Whenever this character quests, look at the top card of your deck. Put it on either the top or the bottom of your deck."
-    ]
+    "flavorText": "\"When I want your opinion, I will give it to you!\""
   },
   {
     "id": "zeus-god-of-lightning",
@@ -2422,10 +2376,7 @@
     "setId": "1",
     "number": 62,
     "rarity": "uncommon",
-    "flavorText": "Never be afraid to have your mind boggled now and then.",
-    "_namedAbilityStubs": [
-      "Return a character or item with cost 2 or less to their player's hand."
-    ]
+    "flavorText": "Never be afraid to have your mind boggled now and then."
   },
   {
     "id": "freeze",
@@ -2457,10 +2408,7 @@
     "setId": "1",
     "number": 63,
     "rarity": "common",
-    "flavorText": "It's time for you to chill.",
-    "_namedAbilityStubs": [
-      "Exert chosen opposing character."
-    ]
+    "flavorText": "It's time for you to chill."
   },
   {
     "id": "friends-on-the-other-side",
@@ -2486,11 +2434,7 @@
     "setId": "1",
     "number": 64,
     "rarity": "common",
-    "flavorText": "The cards, the cards\nthe cards will tell...",
-    "_namedAbilityStubs": [
-      "(A character with cost 3 or more can {E} to sing this song for free.)",
-      "Draw 2 cards."
-    ]
+    "flavorText": "The cards, the cards\nthe cards will tell..."
   },
   {
     "id": "reflection",
@@ -2517,11 +2461,7 @@
     "setId": "1",
     "number": 65,
     "rarity": "uncommon",
-    "flavorText": "When will my reflection show\nWho I am inside?",
-    "_namedAbilityStubs": [
-      "(A character with cost 1 or more can {E} to sing this song for free.)",
-      "Look at the top 3 cards of your deck. Put them back on the top of your deck in any order."
-    ]
+    "flavorText": "When will my reflection show\nWho I am inside?"
   },
   {
     "id": "magic-mirror",
@@ -2552,16 +2492,14 @@
               "type": "self"
             }
           }
-        ]
+        ],
+        "storyName": "SPEAK!"
       }
     ],
     "setId": "1",
     "number": 66,
     "rarity": "rare",
-    "flavorText": "\"What wouldst thou know, my Queen?\"",
-    "_namedAbilityStubs": [
-      "SPEAK! {E}, 4 {I} — Draw a card."
-    ]
+    "flavorText": "\"What wouldst thou know, my Queen?\""
   },
   {
     "id": "ursulas-cauldron",
@@ -2589,16 +2527,14 @@
               "type": "self"
             }
           }
-        ]
+        ],
+        "storyName": "PEER INTO THE DEPTHS"
       }
     ],
     "setId": "1",
     "number": 67,
     "rarity": "uncommon",
-    "flavorText": "Perfect for mixing potions and stealing voices.",
-    "_namedAbilityStubs": [
-      "PEER INTO THE DEPTHS {E} — Look at the top 2 cards of your deck. Put one on the top of your deck and the other on the bottom."
-    ]
+    "flavorText": "Perfect for mixing potions and stealing voices."
   },
   {
     "id": "white-rabbits-pocket-watch",
@@ -2639,16 +2575,14 @@
             },
             "duration": "end_of_turn"
           }
-        ]
+        ],
+        "storyName": "I'M LATE!"
       }
     ],
     "setId": "1",
     "number": 68,
     "rarity": "rare",
-    "flavorText": "\"No wonder you're late. Why, this watch is exactly two days slow.\" —The Mad Hatter",
-    "_namedAbilityStubs": [
-      "I'M LATE! {E}, 1 {I} — Chosen character gains Rush this turn. (They can challenge the turn they're played.)"
-    ]
+    "flavorText": "\"No wonder you're late. Why, this watch is exactly two days slow.\" —The Mad Hatter"
   },
   {
     "id": "aladdin-prince-ali",
@@ -2718,7 +2652,8 @@
               }
             }
           }
-        ]
+        ],
+        "storyName": "ROAR"
       }
     ],
     "setId": "1",
@@ -2728,10 +2663,7 @@
     "strength": 4,
     "willpower": 4,
     "lore": 2,
-    "flavorText": "\"I'll take on all of you if I have to!\"",
-    "_namedAbilityStubs": [
-      "ROAR When you play this character, exert all opposing damaged characters."
-    ]
+    "flavorText": "\"I'll take on all of you if I have to!\""
   },
   {
     "id": "cheshire-cat-not-all-there",
@@ -2757,7 +2689,8 @@
               "type": "triggering_card"
             }
           }
-        ]
+        ],
+        "storyName": "LOSE SOMETHING"
       }
     ],
     "setId": "1",
@@ -2767,10 +2700,7 @@
     "strength": 0,
     "willpower": 3,
     "lore": 2,
-    "flavorText": "\"You may have noticed that I'm not all there myself.\"",
-    "_namedAbilityStubs": [
-      "LOSE SOMETHING? When this character is challenged and banished, banish the challenging character."
-    ]
+    "flavorText": "\"You may have noticed that I'm not all there myself.\""
   },
   {
     "id": "cruella-de-vil-miserable-as-usual",
@@ -2804,7 +2734,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "YOU'LL BE SORRY!"
       }
     ],
     "setId": "1",
@@ -2814,10 +2745,7 @@
     "strength": 1,
     "willpower": 3,
     "lore": 1,
-    "flavorText": "When she stops by, misery is company.",
-    "_namedAbilityStubs": [
-      "YOU'LL BE SORRY! When this character is challenged and banished, you may return chosen character to their player's hand."
-    ]
+    "flavorText": "When she stops by, misery is company."
   },
   {
     "id": "duke-of-weselton-opportunistic-official",
@@ -2869,7 +2797,8 @@
             },
             "chooser": "target_player"
           }
-        ]
+        ],
+        "storyName": "HERE COMES THE SMOLDER"
       }
     ],
     "setId": "1",
@@ -2879,10 +2808,7 @@
     "strength": 1,
     "willpower": 2,
     "lore": 2,
-    "flavorText": "\"I didn't want to have to do this, but you leave me no choice....\"",
-    "_namedAbilityStubs": [
-      "HERE COMES THE SMOLDER Whenever this character is challenged, the challenging player chooses and discards a card."
-    ]
+    "flavorText": "\"I didn't want to have to do this, but you leave me no choice....\""
   },
   {
     "id": "genie-on-the-job",
@@ -2920,7 +2846,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "DISAPPEAR"
       }
     ],
     "setId": "1",
@@ -2930,10 +2857,7 @@
     "strength": 3,
     "willpower": 4,
     "lore": 2,
-    "flavorText": "\"Can your friends go 'Abracadabra, let 'er rip' and then make the sucker disappear?\"",
-    "_namedAbilityStubs": [
-      "DISAPPEAR When you play this character, you may return chosen character to their player's hand."
-    ]
+    "flavorText": "\"Can your friends go 'Abracadabra, let 'er rip' and then make the sucker disappear?\""
   },
   {
     "id": "genie-powers-unleashed",
@@ -2977,7 +2901,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "PHENOMENAL COSMIC POWER!"
       }
     ],
     "setId": "1",
@@ -3091,7 +3016,8 @@
             },
             "duration": "end_of_owner_next_turn"
           }
-        ]
+        ],
+        "storyName": "YOU GOT A PROBLEM"
       }
     ],
     "setId": "1",
@@ -3100,10 +3026,7 @@
     "subtitle": "Loud-Mouthed Parrot",
     "strength": 1,
     "willpower": 4,
-    "lore": 1,
-    "_namedAbilityStubs": [
-      "YOU GOT A PROBLEM? {E} — Chosen character gains Reckless during their next turn. (They can't quest and must challenge if able.)"
-    ]
+    "lore": 1
   },
   {
     "id": "jasper-common-crook",
@@ -3140,7 +3063,8 @@
             },
             "duration": "end_of_owner_next_turn"
           }
-        ]
+        ],
+        "storyName": "PUPPYNAPPING"
       }
     ],
     "setId": "1",
@@ -3150,10 +3074,7 @@
     "strength": 2,
     "willpower": 4,
     "lore": 1,
-    "flavorText": "\"Now, look here, Horace, I warned you about thinkin'.\"",
-    "_namedAbilityStubs": [
-      "PUPPYNAPPING Whenever this character quests, chosen opposing character can't quest during their next turn."
-    ]
+    "flavorText": "\"Now, look here, Horace, I warned you about thinkin'.\""
   },
   {
     "id": "john-silver-alien-pirate",
@@ -3194,7 +3115,8 @@
             },
             "duration": "end_of_owner_next_turn"
           }
-        ]
+        ],
+        "storyName": "PICK YOUR FIGHTS"
       },
       {
         "type": "triggered",
@@ -3219,7 +3141,8 @@
             },
             "duration": "end_of_owner_next_turn"
           }
-        ]
+        ],
+        "storyName": "PICK YOUR FIGHTS"
       }
     ],
     "setId": "1",
@@ -3229,10 +3152,7 @@
     "strength": 5,
     "willpower": 5,
     "lore": 2,
-    "flavorText": "\"Don't be too put off by this... hunk of hardware.\"",
-    "_namedAbilityStubs": [
-      "PICK YOUR FIGHTS When you play this character and whenever he quests, chosen opposing character gains Reckless during their next turn. (They can't quest and must challenge if able.)"
-    ]
+    "flavorText": "\"Don't be too put off by this... hunk of hardware.\""
   },
   {
     "id": "jumba-jookiba-renegade-scientist",
@@ -3287,7 +3207,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "NO TOUCHY!"
       }
     ],
     "setId": "1",
@@ -3297,10 +3218,7 @@
     "strength": 2,
     "willpower": 4,
     "lore": 3,
-    "flavorText": "\"I asked for emerald and that is clearly jade! What is wrong with you people?\"",
-    "_namedAbilityStubs": [
-      "NO TOUCHY! When this character is challenged and banished, you may banish the challenging character."
-    ]
+    "flavorText": "\"I asked for emerald and that is clearly jade! What is wrong with you people?\""
   },
   {
     "id": "lady-tremaine-wicked-stepmother",
@@ -3337,7 +3255,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "DO IT AGAIN!"
       }
     ],
     "setId": "1",
@@ -3347,10 +3266,7 @@
     "strength": 1,
     "willpower": 5,
     "lore": 1,
-    "flavorText": "\"If your chores are done, then clearly you don't have enough of them.\"",
-    "_namedAbilityStubs": [
-      "DO IT AGAIN! When you play this character, you may return an action card from your discard to your hand."
-    ]
+    "flavorText": "\"If your chores are done, then clearly you don't have enough of them.\""
   },
   {
     "id": "mad-hatter-gracious-host",
@@ -3378,7 +3294,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "TEA PARTY"
       }
     ],
     "setId": "1",
@@ -3388,10 +3305,7 @@
     "strength": 2,
     "willpower": 4,
     "lore": 3,
-    "flavorText": "Mad Hatter: \"Would you like a little more tea?\"\nAlice: \"I haven't had any yet, so I can't very well take more.\"",
-    "_namedAbilityStubs": [
-      "TEA PARTY Whenever this character is challenged, you may draw a card."
-    ]
+    "flavorText": "Mad Hatter: \"Would you like a little more tea?\"\nAlice: \"I haven't had any yet, so I can't very well take more.\""
   },
   {
     "id": "megara-pulling-the-strings",
@@ -3426,7 +3340,8 @@
             },
             "duration": "this_turn"
           }
-        ]
+        ],
+        "storyName": "WONDER BOY"
       }
     ],
     "setId": "1",
@@ -3436,10 +3351,7 @@
     "strength": 2,
     "willpower": 1,
     "lore": 1,
-    "flavorText": "\"A deal's a deal. But falling in love was never supposed to be part of it.\"",
-    "_namedAbilityStubs": [
-      "WONDER BOY When you play this character, chosen character gets +2 {S} this turn."
-    ]
+    "flavorText": "\"A deal's a deal. But falling in love was never supposed to be part of it.\""
   },
   {
     "id": "mickey-mouse-artful-rogue",
@@ -3489,7 +3401,8 @@
             },
             "duration": "end_of_owner_next_turn"
           }
-        ]
+        ],
+        "storyName": "MISDIRECTION"
       }
     ],
     "setId": "1",
@@ -3545,7 +3458,8 @@
         },
         "effect": {
           "type": "opponent_cant_quest"
-        }
+        },
+        "storyName": "SKIP THE DRAMA, STAY WITH MAMA"
       }
     ],
     "setId": "1",
@@ -3643,7 +3557,8 @@
             },
             "duration": "end_of_turn"
           }
-        ]
+        ],
+        "storyName": "PIXIE DUST"
       }
     ],
     "setId": "1",
@@ -3652,10 +3567,7 @@
     "subtitle": "Most Helpful",
     "strength": 2,
     "willpower": 3,
-    "lore": 2,
-    "_namedAbilityStubs": [
-      "PIXIE DUST When you play this character, chosen character gains Evasive this turn."
-    ]
+    "lore": 2
   },
   {
     "id": "do-it-again",
@@ -3687,10 +3599,7 @@
     "setId": "1",
     "number": 94,
     "rarity": "rare",
-    "flavorText": "\"...Then scrub the terrace, sweep the halls and the stairs, clean the chimneys. And of course there's the mending, and the sewing, and the laundry...\"\n—Lady Tremaine",
-    "_namedAbilityStubs": [
-      "Return an action card from your discard to your hand."
-    ]
+    "flavorText": "\"...Then scrub the terrace, sweep the halls and the stairs, clean the chimneys. And of course there's the mending, and the sewing, and the laundry...\"\n—Lady Tremaine"
   },
   {
     "id": "mother-knows-best",
@@ -3721,11 +3630,7 @@
     "setId": "1",
     "number": 95,
     "rarity": "uncommon",
-    "flavorText": "One way or another\nSomething will go wrong, I swear",
-    "_namedAbilityStubs": [
-      "(A character with cost 3 or more can {E} to sing this song for free.)",
-      "Return chosen character to their player's hand."
-    ]
+    "flavorText": "One way or another\nSomething will go wrong, I swear"
   },
   {
     "id": "stampede",
@@ -3756,10 +3661,7 @@
     "setId": "1",
     "number": 96,
     "rarity": "common",
-    "flavorText": "A wildebeest stampede is like a raging river: best experienced from a distance.",
-    "_namedAbilityStubs": [
-      "Deal 2 damage to chosen damaged character."
-    ]
+    "flavorText": "A wildebeest stampede is like a raging river: best experienced from a distance."
   },
   {
     "id": "steal-from-the-rich",
@@ -3823,11 +3725,7 @@
     "setId": "1",
     "number": 98,
     "rarity": "common",
-    "flavorText": "Cruella De Vil, Cruella De Vil\nIf she doesn't scare you, no evil thing will",
-    "_namedAbilityStubs": [
-      "(A character with cost 2 or more can {E} to sing this song for free.)",
-      "Each opponent chooses and discards a card."
-    ]
+    "flavorText": "Cruella De Vil, Cruella De Vil\nIf she doesn't scare you, no evil thing will"
   },
   {
     "id": "the-beast-is-mine",
@@ -3858,10 +3756,7 @@
     "setId": "1",
     "number": 99,
     "rarity": "uncommon",
-    "flavorText": "\"It's only fitting that the finest hunter gets the foulest beast!\"\n—Gaston",
-    "_namedAbilityStubs": [
-      "Chosen character gains Reckless during their next turn. (They can't quest and must challenge if able.)"
-    ]
+    "flavorText": "\"It's only fitting that the finest hunter gets the foulest beast!\"\n—Gaston"
   },
   {
     "id": "vicious-betrayal",
@@ -3913,10 +3808,7 @@
     "setId": "1",
     "number": 100,
     "rarity": "common",
-    "flavorText": "\"A true king takes matters into his own claws.\"\n—Scar",
-    "_namedAbilityStubs": [
-      "Chosen character gets +2 {S} this turn. If a Villain character is chosen, they get +3 {S} instead."
-    ]
+    "flavorText": "\"A true king takes matters into his own claws.\"\n—Scar"
   },
   {
     "id": "dr-faciliers-cards",
@@ -3946,7 +3838,8 @@
             }
           }
         ],
-        "reminderText": "THE CARDS WILL TELL — ↷ — You pay 1 ink less for the next action you play this turn."
+        "reminderText": "THE CARDS WILL TELL — ↷ — You pay 1 ink less for the next action you play this turn.",
+        "storyName": "THE CARDS WILL TELL"
       }
     ],
     "setId": "1",
@@ -4007,16 +3900,14 @@
               }
             ]
           }
-        ]
+        ],
+        "storyName": "SLASH"
       }
     ],
     "setId": "1",
     "number": 102,
     "rarity": "common",
-    "flavorText": "Sometimes you've got to take what you can get.",
-    "_namedAbilityStubs": [
-      "SLASH {E} — Chosen character gets +1 {S} this turn. If a character named Aladdin is chosen, he gets +2 {S} instead."
-    ]
+    "flavorText": "Sometimes you've got to take what you can get."
   },
   {
     "id": "abu-mischievous-monkey",
@@ -4078,7 +3969,8 @@
               "type": "opponent"
             }
           }
-        ]
+        ],
+        "storyName": "DARING EXPLOIT"
       }
     ],
     "setId": "1",
@@ -4116,7 +4008,8 @@
               "type": "opponent"
             }
           }
-        ]
+        ],
+        "storyName": "IMPROVISE"
       }
     ],
     "setId": "1",
@@ -4126,10 +4019,7 @@
     "strength": 2,
     "willpower": 2,
     "lore": 1,
-    "flavorText": "It can be hard to tell the difference between a diamond in the rough and someone who's just, well, rough.",
-    "_namedAbilityStubs": [
-      "IMPROVISE When you play this character, each opponent loses 1 lore."
-    ]
+    "flavorText": "It can be hard to tell the difference between a diamond in the rough and someone who's just, well, rough."
   },
   {
     "id": "captain-colonels-lieutenant",
@@ -4194,7 +4084,8 @@
               "hasKeyword": "evasive"
             }
           }
-        }
+        },
+        "storyName": "YOU COWARD!"
       }
     ],
     "setId": "1",
@@ -4272,7 +4163,8 @@
               }
             ]
           }
-        ]
+        ],
+        "storyName": "THAT'S NO BLIZZARD"
       }
     ],
     "setId": "1",
@@ -4282,10 +4174,7 @@
     "strength": 3,
     "willpower": 4,
     "lore": 1,
-    "flavorText": "\"My sister has always been there for me. I need to be there for her.\"",
-    "_namedAbilityStubs": [
-      "THAT'S NO BLIZZARD Whenever you play a character named Anna, ready this character. This character can't quest for the rest of this turn."
-    ]
+    "flavorText": "\"My sister has always been there for me. I need to be there for her.\""
   },
   {
     "id": "gaston-arrogant-hunter",
@@ -4381,7 +4270,8 @@
               }
             ]
           }
-        ]
+        ],
+        "storyName": "FAN THE FLAMES"
       }
     ],
     "setId": "1",
@@ -4391,10 +4281,7 @@
     "strength": 2,
     "willpower": 2,
     "lore": 1,
-    "flavorText": "All a mob needs is a push in the wrong direction.",
-    "_namedAbilityStubs": [
-      "FAN THE FLAMES When you play this character, ready chosen character. They can't quest for the rest of this turn."
-    ]
+    "flavorText": "All a mob needs is a push in the wrong direction."
   },
   {
     "id": "maleficent-monstrous-dragon",
@@ -4429,7 +4316,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "DRAGON FIRE"
       }
     ],
     "setId": "1",
@@ -4439,10 +4327,7 @@
     "strength": 7,
     "willpower": 5,
     "lore": 2,
-    "flavorText": "The ninth Rule of Villainy: When all else fails, turn into a dragon.",
-    "_namedAbilityStubs": [
-      "DRAGON FIRE When you play this character, you may banish chosen character."
-    ]
+    "flavorText": "The ninth Rule of Villainy: When all else fails, turn into a dragon."
   },
   {
     "id": "maui-hero-to-all",
@@ -4559,7 +4444,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "THIS IS NOT WHO YOU ARE"
       }
     ],
     "setId": "1",
@@ -4569,10 +4455,7 @@
     "strength": 2,
     "willpower": 6,
     "lore": 2,
-    "flavorText": "\"You know who you are.\"",
-    "_namedAbilityStubs": [
-      "THIS IS NOT WHO YOU ARE When you play this character, you may banish chosen character named Te Kā."
-    ]
+    "flavorText": "\"You know who you are.\""
   },
   {
     "id": "mulan-imperial-soldier",
@@ -4612,7 +4495,8 @@
             },
             "duration": "this_turn"
           }
-        ]
+        ],
+        "storyName": "LEAD BY EXAMPLE"
       }
     ],
     "setId": "1",
@@ -4621,10 +4505,7 @@
     "subtitle": "Imperial Soldier",
     "strength": 4,
     "willpower": 5,
-    "lore": 1,
-    "_namedAbilityStubs": [
-      "LEAD BY EXAMPLE During your turn, whenever this character banishes another character in a challenge, your other characters get +1 {L} this turn."
-    ]
+    "lore": 1
   },
   {
     "id": "peter-pan-fearless-fighter",
@@ -4707,7 +4588,8 @@
               "type": "opponent"
             }
           }
-        ]
+        ],
+        "storyName": "TANGLE"
       }
     ],
     "setId": "1",
@@ -4717,10 +4599,7 @@
     "strength": 5,
     "willpower": 4,
     "lore": 2,
-    "flavorText": "\"Who are you? And how did you find me?\"",
-    "_namedAbilityStubs": [
-      "TANGLE When you play this character, each opponent loses 1 lore."
-    ]
+    "flavorText": "\"Who are you? And how did you find me?\""
   },
   {
     "id": "scar-fiery-usurper",
@@ -4794,7 +4673,8 @@
               }
             ]
           }
-        ]
+        ],
+        "storyName": "ROUSING SPEECH"
       }
     ],
     "setId": "1",
@@ -4805,10 +4685,7 @@
     "willpower": 6,
     "lore": 1,
     "shiftCost": 6,
-    "flavorText": "\"The time has come to take what is ours!\"",
-    "_namedAbilityStubs": [
-      "ROUSING SPEECH When you play this character, ready your characters with cost 3 or less. They can't quest for the rest of this turn."
-    ]
+    "flavorText": "\"The time has come to take what is ours!\""
   },
   {
     "id": "sergeant-tibbs-courageous-cat",
@@ -4939,11 +4816,7 @@
     "setId": "1",
     "number": 128,
     "rarity": "rare",
-    "flavorText": "Our teeth and ambitions are bared!",
-    "_namedAbilityStubs": [
-      "(A character with cost 7 or more can {E} to sing this song for free.)",
-      "Banish all characters."
-    ]
+    "flavorText": "Our teeth and ambitions are bared!"
   },
   {
     "id": "cut-to-the-chase",
@@ -4977,10 +4850,7 @@
     "setId": "1",
     "number": 129,
     "rarity": "uncommon",
-    "flavorText": "\"Surprise!\"",
-    "_namedAbilityStubs": [
-      "Chosen character gains Rush this turn. (They can challenge the turn they're played.)"
-    ]
+    "flavorText": "\"Surprise!\""
   },
   {
     "id": "dragon-fire",
@@ -5009,10 +4879,7 @@
     "setId": "1",
     "number": 130,
     "rarity": "uncommon",
-    "flavorText": "Rare is the hero who can withstand a dragon's wrath.",
-    "_namedAbilityStubs": [
-      "Banish chosen character."
-    ]
+    "flavorText": "Rare is the hero who can withstand a dragon's wrath."
   },
   {
     "id": "fan-the-flames",
@@ -5050,10 +4917,7 @@
     "setId": "1",
     "number": 131,
     "rarity": "uncommon",
-    "flavorText": "Pretty words can move a crowd, but so can ugly ones.",
-    "_namedAbilityStubs": [
-      "Ready chosen character. They can't quest for the rest of this turn."
-    ]
+    "flavorText": "Pretty words can move a crowd, but so can ugly ones."
   },
   {
     "id": "hes-got-a-sword",
@@ -5084,10 +4948,7 @@
     "setId": "1",
     "number": 132,
     "rarity": "common",
-    "flavorText": "\"We've all got swords!\"\n—Razoul",
-    "_namedAbilityStubs": [
-      "Chosen character gets +2 {S} this turn."
-    ]
+    "flavorText": "\"We've all got swords!\"\n—Razoul"
   },
   {
     "id": "tangle",
@@ -5111,10 +4972,7 @@
     "setId": "1",
     "number": 133,
     "rarity": "common",
-    "flavorText": "\"Stay right there! I mean, you don't have a choice, I guess. But still! Don't move!\"\n—Rapunzel",
-    "_namedAbilityStubs": [
-      "Each opponent loses 1 lore."
-    ]
+    "flavorText": "\"Stay right there! I mean, you don't have a choice, I guess. But still! Don't move!\"\n—Rapunzel"
   },
   {
     "id": "poisoned-apple",
@@ -5169,16 +5027,14 @@
               }
             ]
           }
-        ]
+        ],
+        "storyName": "TAKE A BITE..."
       }
     ],
     "setId": "1",
     "number": 134,
     "rarity": "rare",
-    "flavorText": "\"One taste of the poisoned apple, and the victim's eyes will close forever....\"\n—The Queen",
-    "_namedAbilityStubs": [
-      "TAKE A BITE... 1 {I}, Banish this item — Exert chosen character. If a Princess character is chosen, banish her instead."
-    ]
+    "flavorText": "\"One taste of the poisoned apple, and the victim's eyes will close forever....\"\n—The Queen"
   },
   {
     "id": "shield-of-virtue",
@@ -5223,16 +5079,14 @@
               }
             ]
           }
-        ]
+        ],
+        "storyName": "FIREPROOF"
       }
     ],
     "setId": "1",
     "number": 135,
     "rarity": "uncommon",
-    "flavorText": "\"Arm thyself with this enchanted Shield of Virtue and this mighty Sword of Truth, for these weapons of righteousness will triumph over evil.\" —Flora",
-    "_namedAbilityStubs": [
-      "FIREPROOF {E}, 3 {I} — Ready chosen character. They can't quest for the rest of this turn."
-    ]
+    "flavorText": "\"Arm thyself with this enchanted Shield of Virtue and this mighty Sword of Truth, for these weapons of righteousness will triumph over evil.\" —Flora"
   },
   {
     "id": "sword-of-truth",
@@ -5265,16 +5119,14 @@
               }
             }
           }
-        ]
+        ],
+        "storyName": "FINAL ENCHANTMENT"
       }
     ],
     "setId": "1",
     "number": 136,
     "rarity": "rare",
-    "flavorText": "Almost as powerful as True Love's Kiss.",
-    "_namedAbilityStubs": [
-      "FINAL ENCHANTMENT Banish this item — Banish chosen Villain character."
-    ]
+    "flavorText": "Almost as powerful as True Love's Kiss."
   },
   {
     "id": "ariel-whoseit-collector",
@@ -5308,7 +5160,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "LOOK AT THIS STUFF"
       }
     ],
     "setId": "1",
@@ -5318,10 +5171,7 @@
     "strength": 3,
     "willpower": 3,
     "lore": 1,
-    "flavorText": "\"You want thingamabobs? I got twenty.\"",
-    "_namedAbilityStubs": [
-      "LOOK AT THIS STUFF Whenever you play an item, you may ready this character."
-    ]
+    "flavorText": "\"You want thingamabobs? I got twenty.\""
   },
   {
     "id": "aurora-briar-rose",
@@ -5357,7 +5207,8 @@
             },
             "duration": "this_turn"
           }
-        ]
+        ],
+        "storyName": "DISARMING BEAUTY"
       }
     ],
     "setId": "1",
@@ -5367,10 +5218,7 @@
     "strength": 2,
     "willpower": 5,
     "lore": 1,
-    "flavorText": "\"There was something strange about that voice. Too beautiful to be real...\"\n—Prince Phillip",
-    "_namedAbilityStubs": [
-      "DISARMING BEAUTY When you play this character, chosen character gets -2 {S} this turn."
-    ]
+    "flavorText": "\"There was something strange about that voice. Too beautiful to be real...\"\n—Prince Phillip"
   },
   {
     "id": "aurora-dreaming-guardian",
@@ -5406,7 +5254,8 @@
               "excludeSelf": true
             }
           }
-        }
+        },
+        "storyName": "PROTECTIVE EMBRACE"
       }
     ],
     "setId": "1",
@@ -5472,7 +5321,8 @@
               ]
             }
           }
-        ]
+        ],
+        "storyName": "TINKER"
       }
     ],
     "setId": "1",
@@ -5503,7 +5353,8 @@
         "effect": {
           "type": "extra_ink_play",
           "amount": 1
-        }
+        },
+        "storyName": "READ A BOOK"
       },
       {
         "type": "static",
@@ -5522,7 +5373,8 @@
           "target": {
             "type": "this"
           }
-        }
+        },
+        "storyName": "MY FAVORITE PART!"
       }
     ],
     "setId": "1",
@@ -5639,7 +5491,8 @@
             "enterExerted": true,
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "I WILL BE WITH YOU"
       }
     ],
     "setId": "1",
@@ -5649,10 +5502,7 @@
     "strength": 1,
     "willpower": 1,
     "lore": 1,
-    "flavorText": "Moana: \"Is there something you want to tell me?\"\nGramma Tala: \"Is there something you want to hear?\"",
-    "_namedAbilityStubs": [
-      "I WILL BE WITH YOU When this character is banished, you may put this card into your inkwell facedown and exerted."
-    ]
+    "flavorText": "Moana: \"Is there something you want to tell me?\"\nGramma Tala: \"Is there something you want to hear?\""
   },
   {
     "id": "hades-infernal-schemer",
@@ -5691,7 +5541,8 @@
             "enterExerted": false,
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "IS THERE A DOWNSIDE TO THIS"
       }
     ],
     "setId": "1",
@@ -5701,10 +5552,7 @@
     "strength": 3,
     "willpower": 6,
     "lore": 2,
-    "flavorText": "\"He's gotta have a weakness, because everybody's got a weakness.\"",
-    "_namedAbilityStubs": [
-      "IS THERE A DOWNSIDE TO THIS? When you play this character, you may put chosen opposing character into their player's inkwell facedown."
-    ]
+    "flavorText": "\"He's gotta have a weakness, because everybody's got a weakness.\""
   },
   {
     "id": "jasmine-disguised",
@@ -5772,7 +5620,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "CARETAKER"
       },
       {
         "type": "triggered",
@@ -5798,7 +5647,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "CARETAKER"
       }
     ],
     "setId": "1",
@@ -5885,7 +5735,8 @@
               ]
             }
           }
-        ]
+        ],
+        "storyName": "GIVE IT A TRY"
       },
       {
         "type": "triggered",
@@ -5906,7 +5757,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "IT WORKS!"
       }
     ],
     "setId": "1",
@@ -5974,7 +5826,8 @@
             "fromZone": "deck",
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "GET A CLUE"
       }
     ],
     "setId": "1",
@@ -5984,10 +5837,7 @@
     "strength": 1,
     "willpower": 3,
     "lore": 1,
-    "flavorText": "Wherever the seaweed had come from, Mickey was sure of one thing: something fishy was going on.",
-    "_namedAbilityStubs": [
-      "GET A CLUE When you play this character, you may put the top card of your deck into your inkwell facedown and exerted."
-    ]
+    "flavorText": "Wherever the seaweed had come from, Mickey was sure of one thing: something fishy was going on."
   },
   {
     "id": "mufasa-king-of-the-pride-lands",
@@ -6068,7 +5918,8 @@
               "type": "self"
             }
           }
-        ]
+        ],
+        "storyName": "FEED THE POOR"
       },
       {
         "type": "static",
@@ -6081,7 +5932,8 @@
           "target": {
             "type": "this"
           }
-        }
+        },
+        "storyName": "GOOD SHOT"
       }
     ],
     "setId": "1",
@@ -6129,7 +5981,8 @@
             },
             "duration": "this_turn"
           }
-        ]
+        ],
+        "storyName": "INSIDIOUS PLOT"
       }
     ],
     "setId": "1",
@@ -6139,10 +5992,7 @@
     "strength": 5,
     "willpower": 4,
     "lore": 2,
-    "flavorText": "\"The best plans involve a little danger. Just not for me.\"",
-    "_namedAbilityStubs": [
-      "INSIDIOUS PLOT When you play this character, chosen opposing character gets -5 {S} this turn."
-    ]
+    "flavorText": "\"The best plans involve a little danger. Just not for me.\""
   },
   {
     "id": "tamatoa-so-shiny",
@@ -6175,7 +6025,8 @@
           "target": {
             "type": "this"
           }
-        }
+        },
+        "storyName": "GLAM"
       },
       {
         "type": "triggered",
@@ -6199,7 +6050,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "WHAT HAVE WE HERE?"
       },
       {
         "type": "triggered",
@@ -6223,7 +6075,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "WHAT HAVE WE HERE?"
       }
     ],
     "setId": "1",
@@ -6280,10 +6133,7 @@
     "setId": "1",
     "number": 161,
     "rarity": "common",
-    "flavorText": "\"Knowledge, wisdom—there's the real power!\"\n—Merlin",
-    "_namedAbilityStubs": [
-      "Look at the top 2 cards of your deck. Put one into your hand and the other on the bottom of the deck."
-    ]
+    "flavorText": "\"Knowledge, wisdom—there's the real power!\"\n—Merlin"
   },
   {
     "id": "if-its-not-baroque",
@@ -6315,10 +6165,7 @@
     "setId": "1",
     "number": 162,
     "rarity": "rare",
-    "flavorText": "\"...Don't fix it.\"",
-    "_namedAbilityStubs": [
-      "Return an item card from your discard to your hand."
-    ]
+    "flavorText": "\"...Don't fix it.\""
   },
   {
     "id": "let-it-go",
@@ -6350,11 +6197,7 @@
     "setId": "1",
     "number": 163,
     "rarity": "rare",
-    "flavorText": "It's time to see what I can do\nTo test the limits and break through",
-    "_namedAbilityStubs": [
-      "(A character with cost 5 or more can {E} to sing this song for free.)",
-      "Put chosen character into their player's inkwell facedown and exerted."
-    ]
+    "flavorText": "It's time to see what I can do\nTo test the limits and break through"
   },
   {
     "id": "one-jump-ahead",
@@ -6381,11 +6224,7 @@
     "setId": "1",
     "number": 164,
     "rarity": "uncommon",
-    "flavorText": "Gotta eat to live, gotta steal to eat—\nTell you all about it when I got the time",
-    "_namedAbilityStubs": [
-      "(A character with cost 2 or more can {E} to sing this song for free.)",
-      "Put the top card of your deck into your inkwell facedown and exerted."
-    ]
+    "flavorText": "Gotta eat to live, gotta steal to eat—\nTell you all about it when I got the time"
   },
   {
     "id": "work-together",
@@ -6419,10 +6258,7 @@
     "setId": "1",
     "number": 165,
     "rarity": "common",
-    "flavorText": "Pacha: \"Put your whole back into it!\"\nKuzco: \"This is my whole back!\"",
-    "_namedAbilityStubs": [
-      "Chosen character gains Support this turn. (Whenever they quest, you may add their {S} to another chosen character's {S} this turn.)"
-    ]
+    "flavorText": "Pacha: \"Put your whole back into it!\"\nKuzco: \"This is my whole back!\""
   },
   {
     "id": "coconut-basket",
@@ -6463,16 +6299,14 @@
             "isUpTo": true,
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "CONSIDER THE COCONUT"
       }
     ],
     "setId": "1",
     "number": 166,
     "rarity": "uncommon",
-    "flavorText": "The coconut is a versatile gift from the gods, used to make nearly everything—including baskets to carry more coconuts.",
-    "_namedAbilityStubs": [
-      "CONSIDER THE COCONUT Whenever you play a character, you may remove up to 2 damage from chosen character."
-    ]
+    "flavorText": "The coconut is a versatile gift from the gods, used to make nearly everything—including baskets to carry more coconuts."
   },
   {
     "id": "eye-of-the-fates",
@@ -6507,16 +6341,14 @@
             }
           }
         ],
-        "reminderText": "SEE THE FUTURE – ↷: Chosen character gets +1 lore this turn."
+        "reminderText": "SEE THE FUTURE – ↷: Chosen character gets +1 lore this turn.",
+        "storyName": "SEE THE FUTURE"
       }
     ],
     "setId": "1",
     "number": 167,
     "rarity": "uncommon",
-    "flavorText": "You can change the future once you know what you're looking at.",
-    "_namedAbilityStubs": [
-      "SEE THE FUTURE {E} — Chosen character gets +1 {L} this turn."
-    ]
+    "flavorText": "You can change the future once you know what you're looking at."
   },
   {
     "id": "fishbone-quill",
@@ -6549,16 +6381,14 @@
             },
             "enterExerted": false
           }
-        ]
+        ],
+        "storyName": "GO AHEAD AND SIGN"
       }
     ],
     "setId": "1",
     "number": 168,
     "rarity": "rare",
-    "flavorText": "\"If you want to cross the bridge, my sweet, you've got to pay the toll.\"\n—Ursula",
-    "_namedAbilityStubs": [
-      "GO AHEAD AND SIGN {E} — Put any card from your hand into your inkwell facedown."
-    ]
+    "flavorText": "\"If you want to cross the bridge, my sweet, you've got to pay the toll.\"\n—Ursula"
   },
   {
     "id": "magic-golden-flower",
@@ -6592,16 +6422,14 @@
             },
             "isUpTo": true
           }
-        ]
+        ],
+        "storyName": "HEALING POLLEN"
       }
     ],
     "setId": "1",
     "number": 169,
     "rarity": "common",
-    "flavorText": "\"Once upon a time, a single drop of sunlight fell from the heavens....\"\n—Flynn Rider",
-    "_namedAbilityStubs": [
-      "HEALING POLLEN Banish this item — Remove up to 3 damage from chosen character."
-    ]
+    "flavorText": "\"Once upon a time, a single drop of sunlight fell from the heavens....\"\n—Flynn Rider"
   },
   {
     "id": "scepter-of-arendelle",
@@ -6638,15 +6466,13 @@
             },
             "duration": "end_of_turn"
           }
-        ]
+        ],
+        "storyName": "COMMAND"
       }
     ],
     "setId": "1",
     "number": 170,
-    "rarity": "uncommon",
-    "_namedAbilityStubs": [
-      "COMMAND {E} — Chosen character gains Support this turn. (Whenever they quest, you may add their {S} to another chosen character's {S} this turn.)"
-    ]
+    "rarity": "uncommon"
   },
   {
     "id": "aladdin-cornered-swordsman",
@@ -6703,7 +6529,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "BREAK"
       }
     ],
     "setId": "1",
@@ -6713,10 +6540,7 @@
     "strength": 4,
     "willpower": 4,
     "lore": 2,
-    "flavorText": "\"She'll never see me as anything... but a monster.\"",
-    "_namedAbilityStubs": [
-      "BREAK When you play this character, you may banish chosen item."
-    ]
+    "flavorText": "\"She'll never see me as anything... but a monster.\""
   },
   {
     "id": "captain-hook-captain-of-the-jolly-roger",
@@ -6756,7 +6580,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "DOUBLE THE POWDER!"
       }
     ],
     "setId": "1",
@@ -6766,10 +6591,7 @@
     "strength": 3,
     "willpower": 4,
     "lore": 1,
-    "flavorText": "\"A pretty sight, Mr. Smee. We'll pot 'em like sitting ducks.\"",
-    "_namedAbilityStubs": [
-      "DOUBLE THE POWDER! When you play this character, you may return an action card named Fire the Cannons! from your discard to your hand."
-    ]
+    "flavorText": "\"A pretty sight, Mr. Smee. We'll pot 'em like sitting ducks.\""
   },
   {
     "id": "captain-hook-forceful-duelist",
@@ -6836,7 +6658,8 @@
           "attackerFilter": {
             "costAtMost": 3
           }
-        }
+        },
+        "storyName": "STOLEN DUST"
       }
     ],
     "setId": "1",
@@ -6908,7 +6731,8 @@
               "hasTrait": "Musketeer"
             }
           }
-        }
+        },
+        "storyName": "STAY ALERT!"
       }
     ],
     "setId": "1",
@@ -6940,7 +6764,8 @@
           "filter": {
             "costAtMost": 2
           }
-        }
+        },
+        "storyName": "UNDER ARREST"
       }
     ],
     "setId": "1",
@@ -7008,7 +6833,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "STAGE A LITTLE ACCIDENT"
       }
     ],
     "setId": "1",
@@ -7018,10 +6844,7 @@
     "strength": 3,
     "willpower": 3,
     "lore": 2,
-    "flavorText": "Tired of being last, he decided to cut the line.",
-    "_namedAbilityStubs": [
-      "STAGE A LITTLE ACCIDENT Whenever this character quests, you may deal 1 damage to chosen character."
-    ]
+    "flavorText": "Tired of being last, he decided to cut the line."
   },
   {
     "id": "hercules-true-hero",
@@ -7178,7 +7001,8 @@
               "excludeSelf": true
             }
           }
-        }
+        },
+        "storyName": "ALL FOR ONE"
       }
     ],
     "setId": "1",
@@ -7253,7 +7077,8 @@
             },
             "chooser": "target_player"
           }
-        ]
+        ],
+        "storyName": "GUESS WHAT"
       }
     ],
     "setId": "1",
@@ -7263,10 +7088,7 @@
     "strength": 1,
     "willpower": 2,
     "lore": 1,
-    "flavorText": "\"I'm gonna be the best king the Pride Lands have ever seen!\"",
-    "_namedAbilityStubs": [
-      "GUESS WHAT? When you play this character, you may draw a card, then choose and discard a card."
-    ]
+    "flavorText": "\"I'm gonna be the best king the Pride Lands have ever seen!\""
   },
   {
     "id": "simba-returned-king",
@@ -7298,7 +7120,8 @@
           "target": {
             "type": "this"
           }
-        }
+        },
+        "storyName": "POUNCE"
       }
     ],
     "setId": "1",
@@ -7337,7 +7160,8 @@
               "type": "self"
             }
           }
-        ]
+        ],
+        "storyName": "I KNOW WHAT I HAVE TO DO"
       }
     ],
     "setId": "1",
@@ -7347,10 +7171,7 @@
     "strength": 3,
     "willpower": 5,
     "lore": 2,
-    "flavorText": "\"I can't hide anymore. It's time to accept my destiny.\"",
-    "_namedAbilityStubs": [
-      "I KNOW WHAT I HAVE TO DO During your turn, whenever this character banishes another character in a challenge, you gain 1 lore."
-    ]
+    "flavorText": "\"I can't hide anymore. It's time to accept my destiny.\""
   },
   {
     "id": "starkey-hooks-henchman",
@@ -7382,7 +7203,8 @@
           "target": {
             "type": "this"
           }
-        }
+        },
+        "storyName": "AYE AYE, CAPTAIN"
       }
     ],
     "setId": "1",
@@ -7392,10 +7214,7 @@
     "strength": 5,
     "willpower": 4,
     "lore": 1,
-    "flavorText": "A pirate must be tough, loyal, and strong. \"Smart\" doesn't even make the list.",
-    "_namedAbilityStubs": [
-      "AYE AYE, CAPTAIN While you have a Captain character in play, this character gets +1 {L}."
-    ]
+    "flavorText": "A pirate must be tough, loyal, and strong. \"Smart\" doesn't even make the list."
   },
   {
     "id": "te-k-heartless",
@@ -7424,7 +7243,8 @@
               "type": "self"
             }
           }
-        ]
+        ],
+        "storyName": "SEEK THE HEART"
       }
     ],
     "setId": "1",
@@ -7434,10 +7254,7 @@
     "strength": 5,
     "willpower": 5,
     "lore": 2,
-    "flavorText": "Maui: \"Ever defeat a lava monster?\"\nMoana: \"No. Have you?\"",
-    "_namedAbilityStubs": [
-      "SEEK THE HEART During your turn, whenever this character banishes another character in a challenge, you gain 2 lore."
-    ]
+    "flavorText": "Maui: \"Ever defeat a lava monster?\"\nMoana: \"No. Have you?\""
   },
   {
     "id": "tinker-bell-giant-fairy",
@@ -7480,7 +7297,8 @@
               }
             }
           }
-        ]
+        ],
+        "storyName": "ROCK THE BOAT"
       },
       {
         "type": "triggered",
@@ -7505,7 +7323,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "PUNY PIRATE!"
       }
     ],
     "setId": "1",
@@ -7554,7 +7373,8 @@
             },
             "chooser": "target_player"
           }
-        ]
+        ],
+        "storyName": "BATTLE PLANS"
       }
     ],
     "setId": "1",
@@ -7564,10 +7384,7 @@
     "strength": 2,
     "willpower": 4,
     "lore": 1,
-    "flavorText": "Sometimes all you need is a little tactical genius.",
-    "_namedAbilityStubs": [
-      "BATTLE PLANS {E} — Draw a card, then choose and discard a card."
-    ]
+    "flavorText": "Sometimes all you need is a little tactical genius."
   },
   {
     "id": "a-whole-new-world",
@@ -7599,11 +7416,7 @@
     "setId": "1",
     "number": 195,
     "rarity": "super_rare",
-    "flavorText": "Shining, shimmering, splendid...",
-    "_namedAbilityStubs": [
-      "(A character with cost 5 or more can {E} to sing this song for free.)",
-      "Each player discards their hand and draws 7 cards."
-    ]
+    "flavorText": "Shining, shimmering, splendid..."
   },
   {
     "id": "break",
@@ -7632,10 +7445,7 @@
     "setId": "1",
     "number": 196,
     "rarity": "common",
-    "flavorText": "No one throws a tantrum like a beast.",
-    "_namedAbilityStubs": [
-      "Banish chosen item."
-    ]
+    "flavorText": "No one throws a tantrum like a beast."
   },
   {
     "id": "fire-the-cannons",
@@ -7665,10 +7475,7 @@
     "setId": "1",
     "number": 197,
     "rarity": "common",
-    "flavorText": "Captain Hook: \"Double the powder and shorten the fuse!\"\nMr. Smee: \"Shorten the powder and double the fuse!\"",
-    "_namedAbilityStubs": [
-      "Deal 2 damage to chosen character."
-    ]
+    "flavorText": "Captain Hook: \"Double the powder and shorten the fuse!\"\nMr. Smee: \"Shorten the powder and double the fuse!\""
   },
   {
     "id": "grab-your-sword",
@@ -7703,11 +7510,7 @@
     "setId": "1",
     "number": 198,
     "rarity": "rare",
-    "flavorText": "We don't like\nWhat we don't understand\nIn fact, it scares us",
-    "_namedAbilityStubs": [
-      "(A character with cost 5 or more can {E} to sing this song for free.)",
-      "Deal 2 damage to each opposing character."
-    ]
+    "flavorText": "We don't like\nWhat we don't understand\nIn fact, it scares us"
   },
   {
     "id": "ransack",
@@ -7739,10 +7542,7 @@
     "setId": "1",
     "number": 199,
     "rarity": "uncommon",
-    "flavorText": "Who has time to read labels?",
-    "_namedAbilityStubs": [
-      "Draw 2 cards, then choose and discard 2 cards."
-    ]
+    "flavorText": "Who has time to read labels?"
   },
   {
     "id": "smash",
@@ -7772,10 +7572,7 @@
     "setId": "1",
     "number": 200,
     "rarity": "uncommon",
-    "flavorText": "\"Go away!\"",
-    "_namedAbilityStubs": [
-      "Deal 3 damage to chosen character."
-    ]
+    "flavorText": "\"Go away!\""
   },
   {
     "id": "beasts-mirror",
@@ -7813,16 +7610,14 @@
               "type": "self"
             }
           }
-        ]
+        ],
+        "storyName": "SHOW ME"
       }
     ],
     "setId": "1",
     "number": 201,
     "rarity": "common",
-    "flavorText": "Ashamed of his monstrous form, the Beast concealed himself inside his castle, with a magic mirror as his only window to the outside world.",
-    "_namedAbilityStubs": [
-      "SHOW ME {E}, 3 {I} — If you have no cards in your hand, draw a card."
-    ]
+    "flavorText": "Ashamed of his monstrous form, the Beast concealed himself inside his castle, with a magic mirror as his only window to the outside world."
   },
   {
     "id": "frying-pan",
@@ -7856,7 +7651,8 @@
             "duration": "end_of_owner_next_turn"
           }
         ],
-        "reminderText": "CLANG! — Banish this item — Chosen character can't challenge during their next turn."
+        "reminderText": "CLANG! — Banish this item — Chosen character can't challenge during their next turn.",
+        "storyName": "CLANG!"
       }
     ],
     "setId": "1",
@@ -7897,16 +7693,14 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "ALL FOR ONE AND ONE FOR ALL"
       }
     ],
     "setId": "1",
     "number": 203,
     "rarity": "rare",
-    "flavorText": "There's no such thing as a lone musketeer.",
-    "_namedAbilityStubs": [
-      "ALL FOR ONE AND ONE FOR ALL Whenever one of your characters with Bodyguard is banished, you may draw a card."
-    ]
+    "flavorText": "There's no such thing as a lone musketeer."
   },
   {
     "id": "plasma-blaster",
@@ -7943,16 +7737,14 @@
               }
             }
           }
-        ]
+        ],
+        "storyName": "QUICK SHOT"
       }
     ],
     "setId": "1",
     "number": 204,
     "rarity": "rare",
-    "flavorText": "\"You don't have to say 'pew pew' when you use it, but it doesn't hurt.\"\n—Lilo, galactic hero",
-    "_namedAbilityStubs": [
-      "QUICK SHOT {E}, 2 {I} — Deal 1 damage to chosen character."
-    ]
+    "flavorText": "\"You don't have to say 'pew pew' when you use it, but it doesn't hurt.\"\n—Lilo, galactic hero"
   },
   {
     "id": "hades-king-of-olympus",
@@ -7994,7 +7786,8 @@
           "target": {
             "type": "this"
           }
-        }
+        },
+        "storyName": "SINISTER PLOT"
       }
     ],
     "setId": "1",
@@ -8042,7 +7835,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "OHANA"
       }
     ],
     "setId": "1",
@@ -8051,10 +7845,7 @@
     "subtitle": "Carefree Surfer",
     "strength": 4,
     "willpower": 8,
-    "lore": 2,
-    "_namedAbilityStubs": [
-      "OHANA When you play this character, if you have 2 or more other characters in play, you may draw 2 cards."
-    ]
+    "lore": 2
   },
   {
     "id": "elsa-spirit-of-winter",
@@ -8105,7 +7896,8 @@
               }
             ]
           }
-        ]
+        ],
+        "storyName": "DEEP FREEZE"
       }
     ],
     "setId": "1",
@@ -8115,10 +7907,7 @@
     "strength": 4,
     "willpower": 6,
     "lore": 3,
-    "shiftCost": 6,
-    "_namedAbilityStubs": [
-      "DEEP FREEZE When you play this character, exert up to 2 chosen characters. They can't ready at the start of their next turn."
-    ]
+    "shiftCost": 6
   },
   {
     "id": "mickey-mouse-wayward-sorcerer",
@@ -8141,7 +7930,8 @@
           "filter": {
             "hasTrait": "Broom"
           }
-        }
+        },
+        "storyName": "ANIMATE BROOM"
       },
       {
         "type": "triggered",
@@ -8162,7 +7952,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "CEASELESS WORKER"
       }
     ],
     "setId": "1",
@@ -8209,7 +8000,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "DISAPPEAR"
       }
     ],
     "setId": "1",
@@ -8218,10 +8010,7 @@
     "subtitle": "On the Job",
     "strength": 3,
     "willpower": 4,
-    "lore": 2,
-    "_namedAbilityStubs": [
-      "DISAPPEAR When you play this character, you may return chosen character to their player's hand."
-    ]
+    "lore": 2
   },
   {
     "id": "mickey-mouse-artful-rogue",
@@ -8271,7 +8060,8 @@
             },
             "duration": "end_of_owner_next_turn"
           }
-        ]
+        ],
+        "storyName": "MISDIRECTION"
       }
     ],
     "setId": "1",
@@ -8321,7 +8111,8 @@
               "type": "opponent"
             }
           }
-        ]
+        ],
+        "storyName": "DARING EXPLOIT"
       }
     ],
     "setId": "1",
@@ -8398,7 +8189,8 @@
               "excludeSelf": true
             }
           }
-        }
+        },
+        "storyName": "PROTECTIVE EMBRACE"
       }
     ],
     "setId": "1",
@@ -8429,7 +8221,8 @@
         "effect": {
           "type": "extra_ink_play",
           "amount": 1
-        }
+        },
+        "storyName": "READ A BOOK"
       },
       {
         "type": "static",
@@ -8448,7 +8241,8 @@
           "target": {
             "type": "this"
           }
-        }
+        },
+        "storyName": "MY FAVORITE PART!"
       }
     ],
     "setId": "1",
@@ -8489,7 +8283,8 @@
           "target": {
             "type": "this"
           }
-        }
+        },
+        "storyName": "POUNCE"
       }
     ],
     "setId": "1",
@@ -8541,7 +8336,8 @@
               }
             }
           }
-        ]
+        ],
+        "storyName": "ROCK THE BOAT"
       },
       {
         "type": "triggered",
@@ -8566,7 +8362,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "PUNY PIRATE!"
       }
     ],
     "setId": "1",

@@ -57,6 +57,8 @@ export interface KeywordAbility {
 
 export interface TriggeredAbility {
   type: "triggered";
+  /** CRD 5.2.8: Story Name — the bold ability name on the card */
+  storyName?: string;
   /** When does this trigger? */
   trigger: TriggerEvent;
   /** What happens when it triggers? */
@@ -67,6 +69,8 @@ export interface TriggeredAbility {
 
 export interface ActivatedAbility {
   type: "activated";
+  /** CRD 5.2.8: Story Name — the bold ability name on the card */
+  storyName?: string;
   /** Cost to activate: exert, pay ink, banish, etc. */
   costs: Cost[];
   /** What happens when activated */
@@ -81,6 +85,8 @@ export interface ActivatedAbility {
 
 export interface StaticAbility {
   type: "static";
+  /** CRD 5.2.8: Story Name — the bold ability name on the card */
+  storyName?: string;
   /** Describes an ongoing effect that modifies game rules */
   effect: StaticEffect;
   /** Optional condition — static only applies while condition is true */
