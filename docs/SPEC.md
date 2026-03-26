@@ -25,8 +25,8 @@ deck analytics, win rates, consistency metrics, and card evaluation.
 | `@lorcana-sim/analytics` | ✅ Done | Composition + simulation + comparison |
 | `@lorcana-sim/cli` | ✅ Done | analyze, compare, optimize, sweep |
 | `@lorcana-sim/ui` | ✅ Done | 5 screens, runs in-browser |
-| Card import script | ✅ Done | Set 1 imported (216 cards) |
-| Named ability implementations | 🔄 Ongoing | 188 ready (92%), 16 stubs remaining |
+| Card import script | ✅ Done | Per-set JSON files (`lorcast-set-XXX.json`) |
+| Set 1 card abilities | ✅ Done | 216 entries, all abilities implemented |
 | Additional sets (2–11) | ⬜ Pending | `pnpm import-cards --sets 2,3,...` |
 | PersonalBot calibration UI | ⬜ Pending | Analytics function exists, UI screen not built |
 | Layer 4 — Known replays | ⬜ Pending | Schema TBD |
@@ -280,27 +280,23 @@ pnpm import-cards --sets 1,2,3     # fetch specific sets by code
 pnpm import-cards --sets 1 --dry   # dry run, print without writing
 ```
 
-Generates three files in `packages/engine/src/cards/`:
-- `lorcast-cards.json` — CardDefinition array (re-runnable, safe to overwrite)
-- `lorcastCards.ts` — exports `LORCAST_CARD_DEFINITIONS` and `LORCAST_CARDS`
-- `lorcast-stubs.txt` — cards with unimplemented named abilities, with raw ability text
+Generates per-set files in `packages/engine/src/cards/`:
+- `lorcast-set-001.json`, `lorcast-set-002.json`, etc. — CardDefinition arrays per set
+- `lorcastCards.ts` — auto-generated loader that imports and merges all set files
 
-### Named Ability Strategy
-Cards with unimplemented named abilities ship with `abilities: []` (vanilla stub).
-They work in simulation — they just don't trigger their effects.
-Work through `lorcast-stubs.txt` in priority order (most-played cards first).
-Re-running the import script overwrites the JSON and regenerates the stub report.
+Re-running the import script preserves manually-implemented abilities (non-keyword)
+on re-import. Track unimplemented abilities in `docs/CARD_ISSUES.md`.
 
 ### Current Import Status
-| Set | Code | Cards | With Effects | Stubs Remaining |
+| Set | Code | File | Cards | Status |
 |---|---|---|---|---|
-| The First Chapter | 1 | 216 (204 unique) | 188 (92%) | 16 |
-| Rise of the Floodborn | 2 | — | — | not imported |
-| Into the Inklands | 3 | — | — | not imported |
-| Ursula's Return | 4 | — | — | not imported |
-| (sets 5–11) | … | — | — | not imported |
+| The First Chapter | 1 | `lorcast-set-001.json` | 216 (204 unique) | ✅ All abilities implemented |
+| Rise of the Floodborn | 2 | — | — | Not imported |
+| Into the Inklands | 3 | — | — | Not imported |
+| Ursula's Return | 4 | — | — | Not imported |
+| (sets 5–11) | … | — | — | Not imported |
 
-To add a set: `pnpm import-cards --sets 2` (appends; or `--sets 1,2` to regenerate all).
+To add a set: `pnpm import-cards --sets 2` (writes `lorcast-set-002.json` + updates `lorcastCards.ts`).
 
 ---
 

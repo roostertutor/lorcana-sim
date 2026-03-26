@@ -142,16 +142,17 @@ Cards with unimplemented named abilities ship as vanilla stubs
 (`abilities: []`). They are playable in simulation — they just don't
 trigger their effects. This means:
 - 49% of set 1 works perfectly right now (keyword-only cards)
-- The remaining 51% work as vanilla until manually implemented
-- The stub report (`lorcast-stubs.txt`) is the prioritized work queue
-- Re-running the importer is safe — it regenerates everything
+- Set 1 is now 100% implemented (all 216 entries have full abilities)
+- Track unimplemented abilities in `docs/CARD_ISSUES.md`
+- Re-running the importer is safe — it preserves manual abilities on re-import
 
 Rejected alternative: block import until all abilities are implemented.
 That would have prevented using the platform at all. Incremental is better.
 
-### JSON import over TypeScript codegen
-The importer outputs `lorcast-cards.json` (data) + `lorcastCards.ts`
-(thin TS module that imports and exports the JSON).
+### Per-set JSON files
+The importer outputs `lorcast-set-XXX.json` (one per set) + `lorcastCards.ts`
+(auto-generated loader that imports and merges all set files).
+Zero-padded filenames (`001`, `002`) for correct sort order beyond set 9.
 
 **Why JSON not TypeScript array:**
 - Regeneratable from API without a TS compilation step

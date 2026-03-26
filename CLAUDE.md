@@ -9,12 +9,13 @@ to produce deck analytics and win rates. NOT a human-playable simulator.
 
 ## Status
 
-- engine:    done (158 passing, 1 todo). CRD bugs fixed. Tests organized by CRD.
-- simulator: done. Layer 3 invariants passing.
-- analytics: done. 15 tests passing.
+- engine:    done (162 passing, 1 todo). CRD audited. Tests organized by CRD.
+- simulator: done (3 passing). Layer 3 invariants passing.
+- analytics: done (15 passing).
 - cli:       done. analyze, compare, optimize, sweep.
 - ui:        done. 5 screens, React+Vite.
-- cards:     set 1 (204 unique cards, all with effects, 0 stubs remaining).
+- cards:     set 1 complete (204 unique cards, 216 entries, all abilities implemented, 0 stubs).
+- sets 2–11: not yet imported. Run `pnpm import-cards --sets N`.
 
 ## Quick Reference
 
@@ -33,13 +34,14 @@ pnpm import-cards        # fetch cards from Lorcast API
 | docs/SPEC.md | Full spec: APIs, types, build order | Starting a new package/feature |
 | docs/DECISIONS.md | Why decisions were made | Before proposing architecture changes |
 | docs/CRD_TRACKER.md | CRD v2.0.1 rule-to-engine map | Implementing/fixing game rules |
+| docs/CARD_ISSUES.md | Card implementation gaps | Importing new sets / fixing card bugs |
 
 ---
 
 ## Rules (always follow)
 
 ### No hallucinated cards or rules
-- ALWAYS look up card data from `lorcast-cards.json` — never guess card text, costs, stats, or abilities from training data.
+- ALWAYS look up card data from `lorcast-set-XXX.json` files — never guess card text, costs, stats, or abilities from training data.
 - ALWAYS cite CRD rule numbers from `docs/CRD_TRACKER.md` — never invent rules or assume how a mechanic works.
 - When planning or implementing a rule, also read the full rule text from the CRD PDF (`docs/Disney-Lorcana-Comprehensive-Rules-020526-EN-Edited.pdf`). The tracker is an index; the PDF has the complete spec with examples and edge cases.
 - If card data or rule text is not available, say so and look it up. Do not make things up.
