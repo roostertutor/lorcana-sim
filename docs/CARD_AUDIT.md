@@ -1,40 +1,8 @@
-# Card Implementation Audit — Set 1 (2026-03-26)
+# Card Issues — Set 1
 
-216 cards analyzed. ~185 match perfectly. Findings below.
+216 cards analyzed. Tracking remaining gaps only — fixed issues are in git history.
 
-## Critical Bugs — ALL FIXED (2026-03-26)
-
-### 1. Marshmallow - Persistent Guardian (`marshmallow-persistent-guardian`)
-- **Card text:** "When this character is banished **in a challenge**, you may return this card to your hand."
-- **Bug:** Trigger was `is_banished` — fired on ANY banish (Dragon Fire, Be Prepared, etc.)
-- **Fixed:** Changed trigger to `banished_in_challenge`
-
-### 2. Simba - Future King (`simba-future-king`)
-- **Card text:** "draw a card, **then choose and discard a card**"
-- **Bug:** Only implemented `draw 1`; the discard part was missing.
-- **Fixed:** Added `discard_from_hand` effect (amount: 1, target: self, chooser: target_player) after draw
-
-### 3. Moana - Of Motunui (`moana-of-motunui`)
-- **Card text:** "ready your **other** Princess characters"
-- **Bug:** Filter targeted all Princess characters including Moana herself.
-- **Fixed:** Added `excludeSelf: true` to filter. Also added `excludeSelf` as a reusable `CardFilter` field, threaded `sourceInstanceId` through all `findValidTargets` calls.
-
-### 4. Mulan - Imperial Soldier (`mulan-imperial-soldier`)
-- **Card text:** "your **other** characters get +1 Lore this turn"
-- **Bug:** Filter targeted all your characters including Mulan herself.
-- **Fixed:** Added `excludeSelf: true` to filter
-
-### 5. Maleficent - Sorceress (`maleficent-sorceress`)
-- **Card text:** "you **may** draw a card"
-- **Bug:** Draw effect had no `isMay` flag — draw was mandatory.
-- **Fixed:** Added `isMay: true` to draw effect
-
-### 6. Elsa - Spirit of Winter (`elsa-spirit-of-winter`)
-- **Card text:** "exert up to **2** chosen characters. They can't ready at the start of their next turn."
-- **Bug:** `chosen` target only allowed picking 1 character (no multi-target support).
-- **Fixed:** Added `count` field to `CardTarget` "chosen" type. Elsa now uses `count: 2` with `isUpTo: true`. Validator enforces 0..count for optional, 1..count for required. Resolver applies effect + followUpEffects to each chosen target.
-
-## Missing Secondary Abilities (partial implementations)
+## Missing Secondary Abilities (9 cards)
 
 These cards have one ability implemented (usually a keyword) but are missing a named ability.
 
@@ -50,9 +18,9 @@ These cards have one ability implemented (usually a keyword) but are missing a n
 | Tinker Bell - Giant Fairy | Shift 4 + enters_play damage | PUNY PIRATE!: when banishes another in challenge, deal 2 to chosen opposing char |
 | Tamatoa - So Shiny! | Static +1 Lore per item | WHAT HAVE WE HERE?: when played/quests, return item from discard to hand |
 
-## Cards With Unimplemented Named Abilities (stubs with keywords only)
+## Unimplemented Named Abilities (11 cards)
 
-These 11 cards have `_namedAbilityStubs` still present — their keywords work but the named ability is not yet in the engine.
+Keywords work but the named ability is not yet in the engine.
 
 | Card | Keywords | Stub Ability |
 |------|----------|-------------|
