@@ -6,28 +6,33 @@
 
 ### 1. Marshmallow - Persistent Guardian (`marshmallow-persistent-guardian`)
 - **Card text:** "When this character is banished **in a challenge**, you may return this card to your hand."
-- **Engine:** Trigger is `is_banished` — fires on ANY banish (Dragon Fire, Be Prepared, etc.)
-- **Fix:** Change trigger from `is_banished` to `banished_in_challenge`
+- **Bug:** Trigger was `is_banished` — fired on ANY banish (Dragon Fire, Be Prepared, etc.)
+- **Fixed:** Changed trigger to `banished_in_challenge`
 
 ### 2. Simba - Future King (`simba-future-king`)
 - **Card text:** "draw a card, **then choose and discard a card**"
-- **Engine:** Only implements `draw 1`; the discard part is missing.
-- **Fix:** Add `discard_from_hand` effect (amount: 1, target: self, chooser: target_player) after the draw
+- **Bug:** Only implemented `draw 1`; the discard part was missing.
+- **Fixed:** Added `discard_from_hand` effect (amount: 1, target: self, chooser: target_player) after draw
 
 ### 3. Moana - Of Motunui (`moana-of-motunui`)
 - **Card text:** "ready your **other** Princess characters"
-- **Engine:** Filter targets all Princess characters (no `excludeSelf`)
-- **Fix:** Add `excludeInstanceId` or equivalent self-exclusion to the filter
+- **Bug:** Filter targeted all Princess characters including Moana herself.
+- **Fixed:** Added `excludeSelf: true` to filter. Also added `excludeSelf` as a reusable `CardFilter` field, threaded `sourceInstanceId` through all `findValidTargets` calls.
 
 ### 4. Mulan - Imperial Soldier (`mulan-imperial-soldier`)
 - **Card text:** "your **other** characters get +1 Lore this turn"
-- **Engine:** Filter targets all your characters (no `excludeSelf`)
-- **Fix:** Add self-exclusion to the filter
+- **Bug:** Filter targeted all your characters including Mulan herself.
+- **Fixed:** Added `excludeSelf: true` to filter
 
 ### 5. Maleficent - Sorceress (`maleficent-sorceress`)
 - **Card text:** "you **may** draw a card"
-- **Engine:** Draw effect has no `isMay` flag — draw is mandatory
-- **Fix:** Add `isMay: true` to the draw effect
+- **Bug:** Draw effect had no `isMay` flag — draw was mandatory.
+- **Fixed:** Added `isMay: true` to draw effect
+
+### 6. Elsa - Spirit of Winter (`elsa-spirit-of-winter`)
+- **Card text:** "exert up to **2** chosen characters. They can't ready at the start of their next turn."
+- **Bug:** `chosen` target only allowed picking 1 character (no multi-target support).
+- **Fixed:** Added `count` field to `CardTarget` "chosen" type. Elsa now uses `count: 2` with `isUpTo: true`. Validator enforces 0..count for optional, 1..count for required. Resolver applies effect + followUpEffects to each chosen target.
 
 ## Missing Secondary Abilities (partial implementations)
 
@@ -62,10 +67,3 @@ These 11 cards have `_namedAbilityStubs` still present — their keywords work b
 | Jasmine - Queen of Agrabah | Shift 3 | CARETAKER: When played + quests, may remove up to 2 damage from each of your chars |
 | Captain Hook - Thinking a Happy Thought | Challenger 3, Shift 3 | STOLEN DUST: Cost ≤3 can't challenge this character |
 | Mickey Mouse - Musketeer | Bodyguard | ALL FOR ONE: Your other Musketeer characters get +1 Str |
-
-## Edge Case (needs verification)
-
-### Elsa - Spirit of Winter (`elsa-spirit-of-winter`)
-- **Card text:** "exert up to **2** chosen characters"
-- **Engine:** Targets single `chosen` with `isUpTo`
-- **Note:** May only exert 1 character instead of up to 2. Needs multi-target support check.
