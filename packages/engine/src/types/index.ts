@@ -113,7 +113,14 @@ export type Effect =
   | DiscardHandEffect
   | ConditionalOnTargetEffect
   | PlayForFreeEffect
-  | ShuffleIntoDeckEffect;
+  | ShuffleIntoDeckEffect
+  | PayInkEffect
+  | SequentialEffect
+  | CantChallengeEffect
+  | HealAndDrawEffect
+  | CostReductionEffect
+  | LoseLoreEffect
+  | CreateFloatingTriggerEffect;
 
 export interface DrawEffect {
   type: "draw";
@@ -149,6 +156,8 @@ export interface BanishEffect {
 export interface ReturnToHandEffect {
   type: "return_to_hand";
   target: CardTarget;
+  /** CRD 6.1.4: player may choose not to apply this effect */
+  isMay?: boolean;
 }
 
 export interface GainLoreEffect {
@@ -247,6 +256,8 @@ export interface LookAtTopEffect {
   /** Optional filter — only matching cards can go to hand (for "may reveal matching" patterns) */
   filter?: CardFilter;
   target: PlayerTarget;
+  /** CRD 6.1.4: player may choose not to apply this effect */
+  isMay?: boolean;
 }
 
 /**
@@ -315,6 +326,74 @@ export interface MoveToInkwellEffect {
   fromZone?: ZoneName;
 }
 
+/** CRD 6.1.5: Pay ink as an effect cost (used inside SequentialEffect). */
+export interface PayInkEffect {
+  type: "pay_ink";
+  amount: number;
+}
+
+/**
+ * CRD 6.1.5.1: "[A] to [B]" / "[A]. If you do, [B]" sequential effect.
+ * Cost effects must fully resolve before reward effects are applied.
+ */
+export interface SequentialEffect {
+  type: "sequential";
+  /** [A] — cost/prerequisite effects. Must fully resolve for [B] to happen. */
+  costEffects: Effect[];
+  /** [B] — reward effects. Only applied if [A] fully resolves. */
+  rewardEffects: Effect[];
+  /** CRD 6.1.4: wraps the whole thing in "may" */
+  isMay?: boolean;
+}
+
+/** Prevent a chosen character from challenging (Frying Pan). */
+export interface CantChallengeEffect {
+  type: "cant_challenge";
+  target: CardTarget;
+  duration: EffectDuration;
+}
+
+/**
+ * Rapunzel - Gifted with Healing: remove up to N damage, draw per damage removed.
+ * Compound effect needed because draw amount depends on actual healing performed.
+ */
+export interface HealAndDrawEffect {
+  type: "heal_and_draw";
+  amount: number;
+  target: CardTarget;
+  drawTarget: PlayerTarget;
+}
+
+/**
+ * "You pay N less for the next [type] you play this turn."
+ * Creates a one-shot cost reduction on the controlling player.
+ */
+export interface CostReductionEffect {
+  type: "cost_reduction";
+  amount: number;
+  /** Filter for which cards get the discount */
+  filter: CardFilter;
+}
+
+/**
+ * "Each opponent loses N lore." Separate from gain_lore because it needs to
+ * track actual lore lost for "draw for each lore lost" patterns.
+ */
+export interface LoseLoreEffect {
+  type: "lose_lore";
+  amount: number;
+  target: PlayerTarget;
+  /** If true, controlling player may draw 1 card for each 1 lore actually lost */
+  drawPerLoreLost?: boolean;
+}
+
+/** CRD 6.2.7.1: Create a floating triggered ability that lasts until end of turn. */
+export interface CreateFloatingTriggerEffect {
+  type: "create_floating_trigger";
+  trigger: TriggerEvent;
+  effects: Effect[];
+}
+
 // -----------------------------------------------------------------------------
 // STATIC EFFECTS — Ongoing, passive modifications to game rules
 // -----------------------------------------------------------------------------
@@ -324,7 +403,12 @@ export type StaticEffect =
   | ModifyStatStatic
   | ModifyStatPerCountStatic
   | CantBeChallengedException
-  | CantSingStatic;
+  | CantSingStatic
+  | CostReductionStatic
+  | OpponentCantQuestStatic
+  | CantChallengeByFilterStatic
+  | ExtraInkPlayStatic
+  | SelfCostReductionStatic;
 
 export interface GainKeywordStatic {
   type: "grant_keyword";
@@ -365,6 +449,42 @@ export interface CantBeChallengedException {
 export interface CantSingStatic {
   type: "cant_sing";
   target: CardTarget;
+}
+
+/** Static cost reduction (Mickey Wayward Sorcerer: Broom chars cost 1 less). */
+export interface CostReductionStatic {
+  type: "cost_reduction";
+  amount: number;
+  /** Filter for which cards get the discount */
+  filter: CardFilter;
+}
+
+/** While condition met, opposing characters can't quest (Mother Gothel). */
+export interface OpponentCantQuestStatic {
+  type: "opponent_cant_quest";
+}
+
+/** Characters matching filter can't challenge your characters (Gantu). */
+export interface CantChallengeByFilterStatic {
+  type: "cant_challenge_by_filter";
+  /** Filter for which characters are prevented from challenging */
+  filter: CardFilter;
+}
+
+/** Allow one extra ink play per turn (Belle - Strange but Special). */
+export interface ExtraInkPlayStatic {
+  type: "extra_ink_play";
+  amount: number;
+}
+
+/**
+ * CRD 6.1.12: Self-cost-reduction — applies from hand, not play.
+ * "If [condition], you pay N less to play this card."
+ * Checked at play time on the card itself. Condition is on the parent StaticAbility.
+ */
+export interface SelfCostReductionStatic {
+  type: "self_cost_reduction";
+  amount: number;
 }
 
 // -----------------------------------------------------------------------------
@@ -445,7 +565,11 @@ export type Condition =
   | { type: "characters_in_play_gte"; amount: number; player: PlayerTarget; excludeSelf?: boolean }
   | { type: "cards_in_hand_eq"; amount: number; player: PlayerTarget }
   | { type: "has_character_named"; name: string; player: PlayerTarget }
-  | { type: "has_character_with_trait"; trait: string; player: PlayerTarget };
+  | { type: "has_character_with_trait"; trait: string; player: PlayerTarget }
+  | { type: "opponent_has_more_cards_in_hand" }
+  | { type: "is_your_turn" }
+  | { type: "this_is_exerted" }
+  | { type: "cards_in_zone_gte"; zone: ZoneName; amount: number; player: PlayerTarget };
 
 export type AbilityTiming = "your_turn_main" | "any_time" | "opponent_turn";
 
@@ -460,7 +584,7 @@ export type EffectDuration =
 
 export interface TimedEffect {
   type: "grant_keyword" | "modify_strength" | "modify_willpower" | "modify_lore"
-    | "cant_quest" | "cant_ready";
+    | "cant_quest" | "cant_ready" | "cant_challenge";
   keyword?: Keyword | undefined;
   value?: number | undefined;       // for keyword values (e.g. Challenger +N)
   amount?: number | undefined;      // for modify_* effects
@@ -570,6 +694,16 @@ export interface PlayerState {
   availableInk: number;
   /** Whether the player has played an ink card this turn */
   hasPlayedInkThisTurn: boolean;
+  /** Number of ink plays made this turn (for extra ink play effects) */
+  inkPlaysThisTurn?: number;
+  /** One-shot cost reductions active this turn */
+  costReductions?: CostReductionEntry[];
+}
+
+/** A cost reduction entry that applies to the next matching card played. */
+export interface CostReductionEntry {
+  amount: number;
+  filter: CardFilter;
 }
 
 export interface GameState {
@@ -598,8 +732,18 @@ export interface GameState {
   /** Log of all actions taken, useful for UI and debugging */
   actionLog: GameLogEntry[];
 
+  /** CRD 6.2.7.1: Floating triggered abilities that last until end of turn */
+  floatingTriggers?: FloatingTrigger[];
+
   winner: PlayerID | null;
   isGameOver: boolean;
+}
+
+/** CRD 6.2.7.1: A floating triggered ability created by an action card. */
+export interface FloatingTrigger {
+  trigger: TriggerEvent;
+  effects: Effect[];
+  controllingPlayerId: PlayerID;
 }
 
 export type GamePhase =

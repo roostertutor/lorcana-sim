@@ -110,6 +110,11 @@ export function hasCantReady(instance: CardInstance): boolean {
   return instance.timedEffects.some((te) => te.type === "cant_ready");
 }
 
+/** Check if a card has a "can't challenge" timed effect active */
+export function hasCantChallenge(instance: CardInstance): boolean {
+  return instance.timedEffects.some((te) => te.type === "cant_challenge");
+}
+
 /** Get the effective ink cost (may be reduced by effects in future) */
 export function getEffectiveCost(
   _instance: CardInstance,
@@ -456,6 +461,19 @@ export function evaluateCondition(
         const def = definitions[inst.definitionId];
         return def?.cardType === "character" && def.traits.includes(condition.trait);
       });
+    }
+    case "opponent_has_more_cards_in_hand":
+      return getZone(state, opponent, "hand").length > getZone(state, controllingPlayerId, "hand").length;
+    case "is_your_turn":
+      return state.currentPlayer === controllingPlayerId;
+    case "this_is_exerted": {
+      const sourceInst = state.cards[sourceInstanceId];
+      return sourceInst ? sourceInst.isExerted : false;
+    }
+    case "cards_in_zone_gte": {
+      const targetPlayer = condition.player.type === "self" ? controllingPlayerId
+        : condition.player.type === "opponent" ? opponent : controllingPlayerId;
+      return getZone(state, targetPlayer, condition.zone).length >= condition.amount;
     }
     case "card_has_trait":
     case "card_is_type":

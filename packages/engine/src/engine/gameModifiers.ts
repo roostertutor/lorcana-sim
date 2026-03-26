@@ -37,6 +37,18 @@ export interface GameModifiers {
 
   /** Keywords granted by conditional static abilities (e.g. Pascal gains Evasive). */
   grantedKeywords: Map<string, import("../types/index.js").Keyword[]>;
+
+  /** Static cost reductions (e.g. Mickey: Broom chars cost 1 less). Key = playerId. */
+  costReductions: Map<import("../types/index.js").PlayerID, { amount: number; filter: import("../types/index.js").CardFilter }[]>;
+
+  /** Players whose opponents can't quest (Mother Gothel while exerted). */
+  opponentCantQuest: Set<import("../types/index.js").PlayerID>;
+
+  /** Challenge restrictions by filter (Gantu: cost ≤ 2 can't challenge your chars). Key = playerId being protected. */
+  cantChallengeByFilter: { protectedPlayerId: import("../types/index.js").PlayerID; filter: import("../types/index.js").CardFilter }[];
+
+  /** Extra ink plays allowed per turn per player. */
+  extraInkPlays: Map<import("../types/index.js").PlayerID, number>;
 }
 
 /**
@@ -54,6 +66,10 @@ export function getGameModifiers(
     statBonuses: new Map(),
     cantSing: new Set(),
     grantedKeywords: new Map(),
+    costReductions: new Map(),
+    opponentCantQuest: new Set(),
+    cantChallengeByFilter: [],
+    extraInkPlays: new Map(),
   };
 
   for (const instance of Object.values(state.cards)) {
@@ -141,6 +157,34 @@ export function getGameModifiers(
             existing.push(effect.keyword);
             modifiers.grantedKeywords.set(instance.instanceId, existing);
           }
+          break;
+        }
+
+        case "cost_reduction": {
+          const existing = modifiers.costReductions.get(instance.ownerId) ?? [];
+          existing.push({ amount: effect.amount, filter: effect.filter });
+          modifiers.costReductions.set(instance.ownerId, existing);
+          break;
+        }
+
+        case "opponent_cant_quest": {
+          // The opponent of this card's owner can't quest
+          const opponent = instance.ownerId === "player1" ? "player2" : "player1";
+          modifiers.opponentCantQuest.add(opponent);
+          break;
+        }
+
+        case "cant_challenge_by_filter": {
+          modifiers.cantChallengeByFilter.push({
+            protectedPlayerId: instance.ownerId,
+            filter: effect.filter,
+          });
+          break;
+        }
+
+        case "extra_ink_play": {
+          const current = modifiers.extraInkPlays.get(instance.ownerId) ?? 0;
+          modifiers.extraInkPlays.set(instance.ownerId, current + effect.amount);
           break;
         }
       }

@@ -3209,3 +3209,205 @@ describe("Shuffle into deck", () => {
     expect(getInstance(resolveResult.newState, discardedId).zone).toBe("deck");
   });
 });
+
+// =============================================================================
+// §6.1.5 SEQUENTIAL EFFECTS
+// =============================================================================
+
+describe("§6.1.5 Sequential Effects", () => {
+
+  // CRD 6.1.5.1: "[A] to [B]" — pay 1 ink to draw a card (isMay: accept)
+  it("Sequential accept — pay ink + draw card (CRD 6.1.5.1)", () => {
+    // Set up: a card with a triggered sequential effect (like Ursula's Shell Necklace)
+    let state = startGame(["maleficent-sorceress"]);
+    let triggerId: string;
+    // Inject a character that triggers on enters_play with sequential effect
+    ({ state, instanceId: triggerId } = injectCard(state, "player1", "maleficent-sorceress", "play"));
+
+    // Manually set up a trigger with a sequential isMay effect
+    const sequentialEffect = {
+      type: "sequential" as const,
+      costEffects: [{ type: "pay_ink" as const, amount: 1 }],
+      rewardEffects: [{ type: "draw" as const, amount: 1, target: { type: "self" as const } }],
+      isMay: true,
+    };
+
+    // Add cards to deck for drawing
+    ({ state } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "deck"));
+    state = giveInk(state, "player1", 3);
+
+    const handBefore = getZone(state, "player1", "hand").length;
+    const inkBefore = state.players.player1.availableInk;
+
+    // Simulate the trigger stack with sequential effect
+    state = {
+      ...state,
+      triggerStack: [{
+        ability: {
+          type: "triggered",
+          trigger: { on: "enters_play" },
+          effects: [sequentialEffect],
+        },
+        sourceInstanceId: triggerId,
+        context: {},
+      }],
+    };
+
+    // Pass turn to process trigger stack (triggers process on any action dispatch)
+    const result = applyAction(state, {
+      type: "PASS_TURN", playerId: "player1",
+    }, LORCAST_CARD_DEFINITIONS);
+
+    // Should present choose_may
+    expect(result.newState.pendingChoice).not.toBeNull();
+    expect(result.newState.pendingChoice!.type).toBe("choose_may");
+
+    // Accept the may
+    const acceptResult = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept",
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(acceptResult.success).toBe(true);
+    // Ink should be deducted by 1
+    expect(acceptResult.newState.players.player1.availableInk).toBe(inkBefore - 1);
+    // Should have drawn 1 card
+    expect(getZone(acceptResult.newState, "player1", "hand").length).toBe(handBefore + 1);
+  });
+
+  // CRD 6.1.4 + 6.1.5.1: Decline the may — no ink spent, no draw
+  it("Sequential decline — no ink spent, no draw (CRD 6.1.4)", () => {
+    let state = startGame(["maleficent-sorceress"]);
+    let triggerId: string;
+    ({ state, instanceId: triggerId } = injectCard(state, "player1", "maleficent-sorceress", "play"));
+
+    const sequentialEffect = {
+      type: "sequential" as const,
+      costEffects: [{ type: "pay_ink" as const, amount: 1 }],
+      rewardEffects: [{ type: "draw" as const, amount: 1, target: { type: "self" as const } }],
+      isMay: true,
+    };
+
+    ({ state } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "deck"));
+    state = giveInk(state, "player1", 3);
+
+    const handBefore = getZone(state, "player1", "hand").length;
+    const inkBefore = state.players.player1.availableInk;
+
+    state = {
+      ...state,
+      triggerStack: [{
+        ability: {
+          type: "triggered",
+          trigger: { on: "enters_play" },
+          effects: [sequentialEffect],
+        },
+        sourceInstanceId: triggerId,
+        context: {},
+      }],
+    };
+
+    const result = applyAction(state, {
+      type: "PASS_TURN", playerId: "player1",
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.newState.pendingChoice?.type).toBe("choose_may");
+
+    // Decline
+    const declineResult = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: "decline",
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(declineResult.success).toBe(true);
+    // No ink spent
+    expect(declineResult.newState.players.player1.availableInk).toBe(inkBefore);
+    // No card drawn
+    expect(getZone(declineResult.newState, "player1", "hand").length).toBe(handBefore);
+  });
+
+  // CRD 6.1.5.1: Can't afford [A] → no prompt, effect silently skipped
+  it("Sequential can't afford — effect skipped, no prompt (CRD 6.1.5.1)", () => {
+    let state = startGame(["maleficent-sorceress"]);
+    let triggerId: string;
+    ({ state, instanceId: triggerId } = injectCard(state, "player1", "maleficent-sorceress", "play"));
+
+    const sequentialEffect = {
+      type: "sequential" as const,
+      costEffects: [{ type: "pay_ink" as const, amount: 1 }],
+      rewardEffects: [{ type: "draw" as const, amount: 1, target: { type: "self" as const } }],
+      isMay: true,
+    };
+
+    ({ state } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "deck"));
+    // 0 available ink — can't afford
+    state = giveInk(state, "player1", 0);
+
+    const handBefore = getZone(state, "player1", "hand").length;
+
+    state = {
+      ...state,
+      triggerStack: [{
+        ability: {
+          type: "triggered",
+          trigger: { on: "enters_play" },
+          effects: [sequentialEffect],
+        },
+        sourceInstanceId: triggerId,
+        context: {},
+      }],
+    };
+
+    const result = applyAction(state, {
+      type: "PASS_TURN", playerId: "player1",
+    }, LORCAST_CARD_DEFINITIONS);
+
+    // No pending choice — effect was skipped entirely because cost can't be paid
+    expect(result.newState.pendingChoice).toBeNull();
+    // No card drawn
+    expect(getZone(result.newState, "player1", "hand").length).toBe(handBefore);
+    // Still 0 ink
+    expect(result.newState.players.player1.availableInk).toBe(0);
+  });
+
+  // CRD 6.1.5.1: Non-may sequential — costs + rewards applied automatically
+  it("Non-may sequential — applied automatically (CRD 6.1.5.1)", () => {
+    let state = startGame(["maleficent-sorceress"]);
+    let triggerId: string;
+    ({ state, instanceId: triggerId } = injectCard(state, "player1", "maleficent-sorceress", "play"));
+
+    const sequentialEffect = {
+      type: "sequential" as const,
+      costEffects: [{ type: "pay_ink" as const, amount: 2 }],
+      rewardEffects: [{ type: "draw" as const, amount: 1, target: { type: "self" as const } }],
+      // no isMay — mandatory
+    };
+
+    ({ state } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "deck"));
+    state = giveInk(state, "player1", 5);
+
+    const handBefore = getZone(state, "player1", "hand").length;
+
+    state = {
+      ...state,
+      triggerStack: [{
+        ability: {
+          type: "triggered",
+          trigger: { on: "enters_play" },
+          effects: [sequentialEffect],
+        },
+        sourceInstanceId: triggerId,
+        context: {},
+      }],
+    };
+
+    const result = applyAction(state, {
+      type: "PASS_TURN", playerId: "player1",
+    }, LORCAST_CARD_DEFINITIONS);
+
+    // No pending choice — non-may sequential is automatic
+    expect(result.newState.pendingChoice).toBeNull();
+    // Ink deducted
+    expect(result.newState.players.player1.availableInk).toBe(3);
+    // Card drawn
+    expect(getZone(result.newState, "player1", "hand").length).toBe(handBefore + 1);
+  });
+});

@@ -13,14 +13,17 @@ import type {
 import {
   canAfford,
   canSingSong,
+  evaluateCondition,
   getDefinition,
   getInstance,
   getOpponent,
   getZone,
+  hasCantChallenge,
   hasCantQuest,
   hasKeyword,
   isMainPhase,
   isSong,
+  matchesFilter,
 } from "../utils/index.js";
 import { getGameModifiers } from "./gameModifiers.js";
 
@@ -117,14 +120,61 @@ function validatePlayCard(
     return OK; // No ink check — singing replaces ink cost entirely (CRD 1.5.5.1)
   }
 
-  if (!canAfford(state, playerId, def.cost)) { // CRD 1.5.3: cost must be paid in full
-    return fail(`Not enough ink. Need ${def.cost}, have ${state.players[playerId].availableInk}.`);
+  // Apply cost reductions (static + one-shot)
+  const effectiveCost = getEffectiveCostWithReductions(state, playerId, instanceId, definitions);
+  if (!canAfford(state, playerId, effectiveCost)) { // CRD 1.5.3: cost must be paid in full
+    return fail(`Not enough ink. Need ${effectiveCost}, have ${state.players[playerId].availableInk}.`);
   }
 
   return OK;
 }
 
+/** Calculate effective cost after applying all cost reductions. */
+function getEffectiveCostWithReductions(
+  state: GameState,
+  playerId: PlayerID,
+  instanceId: string,
+  definitions: Record<string, CardDefinition>
+): number {
+  const def = getDefinition(state, instanceId, definitions);
+  const instance = getInstance(state, instanceId);
+  let cost = def.cost;
+
+  // Static cost reductions (e.g. Mickey: Broom chars cost 1 less)
+  const modifiers = getGameModifiers(state, definitions);
+  const staticReductions = modifiers.costReductions.get(playerId) ?? [];
+  for (const red of staticReductions) {
+    if (matchesFilter(instance, def, red.filter, state, playerId)) {
+      cost -= red.amount;
+    }
+  }
+
+  // One-shot cost reductions (e.g. Lantern: next character costs 1 less)
+  const oneShot = state.players[playerId].costReductions ?? [];
+  for (const red of oneShot) {
+    if (matchesFilter(instance, def, red.filter, state, playerId)) {
+      cost -= red.amount;
+    }
+  }
+
+  // CRD 6.1.12: Self-cost-reduction from hand (e.g. LeFou: costs 1 less if Gaston in play)
+  for (const ability of def.abilities) {
+    if (ability.type !== "static") continue;
+    if (ability.effect.type !== "self_cost_reduction") continue;
+    // Check condition (e.g. "has_character_named Gaston")
+    if (ability.condition) {
+      if (!evaluateCondition(ability.condition, state, definitions, playerId, instanceId)) {
+        continue;
+      }
+    }
+    cost -= ability.effect.amount;
+  }
+
+  return Math.max(0, cost);
+}
+
 // CRD 4.2: Ink a Card — once per turn, inkable card from hand
+// Belle - Strange but Special: "you may put an additional card" = extra ink plays
 function validatePlayInk(
   state: GameState,
   playerId: PlayerID,
@@ -132,7 +182,13 @@ function validatePlayInk(
   definitions: Record<string, CardDefinition>
 ): ValidationResult {
   if (!isMainPhase(state, playerId)) return fail("Not your main phase.");
-  if (state.players[playerId].hasPlayedInkThisTurn) return fail("Already played ink this turn."); // CRD 4.2.3
+
+  const inkPlaysThisTurn = state.players[playerId].inkPlaysThisTurn ?? 0;
+  const modifiers = getGameModifiers(state, definitions);
+  const extraPlays = modifiers.extraInkPlays.get(playerId) ?? 0;
+  const maxInkPlays = 1 + extraPlays;
+
+  if (inkPlaysThisTurn >= maxInkPlays) return fail("Already played ink this turn."); // CRD 4.2.3
 
   const instance = getInstance(state, instanceId);
   if (instance.ownerId !== playerId) return fail("You don't own this card.");
@@ -166,6 +222,12 @@ function validateQuest(
   if (hasKeyword(instance, def, "reckless")) return fail("Reckless characters can't quest.");
   if (!def.lore || def.lore <= 0) return fail("This character has no lore value."); // CRD 4.5.3.1
 
+  // Mother Gothel - Selfish Manipulator: while exerted, opposing characters can't quest
+  const modifiers = getGameModifiers(state, definitions);
+  if (modifiers.opponentCantQuest.has(playerId)) {
+    return fail("Opposing characters can't quest.");
+  }
+
   return OK;
 }
 
@@ -192,6 +254,9 @@ function validateChallenge(
 
   if (attackerDef.cardType !== "character") return fail("Only characters can challenge."); // CRD 5.3.4
 
+  // Frying Pan: "can't challenge during their next turn"
+  if (hasCantChallenge(attacker)) return fail("This character can't challenge this turn.");
+
   const defender = getInstance(state, defenderInstanceId);
   const opponent = getOpponent(playerId);
   if (defender.ownerId !== opponent) return fail("Can only challenge opponent's cards.");
@@ -206,6 +271,15 @@ function validateChallenge(
 
   if (modifiers.cantBeChallenged.has(defenderInstanceId)) {
     return fail("This character cannot be challenged.");
+  }
+
+  // Gantu: "Characters with cost 2 or less can't challenge your characters"
+  for (const restriction of modifiers.cantChallengeByFilter) {
+    if (restriction.protectedPlayerId === opponent) {
+      if (matchesFilter(attacker, attackerDef, restriction.filter, state, playerId)) {
+        return fail("This character is not allowed to challenge.");
+      }
+    }
   }
 
   const defenderDef = getDefinition(state, defenderInstanceId, definitions);

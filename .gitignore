@@ -1,5 +1,6 @@
 #Claude
 copypasta.txt
+.claude/
 
 # Dependencies
 node_modules

@@ -305,7 +305,57 @@ function applyPlayCard(
       type: "card_played",
     });
   } else {
-    const cost = shiftTargetInstanceId ? (def.shiftCost ?? def.cost) : def.cost;
+    const baseCost = shiftTargetInstanceId ? (def.shiftCost ?? def.cost) : def.cost;
+    // Apply cost reductions
+    const instance = getInstance(state, instanceId);
+    let cost = baseCost;
+
+    // Static cost reductions (e.g. Mickey: Broom chars cost 1 less)
+    const modifiers = getGameModifiers(state, definitions);
+    const staticReductions = modifiers.costReductions.get(playerId) ?? [];
+    for (const red of staticReductions) {
+      if (matchesFilter(instance, def, red.filter, state, playerId)) {
+        cost -= red.amount;
+      }
+    }
+
+    // One-shot cost reductions — consume matching ones
+    const oneShot = state.players[playerId].costReductions ?? [];
+    const remainingReductions: typeof oneShot = [];
+    for (const red of oneShot) {
+      if (matchesFilter(instance, def, red.filter, state, playerId) && cost > 0) {
+        cost -= red.amount;
+        // consumed — don't add to remaining
+      } else {
+        remainingReductions.push(red);
+      }
+    }
+
+    // CRD 6.1.12: Self-cost-reduction from hand (e.g. LeFou: costs 1 less if Gaston in play)
+    for (const ability of def.abilities) {
+      if (ability.type !== "static") continue;
+      if (ability.effect.type !== "self_cost_reduction") continue;
+      if (ability.condition) {
+        if (!evaluateCondition(ability.condition, state, definitions, playerId, instanceId)) {
+          continue;
+        }
+      }
+      cost -= ability.effect.amount;
+    }
+
+    cost = Math.max(0, cost);
+
+    // Update remaining one-shot reductions
+    if (oneShot.length > 0) {
+      state = {
+        ...state,
+        players: {
+          ...state.players,
+          [playerId]: { ...state.players[playerId], costReductions: remainingReductions },
+        },
+      };
+    }
+
     // Deduct ink
     state = updatePlayerInk(state, playerId, -cost);
   }
@@ -414,6 +464,7 @@ function applyPlayInk(
   state = zoneTransition(state, instanceId, "inkwell", definitions, events, {
     reason: "inked", triggeringPlayerId: playerId,
   });
+  const currentInkPlays = state.players[playerId].inkPlaysThisTurn ?? 0;
   state = {
     ...state,
     players: {
@@ -421,6 +472,7 @@ function applyPlayInk(
       [playerId]: {
         ...state.players[playerId],
         hasPlayedInkThisTurn: true,
+        inkPlaysThisTurn: currentInkPlays + 1,
         availableInk: state.players[playerId].availableInk + 1,
       },
     },
@@ -460,6 +512,25 @@ function applyQuest(
   });
 
   state = queueTrigger(state, "quests", instanceId, definitions, { triggeringPlayerId: playerId });
+
+  // CRD 6.2.7.1: Check floating triggers (e.g. Steal from the Rich)
+  if (state.floatingTriggers) {
+    for (const ft of state.floatingTriggers) {
+      if (ft.trigger.on === "quests" && ft.controllingPlayerId === playerId) {
+        // Check filter if present
+        const triggerFilter = "filter" in ft.trigger ? ft.trigger.filter : undefined;
+        if (triggerFilter) {
+          const questInst = getInstance(state, instanceId);
+          const questDef = getDefinition(state, instanceId, definitions);
+          if (!matchesFilter(questInst, questDef, triggerFilter, state, playerId)) continue;
+        }
+        // Apply floating trigger effects
+        for (const effect of ft.effects) {
+          state = applyEffect(state, effect, instanceId, ft.controllingPlayerId, definitions, events);
+        }
+      }
+    }
+  }
 
   // CRD 8.13.1: Support — synthesize triggered ability for the bag
   const questingInstance = getInstance(state, instanceId);
@@ -674,7 +745,9 @@ function applyPassTurn(
       [opponent]: {
         ...state.players[opponent],
         hasPlayedInkThisTurn: false,
+        inkPlaysThisTurn: 0,
         availableInk: getZone(state, opponent, "inkwell").length,
+        costReductions: [], // Clear one-shot cost reductions at turn start
       },
     },
   };
@@ -694,6 +767,11 @@ function applyPassTurn(
   const opponentInkwell = getZone(state, opponent, "inkwell");
   for (const id of opponentInkwell) {
     state = updateInstance(state, id, { isExerted: false });
+  }
+
+  // CRD 6.2.7.1: Clear floating triggers at end of turn
+  if (state.floatingTriggers && state.floatingTriggers.length > 0) {
+    state = { ...state, floatingTriggers: [] };
   }
 
   // CRD 3.4.1.2: effects that end "this turn" — clear temp modifiers
@@ -1377,6 +1455,32 @@ export function applyEffect(
       };
     }
 
+    // CRD 6.1.5: Pay ink as an effect (used as cost in sequential effects)
+    case "pay_ink": {
+      const player = state.players[controllingPlayerId];
+      if (player.availableInk < effect.amount) return state; // CRD 6.1.5.1: can't pay → skip
+      return updatePlayerInk(state, controllingPlayerId, -effect.amount);
+    }
+
+    // CRD 6.1.5.1: "[A] to [B]" sequential effect
+    case "sequential": {
+      // Check if all cost effects can be performed
+      for (const costEffect of effect.costEffects) {
+        if (!canPerformCostEffect(state, costEffect, controllingPlayerId)) {
+          return state; // CRD 6.1.5.1: can't perform [A] → entire effect skipped
+        }
+      }
+      // Apply cost effects [A]
+      for (const costEffect of effect.costEffects) {
+        state = applyEffect(state, costEffect, sourceInstanceId, controllingPlayerId, definitions, events);
+      }
+      // Apply reward effects [B]
+      for (const rewardEffect of effect.rewardEffects) {
+        state = applyEffect(state, rewardEffect, sourceInstanceId, controllingPlayerId, definitions, events);
+      }
+      return state;
+    }
+
     case "shuffle_into_deck": {
       if (effect.target.type === "chosen") {
         // "any discard" = all discard piles
@@ -1398,8 +1502,106 @@ export function applyEffect(
       return state;
     }
 
+    // Frying Pan: "Chosen character can't challenge during their next turn"
+    case "cant_challenge": {
+      if (effect.target.type === "chosen") {
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_target",
+            choosingPlayerId: controllingPlayerId,
+            prompt: "Choose a character that can't challenge.",
+            validTargets,
+            pendingEffect: effect,
+          },
+        };
+      }
+      return state;
+    }
+
+    // Rapunzel: "remove up to 3 damage, draw for each removed"
+    case "heal_and_draw": {
+      if (effect.target.type === "chosen") {
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions);
+        if (validTargets.length === 0) return state;
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_target",
+            choosingPlayerId: controllingPlayerId,
+            prompt: "Choose a character to heal.",
+            validTargets,
+            pendingEffect: effect,
+            optional: true, // "up to" implies optional
+          },
+        };
+      }
+      return state;
+    }
+
+    // "You pay N less for the next X you play this turn"
+    case "cost_reduction": {
+      const existing = state.players[controllingPlayerId].costReductions ?? [];
+      return {
+        ...state,
+        players: {
+          ...state.players,
+          [controllingPlayerId]: {
+            ...state.players[controllingPlayerId],
+            costReductions: [...existing, { amount: effect.amount, filter: effect.filter }],
+          },
+        },
+      };
+    }
+
+    // "Each opponent loses N lore"
+    case "lose_lore": {
+      const targetPlayer = effect.target.type === "opponent"
+        ? getOpponent(controllingPlayerId)
+        : controllingPlayerId;
+      const loreBefore = state.players[targetPlayer].lore;
+      state = gainLore(state, targetPlayer, -effect.amount, events);
+      const loreAfter = state.players[targetPlayer].lore;
+      const actualLost = loreBefore - loreAfter;
+      // "Draw for each lore lost this way"
+      if (effect.drawPerLoreLost && actualLost > 0) {
+        // CRD 6.1.4: "may draw" — present as may choice
+        if (actualLost > 0) {
+          const drawEffect: Effect = { type: "draw", amount: actualLost, target: { type: "self" }, isMay: true };
+          state = applyEffect(state, drawEffect, sourceInstanceId, controllingPlayerId, definitions, events);
+        }
+      }
+      return state;
+    }
+
+    // CRD 6.2.7.1: Create a floating triggered ability for rest of turn
+    case "create_floating_trigger": {
+      const existing = state.floatingTriggers ?? [];
+      return {
+        ...state,
+        floatingTriggers: [...existing, {
+          trigger: effect.trigger,
+          effects: effect.effects,
+          controllingPlayerId,
+        }],
+      };
+    }
+
     default:
       return state; // Unimplemented effect type — no-op for now
+  }
+}
+
+/** CRD 6.1.5.1: Check if a cost effect can be performed before committing to it. */
+function canPerformCostEffect(state: GameState, effect: Effect, controllingPlayerId: PlayerID): boolean {
+  switch (effect.type) {
+    case "pay_ink":
+      return state.players[controllingPlayerId].availableInk >= effect.amount;
+    case "discard_from_hand":
+      return getZone(state, controllingPlayerId, "hand").length >= effect.amount;
+    default:
+      return true; // assume performable
   }
 }
 
@@ -1546,6 +1748,14 @@ function processTriggerStack(
     events.push({ type: "ability_triggered", instanceId: trigger.sourceInstanceId, abilityType: "triggered" });
 
     for (const effect of trigger.ability.effects) {
+      // CRD 6.1.5.1: Sequential effects with isMay — skip prompt if cost can't be paid
+      if (effect.type === "sequential" && effect.isMay) {
+        const canAfford = effect.costEffects.every(
+          (ce) => canPerformCostEffect(state, ce, source.ownerId)
+        );
+        if (!canAfford) continue; // Can't pay [A] → skip entirely, no prompt
+      }
+
       // CRD 6.1.4: "may" effects require player decision before resolving
       if ("isMay" in effect && effect.isMay) {
         state = {
@@ -1894,6 +2104,30 @@ function applyEffectToTarget(
       state = zoneTransition(state, targetInstanceId, "deck", definitions, events, { reason: "effect" });
       // Shuffle the owner's deck
       state = shuffleDeck(state, inst.ownerId);
+      return state;
+    }
+    case "cant_challenge": {
+      const timedEffect: TimedEffect = {
+        type: "cant_challenge",
+        amount: 0,
+        expiresAt: effect.duration,
+        appliedOnTurn: state.turnNumber,
+      };
+      return addTimedEffect(state, targetInstanceId, timedEffect);
+    }
+    case "heal_and_draw": {
+      // Rapunzel: heal min(amount, damage), draw for each healed
+      const inst = getInstance(state, targetInstanceId);
+      const actualHeal = Math.min(effect.amount, inst.damage);
+      if (actualHeal > 0) {
+        state = updateInstance(state, targetInstanceId, {
+          damage: inst.damage - actualHeal,
+        });
+        // Draw cards equal to damage actually removed
+        const drawPlayer = effect.drawTarget.type === "self" ? controllingPlayerId
+          : getOpponent(controllingPlayerId);
+        state = applyDraw(state, drawPlayer, actualHeal, events);
+      }
       return state;
     }
     default:
