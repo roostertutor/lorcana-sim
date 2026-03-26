@@ -21,7 +21,8 @@
             "type": "this"
           }
         },
-        "storyName": "VOICELESS"
+        "storyName": "VOICELESS",
+        "rulesText": "This character can't {E} to sing songs."
       }
     ],
     "setId": "1",
@@ -73,7 +74,8 @@
             }
           }
         ],
-        "storyName": "MUSICAL DEBUT"
+        "storyName": "MUSICAL DEBUT",
+        "rulesText": "When you play this character, look at the top 4 cards of your deck. You may reveal a song card and put it into your hand. Put the rest on the bottom of your deck in any order."
       }
     ],
     "setId": "1",
@@ -131,8 +133,8 @@
             "isUpTo": true
           }
         ],
-        "reminderText": "A WONDERFUL DREAM — ↷ — Remove up to 3 damage from chosen Princess character.",
-        "storyName": "A WONDERFUL DREAM"
+        "storyName": "A WONDERFUL DREAM",
+        "rulesText": "{E} — Remove up to 3 damage from chosen Princess character."
       }
     ],
     "setId": "1",
@@ -187,7 +189,8 @@
             "isMay": true
           }
         ],
-        "storyName": "AND TWO FOR TEA!"
+        "storyName": "AND TWO FOR TEA!",
+        "rulesText": "When you play this character, you may remove up to 2 damage from each of your Musketeer characters."
       }
     ],
     "setId": "1",
@@ -240,7 +243,8 @@
             "type": "this"
           }
         },
-        "storyName": "SINISTER PLOT"
+        "storyName": "SINISTER PLOT",
+        "rulesText": "This character gets +1 {L} for each other Villain character you have in play."
       }
     ],
     "setId": "1",
@@ -289,7 +293,8 @@
             }
           }
         ],
-        "storyName": "WELL OF SOULS"
+        "storyName": "WELL OF SOULS",
+        "rulesText": "When you play this character, return a character card from your discard to your hand."
       }
     ],
     "setId": "1",
@@ -354,7 +359,8 @@
           "type": "self_cost_reduction",
           "amount": 1
         },
-        "storyName": "LOYAL"
+        "storyName": "LOYAL",
+        "rulesText": "If you have a character named Gaston in play, you pay 1 {I} less to play this character."
       }
     ],
     "setId": "1",
@@ -452,7 +458,8 @@
             "duration": "this_turn"
           }
         ],
-        "storyName": "HORSE KICK"
+        "storyName": "HORSE KICK",
+        "rulesText": "When you play this character, chosen character gets -2 {S} this turn."
       }
     ],
     "setId": "1",
@@ -556,7 +563,8 @@
             ]
           }
         ],
-        "storyName": "WE CAN FIX IT"
+        "storyName": "WE CAN FIX IT",
+        "rulesText": "Whenever this character quests, you may ready your other Princess characters. They can't quest for the rest of this turn."
       }
     ],
     "setId": "1",
@@ -619,7 +627,8 @@
             "isMay": true
           }
         ],
-        "storyName": "HEROISM"
+        "storyName": "HEROISM",
+        "rulesText": "When this character challenges and is banished, you may banish the challenged character."
       }
     ],
     "setId": "1",
@@ -694,7 +703,8 @@
             }
           }
         ],
-        "storyName": "GLEAM AND GLOW"
+        "storyName": "GLEAM AND GLOW",
+        "rulesText": "When you play this character, remove up to 3 damage from one of your characters. Draw a card for each 1 damage removed this way."
       }
     ],
     "setId": "1",
@@ -798,7 +808,8 @@
             "isMay": true
           }
         ],
-        "storyName": "OHANA"
+        "storyName": "OHANA",
+        "rulesText": "When you play this character, if you have 2 or more other characters in play, you may draw 2 cards."
       }
     ],
     "setId": "1",
@@ -889,7 +900,8 @@
             "isMay": true
           }
         ],
-        "storyName": "ADORING FANS"
+        "storyName": "ADORING FANS",
+        "rulesText": "Whenever you play a character with cost 2 or less, you may exert them to draw a card."
       }
     ],
     "setId": "1",
@@ -937,7 +949,8 @@
             "isMay": true
           }
         ],
-        "storyName": "TASTES LIKE CHICKEN"
+        "storyName": "TASTES LIKE CHICKEN",
+        "rulesText": "When you play this character, you may remove up to 1 damage from chosen character."
       }
     ],
     "setId": "1",
@@ -1200,7 +1213,8 @@
             }
           }
         ],
-        "storyName": "STRAIGHTEN HAIR"
+        "storyName": "STRAIGHTEN HAIR",
+        "rulesText": "{E} — Remove up to 1 damage from chosen character."
       }
     ],
     "setId": "1",
@@ -1236,8 +1250,8 @@
             }
           }
         ],
-        "reminderText": "BIRTHDAY LIGHTS — ↷ — You pay 1 ink less for the next character you play this turn.",
-        "storyName": "BIRTHDAY LIGHTS"
+        "storyName": "BIRTHDAY LIGHTS",
+        "rulesText": "{E} — You pay 1 {I} less for the next character you play this turn."
       }
     ],
     "setId": "1",
@@ -1287,7 +1301,8 @@
             "isMay": true
           }
         ],
-        "storyName": "NOW, SING!"
+        "storyName": "NOW, SING!",
+        "rulesText": "Whenever you play a song, you may pay 1 {I} to draw a card."
       }
     ],
     "setId": "1",
@@ -1339,7 +1354,8 @@
             "duration": "end_of_owner_next_turn"
           }
         ],
-        "storyName": "LOVING HEART"
+        "storyName": "LOVING HEART",
+        "rulesText": "When you play this character, if you have a character named Elsa in play, choose an opposing character. The chosen character doesn't ready at the start of their next turn."
       }
     ],
     "setId": "1",
@@ -1411,7 +1427,8 @@
             "isMay": true
           }
         ],
-        "storyName": "INTO THE SHADOWS"
+        "storyName": "INTO THE SHADOWS",
+        "rulesText": "Whenever one of your other characters is banished in a challenge, you may return that card to your hand."
       }
     ],
     "setId": "1",
@@ -1488,7 +1505,8 @@
             "isMay": true
           }
         ],
-        "storyName": "DREAMS MADE REAL"
+        "storyName": "DREAMS MADE REAL",
+        "rulesText": "Whenever you play a song, you may look at the top 2 cards of your deck. Put one on the top of your deck and the other on the bottom."
       }
     ],
     "setId": "1",
@@ -1562,7 +1580,8 @@
             }
           }
         ],
-        "storyName": "FREEZE"
+        "storyName": "FREEZE",
+        "rulesText": "{E} — Exert chosen opposing character."
       }
     ],
     "setId": "1",
@@ -1624,7 +1643,8 @@
             ]
           }
         ],
-        "storyName": "DEEP FREEZE"
+        "storyName": "DEEP FREEZE",
+        "rulesText": "When you play this character, exert up to 2 chosen characters. They can't ready at the start of their next turn."
       }
     ],
     "setId": "1",
@@ -1673,7 +1693,8 @@
             }
           }
         },
-        "storyName": "DEXTEROUS LUNGE"
+        "storyName": "DEXTEROUS LUNGE",
+        "rulesText": "Your characters named Jetsam gain Rush."
       }
     ],
     "setId": "1",
@@ -1715,7 +1736,8 @@
             "type": "this"
           }
         },
-        "storyName": "HIDDEN WONDERS"
+        "storyName": "HIDDEN WONDERS",
+        "rulesText": "This character gets +1 {S} for each card in your hand."
       }
     ],
     "setId": "1",
@@ -1792,7 +1814,8 @@
             }
           }
         },
-        "storyName": "SINISTER SLITHER"
+        "storyName": "SINISTER SLITHER",
+        "rulesText": "Your characters named Flotsam gain Evasive."
       }
     ],
     "setId": "1",
@@ -1834,7 +1857,8 @@
             "isMay": true
           }
         ],
-        "storyName": "SWEEP"
+        "storyName": "SWEEP",
+        "rulesText": "When you play this character, you may shuffle a card from any discard into its player's deck."
       }
     ],
     "setId": "1",
@@ -1898,7 +1922,8 @@
             "isMay": true
           }
         ],
-        "storyName": "CAST MY SPELL!"
+        "storyName": "CAST MY SPELL!",
+        "rulesText": "When you play this character, you may draw a card."
       }
     ],
     "setId": "1",
@@ -1937,7 +1962,8 @@
             "isMay": true
           }
         ],
-        "storyName": "DURABLE"
+        "storyName": "DURABLE",
+        "rulesText": "When this character is banished in a challenge, you may return this card to your hand."
       }
     ],
     "setId": "1",
@@ -1971,7 +1997,8 @@
             "hasTrait": "Broom"
           }
         },
-        "storyName": "ANIMATE BROOM"
+        "storyName": "ANIMATE BROOM",
+        "rulesText": "You pay 1 {I} less to play Broom characters."
       },
       {
         "type": "triggered",
@@ -1993,7 +2020,8 @@
             "isMay": true
           }
         ],
-        "storyName": "CEASELESS WORKER"
+        "storyName": "CEASELESS WORKER",
+        "rulesText": "Whenever one of your Broom characters is banished in a challenge, you may return that card to your hand."
       }
     ],
     "setId": "1",
@@ -2057,7 +2085,8 @@
             "type": "this"
           }
         },
-        "storyName": "CAMOUFLAGE"
+        "storyName": "CAMOUFLAGE",
+        "rulesText": "While you have another character in play, this character gains Evasive. (Only characters with Evasive can challenge them.)"
       }
     ],
     "setId": "1",
@@ -2149,8 +2178,8 @@
             }
           }
         ],
-        "reminderText": "I SUMMON THEE – ↷: Draw a card.",
-        "storyName": "I SUMMON THEE"
+        "storyName": "I SUMMON THEE",
+        "rulesText": "{E} — Draw a card."
       }
     ],
     "setId": "1",
@@ -2222,7 +2251,8 @@
             }
           }
         },
-        "storyName": "LOYAL AND DEVOTED"
+        "storyName": "LOYAL AND DEVOTED",
+        "rulesText": "Your characters named Peter Pan gain Challenger +1. (They get +1 {S} while challenging.)"
       }
     ],
     "setId": "1",
@@ -2262,7 +2292,8 @@
             "drawPerLoreLost": true
           }
         ],
-        "storyName": "IT'S TOO EASY!"
+        "storyName": "IT'S TOO EASY!",
+        "rulesText": "When you play this character, each opponent loses 1 lore. You may draw a card for each 1 lore lost this way."
       }
     ],
     "setId": "1",
@@ -2303,7 +2334,8 @@
             }
           }
         ],
-        "storyName": "YOU'RE EXCUSED"
+        "storyName": "YOU'RE EXCUSED",
+        "rulesText": "Whenever this character quests, look at the top card of your deck. Put it on either the top or the bottom of your deck."
       }
     ],
     "setId": "1",
@@ -2493,7 +2525,8 @@
             }
           }
         ],
-        "storyName": "SPEAK!"
+        "storyName": "SPEAK!",
+        "rulesText": "{E}, 4 {I} — Draw a card."
       }
     ],
     "setId": "1",
@@ -2528,7 +2561,8 @@
             }
           }
         ],
-        "storyName": "PEER INTO THE DEPTHS"
+        "storyName": "PEER INTO THE DEPTHS",
+        "rulesText": "{E} — Look at the top 2 cards of your deck. Put one on the top of your deck and the other on the bottom."
       }
     ],
     "setId": "1",
@@ -2576,7 +2610,8 @@
             "duration": "end_of_turn"
           }
         ],
-        "storyName": "I'M LATE!"
+        "storyName": "I'M LATE!",
+        "rulesText": "{E}, 1 {I} — Chosen character gains Rush this turn. (They can challenge the turn they're played.)"
       }
     ],
     "setId": "1",
@@ -2653,7 +2688,8 @@
             }
           }
         ],
-        "storyName": "ROAR"
+        "storyName": "ROAR",
+        "rulesText": "When you play this character, exert all opposing damaged characters."
       }
     ],
     "setId": "1",
@@ -2690,7 +2726,8 @@
             }
           }
         ],
-        "storyName": "LOSE SOMETHING"
+        "storyName": "LOSE SOMETHING",
+        "rulesText": "? When this character is challenged and banished, banish the challenging character."
       }
     ],
     "setId": "1",
@@ -2735,7 +2772,8 @@
             "isMay": true
           }
         ],
-        "storyName": "YOU'LL BE SORRY!"
+        "storyName": "YOU'LL BE SORRY!",
+        "rulesText": "When this character is challenged and banished, you may return chosen character to their player's hand."
       }
     ],
     "setId": "1",
@@ -2798,7 +2836,8 @@
             "chooser": "target_player"
           }
         ],
-        "storyName": "HERE COMES THE SMOLDER"
+        "storyName": "HERE COMES THE SMOLDER",
+        "rulesText": "Whenever this character is challenged, the challenging player chooses and discards a card."
       }
     ],
     "setId": "1",
@@ -2847,7 +2886,8 @@
             "isMay": true
           }
         ],
-        "storyName": "DISAPPEAR"
+        "storyName": "DISAPPEAR",
+        "rulesText": "When you play this character, you may return chosen character to their player's hand."
       }
     ],
     "setId": "1",
@@ -2902,7 +2942,8 @@
             "isMay": true
           }
         ],
-        "storyName": "PHENOMENAL COSMIC POWER!"
+        "storyName": "PHENOMENAL COSMIC POWER!",
+        "rulesText": "Whenever this character quests, you may play an action with cost 5 or less for free."
       }
     ],
     "setId": "1",
@@ -3017,7 +3058,8 @@
             "duration": "end_of_owner_next_turn"
           }
         ],
-        "storyName": "YOU GOT A PROBLEM"
+        "storyName": "YOU GOT A PROBLEM",
+        "rulesText": "? {E} — Chosen character gains Reckless during their next turn. (They can't quest and must challenge if able.)"
       }
     ],
     "setId": "1",
@@ -3064,7 +3106,8 @@
             "duration": "end_of_owner_next_turn"
           }
         ],
-        "storyName": "PUPPYNAPPING"
+        "storyName": "PUPPYNAPPING",
+        "rulesText": "Whenever this character quests, chosen opposing character can't quest during their next turn."
       }
     ],
     "setId": "1",
@@ -3116,7 +3159,8 @@
             "duration": "end_of_owner_next_turn"
           }
         ],
-        "storyName": "PICK YOUR FIGHTS"
+        "storyName": "PICK YOUR FIGHTS",
+        "rulesText": "When you play this character and whenever he quests, chosen opposing character gains Reckless during their next turn. (They can't quest and must challenge if able.)"
       },
       {
         "type": "triggered",
@@ -3142,7 +3186,8 @@
             "duration": "end_of_owner_next_turn"
           }
         ],
-        "storyName": "PICK YOUR FIGHTS"
+        "storyName": "PICK YOUR FIGHTS",
+        "rulesText": "When you play this character and whenever he quests, chosen opposing character gains Reckless during their next turn. (They can't quest and must challenge if able.)"
       }
     ],
     "setId": "1",
@@ -3208,7 +3253,8 @@
             "isMay": true
           }
         ],
-        "storyName": "NO TOUCHY!"
+        "storyName": "NO TOUCHY!",
+        "rulesText": "When this character is challenged and banished, you may banish the challenging character."
       }
     ],
     "setId": "1",
@@ -3256,7 +3302,8 @@
             "isMay": true
           }
         ],
-        "storyName": "DO IT AGAIN!"
+        "storyName": "DO IT AGAIN!",
+        "rulesText": "When you play this character, you may return an action card from your discard to your hand."
       }
     ],
     "setId": "1",
@@ -3295,7 +3342,8 @@
             "isMay": true
           }
         ],
-        "storyName": "TEA PARTY"
+        "storyName": "TEA PARTY",
+        "rulesText": "Whenever this character is challenged, you may draw a card."
       }
     ],
     "setId": "1",
@@ -3341,7 +3389,8 @@
             "duration": "this_turn"
           }
         ],
-        "storyName": "WONDER BOY"
+        "storyName": "WONDER BOY",
+        "rulesText": "When you play this character, chosen character gets +2 {S} this turn."
       }
     ],
     "setId": "1",
@@ -3402,7 +3451,8 @@
             "duration": "end_of_owner_next_turn"
           }
         ],
-        "storyName": "MISDIRECTION"
+        "storyName": "MISDIRECTION",
+        "rulesText": "Whenever you play an action, chosen opposing character can't quest during their next turn."
       }
     ],
     "setId": "1",
@@ -3459,7 +3509,8 @@
         "effect": {
           "type": "opponent_cant_quest"
         },
-        "storyName": "SKIP THE DRAMA, STAY WITH MAMA"
+        "storyName": "SKIP THE DRAMA, STAY WITH MAMA",
+        "rulesText": "While this character is exerted, opposing characters can't quest."
       }
     ],
     "setId": "1",
@@ -3558,7 +3609,8 @@
             "duration": "end_of_turn"
           }
         ],
-        "storyName": "PIXIE DUST"
+        "storyName": "PIXIE DUST",
+        "rulesText": "When you play this character, chosen character gains Evasive this turn."
       }
     ],
     "setId": "1",
@@ -3838,8 +3890,8 @@
             }
           }
         ],
-        "reminderText": "THE CARDS WILL TELL — ↷ — You pay 1 ink less for the next action you play this turn.",
-        "storyName": "THE CARDS WILL TELL"
+        "storyName": "THE CARDS WILL TELL",
+        "rulesText": "{E} — You pay 1 {I} less for the next action you play this turn."
       }
     ],
     "setId": "1",
@@ -3901,7 +3953,8 @@
             ]
           }
         ],
-        "storyName": "SLASH"
+        "storyName": "SLASH",
+        "rulesText": "{E} — Chosen character gets +1 {S} this turn. If a character named Aladdin is chosen, he gets +2 {S} instead."
       }
     ],
     "setId": "1",
@@ -3970,7 +4023,8 @@
             }
           }
         ],
-        "storyName": "DARING EXPLOIT"
+        "storyName": "DARING EXPLOIT",
+        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you gain 2 lore and each opponent loses 2 lore."
       }
     ],
     "setId": "1",
@@ -4009,7 +4063,8 @@
             }
           }
         ],
-        "storyName": "IMPROVISE"
+        "storyName": "IMPROVISE",
+        "rulesText": "When you play this character, each opponent loses 1 lore."
       }
     ],
     "setId": "1",
@@ -4085,7 +4140,8 @@
             }
           }
         },
-        "storyName": "YOU COWARD!"
+        "storyName": "YOU COWARD!",
+        "rulesText": "While this character is exerted, opposing characters with Evasive gain Reckless. (They can't quest and must challenge if able.)"
       }
     ],
     "setId": "1",
@@ -4164,7 +4220,8 @@
             ]
           }
         ],
-        "storyName": "THAT'S NO BLIZZARD"
+        "storyName": "THAT'S NO BLIZZARD",
+        "rulesText": "Whenever you play a character named Anna, ready this character. This character can't quest for the rest of this turn."
       }
     ],
     "setId": "1",
@@ -4271,7 +4328,8 @@
             ]
           }
         ],
-        "storyName": "FAN THE FLAMES"
+        "storyName": "FAN THE FLAMES",
+        "rulesText": "When you play this character, ready chosen character. They can't quest for the rest of this turn."
       }
     ],
     "setId": "1",
@@ -4317,7 +4375,8 @@
             "isMay": true
           }
         ],
-        "storyName": "DRAGON FIRE"
+        "storyName": "DRAGON FIRE",
+        "rulesText": "When you play this character, you may banish chosen character."
       }
     ],
     "setId": "1",
@@ -4445,7 +4504,8 @@
             "isMay": true
           }
         ],
-        "storyName": "THIS IS NOT WHO YOU ARE"
+        "storyName": "THIS IS NOT WHO YOU ARE",
+        "rulesText": "When you play this character, you may banish chosen character named Te Kā."
       }
     ],
     "setId": "1",
@@ -4496,7 +4556,8 @@
             "duration": "this_turn"
           }
         ],
-        "storyName": "LEAD BY EXAMPLE"
+        "storyName": "LEAD BY EXAMPLE",
+        "rulesText": "During your turn, whenever this character banishes another character in a challenge, your other characters get +1 {L} this turn."
       }
     ],
     "setId": "1",
@@ -4589,7 +4650,8 @@
             }
           }
         ],
-        "storyName": "TANGLE"
+        "storyName": "TANGLE",
+        "rulesText": "When you play this character, each opponent loses 1 lore."
       }
     ],
     "setId": "1",
@@ -4674,7 +4736,8 @@
             ]
           }
         ],
-        "storyName": "ROUSING SPEECH"
+        "storyName": "ROUSING SPEECH",
+        "rulesText": "When you play this character, ready your characters with cost 3 or less. They can't quest for the rest of this turn."
       }
     ],
     "setId": "1",
@@ -5028,7 +5091,8 @@
             ]
           }
         ],
-        "storyName": "TAKE A BITE..."
+        "storyName": "TAKE A BITE...",
+        "rulesText": "1 {I}, Banish this item — Exert chosen character. If a Princess character is chosen, banish her instead."
       }
     ],
     "setId": "1",
@@ -5080,7 +5144,8 @@
             ]
           }
         ],
-        "storyName": "FIREPROOF"
+        "storyName": "FIREPROOF",
+        "rulesText": "{E}, 3 {I} — Ready chosen character. They can't quest for the rest of this turn."
       }
     ],
     "setId": "1",
@@ -5120,7 +5185,8 @@
             }
           }
         ],
-        "storyName": "FINAL ENCHANTMENT"
+        "storyName": "FINAL ENCHANTMENT",
+        "rulesText": "Banish this item — Banish chosen Villain character."
       }
     ],
     "setId": "1",
@@ -5161,7 +5227,8 @@
             "isMay": true
           }
         ],
-        "storyName": "LOOK AT THIS STUFF"
+        "storyName": "LOOK AT THIS STUFF",
+        "rulesText": "Whenever you play an item, you may ready this character."
       }
     ],
     "setId": "1",
@@ -5208,7 +5275,8 @@
             "duration": "this_turn"
           }
         ],
-        "storyName": "DISARMING BEAUTY"
+        "storyName": "DISARMING BEAUTY",
+        "rulesText": "When you play this character, chosen character gets -2 {S} this turn."
       }
     ],
     "setId": "1",
@@ -5255,7 +5323,8 @@
             }
           }
         },
-        "storyName": "PROTECTIVE EMBRACE"
+        "storyName": "PROTECTIVE EMBRACE",
+        "rulesText": "Your other characters gain Ward. (Opponents can't choose them except to challenge.)"
       }
     ],
     "setId": "1",
@@ -5322,7 +5391,8 @@
             }
           }
         ],
-        "storyName": "TINKER"
+        "storyName": "TINKER",
+        "rulesText": "Whenever this character quests, you pay 1 {I} less for the next item you play this turn."
       }
     ],
     "setId": "1",
@@ -5354,7 +5424,8 @@
           "type": "extra_ink_play",
           "amount": 1
         },
-        "storyName": "READ A BOOK"
+        "storyName": "READ A BOOK",
+        "rulesText": "During your turn, you may put an additional card from your hand into your inkwell facedown."
       },
       {
         "type": "static",
@@ -5374,7 +5445,8 @@
             "type": "this"
           }
         },
-        "storyName": "MY FAVORITE PART!"
+        "storyName": "MY FAVORITE PART!",
+        "rulesText": "While you have 10 or more cards in your inkwell, this character gets +4 {L}."
       }
     ],
     "setId": "1",
@@ -5492,7 +5564,8 @@
             "isMay": true
           }
         ],
-        "storyName": "I WILL BE WITH YOU"
+        "storyName": "I WILL BE WITH YOU",
+        "rulesText": "When this character is banished, you may put this card into your inkwell facedown and exerted."
       }
     ],
     "setId": "1",
@@ -5542,7 +5615,8 @@
             "isMay": true
           }
         ],
-        "storyName": "IS THERE A DOWNSIDE TO THIS"
+        "storyName": "IS THERE A DOWNSIDE TO THIS",
+        "rulesText": "? When you play this character, you may put chosen opposing character into their player's inkwell facedown."
       }
     ],
     "setId": "1",
@@ -5621,7 +5695,8 @@
             "isMay": true
           }
         ],
-        "storyName": "CARETAKER"
+        "storyName": "CARETAKER",
+        "rulesText": "When you play this character and whenever she quests, you may remove up to 2 damage from each of your characters."
       },
       {
         "type": "triggered",
@@ -5648,7 +5723,8 @@
             "isMay": true
           }
         ],
-        "storyName": "CARETAKER"
+        "storyName": "CARETAKER",
+        "rulesText": "When you play this character and whenever she quests, you may remove up to 2 damage from each of your characters."
       }
     ],
     "setId": "1",
@@ -5736,7 +5812,8 @@
             }
           }
         ],
-        "storyName": "GIVE IT A TRY"
+        "storyName": "GIVE IT A TRY",
+        "rulesText": "Whenever this character quests, you pay 2 {I} less for the next item you play this turn."
       },
       {
         "type": "triggered",
@@ -5758,7 +5835,8 @@
             "isMay": true
           }
         ],
-        "storyName": "IT WORKS!"
+        "storyName": "IT WORKS!",
+        "rulesText": "Whenever you play an item, you may draw a card."
       }
     ],
     "setId": "1",
@@ -5827,7 +5905,8 @@
             "isMay": true
           }
         ],
-        "storyName": "GET A CLUE"
+        "storyName": "GET A CLUE",
+        "rulesText": "When you play this character, you may put the top card of your deck into your inkwell facedown and exerted."
       }
     ],
     "setId": "1",
@@ -5919,7 +5998,8 @@
             }
           }
         ],
-        "storyName": "FEED THE POOR"
+        "storyName": "FEED THE POOR",
+        "rulesText": "When you play this character, if an opponent has more cards in their hand than you, draw a card."
       },
       {
         "type": "static",
@@ -5933,7 +6013,8 @@
             "type": "this"
           }
         },
-        "storyName": "GOOD SHOT"
+        "storyName": "GOOD SHOT",
+        "rulesText": "During your turn, this character gains Evasive. (They can challenge characters with Evasive.)"
       }
     ],
     "setId": "1",
@@ -5982,7 +6063,8 @@
             "duration": "this_turn"
           }
         ],
-        "storyName": "INSIDIOUS PLOT"
+        "storyName": "INSIDIOUS PLOT",
+        "rulesText": "When you play this character, chosen opposing character gets -5 {S} this turn."
       }
     ],
     "setId": "1",
@@ -6026,7 +6108,8 @@
             "type": "this"
           }
         },
-        "storyName": "GLAM"
+        "storyName": "GLAM",
+        "rulesText": "This character gets +1 {L} for each item you have in play."
       },
       {
         "type": "triggered",
@@ -6051,7 +6134,8 @@
             "isMay": true
           }
         ],
-        "storyName": "WHAT HAVE WE HERE?"
+        "storyName": "WHAT HAVE WE HERE?",
+        "rulesText": "When you play this character and whenever he quests, you may return an item card from your discard to your hand."
       },
       {
         "type": "triggered",
@@ -6076,7 +6160,8 @@
             "isMay": true
           }
         ],
-        "storyName": "WHAT HAVE WE HERE?"
+        "storyName": "WHAT HAVE WE HERE?",
+        "rulesText": "When you play this character and whenever he quests, you may return an item card from your discard to your hand."
       }
     ],
     "setId": "1",
@@ -6300,7 +6385,8 @@
             "isMay": true
           }
         ],
-        "storyName": "CONSIDER THE COCONUT"
+        "storyName": "CONSIDER THE COCONUT",
+        "rulesText": "Whenever you play a character, you may remove up to 2 damage from chosen character."
       }
     ],
     "setId": "1",
@@ -6341,8 +6427,8 @@
             }
           }
         ],
-        "reminderText": "SEE THE FUTURE – ↷: Chosen character gets +1 lore this turn.",
-        "storyName": "SEE THE FUTURE"
+        "storyName": "SEE THE FUTURE",
+        "rulesText": "{E} — Chosen character gets +1 {L} this turn."
       }
     ],
     "setId": "1",
@@ -6382,7 +6468,8 @@
             "enterExerted": false
           }
         ],
-        "storyName": "GO AHEAD AND SIGN"
+        "storyName": "GO AHEAD AND SIGN",
+        "rulesText": "{E} — Put any card from your hand into your inkwell facedown."
       }
     ],
     "setId": "1",
@@ -6423,7 +6510,8 @@
             "isUpTo": true
           }
         ],
-        "storyName": "HEALING POLLEN"
+        "storyName": "HEALING POLLEN",
+        "rulesText": "Banish this item — Remove up to 3 damage from chosen character."
       }
     ],
     "setId": "1",
@@ -6467,7 +6555,8 @@
             "duration": "end_of_turn"
           }
         ],
-        "storyName": "COMMAND"
+        "storyName": "COMMAND",
+        "rulesText": "{E} — Chosen character gains Support this turn. (Whenever they quest, you may add their {S} to another chosen character's {S} this turn.)"
       }
     ],
     "setId": "1",
@@ -6530,7 +6619,8 @@
             "isMay": true
           }
         ],
-        "storyName": "BREAK"
+        "storyName": "BREAK",
+        "rulesText": "When you play this character, you may banish chosen item."
       }
     ],
     "setId": "1",
@@ -6581,7 +6671,8 @@
             "isMay": true
           }
         ],
-        "storyName": "DOUBLE THE POWDER!"
+        "storyName": "DOUBLE THE POWDER!",
+        "rulesText": "When you play this character, you may return an action card named Fire the Cannons! from your discard to your hand."
       }
     ],
     "setId": "1",
@@ -6659,7 +6750,8 @@
             "costAtMost": 3
           }
         },
-        "storyName": "STOLEN DUST"
+        "storyName": "STOLEN DUST",
+        "rulesText": "Characters with cost 3 or less can't challenge this character."
       }
     ],
     "setId": "1",
@@ -6732,7 +6824,8 @@
             }
           }
         },
-        "storyName": "STAY ALERT!"
+        "storyName": "STAY ALERT!",
+        "rulesText": "During your turn, your Musketeer characters gain Evasive. (They can challenge characters with Evasive.)"
       }
     ],
     "setId": "1",
@@ -6765,7 +6858,8 @@
             "costAtMost": 2
           }
         },
-        "storyName": "UNDER ARREST"
+        "storyName": "UNDER ARREST",
+        "rulesText": "Characters with cost 2 or less can't challenge your characters."
       }
     ],
     "setId": "1",
@@ -6834,7 +6928,8 @@
             "isMay": true
           }
         ],
-        "storyName": "STAGE A LITTLE ACCIDENT"
+        "storyName": "STAGE A LITTLE ACCIDENT",
+        "rulesText": "Whenever this character quests, you may deal 1 damage to chosen character."
       }
     ],
     "setId": "1",
@@ -7002,7 +7097,8 @@
             }
           }
         },
-        "storyName": "ALL FOR ONE"
+        "storyName": "ALL FOR ONE",
+        "rulesText": "Your other Musketeer characters get +1 {S}."
       }
     ],
     "setId": "1",
@@ -7078,7 +7174,8 @@
             "chooser": "target_player"
           }
         ],
-        "storyName": "GUESS WHAT"
+        "storyName": "GUESS WHAT",
+        "rulesText": "? When you play this character, you may draw a card, then choose and discard a card."
       }
     ],
     "setId": "1",
@@ -7121,7 +7218,8 @@
             "type": "this"
           }
         },
-        "storyName": "POUNCE"
+        "storyName": "POUNCE",
+        "rulesText": "During your turn, this character gains Evasive. (They can challenge characters with Evasive.)"
       }
     ],
     "setId": "1",
@@ -7161,7 +7259,8 @@
             }
           }
         ],
-        "storyName": "I KNOW WHAT I HAVE TO DO"
+        "storyName": "I KNOW WHAT I HAVE TO DO",
+        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you gain 1 lore."
       }
     ],
     "setId": "1",
@@ -7204,7 +7303,8 @@
             "type": "this"
           }
         },
-        "storyName": "AYE AYE, CAPTAIN"
+        "storyName": "AYE AYE, CAPTAIN",
+        "rulesText": "While you have a Captain character in play, this character gets +1 {L}."
       }
     ],
     "setId": "1",
@@ -7244,7 +7344,8 @@
             }
           }
         ],
-        "storyName": "SEEK THE HEART"
+        "storyName": "SEEK THE HEART",
+        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you gain 2 lore."
       }
     ],
     "setId": "1",
@@ -7298,7 +7399,8 @@
             }
           }
         ],
-        "storyName": "ROCK THE BOAT"
+        "storyName": "ROCK THE BOAT",
+        "rulesText": "When you play this character, deal 1 damage to each opposing character."
       },
       {
         "type": "triggered",
@@ -7324,7 +7426,8 @@
             "isMay": true
           }
         ],
-        "storyName": "PUNY PIRATE!"
+        "storyName": "PUNY PIRATE!",
+        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character."
       }
     ],
     "setId": "1",
@@ -7374,7 +7477,8 @@
             "chooser": "target_player"
           }
         ],
-        "storyName": "BATTLE PLANS"
+        "storyName": "BATTLE PLANS",
+        "rulesText": "{E} — Draw a card, then choose and discard a card."
       }
     ],
     "setId": "1",
@@ -7611,7 +7715,8 @@
             }
           }
         ],
-        "storyName": "SHOW ME"
+        "storyName": "SHOW ME",
+        "rulesText": "{E}, 3 {I} — If you have no cards in your hand, draw a card."
       }
     ],
     "setId": "1",
@@ -7651,8 +7756,8 @@
             "duration": "end_of_owner_next_turn"
           }
         ],
-        "reminderText": "CLANG! — Banish this item — Chosen character can't challenge during their next turn.",
-        "storyName": "CLANG!"
+        "storyName": "CLANG!",
+        "rulesText": "Banish this item — Chosen character can't challenge during their next turn."
       }
     ],
     "setId": "1",
@@ -7694,7 +7799,8 @@
             "isMay": true
           }
         ],
-        "storyName": "ALL FOR ONE AND ONE FOR ALL"
+        "storyName": "ALL FOR ONE AND ONE FOR ALL",
+        "rulesText": "Whenever one of your characters with Bodyguard is banished, you may draw a card."
       }
     ],
     "setId": "1",
@@ -7738,7 +7844,8 @@
             }
           }
         ],
-        "storyName": "QUICK SHOT"
+        "storyName": "QUICK SHOT",
+        "rulesText": "{E}, 2 {I} — Deal 1 damage to chosen character."
       }
     ],
     "setId": "1",
@@ -7787,7 +7894,8 @@
             "type": "this"
           }
         },
-        "storyName": "SINISTER PLOT"
+        "storyName": "SINISTER PLOT",
+        "rulesText": "This character gets +1 {L} for each other Villain character you have in play."
       }
     ],
     "setId": "1",
@@ -7836,7 +7944,8 @@
             "isMay": true
           }
         ],
-        "storyName": "OHANA"
+        "storyName": "OHANA",
+        "rulesText": "When you play this character, if you have 2 or more other characters in play, you may draw 2 cards."
       }
     ],
     "setId": "1",
@@ -7897,7 +8006,8 @@
             ]
           }
         ],
-        "storyName": "DEEP FREEZE"
+        "storyName": "DEEP FREEZE",
+        "rulesText": "When you play this character, exert up to 2 chosen characters. They can't ready at the start of their next turn."
       }
     ],
     "setId": "1",
@@ -7931,7 +8041,8 @@
             "hasTrait": "Broom"
           }
         },
-        "storyName": "ANIMATE BROOM"
+        "storyName": "ANIMATE BROOM",
+        "rulesText": "You pay 1 {I} less to play Broom characters."
       },
       {
         "type": "triggered",
@@ -7953,7 +8064,8 @@
             "isMay": true
           }
         ],
-        "storyName": "CEASELESS WORKER"
+        "storyName": "CEASELESS WORKER",
+        "rulesText": "Whenever one of your Broom characters is banished in a challenge, you may return that card to your hand."
       }
     ],
     "setId": "1",
@@ -8001,7 +8113,8 @@
             "isMay": true
           }
         ],
-        "storyName": "DISAPPEAR"
+        "storyName": "DISAPPEAR",
+        "rulesText": "When you play this character, you may return chosen character to their player's hand."
       }
     ],
     "setId": "1",
@@ -8061,7 +8174,8 @@
             "duration": "end_of_owner_next_turn"
           }
         ],
-        "storyName": "MISDIRECTION"
+        "storyName": "MISDIRECTION",
+        "rulesText": "Whenever you play an action, chosen opposing character can't quest during their next turn."
       }
     ],
     "setId": "1",
@@ -8112,7 +8226,8 @@
             }
           }
         ],
-        "storyName": "DARING EXPLOIT"
+        "storyName": "DARING EXPLOIT",
+        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you gain 2 lore and each opponent loses 2 lore."
       }
     ],
     "setId": "1",
@@ -8190,7 +8305,8 @@
             }
           }
         },
-        "storyName": "PROTECTIVE EMBRACE"
+        "storyName": "PROTECTIVE EMBRACE",
+        "rulesText": "Your other characters gain Ward. (Opponents can't choose them except to challenge.)"
       }
     ],
     "setId": "1",
@@ -8222,7 +8338,8 @@
           "type": "extra_ink_play",
           "amount": 1
         },
-        "storyName": "READ A BOOK"
+        "storyName": "READ A BOOK",
+        "rulesText": "During your turn, you may put an additional card from your hand into your inkwell facedown."
       },
       {
         "type": "static",
@@ -8242,7 +8359,8 @@
             "type": "this"
           }
         },
-        "storyName": "MY FAVORITE PART!"
+        "storyName": "MY FAVORITE PART!",
+        "rulesText": "While you have 10 or more cards in your inkwell, this character gets +4 {L}."
       }
     ],
     "setId": "1",
@@ -8284,7 +8402,8 @@
             "type": "this"
           }
         },
-        "storyName": "POUNCE"
+        "storyName": "POUNCE",
+        "rulesText": "During your turn, this character gains Evasive. (They can challenge characters with Evasive.)"
       }
     ],
     "setId": "1",
@@ -8337,7 +8456,8 @@
             }
           }
         ],
-        "storyName": "ROCK THE BOAT"
+        "storyName": "ROCK THE BOAT",
+        "rulesText": "When you play this character, deal 1 damage to each opposing character."
       },
       {
         "type": "triggered",
@@ -8363,7 +8483,8 @@
             "isMay": true
           }
         ],
-        "storyName": "PUNY PIRATE!"
+        "storyName": "PUNY PIRATE!",
+        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character."
       }
     ],
     "setId": "1",
