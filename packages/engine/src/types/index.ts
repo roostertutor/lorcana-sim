@@ -20,6 +20,8 @@ export type InkColor =
   | "sapphire"
   | "steel";
 export type CardType = "character" | "action" | "item" | "location";
+/** CRD 6.6.1: Unified type for actions that ability modifiers can restrict. */
+export type RestrictedAction = "quest" | "challenge" | "ready" | "play" | "sing";
 export type Keyword =
   | "evasive"
   | "rush"
@@ -104,7 +106,7 @@ export interface StaticAbility {
 export type Effect =
   | DrawEffect
   | DealDamageEffect
-  | HealEffect
+  | RemoveDamageEffect
   | BanishEffect
   | ReturnToHandEffect
   | GainLoreEffect
@@ -146,8 +148,8 @@ export interface DealDamageEffect {
   isUpTo?: boolean;
 }
 
-export interface HealEffect {
-  type: "heal";
+export interface RemoveDamageEffect {
+  type: "remove_damage";
   amount: number;
   target: CardTarget;
   /** CRD 6.1.3: "up to" — player may choose 0..amount. Engine resolves at max for now. */
@@ -240,14 +242,14 @@ export interface ReadyEffect {
 /** Unified "can't do X" timed debuff. Replaces cant_quest, cant_ready, cant_challenge. */
 export interface CantActionEffect {
   type: "cant_action";
-  action: "quest" | "challenge" | "ready";
+  action: RestrictedAction;
   target: CardTarget;
   duration: EffectDuration;
 }
 
 /**
  * Look at top N cards of deck. Bot resolves automatically:
- * - "one_to_hand_rest_bottom": pick one card (optionally matching filter) to hand, rest to bottom
+ * - "one_to_hand_rest_bottom": pick one card (optionally matching filter) to hand, rest to bottom in original order (bot simplification — no user-chosen reorder)
  * - "top_or_bottom": look at one card, put on top or bottom
  * - "reorder": look at N cards, put back in any order (bot uses default order)
  */
@@ -441,7 +443,7 @@ export interface CostReductionStatic {
 export interface ActionRestrictionStatic {
   type: "action_restriction";
   /** Which action is restricted */
-  restricts: "quest" | "challenge" | "play" | "sing";
+  restricts: RestrictedAction;
   /** Which player's characters are restricted (from the card owner's perspective) */
   affectedPlayer: PlayerTarget;
   /** Optional: only characters matching this filter are restricted */
@@ -568,7 +570,7 @@ export interface TimedEffect {
   value?: number | undefined;       // for keyword values (e.g. Challenger +N)
   amount?: number | undefined;      // for modify_* effects
   /** For cant_action: which action is restricted */
-  action?: "quest" | "challenge" | "ready" | undefined;
+  action?: RestrictedAction | undefined;
   expiresAt: EffectDuration;
   /** Turn number when this effect was applied (for multi-turn expiry) */
   appliedOnTurn: number;

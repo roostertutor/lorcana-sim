@@ -63,8 +63,14 @@
 ### 1.9 Damage
 | Rule | Quote | Status |
 |------|-------|--------|
-| 1.9.1 | Damage represented by counters; can be dealt/put/removed/moved/taken | ✅ `damage` field on `CardInstance` |
-| 1.9.3 | When a character leaves play, all damage counters cease to exist | ✅ `moveCard` moves to discard, damage stays on instance but is irrelevant |
+| 1.9.1 | Damage represented by damage counters; each counter = 1 damage; can be dealt/put/removed/moved/taken | ✅ Damage counters tracked on `CardInstance` as `damage: number` |
+| 1.9.1.1 | Deal/Dealt – placing damage counters during a challenge or from an effect that deals damage | ✅ `deal_damage` effect + challenge damage in reducer |
+| 1.9.1.2 | Put – placing damage counters from an effect that puts damage on a character/location | ❌ No distinction between "deal" and "put" damage (both use `deal_damage`) |
+| 1.9.1.3 | Remove/Removed – taking damage counters off as a result of an effect that removes damage | ✅ `remove_damage` effect (being renamed from "heal" to match CRD terminology) |
+| 1.9.1.4 | Move – taking damage counters off one character/location and placing on another | ❌ Not implemented (no move-damage effect) |
+| 1.9.1.5 | Take – a character/location takes damage whenever damage is dealt to, put on, or moved to it | ⚠️ Implicit — any damage placement triggers "takes damage" but no explicit tracking |
+| 1.9.2 | "Is damaged" / "was damaged" / "is dealt damage" / "was dealt damage" all mean "takes damage" for printed text | ⚠️ `hasDamage` filter exists but "was damaged" / "is dealt damage" event tracking not distinct |
+| 1.9.3 | When a character/location with damage leaves play, all damage counters cease to exist | ✅ Damage cleared when card leaves play (`moveCard` resets card state) |
 
 ### 1.11 Lore
 | Rule | Quote | Status |
@@ -276,6 +282,11 @@
 | Rule | Quote | Status |
 |------|-------|--------|
 | 6.5 | Replacement effects (entire section) | ❌ Not implemented |
+
+### 6.6 Ability Modifiers
+| Rule | Quote | Status |
+|------|-------|--------|
+| 6.6.1 | Ability modifiers restrict actions for a duration or while source in play | ✅ Unified query `isActionRestricted()` checks both `TimedEffect` (per-card debuffs) and `ActionRestrictionStatic` (board-level rules). `RestrictedAction` type covers quest/challenge/ready/play/sing. |
 
 ---
 

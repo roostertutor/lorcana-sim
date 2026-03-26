@@ -806,7 +806,7 @@ describe("§5.4 Action card effects (data-driven)", () => {
     expect(getInstance(resolve.newState, cardId).zone).toBe("discard");
   });
 
-  // --- heal action ---
+  // --- remove_damage action ---
 
   it("Healing Glow removes up to 2 damage from chosen character", () => {
     let state = startGame(["healing-glow"]);
@@ -2326,8 +2326,8 @@ describe("Activated ability: banish_self cost", () => {
     expect(getInstance(resolveResult.newState, villainId).zone).toBe("discard");
   });
 
-  // Magic Golden Flower: banish self → heal 3 chosen character (isUpTo)
-  it("Magic Golden Flower: banishes self and heals chosen character", () => {
+  // Magic Golden Flower: banish self → remove_damage 3 chosen character (isUpTo)
+  it("Magic Golden Flower: banishes self and removes damage from chosen character", () => {
     let state = startGame();
     let flowerId: string, charId: string;
     ({ state, instanceId: flowerId } = injectCard(state, "player1", "magic-golden-flower", "play"));

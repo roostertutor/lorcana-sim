@@ -37,9 +37,8 @@ import {
   getKeywordValue,
   getOpponent,
   getZone,
-  hasCantQuest,
-  hasCantReady,
   hasKeyword,
+  isActionRestricted,
   isSong,
   matchesFilter,
   moveCard,
@@ -754,11 +753,13 @@ function applyPassTurn(
   };
 
   // Ready all of opponent's cards in play and inkwell (CRD 3.2.1.1)
-  // Respect "can't ready" timed effects
+  // CRD 6.6.1: Respect "can't ready" from both timed effects and static modifiers
+  const modifiers = getGameModifiers(state, definitions);
   const opponentPlay = getZone(state, opponent, "play");
   for (const id of opponentPlay) {
     const inst = getInstance(state, id);
-    if (hasCantReady(inst)) {
+    const def = definitions[inst.definitionId];
+    if (def && isActionRestricted(inst, def, "ready", opponent, state, modifiers)) {
       // CRD: Can't ready — only clear isDrying, keep exerted
       state = updateInstance(state, id, { isDrying: false });
     } else {
@@ -1049,7 +1050,7 @@ export function applyEffect(
       return state;
     }
 
-    case "heal": {
+    case "remove_damage": {
       if (effect.target.type === "this") {
         const instance = getInstance(state, sourceInstanceId);
         return updateInstance(state, sourceInstanceId, {
@@ -1063,7 +1064,7 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: "Choose a character to heal.",
+            prompt: "Choose a character to remove damage from.",
             validTargets,
             pendingEffect: effect,
             optional: true, // "Remove up to N" — player can decline
@@ -1984,7 +1985,7 @@ function applyEffectToTarget(
         tempLoreModifier: instance.tempLoreModifier + (effect.lore ?? 0),
       });
     }
-    case "heal": {
+    case "remove_damage": {
       const instance = getInstance(state, targetInstanceId);
       const actualHeal = Math.min(effect.amount, instance.damage);
       state = updateInstance(state, targetInstanceId, {

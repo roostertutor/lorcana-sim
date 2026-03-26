@@ -18,9 +18,8 @@ import {
   getInstance,
   getOpponent,
   getZone,
-  hasCantChallenge,
-  hasCantQuest,
   hasKeyword,
+  isActionRestricted,
   isMainPhase,
   isSong,
   matchesFilter,
@@ -108,15 +107,12 @@ function validatePlayCard(
     if (singer.ownerId !== playerId) return fail("You don't own the singer.");
     if (singer.isExerted) return fail("Singer is already exerted.");
     if (singer.isDrying) return fail("Singer is still drying and cannot sing.");
-    // Check sing restrictions (Ariel - On Human Legs, and future cards)
+    // CRD 6.6.1: Check sing restrictions (timed effects + statics like Ariel - On Human Legs)
     const modifiers = getGameModifiers(state, definitions);
     const singerInst = getInstance(state, singerInstanceId);
     const singerDef2 = getDefinition(state, singerInstanceId, definitions);
-    for (const r of modifiers.actionRestrictions) {
-      if (r.restricts !== "sing" || r.affectedPlayerId !== playerId) continue;
-      if (!r.filter || matchesFilter(singerInst, singerDef2, r.filter, state, playerId)) {
-        return fail("This character can't sing songs.");
-      }
+    if (isActionRestricted(singerInst, singerDef2, "sing", playerId, state, modifiers)) {
+      return fail("This character can't sing songs.");
     }
     const singerDef = getDefinition(state, singerInstanceId, definitions);
     if (!canSingSong(singer, singerDef, def)) {
@@ -219,7 +215,6 @@ function validateQuest(
   if (instance.zone !== "play") return fail("Card is not in play.");
   if (instance.isExerted) return fail("This character is already exerted."); // CRD 4.5.1.3
   if (instance.isDrying) return fail("This character is still drying and cannot quest."); // CRD 5.1.1.11
-  if (hasCantQuest(instance)) return fail("This character can't quest this turn.");
 
   const def = getDefinition(state, instanceId, definitions);
   if (def.cardType !== "character") return fail("Only characters can quest."); // CRD 5.3.4
@@ -227,13 +222,10 @@ function validateQuest(
   if (hasKeyword(instance, def, "reckless")) return fail("Reckless characters can't quest.");
   if (!def.lore || def.lore <= 0) return fail("This character has no lore value."); // CRD 4.5.3.1
 
-  // Check action restrictions (e.g. Mother Gothel: opposing characters can't quest)
+  // CRD 6.6.1: Unified check for quest restrictions (timed effects + statics like Gothel)
   const modifiers = getGameModifiers(state, definitions);
-  for (const r of modifiers.actionRestrictions) {
-    if (r.restricts !== "quest" || r.affectedPlayerId !== playerId) continue;
-    if (!r.filter || matchesFilter(instance, def, r.filter, state, playerId)) {
-      return fail("This character can't quest.");
-    }
+  if (isActionRestricted(instance, def, "quest", playerId, state, modifiers)) {
+    return fail("This character can't quest.");
   }
 
   return OK;
@@ -262,15 +254,17 @@ function validateChallenge(
 
   if (attackerDef.cardType !== "character") return fail("Only characters can challenge."); // CRD 5.3.4
 
-  // Frying Pan: "can't challenge during their next turn"
-  if (hasCantChallenge(attacker)) return fail("This character can't challenge this turn.");
-
   const defender = getInstance(state, defenderInstanceId);
   const opponent = getOpponent(playerId);
   if (defender.ownerId !== opponent) return fail("Can only challenge opponent's cards.");
   if (defender.zone !== "play") return fail("Defender is not in play.");
 
   const modifiers = getGameModifiers(state, definitions);
+
+  // CRD 6.6.1: Unified check for challenge restrictions (timed effects like Frying Pan + statics like Gantu)
+  if (isActionRestricted(attacker, attackerDef, "challenge", playerId, state, modifiers)) {
+    return fail("This character can't challenge.");
+  }
 
   // CRD 4.6.4.2: defender must be exerted (unless modifier overrides)
   if (!defender.isExerted && !modifiers.canChallengeReady.has(attackerInstanceId)) {
@@ -286,14 +280,6 @@ function validateChallenge(
     // Filter present = only attackers matching the filter are blocked
     if (matchesFilter(attacker, attackerDef, attackerFilter, state, playerId)) {
       return fail("This character cannot be challenged by this attacker.");
-    }
-  }
-
-  // Action restrictions on challenging (e.g. Gantu: cost ≤ 2 can't challenge)
-  for (const r of modifiers.actionRestrictions) {
-    if (r.restricts !== "challenge" || r.affectedPlayerId !== playerId) continue;
-    if (!r.filter || matchesFilter(attacker, attackerDef, r.filter, state, playerId)) {
-      return fail("This character is not allowed to challenge.");
     }
   }
 

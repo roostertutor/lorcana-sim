@@ -11,6 +11,7 @@ import type {
   GameState,
   Keyword,
   PlayerID,
+  RestrictedAction,
   ZoneName,
 } from "../types/index.js";
 
@@ -109,6 +110,34 @@ export function hasCantAction(instance: CardInstance, action: "quest" | "challen
 export function hasCantQuest(instance: CardInstance): boolean { return hasCantAction(instance, "quest"); }
 export function hasCantReady(instance: CardInstance): boolean { return hasCantAction(instance, "ready"); }
 export function hasCantChallenge(instance: CardInstance): boolean { return hasCantAction(instance, "challenge"); }
+
+/**
+ * CRD 6.6.1: Unified query for whether an action is restricted on a card.
+ * Checks both timed effects (per-card debuffs) and static game modifiers
+ * (board-level rules from in-play cards).
+ * Takes GameModifiers as param to avoid circular imports (utils can't import engine).
+ */
+export function isActionRestricted(
+  instance: CardInstance,
+  definition: CardDefinition,
+  action: RestrictedAction,
+  playerId: PlayerID,
+  state: GameState,
+  modifiers: { actionRestrictions: { restricts: string; affectedPlayerId: PlayerID; filter?: CardFilter }[] }
+): boolean {
+  // Source 1: timed effects on the card
+  if (instance.timedEffects.some(te => te.type === "cant_action" && te.action === action)) {
+    return true;
+  }
+  // Source 2: static restrictions from gameModifiers
+  for (const r of modifiers.actionRestrictions) {
+    if (r.restricts !== action || r.affectedPlayerId !== playerId) continue;
+    if (!r.filter || matchesFilter(instance, definition, r.filter, state, playerId)) {
+      return true;
+    }
+  }
+  return false;
+}
 
 /** Get the effective ink cost (may be reduced by effects in future) */
 export function getEffectiveCost(

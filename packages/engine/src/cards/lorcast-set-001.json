@@ -113,7 +113,7 @@
         ],
         "effects": [
           {
-            "type": "heal",
+            "type": "remove_damage",
             "amount": 3,
             "target": {
               "type": "chosen",
@@ -125,8 +125,7 @@
                 "cardType": [
                   "character"
                 ],
-                "hasTrait": "Princess",
-                "hasDamage": true
+                "hasTrait": "Princess"
               }
             },
             "isUpTo": true
@@ -169,7 +168,7 @@
         },
         "effects": [
           {
-            "type": "heal",
+            "type": "remove_damage",
             "amount": 2,
             "target": {
               "type": "all",
@@ -682,7 +681,7 @@
         },
         "effects": [
           {
-            "type": "heal",
+            "type": "remove_damage",
             "amount": 3,
             "target": {
               "type": "chosen",
@@ -938,7 +937,7 @@
         },
         "effects": [
           {
-            "type": "heal",
+            "type": "remove_damage",
             "amount": 1,
             "isUpTo": true,
             "target": {
@@ -1041,7 +1040,7 @@
     "abilities": [],
     "actionEffects": [
       {
-        "type": "heal",
+        "type": "remove_damage",
         "amount": 3,
         "isUpTo": true,
         "target": {
@@ -1075,7 +1074,7 @@
     "abilities": [],
     "actionEffects": [
       {
-        "type": "heal",
+        "type": "remove_damage",
         "amount": 2,
         "isUpTo": true,
         "target": {
@@ -1203,7 +1202,7 @@
         ],
         "effects": [
           {
-            "type": "heal",
+            "type": "remove_damage",
             "amount": 1,
             "isUpTo": true,
             "target": {
@@ -5690,7 +5689,7 @@
         },
         "effects": [
           {
-            "type": "heal",
+            "type": "remove_damage",
             "amount": 2,
             "target": {
               "type": "all",
@@ -5718,7 +5717,7 @@
         },
         "effects": [
           {
-            "type": "heal",
+            "type": "remove_damage",
             "amount": 2,
             "target": {
               "type": "all",
@@ -6383,7 +6382,7 @@
         },
         "effects": [
           {
-            "type": "heal",
+            "type": "remove_damage",
             "amount": 2,
             "target": {
               "type": "chosen",
@@ -6509,7 +6508,7 @@
         ],
         "effects": [
           {
-            "type": "heal",
+            "type": "remove_damage",
             "amount": 3,
             "target": {
               "type": "chosen",

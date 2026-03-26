@@ -38,9 +38,9 @@ export interface GameModifiers {
   /** Static cost reductions (e.g. Mickey: Broom chars cost 1 less). Key = playerId. */
   costReductions: Map<import("../types/index.js").PlayerID, { amount: number; filter: import("../types/index.js").CardFilter }[]>;
 
-  /** Action restrictions (quest/challenge/play) from static abilities. */
+  /** Action restrictions (quest/challenge/play/sing/ready) from static abilities. */
   actionRestrictions: {
-    restricts: "quest" | "challenge" | "play" | "sing";
+    restricts: import("../types/index.js").RestrictedAction;
     /** The player whose characters are restricted */
     affectedPlayerId: import("../types/index.js").PlayerID;
     /** Only characters matching this filter are restricted (undefined = all) */
