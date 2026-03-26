@@ -2152,7 +2152,15 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "costs": [{ "type": "exert" }],
+        "effects": [
+          { "type": "grant_keyword", "keyword": "reckless", "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } }, "duration": "end_of_owner_next_turn" }
+        ]
+      }
+    ],
     "setId": "1",
     "number": 80,
     "rarity": "rare",
@@ -2204,7 +2212,22 @@
       "Pirate",
       "Captain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "enters_play" },
+        "effects": [
+          { "type": "grant_keyword", "keyword": "reckless", "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"], "owner": { "type": "opponent" } } }, "duration": "end_of_owner_next_turn" }
+        ]
+      },
+      {
+        "type": "triggered",
+        "trigger": { "on": "quests" },
+        "effects": [
+          { "type": "grant_keyword", "keyword": "reckless", "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"], "owner": { "type": "opponent" } } }, "duration": "end_of_owner_next_turn" }
+        ]
+      }
+    ],
     "setId": "1",
     "number": 82,
     "rarity": "legendary",
@@ -2637,6 +2660,7 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
+    "actionEffects": [{ "type": "grant_keyword", "keyword": "reckless", "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } }, "duration": "end_of_owner_next_turn" }],
     "setId": "1",
     "number": 99,
     "rarity": "uncommon",

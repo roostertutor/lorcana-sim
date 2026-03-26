@@ -54,7 +54,7 @@ export function validateAction(
     case "ACTIVATE_ABILITY":
       return validateActivateAbility(state, action.playerId, action.instanceId, action.abilityIndex, definitions);
     case "PASS_TURN":
-      return validatePassTurn(state, action.playerId);
+      return validatePassTurn(state, action.playerId, definitions);
     case "RESOLVE_CHOICE":
       return validateResolveChoice(state, action.playerId, action.choice, definitions);
     case "DRAW_CARD":
@@ -162,6 +162,8 @@ function validateQuest(
 
   const def = getDefinition(state, instanceId, definitions);
   if (def.cardType !== "character") return fail("Only characters can quest."); // CRD 5.3.4
+  // CRD 8.7.2: Reckless characters can't quest
+  if (hasKeyword(instance, def, "reckless")) return fail("Reckless characters can't quest.");
   if (!def.lore || def.lore <= 0) return fail("This character has no lore value."); // CRD 4.5.3.1
 
   return OK;
@@ -274,8 +276,37 @@ function validateActivateAbility(
   return OK;
 }
 
-function validatePassTurn(state: GameState, playerId: PlayerID): ValidationResult {
+function validatePassTurn(
+  state: GameState,
+  playerId: PlayerID,
+  definitions: Record<string, CardDefinition>
+): ValidationResult {
   if (state.currentPlayer !== playerId) return fail("Not your turn.");
+
+  // CRD 8.7.3: Can't pass if you have a ready Reckless character with valid challenge targets
+  const myPlay = getZone(state, playerId, "play");
+  const opponent = getOpponent(playerId);
+  const modifiers = getGameModifiers(state, definitions);
+
+  for (const id of myPlay) {
+    const inst = getInstance(state, id);
+    if (inst.isExerted) continue; // already exerted — obligation satisfied
+    const def = definitions[inst.definitionId];
+    if (!def || def.cardType !== "character") continue;
+    if (!hasKeyword(inst, def, "reckless")) continue;
+
+    // This character is ready and Reckless — check if it has any valid challenge target
+    const opponentPlay = getZone(state, opponent, "play");
+    const hasTarget = opponentPlay.some((defId) => {
+      const result = validateChallenge(state, playerId, id, defId, definitions);
+      return result.valid;
+    });
+
+    if (hasTarget) {
+      return fail(`${def.fullName} has Reckless and must challenge before passing.`);
+    }
+  }
+
   return OK;
 }
 

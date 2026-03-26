@@ -26,7 +26,7 @@ deck analytics, win rates, consistency metrics, and card evaluation.
 | `@lorcana-sim/cli` | ✅ Done | analyze, compare, optimize, sweep |
 | `@lorcana-sim/ui` | ✅ Done | 5 screens, runs in-browser |
 | Card import script | ✅ Done | Set 1 imported (216 cards) |
-| Named ability implementations | 🔄 Ongoing | 185 ready (91%), 19 stubs remaining |
+| Named ability implementations | 🔄 Ongoing | 188 ready (92%), 16 stubs remaining |
 | Additional sets (2–11) | ⬜ Pending | `pnpm import-cards --sets 2,3,...` |
 | PersonalBot calibration UI | ⬜ Pending | Analytics function exists, UI screen not built |
 | Layer 4 — Known replays | ⬜ Pending | Schema TBD |
@@ -294,7 +294,7 @@ Re-running the import script overwrites the JSON and regenerates the stub report
 ### Current Import Status
 | Set | Code | Cards | With Effects | Stubs Remaining |
 |---|---|---|---|---|
-| The First Chapter | 1 | 216 (204 unique) | 185 (91%) | 19 |
+| The First Chapter | 1 | 216 (204 unique) | 188 (92%) | 16 |
 | Rise of the Floodborn | 2 | — | — | not imported |
 | Into the Inklands | 3 | — | — | not imported |
 | Ursula's Return | 4 | — | — | not imported |

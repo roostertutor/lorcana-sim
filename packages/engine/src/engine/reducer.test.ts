@@ -1861,8 +1861,69 @@ describe("§8 Keywords", () => {
   // ---------------------------------------------------------------------------
 
   it.todo("Resist: reduces incoming challenge damage by N (CRD 8.8.1)");
-  it.todo("Reckless: character cannot quest (CRD 8.7.2)");
-  it.todo("Reckless: character CAN challenge when not exerted (CRD 8.7.3)");
+  // CRD 8.7.2: Reckless characters can't quest
+  it("Reckless: character cannot quest (CRD 8.7.2)", () => {
+    let state = startGame();
+    let charId: string;
+    // Give character Reckless via granted keyword
+    ({ state, instanceId: charId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", {
+      timedEffects: [{ type: "grant_keyword", keyword: "reckless", expiresAt: "end_of_turn", appliedOnTurn: 1 }],
+    }));
+
+    const result = applyAction(state, {
+      type: "QUEST", playerId: "player1", instanceId: charId,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(/[Rr]eckless/);
+  });
+
+  // CRD 8.7.3: Must challenge before passing if Reckless + ready + valid target
+  it("Reckless: can't pass turn with ready Reckless character that has challenge targets (CRD 8.7.3)", () => {
+    let state = startGame();
+    let charId: string, targetId: string;
+    ({ state, instanceId: charId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", {
+      timedEffects: [{ type: "grant_keyword", keyword: "reckless", expiresAt: "end_of_turn", appliedOnTurn: 1 }],
+    }));
+    // Opponent has an exerted character (valid challenge target)
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isExerted: true }));
+
+    const result = applyAction(state, {
+      type: "PASS_TURN", playerId: "player1",
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(/[Rr]eckless/);
+  });
+
+  // CRD 8.7.4: Can pass if Reckless character has no valid targets
+  it("Reckless: CAN pass if no valid challenge targets exist (CRD 8.7.4)", () => {
+    let state = startGame();
+    let charId: string;
+    ({ state, instanceId: charId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", {
+      timedEffects: [{ type: "grant_keyword", keyword: "reckless", expiresAt: "end_of_turn", appliedOnTurn: 1 }],
+    }));
+    // No exerted opponent characters — no valid challenge targets
+
+    const result = applyAction(state, {
+      type: "PASS_TURN", playerId: "player1",
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+  });
+
+  // CRD 8.7.4: Can pass if Reckless character is already exerted (obligation satisfied)
+  it("Reckless: CAN pass if Reckless character is exerted (CRD 8.7.4)", () => {
+    let state = startGame();
+    let charId: string, targetId: string;
+    ({ state, instanceId: charId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", {
+      isExerted: true,
+      timedEffects: [{ type: "grant_keyword", keyword: "reckless", expiresAt: "end_of_turn", appliedOnTurn: 1 }],
+    }));
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isExerted: true }));
+
+    const result = applyAction(state, {
+      type: "PASS_TURN", playerId: "player1",
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+  });
 });
 
 // =============================================================================

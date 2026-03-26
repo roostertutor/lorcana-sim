@@ -17,12 +17,6 @@ frying-pan
 gantu-galactic-federation-captain
   UNDER ARREST Characters with cost 2 or less can't challenge your characters.
 
-iago-loud-mouthed-parrot
-  YOU GOT A PROBLEM? {E} — Chosen character gains Reckless during their next turn. (They can't quest and must challenge if able.)
-
-john-silver-alien-pirate
-  PICK YOUR FIGHTS When you play this character and whenever he quests, chosen opposing character gains Reckless during their next turn. (They can't quest and must challenge if able.)
-
 lantern
   BIRTHDAY LIGHTS {E} — You pay 1 {I} less for the next character you play this turn.
 
@@ -49,9 +43,6 @@ robin-hood-unrivaled-archer
 
 steal-from-the-rich
   Whenever one of your characters quests this turn, each opponent loses 1 lore.
-
-the-beast-is-mine
-  Chosen character gains Reckless during their next turn. (They can't quest and must challenge if able.)
 
 ursula-power-hungry
   IT'S TOO EASY! When you play this character, each opponent loses 1 lore. You may draw a card for each 1 lore lost this way.

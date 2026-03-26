@@ -9,12 +9,12 @@ to produce deck analytics and win rates. NOT a human-playable simulator.
 
 ## Status
 
-- engine:    done (154 passing, 3 todo). CRD bugs fixed. Tests organized by CRD.
+- engine:    done (158 passing, 1 todo). CRD bugs fixed. Tests organized by CRD.
 - simulator: done. Layer 3 invariants passing.
 - analytics: done. 15 tests passing.
 - cli:       done. analyze, compare, optimize, sweep.
 - ui:        done. 5 screens, React+Vite.
-- cards:     set 1 (204 unique cards, 185 with effects, 19 stubs remaining).
+- cards:     set 1 (204 unique cards, 188 with effects, 16 stubs remaining).
 
 ## Quick Reference
 
