@@ -41,11 +41,14 @@ export interface GameModifiers {
   /** Static cost reductions (e.g. Mickey: Broom chars cost 1 less). Key = playerId. */
   costReductions: Map<import("../types/index.js").PlayerID, { amount: number; filter: import("../types/index.js").CardFilter }[]>;
 
-  /** Players whose opponents can't quest (Mother Gothel while exerted). */
-  opponentCantQuest: Set<import("../types/index.js").PlayerID>;
-
-  /** Challenge restrictions by filter (Gantu: cost ≤ 2 can't challenge your chars). Key = playerId being protected. */
-  cantChallengeByFilter: { protectedPlayerId: import("../types/index.js").PlayerID; filter: import("../types/index.js").CardFilter }[];
+  /** Action restrictions (quest/challenge/play) from static abilities. */
+  actionRestrictions: {
+    restricts: "quest" | "challenge" | "play";
+    /** The player whose characters are restricted */
+    affectedPlayerId: import("../types/index.js").PlayerID;
+    /** Only characters matching this filter are restricted (undefined = all) */
+    filter?: import("../types/index.js").CardFilter;
+  }[];
 
   /** Extra ink plays allowed per turn per player. */
   extraInkPlays: Map<import("../types/index.js").PlayerID, number>;
@@ -67,8 +70,7 @@ export function getGameModifiers(
     cantSing: new Set(),
     grantedKeywords: new Map(),
     costReductions: new Map(),
-    opponentCantQuest: new Set(),
-    cantChallengeByFilter: [],
+    actionRestrictions: [],
     extraInkPlays: new Map(),
   };
 
@@ -180,18 +182,16 @@ export function getGameModifiers(
           break;
         }
 
-        case "opponent_cant_quest": {
-          // The opponent of this card's owner can't quest
-          const opponent = instance.ownerId === "player1" ? "player2" : "player1";
-          modifiers.opponentCantQuest.add(opponent);
-          break;
-        }
-
-        case "cant_challenge_by_filter": {
-          modifiers.cantChallengeByFilter.push({
-            protectedPlayerId: instance.ownerId,
-            filter: effect.filter,
-          });
+        case "action_restriction": {
+          const affectedPlayerId = effect.affectedPlayer.type === "opponent"
+            ? (instance.ownerId === "player1" ? "player2" : "player1")
+            : instance.ownerId;
+          const entry: typeof modifiers.actionRestrictions[number] = {
+            restricts: effect.restricts,
+            affectedPlayerId,
+          };
+          if (effect.filter) entry.filter = effect.filter;
+          modifiers.actionRestrictions.push(entry);
           break;
         }
 

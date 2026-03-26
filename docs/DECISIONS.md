@@ -187,7 +187,7 @@ simple   := draw | deal_damage | heal | banish | return_to_hand | gain_lore
            | gain_stats | exert | ready | grant_keyword | cost_reduction
            | lose_lore | pay_ink | cant_quest | cant_ready | cant_challenge
            | look_at_top | discard_from_hand | discard_hand | move_to_inkwell
-           | play_for_free | shuffle_into_deck | heal_and_draw
+           | play_for_free | shuffle_into_deck
            | create_floating_trigger | conditional_on_target
 
 sequential := costEffects[] → rewardEffects[]      // CRD 6.1.5.1: "[A] to [B]", "[A]. If you do, [B]"

@@ -222,10 +222,13 @@ function validateQuest(
   if (hasKeyword(instance, def, "reckless")) return fail("Reckless characters can't quest.");
   if (!def.lore || def.lore <= 0) return fail("This character has no lore value."); // CRD 4.5.3.1
 
-  // Mother Gothel - Selfish Manipulator: while exerted, opposing characters can't quest
+  // Check action restrictions (e.g. Mother Gothel: opposing characters can't quest)
   const modifiers = getGameModifiers(state, definitions);
-  if (modifiers.opponentCantQuest.has(playerId)) {
-    return fail("Opposing characters can't quest.");
+  for (const r of modifiers.actionRestrictions) {
+    if (r.restricts !== "quest" || r.affectedPlayerId !== playerId) continue;
+    if (!r.filter || matchesFilter(instance, def, r.filter, state, playerId)) {
+      return fail("This character can't quest.");
+    }
   }
 
   return OK;
@@ -281,12 +284,11 @@ function validateChallenge(
     }
   }
 
-  // Gantu: "Characters with cost 2 or less can't challenge your characters"
-  for (const restriction of modifiers.cantChallengeByFilter) {
-    if (restriction.protectedPlayerId === opponent) {
-      if (matchesFilter(attacker, attackerDef, restriction.filter, state, playerId)) {
-        return fail("This character is not allowed to challenge.");
-      }
+  // Action restrictions on challenging (e.g. Gantu: cost ≤ 2 can't challenge)
+  for (const r of modifiers.actionRestrictions) {
+    if (r.restricts !== "challenge" || r.affectedPlayerId !== playerId) continue;
+    if (!r.filter || matchesFilter(attacker, attackerDef, r.filter, state, playerId)) {
+      return fail("This character is not allowed to challenge.");
     }
   }
 

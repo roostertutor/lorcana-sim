@@ -3519,7 +3519,9 @@
           "type": "this_is_exerted"
         },
         "effect": {
-          "type": "opponent_cant_quest"
+          "type": "action_restriction",
+          "restricts": "quest",
+          "affectedPlayer": { "type": "opponent" }
         },
         "storyName": "SKIP THE DRAMA, STAY WITH MAMA",
         "rulesText": "While this character is exerted, opposing characters can't quest."
@@ -6865,10 +6867,10 @@
       {
         "type": "static",
         "effect": {
-          "type": "cant_challenge_by_filter",
-          "filter": {
-            "costAtMost": 2
-          }
+          "type": "action_restriction",
+          "restricts": "challenge",
+          "affectedPlayer": { "type": "opponent" },
+          "filter": { "costAtMost": 2 }
         },
         "storyName": "UNDER ARREST",
         "rulesText": "Characters with cost 2 or less can't challenge your characters."
@@ -7516,10 +7518,12 @@
     "abilities": [],
     "actionEffects": [
       {
-        "type": "discard_hand",
+        "type": "discard_from_hand",
+        "amount": "all",
         "target": {
           "type": "both"
-        }
+        },
+        "chooser": "target_player"
       },
       {
         "type": "draw",

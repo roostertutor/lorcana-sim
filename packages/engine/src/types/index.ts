@@ -120,7 +120,6 @@ export type Effect =
   | LookAtTopEffect
   | DiscardEffect
   | MoveToInkwellEffect
-  | DiscardHandEffect
   | ConditionalOnTargetEffect
   | PlayForFreeEffect
   | ShuffleIntoDeckEffect
@@ -271,19 +270,14 @@ export interface LookAtTopEffect {
 
 /**
  * Each target player chooses and discards cards from hand.
+ * amount: "all" discards entire hand (no choice).
  */
 export interface DiscardEffect {
   type: "discard_from_hand";
-  amount: number;
+  amount: number | "all";
   target: PlayerTarget;
   /** Who picks what to discard — "target_player" = they choose, "controller" = you choose from their hand */
   chooser: "target_player" | "controller";
-}
-
-/** Discard entire hand (no choice). Used by A Whole New World. */
-export interface DiscardHandEffect {
-  type: "discard_hand";
-  target: PlayerTarget;
 }
 
 /**
@@ -401,8 +395,7 @@ export type StaticEffect =
   | CantBeChallengedException
   | CantSingStatic
   | CostReductionStatic
-  | OpponentCantQuestStatic
-  | CantChallengeByFilterStatic
+  | ActionRestrictionStatic
   | ExtraInkPlayStatic
   | SelfCostReductionStatic;
 
@@ -457,16 +450,20 @@ export interface CostReductionStatic {
   filter: CardFilter;
 }
 
-/** While condition met, opposing characters can't quest (Mother Gothel). */
-export interface OpponentCantQuestStatic {
-  type: "opponent_cant_quest";
-}
-
-/** Characters matching filter can't challenge your characters (Gantu). */
-export interface CantChallengeByFilterStatic {
-  type: "cant_challenge_by_filter";
-  /** Filter for which characters are prevented from challenging */
-  filter: CardFilter;
+/**
+ * Unified action restriction static.
+ * Covers: "opposing characters can't quest" (Gothel),
+ * "characters with cost ≤ N can't challenge your characters" (Gantu),
+ * and future "can't play", "can't sing", etc.
+ */
+export interface ActionRestrictionStatic {
+  type: "action_restriction";
+  /** Which action is restricted */
+  restricts: "quest" | "challenge" | "play";
+  /** Which player's characters are restricted (from the card owner's perspective) */
+  affectedPlayer: PlayerTarget;
+  /** Optional: only characters matching this filter are restricted */
+  filter?: CardFilter;
 }
 
 /** Allow one extra ink play per turn (Belle - Strange but Special). */

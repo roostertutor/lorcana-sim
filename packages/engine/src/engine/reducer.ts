@@ -1347,39 +1347,38 @@ export function applyEffect(
     }
 
     case "discard_from_hand": {
-      const targetPlayer = effect.target.type === "opponent"
-        ? getOpponent(controllingPlayerId) : controllingPlayerId;
-      const hand = getZone(state, targetPlayer, "hand");
-      const discardCount = Math.min(effect.amount, hand.length);
-      if (discardCount === 0) return state;
-
-      // Create pending choice for the choosing player
-      const choosingPlayer = effect.chooser === "target_player" ? targetPlayer : controllingPlayerId;
-      return {
-        ...state,
-        pendingChoice: {
-          type: "choose_discard",
-          choosingPlayerId: choosingPlayer,
-          prompt: `Choose ${discardCount} card(s) to discard.`,
-          validTargets: hand,
-          count: discardCount,
-          pendingEffect: effect,
-        },
-      };
-    }
-
-    case "discard_hand": {
-      // Discard entire hand for target player(s) — no choice involved
       const players: PlayerID[] = [];
       if (effect.target.type === "self") players.push(controllingPlayerId);
       else if (effect.target.type === "opponent") players.push(getOpponent(controllingPlayerId));
       else if (effect.target.type === "both") players.push("player1", "player2");
 
       for (const pid of players) {
-        const hand = [...getZone(state, pid, "hand")];
-        for (const cardId of hand) {
-          state = moveCard(state, cardId, pid, "discard");
+        const hand = getZone(state, pid, "hand");
+
+        // "all" = discard entire hand, no choice
+        if (effect.amount === "all") {
+          for (const cardId of [...hand]) {
+            state = moveCard(state, cardId, pid, "discard");
+          }
+          continue;
         }
+
+        const discardCount = Math.min(effect.amount, hand.length);
+        if (discardCount === 0) continue;
+
+        // Create pending choice for the choosing player
+        const choosingPlayer = effect.chooser === "target_player" ? pid : controllingPlayerId;
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_discard",
+            choosingPlayerId: choosingPlayer,
+            prompt: `Choose ${discardCount} card(s) to discard.`,
+            validTargets: hand,
+            count: discardCount,
+            pendingEffect: effect,
+          },
+        };
       }
       return state;
     }
@@ -1592,7 +1591,7 @@ function canPerformCostEffect(
     case "pay_ink":
       return state.players[controllingPlayerId].availableInk >= effect.amount;
     case "discard_from_hand":
-      return getZone(state, controllingPlayerId, "hand").length >= effect.amount;
+      return effect.amount === "all" ? true : getZone(state, controllingPlayerId, "hand").length >= effect.amount;
     case "exert": {
       // CRD 6.1.5.1: exert cost on triggering_card — check not already exerted
       if (effect.target.type === "triggering_card" && triggeringCardInstanceId) {
