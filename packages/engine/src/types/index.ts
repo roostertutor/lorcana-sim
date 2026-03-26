@@ -443,6 +443,8 @@ export interface ModifyStatPerCountStatic {
 export interface CantBeChallengedException {
   type: "cant_be_challenged";
   target: CardTarget;
+  /** If set, only attackers matching this filter are blocked (Captain Hook: cost ≤ 3 can't challenge this) */
+  attackerFilter?: CardFilter;
 }
 
 /** This character can't exert to sing songs (Ariel - On Human Legs). */

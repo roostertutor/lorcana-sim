@@ -446,7 +446,8 @@ function applyPlayCard(
       sourceInstanceId: instanceId,
       context: { triggeringPlayerId: playerId },
     };
-    state = { ...state, triggerStack: [...state.triggerStack, bodyguardTrigger] };
+    // Prepend so bodyguard is resolved before other enters_play triggers (FIFO)
+    state = { ...state, triggerStack: [bodyguardTrigger, ...state.triggerStack] };
   }
 
   return state;
@@ -1107,6 +1108,13 @@ export function applyEffect(
     case "exert": {
       if (effect.target.type === "this") {
         return updateInstance(state, sourceInstanceId, { isExerted: true });
+      }
+      if (effect.target.type === "triggering_card" && triggeringCardInstanceId) {
+        const inst = state.cards[triggeringCardInstanceId];
+        if (inst && !inst.isExerted) {
+          return updateInstance(state, triggeringCardInstanceId, { isExerted: true });
+        }
+        return state;
       }
       if (effect.target.type === "chosen") {
         const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);

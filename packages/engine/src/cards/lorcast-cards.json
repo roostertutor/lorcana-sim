@@ -106,6 +106,36 @@
         "type": "keyword",
         "keyword": "singer",
         "value": 5
+      },
+      {
+        "type": "activated",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "heal",
+            "amount": 3,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Princess",
+                "hasDamage": true
+              }
+            },
+            "isUpTo": true
+          }
+        ],
+        "reminderText": "A WONDERFUL DREAM — ↷ — Remove up to 3 damage from chosen Princess character."
       }
     ],
     "setId": "1",
@@ -114,10 +144,7 @@
     "subtitle": "Gentle and Kind",
     "strength": 2,
     "willpower": 5,
-    "lore": 2,
-    "_namedAbilityStubs": [
-      "A WONDERFUL DREAM {E} — Remove up to 3 damage from chosen Princess character."
-    ]
+    "lore": 2
   },
   {
     "id": "goofy-musketeer",
@@ -136,6 +163,33 @@
       {
         "type": "keyword",
         "keyword": "bodyguard"
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "heal",
+            "amount": 2,
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Musketeer",
+                "hasDamage": true
+              }
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "1",
@@ -145,10 +199,7 @@
     "strength": 3,
     "willpower": 6,
     "lore": 1,
-    "flavorText": "\"En gawrsh!\"",
-    "_namedAbilityStubs": [
-      "AND TWO FOR TEA! When you play this character, you may remove up to 2 damage from each of your Musketeer characters."
-    ]
+    "flavorText": "\"En gawrsh!\""
   },
   {
     "id": "hades-king-of-olympus",
@@ -169,6 +220,28 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 6
+      },
+      {
+        "type": "static",
+        "effect": {
+          "type": "modify_stat_per_count",
+          "stat": "lore",
+          "perCount": 1,
+          "countFilter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Villain",
+            "excludeSelf": true
+          },
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "1",
@@ -179,10 +252,7 @@
     "willpower": 7,
     "lore": 1,
     "shiftCost": 6,
-    "flavorText": "\"Oh hey, I'm gonna need new business cards.\"",
-    "_namedAbilityStubs": [
-      "SINISTER PLOT This character gets +1 {L} for each other Villain character you have in play."
-    ]
+    "flavorText": "\"Oh hey, I'm gonna need new business cards.\""
   },
   {
     "id": "hades-lord-of-the-underworld",
@@ -276,8 +346,17 @@
     "abilities": [
       {
         "type": "static",
-        "condition": { "type": "has_character_named", "name": "Gaston", "player": { "type": "self" } },
-        "effect": { "type": "self_cost_reduction", "amount": 1 }
+        "condition": {
+          "type": "has_character_named",
+          "name": "Gaston",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 1
+        }
       }
     ],
     "setId": "1",
@@ -781,6 +860,44 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ],
+            "costAtMost": 2
+          }
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "costEffects": [
+              {
+                "type": "exert",
+                "target": {
+                  "type": "triggering_card"
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ],
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "1",
@@ -791,10 +908,7 @@
     "willpower": 5,
     "lore": 3,
     "shiftCost": 4,
-    "flavorText": "The best part about a beachside concert is that there's always room for one more.",
-    "_namedAbilityStubs": [
-      "ADORING FANS Whenever you play a character with cost 2 or less, you may exert them to draw a card."
-    ]
+    "flavorText": "The best part about a beachside concert is that there's always room for one more."
   },
   {
     "id": "timon-grub-rustler",
@@ -1313,6 +1427,26 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "banished_in_challenge",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "triggering_card"
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "1",
@@ -1322,10 +1456,7 @@
     "strength": 4,
     "willpower": 5,
     "lore": 3,
-    "shiftCost": 5,
-    "_namedAbilityStubs": [
-      "INTO THE SHADOWS Whenever one of your other characters is banished in a challenge, you may return that card to your hand."
-    ]
+    "shiftCost": 5
   },
   {
     "id": "dr-facilier-charlatan",
@@ -1560,6 +1691,26 @@
       {
         "type": "keyword",
         "keyword": "rush"
+      },
+      {
+        "type": "static",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "rush",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasName": "Jetsam"
+            }
+          }
+        }
       }
     ],
     "setId": "1",
@@ -1569,10 +1720,7 @@
     "strength": 3,
     "willpower": 4,
     "lore": 2,
-    "flavorText": "\"We know someone who can help you... for a price.\"",
-    "_namedAbilityStubs": [
-      "DEXTEROUS LUNGE Your characters named Jetsam gain Rush."
-    ]
+    "flavorText": "\"We know someone who can help you... for a price.\""
   },
   {
     "id": "jafar-keeper-of-secrets",
@@ -1663,6 +1811,26 @@
       {
         "type": "keyword",
         "keyword": "evasive"
+      },
+      {
+        "type": "static",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasName": "Flotsam"
+            }
+          }
+        }
       }
     ],
     "setId": "1",
@@ -1672,10 +1840,7 @@
     "strength": 3,
     "willpower": 3,
     "lore": 1,
-    "flavorText": "\"We can help you get anything you want....\"",
-    "_namedAbilityStubs": [
-      "SINISTER SLITHER Your characters named Flotsam gain Evasive."
-    ]
+    "flavorText": "\"We can help you get anything you want....\""
   },
   {
     "id": "magic-broom-bucket-brigade",
@@ -2082,6 +2247,27 @@
       {
         "type": "keyword",
         "keyword": "evasive"
+      },
+      {
+        "type": "static",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "challenger",
+          "value": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasName": "Peter Pan"
+            }
+          }
+        }
       }
     ],
     "setId": "1",
@@ -2090,10 +2276,7 @@
     "subtitle": "Peter Pan's Ally",
     "strength": 3,
     "willpower": 3,
-    "lore": 2,
-    "_namedAbilityStubs": [
-      "LOYAL AND DEVOTED Your characters named Peter Pan gain Challenger +1. (They get +1 {S} while challenging.)"
-    ]
+    "lore": 2
   },
   {
     "id": "ursula-power-hungry",
@@ -2773,6 +2956,28 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 6
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "play_for_free",
+            "filter": {
+              "cardType": [
+                "action"
+              ],
+              "costAtMost": 5,
+              "owner": {
+                "type": "self"
+              },
+              "zone": "hand"
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "1",
@@ -2782,10 +2987,7 @@
     "strength": 3,
     "willpower": 5,
     "lore": 3,
-    "shiftCost": 6,
-    "_namedAbilityStubs": [
-      "PHENOMENAL COSMIC POWER! Whenever this character quests, you may play an action with cost 5 or less for free."
-    ]
+    "shiftCost": 6
   },
   {
     "id": "genie-the-ever-impressive",
@@ -3256,6 +3458,38 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "action"
+            ]
+          }
+        },
+        "effects": [
+          {
+            "type": "cant_quest",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
+              }
+            },
+            "duration": "end_of_owner_next_turn"
+          }
+        ]
       }
     ],
     "setId": "1",
@@ -3266,10 +3500,7 @@
     "willpower": 5,
     "lore": 2,
     "shiftCost": 5,
-    "flavorText": "Quiet as a... well, you know.",
-    "_namedAbilityStubs": [
-      "MISDIRECTION Whenever you play an action, chosen opposing character can't quest during their next turn."
-    ]
+    "flavorText": "Quiet as a... well, you know."
   },
   {
     "id": "mickey-mouse-steamboat-pilot",
@@ -3826,6 +4057,28 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "banished_other_in_challenge"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "lose_lore",
+            "amount": 2,
+            "target": {
+              "type": "opponent"
+            }
+          }
+        ]
       }
     ],
     "setId": "1",
@@ -3835,10 +4088,7 @@
     "strength": 5,
     "willpower": 5,
     "lore": 2,
-    "shiftCost": 5,
-    "_namedAbilityStubs": [
-      "DARING EXPLOIT During your turn, whenever this character banishes another character in a challenge, you gain 2 lore and each opponent loses 2 lore."
-    ]
+    "shiftCost": 5
   },
   {
     "id": "aladdin-street-rat",
@@ -3922,6 +4172,29 @@
       {
         "type": "keyword",
         "keyword": "rush"
+      },
+      {
+        "type": "static",
+        "condition": {
+          "type": "this_is_exerted"
+        },
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "reckless",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "opponent"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasKeyword": "evasive"
+            }
+          }
+        }
       }
     ],
     "setId": "1",
@@ -3931,10 +4204,7 @@
     "strength": 5,
     "willpower": 5,
     "lore": 2,
-    "flavorText": "\"You wouldn't dare fight old Hook man-to-man!\"",
-    "_namedAbilityStubs": [
-      "YOU COWARD! While this character is exerted, opposing characters with Evasive gain Reckless. (They can't quest and must challenge if able.)"
-    ]
+    "flavorText": "\"You wouldn't dare fight old Hook man-to-man!\""
   },
   {
     "id": "donald-duck-boisterous-fowl",
@@ -5120,6 +5390,23 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "static",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "ward",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "excludeSelf": true
+            }
+          }
+        }
       }
     ],
     "setId": "1",
@@ -5130,10 +5417,7 @@
     "willpower": 5,
     "lore": 2,
     "shiftCost": 3,
-    "flavorText": "As the princess slumbered, her power awoke.",
-    "_namedAbilityStubs": [
-      "PROTECTIVE EMBRACE Your other characters gain Ward. (Opponents can't choose them except to challenge.)"
-    ]
+    "flavorText": "As the princess slumbered, her power awoke."
   },
   {
     "id": "aurora-regal-princess",
@@ -5463,6 +5747,58 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "heal",
+            "amount": 2,
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasDamage": true
+              }
+            },
+            "isMay": true
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "heal",
+            "amount": 2,
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasDamage": true
+              }
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "1",
@@ -5472,10 +5808,7 @@
     "strength": 2,
     "willpower": 5,
     "lore": 2,
-    "shiftCost": 3,
-    "_namedAbilityStubs": [
-      "CARETAKER When you play this character and whenever she quests, you may remove up to 2 damage from each of your characters."
-    ]
+    "shiftCost": 3
   },
   {
     "id": "maleficent-sinister-visitor",
@@ -5843,6 +6176,54 @@
             "type": "this"
           }
         }
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "discard",
+                "cardType": [
+                  "item"
+                ]
+              }
+            },
+            "isMay": true
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "discard",
+                "cardType": [
+                  "item"
+                ]
+              }
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "1",
@@ -5852,11 +6233,7 @@
     "strength": 5,
     "willpower": 8,
     "lore": 1,
-    "flavorText": "\"Watch me dazzle like a diamond in the rough!\"",
-    "_namedAbilityStubs": [
-      "WHAT HAVE WE HERE? When you play this character and whenever he quests, you may return an item card from your discard to your hand.",
-      "GLAM This character gets +1 {L} for each item you have in play."
-    ]
+    "flavorText": "\"Watch me dazzle like a diamond in the rough!\""
   },
   {
     "id": "triton-the-sea-king",
@@ -6448,6 +6825,18 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "static",
+        "effect": {
+          "type": "cant_be_challenged",
+          "target": {
+            "type": "this"
+          },
+          "attackerFilter": {
+            "costAtMost": 3
+          }
+        }
       }
     ],
     "setId": "1",
@@ -6457,10 +6846,7 @@
     "strength": 2,
     "willpower": 5,
     "lore": 1,
-    "shiftCost": 3,
-    "_namedAbilityStubs": [
-      "STOLEN DUST Characters with cost 3 or less can't challenge this character."
-    ]
+    "shiftCost": 3
   },
   {
     "id": "cerberus-three-headed-dog",
@@ -6500,6 +6886,29 @@
       {
         "type": "keyword",
         "keyword": "bodyguard"
+      },
+      {
+        "type": "static",
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Musketeer"
+            }
+          }
+        }
       }
     ],
     "setId": "1",
@@ -6508,10 +6917,7 @@
     "subtitle": "Musketeer",
     "strength": 2,
     "willpower": 5,
-    "lore": 1,
-    "_namedAbilityStubs": [
-      "STAY ALERT! During your turn, your Musketeer characters gain Evasive. (They can challenge characters with Evasive.)"
-    ]
+    "lore": 1
   },
   {
     "id": "gantu-galactic-federation-captain",
@@ -6751,6 +7157,28 @@
       {
         "type": "keyword",
         "keyword": "bodyguard"
+      },
+      {
+        "type": "static",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "strength",
+          "modifier": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Musketeer",
+              "excludeSelf": true
+            }
+          }
+        }
       }
     ],
     "setId": "1",
@@ -6759,10 +7187,7 @@
     "subtitle": "Musketeer",
     "strength": 2,
     "willpower": 7,
-    "lore": 2,
-    "_namedAbilityStubs": [
-      "ALL FOR ONE Your other Musketeer characters get +1 {S}."
-    ]
+    "lore": 2
   },
   {
     "id": "prince-eric-dashing-and-brave",
@@ -6861,6 +7286,19 @@
         "type": "keyword",
         "keyword": "challenger",
         "value": 4
+      },
+      {
+        "type": "static",
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "1",
@@ -6870,10 +7308,7 @@
     "strength": 4,
     "willpower": 6,
     "lore": 2,
-    "flavorText": "\"I'll do whatever it takes to save my kingdom.\"",
-    "_namedAbilityStubs": [
-      "POUNCE During your turn, this character gains Evasive. (They can challenge characters with Evasive.)"
-    ]
+    "flavorText": "\"I'll do whatever it takes to save my kingdom.\""
   },
   {
     "id": "simba-rightful-heir",
@@ -7046,6 +7481,31 @@
             }
           }
         ]
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "banished_other_in_challenge"
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
+              }
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "1",
@@ -7055,11 +7515,7 @@
     "strength": 4,
     "willpower": 5,
     "lore": 2,
-    "shiftCost": 4,
-    "_namedAbilityStubs": [
-      "ROCK THE BOAT When you play this character, deal 1 damage to each opposing character.",
-      "PUNY PIRATE! During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character."
-    ]
+    "shiftCost": 4
   },
   {
     "id": "tinker-bell-tiny-tactician",
@@ -7517,6 +7973,28 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 6
+      },
+      {
+        "type": "static",
+        "effect": {
+          "type": "modify_stat_per_count",
+          "stat": "lore",
+          "perCount": 1,
+          "countFilter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Villain",
+            "excludeSelf": true
+          },
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "1",
@@ -7526,10 +8004,7 @@
     "strength": 6,
     "willpower": 7,
     "lore": 1,
-    "shiftCost": 6,
-    "_namedAbilityStubs": [
-      "SINISTER PLOT This character gets +1 {L} for each other Villain character you have in play."
-    ]
+    "shiftCost": 6
   },
   {
     "id": "stitch-carefree-surfer",
@@ -7765,6 +8240,38 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "action"
+            ]
+          }
+        },
+        "effects": [
+          {
+            "type": "cant_quest",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
+              }
+            },
+            "duration": "end_of_owner_next_turn"
+          }
+        ]
       }
     ],
     "setId": "1",
@@ -7774,10 +8281,7 @@
     "strength": 6,
     "willpower": 5,
     "lore": 2,
-    "shiftCost": 5,
-    "_namedAbilityStubs": [
-      "MISDIRECTION Whenever you play an action, chosen opposing character can't quest during their next turn."
-    ]
+    "shiftCost": 5
   },
   {
     "id": "aladdin-heroic-outlaw",
@@ -7796,6 +8300,28 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "banished_other_in_challenge"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "lose_lore",
+            "amount": 2,
+            "target": {
+              "type": "opponent"
+            }
+          }
+        ]
       }
     ],
     "setId": "1",
@@ -7805,10 +8331,7 @@
     "strength": 5,
     "willpower": 5,
     "lore": 2,
-    "shiftCost": 5,
-    "_namedAbilityStubs": [
-      "DARING EXPLOIT During your turn, whenever this character banishes another character in a challenge, you gain 2 lore and each opponent loses 2 lore."
-    ]
+    "shiftCost": 5
   },
   {
     "id": "maui-hero-to-all",
@@ -7859,6 +8382,23 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "static",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "ward",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "excludeSelf": true
+            }
+          }
+        }
       }
     ],
     "setId": "1",
@@ -7868,10 +8408,7 @@
     "strength": 3,
     "willpower": 5,
     "lore": 2,
-    "shiftCost": 3,
-    "_namedAbilityStubs": [
-      "PROTECTIVE EMBRACE Your other characters gain Ward. (Opponents can't choose them except to challenge.)"
-    ]
+    "shiftCost": 3
   },
   {
     "id": "belle-strange-but-special",
@@ -7940,6 +8477,19 @@
         "type": "keyword",
         "keyword": "challenger",
         "value": 4
+      },
+      {
+        "type": "static",
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "1",
@@ -7948,10 +8498,7 @@
     "subtitle": "Returned King",
     "strength": 4,
     "willpower": 6,
-    "lore": 2,
-    "_namedAbilityStubs": [
-      "POUNCE During your turn, this character gains Evasive. (They can challenge characters with Evasive.)"
-    ]
+    "lore": 2
   },
   {
     "id": "tinker-bell-giant-fairy",
@@ -7995,6 +8542,31 @@
             }
           }
         ]
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "banished_other_in_challenge"
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
+              }
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "1",
@@ -8004,10 +8576,6 @@
     "strength": 4,
     "willpower": 5,
     "lore": 2,
-    "shiftCost": 4,
-    "_namedAbilityStubs": [
-      "ROCK THE BOAT When you play this character, deal 1 damage to each opposing character.",
-      "PUNY PIRATE! During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character."
-    ]
+    "shiftCost": 4
   }
 ]

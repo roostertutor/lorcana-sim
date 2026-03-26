@@ -15,10 +15,10 @@ import { evaluateCondition, getZone, matchesFilter } from "../utils/index.js";
 
 export interface GameModifiers {
   /**
-   * Characters that cannot be challenged this turn.
-   * Populated by cards with CantBeChallengedException static effect.
+   * Characters that cannot be challenged (or only by certain attackers).
+   * Key = instanceId, value = optional attacker filter (undefined = no one can challenge).
    */
-  cantBeChallenged: Set<string>;
+  cantBeChallenged: Map<string, import("../types/index.js").CardFilter | undefined>;
 
   /**
    * Characters that may challenge ready (non-exerted) opponents.
@@ -61,7 +61,7 @@ export function getGameModifiers(
   definitions: Record<string, CardDefinition>
 ): GameModifiers {
   const modifiers: GameModifiers = {
-    cantBeChallenged: new Set(),
+    cantBeChallenged: new Map(),
     canChallengeReady: new Set(),
     statBonuses: new Map(),
     cantSing: new Set(),
@@ -92,14 +92,14 @@ export function getGameModifiers(
         case "cant_be_challenged": {
           const { target } = effect;
           if (target.type === "this") {
-            modifiers.cantBeChallenged.add(instance.instanceId);
+            modifiers.cantBeChallenged.set(instance.instanceId, effect.attackerFilter);
           } else if (target.type === "all") {
             for (const candidate of Object.values(state.cards)) {
               if (candidate.zone !== "play") continue;
               const candidateDef = definitions[candidate.definitionId];
               if (!candidateDef) continue;
               if (matchesFilter(candidate, candidateDef, target.filter, state, instance.ownerId)) {
-                modifiers.cantBeChallenged.add(candidate.instanceId);
+                modifiers.cantBeChallenged.set(candidate.instanceId, effect.attackerFilter);
               }
             }
           }
@@ -133,6 +133,7 @@ export function getGameModifiers(
           } else if (effect.target.type === "all") {
             for (const candidate of Object.values(state.cards)) {
               if (candidate.zone !== "play") continue;
+              if (effect.target.filter.excludeSelf && candidate.instanceId === instance.instanceId) continue;
               const candidateDef = definitions[candidate.definitionId];
               if (!candidateDef) continue;
               if (matchesFilter(candidate, candidateDef, effect.target.filter, state, instance.ownerId)) {
@@ -156,6 +157,18 @@ export function getGameModifiers(
             const existing = modifiers.grantedKeywords.get(instance.instanceId) ?? [];
             existing.push(effect.keyword);
             modifiers.grantedKeywords.set(instance.instanceId, existing);
+          } else if (effect.target.type === "all") {
+            for (const candidate of Object.values(state.cards)) {
+              if (candidate.zone !== "play") continue;
+              if (effect.target.filter.excludeSelf && candidate.instanceId === instance.instanceId) continue;
+              const candidateDef = definitions[candidate.definitionId];
+              if (!candidateDef) continue;
+              if (matchesFilter(candidate, candidateDef, effect.target.filter, state, instance.ownerId)) {
+                const existing = modifiers.grantedKeywords.get(candidate.instanceId) ?? [];
+                existing.push(effect.keyword);
+                modifiers.grantedKeywords.set(candidate.instanceId, existing);
+              }
+            }
           }
           break;
         }
@@ -241,6 +254,7 @@ function countMatchingCards(
       for (const id of zoneCards) {
         // Don't count the source card itself for "other" patterns
         if (filter.excludeInstanceId && id === filter.excludeInstanceId) continue;
+        if (filter.excludeSelf && id === sourceInstanceId) continue;
         const inst = state.cards[id];
         if (!inst) continue;
         const def = definitions[inst.definitionId];

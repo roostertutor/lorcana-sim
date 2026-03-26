@@ -270,7 +270,15 @@ function validateChallenge(
   }
 
   if (modifiers.cantBeChallenged.has(defenderInstanceId)) {
-    return fail("This character cannot be challenged.");
+    const attackerFilter = modifiers.cantBeChallenged.get(defenderInstanceId);
+    if (!attackerFilter) {
+      // No filter = no one can challenge this character
+      return fail("This character cannot be challenged.");
+    }
+    // Filter present = only attackers matching the filter are blocked
+    if (matchesFilter(attacker, attackerDef, attackerFilter, state, playerId)) {
+      return fail("This character cannot be challenged by this attacker.");
+    }
   }
 
   // Gantu: "Characters with cost 2 or less can't challenge your characters"
