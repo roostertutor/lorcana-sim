@@ -209,6 +209,15 @@ may(X)     := player decides → X or skip            // CRD 6.1.4: "you may"
   Ursula Power Hungry (lose lore → draw per lost) both use standard effects
   with result passing instead of one-off types
 
+**Ability modifiers (CRD 6.6.1)** — **SPLIT ACROSS TWO SYSTEMS, SHOULD UNIFY**:
+- The CRD treats all "can't X" restrictions as one concept with different durations
+- Our implementation splits them: `ActionRestrictionStatic` (board-level, via gameModifiers)
+  vs `CantActionEffect` → `TimedEffect` (per-card debuff, stored on CardInstance)
+- To match CRD 1:1: unify into one `action_restriction` with a `duration` field
+  (`"while_in_play"` for statics, `"end_of_turn"` / `"end_of_owner_next_turn"` for timed)
+- Stored in one place, checked in one place
+- Blocked by: requires rethinking where restrictions live (game state vs card instance)
+
 **CRD 6.1.5.2 "[A] or [B]"** — **NOT YET IMPLEMENTED**:
 - No Set 1 card uses this form
 - `ChooseEffect` exists but doesn't enforce the forced fallback rule:
