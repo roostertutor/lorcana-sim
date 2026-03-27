@@ -10,11 +10,21 @@
 //   pnpm sweep    --deck ./deck.txt --opponent control --iterations 200
 // =============================================================================
 
+import { resolve } from "path";
 import { runAnalyze } from "./commands/analyze.js";
 import { runCompare } from "./commands/compare.js";
 import { runOptimize } from "./commands/optimize.js";
 import { runSweep } from "./commands/sweep.js";
 import { runQuery } from "./commands/query.js";
+
+// pnpm runs scripts from the package dir, but users pass paths relative to
+// where they ran the command. INIT_CWD is set by pnpm to the original cwd.
+const userCwd = process.env["INIT_CWD"] ?? process.cwd();
+
+/** Resolve a user-provided file path relative to where they ran the command */
+function userPath(p: string): string {
+  return resolve(userCwd, p);
+}
 
 // ---------------------------------------------------------------------------
 // Argument parser — no external deps, just process.argv
@@ -69,12 +79,12 @@ switch (subcommand) {
   case "analyze": {
     const usage = "Usage: pnpm analyze --deck ./deck.txt --bot greedy --iterations 1000 [--verbose] [--save ./results.json]";
     runAnalyze({
-      deck: requireArg(args, "deck", usage),
+      deck: userPath(requireArg(args, "deck", usage)),
       bot: args["bot"] ?? "greedy",
       opponentBot: args["opponent-bot"],
       iterations: optionalInt(args, "iterations", 1000),
       verbose: args["verbose"] === "true",
-      save: args["save"],
+      save: args["save"] ? userPath(args["save"]) : undefined,
     });
     break;
   }
@@ -82,13 +92,13 @@ switch (subcommand) {
   case "compare": {
     const usage = "Usage: pnpm compare --deck1 ./a.txt --deck2 ./b.txt --bot probability --iterations 5000 [--verbose] [--save ./results.json]";
     runCompare({
-      deck1: requireArg(args, "deck1", usage),
-      deck2: requireArg(args, "deck2", usage),
+      deck1: userPath(requireArg(args, "deck1", usage)),
+      deck2: userPath(requireArg(args, "deck2", usage)),
       bot: args["bot"] ?? "greedy",
       opponentBot: args["opponent-bot"],
       iterations: optionalInt(args, "iterations", 1000),
       verbose: args["verbose"] === "true",
-      save: args["save"],
+      save: args["save"] ? userPath(args["save"]) : undefined,
     });
     break;
   }
@@ -96,7 +106,7 @@ switch (subcommand) {
   case "optimize": {
     const usage = "Usage: pnpm optimize --deck ./deck.txt --opponent aggro --iterations 500";
     runOptimize({
-      deck: requireArg(args, "deck", usage),
+      deck: userPath(requireArg(args, "deck", usage)),
       opponent: args["opponent"] ?? "greedy",
       iterations: optionalInt(args, "iterations", 500),
     });
@@ -106,7 +116,7 @@ switch (subcommand) {
   case "sweep": {
     const usage = "Usage: pnpm sweep --deck ./deck.txt --opponent control --iterations 200";
     runSweep({
-      deck: requireArg(args, "deck", usage),
+      deck: userPath(requireArg(args, "deck", usage)),
       opponent: args["opponent"] ?? "greedy",
       iterations: optionalInt(args, "iterations", 200),
     });
@@ -118,10 +128,10 @@ switch (subcommand) {
       "Usage: pnpm query --sim sim.json --questions questions.json [--save results.json]\n" +
       "   or: pnpm query --questions questions.json --results saved.json";
     runQuery({
-      sim: args["sim"],
-      questions: requireArg(args, "questions", usage),
-      save: args["save"],
-      results: args["results"],
+      sim: args["sim"] ? userPath(args["sim"]) : undefined,
+      questions: userPath(requireArg(args, "questions", usage)),
+      save: args["save"] ? userPath(args["save"]) : undefined,
+      results: args["results"] ? userPath(args["results"]) : undefined,
     });
     break;
   }
