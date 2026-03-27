@@ -1,0 +1,6 @@
+{
+  "deck": "./decks/aladdin-deck.txt",
+  "opponent": "./decks/lilo-stitch-deck.txt",
+  "bot": "greedy",
+  "iterations": 5000
+}

@@ -239,7 +239,7 @@ pnpm sweep    --deck ./deck.txt --opponent control --iterations 200
 Bot options: `random`, `greedy`, `probability`, `aggro`, `control`, `midrange`, `rush`
 
 Decklist format: `4 Card Name` or `4x Card Name`, one per line. Lines starting with `#` are comments.
-A sample deck is at `packages/cli/sample-deck.txt`.
+Sample decks are in `decks/` (e.g. `decks/ruby-amethyst-deck.txt`).
 
 Runs via `tsx` — no build step needed.
 

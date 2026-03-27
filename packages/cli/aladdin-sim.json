@@ -1,6 +1,0 @@
-{
-  "deck": "./sample-deck.txt",
-  "opponent": "./aggro-deck.txt",
-  "bot": "greedy",
-  "iterations": 5000
-}
