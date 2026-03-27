@@ -25,10 +25,12 @@
 #                cli/main.ts (add "query" subcommand)
 #
 # Implementation notes:
-#   - turnNumber is global (both players share it): turn 1 = p1's first,
+#   - Engine turnNumber is global (both players share it): turn 1 = p1's first,
 #     turn 2 = p2's first, turn 3 = p1's second, etc.
-#   - Query conditions use global turnNumber, not per-player turn count.
-#   - Cards in starting hand get drawnOnTurn = 1.
+#   - Query conditions use PER-PLAYER turn numbers (turn 3 = that player's
+#     3rd turn). matchesCondition converts to global internally via
+#     toGlobalTurn(): p1 turn N = global 2N-1, p2 turn N = global 2N.
+#   - Cards in starting hand get drawnOnTurn = 1 (global).
 #   - CardPerformance type unchanged (aggregator updated detection logic only).
 #   - player1 always goes first, player2 always goes second. To query from
 #     the second player's perspective, set "player": "player2" on conditions.

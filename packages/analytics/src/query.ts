@@ -58,6 +58,17 @@ export interface QueryResult {
 }
 
 // =============================================================================
+// TURN CONVERSION
+// Query conditions use per-player turn numbers (turn 3 = that player's 3rd turn).
+// Internally the engine uses global turn numbers (player1 turn 1 = global 1,
+// player2 turn 1 = global 2, player1 turn 2 = global 3, etc.).
+// =============================================================================
+
+function toGlobalTurn(playerTurn: number, player: PlayerID): number {
+  return player === "player1" ? (2 * playerTurn - 1) : (2 * playerTurn);
+}
+
+// =============================================================================
 // CONDITION MATCHER
 // =============================================================================
 
@@ -71,31 +82,35 @@ export function matchesCondition(
   switch (condition.type) {
 
     case "card_drawn_by": {
+      const globalTurn = toGlobalTurn(condition.turn, pid);
       const copies = Object.values(result.cardStats).filter(
         s => s.definitionId === condition.card && s.ownerId === pid
       );
-      return copies.some(s => s.drawnOnTurn !== null && s.drawnOnTurn <= condition.turn);
+      return copies.some(s => s.drawnOnTurn !== null && s.drawnOnTurn <= globalTurn);
     }
 
     case "card_played_by": {
+      const globalTurn = toGlobalTurn(condition.turn, pid);
       const copies = Object.values(result.cardStats).filter(
         s => s.definitionId === condition.card && s.ownerId === pid
       );
-      return copies.some(s => s.playedOnTurn !== null && s.playedOnTurn <= condition.turn);
+      return copies.some(s => s.playedOnTurn !== null && s.playedOnTurn <= globalTurn);
     }
 
     case "card_in_play_on": {
+      const globalTurn = toGlobalTurn(condition.turn, pid);
       const copies = Object.values(result.cardStats).filter(
         s => s.definitionId === condition.card && s.ownerId === pid
       );
-      return copies.some(s => s.inPlayOnTurns.includes(condition.turn));
+      return copies.some(s => s.inPlayOnTurns.includes(globalTurn));
     }
 
     case "card_inked_by": {
+      const globalTurn = toGlobalTurn(condition.turn, pid);
       const copies = Object.values(result.cardStats).filter(
         s => s.definitionId === condition.card && s.ownerId === pid
       );
-      return copies.some(s => s.inkedOnTurn !== null && s.inkedOnTurn <= condition.turn);
+      return copies.some(s => s.inkedOnTurn !== null && s.inkedOnTurn <= globalTurn);
     }
 
     case "card_never_drawn": {
@@ -113,27 +128,31 @@ export function matchesCondition(
     }
 
     case "ink_gte": {
+      const globalTurn = toGlobalTurn(condition.on_turn, pid);
       const inkArr = result.inkByTurn[pid];
-      const inkAtTurn = inkArr?.[condition.on_turn - 1] ?? 0;
+      const inkAtTurn = inkArr?.[globalTurn - 1] ?? 0;
       return inkAtTurn >= condition.amount;
     }
 
     case "ink_lte": {
+      const globalTurn = toGlobalTurn(condition.on_turn, pid);
       const inkArr = result.inkByTurn[pid];
-      const inkAtTurn = inkArr?.[condition.on_turn - 1] ?? 0;
+      const inkAtTurn = inkArr?.[globalTurn - 1] ?? 0;
       return inkAtTurn <= condition.amount;
     }
 
     case "lore_gte": {
+      const globalTurn = toGlobalTurn(condition.by_turn, pid);
       const loreArr = result.loreByTurn[pid];
       if (!loreArr) return false;
-      const turnsToCheck = loreArr.slice(0, condition.by_turn);
+      const turnsToCheck = loreArr.slice(0, globalTurn);
       return turnsToCheck.some(lore => lore >= condition.amount);
     }
 
     case "lore_lte": {
+      const globalTurn = toGlobalTurn(condition.by_turn, pid);
       const loreArr = result.loreByTurn[pid];
-      const loreAtTurn = loreArr?.[condition.by_turn - 1] ?? 0;
+      const loreAtTurn = loreArr?.[globalTurn - 1] ?? 0;
       return loreAtTurn <= condition.amount;
     }
 

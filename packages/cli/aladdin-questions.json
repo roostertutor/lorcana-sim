@@ -1,29 +1,103 @@
 {
   "queries": [
     {
-      "name": "Aladdin on-curve (Street Rat by p1 turn 3, Heroic Outlaw by p1 turn 5)",
+      "name": "Line A setup: Street Rat by turn 3, 5 ink by turn 5",
       "condition": {
         "type": "and",
         "conditions": [
-          { "type": "card_played_by", "card": "aladdin-street-rat", "turn": 5 },
-          { "type": "card_played_by", "card": "aladdin-heroic-outlaw", "turn": 9 }
+          { "type": "card_played_by", "card": "aladdin-street-rat", "turn": 3 },
+          { "type": "ink_gte", "amount": 5, "on_turn": 5 }
         ]
       }
     },
     {
-      "name": "Drew any Aladdin Street Rat by turn 5 (p1 turn 3)",
+      "name": "Line A fires: Street Rat alive on turn 5 (in play, not banished)",
       "condition": {
-        "type": "card_drawn_by",
-        "card": "aladdin-street-rat",
+        "type": "and",
+        "conditions": [
+          { "type": "card_played_by", "card": "aladdin-street-rat", "turn": 3 },
+          { "type": "card_in_play_on", "card": "aladdin-street-rat", "turn": 5 },
+          { "type": "ink_gte", "amount": 5, "on_turn": 5 }
+        ]
+      }
+    },
+    {
+      "name": "Heroic Outlaw hits board by turn 5",
+      "condition": {
+        "type": "card_played_by",
+        "card": "aladdin-heroic-outlaw",
         "turn": 5
       }
     },
     {
-      "name": "Heroic Outlaw played by turn 11 (p1 turn 6)",
+      "name": "Heroic Outlaw hits board by turn 6 (one turn late)",
       "condition": {
         "type": "card_played_by",
         "card": "aladdin-heroic-outlaw",
-        "turn": 11
+        "turn": 6
+      }
+    },
+    {
+      "name": "Line C trap: forced to play Street Rat turn 4 not turn 3",
+      "condition": {
+        "type": "and",
+        "conditions": [
+          { "type": "card_played_by", "card": "aladdin-street-rat", "turn": 4 },
+          {
+            "type": "not",
+            "condition": { "type": "card_played_by", "card": "aladdin-street-rat", "turn": 3 }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Win rate when Heroic Outlaw is in play by turn 5",
+      "condition": {
+        "type": "and",
+        "conditions": [
+          { "type": "won" },
+          { "type": "card_in_play_on", "card": "aladdin-heroic-outlaw", "turn": 5 }
+        ]
+      }
+    },
+    {
+      "name": "Win rate when Heroic Outlaw never hits board",
+      "condition": {
+        "type": "and",
+        "conditions": [
+          { "type": "won" },
+          { "type": "card_never_played", "card": "aladdin-heroic-outlaw" }
+        ]
+      }
+    },
+    {
+      "name": "Behind on lore turn 5 (opponent at 8+ lore)",
+      "condition": {
+        "type": "lore_gte",
+        "amount": 8,
+        "by_turn": 5,
+        "player": "player2"
+      }
+    },
+    {
+      "name": "Behind on lore turn 5 BUT Heroic Outlaw in play",
+      "condition": {
+        "type": "and",
+        "conditions": [
+          { "type": "lore_gte", "amount": 8, "by_turn": 5, "player": "player2" },
+          { "type": "card_in_play_on", "card": "aladdin-heroic-outlaw", "turn": 5 }
+        ]
+      }
+    },
+    {
+      "name": "The comeback: behind turn 5, win anyway",
+      "condition": {
+        "type": "and",
+        "conditions": [
+          { "type": "lore_gte", "amount": 8, "by_turn": 5, "player": "player2" },
+          { "type": "card_in_play_on", "card": "aladdin-heroic-outlaw", "turn": 5 },
+          { "type": "won" }
+        ]
       }
     }
   ]
