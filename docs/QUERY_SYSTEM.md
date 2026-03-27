@@ -3,45 +3,208 @@
 # "Tell me something I can't figure out from playing 100 games."
 #
 # STATUS: IMPLEMENTED (Parts A-D). SQLite deferred.
-#
-# Parts:
-#   Part A — Enrich GameResult with per-card timeline data + win rate stats
-#   Part B — GameCondition query language to filter/aggregate over results
-#   Part C — CLI interface (pnpm query)
-#   Part D — Result storage (StoredResultSet with metadata, JSON files)
-#
-# CLI usage:
-#   pnpm query --sim sim.json --questions questions.json [--save results.json]
-#   pnpm query --questions questions.json --results saved.json
-#
-# File types:
-#   *-sim.json        — simulation config (deck, opponent, bot, iterations)
-#   *-questions.json  — queries array (reusable across different result sets)
-#   *.sim-results.json — saved results (gitignored)
-#
-# Files changed: simulator/types.ts, simulator/runGame.ts,
-#                simulator/storage.ts (new),
-#                analytics/query.ts (new), cli/commands/query.ts (new),
-#                cli/main.ts (add "query" subcommand)
-#
-# Implementation notes:
-#   - Engine turnNumber is global (both players share it): turn 1 = p1's first,
-#     turn 2 = p2's first, turn 3 = p1's second, etc.
-#   - Query conditions use PER-PLAYER turn numbers (turn 3 = that player's
-#     3rd turn). matchesCondition converts to global internally via
-#     toGlobalTurn(): p1 turn N = global 2N-1, p2 turn N = global 2N.
-#   - Cards in starting hand get drawnOnTurn = 1 (global).
-#   - CardPerformance type unchanged (aggregator updated detection logic only).
-#   - player1 always goes first, player2 always goes second. To query from
-#     the second player's perspective, set "player": "player2" on conditions.
-#   - Part D (result storage): StoredResultSet with metadata implemented.
-#     saveResults/loadResults in simulator/storage.ts. Saves stripped
-#     GameResult[] as JSON with metadata (deck, opponent, bot, iterations,
-#     timestamp, engineVersion). actionLog omitted for size.
-#     --save works on analyze, compare, and query commands.
-#     Files named *.sim-results.json are gitignored.
-#     Proper indexed storage (SQLite, compression) deferred until we know
-#     what longitudinal questions we want to ask.
+
+---
+
+## Quick Reference
+
+### File layout
+
+```
+decks/                      Decklists (.txt)
+  ruby-amethyst-deck.txt
+  lilo-stitch-deck.txt
+  aladdin-deck.txt
+  goldfish-deck.txt
+queries/                    Sim configs + question files (.json)
+  aladdin-sim.json          Simulation config (deck, opponent, bot, iterations)
+  aladdin-questions.json    Queries array (reusable across result sets)
+*.sim-results.json          Saved results (gitignored)
+```
+
+### CLI workflows
+
+```bash
+# One-shot: simulate + query
+pnpm query -- --sim queries/aladdin-sim.json --questions queries/aladdin-questions.json
+
+# Save results for later
+pnpm query -- --sim queries/aladdin-sim.json --questions queries/aladdin-questions.json --save aladdin.sim-results.json
+
+# Re-query saved results instantly (iterate on questions without re-simulating)
+pnpm query -- --questions queries/aladdin-questions.json --results aladdin.sim-results.json
+
+# Other commands also support --save and --opponent-bot
+pnpm analyze -- --deck ./decks/ruby-amethyst-deck.txt --bot greedy --opponent-bot aggro --iterations 5000 --save results.sim-results.json
+pnpm compare -- --deck1 ./decks/ruby-amethyst-deck.txt --deck2 ./decks/lilo-stitch-deck.txt --bot midrange --opponent-bot rush
+```
+
+### Sim config file format (*-sim.json)
+
+```json
+{
+  "deck": "../decks/aladdin-deck.txt",
+  "opponent": "../decks/lilo-stitch-deck.txt",
+  "bot": "greedy",
+  "opponentBot": "aggro",
+  "iterations": 5000
+}
+```
+
+- `deck` / `opponent`: paths relative to the sim file's directory
+- `bot`: strategy for player1 (your deck). Options: random, greedy, probability, aggro, control, midrange, rush
+- `opponentBot`: strategy for player2 (optional, defaults to `bot`)
+- `opponent`: optional, defaults to mirror match (same deck)
+
+### Questions file format (*-questions.json)
+
+```json
+{
+  "queries": [
+    {
+      "name": "Human-readable description",
+      "condition": { "type": "card_played_by", "card": "aladdin-street-rat", "turn": 3 }
+    }
+  ]
+}
+```
+
+### Turn numbers in conditions
+
+Turn numbers are **per-player**, not global. `"turn": 3` means that player's 3rd turn (3 ink available). The engine uses global turns internally (p1 turn 1 = global 1, p2 turn 1 = global 2, p1 turn 2 = global 3, etc.) — the query system converts automatically.
+
+### Player context
+
+- `player1` = your deck, goes first
+- `player2` = opponent, goes second
+- All conditions default to `"player": "player1"` unless specified
+- To check opponent state: add `"player": "player2"` to the condition
+
+### All condition types
+
+**Card conditions** (all require `card` = definitionId, `turn` = by that player's turn N):
+| Type | Meaning |
+|------|---------|
+| `card_drawn_by` | At least one copy drawn by turn N |
+| `card_played_by` | At least one copy played by turn N |
+| `card_in_play_on` | At least one copy in play zone on turn N |
+| `card_inked_by` | At least one copy inked by turn N |
+| `card_never_drawn` | No copy ever drawn (no `turn` field) |
+| `card_never_played` | No copy ever played (no `turn` field) |
+
+**Resource conditions:**
+| Type | Fields | Meaning |
+|------|--------|---------|
+| `ink_gte` | `amount`, `on_turn` | Available ink >= amount on that turn |
+| `ink_lte` | `amount`, `on_turn` | Available ink <= amount on that turn |
+| `lore_gte` | `amount`, `by_turn` | Lore >= amount at end of any turn up to N |
+| `lore_lte` | `amount`, `by_turn` | Lore <= amount at end of turn N |
+
+**Outcome conditions:**
+| Type | Fields | Meaning |
+|------|--------|---------|
+| `won` | — | Player won the game |
+| `lost` | — | Player lost (not draw) |
+| `game_ended_by` | `turn` | Game finished in <= N total turns (global, not per-player) |
+| `win_reason` | `reason` | `"lore_threshold"`, `"deck_exhausted"`, or `"max_turns_exceeded"` |
+
+**Logical operators** (composable):
+| Type | Fields | Meaning |
+|------|--------|---------|
+| `and` | `conditions: []` | All conditions must match |
+| `or` | `conditions: []` | At least one condition matches |
+| `not` | `condition: {}` | Inverts one condition |
+
+### Output format
+
+For each query, the system reports:
+- **Probability**: how often the condition was met (with margin)
+- **Win rate when met** vs **when not met**: correlation with winning
+- **Impact delta**: the difference (positive = good when it happens)
+- **Interpretation**: auto-generated plain English summary
+
+### Example: Aladdin line analysis
+
+```json
+{
+  "queries": [
+    {
+      "name": "Line A fires: Street Rat alive on turn 5",
+      "condition": {
+        "type": "and",
+        "conditions": [
+          { "type": "card_played_by", "card": "aladdin-street-rat", "turn": 3 },
+          { "type": "card_in_play_on", "card": "aladdin-street-rat", "turn": 5 },
+          { "type": "ink_gte", "amount": 5, "on_turn": 5 }
+        ]
+      }
+    },
+    {
+      "name": "Behind on lore turn 5 BUT Heroic Outlaw in play",
+      "condition": {
+        "type": "and",
+        "conditions": [
+          { "type": "lore_gte", "amount": 8, "by_turn": 5, "player": "player2" },
+          { "type": "card_in_play_on", "card": "aladdin-heroic-outlaw", "turn": 5 }
+        ]
+      }
+    }
+  ]
+}
+```
+
+---
+
+## Implementation Details
+
+### Parts overview
+
+| Part | What | Status |
+|------|------|--------|
+| A | Enriched CardGameStats with timeline data | Done |
+| B | GameCondition query language | Done |
+| C | CLI interface (`pnpm query`) | Done |
+| D | Result storage (StoredResultSet with metadata) | Done (JSON). SQLite deferred. |
+
+### Key implementation notes
+
+- Engine turnNumber is global (both players share it). Query conditions use per-player turns. `toGlobalTurn()` in `analytics/query.ts` converts.
+- Cards in starting hand get `drawnOnTurn = 1` (global).
+- CardPerformance type unchanged — aggregator updated detection logic only (`drawnOnTurn !== null` instead of `turnsInPlay > 0`).
+- Deck paths in sim files resolve relative to the sim file's directory.
+- `--save` strips `actionLog` from results to keep file sizes manageable (~8KB per game).
+- `StoredResultSet` includes metadata: deck, opponent, bot, iterations, timestamp, engineVersion.
+- Backwards-compatible: `loadResults()` handles both bare `GameResult[]` arrays and wrapped `StoredResultSet`.
+
+### Files changed
+
+```
+MODIFIED:
+  packages/simulator/src/types.ts       — CardGameStats enriched, GameResult + inkByTurn/loreByTurn, StoredResultSet
+  packages/simulator/src/runGame.ts     — Timeline tracking (draw/play/ink/inPlay, inkByTurn, loreByTurn)
+  packages/simulator/src/index.ts       — Export new types + storage
+  packages/analytics/src/aggregator.ts  — drawnOnTurn !== null replaces turnsInPlay > 0
+  packages/analytics/src/index.ts       — Export query types + functions
+  packages/cli/src/main.ts              — query subcommand, --opponent-bot, --save flags
+  packages/cli/src/commands/analyze.ts  — --save, --opponent-bot
+  packages/cli/src/commands/compare.ts  — --save, --opponent-bot
+
+NEW:
+  packages/simulator/src/storage.ts     — saveResults, loadResults
+  packages/analytics/src/query.ts       — GameCondition, matchesCondition, queryResults
+  packages/cli/src/commands/query.ts    — CLI query command
+  decks/                                — Decklists
+  queries/                              — Sim configs + question files
+```
+
+### What stays out (for now)
+
+- UI for query building (condition builder in the web UI — later)
+- Hypergeometric fast-path for single card_drawn_by conditions (optimization)
+- Chained/sequential conditions beyond AND (e.g. "played A then B in order")
+- SQLite storage for longitudinal tracking
+- Compression of JSON files
+- First-player randomization (player1 always goes first currently)
 
 ---
 
