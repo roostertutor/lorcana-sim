@@ -8,6 +8,7 @@ import {
   RandomBot,
   GreedyBot,
   ProbabilityBot,
+  RampCindyCowBot,
   AggroWeights,
   ControlWeights,
   MidrangeWeights,
@@ -15,7 +16,7 @@ import {
 } from "@lorcana-sim/simulator";
 import type { BotStrategy } from "@lorcana-sim/simulator";
 
-const BOT_NAMES = ["random", "greedy", "probability", "aggro", "control", "midrange", "rush"] as const;
+const BOT_NAMES = ["random", "greedy", "probability", "aggro", "control", "midrange", "rush", "ramp-cindy-cow"] as const;
 export type BotName = (typeof BOT_NAMES)[number];
 
 export function resolveBot(name: string): BotStrategy {
@@ -27,6 +28,7 @@ export function resolveBot(name: string): BotStrategy {
     case "control":     return ProbabilityBot(ControlWeights);
     case "midrange":    return ProbabilityBot(MidrangeWeights);
     case "rush":        return ProbabilityBot(RushWeights);
+    case "ramp-cindy-cow": return RampCindyCowBot;
     default:
       console.error(`Unknown bot "${name}". Valid options: ${BOT_NAMES.join(", ")}`);
       process.exit(1);

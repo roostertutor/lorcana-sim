@@ -4704,33 +4704,32 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [
+    "abilities": [],
+    "actionEffects": [
       {
-        "type": "triggered",
-        "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "grant_extra_ink_play",
-            "amount": 1
-          },
-          {
-            "type": "draw",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            }
-          }
-        ],
-        "rulesText": "This turn, you may put an additional card from your hand into your inkwell facedown. Draw a card."
+        "type": "grant_extra_ink_play",
+        "amount": 1
+      },
+      {
+        "type": "draw",
+        "amount": 1,
+        "target": {
+          "type": "self"
+        }
       }
     ],
     "setId": "6",
     "number": 163,
     "rarity": "common",
     "rulesText": "This turn, you may put an additional card from your hand into your inkwell facedown. Draw a card.",
-    "flavorText": "You need a good plan and even better luck to make it across these treacherous waters."
+    "flavorText": "You need a good plan and even better luck to make it across these treacherous waters.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "This turn, you may put an additional card from your hand into your inkwell facedown. Draw a card.",
+        "raw": "This turn, you may put an additional card from your hand into your inkwell facedown. Draw a card."
+      }
+    ]
   },
   {
     "id": "helping-hand",

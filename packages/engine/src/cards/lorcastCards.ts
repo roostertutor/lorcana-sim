@@ -6,6 +6,8 @@
 
 import type { CardDefinition } from "../types/index.js";
 import set001 from "./lorcast-set-001.json" assert { type: "json" };
+import set010 from "./lorcast-set-010.json" assert { type: "json" };
+import set011 from "./lorcast-set-011.json" assert { type: "json" };
 import set002 from "./lorcast-set-002.json" assert { type: "json" };
 import set003 from "./lorcast-set-003.json" assert { type: "json" };
 import set004 from "./lorcast-set-004.json" assert { type: "json" };
@@ -14,19 +16,15 @@ import set006 from "./lorcast-set-006.json" assert { type: "json" };
 import set007 from "./lorcast-set-007.json" assert { type: "json" };
 import set008 from "./lorcast-set-008.json" assert { type: "json" };
 import set009 from "./lorcast-set-009.json" assert { type: "json" };
-import set010 from "./lorcast-set-010.json" assert { type: "json" };
-import set011 from "./lorcast-set-011.json" assert { type: "json" };
 
-type RawCard = CardDefinition & { _namedAbilityStubs?: unknown[] };
+type RawCard = CardDefinition & { _namedAbilityStubs?: string[] };
 
 function loadSet(raw: unknown[]): CardDefinition[] {
   return (raw as RawCard[])
     .map(({ _namedAbilityStubs: _, ...card }) => card as unknown as CardDefinition);
 }
 
-// Load sets 2-11 first (stubs), then set 1 last (implemented abilities).
-// Set 1 wins on duplicate IDs because it loads last into Object.fromEntries.
-const stubSets = [
+const cards = [
   ...loadSet(set002),
   ...loadSet(set003),
   ...loadSet(set004),
@@ -37,11 +35,8 @@ const stubSets = [
   ...loadSet(set009),
   ...loadSet(set010),
   ...loadSet(set011),
+  ...loadSet(set001), // Last — set 1 has manually implemented abilities that must win over stubs
 ];
-const implementedSets = [
-  ...loadSet(set001),
-];
-const cards = [...stubSets, ...implementedSets];
 
 export const LORCAST_CARD_DEFINITIONS: Record<string, CardDefinition> =
   Object.fromEntries(cards.map((c) => [c.id, c]));

@@ -35,5 +35,5 @@ export { calibratePersonalBot } from "./calibration.js";
 export { analyzeWeightSensitivity } from "./sensitivity.js";
 
 // Query system
-export { matchesCondition, queryResults } from "./query.js";
+export { matchesCondition, queryResults, resolveRefs } from "./query.js";
 export type { GameCondition, QueryResult, PlayerRef } from "./query.js";

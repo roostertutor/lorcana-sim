@@ -4563,7 +4563,14 @@
     "willpower": 2,
     "lore": 1,
     "rulesText": "MEASURE ME AGAIN When you play this character, you may put a card from your hand into your inkwell facedown and exerted.",
-    "flavorText": "\"Mom, Mom! I think I'm still growing!\""
+    "flavorText": "\"Mom, Mom! I think I'm still growing!\"",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "MEASURE ME AGAIN",
+        "rulesText": "When you play this character, you may put a card from your hand into your inkwell facedown and exerted.",
+        "raw": "MEASURE ME AGAIN When you play this character, you may put a card from your hand into your inkwell facedown and exerted."
+      }
+    ]
   },
   {
     "id": "belle-of-the-ball",
@@ -4647,6 +4654,14 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "look_at_top",
+        "count": 5,
+        "action": "one_to_hand_rest_bottom",
+        "target": { "type": "self" }
+      }
+    ],
     "setId": "5",
     "number": 160,
     "rarity": "common",

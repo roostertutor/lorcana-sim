@@ -45,7 +45,11 @@ export type GameCondition =
   // --- Logical operators ---
   | { type: "and"; conditions: GameCondition[] }
   | { type: "or";  conditions: GameCondition[] }
-  | { type: "not"; condition: GameCondition };
+  | { type: "not"; condition: GameCondition }
+
+  // --- Reference + mulligan ---
+  | { type: "ref"; name: string }
+  | { type: "mulliganed"; player?: PlayerRef };
 
 // =============================================================================
 // QUERY RESULT
@@ -82,6 +86,37 @@ function resolvePlayer(ref: PlayerRef | undefined, defaultPlayer: PlayerID): Pla
 
 function toGlobalTurn(playerTurn: number, player: PlayerID): number {
   return player === "player1" ? (2 * playerTurn - 1) : (2 * playerTurn);
+}
+
+// =============================================================================
+// REF RESOLUTION
+// Resolve all { type: "ref" } nodes in a condition tree before matching.
+// =============================================================================
+
+export function resolveRefs(
+  condition: GameCondition,
+  definitions: Record<string, GameCondition>,
+  depth = 0
+): GameCondition {
+  if (depth > 20) throw new Error("Circular ref detected in conditions");
+
+  if (condition.type === "ref") {
+    const resolved = definitions[condition.name];
+    if (!resolved) throw new Error(`Unknown condition ref: "${condition.name}"`);
+    return resolveRefs(resolved, definitions, depth + 1);
+  }
+
+  if (condition.type === "and") {
+    return { type: "and", conditions: condition.conditions.map(c => resolveRefs(c, definitions, depth + 1)) };
+  }
+  if (condition.type === "or") {
+    return { type: "or", conditions: condition.conditions.map(c => resolveRefs(c, definitions, depth + 1)) };
+  }
+  if (condition.type === "not") {
+    return { type: "not", condition: resolveRefs(condition.condition, definitions, depth + 1) };
+  }
+
+  return condition;
 }
 
 // =============================================================================
@@ -195,6 +230,12 @@ export function matchesCondition(
 
     case "not":
       return !matchesCondition(result, condition.condition, defaultPlayer);
+
+    case "mulliganed":
+      return result.mulliganed?.[pid] === true;
+
+    case "ref":
+      throw new Error(`Unresolved ref "${condition.name}" — call resolveRefs() before matchesCondition()`);
   }
 }
 

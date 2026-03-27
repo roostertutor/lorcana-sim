@@ -12,7 +12,7 @@ import { resolve, dirname } from "path";
 import { LORCAST_CARD_DEFINITIONS } from "@lorcana-sim/engine";
 import type { StoredGameResult, StoredResultSet } from "@lorcana-sim/simulator";
 import { runSimulation, saveResults, loadResults } from "@lorcana-sim/simulator";
-import { queryResults } from "@lorcana-sim/analytics";
+import { queryResults, resolveRefs } from "@lorcana-sim/analytics";
 import type { GameCondition, QueryResult } from "@lorcana-sim/analytics";
 import { loadDeck } from "../loadDeck.js";
 import { resolveBot } from "../resolveBot.js";
@@ -24,10 +24,12 @@ interface SimFile {
   bot?: string;
   opponentBot?: string;
   iterations?: number;
+  maxTurns?: number;
 }
 
-/** Questions file — just an array of named conditions */
+/** Questions file — named conditions with optional definitions for refs */
 interface QuestionsFile {
+  definitions?: Record<string, GameCondition>;
   queries: Array<{
     name: string;
     condition: GameCondition;
@@ -106,6 +108,7 @@ export function runQuery(args: QueryArgs): void {
       player2Strategy: oppBot,
       definitions,
       iterations,
+      ...(simConfig.maxTurns != null && { maxTurns: simConfig.maxTurns }),
     });
 
     if (args.save) {
@@ -131,10 +134,12 @@ export function runQuery(args: QueryArgs): void {
   console.log(`  ${n} games  |  bot: ${botLabel}`);
   console.log("=".repeat(60));
 
+  const defs = questions.definitions ?? {};
   for (const q of questions.queries) {
     // StoredGameResult is compatible with GameResult for query purposes
     // (queryResults only reads cardStats, inkByTurn, loreByTurn, winner, winReason, turns)
-    const result = queryResults(gameResults as any, q.condition);
+    const resolved = resolveRefs(q.condition, defs);
+    const result = queryResults(gameResults as any, resolved);
     printQueryResult(q.name, result);
   }
 }

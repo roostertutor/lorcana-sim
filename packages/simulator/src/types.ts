@@ -27,6 +27,18 @@ export interface BotStrategy {
     playerId: PlayerID,
     definitions: Record<string, CardDefinition>
   ) => GameAction;
+  /** Custom mulligan check — overrides default shouldMulligan when provided */
+  shouldMulligan?: (
+    state: GameState,
+    playerId: PlayerID,
+    definitions: Record<string, CardDefinition>
+  ) => boolean;
+  /** Custom mulligan execution — overrides default performMulligan when provided */
+  performMulligan?: (
+    state: GameState,
+    playerId: PlayerID,
+    definitions: Record<string, CardDefinition>
+  ) => GameState;
 }
 
 // -----------------------------------------------------------------------------
@@ -115,6 +127,8 @@ export interface GameResult {
   botLabels: Record<PlayerID, string>;
   /** Must be uniform across both players — aggregateResults() throws if mixed */
   botType: BotType;
+  /** Which players mulliganed their opening hand */
+  mulliganed: Record<PlayerID, boolean>;
 }
 
 // -----------------------------------------------------------------------------

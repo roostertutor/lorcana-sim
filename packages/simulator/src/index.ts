@@ -32,6 +32,7 @@ export { RandomBot } from "./bots/RandomBot.js";
 export { GreedyBot } from "./bots/GreedyBot.js";
 export { ProbabilityBot } from "./bots/ProbabilityBot.js";
 export { createPersonalBot } from "./bots/PersonalBot.js";
+export { RampCindyCowBot } from "./bots/RampCindyCowBot.js";
 
 // Weight presets
 export { AggroWeights, ControlWeights, MidrangeWeights, RushWeights } from "./bots/presets.js";

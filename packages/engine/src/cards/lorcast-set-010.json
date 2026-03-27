@@ -4464,46 +4464,21 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": {
-          "on": "turn_end"
-        },
-        "condition": {
-          "type": "played_character_with_trait_this_turn",
-          "trait": "Princess"
-        },
+        "trigger": { "on": "enters_play" },
         "effects": [
           {
-            "type": "sequential",
-            "costEffects": [
-              {
-                "type": "move_to_inkwell",
-                "target": {
-                  "type": "chosen",
-                  "filter": {
-                    "owner": {
-                      "type": "self"
-                    },
-                    "zone": "hand"
-                  }
-                },
-                "enterExerted": false,
-                "fromZone": "hand"
-              }
-            ],
-            "rewardEffects": [
-              {
-                "type": "draw",
-                "amount": 1,
-                "target": {
-                  "type": "self"
-                }
-              }
-            ]
-          }
+            "type": "move_to_inkwell",
+            "target": {
+              "type": "chosen",
+              "filter": { "owner": { "type": "self" }, "zone": "hand" }
+            },
+            "enterExerted": false,
+            "fromZone": "hand",
+            "isMay": true
+          },
+          { "type": "draw", "amount": 1, "target": { "type": "self" } }
         ],
-        "isMay": true,
-        "storyName": "WHATEVER YOU WISH FOR",
-        "rulesText": "At the end of your turn, if you played a Princess character this turn, you may put a card from your hand into your inkwell facedown to draw a card."
+        "_hack": "One-off: real ability is end-of-turn conditional on Princess played. Simplified to enters_play for goldfish sim."
       }
     ],
     "setId": "10",
@@ -4513,7 +4488,14 @@
     "strength": 2,
     "willpower": 3,
     "lore": 1,
-    "rulesText": "WHATEVER YOU WISH FOR At the end of your turn, if you played a Princess character this turn, you may put a card from your hand into your inkwell facedown to draw a card."
+    "rulesText": "WHATEVER YOU WISH FOR At the end of your turn, if you played a Princess character this turn, you may put a card from your hand into your inkwell facedown to draw a card.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "WHATEVER YOU WISH FOR At the end of your turn, if you played a Princess character this turn, you may put a card from your hand into your inkwell facedown to draw a card.",
+        "raw": "WHATEVER YOU WISH FOR At the end of your turn, if you played a Princess character this turn, you may put a card from your hand into your inkwell facedown to draw a card."
+      }
+    ]
   },
   {
     "id": "judy-hopps-uncovering-clues",
@@ -6850,7 +6832,26 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "enters_play" },
+        "effects": [
+          {
+            "type": "move_to_inkwell",
+            "target": {
+              "type": "chosen",
+              "filter": { "owner": { "type": "self" }, "zone": "hand" }
+            },
+            "enterExerted": false,
+            "fromZone": "hand",
+            "isMay": true
+          },
+          { "type": "draw", "amount": 1, "target": { "type": "self" } }
+        ],
+        "_hack": "One-off: real ability is end-of-turn conditional on Princess played. Simplified to enters_play for goldfish sim."
+      }
+    ],
     "setId": "10",
     "number": 236,
     "rarity": "enchanted",

@@ -143,12 +143,22 @@ export function runGame(config: SimGameConfig): GameResult {
   );
 
   // CRD 2.2.2: Mulligan (pre-game, skipped for injected startingState)
+  const mulliganed: Record<PlayerID, boolean> = { player1: false, player2: false };
   if (!config.startingState) {
     for (const playerId of ["player1", "player2"] as const) {
       const bot = playerId === "player1" ? config.player1Strategy : config.player2Strategy;
       if (bot.name === "random") continue; // RandomBot skips mulligan
-      if (shouldMulligan(state, playerId, config.definitions, config.mulliganThresholds)) {
-        state = performMulligan(state, playerId);
+
+      // Use bot's custom mulligan if provided, otherwise default
+      const shouldMull = bot.shouldMulligan
+        ? bot.shouldMulligan(state, playerId, config.definitions)
+        : shouldMulligan(state, playerId, config.definitions, config.mulliganThresholds);
+
+      if (shouldMull) {
+        state = bot.performMulligan
+          ? bot.performMulligan(state, playerId, config.definitions)
+          : performMulligan(state, playerId);
+        mulliganed[playerId] = true;
       }
     }
   }
@@ -226,11 +236,9 @@ export function runGame(config: SimGameConfig): GameResult {
     const loserDeck = getZone(state, loser as PlayerID, "deck");
     winReason = loserDeck.length === 0 ? "deck_exhausted" : "lore_threshold";
   } else if (state.turnNumber > maxTurns) {
-    const p1Lore = state.players.player1.lore;
-    const p2Lore = state.players.player2.lore;
-    if (p1Lore > p2Lore) winner = "player1";
-    else if (p2Lore > p1Lore) winner = "player2";
-    else winner = "draw";
+    // CRD 1.8.1.1: Game is won by reaching lore threshold, not by having more lore.
+    // If max turns exceeded without a winner, it's a draw.
+    winner = "draw";
     winReason = "max_turns_exceeded";
   } else {
     winner = "draw";
@@ -254,5 +262,6 @@ export function runGame(config: SimGameConfig): GameResult {
       player2: config.player2Strategy.name,
     },
     botType: config.player1Strategy.type,
+    mulliganed,
   };
 }
