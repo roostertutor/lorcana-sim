@@ -71,6 +71,7 @@ switch (subcommand) {
     runAnalyze({
       deck: requireArg(args, "deck", usage),
       bot: args["bot"] ?? "greedy",
+      opponentBot: args["opponent-bot"],
       iterations: optionalInt(args, "iterations", 1000),
       verbose: args["verbose"] === "true",
       save: args["save"],
@@ -84,6 +85,7 @@ switch (subcommand) {
       deck1: requireArg(args, "deck1", usage),
       deck2: requireArg(args, "deck2", usage),
       bot: args["bot"] ?? "greedy",
+      opponentBot: args["opponent-bot"],
       iterations: optionalInt(args, "iterations", 1000),
       verbose: args["verbose"] === "true",
       save: args["save"],

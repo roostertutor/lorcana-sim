@@ -16,6 +16,7 @@ export interface CompareArgs {
   deck1: string;
   deck2: string;
   bot: string;
+  opponentBot?: string;
   iterations: number;
   verbose: boolean;
   save?: string;
@@ -26,14 +27,18 @@ export function runCompare(args: CompareArgs): void {
   const deck1 = loadDeck(args.deck1, definitions);
   const deck2 = loadDeck(args.deck2, definitions);
   const bot = resolveBot(args.bot);
+  const oppBot = resolveBot(args.opponentBot ?? args.bot);
   const iterations = args.verbose ? 1 : args.iterations;
 
-  console.log(`\nRunning ${iterations} game${iterations > 1 ? "s" : ""} (deck1 vs deck2) with ${bot.name}...`);
+  const botLabel = bot.name === oppBot.name
+    ? bot.name
+    : `${bot.name} vs ${oppBot.name}`;
+  console.log(`\nRunning ${iterations} game${iterations > 1 ? "s" : ""} (deck1 vs deck2) with ${botLabel}...`);
   const results = runSimulation({
     player1Deck: deck1,
     player2Deck: deck2,
     player1Strategy: bot,
-    player2Strategy: bot,
+    player2Strategy: oppBot,
     definitions,
     iterations,
   });

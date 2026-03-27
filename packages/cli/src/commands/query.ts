@@ -8,6 +8,7 @@
 // =============================================================================
 
 import { readFileSync } from "fs";
+import { resolve, dirname } from "path";
 import { LORCAST_CARD_DEFINITIONS } from "@lorcana-sim/engine";
 import type { StoredGameResult, StoredResultSet } from "@lorcana-sim/simulator";
 import { runSimulation, saveResults, loadResults } from "@lorcana-sim/simulator";
@@ -21,6 +22,7 @@ interface SimFile {
   deck: string;
   opponent?: string;
   bot?: string;
+  opponentBot?: string;
   iterations?: number;
 }
 
@@ -79,21 +81,29 @@ export function runQuery(args: QueryArgs): void {
     }
     const simConfig = JSON.parse(simRaw) as SimFile;
 
+    // Resolve deck paths relative to the sim file's directory
+    const simDir = dirname(resolve(args.sim));
+    const resolvePath = (p: string) => resolve(simDir, p);
+
     const definitions = LORCAST_CARD_DEFINITIONS;
-    const deck = loadDeck(simConfig.deck, definitions);
+    const deck = loadDeck(resolvePath(simConfig.deck), definitions);
     const opponentDeck = simConfig.opponent
-      ? loadDeck(simConfig.opponent, definitions)
+      ? loadDeck(resolvePath(simConfig.opponent), definitions)
       : deck;
     const bot = resolveBot(simConfig.bot ?? "greedy");
+    const oppBot = resolveBot(simConfig.opponentBot ?? simConfig.bot ?? "greedy");
     const iterations = simConfig.iterations ?? 1000;
 
-    console.log(`\nRunning ${iterations} games to answer ${questions.queries.length} question(s)...\n`);
+    const botLabel = bot.name === oppBot.name
+      ? `bot: ${bot.name}`
+      : `p1: ${bot.name} vs p2: ${oppBot.name}`;
+    console.log(`\nRunning ${iterations} games (${botLabel}) to answer ${questions.queries.length} question(s)...\n`);
 
     const fullResults = runSimulation({
       player1Deck: deck,
       player2Deck: opponentDeck,
       player1Strategy: bot,
-      player2Strategy: bot,
+      player2Strategy: oppBot,
       definitions,
       iterations,
     });

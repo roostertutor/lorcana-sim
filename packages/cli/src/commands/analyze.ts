@@ -15,6 +15,7 @@ import { printDeckStats, printDeckComposition, printActionLog } from "../format.
 export interface AnalyzeArgs {
   deck: string;
   bot: string;
+  opponentBot?: string;
   iterations: number;
   verbose: boolean;
   save?: string;
@@ -24,14 +25,18 @@ export function runAnalyze(args: AnalyzeArgs): void {
   const definitions = LORCAST_CARD_DEFINITIONS;
   const deck = loadDeck(args.deck, definitions);
   const bot = resolveBot(args.bot);
+  const oppBot = resolveBot(args.opponentBot ?? args.bot);
   const iterations = args.verbose ? 1 : args.iterations;
 
-  console.log(`\nRunning ${iterations} game${iterations > 1 ? "s" : ""} with ${bot.name}...`);
+  const botLabel = bot.name === oppBot.name
+    ? bot.name
+    : `${bot.name} vs ${oppBot.name}`;
+  console.log(`\nRunning ${iterations} game${iterations > 1 ? "s" : ""} with ${botLabel}...`);
   const results = runSimulation({
     player1Deck: deck,
     player2Deck: deck,
     player1Strategy: bot,
-    player2Strategy: bot,
+    player2Strategy: oppBot,
     definitions,
     iterations,
   });
