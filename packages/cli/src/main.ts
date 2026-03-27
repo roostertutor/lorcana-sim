@@ -14,6 +14,7 @@ import { runAnalyze } from "./commands/analyze.js";
 import { runCompare } from "./commands/compare.js";
 import { runOptimize } from "./commands/optimize.js";
 import { runSweep } from "./commands/sweep.js";
+import { runQuery } from "./commands/query.js";
 
 // ---------------------------------------------------------------------------
 // Argument parser — no external deps, just process.argv
@@ -108,6 +109,16 @@ switch (subcommand) {
     break;
   }
 
+  case "query": {
+    const usage = "Usage: pnpm query --file ./questions.json [--save ./results.json] [--results ./results.json]";
+    runQuery({
+      file: requireArg(args, "file", usage),
+      save: args["save"],
+      results: args["results"],
+    });
+    break;
+  }
+
   default: {
     console.log(`
 Lorcana Sim CLI
@@ -117,6 +128,7 @@ Commands:
   compare   Compare two decks head-to-head
   optimize  Find optimal weights for a deck vs an opponent style
   sweep     Sweep the weight space and show a win-rate grid
+  query     Run condition-based queries against simulation results
 
 Examples:
   pnpm analyze  --deck ./deck.txt --bot greedy --iterations 1000
@@ -124,6 +136,7 @@ Examples:
   pnpm compare  --deck1 ./a.txt --deck2 ./b.txt --bot probability --iterations 5000
   pnpm optimize --deck ./deck.txt --opponent aggro --iterations 500
   pnpm sweep    --deck ./deck.txt --opponent control --iterations 200
+  pnpm query    --file ./questions.json [--save ./results.json] [--results ./results.json]
 
 Bot options: random, greedy, probability, aggro, control, midrange, rush
 `);

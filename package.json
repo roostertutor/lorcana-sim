@@ -13,6 +13,7 @@
     "compare": "pnpm --filter cli compare",
     "optimize": "pnpm --filter cli optimize",
     "sweep": "pnpm --filter cli sweep",
+    "query": "pnpm --filter cli query",
     "import-cards": "tsx scripts/import-cards.ts"
   },
   "devDependencies": {

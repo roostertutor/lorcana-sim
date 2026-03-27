@@ -1,0 +1,34 @@
+{
+  "deck": "./sample-deck.txt",
+  "opponent": "./aggro-deck.txt",
+  "bot": "greedy",
+  "iterations": 5000,
+  "queries": [
+    {
+      "name": "Aladdin on-curve (Street Rat by p1 turn 3, Heroic Outlaw by p1 turn 5)",
+      "condition": {
+        "type": "and",
+        "conditions": [
+          { "type": "card_played_by", "card": "aladdin-street-rat", "turn": 5 },
+          { "type": "card_played_by", "card": "aladdin-heroic-outlaw", "turn": 9 }
+        ]
+      }
+    },
+    {
+      "name": "Drew any Aladdin Street Rat by turn 5 (p1 turn 3)",
+      "condition": {
+        "type": "card_drawn_by",
+        "card": "aladdin-street-rat",
+        "turn": 5
+      }
+    },
+    {
+      "name": "Heroic Outlaw played by turn 11 (p1 turn 6)",
+      "condition": {
+        "type": "card_played_by",
+        "card": "aladdin-heroic-outlaw",
+        "turn": 11
+      }
+    }
+  ]
+}

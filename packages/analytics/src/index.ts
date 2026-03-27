@@ -33,3 +33,7 @@ export { calibratePersonalBot } from "./calibration.js";
 
 // Weight sensitivity
 export { analyzeWeightSensitivity } from "./sensitivity.js";
+
+// Query system
+export { matchesCondition, queryResults } from "./query.js";
+export type { GameCondition, QueryResult } from "./query.js";

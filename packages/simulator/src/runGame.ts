@@ -17,18 +17,25 @@ const DEFAULT_MAX_TURNS = 120;
 function ensureStats(
   statsMap: Map<string, CardGameStats>,
   instanceId: string,
-  definitionId: string
+  definitionId: string,
+  ownerId: PlayerID
 ): CardGameStats {
   if (!statsMap.has(instanceId)) {
     statsMap.set(instanceId, {
       instanceId,
       definitionId,
-      turnsInPlay: 0,
+      ownerId,
+      drawnOnTurn: null,
+      playedOnTurn: null,
+      inkedOnTurn: null,
+      inPlayOnTurns: [],
+      inkAvailableWhenPlayed: null,
+      wasShifted: false,
+      wasPlayed: false,
+      wasBanished: false,
+      loreContributed: 0,
       timesQuested: 0,
       timesChallenged: 0,
-      damageDealt: 0,
-      loreContributed: 0,
-      wasBanished: false,
     });
   }
   return statsMap.get(instanceId)!;
@@ -45,7 +52,7 @@ function updateStatsPreAction(
     if (!instance) return;
     const def = definitions[instance.definitionId];
     if (!def) return;
-    const stats = ensureStats(statsMap, action.instanceId, instance.definitionId);
+    const stats = ensureStats(statsMap, action.instanceId, instance.definitionId, instance.ownerId);
     stats.timesQuested++;
     stats.loreContributed += getEffectiveLore(instance, def);
   }
@@ -53,16 +60,39 @@ function updateStatsPreAction(
   if (action.type === "CHALLENGE") {
     const defender = state.cards[action.defenderInstanceId];
     if (defender) {
-      ensureStats(statsMap, action.defenderInstanceId, defender.definitionId).timesChallenged++;
+      ensureStats(statsMap, action.defenderInstanceId, defender.definitionId, defender.ownerId).timesChallenged++;
     }
   }
 
-  // Increment turnsInPlay for all characters in play at the start of each player's turn
+  // Track when a card is played
+  if (action.type === "PLAY_CARD") {
+    const instance = state.cards[action.instanceId];
+    if (instance) {
+      const stats = ensureStats(statsMap, action.instanceId, instance.definitionId, instance.ownerId);
+      stats.playedOnTurn = state.turnNumber;
+      stats.wasPlayed = true;
+      stats.inkAvailableWhenPlayed = state.players[instance.ownerId].availableInk;
+      stats.wasShifted = !!action.shiftTargetInstanceId;
+    }
+  }
+
+  // Track when a card is inked
+  if (action.type === "PLAY_INK") {
+    const instance = state.cards[action.instanceId];
+    if (instance) {
+      const stats = ensureStats(statsMap, action.instanceId, instance.definitionId, instance.ownerId);
+      stats.inkedOnTurn = state.turnNumber;
+    }
+  }
+
+  // Track inPlayOnTurns for all cards in play at each turn boundary
   if (action.type === "PASS_TURN") {
     for (const pid of ["player1", "player2"] as const) {
       for (const instanceId of getZone(state, pid, "play")) {
         const inst = state.cards[instanceId];
-        if (inst) ensureStats(statsMap, instanceId, inst.definitionId).turnsInPlay++;
+        if (inst) {
+          ensureStats(statsMap, instanceId, inst.definitionId, inst.ownerId).inPlayOnTurns.push(state.turnNumber);
+        }
       }
     }
   }
@@ -80,26 +110,18 @@ function updateStatsPostAction(
     if (event.type === "card_banished") {
       const instance = postState.cards[event.instanceId] ?? preState.cards[event.instanceId];
       if (instance) {
-        ensureStats(statsMap, event.instanceId, instance.definitionId).wasBanished = true;
+        ensureStats(statsMap, event.instanceId, instance.definitionId, instance.ownerId).wasBanished = true;
       }
     }
-  }
 
-  // Attribute damage dealt in a challenge
-  if (action.type === "CHALLENGE") {
-    const attackerId = action.attackerInstanceId;
-    const defenderId = action.defenderInstanceId;
-    for (const event of events) {
-      if (event.type !== "damage_dealt") continue;
-      // If defender received damage, attacker dealt it
-      if (event.instanceId === defenderId) {
-        const attInst = preState.cards[attackerId];
-        if (attInst) ensureStats(statsMap, attackerId, attInst.definitionId).damageDealt += event.amount;
-      }
-      // If attacker received damage, defender dealt it
-      if (event.instanceId === attackerId) {
-        const defInst = preState.cards[defenderId];
-        if (defInst) ensureStats(statsMap, defenderId, defInst.definitionId).damageDealt += event.amount;
+    // Track drawnOnTurn via card_drawn events
+    if (event.type === "card_drawn") {
+      const instance = postState.cards[event.instanceId] ?? preState.cards[event.instanceId];
+      if (instance) {
+        const stats = ensureStats(statsMap, event.instanceId, instance.definitionId, instance.ownerId);
+        if (stats.drawnOnTurn === null) {
+          stats.drawnOnTurn = preState.turnNumber;
+        }
       }
     }
   }
@@ -132,6 +154,18 @@ export function runGame(config: SimGameConfig): GameResult {
   }
 
   const statsMap = new Map<string, CardGameStats>();
+  const inkByTurn: Record<PlayerID, number[]> = { player1: [], player2: [] };
+  const loreByTurn: Record<PlayerID, number[]> = { player1: [], player2: [] };
+
+  // Mark cards in starting hand as drawn on turn 1
+  for (const pid of ["player1", "player2"] as const) {
+    for (const instanceId of getZone(state, pid, "hand")) {
+      const inst = state.cards[instanceId];
+      if (inst) {
+        ensureStats(statsMap, instanceId, inst.definitionId, inst.ownerId).drawnOnTurn = 1;
+      }
+    }
+  }
 
   while (!state.isGameOver && state.turnNumber <= maxTurns) {
     // When a choice is pending, the choosing player's bot resolves it
@@ -170,6 +204,14 @@ export function runGame(config: SimGameConfig): GameResult {
     } else {
       updateStatsPostAction(state, action, result.events, statsMap, result.newState);
       state = result.newState;
+
+      // Track ink/lore snapshots at turn boundaries
+      if (action.type === "PASS_TURN") {
+        for (const pid of ["player1", "player2"] as const) {
+          inkByTurn[pid].push(state.players[pid].availableInk);
+          loreByTurn[pid].push(state.players[pid].lore);
+        }
+      }
     }
   }
 
@@ -205,6 +247,8 @@ export function runGame(config: SimGameConfig): GameResult {
     },
     actionLog: state.actionLog,
     cardStats: Object.fromEntries(statsMap),
+    inkByTurn,
+    loreByTurn,
     botLabels: {
       player1: config.player1Strategy.name,
       player2: config.player2Strategy.name,

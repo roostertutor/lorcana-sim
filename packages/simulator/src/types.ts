@@ -78,13 +78,26 @@ export interface SimGameConfig {
 export interface CardGameStats {
   instanceId: string;
   definitionId: string;
-  turnsInPlay: number;
+  ownerId: PlayerID;
+
+  // --- Timeline ---
+  drawnOnTurn: number | null;
+  playedOnTurn: number | null;
+  inkedOnTurn: number | null;
+  inPlayOnTurns: number[];
+
+  // --- Context when played ---
+  inkAvailableWhenPlayed: number | null;
+  wasShifted: boolean;
+
+  // --- Outcome ---
+  wasPlayed: boolean;
+  wasBanished: boolean;
+
+  // --- Contributions ---
+  loreContributed: number;
   timesQuested: number;
   timesChallenged: number;
-  /** Damage this card dealt to other cards */
-  damageDealt: number;
-  loreContributed: number;
-  wasBanished: boolean;
 }
 
 export interface GameResult {
@@ -94,6 +107,10 @@ export interface GameResult {
   finalLore: Record<PlayerID, number>;
   actionLog: GameLogEntry[];
   cardStats: Record<string, CardGameStats>;
+  /** Available ink per player at start of each turn (before inking) */
+  inkByTurn: Record<PlayerID, number[]>;
+  /** Lore totals per player at end of each turn */
+  loreByTurn: Record<PlayerID, number[]>;
   /** Bot name per player */
   botLabels: Record<PlayerID, string>;
   /** Must be uniform across both players — aggregateResults() throws if mixed */

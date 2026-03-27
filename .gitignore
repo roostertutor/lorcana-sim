@@ -39,6 +39,9 @@ logs
 npm-debug.log*
 pnpm-debug.log*
 
+# Simulation results (query --save output)
+*.sim-results.json
+
 # Misc
 .cache
 tmp

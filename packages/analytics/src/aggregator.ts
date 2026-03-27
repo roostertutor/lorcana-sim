@@ -35,9 +35,6 @@ export function aggregateResults(results: GameResult[]): DeckStats {
   let winTurnCount = 0;
 
   // Per-definition accumulators
-  // { definitionId -> { gamesDrawn, gamesNotDrawn, winsDrawn, winsNotDrawn,
-  //                     totalLore, totalQuests, totalBanished,
-  //                     totalTurnsToPlay, countPlayedInstances } }
   const defAccum: Record<
     string,
     {
@@ -93,28 +90,21 @@ export function aggregateResults(results: GameResult[]): DeckStats {
     const drawnDefs = new Set<string>();
 
     for (const stats of Object.values(result.cardStats)) {
-      // Only analyze player1's cards (instanceId prefix isn't reliable — use
-      // the fact that player1 cards appear in their zones via the log).
-      // We track all stats regardless and key by definitionId.
+      // Only track player1's cards for per-card performance
+      if (stats.ownerId !== "player1") continue;
+
       const a = ensureDef(stats.definitionId);
       a.totalLore += stats.loreContributed;
       a.totalQuests += stats.timesQuested;
       if (stats.wasBanished) a.totalBanished++;
 
-      // If turnsInPlay > 0 the card was played at some point
-      if (stats.turnsInPlay > 0) {
+      // Use enriched fields for accurate detection
+      if (stats.wasPlayed) {
         a.countPlayedInstances++;
-        // turnsInPlay is a proxy for "turns to play" (not exact but useful)
-        a.totalTurnsToPlay += stats.turnsInPlay;
-        drawnDefs.add(stats.definitionId);
-      } else {
-        // Card existed but never entered play — still might have been drawn
-        // (could have been inked or stayed in hand). Count as drawn if lore > 0
-        // or quests > 0 or banished — otherwise we can't tell without the log.
-        // Conservative: only count as "drawn" if we see any activity.
+        a.totalTurnsToPlay += stats.inPlayOnTurns.length;
       }
 
-      if (stats.loreContributed > 0 || stats.timesQuested > 0 || stats.wasBanished || stats.turnsInPlay > 0) {
+      if (stats.drawnOnTurn !== null) {
         drawnDefs.add(stats.definitionId);
         a.totalCopiesDrawn++;
       }

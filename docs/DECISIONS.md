@@ -516,8 +516,11 @@ are the project memory. Update them at the end of every significant session.
 
 ---
 
-*Last updated: Session 6*
-*Changes: Deck exhaustion implemented. Tests restructured by CRD. Card importer*
-*fixed (captures all card text, preserves manual abilities). README + goldfish deck*
-*added. --verbose CLI flag. sampleCards.ts removed. Timed effects and Reckless*
-*designs documented. Max turns bumped to 120.*
+*Last updated: Session 7*
+*Changes: Query system implemented (Parts A-C). CardGameStats enriched with*
+*timeline data (drawnOnTurn, playedOnTurn, inkedOnTurn, inPlayOnTurns, ownerId).*
+*GameResult extended with inkByTurn/loreByTurn. New analytics/query.ts with*
+*composable GameCondition filter language. CLI `pnpm query --file` command.*
+*Aggregator updated to use drawnOnTurn !== null instead of turnsInPlay > 0 proxy.*
+*turnNumber is global (both players), not per-player — query conditions use*
+*global turn numbers. Part D (result storage) deferred.*
