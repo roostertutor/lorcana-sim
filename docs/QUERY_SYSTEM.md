@@ -43,7 +43,7 @@ pnpm compare -- --deck1 ./decks/ruby-amethyst-deck.txt --deck2 ./decks/lilo-stit
 
 ```json
 {
-  "deck": "../decks/aladdin-deck.txt",
+  "me": "../decks/aladdin-deck.txt",
   "opponent": "../decks/lilo-stitch-deck.txt",
   "bot": "greedy",
   "opponentBot": "aggro",
@@ -51,9 +51,9 @@ pnpm compare -- --deck1 ./decks/ruby-amethyst-deck.txt --deck2 ./decks/lilo-stit
 }
 ```
 
-- `deck` / `opponent`: paths relative to the sim file's directory
-- `bot`: strategy for player1 (your deck). Options: random, greedy, probability, aggro, control, midrange, rush
-- `opponentBot`: strategy for player2 (optional, defaults to `bot`)
+- `me` / `opponent`: deck file paths, relative to the sim file's directory
+- `bot`: strategy for me (your deck, goes first). Options: random, greedy, probability, aggro, control, midrange, rush
+- `opponentBot`: strategy for opponent (optional, defaults to `bot`)
 - `opponent`: optional, defaults to mirror match (same deck)
 
 ### Questions file format (*-questions.json)
@@ -75,10 +75,14 @@ Turn numbers are **per-player**, not global. `"turn": 3` means that player's 3rd
 
 ### Player context
 
-- `player1` = your deck, goes first
-- `player2` = opponent, goes second
-- All conditions default to `"player": "player1"` unless specified
-- To check opponent state: add `"player": "player2"` to the condition
+Conditions use the same naming as the sim config:
+- `"me"` = your deck (goes first) — default when omitted, but prefer being explicit
+- `"opponent"` = opponent's deck (goes second)
+- `"player1"` / `"player2"` also accepted for backwards compatibility
+
+Examples:
+- `{ "type": "card_played_by", "card": "aladdin-street-rat", "turn": 3, "player": "me" }`
+- `{ "type": "lore_gte", "amount": 8, "by_turn": 5, "player": "opponent" }`
 
 ### All condition types
 
@@ -133,9 +137,9 @@ For each query, the system reports:
       "condition": {
         "type": "and",
         "conditions": [
-          { "type": "card_played_by", "card": "aladdin-street-rat", "turn": 3 },
-          { "type": "card_in_play_on", "card": "aladdin-street-rat", "turn": 5 },
-          { "type": "ink_gte", "amount": 5, "on_turn": 5 }
+          { "type": "card_played_by", "card": "aladdin-street-rat", "turn": 3, "player": "me" },
+          { "type": "card_in_play_on", "card": "aladdin-street-rat", "turn": 5, "player": "me" },
+          { "type": "ink_gte", "amount": 5, "on_turn": 5, "player": "me" }
         ]
       }
     },
@@ -144,8 +148,8 @@ For each query, the system reports:
       "condition": {
         "type": "and",
         "conditions": [
-          { "type": "lore_gte", "amount": 8, "by_turn": 5, "player": "player2" },
-          { "type": "card_in_play_on", "card": "aladdin-heroic-outlaw", "turn": 5 }
+          { "type": "lore_gte", "amount": 8, "by_turn": 5, "player": "opponent" },
+          { "type": "card_in_play_on", "card": "aladdin-heroic-outlaw", "turn": 5, "player": "me" }
         ]
       }
     }

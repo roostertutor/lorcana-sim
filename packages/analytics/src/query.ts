@@ -10,26 +10,35 @@ import type { PlayerID } from "@lorcana-sim/engine";
 // =============================================================================
 // CONDITION TYPES
 // Composable filter predicates over a single GameResult.
+//
+// "player" field uses human-readable aliases that match the sim config:
+//   "deck"     → player1 (your deck, goes first)
+//   "opponent" → player2 (opponent's deck, goes second)
+// Also accepts "player1"/"player2" for backwards compatibility.
+// Defaults to "deck" (player1) when omitted.
 // =============================================================================
+
+/** Player reference in query conditions — matches sim config naming */
+export type PlayerRef = "me" | "opponent" | PlayerID;
 
 export type GameCondition =
   // --- Card conditions ---
-  | { type: "card_drawn_by";    card: string; turn: number; player?: PlayerID }
-  | { type: "card_played_by";   card: string; turn: number; player?: PlayerID }
-  | { type: "card_in_play_on";  card: string; turn: number; player?: PlayerID }
-  | { type: "card_inked_by";    card: string; turn: number; player?: PlayerID }
-  | { type: "card_never_drawn"; card: string; player?: PlayerID }
-  | { type: "card_never_played"; card: string; player?: PlayerID }
+  | { type: "card_drawn_by";    card: string; turn: number; player?: PlayerRef }
+  | { type: "card_played_by";   card: string; turn: number; player?: PlayerRef }
+  | { type: "card_in_play_on";  card: string; turn: number; player?: PlayerRef }
+  | { type: "card_inked_by";    card: string; turn: number; player?: PlayerRef }
+  | { type: "card_never_drawn"; card: string; player?: PlayerRef }
+  | { type: "card_never_played"; card: string; player?: PlayerRef }
 
   // --- Resource conditions ---
-  | { type: "ink_gte";          amount: number; on_turn: number; player?: PlayerID }
-  | { type: "ink_lte";          amount: number; on_turn: number; player?: PlayerID }
-  | { type: "lore_gte";         amount: number; by_turn: number; player?: PlayerID }
-  | { type: "lore_lte";         amount: number; by_turn: number; player?: PlayerID }
+  | { type: "ink_gte";          amount: number; on_turn: number; player?: PlayerRef }
+  | { type: "ink_lte";          amount: number; on_turn: number; player?: PlayerRef }
+  | { type: "lore_gte";         amount: number; by_turn: number; player?: PlayerRef }
+  | { type: "lore_lte";         amount: number; by_turn: number; player?: PlayerRef }
 
   // --- Game outcome conditions ---
-  | { type: "won";              player?: PlayerID }
-  | { type: "lost";             player?: PlayerID }
+  | { type: "won";              player?: PlayerRef }
+  | { type: "lost";             player?: PlayerRef }
   | { type: "game_ended_by";    turn: number }
   | { type: "win_reason";       reason: GameResult["winReason"] }
 
@@ -64,6 +73,13 @@ export interface QueryResult {
 // player2 turn 1 = global 2, player1 turn 2 = global 3, etc.).
 // =============================================================================
 
+function resolvePlayer(ref: PlayerRef | undefined, defaultPlayer: PlayerID): PlayerID {
+  if (!ref) return defaultPlayer;
+  if (ref === "me" || ref === "player1") return "player1";
+  if (ref === "opponent" || ref === "player2") return "player2";
+  return defaultPlayer;
+}
+
 function toGlobalTurn(playerTurn: number, player: PlayerID): number {
   return player === "player1" ? (2 * playerTurn - 1) : (2 * playerTurn);
 }
@@ -77,7 +93,10 @@ export function matchesCondition(
   condition: GameCondition,
   defaultPlayer: PlayerID = "player1"
 ): boolean {
-  const pid: PlayerID = ("player" in condition && condition.player) ? condition.player : defaultPlayer;
+  const pid: PlayerID = resolvePlayer(
+    ("player" in condition ? condition.player : undefined) as PlayerRef | undefined,
+    defaultPlayer
+  );
 
   switch (condition.type) {
 

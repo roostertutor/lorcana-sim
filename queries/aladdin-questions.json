@@ -5,8 +5,8 @@
       "condition": {
         "type": "and",
         "conditions": [
-          { "type": "card_played_by", "card": "aladdin-street-rat", "turn": 3 },
-          { "type": "ink_gte", "amount": 5, "on_turn": 5 }
+          { "type": "card_played_by", "card": "aladdin-street-rat", "turn": 3, "player": "me" },
+          { "type": "ink_gte", "amount": 5, "on_turn": 5, "player": "me" }
         ]
       }
     },
@@ -15,9 +15,9 @@
       "condition": {
         "type": "and",
         "conditions": [
-          { "type": "card_played_by", "card": "aladdin-street-rat", "turn": 3 },
-          { "type": "card_in_play_on", "card": "aladdin-street-rat", "turn": 5 },
-          { "type": "ink_gte", "amount": 5, "on_turn": 5 }
+          { "type": "card_played_by", "card": "aladdin-street-rat", "turn": 3, "player": "me" },
+          { "type": "card_in_play_on", "card": "aladdin-street-rat", "turn": 5, "player": "me" },
+          { "type": "ink_gte", "amount": 5, "on_turn": 5, "player": "me" }
         ]
       }
     },
@@ -26,7 +26,8 @@
       "condition": {
         "type": "card_played_by",
         "card": "aladdin-heroic-outlaw",
-        "turn": 5
+        "turn": 5,
+        "player": "me"
       }
     },
     {
@@ -34,7 +35,8 @@
       "condition": {
         "type": "card_played_by",
         "card": "aladdin-heroic-outlaw",
-        "turn": 6
+        "turn": 6,
+        "player": "me"
       }
     },
     {
@@ -42,10 +44,10 @@
       "condition": {
         "type": "and",
         "conditions": [
-          { "type": "card_played_by", "card": "aladdin-street-rat", "turn": 4 },
+          { "type": "card_played_by", "card": "aladdin-street-rat", "turn": 4, "player": "me" },
           {
             "type": "not",
-            "condition": { "type": "card_played_by", "card": "aladdin-street-rat", "turn": 3 }
+            "condition": { "type": "card_played_by", "card": "aladdin-street-rat", "turn": 3, "player": "me" }
           }
         ]
       }
@@ -55,8 +57,8 @@
       "condition": {
         "type": "and",
         "conditions": [
-          { "type": "won" },
-          { "type": "card_in_play_on", "card": "aladdin-heroic-outlaw", "turn": 5 }
+          { "type": "won", "player": "me" },
+          { "type": "card_in_play_on", "card": "aladdin-heroic-outlaw", "turn": 5, "player": "me" }
         ]
       }
     },
@@ -65,8 +67,8 @@
       "condition": {
         "type": "and",
         "conditions": [
-          { "type": "won" },
-          { "type": "card_never_played", "card": "aladdin-heroic-outlaw" }
+          { "type": "won", "player": "me" },
+          { "type": "card_never_played", "card": "aladdin-heroic-outlaw", "player": "me" }
         ]
       }
     },
@@ -76,7 +78,7 @@
         "type": "lore_gte",
         "amount": 8,
         "by_turn": 5,
-        "player": "player2"
+        "player": "opponent"
       }
     },
     {
@@ -84,8 +86,8 @@
       "condition": {
         "type": "and",
         "conditions": [
-          { "type": "lore_gte", "amount": 8, "by_turn": 5, "player": "player2" },
-          { "type": "card_in_play_on", "card": "aladdin-heroic-outlaw", "turn": 5 }
+          { "type": "lore_gte", "amount": 8, "by_turn": 5, "player": "opponent" },
+          { "type": "card_in_play_on", "card": "aladdin-heroic-outlaw", "turn": 5, "player": "me" }
         ]
       }
     },
@@ -94,9 +96,9 @@
       "condition": {
         "type": "and",
         "conditions": [
-          { "type": "lore_gte", "amount": 8, "by_turn": 5, "player": "player2" },
-          { "type": "card_in_play_on", "card": "aladdin-heroic-outlaw", "turn": 5 },
-          { "type": "won" }
+          { "type": "lore_gte", "amount": 8, "by_turn": 5, "player": "opponent" },
+          { "type": "card_in_play_on", "card": "aladdin-heroic-outlaw", "turn": 5, "player": "me" },
+          { "type": "won", "player": "me" }
         ]
       }
     }

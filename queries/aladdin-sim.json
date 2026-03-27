@@ -1,5 +1,5 @@
 {
-  "deck": "../decks/aladdin-deck.txt",
+  "me": "../decks/aladdin-deck.txt",
   "opponent": "../decks/lilo-stitch-deck.txt",
   "bot": "greedy",
   "opponentBot": "aggro",

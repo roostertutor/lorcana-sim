@@ -17,9 +17,9 @@ import type { GameCondition, QueryResult } from "@lorcana-sim/analytics";
 import { loadDeck } from "../loadDeck.js";
 import { resolveBot } from "../resolveBot.js";
 
-/** Simulation config file — deck, opponent, bot, iterations */
+/** Simulation config file — me, opponent, bot, iterations */
 interface SimFile {
-  deck: string;
+  me: string;
   opponent?: string;
   bot?: string;
   opponentBot?: string;
@@ -86,7 +86,7 @@ export function runQuery(args: QueryArgs): void {
     const resolvePath = (p: string) => resolve(simDir, p);
 
     const definitions = LORCAST_CARD_DEFINITIONS;
-    const deck = loadDeck(resolvePath(simConfig.deck), definitions);
+    const deck = loadDeck(resolvePath(simConfig.me), definitions);
     const opponentDeck = simConfig.opponent
       ? loadDeck(resolvePath(simConfig.opponent), definitions)
       : deck;
@@ -110,7 +110,7 @@ export function runQuery(args: QueryArgs): void {
 
     if (args.save) {
       saveResults(fullResults, args.save, {
-        deck: simConfig.deck,
+        deck: simConfig.me,
         opponent: simConfig.opponent ?? "mirror",
         bot: bot.name,
         iterations,
