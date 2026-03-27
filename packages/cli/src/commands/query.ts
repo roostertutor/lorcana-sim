@@ -1,9 +1,10 @@
 // =============================================================================
 // QUERY COMMAND
-// pnpm query --file ./questions.json [--save ./results.json] [--results ./results.json]
 //
-// Reads a JSON query file, runs a simulation (or loads saved results),
-// and evaluates conditions.
+// Workflows:
+//   pnpm query --sim sim.json --questions questions.json                    # one-shot
+//   pnpm query --sim sim.json --questions questions.json --save results.json # save for later
+//   pnpm query --questions questions.json --results results.json            # re-query saved
 // =============================================================================
 
 import { readFileSync } from "fs";
@@ -15,11 +16,16 @@ import type { GameCondition, QueryResult } from "@lorcana-sim/analytics";
 import { loadDeck } from "../loadDeck.js";
 import { resolveBot } from "../resolveBot.js";
 
-interface QueryFile {
+/** Simulation config file — deck, opponent, bot, iterations */
+interface SimFile {
   deck: string;
   opponent?: string;
   bot?: string;
   iterations?: number;
+}
+
+/** Questions file — just an array of named conditions */
+interface QuestionsFile {
   queries: Array<{
     name: string;
     condition: GameCondition;
@@ -27,26 +33,28 @@ interface QueryFile {
 }
 
 export interface QueryArgs {
-  file: string;
+  sim?: string;
+  questions: string;
   save?: string;
   results?: string;
 }
 
 export function runQuery(args: QueryArgs): void {
-  let raw: string;
+  // Load questions
+  let questionsRaw: string;
   try {
-    raw = readFileSync(args.file, "utf-8");
+    questionsRaw = readFileSync(args.questions, "utf-8");
   } catch {
-    console.error(`Error: could not read query file "${args.file}"`);
+    console.error(`Error: could not read questions file "${args.questions}"`);
     process.exit(1);
   }
+  const questions = JSON.parse(questionsRaw) as QuestionsFile;
 
-  const config = JSON.parse(raw) as QueryFile;
   let gameResults: StoredGameResult[];
   let metadata: StoredResultSet["metadata"] | undefined;
 
   if (args.results) {
-    // Load saved results instead of running a new simulation
+    // Load saved results — no simulation needed
     const stored = loadResults(args.results);
     gameResults = stored.results;
     metadata = stored.metadata;
@@ -54,16 +62,32 @@ export function runQuery(args: QueryArgs): void {
     console.log(`\nLoaded ${gameResults.length} saved game results from ${args.results}`);
     console.log(`  bot: ${metadata.bot}  |  date: ${date}  |  iterations: ${metadata.iterations}\n`);
   } else {
-    // Run a fresh simulation
-    const definitions = LORCAST_CARD_DEFINITIONS;
-    const deck = loadDeck(config.deck, definitions);
-    const opponentDeck = config.opponent
-      ? loadDeck(config.opponent, definitions)
-      : deck; // mirror match if no opponent specified
-    const bot = resolveBot(config.bot ?? "greedy");
-    const iterations = config.iterations ?? 1000;
+    // Run a fresh simulation — requires --sim
+    if (!args.sim) {
+      console.error("Error: --sim is required when --results is not provided.");
+      console.error("Usage: pnpm query --sim sim.json --questions questions.json [--save results.json]");
+      console.error("   or: pnpm query --questions questions.json --results saved.json");
+      process.exit(1);
+    }
 
-    console.log(`\nRunning ${iterations} games to answer ${config.queries.length} question(s)...\n`);
+    let simRaw: string;
+    try {
+      simRaw = readFileSync(args.sim, "utf-8");
+    } catch {
+      console.error(`Error: could not read sim file "${args.sim}"`);
+      process.exit(1);
+    }
+    const simConfig = JSON.parse(simRaw) as SimFile;
+
+    const definitions = LORCAST_CARD_DEFINITIONS;
+    const deck = loadDeck(simConfig.deck, definitions);
+    const opponentDeck = simConfig.opponent
+      ? loadDeck(simConfig.opponent, definitions)
+      : deck;
+    const bot = resolveBot(simConfig.bot ?? "greedy");
+    const iterations = simConfig.iterations ?? 1000;
+
+    console.log(`\nRunning ${iterations} games to answer ${questions.queries.length} question(s)...\n`);
 
     const fullResults = runSimulation({
       player1Deck: deck,
@@ -74,11 +98,10 @@ export function runQuery(args: QueryArgs): void {
       iterations,
     });
 
-    // Save results if --save was specified
     if (args.save) {
       saveResults(fullResults, args.save, {
-        deck: config.deck,
-        opponent: config.opponent ?? "mirror",
+        deck: simConfig.deck,
+        opponent: simConfig.opponent ?? "mirror",
         bot: bot.name,
         iterations,
         timestamp: new Date().toISOString(),
@@ -87,7 +110,6 @@ export function runQuery(args: QueryArgs): void {
       console.log();
     }
 
-    // Use full results for querying (they have actionLog but that's fine in-memory)
     gameResults = fullResults;
   }
 
@@ -99,7 +121,7 @@ export function runQuery(args: QueryArgs): void {
   console.log(`  ${n} games  |  bot: ${botLabel}`);
   console.log("=".repeat(60));
 
-  for (const q of config.queries) {
+  for (const q of questions.queries) {
     // StoredGameResult is compatible with GameResult for query purposes
     // (queryResults only reads cardStats, inkByTurn, loreByTurn, winner, winReason, turns)
     const result = queryResults(gameResults as any, q.condition);

@@ -112,9 +112,12 @@ switch (subcommand) {
   }
 
   case "query": {
-    const usage = "Usage: pnpm query --file ./questions.json [--save ./results.json] [--results ./results.json]";
+    const usage =
+      "Usage: pnpm query --sim sim.json --questions questions.json [--save results.json]\n" +
+      "   or: pnpm query --questions questions.json --results saved.json";
     runQuery({
-      file: requireArg(args, "file", usage),
+      sim: args["sim"],
+      questions: requireArg(args, "questions", usage),
       save: args["save"],
       results: args["results"],
     });
@@ -138,7 +141,8 @@ Examples:
   pnpm compare  --deck1 ./a.txt --deck2 ./b.txt --bot probability --iterations 5000
   pnpm optimize --deck ./deck.txt --opponent aggro --iterations 500
   pnpm sweep    --deck ./deck.txt --opponent control --iterations 200
-  pnpm query    --file ./questions.json [--save ./results.json] [--results ./results.json]
+  pnpm query    --sim sim.json --questions questions.json [--save results.json]
+  pnpm query    --questions questions.json --results saved.json
 
 Bot options: random, greedy, probability, aggro, control, midrange, rush
 `);

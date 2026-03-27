@@ -2,14 +2,25 @@
 # Spec for enriched game records and condition-based simulation queries.
 # "Tell me something I can't figure out from playing 100 games."
 #
-# STATUS: IMPLEMENTED (Parts A-C). Part D (storage) deferred.
+# STATUS: IMPLEMENTED (Parts A-D). SQLite deferred.
 #
-# Two parts:
+# Parts:
 #   Part A — Enrich GameResult with per-card timeline data + win rate stats
 #   Part B — GameCondition query language to filter/aggregate over results
-#   Part C — CLI interface (pnpm query --file ./questions.json)
+#   Part C — CLI interface (pnpm query)
+#   Part D — Result storage (StoredResultSet with metadata, JSON files)
+#
+# CLI usage:
+#   pnpm query --sim sim.json --questions questions.json [--save results.json]
+#   pnpm query --questions questions.json --results saved.json
+#
+# File types:
+#   *-sim.json        — simulation config (deck, opponent, bot, iterations)
+#   *-questions.json  — queries array (reusable across different result sets)
+#   *.sim-results.json — saved results (gitignored)
 #
 # Files changed: simulator/types.ts, simulator/runGame.ts,
+#                simulator/storage.ts (new),
 #                analytics/query.ts (new), cli/commands/query.ts (new),
 #                cli/main.ts (add "query" subcommand)
 #
