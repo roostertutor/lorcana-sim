@@ -13,6 +13,8 @@ export type {
   SimGameConfig,
   CardGameStats,
   GameResult,
+  StoredGameResult,
+  StoredResultSet,
   SimConfig,
   WeightSweepResult,
   OptimizationConfig,
@@ -42,6 +44,9 @@ export type { PositionFactors } from "./evaluator.js";
 
 // Mulligan
 export { shouldMulligan, performMulligan, DEFAULT_MULLIGAN } from "./mulligan.js";
+
+// Result storage
+export { saveResults, loadResults } from "./storage.js";
 
 // Optimization
 export { findOptimalWeights, sweepWeightSpace } from "./optimizer.js";

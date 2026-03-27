@@ -67,24 +67,26 @@ const args = parseArgs(rest ?? []);
 
 switch (subcommand) {
   case "analyze": {
-    const usage = "Usage: pnpm analyze --deck ./deck.txt --bot greedy --iterations 1000 [--verbose]";
+    const usage = "Usage: pnpm analyze --deck ./deck.txt --bot greedy --iterations 1000 [--verbose] [--save ./results.json]";
     runAnalyze({
       deck: requireArg(args, "deck", usage),
       bot: args["bot"] ?? "greedy",
       iterations: optionalInt(args, "iterations", 1000),
       verbose: args["verbose"] === "true",
+      save: args["save"],
     });
     break;
   }
 
   case "compare": {
-    const usage = "Usage: pnpm compare --deck1 ./a.txt --deck2 ./b.txt --bot probability --iterations 5000 [--verbose]";
+    const usage = "Usage: pnpm compare --deck1 ./a.txt --deck2 ./b.txt --bot probability --iterations 5000 [--verbose] [--save ./results.json]";
     runCompare({
       deck1: requireArg(args, "deck1", usage),
       deck2: requireArg(args, "deck2", usage),
       bot: args["bot"] ?? "greedy",
       iterations: optionalInt(args, "iterations", 1000),
       verbose: args["verbose"] === "true",
+      save: args["save"],
     });
     break;
   }

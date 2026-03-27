@@ -1,12 +1,12 @@
 // =============================================================================
 // ANALYZE COMMAND
-// pnpm analyze --deck ./deck.txt --bot greedy --iterations 1000
+// pnpm analyze --deck ./deck.txt --bot greedy --iterations 1000 [--save ./results.json]
 //
 // Runs a simulation and prints DeckStats + DeckComposition.
 // =============================================================================
 
 import { LORCAST_CARD_DEFINITIONS } from "@lorcana-sim/engine";
-import { runSimulation } from "@lorcana-sim/simulator";
+import { runSimulation, saveResults } from "@lorcana-sim/simulator";
 import { aggregateResults, analyzeDeckComposition } from "@lorcana-sim/analytics";
 import { loadDeck } from "../loadDeck.js";
 import { resolveBot } from "../resolveBot.js";
@@ -17,6 +17,7 @@ export interface AnalyzeArgs {
   bot: string;
   iterations: number;
   verbose: boolean;
+  save?: string;
 }
 
 export function runAnalyze(args: AnalyzeArgs): void {
@@ -34,6 +35,17 @@ export function runAnalyze(args: AnalyzeArgs): void {
     definitions,
     iterations,
   });
+
+  if (args.save) {
+    saveResults(results, args.save, {
+      deck: args.deck,
+      opponent: "mirror",
+      bot: bot.name,
+      iterations,
+      timestamp: new Date().toISOString(),
+      engineVersion: "0.0.1",
+    });
+  }
 
   if (args.verbose) {
     printActionLog(results[0]!.actionLog);

@@ -1,12 +1,12 @@
 // =============================================================================
 // COMPARE COMMAND
-// pnpm compare --deck1 ./a.txt --deck2 ./b.txt --bot probability --iterations 5000
+// pnpm compare --deck1 ./a.txt --deck2 ./b.txt --bot probability --iterations 5000 [--save ./results.json]
 //
 // Runs deck1 vs deck2 and prints MatchupStats.
 // =============================================================================
 
 import { LORCAST_CARD_DEFINITIONS } from "@lorcana-sim/engine";
-import { runSimulation } from "@lorcana-sim/simulator";
+import { runSimulation, saveResults } from "@lorcana-sim/simulator";
 import { compareDecks } from "@lorcana-sim/analytics";
 import { loadDeck } from "../loadDeck.js";
 import { resolveBot } from "../resolveBot.js";
@@ -18,6 +18,7 @@ export interface CompareArgs {
   bot: string;
   iterations: number;
   verbose: boolean;
+  save?: string;
 }
 
 export function runCompare(args: CompareArgs): void {
@@ -36,6 +37,17 @@ export function runCompare(args: CompareArgs): void {
     definitions,
     iterations,
   });
+
+  if (args.save) {
+    saveResults(results, args.save, {
+      deck: args.deck1,
+      opponent: args.deck2,
+      bot: bot.name,
+      iterations,
+      timestamp: new Date().toISOString(),
+      engineVersion: "0.0.1",
+    });
+  }
 
   if (args.verbose) {
     printActionLog(results[0]!.actionLog);

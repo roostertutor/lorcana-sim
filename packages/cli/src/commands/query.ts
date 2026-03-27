@@ -6,10 +6,10 @@
 // and evaluates conditions.
 // =============================================================================
 
-import { readFileSync, writeFileSync } from "fs";
+import { readFileSync } from "fs";
 import { LORCAST_CARD_DEFINITIONS } from "@lorcana-sim/engine";
-import type { GameResult } from "@lorcana-sim/simulator";
-import { runSimulation } from "@lorcana-sim/simulator";
+import type { StoredGameResult, StoredResultSet } from "@lorcana-sim/simulator";
+import { runSimulation, saveResults, loadResults } from "@lorcana-sim/simulator";
 import { queryResults } from "@lorcana-sim/analytics";
 import type { GameCondition, QueryResult } from "@lorcana-sim/analytics";
 import { loadDeck } from "../loadDeck.js";
@@ -42,19 +42,17 @@ export function runQuery(args: QueryArgs): void {
   }
 
   const config = JSON.parse(raw) as QueryFile;
-  let gameResults: GameResult[];
+  let gameResults: StoredGameResult[];
+  let metadata: StoredResultSet["metadata"] | undefined;
 
   if (args.results) {
     // Load saved results instead of running a new simulation
-    let savedRaw: string;
-    try {
-      savedRaw = readFileSync(args.results, "utf-8");
-    } catch {
-      console.error(`Error: could not read results file "${args.results}"`);
-      process.exit(1);
-    }
-    gameResults = JSON.parse(savedRaw) as GameResult[];
-    console.log(`\nLoaded ${gameResults.length} saved game results from ${args.results}\n`);
+    const stored = loadResults(args.results);
+    gameResults = stored.results;
+    metadata = stored.metadata;
+    const date = metadata.timestamp !== "unknown" ? metadata.timestamp.split("T")[0] : "unknown";
+    console.log(`\nLoaded ${gameResults.length} saved game results from ${args.results}`);
+    console.log(`  bot: ${metadata.bot}  |  date: ${date}  |  iterations: ${metadata.iterations}\n`);
   } else {
     // Run a fresh simulation
     const definitions = LORCAST_CARD_DEFINITIONS;
@@ -67,7 +65,7 @@ export function runQuery(args: QueryArgs): void {
 
     console.log(`\nRunning ${iterations} games to answer ${config.queries.length} question(s)...\n`);
 
-    gameResults = runSimulation({
+    const fullResults = runSimulation({
       player1Deck: deck,
       player2Deck: opponentDeck,
       player1Strategy: bot,
@@ -78,19 +76,23 @@ export function runQuery(args: QueryArgs): void {
 
     // Save results if --save was specified
     if (args.save) {
-      // Strip actionLog to keep file size manageable
-      const stripped = gameResults.map(r => {
-        const { actionLog, ...rest } = r;
-        return rest;
+      saveResults(fullResults, args.save, {
+        deck: config.deck,
+        opponent: config.opponent ?? "mirror",
+        bot: bot.name,
+        iterations,
+        timestamp: new Date().toISOString(),
+        engineVersion: "0.0.1",
       });
-      writeFileSync(args.save, JSON.stringify(stripped));
-      const sizeMB = (Buffer.byteLength(JSON.stringify(stripped)) / 1024 / 1024).toFixed(1);
-      console.log(`Saved ${gameResults.length} results to ${args.save} (${sizeMB} MB)\n`);
+      console.log();
     }
+
+    // Use full results for querying (they have actionLog but that's fine in-memory)
+    gameResults = fullResults;
   }
 
   const n = gameResults.length;
-  const botLabel = gameResults[0]?.botLabels?.["player1"] ?? "unknown";
+  const botLabel = metadata?.bot ?? gameResults[0]?.botLabels?.["player1"] ?? "unknown";
 
   console.log("=".repeat(60));
   console.log("  QUERY RESULTS");
@@ -98,7 +100,9 @@ export function runQuery(args: QueryArgs): void {
   console.log("=".repeat(60));
 
   for (const q of config.queries) {
-    const result = queryResults(gameResults, q.condition);
+    // StoredGameResult is compatible with GameResult for query purposes
+    // (queryResults only reads cardStats, inkByTurn, loreByTurn, winner, winReason, turns)
+    const result = queryResults(gameResults as any, q.condition);
     printQueryResult(q.name, result);
   }
 }

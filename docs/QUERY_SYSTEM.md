@@ -21,10 +21,14 @@
 #   - CardPerformance type unchanged (aggregator updated detection logic only).
 #   - player1 always goes first, player2 always goes second. To query from
 #     the second player's perspective, set "player": "player2" on conditions.
-#   - Part D (result storage): simple --save/--results flags implemented.
-#     Saves stripped GameResult[] as JSON (actionLog omitted for size).
-#     Files named *.sim-results.json are gitignored. This is a stopgap —
-#     proper storage (indexed, compressed, metadata) is deferred.
+#   - Part D (result storage): StoredResultSet with metadata implemented.
+#     saveResults/loadResults in simulator/storage.ts. Saves stripped
+#     GameResult[] as JSON with metadata (deck, opponent, bot, iterations,
+#     timestamp, engineVersion). actionLog omitted for size.
+#     --save works on analyze, compare, and query commands.
+#     Files named *.sim-results.json are gitignored.
+#     Proper indexed storage (SQLite, compression) deferred until we know
+#     what longitudinal questions we want to ask.
 
 ---
 

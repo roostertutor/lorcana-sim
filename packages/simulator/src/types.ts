@@ -118,6 +118,25 @@ export interface GameResult {
 }
 
 // -----------------------------------------------------------------------------
+// STORED RESULTS — for saving/loading simulation results without actionLog
+// -----------------------------------------------------------------------------
+
+/** GameResult with actionLog stripped — used for storage */
+export type StoredGameResult = Omit<GameResult, "actionLog">;
+
+export interface StoredResultSet {
+  metadata: {
+    deck: string;
+    opponent: string;
+    bot: string;
+    iterations: number;
+    timestamp: string;
+    engineVersion: string;
+  };
+  results: StoredGameResult[];
+}
+
+// -----------------------------------------------------------------------------
 // SIMULATION CONFIG
 // -----------------------------------------------------------------------------
 
