@@ -2575,6 +2575,110 @@ describe("Can't Ready (Elsa - Spirit of Winter)", () => {
     // Target should still be exerted because of cant_ready
     expect(getInstance(result.newState, targetId).isExerted).toBe(true);
   });
+
+  it("Elsa scenario: up-to selection, followUp cant_ready, and Shield of Virtue interaction", () => {
+    // Setup: player1 has 3 Elsas in hand, player2 has 2 characters + Shield of Virtue
+    let state = startGame(["elsa-spirit-of-winter"]);
+    let elsa1: string, elsa2: string, elsa3: string;
+    let oppChar1: string, oppChar2: string, shieldId: string;
+
+    ({ state, instanceId: oppChar1 } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play"));
+    ({ state, instanceId: oppChar2 } = injectCard(state, "player2", "mickey-mouse-true-friend", "play"));
+    ({ state, instanceId: shieldId } = injectCard(state, "player2", "shield-of-virtue", "play"));
+    ({ state, instanceId: elsa1 } = injectCard(state, "player1", "elsa-spirit-of-winter", "hand"));
+    ({ state, instanceId: elsa2 } = injectCard(state, "player1", "elsa-spirit-of-winter", "hand"));
+    ({ state, instanceId: elsa3 } = injectCard(state, "player1", "elsa-spirit-of-winter", "hand"));
+    state = giveInk(state, "player1", 30);
+
+    // 1. Elsa #1: choose to exert 0 characters (empty selection on "up to 2")
+    let result = applyAction(state, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: elsa1,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.pendingChoice?.type).toBe("choose_target");
+    expect(result.newState.pendingChoice?.optional).toBe(true);
+
+    result = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Both opponents still ready
+    expect(getInstance(result.newState, oppChar1).isExerted).toBe(false);
+    expect(getInstance(result.newState, oppChar2).isExerted).toBe(false);
+
+    // 2. Elsa #2: choose to exert 1 opposing character (oppChar1)
+    result = applyAction(result.newState, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: elsa2,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(result.newState.pendingChoice?.type).toBe("choose_target");
+
+    result = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [oppChar1],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, oppChar1).isExerted).toBe(true);
+    expect(getInstance(result.newState, oppChar1).timedEffects.some(
+      (te) => te.type === "cant_action" && te.action === "ready"
+    )).toBe(true);
+    expect(getInstance(result.newState, oppChar2).isExerted).toBe(false);
+
+    // 3. Elsa #3: exert oppChar1 again (already exerted) AND exert herself (Elsa #3)
+    //    This tests: exerting an already-exerted character (no-op on exert, but cant_ready stacks)
+    //    and that Elsa can target herself
+    result = applyAction(result.newState, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: elsa3,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(result.newState.pendingChoice?.type).toBe("choose_target");
+
+    result = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [oppChar1, elsa3],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // oppChar1 still exerted with cant_ready
+    expect(getInstance(result.newState, oppChar1).isExerted).toBe(true);
+    // Elsa #3 is exerted (targeted herself) with cant_ready
+    expect(getInstance(result.newState, elsa3).isExerted).toBe(true);
+    expect(getInstance(result.newState, elsa3).timedEffects.some(
+      (te) => te.type === "cant_action" && te.action === "ready"
+    )).toBe(true);
+
+    // Pass turn → player2's turn
+    result = applyAction(result.newState, {
+      type: "PASS_TURN", playerId: "player1",
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+
+    // After pass turn: oppChar1 should still be exerted (cant_ready from Elsa #2 and #3)
+    // oppChar2 should be ready (was never targeted)
+    expect(getInstance(result.newState, oppChar1).isExerted).toBe(true);
+    expect(getInstance(result.newState, oppChar2).isExerted).toBe(false);
+    // Elsa #3 should still be exerted (cant_ready from her own trigger — but wait,
+    // it's now player2's turn, the ready step was for player2's cards, not player1's.
+    // Elsa #3 is player1's card, so she wouldn't ready on player2's turn anyway.)
+
+    // Player2 uses Shield of Virtue on their own exerted oppChar1
+    state = giveInk(result.newState, "player2", 10);
+    result = applyAction(state, {
+      type: "ACTIVATE_ABILITY", playerId: "player2", instanceId: shieldId, abilityIndex: 0,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.pendingChoice?.type).toBe("choose_target");
+
+    result = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player2", choice: [oppChar1],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Shield of Virtue readies the character (overrides cant_ready timed effect,
+    // because this is an active ready effect, not the start-of-turn ready step)
+    expect(getInstance(result.newState, oppChar1).isExerted).toBe(false);
+
+    // oppChar1 can now challenge the exerted Elsa #3
+    const challengeResult = applyAction(result.newState, {
+      type: "CHALLENGE", playerId: "player2",
+      attackerInstanceId: oppChar1, defenderInstanceId: elsa3,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(challengeResult.success).toBe(true);
+  });
 });
 
 // =============================================================================

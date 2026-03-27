@@ -613,6 +613,8 @@ export interface CardDefinition {
   /** CRD 5.4.3: Actions have effects, not abilities. Resolved inline, not through trigger stack. */
   actionEffects?: Effect[];
 
+  /** CRD 5.2.8: The printed rules text on the card (for actions: the full effect text; for characters: all non-keyword ability text) */
+  rulesText?: string;
   /** Flavor text for UI display */
   flavorText?: string;
   /** Set identifier, e.g. "TFC", "ROF" */

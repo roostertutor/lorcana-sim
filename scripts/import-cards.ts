@@ -75,6 +75,15 @@ interface KeywordAbility {
   value?: number;
 }
 
+interface AbilityStub {
+  /** CRD 5.2.8: The bold ability name on the card */
+  storyName: string;
+  /** CRD 5.2.8: The rules text (everything after the story name) */
+  rulesText: string;
+  /** Raw line from Lorcast API for reference */
+  raw: string;
+}
+
 interface CardDefinitionOut {
   id: string;
   name: string;
@@ -90,6 +99,7 @@ interface CardDefinitionOut {
   lore?: number;
   shiftCost?: number;
   abilities: KeywordAbility[]; // named abilities left as stubs (empty)
+  rulesText?: string;
   flavorText?: string;
   setId: string;
   number: number;
@@ -97,7 +107,7 @@ interface CardDefinitionOut {
   // CRD 5.4.3: Action effects (manually added, not from API)
   actionEffects?: object[];
   // Extra field written to JSON, stripped in lorcastCards.ts
-  _namedAbilityStubs?: string[];
+  _namedAbilityStubs?: AbilityStub[];
 }
 
 // =============================================================================
@@ -212,10 +222,18 @@ function parseKeywordAbilities(
   return { abilities, shiftCost };
 }
 
-/** Find lines in the card text that are named abilities (ALL-CAPS ability names). */
-function detectNamedAbilityLines(text: string | null): string[] {
+/**
+ * Parse named abilities from card text into structured stubs with storyName and rulesText.
+ * CRD 5.2.8: Named abilities have an ALL-CAPS story name followed by rules text.
+ *
+ * Patterns:
+ * - Activated: "STORY NAME {E} — Rules text" or "STORY NAME {E}, N {I} — Rules text"
+ * - Triggered: "STORY NAME When/Whenever/During rules text"
+ * - Static:    "STORY NAME This/While/Your/Opposing/Characters/All rules text"
+ */
+function detectNamedAbilities(text: string | null): AbilityStub[] {
   if (!text) return [];
-  const stubs: string[] = [];
+  const stubs: AbilityStub[] = [];
 
   for (const rawLine of text.split("\n")) {
     const line = rawLine.trim();
@@ -228,16 +246,24 @@ function detectNamedAbilityLines(text: string | null): string[] {
     if (isKeywordLine) continue;
 
     // Named abilities have an all-caps title (e.g. "I SUMMON THEE", "MIRROR, MIRROR").
-    // Take text before the first separator (em-dash, hyphen, or open-paren),
-    // trim it, and check that it's entirely uppercase letters/spaces/punctuation.
-    // This catches single-word names like "I" that the old ^[A-Z]{2} regex missed.
-    const titlePart = line.split(/\s[–—-]\s|\s*\(/)[0]!.trim();
+    // Extract the title part before the first separator or trigger/static keyword.
+    const titlePart = line.split(/\s[–—-]\s|\s*\(|\s*\{E\}|\s+(?:When |Whenever |During |This |While |Your |Opposing |Characters |All )/)[0]!.trim();
     if (
       titlePart.length > 0 &&
       titlePart === titlePart.toUpperCase() &&
       /[A-Z]/.test(titlePart)
     ) {
-      stubs.push(line);
+      // Extract rulesText: everything after the story name
+      let rulesText = line.slice(titlePart.length).trim();
+      // Strip leading em-dash or cost prefix for activated abilities: "{E} —", "{E}, N {I} —"
+      rulesText = rulesText.replace(/^\{E\}(?:,\s*\d+\s*\{I\})?\s*[–—-]\s*/, "").trim();
+      // For triggered/static: rulesText starts with "When", "This", etc. — already clean
+
+      stubs.push({
+        storyName: titlePart,
+        rulesText: rulesText || line,
+        raw: line,
+      });
     }
   }
 
@@ -254,7 +280,7 @@ function mapCard(c: LorcastCard): CardDefinitionOut | null {
   if (!inkColor) return null;
 
   const { abilities, shiftCost } = parseKeywordAbilities(c.keywords, c.text);
-  let namedStubs = detectNamedAbilityLines(c.text);
+  let namedStubs = detectNamedAbilities(c.text);
 
   // For cards with text but no detected named abilities (e.g., action/song cards
   // whose entire text IS the effect without an ALL-CAPS header), preserve the
@@ -266,7 +292,11 @@ function mapCard(c: LorcastCard): CardDefinitionOut | null {
       (line) => !KEYWORD_LINE_PREFIXES.some((kw) => line.startsWith(kw))
     );
     if (nonKeywordLines.length > 0) {
-      namedStubs.push(...nonKeywordLines);
+      namedStubs.push(...nonKeywordLines.map((line) => ({
+        storyName: "",
+        rulesText: line,
+        raw: line,
+      })));
     }
   }
 
@@ -296,6 +326,12 @@ function mapCard(c: LorcastCard): CardDefinitionOut | null {
   if (c.willpower !== null) out.willpower = c.willpower;
   if (c.lore !== null) out.lore = c.lore;
   if (shiftCost !== undefined) out.shiftCost = shiftCost;
+  // CRD 5.2.8: Preserve the full printed rules text (excluding keyword reminder lines)
+  if (c.text) {
+    const rulesLines = c.text.split("\n").map((l) => l.trim()).filter(Boolean)
+      .filter((line) => !KEYWORD_LINE_PREFIXES.some((kw) => line.startsWith(kw)));
+    if (rulesLines.length > 0) out.rulesText = rulesLines.join("\n");
+  }
   if (c.flavor_text) out.flavorText = c.flavor_text;
   if (namedStubs.length > 0) out._namedAbilityStubs = namedStubs;
 
