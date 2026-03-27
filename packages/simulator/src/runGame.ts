@@ -6,6 +6,7 @@
 import type { GameAction, GameState, PlayerID } from "@lorcana-sim/engine";
 import { applyAction, createGame, getEffectiveLore, getZone } from "@lorcana-sim/engine";
 import type { CardGameStats, GameResult, SimGameConfig } from "./types.js";
+import { shouldMulligan, performMulligan } from "./mulligan.js";
 
 const DEFAULT_MAX_TURNS = 120;
 
@@ -111,13 +112,24 @@ function updateStatsPostAction(
 export function runGame(config: SimGameConfig): GameResult {
   const maxTurns = config.maxTurns ?? DEFAULT_MAX_TURNS;
 
-  let state: GameState = createGame(
+  let state: GameState = config.startingState ?? createGame(
     {
       player1Deck: config.player1Deck,
       player2Deck: config.player2Deck,
     },
     config.definitions
   );
+
+  // CRD 2.2.2: Mulligan (pre-game, skipped for injected startingState)
+  if (!config.startingState) {
+    for (const playerId of ["player1", "player2"] as const) {
+      const bot = playerId === "player1" ? config.player1Strategy : config.player2Strategy;
+      if (bot.name === "random") continue; // RandomBot skips mulligan
+      if (shouldMulligan(state, playerId, config.definitions, config.mulliganThresholds)) {
+        state = performMulligan(state, playerId);
+      }
+    }
+  }
 
   const statsMap = new Map<string, CardGameStats>();
 

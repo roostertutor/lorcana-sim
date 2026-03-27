@@ -12,22 +12,8 @@ import {
   getEffectiveLore,
 } from "@lorcana-sim/engine";
 import type { BotStrategy } from "../types.js";
-
-function resolveChoiceRandom(state: GameState, playerId: PlayerID): GameAction {
-  const choice = state.pendingChoice!;
-
-  // CRD 6.1.4: "may" choices — greedy bot always accepts (free benefit)
-  if (choice.type === "choose_may") {
-    return { type: "RESOLVE_CHOICE", playerId, choice: "accept" };
-  }
-
-  const targets = choice.validTargets ?? [];
-  if (targets.length > 0) {
-    const idx = Math.floor(Math.random() * targets.length);
-    return { type: "RESOLVE_CHOICE", playerId, choice: [targets[idx]!] };
-  }
-  return { type: "RESOLVE_CHOICE", playerId, choice: [] };
-}
+import { resolveChoiceIntelligently } from "./choiceResolver.js";
+import { MidrangeWeights } from "./presets.js";
 
 /**
  * Find the best challenge: only challenge if the defender dies.
@@ -144,7 +130,7 @@ export const GreedyBot: BotStrategy = {
     definitions: Record<string, CardDefinition>
   ): GameAction {
     if (state.pendingChoice && state.pendingChoice.choosingPlayerId === playerId) {
-      return resolveChoiceRandom(state, playerId);
+      return resolveChoiceIntelligently(state, playerId, definitions, MidrangeWeights);
     }
 
     const legal = getAllLegalActions(state, playerId, definitions);

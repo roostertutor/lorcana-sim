@@ -9,6 +9,7 @@ export type {
   BotType,
   BotStrategy,
   BotWeights,
+  MulliganThresholds,
   SimGameConfig,
   CardGameStats,
   GameResult,
@@ -38,6 +39,9 @@ export { computeDeckProbabilities } from "./probabilities.js";
 export type { DeckProbabilities } from "./probabilities.js";
 export { evaluatePosition } from "./evaluator.js";
 export type { PositionFactors } from "./evaluator.js";
+
+// Mulligan
+export { shouldMulligan, performMulligan, DEFAULT_MULLIGAN } from "./mulligan.js";
 
 // Optimization
 export { findOptimalWeights, sweepWeightSpace } from "./optimizer.js";

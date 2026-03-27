@@ -52,6 +52,15 @@ export interface BotWeights {
 // GAME CONFIG + RESULT
 // -----------------------------------------------------------------------------
 
+export interface MulliganThresholds {
+  /** Minimum inkable cards to keep hand. Default: 2 */
+  minInkable: number;
+  /** Max cost of cheapest card to keep hand. Default: 3 */
+  maxCheapestCost: number;
+  /** Must have at least one card at or below this cost. Default: 4 */
+  maxEarlyPlayCost: number;
+}
+
 export interface SimGameConfig {
   player1Deck: DeckEntry[];
   player2Deck: DeckEntry[];
@@ -60,6 +69,10 @@ export interface SimGameConfig {
   definitions: Record<string, CardDefinition>;
   /** Safety limit to prevent infinite games. Default: 50 */
   maxTurns?: number;
+  /** Pre-built game state — skips createGame and mulligan when provided */
+  startingState?: GameState;
+  /** Mulligan thresholds — uses DEFAULT_MULLIGAN if not provided */
+  mulliganThresholds?: MulliganThresholds;
 }
 
 export interface CardGameStats {

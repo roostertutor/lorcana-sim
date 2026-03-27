@@ -11,22 +11,7 @@ import { applyAction, getAllLegalActions } from "@lorcana-sim/engine";
 import { computeDeckProbabilities } from "../probabilities.js";
 import { evaluatePosition } from "../evaluator.js";
 import type { BotStrategy, BotWeights } from "../types.js";
-
-function resolveChoiceRandom(state: GameState, playerId: PlayerID): GameAction {
-  const choice = state.pendingChoice!;
-
-  // CRD 6.1.4: "may" choices — always accept (same as greedy for now)
-  if (choice.type === "choose_may") {
-    return { type: "RESOLVE_CHOICE", playerId, choice: "accept" };
-  }
-
-  const targets = choice.validTargets ?? [];
-  if (targets.length > 0) {
-    const idx = Math.floor(Math.random() * targets.length);
-    return { type: "RESOLVE_CHOICE", playerId, choice: [targets[idx]!] };
-  }
-  return { type: "RESOLVE_CHOICE", playerId, choice: [] };
-}
+import { resolveChoiceIntelligently } from "./choiceResolver.js";
 
 /** Short fingerprint for bot naming. */
 function weightFingerprint(weights: BotWeights): string {
@@ -51,7 +36,7 @@ export function ProbabilityBot(weights: BotWeights): BotStrategy {
       definitions: Record<string, CardDefinition>
     ): GameAction {
       if (state.pendingChoice && state.pendingChoice.choosingPlayerId === playerId) {
-        return resolveChoiceRandom(state, playerId);
+        return resolveChoiceIntelligently(state, playerId, definitions, weights);
       }
 
       const legal = getAllLegalActions(state, playerId, definitions);
