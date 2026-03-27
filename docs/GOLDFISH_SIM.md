@@ -233,17 +233,16 @@ P(Cinderella drawn by turn 3 | had ramp turn 2)       ← F2 + F2a
     ↓ given both, how often do Clarabelles arrive?
 P(both Clarabelles drawn by turn 4 | prev steps)      ← F3 + F3a
     ↓ full line availability (bot-independent)
-Q4a: P(all pieces drawn at right times)               ← the honest ceiling
-Q4b: P(bot actually executed the line)                ← what GreedyBot achieves
+F3: P(all pieces drawn at right times)                ← the honest ceiling
+F4: P(bot actually executed the line)                 ← what RampCindyCowBot achieves
 
-Gap between Q4a and Q4b = bot execution error rate
+Gap between F3 and F4 = bot execution error rate
 ```
 
-Note on Q4a vs Q4b:
-- Q4a uses card_drawn_by — "were pieces available" — bot quality irrelevant
-- Q4b uses card_played_by — "did bot execute the line" — will underestimate
-  because GreedyBot plays Clarabelle turn 1 instead of holding for shift
-- Use Q4a for mulligan decisions. Use Q4b only to sanity-check the sim.
+Note on F3 vs F4:
+- F3 uses card_drawn_by — "were pieces available" — bot quality irrelevant
+- F4 uses card_played_by — "did bot execute the line"
+- Use F3 for mulligan decisions. Use F4 to measure bot execution quality.
 
 ### cinderella-questions.json
 
@@ -390,7 +389,7 @@ Note on Q4a vs Q4b:
     },
 
     {
-      "name": "F3. Ramp T2 + Cinderella T3 + both Clarabelles by T4 (Q4a — availability)",
+      "name": "F3. Ramp T2 + Cinderella T3 + both Clarabelles by T4 (availability ceiling)",
       "condition": { "type": "ref", "name": "all_pieces_available" }
     },
 
@@ -419,12 +418,12 @@ Note on Q4a vs Q4b:
     },
 
     {
-      "name": "--- Q4b: BOT EXECUTION (will underestimate due to GreedyBot) ---",
+      "name": "--- FUNNEL STAGE 4: BOT EXECUTION ---",
       "condition": { "type": "won" }
     },
 
     {
-      "name": "Q4b. Full line executed by bot (ramp played T2, Cin played T3, shift played T4)",
+      "name": "F4. Full line executed by bot (ramp played T2, Cin played T3, shift played T4)",
       "condition": { "type": "ref", "name": "full_line_executed" }
     },
 
@@ -549,8 +548,8 @@ returns true and prints nothing — but the dummy approach works for now.)
 ```
 F1:  P(ramp by turn 2)          — your ceiling. Everything downstream ≤ this.
 F2:  P(ramp T2 + Cin T3)        — how much ramp helps find Cinderella
-F3:  P(all pieces available)    — Q4a, the honest line rate
-Q4b: P(bot executed the line)   — will be much lower, ignore for mulligan decisions
+F3:  P(all pieces available)    — the honest line rate
+F4:  P(bot executed the line)   — measures bot execution quality
 ```
 
 If F1 is 60% but F3 is 20%, you're losing 40% between ramp and having all pieces.

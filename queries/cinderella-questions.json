@@ -169,12 +169,12 @@
     },
 
     {
-      "name": "--- Q4b: BOT EXECUTION (will underestimate due to GreedyBot) ---",
+      "name": "--- FUNNEL STAGE 4: BOT EXECUTION ---",
       "condition": { "type": "won" }
     },
 
     {
-      "name": "Q4b. Full line executed by bot (ramp played T2, Cin played T3, shift played T4)",
+      "name": "F4. Full line executed by bot (ramp played T2, Cin played T3, shift played T4)",
       "condition": { "type": "ref", "name": "full_line_executed" }
     },
 
