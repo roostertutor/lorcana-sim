@@ -499,6 +499,15 @@ export function evaluateCondition(
         : condition.player.type === "opponent" ? opponent : controllingPlayerId;
       return getZone(state, targetPlayer, condition.zone).length >= condition.amount;
     }
+    case "played_character_with_trait_this_turn": {
+      // Check if any character in play was played this turn (isDrying) and has the trait
+      return getZone(state, controllingPlayerId, "play").some((id) => {
+        const inst = state.cards[id];
+        if (!inst || !inst.isDrying) return false;
+        const def = definitions[inst.definitionId];
+        return def?.cardType === "character" && def.traits.includes(condition.trait);
+      });
+    }
     case "card_has_trait":
     case "card_is_type":
       return true;

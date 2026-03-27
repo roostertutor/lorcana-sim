@@ -748,6 +748,7 @@ function applyPassTurn(
         inkPlaysThisTurn: 0,
         availableInk: getZone(state, opponent, "inkwell").length,
         costReductions: [], // Clear one-shot cost reductions at turn start
+        extraInkPlaysGranted: 0, // Clear turn-scoped extra ink grants
       },
     },
   };
@@ -1511,6 +1512,21 @@ export function applyEffect(
       // CRD 6.1.5.1: Store result for "[A]. For each lore lost, [B]" patterns
       state = { ...state, lastEffectResult: actualLost };
       return state;
+    }
+
+    // Grant extra ink plays this turn (Sail the Azurite Sea)
+    case "grant_extra_ink_play": {
+      const current = state.players[controllingPlayerId].extraInkPlaysGranted ?? 0;
+      return {
+        ...state,
+        players: {
+          ...state.players,
+          [controllingPlayerId]: {
+            ...state.players[controllingPlayerId],
+            extraInkPlaysGranted: current + effect.amount,
+          },
+        },
+      };
     }
 
     // CRD 6.2.7.1: Create a floating triggered ability for rest of turn

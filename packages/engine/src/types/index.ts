@@ -128,7 +128,8 @@ export type Effect =
   | SequentialEffect
   | CostReductionEffect
   | LoseLoreEffect
-  | CreateFloatingTriggerEffect;
+  | CreateFloatingTriggerEffect
+  | GrantExtraInkPlayEffect;
 
 export interface DrawEffect {
   type: "draw";
@@ -328,6 +329,12 @@ export interface MoveToInkwellEffect {
 /** CRD 6.1.5: Pay ink as an effect cost (used inside SequentialEffect). */
 export interface PayInkEffect {
   type: "pay_ink";
+  amount: number;
+}
+
+/** Grant extra ink plays this turn (Sail the Azurite Sea). Cleared on PASS_TURN. */
+export interface GrantExtraInkPlayEffect {
+  type: "grant_extra_ink_play";
   amount: number;
 }
 
@@ -550,7 +557,8 @@ export type Condition =
   | { type: "opponent_has_more_cards_in_hand" }
   | { type: "is_your_turn" }
   | { type: "this_is_exerted" }
-  | { type: "cards_in_zone_gte"; zone: ZoneName; amount: number; player: PlayerTarget };
+  | { type: "cards_in_zone_gte"; zone: ZoneName; amount: number; player: PlayerTarget }
+  | { type: "played_character_with_trait_this_turn"; trait: string };
 
 export type AbilityTiming = "your_turn_main" | "any_time" | "opponent_turn";
 
@@ -683,6 +691,8 @@ export interface PlayerState {
   inkPlaysThisTurn?: number;
   /** One-shot cost reductions active this turn */
   costReductions?: CostReductionEntry[];
+  /** Extra ink plays granted by effects this turn (cleared on PASS_TURN) */
+  extraInkPlaysGranted?: number;
 }
 
 /** A cost reduction entry that applies to the next matching card played. */

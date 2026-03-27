@@ -187,7 +187,8 @@ function validatePlayInk(
   const inkPlaysThisTurn = state.players[playerId].inkPlaysThisTurn ?? 0;
   const modifiers = getGameModifiers(state, definitions);
   const extraPlays = modifiers.extraInkPlays.get(playerId) ?? 0;
-  const maxInkPlays = 1 + extraPlays;
+  const grantedExtra = state.players[playerId].extraInkPlaysGranted ?? 0;
+  const maxInkPlays = 1 + extraPlays + grantedExtra;
 
   if (inkPlaysThisTurn >= maxInkPlays) return fail("Already played ink this turn."); // CRD 4.2.3
 
