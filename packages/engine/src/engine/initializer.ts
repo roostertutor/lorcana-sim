@@ -62,10 +62,10 @@ export function parseDecklist(
     const count = parseInt(match[1]!, 10);
     const name = match[2]!.trim();
 
-    // Look up by fullName (case-insensitive)
+    // Look up by fullName only (case-insensitive) — require exact full name
+    // to avoid ambiguity when multiple versions of a character exist
     const def = Object.values(definitions).find(
       (d) => d.fullName.toLowerCase() === name.toLowerCase()
-        || d.name.toLowerCase() === name.toLowerCase()
     );
 
     if (!def) {

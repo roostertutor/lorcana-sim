@@ -4,34 +4,42 @@
 // Strips actionLog to keep files manageable (~5-10MB for 5000 games).
 // Stopgap — proper indexed storage (SQLite) deferred until we know what
 // longitudinal questions we want to ask.
+//
+// NOTE: fs/path are imported lazily via dynamic import() so that this module
+// can be re-exported from the simulator barrel without crashing in browsers.
+// Vite externalizes Node built-ins, and top-level imports of "fs" fail at
+// module evaluation time even if the functions are never called.
 // =============================================================================
 
-import { readFileSync, writeFileSync, mkdirSync, existsSync, statSync } from "fs";
-import { dirname } from "path";
 import type { GameResult, StoredGameResult, StoredResultSet } from "./types.js";
 
-export function saveResults(
+export async function saveResults(
   results: GameResult[],
   filePath: string,
   metadata: StoredResultSet["metadata"]
-): void {
+): Promise<void> {
+  const fs = await import("fs");
+  const path = await import("path");
+
   const stored: StoredResultSet = {
     metadata,
     results: results.map(stripActionLog),
   };
 
-  const dir = dirname(filePath);
-  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  const dir = path.dirname(filePath);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
-  writeFileSync(filePath, JSON.stringify(stored), "utf-8");
-  const sizeMB = (statSync(filePath).size / 1024 / 1024).toFixed(1);
+  fs.writeFileSync(filePath, JSON.stringify(stored), "utf-8");
+  const sizeMB = (fs.statSync(filePath).size / 1024 / 1024).toFixed(1);
   console.log(`  Saved ${results.length} games to ${filePath} (${sizeMB} MB)`);
 }
 
-export function loadResults(filePath: string): StoredResultSet {
+export async function loadResults(filePath: string): Promise<StoredResultSet> {
+  const fs = await import("fs");
+
   let raw: string;
   try {
-    raw = readFileSync(filePath, "utf-8");
+    raw = fs.readFileSync(filePath, "utf-8");
   } catch {
     throw new Error(`Results file not found: ${filePath}`);
   }

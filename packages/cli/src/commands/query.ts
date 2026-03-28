@@ -43,7 +43,7 @@ export interface QueryArgs {
   results?: string;
 }
 
-export function runQuery(args: QueryArgs): void {
+export async function runQuery(args: QueryArgs): Promise<void> {
   // Load questions
   let questionsRaw: string;
   try {
@@ -59,7 +59,7 @@ export function runQuery(args: QueryArgs): void {
 
   if (args.results) {
     // Load saved results — no simulation needed
-    const stored = loadResults(args.results);
+    const stored = await loadResults(args.results);
     gameResults = stored.results;
     metadata = stored.metadata;
     const date = metadata.timestamp !== "unknown" ? metadata.timestamp.split("T")[0] : "unknown";
@@ -112,7 +112,7 @@ export function runQuery(args: QueryArgs): void {
     });
 
     if (args.save) {
-      saveResults(fullResults, args.save, {
+      await saveResults(fullResults, args.save, {
         deck: simConfig.me,
         opponent: simConfig.opponent ?? "mirror",
         bot: bot.name,

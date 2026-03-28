@@ -22,7 +22,7 @@ export interface CompareArgs {
   save?: string;
 }
 
-export function runCompare(args: CompareArgs): void {
+export async function runCompare(args: CompareArgs): Promise<void> {
   const definitions = LORCAST_CARD_DEFINITIONS;
   const deck1 = loadDeck(args.deck1, definitions);
   const deck2 = loadDeck(args.deck2, definitions);
@@ -44,7 +44,7 @@ export function runCompare(args: CompareArgs): void {
   });
 
   if (args.save) {
-    saveResults(results, args.save, {
+    await saveResults(results, args.save, {
       deck: args.deck1,
       opponent: args.deck2,
       bot: bot.name,

@@ -21,7 +21,7 @@ export interface AnalyzeArgs {
   save?: string;
 }
 
-export function runAnalyze(args: AnalyzeArgs): void {
+export async function runAnalyze(args: AnalyzeArgs): Promise<void> {
   const definitions = LORCAST_CARD_DEFINITIONS;
   const deck = loadDeck(args.deck, definitions);
   const bot = resolveBot(args.bot);
@@ -42,7 +42,7 @@ export function runAnalyze(args: AnalyzeArgs): void {
   });
 
   if (args.save) {
-    saveResults(results, args.save, {
+    await saveResults(results, args.save, {
       deck: args.deck,
       opponent: "mirror",
       bot: bot.name,
