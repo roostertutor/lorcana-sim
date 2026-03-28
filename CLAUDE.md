@@ -15,7 +15,7 @@ to produce deck analytics and win rates. NOT a human-playable simulator.
 - cli:       done. analyze, compare, optimize, sweep.
 - ui:        done. 5 screens, React+Vite.
 - cards:     set 1 complete (204 unique cards, 216 entries, all abilities implemented, 0 stubs).
-- sets 2–11: not yet imported. Run `pnpm import-cards --sets N`.
+- sets 2–11: imported as stubs (keyword-only, 2504 total cards incl. dual-ink). Run `pnpm import-cards --sets N` to refresh.
 
 ## Quick Reference
 

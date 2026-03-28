@@ -43,6 +43,7 @@ interface LorcastCard {
   cost: number;
   inkwell: boolean;
   ink: string | null;
+  inks: string[] | null;
   type: string[];
   classifications: string[] | null;
   text: string | null;
@@ -90,7 +91,7 @@ interface CardDefinitionOut {
   subtitle?: string;
   fullName: string;
   cardType: "character" | "action" | "item" | "location";
-  inkColor: "amber" | "amethyst" | "emerald" | "ruby" | "sapphire" | "steel";
+  inkColors: ("amber" | "amethyst" | "emerald" | "ruby" | "sapphire" | "steel")[];
   cost: number;
   inkable: boolean;
   traits: string[];
@@ -142,9 +143,10 @@ function mapCardType(types: string[]): CardDefinitionOut["cardType"] {
   return "action"; // Action + Song both → action
 }
 
-function mapInkColor(ink: string | null): CardDefinitionOut["inkColor"] | null {
-  if (!ink) return null;
-  const map: Record<string, CardDefinitionOut["inkColor"]> = {
+type SingleInkColor = CardDefinitionOut["inkColors"][number];
+
+function mapSingleInk(ink: string): SingleInkColor | null {
+  const map: Record<string, SingleInkColor> = {
     amber: "amber",
     amethyst: "amethyst",
     emerald: "emerald",
@@ -153,6 +155,18 @@ function mapInkColor(ink: string | null): CardDefinitionOut["inkColor"] | null {
     steel: "steel",
   };
   return map[ink.toLowerCase()] ?? null;
+}
+
+function mapInkColors(ink: string | null, inks: string[] | null): SingleInkColor[] | null {
+  if (inks && inks.length > 0) {
+    const mapped = inks.map(i => mapSingleInk(i)).filter((c): c is SingleInkColor => c !== null);
+    return mapped.length > 0 ? mapped : null;
+  }
+  if (ink) {
+    const mapped = mapSingleInk(ink);
+    return mapped ? [mapped] : null;
+  }
+  return null;
 }
 
 function mapRarity(r: string): CardDefinitionOut["rarity"] {
@@ -275,9 +289,9 @@ function detectNamedAbilities(text: string | null): AbilityStub[] {
 // =============================================================================
 
 function mapCard(c: LorcastCard): CardDefinitionOut | null {
-  const inkColor = mapInkColor(c.ink);
-  // Skip colorless/future dual-ink cards we can't represent yet
-  if (!inkColor) return null;
+  const inkColors = mapInkColors(c.ink, c.inks);
+  // Skip colorless cards with no ink info
+  if (!inkColors) return null;
 
   const { abilities, shiftCost } = parseKeywordAbilities(c.keywords, c.text);
   let namedStubs = detectNamedAbilities(c.text);
@@ -311,7 +325,7 @@ function mapCard(c: LorcastCard): CardDefinitionOut | null {
     name: c.name,
     fullName: c.version ? `${c.name} - ${c.version}` : c.name,
     cardType: mapCardType(c.type),
-    inkColor,
+    inkColors,
     cost: c.cost,
     inkable: c.inkwell,
     traits,
@@ -490,8 +504,22 @@ const cards = [
 ${setSpread.join("\n")}
 ];
 
+/** Count manually-implemented abilities (non-keyword) + actionEffects on a card. */
+function manualAbilityCount(c: CardDefinition): number {
+  const nonKeyword = c.abilities.filter(a => a.type !== "keyword").length;
+  const actionFx = c.actionEffects?.length ?? 0;
+  return nonKeyword + actionFx;
+}
+
+/** For duplicate IDs (reprints), keep the copy with more implemented abilities. */
 export const LORCAST_CARD_DEFINITIONS: Record<string, CardDefinition> =
-  Object.fromEntries(cards.map((c) => [c.id, c]));
+  cards.reduce<Record<string, CardDefinition>>((map, c) => {
+    const existing = map[c.id];
+    if (!existing || manualAbilityCount(c) > manualAbilityCount(existing)) {
+      map[c.id] = c;
+    }
+    return map;
+  }, {});
 
 export const LORCAST_CARDS: CardDefinition[] = cards;
 `;

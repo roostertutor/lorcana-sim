@@ -1,10 +1,82 @@
 [
   {
+    "id": "rhino-motivational-speaker",
+    "name": "Rhino",
+    "fullName": "Rhino - Motivational Speaker",
+    "cardType": "character",
+    "inkColors": [
+      "amber",
+      "steel"
+    ],
+    "cost": 6,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Ally"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 1,
+    "rarity": "rare",
+    "subtitle": "Motivational Speaker",
+    "strength": 4,
+    "willpower": 7,
+    "lore": 2,
+    "rulesText": "DESTINY CALLING Your other characters get +2 {W}.",
+    "flavorText": "\"Don't forget, you are awesome. You can handle anything. Now channel your inner awesomeness and CLEAR THIS TRAP!\"",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "DESTINY CALLING",
+        "rulesText": "Your other characters get +2 {W}.",
+        "raw": "DESTINY CALLING Your other characters get +2 {W}."
+      }
+    ]
+  },
+  {
+    "id": "perdita-playful-mother",
+    "name": "Perdita",
+    "fullName": "Perdita - Playful Mother",
+    "cardType": "character",
+    "inkColors": [
+      "amber",
+      "sapphire"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 2,
+    "rarity": "rare",
+    "subtitle": "Playful Mother",
+    "strength": 1,
+    "willpower": 4,
+    "lore": 2,
+    "rulesText": "WHO'S NEXT? Whenever this character quests, you pay 2 {I} less for the next Puppy character you play this turn.\nDON'T BE AFRAID Your Puppy characters gain Ward. (Opponents can't choose them except to challenge.)",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "WHO'S NEXT?",
+        "rulesText": "Whenever this character quests, you pay 2 {I} less for the next Puppy character you play this turn.",
+        "raw": "WHO'S NEXT? Whenever this character quests, you pay 2 {I} less for the next Puppy character you play this turn."
+      },
+      {
+        "storyName": "DON'T BE AFRAID",
+        "rulesText": "Your Puppy characters gain Ward. (Opponents can't choose them except to challenge.)",
+        "raw": "DON'T BE AFRAID Your Puppy characters gain Ward. (Opponents can't choose them except to challenge.)"
+      }
+    ]
+  },
+  {
     "id": "king-stefan-new-father",
     "name": "King Stefan",
     "fullName": "King Stefan - New Father",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [
@@ -23,11 +95,57 @@
     "flavorText": "Every parent struggles with getting their baby to sleep. Kings are no different."
   },
   {
+    "id": "bolt-superdog",
+    "name": "Bolt",
+    "fullName": "Bolt - Superdog",
+    "cardType": "character",
+    "inkColors": [
+      "amber",
+      "steel"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Hero"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      }
+    ],
+    "setId": "7",
+    "number": 4,
+    "rarity": "super_rare",
+    "subtitle": "Superdog",
+    "strength": 3,
+    "willpower": 5,
+    "lore": 2,
+    "shiftCost": 3,
+    "rulesText": "MARK OF POWER Whenever you ready this character, gain 1 lore for each other undamaged character you have in play.\nBOLT STARE {E} – Banish chosen Illusion character.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "MARK OF POWER",
+        "rulesText": "Whenever you ready this character, gain 1 lore for each other undamaged character you have in play.",
+        "raw": "MARK OF POWER Whenever you ready this character, gain 1 lore for each other undamaged character you have in play."
+      },
+      {
+        "storyName": "BOLT STARE",
+        "rulesText": "Banish chosen Illusion character.",
+        "raw": "BOLT STARE {E} – Banish chosen Illusion character."
+      }
+    ]
+  },
+  {
     "id": "roger-radcliffe-dog-lover",
     "name": "Roger Radcliffe",
     "fullName": "Roger Radcliffe - Dog Lover",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [
@@ -57,7 +175,9 @@
     "name": "Trusty",
     "fullName": "Trusty - Loyal Bloodhound",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -80,11 +200,46 @@
     "flavorText": "\"As my grandpappy, Old Reliable, used to say, save your energy for when it matters.\""
   },
   {
+    "id": "peg-natural-performer",
+    "name": "Peg",
+    "fullName": "Peg - Natural Performer",
+    "cardType": "character",
+    "inkColors": [
+      "amber",
+      "emerald"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 7,
+    "rarity": "uncommon",
+    "subtitle": "Natural Performer",
+    "strength": 2,
+    "willpower": 4,
+    "lore": 1,
+    "rulesText": "CAPTIVE AUDIENCE {E} — If you have 3 or more other characters in play, draw a card.",
+    "flavorText": "She was born to be a star no matter where she performed.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "CAPTIVE AUDIENCE",
+        "rulesText": "If you have 3 or more other characters in play, draw a card.",
+        "raw": "CAPTIVE AUDIENCE {E} — If you have 3 or more other characters in play, draw a card."
+      }
+    ]
+  },
+  {
     "id": "suzy-master-seamstress",
     "name": "Suzy",
     "fullName": "Suzy - Master Seamstress",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -106,7 +261,9 @@
     "name": "Mittens",
     "fullName": "Mittens - Sassy Street Cat",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 5,
     "inkable": false,
     "traits": [
@@ -136,11 +293,146 @@
     ]
   },
   {
+    "id": "tramp-street-smart-dog",
+    "name": "Tramp",
+    "fullName": "Tramp - Street-Smart Dog",
+    "cardType": "character",
+    "inkColors": [
+      "amber",
+      "emerald"
+    ],
+    "cost": 7,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 10,
+    "rarity": "rare",
+    "subtitle": "Street-Smart Dog",
+    "strength": 2,
+    "willpower": 6,
+    "lore": 2,
+    "rulesText": "NOW IT'S A PARTY For each character you have in play, you pay 1 {I} less to play this character.\nHOW'S PICKINGS? When you play this character, you may draw a card for each other character you have in play, then choose and discard that many cards.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "HOW'S PICKINGS?",
+        "rulesText": "When you play this character, you may draw a card for each other character you have in play, then choose and discard that many cards.",
+        "raw": "HOW'S PICKINGS? When you play this character, you may draw a card for each other character you have in play, then choose and discard that many cards."
+      }
+    ]
+  },
+  {
+    "id": "the-troubadour-musical-narrator",
+    "name": "The Troubadour",
+    "fullName": "The Troubadour - Musical Narrator",
+    "cardType": "character",
+    "inkColors": [
+      "amber",
+      "steel"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "resist",
+        "value": 1
+      }
+    ],
+    "setId": "7",
+    "number": 11,
+    "rarity": "uncommon",
+    "subtitle": "Musical Narrator",
+    "strength": 1,
+    "willpower": 3,
+    "lore": 1
+  },
+  {
+    "id": "wendy-darling-pirate-queen",
+    "name": "Wendy Darling",
+    "fullName": "Wendy Darling - Pirate Queen",
+    "cardType": "character",
+    "inkColors": [
+      "amber",
+      "ruby"
+    ],
+    "cost": 7,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Hero",
+      "Queen",
+      "Pirate",
+      "Captain"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      }
+    ],
+    "setId": "7",
+    "number": 12,
+    "rarity": "uncommon",
+    "subtitle": "Pirate Queen",
+    "strength": 5,
+    "willpower": 7,
+    "lore": 2,
+    "rulesText": "TELL NO TALES Whenever one of your other characters is banished, you may remove all damage from chosen character.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "TELL NO TALES",
+        "rulesText": "Whenever one of your other characters is banished, you may remove all damage from chosen character.",
+        "raw": "TELL NO TALES Whenever one of your other characters is banished, you may remove all damage from chosen character."
+      }
+    ]
+  },
+  {
+    "id": "mirabel-madrigal-hopeful-dreamer",
+    "name": "Mirabel Madrigal",
+    "fullName": "Mirabel Madrigal - Hopeful Dreamer",
+    "cardType": "character",
+    "inkColors": [
+      "amber",
+      "amethyst"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero",
+      "Madrigal"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      }
+    ],
+    "setId": "7",
+    "number": 13,
+    "rarity": "uncommon",
+    "subtitle": "Hopeful Dreamer",
+    "strength": 1,
+    "willpower": 3,
+    "lore": 1,
+    "flavorText": "\"My family's amazing, and I'm in my family, so...\""
+  },
+  {
     "id": "aurora-waking-beauty",
     "name": "Aurora",
     "fullName": "Aurora - Waking Beauty",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -170,7 +462,9 @@
     "name": "Cinderella",
     "fullName": "Cinderella - The Right One",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -201,7 +495,9 @@
     "name": "Mariano Guzman",
     "fullName": "Mariano Guzman - Handsome Suitor",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -231,7 +527,9 @@
     "name": "Candlehead",
     "fullName": "Candlehead - Dedicated Racer",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -261,7 +559,9 @@
     "name": "Bolt",
     "fullName": "Bolt - Dependable Friend",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -284,11 +584,187 @@
     "flavorText": "\"Super dog versus super log! This is AWESOME!\" —Rhino"
   },
   {
+    "id": "pascal-garden-chameleon",
+    "name": "Pascal",
+    "fullName": "Pascal - Garden Chameleon",
+    "cardType": "character",
+    "inkColors": [
+      "amber",
+      "amethyst"
+    ],
+    "cost": 4,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Ally"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      }
+    ],
+    "setId": "7",
+    "number": 19,
+    "rarity": "uncommon",
+    "subtitle": "Garden Chameleon",
+    "strength": 3,
+    "willpower": 3,
+    "lore": 3,
+    "flavorText": "Once Pascal got into Archazia's flowerbeds, there was no getting him out."
+  },
+  {
+    "id": "king-candy-royal-racer",
+    "name": "King Candy",
+    "fullName": "King Candy - Royal Racer",
+    "cardType": "character",
+    "inkColors": [
+      "amber",
+      "ruby"
+    ],
+    "cost": 4,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Villain",
+      "King",
+      "Racer"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 20,
+    "rarity": "super_rare",
+    "subtitle": "Royal Racer",
+    "strength": 2,
+    "willpower": 2,
+    "lore": 2,
+    "rulesText": "SWEET REVENGE Whenever one of your other Racer characters is banished, each opponent chooses and banishes one of their characters.",
+    "flavorText": "\"Get off of my track!\"",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "SWEET REVENGE",
+        "rulesText": "Whenever one of your other Racer characters is banished, each opponent chooses and banishes one of their characters.",
+        "raw": "SWEET REVENGE Whenever one of your other Racer characters is banished, each opponent chooses and banishes one of their characters."
+      }
+    ]
+  },
+  {
+    "id": "penny-bolts-person",
+    "name": "Penny",
+    "fullName": "Penny - Bolt's Person",
+    "cardType": "character",
+    "inkColors": [
+      "amber",
+      "steel"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 21,
+    "rarity": "uncommon",
+    "subtitle": "Bolt's Person",
+    "strength": 1,
+    "willpower": 2,
+    "lore": 2,
+    "rulesText": "ENDURING LOYALTY When you play this character, you may remove up to 2 damage from chosen character and they gain Resist +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "ENDURING LOYALTY",
+        "rulesText": "When you play this character, you may remove up to 2 damage from chosen character and they gain Resist +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)",
+        "raw": "ENDURING LOYALTY When you play this character, you may remove up to 2 damage from chosen character and they gain Resist +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)"
+      }
+    ]
+  },
+  {
+    "id": "fix-it-felix-jr-pint-sized-hero",
+    "name": "Fix-It Felix, Jr.",
+    "fullName": "Fix-It Felix, Jr. - Pint-Sized Hero",
+    "cardType": "character",
+    "inkColors": [
+      "amber",
+      "ruby"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero",
+      "Racer"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 22,
+    "rarity": "uncommon",
+    "subtitle": "Pint-Sized Hero",
+    "strength": 4,
+    "willpower": 4,
+    "lore": 2,
+    "rulesText": "LET'S GET TO WORK Whenever you return a Racer character card from your discard to your hand, you may ready chosen Racer character. They can't quest for the rest of this turn.",
+    "flavorText": "\"A trap is just a puzzle that's not very friendly.\"",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "LET'S GET TO WORK",
+        "rulesText": "Whenever you return a Racer character card from your discard to your hand, you may ready chosen Racer character. They can't quest for the rest of this turn.",
+        "raw": "LET'S GET TO WORK Whenever you return a Racer character card from your discard to your hand, you may ready chosen Racer character. They can't quest for the rest of this turn."
+      }
+    ]
+  },
+  {
+    "id": "thunderbolt-wonder-dog",
+    "name": "Thunderbolt",
+    "fullName": "Thunderbolt - Wonder Dog",
+    "cardType": "character",
+    "inkColors": [
+      "amber",
+      "sapphire"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Hero"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
+      {
+        "type": "keyword",
+        "keyword": "bodyguard"
+      }
+    ],
+    "setId": "7",
+    "number": 23,
+    "rarity": "uncommon",
+    "subtitle": "Wonder Dog",
+    "strength": 3,
+    "willpower": 7,
+    "lore": 2,
+    "shiftCost": 3,
+    "rulesText": "Puppy Shift 3 (You may pay 3 {I} to play this on top of one of your Puppy characters.)",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "Puppy Shift 3 (You may pay 3 {I} to play this on top of one of your Puppy characters.)",
+        "raw": "Puppy Shift 3 (You may pay 3 {I} to play this on top of one of your Puppy characters.)"
+      }
+    ]
+  },
+  {
     "id": "the-prince-vigilant-suitor",
     "name": "The Prince",
     "fullName": "The Prince - Vigilant Suitor",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 2,
     "inkable": false,
     "traits": [
@@ -310,7 +786,9 @@
     "name": "Isabela Madrigal",
     "fullName": "Isabela Madrigal - In the Moment",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 5,
     "inkable": false,
     "traits": [
@@ -337,11 +815,53 @@
     ]
   },
   {
+    "id": "calhoun-courageous-rescuer",
+    "name": "Calhoun",
+    "fullName": "Calhoun - Courageous Rescuer",
+    "cardType": "character",
+    "inkColors": [
+      "amber",
+      "ruby"
+    ],
+    "cost": 6,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Hero",
+      "Racer"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      }
+    ],
+    "setId": "7",
+    "number": 26,
+    "rarity": "rare",
+    "subtitle": "Courageous Rescuer",
+    "strength": 5,
+    "willpower": 5,
+    "lore": 2,
+    "shiftCost": 4,
+    "rulesText": "BACK TO START POSITIONS! Whenever this character challenges another character, you may return a Racer character card from your discard to your hand.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "BACK TO START POSITIONS!",
+        "rulesText": "Whenever this character challenges another character, you may return a Racer character card from your discard to your hand.",
+        "raw": "BACK TO START POSITIONS! Whenever this character challenges another character, you may return a Racer character card from your discard to your hand."
+      }
+    ]
+  },
+  {
     "id": "wreck-it-ralph-heros-duty",
     "name": "Wreck-It Ralph",
     "fullName": "Wreck-It Ralph - Hero's Duty",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 6,
     "inkable": true,
     "traits": [
@@ -367,11 +887,53 @@
     ]
   },
   {
+    "id": "lady-miss-park-avenue",
+    "name": "Lady",
+    "fullName": "Lady - Miss Park Avenue",
+    "cardType": "character",
+    "inkColors": [
+      "amber",
+      "emerald"
+    ],
+    "cost": 5,
+    "inkable": false,
+    "traits": [
+      "Floodborn",
+      "Hero"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      }
+    ],
+    "setId": "7",
+    "number": 28,
+    "rarity": "super_rare",
+    "subtitle": "Miss Park Avenue",
+    "strength": 4,
+    "willpower": 4,
+    "lore": 2,
+    "shiftCost": 3,
+    "rulesText": "SOMETHING WONDERFUL When you play this character, you may return up to 2 character cards with cost 2 or less each from your discard to your hand.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "SOMETHING WONDERFUL",
+        "rulesText": "When you play this character, you may return up to 2 character cards with cost 2 or less each from your discard to your hand.",
+        "raw": "SOMETHING WONDERFUL When you play this character, you may return up to 2 character cards with cost 2 or less each from your discard to your hand."
+      }
+    ]
+  },
+  {
     "id": "pongo-dear-old-dad",
     "name": "Pongo",
     "fullName": "Pongo - Dear Old Dad",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber",
+      "sapphire"
+    ],
     "cost": 6,
     "inkable": false,
     "traits": [
@@ -401,7 +963,9 @@
     "name": "Kenai",
     "fullName": "Kenai - Protective Brother",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -430,7 +994,9 @@
     "name": "Minnie Mouse",
     "fullName": "Minnie Mouse - Storyteller",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 2,
     "inkable": false,
     "traits": [
@@ -460,11 +1026,42 @@
     ]
   },
   {
+    "id": "perla-nimble-seamstress",
+    "name": "Perla",
+    "fullName": "Perla - Nimble Seamstress",
+    "cardType": "character",
+    "inkColors": [
+      "amber",
+      "emerald"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      }
+    ],
+    "setId": "7",
+    "number": 32,
+    "rarity": "uncommon",
+    "subtitle": "Nimble Seamstress",
+    "strength": 3,
+    "willpower": 2,
+    "lore": 1
+  },
+  {
     "id": "snow-white-fairest-in-the-land",
     "name": "Snow White",
     "fullName": "Snow White - Fairest in the Land",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -495,7 +1092,9 @@
     "name": "Koda",
     "fullName": "Koda - Smallish Bear",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -513,11 +1112,53 @@
     "flavorText": "\"And then they were like, 'How'd you catch so many fish, Koda?' And I said, 'Well, you know me. I know how to catch fish.' And they said...\""
   },
   {
+    "id": "mirabel-madrigal-musically-talented",
+    "name": "Mirabel Madrigal",
+    "fullName": "Mirabel Madrigal - Musically Talented",
+    "cardType": "character",
+    "inkColors": [
+      "amber",
+      "amethyst"
+    ],
+    "cost": 6,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Hero",
+      "Madrigal"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      }
+    ],
+    "setId": "7",
+    "number": 35,
+    "rarity": "super_rare",
+    "subtitle": "Musically Talented",
+    "strength": 2,
+    "willpower": 6,
+    "lore": 2,
+    "shiftCost": 4,
+    "rulesText": "HER OWN SPECIAL GIFT Whenever this character quests, you may return a song card with cost 3 or less from your discard to your hand.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "HER OWN SPECIAL GIFT",
+        "rulesText": "Whenever this character quests, you may return a song card with cost 3 or less from your discard to your hand.",
+        "raw": "HER OWN SPECIAL GIFT Whenever this character quests, you may return a song card with cost 3 or less from your discard to your hand."
+      }
+    ]
+  },
+  {
     "id": "calhoun-battle-tested",
     "name": "Calhoun",
     "fullName": "Calhoun - Battle-Tested",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -548,7 +1189,9 @@
     "name": "Pepa Madrigal",
     "fullName": "Pepa Madrigal - Sensitive Sister",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -579,7 +1222,9 @@
     "name": "So Much to Give",
     "fullName": "So Much to Give",
     "cardType": "action",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -604,11 +1249,71 @@
     ]
   },
   {
+    "id": "restoring-the-heart",
+    "name": "Restoring the Heart",
+    "fullName": "Restoring the Heart",
+    "cardType": "action",
+    "inkColors": [
+      "amber",
+      "sapphire"
+    ],
+    "cost": 1,
+    "inkable": true,
+    "traits": [],
+    "abilities": [],
+    "setId": "7",
+    "number": 39,
+    "rarity": "uncommon",
+    "rulesText": "Remove up to 3 damage from chosen character or location. Draw a card.",
+    "flavorText": "The moment her heart was returned, greenery burst to life and restored Te Fiti to her rightful form.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "Remove up to 3 damage from chosen character or location. Draw a card.",
+        "raw": "Remove up to 3 damage from chosen character or location. Draw a card."
+      }
+    ]
+  },
+  {
+    "id": "the-family-madrigal",
+    "name": "The Family Madrigal",
+    "fullName": "The Family Madrigal",
+    "cardType": "action",
+    "inkColors": [
+      "amber",
+      "amethyst"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Song"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 40,
+    "rarity": "rare",
+    "rulesText": "(A character with cost 5 or more can {E} to sing this song for free.)\nLook at the top 5 cards of your deck. You may reveal up to 1 Madrigal character card and up to 1 song card and put them into your hand. Put the rest on the top of your deck in any order.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "(A character with cost 5 or more can {E} to sing this song for free.)",
+        "raw": "(A character with cost 5 or more can {E} to sing this song for free.)"
+      },
+      {
+        "storyName": "",
+        "rulesText": "Look at the top 5 cards of your deck. You may reveal up to 1 Madrigal character card and up to 1 song card and put them into your hand. Put the rest on the top of your deck in any order.",
+        "raw": "Look at the top 5 cards of your deck. You may reveal up to 1 Madrigal character card and up to 1 song card and put them into your hand. Put the rest on the top of your deck in any order."
+      }
+    ]
+  },
+  {
     "id": "amber-coil",
     "name": "Amber Coil",
     "fullName": "Amber Coil",
     "cardType": "item",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [],
@@ -631,7 +1336,9 @@
     "name": "Spaghetti Dinner",
     "fullName": "Spaghetti Dinner",
     "cardType": "item",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 2,
     "inkable": false,
     "traits": [],
@@ -654,7 +1361,9 @@
     "name": "Kanine Krunchies",
     "fullName": "Kanine Krunchies",
     "cardType": "item",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [],
@@ -677,7 +1386,9 @@
     "name": "The Glass Slipper",
     "fullName": "The Glass Slipper",
     "cardType": "item",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 2,
     "inkable": false,
     "traits": [],
@@ -704,7 +1415,9 @@
     "name": "Kuzco",
     "fullName": "Kuzco - Temporary Whale",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 5,
     "inkable": false,
     "traits": [
@@ -733,7 +1446,9 @@
     "name": "Tanana",
     "fullName": "Tanana - Tribal Elder",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -755,7 +1470,9 @@
     "name": "Treasure Guardian",
     "fullName": "Treasure Guardian - Foreboding Sentry",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -784,7 +1501,9 @@
     "name": "Honeymaren",
     "fullName": "Honeymaren - Northuldra Guide",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -814,7 +1533,9 @@
     "name": "Iago",
     "fullName": "Iago - Giant Spectral Parrot",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -849,7 +1570,9 @@
     "name": "Chernabog",
     "fullName": "Chernabog - Creature of the Night",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 5,
     "inkable": false,
     "traits": [
@@ -874,11 +1597,153 @@
     ]
   },
   {
+    "id": "jafar-newly-crowned",
+    "name": "Jafar",
+    "fullName": "Jafar - Newly Crowned",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst",
+      "steel"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Villain",
+      "Sorcerer"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 51,
+    "rarity": "super_rare",
+    "subtitle": "Newly Crowned",
+    "strength": 2,
+    "willpower": 4,
+    "lore": 2,
+    "rulesText": "THIS IS NOT DONE YET During an opponent's turn, whenever one of your Illusion characters is banished, you may return that card to your hand.",
+    "flavorText": "\"Now that the Hexwell Crown is finally mine, no force in Lorcana can stand against me!\"",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "THIS IS NOT DONE YET",
+        "rulesText": "During an opponent's turn, whenever one of your Illusion characters is banished, you may return that card to your hand.",
+        "raw": "THIS IS NOT DONE YET During an opponent's turn, whenever one of your Illusion characters is banished, you may return that card to your hand."
+      }
+    ]
+  },
+  {
+    "id": "hades-fast-talker",
+    "name": "Hades",
+    "fullName": "Hades - Fast Talker",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst",
+      "ruby"
+    ],
+    "cost": 6,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Villain",
+      "Deity"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 52,
+    "rarity": "rare",
+    "subtitle": "Fast Talker",
+    "strength": 4,
+    "willpower": 6,
+    "lore": 2,
+    "rulesText": "FOR JUST A LITTLE PAIN When you play this character, you may deal 2 damage to another chosen character of yours to banish chosen character with cost 3 or less.",
+    "flavorText": "\"... You get a whole lotta gain.\"",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "FOR JUST A LITTLE PAIN",
+        "rulesText": "When you play this character, you may deal 2 damage to another chosen character of yours to banish chosen character with cost 3 or less.",
+        "raw": "FOR JUST A LITTLE PAIN When you play this character, you may deal 2 damage to another chosen character of yours to banish chosen character with cost 3 or less."
+      }
+    ]
+  },
+  {
+    "id": "madame-medusa-diamond-lover",
+    "name": "Madame Medusa",
+    "fullName": "Madame Medusa - Diamond Lover",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst",
+      "ruby"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Villain"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 53,
+    "rarity": "uncommon",
+    "subtitle": "Diamond Lover",
+    "strength": 3,
+    "willpower": 4,
+    "lore": 1,
+    "rulesText": "SEARCH THE SWAMP Whenever this character quests, you may deal 2 damage to another chosen character of yours to put the top 3 cards of chosen player's deck into their discard.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "SEARCH THE SWAMP",
+        "rulesText": "Whenever this character quests, you may deal 2 damage to another chosen character of yours to put the top 3 cards of chosen player's deck into their discard.",
+        "raw": "SEARCH THE SWAMP Whenever this character quests, you may deal 2 damage to another chosen character of yours to put the top 3 cards of chosen player's deck into their discard."
+      }
+    ]
+  },
+  {
+    "id": "te-k-elemental-terror",
+    "name": "Te Kā",
+    "fullName": "Te Kā - Elemental Terror",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst",
+      "ruby"
+    ],
+    "cost": 10,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Villain",
+      "Deity"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 7
+      }
+    ],
+    "setId": "7",
+    "number": 54,
+    "rarity": "super_rare",
+    "subtitle": "Elemental Terror",
+    "strength": 12,
+    "willpower": 12,
+    "lore": 3,
+    "shiftCost": 7,
+    "rulesText": "ANCIENT RAGE During your turn, whenever an opposing character is exerted, banish them.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "ANCIENT RAGE",
+        "rulesText": "During your turn, whenever an opposing character is exerted, banish them.",
+        "raw": "ANCIENT RAGE During your turn, whenever an opposing character is exerted, banish them."
+      }
+    ]
+  },
+  {
     "id": "elsa-trusted-sister",
     "name": "Elsa",
     "fullName": "Elsa - Trusted Sister",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -910,7 +1775,9 @@
     "name": "Madam Mim",
     "fullName": "Madam Mim - Cheating Spellcaster",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 6,
     "inkable": true,
     "traits": [
@@ -937,11 +1804,46 @@
     ]
   },
   {
+    "id": "giant-cobra-ghostly-serpent",
+    "name": "Giant Cobra",
+    "fullName": "Giant Cobra - Ghostly Serpent",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst",
+      "steel"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Ally",
+      "Illusion"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 57,
+    "rarity": "uncommon",
+    "subtitle": "Ghostly Serpent",
+    "strength": 4,
+    "willpower": 4,
+    "lore": 1,
+    "rulesText": "Vanish (When an opponent chooses this character for an action, banish them.)\nMYSTERIOUS ADVANTAGE When you play this character, you may choose and discard a card to gain 2 lore.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "MYSTERIOUS ADVANTAGE",
+        "rulesText": "When you play this character, you may choose and discard a card to gain 2 lore.",
+        "raw": "MYSTERIOUS ADVANTAGE When you play this character, you may choose and discard a card to gain 2 lore."
+      }
+    ]
+  },
+  {
     "id": "te-k-lava-monster",
     "name": "Te Kā",
     "fullName": "Te Kā - Lava Monster",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 6,
     "inkable": true,
     "traits": [
@@ -970,7 +1872,9 @@
     "name": "Yzma",
     "fullName": "Yzma - Transformed Kitten",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -1001,7 +1905,9 @@
     "name": "Bucky",
     "fullName": "Bucky - Nutty Rascal",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -1031,7 +1937,9 @@
     "name": "Pain",
     "fullName": "Pain - Impudent Imp",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [
@@ -1053,7 +1961,9 @@
     "name": "Rajah",
     "fullName": "Rajah - Ghostly Tiger",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -1080,11 +1990,258 @@
     ]
   },
   {
+    "id": "kronk-laid-back",
+    "name": "Kronk",
+    "fullName": "Kronk - Laid Back",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst",
+      "emerald"
+    ],
+    "cost": 5,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Ally"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 63,
+    "rarity": "rare",
+    "subtitle": "Laid Back",
+    "strength": 4,
+    "willpower": 4,
+    "lore": 2,
+    "rulesText": "I'M LOVIN' THIS If an effect would cause you to discard one or more cards, you don't discard.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "I'M LOVIN' THIS If an effect would cause you to discard one or more cards, you don't discard.",
+        "raw": "I'M LOVIN' THIS If an effect would cause you to discard one or more cards, you don't discard."
+      }
+    ]
+  },
+  {
+    "id": "mother-gothel-vain-sorceress",
+    "name": "Mother Gothel",
+    "fullName": "Mother Gothel - Vain Sorceress",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst",
+      "ruby"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Villain",
+      "Sorcerer"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 64,
+    "rarity": "uncommon",
+    "subtitle": "Vain Sorceress",
+    "strength": 1,
+    "willpower": 4,
+    "lore": 1,
+    "rulesText": "NOW YOU'VE UPSET ME Whenever one of your characters challenges, you may move 1 damage counter from chosen character to chosen opposing character.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "NOW YOU'VE UPSET ME",
+        "rulesText": "Whenever one of your characters challenges, you may move 1 damage counter from chosen character to chosen opposing character.",
+        "raw": "NOW YOU'VE UPSET ME Whenever one of your characters challenges, you may move 1 damage counter from chosen character to chosen opposing character."
+      }
+    ]
+  },
+  {
+    "id": "sven-keen-eyed-reindeer",
+    "name": "Sven",
+    "fullName": "Sven - Keen-Eyed Reindeer",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst",
+      "sapphire"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "rush"
+      }
+    ],
+    "setId": "7",
+    "number": 65,
+    "rarity": "uncommon",
+    "subtitle": "Keen-Eyed Reindeer",
+    "strength": 2,
+    "willpower": 6,
+    "lore": 1,
+    "rulesText": "FORMIDABLE GLARE When you play this character, chosen character gets -3 {S} this turn.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "FORMIDABLE GLARE",
+        "rulesText": "When you play this character, chosen character gets -3 {S} this turn.",
+        "raw": "FORMIDABLE GLARE When you play this character, chosen character gets -3 {S} this turn."
+      }
+    ]
+  },
+  {
+    "id": "diablo-spiteful-raven",
+    "name": "Diablo",
+    "fullName": "Diablo - Spiteful Raven",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst",
+      "emerald"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      }
+    ],
+    "setId": "7",
+    "number": 66,
+    "rarity": "uncommon",
+    "subtitle": "Spiteful Raven",
+    "strength": 1,
+    "willpower": 2,
+    "lore": 1
+  },
+  {
+    "id": "merlin-clever-clairvoyant",
+    "name": "Merlin",
+    "fullName": "Merlin - Clever Clairvoyant",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst",
+      "sapphire"
+    ],
+    "cost": 1,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Mentor",
+      "Sorcerer"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 67,
+    "rarity": "rare",
+    "subtitle": "Clever Clairvoyant",
+    "strength": 0,
+    "willpower": 1,
+    "lore": 1,
+    "rulesText": "PRESTIDIGITONIUM Whenever this character quests, name a card, then reveal the top card of your deck. If it's the named card, put it into your inkwell facedown and exerted. Otherwise, put it on the top of your deck.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "PRESTIDIGITONIUM",
+        "rulesText": "Whenever this character quests, name a card, then reveal the top card of your deck. If it's the named card, put it into your inkwell facedown and exerted. Otherwise, put it on the top of your deck.",
+        "raw": "PRESTIDIGITONIUM Whenever this character quests, name a card, then reveal the top card of your deck. If it's the named card, put it into your inkwell facedown and exerted. Otherwise, put it on the top of your deck."
+      }
+    ]
+  },
+  {
+    "id": "yzma-above-it-all",
+    "name": "Yzma",
+    "fullName": "Yzma - Above It All",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst",
+      "emerald"
+    ],
+    "cost": 7,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Villain",
+      "Queen"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 5
+      }
+    ],
+    "setId": "7",
+    "number": 68,
+    "rarity": "super_rare",
+    "subtitle": "Above It All",
+    "strength": 3,
+    "willpower": 8,
+    "lore": 2,
+    "shiftCost": 5,
+    "rulesText": "BACK TO WORK Whenever another character is banished in a challenge, return that card to its player's hand, then that player discards a card at random.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "BACK TO WORK",
+        "rulesText": "Whenever another character is banished in a challenge, return that card to its player's hand, then that player discards a card at random.",
+        "raw": "BACK TO WORK Whenever another character is banished in a challenge, return that card to its player's hand, then that player discards a card at random."
+      }
+    ]
+  },
+  {
+    "id": "elsa-ice-maker",
+    "name": "Elsa",
+    "fullName": "Elsa - Ice Maker",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst",
+      "sapphire"
+    ],
+    "cost": 7,
+    "inkable": false,
+    "traits": [
+      "Floodborn",
+      "Hero",
+      "Queen",
+      "Sorcerer"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      }
+    ],
+    "setId": "7",
+    "number": 69,
+    "rarity": "super_rare",
+    "subtitle": "Ice Maker",
+    "strength": 5,
+    "willpower": 5,
+    "lore": 2,
+    "shiftCost": 4,
+    "rulesText": "WINTER WALL Whenever this character quests, you may exert chosen character. If you do and you have a character named Anna in play, the chosen character can’t ready at the start of their next turn.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "WINTER WALL",
+        "rulesText": "Whenever this character quests, you may exert chosen character. If you do and you have a character named Anna in play, the chosen character can’t ready at the start of their next turn.",
+        "raw": "WINTER WALL Whenever this character quests, you may exert chosen character. If you do and you have a character named Anna in play, the chosen character can’t ready at the start of their next turn."
+      }
+    ]
+  },
+  {
     "id": "kenai-magical-bear",
     "name": "Kenai",
     "fullName": "Kenai - Magical Bear",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -1115,11 +2272,99 @@
     ]
   },
   {
+    "id": "kuzco-panicked-llama",
+    "name": "Kuzco",
+    "fullName": "Kuzco - Panicked Llama",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst",
+      "emerald"
+    ],
+    "cost": 4,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "King"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      }
+    ],
+    "setId": "7",
+    "number": 71,
+    "rarity": "uncommon",
+    "subtitle": "Panicked Llama",
+    "strength": 2,
+    "willpower": 2,
+    "lore": 2,
+    "rulesText": "WE CAN FIGURE THIS OUT At the start of your turn, choose one:\n• Each player draws a card.\n• Each player chooses and discards a card.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "WE CAN FIGURE THIS OUT At the start of your turn, choose one:",
+        "raw": "WE CAN FIGURE THIS OUT At the start of your turn, choose one:"
+      },
+      {
+        "storyName": "",
+        "rulesText": "• Each player draws a card.",
+        "raw": "• Each player draws a card."
+      },
+      {
+        "storyName": "",
+        "rulesText": "• Each player chooses and discards a card.",
+        "raw": "• Each player chooses and discards a card."
+      }
+    ]
+  },
+  {
+    "id": "anna-ice-breaker",
+    "name": "Anna",
+    "fullName": "Anna - Ice Breaker",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst",
+      "sapphire"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Hero",
+      "Queen",
+      "Sorcerer"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "support"
+      }
+    ],
+    "setId": "7",
+    "number": 72,
+    "rarity": "uncommon",
+    "subtitle": "Ice Breaker",
+    "strength": 2,
+    "willpower": 3,
+    "lore": 2,
+    "rulesText": "WINTER AMBUSH When you play this character, chosen opposing character can't ready at the start of their next turn.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "WINTER AMBUSH",
+        "rulesText": "When you play this character, chosen opposing character can't ready at the start of their next turn.",
+        "raw": "WINTER AMBUSH When you play this character, chosen opposing character can't ready at the start of their next turn."
+      }
+    ]
+  },
+  {
     "id": "donald-duck-flustered-sorcerer",
     "name": "Donald Duck",
     "fullName": "Donald Duck - Flustered Sorcerer",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 7,
     "inkable": false,
     "traits": [
@@ -1150,7 +2395,9 @@
     "name": "The Queen",
     "fullName": "The Queen - Jealous Beauty",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -1181,7 +2428,9 @@
     "name": "Panic",
     "fullName": "Panic - High-Strung Imp",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -1211,7 +2460,9 @@
     "name": "Archimedes",
     "fullName": "Archimedes - Exceptional Owl",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -1241,7 +2492,9 @@
     "name": "Kashekim",
     "fullName": "Kashekim - Ancient Ruler",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -1263,7 +2516,9 @@
     "name": "Dolores Madrigal",
     "fullName": "Dolores Madrigal - Within Earshot",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [
@@ -1290,11 +2545,45 @@
     ]
   },
   {
+    "id": "mufasa-among-the-stars",
+    "name": "Mufasa",
+    "fullName": "Mufasa - Among the Stars",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst",
+      "steel"
+    ],
+    "cost": 7,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Mentor",
+      "King"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 5
+      }
+    ],
+    "setId": "7",
+    "number": 79,
+    "rarity": "uncommon",
+    "subtitle": "Among the Stars",
+    "strength": 5,
+    "willpower": 7,
+    "lore": 2,
+    "shiftCost": 5
+  },
+  {
     "id": "magical-maneuvers",
     "name": "Magical Maneuvers",
     "fullName": "Magical Maneuvers",
     "cardType": "action",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [],
@@ -1317,7 +2606,9 @@
     "name": "This Is My Family",
     "fullName": "This Is My Family",
     "cardType": "action",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 2,
     "inkable": false,
     "traits": [
@@ -1347,7 +2638,9 @@
     "name": "Show Me More!",
     "fullName": "Show Me More!",
     "cardType": "action",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 2,
     "inkable": false,
     "traits": [],
@@ -1366,11 +2659,39 @@
     ]
   },
   {
+    "id": "restoring-the-crown",
+    "name": "Restoring the Crown",
+    "fullName": "Restoring the Crown",
+    "cardType": "action",
+    "inkColors": [
+      "amethyst",
+      "steel"
+    ],
+    "cost": 6,
+    "inkable": false,
+    "traits": [],
+    "abilities": [],
+    "setId": "7",
+    "number": 83,
+    "rarity": "rare",
+    "rulesText": "Exert all opposing characters. Whenever one of your characters banishes another character in a challenge this turn, gain 2 lore.",
+    "flavorText": "The Hexwell surged with pure creative energy, fusing the crown's pieces in a final burst of power.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "Exert all opposing characters. Whenever one of your characters banishes another character in a challenge this turn, gain 2 lore.",
+        "raw": "Exert all opposing characters. Whenever one of your characters banishes another character in a challenge this turn, gain 2 lore."
+      }
+    ]
+  },
+  {
     "id": "amethyst-coil",
     "name": "Amethyst Coil",
     "fullName": "Amethyst Coil",
     "cardType": "item",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 3,
     "inkable": false,
     "traits": [],
@@ -1393,7 +2714,9 @@
     "name": "Drizella",
     "fullName": "Drizella - Spoiled Stepsister",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -1415,7 +2738,9 @@
     "name": "Grewnge",
     "fullName": "Grewnge - Cannon Expert",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -1446,7 +2771,9 @@
     "name": "Baymax",
     "fullName": "Baymax - Low Battery",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -1477,7 +2804,9 @@
     "name": "Thomas O'Malley",
     "fullName": "Thomas O'Malley - Feline Charmer",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -1504,7 +2833,9 @@
     "name": "Pete",
     "fullName": "Pete - Pirate Scoundrel",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [
@@ -1535,7 +2866,9 @@
     "name": "Hiro Hamada",
     "fullName": "Hiro Hamada - Future Champion",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -1566,7 +2899,9 @@
     "name": "Cheshire Cat",
     "fullName": "Cheshire Cat - Perplexing Feline",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [
@@ -1595,7 +2930,9 @@
     "name": "Shere Khan",
     "fullName": "Shere Khan - Infamous Tiger",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 4,
     "inkable": false,
     "traits": [
@@ -1625,7 +2962,9 @@
     "name": "Basil",
     "fullName": "Basil - Secret Informer",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 6,
     "inkable": true,
     "traits": [
@@ -1652,11 +2991,159 @@
     ]
   },
   {
+    "id": "mad-hatter-unruly-eccentric",
+    "name": "Mad Hatter",
+    "fullName": "Mad Hatter - Unruly Eccentric",
+    "cardType": "character",
+    "inkColors": [
+      "emerald",
+      "ruby"
+    ],
+    "cost": 6,
+    "inkable": true,
+    "traits": [
+      "Storyborn"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 94,
+    "rarity": "rare",
+    "subtitle": "Unruly Eccentric",
+    "strength": 3,
+    "willpower": 5,
+    "lore": 2,
+    "rulesText": "UNBIRTHDAY PRESENT Whenever a damaged character challenges another character, you may draw a card.",
+    "flavorText": "\"Don't you care for tea?\"",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "UNBIRTHDAY PRESENT",
+        "rulesText": "Whenever a damaged character challenges another character, you may draw a card.",
+        "raw": "UNBIRTHDAY PRESENT Whenever a damaged character challenges another character, you may draw a card."
+      }
+    ]
+  },
+  {
+    "id": "queen-of-hearts-unpredictable-bully",
+    "name": "Queen of Hearts",
+    "fullName": "Queen of Hearts - Unpredictable Bully",
+    "cardType": "character",
+    "inkColors": [
+      "emerald",
+      "ruby"
+    ],
+    "cost": 5,
+    "inkable": false,
+    "traits": [
+      "Floodborn",
+      "Villain",
+      "Queen"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      }
+    ],
+    "setId": "7",
+    "number": 95,
+    "rarity": "super_rare",
+    "subtitle": "Unpredictable Bully",
+    "strength": 2,
+    "willpower": 6,
+    "lore": 2,
+    "shiftCost": 3,
+    "rulesText": "IF I LOSE MY TEMPER... Whenever another character is played, put a damage counter on them.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "IF I LOSE MY TEMPER...",
+        "rulesText": "Whenever another character is played, put a damage counter on them.",
+        "raw": "IF I LOSE MY TEMPER... Whenever another character is played, put a damage counter on them."
+      }
+    ]
+  },
+  {
+    "id": "hiro-hamada-armor-designer",
+    "name": "Hiro Hamada",
+    "fullName": "Hiro Hamada - Armor Designer",
+    "cardType": "character",
+    "inkColors": [
+      "emerald",
+      "sapphire"
+    ],
+    "cost": 7,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Hero",
+      "Inventor"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 5
+      }
+    ],
+    "setId": "7",
+    "number": 96,
+    "rarity": "super_rare",
+    "subtitle": "Armor Designer",
+    "strength": 4,
+    "willpower": 6,
+    "lore": 3,
+    "shiftCost": 5,
+    "rulesText": "YOU CAN BE WAY MORE Your Floodborn characters that have a card under them gain Evasive and Ward. (Only characters with Evasive can challenge them. Opponents can’t choose them except to challenge.)",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "YOU CAN BE WAY MORE",
+        "rulesText": "Your Floodborn characters that have a card under them gain Evasive and Ward. (Only characters with Evasive can challenge them. Opponents can’t choose them except to challenge.)",
+        "raw": "YOU CAN BE WAY MORE Your Floodborn characters that have a card under them gain Evasive and Ward. (Only characters with Evasive can challenge them. Opponents can’t choose them except to challenge.)"
+      }
+    ]
+  },
+  {
+    "id": "yokai-intellectual-schemer",
+    "name": "Yokai",
+    "fullName": "Yokai - Intellectual Schemer",
+    "cardType": "character",
+    "inkColors": [
+      "emerald",
+      "sapphire"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Villain",
+      "Inventor"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 97,
+    "rarity": "uncommon",
+    "subtitle": "Intellectual Schemer",
+    "strength": 1,
+    "willpower": 2,
+    "lore": 1,
+    "rulesText": "INNOVATE You pay 1 {I} less to play characters using their Shift ability.",
+    "flavorText": "\"In the hands of a lesser person, this much power would be irresponsible.\"",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "INNOVATE You pay 1 {I} less to play characters using their Shift ability.",
+        "raw": "INNOVATE You pay 1 {I} less to play characters using their Shift ability."
+      }
+    ]
+  },
+  {
     "id": "donald-duck-lively-pirate",
     "name": "Donald Duck",
     "fullName": "Donald Duck - Lively Pirate",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 2,
     "inkable": false,
     "traits": [
@@ -1687,7 +3174,9 @@
     "name": "Berlioz",
     "fullName": "Berlioz - Mischievous Kitten",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -1709,7 +3198,9 @@
     "name": "Lady",
     "fullName": "Lady - Elegant Spaniel",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 1,
     "inkable": false,
     "traits": [
@@ -1739,7 +3230,9 @@
     "name": "Yzma",
     "fullName": "Yzma - Exasperated Schemer",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -1770,7 +3263,9 @@
     "name": "Pacha",
     "fullName": "Pacha - Trekmate",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -1796,11 +3291,183 @@
     ]
   },
   {
+    "id": "tweedledee-tweedledum-strange-storytellers",
+    "name": "Tweedledee & Tweedledum",
+    "fullName": "Tweedledee & Tweedledum - Strange Storytellers",
+    "cardType": "character",
+    "inkColors": [
+      "emerald",
+      "ruby"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Storyborn"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 103,
+    "rarity": "uncommon",
+    "subtitle": "Strange Storytellers",
+    "strength": 4,
+    "willpower": 4,
+    "lore": 2,
+    "rulesText": "ANOTHER RECITATION Whenever this character quests, you may return chosen damaged character to their player's hand.",
+    "flavorText": "\"You can't leave yet! Don't you want to hear the ending? \"\n—Tweedledee",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "ANOTHER RECITATION",
+        "rulesText": "Whenever this character quests, you may return chosen damaged character to their player's hand.",
+        "raw": "ANOTHER RECITATION Whenever this character quests, you may return chosen damaged character to their player's hand."
+      }
+    ]
+  },
+  {
+    "id": "baymax-giant-robot",
+    "name": "Baymax",
+    "fullName": "Baymax - Giant Robot",
+    "cardType": "character",
+    "inkColors": [
+      "emerald",
+      "sapphire"
+    ],
+    "cost": 6,
+    "inkable": false,
+    "traits": [
+      "Floodborn",
+      "Hero",
+      "Robot"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 104,
+    "rarity": "uncommon",
+    "subtitle": "Giant Robot",
+    "strength": 5,
+    "willpower": 5,
+    "lore": 2,
+    "rulesText": "Universal Shift 4 (You may pay 4 {I} to play this on top of any one of your characters.)\nFUNCTIONALITY IMPROVED When you play this character, if you used Shift to play him, remove all damage from him.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "FUNCTIONALITY IMPROVED",
+        "rulesText": "When you play this character, if you used Shift to play him, remove all damage from him.",
+        "raw": "FUNCTIONALITY IMPROVED When you play this character, if you used Shift to play him, remove all damage from him."
+      }
+    ]
+  },
+  {
+    "id": "gizmoduck-suited-up",
+    "name": "Gizmoduck",
+    "fullName": "Gizmoduck - Suited Up",
+    "cardType": "character",
+    "inkColors": [
+      "emerald",
+      "steel"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Inventor"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "resist",
+        "value": 1
+      }
+    ],
+    "setId": "7",
+    "number": 105,
+    "rarity": "uncommon",
+    "subtitle": "Suited Up",
+    "strength": 4,
+    "willpower": 3,
+    "lore": 1,
+    "rulesText": "BLATHERING BLATHERSKITE This character can challenge ready damaged characters.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "BLATHERING BLATHERSKITE",
+        "rulesText": "This character can challenge ready damaged characters.",
+        "raw": "BLATHERING BLATHERSKITE This character can challenge ready damaged characters."
+      }
+    ]
+  },
+  {
+    "id": "fidget-sneaky-bat",
+    "name": "Fidget",
+    "fullName": "Fidget - Sneaky Bat",
+    "cardType": "character",
+    "inkColors": [
+      "emerald",
+      "ruby"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 106,
+    "rarity": "uncommon",
+    "subtitle": "Sneaky Bat",
+    "strength": 2,
+    "willpower": 3,
+    "lore": 2,
+    "rulesText": "I TOOK CARE OF EVERYTHING Whenever this character quests, another chosen character of yours gains Evasive until the start of your next turn.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "I TOOK CARE OF EVERYTHING",
+        "rulesText": "Whenever this character quests, another chosen character of yours gains Evasive until the start of your next turn.",
+        "raw": "I TOOK CARE OF EVERYTHING Whenever this character quests, another chosen character of yours gains Evasive until the start of your next turn."
+      }
+    ]
+  },
+  {
+    "id": "mr-smee-efficient-captain",
+    "name": "Mr. Smee",
+    "fullName": "Mr. Smee - Efficient Captain",
+    "cardType": "character",
+    "inkColors": [
+      "emerald",
+      "steel"
+    ],
+    "cost": 3,
+    "inkable": false,
+    "traits": [
+      "Dreamborn",
+      "Villain",
+      "Pirate",
+      "Captain"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 107,
+    "rarity": "uncommon",
+    "subtitle": "Efficient Captain",
+    "strength": 3,
+    "willpower": 3,
+    "lore": 1,
+    "rulesText": "PIPE UP THE CREW Whenever you play an action that isn't a song, you may ready chosen Pirate character.",
+    "flavorText": "\"All right now, crew–we've a lot to do today!\"",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "PIPE UP THE CREW",
+        "rulesText": "Whenever you play an action that isn't a song, you may ready chosen Pirate character.",
+        "raw": "PIPE UP THE CREW Whenever you play an action that isn't a song, you may ready chosen Pirate character."
+      }
+    ]
+  },
+  {
     "id": "daisy-duck-multitalented-pirate",
     "name": "Daisy Duck",
     "fullName": "Daisy Duck - Multitalented Pirate",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 8,
     "inkable": false,
     "traits": [
@@ -1828,11 +3495,54 @@
     ]
   },
   {
+    "id": "john-silver-vengeful-pirate",
+    "name": "John Silver",
+    "fullName": "John Silver - Vengeful Pirate",
+    "cardType": "character",
+    "inkColors": [
+      "emerald",
+      "steel"
+    ],
+    "cost": 8,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Villain",
+      "Alien",
+      "Pirate",
+      "Captain"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "resist",
+        "value": 1
+      }
+    ],
+    "setId": "7",
+    "number": 109,
+    "rarity": "rare",
+    "subtitle": "Vengeful Pirate",
+    "strength": 6,
+    "willpower": 4,
+    "lore": 2,
+    "rulesText": "DRAWN TO A FIGHT If an opposing character was damaged this turn, you pay 2 {I} less to play this character.\nI AIN'T GONE SOFT! Whenever you play an action that isn't a song, you may deal 1 damage to chosen character.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "I AIN'T GONE SOFT!",
+        "rulesText": "Whenever you play an action that isn't a song, you may deal 1 damage to chosen character.",
+        "raw": "I AIN'T GONE SOFT! Whenever you play an action that isn't a song, you may deal 1 damage to chosen character."
+      }
+    ]
+  },
+  {
     "id": "tramp-enterprising-dog",
     "name": "Tramp",
     "fullName": "Tramp - Enterprising Dog",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -1861,7 +3571,9 @@
     "name": "King of Hearts",
     "fullName": "King of Hearts - Picky Ruler",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 4,
     "inkable": false,
     "traits": [
@@ -1892,7 +3604,9 @@
     "name": "Duchess",
     "fullName": "Duchess - Elegant Feline",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -1914,7 +3628,9 @@
     "name": "Anastasia",
     "fullName": "Anastasia - Bossy Stepsister",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -1940,11 +3656,53 @@
     ]
   },
   {
+    "id": "pete-space-pirate",
+    "name": "Pete",
+    "fullName": "Pete - Space Pirate",
+    "cardType": "character",
+    "inkColors": [
+      "emerald",
+      "steel"
+    ],
+    "cost": 6,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Villain",
+      "Pirate"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      }
+    ],
+    "setId": "7",
+    "number": 114,
+    "rarity": "super_rare",
+    "subtitle": "Space Pirate",
+    "strength": 5,
+    "willpower": 5,
+    "lore": 2,
+    "shiftCost": 4,
+    "rulesText": "FRIGHTFUL SCHEME While this character is exerted, opposing characters can't exert to sing songs and your Pirate characters gain Resist +1. (Damage dealt to them is reduced by 1.)",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "FRIGHTFUL SCHEME",
+        "rulesText": "While this character is exerted, opposing characters can't exert to sing songs and your Pirate characters gain Resist +1. (Damage dealt to them is reduced by 1.)",
+        "raw": "FRIGHTFUL SCHEME While this character is exerted, opposing characters can't exert to sing songs and your Pirate characters gain Resist +1. (Damage dealt to them is reduced by 1.)"
+      }
+    ]
+  },
+  {
     "id": "lady-tremaine-bitterly-jealous",
     "name": "Lady Tremaine",
     "fullName": "Lady Tremaine - Bitterly Jealous",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 6,
     "inkable": false,
     "traits": [
@@ -1973,7 +3731,9 @@
     "name": "Wake Up, Alice!",
     "fullName": "Wake Up, Alice!",
     "cardType": "action",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [],
@@ -1996,7 +3756,9 @@
     "name": "He's A Tramp",
     "fullName": "He's A Tramp",
     "cardType": "action",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [
@@ -2026,7 +3788,9 @@
     "name": "The Return of Hercules",
     "fullName": "The Return of Hercules",
     "cardType": "action",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [],
@@ -2045,11 +3809,38 @@
     ]
   },
   {
+    "id": "ink-geyser",
+    "name": "Ink Geyser",
+    "fullName": "Ink Geyser",
+    "cardType": "action",
+    "inkColors": [
+      "emerald",
+      "sapphire"
+    ],
+    "cost": 3,
+    "inkable": false,
+    "traits": [],
+    "abilities": [],
+    "setId": "7",
+    "number": 119,
+    "rarity": "rare",
+    "rulesText": "Each player exerts all the cards in their inkwell. Then each player with more than 3 cards in their inkwell returns cards at random from their inkwell to their hand until they have 3 cards in their inkwell.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "Each player exerts all the cards in their inkwell. Then each player with more than 3 cards in their inkwell returns cards at random from their inkwell to their hand until they have 3 cards in their inkwell.",
+        "raw": "Each player exerts all the cards in their inkwell. Then each player with more than 3 cards in their inkwell returns cards at random from their inkwell to their hand until they have 3 cards in their inkwell."
+      }
+    ]
+  },
+  {
     "id": "emerald-coil",
     "name": "Emerald Coil",
     "fullName": "Emerald Coil",
     "cardType": "item",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 3,
     "inkable": false,
     "traits": [],
@@ -2072,7 +3863,9 @@
     "name": "Grandmother Fa",
     "fullName": "Grandmother Fa - Spirited Elder",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -2102,7 +3895,9 @@
     "name": "Queen of Hearts",
     "fullName": "Queen of Hearts - Losing Her Temper",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -2133,7 +3928,9 @@
     "name": "The Matchmaker",
     "fullName": "The Matchmaker - Unforgiving Expert",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -2158,11 +3955,42 @@
     ]
   },
   {
+    "id": "denahi-impatient-hunter",
+    "name": "Denahi",
+    "fullName": "Denahi - Impatient Hunter",
+    "cardType": "character",
+    "inkColors": [
+      "ruby",
+      "steel"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Storyborn"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "reckless"
+      }
+    ],
+    "setId": "7",
+    "number": 124,
+    "rarity": "uncommon",
+    "subtitle": "Impatient Hunter",
+    "strength": 3,
+    "willpower": 2,
+    "lore": 0,
+    "flavorText": "\"There's no time. We have to act now!\""
+  },
+  {
     "id": "stabbington-brother-without-a-patch",
     "name": "Stabbington Brother",
     "fullName": "Stabbington Brother - Without a Patch",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 4,
     "inkable": false,
     "traits": [
@@ -2184,11 +4012,54 @@
     "lore": 1
   },
   {
+    "id": "belle-mechanic-extraordinaire",
+    "name": "Belle",
+    "fullName": "Belle - Mechanic Extraordinaire",
+    "cardType": "character",
+    "inkColors": [
+      "ruby",
+      "sapphire"
+    ],
+    "cost": 9,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Hero",
+      "Princess",
+      "Inventor"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 7
+      }
+    ],
+    "setId": "7",
+    "number": 126,
+    "rarity": "super_rare",
+    "subtitle": "Mechanic Extraordinaire",
+    "strength": 7,
+    "willpower": 7,
+    "lore": 3,
+    "shiftCost": 7,
+    "rulesText": "SALVAGE For each item card in your discard, you pay 1 {I} less to play this character using her Shift ability.\nREPURPOSE Whenever this character quests, you may put up to 3 item cards from your discard on the bottom of your deck to gain 1 lore for each item card moved this way.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "REPURPOSE",
+        "rulesText": "Whenever this character quests, you may put up to 3 item cards from your discard on the bottom of your deck to gain 1 lore for each item card moved this way.",
+        "raw": "REPURPOSE Whenever this character quests, you may put up to 3 item cards from your discard on the bottom of your deck to gain 1 lore for each item card moved this way."
+      }
+    ]
+  },
+  {
     "id": "cy-bug-invasive-enemy",
     "name": "Cy-Bug",
     "fullName": "Cy-Bug - Invasive Enemy",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -2217,7 +4088,9 @@
     "name": "Stabbington Brother",
     "fullName": "Stabbington Brother - With a Patch",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [
@@ -2247,7 +4120,9 @@
     "name": "Card Soldiers",
     "fullName": "Card Soldiers - Royal Troops",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [
@@ -2277,7 +4152,9 @@
     "name": "Cogsworth",
     "fullName": "Cogsworth - Climbing Clock",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -2307,7 +4184,9 @@
     "name": "Toby",
     "fullName": "Toby - Dogged Companion",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 1,
     "inkable": false,
     "traits": [
@@ -2325,11 +4204,83 @@
     "flavorText": "\"Toby has the most splendid sense of smell of any hound I've trained. But he can be deucedly frisky.\" —Basil"
   },
   {
+    "id": "beagle-boys-small-time-crooks",
+    "name": "Beagle Boys",
+    "fullName": "Beagle Boys - Small-Time Crooks",
+    "cardType": "character",
+    "inkColors": [
+      "ruby",
+      "sapphire"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Villain"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 132,
+    "rarity": "uncommon",
+    "subtitle": "Small-Time Crooks",
+    "strength": 3,
+    "willpower": 3,
+    "lore": 2,
+    "rulesText": "HURRY IT UP! Whenever this character quests, chosen character of yours gains Rush and Resist +1 this turn. (They can challenge the turn they're played. Damage dealt to them is reduced by 1.)",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "HURRY IT UP!",
+        "rulesText": "Whenever this character quests, chosen character of yours gains Rush and Resist +1 this turn. (They can challenge the turn they're played. Damage dealt to them is reduced by 1.)",
+        "raw": "HURRY IT UP! Whenever this character quests, chosen character of yours gains Rush and Resist +1 this turn. (They can challenge the turn they're played. Damage dealt to them is reduced by 1.)"
+      }
+    ]
+  },
+  {
+    "id": "li-shang-newly-promoted",
+    "name": "Li Shang",
+    "fullName": "Li Shang - Newly Promoted",
+    "cardType": "character",
+    "inkColors": [
+      "ruby",
+      "steel"
+    ],
+    "cost": 3,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Hero",
+      "Captain"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 133,
+    "rarity": "uncommon",
+    "subtitle": "Newly Promoted",
+    "strength": 2,
+    "willpower": 3,
+    "lore": 1,
+    "rulesText": "I WON'T LET YOU DOWN This character can challenge ready characters.\nBIG RESPONSIBILITY While this character is damaged, he gets +2 {S}.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "I WON'T LET YOU DOWN",
+        "rulesText": "This character can challenge ready characters.",
+        "raw": "I WON'T LET YOU DOWN This character can challenge ready characters."
+      },
+      {
+        "storyName": "BIG RESPONSIBILITY",
+        "rulesText": "While this character is damaged, he gets +2 {S}.",
+        "raw": "BIG RESPONSIBILITY While this character is damaged, he gets +2 {S}."
+      }
+    ]
+  },
+  {
     "id": "moana-island-explorer",
     "name": "Moana",
     "fullName": "Moana - Island Explorer",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -2364,7 +4315,9 @@
     "name": "The Phantom Blot",
     "fullName": "The Phantom Blot - Shadowy Figure",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 2,
     "inkable": false,
     "traits": [
@@ -2387,11 +4340,86 @@
     "flavorText": "Nobody knows who or what he really is or what he's planning."
   },
   {
+    "id": "beast-frustrated-designer",
+    "name": "Beast",
+    "fullName": "Beast - Frustrated Designer",
+    "cardType": "character",
+    "inkColors": [
+      "ruby",
+      "sapphire"
+    ],
+    "cost": 6,
+    "inkable": false,
+    "traits": [
+      "Dreamborn",
+      "Hero",
+      "Prince",
+      "Inventor"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 136,
+    "rarity": "rare",
+    "subtitle": "Frustrated Designer",
+    "strength": 5,
+    "willpower": 5,
+    "lore": 2,
+    "rulesText": "I'VE HAD IT! {E}, 2 {I}, Banish 2 of your items — Deal 5 damage to chosen character.",
+    "flavorText": "\"No, no, no! This is NOT THE WAY I SEE IT IN MY HEAD!\"",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "I'VE HAD IT!",
+        "rulesText": "{E}, 2 {I}, Banish 2 of your items — Deal 5 damage to chosen character.",
+        "raw": "I'VE HAD IT! {E}, 2 {I}, Banish 2 of your items — Deal 5 damage to chosen character."
+      }
+    ]
+  },
+  {
+    "id": "mushu-majestic-dragon",
+    "name": "Mushu",
+    "fullName": "Mushu - Majestic Dragon",
+    "cardType": "character",
+    "inkColors": [
+      "ruby",
+      "steel"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally",
+      "Dragon"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 137,
+    "rarity": "rare",
+    "subtitle": "Majestic Dragon",
+    "strength": 4,
+    "willpower": 4,
+    "lore": 1,
+    "rulesText": "INTIMIDATING AND AWE-INSPIRING Whenever one of your characters challenges, they gain Resist +2 during that challenge. (Damage dealt to them is reduced by 2.)\nGUARDIAN OF LOST SOULS During your turn, whenever one of your characters banishes another character in a challenge, gain 2 lore.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "INTIMIDATING AND AWE-INSPIRING",
+        "rulesText": "Whenever one of your characters challenges, they gain Resist +2 during that challenge. (Damage dealt to them is reduced by 2.)",
+        "raw": "INTIMIDATING AND AWE-INSPIRING Whenever one of your characters challenges, they gain Resist +2 during that challenge. (Damage dealt to them is reduced by 2.)"
+      },
+      {
+        "storyName": "GUARDIAN OF LOST SOULS",
+        "rulesText": "During your turn, whenever one of your characters banishes another character in a challenge, gain 2 lore.",
+        "raw": "GUARDIAN OF LOST SOULS During your turn, whenever one of your characters banishes another character in a challenge, gain 2 lore."
+      }
+    ]
+  },
+  {
     "id": "maurice-unconventional-inventor",
     "name": "Maurice",
     "fullName": "Maurice - Unconventional Inventor",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -2421,7 +4449,9 @@
     "name": "Goofy",
     "fullName": "Goofy - Extreme Athlete",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 7,
     "inkable": true,
     "traits": [
@@ -2455,7 +4485,9 @@
     "name": "Lyle Tiberius Rourke",
     "fullName": "Lyle Tiberius Rourke - Crystallized Mercenary",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 8,
     "inkable": true,
     "traits": [
@@ -2481,11 +4513,53 @@
     ]
   },
   {
+    "id": "mulan-imperial-general",
+    "name": "Mulan",
+    "fullName": "Mulan - Imperial General",
+    "cardType": "character",
+    "inkColors": [
+      "ruby",
+      "steel"
+    ],
+    "cost": 7,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Hero",
+      "Princess"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 5
+      }
+    ],
+    "setId": "7",
+    "number": 141,
+    "rarity": "super_rare",
+    "subtitle": "Imperial General",
+    "strength": 5,
+    "willpower": 6,
+    "lore": 2,
+    "shiftCost": 5,
+    "rulesText": "EXCEPTIONAL LEADER Whenever this character challenges another character, your other characters gain “This character can challenge ready characters” this turn.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "EXCEPTIONAL LEADER",
+        "rulesText": "Whenever this character challenges another character, your other characters gain “This character can challenge ready characters” this turn.",
+        "raw": "EXCEPTIONAL LEADER Whenever this character challenges another character, your other characters gain “This character can challenge ready characters” this turn."
+      }
+    ]
+  },
+  {
     "id": "baloo-ol-iron-paws",
     "name": "Baloo",
     "fullName": "Baloo - Ol' Iron Paws",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 6,
     "inkable": false,
     "traits": [
@@ -2515,7 +4589,9 @@
     "name": "Ratigan",
     "fullName": "Ratigan - Nefarious Criminal",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -2545,7 +4621,9 @@
     "name": "Sir Kay",
     "fullName": "Sir Kay - Unruly Knight",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -2567,7 +4645,9 @@
     "name": "Milo Thatch",
     "fullName": "Milo Thatch - Undaunted Scholar",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -2597,7 +4677,9 @@
     "name": "Edgar Balthazar",
     "fullName": "Edgar Balthazar - Ambitious Butler",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [
@@ -2619,7 +4701,9 @@
     "name": "We've Got Company!",
     "fullName": "We've Got Company!",
     "cardType": "action",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 3,
     "inkable": false,
     "traits": [],
@@ -2642,7 +4726,9 @@
     "name": "Out of Order",
     "fullName": "Out of Order",
     "cardType": "action",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 7,
     "inkable": true,
     "traits": [],
@@ -2665,7 +4751,9 @@
     "name": "Ruby Coil",
     "fullName": "Ruby Coil",
     "cardType": "item",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [],
@@ -2688,7 +4776,9 @@
     "name": "Unconventional Tool",
     "fullName": "Unconventional Tool",
     "cardType": "item",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [],
@@ -2707,11 +4797,39 @@
     ]
   },
   {
+    "id": "maurices-machine",
+    "name": "Maurice's Machine",
+    "fullName": "Maurice's Machine",
+    "cardType": "item",
+    "inkColors": [
+      "ruby",
+      "sapphire"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [],
+    "abilities": [],
+    "setId": "7",
+    "number": 151,
+    "rarity": "uncommon",
+    "rulesText": "BREAK DOWN When this item is banished, you may return an item card with cost 2 or less from your discard to your hand.",
+    "flavorText": "\"I hope it does what I built it to do!\"\n–Maurice",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "BREAK DOWN",
+        "rulesText": "When this item is banished, you may return an item card with cost 2 or less from your discard to your hand.",
+        "raw": "BREAK DOWN When this item is banished, you may return an item card with cost 2 or less from your discard to your hand."
+      }
+    ]
+  },
+  {
     "id": "devils-eye-diamond",
     "name": "Devil's Eye Diamond",
     "fullName": "Devil's Eye Diamond",
     "cardType": "item",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [],
@@ -2734,7 +4852,9 @@
     "name": "Clarabelle",
     "fullName": "Clarabelle - News Reporter",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -2768,7 +4888,9 @@
     "name": "Scrooge Mcduck",
     "fullName": "Scrooge Mcduck - Resourceful Miser",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -2797,7 +4919,9 @@
     "name": "Mattias",
     "fullName": "Mattias - Arendelle General",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -2828,7 +4952,9 @@
     "name": "Moana",
     "fullName": "Moana - Adventurer of Land and Sea",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -2851,7 +4977,9 @@
     "name": "Monsieur D'Arque",
     "fullName": "Monsieur D'Arque - Despicable Proprietor",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [
@@ -2881,7 +5009,9 @@
     "name": "Gaetan Moliere",
     "fullName": "Gaetan Moliere - The Mole",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -2903,7 +5033,9 @@
     "name": "Belle",
     "fullName": "Belle - Apprentice Inventor",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -2935,7 +5067,9 @@
     "name": "Lucky",
     "fullName": "Lucky - Runt of the Litter",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 3,
     "inkable": false,
     "traits": [
@@ -2964,7 +5098,9 @@
     "name": "Dawson",
     "fullName": "Dawson - Puzzling Sleuth",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 1,
     "inkable": false,
     "traits": [
@@ -2995,7 +5131,9 @@
     "name": "Tamatoa",
     "fullName": "Tamatoa - Happy as a Clam",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 6,
     "inkable": true,
     "traits": [
@@ -3025,11 +5163,52 @@
     ]
   },
   {
+    "id": "heihei-expanded-consciousness",
+    "name": "Heihei",
+    "fullName": "Heihei - Expanded Consciousness",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire",
+      "steel"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Ally"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      }
+    ],
+    "setId": "7",
+    "number": 163,
+    "rarity": "uncommon",
+    "subtitle": "Expanded Consciousness",
+    "strength": 1,
+    "willpower": 5,
+    "lore": 2,
+    "shiftCost": 3,
+    "rulesText": "CLEAR YOUR MIND When you play this character, put all cards from your hand into your inkwell facedown and exerted.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "CLEAR YOUR MIND",
+        "rulesText": "When you play this character, put all cards from your hand into your inkwell facedown and exerted.",
+        "raw": "CLEAR YOUR MIND When you play this character, put all cards from your hand into your inkwell facedown and exerted."
+      }
+    ]
+  },
+  {
     "id": "kida-creative-thinker",
     "name": "Kida",
     "fullName": "Kida - Creative Thinker",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -3059,7 +5238,9 @@
     "name": "Toulouse",
     "fullName": "Toulouse - Artistic Kitten",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [
@@ -3081,7 +5262,9 @@
     "name": "Marie",
     "fullName": "Marie - Favored Kitten",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -3111,7 +5294,9 @@
     "name": "Pepper",
     "fullName": "Pepper - Quick-Thinking Puppy",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -3141,7 +5326,9 @@
     "name": "Freckles",
     "fullName": "Freckles - Good Boy",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -3171,7 +5358,9 @@
     "name": "Honey Lemon",
     "fullName": "Honey Lemon - Chemistry Whiz",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -3201,7 +5390,9 @@
     "name": "Robin Hood",
     "fullName": "Robin Hood - Eye for Detail",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -3228,7 +5419,9 @@
     "name": "Penny the Orphan",
     "fullName": "Penny the Orphan - Clever Child",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -3254,11 +5447,76 @@
     ]
   },
   {
+    "id": "lady-kluck-protective-confidant",
+    "name": "Lady Kluck",
+    "fullName": "Lady Kluck - Protective Confidant",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire",
+      "steel"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "bodyguard"
+      }
+    ],
+    "setId": "7",
+    "number": 172,
+    "rarity": "uncommon",
+    "subtitle": "Protective Confidant",
+    "strength": 2,
+    "willpower": 7,
+    "lore": 1
+  },
+  {
+    "id": "jasmine-inspired-researcher",
+    "name": "Jasmine",
+    "fullName": "Jasmine - Inspired Researcher",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire",
+      "steel"
+    ],
+    "cost": 5,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Hero",
+      "Princess"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 173,
+    "rarity": "rare",
+    "subtitle": "Inspired Researcher",
+    "strength": 3,
+    "willpower": 5,
+    "lore": 2,
+    "rulesText": "EXTRA ASSISTANCE Whenever this character quests, if you have no cards in your hand, draw a card for each Ally character you have in play.",
+    "flavorText": "\"Oh, this is wonderful! I knew Archazia's thought scrolls would be worth a little extra effort!\"",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "EXTRA ASSISTANCE",
+        "rulesText": "Whenever this character quests, if you have no cards in your hand, draw a card for each Ally character you have in play.",
+        "raw": "EXTRA ASSISTANCE Whenever this character quests, if you have no cards in your hand, draw a card for each Ally character you have in play."
+      }
+    ]
+  },
+  {
     "id": "jebidiah-farnsworth-expedition-cook",
     "name": "Jebidiah Farnsworth",
     "fullName": "Jebidiah Farnsworth - Expedition Cook",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -3292,7 +5550,9 @@
     "name": "Baymax",
     "fullName": "Baymax - Upgraded Robot",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [
@@ -3323,11 +5583,51 @@
     ]
   },
   {
+    "id": "maid-marian-badminton-ace",
+    "name": "Maid Marian",
+    "fullName": "Maid Marian - Badminton Ace",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire",
+      "steel"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Hero",
+      "Princess"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 176,
+    "rarity": "super_rare",
+    "subtitle": "Badminton Ace",
+    "strength": 3,
+    "willpower": 3,
+    "lore": 2,
+    "rulesText": "GOOD SHOT During an opponent's turn, whenever one of your Ally characters is damaged, deal 1 damage to chosen opposing character.\nFAIR PLAY Your characters named Lady Kluck gain Resist +1. (Damage dealt to them is reduced by 1.)",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "GOOD SHOT",
+        "rulesText": "During an opponent's turn, whenever one of your Ally characters is damaged, deal 1 damage to chosen opposing character.",
+        "raw": "GOOD SHOT During an opponent's turn, whenever one of your Ally characters is damaged, deal 1 damage to chosen opposing character."
+      },
+      {
+        "storyName": "FAIR PLAY",
+        "rulesText": "Your characters named Lady Kluck gain Resist +1. (Damage dealt to them is reduced by 1.)",
+        "raw": "FAIR PLAY Your characters named Lady Kluck gain Resist +1. (Damage dealt to them is reduced by 1.)"
+      }
+    ]
+  },
+  {
     "id": "water-has-memory",
     "name": "Water Has Memory",
     "fullName": "Water Has Memory",
     "cardType": "action",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 1,
     "inkable": false,
     "traits": [],
@@ -3349,7 +5649,9 @@
     "name": "All Is Found",
     "fullName": "All Is Found",
     "cardType": "action",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [
@@ -3379,7 +5681,9 @@
     "name": "Sapphire Coil",
     "fullName": "Sapphire Coil",
     "cardType": "item",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [],
@@ -3402,7 +5706,9 @@
     "name": "Baymax's Charging Station",
     "fullName": "Baymax's Charging Station",
     "cardType": "item",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [],
@@ -3425,7 +5731,9 @@
     "name": "Dr. Calico",
     "fullName": "Dr. Calico - Green-Eyed Man",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -3455,7 +5763,9 @@
     "name": "Akela",
     "fullName": "Akela - Wolf Pack Elder",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -3477,7 +5787,9 @@
     "name": "Helga Sinclair",
     "fullName": "Helga Sinclair - Tough as Nails",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 2,
     "inkable": false,
     "traits": [
@@ -3512,7 +5824,9 @@
     "name": "Bolt",
     "fullName": "Bolt - Headstrong Dog",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -3542,7 +5856,9 @@
     "name": "Heihei",
     "fullName": "Heihei - Rambling Rooster",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [
@@ -3564,7 +5880,9 @@
     "name": "Raya",
     "fullName": "Raya - Guidance Seeker",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -3594,7 +5912,9 @@
     "name": "Tuk Tuk",
     "fullName": "Tuk Tuk - Disarmingly Cute",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 2,
     "inkable": false,
     "traits": [
@@ -3620,7 +5940,9 @@
     "name": "Fa Zhou",
     "fullName": "Fa Zhou - War Hero",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -3650,7 +5972,9 @@
     "name": "Razoul",
     "fullName": "Razoul - Menacing Guard",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -3681,7 +6005,9 @@
     "name": "Jafar",
     "fullName": "Jafar - Aspiring Ruler",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -3712,7 +6038,9 @@
     "name": "Tick-Tock",
     "fullName": "Tick-Tock - Relentless Crocodile",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [
@@ -3741,7 +6069,9 @@
     "name": "Kakamora",
     "fullName": "Kakamora - Band of Pirates",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -3771,7 +6101,9 @@
     "name": "Mulan",
     "fullName": "Mulan - Disguised Soldier",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [
@@ -3802,7 +6134,9 @@
     "name": "Orville",
     "fullName": "Orville - Albatross Air",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -3832,7 +6166,9 @@
     "name": "Miss Bianca",
     "fullName": "Miss Bianca - Unwavering Agent",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 6,
     "inkable": true,
     "traits": [
@@ -3862,7 +6198,9 @@
     "name": "Mufasa",
     "fullName": "Mufasa - Respected King",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -3885,7 +6223,9 @@
     "name": "Aladdin",
     "fullName": "Aladdin - Research Assistant",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 4,
     "inkable": false,
     "traits": [
@@ -3919,7 +6259,9 @@
     "name": "Bagheera",
     "fullName": "Bagheera - Guardian Jaguar",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [
@@ -3948,7 +6290,9 @@
     "name": "Gantu",
     "fullName": "Gantu - Experienced Enforcer",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 4,
     "inkable": false,
     "traits": [
@@ -3978,7 +6322,9 @@
     "name": "Mickey Mouse",
     "fullName": "Mickey Mouse - Inspirational Warrior",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 2,
     "inkable": false,
     "traits": [
@@ -4008,7 +6354,9 @@
     "name": "Restoring Atlantis",
     "fullName": "Restoring Atlantis",
     "cardType": "action",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 5,
     "inkable": false,
     "traits": [],
@@ -4031,7 +6379,9 @@
     "name": "Double Trouble",
     "fullName": "Double Trouble",
     "cardType": "action",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [],
@@ -4054,7 +6404,9 @@
     "name": "Steel Coil",
     "fullName": "Steel Coil",
     "cardType": "item",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 2,
     "inkable": false,
     "traits": [],
@@ -4077,7 +6429,9 @@
     "name": "Training Staff",
     "fullName": "Training Staff",
     "cardType": "item",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [],
@@ -4100,7 +6454,9 @@
     "name": "Aurora",
     "fullName": "Aurora - Waking Beauty",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -4126,11 +6482,90 @@
     ]
   },
   {
+    "id": "mirabel-madrigal-musically-talented",
+    "name": "Mirabel Madrigal",
+    "fullName": "Mirabel Madrigal - Musically Talented",
+    "cardType": "character",
+    "inkColors": [
+      "amber",
+      "amethyst"
+    ],
+    "cost": 6,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Hero",
+      "Madrigal"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      }
+    ],
+    "setId": "7",
+    "number": 206,
+    "rarity": "enchanted",
+    "subtitle": "Musically Talented",
+    "strength": 2,
+    "willpower": 6,
+    "lore": 2,
+    "shiftCost": 4,
+    "rulesText": "HER OWN SPECIAL GIFT Whenever this character quests, you may return a song card with cost 3 or less from your discard to your hand.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "HER OWN SPECIAL GIFT",
+        "rulesText": "Whenever this character quests, you may return a song card with cost 3 or less from your discard to your hand.",
+        "raw": "HER OWN SPECIAL GIFT Whenever this character quests, you may return a song card with cost 3 or less from your discard to your hand."
+      }
+    ]
+  },
+  {
+    "id": "bolt-superdog",
+    "name": "Bolt",
+    "fullName": "Bolt - Superdog",
+    "cardType": "character",
+    "inkColors": [
+      "amber",
+      "steel"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Hero"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 207,
+    "rarity": "enchanted",
+    "subtitle": "Superdog",
+    "strength": 3,
+    "willpower": 5,
+    "lore": 2,
+    "rulesText": "MARK OF POWER Whenever you ready this character, gain 1 lore for each other undamaged character you have in play.\nBOLT STARE {E} — Banish chosen Illusion character.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "MARK OF POWER",
+        "rulesText": "Whenever you ready this character, gain 1 lore for each other undamaged character you have in play.",
+        "raw": "MARK OF POWER Whenever you ready this character, gain 1 lore for each other undamaged character you have in play."
+      },
+      {
+        "storyName": "BOLT STARE",
+        "rulesText": "Banish chosen Illusion character.",
+        "raw": "BOLT STARE {E} — Banish chosen Illusion character."
+      }
+    ]
+  },
+  {
     "id": "the-glass-slipper",
     "name": "The Glass Slipper",
     "fullName": "The Glass Slipper",
     "cardType": "item",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 2,
     "inkable": false,
     "traits": [],
@@ -4157,7 +6592,9 @@
     "name": "Donald Duck",
     "fullName": "Donald Duck - Flustered Sorcerer",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 7,
     "inkable": false,
     "traits": [
@@ -4183,11 +6620,46 @@
     ]
   },
   {
+    "id": "jafar-newly-crowned",
+    "name": "Jafar",
+    "fullName": "Jafar - Newly Crowned",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst",
+      "steel"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Villain",
+      "Sorcerer"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 210,
+    "rarity": "enchanted",
+    "subtitle": "Newly Crowned",
+    "strength": 2,
+    "willpower": 4,
+    "lore": 2,
+    "rulesText": "THIS IS NOT DONE YET During an opponent's turn, whenever one of your Illusion characters is banished, you may return that card to your hand.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "THIS IS NOT DONE YET",
+        "rulesText": "During an opponent's turn, whenever one of your Illusion characters is banished, you may return that card to your hand.",
+        "raw": "THIS IS NOT DONE YET During an opponent's turn, whenever one of your Illusion characters is banished, you may return that card to your hand."
+      }
+    ]
+  },
+  {
     "id": "show-me-more",
     "name": "Show Me More!",
     "fullName": "Show Me More!",
     "cardType": "action",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 2,
     "inkable": false,
     "traits": [],
@@ -4209,7 +6681,9 @@
     "name": "Tramp",
     "fullName": "Tramp - Enterprising Dog",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -4234,11 +6708,84 @@
     ]
   },
   {
+    "id": "mad-hatter-unruly-eccentric",
+    "name": "Mad Hatter",
+    "fullName": "Mad Hatter - Unruly Eccentric",
+    "cardType": "character",
+    "inkColors": [
+      "emerald",
+      "ruby"
+    ],
+    "cost": 6,
+    "inkable": true,
+    "traits": [
+      "Storyborn"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 213,
+    "rarity": "enchanted",
+    "subtitle": "Unruly Eccentric",
+    "strength": 3,
+    "willpower": 5,
+    "lore": 2,
+    "rulesText": "UNBIRTHDAY PRESENT Whenever a damaged character challenges another character, you may draw a card.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "UNBIRTHDAY PRESENT",
+        "rulesText": "Whenever a damaged character challenges another character, you may draw a card.",
+        "raw": "UNBIRTHDAY PRESENT Whenever a damaged character challenges another character, you may draw a card."
+      }
+    ]
+  },
+  {
+    "id": "hiro-hamada-armor-designer",
+    "name": "Hiro Hamada",
+    "fullName": "Hiro Hamada - Armor Designer",
+    "cardType": "character",
+    "inkColors": [
+      "emerald",
+      "sapphire"
+    ],
+    "cost": 7,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Hero",
+      "Inventor"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 5
+      }
+    ],
+    "setId": "7",
+    "number": 214,
+    "rarity": "enchanted",
+    "subtitle": "Armor Designer",
+    "strength": 4,
+    "willpower": 6,
+    "lore": 3,
+    "shiftCost": 5,
+    "rulesText": "YOU CAN BE WAY MORE Your Floodborn characters that have a card under them gain Evasive and Ward. (Only characters with Evasive can challenge them. Opponents can't choose them except to challenge.)",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "YOU CAN BE WAY MORE",
+        "rulesText": "Your Floodborn characters that have a card under them gain Evasive and Ward. (Only characters with Evasive can challenge them. Opponents can't choose them except to challenge.)",
+        "raw": "YOU CAN BE WAY MORE Your Floodborn characters that have a card under them gain Evasive and Ward. (Only characters with Evasive can challenge them. Opponents can't choose them except to challenge.)"
+      }
+    ]
+  },
+  {
     "id": "the-return-of-hercules",
     "name": "The Return of Hercules",
     "fullName": "The Return of Hercules",
     "cardType": "action",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [],
@@ -4260,7 +6807,9 @@
     "name": "Ratigan",
     "fullName": "Ratigan - Nefarious Criminal",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -4285,11 +6834,47 @@
     ]
   },
   {
+    "id": "belle-mechanic-extraordinaire",
+    "name": "Belle",
+    "fullName": "Belle - Mechanic Extraordinaire",
+    "cardType": "character",
+    "inkColors": [
+      "ruby",
+      "sapphire"
+    ],
+    "cost": 9,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Hero",
+      "Princess",
+      "Inventor"
+    ],
+    "abilities": [],
+    "setId": "7",
+    "number": 217,
+    "rarity": "enchanted",
+    "subtitle": "Mechanic Extraordinaire",
+    "strength": 7,
+    "willpower": 7,
+    "lore": 3,
+    "rulesText": "SALVAGE For each item card in your discard, you pay 1 {I} less to play this character using her Shift ability.\nREPURPOSE Whenever this character quests, you may put up to 3 item cards from your discard on the bottom of your deck to gain 1 lore for each item card moved this way.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "REPURPOSE",
+        "rulesText": "Whenever this character quests, you may put up to 3 item cards from your discard on the bottom of your deck to gain 1 lore for each item card moved this way.",
+        "raw": "REPURPOSE Whenever this character quests, you may put up to 3 item cards from your discard on the bottom of your deck to gain 1 lore for each item card moved this way."
+      }
+    ]
+  },
+  {
     "id": "devils-eye-diamond",
     "name": "Devil's Eye Diamond",
     "fullName": "Devil's Eye Diamond",
     "cardType": "item",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [],
@@ -4311,7 +6896,9 @@
     "name": "Tamatoa",
     "fullName": "Tamatoa - Happy as a Clam",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 6,
     "inkable": true,
     "traits": [
@@ -4345,7 +6932,9 @@
     "name": "All Is Found",
     "fullName": "All Is Found",
     "cardType": "action",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [
@@ -4374,7 +6963,9 @@
     "name": "Mickey Mouse",
     "fullName": "Mickey Mouse - Inspirational Warrior",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 2,
     "inkable": false,
     "traits": [
@@ -4403,7 +6994,9 @@
     "name": "Restoring Atlantis",
     "fullName": "Restoring Atlantis",
     "cardType": "action",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 5,
     "inkable": false,
     "traits": [],

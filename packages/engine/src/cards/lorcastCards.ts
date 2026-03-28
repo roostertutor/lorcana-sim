@@ -25,6 +25,7 @@ function loadSet(raw: unknown[]): CardDefinition[] {
 }
 
 const cards = [
+  ...loadSet(set001),
   ...loadSet(set002),
   ...loadSet(set003),
   ...loadSet(set004),
@@ -35,10 +36,23 @@ const cards = [
   ...loadSet(set009),
   ...loadSet(set010),
   ...loadSet(set011),
-  ...loadSet(set001), // Last — set 1 has manually implemented abilities that must win over stubs
 ];
 
+/** Count manually-implemented abilities (non-keyword) + actionEffects on a card. */
+function manualAbilityCount(c: CardDefinition): number {
+  const nonKeyword = c.abilities.filter(a => a.type !== "keyword").length;
+  const actionFx = c.actionEffects?.length ?? 0;
+  return nonKeyword + actionFx;
+}
+
+/** For duplicate IDs (reprints), keep the copy with more implemented abilities. */
 export const LORCAST_CARD_DEFINITIONS: Record<string, CardDefinition> =
-  Object.fromEntries(cards.map((c) => [c.id, c]));
+  cards.reduce<Record<string, CardDefinition>>((map, c) => {
+    const existing = map[c.id];
+    if (!existing || manualAbilityCount(c) > manualAbilityCount(existing)) {
+      map[c.id] = c;
+    }
+    return map;
+  }, {});
 
 export const LORCAST_CARDS: CardDefinition[] = cards;

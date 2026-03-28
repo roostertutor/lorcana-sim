@@ -174,6 +174,24 @@ setting. We use `as unknown as CardDefinition[]` to bypass this — the
 data is correct at runtime, it's purely a static inference limitation.
 This is documented in lorcastCards.ts.
 
+### Dual-ink card support
+`CardDefinition.inkColors: InkColor[]` — always an array, even for single-ink
+cards (`["amber"]`). Dual-ink cards from Set 7+ have two entries
+(`["emerald", "sapphire"]`). The Lorcast API returns `ink: null` +
+`inks: ["emerald", "sapphire"]` for dual-ink cards; the importer's
+`mapInkColors()` handles both formats.
+
+Filter matching uses array intersection: a card matches if *any* of its
+ink colors are in the filter's `inkColors` array. Analytics color breakdown
+counts dual-ink cards in both color buckets.
+
+### Reprint dedup in lorcastCards.ts
+When multiple sets have the same card ID (reprints), `LORCAST_CARD_DEFINITIONS`
+keeps whichever copy has more manually-implemented abilities (non-keyword
+abilities + actionEffects). This is done via a `reduce` with
+`manualAbilityCount()` comparison, not `Object.fromEntries` (which would be
+last-write-wins and order-dependent). Sets load in natural 001–011 order.
+
 ### Effect grammar (CRD 6.1)
 
 The engine models card text as a grammar of composable effect primitives.
@@ -316,8 +334,9 @@ Deferred until crowdsourcing phase.
 
 **IP / Legal** — research before going public. Disney/Ravensburger own Lorcana.
 
-**Additional sets** — import all 11 sets or start with 1–3?
-Likely: implement more named abilities in set 1 first, then add set 2.
+**Additional sets** — all 11 sets imported as stubs (2504 cards total,
+including 66 dual-ink cards in set 7). Only set 1 has fully implemented
+abilities. Implement abilities in other sets as needed.
 
 **Undo for bot learning (CRD 1.7.6)** — Currently illegal actions return
 `success: false` without mutating state. Would logging "undo" events or
@@ -584,13 +603,8 @@ are the project memory. Update them at the end of every significant session.
 
 ---
 
-*Last updated: Session 8*
-*Changes: Goldfish simulation implemented (RampCindyCowBot, maxTurns param,*
-*mulliganed field in GameResult, ref + mulliganed conditions in query system).*
-*Cinderella/Clarabelle line analyzed: ramp 88.6%, full line 9.2% — Cinderella*
-*availability is the bottleneck, not ramp. Tester vs generator distinction*
-*documented in DECISIONS.md and ANALYTICS_PHILOSOPHY.md. Strategy sweep and*
-*opener profiling identified as next discovery steps. DYB cost error (stated*
-*2, actually 1) documented as process failure — always verify card facts from*
-*card JSON or CRD PDF. Sets 2-11 imported as card stubs. RampCindyCowBot*
-*added to CLI resolveBot.*
+*Last updated: Session 9*
+*Changes: Dual-ink card support — `CardDefinition.inkColor` → `inkColors: InkColor[]`.*
+*All 11 sets re-imported (2504 cards, 0 skipped — 66 dual-ink cards in set 7 now*
+*included). Reprint dedup via `manualAbilityCount()` reduce instead of*
+*order-dependent `Object.fromEntries`. Importer handles Lorcast `inks` array field.*

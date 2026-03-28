@@ -54,7 +54,9 @@ export function analyzeDeckComposition(
   // Color breakdown
   const colorBreakdown = {} as Record<InkColor, number>;
   for (const c of cards) {
-    colorBreakdown[c.inkColor] = (colorBreakdown[c.inkColor] ?? 0) + 1;
+    for (const color of c.inkColors) {
+      colorBreakdown[color] = (colorBreakdown[color] ?? 0) + 1;
+    }
   }
 
   // Card type breakdown

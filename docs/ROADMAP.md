@@ -220,7 +220,7 @@ Simple. No matchmaking. Private games only in v1.
 - Mobile layout (desktop first throughout)
 - Deck persistence (paste each session for now)
 - Ranked/ELO (needs match history, much later)
-- Set 2 support (Phase 3 followup — new cards, new mechanics)
+- Set 2+ ability implementation (Phase 3 followup — sets imported as stubs, abilities needed)
 - Web Workers for analytics (deferred, add if performance is actually a problem)
 
 ---

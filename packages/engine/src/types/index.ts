@@ -494,7 +494,7 @@ export interface CardFilter {
   owner?: PlayerTarget;
   zone?: ZoneName | ZoneName[];
   cardType?: CardType[];
-  inkColor?: InkColor[];
+  inkColors?: InkColor[];
   hasTrait?: string;
   hasKeyword?: Keyword;
   isExerted?: boolean;
@@ -598,7 +598,7 @@ export interface CardDefinition {
   /** Full display name for UI */
   fullName: string;
   cardType: CardType;
-  inkColor: InkColor;
+  inkColors: InkColor[];
   /** Ink cost to play */
   cost: number;
   /** Can this card be inked? */

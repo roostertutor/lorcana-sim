@@ -219,8 +219,8 @@ export function matchesFilter(
     if (!filter.cardType.includes(definition.cardType)) return false;
   }
 
-  if (filter.inkColor) {
-    if (!filter.inkColor.includes(definition.inkColor)) return false;
+  if (filter.inkColors) {
+    if (!definition.inkColors.some(c => filter.inkColors!.includes(c))) return false;
   }
 
   if (filter.hasTrait) {

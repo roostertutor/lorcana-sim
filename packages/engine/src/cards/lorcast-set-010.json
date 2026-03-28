@@ -4,7 +4,9 @@
     "name": "Baloo",
     "fullName": "Baloo - Friend and Guardian",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 6,
     "inkable": true,
     "traits": [
@@ -34,7 +36,9 @@
     "name": "Gaston",
     "fullName": "Gaston - Frightful Bully",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 2,
     "inkable": false,
     "traits": [
@@ -64,7 +68,9 @@
     "name": "Rapunzel",
     "fullName": "Rapunzel - Ready for Adventure",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -99,7 +105,9 @@
     "name": "Headless Manhorse",
     "fullName": "Headless Manhorse - Manny",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 6,
     "inkable": true,
     "traits": [
@@ -121,7 +129,9 @@
     "name": "Higgins",
     "fullName": "Higgins - Undercover Officer",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [
@@ -144,7 +154,9 @@
     "name": "Rajah",
     "fullName": "Rajah - Devoted Protector",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -171,7 +183,9 @@
     "name": "Eilonwy",
     "fullName": "Eilonwy - Princess of Llyr",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [
@@ -199,7 +213,9 @@
     "name": "Scrooge McDuck",
     "fullName": "Scrooge McDuck - On the Right Track",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -229,7 +245,9 @@
     "name": "Webby Vanderquack",
     "fullName": "Webby Vanderquack - Knowledge Seeker",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -259,7 +277,9 @@
     "name": "Gurgi",
     "fullName": "Gurgi - Apple Lover",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -289,7 +309,9 @@
     "name": "Mrs. Beakley",
     "fullName": "Mrs. Beakley - Former S.H.U.S.H. Agent",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -316,7 +338,9 @@
     "name": "Bagheera",
     "fullName": "Bagheera - Cautious Explorer",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -338,7 +362,9 @@
     "name": "Shanti",
     "fullName": "Shanti - Village Girl",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -366,7 +392,9 @@
     "name": "Flash",
     "fullName": "Flash - Records Specialist",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -400,7 +428,9 @@
     "name": "Taran",
     "fullName": "Taran - Pig Keeper",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [
@@ -434,7 +464,9 @@
     "name": "Sebastian",
     "fullName": "Sebastian - Loyal Crab",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 2,
     "inkable": false,
     "traits": [
@@ -456,7 +488,9 @@
     "name": "Ariel",
     "fullName": "Ariel - Ethereal Voice",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -492,7 +526,9 @@
     "name": "Scrooge McDuck",
     "fullName": "Scrooge McDuck - Cavern Prospector",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 6,
     "inkable": true,
     "traits": [
@@ -528,7 +564,9 @@
     "name": "Mowgli",
     "fullName": "Mowgli - Man Cub",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -558,7 +596,9 @@
     "name": "Simba",
     "fullName": "Simba - King in the Making",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 7,
     "inkable": true,
     "traits": [
@@ -589,7 +629,9 @@
     "name": "Goofy",
     "fullName": "Goofy - Ghost Hunter",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -620,7 +662,9 @@
     "name": "Della Duck",
     "fullName": "Della Duck - Returning Mother",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -650,7 +694,9 @@
     "name": "Mickey Mouse",
     "fullName": "Mickey Mouse - Amber Champion",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -684,7 +730,9 @@
     "name": "Goofy",
     "fullName": "Goofy - Galumphing Gumshoe",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 8,
     "inkable": true,
     "traits": [
@@ -721,7 +769,9 @@
     "name": "Gazelle",
     "fullName": "Gazelle - Ballad Singer",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 5,
     "inkable": false,
     "traits": [
@@ -756,7 +806,9 @@
     "name": "Search for Clues",
     "fullName": "Search for Clues",
     "cardType": "action",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [],
@@ -779,7 +831,9 @@
     "name": "Or Rewrite History!",
     "fullName": "Or Rewrite History!",
     "cardType": "action",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -809,7 +863,9 @@
     "name": "Della's Moon Lullaby",
     "fullName": "Della's Moon Lullaby",
     "cardType": "action",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -839,7 +895,9 @@
     "name": "The Horseman Strikes!",
     "fullName": "The Horseman Strikes!",
     "cardType": "action",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [],
@@ -862,7 +920,9 @@
     "name": "Recovered Page",
     "fullName": "Recovered Page",
     "cardType": "item",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [],
@@ -884,7 +944,9 @@
     "name": "Webby's Diary",
     "fullName": "Webby's Diary",
     "cardType": "item",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [],
@@ -907,7 +969,9 @@
     "name": "The Black Cauldron",
     "fullName": "The Black Cauldron",
     "cardType": "item",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 3,
     "inkable": false,
     "traits": [],
@@ -934,7 +998,9 @@
     "name": "Munchings and Crunchings",
     "fullName": "Munchings and Crunchings",
     "cardType": "item",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [],
@@ -956,7 +1022,9 @@
     "name": "Duckburg",
     "fullName": "Duckburg - Funso's Funzone",
     "cardType": "location",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [],
@@ -981,7 +1049,9 @@
     "name": "Minnie Mouse",
     "fullName": "Minnie Mouse - Amethyst Champion",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -1010,7 +1080,9 @@
     "name": "The Horned King",
     "fullName": "The Horned King - Wicked Ruler",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -1048,7 +1120,9 @@
     "name": "Gwythaint",
     "fullName": "Gwythaint - Savage Hunter",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [
@@ -1083,7 +1157,9 @@
     "name": "The Horned King",
     "fullName": "The Horned King - Heartless Devil",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [
@@ -1107,7 +1183,9 @@
     "name": "Cauldron Born",
     "fullName": "Cauldron Born - Mindless Horde",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [
@@ -1128,7 +1206,9 @@
     "name": "Demona",
     "fullName": "Demona - Betrayer of the Clan",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -1165,7 +1245,9 @@
     "name": "Magica De Spell",
     "fullName": "Magica De Spell - Shadowy and Sinister",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -1196,7 +1278,9 @@
     "name": "Lena Sabrewing",
     "fullName": "Lena Sabrewing - Mysterious Duck",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -1227,7 +1311,9 @@
     "name": "Iago",
     "fullName": "Iago - Stompin' Mad",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -1255,7 +1341,9 @@
     "name": "Violet Sabrewing",
     "fullName": "Violet Sabrewing - Senior Junior Woodchuck",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -1282,7 +1370,9 @@
     "name": "Elsa",
     "fullName": "Elsa - Exploring the Unknown",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -1314,7 +1404,9 @@
     "name": "Mushu",
     "fullName": "Mushu - Braggin' Dragon",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -1337,7 +1429,9 @@
     "name": "Duckworth",
     "fullName": "Duckworth - Ghost Butler",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 3,
     "inkable": false,
     "traits": [
@@ -1372,7 +1466,9 @@
     "name": "Nibs",
     "fullName": "Nibs - Lost Boy",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -1402,7 +1498,9 @@
     "name": "The Horned King",
     "fullName": "The Horned King - Triumphant Ghoul",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -1434,7 +1532,9 @@
     "name": "Creeper",
     "fullName": "Creeper - Loyal Lackey",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 6,
     "inkable": true,
     "traits": [
@@ -1456,7 +1556,9 @@
     "name": "Coldstone",
     "fullName": "Coldstone - Reincarnated Cyborg",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 5,
     "inkable": false,
     "traits": [
@@ -1487,7 +1589,9 @@
     "name": "Magica De Spell",
     "fullName": "Magica De Spell - Spiteful Sorceress",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [
@@ -1518,7 +1622,9 @@
     "name": "Nana",
     "fullName": "Nana - Canine Caregiver",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -1547,7 +1653,9 @@
     "name": "Magica De Spell",
     "fullName": "Magica De Spell - Conniving Sorceress",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 7,
     "inkable": false,
     "traits": [
@@ -1584,7 +1692,9 @@
     "name": "Demona",
     "fullName": "Demona - Scourge of the Wyvern Clan",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 6,
     "inkable": true,
     "traits": [
@@ -1615,7 +1725,9 @@
     "name": "Hades",
     "fullName": "Hades - Looking for a Deal",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [
@@ -1646,7 +1758,9 @@
     "name": "Olaf",
     "fullName": "Olaf - Helping Hand",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [
@@ -1676,7 +1790,9 @@
     "name": "Merlin",
     "fullName": "Merlin - Completing His Research",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 2,
     "inkable": false,
     "traits": [
@@ -1707,7 +1823,9 @@
     "name": "Ursula",
     "fullName": "Ursula - Whisper of Vanessa",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [
@@ -1738,7 +1856,9 @@
     "name": "Cheshire Cat",
     "fullName": "Cheshire Cat - Inexplicable",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -1767,7 +1887,9 @@
     "name": "Begone!",
     "fullName": "Begone!",
     "cardType": "action",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [],
@@ -1790,7 +1912,9 @@
     "name": "Can't Hold It Back Anymore",
     "fullName": "Can't Hold It Back Anymore",
     "cardType": "action",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 4,
     "inkable": false,
     "traits": [
@@ -1819,7 +1943,9 @@
     "name": "Swooping Strike",
     "fullName": "Swooping Strike",
     "cardType": "action",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [],
@@ -1842,7 +1968,9 @@
     "name": "Performance Review",
     "fullName": "Performance Review",
     "cardType": "action",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [],
@@ -1865,7 +1993,9 @@
     "name": "Fragile as a Flower",
     "fullName": "Fragile as a Flower",
     "cardType": "action",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -1894,7 +2024,9 @@
     "name": "Junior Woodchuck Guidebook",
     "fullName": "Junior Woodchuck Guidebook",
     "cardType": "item",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [],
@@ -1917,7 +2049,9 @@
     "name": "Grimorum Arcanorum",
     "fullName": "Grimorum Arcanorum",
     "cardType": "item",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [],
@@ -1944,7 +2078,9 @@
     "name": "The Great Illuminary",
     "fullName": "The Great Illuminary - Abandoned Laboratory",
     "cardType": "location",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [],
@@ -1970,7 +2106,9 @@
     "name": "Baloo",
     "fullName": "Baloo - Laid-Back Bear",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -1992,7 +2130,9 @@
     "name": "Big Nose",
     "fullName": "Big Nose - Lovesick Poet",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [
@@ -2014,7 +2154,9 @@
     "name": "Flotsam",
     "fullName": "Flotsam - Slippery as an Eel",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -2041,7 +2183,9 @@
     "name": "Kaa",
     "fullName": "Kaa - Suspicious Serpent",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -2068,7 +2212,9 @@
     "name": "Webby Vanderquack",
     "fullName": "Webby Vanderquack - Mystery Enthusiast",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [
@@ -2098,7 +2244,9 @@
     "name": "Finnick",
     "fullName": "Finnick - Tiny Terror",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [
@@ -2127,7 +2275,9 @@
     "name": "Vladimir",
     "fullName": "Vladimir - Ceramic Unicorn Fan",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 6,
     "inkable": true,
     "traits": [
@@ -2157,7 +2307,9 @@
     "name": "Flintheart Glomgold",
     "fullName": "Flintheart Glomgold - Scheming Billionaire",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -2187,7 +2339,9 @@
     "name": "Jetsam",
     "fullName": "Jetsam - Opportunistic Eel",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 7,
     "inkable": true,
     "traits": [
@@ -2217,7 +2371,9 @@
     "name": "Hook Hand",
     "fullName": "Hook Hand - Unexpectedly Friendly",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [
@@ -2239,7 +2395,9 @@
     "name": "Kaa",
     "fullName": "Kaa - Secretive Snake",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 7,
     "inkable": true,
     "traits": [
@@ -2266,7 +2424,9 @@
     "name": "Emily Quackfaster",
     "fullName": "Emily Quackfaster - Level-Headed Librarian",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -2296,7 +2456,9 @@
     "name": "Flynn Rider",
     "fullName": "Flynn Rider - Spectral Scoundrel",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [
@@ -2332,7 +2494,9 @@
     "name": "Bellwether",
     "fullName": "Bellwether - Master Manipulator",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -2362,7 +2526,9 @@
     "name": "Launchpad",
     "fullName": "Launchpad - Exceptional Pilot",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -2392,7 +2558,9 @@
     "name": "Penumbra",
     "fullName": "Penumbra - Moon Alien",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 5,
     "inkable": false,
     "traits": [
@@ -2414,7 +2582,9 @@
     "name": "Baloo",
     "fullName": "Baloo - Carefree Bear",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [
@@ -2450,7 +2620,9 @@
     "name": "Megara",
     "fullName": "Megara - Secret Keeper",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -2480,7 +2652,9 @@
     "name": "Goldie O'Gilt",
     "fullName": "Goldie O'Gilt - Cunning Prospector",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -2513,7 +2687,9 @@
     "name": "Shere Khan",
     "fullName": "Shere Khan - Fearsome Tiger",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 6,
     "inkable": false,
     "traits": [
@@ -2547,7 +2723,9 @@
     "name": "Scrooge McDuck",
     "fullName": "Scrooge McDuck - S.H.U.S.H. Agent",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 2,
     "inkable": false,
     "traits": [
@@ -2581,7 +2759,9 @@
     "name": "Akela",
     "fullName": "Akela - Forest Runner",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -2611,7 +2791,9 @@
     "name": "Goofy",
     "fullName": "Goofy - Emerald Champion",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 5,
     "inkable": false,
     "traits": [
@@ -2645,7 +2827,9 @@
     "name": "Little John",
     "fullName": "Little John - Impermanent Outlaw",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 6,
     "inkable": false,
     "traits": [
@@ -2675,7 +2859,9 @@
     "name": "Webby Vanderquack",
     "fullName": "Webby Vanderquack - Junior Prospector",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -2711,7 +2897,9 @@
     "name": "So Be It!",
     "fullName": "So Be It!",
     "cardType": "action",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [],
@@ -2734,7 +2922,9 @@
     "name": "Trust In Me",
     "fullName": "Trust In Me",
     "cardType": "action",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 6,
     "inkable": false,
     "traits": [
@@ -2773,7 +2963,9 @@
     "name": "Chomp!",
     "fullName": "Chomp!",
     "cardType": "action",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [],
@@ -2796,7 +2988,9 @@
     "name": "Malicious, Mean, and Scary",
     "fullName": "Malicious, Mean, and Scary",
     "cardType": "action",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -2826,7 +3020,9 @@
     "name": "Potion of Malice",
     "fullName": "Potion of Malice",
     "cardType": "item",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 3,
     "inkable": false,
     "traits": [],
@@ -2853,7 +3049,9 @@
     "name": "Inscrutable Map",
     "fullName": "Inscrutable Map",
     "cardType": "item",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [],
@@ -2876,7 +3074,9 @@
     "name": "Enigmatic Inkcaster",
     "fullName": "Enigmatic Inkcaster",
     "cardType": "item",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 2,
     "inkable": false,
     "traits": [],
@@ -2899,7 +3099,9 @@
     "name": "Blessed Bagpipes",
     "fullName": "Blessed Bagpipes",
     "cardType": "item",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [],
@@ -2926,7 +3128,9 @@
     "name": "White Agony Plains",
     "fullName": "White Agony Plains - Golden Lagoon",
     "cardType": "location",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [],
@@ -2951,7 +3155,9 @@
     "name": "Diablo",
     "fullName": "Diablo - Watchful Raven",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 2,
     "inkable": false,
     "traits": [
@@ -2973,7 +3179,9 @@
     "name": "Ares",
     "fullName": "Ares - God of War",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -2999,7 +3207,9 @@
     "name": "Peter Pan",
     "fullName": "Peter Pan - High Flyer",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -3026,7 +3236,9 @@
     "name": "Tinker Bell",
     "fullName": "Tinker Bell - Fancy Footwork",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [
@@ -3049,7 +3261,9 @@
     "name": "Raksha",
     "fullName": "Raksha - Fearless Mother",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 3,
     "inkable": false,
     "traits": [
@@ -3079,7 +3293,9 @@
     "name": "Shere Khan",
     "fullName": "Shere Khan - Keen-Eyed Hunter",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -3101,7 +3317,9 @@
     "name": "Rama",
     "fullName": "Rama - Vigilant Father",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 6,
     "inkable": true,
     "traits": [
@@ -3131,7 +3349,9 @@
     "name": "Mother Gothel",
     "fullName": "Mother Gothel - Underhanded Schemer",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [
@@ -3162,7 +3382,9 @@
     "name": "Katrina Van Tassel",
     "fullName": "Katrina Van Tassel - Rosy-Cheeked Lass",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -3183,7 +3405,9 @@
     "name": "Hermes",
     "fullName": "Hermes - Harried Messenger",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -3210,7 +3434,9 @@
     "name": "Beast",
     "fullName": "Beast - Aggressive Lord",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -3241,7 +3467,9 @@
     "name": "Bronx",
     "fullName": "Bronx - Ferocious Beast",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -3276,7 +3504,9 @@
     "name": "Tinker Bell",
     "fullName": "Tinker Bell - Temperamental Fairy",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [
@@ -3313,7 +3543,9 @@
     "name": "David Xanatos",
     "fullName": "David Xanatos - Charismatic Leader",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 6,
     "inkable": true,
     "traits": [
@@ -3347,7 +3579,9 @@
     "name": "Hans",
     "fullName": "Hans - Brazen Manipulator",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 6,
     "inkable": true,
     "traits": [
@@ -3382,7 +3616,9 @@
     "name": "Hercules",
     "fullName": "Hercules - Mighty Leader",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 4,
     "inkable": false,
     "traits": [
@@ -3418,7 +3654,9 @@
     "name": "Goliath",
     "fullName": "Goliath - Guardian of Castle Wyvern",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -3448,7 +3686,9 @@
     "name": "Brooklyn",
     "fullName": "Brooklyn - Second in Command",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -3484,7 +3724,9 @@
     "name": "Donald Duck",
     "fullName": "Donald Duck - Ruby Champion",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 4,
     "inkable": false,
     "traits": [
@@ -3518,7 +3760,9 @@
     "name": "Elisa Maza",
     "fullName": "Elisa Maza - Intrepid Investigator",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 3,
     "inkable": false,
     "traits": [
@@ -3549,7 +3793,9 @@
     "name": "Aladdin",
     "fullName": "Aladdin - Barreling Through",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -3584,7 +3830,9 @@
     "name": "Lady Tremaine",
     "fullName": "Lady Tremaine - Sinister Socialite",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 5,
     "inkable": false,
     "traits": [
@@ -3614,7 +3862,9 @@
     "name": "The Headless Horseman",
     "fullName": "The Headless Horseman - Terror of Sleepy Hollow",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 5,
     "inkable": false,
     "traits": [
@@ -3648,7 +3898,9 @@
     "name": "Mulan",
     "fullName": "Mulan - Standing Her Ground",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -3678,7 +3930,9 @@
     "name": "Brom Bones",
     "fullName": "Brom Bones - Burly Bully",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -3707,7 +3961,9 @@
     "name": "Shere Khan",
     "fullName": "Shere Khan - Fierce and Furious",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 8,
     "inkable": true,
     "traits": [
@@ -3743,7 +3999,9 @@
     "name": "Next Stop, Olympus",
     "fullName": "Next Stop, Olympus",
     "cardType": "action",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [],
@@ -3770,7 +4028,9 @@
     "name": "Get to Safety!",
     "fullName": "Get to Safety!",
     "cardType": "action",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [],
@@ -3793,7 +4053,9 @@
     "name": "Time to Go!",
     "fullName": "Time to Go!",
     "cardType": "action",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [],
@@ -3816,7 +4078,9 @@
     "name": "Ghostly Tale",
     "fullName": "Ghostly Tale",
     "cardType": "action",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [],
@@ -3839,7 +4103,9 @@
     "name": "Dragon Fire",
     "fullName": "Dragon Fire",
     "cardType": "action",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 5,
     "inkable": false,
     "traits": [],
@@ -3862,7 +4128,9 @@
     "name": "Mushu's Rocket",
     "fullName": "Mushu's Rocket",
     "cardType": "item",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [],
@@ -3884,7 +4152,9 @@
     "name": "The Bitterwood",
     "fullName": "The Bitterwood - Underground Forest",
     "cardType": "location",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [],
@@ -3909,7 +4179,9 @@
     "name": "Sleepy Hollow",
     "fullName": "Sleepy Hollow - The Bridge",
     "cardType": "location",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [],
@@ -3934,7 +4206,9 @@
     "name": "Judy Hopps",
     "fullName": "Judy Hopps - On the Case",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -3965,7 +4239,9 @@
     "name": "Hen Wen",
     "fullName": "Hen Wen - Prophetic Pig",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -3995,7 +4271,9 @@
     "name": "Anna",
     "fullName": "Anna - Making Snow Plans",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -4023,7 +4301,9 @@
     "name": "Chef Louis",
     "fullName": "Chef Louis - In Over His Head",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 7,
     "inkable": true,
     "traits": [
@@ -4044,7 +4324,9 @@
     "name": "Daisy Duck",
     "fullName": "Daisy Duck - Ghost Finder",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -4072,7 +4354,9 @@
     "name": "Cri-Kee",
     "fullName": "Cri-Kee - Good Luck Charm",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -4102,7 +4386,9 @@
     "name": "Rapunzel",
     "fullName": "Rapunzel - Creative Captor",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [
@@ -4133,7 +4419,9 @@
     "name": "Fergus McDuck",
     "fullName": "Fergus McDuck - Scrooge's Father",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -4163,7 +4451,9 @@
     "name": "Li Shang",
     "fullName": "Li Shang - Seasoned Strategist",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -4186,7 +4476,9 @@
     "name": "Genie",
     "fullName": "Genie - Investigative Mind",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [
@@ -4209,7 +4501,9 @@
     "name": "Scuttle",
     "fullName": "Scuttle - Birdbrained",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [
@@ -4236,7 +4530,9 @@
     "name": "Ichabod Crane",
     "fullName": "Ichabod Crane - Bookish Schoolmaster",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -4265,7 +4561,9 @@
     "name": "Jasmine",
     "fullName": "Jasmine - Soothing Princess",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -4296,7 +4594,9 @@
     "name": "Judy Hopps",
     "fullName": "Judy Hopps - Lead Detective",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 6,
     "inkable": true,
     "traits": [
@@ -4333,7 +4633,9 @@
     "name": "The Sultan",
     "fullName": "The Sultan - Playful Monarch",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 1,
     "inkable": false,
     "traits": [
@@ -4356,7 +4658,9 @@
     "name": "Ichabod Crane",
     "fullName": "Ichabod Crane - Scared Out of His Mind",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 2,
     "inkable": false,
     "traits": [
@@ -4386,7 +4690,9 @@
     "name": "Scar",
     "fullName": "Scar - Eerily Prepared",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 5,
     "inkable": false,
     "traits": [
@@ -4416,7 +4722,9 @@
     "name": "Daisy Duck",
     "fullName": "Daisy Duck - Paranormal Investigator",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 6,
     "inkable": true,
     "traits": [
@@ -4453,7 +4761,9 @@
     "name": "Cinderella",
     "fullName": "Cinderella - Dream Come True",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 4,
     "inkable": false,
     "traits": [
@@ -4464,19 +4774,32 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "enters_play" },
+        "trigger": {
+          "on": "enters_play"
+        },
         "effects": [
           {
             "type": "move_to_inkwell",
             "target": {
               "type": "chosen",
-              "filter": { "owner": { "type": "self" }, "zone": "hand" }
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "hand"
+              }
             },
             "enterExerted": false,
             "fromZone": "hand",
             "isMay": true
           },
-          { "type": "draw", "amount": 1, "target": { "type": "self" } }
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
         ],
         "_hack": "One-off: real ability is end-of-turn conditional on Princess played. Simplified to enters_play for goldfish sim."
       }
@@ -4502,7 +4825,9 @@
     "name": "Judy Hopps",
     "fullName": "Judy Hopps - Uncovering Clues",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -4532,7 +4857,9 @@
     "name": "Pluto",
     "fullName": "Pluto - Clever Cluefinder",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -4562,7 +4889,9 @@
     "name": "Daisy Duck",
     "fullName": "Daisy Duck - Sapphire Champion",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [
@@ -4596,7 +4925,9 @@
     "name": "Kristoff",
     "fullName": "Kristoff - Mining the Ruins",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -4626,7 +4957,9 @@
     "name": "Mickey Mouse",
     "fullName": "Mickey Mouse - Detective",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 3,
     "inkable": false,
     "traits": [
@@ -4657,7 +4990,9 @@
     "name": "Hen Wen's Visions",
     "fullName": "Hen Wen's Visions",
     "cardType": "action",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [],
@@ -4680,7 +5015,9 @@
     "name": "Promising Lead",
     "fullName": "Promising Lead",
     "cardType": "action",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [],
@@ -4703,7 +5040,9 @@
     "name": "Might Solve a Mystery",
     "fullName": "Might Solve a Mystery",
     "cardType": "action",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -4732,7 +5071,9 @@
     "name": "Sudden Scare",
     "fullName": "Sudden Scare",
     "cardType": "action",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [],
@@ -4754,7 +5095,9 @@
     "name": "Spooky Sight",
     "fullName": "Spooky Sight",
     "cardType": "action",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 6,
     "inkable": false,
     "traits": [],
@@ -4777,7 +5120,9 @@
     "name": "Detective's Badge",
     "fullName": "Detective's Badge",
     "cardType": "item",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [],
@@ -4800,7 +5145,9 @@
     "name": "Ink Amplifier",
     "fullName": "Ink Amplifier",
     "cardType": "item",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [],
@@ -4823,7 +5170,9 @@
     "name": "Fairy Godmother's Wand",
     "fullName": "Fairy Godmother's Wand",
     "cardType": "item",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [],
@@ -4846,7 +5195,9 @@
     "name": "Inkrunner",
     "fullName": "Inkrunner",
     "cardType": "item",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [],
@@ -4873,7 +5224,9 @@
     "name": "Castle of the Horned King",
     "fullName": "Castle of the Horned King - Bastion of Evil",
     "cardType": "location",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [],
@@ -4898,7 +5251,9 @@
     "name": "Robin Hood",
     "fullName": "Robin Hood - Ephemeral Archer",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -4928,7 +5283,9 @@
     "name": "Donald Duck",
     "fullName": "Donald Duck - Ghost Hunter",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -4959,7 +5316,9 @@
     "name": "Goliath",
     "fullName": "Goliath - Clan Leader",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 6,
     "inkable": true,
     "traits": [
@@ -4994,7 +5353,9 @@
     "name": "The Headless Horseman",
     "fullName": "The Headless Horseman - Cursed Rider",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 8,
     "inkable": true,
     "traits": [
@@ -5030,7 +5391,9 @@
     "name": "Clawhauser",
     "fullName": "Clawhauser - Donut Detective",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 6,
     "inkable": true,
     "traits": [
@@ -5053,7 +5416,9 @@
     "name": "Francine",
     "fullName": "Francine - Eyeing the Evidence",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -5082,7 +5447,9 @@
     "name": "Inspector Tezuka",
     "fullName": "Inspector Tezuka - Resolute Officer",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -5110,7 +5477,9 @@
     "name": "Nick Wilde",
     "fullName": "Nick Wilde - Sly Fox Sleuth",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [
@@ -5133,7 +5502,9 @@
     "name": "Basil",
     "fullName": "Basil - Tenacious Mouse",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -5164,7 +5535,9 @@
     "name": "Hudson",
     "fullName": "Hudson - Determined Reader",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -5194,7 +5567,9 @@
     "name": "Minnie Mouse",
     "fullName": "Minnie Mouse - Ghost Hunter",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -5225,7 +5600,9 @@
     "name": "Black Heron",
     "fullName": "Black Heron - Real Bad Egg",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -5247,7 +5624,9 @@
     "name": "Lexington",
     "fullName": "Lexington - Small in Stature",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -5282,7 +5661,9 @@
     "name": "David Xanatos",
     "fullName": "David Xanatos - Steel Clan Leader",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -5312,7 +5693,9 @@
     "name": "Chief Bogo",
     "fullName": "Chief Bogo - Calling the Shots",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -5345,7 +5728,9 @@
     "name": "The Twins",
     "fullName": "The Twins - Lost Boys",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 6,
     "inkable": true,
     "traits": [
@@ -5375,7 +5760,9 @@
     "name": "Nick Wilde",
     "fullName": "Nick Wilde - Persistent Investigator",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 5,
     "inkable": false,
     "traits": [
@@ -5412,7 +5799,9 @@
     "name": "Mayor Winddancer",
     "fullName": "Mayor Winddancer - Actor-Turned-Politician",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 4,
     "inkable": false,
     "traits": [
@@ -5433,7 +5822,9 @@
     "name": "Prince Charming",
     "fullName": "Prince Charming - Protector of the Realm",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 7,
     "inkable": true,
     "traits": [
@@ -5468,7 +5859,9 @@
     "name": "Broadway",
     "fullName": "Broadway - Sturdy and Strong",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [
@@ -5503,7 +5896,9 @@
     "name": "Pluto",
     "fullName": "Pluto - Steel Champion",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [
@@ -5537,7 +5932,9 @@
     "name": "Fairy Godmother",
     "fullName": "Fairy Godmother - Magical Benefactor",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 4,
     "inkable": false,
     "traits": [
@@ -5569,7 +5966,9 @@
     "name": "Zeus",
     "fullName": "Zeus - Missing His Spark",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -5600,7 +5999,9 @@
     "name": "The Headless Horseman",
     "fullName": "The Headless Horseman - Relentless Spirit",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -5627,7 +6028,9 @@
     "name": "But I'm Much Faster",
     "fullName": "But I'm Much Faster",
     "cardType": "action",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [
@@ -5656,7 +6059,9 @@
     "name": "Putting It All Together",
     "fullName": "Putting It All Together",
     "cardType": "action",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [],
@@ -5679,7 +6084,9 @@
     "name": "He Hurled His Thunderbolt",
     "fullName": "He Hurled His Thunderbolt",
     "cardType": "action",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 4,
     "inkable": false,
     "traits": [
@@ -5708,7 +6115,9 @@
     "name": "The Game's Afoot!",
     "fullName": "The Game's Afoot!",
     "cardType": "action",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [],
@@ -5731,7 +6140,9 @@
     "name": "The Robot Queen",
     "fullName": "The Robot Queen",
     "cardType": "item",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [],
@@ -5754,7 +6165,9 @@
     "name": "The Sword of Hercules",
     "fullName": "The Sword of Hercules",
     "cardType": "item",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [],
@@ -5781,7 +6194,9 @@
     "name": "Ingenious Device",
     "fullName": "Ingenious Device",
     "cardType": "item",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 3,
     "inkable": false,
     "traits": [],
@@ -5808,7 +6223,9 @@
     "name": "Illuminary Tunnels",
     "fullName": "Illuminary Tunnels - Linked Caverns",
     "cardType": "location",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [],
@@ -5838,7 +6255,9 @@
     "name": "Zootopia",
     "fullName": "Zootopia - Police Headquarters",
     "cardType": "location",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [],
@@ -5863,7 +6282,9 @@
     "name": "Castle Wyvern",
     "fullName": "Castle Wyvern - Above the Clouds",
     "cardType": "location",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [],
@@ -5888,7 +6309,9 @@
     "name": "Goofy",
     "fullName": "Goofy - Ghost Hunter",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -5919,7 +6342,9 @@
     "name": "Gaston",
     "fullName": "Gaston - Frightful Bully",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 2,
     "inkable": false,
     "traits": [
@@ -5949,7 +6374,9 @@
     "name": "The Horseman Strikes!",
     "fullName": "The Horseman Strikes!",
     "cardType": "action",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [],
@@ -5972,7 +6399,9 @@
     "name": "Elsa",
     "fullName": "Elsa - Exploring the Unknown",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -6004,7 +6433,9 @@
     "name": "Merlin",
     "fullName": "Merlin - Completing His Research",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 2,
     "inkable": false,
     "traits": [
@@ -6035,7 +6466,9 @@
     "name": "The Horned King",
     "fullName": "The Horned King - Triumphant Ghoul",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -6067,7 +6500,9 @@
     "name": "Webby Vanderquack",
     "fullName": "Webby Vanderquack - Mystery Enthusiast",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [
@@ -6097,7 +6532,9 @@
     "name": "Kaa",
     "fullName": "Kaa - Secretive Snake",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 7,
     "inkable": true,
     "traits": [
@@ -6124,7 +6561,9 @@
     "name": "Megara",
     "fullName": "Megara - Secret Keeper",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -6154,7 +6593,9 @@
     "name": "Tinker Bell",
     "fullName": "Tinker Bell - Fancy Footwork",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 1,
     "inkable": true,
     "traits": [
@@ -6177,7 +6618,9 @@
     "name": "Mulan",
     "fullName": "Mulan - Standing Her Ground",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -6207,7 +6650,9 @@
     "name": "Aladdin",
     "fullName": "Aladdin - Barreling Through",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -6242,7 +6687,9 @@
     "name": "Daisy Duck",
     "fullName": "Daisy Duck - Ghost Finder",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -6270,7 +6717,9 @@
     "name": "Kristoff",
     "fullName": "Kristoff - Mining the Ruins",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -6300,7 +6749,9 @@
     "name": "Sudden Scare",
     "fullName": "Sudden Scare",
     "cardType": "action",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [],
@@ -6322,7 +6773,9 @@
     "name": "Minnie Mouse",
     "fullName": "Minnie Mouse - Ghost Hunter",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [
@@ -6353,7 +6806,9 @@
     "name": "Robin Hood",
     "fullName": "Robin Hood - Ephemeral Archer",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -6383,7 +6838,9 @@
     "name": "He Hurled His Thunderbolt",
     "fullName": "He Hurled His Thunderbolt",
     "cardType": "action",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 4,
     "inkable": false,
     "traits": [
@@ -6412,7 +6869,9 @@
     "name": "Goofy",
     "fullName": "Goofy - Galumphing Gumshoe",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 8,
     "inkable": true,
     "traits": [
@@ -6449,7 +6908,9 @@
     "name": "Simba",
     "fullName": "Simba - King in the Making",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 7,
     "inkable": true,
     "traits": [
@@ -6480,7 +6941,9 @@
     "name": "The Black Cauldron",
     "fullName": "The Black Cauldron",
     "cardType": "item",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 3,
     "inkable": false,
     "traits": [],
@@ -6507,7 +6970,9 @@
     "name": "The Horned King",
     "fullName": "The Horned King - Wicked Ruler",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -6545,7 +7010,9 @@
     "name": "Demona",
     "fullName": "Demona - Scourge of the Wyvern Clan",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 6,
     "inkable": true,
     "traits": [
@@ -6576,7 +7043,9 @@
     "name": "Can't Hold it Back Anymore",
     "fullName": "Can't Hold it Back Anymore",
     "cardType": "action",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 4,
     "inkable": false,
     "traits": [
@@ -6600,7 +7069,9 @@
     "name": "Webby Vanderquack",
     "fullName": "Webby Vanderquack - Junior Prospector",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -6636,7 +7107,9 @@
     "name": "Baloo",
     "fullName": "Baloo - Carefree Bear",
     "cardType": "character",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [
@@ -6672,7 +7145,9 @@
     "name": "Malicious, Mean, and Scary",
     "fullName": "Malicious, Mean, and Scary",
     "cardType": "action",
-    "inkColor": "emerald",
+    "inkColors": [
+      "emerald"
+    ],
     "cost": 3,
     "inkable": true,
     "traits": [
@@ -6696,7 +7171,9 @@
     "name": "The Headless Horseman",
     "fullName": "The Headless Horseman - Terror of Sleepy Hollow",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 5,
     "inkable": false,
     "traits": [
@@ -6730,7 +7207,9 @@
     "name": "Lady Tremaine",
     "fullName": "Lady Tremaine - Sinister Socialite",
     "cardType": "character",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 5,
     "inkable": false,
     "traits": [
@@ -6760,7 +7239,9 @@
     "name": "Next Stop, Olympus",
     "fullName": "Next Stop, Olympus",
     "cardType": "action",
-    "inkColor": "ruby",
+    "inkColors": [
+      "ruby"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [],
@@ -6787,7 +7268,9 @@
     "name": "Judy Hopps",
     "fullName": "Judy Hopps - Lead Detective",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 6,
     "inkable": true,
     "traits": [
@@ -6824,7 +7307,9 @@
     "name": "Cinderella",
     "fullName": "Cinderella - Dream Come True",
     "cardType": "character",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 4,
     "inkable": false,
     "traits": [
@@ -6835,19 +7320,32 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "enters_play" },
+        "trigger": {
+          "on": "enters_play"
+        },
         "effects": [
           {
             "type": "move_to_inkwell",
             "target": {
               "type": "chosen",
-              "filter": { "owner": { "type": "self" }, "zone": "hand" }
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "hand"
+              }
             },
             "enterExerted": false,
             "fromZone": "hand",
             "isMay": true
           },
-          { "type": "draw", "amount": 1, "target": { "type": "self" } }
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
         ],
         "_hack": "One-off: real ability is end-of-turn conditional on Princess played. Simplified to enters_play for goldfish sim."
       }
@@ -6873,7 +7371,9 @@
     "name": "Spooky Sight",
     "fullName": "Spooky Sight",
     "cardType": "action",
-    "inkColor": "sapphire",
+    "inkColors": [
+      "sapphire"
+    ],
     "cost": 6,
     "inkable": false,
     "traits": [],
@@ -6891,11 +7391,50 @@
     ]
   },
   {
+    "id": "goliath-clan-leader",
+    "name": "Goliath",
+    "fullName": "Goliath - Clan Leader",
+    "cardType": "character",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 6,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Hero",
+      "Gargoyle"
+    ],
+    "abilities": [],
+    "setId": "10",
+    "number": 238,
+    "rarity": "enchanted",
+    "subtitle": "Clan Leader",
+    "strength": 6,
+    "willpower": 5,
+    "lore": 2,
+    "rulesText": "DUSK TO DAWN At the end of each player's turn, if they have more than 2 cards in their hand, they choose and discard cards until they have 2. If they have fewer than 2 cards in their hand, they draw until they have 2.\nSTONE BY DAY If you have 3 or more cards in your hand, this character can’t ready.",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "DUSK TO DAWN At the end of each player's turn, if they have more than 2 cards in their hand, they choose and discard cards until they have 2. If they have fewer than 2 cards in their hand, they draw until they have 2.",
+        "raw": "DUSK TO DAWN At the end of each player's turn, if they have more than 2 cards in their hand, they choose and discard cards until they have 2. If they have fewer than 2 cards in their hand, they draw until they have 2."
+      },
+      {
+        "storyName": "",
+        "rulesText": "STONE BY DAY If you have 3 or more cards in your hand, this character can’t ready.",
+        "raw": "STONE BY DAY If you have 3 or more cards in your hand, this character can’t ready."
+      }
+    ]
+  },
+  {
     "id": "nick-wilde-persistent-investigator",
     "name": "Nick Wilde",
     "fullName": "Nick Wilde - Persistent Investigator",
     "cardType": "character",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 5,
     "inkable": false,
     "traits": [
@@ -6932,7 +7471,9 @@
     "name": "The Sword of Hercules",
     "fullName": "The Sword of Hercules",
     "cardType": "item",
-    "inkColor": "steel",
+    "inkColors": [
+      "steel"
+    ],
     "cost": 2,
     "inkable": true,
     "traits": [],
@@ -6954,7 +7495,9 @@
     "name": "Ariel",
     "fullName": "Ariel - Ethereal Voice",
     "cardType": "character",
-    "inkColor": "amber",
+    "inkColors": [
+      "amber"
+    ],
     "cost": 4,
     "inkable": true,
     "traits": [
@@ -6990,7 +7533,9 @@
     "name": "Hades",
     "fullName": "Hades - Looking for a Deal",
     "cardType": "character",
-    "inkColor": "amethyst",
+    "inkColors": [
+      "amethyst"
+    ],
     "cost": 5,
     "inkable": true,
     "traits": [
