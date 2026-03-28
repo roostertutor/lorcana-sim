@@ -41,7 +41,7 @@
 | 1.6.1 | Abilities apply only when source is in play (with exceptions) | ✅ Trigger fizzle logic in `processTriggerStack` |
 | 1.6.1.1 | Triggered abilities | ✅ |
 | 1.6.1.2 | Activated abilities | ✅ |
-| 1.6.1.3 | Static abilities | ⚠️ Architecture exists; `cant_be_challenged` handled; most others not yet |
+| 1.6.1.3 | Static abilities | ✅ 8 static types: grant_keyword, modify_stat, modify_stat_per_count, cant_be_challenged, cost_reduction, action_restriction, extra_ink_play, self_cost_reduction. Conditional statics via `condition` on StaticAbility. |
 | 1.6.1.4 | Replacement effects | ❌ Not implemented |
 | 1.6.1.5 | Keywords | ✅ Most set 1 keywords implemented |
 
@@ -116,7 +116,7 @@
 | 3.2.1.1 | Active player readies all cards **in play and in inkwell** | ✅ Both play and inkwell cards readied |
 | 3.2.1.2 | "During your turn" effects start applying | ❌ No duration tracking for "during your turn" static effects |
 | 3.2.1.3 | "Start of your turn" / "start of your next turn" effects end | ❌ Not implemented (no set 1 cards) |
-| 3.2.1.4 | "At the start of your turn" triggered abilities added to bag | ❌ Not implemented (no set 1 cards) |
+| 3.2.1.4 | "At the start of your turn" triggered abilities added to bag | ⚠️ `turn_start` trigger type exists in TriggerEvent union but `queueTriggersByEvent("turn_start")` is never called. Plumbing ready, wiring missing. |
 
 #### 3.2.2 Set step
 | Rule | Quote | Status |
@@ -141,7 +141,7 @@
 ### 3.4 End-of-Turn Phase
 | Rule | Quote | Status |
 |------|-------|--------|
-| 3.4.1.1 | "At the end of the turn" / "at the end of your turn" triggered abilities added and resolved | ❌ `queueTriggersByEvent("turn_end")` exists but no cards use it yet. Future example: Maximus - Relentless Pursuer |
+| 3.4.1.1 | "At the end of the turn" / "at the end of your turn" triggered abilities added and resolved | ✅ `queueTriggersByEvent("turn_end", ...)` fires in applyPassTurn. Floating triggers also checked on turn_end. |
 | 3.4.1.2 | Effects that end "this turn" end (Support, temp stat boosts, etc.) | ✅ `tempStrengthModifier`, `tempWillpowerModifier`, `tempLoreModifier`, `grantedKeywords` all cleared |
 | 3.4.2 | Final game state check at turn end | ⚠️ `applyWinCheck` runs after every action, but a final explicit check at end-of-turn is not separately called |
 
@@ -153,8 +153,8 @@
 | Rule | Quote | Status |
 |------|-------|--------|
 | 4.2.1 | Declare intent, reveal inkable card, put into inkwell ready | ✅ `PLAY_INK` action |
-| 4.2.3 | Limited to once per turn | ✅ `hasPlayedInkThisTurn` flag |
-| 4.2.3.1 | Effects can allow additional cards into inkwell (Belle – Strange But Special) | ❌ Not implemented. Requires `hasPlayedInkThisTurn` → counter (types change) |
+| 4.2.3 | Limited to once per turn | ✅ `inkPlaysThisTurn` counter (replaced boolean to support extra ink plays) |
+| 4.2.3.1 | Effects can allow additional cards into inkwell (Belle – Strange But Special) | ✅ `ExtraInkPlayStatic` + `extraInkPlaysGranted` + `inkPlaysThisTurn` counter. Belle supported. |
 | 4.2.3.2 | Some effects put cards into inkwell bypassing once-per-turn rule (Fishbone Quill) | ❌ Not implemented. Will use separate action path, not PLAY_INK |
 
 ### 4.3 Play a Card
@@ -178,7 +178,7 @@
 | Rule | Quote | Status |
 |------|-------|--------|
 | 4.5.1.1 | Declare questing character | ✅ |
-| 4.5.1.2 | Check restrictions (not dry, Reckless, etc.) | ⚠️ `isDrying` checked. Reckless not yet implemented |
+| 4.5.1.2 | Check restrictions (not dry, Reckless, etc.) | ✅ isDrying + Reckless both checked in validateQuest |
 | 4.5.1.3 | Exert questing character | ✅ |
 | 4.5.1.4 | Gain lore equal to character's {L} | ✅ |
 | 4.5.3.1 | If character has negative lore, player gains 0 lore | ✅ `getEffectiveLore` uses `Math.max(0, ...)` |
@@ -219,6 +219,12 @@
 | 5.1.1.12 | **Dry**: been in play since start of their player's turn; can quest/challenge/exert | ✅ `isDrying: false` after turn start |
 | 5.1.2.1 | Characters enter play ready, undamaged, faceup, **drying** | ✅ `isDrying: true`; Rush bypasses for challenges only |
 
+### 5.2 Parts of a Card
+| Rule | Quote | Status |
+|------|-------|--------|
+| 5.2.5.1 | Some cards have more than one ink type; count as each ink type | ✅ `inkColors: InkColor[]` on CardDefinition; filter uses array intersection |
+| 5.2.8 | Rules Text — abilities, effects, and rules text in text box; story name used for referencing | ✅ `storyName` field on TriggeredAbility, ActivatedAbility, StaticAbility |
+
 ### 5.3 Characters
 | Rule | Quote | Status |
 |------|-------|--------|
@@ -253,15 +259,19 @@
 | 6.1.1 | Abilities apply when source is in play | ✅ |
 | 6.1.3 | Choices made as effect resolves | ✅ `pendingChoice` / `RESOLVE_CHOICE` |
 | 6.1.4 | "May" = optional; choosing not to has no effect | ✅ `isMay` flag on effects; `choose_may` PendingChoice; accept/decline flow in processTriggerStack |
+| 6.1.5.1 | Sequential effects: [A] to [B] — cost must resolve before reward | ✅ `SequentialEffect` with `costEffects[]` → `rewardEffects[]`; `canPerformCostEffect()` pre-check |
 | 6.1.7 | "For free" = ignore all costs | ❌ |
+| 6.1.8 | "For each" — defines single number used in subsequent effect | ✅ `lastEffectResult` on GameState; `amount: "cost_result"` on DrawEffect |
+| 6.1.12 | Some abilities apply outside play zone (from hand) | ✅ `SelfCostReductionStatic` checked at play time from hand |
+| 6.1.13 | Duration mechanics: "this turn", "end of turn", etc. | ✅ `timedEffects[]` with `expiresAt: end_of_turn / rest_of_turn / end_of_owner_next_turn`. Expiry in applyPassTurn. ❌ "during your turn" / "once per turn" not tracked as distinct durations. |
 
 ### 6.2 Triggered Abilities
 | Rule | Quote | Status |
 |------|-------|--------|
 | 6.2.1 | Trigger fires once per condition met | ✅ |
 | 6.2.3 | Triggered abilities go to bag (our: `triggerStack`) | ✅ |
-| 6.2.4 | Secondary "if" condition checked when effect resolves (not when triggered) | ⚠️ Not consistently enforced |
-| 6.2.7.1 | Floating triggered abilities (created by resolving effects; last a duration) | ❌ Future example: Maximus - Relentless Pursuer |
+| 6.2.4 | Secondary "if" condition checked when effect resolves (not when triggered) | ✅ `evaluateCondition()` called in processTriggerStack before resolving effects. 12 condition types supported. |
+| 6.2.7.1 | Floating triggered abilities (created by resolving effects; last a duration) | ✅ `floatingTriggers[]` on GameState. `CreateFloatingTriggerEffect` creates them; cleared at end of turn. Checked during event dispatch. |
 | 6.2.7.2 | Delayed triggered abilities (fire at a specific later moment) | ❌ |
 
 ### 6.3 Activated Abilities
@@ -277,6 +287,7 @@
 | 6.4.2.1 | Continuous static from resolved effect affects all matching cards | ❌ |
 | 6.4.2.2 | Applied static from resolved effect affects only cards in play at resolution time | ❌ |
 | 6.4.2.3 | Continuous static from card in play loses effect when card leaves play | ✅ `getGameModifiers()` recalculates on every call |
+| 6.4.3 | Conditional static abilities — apply only when condition met | ✅ `condition` field on StaticAbility; `evaluateCondition()` called in gameModifiers.ts before applying |
 
 ### 6.5 Replacement Effects
 | Rule | Quote | Status |
@@ -287,6 +298,8 @@
 | Rule | Quote | Status |
 |------|-------|--------|
 | 6.6.1 | Ability modifiers restrict actions for a duration or while source in play | ✅ Unified query `isActionRestricted()` checks both `TimedEffect` (per-card debuffs) and `ActionRestrictionStatic` (board-level rules). `RestrictedAction` type covers quest/challenge/ready/play/sing. |
+| 6.6.2 | Negative {S} deals no damage during challenges; counts as having Strength of 0 | ✅ `Math.max(0, ...)` in `getEffectiveStrength` |
+| 6.6.3 | Negative Lore value {L} counts as having Lore value of 0 | ✅ `Math.max(0, ...)` in `getEffectiveLore` |
 
 ---
 
@@ -307,6 +320,7 @@
 | Rule | Quote | Status |
 |------|-------|--------|
 | 7.7 | Triggered abilities queue in bag; resolved in order | ✅ `triggerStack` in `GameState` |
+| 7.7.4 | Bag resolution order: active player resolves first, then passes to next player in turn order | ⚠️ `triggerStack` processes LIFO. CRD specifies active-player-first ordering (7.7.4.1–7.7.4.5). May not match for cross-player triggers. |
 
 ---
 
@@ -348,9 +362,9 @@
 ### 8.7 Reckless
 | Rule | Quote | Status |
 |------|-------|--------|
-| 8.7.2 | Reckless: character can't quest | ❌ `it.todo`. Simple validator check. See DECISIONS.md Reckless plan |
-| 8.7.3 | Reckless: can't declare end of turn if this character is ready and can challenge | ❌ First "forced action" — PASS_TURN becomes conditional. See DECISIONS.md |
-| 8.7.4 | Reckless character can still exert to sing songs or use abilities | ❌ Escape valve for 8.7.3 obligation |
+| 8.7.2 | Reckless: character can't quest | ✅ validateQuest fails for Reckless characters. 1 test. |
+| 8.7.3 | Reckless: can't declare end of turn if this character is ready and can challenge | ✅ validatePassTurn checks ready Reckless with valid targets. 1 test. |
+| 8.7.4 | Reckless character can still exert to sing songs or use abilities | ✅ Implicit: exerted Reckless doesn't block pass. Singing/abilities exert. 2 tests. |
 
 ### 8.8 Resist
 | Rule | Quote | Status |
@@ -373,6 +387,9 @@
 | 8.10.5 | Shifted character inherits ability to sing if base was dry | ❌ Singing not implemented |
 | 8.10.6 | **Shifted character retains damage from character it's on top of** | ✅ `damage: shiftTarget.damage` |
 | 8.10.7 | When shifted card leaves play, all cards in stack go to same zone | ❌ Only top card moved to discard |
+| 8.10.8 | Shift has two variants: [Classification] Shift and Universal Shift | ❌ Not implemented (no set 1 cards) |
+| 8.10.8.1 | [Classification] Shift — shift onto character matching classification, not just name | ❌ Not implemented |
+| 8.10.8.2 | Universal Shift — shift onto any character in play | ❌ Not implemented |
 
 ### 8.11 Singer
 | Rule | Quote | Status |
@@ -419,7 +436,7 @@
 | Feature | CRD Ref | Notes |
 |---------|---------|-------|
 | ~~Bodyguard enters play exerted~~ | 8.3.2 | ✅ 4 tests |
-| Reckless can't quest + can't pass if able to challenge | 8.7.2–3 | `it.todo`. Two enforcement points; 8.7.3 is first forced action. See DECISIONS.md |
+| ~~Reckless can't quest + can't pass if able to challenge~~ | 8.7.2–3 | ✅ 4 tests (8.7.2, 8.7.3, 8.7.4 × 2) |
 | Support (quest to buff another character's {S}) | 8.13.1 | ✅ 7 tests |
 | Singer (exert to sing songs) | 8.11 | ✅ Implemented |
 | ~~Starting player skips first draw~~ | 3.2.3.1 | ✅ Was already implicit in code structure |
@@ -427,14 +444,15 @@
 | Locations card type | 5.6 | Full section missing |
 | Shift stack: all stack cards leave play together | 8.10.7 | |
 | Replacement effects | 6.5 | Complex; needed for many later-set cards |
-| Floating/delayed triggered abilities | 6.2.7 | Needed for action cards that create ongoing effects |
+| ~~Floating triggered abilities~~ | 6.2.7.1 | ✅ `floatingTriggers[]`, `CreateFloatingTriggerEffect` |
+| Delayed triggered abilities | 6.2.7.2 | Not implemented (split from floating) |
 | "For free" play | 1.5.5.3 | Needed for Mufasa, Pride Lands, etc. |
 | ~~Mulligan~~ | 2.2.2 | ✅ Implemented — Partial Paris via BotStrategy |
-| Trigger condition evaluation | 1.8.2 / 6.2.4 | `processTriggerStack` never evaluates `TriggeredAbility.condition` at resolution time. Small fix in `reducer.ts` ~line 804 |
+| ~~Trigger condition evaluation~~ | 1.8.2 / 6.2.4 | ✅ `evaluateCondition()` in processTriggerStack + gameModifiers + validator |
 | Split applyPassTurn into end-of-turn / start-of-turn | 3.2 / 3.4 | Currently one monolithic function. Draw is a start-of-turn action (3.2.3) but lives in end-of-turn code. Matters for start-of-turn triggers (3.2.1.4, 3.2.2.3) |
-| Timed effects system | 3.4.1.2 / 6.4 | Replace `grantedKeywords` + `tempModifiers` with unified `timedEffects[]` with expiry durations. Prerequisite for Tinker Bell, John Silver. See DECISIONS.md |
+| ~~Timed effects system~~ | 3.4.1.2 / 6.4 | ✅ `timedEffects[]` with 3 duration types, expiry in applyPassTurn |
 
 ---
 
-*Last updated: Session 6*
+*Last updated: Session 9*
 *CRD version: 2.0.1, effective Feb 5, 2026*
