@@ -85,6 +85,8 @@ export interface SimGameConfig {
   startingState?: GameState;
   /** Mulligan thresholds — uses DEFAULT_MULLIGAN if not provided */
   mulliganThresholds?: MulliganThresholds;
+  /** RNG seed for deterministic games. Default: Date.now() */
+  seed?: number;
 }
 
 export interface CardGameStats {
@@ -118,6 +120,10 @@ export interface GameResult {
   turns: number;
   finalLore: Record<PlayerID, number>;
   actionLog: GameLogEntry[];
+  /** Raw action sequence for replay reconstruction */
+  actions: GameAction[];
+  /** RNG seed used — same seed + same actions = same game */
+  seed: number;
   cardStats: Record<string, CardGameStats>;
   /** Available ink per player at start of each turn (before inking) */
   inkByTurn: Record<PlayerID, number[]>;
@@ -135,8 +141,8 @@ export interface GameResult {
 // STORED RESULTS — for saving/loading simulation results without actionLog
 // -----------------------------------------------------------------------------
 
-/** GameResult with actionLog stripped — used for storage */
-export type StoredGameResult = Omit<GameResult, "actionLog">;
+/** GameResult with actionLog and actions stripped — used for storage */
+export type StoredGameResult = Omit<GameResult, "actionLog" | "actions">;
 
 export interface StoredResultSet {
   metadata: {

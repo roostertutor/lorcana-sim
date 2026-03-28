@@ -635,6 +635,30 @@ games). Replay is for human interpretability; "what if" is for human exploration
 
 ---
 
-*Last updated: Stream 3c/3d*
-*Changes: GameBoard (visual play), analysis overlay (win prob + position factors),*
-*replay design decisions (seeded RNG + action capture, three distinct replay features).*
+## Seeded RNG — xoshiro128** in GameState
+
+### Why xoshiro128**
+Fast (single multiply + shifts), well-tested, 128-bit state (4×32-bit integers),
+good distribution. Initialized via splitmix64 (standard seeding practice).
+Alternatives considered:
+- **Mulberry32** — simpler but only 32-bit state, shorter period.
+- **crypto.getRandomValues** — non-deterministic, defeats the purpose.
+- **External lib (seedrandom)** — adds dependency for ~30 lines of code.
+
+### Why RNG lives in GameState
+The RNG state is part of the immutable game snapshot. This means:
+1. **Replay**: same seed → identical game (shuffle, IDs, all random ops).
+2. **Serializable**: RngState is `{ s: [n,n,n,n] }` — plain JSON.
+3. **Forkable**: `cloneRng()` lets branch analysis diverge from a snapshot.
+The RNG mutates in place (perf), but the state *object* is part of GameState's
+immutable structure — each reducer spread carries it forward.
+
+### GameAction[] capture
+Raw actions stored in `GameResult.actions` alongside `GameResult.seed`.
+Together they enable full game reconstruction without replaying bot logic.
+Stripped from `StoredGameResult` (storage is for aggregate stats, not replay).
+
+---
+
+*Last updated: Stream 3e prereqs (Seeded RNG + GameAction capture)*
+*Changes: xoshiro128** PRNG in GameState, RNG-in-state approach, GameAction[] capture.*

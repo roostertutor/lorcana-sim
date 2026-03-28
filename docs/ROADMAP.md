@@ -36,10 +36,10 @@
 ✅ TestBench — text-based interactive game board (Stream 3a + 3b)
 ✅ GameBoard — visual game board with card components (Stream 3c)
 ✅ Analysis overlay — win probability + position factors (Stream 3d)
-❌ Seeded RNG — prereq for replay AND RL debugging (see 3e-prereq in Stream 3)
-❌ Raw GameAction[] capture in GameResult — prereq for replay (see 3e-prereq)
+✅ Seeded RNG — xoshiro128** in GameState (Stream 1/3e prereq)
+✅ Raw GameAction[] capture in GameResult (Stream 1/3e prereq)
 ❌ RL training loop — specced in RL.md, not started
-❌ Replay mode — prereq (seeded RNG + action capture) not yet built
+❌ Replay mode — seeded RNG + action capture done, UI not yet built
 ❌ Multiplayer server
 ```
 

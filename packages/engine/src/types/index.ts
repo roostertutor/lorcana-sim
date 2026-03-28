@@ -675,6 +675,15 @@ export interface CardInstance {
 }
 
 // -----------------------------------------------------------------------------
+// SEEDED RNG STATE — lives in GameState for deterministic replay
+// -----------------------------------------------------------------------------
+
+export interface RngState {
+  /** 4x 32-bit state for xoshiro128** */
+  s: [number, number, number, number];
+}
+
+// -----------------------------------------------------------------------------
 // GAME STATE — The complete, serializable snapshot of a game at any point
 // This is what gets saved, transmitted over network, and used for replays.
 // It must be a plain object — no classes, no functions.
@@ -723,6 +732,9 @@ export interface GameState {
 
   /** Effects waiting to resolve after a pending choice is resolved */
   pendingEffectQueue?: { effects: Effect[]; sourceInstanceId: string; controllingPlayerId: PlayerID } | undefined;
+
+  /** Seeded PRNG state — advances with every random operation */
+  rng: RngState;
 
   /** Log of all actions taken, useful for UI and debugging */
   actionLog: GameLogEntry[];

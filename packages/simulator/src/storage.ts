@@ -65,6 +65,6 @@ export async function loadResults(filePath: string): Promise<StoredResultSet> {
 }
 
 function stripActionLog(result: GameResult): StoredGameResult {
-  const { actionLog: _, ...rest } = result;
+  const { actionLog: _, actions: _a, ...rest } = result;
   return rest;
 }

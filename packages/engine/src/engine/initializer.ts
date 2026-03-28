@@ -8,9 +8,11 @@ import type {
   CardInstance,
   GameState,
   PlayerID,
+  RngState,
   ZoneName,
 } from "../types/index.js";
 import { generateId } from "../utils/index.js";
+import { createRng, rngNextInt } from "../utils/seededRng.js";
 
 export interface DeckEntry {
   definitionId: string;
@@ -26,12 +28,11 @@ export interface GameConfig {
   seed?: number;
 }
 
-/** Shuffle an array in place using Fisher-Yates */
-function shuffle<T>(arr: T[]): T[] {
+/** Shuffle an array using Fisher-Yates with seeded RNG */
+function shuffle<T>(arr: T[], rng: RngState): T[] {
   const result = [...arr];
   for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    // Swap
+    const j = rngNextInt(rng, i + 1);
     const temp = result[i]!;
     result[i] = result[j]!;
     result[j] = temp;
@@ -79,16 +80,24 @@ export function parseDecklist(
   return { entries, errors };
 }
 
+/** Counter for seeded ID generation — reset per createGame call */
+let idCounter = 0;
+
+function seededGenerateId(rng: RngState): string {
+  return `c${idCounter++}-${rngNextInt(rng, 0xFFFFFF).toString(36)}`;
+}
+
 function buildDeckInstances(
   entries: DeckEntry[],
-  ownerId: PlayerID
+  ownerId: PlayerID,
+  rng: RngState
 ): CardInstance[] {
   const instances: CardInstance[] = [];
 
   for (const entry of entries) {
     for (let i = 0; i < entry.count; i++) {
       instances.push({
-        instanceId: generateId(),
+        instanceId: seededGenerateId(rng),
         definitionId: entry.definitionId,
         ownerId,
         zone: "deck",
@@ -104,7 +113,7 @@ function buildDeckInstances(
     }
   }
 
-  return shuffle(instances);
+  return shuffle(instances, rng);
 }
 
 const EMPTY_ZONES: Record<ZoneName, string[]> = {
@@ -120,9 +129,12 @@ export function createGame(
   _definitions: Record<string, CardDefinition>
 ): GameState {
   const handSize = config.startingHandSize ?? 7;
+  const seed = config.seed ?? Date.now();
+  const rng = createRng(seed);
+  idCounter = 0; // Reset counter for each new game
 
-  const p1Instances = buildDeckInstances(config.player1Deck, "player1");
-  const p2Instances = buildDeckInstances(config.player2Deck, "player2");
+  const p1Instances = buildDeckInstances(config.player1Deck, "player1", rng);
+  const p2Instances = buildDeckInstances(config.player2Deck, "player2", rng);
   const allInstances = [...p1Instances, ...p2Instances];
 
   // Build the cards record and zone lists
@@ -149,6 +161,7 @@ export function createGame(
     },
     cards,
     zones: { player1: p1Zones, player2: p2Zones },
+    rng,
     triggerStack: [],
     pendingChoice: null,
     actionLog: [

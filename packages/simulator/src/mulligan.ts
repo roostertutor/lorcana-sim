@@ -5,7 +5,7 @@
 // =============================================================================
 
 import type { CardDefinition, GameState, PlayerID } from "@lorcana-sim/engine";
-import { getZone } from "@lorcana-sim/engine";
+import { getZone, rngNextInt } from "@lorcana-sim/engine";
 import type { MulliganThresholds } from "./types.js";
 
 export const DEFAULT_MULLIGAN: MulliganThresholds = {
@@ -67,9 +67,10 @@ export function performMulligan(
   // Return hand to deck
   const combinedDeck = [...deckIds, ...handIds];
 
-  // Fisher-Yates shuffle
+  // Fisher-Yates shuffle using seeded RNG
+  const rng = state.rng;
   for (let i = combinedDeck.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = rngNextInt(rng, i + 1);
     [combinedDeck[i], combinedDeck[j]] = [combinedDeck[j]!, combinedDeck[i]!];
   }
 

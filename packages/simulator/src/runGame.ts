@@ -133,14 +133,18 @@ function updateStatsPostAction(
 
 export function runGame(config: SimGameConfig): GameResult {
   const maxTurns = config.maxTurns ?? DEFAULT_MAX_TURNS;
+  const seed = config.seed ?? Date.now();
 
   let state: GameState = config.startingState ?? createGame(
     {
       player1Deck: config.player1Deck,
       player2Deck: config.player2Deck,
+      seed,
     },
     config.definitions
   );
+
+  const actions: GameAction[] = [];
 
   // CRD 2.2.2: Mulligan (pre-game, skipped for injected startingState)
   const mulliganed: Record<PlayerID, boolean> = { player1: false, player2: false };
@@ -196,13 +200,16 @@ export function runGame(config: SimGameConfig): GameResult {
 
     updateStatsPreAction(state, action, statsMap, config.definitions);
 
+    actions.push(action);
     const result = applyAction(state, action, config.definitions);
 
     if (!result.success) {
-      // Bot returned an illegal action — force pass as safety
+      // Bot returned an illegal action — replace with pass in action log
+      const passAction: GameAction = { type: "PASS_TURN", playerId: state.currentPlayer };
+      actions[actions.length - 1] = passAction;
       const passResult = applyAction(
         state,
-        { type: "PASS_TURN", playerId: state.currentPlayer },
+        passAction,
         config.definitions
       );
       if (passResult.success) {
@@ -254,6 +261,8 @@ export function runGame(config: SimGameConfig): GameResult {
       player2: state.players.player2.lore,
     },
     actionLog: state.actionLog,
+    actions,
+    seed,
     cardStats: Object.fromEntries(statsMap),
     inkByTurn,
     loreByTurn,

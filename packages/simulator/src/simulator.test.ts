@@ -13,6 +13,7 @@ import { LORCAST_CARD_DEFINITIONS } from "@lorcana-sim/engine";
 import type { GameState, PlayerID, ZoneName } from "@lorcana-sim/engine";
 import { RandomBot } from "./bots/RandomBot.js";
 import { GreedyBot } from "./bots/GreedyBot.js";
+import { runGame } from "./runGame.js";
 import type { SimGameConfig } from "./types.js";
 
 // ---------------------------------------------------------------------------
@@ -192,5 +193,84 @@ describe("Simulation sanity checks (100 GreedyBot games)", () => {
       gameCount++;
     }
     expect(gameCount).toBe(100);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// SEEDED RNG DETERMINISM
+// ---------------------------------------------------------------------------
+
+describe("Seeded RNG determinism", () => {
+  const SEED = 12345;
+
+  it("same seed + same decks + GreedyBot → identical results", () => {
+    const config: SimGameConfig = {
+      player1Deck: TEST_DECK,
+      player2Deck: TEST_DECK,
+      player1Strategy: GreedyBot,
+      player2Strategy: GreedyBot,
+      definitions: LORCAST_CARD_DEFINITIONS,
+      maxTurns: 50,
+      seed: SEED,
+    };
+
+    const result1 = runGame(config);
+    const result2 = runGame(config);
+
+    expect(result1.winner).toBe(result2.winner);
+    expect(result1.turns).toBe(result2.turns);
+    expect(result1.finalLore).toEqual(result2.finalLore);
+    expect(result1.actions).toEqual(result2.actions);
+    expect(result1.seed).toBe(result2.seed);
+  });
+
+  it("different seeds → different results (at least one field differs)", () => {
+    const base: SimGameConfig = {
+      player1Deck: TEST_DECK,
+      player2Deck: TEST_DECK,
+      player1Strategy: GreedyBot,
+      player2Strategy: GreedyBot,
+      definitions: LORCAST_CARD_DEFINITIONS,
+      maxTurns: 50,
+    };
+
+    const result1 = runGame({ ...base, seed: 111 });
+    const result2 = runGame({ ...base, seed: 222 });
+
+    // At least one observable difference (actions will differ due to different shuffles)
+    const differs =
+      result1.winner !== result2.winner ||
+      result1.turns !== result2.turns ||
+      JSON.stringify(result1.actions) !== JSON.stringify(result2.actions);
+    expect(differs).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// GAMEACTION[] CAPTURE
+// ---------------------------------------------------------------------------
+
+describe("GameAction[] capture", () => {
+  it("result.actions is a non-empty GameAction[] with valid types", () => {
+    const result = runGame({
+      player1Deck: TEST_DECK,
+      player2Deck: TEST_DECK,
+      player1Strategy: GreedyBot,
+      player2Strategy: GreedyBot,
+      definitions: LORCAST_CARD_DEFINITIONS,
+      maxTurns: 50,
+      seed: 42,
+    });
+
+    expect(result.actions.length).toBeGreaterThan(0);
+    expect(result.seed).toBe(42);
+
+    const validTypes = new Set([
+      "PLAY_CARD", "PLAY_INK", "QUEST", "CHALLENGE",
+      "ACTIVATE_ABILITY", "PASS_TURN", "RESOLVE_CHOICE", "DRAW_CARD",
+    ]);
+    for (const action of result.actions) {
+      expect(validTypes.has(action.type)).toBe(true);
+    }
   });
 });

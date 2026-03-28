@@ -44,6 +44,7 @@ import {
   moveCard,
   updateInstance,
 } from "../utils/index.js";
+import { rngNextInt } from "../utils/seededRng.js";
 
 // -----------------------------------------------------------------------------
 // PUBLIC TYPES
@@ -2138,11 +2139,12 @@ function reorderDeckTopToBottom(
   };
 }
 
-/** Fisher-Yates shuffle a player's deck */
+/** Fisher-Yates shuffle a player's deck using seeded RNG from state */
 function shuffleDeck(state: GameState, playerId: PlayerID): GameState {
   const deck = [...getZone(state, playerId, "deck")];
+  const rng = state.rng;
   for (let i = deck.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = rngNextInt(rng, i + 1);
     [deck[i], deck[j]] = [deck[j]!, deck[i]!];
   }
   return {
