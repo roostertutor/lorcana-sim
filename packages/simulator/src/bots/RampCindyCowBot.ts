@@ -348,22 +348,20 @@ export const RampCindyCowBot: BotStrategy = {
 };
 
 // =============================================================================
-// CUSTOM MULLIGAN — Partial Paris
-// Keep: 1 copy of each combo piece + enough inkable filler for T1+T2 (min 2).
-// Toss: uninkable non-combo, duplicate combo, excess filler beyond 2.
+// CUSTOM MULLIGAN — Partial Paris, ramp-aware
+//
+// Strategy matches the reference probability model:
+// - HAS RAMP in hand → keep everything, toss only uninkable non-combo cards.
+//   (Ramp is the bottleneck; once found, maximize hand quality.)
+// - NO RAMP in hand  → toss everything except up to 1 DYB ("keep develop").
+//   (Maximum dig for ramp cards — the #1 priority.)
 // =============================================================================
-
-/** Minimum inkable non-combo cards to keep for T1+T2 inking */
-const MIN_INKABLE_FILLER = 2;
 
 export function shouldMulliganRampCindyCow(
   state: GameState,
   playerId: PlayerID,
   definitions: Record<string, CardDefinition>
 ): boolean {
-  const handIds = getZone(state, playerId, "hand");
-
-  // Check if there's anything worth tossing
   const toss = categorizeMulliganHand(state, playerId, definitions).toss;
   return toss.length > 0;
 }
@@ -374,53 +372,45 @@ function categorizeMulliganHand(
   definitions: Record<string, CardDefinition>
 ): { keep: string[]; toss: string[] } {
   const handIds = getZone(state, playerId, "hand");
+  const hasRamp = handIds.some(id => RAMP_IDS.includes(state.cards[id]?.definitionId ?? ""));
 
-  // Step 1: Keep 1 copy of each combo piece
-  const keptComboDefs = new Set<string>();
-  const comboKeep: string[] = [];
-  const duplicateCombo: string[] = [];
+  if (hasRamp) {
+    // --- RAMP PRESENT: keep everything except uninkable non-combo ---
+    const keep: string[] = [];
+    const toss: string[] = [];
+
+    for (const id of handIds) {
+      const defId = state.cards[id]?.definitionId ?? "";
+      if (COMBO_IDS.includes(defId)) {
+        // All combo pieces (including duplicates) — keep
+        keep.push(id);
+      } else {
+        const def = definitions[defId];
+        if (def?.inkable) {
+          keep.push(id); // Inkable filler — keep (useful for inking)
+        } else {
+          toss.push(id); // Uninkable non-combo — toss
+        }
+      }
+    }
+
+    return { keep, toss };
+  }
+
+  // --- NO RAMP: toss everything except up to 1 DYB ("keep develop" strategy) ---
+  const keep: string[] = [];
+  const toss: string[] = [];
+  let keptDyb = false;
 
   for (const id of handIds) {
     const defId = state.cards[id]?.definitionId ?? "";
-    if (COMBO_IDS.includes(defId)) {
-      if (!keptComboDefs.has(defId)) {
-        comboKeep.push(id);
-        keptComboDefs.add(defId);
-      } else {
-        duplicateCombo.push(id); // Duplicate — toss candidate
-      }
-    }
-  }
-
-  // Step 2: Categorize non-combo cards
-  const nonCombo = handIds.filter(id => !COMBO_IDS.includes(state.cards[id]?.definitionId ?? ""));
-  const inkableNonCombo: string[] = [];
-  const uninkableNonCombo: string[] = [];
-
-  for (const id of nonCombo) {
-    const defId = state.cards[id]?.definitionId ?? "";
-    const def = definitions[defId];
-    if (def?.inkable) {
-      inkableNonCombo.push(id);
+    if (defId === DYB && !keptDyb) {
+      keep.push(id); // Keep 1 DYB to dig for ramp on T1
+      keptDyb = true;
     } else {
-      uninkableNonCombo.push(id);
+      toss.push(id); // Toss everything else — maximize dig for ramp
     }
   }
-
-  // Step 3: Always toss uninkable non-combo and duplicate combo
-  const alwaysToss = [...uninkableNonCombo, ...duplicateCombo];
-
-  // Step 4: Keep up to MIN_INKABLE_FILLER inkable non-combo cards, toss the rest
-  // Also count inkable combo duplicates we're already tossing
-  const inkableFillerToKeep = inkableNonCombo.slice(0, MIN_INKABLE_FILLER);
-  const inkableFillerToToss = inkableNonCombo.slice(MIN_INKABLE_FILLER);
-
-  // If we don't have enough inkable filler, count inkable combo pieces we're keeping
-  // (they can double as ink targets even though they're combo)
-  // No need to adjust — the inking logic handles this at play time
-
-  const keep = [...comboKeep, ...inkableFillerToKeep];
-  const toss = [...alwaysToss, ...inkableFillerToToss];
 
   return { keep, toss };
 }
