@@ -3,7 +3,7 @@
 # Cross-references all docs in docs/ folder.
 # Does NOT replace SPEC.md or DECISIONS.md.
 #
-# Last updated: Session 9 (revised)
+# Last updated: Session 9 (revised again — 3a-3d done, Stream 5 added, prereqs clarified)
 
 ---
 
@@ -34,8 +34,12 @@
 
 ❌ Smart choice resolution — bots still pick random targets
 ✅ TestBench — text-based interactive game board (Stream 3a + 3b)
-❌ Real-time analysis overlay
+✅ GameBoard — visual game board with card components (Stream 3c)
+✅ Analysis overlay — win probability + position factors (Stream 3d)
+❌ Seeded RNG — prereq for replay AND RL debugging (see 3e-prereq in Stream 3)
+❌ Raw GameAction[] capture in GameResult — prereq for replay (see 3e-prereq)
 ❌ RL training loop — specced in RL.md, not started
+❌ Replay mode — prereq (seeded RNG + action capture) not yet built
 ❌ Multiplayer server
 ```
 
@@ -91,11 +95,31 @@ not hardcoded heuristics.
     If reward curve is flat after 10,000 episodes — debug reward signal first
 ```
 
+**Shared prerequisite with Stream 3e (do first, before RL training loop):**
+```
+Seeded RNG — replace Math.random() in 4 places with a seeded PRNG:
+  - initializer.ts: deck shuffle
+  - reducer.ts: shuffleDeck (mid-game effects)
+  - mulligan.ts: mulligan shuffle
+  - utils/index.ts: generateId (cosmetic only, low priority)
+  GameConfig.seed field already exists (unused) — wire it up
+  Store seed in GameResult for reproducibility
+  RL needs this for debugging: reproduce exact games that produce unexpected rewards
+
+Raw GameAction[] in GameResult — add alongside existing GameLogEntry[] actionLog:
+  GameResult.actions: GameAction[]  (raw engine actions, not text summaries)
+  ~5-15 KB per game, compresses well
+  RL trainer stores this automatically
+  Replay uses it to reconstruct states without storing full snapshots
+```
+
 **Claude Code session prompt:**
 ```
 Read docs/RL.md in full before writing any code.
-Implement in order: autoTag.ts, network.ts, policy.ts, trainer.ts, index.ts, learn.ts.
-Do not modify engine, existing bots, runGame, or analytics.
+First implement shared prereqs: seeded RNG in initializer/reducer/mulligan,
+and GameAction[] capture in runGame + GameResult types.
+Then implement in order: autoTag.ts, network.ts, policy.ts, trainer.ts, index.ts, learn.ts.
+Do not modify engine existing bots runGame behavior (only add seed + action capture).
 RLPolicy must implement BotStrategy interface exactly — it plugs into runGame as-is.
 Run pnpm test after each file to confirm nothing breaks.
 ```
@@ -175,26 +199,80 @@ to be useful — even GreedyBot as an opponent is enough to test card interactio
     Useful immediately for verifying card implementations
     Replaced by GameBoard.tsx later but logic stays in the hook
 
-3c. GameBoard.tsx (pretty version)
+3c. ✅ GameBoard.tsx (pretty version)
     packages/ui/src/pages/GameBoard.tsx
-    Proper zone layout, card components, analysis overlay
+    Visual card components (GameCard.tsx) with ink color tints
+    Grid layout: game area left, analysis sidebar right
     Uses same useGameSession hook — only the visual layer changes
-    Win probability bar, bot suggestion, position factors
 
-3d. Real-time analysis overlay
-    Part of GameBoard.tsx
-    Runs 200 GreedyBot games from current position after each action
-    Shows: win probability, suggested play, position breakdown
-    Uses startingState in runGame (already implemented)
+3d. ✅ Analysis overlay — Phase 1 (now, with GreedyBot)
+    Win probability bar (AnalysisPanel.tsx + useAnalysis.ts)
+      Runs 200 GreedyBot games from current position after each action
+      Labeled as "GreedyBot estimate" — directionally correct, not precise
+      Cancels stale sims when state changes before completion
+    Position factors panel
+      Lore / board / hand / ink advantage from evaluatePosition()
+      No simulation needed — pure computation from current GameState
+      Valid regardless of bot quality
+    Shared across both TestBench and GameBoard via reusable components
+    NO bot suggestion yet
+      GreedyBot suggestion = "play most expensive card" — you already know that
+      Not worth showing until RL is trained
 
-3e. Replay mode
-    Same GameBoard component, read-only
-    Add: ReplayControls (prev/next/scrub)
-    Add: loadReplay(savedResult) → feeds states to the board step by step
-    Two sources: RL training results (headless replay) and IRL game input
-    At each step: show what the bot chose + win probability before/after
-    This is the interpretability layer for RL — watch what it learned to do
-    No new engine work — actionLog already exists in GameResult
+    Phase 2 (after Stream 1, wired in via 3f):
+      Swap GreedyBot for RLPolicy in win probability simulation
+      Add bot suggestion: "RL bot would play X (+8% win probability)"
+      Win probability becomes genuinely trustworthy
+
+3c/3d status: functional but far from presentable. Missing for a real UI:
+    Card images, animations (play/banish/quest/challenge transitions),
+    drag-and-drop, sound, hover tooltips with rules text, mobile layout,
+    hand fan layout, smooth exert/ready animations, legal target highlights,
+    opponent card backs, inkwell/discard visualization.
+    Good enough for solo bot testing — revisit when multiplayer ships.
+
+3e. Replay mode — three distinct features, not one
+
+    3e-i. Visual replay (read-only scrubbing)
+      Same GameBoard component, read-only
+      ReplayControls: prev/next/scrub slider, play/pause, speed control
+      Reconstructs GameState at each step by replaying GameAction[] from seed
+      At each step: show what the bot chose + win probability before/after
+      This is the interpretability layer for RL — watch what it learned to do
+
+    3e-ii. "What if" — human takeover (SC2-style resume from replay)
+      From any point in replay, fork into a live game session
+      Human takes over P1, bot plays P2 from that board state
+      useGameSession.startGame() needs to accept injected GameState
+      runGame already supports startingState (simulator/runGame.ts:137)
+
+    3e-iii. "What if" — automated branch analysis
+      Fork from a position, sim 200 games with action X vs without
+      Compare win% delta to evaluate whether a play was correct
+      Already works today via useAnalysis + runSimulation({ startingState })
+      No new infrastructure needed — just UI to trigger it from replay
+
+    Prerequisites:
+      Seeded RNG (3e-prereq, do as part of Stream 1)
+        Replace Math.random() in 4 places with seeded PRNG:
+        - initializer.ts: deck shuffle
+        - reducer.ts: shuffleDeck (mid-game effects)
+        - mulligan.ts: mulligan shuffle
+        - utils/index.ts: generateId (cosmetic)
+        GameConfig.seed field already exists (unused)
+        Store seed in GameResult for reproducibility
+        RL needs this anyway for debugging reward signals
+
+      GameAction[] capture (3e-prereq, do as part of Stream 1)
+        Current GameResult.actionLog is GameLogEntry[] (text summaries)
+        Need raw GameAction[] sequence for state reconstruction
+        Add to GameResult or new ReplayableGameResult type
+        ~5-15 KB per game (40-80 actions), compresses well
+
+    NOTE: Replaying one game does NOT help RL learn. RL needs thousands
+    of full games — volume produces signal, not single-game analysis.
+    Replay is for human understanding; "what if" is for human exploration.
+    Neither is a training mechanism.
 
 3f. Wire in RL bot analysis (after Stream 1)
     Replace GreedyBot analysis with RLPolicy analysis
@@ -264,6 +342,49 @@ Implement in order: schema.sql → Supabase client → auth → lobby → game a
 
 ---
 
+### Stream 5: Player Profiling + Clone Bot (future, after Stream 4)
+*Goal: learn how a specific human player plays and create a bot clone of them*
+
+Every multiplayer game produces a (state, action) log for each player.
+Clone training is supervised learning — "given this state, this player
+chose this action" — not RL. The network learns to imitate, not discover.
+
+```
+5a. Save full game logs to database (extend Stream 4e)
+    game_actions table already planned in SERVER.md
+    Store: gameId, playerId, gameState snapshot, action taken, turnNumber
+    50 games × ~120 decisions = ~6,000 labeled (state, action) pairs per player
+    That is enough for recognizable tendencies
+
+5b. Clone trainer (packages/simulator/src/rl/cloneTrainer.ts)
+    Supervised learning loop — no reward signal, no exploration
+    Input: (state, action) pairs from real game logs
+    Output: a policy network that predicts what that player would do
+    Simpler than RL trainer — just gradient descent toward correct action
+
+5c. CLI command
+    pnpm profile-player --logs ./games/*.json --save ./ryan-bot.json
+    pnpm profile-player --player ryanfan --from-db --games 50 --save ./ryan-bot.json
+
+5d. Coaching map (comparison output)
+    Load clone bot + RL bot
+    Run both on same set of positions from real game logs
+    Output: ranked list of decisions where clone diverges from RL
+            weighted by win% cost of each divergence
+    "Turn 3, you played X. RL bot plays Y. Cost: -7% win probability."
+    This is a quantified coaching report no human coach could produce
+
+5e. Play against your clone (UI integration)
+    Load saved clone policy in GameBoard bot selector
+    Play against a bot that mirrors your own tendencies
+    Useful for: identifying patterns in your own play you hadn't noticed
+```
+
+Prerequisites: Stream 4 (multiplayer) to generate game logs, Stream 1 (RL) for
+the RL bot used in coaching map comparison.
+
+---
+
 ## Dependencies Between Streams
 
 ```
@@ -272,9 +393,14 @@ Stream 1 (RL) — independent, start anytime
 Stream 2f (RL in analytics pipeline)
 Stream 3e (RL in analysis overlay)
 
-Stream 3a (useGameSession) — independent, start anytime
-  ↓ prerequisite for
+Stream 3e-prereq (seeded RNG + action capture) — do alongside Stream 1
+  Both RL and Replay need this. Build once, use in both.
+
+Stream 3a (useGameSession) ✅ done — was prerequisite for
 Stream 4d (multiplayer mode in useGameSession)
+
+Stream 1 (RL) + Stream 4 (multiplayer) — both prerequisites for
+Stream 5 (clone bot + coaching map)
 
 Stream 2a-2e — run after Stream 1 generates RL results
   RampCindyCowBot results are compromised, do not use them

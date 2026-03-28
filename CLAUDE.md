@@ -13,7 +13,7 @@ to produce deck analytics and win rates. NOT a human-playable simulator.
 - simulator: done (3 passing). Layer 3 invariants passing.
 - analytics: done (15 passing).
 - cli:       done. analyze, compare, optimize, sweep.
-- ui:        done. 6 screens, React+Vite.
+- ui:        done. 7 screens, React+Vite. Analysis overlay on Play + TestBench.
 - testbench: done. Interactive game board with bot opponent.
 - cards:     set 1 complete (204 unique cards, 216 entries, all abilities implemented, 0 stubs).
 - sets 2–11: imported as stubs (keyword-only, 2504 total cards incl. dual-ink). Run `pnpm import-cards --sets N` to refresh.

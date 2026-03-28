@@ -1134,3 +1134,48 @@ These are interrogable — you can ask the trained network what it learned.
 They're complementary. Train the RL bot. Use it as the in-game policy.
 Run the query system over RL bot game results. Now your analytics data
 reflects competent play, not GreedyBot heuristics.
+
+---
+
+## Prerequisites for Replay Integration (do during Stream 1)
+
+RL training needs reproducible games for debugging reward signals.
+Visual replay (Stream 3e) needs the same infrastructure. Build both together.
+
+### Seeded RNG
+
+Replace `Math.random()` with a seeded PRNG in 4 locations:
+1. `engine/initializer.ts` — initial deck shuffle (GameConfig.seed field exists, unused)
+2. `engine/reducer.ts` — shuffleDeck (mid-game card effects)
+3. `simulator/mulligan.ts` — mulligan shuffle
+4. `engine/utils/index.ts` — generateId (cosmetic, but needed for determinism)
+
+Implementation: small xoshiro128 or similar (~20 lines). Thread through
+GameConfig → GameState (store RNG state). All shuffles pull from game RNG.
+
+Store `seed` in `GameResult`. Same seed + same actions = identical game.
+
+### GameAction[] capture
+
+Current `GameResult.actionLog` is `GameLogEntry[]` — text summaries like
+"P1 played Elsa". Not enough for state reconstruction.
+
+Add raw `GameAction[]` to `GameResult` (or new `ReplayableGameResult` type).
+Every action the engine processes gets recorded in order.
+
+Size: ~5-15 KB per game (40-80 actions). Compresses well with gzip.
+Can optimize later with enum action types + short card indices if needed.
+
+### What this enables
+
+- **Visual replay:** Reconstruct `GameState` at any step by replaying
+  actions from seed through `applyAction`. Feed to GameBoard read-only.
+- **Human takeover:** Fork from any replay point into a live game.
+  `useGameSession` accepts the reconstructed `GameState` as `startingState`.
+- **Branch analysis:** From any point, sim 200 games with/without an action,
+  compare win%. Already works via `runSimulation({ startingState })`.
+- **RL debugging:** Reproduce exact game that produced a suspicious reward.
+  Same seed = same shuffles = same game (given same policy weights).
+
+NOTE: Replaying one game does NOT train the RL bot. RL needs thousands
+of full games. Replay is for human interpretability, not bot learning.

@@ -603,8 +603,38 @@ are the project memory. Update them at the end of every significant session.
 
 ---
 
-*Last updated: Session 9*
-*Changes: Dual-ink card support — `CardDefinition.inkColor` → `inkColors: InkColor[]`.*
-*All 11 sets re-imported (2504 cards, 0 skipped — 66 dual-ink cards in set 7 now*
-*included). Reprint dedup via `manualAbilityCount()` reduce instead of*
-*order-dependent `Object.fromEntries`. Importer handles Lorcast `inks` array field.*
+---
+
+## Replay Design: Seeded RNG + Action Capture, Not State Snapshots
+
+### Decision
+Reconstruct game states by replaying `GameAction[]` from a seeded initial
+state, rather than storing full `GameState` snapshots at each step.
+
+### Why
+- `GameState` snapshot per step: ~20-50 KB × 50 turns = ~1-2.5 MB per game.
+  For thousands of RL training games, this is prohibitive.
+- `{ seed, actions[] }`: ~5-15 KB per game. 100x more compact.
+- Seeded RNG is needed anyway for RL debugging (reproduce exact games).
+- Scrubbing backward = replay from seed to step N. Fast enough for <100 actions.
+
+### Rejected
+- **Text-only replay** (just re-render actionLog): No board state. Can't show
+  card positions, damage, exerted status. Useless for visual understanding.
+- **State snapshots**: Too large, especially at RL training volume.
+
+### Three features, not one
+1. **Visual replay** — read-only scrubbing through a past game on GameBoard
+2. **Human takeover** — fork from any replay point into a live game (SC2-style
+   "resume from replay"). `runGame` already supports `startingState`.
+3. **Branch analysis** — fork, sim 200 games both ways, compare win%. Already
+   works via `useAnalysis` + `runSimulation({ startingState })`.
+
+Replaying one game does NOT train the RL bot. RL needs volume (thousands of
+games). Replay is for human interpretability; "what if" is for human exploration.
+
+---
+
+*Last updated: Stream 3c/3d*
+*Changes: GameBoard (visual play), analysis overlay (win prob + position factors),*
+*replay design decisions (seeded RNG + action capture, three distinct replay features).*
