@@ -507,6 +507,74 @@ defaults to `false` and callers opt in when needed.
 
 ---
 
+## Analytics: Tester vs Generator
+
+### The trap we identified (Session 8)
+
+The current simulation pipeline is a **hypothesis tester**, not a
+**hypothesis generator**. This distinction matters enormously.
+
+**Tester (what we built):** You form a theory, encode it into a bot or
+query, run the sim, get a number confirming or denying the theory.
+
+Example: "I should keep DYB and mulligan 6" → encode into RampCindyCowBot
+→ run 500 games → "line fires 9.2% of the time." You already knew the
+line was hard to hit. The sim just put a number on it.
+
+**Generator (what we need):** The sim tries strategies without human
+preconceptions and reports which ones work best.
+
+Example: run 500 games with 5 different mulligan strategies, compare
+line availability for each, report the winner — which might not be the
+strategy you assumed was correct.
+
+### The discovery spectrum
+
+```
+TESTER ←————————————————————————————→ GENERATOR
+Hypothesis   Systematic    Opener      Reinforcement
+Validation   Strategy      Profiling   Learning
+(built)      Sweep         (next)      (future)
+             (buildable)
+```
+
+**Hypothesis Validation (built):** Confirms what you already believe.
+Valuable but limited — can't discover things you haven't thought of.
+
+**Systematic Strategy Sweep (build next):** Define N mulligan strategies,
+run each 500 times, compare F3 (line availability). The winner might
+surprise you. No human encoding of "correct" strategy required.
+
+**Opener Profiling (build next):** Instead of testing your strategy,
+ask what successful games have in common in their openers. Derive
+what a "good hand" looks like from outcomes, not assumptions.
+
+**Reinforcement Learning (future):** Bot discovers strategy from scratch
+via reward signals. Genuinely surprising results. Weeks of work.
+Architecture is compatible — `BotStrategy.decideAction()` interface
+works for RL bots as well as hand-coded ones. See ANALYTICS_PHILOSOPHY.md.
+
+### Decision: build opener profiling and strategy sweep before more bots
+
+Before adding more hand-coded bot logic, build the infrastructure that
+can discover strategies we haven't thought of. See ANALYTICS_PHILOSOPHY.md
+for the full design and specific queries to add to cinderella-questions.json.
+
+**Principle:** Before running any simulation, ask: "Am I testing a
+hypothesis I already believe, or am I looking for something I don't know?"
+Design sims for discovery, not just confirmation.
+
+### Why card-specific fact errors matter
+
+Claude.ai stated DYB costs 2 (incorrect — it costs 1). This propagated
+into conversation reasoning before being caught. Card costs, card text,
+and rule specifics must always be verified from the card JSON or CRD PDF.
+Claude.ai should never state card costs or effects from memory.
+Claude Code's CLAUDE.md instruction to read the CRD PDF applies equally
+to Claude.ai sessions — verify before designing, not after.
+
+---
+
 ## Workflow
 
 Claude.ai — strategy, architecture, tradeoffs, spec refinement.
@@ -516,11 +584,13 @@ are the project memory. Update them at the end of every significant session.
 
 ---
 
-*Last updated: Session 7*
-*Changes: Query system implemented (Parts A-C). CardGameStats enriched with*
-*timeline data (drawnOnTurn, playedOnTurn, inkedOnTurn, inPlayOnTurns, ownerId).*
-*GameResult extended with inkByTurn/loreByTurn. New analytics/query.ts with*
-*composable GameCondition filter language. CLI `pnpm query --file` command.*
-*Aggregator updated to use drawnOnTurn !== null instead of turnsInPlay > 0 proxy.*
-*turnNumber is global (both players), not per-player — query conditions use*
-*global turn numbers. Part D (result storage) deferred.*
+*Last updated: Session 8*
+*Changes: Goldfish simulation implemented (RampCindyCowBot, maxTurns param,*
+*mulliganed field in GameResult, ref + mulliganed conditions in query system).*
+*Cinderella/Clarabelle line analyzed: ramp 88.6%, full line 9.2% — Cinderella*
+*availability is the bottleneck, not ramp. Tester vs generator distinction*
+*documented in DECISIONS.md and ANALYTICS_PHILOSOPHY.md. Strategy sweep and*
+*opener profiling identified as next discovery steps. DYB cost error (stated*
+*2, actually 1) documented as process failure — always verify card facts from*
+*card JSON or CRD PDF. Sets 2-11 imported as card stubs. RampCindyCowBot*
+*added to CLI resolveBot.*
