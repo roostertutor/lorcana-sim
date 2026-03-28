@@ -197,6 +197,44 @@ export const RampCindyCowBot: BotStrategy = {
         return { type: "RESOLVE_CHOICE", playerId, choice: "accept" };
       }
 
+      // Revealed card choice (e.g. DYB look at top 2, pick 1)
+      if (choice.type === "choose_from_revealed" && choice.validTargets && choice.validTargets.length > 0) {
+        const hand = handCards(state, playerId);
+        const uninkableInHand = hand.filter(c => {
+          const def = definitions[c.defId];
+          return def && !def.inkable;
+        }).length;
+
+        // Priority: lower score = pick first.
+        // Sail > Tipo (unless 2+ uninkables in hand, then Tipo > Sail) > DYB > inkable > rest
+        let best: { target: string; score: number } | undefined;
+        for (const targetId of choice.validTargets) {
+          const inst = state.cards[targetId];
+          if (!inst) continue;
+          const defId = inst.definitionId;
+          const def = definitions[defId];
+
+          let score: number;
+          if (defId === SAIL) {
+            score = uninkableInHand >= 2 ? 1 : 0; // Sail best unless hand is uninkable-heavy
+          } else if (defId === TIPO) {
+            score = uninkableInHand >= 2 ? 0 : 1; // Tipo better when hand has uninkables to dump
+          } else if (defId === DYB) {
+            score = 2; // More dig
+          } else if (def?.inkable) {
+            score = 3; // Generic inkable card
+          } else {
+            score = 4; // Uninkable non-combo — least useful
+          }
+
+          if (!best || score < best.score) {
+            best = { target: targetId, score };
+          }
+        }
+
+        return { type: "RESOLVE_CHOICE", playerId, choice: [best ? best.target : choice.validTargets[0]!] };
+      }
+
       // Target choices (e.g. Tipo/Cinderella inkwell pick) — smart priority
       if (choice.type === "choose_target" && choice.validTargets && choice.validTargets.length > 0) {
         const turn = playerTurn(state, playerId);

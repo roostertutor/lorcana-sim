@@ -893,6 +893,18 @@ function applyResolveChoice(
     return state;
   }
 
+  if (pendingChoice.type === "choose_from_revealed" && Array.isArray(choice) && choice.length === 1) {
+    // Bot picked one revealed card to keep — move to hand, rest to bottom of deck
+    const chosenId = choice[0]!;
+    const rest = (pendingChoice.validTargets ?? []).filter(id => id !== chosenId);
+    const owner = state.cards[chosenId]?.ownerId ?? playerId;
+    state = moveCard(state, chosenId, owner, "hand");
+    state = reorderDeckTopToBottom(state, owner, rest, []);
+    state = resumePendingEffectQueue(state, definitions, events);
+    state = cleanupPendingAction(state, playerId);
+    return state;
+  }
+
   if (pendingChoice.type === "choose_target" && Array.isArray(choice)) {
     // CRD 6.1.4: optional target choice — empty array = skip
     if (pendingChoice.optional && choice.length === 0) {
@@ -1274,33 +1286,45 @@ export function applyEffect(
 
       switch (effect.action) {
         case "one_to_hand_rest_bottom": {
-          // Find first matching card (or first card if no filter)
-          let chosenIdx = 0;
           if (effect.filter) {
-            chosenIdx = topCards.findIndex((id) => {
+            // With filter: auto-resolve — find first card that matches
+            const chosenIdx = topCards.findIndex((id) => {
               const inst = state.cards[id];
               if (!inst) return false;
               const def = definitions[inst.definitionId];
               if (!def) return false;
               return matchesFilter(inst, def, effect.filter!, state, controllingPlayerId);
             });
-          }
-          if (chosenIdx === -1) {
-            // No match — put all on bottom (may pattern = don't take any)
-            for (const id of topCards) {
-              state = moveCard(state, id, targetPlayer, "deck", "bottom" as unknown as number);
+            if (chosenIdx === -1) {
+              // No match — put all on bottom (may pattern = don't take any)
+              state = reorderDeckTopToBottom(state, targetPlayer, topCards, []);
+              return state;
             }
-            // moveCard with "bottom" isn't quite right for reordering within same zone
-            // Let's just rearrange the deck manually
-            state = reorderDeckTopToBottom(state, targetPlayer, topCards, []);
+            const chosenId = topCards[chosenIdx]!;
+            const rest = topCards.filter((_, i) => i !== chosenIdx);
+            state = moveCard(state, chosenId, targetPlayer, "hand");
+            state = reorderDeckTopToBottom(state, targetPlayer, rest, []);
             return state;
           }
-          const chosenId = topCards[chosenIdx]!;
-          const rest = topCards.filter((_, i) => i !== chosenIdx);
-          // Move chosen to hand, rest to bottom
-          state = moveCard(state, chosenId, targetPlayer, "hand");
-          state = reorderDeckTopToBottom(state, targetPlayer, rest, []);
-          return state;
+
+          // No filter: let the bot choose which card to keep
+          if (topCards.length <= 1) {
+            // Only 1 card — no choice needed
+            if (topCards.length === 1) {
+              state = moveCard(state, topCards[0]!, targetPlayer, "hand");
+            }
+            return state;
+          }
+          return {
+            ...state,
+            pendingChoice: {
+              type: "choose_from_revealed",
+              choosingPlayerId: controllingPlayerId,
+              prompt: `Choose 1 of ${topCards.length} revealed cards to put into your hand. The rest go to the bottom of your deck.`,
+              validTargets: topCards,
+              pendingEffect: effect,
+            },
+          };
         }
         case "top_or_bottom": {
           // Bot heuristic: keep on top (simple strategy)
