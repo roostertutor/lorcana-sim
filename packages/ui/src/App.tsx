@@ -6,8 +6,9 @@ import CompositionView from "./pages/CompositionView.js";
 import SimulationView from "./pages/SimulationView.js";
 import ComparisonView from "./pages/ComparisonView.js";
 import WeightExplorer from "./pages/WeightExplorer.js";
+import TestBench from "./pages/TestBench.js";
 
-type Tab = "deck" | "composition" | "simulate" | "compare" | "weights";
+type Tab = "deck" | "composition" | "simulate" | "compare" | "weights" | "testbench";
 
 const TABS: { id: Tab; label: string; requiresDeck?: boolean }[] = [
   { id: "deck", label: "Deck Input" },
@@ -15,6 +16,7 @@ const TABS: { id: Tab; label: string; requiresDeck?: boolean }[] = [
   { id: "simulate", label: "Simulate", requiresDeck: true },
   { id: "compare", label: "Compare" },
   { id: "weights", label: "Weight Explorer", requiresDeck: true },
+  { id: "testbench", label: "Test Bench" },
 ];
 
 export default function App() {
@@ -94,6 +96,9 @@ export default function App() {
         )}
         {activeTab === "weights" && deck && (
           <WeightExplorer deck={deck} definitions={LORCAST_CARD_DEFINITIONS} />
+        )}
+        {activeTab === "testbench" && (
+          <TestBench definitions={LORCAST_CARD_DEFINITIONS} />
         )}
       </main>
     </div>

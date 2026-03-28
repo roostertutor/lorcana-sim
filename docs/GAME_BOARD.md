@@ -28,7 +28,7 @@ Never write game logic in a component — always in the hook.
 
 ---
 
-## Phase 1: useGameSession Hook
+## Phase 1: useGameSession Hook ✅ IMPLEMENTED
 
 Location: `packages/ui/src/hooks/useGameSession.ts`
 
@@ -184,7 +184,7 @@ async function analyzePosition(
 
 ---
 
-## Phase 2: TestBench.tsx
+## Phase 2: TestBench.tsx ✅ IMPLEMENTED
 
 Location: `packages/ui/src/pages/TestBench.tsx`
 

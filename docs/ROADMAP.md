@@ -16,7 +16,12 @@
 ✅ Analytics — composition, aggregation, comparison, calibration, sensitivity
 ✅ Query system — GameCondition language, ref/mulliganed conditions, save/load results
 ✅ CLI — analyze, compare, optimize, sweep, query
-✅ Basic UI — deck input, composition, simulation, comparison, weight explorer
+✅ Basic UI — 5 pages exist, not all aligned with new direction:
+           DeckInput: permanent, no changes needed
+           CompositionView: permanent, no changes needed (pure math, no bots)
+           SimulationView: keep, update bot options after Stream 1 ships
+           ComparisonView: keep, update bot options after Stream 1 ships
+           WeightExplorer: DEPRECATED — delete with ProbabilityBot after Stream 1
 ✅ Layer 1-3 tests — 162 engine tests + 1000 RandomBot invariant games
 ✅ Layer 5 bot tests — 12 tests in bot.test.ts
 ✅ Set 1 complete — 204 unique cards, 216 entries, all abilities implemented, 0 stubs
@@ -28,7 +33,7 @@
 ✅ Extra ink plays — ExtraInkPlayStatic, inkPlaysThisTurn counter, Belle supported
 
 ❌ Smart choice resolution — bots still pick random targets
-❌ Interactive game board — TestBench or GameBoard not yet built
+✅ TestBench — text-based interactive game board (Stream 3a + 3b)
 ❌ Real-time analysis overlay
 ❌ RL training loop — specced in RL.md, not started
 ❌ Multiplayer server
@@ -98,7 +103,7 @@ Run pnpm test after each file to confirm nothing breaks.
 ---
 
 ### Stream 2: Analytics — Generator Not Tester
-*Specs: docs/ANALYTICS_PHILOSOPHY.md, docs/GOLDFISH_SIM.md, docs/QUERY_SYSTEM.md*
+*Specs: docs/ANALYTICS_PHILOSOPHY.md, docs/ADVANCED_ANALYTICS.md, docs/GOLDFISH_SIM.md*
 *Goal: queries that discover things, not just confirm what you believe*
 
 Current query system is a hypothesis tester. Stream 2 adds the infrastructure
@@ -131,6 +136,14 @@ for discovery. See ANALYTICS_PHILOSOPHY.md for the full philosophy.
     Replace GreedyBot with trained RLPolicy in simulation configs
     All query results now reflect competent play, not heuristics
     This is when the analytics become genuinely trustworthy
+
+2g. Query UI tab (packages/ui/src/pages/QueryView.tsx)
+    UI wrapper around the CLI query system
+    Paste or build a questions JSON in the browser
+    Run simulation or load saved results file
+    Results rendered as a table — not raw terminal output
+    No new backend logic — wraps existing queryResults() function
+    Replaces the need to use the CLI for day-to-day query work
 ```
 
 **Note on 2a:** No code needed for the queries themselves. BUT the existing
@@ -150,15 +163,15 @@ Independent of Streams 1 and 2. The game board doesn't need a good bot
 to be useful — even GreedyBot as an opponent is enough to test card interactions.
 
 ```
-3a. useGameSession hook (permanent, never thrown away)
+3a. ✅ useGameSession hook (permanent, never thrown away)
     packages/ui/src/hooks/useGameSession.ts
-    Encapsulates: gameState, legalActions, dispatch, analysis, actionLog
+    Encapsulates: gameState, legalActions, dispatch, actionLog
     Transport abstraction: local applyAction now, server API later
     This is the most important file — written carefully
 
-3b. TestBench.tsx (temporary scaffolding)
+3b. ✅ TestBench.tsx (temporary scaffolding)
     packages/ui/src/pages/TestBench.tsx
-    Ugly but functional — text buttons for legal actions, game log
+    Text-based board with action buttons, pending choice UI, game log
     Useful immediately for verifying card implementations
     Replaced by GameBoard.tsx later but logic stays in the hook
 
@@ -263,8 +276,8 @@ Stream 3a (useGameSession) — independent, start anytime
   ↓ prerequisite for
 Stream 4d (multiplayer mode in useGameSession)
 
-Stream 2a (opener profiling) — no code, start TODAY
-  requires only: existing cinderella.sim-results.json
+Stream 2a-2e — run after Stream 1 generates RL results
+  RampCindyCowBot results are compromised, do not use them
 
 Everything else — parallel, no blocking dependencies
 ```
