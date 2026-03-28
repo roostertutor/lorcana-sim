@@ -7,8 +7,9 @@ import SimulationView from "./pages/SimulationView.js";
 import ComparisonView from "./pages/ComparisonView.js";
 import WeightExplorer from "./pages/WeightExplorer.js";
 import TestBench from "./pages/TestBench.js";
+import GameBoard from "./pages/GameBoard.js";
 
-type Tab = "deck" | "composition" | "simulate" | "compare" | "weights" | "testbench";
+type Tab = "deck" | "composition" | "simulate" | "compare" | "weights" | "play" | "testbench";
 
 const TABS: { id: Tab; label: string; requiresDeck?: boolean }[] = [
   { id: "deck", label: "Deck Input" },
@@ -16,6 +17,7 @@ const TABS: { id: Tab; label: string; requiresDeck?: boolean }[] = [
   { id: "simulate", label: "Simulate", requiresDeck: true },
   { id: "compare", label: "Compare" },
   { id: "weights", label: "Weight Explorer", requiresDeck: true },
+  { id: "play", label: "Play" },
   { id: "testbench", label: "Test Bench" },
 ];
 
@@ -96,6 +98,9 @@ export default function App() {
         )}
         {activeTab === "weights" && deck && (
           <WeightExplorer deck={deck} definitions={LORCAST_CARD_DEFINITIONS} />
+        )}
+        {activeTab === "play" && (
+          <GameBoard definitions={LORCAST_CARD_DEFINITIONS} />
         )}
         {activeTab === "testbench" && (
           <TestBench definitions={LORCAST_CARD_DEFINITIONS} />
