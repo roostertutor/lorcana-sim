@@ -16,7 +16,7 @@
 ✅ Layer 1-3 tests — 162 engine tests + 1000 RandomBot invariant games
 
 ❌ Smart choice resolution (bots pick random targets)
-❌ Mulligan (bots keep all opening hands)
+✅ Mulligan (Partial Paris — bot-specific strategies via shouldMulligan/performMulligan)
 ❌ Interactive game board (test bench or pretty)
 ❌ Real-time analysis overlay
 ❌ Multiplayer server

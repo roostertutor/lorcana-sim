@@ -95,7 +95,7 @@
 |------|-------|--------|
 | 2.2.1.3 | Each player begins with 0 lore | ✅ `createGame` initializer |
 | 2.2.1.4 | Each player draws 7 cards (opening hand) | ✅ Tested: "deals 7 cards to each player" |
-| 2.2.2 | Players may alter their opening hand (mulligan) | ❌ Not implemented. Very important — needs deeper design thinking for bot mulligan strategy |
+| 2.2.2 | Players may alter their opening hand (mulligan) | ✅ Partial Paris mulligan in simulator. Generic `shouldMulligan`/`performMulligan` on BotStrategy. RampCindyCowBot has ramp-aware mulligan matching reference probability model. |
 
 ### 2.3 In-Game Stage
 | Rule | Quote | Status |
@@ -429,7 +429,7 @@
 | Replacement effects | 6.5 | Complex; needed for many later-set cards |
 | Floating/delayed triggered abilities | 6.2.7 | Needed for action cards that create ongoing effects |
 | "For free" play | 1.5.5.3 | Needed for Mufasa, Pride Lands, etc. |
-| Mulligan | 2.2.2 | |
+| ~~Mulligan~~ | 2.2.2 | ✅ Implemented — Partial Paris via BotStrategy |
 | Trigger condition evaluation | 1.8.2 / 6.2.4 | `processTriggerStack` never evaluates `TriggeredAbility.condition` at resolution time. Small fix in `reducer.ts` ~line 804 |
 | Split applyPassTurn into end-of-turn / start-of-turn | 3.2 / 3.4 | Currently one monolithic function. Draw is a start-of-turn action (3.2.3) but lives in end-of-turn code. Matters for start-of-turn triggers (3.2.1.4, 3.2.2.3) |
 | Timed effects system | 3.4.1.2 / 6.4 | Replace `grantedKeywords` + `tempModifiers` with unified `timedEffects[]` with expiry durations. Prerequisite for Tinker Bell, John Silver. See DECISIONS.md |
