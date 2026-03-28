@@ -3,7 +3,7 @@
 # Cross-references all docs in docs/ folder.
 # Does NOT replace SPEC.md or DECISIONS.md.
 #
-# Last updated: Session 9 (revised again — 3a-3d done, Stream 5 added, prereqs clarified)
+# Last updated: Session 9 (revised again — 3a-3d done, prereqs done, Stream 5+6 added)
 
 ---
 
@@ -38,7 +38,7 @@
 ✅ Analysis overlay — win probability + position factors (Stream 3d)
 ✅ Seeded RNG — xoshiro128** in GameState (Stream 1/3e prereq)
 ✅ Raw GameAction[] capture in GameResult (Stream 1/3e prereq)
-❌ RL training loop — specced in RL.md, not started
+✅ RL training loop — autoTag, network, policy, trainer, learn CLI (per-card scoring)
 ❌ Replay mode — seeded RNG + action capture done, UI not yet built
 ❌ Multiplayer server
 ```
@@ -62,55 +62,45 @@ as the simulation engine — because the data reflects competent play,
 not hardcoded heuristics.
 
 ```
-1a. Auto-tagger (autoTag.ts)
-    Read card data → feature vectors
-    No card names, no manual labels
-    Works for any card in any set automatically
+✅ 1a. Auto-tagger (autoTag.ts)
+    Card features (44d), state features, action features
+    Per-card scoring: network scores each legal action individually
 
-1b. Neural network (network.ts)
+✅ 1b. Neural network (network.ts)
     Plain TypeScript, no external dependencies
-    Input → Hidden(128) → Hidden(64) → Output
-    Forward pass + backprop from scratch
+    Action net: (state+action → 128 → 64 → 1 score)
+    Mulligan net: (state → 64 → 32 → 2)
+    REINFORCE update with gradient clipping
 
-1c. RLPolicy (policy.ts)
-    Wraps network, implements BotStrategy interface
-    decideAction() + shouldMulligan() + performMulligan()
-    Plugs directly into existing runGame() unchanged
+✅ 1c. RLPolicy (policy.ts)
+    Per-card scoring: scores each legal action, softmax, pick best
+    Handles all pending choice types (may, target, discard, option)
+    ε-greedy exploration with seeded RNG
 
-1d. Training loop (trainer.ts)
-    Single episode: deal → mulligan decision → play game → reward → update
-    ε-greedy exploration with decay
-    Curriculum: trainWithCurriculum() goldfish → real opponent
+✅ 1d. Training loop (trainer.ts)
+    trainPolicy() + trainWithCurriculum()
+    All randomness seeded — same seed → identical reward curve
 
-1e. CLI command (learn.ts)
-    pnpm learn --deck ./deck.txt --opponent ./opponent.txt --curriculum
-    pnpm learn --deck ./deck.txt --goldfish-only --episodes 50000
-    pnpm learn --load ./policy.json --opponent ./new-opponent.txt
+✅ 1e. CLI command (learn.ts)
+    pnpm learn --deck ./deck.txt --episodes 50000 --save ./policy.json
+    pnpm learn --deck ./deck.txt --curriculum --seed 42
+    pnpm learn --load ./policy.json --deck ./deck.txt --episodes 10000
 
-1f. Validation
-    Reward curve must show improvement over episodes (early avg < late avg)
-    Run existing invariant tests with RLPolicy as bot — all must pass
-    Sanity check: bot should ink more often in early turns than late turns
-    Sanity check: bot should quest more as lore threshold approaches
-    If reward curve is flat after 10,000 episodes — debug reward signal first
+✅ 1f. Policy persistence
+    toJSON()/fromJSON() for both networks + epsilon + RNG state
+    resolveBot("rl") loads saved policy with --policy flag
+
+1g. Validation (ongoing)
+    27 tests passing (autoTag, network, policy, trainer integration)
+    Seeded training determinism verified
+    Learning signal test: training produces non-trivial rewards
+    Performance note: per-card scoring needs N forward passes per decision
 ```
 
-**Shared prerequisite with Stream 3e (do first, before RL training loop):**
+**Shared prerequisites with Stream 3e — DONE ✅**
 ```
-Seeded RNG — replace Math.random() in 4 places with a seeded PRNG:
-  - initializer.ts: deck shuffle
-  - reducer.ts: shuffleDeck (mid-game effects)
-  - mulligan.ts: mulligan shuffle
-  - utils/index.ts: generateId (cosmetic only, low priority)
-  GameConfig.seed field already exists (unused) — wire it up
-  Store seed in GameResult for reproducibility
-  RL needs this for debugging: reproduce exact games that produce unexpected rewards
-
-Raw GameAction[] in GameResult — add alongside existing GameLogEntry[] actionLog:
-  GameResult.actions: GameAction[]  (raw engine actions, not text summaries)
-  ~5-15 KB per game, compresses well
-  RL trainer stores this automatically
-  Replay uses it to reconstruct states without storing full snapshots
+✅ Seeded RNG — xoshiro128** implemented in GameState, seed stored in GameResult
+✅ Raw GameAction[] in GameResult — actions[] stored alongside text actionLog[]
 ```
 
 **Claude Code session prompt:**
@@ -160,6 +150,22 @@ for discovery. See ANALYTICS_PHILOSOPHY.md for the full philosophy.
     Replace GreedyBot with trained RLPolicy in simulation configs
     All query results now reflect competent play, not heuristics
     This is when the analytics become genuinely trustworthy
+
+2h. Automated slot optimization (after Stream 1 + 2f complete)
+    For each card in deck: swap it out, fine-tune RLPolicy, compare win rate delta
+    Answers: "should I cut card X for card Y?"
+    Workflow:
+      pnpm optimize-slots --deck ./deck.txt --opponent ./opponent.txt
+        --policy ./trained-policy.json --candidates ./set2-cards.txt
+    Process per candidate:
+      Load trained policy as warm start (don't retrain from scratch)
+      Fine-tune 10,000 episodes with swapped deck
+      Run query suite, compare win rate deltas to baseline
+      Report ranked list of improvements
+    Expensive: run overnight, not interactively
+    This is the honest answer to "what should I change in my deck?"
+    Neither the bot alone nor the queries alone can answer this —
+    requires both running together across multiple deck variants
 
 2g. Query UI tab (packages/ui/src/pages/QueryView.tsx)
     UI wrapper around the CLI query system
@@ -574,19 +580,19 @@ GreedyBot.ts         — analysis overlay uses it until Stream 3f (RL wires in)
 
 Ask in order:
 
-1. **Do I need to test card implementations interactively?**
-   If yes — Stream 3 (TestBench) first. Independent of everything else.
-
-2. **Otherwise — start Stream 1 (RL bot).**
+1. **Start Stream 1 (RL bot).**
    This is the prerequisite for meaningful analytics.
    RampCindyCowBot data is compromised — it executed your encoded strategy.
    RL data reflects discovered strategy. All Stream 2 analytics become
    trustworthy only after Stream 1 generates results.
 
-3. **Is the RL bot trained and producing improving reward curves?**
+2. **Is the RL bot trained and producing improving reward curves?**
    If yes — run cinderella sim with RLPolicy, save new results,
    then run all Stream 2 queries including opener profiling.
    If no — debug the reward signal before proceeding.
 
-4. **Do I want to play against a real person?**
-   If yes — Stream 4 (server), but Stream 3's useGameSession must exist first.
+3. **Do I want to play against a real person?**
+   If yes — Stream 4 (server). Stream 3's useGameSession already done ✅.
+
+4. **Need to implement a new card for a deck you want to sim?**
+   If yes — Stream 6. Check CRD_TRACKER.md for gaps, implement on demand.

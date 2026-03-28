@@ -14,6 +14,7 @@
     "optimize": "pnpm --filter cli optimize",
     "sweep": "pnpm --filter cli sweep",
     "query": "pnpm --filter cli query",
+    "learn": "pnpm --filter cli learn",
     "import-cards": "tsx scripts/import-cards.ts"
   },
   "devDependencies": {

@@ -16,6 +16,7 @@ import { runCompare } from "./commands/compare.js";
 import { runOptimize } from "./commands/optimize.js";
 import { runSweep } from "./commands/sweep.js";
 import { runQuery } from "./commands/query.js";
+import { runLearn } from "./commands/learn.js";
 
 // pnpm runs scripts from the package dir, but users pass paths relative to
 // where they ran the command. INIT_CWD is set by pnpm to the original cwd.
@@ -136,6 +137,21 @@ switch (subcommand) {
     break;
   }
 
+  case "learn": {
+    const usage = "Usage: pnpm learn --deck ./deck.txt --episodes 50000 [--save ./policy.json] [--load ./policy.json] [--seed 42] [--curriculum]";
+    runLearn({
+      deck: userPath(requireArg(args, "deck", usage)),
+      opponent: args["opponent"] ? userPath(args["opponent"]) : undefined,
+      episodes: optionalInt(args, "episodes", 50000),
+      curriculum: args["curriculum"] === "true",
+      save: args["save"] ? userPath(args["save"]) : undefined,
+      load: args["load"] ? userPath(args["load"]) : undefined,
+      seed: args["seed"] ? parseInt(args["seed"], 10) : undefined,
+      maxTurns: optionalInt(args, "max-turns", 30),
+    });
+    break;
+  }
+
   default: {
     console.log(`
 Lorcana Sim CLI
@@ -146,6 +162,7 @@ Commands:
   optimize  Find optimal weights for a deck vs an opponent style
   sweep     Sweep the weight space and show a win-rate grid
   query     Run condition-based queries against simulation results
+  learn     Train an RL policy via REINFORCE
 
 Examples:
   pnpm analyze  --deck ./deck.txt --bot greedy --iterations 1000
@@ -155,8 +172,9 @@ Examples:
   pnpm sweep    --deck ./deck.txt --opponent control --iterations 200
   pnpm query    --sim sim.json --questions questions.json [--save results.json]
   pnpm query    --questions questions.json --results saved.json
+  pnpm learn    --deck ./deck.txt --episodes 50000 --save ./policy.json
 
-Bot options: random, greedy, probability, aggro, control, midrange, rush
+Bot options: random, greedy, probability, aggro, control, midrange, rush, rl
 `);
     process.exit(subcommand ? 1 : 0);
   }

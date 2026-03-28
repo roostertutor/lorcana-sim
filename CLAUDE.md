@@ -10,9 +10,9 @@ to produce deck analytics and win rates. NOT a human-playable simulator.
 ## Status
 
 - engine:    done (162 passing, 1 todo). CRD audited. Tests organized by CRD.
-- simulator: done (3 passing). Layer 3 invariants passing.
+- simulator: done (3 passing + 27 RL tests). Layer 3 invariants passing. RL bot implemented.
 - analytics: done (15 passing).
-- cli:       done. analyze, compare, optimize, sweep.
+- cli:       done. analyze, compare, optimize, sweep, learn.
 - ui:        done. 7 screens, React+Vite. Analysis overlay on Play + TestBench.
 - testbench: done. Interactive game board with bot opponent.
 - cards:     set 1 complete (204 unique cards, 216 entries, all abilities implemented, 0 stubs).
@@ -26,6 +26,7 @@ pnpm test:watch          # TDD (engine)
 pnpm typecheck           # known errors in cli (missing @types/node) only
 pnpm dev                 # UI at localhost:5173
 pnpm import-cards        # fetch cards from Lorcast API
+pnpm learn               # train RL policy (see --help)
 ```
 
 ## Docs (read on demand, not every session)

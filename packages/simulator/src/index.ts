@@ -51,3 +51,30 @@ export { saveResults, loadResults } from "./storage.js";
 
 // Optimization
 export { findOptimalWeights, sweepWeightSpace } from "./optimizer.js";
+
+// RL
+export {
+  CARD_FEATURE_SIZE,
+  STATE_FEATURE_SIZE,
+  ACTION_FEATURE_SIZE,
+  NETWORK_INPUT_SIZE,
+  cardToFeatures,
+  cardFeaturesToArray,
+  stateToFeatures,
+  actionToFeatures,
+  collectAllEffects,
+  collectAllKeywords,
+  NeuralNetwork,
+  relu,
+  softmax,
+  RLPolicy,
+  trainPolicy,
+  trainWithCurriculum,
+} from "./rl/index.js";
+export type {
+  NetworkJSON,
+  EpisodeStep,
+  RLPolicyJSON,
+  TrainingConfig,
+  TrainingResult,
+} from "./rl/index.js";

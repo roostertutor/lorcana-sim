@@ -12,6 +12,7 @@
     "optimize": "node --import tsx/esm src/main.ts optimize",
     "sweep": "node --import tsx/esm src/main.ts sweep",
     "query": "node --import tsx/esm src/main.ts query",
+    "learn": "node --import tsx/esm src/main.ts learn",
     "typecheck": "tsc --noEmit",
     "build": "tsc -p tsconfig.json"
   },

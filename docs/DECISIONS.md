@@ -660,5 +660,36 @@ Stripped from `StoredGameResult` (storage is for aggregate stats, not replay).
 
 ---
 
-*Last updated: Stream 3e prereqs (Seeded RNG + GameAction capture)*
-*Changes: xoshiro128** PRNG in GameState, RNG-in-state approach, GameAction[] capture.*
+## Stream 1: RL Bot Architecture
+
+### Per-card scoring instead of fixed action-type outputs
+The RL.md spec uses 8 fixed action-type outputs (play_card, quest, pass, etc.)
+so the network can't distinguish *which* card to play. We switched to per-card
+scoring: the network takes `[stateFeatures, actionFeatures]` and outputs a single
+score. Each legal action is scored independently, then softmax picks the best.
+
+**Why:** In Lorcana, "play Elsa on turn 3" vs "ink Elsa on turn 3" are fundamentally
+different decisions. A fixed-output network can only learn "play a card" vs "ink a card"
+— it can't learn card-specific preferences. Per-card scoring lets the network learn
+individual card valuations in context.
+
+**Trade-off:** N forward passes per decision (N = legal actions, typically 5-50) instead
+of 1. Total training is ~50× slower. Acceptable for overnight training; if too slow,
+reduce hidden layer sizes.
+
+### Card feature size is 44 (not 43)
+Actual breakdown: 4 basic + 4 character stats + 13 keywords + 22 effects + 1 trigger = 44.
+The original RL.md spec said 43 but the math didn't add up.
+
+### Separate mulligan network
+Mulligan decisions use state features only (no action features), so a separate smaller
+network (state → 64 → 32 → 2) handles the binary mulligan/keep decision.
+
+### All randomness seeded
+Exploration (ε-greedy), weight initialization, and game seeds all flow from a single
+training seed. Same seed → identical reward curve, enabling reproducible experiments.
+
+---
+
+*Last updated: Stream 1 (RL Bot with per-card scoring)*
+*Changes: autoTag.ts, network.ts, policy.ts, trainer.ts, learn.ts CLI, rl bot in resolveBot.*
