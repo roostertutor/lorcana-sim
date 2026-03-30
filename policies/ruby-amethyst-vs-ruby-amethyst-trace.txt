@@ -1,0 +1,31 @@
+Matchup fine-tune trace: ruby-amethyst vs ruby-amethyst
+Date: 2026-03-29T00:30:02.697Z
+Preschool: policies/ruby-amethyst-preschool.json
+Episodes: 5000, Reward: win=1/draw=0.3/loss=0, maxTurns: 25
+
+RESULTS (ruby-amethyst vs ruby-amethyst):
+  Avg lore: 0.6
+  Win rate: 2%
+  Card preferences (ruby-amethyst vs ruby-amethyst):
+  ------------------------------------------------------------------
+  Card                                Ink  Play  Quest  Chall
+  ------------------------------------------------------------------
+  Aladdin - Street Rat                   2     4     13      0
+  Elsa - Snow Queen                      0     2     11      0
+  Maleficent - Sorceress                 2     4      8      0
+  Aladdin - Heroic Outlaw                3     4      6      0
+  Pongo - Ol' Rascal                     1     2      2      0
+  Magic Mirror                           0     3      0      0
+  Elsa - Spirit of Winter                0     1      2      0
+  Magic Broom - Bucket Brigade           5     2      0      0
+  Archimedes - Highly Educated Owl       0     1      1      0
+  White Rabbit's Pocket Watch            0     2      0      0
+  Friends on the Other Side              3     2      0      0
+  Rafiki - Mysterious Sage               0     1      1      0
+  Shield of Virtue                       0     2      0      0
+  Gaston - Arrogant Hunter               0     2      0      0
+  Ursula - Power Hungry                  0     1      1      0
+  Maui - Hero to All                     4     1      0      0
+  Mickey Mouse - Brave Little Tailor     4     0      0      0
+  The Queen - Wicked and Vain            5     0      0      0
+  Maleficent - Monstrous Dragon          2     0      0      0

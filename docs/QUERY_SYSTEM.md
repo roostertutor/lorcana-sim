@@ -35,8 +35,8 @@ pnpm query -- --sim queries/aladdin-sim.json --questions queries/aladdin-questio
 pnpm query -- --questions queries/aladdin-questions.json --results aladdin.sim-results.json
 
 # Other commands also support --save and --opponent-bot
-pnpm analyze -- --deck ./decks/ruby-amethyst-deck.txt --bot greedy --opponent-bot aggro --iterations 5000 --save results.sim-results.json
-pnpm compare -- --deck1 ./decks/ruby-amethyst-deck.txt --deck2 ./decks/lilo-stitch-deck.txt --bot midrange --opponent-bot rush
+pnpm analyze -- --deck ./decks/set-001-ruby-amethyst-deck.txt --bot greedy --opponent-bot aggro --iterations 5000 --save results.sim-results.json
+pnpm compare -- --deck1 ./decks/set-001-ruby-amethyst-deck.txt --deck2 ./decks/lilo-stitch-deck.txt --bot midrange --opponent-bot rush
 ```
 
 ### Sim config file format (*-sim.json)

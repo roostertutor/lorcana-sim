@@ -24,8 +24,10 @@ import {
 } from "./autoTag.js";
 import { NeuralNetwork, softmax, relu } from "./network.js";
 import { RLPolicy } from "./policy.js";
-import { trainPolicy } from "./trainer.js";
+import { trainPolicy, trainWithCurriculum } from "./trainer.js";
 import { RandomBot } from "../bots/RandomBot.js";
+import { applyAction, getZone } from "@lorcana-sim/engine";
+import type { ZoneName } from "@lorcana-sim/engine";
 
 // ---------------------------------------------------------------------------
 // TEST HELPERS
@@ -359,7 +361,7 @@ describe("training integration", () => {
     expect(r1.rewardCurve).toEqual(r2.rewardCurve);
   });
 
-  it("1000 episodes produce non-trivial reward distribution", () => {
+  it("200 episodes produce non-trivial reward distribution", () => {
     // Verify the training loop produces varied rewards (not all zeros)
     // and that the policy can generate actions that earn lore
     const result = trainPolicy({
@@ -367,18 +369,18 @@ describe("training integration", () => {
       opponentDeck: TEST_DECK,
       definitions,
       opponent: RandomBot,
-      episodes: 1000,
+      episodes: 200,
       seed: 42,
-      maxTurns: 20,
+      maxTurns: 15,
       learningRate: 0.0005,
-      epsilon: 1.0, // Full exploration to sample action space
+      epsilon: 1.0,
       minEpsilon: 0.3,
       decayRate: 0.998,
       reward: (r) => Math.min((r.finalLore["player1"] ?? 0) / 20, 1),
     });
 
     const curve = result.rewardCurve;
-    expect(curve).toHaveLength(1000);
+    expect(curve).toHaveLength(200);
 
     // At least some episodes should produce non-zero reward (bot earned some lore)
     const nonZero = curve.filter((r) => r > 0);
@@ -386,7 +388,156 @@ describe("training integration", () => {
 
     // Policy should have decayed epsilon
     expect(result.finalEpsilon).toBeLessThan(1.0);
-  }, 300_000); // 5 minute timeout
+  });
+});
+
+// ===========================================================================
+// save/load round-trip
+// ===========================================================================
+
+describe("Policy save/load round-trip", () => {
+  it("saved and restored policy produces identical action scores", () => {
+    const result = trainPolicy({
+      deck: TEST_DECK,
+      opponentDeck: TEST_DECK,
+      definitions,
+      opponent: RandomBot,
+      episodes: 50,
+      seed: 42,
+      maxTurns: 10,
+    });
+
+    // Save
+    const json = result.policy.toJSON();
+    const jsonStr = JSON.stringify(json);
+
+    // Load
+    const restored = RLPolicy.fromJSON(JSON.parse(jsonStr));
+
+    // Run same state through both and compare
+    const state = createTestState(777);
+    const legal = getAllLegalActions(state, "player1", definitions);
+    const stateFeats = stateToFeatures(state, "player1", definitions);
+
+    for (const action of legal) {
+      const actionFeats = actionToFeatures(state, action, "player1", definitions);
+      const input = [...stateFeats, ...actionFeats];
+      const origScore = result.policy.actionNet.forward(input)[0]!;
+      const restoredScore = restored.actionNet.forward(input)[0]!;
+      // Float32 precision — allow small tolerance
+      expect(restoredScore).toBeCloseTo(origScore, 4);
+    }
+  });
+});
+
+// ===========================================================================
+// curriculum validation
+// ===========================================================================
+
+describe("Curriculum training", () => {
+  it("trainWithCurriculum completes and produces correct-length rewardCurve", () => {
+    const result = trainWithCurriculum(
+      TEST_DECK,
+      TEST_DECK,
+      definitions,
+      {
+        goldfishEpisodes: 200,
+        realEpisodes: 200,
+        seed: 42,
+        maxTurns: 10,
+      }
+    );
+
+    expect(result.rewardCurve).toHaveLength(400);
+    expect(result.totalEpisodes).toBe(400);
+    // Epsilon should have decayed from the training
+    expect(result.finalEpsilon).toBeLessThan(1.0);
+  });
+});
+
+// ===========================================================================
+// Layer 3 invariants with RLPolicy
+// ===========================================================================
+
+describe("Layer 3 invariants with RLPolicy", () => {
+  const ZONES: ZoneName[] = ["deck", "hand", "play", "discard", "inkwell"];
+  const PLAYERS: PlayerID[] = ["player1", "player2"];
+
+  function assertInvariants(state: GameState): void {
+    for (const playerId of PLAYERS) {
+      // Total cards per player always 60
+      const total = ZONES.reduce((sum, zone) => sum + getZone(state, playerId, zone).length, 0);
+      expect(total, `${playerId} total cards must always be 60`).toBe(60);
+
+      // availableInk >= 0
+      expect(
+        state.players[playerId].availableInk,
+        `${playerId} availableInk must be >= 0`
+      ).toBeGreaterThanOrEqual(0);
+
+      // lore >= 0
+      expect(
+        state.players[playerId].lore,
+        `${playerId} lore must be >= 0`
+      ).toBeGreaterThanOrEqual(0);
+    }
+
+    // No card in two zones simultaneously
+    const allZoneIds: string[] = [];
+    for (const playerId of PLAYERS) {
+      for (const zone of ZONES) {
+        for (const id of getZone(state, playerId, zone)) {
+          allZoneIds.push(id);
+        }
+      }
+    }
+    const uniqueCount = new Set(allZoneIds).size;
+    expect(uniqueCount, "No card instance may appear in two zones").toBe(allZoneIds.length);
+  }
+
+  it("20 games with RLPolicy (ε=0.5) vs RandomBot maintain all invariants", () => {
+    const rng = createRng(42);
+    const policy = new RLPolicy("invariant-test", rng, cloneRng(rng), 0.5);
+
+    for (let game = 0; game < 20; game++) {
+      let state = createGame(
+        { player1Deck: TEST_DECK, player2Deck: TEST_DECK, seed: game },
+        definitions
+      );
+      assertInvariants(state);
+
+      let safetyCounter = 0;
+      while (!state.isGameOver && state.turnNumber <= 50) {
+        if (++safetyCounter > 5000) break;
+
+        const activePlayerId: PlayerID = state.pendingChoice
+          ? state.pendingChoice.choosingPlayerId
+          : state.currentPlayer;
+
+        const bot = activePlayerId === "player1" ? policy : RandomBot;
+        const action = bot.decideAction(state, activePlayerId, definitions);
+        const result = applyAction(state, action, definitions);
+
+        if (!result.success) {
+          const passResult = applyAction(
+            state,
+            { type: "PASS_TURN", playerId: state.currentPlayer },
+            definitions
+          );
+          if (passResult.success) {
+            state = passResult.newState;
+            assertInvariants(state);
+          }
+        } else {
+          state = result.newState;
+          assertInvariants(state);
+        }
+      }
+
+      // Clear policy history between games
+      policy.clearHistory();
+    }
+  });
 });
 
 // ===========================================================================

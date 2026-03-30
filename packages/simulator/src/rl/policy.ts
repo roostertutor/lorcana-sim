@@ -100,6 +100,10 @@ export class RLPolicy implements BotStrategy {
       return { type: "PASS_TURN", playerId };
     }
 
+    // Pre-allocate input buffer for network forward passes
+    const inputBuffer = new Float32Array(NETWORK_INPUT_SIZE);
+    inputBuffer.set(stateFeats, 0);
+
     // ε-greedy exploration
     let chosenIdx: number;
     let logProb: number;
@@ -113,8 +117,8 @@ export class RLPolicy implements BotStrategy {
       const scores: number[] = [];
       for (const action of legal) {
         const actionFeats = actionToFeatures(state, action, playerId, definitions);
-        const input = [...stateFeats, ...actionFeats];
-        scores.push(this.actionNet.forward(input)[0]!);
+        inputBuffer.set(actionFeats, STATE_FEATURE_SIZE);
+        scores.push(this.actionNet.forward(inputBuffer)[0]!);
       }
       const probs = softmax(scores);
       chosenIdx = argmax(probs);
@@ -175,11 +179,13 @@ export class RLPolicy implements BotStrategy {
           candidates.push({ type: "RESOLVE_CHOICE", playerId, choice: targets });
         } else {
           // Score each card, pick worst N to discard
+          const discardBuffer = new Float32Array(NETWORK_INPUT_SIZE);
+          discardBuffer.set(stateFeats, 0);
           const scored = targets.map((t) => {
             const action: GameAction = { type: "RESOLVE_CHOICE", playerId, choice: [t] };
             const feats = actionToFeatures(state, action, playerId, definitions);
-            const input = [...stateFeats, ...feats];
-            const score = this.actionNet.forward(input)[0]!;
+            discardBuffer.set(feats, STATE_FEATURE_SIZE);
+            const score = this.actionNet.forward(discardBuffer)[0]!;
             return { id: t, score };
           });
           // Sort ascending — discard the least valued cards
@@ -213,6 +219,10 @@ export class RLPolicy implements BotStrategy {
       return { type: "RESOLVE_CHOICE", playerId, choice: [] };
     }
 
+    // Pre-allocate input buffer for network forward passes
+    const choiceBuffer = new Float32Array(NETWORK_INPUT_SIZE);
+    choiceBuffer.set(stateFeats, 0);
+
     // ε-greedy over candidates
     let chosenIdx: number;
     let logProb: number;
@@ -224,8 +234,8 @@ export class RLPolicy implements BotStrategy {
       const scores: number[] = [];
       for (const action of candidates) {
         const actionFeats = actionToFeatures(state, action, playerId, definitions);
-        const input = [...stateFeats, ...actionFeats];
-        scores.push(this.actionNet.forward(input)[0]!);
+        choiceBuffer.set(actionFeats, STATE_FEATURE_SIZE);
+        scores.push(this.actionNet.forward(choiceBuffer)[0]!);
       }
       const probs = softmax(scores);
       chosenIdx = argmax(probs);
@@ -305,6 +315,7 @@ export class RLPolicy implements BotStrategy {
     if (nSteps === 0) return;
     const stepLr = lr / Math.sqrt(nSteps);
 
+    const updateBuffer = new Float32Array(NETWORK_INPUT_SIZE);
     let discountedAdv = advantage;
 
     for (let i = this.episodeHistory.length - 1; i >= 0; i--) {
@@ -313,8 +324,9 @@ export class RLPolicy implements BotStrategy {
       if (step.isAction && step.chosenActionFeatures) {
         const probChosen = Math.exp(step.logProbChosen);
         const dScore = discountedAdv * (1 - probChosen);
-        const input = [...step.stateFeatures, ...step.chosenActionFeatures];
-        this.actionNet.update(input, 0, dScore, stepLr);
+        updateBuffer.set(step.stateFeatures, 0);
+        updateBuffer.set(step.chosenActionFeatures, STATE_FEATURE_SIZE);
+        this.actionNet.update(updateBuffer, 0, dScore, stepLr);
       } else if (!step.isAction && step.mulliganIndex !== undefined) {
         this.mulliganNet.update(
           step.stateFeatures,

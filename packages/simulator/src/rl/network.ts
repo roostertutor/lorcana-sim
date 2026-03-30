@@ -122,8 +122,8 @@ export class NeuralNetwork {
   }
 
   /** Forward pass: returns output array of length outputSize */
-  forward(input: number[]): number[] {
-    const x = new Float32Array(input);
+  forward(input: number[] | Float32Array): number[] {
+    const x = input instanceof Float32Array ? input : new Float32Array(input);
 
     // Layer 1: W1 * x + b1, then ReLU
     const h1 = matVecMul(this.w1, x, this.h1Size, this.inputSize);
@@ -156,8 +156,8 @@ export class NeuralNetwork {
    * @param G - Discounted return signal (positive = reinforce, negative = discourage)
    * @param lr - Learning rate
    */
-  update(input: number[], actionIndex: number, G: number, lr: number): void {
-    const x = new Float32Array(input);
+  update(input: number[] | Float32Array, actionIndex: number, G: number, lr: number): void {
+    const x = input instanceof Float32Array ? input : new Float32Array(input);
 
     // --- Forward pass (save activations) ---
     const h1Pre = matVecMul(this.w1, x, this.h1Size, this.inputSize);

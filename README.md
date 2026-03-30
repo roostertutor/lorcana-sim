@@ -25,7 +25,7 @@ All commands run from the repo root. Deck files live in `decks/`, query files in
 ### Analyze a single deck (mirror match)
 
 ```bash
-pnpm analyze -- --deck ./decks/ruby-amethyst-deck.txt --bot greedy --iterations 1000
+pnpm analyze -- --deck ./decks/set-001-ruby-amethyst-deck.txt --bot greedy --iterations 1000
 ```
 
 Runs the deck against itself and prints win rate, average game length, and per-card performance stats.
@@ -33,13 +33,13 @@ Runs the deck against itself and prints win rate, average game length, and per-c
 ### Compare two decks head-to-head
 
 ```bash
-pnpm compare -- --deck1 ./decks/ruby-amethyst-deck.txt --deck2 ./decks/lilo-stitch-deck.txt --bot aggro --iterations 500
+pnpm compare -- --deck1 ./decks/set-001-ruby-amethyst-deck.txt --deck2 ./decks/lilo-stitch-deck.txt --bot aggro --iterations 500
 ```
 
 ### Goldfish (solo questing, opponent does nothing)
 
 ```bash
-pnpm compare -- --deck1 ./decks/ruby-amethyst-deck.txt --deck2 ./decks/goldfish-deck.txt --bot greedy --iterations 500
+pnpm compare -- --deck1 ./decks/set-001-ruby-amethyst-deck.txt --deck2 ./decks/goldfish-deck.txt --bot greedy --iterations 500
 ```
 
 The goldfish deck is 60 uninkable cards — the opponent can never ink or play anything and just passes every turn.
@@ -47,7 +47,7 @@ The goldfish deck is 60 uninkable cards — the opponent can never ink or play a
 ### Optimize bot weights
 
 ```bash
-pnpm optimize -- --deck ./decks/ruby-amethyst-deck.txt --opponent aggro --iterations 500
+pnpm optimize -- --deck ./decks/set-001-ruby-amethyst-deck.txt --opponent aggro --iterations 500
 ```
 
 Searches for the best `BotWeights` for a deck against a given opponent style.
@@ -55,7 +55,7 @@ Searches for the best `BotWeights` for a deck against a given opponent style.
 ### Weight sweep (3x3 grid)
 
 ```bash
-pnpm sweep -- --deck ./decks/ruby-amethyst-deck.txt --opponent control --iterations 200
+pnpm sweep -- --deck ./decks/set-001-ruby-amethyst-deck.txt --opponent control --iterations 200
 ```
 
 ### Query (condition-based analysis)
@@ -78,7 +78,7 @@ Ask condition-based questions like "how often is Aladdin played on-curve, and wh
 All commands that run simulations support `--save ./path.json` to persist results for later querying:
 
 ```bash
-pnpm analyze -- --deck ./decks/ruby-amethyst-deck.txt --bot greedy --iterations 5000 --save my-results.sim-results.json
+pnpm analyze -- --deck ./decks/set-001-ruby-amethyst-deck.txt --bot greedy --iterations 5000 --save my-results.sim-results.json
 pnpm query -- --questions queries/aladdin-questions.json --results my-results.sim-results.json
 ```
 
