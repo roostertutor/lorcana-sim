@@ -138,12 +138,11 @@ switch (subcommand) {
   }
 
   case "learn": {
-    const usage = "Usage: pnpm learn --deck ./deck.txt --episodes 50000 [--save ./policy.json] [--load ./policy.json] [--seed 42] [--curriculum]";
+    const usage = "Usage: pnpm learn --deck ./deck.txt --episodes 50000 [--save ./policy.json] [--load ./policy.json] [--seed 42]";
     runLearn({
       deck: userPath(requireArg(args, "deck", usage)),
       opponent: args["opponent"] ? userPath(args["opponent"]) : undefined,
       episodes: optionalInt(args, "episodes", 50000),
-      curriculum: args["curriculum"] === "true",
       save: args["save"] ? userPath(args["save"]) : undefined,
       load: args["load"] ? userPath(args["load"]) : undefined,
       seed: args["seed"] ? parseInt(args["seed"], 10) : undefined,

@@ -1,6 +1,14 @@
 // =============================================================================
-// RL POLICY — Per-card scoring bot using REINFORCE policy gradient
+// RL POLICY — Actor-Critic with Generalized Advantage Estimation (GAE)
 // Implements BotStrategy. Scores each legal action individually.
+//
+// Architecture:
+//   actionNet  : (state + action features) → score  [policy / actor]
+//   mulliganNet: (state features)           → [mulligan, keep]
+//   valueNet   : (state features)           → V(s)   [critic]
+//
+// Update: A2C with GAE (λ=0.95). Per-step advantages replace the old
+// episode-level REINFORCE return. Critic is updated with MSE loss.
 // =============================================================================
 
 import type {
@@ -28,6 +36,12 @@ import {
 import { NeuralNetwork, softmax } from "./network.js";
 import type { NetworkJSON } from "./network.js";
 
+// GAE discount on the eligibility trace (λ in the literature)
+const GAE_LAMBDA = 0.95;
+
+// Weight of value loss relative to policy loss (standard A2C ratio)
+const VALUE_LOSS_WEIGHT = 0.5;
+
 // -----------------------------------------------------------------------------
 // TYPES
 // -----------------------------------------------------------------------------
@@ -39,6 +53,8 @@ export interface EpisodeStep {
   isAction: boolean;
   mulliganIndex?: number;
   turnIndex: number;
+  reward: number;    // per-step reward — filled in updateFromEpisode
+  valuePred: number; // critic's V(s) at this step
 }
 
 export interface RLPolicyJSON {
@@ -47,6 +63,7 @@ export interface RLPolicyJSON {
   explorationRng: RngState;
   actionNet: NetworkJSON;
   mulliganNet: NetworkJSON;
+  valueNet?: NetworkJSON; // optional for backward compat with old saves
 }
 
 // -----------------------------------------------------------------------------
@@ -58,6 +75,7 @@ export class RLPolicy implements BotStrategy {
   readonly type: BotType = "algorithm";
   readonly actionNet: NeuralNetwork;
   readonly mulliganNet: NeuralNetwork;
+  readonly valueNet: NeuralNetwork;
   epsilon: number;
   private explorationRng: RngState;
   private episodeHistory: EpisodeStep[] = [];
@@ -72,7 +90,7 @@ export class RLPolicy implements BotStrategy {
     this.epsilon = epsilon;
     this.explorationRng = explorationRng;
 
-    // Action network: (state + action features) → single score
+    // Action network (actor): (state + action features) → single score
     this.actionNet = new NeuralNetwork(
       NETWORK_INPUT_SIZE, 128, 64, 1, networkRng
     );
@@ -80,6 +98,11 @@ export class RLPolicy implements BotStrategy {
     // Mulligan network: state features → [mulligan, keep]
     this.mulliganNet = new NeuralNetwork(
       STATE_FEATURE_SIZE, 64, 32, 2, networkRng
+    );
+
+    // Value network (critic): state features → V(s)
+    this.valueNet = new NeuralNetwork(
+      STATE_FEATURE_SIZE, 64, 32, 1, networkRng
     );
   }
 
@@ -94,6 +117,7 @@ export class RLPolicy implements BotStrategy {
     }
 
     const stateFeats = stateToFeatures(state, playerId, definitions);
+    const valuePred = this.valueNet.forward(stateFeats)[0]!;
     const legal = getAllLegalActions(state, playerId, definitions);
 
     // No legal actions — pass
@@ -136,6 +160,8 @@ export class RLPolicy implements BotStrategy {
       logProbChosen: logProb,
       isAction: true,
       turnIndex: state.turnNumber,
+      reward: 0,
+      valuePred,
     });
 
     return chosenAction;
@@ -149,6 +175,7 @@ export class RLPolicy implements BotStrategy {
   ): GameAction {
     const choice = state.pendingChoice!;
     const stateFeats = stateToFeatures(state, playerId, definitions);
+    const valuePred = this.valueNet.forward(stateFeats)[0]!;
 
     // Build candidate actions based on choice type
     const candidates: GameAction[] = [];
@@ -253,6 +280,8 @@ export class RLPolicy implements BotStrategy {
       logProbChosen: logProb,
       isAction: true,
       turnIndex: state.turnNumber,
+      reward: 0,
+      valuePred,
     });
 
     return chosenAction;
@@ -264,6 +293,7 @@ export class RLPolicy implements BotStrategy {
     definitions: Record<string, CardDefinition>
   ): boolean {
     const features = stateToFeatures(state, playerId, definitions);
+    const valuePred = this.valueNet.forward(features)[0]!;
 
     if (rngNext(this.explorationRng) < this.epsilon) {
       const shouldMull = rngNext(this.explorationRng) < 0.5;
@@ -273,6 +303,8 @@ export class RLPolicy implements BotStrategy {
         isAction: false,
         mulliganIndex: shouldMull ? 0 : 1,
         turnIndex: 0,
+        reward: 0,
+        valuePred,
       });
       return shouldMull;
     }
@@ -288,6 +320,8 @@ export class RLPolicy implements BotStrategy {
       isAction: false,
       mulliganIndex: chosenIdx,
       turnIndex: 0,
+      reward: 0,
+      valuePred,
     });
 
     return shouldMull;
@@ -301,52 +335,94 @@ export class RLPolicy implements BotStrategy {
     return performMulligan(state, playerId);
   }
 
-  /** Running average reward baseline for variance reduction */
-  private rewardBaseline = 0;
-  private baselineAlpha = 0.01;
-
   /**
-   * Update networks from completed episode using REINFORCE with baseline.
-   * Walk history backward applying discounted returns.
-   * Uses running average baseline to reduce variance.
+   * Update networks from a completed episode using Actor-Critic with GAE.
+   *
+   * @param terminalReward  Final episode reward (win/loss/weighted)
+   * @param lr              Learning rate
+   * @param gamma           Discount factor
+   * @param perStepRewards  Optional per-turn intermediate rewards, indexed by turnIndex.
+   *                        Each turn's reward is assigned to the last step of that turn.
    */
-  updateFromEpisode(G: number, lr: number, gamma: number, turnShaping?: number[]): void {
-    // Update baseline (exponential moving average)
-    this.rewardBaseline += this.baselineAlpha * (G - this.rewardBaseline);
-    const advantage = G - this.rewardBaseline;
+  updateFromEpisode(
+    terminalReward: number,
+    lr: number,
+    gamma: number,
+    perStepRewards?: number[]
+  ): void {
+    const history = this.episodeHistory;
+    const T = history.length;
+    if (T === 0) return;
 
-    // Normalize learning rate by episode length to prevent gradient accumulation
-    const nSteps = this.episodeHistory.length;
-    if (nSteps === 0) return;
-    const stepLr = lr / Math.sqrt(nSteps);
+    // Normalize LR by episode length to prevent gradient accumulation
+    const stepLr = lr / Math.sqrt(T);
 
-    const updateBuffer = new Float32Array(NETWORK_INPUT_SIZE);
-    let discountedAdv = advantage;
-
-    for (let i = this.episodeHistory.length - 1; i >= 0; i--) {
-      const step = this.episodeHistory[i]!;
-
-      // Add per-turn shaping signal before discounting (optional, small weight)
-      if (turnShaping) {
-        discountedAdv += turnShaping[step.turnIndex] ?? 0;
+    // --- Assign per-step rewards ---
+    // Per-turn rewards go to the LAST step of each turn to avoid double-counting
+    // when multiple actions occur in the same turn.
+    if (perStepRewards) {
+      let lastTurnIdx = -1;
+      for (let i = T - 1; i >= 0; i--) {
+        const t = history[i]!.turnIndex;
+        if (t !== lastTurnIdx) {
+          history[i]!.reward = perStepRewards[t] ?? 0;
+          lastTurnIdx = t;
+        }
       }
+    }
+    // Terminal reward added to the final step
+    history[T - 1]!.reward += terminalReward;
+
+    // --- Compute GAE advantages backward ---
+    // delta_t = r_t + γ * V(s_{t+1}) - V(s_t)
+    // A_t     = delta_t + (γλ) * A_{t+1}
+    // return_t = A_t + V(s_t)   ← target for critic
+    const advantages = new Float32Array(T);
+    const returns = new Float32Array(T);
+    let gae = 0;
+
+    for (let i = T - 1; i >= 0; i--) {
+      const step = history[i]!;
+      const nextValue = i + 1 < T ? history[i + 1]!.valuePred : 0; // terminal bootstrap = 0
+      const delta = step.reward + gamma * nextValue - step.valuePred;
+      gae = delta + gamma * GAE_LAMBDA * gae;
+      advantages[i] = gae;
+      returns[i] = gae + step.valuePred;
+    }
+
+    // --- Update networks ---
+    const updateBuffer = new Float32Array(NETWORK_INPUT_SIZE);
+
+    for (let i = 0; i < T; i++) {
+      const step = history[i]!;
+      const adv = advantages[i]!;
+      const ret = returns[i]!;
 
       if (step.isAction && step.chosenActionFeatures) {
+        // Policy (actor) update: ∇ log π(a|s) * A
         const probChosen = Math.exp(step.logProbChosen);
-        const dScore = discountedAdv * (1 - probChosen);
+        const dScore = adv * (1 - probChosen);
         updateBuffer.set(step.stateFeatures, 0);
         updateBuffer.set(step.chosenActionFeatures, STATE_FEATURE_SIZE);
         this.actionNet.update(updateBuffer, 0, dScore, stepLr);
+
+        // Value (critic) update: MSE loss weighted by VALUE_LOSS_WEIGHT
+        const valueDelta = (ret - step.valuePred) * VALUE_LOSS_WEIGHT;
+        this.valueNet.update(step.stateFeatures, 0, valueDelta, stepLr);
+
       } else if (!step.isAction && step.mulliganIndex !== undefined) {
+        // Mulligan network update with GAE advantage
         this.mulliganNet.update(
           step.stateFeatures,
           step.mulliganIndex,
-          discountedAdv,
+          adv,
           stepLr
         );
-      }
 
-      discountedAdv *= gamma;
+        // Critic update for mulligan state
+        const valueDelta = (ret - step.valuePred) * VALUE_LOSS_WEIGHT;
+        this.valueNet.update(step.stateFeatures, 0, valueDelta, stepLr);
+      }
     }
 
     this.episodeHistory = [];
@@ -375,6 +451,7 @@ export class RLPolicy implements BotStrategy {
       explorationRng: { s: [...this.explorationRng.s] as [number, number, number, number] },
       actionNet: this.actionNet.toJSON(),
       mulliganNet: this.mulliganNet.toJSON(),
+      valueNet: this.valueNet.toJSON(),
     };
   }
 
@@ -388,6 +465,12 @@ export class RLPolicy implements BotStrategy {
       NeuralNetwork.fromJSON(json.actionNet);
     (policy as unknown as Record<string, NeuralNetwork>)["mulliganNet"] =
       NeuralNetwork.fromJSON(json.mulliganNet);
+
+    // valueNet: warm-start if present, otherwise leave randomly initialized
+    if (json.valueNet) {
+      (policy as unknown as Record<string, NeuralNetwork>)["valueNet"] =
+        NeuralNetwork.fromJSON(json.valueNet);
+    }
 
     return policy;
   }

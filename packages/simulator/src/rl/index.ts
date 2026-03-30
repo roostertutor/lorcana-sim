@@ -21,7 +21,7 @@ export type { NetworkJSON } from "./network.js";
 export { RLPolicy } from "./policy.js";
 export type { EpisodeStep, RLPolicyJSON } from "./policy.js";
 
-export { trainPolicy, trainWithCurriculum } from "./trainer.js";
+export { trainPolicy } from "./trainer.js";
 export type { TrainingConfig, TrainingResult } from "./trainer.js";
 
 export { inferRewardWeights, cardRewardContribution, makeWeightedReward } from "./rewardWeights.js";

@@ -2,12 +2,12 @@
 // LEARN COMMAND
 // pnpm learn --deck ./deck.txt --episodes 50000 [--save policies/out.json]
 //
-// Trains an RL policy via REINFORCE with per-card scoring.
+// Trains an RL policy using Actor-Critic with GAE.
 // =============================================================================
 
 import { writeFileSync, readFileSync } from "fs";
 import { LORCAST_CARD_DEFINITIONS } from "@lorcana-sim/engine";
-import { trainPolicy, trainWithCurriculum, RLPolicy, RandomBot } from "@lorcana-sim/simulator";
+import { trainPolicy, RLPolicy, RandomBot } from "@lorcana-sim/simulator";
 import { loadDeck } from "../loadDeck.js";
 import { resolveBot } from "../resolveBot.js";
 
@@ -15,7 +15,6 @@ export interface LearnArgs {
   deck: string;
   opponent?: string;
   episodes: number;
-  curriculum: boolean;
   save?: string;
   load?: string;
   seed?: number;
@@ -54,38 +53,23 @@ export function runLearn(args: LearnArgs): void {
   console.log(`  Deck: ${args.deck}`);
   console.log(`  Episodes: ${args.episodes}`);
   console.log(`  Max turns: ${args.maxTurns}`);
-  console.log(`  Curriculum: ${args.curriculum}`);
   if (args.seed !== undefined) console.log(`  Seed: ${args.seed}`);
   console.log();
 
   const startTime = Date.now();
 
-  let result;
-  if (args.curriculum) {
-    const goldfishEpisodes = Math.floor(args.episodes / 2);
-    const realEpisodes = args.episodes - goldfishEpisodes;
-    console.log(`Phase 1: Goldfish training (${goldfishEpisodes} episodes)...`);
-    result = trainWithCurriculum(deck, opponentDeck, definitions, {
-      goldfishEpisodes,
-      realEpisodes,
-      seed: args.seed,
-      maxTurns: args.maxTurns,
-      onLog,
-    });
-  } else {
-    result = trainPolicy({
-      deck,
-      opponentDeck,
-      definitions,
-      opponent,
-      episodes: args.episodes,
-      maxTurns: args.maxTurns,
-      seed: args.seed,
-      warmStart,
-      onLog,
-      logInterval: Math.max(1, Math.floor(args.episodes / 20)),
-    });
-  }
+  const result = trainPolicy({
+    deck,
+    opponentDeck,
+    definitions,
+    opponent,
+    episodes: args.episodes,
+    maxTurns: args.maxTurns,
+    seed: args.seed,
+    warmStart,
+    onLog,
+    logInterval: Math.max(1, Math.floor(args.episodes / 20)),
+  });
 
   const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
   console.log(`\nTraining complete in ${elapsed}s`);

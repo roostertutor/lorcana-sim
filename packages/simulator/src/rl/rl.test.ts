@@ -24,7 +24,7 @@ import {
 } from "./autoTag.js";
 import { NeuralNetwork, softmax, relu } from "./network.js";
 import { RLPolicy } from "./policy.js";
-import { trainPolicy, trainWithCurriculum } from "./trainer.js";
+import { trainPolicy } from "./trainer.js";
 import { RandomBot } from "../bots/RandomBot.js";
 import { applyAction, getZone } from "@lorcana-sim/engine";
 import type { ZoneName } from "@lorcana-sim/engine";
@@ -434,26 +434,6 @@ describe("Policy save/load round-trip", () => {
 // curriculum validation
 // ===========================================================================
 
-describe("Curriculum training", () => {
-  it("trainWithCurriculum completes and produces correct-length rewardCurve", () => {
-    const result = trainWithCurriculum(
-      TEST_DECK,
-      TEST_DECK,
-      definitions,
-      {
-        goldfishEpisodes: 200,
-        realEpisodes: 200,
-        seed: 42,
-        maxTurns: 10,
-      }
-    );
-
-    expect(result.rewardCurve).toHaveLength(400);
-    expect(result.totalEpisodes).toBe(400);
-    // Epsilon should have decayed from the training
-    expect(result.finalEpsilon).toBeLessThan(1.0);
-  });
-});
 
 // ===========================================================================
 // Layer 3 invariants with RLPolicy

@@ -1,5 +1,5 @@
 // =============================================================================
-// RL TRAINER — Training loop with curriculum support
+// RL TRAINER — Training loop (Actor-Critic with GAE)
 // Runs episodes, computes rewards, updates policy.
 // =============================================================================
 
@@ -7,7 +7,6 @@ import type { CardDefinition, PlayerID } from "@lorcana-sim/engine";
 import type { DeckEntry } from "@lorcana-sim/engine";
 import { createRng, cloneRng, rngNextInt } from "@lorcana-sim/engine";
 import { runGame } from "../runGame.js";
-import { RandomBot } from "../bots/RandomBot.js";
 import type { BotStrategy, GameResult } from "../types.js";
 import { RLPolicy } from "./policy.js";
 import { makeWeightedReward } from "./rewardWeights.js";
@@ -54,10 +53,10 @@ export interface TrainingResult {
 // TRAINING
 // -----------------------------------------------------------------------------
 
-/** Per-turn lore-delta shaping signals derived from loreByTurn.
- *  Each element is the normalized lore gained that turn * scale.
- *  Small scale (0.1) keeps shaping subordinate to the episode return. */
-function computeTurnShaping(result: GameResult, scale = 0.05): number[] {
+/** Per-turn intermediate rewards derived from lore-gain deltas.
+ *  Indexed by turnIndex. Small scale keeps shaping subordinate to terminal reward.
+ *  Used as the perStepRewards argument to updateFromEpisode (A2C/GAE). */
+function computePerStepRewards(result: GameResult, scale = 0.05): number[] {
   const loreByTurn = result.loreByTurn["player1"] ?? [];
   return loreByTurn.map((lore, t) => {
     const prev = t === 0 ? 0 : (loreByTurn[t - 1] ?? 0);
@@ -72,13 +71,8 @@ function defaultReward(result: GameResult): number {
   return 0;
 }
 
-/** Goldfish reward: normalized lore (how much lore player1 earned) */
-function goldfishReward(result: GameResult): number {
-  return Math.min((result.finalLore["player1"] ?? 0) / 20, 1);
-}
-
 /**
- * Train an RL policy using REINFORCE.
+ * Train an RL policy using Actor-Critic with GAE.
  * Player 1 is always the RL policy being trained.
  */
 export function trainPolicy(config: TrainingConfig): TrainingResult {
@@ -137,9 +131,9 @@ export function trainPolicy(config: TrainingConfig): TrainingResult {
     rewardCurve.push(G);
     recentRewards.push(G);
 
-    // Update policy from this episode
-    const turnShaping = computeTurnShaping(result);
-    policy.updateFromEpisode(G, learningRate, gamma, turnShaping);
+    // Update policy from this episode (A2C + GAE)
+    const perStepRewards = computePerStepRewards(result);
+    policy.updateFromEpisode(G, learningRate, gamma, perStepRewards);
     policy.decayEpsilon(minEpsilon, decayRate);
 
     // Log progress
@@ -160,68 +154,3 @@ export function trainPolicy(config: TrainingConfig): TrainingResult {
   };
 }
 
-/**
- * Train with curriculum: goldfish first, then real opponent.
- */
-export function trainWithCurriculum(
-  deck: DeckEntry[],
-  opponentDeck: DeckEntry[],
-  definitions: Record<string, CardDefinition>,
-  options: {
-    goldfishEpisodes?: number;
-    realEpisodes?: number;
-    seed?: number;
-    maxTurns?: number;
-    learningRate?: number;
-    onLog?: TrainingConfig["onLog"];
-  } = {}
-): TrainingResult {
-  const {
-    goldfishEpisodes = 25000,
-    realEpisodes = 25000,
-    seed,
-    maxTurns = 30,
-    learningRate = 0.001,
-    onLog,
-  } = options;
-
-  // Phase 1: goldfish training (vs RandomBot, lore reward)
-  if (onLog) onLog(0, 0, 1, 0);
-  const phase1 = trainPolicy({
-    deck,
-    opponentDeck: deck, // mirror for goldfish
-    definitions,
-    opponent: RandomBot,
-    episodes: goldfishEpisodes,
-    reward: goldfishReward,
-    maxTurns: Math.min(maxTurns, 20),
-    seed,
-    learningRate,
-    onLog: onLog
-      ? (ep, r, eps, avg) => onLog(ep, r, eps, avg)
-      : undefined,
-  });
-
-  // Phase 2: real opponent (win/loss reward, warm start from phase 1)
-  const phase2 = trainPolicy({
-    deck,
-    opponentDeck,
-    definitions,
-    opponent: RandomBot, // or a provided opponent
-    episodes: realEpisodes,
-    warmStart: phase1.policy,
-    maxTurns,
-    seed: seed !== undefined ? seed + 1 : undefined,
-    learningRate: learningRate * 0.5, // lower LR for fine-tuning
-    onLog: onLog
-      ? (ep, r, eps, avg) => onLog(goldfishEpisodes + ep, r, eps, avg)
-      : undefined,
-  });
-
-  return {
-    policy: phase2.policy,
-    rewardCurve: [...phase1.rewardCurve, ...phase2.rewardCurve],
-    totalEpisodes: goldfishEpisodes + realEpisodes,
-    finalEpsilon: phase2.finalEpsilon,
-  };
-}
