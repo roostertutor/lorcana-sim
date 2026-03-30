@@ -17,8 +17,8 @@ import { getZone, getOpponent } from "@lorcana-sim/engine";
 // CONSTANTS
 // -----------------------------------------------------------------------------
 
-// 4 basic + 4 char stats + 13 keywords + 22 effects + 1 trigger = 44
-export const CARD_FEATURE_SIZE = 44;
+// 4 basic + 4 char stats + 13 keywords + 22 effects + 2 triggers = 45
+export const CARD_FEATURE_SIZE = 45;
 export const MAX_HAND_SLOTS = 10;
 export const MAX_BOARD_SLOTS = 8;
 export const GAME_CONTEXT_SIZE = 14;
@@ -80,7 +80,8 @@ export interface CardFeatures {
   shiftCostNorm: number;
   keywords: number[]; // 13
   effectPresence: number[]; // 22
-  hasEntersPlayTrigger: number;
+  hasEntersPlayTrigger: number;   // effect fires when this card enters play
+  hasChallengeWinTrigger: number; // effect fires when this card banishes another in a challenge
 }
 
 /** Collect all effect types present in a card definition */
@@ -141,7 +142,11 @@ export function cardToFeatures(def: CardDefinition): CardFeatures {
   const effectVec = EFFECT_TYPE_LIST.map((et) => (effects.has(et) ? 1 : 0));
 
   const hasEntersPlayTrigger = def.abilities.some(
-    (a) => a.type === "triggered" && a.trigger === "enters_play"
+    (a) => a.type === "triggered" && a.trigger.on === "enters_play"
+  ) ? 1 : 0;
+
+  const hasChallengeWinTrigger = def.abilities.some(
+    (a) => a.type === "triggered" && a.trigger.on === "banished_other_in_challenge"
   ) ? 1 : 0;
 
   return {
@@ -156,6 +161,7 @@ export function cardToFeatures(def: CardDefinition): CardFeatures {
     keywords: keywordVec,
     effectPresence: effectVec,
     hasEntersPlayTrigger,
+    hasChallengeWinTrigger,
   };
 }
 
@@ -173,6 +179,7 @@ export function cardFeaturesToArray(f: CardFeatures): number[] {
     ...f.keywords,
     ...f.effectPresence,
     f.hasEntersPlayTrigger,
+    f.hasChallengeWinTrigger,
   ];
 }
 
