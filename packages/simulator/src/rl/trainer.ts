@@ -40,6 +40,17 @@ export interface TrainingConfig {
   rewardWeights?: RewardWeights;
   /** Callback for progress logging */
   onLog?: (episode: number, reward: number, epsilon: number, avgReward: number) => void;
+  /**
+   * "Practice games" opponent — run this many extra games per episode against a
+   * simpler opponent and update the policy with reduced gradient weight.
+   * Prevents catastrophic forgetting when fine-tuning against harder opponents:
+   * the policy keeps its fundamentals while layering on new skills.
+   */
+  practiceOpponent?: BotStrategy;
+  /** Practice games per training episode (default 2) */
+  practiceGamesPerEpisode?: number;
+  /** Gradient weight for practice updates relative to main training (default 0.5) */
+  practiceWeight?: number;
 }
 
 export interface TrainingResult {
@@ -91,6 +102,9 @@ export function trainPolicy(config: TrainingConfig): TrainingResult {
     seed,
     warmStart,
     onLog,
+    practiceOpponent,
+    practiceGamesPerEpisode = 2,
+    practiceWeight = 0.5,
   } = config;
   const reward = config.rewardWeights
     ? makeWeightedReward(config.rewardWeights)
@@ -140,6 +154,31 @@ export function trainPolicy(config: TrainingConfig): TrainingResult {
     // Update policy from this episode (A2C + GAE)
     const perStepRewards = computePerStepRewards(result);
     policy.updateFromEpisode(G, learningRate, gamma, perStepRewards);
+
+    // Practice games — replay fundamentals against a simpler opponent to prevent
+    // catastrophic forgetting when fine-tuning against harder opponents.
+    if (practiceOpponent) {
+      for (let p = 0; p < practiceGamesPerEpisode; p++) {
+        const practiceSeed = rngNextInt(trainingRng, 0x7FFFFFFF);
+        policy.clearHistory();
+        const practiceResult = runGame({
+          player1Deck: deck,
+          player2Deck: opponentDeck,
+          player1Strategy: policy,
+          player2Strategy: practiceOpponent,
+          definitions,
+          maxTurns,
+          seed: practiceSeed,
+        });
+        if (typeof (practiceOpponent as any).clearHistory === "function") {
+          (practiceOpponent as any).clearHistory();
+        }
+        const practiceG = reward(practiceResult);
+        const practicePerStep = computePerStepRewards(practiceResult);
+        policy.updateFromEpisode(practiceG, learningRate * practiceWeight, gamma, practicePerStep);
+      }
+    }
+
     policy.decayEpsilon(minEpsilon, decayRate);
 
     // Log progress

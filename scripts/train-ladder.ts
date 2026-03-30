@@ -182,10 +182,13 @@ const aggressorV2Result = trainPolicy({
   episodes,
   seed: 400,
   maxTurns: 80,
-  learningRate: 0.0005, // lower LR — policy already has useful weights
+  learningRate: 0.0005,
   epsilon: 0.4,
   minEpsilon: 0.05,
   decayRate: 0.9994,
+  practiceOpponent: RandomBot,   // keep fundamentals while learning vs midrange
+  practiceGamesPerEpisode: 2,
+  practiceWeight: 0.5,
   logInterval: Math.floor(episodes / 5),
   onLog: (ep, _r, eps, avg) =>
     console.log(`  ep ${ep.toString().padStart(6)}: avg=${avg.toFixed(3)}, ε=${eps.toFixed(3)}`),
@@ -215,6 +218,9 @@ const midrangeV2Result = trainPolicy({
   epsilon: 0.4,
   minEpsilon: 0.05,
   decayRate: 0.9994,
+  practiceOpponent: RandomBot,   // keep fundamentals while learning vs aggressor
+  practiceGamesPerEpisode: 2,
+  practiceWeight: 0.5,
   logInterval: Math.floor(episodes / 5),
   onLog: (ep, _r, eps, avg) =>
     console.log(`  ep ${ep.toString().padStart(6)}: avg=${avg.toFixed(3)}, ε=${eps.toFixed(3)}`),
@@ -243,6 +249,9 @@ const controlResult = trainPolicy({
   epsilon: 0.4,
   minEpsilon: 0.05,
   decayRate: 0.9994,
+  practiceOpponent: RandomBot,   // anchor to basics while adapting to greedy
+  practiceGamesPerEpisode: 2,
+  practiceWeight: 0.5,
   logInterval: Math.floor(episodes / 5),
   onLog: (ep, _r, eps, avg) =>
     console.log(`  ep ${ep.toString().padStart(6)}: avg=${avg.toFixed(3)}, ε=${eps.toFixed(3)}`),
