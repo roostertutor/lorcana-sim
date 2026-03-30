@@ -73,6 +73,12 @@ function traceGames(
   let totalLore = 0;
   let wins = 0;
 
+  // End-of-game zone accumulators (avg across games, player1 only)
+  let totalInkwell = 0;
+  let totalInPlay = 0;
+  let totalBanished = 0;
+  let totalHandOrDeck = 0;
+
   function ensure(defId: string): CardTrace {
     if (!cards[defId]) cards[defId] = { inked: 0, played: 0, quested: 0, challenged: 0 };
     return cards[defId]!;
@@ -91,6 +97,15 @@ function traceGames(
     });
     totalLore += result.finalLore["player1"] ?? 0;
     if (result.winner === "player1") wins++;
+
+    // Accumulate end-of-game zone distribution for player1
+    const p1Stats = Object.values(result.cardStats).filter(s => s.ownerId === "player1");
+    for (const s of p1Stats) {
+      if (s.inkedOnTurn !== null) totalInkwell++;
+      else if (s.wasPlayed && !s.wasBanished) totalInPlay++;
+      else if (s.wasBanished) totalBanished++;
+      else totalHandOrDeck++;
+    }
 
     for (const action of result.actions) {
       if (action.playerId !== "player1") continue;
@@ -114,7 +129,28 @@ function traceGames(
     policy.clearHistory();
   }
 
-  return { cards, avgLore: totalLore / count, winRate: wins / count };
+  return {
+    cards,
+    avgLore: totalLore / count,
+    winRate: wins / count,
+    avgZones: {
+      inkwell: totalInkwell / count,
+      inPlay: totalInPlay / count,
+      banished: totalBanished / count,
+      handOrDeck: totalHandOrDeck / count,
+    },
+  };
+}
+
+function formatZones(zones: { inkwell: number; inPlay: number; banished: number; handOrDeck: number }): string {
+  const total = zones.inkwell + zones.inPlay + zones.banished + zones.handOrDeck;
+  return [
+    `  End-of-game zones (avg per game, player1, total≈${total.toFixed(0)}/60):`,
+    `    Inkwell:      ${zones.inkwell.toFixed(1)}`,
+    `    In play:      ${zones.inPlay.toFixed(1)}`,
+    `    Banished:     ${zones.banished.toFixed(1)}`,
+    `    Hand/Deck:    ${zones.handOrDeck.toFixed(1)}`,
+  ].join("\n");
 }
 
 function formatTraceTable(cards: Record<string, CardTrace>, label: string): string {
@@ -151,6 +187,7 @@ console.log("=".repeat(70));
 
 const baseline = traceGames(null, deck, 100, 50000);
 console.log(`  Avg lore: ${baseline.avgLore.toFixed(1)}, Win rate: ${(baseline.winRate * 100).toFixed(0)}%`);
+console.log(formatZones(baseline.avgZones));
 console.log(formatTraceTable(baseline.cards, "random baseline"));
 
 // --- Infer reward weights from deck ---
@@ -197,6 +234,7 @@ console.log("=".repeat(70));
 
 const trained = traceGames(result.policy, deck, 200, 10000);
 console.log(`  Avg lore: ${trained.avgLore.toFixed(1)}, Win rate: ${(trained.winRate * 100).toFixed(0)}%`);
+console.log(formatZones(trained.avgZones));
 console.log(formatTraceTable(trained.cards, "trained mirror"));
 
 // --- Save ---
@@ -217,6 +255,7 @@ const traceOutput = [
   "",
   "BASELINE (random vs random):",
   `  Avg lore: ${baseline.avgLore.toFixed(1)}, Win rate: ${(baseline.winRate * 100).toFixed(0)}%`,
+  formatZones(baseline.avgZones),
   formatTraceTable(baseline.cards, "random baseline"),
   "",
   "TRAINING CURVE:",
@@ -224,6 +263,7 @@ const traceOutput = [
   "",
   "TRAINED (trained vs random):",
   `  Avg lore: ${trained.avgLore.toFixed(1)}, Win rate: ${(trained.winRate * 100).toFixed(0)}%`,
+  formatZones(trained.avgZones),
   formatTraceTable(trained.cards, "trained mirror"),
 ].join("\n");
 

@@ -57,7 +57,7 @@ export interface TrainingResult {
 /** Per-turn lore-delta shaping signals derived from loreByTurn.
  *  Each element is the normalized lore gained that turn * scale.
  *  Small scale (0.1) keeps shaping subordinate to the episode return. */
-function computeTurnShaping(result: GameResult, scale = 0.1): number[] {
+function computeTurnShaping(result: GameResult, scale = 0.05): number[] {
   const loreByTurn = result.loreByTurn["player1"] ?? [];
   return loreByTurn.map((lore, t) => {
     const prev = t === 0 ? 0 : (loreByTurn[t - 1] ?? 0);

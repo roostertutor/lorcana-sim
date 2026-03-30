@@ -153,8 +153,10 @@ export function getAllLegalActions(
   const actions: GameAction[] = [];
   const opponentId = getOpponent(playerId);
 
-  // PASS_TURN — always legal on your turn
-  actions.push({ type: "PASS_TURN", playerId });
+  // PASS_TURN — legal unless a Reckless character must challenge first (CRD 8.7.3)
+  if (validateAction(state, { type: "PASS_TURN", playerId }, definitions).valid) {
+    actions.push({ type: "PASS_TURN", playerId });
+  }
 
   const hand = getZone(state, playerId, "hand");
   const myPlay = getZone(state, playerId, "play");

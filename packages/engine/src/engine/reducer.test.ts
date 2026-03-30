@@ -7,7 +7,7 @@
 // =============================================================================
 
 import { describe, it, expect } from "vitest";
-import { applyAction } from "../engine/reducer.js";
+import { applyAction, getAllLegalActions } from "../engine/reducer.js";
 import { createGame } from "../engine/initializer.js";
 import { LORCAST_CARD_DEFINITIONS } from "../cards/lorcastCards.js";
 import { generateId, getZone, getInstance } from "../utils/index.js";
@@ -1901,6 +1901,19 @@ describe("§8 Keywords", () => {
     }, LORCAST_CARD_DEFINITIONS);
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/[Rr]eckless/);
+  });
+
+  // getAllLegalActions must also exclude PASS_TURN when Reckless challenge is mandatory
+  it("Reckless: getAllLegalActions excludes PASS_TURN when challenge is mandatory (CRD 8.7.3)", () => {
+    let state = startGame();
+    ({ state } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", {
+      timedEffects: [{ type: "grant_keyword", keyword: "reckless", expiresAt: "end_of_turn", appliedOnTurn: 1 }],
+    }));
+    ({ state } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isExerted: true }));
+
+    const legal = getAllLegalActions(state, "player1", LORCAST_CARD_DEFINITIONS);
+    expect(legal.some(a => a.type === "PASS_TURN")).toBe(false);
+    expect(legal.some(a => a.type === "CHALLENGE")).toBe(true);
   });
 
   // CRD 8.7.4: Can pass if Reckless character has no valid targets
