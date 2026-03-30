@@ -127,6 +127,12 @@ export function trainPolicy(config: TrainingConfig): TrainingResult {
       seed: gameSeed,
     });
 
+    // If opponent is an RLPolicy used as a fixed target, clear its accumulated history
+    // to prevent unbounded memory growth over thousands of episodes.
+    if (typeof (opponent as any).clearHistory === "function") {
+      (opponent as any).clearHistory();
+    }
+
     const G = reward(result);
     rewardCurve.push(G);
     recentRewards.push(G);
