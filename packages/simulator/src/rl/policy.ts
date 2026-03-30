@@ -38,6 +38,7 @@ export interface EpisodeStep {
   logProbChosen: number;
   isAction: boolean;
   mulliganIndex?: number;
+  turnIndex: number;
 }
 
 export interface RLPolicyJSON {
@@ -134,6 +135,7 @@ export class RLPolicy implements BotStrategy {
       chosenActionFeatures: chosenActionFeats,
       logProbChosen: logProb,
       isAction: true,
+      turnIndex: state.turnNumber,
     });
 
     return chosenAction;
@@ -250,6 +252,7 @@ export class RLPolicy implements BotStrategy {
       chosenActionFeatures: chosenActionFeats,
       logProbChosen: logProb,
       isAction: true,
+      turnIndex: state.turnNumber,
     });
 
     return chosenAction;
@@ -269,6 +272,7 @@ export class RLPolicy implements BotStrategy {
         logProbChosen: -Math.log(2),
         isAction: false,
         mulliganIndex: shouldMull ? 0 : 1,
+        turnIndex: 0,
       });
       return shouldMull;
     }
@@ -283,6 +287,7 @@ export class RLPolicy implements BotStrategy {
       logProbChosen: logProb,
       isAction: false,
       mulliganIndex: chosenIdx,
+      turnIndex: 0,
     });
 
     return shouldMull;
@@ -305,7 +310,7 @@ export class RLPolicy implements BotStrategy {
    * Walk history backward applying discounted returns.
    * Uses running average baseline to reduce variance.
    */
-  updateFromEpisode(G: number, lr: number, gamma: number): void {
+  updateFromEpisode(G: number, lr: number, gamma: number, turnShaping?: number[]): void {
     // Update baseline (exponential moving average)
     this.rewardBaseline += this.baselineAlpha * (G - this.rewardBaseline);
     const advantage = G - this.rewardBaseline;
@@ -320,6 +325,11 @@ export class RLPolicy implements BotStrategy {
 
     for (let i = this.episodeHistory.length - 1; i >= 0; i--) {
       const step = this.episodeHistory[i]!;
+
+      // Add per-turn shaping signal before discounting (optional, small weight)
+      if (turnShaping) {
+        discountedAdv += turnShaping[step.turnIndex] ?? 0;
+      }
 
       if (step.isAction && step.chosenActionFeatures) {
         const probChosen = Math.exp(step.logProbChosen);

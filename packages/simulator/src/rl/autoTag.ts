@@ -21,7 +21,7 @@ import { getZone, getOpponent } from "@lorcana-sim/engine";
 export const CARD_FEATURE_SIZE = 44;
 export const MAX_HAND_SLOTS = 10;
 export const MAX_BOARD_SLOTS = 8;
-export const GAME_CONTEXT_SIZE = 12;
+export const GAME_CONTEXT_SIZE = 14;
 export const STATE_FEATURE_SIZE =
   MAX_HAND_SLOTS * CARD_FEATURE_SIZE +
   MAX_BOARD_SLOTS * CARD_FEATURE_SIZE +
@@ -237,9 +237,12 @@ export function stateToFeatures(
     }
   }
 
-  // Game context (12 dims)
+  // Game context (14 dims)
   const myPlayer = state.players[playerId];
   const oppPlayer = state.players[opponentId];
+
+  const oppExertedCount = oppBoard.filter(id => state.cards[id]?.isExerted).length;
+  const myDamagedCount = myBoard.filter(id => (state.cards[id]?.damage ?? 0) > 0).length;
 
   features.push(
     Math.min(state.turnNumber / 50, 1),   // turnProgress
@@ -254,6 +257,8 @@ export function stateToFeatures(
     Math.min(myInkwell.length / 12, 1),    // inkwellSize
     myPlayer.hasPlayedInkThisTurn ? 1 : 0, // alreadyInked
     state.pendingChoice ? 1 : 0,           // choicePending
+    oppBoard.length > 0 ? oppExertedCount / oppBoard.length : 0, // oppExertedFraction
+    myBoard.length > 0 ? myDamagedCount / myBoard.length : 0,    // myDamagedFraction
   );
 
   return features;

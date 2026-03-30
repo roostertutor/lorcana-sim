@@ -54,6 +54,17 @@ export interface TrainingResult {
 // TRAINING
 // -----------------------------------------------------------------------------
 
+/** Per-turn lore-delta shaping signals derived from loreByTurn.
+ *  Each element is the normalized lore gained that turn * scale.
+ *  Small scale (0.1) keeps shaping subordinate to the episode return. */
+function computeTurnShaping(result: GameResult, scale = 0.1): number[] {
+  const loreByTurn = result.loreByTurn["player1"] ?? [];
+  return loreByTurn.map((lore, t) => {
+    const prev = t === 0 ? 0 : (loreByTurn[t - 1] ?? 0);
+    return ((lore - prev) / 20) * scale;
+  });
+}
+
 /** Default reward: win=1, loss=0, draw=0.5 */
 function defaultReward(result: GameResult): number {
   if (result.winner === "player1") return 1;
@@ -127,7 +138,8 @@ export function trainPolicy(config: TrainingConfig): TrainingResult {
     recentRewards.push(G);
 
     // Update policy from this episode
-    policy.updateFromEpisode(G, learningRate, gamma);
+    const turnShaping = computeTurnShaping(result);
+    policy.updateFromEpisode(G, learningRate, gamma, turnShaping);
     policy.decayEpsilon(minEpsilon, decayRate);
 
     // Log progress
