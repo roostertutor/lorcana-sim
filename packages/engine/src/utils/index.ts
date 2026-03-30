@@ -417,6 +417,8 @@ export function canSingSong(
   singerDef: CardDefinition,
   songDef: CardDefinition
 ): boolean {
+  // CRD 5.4.4.2: Only characters can sing songs (items/actions cannot)
+  if (singerDef.cardType !== "character") return false;
   // CRD 8.11.1: Singer N — count as cost N for singing
   let effectiveCost = singerDef.cost;
   if (hasKeyword(singerInstance, singerDef, "singer")) {

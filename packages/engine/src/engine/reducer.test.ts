@@ -1140,6 +1140,26 @@ describe("§8.11 Singer", () => {
     expect(arielDef).toBeDefined();
     expect(arielDef!.cost).toBe(3); // Actual cost remains 3
   });
+
+  it("item cannot be used as a singer (CRD 5.4.4.2)", () => {
+    // dinglehopper is an item (cost 1) — items cannot sing songs
+    let state = startGame(["dinglehopper", "let-it-go"]);
+    let songId: string, itemId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "let-it-go", "hand"));
+    ({ state, instanceId: itemId } = injectCard(state, "player1", "dinglehopper", "play"));
+
+    const result = applyAction(state, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: songId, singerInstanceId: itemId,
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(false);
+    // getAllLegalActions must also not generate sing actions with item as singer (CRD 5.4.4.2)
+    const legal = getAllLegalActions(state, "player1", LORCAST_CARD_DEFINITIONS);
+    const itemSingActions = legal.filter(
+      a => a.type === "PLAY_CARD" && (a as any).singerInstanceId === itemId
+    );
+    expect(itemSingActions.length).toBe(0);
+  });
 });
 
 // ---------------------------------------------------------------------------

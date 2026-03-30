@@ -103,6 +103,8 @@ function validatePlayCard(
   if (singerInstanceId) {
     if (!isSong(def)) return fail("Only songs can be sung.");
     const singer = getInstance(state, singerInstanceId);
+    const singerDefCheck = getDefinition(state, singerInstanceId, definitions);
+    if (singerDefCheck.cardType !== "character") return fail("Only characters can sing songs."); // CRD 5.4.4.2
     if (singer.zone !== "play") return fail("Singer is not in play.");
     if (singer.ownerId !== playerId) return fail("You don't own the singer.");
     if (singer.isExerted) return fail("Singer is already exerted.");
