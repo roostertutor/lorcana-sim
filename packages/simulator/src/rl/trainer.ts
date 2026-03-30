@@ -10,6 +10,8 @@ import { runGame } from "../runGame.js";
 import { RandomBot } from "../bots/RandomBot.js";
 import type { BotStrategy, GameResult } from "../types.js";
 import { RLPolicy } from "./policy.js";
+import { makeWeightedReward } from "./rewardWeights.js";
+import type { RewardWeights } from "./rewardWeights.js";
 
 // -----------------------------------------------------------------------------
 // TYPES
@@ -32,6 +34,11 @@ export interface TrainingConfig {
   warmStart?: RLPolicy;
   /** Custom reward function. Default: win=1, loss=0, draw=0.5 */
   reward?: (result: GameResult) => number;
+  /**
+   * Reward weights inferred from deck composition via inferRewardWeights().
+   * Supercedes `reward` if provided. Encodes deck archetype as a continuous vector.
+   */
+  rewardWeights?: RewardWeights;
   /** Callback for progress logging */
   onLog?: (episode: number, reward: number, epsilon: number, avgReward: number) => void;
 }
@@ -80,7 +87,9 @@ export function trainPolicy(config: TrainingConfig): TrainingResult {
     warmStart,
     onLog,
   } = config;
-  const reward = config.reward ?? defaultReward;
+  const reward = config.rewardWeights
+    ? makeWeightedReward(config.rewardWeights)
+    : config.reward ?? defaultReward;
 
   const trainingSeed = seed ?? Date.now();
   const trainingRng = createRng(trainingSeed);

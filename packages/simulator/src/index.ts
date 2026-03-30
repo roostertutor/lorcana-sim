@@ -77,4 +77,11 @@ export type {
   RLPolicyJSON,
   TrainingConfig,
   TrainingResult,
+  RewardWeights,
+  CardRewardContribution,
+} from "./rl/index.js";
+export {
+  inferRewardWeights,
+  cardRewardContribution,
+  makeWeightedReward,
 } from "./rl/index.js";

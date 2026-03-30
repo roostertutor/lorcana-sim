@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "paths": {
+      "@lorcana-sim/engine": ["../packages/engine/src/index.ts"],
+      "@lorcana-sim/simulator": ["../packages/simulator/src/index.ts"]
+    }
+  },
+  "include": ["./**/*.ts"]
+}

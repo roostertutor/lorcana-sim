@@ -10,7 +10,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from "fs";
 import { basename } from "path";
 import { LORCAST_CARD_DEFINITIONS, parseDecklist } from "@lorcana-sim/engine";
-import { trainPolicy, RLPolicy, RandomBot, runGame } from "@lorcana-sim/simulator";
+import { trainPolicy, RLPolicy, RandomBot, runGame, inferRewardWeights } from "@lorcana-sim/simulator";
 import type { DeckEntry } from "@lorcana-sim/engine";
 
 const definitions = LORCAST_CARD_DEFINITIONS;
@@ -86,7 +86,7 @@ function traceGames(
       player1Strategy: strategy,
       player2Strategy: RandomBot,
       definitions,
-      maxTurns: 30,
+      maxTurns: 80,
       seed: seedStart + i,
     });
     totalLore += result.finalLore["player1"] ?? 0;
@@ -94,13 +94,18 @@ function traceGames(
 
     for (const action of result.actions) {
       if (action.playerId !== "player1") continue;
+      if (action.type === "CHALLENGE") {
+        // CHALLENGE uses attackerInstanceId, not instanceId
+        const inst = result.cardStats[action.attackerInstanceId];
+        if (inst) ensure(inst.definitionId).challenged++;
+        continue;
+      }
       const inst = "instanceId" in action ? result.cardStats[(action as any).instanceId] : null;
       if (!inst) continue;
       const t = ensure(inst.definitionId);
       if (action.type === "PLAY_INK") t.inked++;
       if (action.type === "PLAY_CARD") t.played++;
       if (action.type === "QUEST") t.quested++;
-      if (action.type === "CHALLENGE") t.challenged++;
     }
   }
 
@@ -148,11 +153,22 @@ const baseline = traceGames(null, deck, 100, 50000);
 console.log(`  Avg lore: ${baseline.avgLore.toFixed(1)}, Win rate: ${(baseline.winRate * 100).toFixed(0)}%`);
 console.log(formatTraceTable(baseline.cards, "random baseline"));
 
+// --- Infer reward weights from deck ---
+const rewardWeights = inferRewardWeights(deck, definitions);
+console.log("\nInferred reward weights:");
+console.log(`  winWeight:      ${rewardWeights.winWeight.toFixed(3)}`);
+console.log(`  loreGain:       ${rewardWeights.loreGain.toFixed(3)}`);
+console.log(`  loreDenial:     ${rewardWeights.loreDenial.toFixed(3)}`);
+console.log(`  banishValue:    ${rewardWeights.banishValue.toFixed(3)}`);
+console.log(`  inkEfficiency:  ${rewardWeights.inkEfficiency.toFixed(3)}`);
+console.log(`  tradeQuality:   ${rewardWeights.tradeQuality.toFixed(3)}`);
+
 // --- Train: mirror from scratch ---
 console.log("\n" + "=".repeat(70));
-console.log(`TRAINING: ${name} mirror (${episodes} episodes, win/loss reward, high exploration)`);
+console.log(`TRAINING: ${name} mirror (${episodes} episodes, deck-inferred reward, high exploration)`);
 console.log("=".repeat(70));
 
+const trainingLog: string[] = [];
 const result = trainPolicy({
   deck,
   opponentDeck: deck,
@@ -160,18 +176,16 @@ const result = trainPolicy({
   opponent: RandomBot,
   episodes,
   seed: 42,
-  maxTurns: 30,
+  maxTurns: 80,
   learningRate: 0.001,
   epsilon: 1.0,
   minEpsilon: 0.05,
   decayRate: 0.9995,
-  reward: (r) => {
-    if (r.winner === "player1") return 1;
-    if (r.winner === "draw") return 0.1;
-    return 0;
-  },
+  rewardWeights,
   onLog: (ep, _r, eps, avg) => {
-    console.log(`  Episode ${ep}: avg=${avg.toFixed(3)}, ε=${eps.toFixed(3)}`);
+    const line = `  Episode ${ep}: avg=${avg.toFixed(3)}, ε=${eps.toFixed(3)}`;
+    console.log(line);
+    trainingLog.push(line);
   },
   logInterval: 1000,
 });
@@ -197,12 +211,16 @@ console.log(`\nSaved policy to ${policyPath}`);
 const traceOutput = [
   `Mirror training trace: ${name}`,
   `Date: ${new Date().toISOString()}`,
-  `Episodes: ${episodes}, Reward: win=1/draw=0.1/loss=0, maxTurns: 30`,
+  `Episodes: ${episodes}, maxTurns: 80`,
   `Training: from scratch, high exploration (ε: 1.0 → 0.05)`,
+  `Reward weights: win=${rewardWeights.winWeight.toFixed(3)} lore=${rewardWeights.loreGain.toFixed(3)} denial=${rewardWeights.loreDenial.toFixed(3)} banish=${rewardWeights.banishValue.toFixed(3)} ink=${rewardWeights.inkEfficiency.toFixed(3)} trade=${rewardWeights.tradeQuality.toFixed(3)}`,
   "",
   "BASELINE (random vs random):",
   `  Avg lore: ${baseline.avgLore.toFixed(1)}, Win rate: ${(baseline.winRate * 100).toFixed(0)}%`,
   formatTraceTable(baseline.cards, "random baseline"),
+  "",
+  "TRAINING CURVE:",
+  ...trainingLog,
   "",
   "TRAINED (trained vs random):",
   `  Avg lore: ${trained.avgLore.toFixed(1)}, Win rate: ${(trained.winRate * 100).toFixed(0)}%`,
@@ -211,3 +229,7 @@ const traceOutput = [
 
 writeFileSync(tracePath, traceOutput);
 console.log(`Saved trace to ${tracePath}`);
+
+const curvePath = `policies/${name}-mirror-curve.csv`;
+writeFileSync(curvePath, "episode,reward\n" + result.rewardCurve.map((r, i) => `${i + 1},${r}`).join("\n"));
+console.log(`Saved reward curve to ${curvePath}`);

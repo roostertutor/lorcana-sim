@@ -1179,3 +1179,158 @@ Can optimize later with enum action types + short card indices if needed.
 
 NOTE: Replaying one game does NOT train the RL bot. RL needs thousands
 of full games. Replay is for human interpretability, not bot learning.
+
+---
+
+## Part 6: Three Kinds of "Weights" — Don't Confuse Them
+
+There are three distinct things called "weights" in this system. They are completely
+different objects that operate at different points in the training pipeline.
+
+---
+
+### 1. Neural Network Weights (inside the network)
+
+**What:** The actual learned parameters — the numbers inside `w1`, `w2`, `w3` (and biases)
+of the `NeuralNetwork` class.
+
+**Where:** `packages/simulator/src/rl/network.ts`
+
+**Size:** Hundreds of thousands of floats (e.g. 1224 × 128 + 128 × 64 + 64 × 1 ≈ 165k values).
+
+**How initialized:** Xavier initialization — random floats in a small range (roughly ±0.07
+for the first layer). Biases start at exactly zero. NOT 0.5. The small random values are
+intentional: if all weights were the same value, every neuron would compute the same thing
+and learn the same gradient — hidden layers would be useless.
+
+**When they change:** Every episode. After each game, REINFORCE computes a gradient from the
+episode return and nudges every weight slightly toward decisions that produced higher reward.
+
+**What they encode:** The bot's learned intuition — "in this type of game state, prefer
+this type of action."
+
+---
+
+### 2. Card Feature Vectors (autoTag, 44 dimensions per card)
+
+**What:** A numeric description of what a card *is*, computed from its CardDefinition.
+
+**Where:** `packages/simulator/src/rl/autoTag.ts` — `cardToFeatures(def)`
+
+**Size:** 44 numbers per card:
+- 4 basic (cost, inkable, isCharacter, isAction)
+- 4 stats (strength, willpower, lore, shiftCost)
+- 13 keyword flags (rush, reckless, singer, challenger, evasive...)
+- 22 effect type flags (has banish, has draw, has gain_lore...)
+- 1 trigger flag (has enters_play trigger)
+
+**How initialized:** Deterministically computed from card data. Not random. Not learned.
+Same card always produces the same 44 numbers.
+
+**When they change:** Never. They're derived from the static card definition. A new set
+release produces new cards with new vectors; existing cards don't change.
+
+**What they encode:** The card's identity and capabilities, expressed as numbers the
+neural network can read. The network's input is a concatenation of these vectors for
+everything currently visible: your hand, your board, opponent's board, plus 12 game
+context scalars.
+
+**Role in training:** These are the INPUT to the network at each decision point. The
+network reads them, runs a forward pass, and produces action scores. They give the
+network the *vocabulary* to distinguish situations.
+
+---
+
+### 3. Reward Weights (RewardWeights, 6 values per deck)
+
+**What:** A description of what a good *game outcome* looks like for a specific deck.
+
+**Where:** `packages/simulator/src/rl/rewardWeights.ts` — `inferRewardWeights(deck, defs)`
+
+**Size:** 6 floats, all in [0, 1]:
+- `winWeight` — importance of the binary win/loss signal
+- `loreGain` — how much your own lore progress matters
+- `loreDenial` — how much stopping opponent's lore matters
+- `banishValue` — how much removing opponent characters matters
+- `inkEfficiency` — how much using your available ink matters
+- `tradeQuality` — how much favorable challenge trade ratios matter
+
+**How computed:** Statically derived from the decklist *before any training runs*.
+Each card contributes a weight vector based on its stats and keywords — Reckless
+characters contribute `loreGain = 0` (they can't quest), Singer characters contribute
+high `inkEfficiency`, removal spells contribute high `loreDenial` — and the deck's
+weights are the average across all 60 cards.
+
+**Example — ruby-amethyst deck:**
+```
+winWeight:      0.773   ← slightly below 0.8 baseline (removal cards drag it down)
+loreGain:       0.280   ← pulled down by Reckless chars (Gaston, Maui) + removal spells
+loreDenial:     0.300   ← pulled up by Dragon Fire + Be Prepared
+banishValue:    0.380   ← elevated by Gaston/Maui/Rafiki + removal
+inkEfficiency:  0.355   ← moderate (some Singers in deck)
+tradeQuality:   0.306   ← moderate (Gaston/Maleficent Dragon have good combat stats)
+```
+
+**When they change:** Never during training. They're computed once and fixed.
+If you upgrade the deck (swap cards after a new set release), re-run
+`inferRewardWeights()` with the new decklist — the per-card architecture means
+the update is automatic.
+
+**Role in training:** These are the evaluation function applied to each completed
+game. `makeWeightedReward(weights)` compiles them into a `(result: GameResult) => number`
+function that produces a single scalar per game. That scalar is what the neural
+network is trained to maximize.
+
+---
+
+### How They Fit Together
+
+```
+BEFORE TRAINING
+  inferRewardWeights(deck, defs)
+    → RewardWeights (6 numbers, fixed for this deck)
+  makeWeightedReward(RewardWeights)
+    → reward function: (GameResult) → scalar
+
+DURING EACH EPISODE
+  for each action decision:
+    stateToFeatures(state)          ← card feature vectors (44 dims × cards)
+      → 1224-dim input vector
+    network.forward(input)          ← neural network weights applied
+      → action scores
+    ε-greedy pick action
+    record (features, action) in episode history
+
+  game ends → GameResult
+    reward function(GameResult)     ← RewardWeights applied
+      → scalar G (0 to 1)
+
+  network.updateFromEpisode(G)      ← neural network weights nudged
+    → weights shift slightly toward decisions that produced this G
+```
+
+The three kinds of weights:
+- **Card feature vectors** = the senses (how the bot perceives each card)
+- **RewardWeights** = the values (what the bot is trying to achieve)
+- **Neural network weights** = the learned intuition (how to act to achieve those values)
+
+Only the neural network weights change during training. The other two are inputs.
+
+---
+
+### Why Archetypes Are Continuous Vectors, Not Labels
+
+The RewardWeights vector encodes the deck's strategic identity without discretizing
+it into "aggro / midrange / control."
+
+Two decks both loosely described as "control" might have:
+- Deck A: heavy removal, low lore chars → `loreDenial=0.65, loreGain=0.18`
+- Deck B: mid-cost chars + some removal → `loreDenial=0.40, loreGain=0.35`
+
+These produce meaningfully different reward functions and therefore different bots,
+without either deck ever needing a label.
+
+The per-card architecture also handles new sets gracefully: `cardToFeatures(def)` uses
+only cost, lore, strength, willpower, and keyword/effect flags — all present even on
+keyword-only stub cards (sets 2–11). Swapping cards in a deck automatically changes
+the weights when you re-run `inferRewardWeights()`. No manual re-labeling needed.
