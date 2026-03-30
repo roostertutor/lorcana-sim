@@ -1,83 +1,83 @@
 Mirror training trace: ruby-amethyst
-Date: 2026-03-30T08:45:04.739Z
+Date: 2026-03-30T15:56:49.642Z
 Episodes: 10000, maxTurns: 80
 Training: from scratch, high exploration (ε: 1.0 → 0.05)
 Reward weights: win=0.773 lore=0.280 denial=0.300 banish=0.380 ink=0.355 trade=0.306
 
 BASELINE (random vs random):
-  Avg lore: 13.2, Win rate: 50%
-  End-of-game zones (avg per game, player1, total≈48/60):
-    Inkwell:      17.7
-    In play:      10.8
-    Banished:     17.8
+  Avg lore: 12.3, Win rate: 45%
+  End-of-game zones (avg per game, player1, total≈50/60):
+    Inkwell:      18.5
+    In play:      11.2
+    Banished:     18.7
     Hand/Deck:    1.5
-  Card preferences (random baseline):
-  ------------------------------------------------------------------
-  Card                                Ink  Play  Quest  Chall
-  ------------------------------------------------------------------
-  Elsa - Spirit of Winter                0   319    124     76
-  Ursula - Power Hungry                  0   234    127     79
-  Rafiki - Mysterious Sage               0   153    113     74
-  Magic Broom - Bucket Brigade         141   168    104     44
-  Be Prepared                            0   299      0      0
-  Dragon Fire                            0   290      0      0
-  Aladdin - Street Rat                 146   161     85     34
-  Maleficent - Sorceress               175   137     68     36
-  Maui - Hero to All                   184   134      0     97
-  Aladdin - Heroic Outlaw              202   119     56     38
-  Archimedes - Highly Educated Owl      60    99     82     30
-  Friends on the Other Side            134   182      0      0
-  Pongo - Ol' Rascal                    84    76     59     35
-  Magic Mirror                           0   139      0      0
-  Gaston - Arrogant Hunter              78    84      0     46
-  Maleficent - Monstrous Dragon        238    79     24     21
-  Mickey Mouse - Brave Little Tailor   118    49     30     28
-  The Queen - Wicked and Vain           98    59     24     19
-  Elsa - Snow Queen                     36    35     16      9
-  Shield of Virtue                      34    48      0      0
-  White Rabbit's Pocket Watch           38    41      0      0
+  Card stats (random baseline):
+  ------------------------------------------------------------------------------
+  Card                             Ink Play Sung Quest Chall SungBy Activ
+  ------------------------------------------------------------------------------
+  Magic Mirror                       0  150    0     0     0      0   539
+  Elsa - Spirit of Winter            0  326    0   140    96     44     0
+  Ursula - Power Hungry              0  245    0   106    75     37     0
+  Rafiki - Mysterious Sage           0  159    0    83    87      6     0
+  Dragon Fire                        0  322    0     0     0      0     0
+  Aladdin - Street Rat             158  177    0    96    48     12     0
+  Be Prepared                        0  241   71     0     0      0     0
+  Maleficent - Sorceress           172  162    0    97    50      1     0
+  Magic Broom - Bucket Brigade     168  158    0    95    42      0     0
+  Archimedes - Highly Educated O…   58  112    0    80    31      0     0
+  Maui - Hero to All               206  125    0     0    93      3     0
+  White Rabbit's Pocket Watch       36   49    0     0     0      0   169
+  Shield of Virtue                  29   57    0     0     0      0   151
+  Friends on the Other Side        135  127   65     0     0      0     0
+  Aladdin - Heroic Outlaw          226   94    0    48    25      9     0
+  Maleficent - Monstrous Dragon    239   90    0    35    23      7     0
+  Gaston - Arrogant Hunter          71   96    0     0    52      0     0
+  Pongo - Ol' Rascal                94   68    0    37    29      8     0
+  The Queen - Wicked and Vain      104   58    0    23    14      2    26
+  Mickey Mouse - Brave Little Ta…  118   46    0    26    17      3     0
+  Elsa - Snow Queen                 37   43    0    15     5      4    14
 
 TRAINING CURVE:
-  Episode 1000: avg=0.458, ε=0.606
-  Episode 2000: avg=0.561, ε=0.368
-  Episode 3000: avg=0.623, ε=0.223
-  Episode 4000: avg=0.659, ε=0.135
-  Episode 5000: avg=0.668, ε=0.082
-  Episode 6000: avg=0.676, ε=0.050
-  Episode 7000: avg=0.685, ε=0.050
-  Episode 8000: avg=0.680, ε=0.050
-  Episode 9000: avg=0.681, ε=0.050
-  Episode 10000: avg=0.686, ε=0.050
+  Episode 1000: avg=0.448, ε=0.606
+  Episode 2000: avg=0.502, ε=0.368
+  Episode 3000: avg=0.546, ε=0.223
+  Episode 4000: avg=0.586, ε=0.135
+  Episode 5000: avg=0.629, ε=0.082
+  Episode 6000: avg=0.653, ε=0.050
+  Episode 7000: avg=0.665, ε=0.050
+  Episode 8000: avg=0.670, ε=0.050
+  Episode 9000: avg=0.677, ε=0.050
+  Episode 10000: avg=0.679, ε=0.050
 
 TRAINED (trained vs random):
-  Avg lore: 18.9, Win rate: 92%
-  End-of-game zones (avg per game, player1, total≈27/60):
-    Inkwell:      7.7
-    In play:      7.0
-    Banished:     6.8
-    Hand/Deck:    5.1
-  Card preferences (trained mirror):
-  ------------------------------------------------------------------
-  Card                                Ink  Play  Quest  Chall
-  ------------------------------------------------------------------
-  Magic Broom - Bucket Brigade          48   266    619      1
-  Maleficent - Sorceress                89   241    439      4
-  Aladdin - Street Rat                  75   232    417      3
-  Archimedes - Highly Educated Owl      10   137    379      0
-  Rafiki - Mysterious Sage               0   139    274     39
-  Ursula - Power Hungry                  0   179    250      2
-  Elsa - Spirit of Winter                0   251    102      5
-  Pongo - Ol' Rascal                    84   104    243      2
-  Dragon Fire                            0   252      0      0
-  Maui - Hero to All                   211   124      0    113
-  Friends on the Other Side             80   217      0      0
-  Gaston - Arrogant Hunter              32   112      0     84
-  Elsa - Snow Queen                     26    59    104      1
-  Magic Mirror                           0   151      0      0
-  The Queen - Wicked and Vain          101    59     88      2
-  Aladdin - Heroic Outlaw              272    55     59      1
-  Be Prepared                            0    86      0      0
-  Shield of Virtue                       3    75      0      0
-  White Rabbit's Pocket Watch           43    38      0      0
-  Maleficent - Monstrous Dragon        287    20     13      0
-  Mickey Mouse - Brave Little Tailor   170     8      8      1
+  Avg lore: 20.1, Win rate: 96%
+  End-of-game zones (avg per game, player1, total≈26/60):
+    Inkwell:      7.8
+    In play:      6.7
+    Banished:     7.7
+    Hand/Deck:    3.4
+  Card stats (trained mirror):
+  ------------------------------------------------------------------------------
+  Card                             Ink Play Sung Quest Chall SungBy Activ
+  ------------------------------------------------------------------------------
+  Magic Broom - Bucket Brigade      56  268    0   632     4      0     0
+  Maleficent - Sorceress            82  252    0   554     4      0     0
+  Aladdin - Street Rat              79  247    0   517     7      0     0
+  Archimedes - Highly Educated O…   16  145    0   378     0      0     0
+  Rafiki - Mysterious Sage           0  146    0   304    38      0     0
+  Elsa - Spirit of Winter            0  229    0   205     5      0     0
+  Ursula - Power Hungry              0  176    0   197     0      3     0
+  Magic Mirror                       0  162    0     0     0      0   180
+  Shield of Virtue                   8   74    0     0     0      0   200
+  Maui - Hero to All               197  145    0     0   129      0     0
+  Pongo - Ol' Rascal               103   81    0   164     2      0     0
+  Dragon Fire                        0  246    0     0     0      0     0
+  Friends on the Other Side        111  235    0     0     0      0     0
+  White Rabbit's Pocket Watch       29   49    0     0     0      0   169
+  Gaston - Arrogant Hunter          27  127    0     0    87      0     0
+  Elsa - Snow Queen                 27   64    0   103     2      0     2
+  Aladdin - Heroic Outlaw          258   67    0    72     2      0     0
+  The Queen - Wicked and Vain      100   51    0    80     0      0     3
+  Be Prepared                        0  116    3     0     0      0     0
+  Maleficent - Monstrous Dragon    319   22    0    14     1      0     0
+  Mickey Mouse - Brave Little Ta…  162   19    0    13     0      0     0
