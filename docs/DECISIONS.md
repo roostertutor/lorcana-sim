@@ -449,7 +449,7 @@ When implementing discard triggers for Set 2, fire a single
 
 ---
 
-## Planned: Reckless Implementation
+## Done: Reckless Implementation
 
 ### Two enforcement points for one keyword
 
@@ -691,5 +691,100 @@ training seed. Same seed → identical reward curve, enabling reproducible exper
 
 ---
 
-*Last updated: Stream 1 (RL Bot with per-card scoring)*
-*Changes: autoTag.ts, network.ts, policy.ts, trainer.ts, learn.ts CLI, rl bot in resolveBot.*
+---
+
+## Stream 2: Actor-Critic + GAE (Upgrade from REINFORCE)
+
+### Why REINFORCE was wrong for combo decks
+
+REINFORCE assigns the same episode-level return to every decision in a game.
+For a deck where the win condition is "quest repeatedly," this works — the signal
+is dense and uniform. For multi-step combos (exert Singer → play Song → use saved
+ink for finisher), it fails:
+
+1. **High variance** — a single end-of-game return is a noisy estimate of action
+   quality. Every action in a 30-turn game gets the same gradient signal.
+2. **No temporal credit** — "I exerted Maui to sing Be Prepared on turn 8" and
+   "I played any card on turn 8" get the same update. The gradient can't distinguish.
+3. **Exploration is dumb** — ε-greedy picks random individual actions, not
+   combinations. Even if it randomly sings a song, nothing connects that to the
+   downstream play.
+
+### What we switched to: Actor-Critic + GAE
+
+- **Critic (valueNet)**: A learned V(s) network (STATE_FEATURE_SIZE → 64 → 32 → 1)
+  predicts expected future return from any state. Acts as a per-step baseline,
+  replacing the EMA scalar (`rewardBaseline`).
+- **GAE (λ=0.95)**: Computes per-action advantages via multi-step TD chain:
+  `delta_t = r_t + γ·V(s_{t+1}) - V(s_t)`, `A_t = delta_t + γλ·A_{t+1}`.
+  Effective ~20-turn horizon — enough to credit "I sang this song" against the
+  downstream finisher play.
+- **Value loss weight = 0.5**: Standard A2C ratio for critic MSE update.
+- **Per-step rewards** (scale 0.05): Lore-gain deltas injected as intermediate
+  rewards into the GAE backward pass (assigned to last step of each turn to avoid
+  double-counting).
+
+### What was removed (REINFORCE-era code)
+
+`trainWithCurriculum` and `goldfishReward` were a two-phase warm-up workaround:
+a "goldfish phase" (no opponent) gave the policy dense reward signal to bootstrap
+from sparse win/loss returns. With A2C, the critic learns V(s) from step zero and
+bootstraps per-step value estimates without needing a warmup phase. Both were deleted.
+The `--curriculum` CLI flag was also removed.
+
+### Results (10k episodes)
+
+Win rate vs random opponent climbed from 44.8% → 67.9% average reward, reaching
+96% win rate by ep 10k. The reward curve continued improving after epsilon hit its
+floor at ep ~6k — confirming the critic was independently improving the policy via
+lower-variance gradient estimates.
+
+### Known open problems
+
+- **Singing combos still rare**: Be Prepared sung 3/116 plays, FOTOS 0/235 at 10k
+  episodes. Multi-step combos require self-play or explicit combo reward shaping.
+- **Monstrous Dragon**: Inked 319×, played only 22×. Bot hasn't learned high-cost
+  cards are worth playing; needs more episodes or reward shaping.
+
+---
+
+## Train-Mirror: Query-Based Analytics
+
+### Decision
+
+Refactored `scripts/train-mirror.ts` to use `GameResult[]` + post-hoc queries
+instead of accumulating live stats during game iteration.
+
+### Before (live accumulation)
+
+```typescript
+// CardTrace accumulated inside the game loop
+for (const action of result.actions) {
+  if (action.type === "PLAY_CARD") trace.timesPlayed++;
+  // ...
+}
+```
+
+### After (query-based)
+
+```typescript
+const results: GameResult[] = runGames(policy, deck, count, seed);
+const cardPerf = aggregateResults(results);          // from @lorcana-sim/analytics
+const actionStats = queryActionStats(results);        // post-hoc action aggregation
+```
+
+### Why
+
+- **Consistency with the rest of the analytics platform**: `runSimulation()` →
+  `aggregateResults()` is the established pattern. The old `traceGames()` was
+  a parallel, incompatible accumulator.
+- **Flexibility**: New analytics columns can be added without changing game loop code.
+  `queryActionStats()` iterates `result.actions` once per query, not per game.
+- **Single unified table**: Two old tables (card preferences + mechanic usage) merged
+  into one table per card with columns: Ink, Play, Sung, Quest, Chall, SungBy, Activ,
+  WR%drawn, Lore/g. Easier to compare baseline vs trained at a glance.
+
+---
+
+*Last updated: 2026-03-30 (A2C+GAE upgrade, Reckless implementation, query-based analytics)*
+*Changes: policy.ts (A2C+GAE), trainer.ts (remove REINFORCE workarounds), train-mirror.ts (query-based), engine items-as-singers fix (CRD 5.4.4.2)*

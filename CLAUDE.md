@@ -9,8 +9,8 @@ to produce deck analytics and win rates. NOT a human-playable simulator.
 
 ## Status
 
-- engine:    done (162 passing, 1 todo). CRD audited. Tests organized by CRD.
-- simulator: done (3 passing + 27 RL tests). Layer 3 invariants passing. RL bot implemented.
+- engine:    done (170 passing, 1 todo). CRD audited. Tests organized by CRD.
+- simulator: done (47 passing). Layer 3 invariants passing. RL bot implemented (Actor-Critic + GAE).
 - analytics: done (15 passing).
 - cli:       done. analyze, compare, optimize, sweep, learn.
 - ui:        done. 7 screens, React+Vite. Analysis overlay on Play + TestBench.
