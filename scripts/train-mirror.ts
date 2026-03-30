@@ -280,7 +280,8 @@ const trainingResult = trainPolicy({
   epsilon: 1.0,
   minEpsilon: 0.05,
   decayRate: 0.9995,
-  rewardWeights,
+  // Simple win=1/loss=0 reward — the full range is critical for A2C.
+  // Weighted rewards compress win/loss into ~0.3–0.5, collapsing advantages to ~0.
   onLog: (ep, _r, eps, avg) => {
     const line = `  Episode ${ep}: avg=${avg.toFixed(3)}, ε=${eps.toFixed(3)}`;
     console.log(line);
