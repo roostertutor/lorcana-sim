@@ -12,8 +12,17 @@ import {
   evaluatePosition,
   runSimulation,
   GreedyBot,
-  MidrangeWeights,
 } from "@lorcana-sim/simulator";
+
+const EVAL_WEIGHTS = {
+  loreAdvantage: 0.6,
+  boardAdvantage: 0.6,
+  handAdvantage: 0.5,
+  inkAdvantage: 0.5,
+  deckQuality: 0.4,
+  urgency: (state: GameState) => Math.pow(Math.max(state.players.player1.lore, state.players.player2.lore) / 20, 2),
+  threatLevel: (_state: GameState) => 0.5,
+};
 
 export interface AnalysisResult {
   winProbability: number | null;
@@ -47,7 +56,7 @@ export function useAnalysis(
     // --- Immediate: position factors ---
     try {
       const probs = computeDeckProbabilities(gameState, "player1", definitions);
-      const result = evaluatePosition(gameState, "player1", probs, MidrangeWeights);
+      const result = evaluatePosition(gameState, "player1", probs, EVAL_WEIGHTS);
       setFactors(result.factors);
       setPositionScore(result.score);
     } catch {

@@ -13,8 +13,6 @@
 import { resolve } from "path";
 import { runAnalyze } from "./commands/analyze.js";
 import { runCompare } from "./commands/compare.js";
-import { runOptimize } from "./commands/optimize.js";
-import { runSweep } from "./commands/sweep.js";
 import { runQuery } from "./commands/query.js";
 import { runLearn } from "./commands/learn.js";
 
@@ -104,26 +102,6 @@ switch (subcommand) {
     break;
   }
 
-  case "optimize": {
-    const usage = "Usage: pnpm optimize --deck ./deck.txt --opponent aggro --iterations 500";
-    runOptimize({
-      deck: userPath(requireArg(args, "deck", usage)),
-      opponent: args["opponent"] ?? "greedy",
-      iterations: optionalInt(args, "iterations", 500),
-    });
-    break;
-  }
-
-  case "sweep": {
-    const usage = "Usage: pnpm sweep --deck ./deck.txt --opponent control --iterations 200";
-    runSweep({
-      deck: userPath(requireArg(args, "deck", usage)),
-      opponent: args["opponent"] ?? "greedy",
-      iterations: optionalInt(args, "iterations", 200),
-    });
-    break;
-  }
-
   case "query": {
     const usage =
       "Usage: pnpm query --sim sim.json --questions questions.json [--save results.json] [--policy policy.json]\n" +
@@ -160,23 +138,19 @@ Lorcana Sim CLI
 Commands:
   analyze   Run simulation and analyze a single deck
   compare   Compare two decks head-to-head
-  optimize  Find optimal weights for a deck vs an opponent style
-  sweep     Sweep the weight space and show a win-rate grid
   query     Run condition-based queries against simulation results
   learn     Train an RL policy (A2C+GAE)
 
 Examples:
   pnpm analyze  --deck ./deck.txt --bot greedy --iterations 1000
-  pnpm analyze  --deck ./deck.txt --bot aggro  --iterations 1000
-  pnpm compare  --deck1 ./a.txt --deck2 ./b.txt --bot probability --iterations 5000
-  pnpm optimize --deck ./deck.txt --opponent aggro --iterations 500
-  pnpm sweep    --deck ./deck.txt --opponent control --iterations 200
+  pnpm analyze  --deck ./deck.txt --bot rl --policy ./policies/control.json --iterations 1000
+  pnpm compare  --deck1 ./a.txt --deck2 ./b.txt --bot greedy --iterations 5000
   pnpm query    --sim sim.json --questions questions.json [--save results.json]
   pnpm query    --sim sim.json --questions questions.json --policy ./policies/control.json
   pnpm query    --questions questions.json --results saved.json
   pnpm learn    --deck ./deck.txt --episodes 50000 --save ./policy.json
 
-Bot options: random, greedy, probability, aggro, control, midrange, rush, rl
+Bot options: random, greedy, rl (use --policy with rl)
 `);
     process.exit(subcommand ? 1 : 0);
   }

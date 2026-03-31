@@ -2,8 +2,7 @@ import React, { useState, useCallback } from "react";
 import type { CardDefinition, DeckEntry } from "@lorcana-sim/engine";
 import {
   runSimulation,
-  RandomBot, GreedyBot, ProbabilityBot,
-  AggroWeights, ControlWeights, MidrangeWeights, RushWeights,
+  RandomBot, GreedyBot,
 } from "@lorcana-sim/simulator";
 import type { BotStrategy } from "@lorcana-sim/simulator";
 import { aggregateResults } from "@lorcana-sim/analytics";
@@ -11,10 +10,6 @@ import type { DeckStats } from "@lorcana-sim/analytics";
 
 const BOT_OPTIONS: { id: string; label: string; description: string; bot: () => BotStrategy }[] = [
   { id: "greedy", label: "Greedy", description: "Simple heuristics — good baseline", bot: () => GreedyBot },
-  { id: "aggro", label: "Aggro", description: "Race to 20 lore", bot: () => ProbabilityBot(AggroWeights) },
-  { id: "control", label: "Control", description: "Board + hand advantage", bot: () => ProbabilityBot(ControlWeights) },
-  { id: "midrange", label: "Midrange", description: "Balanced weighted play", bot: () => ProbabilityBot(MidrangeWeights) },
-  { id: "rush", label: "Rush", description: "Cheap, fast, aggressive", bot: () => ProbabilityBot(RushWeights) },
   { id: "random", label: "Random", description: "Stress test baseline", bot: () => RandomBot },
 ];
 

@@ -11,9 +11,19 @@ import {
   getEffectiveWillpower,
   getEffectiveLore,
 } from "@lorcana-sim/engine";
-import type { BotStrategy } from "../types.js";
+import type { BotStrategy, BotWeights } from "../types.js";
 import { resolveChoiceIntelligently } from "./choiceResolver.js";
-import { MidrangeWeights } from "./presets.js";
+
+// Balanced evaluation weights used for choice resolution (target selection, discard priority)
+const GREEDY_WEIGHTS: BotWeights = {
+  loreAdvantage: 0.6,
+  boardAdvantage: 0.6,
+  handAdvantage: 0.5,
+  inkAdvantage: 0.5,
+  deckQuality: 0.4,
+  urgency: (state) => Math.pow(Math.max(state.players.player1.lore, state.players.player2.lore) / 20, 2),
+  threatLevel: (_state) => 0.5,
+};
 
 /**
  * Find the best challenge: only challenge if the defender dies.
@@ -130,7 +140,7 @@ export const GreedyBot: BotStrategy = {
     definitions: Record<string, CardDefinition>
   ): GameAction {
     if (state.pendingChoice && state.pendingChoice.choosingPlayerId === playerId) {
-      return resolveChoiceIntelligently(state, playerId, definitions, MidrangeWeights);
+      return resolveChoiceIntelligently(state, playerId, definitions, GREEDY_WEIGHTS);
     }
 
     const legal = getAllLegalActions(state, playerId, definitions);

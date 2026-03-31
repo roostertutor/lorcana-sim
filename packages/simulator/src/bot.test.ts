@@ -14,8 +14,6 @@ import {
 } from "@lorcana-sim/engine";
 import type { CardInstance, GameState, PlayerID } from "@lorcana-sim/engine";
 import { GreedyBot } from "./bots/GreedyBot.js";
-import { ProbabilityBot } from "./bots/ProbabilityBot.js";
-import { AggroWeights, ControlWeights, MidrangeWeights } from "./bots/presets.js";
 import { resolveChoiceIntelligently } from "./bots/choiceResolver.js";
 import { shouldMulligan, performMulligan, DEFAULT_MULLIGAN } from "./mulligan.js";
 import { runGame } from "./runGame.js";
@@ -87,6 +85,16 @@ function giveInk(state: GameState, playerId: PlayerID, amount: number): GameStat
     },
   };
 }
+
+const TEST_WEIGHTS = {
+  loreAdvantage: 0.6,
+  boardAdvantage: 0.6,
+  handAdvantage: 0.5,
+  inkAdvantage: 0.5,
+  deckQuality: 0.4,
+  urgency: (state: GameState) => Math.pow(Math.max(state.players.player1.lore, state.players.player2.lore) / 20, 2),
+  threatLevel: (_state: GameState) => 0.5,
+};
 
 // ---------------------------------------------------------------------------
 // LAYER 5a — CORRECTNESS FLOOR
@@ -194,7 +202,7 @@ describe("Layer 5a — Bot correctness floor", () => {
       },
     };
 
-    const action = resolveChoiceIntelligently(state, "player1", defs, MidrangeWeights);
+    const action = resolveChoiceIntelligently(state, "player1", defs, TEST_WEIGHTS);
 
     expect(action.type).toBe("RESOLVE_CHOICE");
     if (action.type === "RESOLVE_CHOICE") {
@@ -234,7 +242,7 @@ describe("Layer 5a — Bot correctness floor", () => {
       },
     };
 
-    const action = resolveChoiceIntelligently(state, "player1", defs, MidrangeWeights);
+    const action = resolveChoiceIntelligently(state, "player1", defs, TEST_WEIGHTS);
 
     expect(action.type).toBe("RESOLVE_CHOICE");
     if (action.type === "RESOLVE_CHOICE") {
@@ -275,7 +283,7 @@ describe("Layer 5a — Bot correctness floor", () => {
       },
     };
 
-    const action = resolveChoiceIntelligently(state, "player1", defs, MidrangeWeights);
+    const action = resolveChoiceIntelligently(state, "player1", defs, TEST_WEIGHTS);
 
     expect(action.type).toBe("RESOLVE_CHOICE");
     if (action.type === "RESOLVE_CHOICE") {
@@ -411,41 +419,6 @@ describe("Layer 5b — Personality & simulation", () => {
     const p1Rate = p1Wins / total;
     expect(p1Rate).toBeGreaterThan(0.25);
     expect(p1Rate).toBeLessThan(0.75);
-  });
-
-  it("GreedyBot (quest-first) finishes games faster than ControlWeights", () => {
-    const GAMES = 50;
-    let greedyTotalTurns = 0;
-    let controlTotalTurns = 0;
-
-    for (let i = 0; i < GAMES; i++) {
-      const greedyResult = runGame({
-        player1Deck: TEST_DECK,
-        player2Deck: TEST_DECK,
-        player1Strategy: GreedyBot,
-        player2Strategy: GreedyBot,
-        definitions: defs,
-        maxTurns: 50,
-      });
-      greedyTotalTurns += greedyResult.turns;
-
-      const controlResult = runGame({
-        player1Deck: TEST_DECK,
-        player2Deck: TEST_DECK,
-        player1Strategy: ProbabilityBot(ControlWeights),
-        player2Strategy: ProbabilityBot(ControlWeights),
-        definitions: defs,
-        maxTurns: 50,
-      });
-      controlTotalTurns += controlResult.turns;
-    }
-
-    const greedyAvg = greedyTotalTurns / GAMES;
-    const controlAvg = controlTotalTurns / GAMES;
-
-    // GreedyBot quests first every turn → should end games faster than
-    // ControlWeights which prioritizes board control over racing to lore
-    expect(greedyAvg).toBeLessThan(controlAvg);
   });
 
   it("startingState injection bypasses createGame and mulligan", () => {

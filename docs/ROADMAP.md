@@ -3,7 +3,7 @@
 # Cross-references all docs in docs/ folder.
 # Does NOT replace SPEC.md or DECISIONS.md.
 #
-# Last updated: Session 11 (Stream 1 + 2f done, 3e/3f unblocked, pending cleanup active)
+# Last updated: Session 12 (Stream 1 + 2f done, deprecated bots deleted, cleanup complete)
 
 ---
 
@@ -11,17 +11,17 @@
 
 ```
 ✅ Rule engine — Sets 1-11 imported, Set 1 fully implemented, CRD audited
-✅ Simulator — RandomBot, GreedyBot, ProbabilityBot, PersonalBot, RampCindyCowBot
+✅ Simulator — RandomBot, GreedyBot, RLPolicy (deprecated bots deleted)
 ✅ Mulligan — shouldMulligan/performMulligan, bot-specific strategies, mulliganed in GameResult
 ✅ Analytics — composition, aggregation, comparison, calibration, sensitivity
 ✅ Query system — GameCondition language, ref/mulliganed conditions, save/load results
-✅ CLI — analyze, compare, optimize, sweep, query (query now accepts --policy for RL bot)
-✅ Basic UI — 5 pages exist, not all aligned with new direction:
+✅ CLI — analyze, compare, query (query accepts --policy for RL bot), learn
+✅ Basic UI — 5 pages, all aligned with current direction:
            DeckInput: permanent, no changes needed
            CompositionView: permanent, no changes needed (pure math, no bots)
-           SimulationView: ⚠️ bot options need updating — remove deprecated bots, add rl+policy
-           ComparisonView: ⚠️ bot options need updating — remove deprecated bots, add rl+policy
-           WeightExplorer: ⚠️ DELETE — ProbabilityBot is deprecated, this page has no purpose
+           SimulationView: greedy + random bots only
+           ComparisonView: greedy + random bots only
+           WeightExplorer: DELETED (ProbabilityBot removed)
 ✅ Layer 1-3 tests — 162 engine tests + 1000 RandomBot invariant games
 ✅ Layer 5 bot tests — 12 tests in bot.test.ts
 ✅ Set 1 complete — 204 unique cards, 216 entries, all abilities implemented, 0 stubs
@@ -577,23 +577,32 @@ These are explicitly deferred or cancelled:
 ❌ Set 2+ full ability implementation (do on demand when cards are needed for analysis)
 ```
 
-## Pending Cleanup (Stream 1 shipped — these are now active tasks)
+## Pending Cleanup — DONE ✅
 
 ```
-DELETE:
+DELETED:
   RampCindyCowBot.ts   — replaced by RL
   ProbabilityBot.ts    — replaced by RL
   PersonalBot.ts       — replaced by RL
   presets.ts           — weights only used by ProbabilityBot
   WeightExplorer.tsx   — UI for ProbabilityBot weights, no longer useful
+  optimizer.ts         — replaced by RL slot optimization (future Stream 2g)
+  optimize.ts (CLI)    — removed, pnpm optimize command gone
+  sweep.ts (CLI)       — removed, pnpm sweep command gone
 
-UPDATE:
-  resolveBot.ts        — remove "ramp-cindy-cow", "probability", "aggro",
-                         "control", "midrange", "rush" from bot name map
-  SimulationView.tsx   — remove deprecated bot options, add rl + policy path input
-  ComparisonView.tsx   — same
+UPDATED:
+  resolveBot.ts        — random/greedy/rl only
+  SimulationView.tsx   — greedy + random bots only
+  ComparisonView.tsx   — greedy + random bots only
+  TestBench.tsx        — greedy + random bots only
+  GameBoard.tsx        — greedy + random bots only
+  useAnalysis.ts       — MidrangeWeights inlined as EVAL_WEIGHTS (local const)
+  GreedyBot.ts         — MidrangeWeights inlined as GREEDY_WEIGHTS (local const)
+  simulator index.ts   — removed all deprecated exports
+  App.tsx              — WeightExplorer tab removed
+  bot.test.ts          — ProbabilityBot/presets removed, TEST_WEIGHTS inlined
 
-KEEP:
+KEPT:
   RandomBot.ts         — RL trainer uses it as goldfish opponent
   GreedyBot.ts         — analysis overlay uses it until 3f ships
 ```
@@ -616,9 +625,7 @@ Ask in order:
    Update sim config to "bot": "rl" + policy path.
    Run queries, save results. Old RampCindyCowBot/GreedyBot results are biased — discard them.
 
-3. **Do the pending cleanup.** Stream 1 shipped — deprecated bots should be deleted now.
-
-4. **Do I want to play against a real person?**
+3. **Do I want to play against a real person?**
    If yes — Stream 4 (server). Stream 3's useGameSession already done ✅.
 
 5. **Need to implement a new card for a deck you want to sim?**

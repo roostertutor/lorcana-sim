@@ -2,8 +2,7 @@ import React, { useState, useCallback } from "react";
 import type { CardDefinition, DeckEntry } from "@lorcana-sim/engine";
 import { parseDecklist, LORCAST_CARD_DEFINITIONS } from "@lorcana-sim/engine";
 import {
-  runSimulation, GreedyBot, ProbabilityBot,
-  AggroWeights, ControlWeights, MidrangeWeights, RushWeights,
+  runSimulation, GreedyBot, RandomBot,
 } from "@lorcana-sim/simulator";
 import type { BotStrategy } from "@lorcana-sim/simulator";
 import { compareDecks } from "@lorcana-sim/analytics";
@@ -11,10 +10,7 @@ import type { MatchupStats } from "@lorcana-sim/analytics";
 
 const BOT_OPTIONS: { id: string; label: string; bot: () => BotStrategy }[] = [
   { id: "greedy", label: "Greedy", bot: () => GreedyBot },
-  { id: "aggro", label: "Aggro", bot: () => ProbabilityBot(AggroWeights) },
-  { id: "control", label: "Control", bot: () => ProbabilityBot(ControlWeights) },
-  { id: "midrange", label: "Midrange", bot: () => ProbabilityBot(MidrangeWeights) },
-  { id: "rush", label: "Rush", bot: () => ProbabilityBot(RushWeights) },
+  { id: "random", label: "Random", bot: () => RandomBot },
 ];
 
 const SAMPLE = `4 HeiHei - Boat Snack

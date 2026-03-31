@@ -8,11 +8,7 @@ import type { CardDefinition, DeckEntry, PlayerID } from "@lorcana-sim/engine";
 import { parseDecklist } from "@lorcana-sim/engine";
 import {
   GreedyBot,
-  ProbabilityBot,
   RandomBot,
-  AggroWeights,
-  ControlWeights,
-  MidrangeWeights,
 } from "@lorcana-sim/simulator";
 import type { BotStrategy } from "@lorcana-sim/simulator";
 import { useGameSession } from "../hooks/useGameSession.js";
@@ -26,9 +22,6 @@ import AnalysisPanel from "../components/AnalysisPanel.js";
 
 const BOT_OPTIONS: { id: string; label: string; bot: () => BotStrategy }[] = [
   { id: "greedy", label: "Greedy", bot: () => GreedyBot },
-  { id: "aggro", label: "Aggro", bot: () => ProbabilityBot(AggroWeights) },
-  { id: "control", label: "Control", bot: () => ProbabilityBot(ControlWeights) },
-  { id: "midrange", label: "Midrange", bot: () => ProbabilityBot(MidrangeWeights) },
   { id: "random", label: "Random", bot: () => RandomBot },
 ];
 
