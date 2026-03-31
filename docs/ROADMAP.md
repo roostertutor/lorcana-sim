@@ -63,14 +63,15 @@ not hardcoded heuristics.
 
 ```
 ✅ 1a. Auto-tagger (autoTag.ts)
-    Card features (44d), state features, action features
+    Card features (45d), state features, action features
     Per-card scoring: network scores each legal action individually
 
 ✅ 1b. Neural network (network.ts)
     Plain TypeScript, no external dependencies
-    Action net: (state+action → 128 → 64 → 1 score)
+    Actor net: (state+action → 128 → 64 → 1 score)
+    Critic (value) net: (state → 64 → 32 → 1)
     Mulligan net: (state → 64 → 32 → 2)
-    REINFORCE update with gradient clipping
+    A2C + GAE update with gradient clipping
 
 ✅ 1c. RLPolicy (policy.ts)
     Per-card scoring: scores each legal action, softmax, pick best
@@ -78,8 +79,9 @@ not hardcoded heuristics.
     ε-greedy exploration with seeded RNG
 
 ✅ 1d. Training loop (trainer.ts)
-    trainPolicy() + trainWithCurriculum()
+    trainPolicy() + trainWithCurriculum() + practice games (anti-forgetting)
     All randomness seeded — same seed → identical reward curve
+    OOM fix: opponent RLPolicy history cleared after each episode
 
 ✅ 1e. CLI command (learn.ts)
     pnpm learn --deck ./deck.txt --episodes 50000 --save ./policy.json
@@ -87,14 +89,27 @@ not hardcoded heuristics.
     pnpm learn --load ./policy.json --deck ./deck.txt --episodes 10000
 
 ✅ 1f. Policy persistence
-    toJSON()/fromJSON() for both networks + epsilon + RNG state
+    toJSON()/fromJSON() for all networks + epsilon + RNG state
     resolveBot("rl") loads saved policy with --policy flag
 
-1g. Validation (ongoing)
-    27 tests passing (autoTag, network, policy, trainer integration)
+✅ 1g. Training scripts
+    train-mirror.ts    — self-play mirror match
+    train-tournament.ts — multi-policy round-robin (Round 1)
+    train-ladder.ts    — adversarial fine-tuning + curriculum (Round 2)
+
+✅ 1h. Trained policies (policies/*.json, all CARD_FEATURE_SIZE=45)
+    ruby-amethyst-aggressor  — 87% vs random, 29% vs greedy (quest flood)
+    ruby-amethyst-midrange   — 97% vs random, 32% vs greedy (board control)
+    ruby-amethyst-aggr-v2    — 98% vs random, 29% vs greedy
+    ruby-amethyst-mid-v2     — 99% vs random, 37% vs greedy (plays Mickey)
+    ruby-amethyst-control    — 97% vs random, 52.3% round-robin (best overall)
+
+1i. Validation (ongoing)
+    Tests passing (autoTag, network, policy, trainer integration)
     Seeded training determinism verified
-    Learning signal test: training produces non-trivial rewards
-    Performance note: per-card scoring needs N forward passes per decision
+    Known gap: Dragon, Mickey, Singer/Song combo not yet learned —
+    need a harder opponent that builds a threatening board to make
+    those high-cost plays worth it
 ```
 
 **Shared prerequisites with Stream 3e — DONE ✅**
