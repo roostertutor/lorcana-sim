@@ -54,7 +54,6 @@ export {
   softmax,
   RLPolicy,
   trainPolicy,
-  trainWithCurriculum,
 } from "./rl/index.js";
 export type {
   NetworkJSON,

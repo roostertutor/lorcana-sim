@@ -1143,6 +1143,18 @@ Uses practice games (anti-catastrophic-forgetting) at each ladder rung.
 Root cause: random/greedy opponents don't punish leaving these in hand.
 Next step: a harder opponent that builds a threatening board.
 
+**Known Singer/Song gap — concrete example (verified by query data):**
+In the ruby-amethyst deck, the correct line is:
+  T3: Play Maleficent - Sorceress (cost 3, draws 1, stays on board as a Singer)
+  T4: Exert Maleficent to sing Friends on the Other Side for free → draw 2, 4 ink still available
+
+Instead, the bot plays Friends on T3 for 3 ink (draw 2) and skips Maleficent.
+Query results (1000 games vs greedy): Friends played T3 = 18.1% of games, Maleficent played T3 = 2.5%.
+The bot evaluates cards independently — it sees "draw 2 for 3 ink" vs "maybe draw 1 + weak body",
+and picks Friends. It cannot see that Maleficent enables Friends for free the next turn.
+This is 3 ink left on the table every time it pays for Friends instead of singing it.
+A policy trained against a harder opponent that punishes a missing board on T4 should learn this line.
+
 ---
 
 ## Training Timeline (Realistic Estimates)

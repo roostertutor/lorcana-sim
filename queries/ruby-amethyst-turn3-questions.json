@@ -1,0 +1,97 @@
+{
+  "definitions": {
+
+    "maleficent_played_t3": {
+      "type": "card_played_by",
+      "card": "maleficent-sorceress",
+      "turn": 3,
+      "player": "me"
+    },
+
+    "friends_played_t3": {
+      "type": "card_played_by",
+      "card": "friends-on-the-other-side",
+      "turn": 3,
+      "player": "me"
+    },
+
+    "aladdin_played_t3": {
+      "type": "card_played_by",
+      "card": "aladdin-street-rat",
+      "turn": 3,
+      "player": "me"
+    },
+
+    "any_3drop_t3": {
+      "type": "or",
+      "conditions": [
+        { "type": "ref", "name": "maleficent_played_t3" },
+        { "type": "ref", "name": "friends_played_t3" },
+        { "type": "ref", "name": "aladdin_played_t3" }
+      ]
+    }
+
+  },
+
+  "queries": [
+
+    {
+      "name": "Games won",
+      "condition": { "type": "won" }
+    },
+
+    {
+      "name": "Any 3-drop played on turn 3",
+      "condition": { "type": "ref", "name": "any_3drop_t3" }
+    },
+
+    {
+      "name": "Maleficent - Sorceress played on turn 3",
+      "condition": { "type": "ref", "name": "maleficent_played_t3" }
+    },
+
+    {
+      "name": "Friends on the Other Side played on turn 3",
+      "condition": { "type": "ref", "name": "friends_played_t3" }
+    },
+
+    {
+      "name": "Aladdin - Street Rat played on turn 3",
+      "condition": { "type": "ref", "name": "aladdin_played_t3" }
+    },
+
+    {
+      "name": "Maleficent T3 AND won",
+      "condition": {
+        "type": "and",
+        "conditions": [
+          { "type": "ref", "name": "maleficent_played_t3" },
+          { "type": "won" }
+        ]
+      }
+    },
+
+    {
+      "name": "Friends T3 AND won",
+      "condition": {
+        "type": "and",
+        "conditions": [
+          { "type": "ref", "name": "friends_played_t3" },
+          { "type": "won" }
+        ]
+      }
+    },
+
+    {
+      "name": "Aladdin T3 AND won",
+      "condition": {
+        "type": "and",
+        "conditions": [
+          { "type": "ref", "name": "aladdin_played_t3" },
+          { "type": "won" }
+        ]
+      }
+    }
+
+  ]
+}
