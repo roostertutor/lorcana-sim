@@ -89,7 +89,7 @@ import type { CardDefinition, Effect, Ability } from "@lorcana-sim/engine";
  * Derived entirely from CardDefinition structured data.
  * All values normalized to [0, 1].
  *
- * Length: CARD_FEATURE_SIZE = 42
+ * Length: CARD_FEATURE_SIZE = 45
  */
 export interface CardFeatureVector {
   // === BASIC PROPERTIES (4) ===
@@ -123,7 +123,6 @@ export interface CardFeatureVector {
 
   // === EFFECT PRESENCE (22) ===
   // 1 if this card has this effect type anywhere (action, ability, trigger)
-  // Order matches engine effect type list for consistency
   hasDraw: number;
   hasDealDamage: number;
   hasRemoveDamage: number;
@@ -131,28 +130,31 @@ export interface CardFeatureVector {
   hasReturnToHand: number;
   hasGainLore: number;
   hasGainStats: number;
+  hasCreateCard: number;
+  hasSearch: number;
+  hasChoose: number;
   hasExert: number;
-  hasReady: number;
   hasGrantKeyword: number;
+  hasReady: number;
   hasCantAction: number;
-  hasLookAtTop: number;      // scry / card selection
+  hasLookAtTop: number;
   hasDiscardFromHand: number;
-  hasMoveToInkwell: number;  // Tipo pattern: put card in inkwell
-  hasGrantExtraInkPlay: number; // Sail pattern: extra ink play this turn
+  hasMoveToInkwell: number;
+  hasConditionalOnTarget: number;
   hasPlayForFree: number;
   hasShuffleIntoDeck: number;
-  hasCostReduction: number;
-  hasLoseLore: number;
-  hasGainStatsConditional: number; // conditional_on_target
-  hasSequential: number;     // "[A] to [B]" or "[A]. If you do, [B]"
-  hasCreateFloatingTrigger: number; // creates ongoing triggers
+  hasPayInk: number;
+  hasCreateFloatingTrigger: number;
 
-  // === TRIGGER PRESENCE (1) ===
-  hasEntersPlayTrigger: number;  // 0 or 1
-  // (other trigger types less common, can add later)
+  // === TRIGGER PRESENCE (2) ===
+  hasEntersPlayTrigger: number;    // fires when this card enters play
+  hasChallengeWinTrigger: number;  // fires when this card banishes another in a challenge
 }
 
-export const CARD_FEATURE_SIZE = 43; // count above
+export const CARD_FEATURE_SIZE = 45; // 4 basic + 4 stats + 13 keywords + 22 effects + 2 triggers
+
+export const ACTION_TYPE_COUNT = 8;  // play_card, play_ink, quest, challenge, activate, pass, resolve_accept, resolve_decline
+export const ACTION_FEATURE_SIZE = ACTION_TYPE_COUNT + CARD_FEATURE_SIZE + CARD_FEATURE_SIZE; // 8+45+45 = 98
 
 /**
  * Extract feature vector from a CardDefinition.
@@ -301,14 +303,14 @@ What the in-game policy observes at each decision point.
  *
  * Hand cards: up to 10 card slots × CARD_FEATURE_SIZE features
  * Board cards: up to 8 my + 8 opponent card slots × CARD_FEATURE_SIZE features
- * Game context: 12 scalar features
+ * Game context: 14 scalar features
  *
- * Total: (10 + 8 + 8) × 43 + 12 = 1118 features
+ * Total: (10 + 8 + 8) × 45 + 14 = 1184 features
  * (Unused slots are zero-padded)
  */
 export const MAX_HAND_SLOTS = 10;
 export const MAX_BOARD_SLOTS = 8;
-export const CONTEXT_FEATURES = 12;
+export const CONTEXT_FEATURES = 14;
 export const STATE_FEATURE_SIZE =
   (MAX_HAND_SLOTS + MAX_BOARD_SLOTS + MAX_BOARD_SLOTS) * CARD_FEATURE_SIZE
   + CONTEXT_FEATURES;
@@ -374,6 +376,8 @@ export function stateToFeatures(
     Math.min(getZone(state, playerId, "inkwell").length / 10, 1), // inkwell size
     myPlayer.hasPlayedInkThisTurn ? 1 : 0,         // already inked this turn
     state.pendingChoice ? 1 : 0,                   // choice pending
+    oppPlay.length > 0 ? oppExertedCount / oppPlay.length : 0, // opp exerted fraction
+    myPlay.length > 0 ? myDamagedCount / myPlay.length : 0,    // my damaged fraction
   );
 
   return features;
@@ -389,13 +393,18 @@ export function stateToFeatures(
 A small feedforward neural network implemented in plain TypeScript.
 No external dependencies. Weights are just numbers — serializable to JSON.
 
-**Architecture:**
+**Architecture (Actor-Critic, A2C + GAE):**
 ```
-Input (STATE_FEATURE_SIZE ≈ 1118)
-  → Hidden layer 1 (128 neurons, ReLU)
-  → Hidden layer 2 (64 neurons, ReLU)
-  → Output (ACTION_COUNT neurons, softmax)
+Actor (actionNet): (STATE_FEATURE_SIZE + ACTION_FEATURE_SIZE ≈ 1282) → 128 → 64 → 1 score
+  Scores each legal action individually. Softmax over scores → pick best.
+
+Critic (valueNet): STATE_FEATURE_SIZE (1184) → 64 → 32 → 1 value V(s)
+  Estimates state value for GAE advantage computation.
+
+Mulligan net: STATE_FEATURE_SIZE (1184) → 64 → 32 → 2 [mulligan, keep]
 ```
+The actor takes (state + action) features concatenated — one forward pass per legal action.
+GAE advantage A(s,a) = Σ (γλ)^t δ_t replaces raw returns, reducing variance.
 
 This is small enough to train on CPU in reasonable time. Large enough
 to learn non-linear relationships between card properties and outcomes.
@@ -445,12 +454,12 @@ export class NeuralNetwork {
   }
 
   /**
-   * Update weights via policy gradient (REINFORCE).
+   * Update weights via policy gradient (A2C with GAE).
    * Called after each game episode with the observed return.
    *
    * @param input        State features at decision time
    * @param actionIndex  Which action was taken (index into output)
-   * @param G            Discounted return (reward × γ^t)
+   * @param G            GAE advantage estimate A(s,a)
    * @param lr           Learning rate
    */
   update(input: number[], actionIndex: number, G: number, lr: number): void {
@@ -462,7 +471,7 @@ export class NeuralNetwork {
     const logits = matmul(h2, this.w3, this.h2Size, this.outputSize, this.b3);
     const probs = softmax(logits);
 
-    // Policy gradient: ∇log π(a|s) × G
+    // Policy gradient: ∇log π(a|s) × A  (A = GAE advantage)
     // For softmax: dL/dlogits[i] = G × (1[i==action] - probs[i])
     const dLogits = probs.map((p, i) => G * ((i === actionIndex ? 1 : 0) - p));
 
@@ -621,6 +630,7 @@ export class RLPolicy implements BotStrategy {
 
   readonly mulliganNet: NeuralNetwork;
   readonly actionNet: NeuralNetwork;
+  readonly valueNet: NeuralNetwork;  // critic: estimates V(s)
 
   /** Exploration rate ε. 1.0 = fully random, 0.0 = fully greedy. */
   epsilon: number;
@@ -641,6 +651,7 @@ export class RLPolicy implements BotStrategy {
     this.epsilon = epsilon;
     this.mulliganNet = new NeuralNetwork(inputSize, 64, 32, MULLIGAN_NET_OUTPUT);
     this.actionNet = new NeuralNetwork(inputSize, 128, 64, ACTION_NET_OUTPUT);
+    this.valueNet = new NeuralNetwork(inputSize, 64, 32, 1);
   }
 
   // --- BotStrategy interface ---
@@ -754,6 +765,7 @@ export class RLPolicy implements BotStrategy {
       epsilon: this.epsilon,
       mulliganNet: this.mulliganNet.toJSON(),
       actionNet: this.actionNet.toJSON(),
+      valueNet: this.valueNet.toJSON(),
     };
   }
 
@@ -1022,6 +1034,21 @@ export function trainWithCurriculum(
 
   return phase2;
 }
+
+/**
+ * Training config additions (Phase 2 enhancements):
+ *
+ * practiceOpponent?: BotStrategy
+ *   Run this many extra games per episode against a simpler opponent.
+ *   Prevents catastrophic forgetting during fine-tuning against harder opponents.
+ *   Gradient weight is reduced (0.3×) to keep fundamentals while layering new skills.
+ *
+ * practiceGamesPerEpisode?: number  (default 2)
+ *
+ * OOM fix: opponent RLPolicy history is cleared after each episode.
+ *   Without this, the opponent accumulates unbounded episode history in memory
+ *   when it is itself an RLPolicy (e.g., self-play or ladder training).
+ */
 ```
 
 ---
@@ -1055,6 +1082,48 @@ pnpm learn \
 ```
 
 Add to `packages/cli/src/commands/learn.ts` and wire into main.ts.
+
+---
+
+## Part 5b: Training Scripts
+
+Three purpose-built scripts in `packages/cli/src/`:
+
+### train-mirror.ts — self-play mirror match
+```bash
+pnpm train-mirror --deck decks/ruby-amethyst-deck.txt --episodes 5000 --save policies/mirror.json
+```
+Trains a policy against a frozen copy of itself. Win/loss reward only (no weighted reward).
+
+### train-tournament.ts — multi-policy round-robin
+```bash
+pnpm train-tournament --deck decks/ruby-amethyst-deck.txt --episodes 5000
+```
+Trains multiple policies simultaneously (aggressor vs random, midrange vs mixed).
+Each policy trains against a different opponent schedule. Results saved as separate JSON files.
+
+### train-ladder.ts — adversarial fine-tuning + curriculum
+```bash
+pnpm train-ladder --deck decks/ruby-amethyst-deck.txt --episodes 5000
+```
+Fine-tunes existing policies against progressively harder opponents.
+Uses practice games (anti-catastrophic-forgetting) at each ladder rung.
+
+---
+
+## Trained Policies (ruby-amethyst deck, all CARD_FEATURE_SIZE=45)
+
+| File | Trained vs | Win% vs random | Win% vs greedy | Character |
+|------|-----------|---------------|---------------|-----------|
+| `ruby-amethyst-aggressor.json` | RandomBot | 87% | 29% | Quest flood — Elsa questing, cheap chars |
+| `ruby-amethyst-midrange.json` | 50/50 random+greedy | 97% | 32% | Board control |
+| `ruby-amethyst-aggr-v2.json` | midrange + practice | 98% | 29% | Slightly more board-aware |
+| `ruby-amethyst-mid-v2.json` | aggressor + practice | 99% | 37% | Most challenges, plays Mickey |
+| `ruby-amethyst-control.json` | GreedyBot + practice | 97% | 52.3% round-robin | Best overall |
+
+**What none have learned yet:** Monstrous Dragon, Mickey Mouse (high-cost plays), Singer/Song combo.
+Root cause: random/greedy opponents don't punish leaving these in hand.
+Next step: a harder opponent that builds a threatening board.
 
 ---
 
@@ -1196,33 +1265,32 @@ of the `NeuralNetwork` class.
 
 **Where:** `packages/simulator/src/rl/network.ts`
 
-**Size:** Hundreds of thousands of floats (e.g. 1224 × 128 + 128 × 64 + 64 × 1 ≈ 165k values).
+**Size:** Hundreds of thousands of floats (e.g. 1282 × 128 + 128 × 64 + 64 × 1 ≈ 172k values for actor).
 
 **How initialized:** Xavier initialization — random floats in a small range (roughly ±0.07
 for the first layer). Biases start at exactly zero. NOT 0.5. The small random values are
 intentional: if all weights were the same value, every neuron would compute the same thing
 and learn the same gradient — hidden layers would be useless.
 
-**When they change:** Every episode. After each game, REINFORCE computes a gradient from the
-episode return and nudges every weight slightly toward decisions that produced higher reward.
+**When they change:** Every episode. After each game, A2C+GAE computes per-step advantage estimates and nudges weights toward decisions with above-average advantage.
 
 **What they encode:** The bot's learned intuition — "in this type of game state, prefer
 this type of action."
 
 ---
 
-### 2. Card Feature Vectors (autoTag, 44 dimensions per card)
+### 2. Card Feature Vectors (autoTag, 45 dimensions per card)
 
 **What:** A numeric description of what a card *is*, computed from its CardDefinition.
 
 **Where:** `packages/simulator/src/rl/autoTag.ts` — `cardToFeatures(def)`
 
-**Size:** 44 numbers per card:
+**Size:** 45 numbers per card:
 - 4 basic (cost, inkable, isCharacter, isAction)
 - 4 stats (strength, willpower, lore, shiftCost)
 - 13 keyword flags (rush, reckless, singer, challenger, evasive...)
 - 22 effect type flags (has banish, has draw, has gain_lore...)
-- 1 trigger flag (has enters_play trigger)
+- 2 trigger flags (enters_play trigger, challenge_win trigger)
 
 **How initialized:** Deterministically computed from card data. Not random. Not learned.
 Same card always produces the same 44 numbers.
@@ -1294,8 +1362,8 @@ BEFORE TRAINING
 
 DURING EACH EPISODE
   for each action decision:
-    stateToFeatures(state)          ← card feature vectors (44 dims × cards)
-      → 1224-dim input vector
+    stateToFeatures(state)          ← card feature vectors (45 dims × cards)
+      → 1282-dim input vector (1184 state + 98 action)
     network.forward(input)          ← neural network weights applied
       → action scores
     ε-greedy pick action
