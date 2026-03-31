@@ -3,7 +3,7 @@
 # Cross-references all docs in docs/ folder.
 # Does NOT replace SPEC.md or DECISIONS.md.
 #
-# Last updated: Session 9 (Stream 1 complete — A2C+GAE, 3 networks, 5 trained policies)
+# Last updated: Session 10 (Stream 2f complete — --policy flag wired to query command)
 
 ---
 
@@ -15,7 +15,7 @@
 ✅ Mulligan — shouldMulligan/performMulligan, bot-specific strategies, mulliganed in GameResult
 ✅ Analytics — composition, aggregation, comparison, calibration, sensitivity
 ✅ Query system — GameCondition language, ref/mulliganed conditions, save/load results
-✅ CLI — analyze, compare, optimize, sweep, query
+✅ CLI — analyze, compare, optimize, sweep, query (query now accepts --policy for RL bot)
 ✅ Basic UI — 5 pages exist, not all aligned with new direction:
            DeckInput: permanent, no changes needed
            CompositionView: permanent, no changes needed (pure math, no bots)
@@ -169,12 +169,14 @@ for discovery. See ANALYTICS_PHILOSOPHY.md for the full philosophy.
     Run deck against multiple opponent archetypes, compare win rates
     Answers: "what's my best and worst matchup?"
 
-2f. Wire RL bot into query pipeline (after Stream 1 complete)
-    Replace GreedyBot with trained RLPolicy in simulation configs
+✅ 2f. Wire RL bot into query pipeline
+    --policy flag added to query CLI and SimFile config
+    resolveBot("rl", policyPath) loads policy JSON, sets epsilon=0 (pure exploitation)
+    CLI flag overrides sim file policy field; sim file paths resolve relative to sim dir
+    pnpm query --sim sim.json --questions q.json --policy ./policies/control.json
     All query results now reflect competent play, not heuristics
-    This is when the analytics become genuinely trustworthy
 
-2h. Automated slot optimization (after Stream 1 + 2f complete)
+2g. Automated slot optimization (after Stream 1 + 2f complete)
     For each card in deck: swap it out, fine-tune RLPolicy, compare win rate delta
     Answers: "should I cut card X for card Y?"
     Workflow:
@@ -190,7 +192,7 @@ for discovery. See ANALYTICS_PHILOSOPHY.md for the full philosophy.
     Neither the bot alone nor the queries alone can answer this —
     requires both running together across multiple deck variants
 
-2g. Query UI tab (packages/ui/src/pages/QueryView.tsx)
+2h. Query UI tab (packages/ui/src/pages/QueryView.tsx)
     UI wrapper around the CLI query system
     Paste or build a questions JSON in the browser
     Run simulation or load saved results file
@@ -610,10 +612,10 @@ Ask in order:
    needs a harder opponent with threatening board presence.
    Use ruby-amethyst-control (52.3% round-robin) as the current best opponent.
 
-2. **Run Stream 2 analytics with RLPolicy.**
-   Replace GreedyBot with trained RLPolicy in simulation configs (Stream 2f).
+2. **Stream 2f is done. ✅ Run Stream 2 analytics with RLPolicy now.**
+   Use ruby-amethyst-control as the bot in your sim config (or --policy flag).
    Run cinderella sim, save new results, run all queries.
-   This is now the active priority.
+   Next active priority: Stream 2a–2e queries with RL results.
 
 3. **Do I want to play against a real person?**
    If yes — Stream 4 (server). Stream 3's useGameSession already done ✅.

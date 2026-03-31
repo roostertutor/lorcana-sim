@@ -1083,6 +1083,24 @@ pnpm learn \
 
 Add to `packages/cli/src/commands/learn.ts` and wire into main.ts.
 
+### Using a trained policy in queries (Stream 2f — done ✅)
+
+```bash
+# Run queries with RL bot instead of GreedyBot
+pnpm query \
+  --sim queries/sim.json \
+  --questions queries/opener.json \
+  --policy ./policies/ruby-amethyst-control.json \
+  --save results/rl-opener.json
+
+# Or put it in the sim config JSON:
+# { "me": "deck.txt", "bot": "rl", "policy": "../policies/ruby-amethyst-control.json" }
+```
+
+`resolveBot("rl", policyPath)` loads the JSON, calls `RLPolicy.fromJSON()`, sets `epsilon=0`
+(pure exploitation — no exploration during evaluation). CLI `--policy` overrides the sim file's
+`policy` field.
+
 ---
 
 ## Part 5b: Training Scripts
