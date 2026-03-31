@@ -126,13 +126,15 @@ switch (subcommand) {
 
   case "query": {
     const usage =
-      "Usage: pnpm query --sim sim.json --questions questions.json [--save results.json]\n" +
+      "Usage: pnpm query --sim sim.json --questions questions.json [--save results.json] [--policy policy.json]\n" +
       "   or: pnpm query --questions questions.json --results saved.json";
     runQuery({
       sim: args["sim"] ? userPath(args["sim"]) : undefined,
       questions: userPath(requireArg(args, "questions", usage)),
       save: args["save"] ? userPath(args["save"]) : undefined,
       results: args["results"] ? userPath(args["results"]) : undefined,
+      policy: args["policy"] ? userPath(args["policy"]) : undefined,
+      opponentPolicy: args["opponent-policy"] ? userPath(args["opponent-policy"]) : undefined,
     });
     break;
   }
@@ -161,7 +163,7 @@ Commands:
   optimize  Find optimal weights for a deck vs an opponent style
   sweep     Sweep the weight space and show a win-rate grid
   query     Run condition-based queries against simulation results
-  learn     Train an RL policy via REINFORCE
+  learn     Train an RL policy (A2C+GAE)
 
 Examples:
   pnpm analyze  --deck ./deck.txt --bot greedy --iterations 1000
@@ -170,6 +172,7 @@ Examples:
   pnpm optimize --deck ./deck.txt --opponent aggro --iterations 500
   pnpm sweep    --deck ./deck.txt --opponent control --iterations 200
   pnpm query    --sim sim.json --questions questions.json [--save results.json]
+  pnpm query    --sim sim.json --questions questions.json --policy ./policies/control.json
   pnpm query    --questions questions.json --results saved.json
   pnpm learn    --deck ./deck.txt --episodes 50000 --save ./policy.json
 

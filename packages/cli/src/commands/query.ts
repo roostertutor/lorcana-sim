@@ -23,6 +23,8 @@ interface SimFile {
   opponent?: string;
   bot?: string;
   opponentBot?: string;
+  policy?: string;          // path to RL policy JSON, relative to sim file
+  opponentPolicy?: string;  // path to opponent RL policy JSON, relative to sim file
   iterations?: number;
   maxTurns?: number;
 }
@@ -41,6 +43,8 @@ export interface QueryArgs {
   questions: string;
   save?: string;
   results?: string;
+  policy?: string;          // absolute path to RL policy JSON (resolved by main.ts)
+  opponentPolicy?: string;  // absolute path to opponent RL policy JSON
 }
 
 export async function runQuery(args: QueryArgs): Promise<void> {
@@ -92,8 +96,13 @@ export async function runQuery(args: QueryArgs): Promise<void> {
     const opponentDeck = simConfig.opponent
       ? loadDeck(resolvePath(simConfig.opponent), definitions)
       : deck;
-    const bot = resolveBot(simConfig.bot ?? "greedy");
-    const oppBot = resolveBot(simConfig.opponentBot ?? simConfig.bot ?? "greedy");
+    // CLI --policy overrides sim file's policy field. Sim file paths resolved relative to sim dir.
+    const policyPath = args.policy
+      ?? (simConfig.policy ? resolvePath(simConfig.policy) : undefined);
+    const oppPolicyPath = args.opponentPolicy
+      ?? (simConfig.opponentPolicy ? resolvePath(simConfig.opponentPolicy) : undefined);
+    const bot = resolveBot(simConfig.bot ?? "greedy", policyPath);
+    const oppBot = resolveBot(simConfig.opponentBot ?? simConfig.bot ?? "greedy", oppPolicyPath);
     const iterations = simConfig.iterations ?? 1000;
 
     const botLabel = bot.name === oppBot.name
