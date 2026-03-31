@@ -3,7 +3,7 @@
 # Cross-references all docs in docs/ folder.
 # Does NOT replace SPEC.md or DECISIONS.md.
 #
-# Last updated: Session 9 (revised again — 3a-3d done, prereqs done, Stream 5+6 added)
+# Last updated: Session 9 (Stream 1 complete — A2C+GAE, 3 networks, 5 trained policies)
 
 ---
 
@@ -118,15 +118,23 @@ not hardcoded heuristics.
 ✅ Raw GameAction[] in GameResult — actions[] stored alongside text actionLog[]
 ```
 
-**Claude Code session prompt:**
+**Implementation notes (what was actually built vs spec):**
 ```
-Read docs/RL.md in full before writing any code.
-First implement shared prereqs: seeded RNG in initializer/reducer/mulligan,
-and GameAction[] capture in runGame + GameResult types.
-Then implement in order: autoTag.ts, network.ts, policy.ts, trainer.ts, index.ts, learn.ts.
-Do not modify engine existing bots runGame behavior (only add seed + action capture).
-RLPolicy must implement BotStrategy interface exactly — it plugs into runGame as-is.
-Run pnpm test after each file to confirm nothing breaks.
+Spec called for: simple REINFORCE policy gradient, 2 networks
+Built instead:   A2C + GAE (Advantage Actor-Critic), 3 networks:
+                   actor net: (state+action → 128 → 64 → 1 score)
+                   critic net: (state → 64 → 32 → 1 value)
+                   mulligan net: (state → 64 → 32 → 2)
+                 Gradient clipping, practice games (anti-forgetting)
+                 RewardWeights: auto-inferred deck archetype from card data
+                   (6 scalars: winWeight, loreGain, loreDenial, banishValue,
+                    inkEfficiency, tradeQuality — computed before training, fixed)
+                 Training scripts: mirror, tournament, ladder
+                 CARD_FEATURE_SIZE = 45 (spec said 43)
+
+A2C+GAE was the right call: more stable than REINFORCE for card games
+RewardWeights was not in the spec but solves the reward design problem
+elegantly — deck archetype inferred automatically, no human labeling
 ```
 
 ---
@@ -595,16 +603,17 @@ GreedyBot.ts         — analysis overlay uses it until Stream 3f (RL wires in)
 
 Ask in order:
 
-1. **Start Stream 1 (RL bot).**
-   This is the prerequisite for meaningful analytics.
-   RampCindyCowBot data is compromised — it executed your encoded strategy.
-   RL data reflects discovered strategy. All Stream 2 analytics become
-   trustworthy only after Stream 1 generates results.
+1. **Stream 1 (RL bot) is done. ✅**
+   Train a policy for the deck you want to analyze:
+   pnpm learn --deck ./deck.txt --curriculum --save ./policies/my-deck.policy.json
+   Known gap: Dragon, Mickey, Singer/Song combo not yet learned —
+   needs a harder opponent with threatening board presence.
+   Use ruby-amethyst-control (52.3% round-robin) as the current best opponent.
 
-2. **Is the RL bot trained and producing improving reward curves?**
-   If yes — run cinderella sim with RLPolicy, save new results,
-   then run all Stream 2 queries including opener profiling.
-   If no — debug the reward signal before proceeding.
+2. **Run Stream 2 analytics with RLPolicy.**
+   Replace GreedyBot with trained RLPolicy in simulation configs (Stream 2f).
+   Run cinderella sim, save new results, run all queries.
+   This is now the active priority.
 
 3. **Do I want to play against a real person?**
    If yes — Stream 4 (server). Stream 3's useGameSession already done ✅.
