@@ -3,7 +3,7 @@
 # Cross-references all docs in docs/ folder.
 # Does NOT replace SPEC.md or DECISIONS.md.
 #
-# Last updated: Session 11 (docs audit — pending cleanup now active, 3e prereqs done, 3f unblocked)
+# Last updated: Session 11 (Stream 1 + 2f done, 3e/3f unblocked, pending cleanup active)
 
 ---
 
@@ -205,7 +205,7 @@ for discovery. See ANALYTICS_PHILOSOPHY.md for the full philosophy.
 1. Train an RL policy for the deck: `pnpm learn --deck ./deck.txt --episodes 50000 --save ./policies/deck.json`
 2. Update the sim config to use `"bot": "rl"` + `"policy": "..."` (or use `--policy` CLI flag)
 3. Run `pnpm query --sim sim.json --questions questions.json --policy ./policies/deck.json --save results.json`
-Do NOT re-use old RampCindyCowBot or GreedyBot results — those reflect encoded strategy, not discovered play.
+   Do NOT re-use old RampCindyCowBot or GreedyBot results — those reflect encoded strategy, not discovered play.
 
 ---
 
@@ -298,13 +298,20 @@ to be useful — even GreedyBot as an opponent is enough to test card interactio
     Requires --policy path in useAnalysis / GameBoard bot config
 ```
 
-**Claude Code session prompt:**
+**Claude Code session prompt (3a-3d done — next is 3e or 3f):**
 ```
-Read docs/GAME_BOARD.md in full.
-Implement useGameSession hook first — this is permanent code, take care.
-Then TestBench.tsx — ugly is fine, functional is required.
-Do not touch GameBoard.tsx until TestBench is working and tested.
-startingState is already in SimGameConfig — use it for analysis.
+For 3f (wire RL into analysis overlay):
+  Read docs/RL.md policy persistence section.
+  Replace GreedyBot in useAnalysis.ts with RLPolicy loaded from --policy path.
+  Add policy path config to GameBoard / useGameSession.
+  Label win probability as "RL estimate" instead of "GreedyBot estimate".
+
+For 3e (replay mode):
+  Read docs/GAME_BOARD.md replay section.
+  Prereqs done: seeded RNG in GameState, GameAction[] in GameResult.
+  Build ReplayControls component + loadReplay() in useGameSession.
+  Reconstruct GameState at each step by replaying actions[] from seed via applyAction.
+  Feed reconstructed states to GameBoard read-only (disable action buttons).
 ```
 
 ---
@@ -522,12 +529,10 @@ LOW (edge cases, no current cards need):
   Boost keyword (CRD 8.4) — not in sets 1-6
 ```
 
-#### 6c. Engine sustainability (do before scaling to thousands of RL games)
+#### 6c. Engine sustainability (ongoing)
 
 ```
-Seeded RNG (already listed as Stream 1/3e prereq)
-  Replace Math.random() with seeded PRNG in 4 places
-  Prerequisite for replay AND RL debugging
+✅ Seeded RNG — done (xoshiro128** in GameState)
 
 applyPassTurn split (CRD 3.2 / 3.4)
   Currently one monolithic function handles both end-of-turn and start-of-turn
