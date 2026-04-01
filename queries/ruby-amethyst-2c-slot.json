@@ -1,0 +1,106 @@
+{
+  "queries": [
+
+    {
+      "name": "--- 3-COST CARDS (never played = sat in hand all game) ---",
+      "condition": { "type": "won" }
+    },
+
+    {
+      "name": "S1. Maleficent - Sorceress never played",
+      "condition": { "type": "card_never_played", "card": "maleficent-sorceress", "player": "me" }
+    },
+
+    {
+      "name": "S2. Friends on the Other Side never played",
+      "condition": { "type": "card_never_played", "card": "friends-on-the-other-side", "player": "me" }
+    },
+
+    {
+      "name": "S3. Aladdin - Street Rat never played",
+      "condition": { "type": "card_never_played", "card": "aladdin-street-rat", "player": "me" }
+    },
+
+    {
+      "name": "S4. Magic Broom - Bucket Brigade never played",
+      "condition": { "type": "card_never_played", "card": "magic-broom-bucket-brigade", "player": "me" }
+    },
+
+    {
+      "name": "--- 5-COST CARDS ---",
+      "condition": { "type": "won" }
+    },
+
+    {
+      "name": "S5. Aladdin - Heroic Outlaw never played",
+      "condition": { "type": "card_never_played", "card": "aladdin-heroic-outlaw", "player": "me" }
+    },
+
+    {
+      "name": "--- 6-COST CARDS ---",
+      "condition": { "type": "won" }
+    },
+
+    {
+      "name": "S6. Elsa - Spirit of Winter never played",
+      "condition": { "type": "card_never_played", "card": "elsa-spirit-of-winter", "player": "me" }
+    },
+
+    {
+      "name": "S7. Maui - Hero to All never played",
+      "condition": { "type": "card_never_played", "card": "maui-hero-to-all", "player": "me" }
+    },
+
+    {
+      "name": "--- 7-COST FINISHERS ---",
+      "condition": { "type": "won" }
+    },
+
+    {
+      "name": "S8. Maleficent - Monstrous Dragon never played",
+      "condition": { "type": "card_never_played", "card": "maleficent-monstrous-dragon", "player": "me" }
+    },
+
+    {
+      "name": "S9. Be Prepared never played",
+      "condition": { "type": "card_never_played", "card": "be-prepared", "player": "me" }
+    },
+
+    {
+      "name": "S10. Dragon Fire never played",
+      "condition": { "type": "card_never_played", "card": "dragon-fire", "player": "me" }
+    },
+
+    {
+      "name": "--- TIMING: were key pieces online when they needed to be? ---",
+      "condition": { "type": "won" }
+    },
+
+    {
+      "name": "S11. Heroic Outlaw in play by T5",
+      "condition": { "type": "card_in_play_on", "card": "aladdin-heroic-outlaw", "turn": 5, "player": "me" }
+    },
+
+    {
+      "name": "S12. Any finisher (Dragon/Be Prepared) played by T7",
+      "condition": {
+        "type": "or",
+        "conditions": [
+          { "type": "card_played_by", "card": "maleficent-monstrous-dragon", "turn": 7, "player": "me" },
+          { "type": "card_played_by", "card": "be-prepared",                 "turn": 7, "player": "me" }
+        ]
+      }
+    },
+
+    {
+      "name": "S13. Game ended by T8 (fast win)",
+      "condition": { "type": "game_ended_by", "turn": 16 }
+    },
+
+    {
+      "name": "S14. Win by lore threshold",
+      "condition": { "type": "win_reason", "reason": "lore_threshold" }
+    }
+
+  ]
+}

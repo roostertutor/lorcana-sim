@@ -1,0 +1,125 @@
+{
+  "definitions": {
+
+    "mal_played_t3":     { "type": "card_played_by", "card": "maleficent-sorceress",       "turn": 3, "player": "me" },
+    "friends_played_t3": { "type": "card_played_by", "card": "friends-on-the-other-side",  "turn": 3, "player": "me" },
+    "aladdin_played_t3": { "type": "card_played_by", "card": "aladdin-street-rat",         "turn": 3, "player": "me" },
+    "broom_played_t3":   { "type": "card_played_by", "card": "magic-broom-bucket-brigade", "turn": 3, "player": "me" },
+
+    "dragon_played_t7":  { "type": "card_played_by", "card": "maleficent-monstrous-dragon", "turn": 7, "player": "me" },
+    "beprepared_t7":     { "type": "card_played_by", "card": "be-prepared",                 "turn": 7, "player": "me" },
+    "elsa_played_t6":    { "type": "card_played_by", "card": "elsa-spirit-of-winter",       "turn": 6, "player": "me" },
+
+    "mal_in_play_t4": { "type": "card_in_play_on", "card": "maleficent-sorceress", "turn": 4, "player": "me" }
+
+  },
+
+  "queries": [
+
+    {
+      "name": "--- 3-DROP COMPARISON: which T3 play wins most? ---",
+      "condition": { "type": "won" }
+    },
+
+    {
+      "name": "C1. Maleficent - Sorceress played on T3",
+      "condition": { "type": "ref", "name": "mal_played_t3" }
+    },
+
+    {
+      "name": "C2. Friends on the Other Side played on T3",
+      "condition": { "type": "ref", "name": "friends_played_t3" }
+    },
+
+    {
+      "name": "C3. Aladdin - Street Rat played on T3",
+      "condition": { "type": "ref", "name": "aladdin_played_t3" }
+    },
+
+    {
+      "name": "C4. Magic Broom played on T3",
+      "condition": { "type": "ref", "name": "broom_played_t3" }
+    },
+
+    {
+      "name": "--- SINGER/SONG ANALYSIS ---",
+      "condition": { "type": "won" }
+    },
+
+    {
+      "name": "C5. Maleficent still on board on T4 (can sing Friends for free)",
+      "condition": { "type": "ref", "name": "mal_in_play_t4" }
+    },
+
+    {
+      "name": "C6. Maleficent T3 + Friends played any turn (singer combo executed)",
+      "condition": {
+        "type": "and",
+        "conditions": [
+          { "type": "ref", "name": "mal_played_t3" },
+          {
+            "type": "not",
+            "condition": { "type": "card_never_played", "card": "friends-on-the-other-side", "player": "me" }
+          }
+        ]
+      }
+    },
+
+    {
+      "name": "C7. Friends played T3 directly (paid 3 ink, skipped Maleficent)",
+      "condition": {
+        "type": "and",
+        "conditions": [
+          { "type": "ref", "name": "friends_played_t3" },
+          {
+            "type": "not",
+            "condition": { "type": "ref", "name": "mal_played_t3" }
+          }
+        ]
+      }
+    },
+
+    {
+      "name": "--- FINISHER COMPARISON: which closer wins most? ---",
+      "condition": { "type": "won" }
+    },
+
+    {
+      "name": "C8. Maleficent - Monstrous Dragon played by T7",
+      "condition": { "type": "ref", "name": "dragon_played_t7" }
+    },
+
+    {
+      "name": "C9. Be Prepared played by T7",
+      "condition": { "type": "ref", "name": "beprepared_t7" }
+    },
+
+    {
+      "name": "C10. Elsa - Spirit of Winter played by T6",
+      "condition": { "type": "ref", "name": "elsa_played_t6" }
+    },
+
+    {
+      "name": "C11. Dragon AND Be Prepared both played (full package)",
+      "condition": {
+        "type": "and",
+        "conditions": [
+          { "type": "ref", "name": "dragon_played_t7" },
+          { "type": "ref", "name": "beprepared_t7" }
+        ]
+      }
+    },
+
+    {
+      "name": "C12. Neither Dragon nor Be Prepared played (lost without finishers)",
+      "condition": {
+        "type": "and",
+        "conditions": [
+          { "type": "card_never_played", "card": "maleficent-monstrous-dragon", "player": "me" },
+          { "type": "card_never_played", "card": "be-prepared",                 "player": "me" }
+        ]
+      }
+    }
+
+  ]
+}

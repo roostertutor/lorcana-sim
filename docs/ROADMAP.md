@@ -3,7 +3,7 @@
 # Cross-references all docs in docs/ folder.
 # Does NOT replace SPEC.md or DECISIONS.md.
 #
-# Last updated: Session 12 (Stream 1 + 2f done, deprecated bots deleted, cleanup complete)
+# Last updated: Session 13 (Stream 2a-2f done, ruby-amethyst deck fully queried)
 
 ---
 
@@ -45,7 +45,7 @@
 
 ---
 
-## The Four Streams
+## The Six Streams
 
 These are now the active workstreams. They are largely independent
 and can run in parallel. Priority order within each stream is top-down.
@@ -147,27 +147,48 @@ Current query system is a hypothesis tester. Stream 2 adds the infrastructure
 for discovery. See ANALYTICS_PHILOSOPHY.md for the full philosophy.
 
 ```
-2a. Opener profiling queries (add to cinderella-questions.json)
-    What do games where the line fired have in common in their openers?
-    Queries: OP1-OP7 from ANALYTICS_PHILOSOPHY.md
-    No code changes — just new queries against existing saved results
+✅ 2a. Opener profiling queries (ruby-amethyst deck, 1000 games, RL control policy vs greedy)
+    queries/ruby-amethyst-sim.json + queries/ruby-amethyst-turn3-questions.json
+    Key finding: Magic Broom is the most common T3 play (40.7%), not Friends (18.1%).
+    Maleficent - Sorceress played T3 = only 2.5% — bot misses the Singer/Song line.
+    Friends played T3 = 18.1%, win rate +5.5%. Maleficent T3 = -4.3% (sample too small).
 
-2b. Strategy sweep (mulliganSweep.ts + CLI pnpm sweep-mulligan)
-    Define N mulligan strategies, run each 500 games, compare F3
-    Discovers which strategy actually produces best outcomes
-    No human encoding of "correct" strategy
+✅ 2b. Mulligan sweep (re-run with RL policy, 1000 games)
+    queries/ruby-amethyst-2b-mulligan.json vs saved results
+    Key finding: bot NEVER mulligans (0.3% of games, 3/1000). shouldMulligan() is
+    far too conservative — essentially every hand gets kept regardless of quality.
+    Dead opener (kept hand, no T3 play) = 34.4% of games, -8.5% win rate.
+    Getting to 8+ lore by T5 = +51.4% win rate (lore acceleration critical).
 
-2c. Slot analysis (slotAnalysis.ts)
-    Run deck with card X, run without X, compare win rate delta
-    Answers: "is this card actually pulling its weight?"
+✅ 2c. Slot analysis (re-run with RL policy, 1000 games)
+    queries/ruby-amethyst-2c-slot.json vs saved results
+    Key findings:
+      Maleficent - Sorceress never played = 41.9% of games (being inked heavily)
+      Heroic Outlaw   never played = 87.6% of games (5-drop rarely hits board)
+      Monstrous Dragon never played = 97.1% of games (7-drop almost never played)
+      Be Prepared      never played = 76.2% of games (7-drop rarely played)
+      Dragon Fire: when played, win rate LOWER than when not played — removal
+        correlates with being in a losing position, not causing wins
+      Maui: same anti-correlation — played when behind, not when winning
+    High-curve cards (5+) are largely dead weight in the RL policy's game plan.
+    Games end before 7-drops become relevant.
 
-2d. Card comparison (cardComparison.ts)
-    Run deck with X, run with Y, compare across matchups
-    Answers: "is X better than Y in my deck, and in which matchups?"
+✅ 2d. Card comparison (re-run with RL policy, 1000 games)
+    queries/ruby-amethyst-2d-compare.json vs saved results
+    Key findings:
+      3-drop ranking by T3 frequency: Broom (40.7%) > Friends (18.1%) > Aladdin (14.7%) > Maleficent (2.5%)
+      Singer combo (Maleficent T3 + Friends any turn) = 1.3% of games — almost never fires
+      Maleficent on board T4 (can sing) = 10.8%, +6.1% win rate — strongest 3-drop metric
+      Finishers almost never played by T7: Dragon 0/1000 games, Be Prepared 11/1000
+      In 75% of games, deck wins WITHOUT playing either finisher
 
-2e. Matchup analysis (matchupAnalysis.ts)
-    Run deck against multiple opponent archetypes, compare win rates
-    Answers: "what's my best and worst matchup?"
+✅ 2e. Matchup analysis (1000 games each, RL ruby-amethyst vs greedy opponents)
+    ruby-amethyst vs cinderella:  64.6% win rate (strong favorite)
+    ruby-amethyst vs goldfish:    97.8% win rate (expected — opponent does nothing)
+    ruby-amethyst mirror (RL vs greedy, same deck): 24.2% win rate
+      Surprising: RL policy loses the mirror badly to GreedyBot. GreedyBot's
+      quest-first heuristic is well-matched to this deck. RL policy 52.3% round-robin
+      was vs diverse opponents; 1v1 mirror favors the simpler, faster greedy strategy.
 
 ✅ 2f. Wire RL bot into query pipeline
     --policy flag added to query CLI and SimFile config
@@ -620,12 +641,20 @@ Ask in order:
    needs a harder opponent with threatening board presence.
    Use ruby-amethyst-control (52.3% round-robin) as the current best opponent.
 
-2. **Stream 2f is done. ✅ Next: Stream 2a — run queries with an RL policy.**
-   Train a policy for the deck you want to analyze (pnpm learn).
-   Update sim config to "bot": "rl" + policy path.
-   Run queries, save results. Old RampCindyCowBot/GreedyBot results are biased — discard them.
+2. **Streams 2a-2f are done. ✅ Key findings for ruby-amethyst deck:**
+   - Bot never mulligans (shouldMulligan too conservative — worth fixing)
+   - High-curve cards (5-7 cost) almost never played in RL game plan
+   - Singer/Song combo (Maleficent → free Friends) fires in only 1.3% of games
+   - RL policy loses the mirror to GreedyBot — quest-first heuristic suits this deck
+   - 64.6% win rate vs cinderella, 97.8% vs goldfish
+   Next: train a better policy that learns the Singer/Song line (needs harder opponent),
+   or move to 2g (slot optimization) to answer "what should I cut?"
 
-3. **Do I want to play against a real person?**
+3. **Want better analysis overlay on the game board?**
+   Stream 3f — wire RL policy into win probability (unblocked, small change).
+   Stream 3e — replay mode (unblocked, prereqs done, UI only remaining).
+
+4. **Do I want to play against a real person?**
    If yes — Stream 4 (server). Stream 3's useGameSession already done ✅.
 
 5. **Need to implement a new card for a deck you want to sim?**

@@ -1,0 +1,111 @@
+{
+  "definitions": {
+
+    "any_3drop_t3": {
+      "type": "or",
+      "conditions": [
+        { "type": "card_played_by", "card": "maleficent-sorceress",       "turn": 3, "player": "me" },
+        { "type": "card_played_by", "card": "friends-on-the-other-side",  "turn": 3, "player": "me" },
+        { "type": "card_played_by", "card": "aladdin-street-rat",         "turn": 3, "player": "me" },
+        { "type": "card_played_by", "card": "magic-broom-bucket-brigade", "turn": 3, "player": "me" }
+      ]
+    }
+
+  },
+
+  "queries": [
+
+    {
+      "name": "--- MULLIGAN IMPACT ---",
+      "condition": { "type": "won" }
+    },
+
+    {
+      "name": "M1. Mulliganed (any reason)",
+      "condition": { "type": "mulliganed", "player": "me" }
+    },
+
+    {
+      "name": "M2. Did NOT mulligan",
+      "condition": {
+        "type": "not",
+        "condition": { "type": "mulliganed", "player": "me" }
+      }
+    },
+
+    {
+      "name": "--- EXECUTION GIVEN HAND DECISION ---",
+      "condition": { "type": "won" }
+    },
+
+    {
+      "name": "M3. Kept hand AND played a 3-drop on T3",
+      "condition": {
+        "type": "and",
+        "conditions": [
+          { "type": "not", "condition": { "type": "mulliganed", "player": "me" } },
+          { "type": "ref", "name": "any_3drop_t3" }
+        ]
+      }
+    },
+
+    {
+      "name": "M4. Mulliganed AND still played a 3-drop on T3",
+      "condition": {
+        "type": "and",
+        "conditions": [
+          { "type": "mulliganed", "player": "me" },
+          { "type": "ref", "name": "any_3drop_t3" }
+        ]
+      }
+    },
+
+    {
+      "name": "M5. Kept hand but NO 3-drop on T3 (dead opener despite keeping)",
+      "condition": {
+        "type": "and",
+        "conditions": [
+          { "type": "not", "condition": { "type": "mulliganed", "player": "me" } },
+          { "type": "not", "condition": { "type": "ref", "name": "any_3drop_t3" } }
+        ]
+      }
+    },
+
+    {
+      "name": "M6. Mulliganed AND no 3-drop on T3 (double miss)",
+      "condition": {
+        "type": "and",
+        "conditions": [
+          { "type": "mulliganed", "player": "me" },
+          { "type": "not", "condition": { "type": "ref", "name": "any_3drop_t3" } }
+        ]
+      }
+    },
+
+    {
+      "name": "--- INK EFFICIENCY ---",
+      "condition": { "type": "won" }
+    },
+
+    {
+      "name": "M7. Had 3+ ink available on T3",
+      "condition": { "type": "ink_gte", "amount": 3, "on_turn": 3, "player": "me" }
+    },
+
+    {
+      "name": "M8. Had 5+ ink available on T5",
+      "condition": { "type": "ink_gte", "amount": 5, "on_turn": 5, "player": "me" }
+    },
+
+    {
+      "name": "M9. Opponent reached 8+ lore by T5 (fell behind early)",
+      "condition": { "type": "lore_gte", "amount": 8, "by_turn": 5, "player": "opponent" }
+    },
+
+    {
+      "name": "M10. We reached 8+ lore by T5 (ahead early)",
+      "condition": { "type": "lore_gte", "amount": 8, "by_turn": 5, "player": "me" }
+    }
+
+  ]
+}

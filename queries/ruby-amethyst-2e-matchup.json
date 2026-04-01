@@ -1,0 +1,51 @@
+{
+  "queries": [
+
+    {
+      "name": "Overall win rate",
+      "condition": { "type": "won" }
+    },
+
+    {
+      "name": "Win by lore threshold",
+      "condition": { "type": "win_reason", "reason": "lore_threshold" }
+    },
+
+    {
+      "name": "Fast win (ended by T8 = global turn 16)",
+      "condition": { "type": "game_ended_by", "turn": 16 }
+    },
+
+    {
+      "name": "We reached 10+ lore by T5",
+      "condition": { "type": "lore_gte", "amount": 10, "by_turn": 5, "player": "me" }
+    },
+
+    {
+      "name": "Opponent reached 10+ lore by T5",
+      "condition": { "type": "lore_gte", "amount": 10, "by_turn": 5, "player": "opponent" }
+    },
+
+    {
+      "name": "We played a finisher (Dragon or Be Prepared) by T7",
+      "condition": {
+        "type": "or",
+        "conditions": [
+          { "type": "card_played_by", "card": "maleficent-monstrous-dragon", "turn": 7, "player": "me" },
+          { "type": "card_played_by", "card": "be-prepared",                 "turn": 7, "player": "me" }
+        ]
+      }
+    },
+
+    {
+      "name": "Heroic Outlaw in play by T5",
+      "condition": { "type": "card_in_play_on", "card": "aladdin-heroic-outlaw", "turn": 5, "player": "me" }
+    },
+
+    {
+      "name": "We had 5+ ink on T5",
+      "condition": { "type": "ink_gte", "amount": 5, "on_turn": 5, "player": "me" }
+    }
+
+  ]
+}
