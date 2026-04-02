@@ -14,7 +14,7 @@
 # - Clarabelle (both versions) and You're Welcome are stubs (correct stats, no abilities)
 # - Tipo, Sail the Azurite Sea, Cinderella - Dream Come True have full abilities
 # - cinderella-deck.txt is a placeholder — replace with real deck list
-# - Run with: pnpm query -- --sim sims/cinderella-sim.json --questions sims/cinderella-questions.json
+# - Run with: pnpm query -- --sim sims/cinderella/sim.json --questions sims/cinderella/questions.json
 
 ---
 

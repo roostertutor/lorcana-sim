@@ -1,8 +1,0 @@
-{
-  "me": "../decks/set-001-ruby-amethyst-deck.txt",
-  "bot": "rl",
-  "policy": "../policies/ruby-amethyst-control.json",
-  "opponentBot": "greedy",
-  "iterations": 1000,
-  "maxTurns": 30
-}

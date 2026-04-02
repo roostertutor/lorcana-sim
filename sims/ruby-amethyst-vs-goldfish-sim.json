@@ -1,9 +1,0 @@
-{
-  "me": "../decks/set-001-ruby-amethyst-deck.txt",
-  "opponent": "../decks/goldfish-deck.txt",
-  "bot": "rl",
-  "policy": "../policies/ruby-amethyst-control.json",
-  "opponentBot": "random",
-  "iterations": 500,
-  "maxTurns": 30
-}

@@ -26,13 +26,13 @@ sims/                    Sim configs + question files (.json)
 
 ```bash
 # One-shot: simulate + query
-pnpm query -- --sim sims/aladdin-sim.json --questions sims/aladdin-questions.json
+pnpm query -- --sim sims/aladdin/sim.json --questions sims/aladdin/questions.json
 
 # Save results for later
-pnpm query -- --sim sims/aladdin-sim.json --questions sims/aladdin-questions.json --save results/aladdin.json
+pnpm query -- --sim sims/aladdin/sim.json --questions sims/aladdin/questions.json --save results/aladdin.json
 
 # Re-query saved results instantly (iterate on questions without re-simulating)
-pnpm query -- --questions sims/aladdin-questions.json --results results/aladdin.json
+pnpm query -- --questions sims/aladdin/questions.json --results results/aladdin.json
 
 # Other commands also support --save and --opponent-bot
 pnpm analyze -- --deck ./decks/set-001-ruby-amethyst-deck.txt --bot greedy --opponent-bot aggro --iterations 5000 --save results.sim-results.json

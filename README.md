@@ -62,13 +62,13 @@ pnpm sweep -- --deck ./decks/set-001-ruby-amethyst-deck.txt --opponent control -
 
 ```bash
 # One-shot: simulate + query
-pnpm query -- --sim sims/aladdin-sim.json --questions sims/aladdin-questions.json
+pnpm query -- --sim sims/aladdin/sim.json --questions sims/aladdin/questions.json
 
 # Save results for later
-pnpm query -- --sim sims/aladdin-sim.json --questions sims/aladdin-questions.json --save results/aladdin.json
+pnpm query -- --sim sims/aladdin/sim.json --questions sims/aladdin/questions.json --save results/aladdin.json
 
 # Re-query saved results instantly
-pnpm query -- --questions sims/aladdin-questions.json --results results/aladdin.json
+pnpm query -- --questions sims/aladdin/questions.json --results results/aladdin.json
 ```
 
 Ask condition-based questions like "how often is Aladdin played on-curve, and what's the win rate when it happens?" See `docs/QUERY_SYSTEM.md` for the full condition language.
@@ -79,7 +79,7 @@ All commands that run simulations support `--save ./path.json` to persist result
 
 ```bash
 pnpm analyze -- --deck ./decks/set-001-ruby-amethyst-deck.txt --bot greedy --iterations 5000 --save my-results.sim-results.json
-pnpm query -- --questions sims/aladdin-questions.json --results results/my-results.json
+pnpm query -- --questions sims/aladdin/questions.json --results results/my-results.json
 ```
 
 ## Bot Strategies
