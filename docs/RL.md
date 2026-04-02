@@ -1129,11 +1129,10 @@ Uses practice games (anti-catastrophic-forgetting) at each ladder rung.
 
 | File | Trained vs | Win% vs random | Win% vs greedy | Character |
 |------|-----------|---------------|---------------|-----------|
-| `ruby-amethyst-aggressor.json` | RandomBot | 87% | 29% | Quest flood — Elsa questing, cheap chars |
-| `ruby-amethyst-midrange.json` | 50/50 random+greedy | 97% | 32% | Board control |
-| `ruby-amethyst-aggr-v2.json` | midrange + practice | 98% | 29% | Slightly more board-aware |
-| `ruby-amethyst-mid-v2.json` | aggressor + practice | 99% | 37% | Most challenges, plays Mickey |
-| `ruby-amethyst-control.json` | GreedyBot + practice | 97% | 52.3% round-robin | Best overall |
+| `ruby-amethyst-mirror.json` | self-play | — | — | 87%+ card win rates |
+| `ruby-amethyst-aggressor.json` | midrange + practice | 99% | 28% | Quest flood |
+| `ruby-amethyst-midrange.json` | aggressor + practice | 96% | 37% | Most challenges, plays Mickey |
+| `ruby-amethyst-control.json` | GreedyBot + practice | 98% | 29% | 49% round-robin (1st overall) |
 
 **What none have learned yet:** Monstrous Dragon, Mickey Mouse (high-cost plays), Singer/Song combo.
 Root cause: random/greedy opponents don't punish leaving these in hand.

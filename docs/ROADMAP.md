@@ -105,12 +105,10 @@ not hardcoded heuristics.
       Stage 2: npx tsx scripts/train-ladder.ts --deck ... --episodes 5000 (~4.5 hrs)
     Current policies:
       ruby-amethyst-mirror    — self-play mirror (87%+ card win rates, session 15)
-      ruby-amethyst-aggressor — tournament R1: 82% vs random, 28% vs greedy
-      ruby-amethyst-midrange  — tournament R1: 96% vs random, 30% vs greedy
-      ruby-amethyst-aggr-v2   — ladder R2: 99% vs random, 28% vs greedy
-      ruby-amethyst-mid-v2    — ladder R2: 96% vs random, 37% vs greedy (best vs greedy)
+      ruby-amethyst-aggressor — ladder R2: 99% vs random, 28% vs greedy
+      ruby-amethyst-midrange  — ladder R2: 96% vs random, 37% vs greedy
       ruby-amethyst-control   — ladder R2: 98% vs random, 29% vs greedy; 49% round-robin (1st overall)
-    5-way round-robin ranking: control (49%) > mid-v2 (48.5%) > aggressor (48%) > midrange (45%) > aggr-v2 (43.5%)
+    Round-robin: control (49%) > midrange (48.5%) > aggressor (43.5%)
 
 ✅ 1i. Validation — query suite re-run (Session 16) with new control policy vs v1 baseline:
     Win rate vs greedy mirror: 27.2% (up from v1 24.2%)
@@ -669,7 +667,7 @@ Ask in order:
 1. **Stream 1 (RL bot) — infrastructure done ✅, v2 policies in training**
    Singer/Song reward shaping added — retrain from scratch:
    pnpm learn --deck ./decks/set-001-ruby-amethyst-deck.txt \
-     --curriculum --episodes 50000 --save ./policies/ruby-amethyst-v2.json
+     --curriculum --episodes 50000 --save ./policies/ruby-amethyst-control.json
    After training, validate with 2d queries (Maleficent T3 rate, Singer combo rate).
    Known remaining gap: finishers (Dragon/Be Prepared) — games end before T7.
 

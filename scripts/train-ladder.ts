@@ -2,9 +2,9 @@
 // TRAIN LADDER — Round 2 adversarial fine-tuning + curriculum control
 //
 // Loads the 3 policies saved by train-tournament.ts and trains 3 more:
-//   aggressor-v2  — warm-start aggressor, fine-tune vs midrange
-//   midrange-v2   — warm-start midrange, fine-tune vs aggressor
-//   control       — warm-start aggressor, fine-tune vs GreedyBot (curriculum)
+//   aggressor  — warm-start aggressor, fine-tune vs midrange
+//   midrange   — warm-start midrange, fine-tune vs aggressor
+//   control    — warm-start aggressor, fine-tune vs GreedyBot (curriculum)
 //
 // Then runs a full 5-way round-robin + benchmarks.
 // The goal: does adversarial fine-tuning unlock the deep cards (Dragon, Mickey)?
@@ -164,17 +164,17 @@ console.log("ROUND 2 FINE-TUNING");
 console.log("=".repeat(70));
 
 // ---------------------------------------------------------------------------
-// Fine-tune: aggressor-v2 vs midrange
+// Fine-tune: aggressor vs midrange
 // ---------------------------------------------------------------------------
 
-console.log(`\n[1/3] Fine-tuning AGGRESSOR-V2 (warm-start aggressor → train vs midrange)...`);
+console.log(`\n[1/3] Fine-tuning AGGRESSOR (warm-start aggressor → train vs midrange)...`);
 console.log(`  Hypothesis: facing a board-control opponent teaches Dragon/Mickey value`);
 
-const aggressorV2 = clonePolicy(aggressorR1, "aggressor-v2", 0.4);
+const aggressorLadder = clonePolicy(aggressorR1, "aggressor", 0.4);
 // Wrap midrange as a fixed opponent (epsilon=0)
 const midrangeOpponent = clonePolicy(midrangeR1, "midrange-opp", 0);
 
-const aggressorV2Result = trainPolicy({
+const aggressorResult = trainPolicy({
   deck,
   opponentDeck: deck,
   definitions,
@@ -193,20 +193,20 @@ const aggressorV2Result = trainPolicy({
   onLog: (ep, _r, eps, avg) =>
     console.log(`  ep ${ep.toString().padStart(6)}: avg=${avg.toFixed(3)}, ε=${eps.toFixed(3)}`),
 });
-aggressorV2Result.policy.epsilon = 0;
-console.log(`  Final ε=${aggressorV2Result.finalEpsilon.toFixed(4)}`);
+aggressorResult.policy.epsilon = 0;
+console.log(`  Final ε=${aggressorResult.finalEpsilon.toFixed(4)}`);
 
 // ---------------------------------------------------------------------------
-// Fine-tune: midrange-v2 vs aggressor
+// Fine-tune: midrange vs aggressor
 // ---------------------------------------------------------------------------
 
-console.log(`\n[2/3] Fine-tuning MIDRANGE-V2 (warm-start midrange → train vs aggressor)...`);
+console.log(`\n[2/3] Fine-tuning MIDRANGE (warm-start midrange → train vs aggressor)...`);
 console.log(`  Hypothesis: facing a quest-flood opponent teaches tempo reads`);
 
-const midrangeV2 = clonePolicy(midrangeR1, "midrange-v2", 0.4);
+const midrangeLadder = clonePolicy(midrangeR1, "midrange", 0.4);
 const aggressorOpponent = clonePolicy(aggressorR1, "aggressor-opp", 0);
 
-const midrangeV2Result = trainPolicy({
+const midrangeResult = trainPolicy({
   deck,
   opponentDeck: deck,
   definitions,
@@ -225,8 +225,8 @@ const midrangeV2Result = trainPolicy({
   onLog: (ep, _r, eps, avg) =>
     console.log(`  ep ${ep.toString().padStart(6)}: avg=${avg.toFixed(3)}, ε=${eps.toFixed(3)}`),
 });
-midrangeV2Result.policy.epsilon = 0;
-console.log(`  Final ε=${midrangeV2Result.finalEpsilon.toFixed(4)}`);
+midrangeResult.policy.epsilon = 0;
+console.log(`  Final ε=${midrangeResult.finalEpsilon.toFixed(4)}`);
 
 // ---------------------------------------------------------------------------
 // Curriculum control: aggressor base → fine-tune vs GreedyBot
@@ -268,10 +268,10 @@ console.log("5-WAY ROUND-ROBIN TOURNAMENT (100 games per pairing)");
 console.log("=".repeat(70));
 
 const allPolicies: Array<{ label: string; policy: RLPolicy }> = [
-  { label: "aggressor",    policy: aggressorR1 },
-  { label: "midrange",     policy: midrangeR1 },
-  { label: "aggr-v2",      policy: aggressorV2Result.policy },
-  { label: "mid-v2",       policy: midrangeV2Result.policy },
+  { label: "aggressor-r1", policy: aggressorR1 },
+  { label: "midrange-r1",  policy: midrangeR1 },
+  { label: "aggressor",    policy: aggressorResult.policy },
+  { label: "midrange",     policy: midrangeResult.policy },
   { label: "control",      policy: controlResult.policy },
 ];
 
@@ -337,11 +337,11 @@ for (const { label, policy } of allPolicies) {
 }
 
 // ---------------------------------------------------------------------------
-// Card usage spotlight — what do the v2 policies do differently?
+// Card usage spotlight — what do the ladder policies do differently?
 // ---------------------------------------------------------------------------
 
 console.log("\n" + "=".repeat(70));
-console.log("CARD USAGE: v2 policies vs RandomBot (100 games each)");
+console.log("CARD USAGE: ladder policies vs RandomBot (100 games each)");
 console.log("=".repeat(70));
 
 const spotlight = [
@@ -355,36 +355,36 @@ const spotlight = [
   "be-prepared",
 ];
 
-const v2Policies = allPolicies.slice(2); // aggr-v2, mid-v2, control
-const v2Stats: Record<string, ReturnType<typeof querySimple>> = {};
-const v2Wrs: Record<string, number> = {};
+const ladderPolicies = allPolicies.slice(2); // aggressor, midrange, control
+const ladderStats: Record<string, ReturnType<typeof querySimple>> = {};
+const ladderWrs: Record<string, number> = {};
 
-for (const { label, policy } of v2Policies) {
+for (const { label, policy } of ladderPolicies) {
   process.stdout.write(`  evaluating ${label}...`);
   const results = evalGames(policy, RandomBot, deck, deck, GAMES, 70000 + label.charCodeAt(0) * 1000);
-  v2Stats[label] = querySimple(results);
-  v2Wrs[label] = winRate(results);
+  ladderStats[label] = querySimple(results);
+  ladderWrs[label] = winRate(results);
   process.stdout.write(`\r`);
 }
 
 const colW = 22;
-console.log("\n" + "Card".padEnd(36) + v2Policies.map(p => p.label.padStart(colW)).join(""));
-console.log("-".repeat(36 + v2Policies.length * colW));
+console.log("\n" + "Card".padEnd(36) + ladderPolicies.map(p => p.label.padStart(colW)).join(""));
+console.log("-".repeat(36 + ladderPolicies.length * colW));
 
 for (const defId of spotlight) {
   const def = definitions[defId];
   if (!def) continue;
   const n = def.fullName.length > 35 ? def.fullName.slice(0, 34) + "…" : def.fullName;
   let row = n.padEnd(36);
-  for (const { label } of v2Policies) {
-    const s = v2Stats[label]?.[defId] ?? { played: 0, quested: 0, challenged: 0, inked: 0 };
+  for (const { label } of ladderPolicies) {
+    const s = ladderStats[label]?.[defId] ?? { played: 0, quested: 0, challenged: 0, inked: 0 };
     row += `${s.inked}i/${s.played}p/${s.quested}q/${s.challenged}c`.padStart(colW);
   }
   console.log(row);
 }
 
 console.log("\nWin rate vs Random:".padEnd(36) +
-  v2Policies.map(p => `${(v2Wrs[p.label]! * 100).toFixed(1)}%`.padStart(colW)).join(""));
+  ladderPolicies.map(p => `${(ladderWrs[p.label]! * 100).toFixed(1)}%`.padStart(colW)).join(""));
 
 // ---------------------------------------------------------------------------
 // Save
@@ -394,4 +394,4 @@ mkdirSync("policies", { recursive: true });
 for (const { label, policy } of allPolicies.slice(2)) {
   writeFileSync(`policies/${name}-${label}.json`, JSON.stringify(policy.toJSON()));
 }
-console.log(`\nSaved policies/${name}-{aggr-v2,mid-v2,control}.json`);
+console.log(`\nSaved policies/${name}-{aggressor,midrange,control}.json`);
