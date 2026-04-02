@@ -75,6 +75,33 @@ function computePerStepRewards(result: GameResult, scale = 0.05): number[] {
   });
 }
 
+/** Per-turn bonus for Singer/Song plays (player1 only).
+ *  When player1 exerts a Singer to play a Song for free, add a bonus
+ *  proportional to the ink saved — directly signals the Singer/Song tempo line.
+ *  Without this, the multi-turn credit chain (play Singer T3 → free sing T4)
+ *  is too noisy for GAE to learn reliably.
+ *  Indexed by turnIndex (= state.turnNumber = cardStats.playedOnTurn). */
+function computeSingerStepBonuses(
+  result: GameResult,
+  definitions: Record<string, CardDefinition>,
+  scale = 0.05
+): Record<number, number> {
+  const bonuses: Record<number, number> = {};
+  for (const action of result.actions) {
+    if (action.type !== "PLAY_CARD") continue;
+    if (action.playerId !== "player1") continue;
+    if (!action.singerInstanceId) continue;
+    const stats = result.cardStats[action.instanceId];
+    if (!stats) continue;
+    const def = definitions[stats.definitionId];
+    if (!def) continue;
+    const turn = stats.playedOnTurn ?? 0;
+    // Bonus = ink saved (song cost) normalised to [0,1] over max ink ~12
+    bonuses[turn] = (bonuses[turn] ?? 0) + (def.cost / 12) * scale;
+  }
+  return bonuses;
+}
+
 /** Default reward: win=1, loss=0, draw=0.5 */
 function defaultReward(result: GameResult): number {
   if (result.winner === "player1") return 1;
@@ -153,6 +180,12 @@ export function trainPolicy(config: TrainingConfig): TrainingResult {
 
     // Update policy from this episode (A2C + GAE)
     const perStepRewards = computePerStepRewards(result);
+    // Add Singer/Song bonuses on top of lore-gain signal
+    const singerBonuses = computeSingerStepBonuses(result, definitions);
+    for (const [t, bonus] of Object.entries(singerBonuses)) {
+      const idx = Number(t);
+      perStepRewards[idx] = (perStepRewards[idx] ?? 0) + bonus;
+    }
     policy.updateFromEpisode(G, learningRate, gamma, perStepRewards);
 
     // Practice games — replay fundamentals against a simpler opponent to prevent
@@ -175,6 +208,11 @@ export function trainPolicy(config: TrainingConfig): TrainingResult {
         }
         const practiceG = reward(practiceResult);
         const practicePerStep = computePerStepRewards(practiceResult);
+        const practiceSingerBonuses = computeSingerStepBonuses(practiceResult, definitions);
+        for (const [t, bonus] of Object.entries(practiceSingerBonuses)) {
+          const idx = Number(t);
+          practicePerStep[idx] = (practicePerStep[idx] ?? 0) + bonus;
+        }
         policy.updateFromEpisode(practiceG, learningRate * practiceWeight, gamma, practicePerStep);
       }
     }

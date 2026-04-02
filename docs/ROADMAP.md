@@ -3,7 +3,7 @@
 # Cross-references all docs in docs/ folder.
 # Does NOT replace SPEC.md or DECISIONS.md.
 #
-# Last updated: Session 13 (Stream 2a-2f done, ruby-amethyst deck fully queried)
+# Last updated: Session 15 (v2 policies retrained complete; --curriculum flag unimplemented; train-ladder.ts never built)
 
 ---
 
@@ -93,23 +93,54 @@ not hardcoded heuristics.
     resolveBot("rl") loads saved policy with --policy flag
 
 ✅ 1g. Training scripts
-    train-mirror.ts    — self-play mirror match
-    train-tournament.ts — multi-policy round-robin (Round 1)
-    train-ladder.ts    — adversarial fine-tuning + curriculum (Round 2)
+    train-mirror.ts    — self-play mirror match (✅ exists, ran successfully)
+    train-tournament.ts — multi-policy round-robin (✅ exists)
+    train-ladder.ts    — adversarial fine-tuning + curriculum (❌ never built — ROADMAP was wrong)
+    Note: --curriculum flag in pnpm learn is silently ignored (parseArgs discards it).
+    Curriculum training requires implementing train-ladder.ts or adding the flag to learn.ts.
 
 ✅ 1h. Trained policies (policies/*.json, all CARD_FEATURE_SIZE=45)
-    ruby-amethyst-aggressor  — 87% vs random, 29% vs greedy (quest flood)
-    ruby-amethyst-midrange   — 97% vs random, 32% vs greedy (board control)
-    ruby-amethyst-aggr-v2    — 98% vs random, 29% vs greedy
-    ruby-amethyst-mid-v2     — 99% vs random, 37% vs greedy (plays Mickey)
-    ruby-amethyst-control    — 97% vs random, 52.3% round-robin (best overall)
+    All v1 policies deleted — trained without Singer/Song reward signal.
+    v2 policies retrained from scratch (Session 15, Apr 1 2026) — Singer bonus baked in from ep 1.
+    Training: pnpm learn --deck ./decks/set-001-ruby-amethyst-deck.txt --episodes 50000 --save ...
+    Note: --curriculum flag does nothing — all trained vs RandomBot only (ladder not implemented).
+    Current policies:
+      ruby-amethyst-mirror    — self-play mirror (87%+ card win rates, Magic Mirror activates well)
+      ruby-amethyst-aggressor — retrained v2 (vs random)
+      ruby-amethyst-control   — retrained v2 (vs random)
+      ruby-amethyst-midrange  — retrained v2 (vs random, ~6k eps before thermal throttle then rerun)
+    v1 results for reference:
+      ruby-amethyst-control  — 97% vs random, 52.3% round-robin (best overall)
+      ruby-amethyst-mid-v2   — 99% vs random, 37% vs greedy (plays Mickey)
+      ruby-amethyst-aggressor — 87% vs random, 29% vs greedy (quest flood)
+    No query suite run yet on v2 aggressor/control/midrange — Dragon ink vs play rate unknown.
 
 1i. Validation (ongoing)
     Tests passing (autoTag, network, policy, trainer integration)
     Seeded training determinism verified
-    Known gap: Dragon, Mickey, Singer/Song combo not yet learned —
-    need a harder opponent that builds a threatening board to make
-    those high-cost plays worth it
+    Singer/Song reward shaping added (Session 14):
+      computeSingerStepBonuses() in trainer.ts detects PLAY_CARD with
+      singerInstanceId, adds (songCost/12)*0.05 bonus to that turn's
+      perStepRewards. GAE at γ=0.99 propagates ~99% back to the Singer
+      play turn, connecting the T3 Maleficent decision to the T4 free sing.
+    Known remaining gap: Dragon/Be Prepared finishers still not learned —
+      games end before T7, need a longer/harder opponent to make finishers matter
+
+1j. Opponent modeling (future — feature engineering)
+    Current state: stateToFeatures() includes opponent's live board (full card
+    features per slot) — bot implicitly reacts to what it can see right now.
+    Gap: once a card leaves the board (banished, inkwelled) that signal is lost.
+    The bot sees "opponent has a 2/2 on T1" but not "opponent inkwelled Lilo,
+    which tells me this is an aggro list."
+    Enhancement: add opponent play history to state vector
+      - Opponent discard zone (cards already played + removed)
+      - Opponent inkwell contents (strongest signal — reveals hand archetype)
+    This enables persistent matchup inference: "opponent inkwelled Lilo on T1"
+    stays in the vector for the rest of the game, teaching the bot to shift
+    strategy (prioritize board control vs. lore racing) based on inferred archetype.
+    Cost: significant STATE_FEATURE_SIZE increase → all policies retrained from scratch.
+    Prerequisite: decide on a stable feature vector size before training policies
+    you want to keep long-term.
 ```
 
 **Shared prerequisites with Stream 3e — DONE ✅**
@@ -155,10 +186,12 @@ for discovery. See ANALYTICS_PHILOSOPHY.md for the full philosophy.
 
 ✅ 2b. Mulligan sweep (re-run with RL policy, 1000 games)
     queries/ruby-amethyst-2b-mulligan.json vs saved results
-    Key finding: bot NEVER mulligans (0.3% of games, 3/1000). shouldMulligan() is
-    far too conservative — essentially every hand gets kept regardless of quality.
+    Key finding: bot NEVER mulligans (0.3% of games, 3/1000).
     Dead opener (kept hand, no T3 play) = 34.4% of games, -8.5% win rate.
     Getting to 8+ lore by T5 = +51.4% win rate (lore acceleration critical).
+    Root cause: RLPolicy uses its own learned mulliganNet (not DEFAULT_MULLIGAN).
+    Fix is training, not threshold tuning — mulliganNet needs more episodes
+    where keeping bad hands gets punished. DEFAULT_MULLIGAN only affects GreedyBot.
 
 ✅ 2c. Slot analysis (re-run with RL policy, 1000 games)
     queries/ruby-amethyst-2c-slot.json vs saved results
@@ -634,15 +667,15 @@ KEPT:
 
 Ask in order:
 
-1. **Stream 1 (RL bot) is done. ✅**
-   Train a policy for the deck you want to analyze:
-   pnpm learn --deck ./deck.txt --curriculum --save ./policies/my-deck.policy.json
-   Known gap: Dragon, Mickey, Singer/Song combo not yet learned —
-   needs a harder opponent with threatening board presence.
-   Use ruby-amethyst-control (52.3% round-robin) as the current best opponent.
+1. **Stream 1 (RL bot) — infrastructure done ✅, v2 policies in training**
+   Singer/Song reward shaping added — retrain from scratch:
+   pnpm learn --deck ./decks/set-001-ruby-amethyst-deck.txt \
+     --curriculum --episodes 50000 --save ./policies/ruby-amethyst-v2.json
+   After training, validate with 2d queries (Maleficent T3 rate, Singer combo rate).
+   Known remaining gap: finishers (Dragon/Be Prepared) — games end before T7.
 
 2. **Streams 2a-2f are done. ✅ Key findings for ruby-amethyst deck:**
-   - Bot never mulligans (shouldMulligan too conservative — worth fixing)
+   - Bot never mulligans — RLPolicy mulliganNet is undertrained, fix is more training
    - High-curve cards (5-7 cost) almost never played in RL game plan
    - Singer/Song combo (Maleficent → free Friends) fires in only 1.3% of games
    - RL policy loses the mirror to GreedyBot — quest-first heuristic suits this deck
