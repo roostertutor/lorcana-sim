@@ -117,8 +117,7 @@ runSimulation(config: SimConfig) → GameResult[]
 
 RandomBot: BotStrategy
 GreedyBot: BotStrategy
-ProbabilityBot(weights: BotWeights): BotStrategy
-createPersonalBot(config: PersonalBotConfig): BotStrategy
+RLPolicy (load via RLPolicy.fromJSON): BotStrategy
 
 AggroWeights: BotWeights
 ControlWeights: BotWeights
@@ -218,11 +217,9 @@ All composition math (cost curve, ink curve) uses hypergeometric formula — no 
 
 ### Analytics Questions This Answers
 
-- "67% win rate vs AggroWeights, 43% vs ControlWeights — weak to slow gameplans"
-- "+8% WR delta when drawn vs Control, +1% vs Aggro — cut from aggro builds"
-- "71% win rate with AggroWeights, 51% with Control — play this deck aggressively"
-- "RyanBot vs OptimalBot gap: 12.4%. deckQuality weight too low: -6.2%"
-- "Win rate stable for loreAdvantage 0.5–0.9, drops below 0.4 — commit to racing"
+- "67% win rate vs greedy, 43% vs random — favors structured opponents"
+- "+8% WR delta when drawn vs greedy — keep this card"
+- "71% win rate with control policy, 51% with random — train more"
 
 ---
 
@@ -230,13 +227,12 @@ All composition math (cost curve, ink curve) uses hypergeometric formula — no 
 
 ```bash
 pnpm analyze  --deck ./deck.txt --bot greedy     --iterations 1000
-pnpm analyze  --deck ./deck.txt --bot aggro      --iterations 1000
-pnpm compare  --deck1 ./a.txt --deck2 ./b.txt --bot probability --iterations 5000
-pnpm optimize --deck ./deck.txt --opponent aggro --iterations 500
-pnpm sweep    --deck ./deck.txt --opponent control --iterations 200
+pnpm compare  --deck1 ./a.txt --deck2 ./b.txt --bot greedy --iterations 5000
+pnpm query    --sim sims/set-001-ruby-amethyst/sim.json --questions sims/set-001-ruby-amethyst/turn3-questions.json
+pnpm learn    --deck ./deck.txt --episodes 50000 --save ./policies/my-policy.json
 ```
 
-Bot options: `random`, `greedy`, `probability`, `aggro`, `control`, `midrange`, `rush`
+Bot options: `random`, `greedy`, `rl` (requires `--policy`)
 
 Decklist format: `4 Card Name` or `4x Card Name`, one per line. Lines starting with `#` are comments.
 Sample decks are in `decks/` (e.g. `decks/ruby-amethyst-deck.txt`).
@@ -407,7 +403,7 @@ average game length 6–15 turns, draw rate near 0%.
 type BotType = "algorithm" | "personal" | "crowd"
 ```
 
-- **algorithm:** RandomBot, GreedyBot, ProbabilityBot, weight presets
+- **algorithm:** RandomBot, GreedyBot, RLPolicy
 - **personal:** PersonalBot / named player bots (e.g. RyanBot)
 - **crowd:** CrowdBot, ExpertCrowdBot (future)
 

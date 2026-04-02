@@ -161,7 +161,7 @@ async function analyzePosition(
 
   // Get bot suggestion
   const probs = computeDeckProbabilities(state, currentPlayer, config.definitions)
-  const suggested = ProbabilityBot(MidrangeWeights).decideAction(
+  const suggested = GreedyBot.decideAction(
     state, currentPlayer, config.definitions
   )
 

@@ -1,7 +1,7 @@
 // =============================================================================
 // POSITION EVALUATOR
 // Scores a game state from one player's perspective using weighted factors.
-// Used by ProbabilityBot to rank candidate actions.
+// Used by GreedyBot to rank candidate actions.
 // =============================================================================
 
 import type { GameState, PlayerID } from "@lorcana-sim/engine";

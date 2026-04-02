@@ -33,7 +33,7 @@ Runs the deck against itself and prints win rate, average game length, and per-c
 ### Compare two decks head-to-head
 
 ```bash
-pnpm compare -- --deck1 ./decks/set-001-ruby-amethyst-deck.txt --deck2 ./decks/lilo-stitch-deck.txt --bot aggro --iterations 500
+pnpm compare -- --deck1 ./decks/set-001-ruby-amethyst-deck.txt --deck2 ./decks/lilo-stitch-deck.txt --bot greedy --iterations 500
 ```
 
 ### Goldfish (solo questing, opponent does nothing)
@@ -44,19 +44,6 @@ pnpm compare -- --deck1 ./decks/set-001-ruby-amethyst-deck.txt --deck2 ./decks/g
 
 The goldfish deck is 60 uninkable cards — the opponent can never ink or play anything and just passes every turn.
 
-### Optimize bot weights
-
-```bash
-pnpm optimize -- --deck ./decks/set-001-ruby-amethyst-deck.txt --opponent aggro --iterations 500
-```
-
-Searches for the best `BotWeights` for a deck against a given opponent style.
-
-### Weight sweep (3x3 grid)
-
-```bash
-pnpm sweep -- --deck ./decks/set-001-ruby-amethyst-deck.txt --opponent control --iterations 200
-```
 
 ### Query (condition-based analysis)
 
@@ -88,11 +75,7 @@ pnpm query -- --questions sims/aladdin/questions.json --results results/my-resul
 |------|-------|
 | `random` | Uniformly random legal action (baseline) |
 | `greedy` | Fixed priority: quest > favorable challenge > play card > ink > pass |
-| `probability` | Weight-based position evaluation (midrange preset) |
-| `aggro` | Race to 20 lore, minimal board interaction |
-| `control` | Board dominance, slow lore accumulation |
-| `midrange` | Balanced lore and board |
-| `rush` | Fast cheap cards, high urgency |
+| `rl` | Trained neural network policy — requires `--policy <path>` |
 
 ## Deck Format
 

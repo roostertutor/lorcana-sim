@@ -35,8 +35,8 @@ pnpm query -- --sim sims/aladdin/sim.json --questions sims/aladdin/questions.jso
 pnpm query -- --questions sims/aladdin/questions.json --results results/aladdin.json
 
 # Other commands also support --save and --opponent-bot
-pnpm analyze -- --deck ./decks/set-001-ruby-amethyst-deck.txt --bot greedy --opponent-bot aggro --iterations 5000 --save results.sim-results.json
-pnpm compare -- --deck1 ./decks/set-001-ruby-amethyst-deck.txt --deck2 ./decks/lilo-stitch-deck.txt --bot midrange --opponent-bot rush
+pnpm analyze -- --deck ./decks/set-001-ruby-amethyst-deck.txt --bot greedy --iterations 5000 --save results/ruby-amethyst.json
+pnpm compare -- --deck1 ./decks/set-001-ruby-amethyst-deck.txt --deck2 ./decks/lilo-stitch-deck.txt --bot greedy
 ```
 
 ### Sim config file format (*-sim.json)
@@ -46,13 +46,13 @@ pnpm compare -- --deck1 ./decks/set-001-ruby-amethyst-deck.txt --deck2 ./decks/l
   "me": "../decks/aladdin-deck.txt",
   "opponent": "../decks/lilo-stitch-deck.txt",
   "bot": "greedy",
-  "opponentBot": "aggro",
+  "opponentBot": "greedy",
   "iterations": 5000
 }
 ```
 
 - `me` / `opponent`: deck file paths, relative to the sim file's directory
-- `bot`: strategy for me (your deck, goes first). Options: random, greedy, probability, aggro, control, midrange, rush
+- `bot`: strategy for me (your deck, goes first). Options: random, greedy, rl (requires policy field)
 - `opponentBot`: strategy for opponent (optional, defaults to `bot`)
 - `opponent`: optional, defaults to mirror match (same deck)
 

@@ -236,7 +236,7 @@ mulligan decisions.
 
 ### Short term: Strategy Sweep
 
-New CLI command: `pnpm sweep-mulligan --deck ./deck.txt --target full_line`
+Use `pnpm query` with mulligan conditions to test this:
 
 Defines a set of mulligan strategies, runs each 500 times, reports
 F3 (line availability) for each. No encoding of "correct" strategy.

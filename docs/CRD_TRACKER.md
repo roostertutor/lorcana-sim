@@ -95,7 +95,7 @@
 |------|-------|--------|
 | 2.2.1.3 | Each player begins with 0 lore | ✅ `createGame` initializer |
 | 2.2.1.4 | Each player draws 7 cards (opening hand) | ✅ Tested: "deals 7 cards to each player" |
-| 2.2.2 | Players may alter their opening hand (mulligan) | ✅ Partial Paris mulligan in simulator. Generic `shouldMulligan`/`performMulligan` on BotStrategy. RampCindyCowBot has ramp-aware mulligan matching reference probability model. |
+| 2.2.2 | Players may alter their opening hand (mulligan) | ✅ Partial Paris mulligan in simulator. Generic `shouldMulligan`/`performMulligan` on BotStrategy. |
 
 ### 2.3 In-Game Stage
 | Rule | Quote | Status |

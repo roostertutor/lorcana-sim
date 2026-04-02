@@ -1,6 +1,6 @@
 // =============================================================================
 // SMART CHOICE RESOLVER
-// Replaces random choice resolution in GreedyBot and ProbabilityBot.
+// Replaces random choice resolution in GreedyBot.
 // Uses position evaluation to pick the best target for pending choices.
 // =============================================================================
 

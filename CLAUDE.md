@@ -10,9 +10,9 @@ to produce deck analytics and win rates. NOT a human-playable simulator.
 ## Status
 
 - engine:    done (170 passing, 1 todo). CRD audited. Tests organized by CRD.
-- simulator: done (47 passing). Layer 3 invariants passing. RL bot implemented (Actor-Critic + GAE).
+- simulator: done (46 passing). Layer 3 invariants passing. RL bot implemented (Actor-Critic + GAE).
 - analytics: done (15 passing).
-- cli:       done. analyze, compare, optimize, sweep, learn.
+- cli:       done. analyze, compare, query, learn.
 - ui:        done. 7 screens, React+Vite. Analysis overlay on Play + TestBench.
 - testbench: done. Interactive game board with bot opponent.
 - cards:     set 1 complete (204 unique cards, 216 entries, all abilities implemented, 0 stubs).
@@ -37,6 +37,9 @@ pnpm learn               # train RL policy (see --help)
 | docs/DECISIONS.md | Why decisions were made | Before proposing architecture changes |
 | docs/CRD_TRACKER.md | CRD v2.0.1 rule-to-engine map | Implementing/fixing game rules |
 | docs/CARD_ISSUES.md | Card implementation gaps | Importing new sets / fixing card bugs |
+| docs/RL.md | RL training architecture, policies, reward design | Touching the RL training pipeline |
+| docs/QUERY_SYSTEM.md | Query condition types, sim file format, CLI workflows | Writing or running queries |
+| docs/ANALYTICS_PHILOSOPHY.md | Why we ask certain questions, query design principles | Designing new question files |
 
 ---
 

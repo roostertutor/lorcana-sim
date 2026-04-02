@@ -4,10 +4,10 @@
 // Routes subcommands to their handlers and parses --flag arguments.
 //
 // Usage:
-//   pnpm analyze  --deck ./deck.txt --bot greedy     --iterations 1000
-//   pnpm compare  --deck1 ./a.txt --deck2 ./b.txt --bot probability --iterations 5000
-//   pnpm optimize --deck ./deck.txt --opponent aggro --iterations 500
-//   pnpm sweep    --deck ./deck.txt --opponent control --iterations 200
+//   pnpm analyze  --deck ./deck.txt --bot greedy --iterations 1000
+//   pnpm compare  --deck1 ./a.txt --deck2 ./b.txt --bot greedy --iterations 5000
+//   pnpm query    --sim sims/set-001-ruby-amethyst/sim.json --questions sims/set-001-ruby-amethyst/turn3-questions.json
+//   pnpm learn    --deck ./deck.txt --episodes 50000 --save ./policies/my-policy.json
 // =============================================================================
 
 import { resolve } from "path";
@@ -89,7 +89,7 @@ switch (subcommand) {
   }
 
   case "compare": {
-    const usage = "Usage: pnpm compare --deck1 ./a.txt --deck2 ./b.txt --bot probability --iterations 5000 [--verbose] [--save ./results.json]";
+    const usage = "Usage: pnpm compare --deck1 ./a.txt --deck2 ./b.txt --bot greedy --iterations 5000 [--verbose] [--save ./results.json]";
     runCompare({
       deck1: userPath(requireArg(args, "deck1", usage)),
       deck2: userPath(requireArg(args, "deck2", usage)),
