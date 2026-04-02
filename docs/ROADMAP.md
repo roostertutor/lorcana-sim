@@ -180,13 +180,13 @@ for discovery. See ANALYTICS_PHILOSOPHY.md for the full philosophy.
 
 ```
 ✅ 2a. Opener profiling queries (ruby-amethyst deck, 1000 games, RL control policy vs greedy)
-    queries/ruby-amethyst-sim.json + queries/ruby-amethyst-turn3-questions.json
+    sims/ruby-amethyst-sim.json + sims/ruby-amethyst-turn3-questions.json
     Key finding: Magic Broom is the most common T3 play (40.7%), not Friends (18.1%).
     Maleficent - Sorceress played T3 = only 2.5% — bot misses the Singer/Song line.
     Friends played T3 = 18.1%, win rate +5.5%. Maleficent T3 = -4.3% (sample too small).
 
 ✅ 2b. Mulligan sweep (re-run with RL policy, 1000 games)
-    queries/ruby-amethyst-2b-mulligan.json vs saved results
+    sims/ruby-amethyst-2b-mulligan.json vs saved results
     Key finding: bot NEVER mulligans (0.3% of games, 3/1000).
     Dead opener (kept hand, no T3 play) = 34.4% of games, -8.5% win rate.
     Getting to 8+ lore by T5 = +51.4% win rate (lore acceleration critical).
@@ -195,7 +195,7 @@ for discovery. See ANALYTICS_PHILOSOPHY.md for the full philosophy.
     where keeping bad hands gets punished. DEFAULT_MULLIGAN only affects GreedyBot.
 
 ✅ 2c. Slot analysis (re-run with RL policy, 1000 games)
-    queries/ruby-amethyst-2c-slot.json vs saved results
+    sims/ruby-amethyst-2c-slot.json vs saved results
     Key findings:
       Maleficent - Sorceress never played = 41.9% of games (being inked heavily)
       Heroic Outlaw   never played = 87.6% of games (5-drop rarely hits board)
@@ -208,7 +208,7 @@ for discovery. See ANALYTICS_PHILOSOPHY.md for the full philosophy.
     Games end before 7-drops become relevant.
 
 ✅ 2d. Card comparison (re-run with RL policy, 1000 games)
-    queries/ruby-amethyst-2d-compare.json vs saved results
+    sims/ruby-amethyst-2d-compare.json vs saved results
     Key findings:
       3-drop ranking by T3 frequency: Broom (40.7%) > Friends (18.1%) > Aladdin (14.7%) > Maleficent (2.5%)
       Singer combo (Maleficent T3 + Friends any turn) = 1.3% of games — almost never fires

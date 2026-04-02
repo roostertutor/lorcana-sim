@@ -16,7 +16,7 @@ decks/                      Decklists (.txt)
   lilo-stitch-deck.txt
   aladdin-deck.txt
   goldfish-deck.txt
-queries/                    Sim configs + question files (.json)
+sims/                    Sim configs + question files (.json)
   aladdin-sim.json          Simulation config (deck, opponent, bot, iterations)
   aladdin-questions.json    Queries array (reusable across result sets)
 *.sim-results.json          Saved results (gitignored)
@@ -26,13 +26,13 @@ queries/                    Sim configs + question files (.json)
 
 ```bash
 # One-shot: simulate + query
-pnpm query -- --sim queries/aladdin-sim.json --questions queries/aladdin-questions.json
+pnpm query -- --sim sims/aladdin-sim.json --questions sims/aladdin-questions.json
 
 # Save results for later
-pnpm query -- --sim queries/aladdin-sim.json --questions queries/aladdin-questions.json --save aladdin.sim-results.json
+pnpm query -- --sim sims/aladdin-sim.json --questions sims/aladdin-questions.json --save results/aladdin.json
 
 # Re-query saved results instantly (iterate on questions without re-simulating)
-pnpm query -- --questions queries/aladdin-questions.json --results aladdin.sim-results.json
+pnpm query -- --questions sims/aladdin-questions.json --results results/aladdin.json
 
 # Other commands also support --save and --opponent-bot
 pnpm analyze -- --deck ./decks/set-001-ruby-amethyst-deck.txt --bot greedy --opponent-bot aggro --iterations 5000 --save results.sim-results.json
@@ -198,7 +198,7 @@ NEW:
   packages/analytics/src/query.ts       — GameCondition, matchesCondition, queryResults
   packages/cli/src/commands/query.ts    — CLI query command
   decks/                                — Decklists
-  queries/                              — Sim configs + question files
+  sims/                              — Sim configs + question files
 ```
 
 ### What stays out (for now)

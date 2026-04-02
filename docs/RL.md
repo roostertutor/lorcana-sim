@@ -1063,22 +1063,22 @@ pnpm learn \
   --deck decks/cinderella-deck.txt \
   --opponent decks/lilo-stitch-deck.txt \
   --curriculum \
-  --save queries/cinderella-policy.json
+  --save policies/cinderella-policy.json
 
 # Goldfish only (faster, learns deck mechanics only)
 pnpm learn \
   --deck decks/cinderella-deck.txt \
   --goldfish-only \
   --episodes 50000 \
-  --save queries/cinderella-goldfish-policy.json
+  --save policies/cinderella-goldfish-policy.json
 
 # Continue training from saved policy
 pnpm learn \
   --deck decks/cinderella-deck.txt \
   --opponent decks/new-opponent.txt \
-  --load queries/cinderella-policy.json \
+  --load policies/cinderella-policy.json \
   --episodes 50000 \
-  --save queries/cinderella-updated-policy.json
+  --save policies/cinderella-updated-policy.json
 ```
 
 Add to `packages/cli/src/commands/learn.ts` and wire into main.ts.
@@ -1088,8 +1088,8 @@ Add to `packages/cli/src/commands/learn.ts` and wire into main.ts.
 ```bash
 # Run queries with RL bot instead of GreedyBot
 pnpm query \
-  --sim queries/sim.json \
-  --questions queries/opener.json \
+  --sim sims/sim.json \
+  --questions sims/opener.json \
   --policy ./policies/ruby-amethyst-control.json \
   --save results/rl-opener.json
 

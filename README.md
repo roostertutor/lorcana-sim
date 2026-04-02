@@ -20,7 +20,7 @@ pnpm dev            # http://localhost:5173
 
 ## CLI Commands
 
-All commands run from the repo root. Deck files live in `decks/`, query files in `queries/`.
+All commands run from the repo root. Deck files live in `decks/`, query files in `sims/`.
 
 ### Analyze a single deck (mirror match)
 
@@ -62,13 +62,13 @@ pnpm sweep -- --deck ./decks/set-001-ruby-amethyst-deck.txt --opponent control -
 
 ```bash
 # One-shot: simulate + query
-pnpm query -- --sim queries/aladdin-sim.json --questions queries/aladdin-questions.json
+pnpm query -- --sim sims/aladdin-sim.json --questions sims/aladdin-questions.json
 
 # Save results for later
-pnpm query -- --sim queries/aladdin-sim.json --questions queries/aladdin-questions.json --save aladdin.sim-results.json
+pnpm query -- --sim sims/aladdin-sim.json --questions sims/aladdin-questions.json --save results/aladdin.json
 
 # Re-query saved results instantly
-pnpm query -- --questions queries/aladdin-questions.json --results aladdin.sim-results.json
+pnpm query -- --questions sims/aladdin-questions.json --results results/aladdin.json
 ```
 
 Ask condition-based questions like "how often is Aladdin played on-curve, and what's the win rate when it happens?" See `docs/QUERY_SYSTEM.md` for the full condition language.
@@ -79,7 +79,7 @@ All commands that run simulations support `--save ./path.json` to persist result
 
 ```bash
 pnpm analyze -- --deck ./decks/set-001-ruby-amethyst-deck.txt --bot greedy --iterations 5000 --save my-results.sim-results.json
-pnpm query -- --questions queries/aladdin-questions.json --results my-results.sim-results.json
+pnpm query -- --questions sims/aladdin-questions.json --results results/my-results.json
 ```
 
 ## Bot Strategies
@@ -137,7 +137,7 @@ packages/
   cli/          Terminal commands. Imports analytics only.
   ui/           React + Vite. Imports analytics only.
 decks/          Sample decklists (.txt)
-queries/        Query sim configs + question files (.json)
+sims/        Query sim configs + question files (.json)
 ```
 
 ## Card Coverage
