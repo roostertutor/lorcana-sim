@@ -3,7 +3,7 @@
 # Cross-references all docs in docs/ folder.
 # Does NOT replace SPEC.md or DECISIONS.md.
 #
-# Last updated: Session 15 (v2 policies retrained complete; --curriculum flag unimplemented; train-ladder.ts never built)
+# Last updated: Session 16 (v2 policies retrained via full pipeline; query suite re-run; Be Prepared usage dramatically improved)
 
 ---
 
@@ -100,31 +100,32 @@ not hardcoded heuristics.
     Curriculum training requires implementing train-ladder.ts or adding the flag to learn.ts.
 
 ✅ 1h. Trained policies (policies/*.json, all CARD_FEATURE_SIZE=45)
-    All v1 policies deleted — trained without Singer/Song reward signal.
-    v2 policies retrained from scratch (Session 15, Apr 1 2026) — Singer bonus baked in from ep 1.
-    Training: pnpm learn --deck ./decks/set-001-ruby-amethyst-deck.txt --episodes 50000 --save ...
-    Note: --curriculum flag does nothing — all trained vs RandomBot only (ladder not implemented).
+    Full pipeline retrained (Session 16, Apr 2 2026) with Singer/Song bonus baked in:
+      Stage 1: npx tsx scripts/train-tournament.ts --deck ... --episodes 5000 (~1 hr)
+      Stage 2: npx tsx scripts/train-ladder.ts --deck ... --episodes 5000 (~4.5 hrs)
     Current policies:
-      ruby-amethyst-mirror    — self-play mirror (87%+ card win rates, Magic Mirror activates well)
-      ruby-amethyst-aggressor — retrained v2 (vs random)
-      ruby-amethyst-control   — retrained v2 (vs random)
-      ruby-amethyst-midrange  — retrained v2 (vs random, ~6k eps before thermal throttle then rerun)
-    v1 results for reference:
-      ruby-amethyst-control  — 97% vs random, 52.3% round-robin (best overall)
-      ruby-amethyst-mid-v2   — 99% vs random, 37% vs greedy (plays Mickey)
-      ruby-amethyst-aggressor — 87% vs random, 29% vs greedy (quest flood)
-    No query suite run yet on v2 aggressor/control/midrange — Dragon ink vs play rate unknown.
+      ruby-amethyst-mirror    — self-play mirror (87%+ card win rates, session 15)
+      ruby-amethyst-aggressor — tournament R1: 82% vs random, 28% vs greedy
+      ruby-amethyst-midrange  — tournament R1: 96% vs random, 30% vs greedy
+      ruby-amethyst-aggr-v2   — ladder R2: 99% vs random, 28% vs greedy
+      ruby-amethyst-mid-v2    — ladder R2: 96% vs random, 37% vs greedy (best vs greedy)
+      ruby-amethyst-control   — ladder R2: 98% vs random, 29% vs greedy; 49% round-robin (1st overall)
+    5-way round-robin ranking: control (49%) > mid-v2 (48.5%) > aggressor (48%) > midrange (45%) > aggr-v2 (43.5%)
 
-1i. Validation (ongoing)
+✅ 1i. Validation — query suite re-run (Session 16) with new control policy vs v1 baseline:
+    Win rate vs greedy mirror: 27.2% (up from v1 24.2%)
+    T3 plays: Broom 43% > Aladdin 20.3% > Friends 16.9% > Maleficent 3.4% (Aladdin up from 14.7%)
+    Singer combo (Mal T3 + Friends): 1.8% (up from v1 1.3%) — marginal improvement
+    Maleficent on board T4 (can sing): 13.3% (up from v1 10.8%)
+    Be Prepared usage: played in 19.6% of games (up from ~1% in v1) ← Singer bonus working
+    Dragon by T7: 0/1000 games — still the stubborn gap (games end before T7 vs greedy)
+    Known remaining gap: Dragon/Be Prepared finishers — need longer games or harder opponent
+      computeSingerStepBonuses() in trainer.ts: adds (songCost/12)*0.05 bonus when Singer sings.
+      GAE at γ=0.99 propagates signal back to Singer-play turn. Working for songs, not finishers.
+
+1j. Further validation (ongoing)
     Tests passing (autoTag, network, policy, trainer integration)
     Seeded training determinism verified
-    Singer/Song reward shaping added (Session 14):
-      computeSingerStepBonuses() in trainer.ts detects PLAY_CARD with
-      singerInstanceId, adds (songCost/12)*0.05 bonus to that turn's
-      perStepRewards. GAE at γ=0.99 propagates ~99% back to the Singer
-      play turn, connecting the T3 Maleficent decision to the T4 free sing.
-    Known remaining gap: Dragon/Be Prepared finishers still not learned —
-      games end before T7, need a longer/harder opponent to make finishers matter
 
 1j. Opponent modeling (future — feature engineering)
     Current state: stateToFeatures() includes opponent's live board (full card
