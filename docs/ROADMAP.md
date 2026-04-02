@@ -217,7 +217,6 @@ for discovery. See ANALYTICS_PHILOSOPHY.md for the full philosophy.
       In 75% of games, deck wins WITHOUT playing either finisher
 
 ✅ 2e. Matchup analysis (1000 games each, RL ruby-amethyst vs greedy opponents)
-    ruby-amethyst vs cinderella:  64.6% win rate (strong favorite)
     ruby-amethyst vs goldfish:    97.8% win rate (expected — opponent does nothing)
     ruby-amethyst mirror (RL vs greedy, same deck): 24.2% win rate
       Surprising: RL policy loses the mirror badly to GreedyBot. GreedyBot's
@@ -515,7 +514,6 @@ Sets 2-11: keyword-only data imported from Lorcast API
             tipo-growing-son (Set 5) — MEASURE ME AGAIN: inkwell ability
             vision-of-the-future (Set 5) — look_at_top actionEffect
             sail-the-azurite-sea (Set 6) — grant_extra_ink_play + draw
-            cinderella-dream-come-true (Set 10) — simplified stub
             clarabelle-light-on-her-hooves (Set 10) — shift keyword only
 
 Approximate stub count: ~1,500 cards across sets 2-11 need named abilities
@@ -680,7 +678,7 @@ Ask in order:
    - High-curve cards (5-7 cost) almost never played in RL game plan
    - Singer/Song combo (Maleficent → free Friends) fires in only 1.3% of games
    - RL policy loses the mirror to GreedyBot — quest-first heuristic suits this deck
-   - 64.6% win rate vs cinderella, 97.8% vs goldfish
+   - 97.8% win rate vs goldfish
    Next: train a better policy that learns the Singer/Song line (needs harder opponent),
    or move to 2g (slot optimization) to answer "what should I cut?"
 

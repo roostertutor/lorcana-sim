@@ -577,7 +577,7 @@ works for RL bots as well as hand-coded ones. See ANALYTICS_PHILOSOPHY.md.
 
 Before adding more hand-coded bot logic, build the infrastructure that
 can discover strategies we haven't thought of. See ANALYTICS_PHILOSOPHY.md
-for the full design and specific queries to add to cinderella-questions.json.
+for the full design and specific queries to add to a deck's questions file.
 
 **Principle:** Before running any simulation, ask: "Am I testing a
 hypothesis I already believe, or am I looking for something I don't know?"

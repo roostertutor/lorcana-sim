@@ -1,8 +1,0 @@
-{
-  "me": "../../decks/cinderella-deck.txt",
-  "opponent": "../../decks/goldfish-deck.txt",
-  "bot": "ramp-cindy-cow",
-  "opponentBot": "random",
-  "iterations": 500,
-  "maxTurns": 8
-}

@@ -103,14 +103,14 @@ have in common in their opening hands?"
 ```
 Games where full line fired (9.2%):
   P(had ramp in opener):        ?%
-  P(had Cinderella in opener):  ?%
+  P(had Magic Broom in opener):  ?%
   P(had DYB in opener):         ?%
   P(mulliganed):                ?%
   avg inkable cards in opener:  ?
 
 Games where full line did NOT fire (90.8%):
   P(had ramp in opener):        ?%
-  P(had Cinderella in opener):  ?%
+  P(had Magic Broom in opener):  ?%
   P(had DYB in opener):         ?%
   P(mulliganed):                ?%
   avg inkable cards in opener:  ?
@@ -119,7 +119,7 @@ Games where full line did NOT fire (90.8%):
 The difference between these two profiles tells you what a "good hand"
 actually looks like — derived from game outcomes, not from your assumptions.
 
-If "had Cinderella in opener" appears in 80% of games where the line
+If "had Magic Broom in opener" appears in 80% of games where the line
 fired but only 30% of games where it didn't, that tells you: when
 evaluating a mulligan decision, Cinderella's presence matters more
 than you thought.
@@ -153,7 +153,7 @@ is a pure function, reward signals are computable from `GameResult`.
 
 ### Immediate: Opener Profiling Queries
 
-Add to `cinderella-questions.json`:
+Add to `sims/set-001-ruby-amethyst/turn3-questions.json`:
 
 ```json
 {
@@ -167,12 +167,12 @@ Add to `cinderella-questions.json`:
   }
 },
 {
-  "name": "OP2. Full line fired AND had Cinderella in opener",
+  "name": "OP2. Full line fired AND had Magic Broom in opener",
   "condition": {
     "type": "and",
     "conditions": [
       { "type": "ref", "name": "all_pieces_available" },
-      { "type": "card_drawn_by", "card": "cinderella-dream-come-true", "turn": 1, "player": "me" }
+      { "type": "card_drawn_by", "card": "magic-broom", "turn": 1, "player": "me" }
     ]
   }
 },
@@ -217,19 +217,19 @@ Add to `cinderella-questions.json`:
   }
 },
 {
-  "name": "OP7. Full line MISSED AND had Cinderella in opener",
+  "name": "OP7. Full line MISSED AND had Magic Broom in opener",
   "condition": {
     "type": "and",
     "conditions": [
       { "type": "not", "condition": { "type": "ref", "name": "all_pieces_available" } },
-      { "type": "card_drawn_by", "card": "cinderella-dream-come-true", "turn": 1, "player": "me" }
+      { "type": "card_drawn_by", "card": "magic-broom", "turn": 1, "player": "me" }
     ]
   }
 }
 ```
 
 Read OP1 vs OP6 to understand whether ramp in opener predicts line success.
-Read OP2 vs OP7 to understand whether Cinderella in opener predicts line success.
+Read OP2 vs OP7 to understand whether Magic Broom in opener predicts line success.
 The card that most separates "line fired" from "line missed" is the card
 you most need in your opener — and therefore the card that drives
 mulligan decisions.
@@ -248,7 +248,7 @@ const STRATEGIES: MulliganStrategyConfig[] = [
   { name: "all-7-no-ramp",  condition: (hand) => !hasRamp(hand) },
   { name: "keep-dyb",       condition: (hand) => !hasRamp(hand),
                              keep: (hand) => hand.filter(isDYB).slice(0,1) },
-  { name: "keep-cinderella", condition: (hand) => !hasRamp(hand),
+  { name: "keep-magic-broom", condition: (hand) => !hasRamp(hand),
                              keep: (hand) => hand.filter(isCinderella).slice(0,1) },
   { name: "keep-any-combo", condition: (hand) => !hasRamp(hand),
                              keep: (hand) => hand.filter(isCombo).slice(0,1) },
@@ -264,11 +264,11 @@ Strategy              F1 (ramp)   F3 (full line)   F4 (executed)
 never                 72.4%       7.1%             4.2%
 all-7-no-ramp         88.6%       9.2%             5.8%
 keep-dyb              89.1%       9.8%             6.1%
-keep-cinderella       88.3%      11.4%             7.2%  ← winner?
+keep-magic-broom       88.3%      11.4%             7.2%  ← winner?
 keep-any-combo        88.9%      10.6%             6.8%
 ```
 
-If "keep-cinderella" produces higher F3 than "keep-dyb" — that's a
+If "keep-magic-broom" produces higher F3 than "keep-dyb" — that's a
 discovery. You never would have tested this because you assumed DYB
 was the correct keep. The sweep finds it without being told.
 

@@ -1058,27 +1058,23 @@ export function trainWithCurriculum(
 ### pnpm learn --deck ./deck.txt --opponent ./opponent.txt [options]
 
 ```bash
-# Full curriculum training (recommended)
 pnpm learn \
-  --deck decks/cinderella-deck.txt \
+  --deck decks/set-001-ruby-amethyst-deck.txt \
   --opponent decks/lilo-stitch-deck.txt \
-  --curriculum \
-  --save policies/cinderella-policy.json
+  --save policies/ruby-amethyst-control.json
 
-# Goldfish only (faster, learns deck mechanics only)
 pnpm learn \
-  --deck decks/cinderella-deck.txt \
-  --goldfish-only \
+  --deck decks/set-001-ruby-amethyst-deck.txt \
   --episodes 50000 \
-  --save policies/cinderella-goldfish-policy.json
+  --save policies/ruby-amethyst-control.json
 
 # Continue training from saved policy
 pnpm learn \
-  --deck decks/cinderella-deck.txt \
+  --deck decks/set-001-ruby-amethyst-deck.txt \
   --opponent decks/new-opponent.txt \
-  --load policies/cinderella-policy.json \
+  --load policies/ruby-amethyst-control.json \
   --episodes 50000 \
-  --save policies/cinderella-updated-policy.json
+  --save policies/ruby-amethyst-control.json
 ```
 
 Add to `packages/cli/src/commands/learn.ts` and wire into main.ts.
