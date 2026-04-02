@@ -1,4 +1,5 @@
 {
+  "description": "Does the Aladdin combo line work? Tracks the Street Rat → Heroic Outlaw shift: does setup happen on time, does Outlaw hit the board by T5, and can you still win if you fall behind on lore?",
   "queries": [
     {
       "name": "Line A setup: Street Rat by turn 3, 5 ink by turn 5",

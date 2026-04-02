@@ -1,4 +1,5 @@
 {
+  "description": "Which T3 play wins most, and does the Singer/Song combo fire? Head-to-head win rates for all 4 T3 options, plus the Singer combo specifically (Maleficent T3 → free Friends on T4).",
   "definitions": {
 
     "mal_played_t3":     { "type": "card_played_by", "card": "maleficent-sorceress",       "turn": 3, "player": "me" },

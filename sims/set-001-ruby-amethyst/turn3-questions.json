@@ -1,4 +1,5 @@
 {
+  "description": "Did we play a 3-drop on turn 3, and did it matter? Tracks the 3 key T3 plays (Maleficent, Friends, Aladdin) individually and combined, with win rate impact for each.",
   "definitions": {
 
     "maleficent_played_t3": {

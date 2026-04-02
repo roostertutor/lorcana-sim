@@ -1,4 +1,5 @@
 {
+  "description": "Which cards are dead weight? For each notable card by cost tier (3-drops, 5-drops, 6-drops, 7-cost finishers), how often does it go unplayed the entire game? Also checks whether finishers ever hit the board.",
   "queries": [
 
     {

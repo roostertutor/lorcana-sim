@@ -1,4 +1,5 @@
 {
+  "description": "Is the mulligan logic working? Compares kept vs mulliganed hands: did keeping lead to a T3 play? Did mulliganing actually improve outcomes? Also checks ink efficiency on T3/T5 and early lore leads.",
   "definitions": {
 
     "any_3drop_t3": {

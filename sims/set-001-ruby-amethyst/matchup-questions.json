@@ -1,4 +1,5 @@
 {
+  "description": "High-level matchup health check. Overall win rate, fast win rate, lore race position at T5, finisher usage, ink efficiency. Designed to run against different opponents for comparison.",
   "queries": [
 
     {
