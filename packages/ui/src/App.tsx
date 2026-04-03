@@ -1,37 +1,24 @@
 import React, { useState } from "react";
-import { LORCAST_CARD_DEFINITIONS, parseDecklist } from "@lorcana-sim/engine";
-import type { DeckEntry } from "@lorcana-sim/engine";
-import DeckInput from "./pages/DeckInput.js";
-import CompositionView from "./pages/CompositionView.js";
+import { LORCAST_CARD_DEFINITIONS } from "@lorcana-sim/engine";
+import DecksPage from "./pages/DecksPage.js";
 import SimulationView from "./pages/SimulationView.js";
-import ComparisonView from "./pages/ComparisonView.js";
 import TestBench from "./pages/TestBench.js";
 import GameBoard from "./pages/GameBoard.js";
 import MultiplayerLobby from "./pages/MultiplayerLobby.js";
 
-type Tab = "deck" | "composition" | "simulate" | "compare" | "testbench" | "multiplayer";
+type Tab = "decks" | "simulate" | "testbench" | "multiplayer";
 
-const TABS: { id: Tab; label: string; requiresDeck?: boolean }[] = [
-  { id: "deck", label: "Deck Input" },
-  { id: "composition", label: "Composition", requiresDeck: true },
-  { id: "simulate", label: "Simulate", requiresDeck: true },
-  { id: "compare", label: "Compare" },
+const TABS: { id: Tab; label: string }[] = [
+  { id: "decks", label: "Decks" },
+  { id: "simulate", label: "Simulate" },
   { id: "testbench", label: "Sandbox" },
   { id: "multiplayer", label: "Multiplayer" },
 ];
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>(
-    () => (localStorage.getItem("activeTab") as Tab | null) ?? "deck"
+    () => (localStorage.getItem("activeTab") as Tab | null) ?? "decks"
   );
-
-  function handleTabChange(tab: Tab) {
-    setActiveTab(tab);
-    localStorage.setItem("activeTab", tab);
-  }
-  const [deckText, setDeckText] = useState("");
-  const [deck, setDeck] = useState<DeckEntry[] | null>(null);
-  const [parseErrors, setParseErrors] = useState<string[]>([]);
   const [soloMode, setSoloMode] = useState(false);
   const [multiplayerGame, setMultiplayerGame] = useState<{
     gameId: string;
@@ -39,19 +26,10 @@ export default function App() {
     token: string;
   } | null>(null);
 
-  function handleDeckChange(text: string) {
-    setDeckText(text);
-    if (!text.trim()) {
-      setDeck(null);
-      setParseErrors([]);
-      return;
-    }
-    const { entries, errors } = parseDecklist(text, LORCAST_CARD_DEFINITIONS);
-    setDeck(entries.length > 0 ? entries : null);
-    setParseErrors(errors);
+  function handleTabChange(tab: Tab) {
+    setActiveTab(tab);
+    localStorage.setItem("activeTab", tab);
   }
-
-  const totalCards = deck?.reduce((s, e) => s + e.count, 0) ?? 0;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -60,31 +38,21 @@ export default function App() {
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
           <span className="text-amber-400 text-xl font-bold tracking-tight">⬡ Lorcana Sim</span>
           <span className="text-gray-600 text-sm hidden sm:block">headless analytics engine</span>
-          {deck && (
-            <span className="ml-auto text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded-full">
-              {totalCards} cards loaded
-            </span>
-          )}
         </div>
       </header>
 
       {/* Tabs */}
       <nav className="border-b border-gray-800 bg-gray-950">
         <div className="max-w-6xl mx-auto px-4 py-2 flex gap-1 flex-wrap">
-          {TABS.map((t) => {
-            const disabled = t.requiresDeck && !deck;
-            return (
-              <button
-                key={t.id}
-                onClick={() => !disabled && handleTabChange(t.id)}
-                className={activeTab === t.id ? "tab-active" : "tab-inactive"}
-                disabled={disabled}
-                title={disabled ? "Load a deck first" : undefined}
-              >
-                {t.label}
-              </button>
-            );
-          })}
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => handleTabChange(t.id)}
+              className={activeTab === t.id ? "tab-active" : "tab-inactive"}
+            >
+              {t.label}
+            </button>
+          ))}
         </div>
       </nav>
 
@@ -94,24 +62,8 @@ export default function App() {
           ? "p-0"
           : "max-w-6xl mx-auto px-4 py-6"
       }`}>
-        {activeTab === "deck" && (
-          <DeckInput
-            deckText={deckText}
-            parseErrors={parseErrors}
-            deck={deck}
-            onChange={handleDeckChange}
-            onAnalyze={() => deck && handleTabChange("composition")}
-          />
-        )}
-        {activeTab === "composition" && deck && (
-          <CompositionView deck={deck} definitions={LORCAST_CARD_DEFINITIONS} />
-        )}
-        {activeTab === "simulate" && deck && (
-          <SimulationView deck={deck} definitions={LORCAST_CARD_DEFINITIONS} />
-        )}
-        {activeTab === "compare" && (
-          <ComparisonView definitions={LORCAST_CARD_DEFINITIONS} />
-        )}
+        {activeTab === "decks" && <DecksPage />}
+        {activeTab === "simulate" && <SimulationView />}
         {activeTab === "testbench" && (
           <TestBench definitions={LORCAST_CARD_DEFINITIONS} />
         )}
