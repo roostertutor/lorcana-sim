@@ -307,7 +307,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       player2IsHuman: false,
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onBack]);
+  }, []); // run once on mount
 
   // Sandbox: auto-start with empty decks on mount
   useEffect(() => {
@@ -388,7 +388,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   // =========================================================================
   // SETUP MODE
   // =========================================================================
-  if (!session.gameState && (sandboxMode || onBack)) {
+  if (!session.gameState && (sandboxMode || onBack || !!multiplayerGame)) {
     return null; // waiting for auto-start effect
   }
   if (!session.gameState) {
