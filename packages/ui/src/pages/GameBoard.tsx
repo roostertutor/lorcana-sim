@@ -117,6 +117,117 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
 
   const analysis = useAnalysis(session.gameState, definitions, p1Parse.entries, p2Parse.entries, rlPolicy ?? GreedyBot);
 
+  // Derived early — needed by hooks that must live above the early return
+  const myId = multiplayerGame?.myPlayerId ?? "player1";
+
+  // Cancel any pending 2-step interaction mode
+  const cancelMode = React.useCallback(() => {
+    setChallengeAttackerId(null);
+    setShiftCardId(null);
+  }, []);
+
+  // Valid challenge targets for the selected attacker
+  const challengeTargets = useMemo(() => {
+    if (!challengeAttackerId) return new Set<string>();
+    return new Set(
+      session.legalActions
+        .filter(a => a.type === "CHALLENGE" && a.attackerInstanceId === challengeAttackerId)
+        .map(a => (a as { defenderInstanceId: string }).defenderInstanceId)
+    );
+  }, [challengeAttackerId, session.legalActions]);
+
+  // Valid shift targets for the selected hand card
+  const shiftTargets = useMemo(() => {
+    if (!shiftCardId) return new Set<string>();
+    return new Set(
+      session.legalActions
+        .filter(a => a.type === "PLAY_CARD" && (a as { instanceId: string }).instanceId === shiftCardId && (a as { shiftTargetInstanceId?: string }).shiftTargetInstanceId)
+        .map(a => (a as { shiftTargetInstanceId: string }).shiftTargetInstanceId)
+    );
+  }, [shiftCardId, session.legalActions]);
+
+  // Per-card action buttons — derived from legalActions
+  type CardBtn = { label: string; color: string; onClick: (e: React.MouseEvent) => void };
+  const cardButtons = useMemo(() => {
+    const map = new Map<string, CardBtn[]>();
+    const gs = session.gameState;
+    if (!gs) return map; // wait for game
+    const add = (id: string, btn: CardBtn) => {
+      if (!map.has(id)) map.set(id, []);
+      map.get(id)!.push(btn);
+    };
+    const isYourTurn = gs.currentPlayer === myId;
+    if (!isYourTurn || session.pendingChoice || session.isGameOver) return map;
+
+    const challengeAdded = new Set<string>();
+    const shiftAdded = new Set<string>();
+    const singerAdded = new Set<string>();
+
+    for (const action of session.legalActions) {
+      switch (action.type) {
+        case "PLAY_INK":
+          add(action.instanceId, {
+            label: "Ink", color: "bg-blue-700 hover:bg-blue-600 text-blue-100",
+            onClick: (e) => { e.stopPropagation(); session.dispatch(action); },
+          });
+          break;
+        case "PLAY_CARD":
+          if (action.shiftTargetInstanceId) {
+            if (!shiftAdded.has(action.instanceId)) {
+              shiftAdded.add(action.instanceId);
+              add(action.instanceId, {
+                label: "Shift", color: "bg-purple-700 hover:bg-purple-600 text-purple-100",
+                onClick: (e) => { e.stopPropagation(); cancelMode(); setShiftCardId(action.instanceId); },
+              });
+            }
+          } else if (action.singerInstanceId) {
+            if (!singerAdded.has(action.instanceId)) {
+              singerAdded.add(action.instanceId);
+              add(action.instanceId, {
+                label: "Sing", color: "bg-yellow-700 hover:bg-yellow-600 text-yellow-100",
+                onClick: (e) => { e.stopPropagation(); session.dispatch(action); },
+              });
+            }
+          } else {
+            add(action.instanceId, {
+              label: "Play", color: "bg-emerald-700 hover:bg-emerald-600 text-emerald-100",
+              onClick: (e) => { e.stopPropagation(); session.dispatch(action); },
+            });
+          }
+          break;
+        case "QUEST":
+          add(action.instanceId, {
+            label: "Quest", color: "bg-amber-600 hover:bg-amber-500 text-amber-100",
+            onClick: (e) => { e.stopPropagation(); session.dispatch(action); },
+          });
+          break;
+        case "CHALLENGE":
+          if (!challengeAdded.has(action.attackerInstanceId)) {
+            challengeAdded.add(action.attackerInstanceId);
+            add(action.attackerInstanceId, {
+              label: "Challenge", color: "bg-red-700 hover:bg-red-600 text-red-100",
+              onClick: (e) => { e.stopPropagation(); cancelMode(); setChallengeAttackerId(action.attackerInstanceId); },
+            });
+          }
+          break;
+        case "ACTIVATE_ABILITY": {
+          const def = gs.cards[action.instanceId]
+            ? definitions[gs.cards[action.instanceId]!.definitionId]
+            : undefined;
+          const abilityName = def?.abilities[action.abilityIndex]?.type === "activated"
+            ? (def.abilities[action.abilityIndex] as { storyName?: string }).storyName ?? "Activate"
+            : "Activate";
+          add(action.instanceId, {
+            label: abilityName, color: "bg-indigo-700 hover:bg-indigo-600 text-indigo-100",
+            onClick: (e) => { e.stopPropagation(); session.dispatch(action); },
+          });
+          break;
+        }
+      }
+    }
+    return map;
+  }, [session.legalActions, session.pendingChoice, session.isGameOver, session.gameState, session, myId, definitions, cancelMode]);
+
   function handlePolicyUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -182,6 +293,26 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
     if (!instance) return "Unknown";
     const def = definitions[instance.definitionId];
     return def?.fullName ?? instance.definitionId;
+  };
+
+  // Returns a label map for a list of IDs — appends (1), (2)… only when the same name appears more than once.
+  const buildLabelMap = (ids: string[]): Map<string, string> => {
+    const names = ids.map((id) => getCardName(id));
+    const counts: Record<string, number> = {};
+    for (const n of names) counts[n] = (counts[n] ?? 0) + 1;
+    const seen: Record<string, number> = {};
+    const map = new Map<string, string>();
+    for (let i = 0; i < ids.length; i++) {
+      const id = ids[i]!;
+      const name = names[i]!;
+      if (counts[name]! > 1) {
+        seen[name] = (seen[name] ?? 0) + 1;
+        map.set(id, `${name} (${seen[name]})`);
+      } else {
+        map.set(id, name);
+      }
+    }
+    return map;
   };
 
   // =========================================================================
@@ -282,7 +413,6 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
 
   const { gameState, legalActions, pendingChoice, actionLog, isGameOver, winner, error } = session;
 
-  const myId = multiplayerGame?.myPlayerId ?? "player1";
   const opponentId = myId === "player1" ? "player2" : "player1";
 
   const p1 = gameState.players[myId];
@@ -293,106 +423,9 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
   const recentLog = actionLog.slice(-30);
   const isYourTurn = gameState.currentPlayer === myId;
 
-  // Cancel any pending 2-step mode
-  const cancelMode = React.useCallback(() => { setChallengeAttackerId(null); setShiftCardId(null); }, []);
-
-  // Valid targets for current 2-step mode
-  const challengeTargets = useMemo(() => {
-    if (!challengeAttackerId) return new Set<string>();
-    return new Set(
-      legalActions
-        .filter(a => a.type === "CHALLENGE" && a.attackerInstanceId === challengeAttackerId)
-        .map(a => (a as { defenderInstanceId: string }).defenderInstanceId)
-    );
-  }, [challengeAttackerId, legalActions]);
-
-  const shiftTargets = useMemo(() => {
-    if (!shiftCardId) return new Set<string>();
-    return new Set(
-      legalActions
-        .filter(a => a.type === "PLAY_CARD" && (a as { instanceId: string }).instanceId === shiftCardId && (a as { shiftTargetInstanceId?: string }).shiftTargetInstanceId)
-        .map(a => (a as { shiftTargetInstanceId: string }).shiftTargetInstanceId)
-    );
-  }, [shiftCardId, legalActions]);
-
-  // Per-card action buttons — derived from legalActions
-  type CardBtn = { label: string; color: string; onClick: (e: React.MouseEvent) => void };
-  const cardButtons = useMemo(() => {
-    const map = new Map<string, CardBtn[]>();
-    const add = (id: string, btn: CardBtn) => {
-      if (!map.has(id)) map.set(id, []);
-      map.get(id)!.push(btn);
-    };
-    if (!isYourTurn || pendingChoice || isGameOver) return map;
-
-    const challengeAdded = new Set<string>();
-    const shiftAdded = new Set<string>();
-    const singerAdded = new Set<string>();
-
-    for (const action of legalActions) {
-      switch (action.type) {
-        case "PLAY_INK":
-          add(action.instanceId, {
-            label: "Ink", color: "bg-blue-700 hover:bg-blue-600 text-blue-100",
-            onClick: (e) => { e.stopPropagation(); session.dispatch(action); },
-          });
-          break;
-        case "PLAY_CARD":
-          if (action.shiftTargetInstanceId) {
-            if (!shiftAdded.has(action.instanceId)) {
-              shiftAdded.add(action.instanceId);
-              add(action.instanceId, {
-                label: "Shift", color: "bg-purple-700 hover:bg-purple-600 text-purple-100",
-                onClick: (e) => { e.stopPropagation(); cancelMode(); setShiftCardId(action.instanceId); },
-              });
-            }
-          } else if (action.singerInstanceId) {
-            if (!singerAdded.has(action.instanceId)) {
-              singerAdded.add(action.instanceId);
-              add(action.instanceId, {
-                label: "Sing", color: "bg-yellow-700 hover:bg-yellow-600 text-yellow-100",
-                onClick: (e) => { e.stopPropagation(); session.dispatch(action); },
-              });
-            }
-          } else {
-            add(action.instanceId, {
-              label: "Play", color: "bg-emerald-700 hover:bg-emerald-600 text-emerald-100",
-              onClick: (e) => { e.stopPropagation(); session.dispatch(action); },
-            });
-          }
-          break;
-        case "QUEST":
-          add(action.instanceId, {
-            label: "Quest", color: "bg-amber-600 hover:bg-amber-500 text-amber-100",
-            onClick: (e) => { e.stopPropagation(); session.dispatch(action); },
-          });
-          break;
-        case "CHALLENGE":
-          if (!challengeAdded.has(action.attackerInstanceId)) {
-            challengeAdded.add(action.attackerInstanceId);
-            add(action.attackerInstanceId, {
-              label: "Challenge", color: "bg-red-700 hover:bg-red-600 text-red-100",
-              onClick: (e) => { e.stopPropagation(); cancelMode(); setChallengeAttackerId(action.attackerInstanceId); },
-            });
-          }
-          break;
-        case "ACTIVATE_ABILITY": {
-          const def = gameState.cards[action.instanceId]
-            ? definitions[gameState.cards[action.instanceId]!.definitionId]
-            : undefined;
-          const abilityName = def?.abilities[action.abilityIndex]?.type === "activated"
-            ? (def.abilities[action.abilityIndex] as { storyName?: string }).storyName ?? "Activate"
-            : "Activate";
-          add(action.instanceId, {
-            label: abilityName, color: "bg-indigo-700 hover:bg-indigo-600 text-indigo-100",
-            onClick: (e) => { e.stopPropagation(); session.dispatch(action); },
-          });
-          break;
-        }
-      }
-    }
-    return map;
-  }, [legalActions, isYourTurn, pendingChoice, isGameOver, gameState, definitions, session]);
+  // Disambiguation labels for the active pending choice — only populated when duplicates exist
+  const choiceTargetIds = pendingChoice?.validTargets ?? pendingChoice?.revealedCards ?? [];
+  const choiceLabels = buildLabelMap(choiceTargetIds); // id → "Name (N)" or "Name"
 
   // Helper: render card + its action buttons
   function renderCardWithActions(id: string, zone: "play" | "hand", isOpponent = false) {
@@ -400,6 +433,12 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
     const isShiftTarget = shiftTargets.has(id);
     const isAttacker = id === challengeAttackerId || id === shiftCardId;
     const btns = (!isOpponent && !challengeAttackerId && !shiftCardId) ? (cardButtons.get(id) ?? []) : [];
+    // Show "(N)" badge only when the label differs from the plain name (i.e. duplicate exists)
+    const choiceLabel = choiceLabels.get(id);
+    const plainName = getCardName(id);
+    const disambigBadge = choiceLabel && choiceLabel !== plainName
+      ? choiceLabel.slice(plainName.length).trim() // e.g. "(1)"
+      : null;
 
     function handleClick() {
       if (isOpponent && challengeAttackerId && isChallTarget) {
@@ -420,16 +459,23 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
 
     return (
       <div key={id} className="flex flex-col items-center gap-1">
-        <GameCard
-          instanceId={id}
-          gameState={gameState}
-          definitions={definitions}
-          isSelected={session.selectedInstanceId === id}
-          isTarget={isChallTarget || isShiftTarget}
-          isAttacker={isAttacker}
-          onClick={handleClick}
-          zone={zone}
-        />
+        <div className="relative">
+          <GameCard
+            instanceId={id}
+            gameState={gameState}
+            definitions={definitions}
+            isSelected={session.selectedInstanceId === id}
+            isTarget={isChallTarget || isShiftTarget}
+            isAttacker={isAttacker}
+            onClick={handleClick}
+            zone={zone}
+          />
+          {disambigBadge && (
+            <span className="absolute top-1 right-1 text-[10px] font-black bg-white/90 text-gray-900 px-1.5 py-0.5 rounded shadow pointer-events-none">
+              {disambigBadge}
+            </span>
+          )}
+        </div>
         {btns.length > 0 && (
           <div className="flex flex-wrap gap-0.5 justify-center max-w-[120px]">
             {btns.map((btn, i) => (
@@ -454,7 +500,7 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
     if (!isHumanChoice) {
       return (
         <div className="rounded-lg px-4 py-3 bg-yellow-950/40 border border-yellow-700/50 backdrop-blur">
-          <span className="text-yellow-400 text-sm animate-pulse">Bot is thinking...</span>
+          <span className="text-yellow-400 text-sm animate-pulse">Opponent is thinking...</span>
         </div>
       );
     }
@@ -467,7 +513,7 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
           <div className="text-indigo-200 text-sm font-bold">Opening Hand — Mulligan</div>
           <div className="text-gray-400 text-xs">{pendingChoice.prompt}</div>
           <div className="flex flex-wrap gap-1.5">
-            {hand.map((id) => {
+            {(() => { const labels = buildLabelMap(hand); return hand.map((id) => {
               const selected = multiSelectTargets.includes(id);
               return (
                 <button
@@ -483,10 +529,10 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
                     );
                   }}
                 >
-                  {getCardName(id)}
+                  {labels.get(id)}
                 </button>
               );
-            })}
+            }); })()}
           </div>
           <div className="flex gap-2">
             <button
@@ -517,7 +563,7 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
           <div className="text-yellow-300 text-sm font-medium">{pendingChoice.prompt}</div>
           <div className="text-[10px] text-gray-500 uppercase tracking-wider">Select {requiredCount} card(s)</div>
           <div className="flex flex-wrap gap-1.5">
-            {(pendingChoice.validTargets ?? []).map((id) => {
+            {(() => { const ids = pendingChoice.validTargets ?? []; const labels = buildLabelMap(ids); return ids.map((id) => {
               const selected = multiSelectTargets.includes(id);
               return (
                 <button
@@ -533,10 +579,10 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
                     );
                   }}
                 >
-                  {getCardName(id)}
+                  {labels.get(id)}
                 </button>
               );
-            })}
+            }); })()}
           </div>
           <button
             className="px-4 py-1.5 text-xs bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg font-medium transition-colors"
@@ -595,6 +641,7 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
 
     const displayCards = pendingChoice.revealedCards ?? pendingChoice.validTargets ?? [];
     const validSet = new Set(pendingChoice.validTargets ?? []);
+    const labels = buildLabelMap(displayCards);
 
     return (
       <div className="rounded-lg px-4 py-3 bg-yellow-950/40 border border-yellow-700/50 space-y-2">
@@ -608,14 +655,14 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
                 className="px-3 py-1.5 text-xs bg-gray-700/80 hover:bg-gray-600 text-gray-200 rounded-lg border border-gray-600 transition-colors"
                 onClick={() => session.resolveChoice([id])}
               >
-                {getCardName(id)}
+                {labels.get(id)}
               </button>
             ) : (
               <span
                 key={id}
                 className="px-3 py-1.5 text-xs bg-gray-900/60 text-gray-600 rounded-lg border border-gray-800 line-through"
               >
-                {getCardName(id)}
+                {labels.get(id)}
               </span>
             );
           })}

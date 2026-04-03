@@ -826,6 +826,7 @@ export type GameLogEntryType =
   | "lore_gained"
   | "ability_triggered"
   | "ability_activated"
+  | "effect_resolved"
   | "choice_made"
   | "mulligan"
   | "game_over";

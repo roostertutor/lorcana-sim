@@ -1003,14 +1003,17 @@ export function applyEffect(
       if (amount <= 0) return state;
       if (effect.target.type === "both") {
         state = applyDraw(state, controllingPlayerId, amount, events);
+        state = appendLog(state, { turn: state.turnNumber, playerId: controllingPlayerId, message: `Drew ${amount} card(s).`, type: "effect_resolved" });
         state = applyDraw(state, getOpponent(controllingPlayerId), amount, events);
+        state = appendLog(state, { turn: state.turnNumber, playerId: getOpponent(controllingPlayerId), message: `Drew ${amount} card(s).`, type: "effect_resolved" });
         return state;
       }
       const targetPlayer =
         effect.target.type === "opponent"
           ? getOpponent(controllingPlayerId)
           : controllingPlayerId;
-      return applyDraw(state, targetPlayer, amount, events);
+      state = applyDraw(state, targetPlayer, amount, events);
+      return appendLog(state, { turn: state.turnNumber, playerId: targetPlayer, message: `Drew ${amount} card(s).`, type: "effect_resolved" });
     }
 
     case "gain_lore": {
@@ -2122,6 +2125,16 @@ function applyEffectToTarget(
       });
       // CRD 6.1.5.1: Store result for "[A]. For each damage removed, [B]" patterns
       state = { ...state, lastEffectResult: actualHeal };
+      if (actualHeal > 0) {
+        const targetDef = definitions[getInstance(state, targetInstanceId).definitionId];
+        const targetName = targetDef?.fullName ?? targetInstanceId;
+        state = appendLog(state, {
+          turn: state.turnNumber,
+          playerId: controllingPlayerId,
+          message: `Removed ${actualHeal} damage from ${targetName}.`,
+          type: "effect_resolved",
+        });
+      }
       return state;
     }
     case "exert":
