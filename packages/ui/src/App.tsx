@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { LORCAST_CARD_DEFINITIONS } from "@lorcana-sim/engine";
+import type { DeckEntry } from "@lorcana-sim/engine";
 import DecksPage from "./pages/DecksPage.js";
 import SimulationView from "./pages/SimulationView.js";
 import TestBench from "./pages/TestBench.js";
@@ -20,6 +21,7 @@ export default function App() {
     () => (localStorage.getItem("activeTab") as Tab | null) ?? "decks"
   );
   const [soloMode, setSoloMode] = useState(false);
+  const [soloDeck, setSoloDeck] = useState<DeckEntry[]>([]);
   const [multiplayerGame, setMultiplayerGame] = useState<{
     gameId: string;
     myPlayerId: "player1" | "player2";
@@ -69,7 +71,7 @@ export default function App() {
         )}
         {activeTab === "multiplayer" && (
           soloMode
-            ? <GameBoard definitions={LORCAST_CARD_DEFINITIONS} onBack={() => setSoloMode(false)} />
+            ? <GameBoard definitions={LORCAST_CARD_DEFINITIONS} initialDeck={soloDeck} onBack={() => setSoloMode(false)} />
             : multiplayerGame
               ? <GameBoard
                   definitions={LORCAST_CARD_DEFINITIONS}
@@ -79,7 +81,7 @@ export default function App() {
                   onGameStart={(gameId, myPlayerId, token) => {
                     setMultiplayerGame({ gameId, myPlayerId, token });
                   }}
-                  onPlaySolo={() => setSoloMode(true)}
+                  onPlaySolo={(deck) => { setSoloDeck(deck); setSoloMode(true); }}
                 />
         )}
       </main>

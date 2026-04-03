@@ -59,6 +59,7 @@ const SAMPLE_DECK = `4 Elsa - Snow Queen
 interface Props {
   definitions: Record<string, CardDefinition>;
   sandboxMode?: boolean;
+  initialDeck?: DeckEntry[];
   onBack?: () => void;
   multiplayerGame?: {
     gameId: string;
@@ -116,7 +117,7 @@ function InkDisplay({ available, total }: { available: number; total: number }) 
   );
 }
 
-export default function GameBoard({ definitions, sandboxMode, onBack, multiplayerGame }: Props) {
+export default function GameBoard({ definitions, sandboxMode, initialDeck, onBack, multiplayerGame }: Props) {
   const session = useGameSession();
 
   const [p1DeckText, setP1DeckText] = useState(SAMPLE_DECK);
@@ -294,6 +295,20 @@ export default function GameBoard({ definitions, sandboxMode, onBack, multiplaye
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [multiplayerGame]);
 
+  // Solo mode: auto-start with deck from lobby, bot plays P2
+  useEffect(() => {
+    if (!onBack || sandboxMode || multiplayerGame) return;
+    session.startGame({
+      player1Deck: initialDeck ?? [],
+      player2Deck: initialDeck ?? [],
+      definitions,
+      botStrategy: GreedyBot,
+      player1IsHuman: true,
+      player2IsHuman: false,
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onBack]);
+
   // Sandbox: auto-start with empty decks on mount
   useEffect(() => {
     if (!sandboxMode) return;
@@ -373,7 +388,7 @@ export default function GameBoard({ definitions, sandboxMode, onBack, multiplaye
   // =========================================================================
   // SETUP MODE
   // =========================================================================
-  if (!session.gameState && sandboxMode) {
+  if (!session.gameState && (sandboxMode || onBack)) {
     return null; // waiting for auto-start effect
   }
   if (!session.gameState) {

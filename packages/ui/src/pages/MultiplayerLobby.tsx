@@ -23,7 +23,7 @@ const SAMPLE_DECK = `4 Tinker Bell - Giant Fairy
 
 interface Props {
   onGameStart: (gameId: string, myPlayerId: "player1" | "player2", token: string) => void;
-  onPlaySolo: () => void;
+  onPlaySolo: (deck: import("@lorcana-sim/engine").DeckEntry[]) => void;
 }
 
 export default function MultiplayerLobby({ onGameStart, onPlaySolo }: Props) {
@@ -188,7 +188,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo }: Props) {
           className="w-full py-2.5 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800
                      disabled:text-gray-600 text-gray-200 rounded-lg text-sm font-bold
                      transition-colors active:scale-[0.98]"
-          onClick={onPlaySolo}
+          onClick={() => onPlaySolo(deck)}
           disabled={!deckReady}
         >
           Play Solo (vs bot)
