@@ -786,5 +786,82 @@ const actionStats = queryActionStats(results);        // post-hoc action aggrega
 
 ---
 
-*Last updated: 2026-03-30 (A2C+GAE upgrade, Reckless implementation, query-based analytics)*
-*Changes: policy.ts (A2C+GAE), trainer.ts (remove REINFORCE workarounds), train-mirror.ts (query-based), engine items-as-singers fix (CRD 5.4.4.2)*
+---
+
+## RL Ceiling and Strategic Pivot (Session 17, Apr 3 2026)
+
+### The ceiling
+
+A2C + GAE has a hard architectural limit on multi-turn planning. Concrete example from
+the amber-steel deck: the optimal T2 play is "Lantern (2 ink, cost reducer) + Stitch New
+Dog (free after reduction)" rather than "play New Dog on T1." The reason to wait: the
+mirror runs Fire the Cannons (1 ink, kills a 1-drop), so playing New Dog T1 gives the
+opponent an on-curve answer. Playing it T2 behind Lantern forces them off-curve.
+
+The RL always plays New Dog T1 because that's locally greedy. The payoff for waiting
+(successful T3 shift) is too far from the T1 decision for GAE to propagate credit back
+reliably. More episodes, more reward shaping, longer rollouts — none of these fix the
+root cause: the credit assignment chain is too long for per-step TD.
+
+**What A2C + GAE can learn:**
+- Card value (Rock Star is worth playing, Carefree Surfer is not)
+- Basic tempo (quest when ahead, play characters when behind)
+- Single-turn cost efficiency (Lantern reduces cost → play more cards this turn)
+
+**What it cannot learn:**
+- Multi-turn sequencing (hold New Dog T1 → Lantern T2 → shift T3)
+- Opponent modeling (dodge known removal)
+- Strategic card holding patterns
+
+**Current results (accepted as baseline, not worth improving further):**
+- Ruby-amethyst control: 27.2% vs greedy mirror
+- Amber-steel control: 77% vs greedy mirror (better deck for RL — finishers cost 5 not 9)
+
+### Proposed direction: supervised learning from ranked human games
+
+Multiplayer (Stream 4) + ELO ranking → collect high-ranked human game logs → supervised
+clone trainer (Stream 5). Humans have already solved credit assignment through
+understanding. Recording (state, action) pairs from high-ELO games and training via
+cross-entropy bypasses the exploration problem entirely.
+
+**Why this works where RL doesn't:**
+A human holding New Dog T1 already knows why (opponent runs removal). That decision gets
+recorded as a labeled example. The clone learns "in this position, strong players held
+this card" without needing a reward signal propagated back 3 turns.
+
+**The ceiling:** "as good as the best human players in the pool." For an analytics
+platform, "plays like a strong human" is the target — not superhuman. You need
+interesting, intentional play so query results reflect real strategies, not quest-flood.
+
+**Architecture reuse:** Same `stateToFeatures()`, same `actionToFeatures()`, same
+`NeuralNetwork` class — just cross-entropy loss instead of policy gradient. The clone
+trainer is a smaller project than the original RL trainer.
+
+**Prerequisites:** Stream 4 (multiplayer server) must exist before human games can be
+collected. Stream 4 is the unblocking dependency.
+
+**Pending:** Consulting claude.ai for second opinion on whether ~50 games × ~120
+decisions per player is enough signal, and whether any RL architectural changes could
+close the gap before multiplayer exists.
+
+---
+
+## Session 17 Changes (Apr 3 2026)
+
+- **Amber-steel deck** added (`decks/set-001-amber-steel-deck.txt`). All 16 unique cards
+  fully implemented (confirmed). Sim infrastructure: `sims/set-001-amber-steel/`.
+- **Lantern shift cost reduction bug fixed** in `validator.ts`:
+  `getEffectiveCostWithReductions()` now accepts optional `baseCost` parameter so shift
+  affordability checks apply `costReductions` (e.g. Lantern) against `shiftCost`, not
+  `cost`. Was silently broken — Lantern had zero effect on shift plays.
+- **Stream 3f done**: RL policy upload in GameBoard + TestBench analysis overlay.
+  File picker → `RLPolicy.fromJSON()` → `epsilon=0` → passed to `useAnalysis`.
+  Label switches "GreedyBot est." → "RL est." when policy loaded.
+- **Amber-steel policies trained** (6.5 hrs, same pipeline as ruby-amethyst):
+  control 100% vs random / 81% vs greedy (best performer).
+- **Query suite run**: 77.4% win rate for amber-steel control vs greedy.
+  Key finding: Stitch shift line (New Dog early + Rock Star) = +20.4% win rate.
+  A Whole New World anti-correlates with winning (played when behind). Songs overall
+  correlate with losing. Lantern + New Dog T2 line never fired (RL misses multi-turn setup).
+
+*Last updated: 2026-04-03*

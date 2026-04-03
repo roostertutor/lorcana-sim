@@ -3,7 +3,7 @@
 # Cross-references all docs in docs/ folder.
 # Does NOT replace SPEC.md or DECISIONS.md.
 #
-# Last updated: Session 16 (v2 policies retrained via full pipeline; query suite re-run; Be Prepared usage dramatically improved)
+# Last updated: Session 17 (amber-steel deck + policies; Lantern shift bug fix; Stream 3f done; RL ceiling reached; pivot to multiplayer + supervised learning)
 
 ---
 
@@ -100,15 +100,23 @@ not hardcoded heuristics.
     Curriculum training requires implementing train-ladder.ts or adding the flag to learn.ts.
 
 ✅ 1h. Trained policies (policies/*.json, all CARD_FEATURE_SIZE=45)
-    Full pipeline retrained (Session 16, Apr 2 2026) with Singer/Song bonus baked in:
+    Full pipeline: ~6.5 hrs total wall time (confirmed Apr 3 2026)
       Stage 1: npx tsx scripts/train-tournament.ts --deck ... --episodes 5000 (~1 hr)
       Stage 2: npx tsx scripts/train-ladder.ts --deck ... --episodes 5000 (~4.5 hrs)
-    Current policies:
+    Network architecture (confirmed from saved JSON):
+      actionNet:   inputSize=1282, h1=128, h2=64, out=1
+      mulliganNet: inputSize=1184, h1=64,  h2=32, out=2
+      valueNet:    inputSize=1184
+    Ruby-amethyst policies (Session 16):
       ruby-amethyst-mirror    — self-play mirror (87%+ card win rates, session 15)
       ruby-amethyst-aggressor — ladder R2: 99% vs random, 28% vs greedy
       ruby-amethyst-midrange  — ladder R2: 96% vs random, 37% vs greedy
       ruby-amethyst-control   — ladder R2: 98% vs random, 29% vs greedy; 49% round-robin (1st overall)
-    Round-robin: control (49%) > midrange (48.5%) > aggressor (43.5%)
+    Amber-steel policies (Session 17, Apr 3 2026):
+      amber-steel-aggressor   — ladder R2: 97% vs random, 80% vs greedy
+      amber-steel-midrange    — ladder R2: 99% vs random, 78% vs greedy
+      amber-steel-control     — ladder R2: 100% vs random, 81% vs greedy (best performer)
+    Note: card usage display in train-ladder.ts shows ruby-amethyst cards regardless of deck — display bug, doesn't affect training
 
 ✅ 1i. Validation — query suite re-run (Session 16) with new control policy vs v1 baseline:
     Win rate vs greedy mirror: 27.2% (up from v1 24.2%)
@@ -121,11 +129,21 @@ not hardcoded heuristics.
       computeSingerStepBonuses() in trainer.ts: adds (songCost/12)*0.05 bonus when Singer sings.
       GAE at γ=0.99 propagates signal back to Singer-play turn. Working for songs, not finishers.
 
-1j. Further validation (ongoing)
-    Tests passing (autoTag, network, policy, trainer integration)
-    Seeded training determinism verified
+✅ 1i. Validation — amber-steel query suite (Session 17, Apr 3 2026):
+    Win rate vs greedy mirror: 77.4% (much better than ruby-amethyst 27.2%)
+    Stitch shift line (New Dog early + Rock Star): 12.6% of games, +20.4% win rate — strongest signal
+    A Whole New World: anti-correlates with winning (played 29.5% of games, -22.3% win rate)
+      → played defensively when losing, not as a proactive finisher
+    Lantern + New Dog T2 line: never fired (0/1000 T3 shifts) — RL misses multi-turn setup
+    Songs overall: -8.9% win rate — correlate with losing, not winning
 
-1j. Opponent modeling (future — feature engineering)
+❌ 1j. RL multi-turn planning — ARCHITECTURAL CEILING REACHED
+    A2C+GAE cannot learn multi-turn sequencing (hold New Dog T1 → Lantern T2 → shift T3).
+    Credit assignment chain too long for per-step TD. More episodes/reward shaping won't fix.
+    Decision: accept RL as "good enough baseline", pivot to multiplayer + supervised learning.
+    See DECISIONS.md "RL Ceiling and Strategic Pivot" for full analysis and proposed direction.
+
+1k. Opponent modeling (future — feature engineering)
     Current state: stateToFeatures() includes opponent's live board (full card
     features per slot) — bot implicitly reacts to what it can see right now.
     Gap: once a card leaves the board (banished, inkwelled) that signal is lost.
@@ -344,10 +362,10 @@ to be useful — even GreedyBot as an opponent is enough to test card interactio
     Replay is for human understanding; "what if" is for human exploration.
     Neither is a training mechanism.
 
-3f. Wire in RL bot analysis — NOW UNBLOCKED (Stream 1 done)
-    Replace GreedyBot analysis with RLPolicy analysis
-    Win probability now reflects competent play
-    Requires --policy path in useAnalysis / GameBoard bot config
+✅ 3f. Wire in RL bot analysis (Session 17, Apr 3 2026)
+    File upload button in GameBoard + TestBench → RLPolicy.fromJSON() → epsilon=0
+    useAnalysis accepts optional botStrategy param (default GreedyBot)
+    AnalysisPanel shows "RL est." vs "GreedyBot est." based on usingRL flag
 ```
 
 **Claude Code session prompt (3a-3d done — next is 3e or 3f):**
@@ -664,12 +682,11 @@ KEPT:
 
 Ask in order:
 
-1. **Stream 1 (RL bot) — infrastructure done ✅, v2 policies in training**
-   Singer/Song reward shaping added — retrain from scratch:
-   pnpm learn --deck ./decks/set-001-ruby-amethyst-deck.txt \
-     --curriculum --episodes 50000 --save ./policies/ruby-amethyst-control.json
-   After training, validate with 2d queries (Maleficent T3 rate, Singer combo rate).
-   Known remaining gap: finishers (Dragon/Be Prepared) — games end before T7.
+1. **Stream 1 (RL bot) — DONE. Ceiling reached. Do not retrain.**
+   Ruby-amethyst control: 27.2% vs greedy. Amber-steel control: 77.4% vs greedy.
+   RL cannot learn multi-turn planning (credit assignment limit). Accepted as baseline.
+   Next direction: Stream 4 (multiplayer) → ranked games → supervised clone trainer (Stream 5).
+   See DECISIONS.md "RL Ceiling and Strategic Pivot".
 
 2. **Streams 2a-2f are done. ✅ Key findings for ruby-amethyst deck:**
    - Bot never mulligans — RLPolicy mulliganNet is undertrained, fix is more training
