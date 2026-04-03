@@ -1,0 +1,220 @@
+{
+  "description": "Ariel Singer/Song combo frequency, Stitch shift line execution, and high-cost play rates. Ariel is the only 3-drop — measures how often she hits the board and enables songs. Key finishers: Grab Your Sword and A Whole New World (cost 5, singable by Ariel Singer 5).",
+
+  "definitions": {
+
+    "ariel_played_t3":   { "type": "card_played_by", "card": "ariel-spectacular-singer",       "turn": 3, "player": "me" },
+    "ariel_in_play_t4":  { "type": "card_in_play_on", "card": "ariel-spectacular-singer",       "turn": 4, "player": "me" },
+
+    "beourgust_played":  { "type": "not", "condition": { "type": "card_never_played", "card": "be-our-guest",         "player": "me" } },
+    "wholenewworld_played": { "type": "not", "condition": { "type": "card_never_played", "card": "a-whole-new-world",  "player": "me" } },
+    "grabyoursword_played": { "type": "not", "condition": { "type": "card_never_played", "card": "grab-your-sword",    "player": "me" } },
+
+    "any_song_played": {
+      "type": "or",
+      "conditions": [
+        { "type": "ref", "name": "beourgust_played" },
+        { "type": "ref", "name": "wholenewworld_played" },
+        { "type": "ref", "name": "grabyoursword_played" }
+      ]
+    },
+
+    "lantern_played_t2":    { "type": "card_played_by", "card": "lantern",             "turn": 2, "player": "me" },
+
+    "stitch_newdog_t1":     { "type": "card_played_by", "card": "stitch-new-dog",       "turn": 1, "player": "me" },
+    "stitch_newdog_t2":     { "type": "card_played_by", "card": "stitch-new-dog",       "turn": 2, "player": "me" },
+    "stitch_rockstar_t3":   { "type": "card_played_by", "card": "stitch-rock-star",      "turn": 3, "player": "me" },
+    "stitch_rockstar_played": { "type": "not", "condition": { "type": "card_never_played", "card": "stitch-rock-star",      "player": "me" } },
+    "stitch_surfer_played":   { "type": "not", "condition": { "type": "card_never_played", "card": "stitch-carefree-surfer", "player": "me" } },
+
+    "stitch_newdog_early": {
+      "type": "or",
+      "conditions": [
+        { "type": "ref", "name": "stitch_newdog_t1" },
+        { "type": "ref", "name": "stitch_newdog_t2" }
+      ]
+    },
+
+    "lantern_t2_plus_newdog_t2": {
+      "type": "and",
+      "conditions": [
+        { "type": "ref", "name": "lantern_played_t2" },
+        { "type": "ref", "name": "stitch_newdog_t2" }
+      ]
+    }
+
+  },
+
+  "queries": [
+
+    {
+      "name": "Games won",
+      "condition": { "type": "won" }
+    },
+
+    {
+      "name": "--- T3 PLAYS: Ariel is the only 3-drop ---",
+      "condition": { "type": "won" }
+    },
+
+    {
+      "name": "Ariel played on T3",
+      "condition": { "type": "ref", "name": "ariel_played_t3" }
+    },
+
+    {
+      "name": "Ariel played on T3 (win rate)",
+      "condition": {
+        "type": "and",
+        "conditions": [
+          { "type": "ref", "name": "ariel_played_t3" },
+          { "type": "won" }
+        ]
+      }
+    },
+
+    {
+      "name": "--- SINGER/SONG ANALYSIS ---",
+      "condition": { "type": "won" }
+    },
+
+    {
+      "name": "Ariel on board T4 (can sing)",
+      "condition": { "type": "ref", "name": "ariel_in_play_t4" }
+    },
+
+    {
+      "name": "Be Our Guest played any turn",
+      "condition": { "type": "ref", "name": "beourgust_played" }
+    },
+
+    {
+      "name": "A Whole New World played any turn",
+      "condition": { "type": "ref", "name": "wholenewworld_played" }
+    },
+
+    {
+      "name": "Grab Your Sword played any turn",
+      "condition": { "type": "ref", "name": "grabyoursword_played" }
+    },
+
+    {
+      "name": "Any song played any turn",
+      "condition": { "type": "ref", "name": "any_song_played" }
+    },
+
+    {
+      "name": "Ariel T3 + any song played (Singer combo proxy)",
+      "condition": {
+        "type": "and",
+        "conditions": [
+          { "type": "ref", "name": "ariel_played_t3" },
+          { "type": "ref", "name": "any_song_played" }
+        ]
+      }
+    },
+
+    {
+      "name": "Ariel T3 + survived to T4 + any song (full Singer line)",
+      "condition": {
+        "type": "and",
+        "conditions": [
+          { "type": "ref", "name": "ariel_played_t3" },
+          { "type": "ref", "name": "ariel_in_play_t4" },
+          { "type": "ref", "name": "any_song_played" }
+        ]
+      }
+    },
+
+    {
+      "name": "--- STITCH SHIFT LINE ---",
+      "condition": { "type": "won" }
+    },
+
+    {
+      "name": "Lantern T2 + Stitch New Dog T2 (free via cost reduction)",
+      "condition": { "type": "ref", "name": "lantern_t2_plus_newdog_t2" }
+    },
+
+    {
+      "name": "Stitch New Dog played T1 or T2 (shift setup)",
+      "condition": { "type": "ref", "name": "stitch_newdog_early" }
+    },
+
+    {
+      "name": "Stitch Rock Star shifted on T3 (New Dog T2 → Rock Star T3 via Lantern)",
+      "condition": { "type": "ref", "name": "stitch_rockstar_t3" }
+    },
+
+    {
+      "name": "Stitch Rock Star played any turn",
+      "condition": { "type": "ref", "name": "stitch_rockstar_played" }
+    },
+
+    {
+      "name": "Stitch shift line: New Dog early + Rock Star played",
+      "condition": {
+        "type": "and",
+        "conditions": [
+          { "type": "ref", "name": "stitch_newdog_early" },
+          { "type": "ref", "name": "stitch_rockstar_played" }
+        ]
+      }
+    },
+
+    {
+      "name": "Full T3 shift line: Lantern T2 + New Dog T2 + Rock Star T3",
+      "condition": {
+        "type": "and",
+        "conditions": [
+          { "type": "ref", "name": "lantern_t2_plus_newdog_t2" },
+          { "type": "ref", "name": "stitch_rockstar_t3" }
+        ]
+      }
+    },
+
+    {
+      "name": "Stitch Carefree Surfer played any turn",
+      "condition": { "type": "ref", "name": "stitch_surfer_played" }
+    },
+
+    {
+      "name": "--- HIGH-COST PLAYS ---",
+      "condition": { "type": "won" }
+    },
+
+    {
+      "name": "Grab Your Sword played + won",
+      "condition": {
+        "type": "and",
+        "conditions": [
+          { "type": "ref", "name": "grabyoursword_played" },
+          { "type": "won" }
+        ]
+      }
+    },
+
+    {
+      "name": "A Whole New World played + won",
+      "condition": {
+        "type": "and",
+        "conditions": [
+          { "type": "ref", "name": "wholenewworld_played" },
+          { "type": "won" }
+        ]
+      }
+    },
+
+    {
+      "name": "Won without any songs",
+      "condition": {
+        "type": "and",
+        "conditions": [
+          { "type": "won" },
+          { "type": "not", "condition": { "type": "ref", "name": "any_song_played" } }
+        ]
+      }
+    }
+
+  ]
+}

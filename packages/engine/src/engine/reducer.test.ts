@@ -3603,4 +3603,82 @@ describe("§6.1.5 Sequential Effects", () => {
     // Card drawn
     expect(getZone(result.newState, "player1", "hand").length).toBe(handBefore + 1);
   });
+
+  // ---------------------------------------------------------------------------
+  // Lantern - BIRTHDAY LIGHTS cost reduction
+  // ---------------------------------------------------------------------------
+
+  // Lantern BIRTHDAY LIGHTS: {E} — pay 1 less for next character this turn.
+  // Shift is an alternate cost for a character, so the reduction should apply.
+  it("Lantern BIRTHDAY LIGHTS reduces shift cost by 1", () => {
+    let state = startGame();
+    let lanternId: string, newDogId: string, rockStarId: string;
+    ({ state, instanceId: lanternId } = injectCard(state, "player1", "lantern", "play"));
+    ({ state, instanceId: newDogId } = injectCard(state, "player1", "stitch-new-dog", "play"));
+    ({ state, instanceId: rockStarId } = injectCard(state, "player1", "stitch-rock-star", "hand"));
+    // Stitch Rock Star shift cost = 4. With Lantern reduction = 3. Without = not affordable at 3 ink.
+    state = giveInk(state, "player1", 3);
+
+    // Without Lantern: shift should NOT be legal at 3 ink (costs 4)
+    const legalBefore = getAllLegalActions(state, "player1", LORCAST_CARD_DEFINITIONS);
+    const shiftBefore = legalBefore.filter(
+      (a) => a.type === "PLAY_CARD" && a.instanceId === rockStarId && a.shiftTargetInstanceId === newDogId
+    );
+    expect(shiftBefore).toHaveLength(0);
+
+    // Activate Lantern (exert only, no ink cost)
+    const activateResult = applyAction(state, {
+      type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: lanternId, abilityIndex: 0,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(activateResult.success).toBe(true);
+    expect(getInstance(activateResult.newState, lanternId).isExerted).toBe(true);
+
+    // After Lantern: shift should now be legal at 3 ink (4 - 1 = 3)
+    const legalAfter = getAllLegalActions(activateResult.newState, "player1", LORCAST_CARD_DEFINITIONS);
+    const shiftAfter = legalAfter.filter(
+      (a) => a.type === "PLAY_CARD" && a.instanceId === rockStarId && a.shiftTargetInstanceId === newDogId
+    );
+    expect(shiftAfter).toHaveLength(1);
+
+    // Play the shift — confirm Rock Star lands in play
+    const playResult = applyAction(activateResult.newState, shiftAfter[0]!, LORCAST_CARD_DEFINITIONS);
+    expect(playResult.success).toBe(true);
+    expect(getZone(playResult.newState, "player1", "play")).toContain(rockStarId);
+    expect(playResult.newState.players.player1.availableInk).toBe(0);
+  });
+
+  it("Lantern BIRTHDAY LIGHTS enables T2 Lantern + free Stitch New Dog (cost 1 - 1 = 0)", () => {
+    let state = startGame();
+    let lanternId: string, newDogId: string;
+    ({ state, instanceId: newDogId } = injectCard(state, "player1", "stitch-new-dog", "hand"));
+    // Lantern is played from hand (cost 2). After playing, activate to get cost reduction, then New Dog costs 0.
+    // Simulate: Lantern already in play (already paid for), 0 ink remaining, activate Lantern, play New Dog.
+    ({ state, instanceId: lanternId } = injectCard(state, "player1", "lantern", "play"));
+    state = giveInk(state, "player1", 0); // simulates having already spent 2 ink on Lantern
+
+    // Without Lantern active: New Dog (cost 1) should not be playable at 0 ink
+    const legalBefore = getAllLegalActions(state, "player1", LORCAST_CARD_DEFINITIONS);
+    const playBefore = legalBefore.filter(
+      (a) => a.type === "PLAY_CARD" && a.instanceId === newDogId
+    );
+    expect(playBefore).toHaveLength(0);
+
+    // Activate Lantern
+    const activateResult = applyAction(state, {
+      type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: lanternId, abilityIndex: 0,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(activateResult.success).toBe(true);
+
+    // New Dog should now be playable for free
+    const legalAfter = getAllLegalActions(activateResult.newState, "player1", LORCAST_CARD_DEFINITIONS);
+    const playAfter = legalAfter.filter(
+      (a) => a.type === "PLAY_CARD" && a.instanceId === newDogId
+    );
+    expect(playAfter).toHaveLength(1);
+
+    const playResult = applyAction(activateResult.newState, playAfter[0]!, LORCAST_CARD_DEFINITIONS);
+    expect(playResult.success).toBe(true);
+    expect(getZone(playResult.newState, "player1", "play")).toContain(newDogId);
+    expect(playResult.newState.players.player1.availableInk).toBe(0);
+  });
 });

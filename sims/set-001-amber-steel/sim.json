@@ -1,0 +1,7 @@
+{
+  "me": "../../decks/set-001-amber-steel-deck.txt",
+  "bot": "greedy",
+  "opponentBot": "greedy",
+  "iterations": 1000,
+  "maxTurns": 30
+}

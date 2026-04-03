@@ -93,8 +93,10 @@ function validatePlayCard(
     if (shiftTarget.ownerId !== playerId) return fail("You don't own the shift target.");
     const shiftTargetDef = getDefinition(state, shiftTargetInstanceId, definitions);
     if (shiftTargetDef.name !== def.name) return fail("Shift target must share this character's name.");
-    if (!canAfford(state, playerId, def.shiftCost)) { // CRD 1.5.3
-      return fail(`Not enough ink. Need ${def.shiftCost}, have ${state.players[playerId].availableInk}.`);
+    // CRD 1.5.3: cost reductions (e.g. Lantern) apply to shift cost too
+    const effectiveShiftCost = getEffectiveCostWithReductions(state, playerId, instanceId, definitions, def.shiftCost);
+    if (!canAfford(state, playerId, effectiveShiftCost)) {
+      return fail(`Not enough ink. Need ${effectiveShiftCost} (shift), have ${state.players[playerId].availableInk}.`);
     }
     return OK;
   }
@@ -132,16 +134,18 @@ function validatePlayCard(
   return OK;
 }
 
-/** Calculate effective cost after applying all cost reductions. */
+/** Calculate effective cost after applying all cost reductions.
+ *  Pass baseCost to override def.cost (e.g. for shift: use def.shiftCost). */
 function getEffectiveCostWithReductions(
   state: GameState,
   playerId: PlayerID,
   instanceId: string,
-  definitions: Record<string, CardDefinition>
+  definitions: Record<string, CardDefinition>,
+  baseCost?: number
 ): number {
   const def = getDefinition(state, instanceId, definitions);
   const instance = getInstance(state, instanceId);
-  let cost = def.cost;
+  let cost = baseCost ?? def.cost;
 
   // Static cost reductions (e.g. Mickey: Broom chars cost 1 less)
   const modifiers = getGameModifiers(state, definitions);
