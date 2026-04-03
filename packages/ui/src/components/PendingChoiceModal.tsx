@@ -53,7 +53,6 @@ export default function PendingChoiceModal({
     onClick: () => void;
   }) {
     const zone = (gameState.cards[id]?.zone === "play" ? "play" : "hand") as "play" | "hand";
-    const name = getName(id);
     return (
       <div
         className={`flex flex-col items-center gap-1 shrink-0 cursor-pointer transition-opacity ${isDimmed ? "opacity-40" : ""}`}
@@ -70,7 +69,6 @@ export default function PendingChoiceModal({
             zone={zone}
           />
         </div>
-        <span className="text-[10px] text-gray-400 text-center max-w-[80px] leading-tight truncate">{name}</span>
       </div>
     );
   }
