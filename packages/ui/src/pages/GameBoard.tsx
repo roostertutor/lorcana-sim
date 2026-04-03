@@ -700,10 +700,10 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           </div>
         </div>
 
-        {/* ---- Battlefield divider ---- */}
+        {/* ---- Play zone divider ---- */}
         <div className="flex items-center gap-3 py-0.5">
           <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-700/50 to-transparent" />
-          <span className="text-[9px] text-gray-700 uppercase tracking-widest">Battlefield</span>
+          <span className="text-[9px] text-gray-700 uppercase tracking-widest">Play</span>
           <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-700/50 to-transparent" />
         </div>
 
