@@ -83,7 +83,7 @@ export default function PendingChoiceModal({
             <div className="text-indigo-200 text-sm font-bold mb-0.5">Opening Hand — Mulligan</div>
             <div className="text-gray-400 text-xs">{pendingChoice.prompt}</div>
           </div>
-          <div className="flex gap-2 overflow-x-auto pb-1">
+          <div className="flex flex-wrap gap-2 pb-1">
             {hand.map((id) => {
               const selected = multiSelectTargets.includes(id);
               return (
@@ -134,7 +134,7 @@ export default function PendingChoiceModal({
             <div className="text-yellow-300 text-sm font-medium mb-0.5">{pendingChoice.prompt}</div>
             <div className="text-[10px] text-gray-500 uppercase tracking-wider">Select {requiredCount} card(s)</div>
           </div>
-          <div className="flex gap-2 overflow-x-auto pb-1">
+          <div className="flex flex-wrap gap-2 pb-1">
             {ids.map((id) => {
               const selected = multiSelectTargets.includes(id);
               return (
@@ -212,7 +212,7 @@ export default function PendingChoiceModal({
     return (
       <div className="space-y-3">
         <div className="text-yellow-300 text-sm font-medium">{pendingChoice.prompt}</div>
-        <div className="flex gap-2 overflow-x-auto pb-1">
+        <div className="flex flex-wrap gap-2 pb-1">
           {displayCards.map((id) => {
             const selectable = validSet.has(id);
             return (
