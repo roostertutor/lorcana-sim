@@ -23,10 +23,8 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { useGameSession } from "../hooks/useGameSession.js";
-import { useAnalysis } from "../hooks/useAnalysis.js";
 import { useBoardDnd, DROP_PLAY_ZONE, DROP_INKWELL, dropCardId } from "../hooks/useBoardDnd.js";
 import { buildLabelMap } from "../utils/buildLabelMap.js";
-import AnalysisPanel from "../components/AnalysisPanel.js";
 import SandboxPanel from "../components/SandboxPanel.js";
 import GameCard from "../components/GameCard.js";
 import PendingChoiceModal from "../components/PendingChoiceModal.js";
@@ -135,9 +133,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   const p1Parse = useMemo(() => parseDecklist(p1DeckText, definitions), [p1DeckText, definitions]);
   const p2Parse = useMemo(() => parseDecklist(p2DeckText, definitions), [p2DeckText, definitions]);
 
-  const analysis = useAnalysis(session.gameState, definitions, p1Parse.entries, p2Parse.entries, rlPolicy ?? GreedyBot);
-
-  // Derived early — needed by hooks that must live above the early return
+// Derived early — needed by hooks that must live above the early return
   const myId = multiplayerGame?.myPlayerId ?? "player1";
 
   // Cancel any pending 2-step interaction mode
@@ -560,7 +556,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             </div>
           </DroppableCardTarget>
           {btns.length > 0 && (
-            <div className="hidden lg:flex flex-wrap gap-0.5 justify-center max-w-[120px]">
+            <div className="hidden md:flex flex-wrap gap-0.5 justify-center max-w-[120px]">
               {btns.map((btn, i) => (
                 <button
                   key={i}
@@ -602,7 +598,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       onDragEnd={dnd.handleDragEnd}
       onDragCancel={dnd.handleDragCancel}
     >
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-5 px-3 lg:px-4 pb-20 lg:pb-6 pt-3">
+    <div className="grid grid-cols-1 md:grid-cols-[1fr_220px] lg:grid-cols-[1fr_280px] gap-5 px-3 md:px-4 pb-20 md:pb-6 pt-3">
       {/* ======================= Main game area ======================= */}
       <div className="min-w-0 space-y-2">
 
@@ -638,7 +634,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             <span className="text-gray-600 text-xs">T{gameState.turnNumber}</span>
 
             {/* Mobile compact lore scores */}
-            <div className="flex items-center gap-1.5 ml-2 lg:hidden">
+            <div className="flex items-center gap-1.5 ml-2 md:hidden">
               <span className="text-green-400 font-mono text-sm font-black">{p1.lore}</span>
               <span className="text-gray-700 text-xs">♦</span>
               <span className="text-gray-600 text-xs">vs</span>
@@ -648,7 +644,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             </div>
 
             {/* Desktop full lore trackers */}
-            <div className="hidden lg:flex lg:flex-1 lg:flex-col lg:gap-0.5 lg:ml-2">
+            <div className="hidden md:flex md:flex-1 md:flex-col md:gap-0.5 md:ml-2">
               <LoreTracker lore={p1.lore} label="You" color="green" />
               <LoreTracker lore={p2.lore} label={multiplayerGame ? "Opp" : "Bot"} color="red" />
             </div>
@@ -765,7 +761,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
 
         {/* ---- Desktop: mode hints + pass turn ---- */}
         {!pendingChoice && !isGameOver && isYourTurn && (
-          <div className="hidden lg:flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-2">
             {challengeAttackerId && (
               <div className="flex-1 flex items-center gap-2 rounded-lg px-3 py-2 bg-red-950/40 border border-red-700/40 text-red-300 text-xs">
                 <span className="font-bold">Challenge mode</span>
@@ -791,17 +787,10 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           </div>
         )}
 
-        {/* ---- Desktop: Game Log ---- */}
-        <details className="hidden lg:block">
-          <summary className="text-[10px] text-gray-600 uppercase tracking-wider cursor-pointer select-none hover:text-gray-400 transition-colors py-1">
-            Game Log ({actionLog.length})
-          </summary>
-          <div className="mt-1">{logRows}</div>
-        </details>
       </div>
 
-      {/* ======================= Desktop: Sidebar (Sandbox or Analysis) ======================= */}
-      <div className="hidden lg:block space-y-4 lg:sticky lg:top-20 lg:self-start">
+      {/* ======================= Sidebar (Sandbox or Game Log) ======================= */}
+      <div className="hidden md:block space-y-4 md:sticky md:top-20 md:self-start">
         {sandboxMode ? (
           <SandboxPanel
             session={session}
@@ -812,13 +801,18 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             onAutoPassP2Change={setAutoPassP2}
           />
         ) : (
-          <AnalysisPanel {...analysis} estimateLabel={analysis.usingRL ? "RL est." : "GreedyBot est."} />
+          <div className="rounded-xl bg-gray-900/60 border border-gray-800/50 p-3 space-y-2">
+            <div className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">
+              Game Log ({actionLog.length})
+            </div>
+            {logRows}
+          </div>
         )}
       </div>
 
       {/* ======================= Mobile: card action strip ======================= */}
       {selectedCardButtons.length > 0 && (
-        <div className="fixed bottom-14 left-0 right-0 z-30 lg:hidden
+        <div className="fixed bottom-14 left-0 right-0 z-30 md:hidden
                         bg-gray-950/95 border-t border-gray-800 backdrop-blur-sm px-3 py-2
                         flex gap-2 overflow-x-auto scrollbar-none">
           <span className="text-[10px] text-gray-500 self-center shrink-0 mr-1">
@@ -836,7 +830,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       )}
 
       {/* ======================= Mobile: sticky bottom bar ======================= */}
-      <div className="fixed bottom-0 left-0 right-0 z-20 lg:hidden
+      <div className="fixed bottom-0 left-0 right-0 z-20 md:hidden
                       bg-gray-950/95 border-t border-gray-800 backdrop-blur-sm
                       pb-[env(safe-area-inset-bottom,0px)]">
         <div className="flex items-center gap-2 px-3 h-14">
@@ -877,7 +871,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
 
       {/* ======================= Mobile: Analysis/Sandbox bottom sheet ======================= */}
       {showAnalysis && (
-        <div className="fixed inset-0 z-40 lg:hidden">
+        <div className="fixed inset-0 z-40 md:hidden">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAnalysis(false)} />
           <div className="absolute bottom-0 left-0 right-0 max-h-[70vh] overflow-y-auto
                           bg-gray-950 rounded-t-2xl border-t border-gray-800 p-4
@@ -893,7 +887,12 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                 onAutoPassP2Change={setAutoPassP2}
               />
             ) : (
-              <AnalysisPanel {...analysis} estimateLabel={analysis.usingRL ? "RL est." : "GreedyBot est."} />
+              <div className="space-y-2">
+                <div className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">
+                  Game Log ({actionLog.length})
+                </div>
+                {logRows}
+              </div>
             )}
           </div>
         </div>
@@ -901,7 +900,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
 
       {/* ======================= Mobile: Log bottom sheet ======================= */}
       {showLog && (
-        <div className="fixed inset-0 z-40 lg:hidden">
+        <div className="fixed inset-0 z-40 md:hidden">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowLog(false)} />
           <div className="absolute bottom-0 left-0 right-0 max-h-[60vh] flex flex-col
                           bg-gray-950 rounded-t-2xl border-t border-gray-800
