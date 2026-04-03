@@ -1703,11 +1703,15 @@ function queueTrigger(
   if (!def) return state;
 
   // Queue self-triggers (the source card's own triggered abilities)
+  // If the trigger has a filter, the source card must match it (e.g. ADORING FANS
+  // fires "whenever you play a character cost ≤ 2" — Stitch Rock Star itself costs 6).
   const selfTriggers = def.abilities
-    .filter(
-      (a): a is TriggeredAbility =>
-        a.type === "triggered" && a.trigger.on === eventType
-    )
+    .filter((a): a is TriggeredAbility => {
+      if (a.type !== "triggered" || a.trigger.on !== eventType) return false;
+      const triggerFilter = "filter" in a.trigger ? a.trigger.filter : undefined;
+      if (triggerFilter && !matchesFilter(instance, def, triggerFilter, state, instance.ownerId)) return false;
+      return true;
+    })
     .map((ability) => ({
       ability,
       sourceInstanceId,

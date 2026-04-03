@@ -291,6 +291,8 @@ function validateChallenge(
   }
 
   const defenderDef = getDefinition(state, defenderInstanceId, definitions);
+  if (defenderDef.cardType !== "character") return fail("Only characters can be challenged."); // CRD 4.6.2
+
   const opponentPlay = getZone(state, opponent, "play");
 
   // CRD 8.3.3: Bodyguard — exerted bodyguards must be challenged first
