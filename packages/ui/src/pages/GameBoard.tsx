@@ -12,10 +12,23 @@ import {
   RLPolicy,
 } from "@lorcana-sim/simulator";
 import type { BotStrategy } from "@lorcana-sim/simulator";
+import {
+  DndContext,
+  DragOverlay,
+  useDraggable,
+  useDroppable,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
 import { useGameSession } from "../hooks/useGameSession.js";
 import { useAnalysis } from "../hooks/useAnalysis.js";
+import { useBoardDnd, DROP_PLAY_ZONE, DROP_INKWELL, dropCardId } from "../hooks/useBoardDnd.js";
+import { buildLabelMap } from "../utils/buildLabelMap.js";
 import AnalysisPanel from "../components/AnalysisPanel.js";
 import GameCard from "../components/GameCard.js";
+import PendingChoiceModal from "../components/PendingChoiceModal.js";
 
 // -----------------------------------------------------------------------------
 // Bot options
@@ -297,25 +310,8 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
     return def?.fullName ?? instance.definitionId;
   };
 
-  // Returns a label map for a list of IDs — appends (1), (2)… only when the same name appears more than once.
-  const buildLabelMap = (ids: string[]): Map<string, string> => {
-    const names = ids.map((id) => getCardName(id));
-    const counts: Record<string, number> = {};
-    for (const n of names) counts[n] = (counts[n] ?? 0) + 1;
-    const seen: Record<string, number> = {};
-    const map = new Map<string, string>();
-    for (let i = 0; i < ids.length; i++) {
-      const id = ids[i]!;
-      const name = names[i]!;
-      if (counts[name]! > 1) {
-        seen[name] = (seen[name] ?? 0) + 1;
-        map.set(id, `${name} (${seen[name]})`);
-      } else {
-        map.set(id, name);
-      }
-    }
-    return map;
-  };
+  // buildLabelMap is imported from utils — wrap with local getName
+  const getLabelMap = (ids: string[]) => buildLabelMap(ids, getCardName);
 
   // =========================================================================
   // SETUP MODE
@@ -425,22 +421,44 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
   const recentLog = actionLog.slice(-30);
   const isYourTurn = gameState.currentPlayer === myId;
 
-  // Disambiguation labels for the active pending choice — only populated when duplicates exist
-  const choiceTargetIds = pendingChoice?.validTargets ?? pendingChoice?.revealedCards ?? [];
-  const choiceLabels = buildLabelMap(choiceTargetIds); // id → "Name (N)" or "Name"
+  // ── Drag & Drop ──────────────────────────────────────────────────────────
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor,   { activationConstraint: { delay: 150, tolerance: 5 } }),
+  );
 
-  // Helper: render card + its action buttons
+  const dnd = useBoardDnd({
+    myId,
+    gameState,
+    legalActions,
+    dispatch: session.dispatch,
+    isEnabled: isYourTurn && !pendingChoice && !isGameOver,
+  });
+
+  // Helpers for readability in JSX
+  function isDraggableEnabled(isOpponent: boolean) {
+    return !isOpponent && isYourTurn && !pendingChoice && !isGameOver;
+  }
+
+  // ── Disambiguation labels for the active pending choice ───────────────────
+
+  const choiceTargetIds = pendingChoice?.validTargets ?? pendingChoice?.revealedCards ?? [];
+  const choiceLabels = getLabelMap(choiceTargetIds); // id → "Name (N)" or "Name"
+
+  // Helper: render card + its action buttons, wrapped in DnD primitives
   function renderCardWithActions(id: string, zone: "play" | "hand", isOpponent = false) {
     const isChallTarget = challengeTargets.has(id);
     const isShiftTarget = shiftTargets.has(id);
     const isAttacker = id === challengeAttackerId || id === shiftCardId;
     const btns = (!isOpponent && !challengeAttackerId && !shiftCardId) ? (cardButtons.get(id) ?? []) : [];
-    // Show "(N)" badge only when the label differs from the plain name (i.e. duplicate exists)
     const choiceLabel = choiceLabels.get(id);
     const plainName = getCardName(id);
     const disambigBadge = choiceLabel && choiceLabel !== plainName
-      ? choiceLabel.slice(plainName.length).trim() // e.g. "(1)"
+      ? choiceLabel.slice(plainName.length).trim()
       : null;
+
+    // Whether this card can be a DnD drop target (shift or challenge)
+    const isDropTarget = !!dnd.activeId && dnd.isValidCardDrop(dnd.activeId, id);
 
     function handleClick() {
       if (isOpponent && challengeAttackerId && isChallTarget) {
@@ -454,231 +472,47 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
         setShiftCardId(null);
         return;
       }
-      // Cancel any mode when clicking elsewhere
       if (challengeAttackerId || shiftCardId) { cancelMode(); return; }
       session.selectCard(session.selectedInstanceId === id ? null : id);
     }
 
     return (
-      <div key={id} className="snap-start shrink-0 flex flex-col items-center gap-1 px-0.5">
-        <div className="relative">
-          <GameCard
-            instanceId={id}
-            gameState={gameState}
-            definitions={definitions}
-            isSelected={session.selectedInstanceId === id}
-            isTarget={isChallTarget || isShiftTarget}
-            isAttacker={isAttacker}
-            onClick={handleClick}
-            zone={zone}
-          />
-          {disambigBadge && (
-            <span className="absolute top-1 right-1 text-[10px] font-black bg-white/90 text-gray-900 px-1.5 py-0.5 rounded shadow pointer-events-none">
-              {disambigBadge}
-            </span>
+      <DraggableCard key={id} instanceId={id} zone={zone} isEnabled={isDraggableEnabled(isOpponent)}>
+        <div className="snap-start shrink-0 flex flex-col items-center gap-1 px-0.5">
+          <DroppableCardTarget id={id} isValidTarget={isDropTarget} activeId={dnd.activeId}>
+            <div className="relative">
+              <GameCard
+                instanceId={id}
+                gameState={gameState}
+                definitions={definitions}
+                isSelected={session.selectedInstanceId === id}
+                isTarget={isChallTarget || isShiftTarget}
+                isAttacker={isAttacker}
+                onClick={handleClick}
+                zone={zone}
+              />
+              {disambigBadge && (
+                <span className="absolute top-1 right-1 text-[10px] font-black bg-white/90 text-gray-900 px-1.5 py-0.5 rounded shadow pointer-events-none">
+                  {disambigBadge}
+                </span>
+              )}
+            </div>
+          </DroppableCardTarget>
+          {btns.length > 0 && (
+            <div className="hidden lg:flex flex-wrap gap-0.5 justify-center max-w-[120px]">
+              {btns.map((btn, i) => (
+                <button
+                  key={i}
+                  className={`text-[9px] font-bold px-2 py-0.5 rounded-full transition-colors ${btn.color}`}
+                  onClick={btn.onClick}
+                >
+                  {btn.label}
+                </button>
+              ))}
+            </div>
           )}
         </div>
-        {/* Desktop-only action buttons — mobile uses the action strip */}
-        {btns.length > 0 && (
-          <div className="hidden lg:flex flex-wrap gap-0.5 justify-center max-w-[120px]">
-            {btns.map((btn, i) => (
-              <button
-                key={i}
-                className={`text-[9px] font-bold px-2 py-0.5 rounded-full transition-colors ${btn.color}`}
-                onClick={btn.onClick}
-              >
-                {btn.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  // --- Pending choice UI ---
-  function renderPendingChoice() {
-    if (!pendingChoice) return null;
-    const isHumanChoice = pendingChoice.choosingPlayerId === myId;
-    if (!isHumanChoice) {
-      return (
-        <div className="rounded-lg px-4 py-3 bg-yellow-950/40 border border-yellow-700/50 backdrop-blur">
-          <span className="text-yellow-400 text-sm animate-pulse">Opponent is thinking...</span>
-        </div>
-      );
-    }
-
-    // CRD 2.2.2: Mulligan — select cards to put back, draw same number
-    if (pendingChoice.type === "choose_mulligan") {
-      const hand = pendingChoice.validTargets ?? [];
-      return (
-        <div className="rounded-lg px-4 py-3 bg-indigo-950/60 border border-indigo-600/50 space-y-2">
-          <div className="text-indigo-200 text-sm font-bold">Opening Hand — Mulligan</div>
-          <div className="text-gray-400 text-xs">{pendingChoice.prompt}</div>
-          <div className="flex flex-wrap gap-1.5">
-            {(() => { const labels = buildLabelMap(hand); return hand.map((id) => {
-              const selected = multiSelectTargets.includes(id);
-              return (
-                <button
-                  key={id}
-                  className={`px-3 py-1.5 text-xs rounded-lg border transition-all ${
-                    selected
-                      ? "border-red-400 bg-red-900/50 text-red-200 line-through opacity-60"
-                      : "border-indigo-500 bg-indigo-900/40 text-indigo-100 hover:border-indigo-300"
-                  }`}
-                  onClick={() => {
-                    setMultiSelectTargets((prev) =>
-                      selected ? prev.filter((t) => t !== id) : [...prev, id],
-                    );
-                  }}
-                >
-                  {labels.get(id)}
-                </button>
-              );
-            }); })()}
-          </div>
-          <div className="flex gap-2">
-            <button
-              className="px-4 py-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium transition-colors"
-              onClick={() => {
-                session.resolveChoice(multiSelectTargets);
-                setMultiSelectTargets([]);
-              }}
-            >
-              {multiSelectTargets.length > 0
-                ? `Put back ${multiSelectTargets.length}, draw ${multiSelectTargets.length}`
-                : "Keep All"}
-            </button>
-          </div>
-        </div>
-      );
-    }
-
-    const needsMultiSelect =
-      pendingChoice.type === "choose_cards" ||
-      pendingChoice.type === "choose_discard" ||
-      pendingChoice.type === "choose_from_revealed";
-
-    if (needsMultiSelect) {
-      const requiredCount = pendingChoice.count ?? 1;
-      return (
-        <div className="rounded-lg px-4 py-3 bg-yellow-950/40 border border-yellow-700/50 space-y-2">
-          <div className="text-yellow-300 text-sm font-medium">{pendingChoice.prompt}</div>
-          <div className="text-[10px] text-gray-500 uppercase tracking-wider">Select {requiredCount} card(s)</div>
-          <div className="flex flex-wrap gap-1.5">
-            {(() => { const ids = pendingChoice.validTargets ?? []; const labels = buildLabelMap(ids); return ids.map((id) => {
-              const selected = multiSelectTargets.includes(id);
-              return (
-                <button
-                  key={id}
-                  className={`px-3 py-1.5 text-xs rounded-lg border transition-all ${
-                    selected
-                      ? "border-amber-400 bg-amber-900/50 text-amber-200 shadow-sm shadow-amber-500/20"
-                      : "border-gray-600 bg-gray-800/50 text-gray-300 hover:border-gray-400 hover:bg-gray-700/50"
-                  }`}
-                  onClick={() => {
-                    setMultiSelectTargets((prev) =>
-                      selected ? prev.filter((t) => t !== id) : [...prev, id],
-                    );
-                  }}
-                >
-                  {labels.get(id)}
-                </button>
-              );
-            }); })()}
-          </div>
-          <button
-            className="px-4 py-1.5 text-xs bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg font-medium transition-colors"
-            disabled={multiSelectTargets.length !== requiredCount}
-            onClick={() => {
-              session.resolveChoice(multiSelectTargets);
-              setMultiSelectTargets([]);
-            }}
-          >
-            Confirm ({multiSelectTargets.length}/{requiredCount})
-          </button>
-        </div>
-      );
-    }
-
-    if (pendingChoice.type === "choose_may") {
-      return (
-        <div className="rounded-lg px-4 py-3 bg-yellow-950/40 border border-yellow-700/50 space-y-2">
-          <div className="text-yellow-300 text-sm font-medium">{pendingChoice.prompt}</div>
-          <div className="flex gap-2">
-            <button
-              className="px-4 py-1.5 text-xs bg-green-700 hover:bg-green-600 text-white rounded-lg font-medium transition-colors"
-              onClick={() => session.resolveChoice("accept")}
-            >
-              Accept
-            </button>
-            <button
-              className="px-4 py-1.5 text-xs bg-red-700 hover:bg-red-600 text-white rounded-lg font-medium transition-colors"
-              onClick={() => session.resolveChoice("decline")}
-            >
-              Decline
-            </button>
-          </div>
-        </div>
-      );
-    }
-
-    if (pendingChoice.type === "choose_option" && pendingChoice.options) {
-      return (
-        <div className="rounded-lg px-4 py-3 bg-yellow-950/40 border border-yellow-700/50 space-y-2">
-          <div className="text-yellow-300 text-sm font-medium">{pendingChoice.prompt}</div>
-          <div className="flex flex-wrap gap-2">
-            {pendingChoice.options.map((_, i) => (
-              <button
-                key={i}
-                className="px-4 py-1.5 text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg border border-gray-600 font-medium transition-colors"
-                onClick={() => session.resolveChoice(i)}
-              >
-                Option {i + 1}
-              </button>
-            ))}
-          </div>
-        </div>
-      );
-    }
-
-    const displayCards = pendingChoice.revealedCards ?? pendingChoice.validTargets ?? [];
-    const validSet = new Set(pendingChoice.validTargets ?? []);
-    const labels = buildLabelMap(displayCards);
-
-    return (
-      <div className="rounded-lg px-4 py-3 bg-yellow-950/40 border border-yellow-700/50 space-y-2">
-        <div className="text-yellow-300 text-sm font-medium">{pendingChoice.prompt}</div>
-        <div className="flex flex-wrap gap-1.5">
-          {displayCards.map((id) => {
-            const selectable = validSet.has(id);
-            return selectable ? (
-              <button
-                key={id}
-                className="px-3 py-1.5 text-xs bg-gray-700/80 hover:bg-gray-600 text-gray-200 rounded-lg border border-gray-600 transition-colors"
-                onClick={() => session.resolveChoice([id])}
-              >
-                {labels.get(id)}
-              </button>
-            ) : (
-              <span
-                key={id}
-                className="px-3 py-1.5 text-xs bg-gray-900/60 text-gray-600 rounded-lg border border-gray-800 line-through"
-              >
-                {labels.get(id)}
-              </span>
-            );
-          })}
-          {pendingChoice.optional && (
-            <button
-              className="px-3 py-1.5 text-xs bg-red-800/80 hover:bg-red-700 text-gray-200 rounded-lg border border-red-700 transition-colors"
-              onClick={() => session.resolveChoice([])}
-            >
-              Skip
-            </button>
-          )}
-        </div>
-      </div>
+      </DraggableCard>
     );
   }
 
@@ -701,6 +535,12 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
   );
 
   return (
+    <DndContext
+      sensors={sensors}
+      onDragStart={dnd.handleDragStart}
+      onDragEnd={dnd.handleDragEnd}
+      onDragCancel={dnd.handleDragCancel}
+    >
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-5 px-3 lg:px-4 pb-16 lg:pb-6 pt-3">
       {/* ======================= Main game area ======================= */}
       <div className="min-w-0 space-y-2">
@@ -789,7 +629,7 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
               ))}
             </div>
           )}
-          {/* Opponent play zone */}
+          {/* Opponent play zone — droppable for challenge */}
           <div className="flex gap-2 overflow-x-auto overscroll-x-contain scrollbar-none snap-x snap-mandatory pb-1 min-h-[120px] items-end">
             {p2Zones.play.length === 0 ? (
               <span className="text-gray-700 text-xs italic self-center">No cards in play</span>
@@ -811,17 +651,33 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-[10px] text-green-400/60 uppercase tracking-wider font-bold">Your Board</span>
             <div className="flex gap-3 text-[10px] text-gray-600 items-center">
-              <InkDisplay available={p1.availableInk} total={p1Zones.inkwell.length} />
+              {/* Inkwell — droppable drop target */}
+              <DroppableInkwell
+                isValidTarget={!!dnd.activeId && dnd.isValidInkwellDrop(dnd.activeId)}
+                activeId={dnd.activeId}
+              >
+                <InkDisplay available={p1.availableInk} total={p1Zones.inkwell.length} />
+              </DroppableInkwell>
               <span>📦 {p1Zones.deck.length}</span>
             </div>
           </div>
-          <div className="flex gap-2 overflow-x-auto overscroll-x-contain scrollbar-none snap-x snap-mandatory pb-1 min-h-[120px] items-end">
-            {p1Zones.play.length === 0 ? (
-              <span className="text-gray-700 text-xs italic self-center">No cards in play</span>
-            ) : (
-              p1Zones.play.map((id) => renderCardWithActions(id, "play", false))
-            )}
-          </div>
+          {/* Play zone — droppable for card play */}
+          <DroppablePlayZone
+            isValidTarget={!!dnd.activeId && dnd.isValidPlayZoneDrop(dnd.activeId)}
+            activeId={dnd.activeId}
+          >
+            <div className="flex gap-2 overflow-x-auto overscroll-x-contain scrollbar-none snap-x snap-mandatory pb-1 min-h-[120px] items-end">
+              {p1Zones.play.length === 0 ? (
+                <span className="text-gray-700 text-xs italic self-center">
+                  {dnd.activeId && dnd.isValidPlayZoneDrop(dnd.activeId)
+                    ? "Drop here to play"
+                    : "No cards in play"}
+                </span>
+              ) : (
+                p1Zones.play.map((id) => renderCardWithActions(id, "play", false))
+              )}
+            </div>
+          </DroppablePlayZone>
         </div>
 
         {/* ---- Hand ---- */}
@@ -839,8 +695,12 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
           </div>
         </div>
 
-        {/* ---- Pending Choice ---- */}
-        {pendingChoice && <div>{renderPendingChoice()}</div>}
+        {/* ---- Pending Choice: opponent indicator (inline) or human choice (modal) ---- */}
+        {pendingChoice && pendingChoice.choosingPlayerId !== myId && (
+          <div className="rounded-lg px-4 py-3 bg-yellow-950/40 border border-yellow-700/50">
+            <span className="text-yellow-400 text-sm animate-pulse">Opponent is thinking...</span>
+          </div>
+        )}
 
         {/* ---- Desktop: mode hints + pass turn ---- */}
         {!pendingChoice && !isGameOver && isYourTurn && (
@@ -981,6 +841,139 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
           </div>
         </div>
       )}
+
+      {/* ======================= DragOverlay ======================= */}
+      <DragOverlay>
+        {dnd.activeId && gameState ? (
+          <div className="opacity-80 scale-110 rotate-3 pointer-events-none">
+            <GameCard
+              instanceId={dnd.activeId}
+              gameState={gameState}
+              definitions={definitions}
+              isSelected={false}
+              onClick={() => {}}
+              zone={dnd.activeZone ?? "hand"}
+            />
+          </div>
+        ) : null}
+      </DragOverlay>
+
+      {/* ======================= Pending Choice Modal ======================= */}
+      {pendingChoice && pendingChoice.choosingPlayerId === myId && (
+        <PendingChoiceModal
+          pendingChoice={pendingChoice}
+          myId={myId}
+          gameState={gameState}
+          definitions={definitions}
+          multiSelectTargets={multiSelectTargets}
+          onMultiSelectChange={setMultiSelectTargets}
+          onResolveChoice={(choice) => {
+            session.resolveChoice(choice);
+            setMultiSelectTargets([]);
+          }}
+        />
+      )}
+    </div>
+    </DndContext>
+  );
+}
+
+// =============================================================================
+// DnD primitive components — defined outside GameBoard to avoid re-creation
+// but closed over via props, not module scope.
+// =============================================================================
+
+function DraggableCard({
+  instanceId,
+  zone,
+  isEnabled,
+  children,
+}: {
+  instanceId: string;
+  zone: "hand" | "play";
+  isEnabled: boolean;
+  children: React.ReactNode;
+}) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: instanceId,
+    disabled: !isEnabled,
+    data: { zone },
+  });
+  return (
+    <div ref={setNodeRef} {...listeners} {...attributes} style={{ opacity: isDragging ? 0.3 : 1 }}>
+      {children}
+    </div>
+  );
+}
+
+function DroppableCardTarget({
+  id,
+  isValidTarget,
+  activeId,
+  children,
+}: {
+  id: string;
+  isValidTarget: boolean;
+  activeId: string | null;
+  children: React.ReactNode;
+}) {
+  const { setNodeRef, isOver } = useDroppable({ id: dropCardId(id) });
+  const ring = isOver && isValidTarget
+    ? "ring-2 ring-green-400 ring-inset shadow-green-400/30 shadow-lg rounded-xl"
+    : isValidTarget
+    ? "ring-1 ring-green-600/50 ring-inset animate-pulse rounded-xl"
+    : activeId
+    ? "opacity-60"
+    : "";
+  return (
+    <div ref={setNodeRef} className={`transition-all duration-150 ${ring}`}>
+      {children}
+    </div>
+  );
+}
+
+function DroppablePlayZone({
+  isValidTarget,
+  activeId,
+  children,
+}: {
+  isValidTarget: boolean;
+  activeId: string | null;
+  children: React.ReactNode;
+}) {
+  const { setNodeRef, isOver } = useDroppable({ id: DROP_PLAY_ZONE });
+  const ring = isOver && isValidTarget
+    ? "ring-2 ring-green-400 ring-inset shadow-green-400/20 shadow-lg"
+    : isValidTarget
+    ? "ring-1 ring-green-600/40 ring-inset animate-pulse"
+    : activeId
+    ? "opacity-70"
+    : "";
+  return (
+    <div ref={setNodeRef} className={`rounded-lg transition-all duration-150 ${ring}`}>
+      {children}
+    </div>
+  );
+}
+
+function DroppableInkwell({
+  isValidTarget,
+  activeId,
+  children,
+}: {
+  isValidTarget: boolean;
+  activeId: string | null;
+  children: React.ReactNode;
+}) {
+  const { setNodeRef, isOver } = useDroppable({ id: DROP_INKWELL });
+  const ring = isOver && isValidTarget
+    ? "ring-2 ring-blue-400 ring-inset shadow-blue-400/20 rounded px-1"
+    : isValidTarget
+    ? "ring-1 ring-blue-500/50 ring-inset animate-pulse rounded px-1"
+    : "";
+  return (
+    <div ref={setNodeRef} className={`transition-all duration-150 ${ring}`} title={isValidTarget ? "Drop to ink" : undefined}>
+      {children}
     </div>
   );
 }
