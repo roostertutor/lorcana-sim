@@ -14,7 +14,6 @@ import {
 import type { BotStrategy } from "@lorcana-sim/simulator";
 import { useGameSession } from "../hooks/useGameSession.js";
 import { useAnalysis } from "../hooks/useAnalysis.js";
-import { formatAction } from "../utils/formatAction.js";
 import AnalysisPanel from "../components/AnalysisPanel.js";
 import GameCard from "../components/GameCard.js";
 
@@ -292,6 +291,164 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
   const recentLog = actionLog.slice(-30);
   const isYourTurn = gameState.currentPlayer === myId;
 
+  // --- 2-step interaction state ---
+  const [challengeAttackerId, setChallengeAttackerId] = useState<string | null>(null);
+  const [shiftCardId, setShiftCardId] = useState<string | null>(null);
+
+  // Cancel any pending 2-step mode
+  const cancelMode = React.useCallback(() => { setChallengeAttackerId(null); setShiftCardId(null); }, []);
+
+  // Valid targets for current 2-step mode
+  const challengeTargets = useMemo(() => {
+    if (!challengeAttackerId) return new Set<string>();
+    return new Set(
+      legalActions
+        .filter(a => a.type === "CHALLENGE" && a.attackerInstanceId === challengeAttackerId)
+        .map(a => (a as { defenderInstanceId: string }).defenderInstanceId)
+    );
+  }, [challengeAttackerId, legalActions]);
+
+  const shiftTargets = useMemo(() => {
+    if (!shiftCardId) return new Set<string>();
+    return new Set(
+      legalActions
+        .filter(a => a.type === "PLAY_CARD" && (a as { instanceId: string }).instanceId === shiftCardId && (a as { shiftTargetInstanceId?: string }).shiftTargetInstanceId)
+        .map(a => (a as { shiftTargetInstanceId: string }).shiftTargetInstanceId)
+    );
+  }, [shiftCardId, legalActions]);
+
+  // Per-card action buttons — derived from legalActions
+  type CardBtn = { label: string; color: string; onClick: (e: React.MouseEvent) => void };
+  const cardButtons = useMemo(() => {
+    const map = new Map<string, CardBtn[]>();
+    const add = (id: string, btn: CardBtn) => {
+      if (!map.has(id)) map.set(id, []);
+      map.get(id)!.push(btn);
+    };
+    if (!isYourTurn || pendingChoice || isGameOver) return map;
+
+    const challengeAdded = new Set<string>();
+    const shiftAdded = new Set<string>();
+    const singerAdded = new Set<string>();
+
+    for (const action of legalActions) {
+      switch (action.type) {
+        case "PLAY_INK":
+          add(action.instanceId, {
+            label: "Ink", color: "bg-blue-700 hover:bg-blue-600 text-blue-100",
+            onClick: (e) => { e.stopPropagation(); session.dispatch(action); },
+          });
+          break;
+        case "PLAY_CARD":
+          if (action.shiftTargetInstanceId) {
+            if (!shiftAdded.has(action.instanceId)) {
+              shiftAdded.add(action.instanceId);
+              add(action.instanceId, {
+                label: "Shift", color: "bg-purple-700 hover:bg-purple-600 text-purple-100",
+                onClick: (e) => { e.stopPropagation(); cancelMode(); setShiftCardId(action.instanceId); },
+              });
+            }
+          } else if (action.singerInstanceId) {
+            if (!singerAdded.has(action.instanceId)) {
+              singerAdded.add(action.instanceId);
+              add(action.instanceId, {
+                label: "Sing", color: "bg-yellow-700 hover:bg-yellow-600 text-yellow-100",
+                onClick: (e) => { e.stopPropagation(); session.dispatch(action); },
+              });
+            }
+          } else {
+            add(action.instanceId, {
+              label: "Play", color: "bg-emerald-700 hover:bg-emerald-600 text-emerald-100",
+              onClick: (e) => { e.stopPropagation(); session.dispatch(action); },
+            });
+          }
+          break;
+        case "QUEST":
+          add(action.instanceId, {
+            label: "Quest", color: "bg-amber-600 hover:bg-amber-500 text-amber-100",
+            onClick: (e) => { e.stopPropagation(); session.dispatch(action); },
+          });
+          break;
+        case "CHALLENGE":
+          if (!challengeAdded.has(action.attackerInstanceId)) {
+            challengeAdded.add(action.attackerInstanceId);
+            add(action.attackerInstanceId, {
+              label: "Challenge", color: "bg-red-700 hover:bg-red-600 text-red-100",
+              onClick: (e) => { e.stopPropagation(); cancelMode(); setChallengeAttackerId(action.attackerInstanceId); },
+            });
+          }
+          break;
+        case "ACTIVATE_ABILITY": {
+          const def = gameState.cards[action.instanceId]
+            ? definitions[gameState.cards[action.instanceId]!.definitionId]
+            : undefined;
+          const abilityName = def?.abilities[action.abilityIndex]?.type === "activated"
+            ? (def.abilities[action.abilityIndex] as { storyName?: string }).storyName ?? "Activate"
+            : "Activate";
+          add(action.instanceId, {
+            label: abilityName, color: "bg-indigo-700 hover:bg-indigo-600 text-indigo-100",
+            onClick: (e) => { e.stopPropagation(); session.dispatch(action); },
+          });
+          break;
+        }
+      }
+    }
+    return map;
+  }, [legalActions, isYourTurn, pendingChoice, isGameOver, gameState, definitions, session]);
+
+  // Helper: render card + its action buttons
+  function renderCardWithActions(id: string, zone: "play" | "hand", isOpponent = false) {
+    const isChallTarget = challengeTargets.has(id);
+    const isShiftTarget = shiftTargets.has(id);
+    const isAttacker = id === challengeAttackerId || id === shiftCardId;
+    const btns = (!isOpponent && !challengeAttackerId && !shiftCardId) ? (cardButtons.get(id) ?? []) : [];
+
+    function handleClick() {
+      if (isOpponent && challengeAttackerId && isChallTarget) {
+        session.dispatch({ type: "CHALLENGE", playerId: myId, attackerInstanceId: challengeAttackerId, defenderInstanceId: id });
+        setChallengeAttackerId(null);
+        return;
+      }
+      if (!isOpponent && shiftCardId && isShiftTarget) {
+        const shiftAction = legalActions.find(a => a.type === "PLAY_CARD" && a.instanceId === shiftCardId && a.shiftTargetInstanceId === id);
+        if (shiftAction) session.dispatch(shiftAction);
+        setShiftCardId(null);
+        return;
+      }
+      // Cancel any mode when clicking elsewhere
+      if (challengeAttackerId || shiftCardId) { cancelMode(); return; }
+      session.selectCard(session.selectedInstanceId === id ? null : id);
+    }
+
+    return (
+      <div key={id} className="flex flex-col items-center gap-1">
+        <GameCard
+          instanceId={id}
+          gameState={gameState}
+          definitions={definitions}
+          isSelected={session.selectedInstanceId === id}
+          isTarget={isChallTarget || isShiftTarget}
+          isAttacker={isAttacker}
+          onClick={handleClick}
+          zone={zone}
+        />
+        {btns.length > 0 && (
+          <div className="flex flex-wrap gap-0.5 justify-center max-w-[120px]">
+            {btns.map((btn, i) => (
+              <button
+                key={i}
+                className={`text-[9px] font-bold px-2 py-0.5 rounded-full transition-colors ${btn.color}`}
+                onClick={btn.onClick}
+              >
+                {btn.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   // --- Pending choice UI ---
   function renderPendingChoice() {
     if (!pendingChoice) return null;
@@ -548,17 +705,7 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
             {p2Zones.play.length === 0 ? (
               <span className="text-gray-700 text-xs italic">No cards in play</span>
             ) : (
-              p2Zones.play.map((id) => (
-                <GameCard
-                  key={id}
-                  instanceId={id}
-                  gameState={gameState}
-                  definitions={definitions}
-                  isSelected={session.selectedInstanceId === id}
-                  onClick={() => session.selectCard(session.selectedInstanceId === id ? null : id)}
-                  zone="play"
-                />
-              ))
+              p2Zones.play.map((id) => renderCardWithActions(id, "play", true))
             )}
           </div>
         </div>
@@ -581,17 +728,7 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
             {p1Zones.play.length === 0 ? (
               <span className="text-gray-700 text-xs italic">No cards in play</span>
             ) : (
-              p1Zones.play.map((id) => (
-                <GameCard
-                  key={id}
-                  instanceId={id}
-                  gameState={gameState}
-                  definitions={definitions}
-                  isSelected={session.selectedInstanceId === id}
-                  onClick={() => session.selectCard(session.selectedInstanceId === id ? null : id)}
-                  zone="play"
-                />
-              ))
+              p1Zones.play.map((id) => renderCardWithActions(id, "play", false))
             )}
           </div>
         </div>
@@ -606,44 +743,36 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
             {p1Zones.hand.length === 0 ? (
               <span className="text-gray-700 text-xs italic">Empty hand</span>
             ) : (
-              p1Zones.hand.map((id) => (
-                <GameCard
-                  key={id}
-                  instanceId={id}
-                  gameState={gameState}
-                  definitions={definitions}
-                  isSelected={session.selectedInstanceId === id}
-                  onClick={() => session.selectCard(session.selectedInstanceId === id ? null : id)}
-                  zone="hand"
-                />
-              ))
+              p1Zones.hand.map((id) => renderCardWithActions(id, "hand", false))
             )}
           </div>
         </div>
 
-        {/* ---- Action bar ---- */}
-        {legalActions.length > 0 && !pendingChoice && (
-          <div className="mt-3 rounded-xl bg-gray-900/60 border border-gray-800/50 p-3">
-            <div className="text-[10px] text-amber-500/60 uppercase tracking-wider font-bold mb-2">Actions</div>
-            <div className="flex flex-wrap gap-1.5">
-              {legalActions.map((action, i) => {
-                const label = formatAction(action, gameState, definitions);
-                const isPass = action.type === "PASS_TURN";
-                return (
-                  <button
-                    key={i}
-                    className={`px-3 py-1.5 text-xs rounded-lg border font-medium transition-all hover:scale-[1.02]
-                      ${isPass
-                        ? "bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-700 hover:text-gray-200"
-                        : "bg-amber-900/30 border-amber-700/40 text-amber-200 hover:bg-amber-800/40 hover:border-amber-600/50"
-                      }`}
-                    onClick={() => session.dispatch(action)}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
+        {/* ---- Bottom bar: mode hints + pass turn ---- */}
+        {!pendingChoice && !isGameOver && isYourTurn && (
+          <div className="mt-3 flex items-center gap-2">
+            {challengeAttackerId && (
+              <div className="flex-1 flex items-center gap-2 rounded-lg px-3 py-2 bg-red-950/40 border border-red-700/40 text-red-300 text-xs">
+                <span className="font-bold">Challenge mode</span>
+                <span className="text-red-500">— click a highlighted opponent card</span>
+                <button className="ml-auto text-red-500 hover:text-red-300 font-bold" onClick={cancelMode}>✕</button>
+              </div>
+            )}
+            {shiftCardId && (
+              <div className="flex-1 flex items-center gap-2 rounded-lg px-3 py-2 bg-purple-950/40 border border-purple-700/40 text-purple-300 text-xs">
+                <span className="font-bold">Shift mode</span>
+                <span className="text-purple-500">— click a highlighted character to shift onto</span>
+                <button className="ml-auto text-purple-500 hover:text-purple-300 font-bold" onClick={cancelMode}>✕</button>
+              </div>
+            )}
+            {!challengeAttackerId && !shiftCardId && (
+              <button
+                className="ml-auto px-4 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-200 rounded-lg border border-gray-700 font-medium transition-colors"
+                onClick={() => session.dispatch({ type: "PASS_TURN", playerId: myId })}
+              >
+                Pass Turn
+              </button>
+            )}
           </div>
         )}
 

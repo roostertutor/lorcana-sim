@@ -24,9 +24,13 @@ interface Props {
   isSelected: boolean;
   onClick: () => void;
   zone: "play" | "hand";
+  /** Pulse ring — valid target for pending challenge or shift */
+  isTarget?: boolean;
+  /** Solid ring — this card is the selected attacker/shifter */
+  isAttacker?: boolean;
 }
 
-export default function GameCard({ instanceId, gameState, definitions, isSelected, onClick, zone }: Props) {
+export default function GameCard({ instanceId, gameState, definitions, isSelected, onClick, zone, isTarget, isAttacker }: Props) {
   const instance = gameState.cards[instanceId];
   if (!instance) return null;
   const def = definitions[instance.definitionId];
@@ -50,7 +54,10 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
     <div
       className={`game-card relative border-2 rounded-xl w-[120px] shrink-0 cursor-pointer
         transition-all duration-200 bg-gradient-to-b ${theme.gradFrom} ${theme.gradTo}
-        ${isSelected ? "border-amber-400 ring-2 ring-amber-400/40 scale-105 z-10" : theme.border}
+        ${isAttacker ? "border-orange-400 ring-2 ring-orange-400/60 scale-105 z-10" :
+          isSelected ? "border-amber-400 ring-2 ring-amber-400/40 scale-105 z-10" :
+          isTarget ? "border-red-400 ring-2 ring-red-400/50 animate-pulse z-10" :
+          theme.border}
         ${isExerted ? "rotate-[15deg] opacity-70" : ""}
         hover:scale-105 hover:z-10 hover:shadow-lg hover:${theme.glow}`}
       onClick={onClick}
