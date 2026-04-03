@@ -59,6 +59,7 @@ const SAMPLE_DECK = `4 Elsa - Snow Queen
 interface Props {
   definitions: Record<string, CardDefinition>;
   sandboxMode?: boolean;
+  onBack?: () => void;
   multiplayerGame?: {
     gameId: string;
     myPlayerId: "player1" | "player2";
@@ -115,7 +116,7 @@ function InkDisplay({ available, total }: { available: number; total: number }) 
   );
 }
 
-export default function GameBoard({ definitions, sandboxMode, multiplayerGame }: Props) {
+export default function GameBoard({ definitions, sandboxMode, onBack, multiplayerGame }: Props) {
   const session = useGameSession();
 
   const [p1DeckText, setP1DeckText] = useState(SAMPLE_DECK);
@@ -639,9 +640,9 @@ export default function GameBoard({ definitions, sandboxMode, multiplayerGame }:
 
             <button
               className="ml-auto px-2 py-0.5 text-[10px] bg-gray-800 hover:bg-gray-700 text-gray-500 hover:text-gray-300 rounded transition-colors uppercase tracking-wider shrink-0"
-              onClick={session.reset}
+              onClick={() => { session.reset(); onBack?.(); }}
             >
-              Concede
+              {onBack ? "← Back" : "Concede"}
             </button>
           </div>
         </div>

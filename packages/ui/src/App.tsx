@@ -9,14 +9,13 @@ import TestBench from "./pages/TestBench.js";
 import GameBoard from "./pages/GameBoard.js";
 import MultiplayerLobby from "./pages/MultiplayerLobby.js";
 
-type Tab = "deck" | "composition" | "simulate" | "compare" | "play" | "testbench" | "multiplayer";
+type Tab = "deck" | "composition" | "simulate" | "compare" | "testbench" | "multiplayer";
 
 const TABS: { id: Tab; label: string; requiresDeck?: boolean }[] = [
   { id: "deck", label: "Deck Input" },
   { id: "composition", label: "Composition", requiresDeck: true },
   { id: "simulate", label: "Simulate", requiresDeck: true },
   { id: "compare", label: "Compare" },
-  { id: "play", label: "Play" },
   { id: "testbench", label: "Sandbox" },
   { id: "multiplayer", label: "Multiplayer" },
 ];
@@ -33,6 +32,7 @@ export default function App() {
   const [deckText, setDeckText] = useState("");
   const [deck, setDeck] = useState<DeckEntry[] | null>(null);
   const [parseErrors, setParseErrors] = useState<string[]>([]);
+  const [soloMode, setSoloMode] = useState(false);
   const [multiplayerGame, setMultiplayerGame] = useState<{
     gameId: string;
     myPlayerId: "player1" | "player2";
@@ -90,7 +90,7 @@ export default function App() {
 
       {/* Content */}
       <main className={`flex-1 w-full ${
-        activeTab === "play" || activeTab === "testbench" || activeTab === "multiplayer"
+        activeTab === "testbench" || activeTab === "multiplayer"
           ? "p-0"
           : "max-w-6xl mx-auto px-4 py-6"
       }`}>
@@ -112,23 +112,23 @@ export default function App() {
         {activeTab === "compare" && (
           <ComparisonView definitions={LORCAST_CARD_DEFINITIONS} />
         )}
-        {activeTab === "play" && (
-          <GameBoard definitions={LORCAST_CARD_DEFINITIONS} />
-        )}
         {activeTab === "testbench" && (
           <TestBench definitions={LORCAST_CARD_DEFINITIONS} />
         )}
         {activeTab === "multiplayer" && (
-          multiplayerGame
-            ? <GameBoard
-                definitions={LORCAST_CARD_DEFINITIONS}
-                multiplayerGame={multiplayerGame}
-              />
-            : <MultiplayerLobby
-                onGameStart={(gameId, myPlayerId, token) => {
-                  setMultiplayerGame({ gameId, myPlayerId, token });
-                }}
-              />
+          soloMode
+            ? <GameBoard definitions={LORCAST_CARD_DEFINITIONS} onBack={() => setSoloMode(false)} />
+            : multiplayerGame
+              ? <GameBoard
+                  definitions={LORCAST_CARD_DEFINITIONS}
+                  multiplayerGame={multiplayerGame}
+                />
+              : <MultiplayerLobby
+                  onGameStart={(gameId, myPlayerId, token) => {
+                    setMultiplayerGame({ gameId, myPlayerId, token });
+                  }}
+                  onPlaySolo={() => setSoloMode(true)}
+                />
         )}
       </main>
     </div>

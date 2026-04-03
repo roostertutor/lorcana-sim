@@ -23,9 +23,10 @@ const SAMPLE_DECK = `4 Tinker Bell - Giant Fairy
 
 interface Props {
   onGameStart: (gameId: string, myPlayerId: "player1" | "player2", token: string) => void;
+  onPlaySolo: () => void;
 }
 
-export default function MultiplayerLobby({ onGameStart }: Props) {
+export default function MultiplayerLobby({ onGameStart, onPlaySolo }: Props) {
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
   const [deckText, setDeckText] = useState(SAMPLE_DECK);
@@ -180,6 +181,24 @@ export default function MultiplayerLobby({ onGameStart }: Props) {
               )}
             </div>
           )}
+        </div>
+
+        {/* Play Solo */}
+        <button
+          className="w-full py-2.5 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800
+                     disabled:text-gray-600 text-gray-200 rounded-lg text-sm font-bold
+                     transition-colors active:scale-[0.98]"
+          onClick={onPlaySolo}
+          disabled={!deckReady}
+        >
+          Play Solo (vs bot)
+        </button>
+
+        {/* Divider */}
+        <div className="flex items-center gap-3">
+          <div className="flex-1 h-px bg-gray-800" />
+          <span className="text-xs text-gray-600">or play multiplayer</span>
+          <div className="flex-1 h-px bg-gray-800" />
         </div>
 
         {/* Auth */}
