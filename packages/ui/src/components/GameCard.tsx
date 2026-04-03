@@ -50,16 +50,71 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
     ? (def.willpower ?? 0) + (instance.tempWillpowerModifier ?? 0) - damage
     : null;
 
+  const hasModifiedStats = (instance.tempStrengthModifier ?? 0) !== 0 || (instance.tempWillpowerModifier ?? 0) !== 0;
+
+  const ringClass = isAttacker
+    ? "border-orange-400 ring-2 ring-orange-400/60 scale-105 z-10"
+    : isSelected
+    ? "border-amber-400 ring-2 ring-amber-400/40 scale-105 z-10"
+    : isTarget
+    ? "border-red-400 ring-2 ring-red-400/50 animate-pulse z-10"
+    : theme.border;
+
+  const baseClass = `game-card relative border-2 rounded-xl w-[88px] sm:w-[104px] lg:w-[120px] shrink-0 cursor-pointer
+    transition-all duration-200 ${ringClass}
+    ${isExerted ? "rotate-[15deg] opacity-70" : ""}
+    hover:scale-105 hover:z-10 hover:shadow-lg hover:${theme.glow}`;
+
+  // ── With image: card art fills the frame, overlays show only game state ──
+  if (def.imageUrl) {
+    return (
+      <div className={`${baseClass} aspect-[5/7] overflow-hidden`} onClick={onClick}>
+        <img
+          src={def.imageUrl}
+          alt={def.fullName}
+          loading="lazy"
+          decoding="async"
+          width={480}
+          height={680}
+          className="w-full h-full object-cover"
+          onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+        />
+
+        {/* Damage + modified stats strip — only when relevant */}
+        {(damage > 0 || hasModifiedStats) && strength != null && willpower != null && (
+          <div className="absolute bottom-4 left-0 right-0 flex items-center justify-between px-1.5">
+            <span className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-black
+              ${hasModifiedStats ? "bg-orange-500/90" : "bg-orange-700/70"} text-white shadow`}>
+              {strength}
+            </span>
+            <span className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-black
+              ${damage > 0 ? "bg-red-600/90 text-red-100" : "bg-blue-700/70 text-blue-100"} shadow`}>
+              {willpower}
+            </span>
+          </div>
+        )}
+
+        {/* Inkable dot for hand zone */}
+        {zone === "hand" && def.inkable && (
+          <div className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-blue-400/80 shadow" />
+        )}
+
+        {/* State badges */}
+        {(isExerted || isDrying || damage > 0) && (
+          <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
+            {isExerted && <span className="text-[7px] bg-yellow-600 text-yellow-100 px-1.5 py-0.5 rounded-full font-bold shadow">EXR</span>}
+            {isDrying  && <span className="text-[7px] bg-cyan-600 text-cyan-100 px-1.5 py-0.5 rounded-full font-bold shadow">DRY</span>}
+            {damage > 0 && <span className="text-[7px] bg-red-600 text-red-100 px-1.5 py-0.5 rounded-full font-bold shadow">-{damage}</span>}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ── No image: full text layout fallback ──
   return (
     <div
-      className={`game-card relative border-2 rounded-xl w-[88px] sm:w-[104px] lg:w-[120px] shrink-0 cursor-pointer
-        transition-all duration-200 bg-gradient-to-b ${theme.gradFrom} ${theme.gradTo}
-        ${isAttacker ? "border-orange-400 ring-2 ring-orange-400/60 scale-105 z-10" :
-          isSelected ? "border-amber-400 ring-2 ring-amber-400/40 scale-105 z-10" :
-          isTarget ? "border-red-400 ring-2 ring-red-400/50 animate-pulse z-10" :
-          theme.border}
-        ${isExerted ? "rotate-[15deg] opacity-70" : ""}
-        hover:scale-105 hover:z-10 hover:shadow-lg hover:${theme.glow}`}
+      className={`${baseClass} bg-gradient-to-b ${theme.gradFrom} ${theme.gradTo}`}
       onClick={onClick}
     >
       {/* Top bar: cost + type */}
@@ -72,72 +127,40 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
         </div>
       </div>
 
-      {/* Card art */}
-      <div className="relative mx-1.5 mt-1 rounded-md overflow-hidden" style={{ aspectRatio: "5/7", maxHeight: "52%" }}>
-        {def.imageUrl ? (
-          <img
-            src={def.imageUrl}
-            alt={def.fullName}
-            loading="lazy"
-            decoding="async"
-            width={480}
-            height={680}
-            className="w-full h-full object-cover object-top"
-            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-          />
-        ) : (
-          <div className={`w-full h-full bg-gradient-to-b ${theme.gradFrom} ${theme.gradTo} opacity-60`} />
-        )}
-      </div>
+      {/* Art placeholder */}
+      <div className={`mx-2 mt-1 h-[3px] rounded-full bg-gradient-to-r ${theme.gradFrom} ${theme.gradTo} opacity-60`} />
 
       {/* Name block */}
       <div className="px-2 mt-1.5">
-        <div className="text-[11px] font-bold text-gray-100 leading-tight truncate">
-          {def.name}
-        </div>
+        <div className="text-[11px] font-bold text-gray-100 leading-tight truncate">{def.name}</div>
         {def.subtitle && (
-          <div className="text-[9px] text-gray-400 truncate leading-tight italic">
-            {def.subtitle}
-          </div>
+          <div className="text-[9px] text-gray-400 truncate leading-tight italic">{def.subtitle}</div>
         )}
       </div>
 
       {/* Traits */}
       {def.traits.length > 0 && (
         <div className="px-2 mt-0.5">
-          <div className="text-[7px] text-gray-600 truncate uppercase tracking-wider">
-            {def.traits.join(" · ")}
-          </div>
+          <div className="text-[7px] text-gray-600 truncate uppercase tracking-wider">{def.traits.join(" · ")}</div>
         </div>
       )}
 
-      {/* Bottom section: stats or inkable */}
+      {/* Bottom: stats or inkable */}
       <div className="px-2 pb-2 mt-auto">
-        {/* Character stats */}
         {strength != null && willpower != null && (
           <div className="flex items-center justify-between mt-2">
             <div className="flex items-center gap-0.5">
-              <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-orange-700/60 text-[10px] font-black text-orange-200">
-                {strength}
-              </span>
+              <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-orange-700/60 text-[10px] font-black text-orange-200">{strength}</span>
               <span className="text-gray-600 text-[9px]">/</span>
-              <span className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-black ${
-                damage > 0 ? "bg-red-700/60 text-red-200" : "bg-blue-700/60 text-blue-200"
-              }`}>
-                {willpower}
-              </span>
+              <span className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-black ${damage > 0 ? "bg-red-700/60 text-red-200" : "bg-blue-700/60 text-blue-200"}`}>{willpower}</span>
             </div>
             {def.lore != null && def.lore > 0 && (
               <div className="flex items-center gap-0.5">
-                {Array.from({ length: def.lore }, (_, i) => (
-                  <span key={i} className="text-amber-400 text-[10px]">&#9670;</span>
-                ))}
+                {Array.from({ length: def.lore }, (_, i) => <span key={i} className="text-amber-400 text-[10px]">&#9670;</span>)}
               </div>
             )}
           </div>
         )}
-
-        {/* Hand: inkable indicator */}
         {zone === "hand" && def.inkable && (
           <div className="mt-1.5 flex items-center gap-1">
             <span className="w-2 h-2 rounded-full bg-blue-400/80" />
@@ -146,18 +169,12 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
         )}
       </div>
 
-      {/* State badges — floating over card */}
+      {/* State badges */}
       {(isExerted || isDrying || damage > 0) && (
         <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
-          {isExerted && (
-            <span className="text-[7px] bg-yellow-600 text-yellow-100 px-1.5 py-0.5 rounded-full font-bold shadow">EXR</span>
-          )}
-          {isDrying && (
-            <span className="text-[7px] bg-cyan-600 text-cyan-100 px-1.5 py-0.5 rounded-full font-bold shadow">DRY</span>
-          )}
-          {damage > 0 && (
-            <span className="text-[7px] bg-red-600 text-red-100 px-1.5 py-0.5 rounded-full font-bold shadow">-{damage}</span>
-          )}
+          {isExerted && <span className="text-[7px] bg-yellow-600 text-yellow-100 px-1.5 py-0.5 rounded-full font-bold shadow">EXR</span>}
+          {isDrying  && <span className="text-[7px] bg-cyan-600 text-cyan-100 px-1.5 py-0.5 rounded-full font-bold shadow">DRY</span>}
+          {damage > 0 && <span className="text-[7px] bg-red-600 text-red-100 px-1.5 py-0.5 rounded-full font-bold shadow">-{damage}</span>}
         </div>
       )}
     </div>
