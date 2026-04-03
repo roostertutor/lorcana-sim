@@ -15,6 +15,8 @@ import type {
 } from "@lorcana-sim/engine";
 import { createGame, applyAction, getAllLegalActions } from "@lorcana-sim/engine";
 import type { BotStrategy } from "@lorcana-sim/simulator";
+import { supabase } from "../lib/supabase.js";
+import { sendAction } from "../lib/serverApi.js";
 
 // -----------------------------------------------------------------------------
 // Types
@@ -27,6 +29,12 @@ export interface GameSessionConfig {
   botStrategy: BotStrategy;
   player1IsHuman: boolean;
   player2IsHuman: boolean;
+  // Multiplayer fields — omit for local mode
+  multiplayer?: {
+    gameId: string;
+    myPlayerId: PlayerID;
+    token: string;
+  };
 }
 
 export interface GameSession {
@@ -77,6 +85,15 @@ export function useGameSession(): GameSession {
   // dispatch
   // ---------------------------------------------------------------------------
   const dispatch = useCallback((action: GameAction) => {
+    const mp = configRef.current?.multiplayer;
+    if (mp) {
+      // Multiplayer: send to server, state update comes via Realtime
+      sendAction(mp.token, mp.gameId, action).catch((err: unknown) => {
+        setError(String(err));
+      });
+      return;
+    }
+    // Local: apply immediately
     setGameState((prev) => {
       if (!prev || !configRef.current) return prev;
       const result = applyAction(prev, action, configRef.current.definitions);
@@ -170,6 +187,37 @@ export function useGameSession(): GameSession {
       if (botTimerRef.current) clearTimeout(botTimerRef.current);
     };
   }, [gameState, dispatch]);
+
+  // ---------------------------------------------------------------------------
+  // Supabase Realtime subscription (multiplayer only)
+  // Listens for game state updates broadcast by the server after each action.
+  // ---------------------------------------------------------------------------
+  useEffect(() => {
+    const mp = configRef.current?.multiplayer;
+    if (!mp) return;
+
+    const channel = supabase
+      .channel(`game:${mp.gameId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "games",
+          filter: `id=eq.${mp.gameId}`,
+        },
+        (payload) => {
+          const newState = (payload.new as { state: GameState }).state;
+          setGameState(newState);
+          setError(null);
+        },
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [gameState?.isGameOver]); // re-subscribe only if game ends (cleanup)
 
   // ---------------------------------------------------------------------------
   // selectCard

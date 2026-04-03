@@ -7,8 +7,9 @@ import SimulationView from "./pages/SimulationView.js";
 import ComparisonView from "./pages/ComparisonView.js";
 import TestBench from "./pages/TestBench.js";
 import GameBoard from "./pages/GameBoard.js";
+import MultiplayerLobby from "./pages/MultiplayerLobby.js";
 
-type Tab = "deck" | "composition" | "simulate" | "compare" | "play" | "testbench";
+type Tab = "deck" | "composition" | "simulate" | "compare" | "play" | "testbench" | "multiplayer";
 
 const TABS: { id: Tab; label: string; requiresDeck?: boolean }[] = [
   { id: "deck", label: "Deck Input" },
@@ -17,6 +18,7 @@ const TABS: { id: Tab; label: string; requiresDeck?: boolean }[] = [
   { id: "compare", label: "Compare" },
   { id: "play", label: "Play" },
   { id: "testbench", label: "Test Bench" },
+  { id: "multiplayer", label: "Multiplayer" },
 ];
 
 export default function App() {
@@ -24,6 +26,11 @@ export default function App() {
   const [deckText, setDeckText] = useState("");
   const [deck, setDeck] = useState<DeckEntry[] | null>(null);
   const [parseErrors, setParseErrors] = useState<string[]>([]);
+  const [multiplayerGame, setMultiplayerGame] = useState<{
+    gameId: string;
+    myPlayerId: "player1" | "player2";
+    token: string;
+  } | null>(null);
 
   function handleDeckChange(text: string) {
     setDeckText(text);
@@ -99,6 +106,19 @@ export default function App() {
         )}
         {activeTab === "testbench" && (
           <TestBench definitions={LORCAST_CARD_DEFINITIONS} />
+        )}
+        {activeTab === "multiplayer" && (
+          multiplayerGame
+            ? <GameBoard
+                definitions={LORCAST_CARD_DEFINITIONS}
+                multiplayerGame={multiplayerGame}
+              />
+            : <MultiplayerLobby
+                deck={deck}
+                onGameStart={(gameId, myPlayerId, token) => {
+                  setMultiplayerGame({ gameId, myPlayerId, token });
+                }}
+              />
         )}
       </main>
     </div>

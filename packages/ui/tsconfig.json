@@ -6,6 +6,7 @@
     "declarationMap": false,
     "noEmit": true,
     "jsx": "react-jsx",
+    "types": ["vite/client"],
     "paths": {
       "@lorcana-sim/engine": ["../engine/src/index.ts"],
       "@lorcana-sim/simulator": ["../simulator/src/index.ts"],

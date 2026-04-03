@@ -45,6 +45,11 @@ const SAMPLE_DECK = `4 Elsa - Snow Queen
 
 interface Props {
   definitions: Record<string, CardDefinition>;
+  multiplayerGame?: {
+    gameId: string;
+    myPlayerId: "player1" | "player2";
+    token: string;
+  };
 }
 
 // --- Lore tracker: visual pips ---
@@ -96,7 +101,7 @@ function InkDisplay({ available, total }: { available: number; total: number }) 
   );
 }
 
-export default function GameBoard({ definitions }: Props) {
+export default function GameBoard({ definitions, multiplayerGame }: Props) {
   const session = useGameSession();
 
   const [p1DeckText, setP1DeckText] = useState(SAMPLE_DECK);
@@ -142,6 +147,21 @@ export default function GameBoard({ definitions }: Props) {
       logRef.current.scrollTop = logRef.current.scrollHeight;
     }
   }, [session.actionLog.length]);
+
+  // Auto-start when entering multiplayer mode — state arrives via Realtime
+  useEffect(() => {
+    if (!multiplayerGame) return;
+    session.startGame({
+      player1Deck: [],
+      player2Deck: [],
+      definitions,
+      botStrategy: GreedyBot,
+      player1IsHuman: multiplayerGame.myPlayerId === "player1",
+      player2IsHuman: multiplayerGame.myPlayerId === "player2",
+      multiplayer: multiplayerGame,
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [multiplayerGame]);
 
   function handleStart() {
     const botOption = BOT_OPTIONS.find((b) => b.id === botId) ?? BOT_OPTIONS[0]!;
