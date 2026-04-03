@@ -183,16 +183,17 @@ export function createGame(
   // Deal opening hands
   state = dealOpeningHands(state, handSize);
 
-  // Move to main phase
+  // CRD 2.2.2: Start in mulligan phase — player1 chooses first
+  const p1HandIds = state.zones.player1.hand;
   state = {
     ...state,
-    phase: "main",
-    players: {
-      ...state.players,
-      player1: {
-        ...state.players.player1,
-        availableInk: 0, // No ink on first turn until cards are played
-      },
+    phase: "mulligan_p1",
+    pendingChoice: {
+      type: "choose_mulligan",
+      choosingPlayerId: "player1",
+      prompt: "Choose cards to put back (you will draw the same number). Select none to keep your hand.",
+      validTargets: [...p1HandIds],
+      optional: true,
     },
   };
 

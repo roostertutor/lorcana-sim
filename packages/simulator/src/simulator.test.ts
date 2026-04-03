@@ -31,7 +31,7 @@ const TEST_DECK = [
 
 const ZONES: ZoneName[] = ["deck", "hand", "play", "discard", "inkwell"];
 const PLAYERS: PlayerID[] = ["player1", "player2"];
-const VALID_PHASES = new Set(["beginning", "main", "end"]);
+const VALID_PHASES = new Set(["mulligan_p1", "mulligan_p2", "beginning", "main", "end"]);
 
 // ---------------------------------------------------------------------------
 // INVARIANT CHECKER

@@ -177,6 +177,42 @@ export class RLPolicy implements BotStrategy {
     const stateFeats = stateToFeatures(state, playerId, definitions);
     const valuePred = this.valueNet.forward(stateFeats)[0]!;
 
+    // CRD 2.2.2: Mulligan — use mulliganNet to decide keep vs full redraw
+    if (choice.type === "choose_mulligan") {
+      const hand = choice.validTargets ?? [];
+
+      if (rngNext(this.explorationRng) < this.epsilon) {
+        const shouldMull = rngNext(this.explorationRng) < 0.5;
+        const mulliganIndex = shouldMull ? 0 : 1;
+        const logProb = -Math.log(2);
+        this.episodeHistory.push({
+          stateFeatures: stateFeats,
+          logProbChosen: logProb,
+          isAction: false,
+          mulliganIndex,
+          turnIndex: state.turnNumber,
+          reward: 0,
+          valuePred,
+        });
+        return { type: "RESOLVE_CHOICE", playerId, choice: shouldMull ? hand : [] };
+      }
+
+      const probs = softmax(this.mulliganNet.forward(stateFeats));
+      const shouldMull = probs[0]! > probs[1]!; // [0]=mulligan, [1]=keep
+      const chosenIdx = shouldMull ? 0 : 1;
+      const logProb = Math.log(Math.max(probs[chosenIdx]!, 1e-10));
+      this.episodeHistory.push({
+        stateFeatures: stateFeats,
+        logProbChosen: logProb,
+        isAction: false,
+        mulliganIndex: chosenIdx,
+        turnIndex: state.turnNumber,
+        reward: 0,
+        valuePred,
+      });
+      return { type: "RESOLVE_CHOICE", playerId, choice: shouldMull ? hand : [] };
+    }
+
     // Build candidate actions based on choice type
     const candidates: GameAction[] = [];
 

@@ -403,6 +403,16 @@ function validateResolveChoice(
     return fail("It's not your choice to make.");
   }
 
+  // CRD 2.2.2: Mulligan — array of card IDs to put back (empty = keep all)
+  if (state.pendingChoice.type === "choose_mulligan") {
+    if (!Array.isArray(choice)) return fail("Mulligan choice must be an array of card IDs.");
+    const handIds = state.pendingChoice.validTargets ?? [];
+    for (const id of choice as string[]) {
+      if (!handIds.includes(id)) return fail("Chosen card is not in your hand.");
+    }
+    return OK;
+  }
+
   // CRD 6.1.4: "may" choices accept "accept" or "decline"
   if (state.pendingChoice.type === "choose_may") {
     if (choice !== "accept" && choice !== "decline") {

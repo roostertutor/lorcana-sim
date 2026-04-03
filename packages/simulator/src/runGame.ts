@@ -6,7 +6,6 @@
 import type { GameAction, GameState, PlayerID } from "@lorcana-sim/engine";
 import { applyAction, createGame, getEffectiveLore, getZone } from "@lorcana-sim/engine";
 import type { CardGameStats, GameResult, SimGameConfig } from "./types.js";
-import { shouldMulligan, performMulligan } from "./mulligan.js";
 
 const DEFAULT_MAX_TURNS = 120;
 
@@ -146,26 +145,8 @@ export function runGame(config: SimGameConfig): GameResult {
 
   const actions: GameAction[] = [];
 
-  // CRD 2.2.2: Mulligan (pre-game, skipped for injected startingState)
-  const mulliganed: Record<PlayerID, boolean> = { player1: false, player2: false };
-  if (!config.startingState) {
-    for (const playerId of ["player1", "player2"] as const) {
-      const bot = playerId === "player1" ? config.player1Strategy : config.player2Strategy;
-      if (bot.name === "random") continue; // RandomBot skips mulligan
-
-      // Use bot's custom mulligan if provided, otherwise default
-      const shouldMull = bot.shouldMulligan
-        ? bot.shouldMulligan(state, playerId, config.definitions)
-        : shouldMulligan(state, playerId, config.definitions, config.mulliganThresholds);
-
-      if (shouldMull) {
-        state = bot.performMulligan
-          ? bot.performMulligan(state, playerId, config.definitions)
-          : performMulligan(state, playerId);
-        mulliganed[playerId] = true;
-      }
-    }
-  }
+  // CRD 2.2.2: Mulligan is now handled by the engine via choose_mulligan pendingChoice.
+  // Bots handle it through decideAction like any other pending choice.
 
   const statsMap = new Map<string, CardGameStats>();
   const inkByTurn: Record<PlayerID, number[]> = { player1: [], player2: [] };
@@ -271,6 +252,10 @@ export function runGame(config: SimGameConfig): GameResult {
       player2: config.player2Strategy.name,
     },
     botType: config.player1Strategy.type,
-    mulliganed,
+    // Derive from action log: a player mulliganed if they had a mulligan log entry with "card(s)"
+    mulliganed: {
+      player1: state.actionLog.some(e => e.type === "mulligan" && e.playerId === "player1" && e.message.includes("mulliganed")),
+      player2: state.actionLog.some(e => e.type === "mulligan" && e.playerId === "player2" && e.message.includes("mulliganed")),
+    },
   };
 }

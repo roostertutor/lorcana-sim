@@ -9,6 +9,7 @@ import { applyAction } from "@lorcana-sim/engine";
 import { computeDeckProbabilities } from "../probabilities.js";
 import { evaluatePosition } from "../evaluator.js";
 import type { BotWeights } from "../types.js";
+import { shouldMulligan } from "../mulligan.js";
 
 /**
  * Resolve a pending choice intelligently using position evaluation.
@@ -25,6 +26,31 @@ export function resolveChoiceIntelligently(
   weights: BotWeights
 ): GameAction {
   const choice = state.pendingChoice!;
+
+  // CRD 2.2.2: Mulligan — heuristic partial mulligan
+  if (choice.type === "choose_mulligan") {
+    const hand = choice.validTargets ?? [];
+    const doMulligan = shouldMulligan(state, playerId, definitions);
+    if (!doMulligan) {
+      // Keep all — return empty array
+      return { type: "RESOLVE_CHOICE", playerId, choice: [] };
+    }
+    // Return all non-inkable cards first, then lowest-cost inkable cards
+    // to keep the highest-value inkable cards in hand
+    const scored = hand.map(id => {
+      const inst = state.cards[id];
+      const def = inst ? definitions[inst.definitionId] : undefined;
+      return { id, cost: def?.cost ?? 0, inkable: def?.inkable ?? false };
+    });
+    // Sort: put back non-inkable first, then lowest cost — keep at most 3 (keep 4+)
+    scored.sort((a, b) => {
+      if (a.inkable !== b.inkable) return a.inkable ? 1 : -1; // non-inkable first
+      return a.cost - b.cost; // then lowest cost first
+    });
+    // Return bottom half of the hand (worst cards)
+    const returnCount = Math.floor(hand.length / 2);
+    return { type: "RESOLVE_CHOICE", playerId, choice: scored.slice(0, returnCount).map(s => s.id) };
+  }
 
   // CRD 6.1.4: "may" choices — always accept (free benefit in Set 1)
   if (choice.type === "choose_may") {

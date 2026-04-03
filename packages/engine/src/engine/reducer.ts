@@ -869,15 +869,62 @@ function applyResolveChoice(
   if (!state.pendingChoice) return state;
 
   const { pendingChoice } = state;
-  const pendingEffect = pendingChoice.pendingEffect;
   state = { ...state, pendingChoice: null };
+
+  // CRD 2.2.2: Mulligan — put chosen cards at bottom of deck, draw replacements
+  if (pendingChoice.type === "choose_mulligan" && Array.isArray(choice)) {
+    const cardsToReturn = choice as string[];
+    const drawCount = cardsToReturn.length;
+
+    // Put chosen cards at bottom of deck
+    for (const cardId of cardsToReturn) {
+      state = moveCard(state, cardId, playerId, "deck", "bottom");
+    }
+
+    // Draw same number of replacements
+    for (let i = 0; i < drawCount; i++) {
+      state = applyDraw(state, playerId, 1, events);
+    }
+
+    // Log the mulligan decision
+    const msg = drawCount > 0
+      ? `${playerId} mulliganed ${drawCount} card(s).`
+      : `${playerId} kept their opening hand.`;
+    state = appendLog(state, { turn: state.turnNumber, playerId, message: msg, type: "mulligan" });
+
+    // Advance to next mulligan phase or start the game
+    if (pendingChoice.choosingPlayerId === "player1") {
+      const p2HandIds = state.zones.player2.hand;
+      state = {
+        ...state,
+        phase: "mulligan_p2",
+        pendingChoice: {
+          type: "choose_mulligan",
+          choosingPlayerId: "player2",
+          prompt: "Choose cards to put back (you will draw the same number). Select none to keep your hand.",
+          validTargets: [...p2HandIds],
+          optional: true,
+        },
+      };
+    } else {
+      // Both players have mulliganed — start the game
+      state = {
+        ...state,
+        phase: "main",
+      };
+    }
+
+    return state;
+  }
+
+  const pendingEffect = pendingChoice.pendingEffect;
 
   // CRD 6.1.4: "may" effect — accept or decline
   if (pendingChoice.type === "choose_may") {
     if (choice === "accept") {
       // Apply the effect — which may itself create a target choice (e.g. Support)
       const sourceId = pendingChoice.sourceInstanceId ?? "";
-      state = applyEffect(state, pendingEffect, sourceId, playerId, definitions, events);
+      state = applyEffect(state, pendingEffect!, sourceId, playerId, definitions, events);
     }
     // "decline" → skip, clear pendingChoice (already done above)
     return state;
@@ -916,7 +963,7 @@ function applyResolveChoice(
       return state;
     }
     for (const targetId of choice) {
-      state = applyEffectToTarget(state, pendingEffect, targetId, playerId, definitions, events);
+      state = applyEffectToTarget(state, pendingEffect!, targetId, playerId, definitions, events);
       // Apply follow-up effects to the same target
       if (pendingChoice.followUpEffects) {
         for (const followUp of pendingChoice.followUpEffects) {

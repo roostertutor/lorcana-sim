@@ -304,6 +304,52 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
       );
     }
 
+    // CRD 2.2.2: Mulligan — select cards to put back, draw same number
+    if (pendingChoice.type === "choose_mulligan") {
+      const hand = pendingChoice.validTargets ?? [];
+      return (
+        <div className="rounded-lg px-4 py-3 bg-indigo-950/60 border border-indigo-600/50 space-y-2">
+          <div className="text-indigo-200 text-sm font-bold">Opening Hand — Mulligan</div>
+          <div className="text-gray-400 text-xs">{pendingChoice.prompt}</div>
+          <div className="flex flex-wrap gap-1.5">
+            {hand.map((id) => {
+              const selected = multiSelectTargets.includes(id);
+              return (
+                <button
+                  key={id}
+                  className={`px-3 py-1.5 text-xs rounded-lg border transition-all ${
+                    selected
+                      ? "border-red-400 bg-red-900/50 text-red-200 line-through opacity-60"
+                      : "border-indigo-500 bg-indigo-900/40 text-indigo-100 hover:border-indigo-300"
+                  }`}
+                  onClick={() => {
+                    setMultiSelectTargets((prev) =>
+                      selected ? prev.filter((t) => t !== id) : [...prev, id],
+                    );
+                  }}
+                >
+                  {getCardName(id)}
+                </button>
+              );
+            })}
+          </div>
+          <div className="flex gap-2">
+            <button
+              className="px-4 py-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium transition-colors"
+              onClick={() => {
+                session.resolveChoice(multiSelectTargets);
+                setMultiSelectTargets([]);
+              }}
+            >
+              {multiSelectTargets.length > 0
+                ? `Put back ${multiSelectTargets.length}, draw ${multiSelectTargets.length}`
+                : "Keep All"}
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     const needsMultiSelect =
       pendingChoice.type === "choose_cards" ||
       pendingChoice.type === "choose_discard" ||

@@ -132,7 +132,7 @@ describe("Layer 5a — Bot correctness floor", () => {
     state = s3;
 
     // Ensure it's player1's main phase
-    state = { ...state, currentPlayer: "player1", phase: "main" };
+    state = { ...state, currentPlayer: "player1", phase: "main", pendingChoice: null };
 
     const action = GreedyBot.decideAction(state, "player1", defs);
 
@@ -160,7 +160,7 @@ describe("Layer 5a — Bot correctness floor", () => {
     );
     state = s3;
 
-    state = { ...state, currentPlayer: "player1", phase: "main" };
+    state = { ...state, currentPlayer: "player1", phase: "main", pendingChoice: null };
 
     const action = GreedyBot.decideAction(state, "player1", defs);
 

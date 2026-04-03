@@ -46,10 +46,14 @@ function startGame(
   p1Cards: string[] = ["mickey-mouse-true-friend"],
   p2Cards: string[] = ["mickey-mouse-true-friend"]
 ): GameState {
-  return createGame(
+  let state = createGame(
     { player1Deck: buildTestDeck(p1Cards), player2Deck: buildTestDeck(p2Cards) },
     LORCAST_CARD_DEFINITIONS
   );
+  // Resolve mulligan for both players (keep all — tests set up hands via injectCard)
+  state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [] }, LORCAST_CARD_DEFINITIONS).newState;
+  state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player2", choice: [] }, LORCAST_CARD_DEFINITIONS).newState;
+  return state;
 }
 
 function injectCard(

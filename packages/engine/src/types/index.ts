@@ -760,6 +760,8 @@ export interface FloatingTrigger {
 }
 
 export type GamePhase =
+  | "mulligan_p1" // CRD 2.2.2: player1 choosing mulligan cards
+  | "mulligan_p2" // CRD 2.2.2: player2 choosing mulligan cards
   | "beginning" // Draw + ready step
   | "main" // Play cards, quest, challenge
   | "end"; // End of turn effects
@@ -779,7 +781,7 @@ export interface TriggerContext {
 }
 
 export interface PendingChoice {
-  type: "choose_target" | "choose_option" | "choose_cards" | "choose_may" | "choose_discard" | "choose_from_revealed";
+  type: "choose_mulligan" | "choose_target" | "choose_option" | "choose_cards" | "choose_may" | "choose_discard" | "choose_from_revealed";
   /** Which player must make the choice */
   choosingPlayerId: PlayerID;
   prompt: string;
@@ -792,8 +794,8 @@ export interface PendingChoice {
   /** For choose_cards: card filter and count */
   filter?: CardFilter;
   count?: number;
-  /** The effect waiting for this choice to resolve */
-  pendingEffect: Effect;
+  /** The effect waiting for this choice to resolve (absent for choose_mulligan) */
+  pendingEffect?: Effect;
   /** CRD 6.1.4: player can decline with empty choice */
   optional?: boolean;
   /** For choose_may: the source card's instanceId (needed to resume trigger processing) */
@@ -825,6 +827,7 @@ export type GameLogEntryType =
   | "ability_triggered"
   | "ability_activated"
   | "choice_made"
+  | "mulligan"
   | "game_over";
 
 // -----------------------------------------------------------------------------
