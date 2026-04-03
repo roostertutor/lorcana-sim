@@ -109,6 +109,8 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
   const [rlPolicy, setRlPolicy] = useState<BotStrategy | null>(null);
   const [rlPolicyName, setRlPolicyName] = useState<string | null>(null);
   const [multiSelectTargets, setMultiSelectTargets] = useState<string[]>([]);
+  const [challengeAttackerId, setChallengeAttackerId] = useState<string | null>(null);
+  const [shiftCardId, setShiftCardId] = useState<string | null>(null);
 
   const p1Parse = useMemo(() => parseDecklist(p1DeckText, definitions), [p1DeckText, definitions]);
   const p2Parse = useMemo(() => parseDecklist(p2DeckText, definitions), [p2DeckText, definitions]);
@@ -290,10 +292,6 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
 
   const recentLog = actionLog.slice(-30);
   const isYourTurn = gameState.currentPlayer === myId;
-
-  // --- 2-step interaction state ---
-  const [challengeAttackerId, setChallengeAttackerId] = useState<string | null>(null);
-  const [shiftCardId, setShiftCardId] = useState<string | null>(null);
 
   // Cancel any pending 2-step mode
   const cancelMode = React.useCallback(() => { setChallengeAttackerId(null); setShiftCardId(null); }, []);
