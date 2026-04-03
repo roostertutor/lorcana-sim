@@ -27,6 +27,7 @@ import { useAnalysis } from "../hooks/useAnalysis.js";
 import { useBoardDnd, DROP_PLAY_ZONE, DROP_INKWELL, dropCardId } from "../hooks/useBoardDnd.js";
 import { buildLabelMap } from "../utils/buildLabelMap.js";
 import AnalysisPanel from "../components/AnalysisPanel.js";
+import SandboxPanel from "../components/SandboxPanel.js";
 import GameCard from "../components/GameCard.js";
 import PendingChoiceModal from "../components/PendingChoiceModal.js";
 
@@ -57,6 +58,7 @@ const SAMPLE_DECK = `4 Elsa - Snow Queen
 
 interface Props {
   definitions: Record<string, CardDefinition>;
+  sandboxMode?: boolean;
   multiplayerGame?: {
     gameId: string;
     myPlayerId: "player1" | "player2";
@@ -113,7 +115,7 @@ function InkDisplay({ available, total }: { available: number; total: number }) 
   );
 }
 
-export default function GameBoard({ definitions, multiplayerGame }: Props) {
+export default function GameBoard({ definitions, sandboxMode, multiplayerGame }: Props) {
   const session = useGameSession();
 
   const [p1DeckText, setP1DeckText] = useState(SAMPLE_DECK);
@@ -126,6 +128,7 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
   const [shiftCardId, setShiftCardId] = useState<string | null>(null);
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [showLog, setShowLog] = useState(false);
+  const [autoPassP2, setAutoPassP2] = useState(true);
 
   const p1Parse = useMemo(() => parseDecklist(p1DeckText, definitions), [p1DeckText, definitions]);
   const p2Parse = useMemo(() => parseDecklist(p2DeckText, definitions), [p2DeckText, definitions]);
@@ -290,6 +293,40 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [multiplayerGame]);
 
+  // Sandbox: auto-start with empty decks on mount
+  useEffect(() => {
+    if (!sandboxMode) return;
+    session.startGame({
+      player1Deck: [],
+      player2Deck: [],
+      definitions,
+      botStrategy: GreedyBot, // never invoked — P2 auto-passes
+      player1IsHuman: true,
+      player2IsHuman: false,
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sandboxMode]);
+
+  // Sandbox: auto-resolve mulligan (skip it entirely)
+  useEffect(() => {
+    if (!sandboxMode) return;
+    if (session.gameState?.pendingChoice?.type === "choose_mulligan") {
+      session.resolveChoice([]);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sandboxMode, session.gameState?.pendingChoice]);
+
+  // Sandbox: auto-pass P2 turns when autoPassP2 is on
+  useEffect(() => {
+    if (!sandboxMode || !autoPassP2) return;
+    const gs = session.gameState;
+    if (!gs || gs.isGameOver || gs.pendingChoice) return;
+    const opId: PlayerID = myId === "player1" ? "player2" : "player1";
+    if (gs.currentPlayer !== opId) return;
+    session.dispatch({ type: "PASS_TURN", playerId: opId });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sandboxMode, autoPassP2, session.gameState]);
+
   function handleStart() {
     const botOption = BOT_OPTIONS.find((b) => b.id === botId) ?? BOT_OPTIONS[0]!;
     session.startGame({
@@ -335,6 +372,9 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
   // =========================================================================
   // SETUP MODE
   // =========================================================================
+  if (!session.gameState && sandboxMode) {
+    return null; // waiting for auto-start effect
+  }
   if (!session.gameState) {
     return (
       <div className="space-y-6">
@@ -577,7 +617,7 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
                 ? "bg-green-600/20 text-green-400 border border-green-500/30"
                 : "bg-red-600/20 text-red-400 border border-red-500/30"
             }`}>
-              {isYourTurn ? "YOUR TURN" : multiplayerGame ? "OPP." : "BOT"}
+              {isYourTurn ? (sandboxMode ? "YOUR TURN" : "YOUR TURN") : multiplayerGame ? "OPP." : sandboxMode ? "P2" : "BOT"}
             </div>
             <span className="text-gray-600 text-xs">T{gameState.turnNumber}</span>
 
@@ -744,9 +784,20 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
         </details>
       </div>
 
-      {/* ======================= Desktop: Analysis sidebar ======================= */}
+      {/* ======================= Desktop: Sidebar (Sandbox or Analysis) ======================= */}
       <div className="hidden lg:block space-y-4 lg:sticky lg:top-20 lg:self-start">
-        <AnalysisPanel {...analysis} estimateLabel={analysis.usingRL ? "RL est." : "GreedyBot est."} />
+        {sandboxMode ? (
+          <SandboxPanel
+            session={session}
+            gameState={gameState}
+            definitions={definitions}
+            myId={myId}
+            autoPassP2={autoPassP2}
+            onAutoPassP2Change={setAutoPassP2}
+          />
+        ) : (
+          <AnalysisPanel {...analysis} estimateLabel={analysis.usingRL ? "RL est." : "GreedyBot est."} />
+        )}
       </div>
 
       {/* ======================= Mobile: card action strip ======================= */}
@@ -808,7 +859,7 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
         </div>
       </div>
 
-      {/* ======================= Mobile: Analysis bottom sheet ======================= */}
+      {/* ======================= Mobile: Analysis/Sandbox bottom sheet ======================= */}
       {showAnalysis && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAnalysis(false)} />
@@ -816,7 +867,18 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
                           bg-gray-950 rounded-t-2xl border-t border-gray-800 p-4
                           pb-[env(safe-area-inset-bottom,16px)]">
             <div className="w-10 h-1 bg-gray-700 rounded-full mx-auto mb-4" />
-            <AnalysisPanel {...analysis} estimateLabel={analysis.usingRL ? "RL est." : "GreedyBot est."} />
+            {sandboxMode ? (
+              <SandboxPanel
+                session={session}
+                gameState={gameState}
+                definitions={definitions}
+                myId={myId}
+                autoPassP2={autoPassP2}
+                onAutoPassP2Change={setAutoPassP2}
+              />
+            ) : (
+              <AnalysisPanel {...analysis} estimateLabel={analysis.usingRL ? "RL est." : "GreedyBot est."} />
+            )}
           </div>
         </div>
       )}

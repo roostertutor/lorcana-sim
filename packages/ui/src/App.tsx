@@ -17,7 +17,7 @@ const TABS: { id: Tab; label: string; requiresDeck?: boolean }[] = [
   { id: "simulate", label: "Simulate", requiresDeck: true },
   { id: "compare", label: "Compare" },
   { id: "play", label: "Play" },
-  { id: "testbench", label: "Test Bench" },
+  { id: "testbench", label: "Sandbox" },
   { id: "multiplayer", label: "Multiplayer" },
 ];
 
@@ -90,7 +90,7 @@ export default function App() {
 
       {/* Content */}
       <main className={`flex-1 w-full ${
-        activeTab === "play" || activeTab === "multiplayer"
+        activeTab === "play" || activeTab === "testbench" || activeTab === "multiplayer"
           ? "p-0"
           : "max-w-6xl mx-auto px-4 py-6"
       }`}>

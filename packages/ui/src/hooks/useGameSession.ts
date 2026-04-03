@@ -51,6 +51,7 @@ export interface GameSession {
   dispatch: (action: GameAction) => void;
   selectCard: (instanceId: string | null) => void;
   resolveChoice: (choice: string[] | number | "accept" | "decline") => void;
+  patchState: (updater: (prev: GameState) => GameState) => void;
   reset: () => void;
 }
 
@@ -237,6 +238,13 @@ export function useGameSession(): GameSession {
   }, []);
 
   // ---------------------------------------------------------------------------
+  // patchState — sandbox direct mutation, bypasses engine validation
+  // ---------------------------------------------------------------------------
+  const patchState = useCallback((updater: (prev: GameState) => GameState) => {
+    setGameState((prev) => (prev ? updater(prev) : prev));
+  }, []);
+
+  // ---------------------------------------------------------------------------
   // reset
   // ---------------------------------------------------------------------------
   const reset = useCallback(() => {
@@ -260,6 +268,7 @@ export function useGameSession(): GameSession {
     dispatch,
     selectCard,
     resolveChoice,
+    patchState,
     reset,
   };
 }
