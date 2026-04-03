@@ -111,6 +111,8 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
   const [multiSelectTargets, setMultiSelectTargets] = useState<string[]>([]);
   const [challengeAttackerId, setChallengeAttackerId] = useState<string | null>(null);
   const [shiftCardId, setShiftCardId] = useState<string | null>(null);
+  const [showAnalysis, setShowAnalysis] = useState(false);
+  const [showLog, setShowLog] = useState(false);
 
   const p1Parse = useMemo(() => parseDecklist(p1DeckText, definitions), [p1DeckText, definitions]);
   const p2Parse = useMemo(() => parseDecklist(p2DeckText, definitions), [p2DeckText, definitions]);
@@ -458,7 +460,7 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
     }
 
     return (
-      <div key={id} className="flex flex-col items-center gap-1">
+      <div key={id} className="snap-start shrink-0 flex flex-col items-center gap-1 px-0.5">
         <div className="relative">
           <GameCard
             instanceId={id}
@@ -476,8 +478,9 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
             </span>
           )}
         </div>
+        {/* Desktop-only action buttons — mobile uses the action strip */}
         {btns.length > 0 && (
-          <div className="flex flex-wrap gap-0.5 justify-center max-w-[120px]">
+          <div className="hidden lg:flex flex-wrap gap-0.5 justify-center max-w-[120px]">
             {btns.map((btn, i) => (
               <button
                 key={i}
@@ -679,14 +682,32 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
     );
   }
 
+  // Mobile: action strip for selected card
+  const selectedCardButtons = session.selectedInstanceId ? (cardButtons.get(session.selectedInstanceId) ?? []) : [];
+
+  // Log rows (shared between desktop inline and mobile sheet)
+  const logRows = (
+    <div ref={logRef} className="overflow-y-auto rounded-lg border border-gray-800/30 p-2 bg-gray-950/50 text-[11px] font-mono space-y-0.5 h-40">
+      {recentLog.map((entry, i) => (
+        <div key={i} className="text-gray-500">
+          <span className="text-gray-700">T{entry.turn}</span>{" "}
+          <span className={entry.playerId === "player1" ? "text-green-600" : "text-red-600"}>
+            {entry.playerId === "player1" ? "P1" : "P2"}
+          </span>{" "}
+          {entry.message}
+        </div>
+      ))}
+    </div>
+  );
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-5 -mx-4 px-4">
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-5 px-3 lg:px-4 pb-16 lg:pb-6 pt-3">
       {/* ======================= Main game area ======================= */}
-      <div className="min-w-0 space-y-0">
+      <div className="min-w-0 space-y-2">
 
         {/* Game Over Overlay */}
         {isGameOver && (
-          <div className="mb-4 rounded-xl p-6 text-center space-y-3 bg-gradient-to-b from-amber-900/30 to-amber-950/50 border border-amber-500/30">
+          <div className="rounded-xl p-6 text-center space-y-3 bg-gradient-to-b from-amber-900/30 to-amber-950/50 border border-amber-500/30">
             <div className="text-3xl font-black text-amber-400 tracking-tight">
               {winner === "player1" ? "Victory!" : winner === "player2" ? "Defeat" : "Draw"}
             </div>
@@ -703,52 +724,75 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
         )}
 
         {/* ---- Scoreboard ---- */}
-        <div className="rounded-xl bg-gray-900/60 border border-gray-800/50 p-3 mb-3">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-3">
-              <div className={`px-3 py-1 rounded-lg text-xs font-bold tracking-wide ${
-                isYourTurn
-                  ? "bg-green-600/20 text-green-400 border border-green-500/30"
-                  : "bg-red-600/20 text-red-400 border border-red-500/30"
-              }`}>
-                {isYourTurn ? "YOUR TURN" : multiplayerGame ? "OPPONENT'S TURN" : "BOT'S TURN"}
-              </div>
-              <span className="text-gray-500 text-xs">
-                Turn {gameState.turnNumber}
-              </span>
+        <div className="rounded-xl bg-gray-900/60 border border-gray-800/50 px-3 py-2">
+          <div className="flex items-center gap-2">
+            {/* Turn badge */}
+            <div className={`px-2 py-0.5 rounded text-xs font-bold tracking-wide shrink-0 ${
+              isYourTurn
+                ? "bg-green-600/20 text-green-400 border border-green-500/30"
+                : "bg-red-600/20 text-red-400 border border-red-500/30"
+            }`}>
+              {isYourTurn ? "YOUR TURN" : multiplayerGame ? "OPP." : "BOT"}
             </div>
+            <span className="text-gray-600 text-xs">T{gameState.turnNumber}</span>
+
+            {/* Mobile compact lore scores */}
+            <div className="flex items-center gap-1.5 ml-2 lg:hidden">
+              <span className="text-green-400 font-mono text-sm font-black">{p1.lore}</span>
+              <span className="text-gray-700 text-xs">♦</span>
+              <span className="text-gray-600 text-xs">vs</span>
+              <span className="text-red-400 font-mono text-sm font-black">{p2.lore}</span>
+              <span className="text-gray-700 text-xs">♦</span>
+              <span className="text-gray-600 text-[10px]">/20</span>
+            </div>
+
+            {/* Desktop full lore trackers */}
+            <div className="hidden lg:flex lg:flex-1 lg:flex-col lg:gap-0.5 lg:ml-2">
+              <LoreTracker lore={p1.lore} label="You" color="green" />
+              <LoreTracker lore={p2.lore} label={multiplayerGame ? "Opp" : "Bot"} color="red" />
+            </div>
+
             <button
-              className="px-3 py-1 text-[10px] bg-gray-800 hover:bg-gray-700 text-gray-500 hover:text-gray-300 rounded-lg transition-colors uppercase tracking-wider"
+              className="ml-auto px-2 py-0.5 text-[10px] bg-gray-800 hover:bg-gray-700 text-gray-500 hover:text-gray-300 rounded transition-colors uppercase tracking-wider shrink-0"
               onClick={session.reset}
             >
               Concede
             </button>
           </div>
-          <div className="space-y-1">
-            <LoreTracker lore={p1.lore} label="You" color="green" />
-            <LoreTracker lore={p2.lore} label="Bot" color="red" />
-          </div>
         </div>
 
         {error && (
-          <div className="text-red-400 text-sm bg-red-950/30 border border-red-800/50 rounded-lg px-3 py-2 mb-3">
+          <div className="text-red-400 text-sm bg-red-950/30 border border-red-800/50 rounded-lg px-3 py-2">
             {error}
           </div>
         )}
 
         {/* ---- Opponent zone ---- */}
-        <div className="rounded-xl bg-gradient-to-b from-red-950/10 to-transparent border border-gray-800/30 p-3 mb-2">
-          <div className="flex items-center justify-between mb-2">
+        <div className="rounded-xl bg-gradient-to-b from-red-950/10 to-transparent border border-gray-800/30 p-2">
+          <div className="flex items-center justify-between mb-1.5">
             <span className="text-[10px] text-red-400/60 uppercase tracking-wider font-bold">Opponent</span>
-            <div className="flex gap-3 text-[10px] text-gray-600">
-              <span>Hand {p2Zones.hand.length}</span>
-              <span>Deck {p2Zones.deck.length}</span>
+            <div className="flex gap-3 text-[10px] text-gray-600 items-center">
+              <InkDisplay available={p2.availableInk} total={p2Zones.inkwell.length} />
+              <span>📦 {p2Zones.deck.length}</span>
             </div>
           </div>
-          <InkDisplay available={p2.availableInk} total={p2Zones.inkwell.length} />
-          <div className="mt-3 min-h-[110px] flex flex-wrap gap-3 items-end">
+          {/* Opponent hand — face-down card backs */}
+          {p2Zones.hand.length > 0 && (
+            <div className="flex gap-1.5 overflow-x-auto scrollbar-none pb-1 mb-1.5">
+              {p2Zones.hand.map((id) => (
+                <div key={id}
+                  className="snap-start shrink-0 w-[52px] sm:w-[60px] lg:w-[72px] aspect-[5/7]
+                             rounded-lg bg-gray-800/80 border border-gray-700/60
+                             flex items-center justify-center">
+                  <span className="text-gray-600 text-base">⬡</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {/* Opponent play zone */}
+          <div className="flex gap-2 overflow-x-auto overscroll-x-contain scrollbar-none snap-x snap-mandatory pb-1 min-h-[120px] items-end">
             {p2Zones.play.length === 0 ? (
-              <span className="text-gray-700 text-xs italic">No cards in play</span>
+              <span className="text-gray-700 text-xs italic self-center">No cards in play</span>
             ) : (
               p2Zones.play.map((id) => renderCardWithActions(id, "play", true))
             )}
@@ -756,22 +800,24 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
         </div>
 
         {/* ---- Battlefield divider ---- */}
-        <div className="flex items-center gap-3 py-1">
+        <div className="flex items-center gap-3 py-0.5">
           <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-700/50 to-transparent" />
           <span className="text-[9px] text-gray-700 uppercase tracking-widest">Battlefield</span>
           <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-700/50 to-transparent" />
         </div>
 
         {/* ---- Player zone ---- */}
-        <div className="rounded-xl bg-gradient-to-t from-green-950/10 to-transparent border border-gray-800/30 p-3 mt-2">
-          <div className="flex items-center justify-between mb-2">
+        <div className="rounded-xl bg-gradient-to-t from-green-950/10 to-transparent border border-gray-800/30 p-2">
+          <div className="flex items-center justify-between mb-1.5">
             <span className="text-[10px] text-green-400/60 uppercase tracking-wider font-bold">Your Board</span>
-            <span className="text-[10px] text-gray-600">Deck {p1Zones.deck.length}</span>
+            <div className="flex gap-3 text-[10px] text-gray-600 items-center">
+              <InkDisplay available={p1.availableInk} total={p1Zones.inkwell.length} />
+              <span>📦 {p1Zones.deck.length}</span>
+            </div>
           </div>
-          <InkDisplay available={p1.availableInk} total={p1Zones.inkwell.length} />
-          <div className="mt-3 min-h-[110px] flex flex-wrap gap-3 items-start">
+          <div className="flex gap-2 overflow-x-auto overscroll-x-contain scrollbar-none snap-x snap-mandatory pb-1 min-h-[120px] items-end">
             {p1Zones.play.length === 0 ? (
-              <span className="text-gray-700 text-xs italic">No cards in play</span>
+              <span className="text-gray-700 text-xs italic self-center">No cards in play</span>
             ) : (
               p1Zones.play.map((id) => renderCardWithActions(id, "play", false))
             )}
@@ -779,23 +825,26 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
         </div>
 
         {/* ---- Hand ---- */}
-        <div className="mt-3 rounded-xl bg-gray-900/40 border border-gray-800/30 p-3">
-          <div className="flex items-center justify-between mb-2">
+        <div className="rounded-xl bg-gray-900/40 border border-gray-800/30 p-2">
+          <div className="flex items-center justify-between mb-1.5">
             <span className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">Your Hand</span>
             <span className="text-[10px] text-gray-600">{p1Zones.hand.length} cards</span>
           </div>
-          <div className="min-h-[80px] flex flex-wrap gap-3 items-start">
+          <div className="flex gap-2 overflow-x-auto overscroll-x-contain scrollbar-none snap-x snap-mandatory pb-1 min-h-[100px] items-start">
             {p1Zones.hand.length === 0 ? (
-              <span className="text-gray-700 text-xs italic">Empty hand</span>
+              <span className="text-gray-700 text-xs italic self-center">Empty hand</span>
             ) : (
               p1Zones.hand.map((id) => renderCardWithActions(id, "hand", false))
             )}
           </div>
         </div>
 
-        {/* ---- Bottom bar: mode hints + pass turn ---- */}
+        {/* ---- Pending Choice ---- */}
+        {pendingChoice && <div>{renderPendingChoice()}</div>}
+
+        {/* ---- Desktop: mode hints + pass turn ---- */}
         {!pendingChoice && !isGameOver && isYourTurn && (
-          <div className="mt-3 flex items-center gap-2">
+          <div className="hidden lg:flex items-center gap-2">
             {challengeAttackerId && (
               <div className="flex-1 flex items-center gap-2 rounded-lg px-3 py-2 bg-red-950/40 border border-red-700/40 text-red-300 text-xs">
                 <span className="font-bold">Challenge mode</span>
@@ -821,35 +870,117 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
           </div>
         )}
 
-        {/* ---- Pending Choice ---- */}
-        {pendingChoice && <div className="mt-3">{renderPendingChoice()}</div>}
-
-        {/* ---- Game Log ---- */}
-        <details className="mt-3">
+        {/* ---- Desktop: Game Log ---- */}
+        <details className="hidden lg:block">
           <summary className="text-[10px] text-gray-600 uppercase tracking-wider cursor-pointer select-none hover:text-gray-400 transition-colors py-1">
             Game Log ({actionLog.length})
           </summary>
-          <div
-            ref={logRef}
-            className="h-28 overflow-y-auto rounded-lg border border-gray-800/30 p-2 bg-gray-950/50 text-[11px] font-mono space-y-0.5 mt-1"
-          >
-            {recentLog.map((entry, i) => (
-              <div key={i} className="text-gray-500">
-                <span className="text-gray-700">T{entry.turn}</span>{" "}
-                <span className={entry.playerId === "player1" ? "text-green-600" : "text-red-600"}>
-                  {entry.playerId === "player1" ? "P1" : "P2"}
-                </span>{" "}
-                {entry.message}
-              </div>
-            ))}
-          </div>
+          <div className="mt-1">{logRows}</div>
         </details>
       </div>
 
-      {/* ======================= Analysis sidebar ======================= */}
-      <div className="space-y-4 lg:sticky lg:top-20 lg:self-start">
+      {/* ======================= Desktop: Analysis sidebar ======================= */}
+      <div className="hidden lg:block space-y-4 lg:sticky lg:top-20 lg:self-start">
         <AnalysisPanel {...analysis} estimateLabel={analysis.usingRL ? "RL est." : "GreedyBot est."} />
       </div>
+
+      {/* ======================= Mobile: card action strip ======================= */}
+      {selectedCardButtons.length > 0 && (
+        <div className="fixed bottom-14 left-0 right-0 z-30 lg:hidden
+                        bg-gray-950/95 border-t border-gray-800 backdrop-blur-sm px-3 py-2
+                        flex gap-2 overflow-x-auto scrollbar-none">
+          <span className="text-[10px] text-gray-500 self-center shrink-0 mr-1">
+            {getCardName(session.selectedInstanceId!)}:
+          </span>
+          {selectedCardButtons.map((btn, i) => (
+            <button key={i}
+              className={`shrink-0 px-4 min-h-[44px] rounded-lg text-sm font-bold
+                          transition-colors active:scale-95 ${btn.color}`}
+              onClick={btn.onClick}>
+              {btn.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* ======================= Mobile: sticky bottom bar ======================= */}
+      <div className="fixed bottom-0 left-0 right-0 z-20 lg:hidden
+                      bg-gray-950/95 border-t border-gray-800 backdrop-blur-sm
+                      pb-[env(safe-area-inset-bottom,0px)]">
+        <div className="flex items-center gap-2 px-3 h-14">
+          {challengeAttackerId || shiftCardId ? (
+            <>
+              <span className={`flex-1 text-xs font-medium ${challengeAttackerId ? "text-red-300" : "text-purple-300"}`}>
+                {challengeAttackerId ? "Tap an opponent character to challenge" : "Tap your character to shift onto"}
+              </span>
+              <button className="px-3 py-2 text-sm text-gray-400 font-bold active:scale-95" onClick={cancelMode}>
+                Cancel
+              </button>
+            </>
+          ) : (
+            <>
+              <button onClick={() => setShowLog(true)}
+                className="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-800 text-gray-400 text-base active:scale-95"
+                aria-label="Game log">
+                📋
+              </button>
+              <button onClick={() => setShowAnalysis(true)}
+                className="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-800 text-gray-400 text-base active:scale-95"
+                aria-label="Analysis">
+                📊
+              </button>
+              {isYourTurn && !pendingChoice && !isGameOver && (
+                <button
+                  className="ml-auto px-5 min-h-[44px] text-sm font-bold rounded-xl
+                             bg-gray-700 hover:bg-gray-600 border border-gray-600 text-gray-200
+                             transition-colors active:scale-95"
+                  onClick={() => session.dispatch({ type: "PASS_TURN", playerId: myId })}>
+                  Pass Turn
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* ======================= Mobile: Analysis bottom sheet ======================= */}
+      {showAnalysis && (
+        <div className="fixed inset-0 z-40 lg:hidden">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAnalysis(false)} />
+          <div className="absolute bottom-0 left-0 right-0 max-h-[70vh] overflow-y-auto
+                          bg-gray-950 rounded-t-2xl border-t border-gray-800 p-4
+                          pb-[env(safe-area-inset-bottom,16px)]">
+            <div className="w-10 h-1 bg-gray-700 rounded-full mx-auto mb-4" />
+            <AnalysisPanel {...analysis} estimateLabel={analysis.usingRL ? "RL est." : "GreedyBot est."} />
+          </div>
+        </div>
+      )}
+
+      {/* ======================= Mobile: Log bottom sheet ======================= */}
+      {showLog && (
+        <div className="fixed inset-0 z-40 lg:hidden">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowLog(false)} />
+          <div className="absolute bottom-0 left-0 right-0 max-h-[60vh] flex flex-col
+                          bg-gray-950 rounded-t-2xl border-t border-gray-800
+                          pb-[env(safe-area-inset-bottom,0px)]">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800 shrink-0">
+              <span className="text-sm font-bold text-gray-300">Game Log ({actionLog.length})</span>
+              <button onClick={() => setShowLog(false)} className="text-gray-500 hover:text-gray-300 text-lg leading-none active:scale-95">✕</button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-3 font-mono text-[11px] space-y-0.5">
+              {recentLog.map((entry, i) => (
+                <div key={i} className="text-gray-500">
+                  <span className="text-gray-700">T{entry.turn}</span>{" "}
+                  <span className={entry.playerId === "player1" ? "text-green-600" : "text-red-600"}>
+                    {entry.playerId === "player1" ? "P1" : "P2"}
+                  </span>{" "}
+                  {entry.message}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

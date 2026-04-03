@@ -1,0 +1,1711 @@
+[
+  {
+    "id": "dumbo-the-flying-elephant",
+    "name": "Dumbo",
+    "fullName": "Dumbo - The Flying Elephant",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      }
+    ],
+    "setId": "P3",
+    "number": 1,
+    "rarity": "common",
+    "subtitle": "The Flying Elephant",
+    "strength": 2,
+    "willpower": 2,
+    "lore": 1,
+    "rulesText": "AERIAL DUO When you play this character, chosen character gains Evasive until the start of your next turn.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_12b839a499554620be033f62efd21dd1.avif?1773508691",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "AERIAL DUO",
+        "rulesText": "When you play this character, chosen character gains Evasive until the start of your next turn.",
+        "raw": "AERIAL DUO When you play this character, chosen character gains Evasive until the start of your next turn."
+      }
+    ]
+  },
+  {
+    "id": "alice-accidentally-adrift",
+    "name": "Alice",
+    "fullName": "Alice - Accidentally Adrift",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 2,
+    "rarity": "common",
+    "subtitle": "Accidentally Adrift",
+    "strength": 2,
+    "willpower": 3,
+    "lore": 2,
+    "rulesText": "WASHED AWAY When you play this character, you may put chosen item into its player's inkwell facedown and exerted.\nMAKING WAVES Whenever this character quests, chosen opposing character gets -2 {S} this turn.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b1c9fb0718d647ab86e96b9b863a1d64.avif?1773508701",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "WASHED AWAY",
+        "rulesText": "When you play this character, you may put chosen item into its player's inkwell facedown and exerted.",
+        "raw": "WASHED AWAY When you play this character, you may put chosen item into its player's inkwell facedown and exerted."
+      },
+      {
+        "storyName": "MAKING WAVES",
+        "rulesText": "Whenever this character quests, chosen opposing character gets -2 {S} this turn.",
+        "raw": "MAKING WAVES Whenever this character quests, chosen opposing character gets -2 {S} this turn."
+      }
+    ]
+  },
+  {
+    "id": "the-queen-conceited-ruler",
+    "name": "The Queen",
+    "fullName": "The Queen - Conceited Ruler",
+    "cardType": "character",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Villain",
+      "Queen",
+      "Sorcerer"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "support"
+      }
+    ],
+    "setId": "P3",
+    "number": 3,
+    "rarity": "common",
+    "subtitle": "Conceited Ruler",
+    "strength": 2,
+    "willpower": 4,
+    "lore": 1,
+    "rulesText": "ROYAL SUMMONS At the start of your turn, you may choose and discard a Princess or Queen character card to return a character card from your discard to your hand.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e1e04f6d898b4b4c9cbda6adf5c742b8.avif?1773508707",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "ROYAL SUMMONS At the start of your turn, you may choose and discard a Princess or Queen character card to return a character card from your discard to your hand.",
+        "raw": "ROYAL SUMMONS At the start of your turn, you may choose and discard a Princess or Queen character card to return a character card from your discard to your hand."
+      }
+    ]
+  },
+  {
+    "id": "maleficent-monstrous-dragon",
+    "name": "Maleficent",
+    "fullName": "Maleficent - Monstrous Dragon",
+    "cardType": "character",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 9,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Villain",
+      "Dragon"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 4,
+    "rarity": "common",
+    "subtitle": "Monstrous Dragon",
+    "strength": 7,
+    "willpower": 5,
+    "lore": 2,
+    "rulesText": "DRAGON FIRE When you play this character, you may banish chosen character.",
+    "flavorText": "The ninth Rule of Villainy: When all else fails, turn into a dragon.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a79483514b7249cbb16c12a9ef1d065d.avif?1773508713",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "DRAGON FIRE",
+        "rulesText": "When you play this character, you may banish chosen character.",
+        "raw": "DRAGON FIRE When you play this character, you may banish chosen character."
+      }
+    ]
+  },
+  {
+    "id": "maleficent-monstrous-dragon",
+    "name": "Maleficent",
+    "fullName": "Maleficent - Monstrous Dragon",
+    "cardType": "character",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 9,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Villain",
+      "Dragon"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 5,
+    "rarity": "common",
+    "subtitle": "Monstrous Dragon",
+    "strength": 7,
+    "willpower": 5,
+    "lore": 2,
+    "rulesText": "DRAGON FIRE When you play this character, you may banish chosen character.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d0844776beac4b5e839cff0cb9c31c14.avif?1773508719",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "DRAGON FIRE",
+        "rulesText": "When you play this character, you may banish chosen character.",
+        "raw": "DRAGON FIRE When you play this character, you may banish chosen character."
+      }
+    ]
+  },
+  {
+    "id": "elsa-the-fifth-spirit",
+    "name": "Elsa",
+    "fullName": "Elsa - The Fifth Spirit",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Hero",
+      "Queen",
+      "Sorcerer"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
+      {
+        "type": "keyword",
+        "keyword": "rush"
+      }
+    ],
+    "setId": "P3",
+    "number": 6,
+    "rarity": "common",
+    "subtitle": "The Fifth Spirit",
+    "strength": 2,
+    "willpower": 5,
+    "lore": 1,
+    "rulesText": "CRYSTALLIZE When you play this character, exert chosen opposing character.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b16f35fcfe884bc4b442745f49c0b811.avif?1773509303",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "CRYSTALLIZE",
+        "rulesText": "When you play this character, exert chosen opposing character.",
+        "raw": "CRYSTALLIZE When you play this character, exert chosen opposing character."
+      }
+    ]
+  },
+  {
+    "id": "cursed-merfolk-ursulas-handiwork",
+    "name": "Cursed Merfolk",
+    "fullName": "Cursed Merfolk - Ursula's Handiwork",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 1,
+    "inkable": false,
+    "traits": [
+      "Storyborn"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 7,
+    "rarity": "common",
+    "subtitle": "Ursula's Handiwork",
+    "strength": 0,
+    "willpower": 1,
+    "lore": 2,
+    "rulesText": "POOR SOULS Whenever this character is challenged, each opponent chooses and discards a card.",
+    "flavorText": "\"Now it's happened once or twice, someone couldn't pay the price...\"\n—Ursula",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_35060994174f4b25aa2bb6e99c05ca1e.avif?1773509304",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "POOR SOULS",
+        "rulesText": "Whenever this character is challenged, each opponent chooses and discards a card.",
+        "raw": "POOR SOULS Whenever this character is challenged, each opponent chooses and discards a card."
+      }
+    ]
+  },
+  {
+    "id": "strength-of-a-raging-fire",
+    "name": "Strength of a Raging Fire",
+    "fullName": "Strength of a Raging Fire",
+    "cardType": "action",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Song"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 8,
+    "rarity": "common",
+    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nDeal damage to chosen character equal to the number of characters you have in play.",
+    "flavorText": "Tranquil as a forest\nBut on fire within",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3036fc62622b43fda13f6021ab5401a5.avif?1773508732",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)",
+        "raw": "(A character with cost 3 or more can {E} to sing this song for free.)"
+      },
+      {
+        "storyName": "",
+        "rulesText": "Deal damage to chosen character equal to the number of characters you have in play.",
+        "raw": "Deal damage to chosen character equal to the number of characters you have in play."
+      }
+    ]
+  },
+  {
+    "id": "sisu-daring-visitor",
+    "name": "Sisu",
+    "fullName": "Sisu - Daring Visitor",
+    "cardType": "character",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 3,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Hero",
+      "Deity",
+      "Dragon"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      }
+    ],
+    "setId": "P3",
+    "number": 9,
+    "rarity": "common",
+    "subtitle": "Daring Visitor",
+    "strength": 1,
+    "willpower": 1,
+    "lore": 1,
+    "rulesText": "BRING ON THE HEAT! When you play this character, banish chosen opposing character with 1 {S} or less.",
+    "flavorText": "\"Come on—what's the worst that can happen?\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a83a5da99ba24518860ad7da3dbe1d02.avif?1773508738",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "BRING ON THE HEAT!",
+        "rulesText": "When you play this character, banish chosen opposing character with 1 {S} or less.",
+        "raw": "BRING ON THE HEAT! When you play this character, banish chosen opposing character with 1 {S} or less."
+      }
+    ]
+  },
+  {
+    "id": "mickey-mouse-true-friend",
+    "name": "Mickey Mouse",
+    "fullName": "Mickey Mouse - True Friend",
+    "cardType": "character",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 10,
+    "rarity": "common",
+    "subtitle": "True Friend",
+    "strength": 3,
+    "willpower": 3,
+    "lore": 2,
+    "flavorText": "As long as he's around, newcomers to the Great\nIlluminariy will always get a warm welcome.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_407481b12c5a4448a9c837d024bfbb55.avif?1773508744"
+  },
+  {
+    "id": "tinker-bell-giant-fairy",
+    "name": "Tinker Bell",
+    "fullName": "Tinker Bell - Giant Fairy",
+    "cardType": "character",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 6,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Ally",
+      "Fairy"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      }
+    ],
+    "setId": "P3",
+    "number": 11,
+    "rarity": "common",
+    "subtitle": "Giant Fairy",
+    "strength": 4,
+    "willpower": 5,
+    "lore": 2,
+    "shiftCost": 4,
+    "rulesText": "ROCK THE BOAT When you play this character, deal 1 damage to each opposing character.\nPUN PIRATE! During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_895798f185da459bab814e8d6241da52.avif?1773508749",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "ROCK THE BOAT",
+        "rulesText": "When you play this character, deal 1 damage to each opposing character.",
+        "raw": "ROCK THE BOAT When you play this character, deal 1 damage to each opposing character."
+      },
+      {
+        "storyName": "PUN PIRATE!",
+        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character.",
+        "raw": "PUN PIRATE! During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character."
+      }
+    ]
+  },
+  {
+    "id": "the-queen-mirror-seeker",
+    "name": "The Queen",
+    "fullName": "The Queen - Mirror Seeker",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Villain",
+      "Queen",
+      "Sorcerer"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 12,
+    "rarity": "common",
+    "subtitle": "Mirror Seeker",
+    "strength": 2,
+    "willpower": 5,
+    "lore": 1,
+    "rulesText": "CALCULATING AND VAIN Whenever this character quests, you may look at the top 3 cards of your deck and put them back in any order.",
+    "flavorText": "She has only one question, and she'd better like the answer.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5f8477e82274478083db60897d3516f5.avif?1773508755",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "CALCULATING AND VAIN",
+        "rulesText": "Whenever this character quests, you may look at the top 3 cards of your deck and put them back in any order.",
+        "raw": "CALCULATING AND VAIN Whenever this character quests, you may look at the top 3 cards of your deck and put them back in any order."
+      }
+    ]
+  },
+  {
+    "id": "mickey-mouse-pirate-captain",
+    "name": "Mickey Mouse",
+    "fullName": "Mickey Mouse - Pirate Captain",
+    "cardType": "character",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Hero",
+      "Pirate",
+      "Captain"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      }
+    ],
+    "setId": "P3",
+    "number": 13,
+    "rarity": "common",
+    "subtitle": "Pirate Captain",
+    "strength": 4,
+    "willpower": 4,
+    "lore": 2,
+    "shiftCost": 3,
+    "rulesText": "MARINER'S MIGHT Whenever this character quests, chosen Pirate character gets +2 {S} and gains \"This character takes no damage from challenges\" this turn.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_8fed60626775467d90a99dbb2a5d881b.avif?1773508762",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "MARINER'S MIGHT",
+        "rulesText": "Whenever this character quests, chosen Pirate character gets +2 {S} and gains \"This character takes no damage from challenges\" this turn.",
+        "raw": "MARINER'S MIGHT Whenever this character quests, chosen Pirate character gets +2 {S} and gains \"This character takes no damage from challenges\" this turn."
+      }
+    ]
+  },
+  {
+    "id": "goofy-expert-shipwright",
+    "name": "Goofy",
+    "fullName": "Goofy - Expert Shipwright",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Hero",
+      "Inventor"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "ward"
+      }
+    ],
+    "setId": "P3",
+    "number": 14,
+    "rarity": "common",
+    "subtitle": "Expert Shipwright",
+    "strength": 1,
+    "willpower": 4,
+    "lore": 3,
+    "rulesText": "CLEVER DESIGN Whenever this character quests, chosen character gains Ward until the start of your next turn.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_45321c3501974bd39455f3cc7346f535.avif?1773508768",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "CLEVER DESIGN",
+        "rulesText": "Whenever this character quests, chosen character gains Ward until the start of your next turn.",
+        "raw": "CLEVER DESIGN Whenever this character quests, chosen character gains Ward until the start of your next turn."
+      }
+    ]
+  },
+  {
+    "id": "donald-duck-buccaneer",
+    "name": "Donald Duck",
+    "fullName": "Donald Duck - Buccaneer",
+    "cardType": "character",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Hero",
+      "Pirate",
+      "Captain"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 15,
+    "rarity": "common",
+    "subtitle": "Buccaneer",
+    "strength": 3,
+    "willpower": 4,
+    "lore": 1,
+    "rulesText": "BOARDING PARTY During your turn, whenever this character banishes another character in a challenge, your other characters get +1 {L} this turn.",
+    "flavorText": "Nobody stands a chance against the daring duck of the high seas!",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_48f207edc9374126bd3ac01d43cbc2b8.avif?1773508774",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "BOARDING PARTY",
+        "rulesText": "During your turn, whenever this character banishes another character in a challenge, your other characters get +1 {L} this turn.",
+        "raw": "BOARDING PARTY During your turn, whenever this character banishes another character in a challenge, your other characters get +1 {L} this turn."
+      }
+    ]
+  },
+  {
+    "id": "daisy-duck-pirate-captain",
+    "name": "Daisy Duck",
+    "fullName": "Daisy Duck - Pirate Captain",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Hero",
+      "Pirate",
+      "Captain"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 16,
+    "rarity": "common",
+    "subtitle": "Pirate Captain",
+    "strength": 3,
+    "willpower": 3,
+    "lore": 2,
+    "rulesText": "DISTANT SHORES Whenever one of your Pirate characters quests while at a location, draw a card.",
+    "flavorText": "\"The answers we're looking for are on the other side of that maze, I just know it!\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7e220169e537453cbda6b634acf7af4d.avif?1773508781",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "DISTANT SHORES",
+        "rulesText": "Whenever one of your Pirate characters quests while at a location, draw a card.",
+        "raw": "DISTANT SHORES Whenever one of your Pirate characters quests while at a location, draw a card."
+      }
+    ]
+  },
+  {
+    "id": "minnie-mouse-pirate-lookout",
+    "name": "Minnie Mouse",
+    "fullName": "Minnie Mouse - Pirate Lookout",
+    "cardType": "character",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 3,
+    "inkable": false,
+    "traits": [
+      "Dreamborn",
+      "Hero",
+      "Pirate"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 17,
+    "rarity": "common",
+    "subtitle": "Pirate Lookout",
+    "strength": 3,
+    "willpower": 2,
+    "lore": 1,
+    "rulesText": "LAND, HO! Once during your turn, whenever a card is put into your inkwell, you may return a location card from your discard to your hand.",
+    "flavorText": "Minnie leaned forward. Could it be true? Was this the island at last?",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_bbd9d2a6b1194759b18eb6e58a3c3d3e.avif?1773508786",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "LAND, HO! Once during your turn, whenever a card is put into your inkwell, you may return a location card from your discard to your hand.",
+        "raw": "LAND, HO! Once during your turn, whenever a card is put into your inkwell, you may return a location card from your discard to your hand."
+      }
+    ]
+  },
+  {
+    "id": "zeus-missing-his-spark",
+    "name": "Zeus",
+    "fullName": "Zeus - Missing His Spark",
+    "cardType": "character",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "King",
+      "Deity",
+      "Whisper"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "boost"
+      }
+    ],
+    "setId": "P3",
+    "number": 18,
+    "rarity": "common",
+    "subtitle": "Missing His Spark",
+    "strength": 2,
+    "willpower": 3,
+    "lore": 2,
+    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nI NEED MORE THUNDERBOLTS! While there’s a card under this character, he gets +2 {S} and +2 {W}.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_0f0a7394cf61476f96019519408f113f.avif?1773508792",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "I NEED MORE THUNDERBOLTS!",
+        "rulesText": "While there’s a card under this character, he gets +2 {S} and +2 {W}.",
+        "raw": "I NEED MORE THUNDERBOLTS! While there’s a card under this character, he gets +2 {S} and +2 {W}."
+      }
+    ]
+  },
+  {
+    "id": "the-great-illuminary-abandoned-laboratory",
+    "name": "The Great Illuminary",
+    "fullName": "The Great Illuminary - Abandoned Laboratory",
+    "cardType": "location",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [],
+    "abilities": [],
+    "setId": "P3",
+    "number": 19,
+    "rarity": "common",
+    "subtitle": "Abandoned Laboratory",
+    "willpower": 3,
+    "lore": 1,
+    "rulesText": "STARTLING DISCOVERY Characters gain \" — Draw a card\" while here.",
+    "flavorText": "Remember, we're looking for clues to who tore up the lorebook pages. —Elisa Maza",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_89f06111fbb14f8d9dc9e19168c30631.avif?1773508797",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "STARTLING DISCOVERY",
+        "rulesText": "Characters gain \" — Draw a card\" while here.",
+        "raw": "STARTLING DISCOVERY Characters gain \" — Draw a card\" while here."
+      }
+    ]
+  },
+  {
+    "id": "the-horseman-strikes",
+    "name": "The Horseman Strikes!",
+    "fullName": "The Horseman Strikes!",
+    "cardType": "action",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [],
+    "abilities": [],
+    "setId": "P3",
+    "number": 20,
+    "rarity": "common",
+    "rulesText": "Draw a card. You may banish chosen character with Evasive.",
+    "flavorText": "Just when you thought you'd escaped...",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_bee6f97742e542d2b3d1beed86b61049.avif?1773508802",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "Draw a card. You may banish chosen character with Evasive.",
+        "raw": "Draw a card. You may banish chosen character with Evasive."
+      }
+    ]
+  },
+  {
+    "id": "scar-eerily-prepared",
+    "name": "Scar",
+    "fullName": "Scar - Eerily Prepared",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 5,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Villain",
+      "Whisper"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "boost"
+      }
+    ],
+    "setId": "P3",
+    "number": 21,
+    "rarity": "common",
+    "subtitle": "Eerily Prepared",
+    "strength": 6,
+    "willpower": 5,
+    "lore": 2,
+    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nSURVIVAL OF THE FITTEST Whenever you put a card under this character, chosen opposing character gets -5 {S} this turn.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b01f04a5debe45f7b1796f0deeabd427.avif?1773508808",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "SURVIVAL OF THE FITTEST",
+        "rulesText": "Whenever you put a card under this character, chosen opposing character gets -5 {S} this turn.",
+        "raw": "SURVIVAL OF THE FITTEST Whenever you put a card under this character, chosen opposing character gets -5 {S} this turn."
+      }
+    ]
+  },
+  {
+    "id": "elsa-exploring-the-unknown",
+    "name": "Elsa",
+    "fullName": "Elsa - Exploring the Unknown",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Hero",
+      "Queen",
+      "Sorcerer"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 22,
+    "rarity": "common",
+    "subtitle": "Exploring the Unknown",
+    "strength": 1,
+    "willpower": 3,
+    "lore": 1,
+    "rulesText": "CLOSER LOOK When you play this character, you may draw a card.",
+    "flavorText": "\"This world still has secrets to uncover.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_309a0e71b66c4ba492590374f92d9598.avif?1773508813",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "CLOSER LOOK",
+        "rulesText": "When you play this character, you may draw a card.",
+        "raw": "CLOSER LOOK When you play this character, you may draw a card."
+      }
+    ]
+  },
+  {
+    "id": "daisy-duck-paranormal-investigator",
+    "name": "Daisy Duck",
+    "fullName": "Daisy Duck - Paranormal Investigator",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 6,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Hero",
+      "Detective"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      },
+      {
+        "type": "keyword",
+        "keyword": "support"
+      }
+    ],
+    "setId": "P3",
+    "number": 23,
+    "rarity": "common",
+    "subtitle": "Paranormal Investigator",
+    "strength": 4,
+    "willpower": 6,
+    "lore": 2,
+    "shiftCost": 4,
+    "rulesText": "STRANGE HAPPENINGS While this character is exerted, cards enter opponents' inkwells exerted.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_816875e5e3f54de7bd57f8a94ed6718e.avif?1773508819",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "STRANGE HAPPENINGS",
+        "rulesText": "While this character is exerted, cards enter opponents' inkwells exerted.",
+        "raw": "STRANGE HAPPENINGS While this character is exerted, cards enter opponents' inkwells exerted."
+      }
+    ]
+  },
+  {
+    "id": "daisy-duck-paranormal-investigator",
+    "name": "Daisy Duck",
+    "fullName": "Daisy Duck - Paranormal Investigator",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 6,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Hero",
+      "Detective"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      },
+      {
+        "type": "keyword",
+        "keyword": "support"
+      }
+    ],
+    "setId": "P3",
+    "number": 24,
+    "rarity": "common",
+    "subtitle": "Paranormal Investigator",
+    "strength": 4,
+    "willpower": 6,
+    "lore": 2,
+    "shiftCost": 4,
+    "rulesText": "STRANGE HAPPENINGS While this character is exerted, cards enter opponents' inkwells exerted.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_aaf4390b4e564f7181f334acb04b63d6.avif?1773508824",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "STRANGE HAPPENINGS",
+        "rulesText": "While this character is exerted, cards enter opponents' inkwells exerted.",
+        "raw": "STRANGE HAPPENINGS While this character is exerted, cards enter opponents' inkwells exerted."
+      }
+    ]
+  },
+  {
+    "id": "goofy-emerald-champion",
+    "name": "Goofy",
+    "fullName": "Goofy - Emerald Champion",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 5,
+    "inkable": false,
+    "traits": [
+      "Dreamborn",
+      "Hero"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 25,
+    "rarity": "common",
+    "subtitle": "Emerald Champion",
+    "strength": 3,
+    "willpower": 5,
+    "lore": 2,
+    "rulesText": "EVEN THE SCORE Whenever one of your other Emerald characters is challenged and banished, banish the challenging character.\nPROVIDE COVER Your other Emerald characters gain Ward. (Opponents can’t choose them except to challenge.)",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_feda80eba5264f44b483cb6b52fafb47.avif?1773508831",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "EVEN THE SCORE",
+        "rulesText": "Whenever one of your other Emerald characters is challenged and banished, banish the challenging character.",
+        "raw": "EVEN THE SCORE Whenever one of your other Emerald characters is challenged and banished, banish the challenging character."
+      },
+      {
+        "storyName": "PROVIDE COVER",
+        "rulesText": "Your other Emerald characters gain Ward. (Opponents can’t choose them except to challenge.)",
+        "raw": "PROVIDE COVER Your other Emerald characters gain Ward. (Opponents can’t choose them except to challenge.)"
+      }
+    ]
+  },
+  {
+    "id": "jasmine-soothing-princess",
+    "name": "Jasmine",
+    "fullName": "Jasmine - Soothing Princess",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero",
+      "Princess",
+      "Whisper"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "boost"
+      }
+    ],
+    "setId": "P3",
+    "number": 26,
+    "rarity": "common",
+    "subtitle": "Soothing Princess",
+    "strength": 2,
+    "willpower": 5,
+    "lore": 2,
+    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nUPLIFTING AURA Whenever this character quests, if there’s a card under her, remove up to 3 damage from each of your characters.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5aabca3fd6de4f3d9f7dcd53dd091739.avif?1773508836",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "UPLIFTING AURA",
+        "rulesText": "Whenever this character quests, if there’s a card under her, remove up to 3 damage from each of your characters.",
+        "raw": "UPLIFTING AURA Whenever this character quests, if there’s a card under her, remove up to 3 damage from each of your characters."
+      }
+    ]
+  },
+  {
+    "id": "putting-it-all-together",
+    "name": "Putting It All Together",
+    "fullName": "Putting It All Together",
+    "cardType": "action",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [],
+    "abilities": [],
+    "setId": "P3",
+    "number": 27,
+    "rarity": "common",
+    "rulesText": "Chosen opposing character can't challenge during their next turn. Draw a card.",
+    "flavorText": "\"Stop! It's Hopps and Wilde! We have questions!\"\n—Judy Hopps",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a5f4037f0c50462380ba6db7a516cd7a.avif?1773508842",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "Chosen opposing character can't challenge during their next turn. Draw a card.",
+        "raw": "Chosen opposing character can't challenge during their next turn. Draw a card."
+      }
+    ]
+  },
+  {
+    "id": "gramma-tala-connected-to-nature",
+    "name": "Gramma Tala",
+    "fullName": "Gramma Tala - Connected to Nature",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 12,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Mentor"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 28,
+    "rarity": "common",
+    "subtitle": "Connected to Nature",
+    "strength": 6,
+    "willpower": 6,
+    "lore": 2,
+    "rulesText": "ANCESTORS' GIFT For each card in your inkwell, you pay 1 {I} less to play this character.",
+    "flavorText": "\"Ice fishing? No, no—this is ice feeding!\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4c1302eeb29742fe9d14fb23ad017fe9.avif?1773508848",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "ANCESTORS' GIFT For each card in your inkwell, you pay 1 {I} less to play this character.",
+        "raw": "ANCESTORS' GIFT For each card in your inkwell, you pay 1 {I} less to play this character."
+      }
+    ]
+  },
+  {
+    "id": "white-rabbit-late-again",
+    "name": "White Rabbit",
+    "fullName": "White Rabbit - Late Again",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      }
+    ],
+    "setId": "P3",
+    "number": 29,
+    "rarity": "common",
+    "subtitle": "Late Again",
+    "strength": 2,
+    "willpower": 2,
+    "lore": 1,
+    "rulesText": "UNDERDOG If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d3f28891b837451c8ae29c450dc77b26.avif?1773508858",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "UNDERDOG If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
+        "raw": "UNDERDOG If this is your first turn and you're not the first player, you pay 1 {I} less to play this character."
+      }
+    ]
+  },
+  {
+    "id": "elisa-maza-transformed-gargoyle",
+    "name": "Elisa Maza",
+    "fullName": "Elisa Maza - Transformed Gargoyle",
+    "cardType": "character",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero",
+      "Gargoyle",
+      "Detective"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 30,
+    "rarity": "common",
+    "subtitle": "Transformed Gargoyle",
+    "strength": 4,
+    "willpower": 4,
+    "lore": 1,
+    "rulesText": "FOREVER STRONG Your characters' {S} can't be reduced below their printed value.\nSTONE BY DAY If you have 3 or more cards in your hand, this character can't ready.",
+    "flavorText": "\"I'll never get the hang of jumping off rooftops.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_286c1c377513470ea77761b4c6272fb7.avif?1773508864",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "FOREVER STRONG",
+        "rulesText": "Your characters' {S} can't be reduced below their printed value.",
+        "raw": "FOREVER STRONG Your characters' {S} can't be reduced below their printed value."
+      }
+    ]
+  },
+  {
+    "id": "beast-snowfield-troublemaker",
+    "name": "Beast",
+    "fullName": "Beast - Snowfield Troublemaker",
+    "cardType": "character",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero",
+      "Prince"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "rush"
+      }
+    ],
+    "setId": "P3",
+    "number": 31,
+    "rarity": "common",
+    "subtitle": "Snowfield Troublemaker",
+    "strength": 3,
+    "willpower": 1,
+    "lore": 1,
+    "rulesText": "DYNAMIC MANEUVER Whenever this character challenges, if he’s at a location, he takes no damage from the challenge.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_0fd3aa5df4fd4082929b9d80398e692f.avif?1773508870",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "DYNAMIC MANEUVER",
+        "rulesText": "Whenever this character challenges, if he’s at a location, he takes no damage from the challenge.",
+        "raw": "DYNAMIC MANEUVER Whenever this character challenges, if he’s at a location, he takes no damage from the challenge."
+      }
+    ]
+  },
+  {
+    "id": "timon-snowball-swiper",
+    "name": "Timon",
+    "fullName": "Timon - Snowball Swiper",
+    "cardType": "character",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 3,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Ally"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 32,
+    "rarity": "common",
+    "subtitle": "Snowball Swiper",
+    "strength": 2,
+    "willpower": 3,
+    "lore": 1,
+    "rulesText": "GET RID OF THAT When you play this character, chosen opponent reveals their hand and discards a non-character card of your choice.",
+    "flavorText": "\"Okay, Pumbaa—hit it!\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c47dcf86ffa542dda6f30a0cda47c1b4.avif?1773508875",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "GET RID OF THAT",
+        "rulesText": "When you play this character, chosen opponent reveals their hand and discards a non-character card of your choice.",
+        "raw": "GET RID OF THAT When you play this character, chosen opponent reveals their hand and discards a non-character card of your choice."
+      }
+    ]
+  },
+  {
+    "id": "tinker-bell-snowflake-collector",
+    "name": "Tinker Bell",
+    "fullName": "Tinker Bell - Snowflake Collector",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Ally",
+      "Fairy"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 33,
+    "rarity": "common",
+    "subtitle": "Snowflake Collector",
+    "strength": 3,
+    "willpower": 3,
+    "lore": 1,
+    "rulesText": "FLURRY OF DELIGHT While you have 4 or more cards in your hand, this character gains Evasive. (Only characters with Evasive can challenge them.)\nSPECTACULAR FIND While you have 7 or more cards in your hand, this character gets +3 {L}.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e0ff247b374b43c68d645477a6d0177a.avif?1773508882",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "FLURRY OF DELIGHT",
+        "rulesText": "While you have 4 or more cards in your hand, this character gains Evasive. (Only characters with Evasive can challenge them.)",
+        "raw": "FLURRY OF DELIGHT While you have 4 or more cards in your hand, this character gains Evasive. (Only characters with Evasive can challenge them.)"
+      },
+      {
+        "storyName": "SPECTACULAR FIND",
+        "rulesText": "While you have 7 or more cards in your hand, this character gets +3 {L}.",
+        "raw": "SPECTACULAR FIND While you have 7 or more cards in your hand, this character gets +3 {L}."
+      }
+    ]
+  },
+  {
+    "id": "tinker-bell-snowflake-collector",
+    "name": "Tinker Bell",
+    "fullName": "Tinker Bell - Snowflake Collector",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Ally",
+      "Fairy"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 34,
+    "rarity": "common",
+    "subtitle": "Snowflake Collector",
+    "strength": 3,
+    "willpower": 3,
+    "lore": 1,
+    "rulesText": "FLURRY OF DELIGHT While you have 4 or more cards in your hand, this character gains Evasive. (Only characters with Evasive can challenge them.)\nSPECTACULAR FIND While you have 7 or more cards in your hand, this character gets +3 {L}.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_76e1fab92f784c07880e6c6076292ec9.avif?1773508887",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "FLURRY OF DELIGHT",
+        "rulesText": "While you have 4 or more cards in your hand, this character gains Evasive. (Only characters with Evasive can challenge them.)",
+        "raw": "FLURRY OF DELIGHT While you have 4 or more cards in your hand, this character gains Evasive. (Only characters with Evasive can challenge them.)"
+      },
+      {
+        "storyName": "SPECTACULAR FIND",
+        "rulesText": "While you have 7 or more cards in your hand, this character gets +3 {L}.",
+        "raw": "SPECTACULAR FIND While you have 7 or more cards in your hand, this character gets +3 {L}."
+      }
+    ]
+  },
+  {
+    "id": "stitch-high-badness-level",
+    "name": "Stitch",
+    "fullName": "Stitch - High Badness Level",
+    "cardType": "character",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero",
+      "Alien"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 35,
+    "rarity": "common",
+    "subtitle": "High Badness Level",
+    "strength": 3,
+    "willpower": 2,
+    "lore": 1,
+    "rulesText": "AMPED UP While you have a character named Lilo in play, this character gains Challenger +3. (They get +3 {S} while challenging.)",
+    "flavorText": "\"No more caffeine for you.\"\n–Lilo",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4c09dc7e3fdc48aab378abc5e84546a4.avif?1773508893",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "AMPED UP",
+        "rulesText": "While you have a character named Lilo in play, this character gains Challenger +3. (They get +3 {S} while challenging.)",
+        "raw": "AMPED UP While you have a character named Lilo in play, this character gains Challenger +3. (They get +3 {S} while challenging.)"
+      }
+    ]
+  },
+  {
+    "id": "scrooge-mcduck-s-h-u-s-h-agent",
+    "name": "Scrooge McDuck",
+    "fullName": "Scrooge McDuck - S.H.U.S.H. Agent",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 2,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Hero"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 36,
+    "rarity": "common",
+    "subtitle": "S.H.U.S.H. Agent",
+    "strength": 0,
+    "willpower": 2,
+    "lore": 2,
+    "rulesText": "BACKUP PLAN When you play this character, draw a card, then choose and discard a card.\nON THE MOVE When this character is challenged, return this card to your hand. (No damage is dealt in that challenge.)",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_73f5d43fcb894f40b2d40ef10c2f0014.avif?1773508899",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "BACKUP PLAN",
+        "rulesText": "When you play this character, draw a card, then choose and discard a card.",
+        "raw": "BACKUP PLAN When you play this character, draw a card, then choose and discard a card."
+      },
+      {
+        "storyName": "ON THE MOVE",
+        "rulesText": "When this character is challenged, return this card to your hand. (No damage is dealt in that challenge.)",
+        "raw": "ON THE MOVE When this character is challenged, return this card to your hand. (No damage is dealt in that challenge.)"
+      }
+    ]
+  },
+  {
+    "id": "belle-apprentice-inventor",
+    "name": "Belle",
+    "fullName": "Belle - Apprentice Inventor",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero",
+      "Princess",
+      "Inventor"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 37,
+    "rarity": "common",
+    "subtitle": "Apprentice Inventor",
+    "strength": 3,
+    "willpower": 3,
+    "lore": 1,
+    "rulesText": "WHAT A MESS During your turn, you may banish chosen item of yours to play this character for free.",
+    "flavorText": "Helping her dad keep the flying debris to a minimum.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_fcb0a2f9a4044b86bba8e0ff3ade2988.avif?1773508904",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "WHAT A MESS",
+        "rulesText": "During your turn, you may banish chosen item of yours to play this character for free.",
+        "raw": "WHAT A MESS During your turn, you may banish chosen item of yours to play this character for free."
+      }
+    ]
+  },
+  {
+    "id": "mulan-disguised-soldier",
+    "name": "Mulan",
+    "fullName": "Mulan - Disguised Soldier",
+    "cardType": "character",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 1,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero",
+      "Princess"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 38,
+    "rarity": "common",
+    "subtitle": "Disguised Soldier",
+    "strength": 2,
+    "willpower": 1,
+    "lore": 1,
+    "rulesText": "WHERE DO I SIGN IN? When you play this character, you may draw a card, then choose and discard a card.",
+    "flavorText": "\"Okay this is it, time to show 'em your man walk.\"\n—Mushu",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_51c56768845241c9b79c30510bf3af72.avif?1773508909",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "WHERE DO I SIGN IN?",
+        "rulesText": "When you play this character, you may draw a card, then choose and discard a card.",
+        "raw": "WHERE DO I SIGN IN? When you play this character, you may draw a card, then choose and discard a card."
+      }
+    ]
+  },
+  {
+    "id": "goofy-set-for-adventure",
+    "name": "Goofy",
+    "fullName": "Goofy - Set for Adventure",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 39,
+    "rarity": "common",
+    "subtitle": "Set for Adventure",
+    "strength": 2,
+    "willpower": 2,
+    "lore": 1,
+    "rulesText": "FAMILY VACATION Once during your turn, whenever this character moves to a location, you may move one of your other characters to that location for free. If you do, draw a card.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_49df8641660c4963bc3262e345dee59d.avif?1773508919",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "FAMILY VACATION Once during your turn, whenever this character moves to a location, you may move one of your other characters to that location for free. If you do, draw a card.",
+        "raw": "FAMILY VACATION Once during your turn, whenever this character moves to a location, you may move one of your other characters to that location for free. If you do, draw a card."
+      }
+    ]
+  },
+  {
+    "id": "beast-gracious-prince",
+    "name": "Beast",
+    "fullName": "Beast - Gracious Prince",
+    "cardType": "character",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero",
+      "Prince"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 40,
+    "rarity": "common",
+    "subtitle": "Gracious Prince",
+    "strength": 5,
+    "willpower": 4,
+    "lore": 1,
+    "rulesText": "FULL DANCE CARD Your Princess characters get +1 {S} and +1 {W}.",
+    "flavorText": "His heart warmed as the music began and the dancers took their places.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_559d04fd26174de38e6c40504c2f0b43.avif?1773508925",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "FULL DANCE CARD",
+        "rulesText": "Your Princess characters get +1 {S} and +1 {W}.",
+        "raw": "FULL DANCE CARD Your Princess characters get +1 {S} and +1 {W}."
+      }
+    ]
+  },
+  {
+    "id": "belle-accomplished-mystic",
+    "name": "Belle",
+    "fullName": "Belle - Accomplished Mystic",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Hero",
+      "Princess",
+      "Sorcerer"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      }
+    ],
+    "setId": "P3",
+    "number": 41,
+    "rarity": "common",
+    "subtitle": "Accomplished Mystic",
+    "strength": 4,
+    "willpower": 4,
+    "lore": 2,
+    "shiftCost": 3,
+    "rulesText": "ENHANCED HEALING When you play this character, move up to 3 damage counters from chosen character to chosen opposing character.",
+    "flavorText": "The mixed ink had changed more than just the rose.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_384f93877f3846c198eb7edaed95a313.avif?1773508931",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "ENHANCED HEALING",
+        "rulesText": "When you play this character, move up to 3 damage counters from chosen character to chosen opposing character.",
+        "raw": "ENHANCED HEALING When you play this character, move up to 3 damage counters from chosen character to chosen opposing character."
+      }
+    ]
+  },
+  {
+    "id": "stitch-carefree-snowboarder",
+    "name": "Stitch",
+    "fullName": "Stitch - Carefree Snowboarder",
+    "cardType": "character",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero",
+      "Alien"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 42,
+    "rarity": "common",
+    "subtitle": "Carefree Snowboarder",
+    "strength": 4,
+    "willpower": 5,
+    "lore": 2,
+    "rulesText": "BRING YOUR FRIENDS Whenever this character quests, if you have 2 or more other characters in play, you may draw a card.",
+    "flavorText": "\"First one down the mountain gets all the marshmallows for their cocoa!\"\n—Lilo",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_25ef24f3f0214af5b8f944d2b5555ba8.avif?1773508937",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "BRING YOUR FRIENDS",
+        "rulesText": "Whenever this character quests, if you have 2 or more other characters in play, you may draw a card.",
+        "raw": "BRING YOUR FRIENDS Whenever this character quests, if you have 2 or more other characters in play, you may draw a card."
+      }
+    ]
+  },
+  {
+    "id": "ariel-curious-traveler",
+    "name": "Ariel",
+    "fullName": "Ariel - Curious Traveler",
+    "cardType": "character",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Hero",
+      "Princess"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 43,
+    "rarity": "common",
+    "subtitle": "Curious Traveler",
+    "strength": 3,
+    "willpower": 3,
+    "lore": 2,
+    "rulesText": "FAMILIAR GROUND Whenever this character quests, if you played another character this turn, chosen opposing character can't challenge and must quest during their next turn if able.",
+    "flavorText": "\"Isn't it wonderful? See if there's anything that catches your eye.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4a3d97e5bcff49c2883e5764be3fd43b.avif?1773508943",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "FAMILIAR GROUND",
+        "rulesText": "Whenever this character quests, if you played another character this turn, chosen opposing character can't challenge and must quest during their next turn if able.",
+        "raw": "FAMILIAR GROUND Whenever this character quests, if you played another character this turn, chosen opposing character can't challenge and must quest during their next turn if able."
+      }
+    ]
+  },
+  {
+    "id": "maleficent-imperious-traveler",
+    "name": "Maleficent",
+    "fullName": "Maleficent - Imperious Traveler",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Villain",
+      "Sorcerer"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 44,
+    "rarity": "common",
+    "subtitle": "Imperious Traveler",
+    "strength": 3,
+    "willpower": 5,
+    "lore": 1,
+    "rulesText": "HEED MY WORDS Whenever this character quests, if you played another character this turn, you may exert chosen opposing character.",
+    "flavorText": "\"Bind this glimmer, fiendish flowers!\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c4ee636a797148549fed0c816122a35d.avif?1773508950",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "HEED MY WORDS",
+        "rulesText": "Whenever this character quests, if you played another character this turn, you may exert chosen opposing character.",
+        "raw": "HEED MY WORDS Whenever this character quests, if you played another character this turn, you may exert chosen opposing character."
+      }
+    ]
+  },
+  {
+    "id": "cruella-de-vil-judgmental-traveler",
+    "name": "Cruella De Vil",
+    "fullName": "Cruella De Vil - Judgmental Traveler",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 6,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Villain"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 45,
+    "rarity": "common",
+    "subtitle": "Judgmental Traveler",
+    "strength": 4,
+    "willpower": 4,
+    "lore": 3,
+    "rulesText": "YOU'RE OUT OF FASHION Whenever this character quests, if you played another character this turn, you may banish chosen damaged character.",
+    "flavorText": "\"Can I help you? Not with your sense of style, darling.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d38b2f8759444a3c99ef9b576821232a.avif?1773508957",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "YOU'RE OUT OF FASHION",
+        "rulesText": "Whenever this character quests, if you played another character this turn, you may banish chosen damaged character.",
+        "raw": "YOU'RE OUT OF FASHION Whenever this character quests, if you played another character this turn, you may banish chosen damaged character."
+      }
+    ]
+  },
+  {
+    "id": "queen-of-hearts-impatient-traveler",
+    "name": "Queen Of Hearts",
+    "fullName": "Queen Of Hearts - Impatient Traveler",
+    "cardType": "character",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Villain",
+      "Queen"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 46,
+    "rarity": "common",
+    "subtitle": "Impatient Traveler",
+    "strength": 4,
+    "willpower": 2,
+    "lore": 2,
+    "rulesText": "ROYAL COMMAND Whenever this character quests, if you played another character this turn, chosen character gains Rush this turn. (They can challenge the turn they’re played.)",
+    "flavorText": "Hours of walking in the heat had not improved her rosy disposition.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b2eea1c89b5d48689e3fe6209acaae46.avif?1773508992",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "ROYAL COMMAND",
+        "rulesText": "Whenever this character quests, if you played another character this turn, chosen character gains Rush this turn. (They can challenge the turn they’re played.)",
+        "raw": "ROYAL COMMAND Whenever this character quests, if you played another character this turn, chosen character gains Rush this turn. (They can challenge the turn they’re played.)"
+      }
+    ]
+  },
+  {
+    "id": "cinderella-resourceful-traveler",
+    "name": "Cinderella",
+    "fullName": "Cinderella - Resourceful Traveler",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Hero",
+      "Princess"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 47,
+    "rarity": "common",
+    "subtitle": "Resourceful Traveler",
+    "strength": 1,
+    "willpower": 4,
+    "lore": 2,
+    "rulesText": "THIS AND THAT Whenever this character quests, if you played another character this turn, you may put the top card of your deck into your inkwell facedown and exerted.",
+    "flavorText": "No matter how difficult the journey, she always takes care of her friends.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_73638e03c68946c0b7b612aac9ca9cf2.avif?1773508999",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "THIS AND THAT",
+        "rulesText": "Whenever this character quests, if you played another character this turn, you may put the top card of your deck into your inkwell facedown and exerted.",
+        "raw": "THIS AND THAT Whenever this character quests, if you played another character this turn, you may put the top card of your deck into your inkwell facedown and exerted."
+      }
+    ]
+  },
+  {
+    "id": "pocahontas-steadfast-traveler",
+    "name": "Pocahontas",
+    "fullName": "Pocahontas - Steadfast Traveler",
+    "cardType": "character",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Hero",
+      "Princess"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 48,
+    "rarity": "common",
+    "subtitle": "Steadfast Traveler",
+    "strength": 4,
+    "willpower": 5,
+    "rulesText": "WANDERING SPIRIT Whenever this character quests, if you played another character this turn, return a location card from your discard to your hand.",
+    "flavorText": "\"Sometimes the right path is not the easiest one.\"\n—Grandmother Willow",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_63c7fee49edc473da094e5835a14edc0.avif?1773509012",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "WANDERING SPIRIT",
+        "rulesText": "Whenever this character quests, if you played another character this turn, return a location card from your discard to your hand.",
+        "raw": "WANDERING SPIRIT Whenever this character quests, if you played another character this turn, return a location card from your discard to your hand."
+      }
+    ]
+  }
+]

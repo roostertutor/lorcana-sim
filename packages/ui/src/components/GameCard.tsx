@@ -52,7 +52,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
 
   return (
     <div
-      className={`game-card relative border-2 rounded-xl w-[120px] shrink-0 cursor-pointer
+      className={`game-card relative border-2 rounded-xl w-[88px] sm:w-[104px] lg:w-[120px] shrink-0 cursor-pointer
         transition-all duration-200 bg-gradient-to-b ${theme.gradFrom} ${theme.gradTo}
         ${isAttacker ? "border-orange-400 ring-2 ring-orange-400/60 scale-105 z-10" :
           isSelected ? "border-amber-400 ring-2 ring-amber-400/40 scale-105 z-10" :
@@ -72,8 +72,23 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
         </div>
       </div>
 
-      {/* Art placeholder — colored bar */}
-      <div className={`mx-2 mt-1 h-[3px] rounded-full bg-gradient-to-r ${theme.gradFrom} ${theme.gradTo} opacity-60`} />
+      {/* Card art */}
+      <div className="relative mx-1.5 mt-1 rounded-md overflow-hidden" style={{ aspectRatio: "5/7", maxHeight: "52%" }}>
+        {def.imageUrl ? (
+          <img
+            src={def.imageUrl}
+            alt={def.fullName}
+            loading="lazy"
+            decoding="async"
+            width={480}
+            height={680}
+            className="w-full h-full object-cover object-top"
+            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+          />
+        ) : (
+          <div className={`w-full h-full bg-gradient-to-b ${theme.gradFrom} ${theme.gradTo} opacity-60`} />
+        )}
+      </div>
 
       {/* Name block */}
       <div className="px-2 mt-1.5">

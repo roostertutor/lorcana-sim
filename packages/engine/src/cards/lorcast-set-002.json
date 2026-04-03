@@ -24,6 +24,7 @@
     "lore": 3,
     "rulesText": "OH, GOSH! This character can't quest unless you have another Seven Dwarfs character in play.",
     "flavorText": "Life is sweeter with friends.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_ac175f73ee3c4cce86c8ffe6d32db73a.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "OH, GOSH!",
@@ -56,6 +57,7 @@
     "lore": 2,
     "rulesText": "WE'LL ALWAYS BE TOGETHER Whenever you ready this character, if you have 2 or more other characters in play, gain 2 lore.",
     "flavorText": "\"Look, Pooh! Have you ever seen anything so grand?\"\n—Christopher Robin",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4730c91483f24305b42abe86b2bb34ee.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "WE'LL ALWAYS BE TOGETHER",
@@ -93,7 +95,8 @@
     "strength": 1,
     "willpower": 2,
     "lore": 1,
-    "flavorText": "With a magical dress and a song in her heart, she dazzled everyone at the ball."
+    "flavorText": "With a magical dress and a song in her heart, she dazzled everyone at the ball.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_853c5c99d28f4304ba79004c91379057.avif?1709690747"
   },
   {
     "id": "cobra-bubbles-just-a-social-worker",
@@ -117,7 +120,8 @@
     "strength": 5,
     "willpower": 9,
     "lore": 2,
-    "flavorText": "\"Let me get this straight. Your 'magic' spellbook got washed away in a flood of 'magic' ink?\""
+    "flavorText": "\"Let me get this straight. Your 'magic' spellbook got washed away in a flood of 'magic' ink?\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_ab2c56210cf647609962b1be64726001.avif?1709690747"
   },
   {
     "id": "doc-leader-of-the-seven-dwarfs",
@@ -144,6 +148,7 @@
     "lore": 2,
     "rulesText": "SHARE AND SHARE ALIKE Whenever this character quests, you pay 1 {I} less for the next character you play this turn.",
     "flavorText": "He's in charge of this outfit.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_2fec41cf370c44e4a11f2024d8375c4c.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "SHARE AND SHARE ALIKE",
@@ -177,6 +182,7 @@
     "lore": 1,
     "rulesText": "ODD ONE OUT When this character is banished, your other Seven Dwarfs characters get +2 {S} until the start of your next turn.",
     "flavorText": "He's a real gem.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_45bf84f2a90e48be812c82d9c9272438.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "ODD ONE OUT",
@@ -207,7 +213,8 @@
     "strength": 1,
     "willpower": 9,
     "lore": 2,
-    "flavorText": "Love holds everything together."
+    "flavorText": "Love holds everything together.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_1c8429d7ddbe4e4895be3442a801c039.avif?1709690747"
   },
   {
     "id": "gaston-baritone-bully",
@@ -237,7 +244,8 @@
     "strength": 3,
     "willpower": 3,
     "lore": 1,
-    "flavorText": "No one... sings like Gaston!"
+    "flavorText": "No one... sings like Gaston!",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_88ec6886b1a0481c9ab402049d1649e8.avif?1709690747"
   },
   {
     "id": "grand-duke-advisor-to-the-king",
@@ -263,6 +271,7 @@
     "lore": 1,
     "rulesText": "YES, YOUR MAJESTY Your Prince, Princess, King, and Queen characters get +1 {S}.",
     "flavorText": "He takes being opinionated to a higher level.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_0b2c5d800fc14fdfacf098d74ec7ab74.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "YES, YOUR MAJESTY",
@@ -296,6 +305,7 @@
     "lore": 1,
     "rulesText": "THERE'S TROUBLE A-BREWIN' Your other Seven Dwarfs characters get +1 {S}.",
     "flavorText": "Sour as a green gooseberry!",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9d62c487faa543c78f964ac8ff1a73f6.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "THERE'S TROUBLE A-BREWIN'",
@@ -332,7 +342,8 @@
     "strength": 3,
     "willpower": 5,
     "lore": 2,
-    "flavorText": "You couldn't pick a better friend."
+    "flavorText": "You couldn't pick a better friend.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7bea75aa713d410a9be82d9e82ace333.avif?1709690747"
   },
   {
     "id": "king-louie-jungle-vip",
@@ -358,6 +369,7 @@
     "lore": 2,
     "rulesText": "LAY IT ON THE LINE Whenever another character is banished, you may remove up to 2 damage from this character.",
     "flavorText": "\"Cool it, boy. Unwind yourself.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5a9c44f3e0884493b853e0a1c8b1fca6.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "LAY IT ON THE LINE",
@@ -390,6 +402,7 @@
     "lore": 3,
     "rulesText": "GLAD YOU'RE HERE! Whenever this character quests, you pay 3 {I} less for the next character you play this turn.",
     "flavorText": "\"Come on in—there's lots to explore.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e32380ac2e3f4e69b385cad4b3c3df11.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "GLAD YOU'RE HERE!",
@@ -422,6 +435,7 @@
     "willpower": 3,
     "lore": 2,
     "rulesText": "THE SUN WILL SET When this character is banished, you may reveal the top card of your deck. If it's a character card, you may play that character for free and they enter play exerted. Otherwise, put it on the top of your deck.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_00dc125290b34527b59cec4901ec94f9.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "THE SUN WILL SET",
@@ -458,7 +472,8 @@
     "strength": 2,
     "willpower": 3,
     "lore": 2,
-    "flavorText": "Everything looks better when you're free to be yourself."
+    "flavorText": "Everything looks better when you're free to be yourself.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_ba402a6eed1344f8832f0032b3fed4dc.avif?1709690747"
   },
   {
     "id": "mulan-reflecting",
@@ -491,6 +506,7 @@
     "lore": 2,
     "shiftCost": 2,
     "rulesText": "HONOR TO THE ANCESTORS Whenever this character quests, you may reveal the top card of your deck. If it's a song card, you may play it for free. Otherwise, put it on the top of your deck.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f04fa097a7234ecb95ea7eeea70c9c39.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "HONOR TO THE ANCESTORS",
@@ -523,6 +539,7 @@
     "lore": 1,
     "rulesText": "NURSEMAID Whenever you play a Floodborn character, you may remove all damage from chosen character.",
     "flavorText": "Children are a dog's best friend.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_2efc304326314401b518565ccfc8f238.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "NURSEMAID",
@@ -553,7 +570,8 @@
     "strength": 2,
     "willpower": 4,
     "lore": 2,
-    "flavorText": "For a very small animal, he has an awfully big heart."
+    "flavorText": "For a very small animal, he has an awfully big heart.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9eba1ff8237f48d9aa89b725e90e2fb4.avif?1709690747"
   },
   {
     "id": "rapunzel-gifted-artist",
@@ -586,6 +604,7 @@
     "lore": 2,
     "shiftCost": 3,
     "rulesText": "LET YOUR POWER SHINE Whenever you remove 1 or more damage from one of your characters, you may draw a card.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a324c0fddfab4d7681efcf47adae3c6d.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "LET YOUR POWER SHINE",
@@ -619,6 +638,7 @@
     "lore": 1,
     "rulesText": "MAGIC HAIR {E} — Remove up to 2 damage from chosen character.",
     "flavorText": "\"We can all make the world a little brighter in our own way.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_003d1c2326544b7493e1641770d22b0a.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "MAGIC HAIR",
@@ -652,6 +672,7 @@
     "lore": 2,
     "rulesText": "YAWN! This character enters play exerted.",
     "flavorText": "He never gets tired of naps.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_02c9d135c9774d4ca1cd3a70c62cd9f1.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "YAWN!",
@@ -685,6 +706,7 @@
     "lore": 1,
     "rulesText": "AH-CHOO! Whenever you play this character or another Seven Dwarfs character, you may give chosen character -1 {S} this turn.",
     "flavorText": "Look out! He's gonna blow!",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e7b04611dd234fc7a07b0e48c2811fd2.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "AH-CHOO!",
@@ -718,6 +740,7 @@
     "lore": 1,
     "rulesText": "I WON'T HURT YOU When you play this character, you may remove up to 2 damage from chosen character.",
     "flavorText": "\"Why, you're all alone, just like me.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_abb29b66e814454ab886f18985102a9d.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "I WON'T HURT YOU",
@@ -751,6 +774,7 @@
     "lore": 1,
     "rulesText": "HOW DO YOU DO? You pay 1 {I} less to play Seven Dwarfs characters.",
     "flavorText": "\"Nothing says 'hello' better than a fresh-baked pie.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a40dcfcf0f944762a1b3f31d9a322c9a.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -790,6 +814,7 @@
     "lore": 2,
     "shiftCost": 4,
     "rulesText": "WISHES COME TRUE Whenever this character quests, you may return a character card from your discard to your hand.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d93d338ebe6c4e2dbbfb72a3059dcbc3.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "WISHES COME TRUE",
@@ -829,6 +854,7 @@
     "lore": 2,
     "shiftCost": 2,
     "rulesText": "WHO IS THE FAIREST? Whenever this character quests, chosen opposing character gets -4 {S} this turn and chosen character gets +4 {S} this turn.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_fe74bbe0dddc45fc8ecb07ba325f1e69.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "WHO IS THE FAIREST?",
@@ -860,7 +886,8 @@
     "strength": 2,
     "willpower": 2,
     "lore": 1,
-    "flavorText": "Don't question her. Don't doubt her. And above all, don't disobey her."
+    "flavorText": "Don't question her. Don't doubt her. And above all, don't disobey her.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_068db63a90ad43afa91b940fbb546575.avif?1709690747"
   },
   {
     "id": "hold-still",
@@ -879,6 +906,7 @@
     "rarity": "common",
     "rulesText": "Remove up to 4 damage from chosen character.",
     "flavorText": "\"This might sting a little.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7672e43ea7ac4d9a8a51e463a77b6358.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -904,6 +932,7 @@
     "rarity": "uncommon",
     "rulesText": "Banish chosen character who was challenged this turn.",
     "flavorText": "\"Let's finish this, binturi.\"\n—Namaari",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a7f5bdc867ac4e5da287d746420e7448.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -930,6 +959,7 @@
     "number": 30,
     "rarity": "common",
     "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)\nUp to 2 chosen characters get -1 {S} this turn. Draw a card.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5ed0be30062e4fa9a32f4edb4e53c47c.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -961,6 +991,7 @@
     "number": 31,
     "rarity": "rare",
     "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nBanish chosen character with 5 {S} or more.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_1f27fecaf7074061abaaf6684bce4e2f.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -992,6 +1023,7 @@
     "number": 32,
     "rarity": "uncommon",
     "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)\nCount the number of characters you have in play. You pay that amount of {I} less for the next character you play this turn.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_03538324959a406cb3ac98684214d437.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -1022,6 +1054,7 @@
     "rarity": "rare",
     "rulesText": "BRING BACK TO LIFE {E}, 3 {I} — Return a character card with Support from your discard to your hand.",
     "flavorText": "Hope shines in even the darkest situations.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9d869b2d59da48ad81923dc474ab2bfc.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "BRING BACK TO LIFE",
@@ -1046,6 +1079,7 @@
     "number": 34,
     "rarity": "rare",
     "rulesText": "A SILLY SONG {E} — If you played a song this turn, gain 1 lore.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_341b56d7d2d549f5b2caa285c026278e.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "A SILLY SONG",
@@ -1079,6 +1113,7 @@
     "lore": 1,
     "rulesText": "STUDENT Whenever this character quests, you may return another chosen character of yours to your hand to gain 2 lore.",
     "flavorText": "\"Hmm.. what spell should I try next?\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c64093c102d445409f2386f06e43b3c0.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "STUDENT",
@@ -1117,6 +1152,7 @@
     "lore": 1,
     "rulesText": "ETHEREAL GLOW Whenever you play a Floodborn character, you may draw a card.",
     "flavorText": "\"To make Geppetto's wish come true will be entirely up to you.\" —Blue Fairy",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_fde84e341b0c47929fba2503d3141e45.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "ETHEREAL GLOW",
@@ -1147,7 +1183,8 @@
     "strength": 2,
     "willpower": 2,
     "lore": 1,
-    "flavorText": "\"Wanna see me do a trick?\""
+    "flavorText": "\"Wanna see me do a trick?\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a385d4bd2e5543609f40f170f17a6a55.avif?1709690747"
   },
   {
     "id": "dr-facilier-savvy-opportunist",
@@ -1176,7 +1213,8 @@
     "subtitle": "Savvy Opportunist",
     "strength": 4,
     "willpower": 2,
-    "lore": 1
+    "lore": 1,
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_bb645060d48e4242b0003701c6b27400.avif?1709690747"
   },
   {
     "id": "elsa-gloves-off",
@@ -1208,7 +1246,8 @@
     "strength": 3,
     "willpower": 4,
     "lore": 1,
-    "flavorText": "The power of ice may not stop the flood, but it will help protect Lorcana."
+    "flavorText": "The power of ice may not stop the flood, but it will help protect Lorcana.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_6e6ef50186da41dbb767e450c6ccc20e.avif?1709690747"
   },
   {
     "id": "fairy-godmother-here-to-help",
@@ -1233,7 +1272,8 @@
     "strength": 3,
     "willpower": 7,
     "lore": 2,
-    "flavorText": "\"Use a humdrum spell, and you'll end up with humdrum magic. I like my magic to have something special!\""
+    "flavorText": "\"Use a humdrum spell, and you'll end up with humdrum magic. I like my magic to have something special!\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_28f00cdb65fe48deb2f97ff979670b4b.avif?1709690747"
   },
   {
     "id": "fairy-godmother-mystic-armorer",
@@ -1266,6 +1306,7 @@
     "lore": 2,
     "shiftCost": 2,
     "rulesText": "FORGET THE COACH, HERE'S A SWORD Whenever this character quests, your characters gain Challenger +3 and “When this character is banished in a challenge, return this card to your hand” this turn. (They get +3 {S} while challenging.)",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_ea4fdeec62324b1eac04465ca25a1fbc.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "FORGET THE COACH, HERE'S A SWORD",
@@ -1299,6 +1340,7 @@
     "lore": 1,
     "rulesText": "JUST LEAVE IT TO ME Whenever you play a character named Cinderella, you may exert chosen character.",
     "flavorText": "\"We'll have to hurry, because even miracles take a little time.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c35b1525a65d4eb28169ad5d88a0bc27.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "JUST LEAVE IT TO ME",
@@ -1331,6 +1373,7 @@
     "lore": 1,
     "rulesText": "HE'S BACK! When this character is banished in a challenge, return this card to your hand.",
     "flavorText": "Power. Beauty. HeiHei.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_907f9d8972fd47b6903590bd53f1e662.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "HE'S BACK!",
@@ -1368,6 +1411,7 @@
     "lore": 1,
     "rulesText": "THAT STILL, SMALL VOICE When you play this character, if you have a character named Pinocchio in play, you may draw a card.",
     "flavorText": "\"Say, that's pretty swell.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_cf6f37c499d34d8aaf47e0e3e2eb6523.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "THAT STILL, SMALL VOICE",
@@ -1400,6 +1444,7 @@
     "lore": 1,
     "rulesText": "OK, WHERE AM I? When this character is banished, you may draw a card.",
     "flavorText": "\"So there I was. Perfectly in control of the situation.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d0b64b7438ce40baa803ae8f13d6981f.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "OK, WHERE AM I?",
@@ -1437,6 +1482,7 @@
     "willpower": 3,
     "lore": 1,
     "rulesText": "CHASING THE RABBIT When you play this character, banish her or return another chosen character of yours to your hand.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3c23dd0191ce4f80897a8f50d75bc7bc.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "CHASING THE RABBIT",
@@ -1476,6 +1522,7 @@
     "lore": 4,
     "rulesText": "I WIN, I WIN! When you play this character, banish her or return another 2 chosen characters of yours to your hand.",
     "flavorText": "\"Did I say no purple dragons? Did I?\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_1a19968d0ca94ea484efbacfb804c206.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "I WIN, I WIN!",
@@ -1515,6 +1562,7 @@
     "lore": 2,
     "shiftCost": 3,
     "rulesText": "GRUESOME AND GRIM {E} — Play a character with cost 4 or less for free. They gain Rush. At the end of the turn, banish them. (They can challenge the turn they're played.)",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_06dda85b506e4a448ce0615f07758bfa.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "GRUESOME AND GRIM",
@@ -1548,6 +1596,7 @@
     "lore": 1,
     "rulesText": "JUST YOU WAIT When you play this character, banish her or return another chosen character of yours to your hand.",
     "flavorText": "\"I've got you rattled now!\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_1718e93b703240a8a8be4fd0ab13b4e6.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "JUST YOU WAIT",
@@ -1581,6 +1630,7 @@
     "lore": 1,
     "rulesText": "READY OR NOT! When you play this character and when he leaves play, chosen character gains Challenger +3 this turn. (They get +3 {S} while challenging.)",
     "flavorText": "He'll be out of this in a snap!",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_ce53812441ff4a67bd0b987da44126c8.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "READY OR NOT!",
@@ -1614,6 +1664,7 @@
     "lore": 1,
     "rulesText": "HERE I COME! When you play this character and when he leaves play, gain 1 lore.",
     "flavorText": "\"He always was a stubborn old goat.\"\n—Madam Mim",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_760a3c258ef143de8f8e85176c0bfd1d.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "HERE I COME!",
@@ -1647,6 +1698,7 @@
     "lore": 1,
     "rulesText": "HOPPITY HIP! When you play this character and when he leaves play, you may draw a card.",
     "flavorText": "It was turning out to be a bad hare day.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_6ebf8ca0c6b848e992e9927bf0d93d2b.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "HOPPITY HIP!",
@@ -1680,6 +1732,7 @@
     "lore": 1,
     "rulesText": "BATTLE OF WITS Whenever one of your other characters is returned to your hand from play, this character gets +1 {L} this turn.",
     "flavorText": "\"Oh, blast it all—I can't make up my mind.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_05560bab5aba45cd8cd838e0d3597cce.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "BATTLE OF WITS",
@@ -1713,6 +1766,7 @@
     "lore": 1,
     "rulesText": "LOOK BEFORE YOU LEAP When you play this character and when he leaves play, look at the top card of your deck. Put it on either the top or the bottom of your deck.",
     "flavorText": "\"You can't always trust to luck, boy.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_68c2d4e87fa84e0bb650d5e2b9c0737b.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "LOOK BEFORE YOU LEAP",
@@ -1753,6 +1807,7 @@
     "willpower": 3,
     "lore": 2,
     "rulesText": "TIPTOE Your other characters with Rush gain Evasive.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_12146ea4da72415a89be38870433e765.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "TIPTOE",
@@ -1783,7 +1838,8 @@
     "strength": 1,
     "willpower": 1,
     "lore": 3,
-    "flavorText": "\"With that personality, that profile, that physique... Why, I can see your name in lights, lights six feet high.\"\n—Honest John"
+    "flavorText": "\"With that personality, that profile, that physique... Why, I can see your name in lights, lights six feet high.\"\n—Honest John",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a32fde4ae1e84354ae7f20d6953d08f0.avif?1709690747"
   },
   {
     "id": "pinocchio-on-the-run",
@@ -1816,6 +1872,7 @@
     "shiftCost": 3,
     "rulesText": "LISTEN TO YOUR CONSCIENCE When you play this character, you may return chosen character or item with cost 3 or less to their player's hand.",
     "flavorText": "He raced into the Inklands without a thought.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a3bfa4a999c04a9ea29d4877f877474e.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "LISTEN TO YOUR CONSCIENCE",
@@ -1848,6 +1905,7 @@
     "lore": 1,
     "rulesText": "TELLING LIES When you play this character, you may exert chosen opposing character.",
     "flavorText": "\"A lie keeps growing and growing until it's as plain as the nose on your face.\"\n—Blue Fairy",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_526769983dde47589d6ddf5cd4e74caa.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "TELLING LIES",
@@ -1879,7 +1937,8 @@
     "strength": 5,
     "willpower": 5,
     "lore": 2,
-    "flavorText": "He'd always felt a kinship with honey. They were both golden, and sweet, and likely to end up in sticky situations."
+    "flavorText": "He'd always felt a kinship with honey. They were both golden, and sweet, and likely to end up in sticky situations.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_073ed613c952404b9bb513fb78ea17f5.avif?1709690747"
   },
   {
     "id": "yzma-scary-beyond-all-reason",
@@ -1912,6 +1971,7 @@
     "lore": 2,
     "shiftCost": 4,
     "rulesText": "CRUEL IRONY When you play this character, shuffle another chosen character card into their player's deck. That player draws 2 cards.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b687a800e99b4465a744086c0eb9c93f.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "CRUEL IRONY",
@@ -1943,7 +2003,8 @@
     "strength": 3,
     "willpower": 4,
     "lore": 1,
-    "flavorText": "Yzma: \"Llamas! All I see when I close my eyes is llamas!\"\nKronk: \"Weird. I just saw one in the flood. Poor little guy.\""
+    "flavorText": "Yzma: \"Llamas! All I see when I close my eyes is llamas!\"\nKronk: \"Weird. I just saw one in the flood. Poor little guy.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_73984c4885124477b3a6a48fbe5cb2ac.avif?1709690747"
   },
   {
     "id": "gruesome-and-grim",
@@ -1963,6 +2024,7 @@
     "number": 62,
     "rarity": "rare",
     "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nPlay a character with cost 4 or less for free. They gain Rush. At the end of the turn, banish them. (They can challenge the turn they're played.)",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_15c2ebf5713c436eaf0478e2b7f8547c.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -1993,6 +2055,7 @@
     "rarity": "common",
     "rulesText": "Chosen exerted character can't ready at the start of their next turn.",
     "flavorText": "\"Oh, bother—not again.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3ef790bdb3a2494783a80d778429c034.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -2020,6 +2083,7 @@
     "rarity": "common",
     "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)\nChosen character gains Challenger +3 this turn. (They get +3 {S} while challenging.)",
     "flavorText": "A legend is sung of when England was young\nAnd knights were brave and bold",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d4eaff075b2b41659976e71933d2c3e4.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -2050,6 +2114,7 @@
     "rarity": "uncommon",
     "rulesText": "FOR ALL ETERNITY {E}, {E} one of your characters — Exert chosen character.",
     "flavorText": "Just a standard form, nothing to worry about.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_baa89f6923b94ff6a59e1957814a2645.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "FOR ALL ETERNITY",
@@ -2074,6 +2139,7 @@
     "number": 66,
     "rarity": "common",
     "rulesText": "HURTLING HEDGEHOG Banish this item — Chosen character gains Rush this turn. (They can challenge the turn they're played.)",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_2f8f2276cb254195b2abf5cffd2b8193.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -2099,6 +2165,7 @@
     "rarity": "rare",
     "rulesText": "TO WONDERLAND Banish this item — Return chosen character of yours to your hand.",
     "flavorText": "Alice: \"I just wanted to ask you which way I ought to go.\"\nCheshire Cat: \"Well, that depends on where you want to get to.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_0d0630d4e335471e9a11643b9b82ffcd.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -2124,6 +2191,7 @@
     "rarity": "rare",
     "rulesText": "KNOWLEDGE {E}, 1 {I} — Gain 1 lore.",
     "flavorText": "Illumineers seek the power of knowledge—but must be aware of the price.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c48a5579b74d4299b4bc48db0776cd36.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "KNOWLEDGE",
@@ -2154,7 +2222,8 @@
     "strength": 4,
     "willpower": 3,
     "lore": 2,
-    "flavorText": "\"It's not just fancy horses and swinging a sword around, you know! A true master must use his brain as well as his blade.\"\n—Merlin"
+    "flavorText": "\"It's not just fancy horses and swinging a sword around, you know! A true master must use his brain as well as his blade.\"\n—Merlin",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_fd6fc618265f462787b1a9bc6c988b54.avif?1709690747"
   },
   {
     "id": "beast-relentless",
@@ -2180,6 +2249,7 @@
     "willpower": 5,
     "lore": 2,
     "rulesText": "SECOND WIND Whenever an opposing character is damaged, you may ready this character.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c7a3740622334580a1f011a55e286bc8.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "SECOND WIND",
@@ -2213,6 +2283,7 @@
     "lore": 1,
     "rulesText": "USE YOUR IMAGINATION While an opponent has no cards in their hand, this character gets +2 {L}.",
     "flavorText": "There's nothing more tempting than a pile of unread books.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_1379d064484a4269bc01c74fd935c221.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "USE YOUR IMAGINATION",
@@ -2253,6 +2324,7 @@
     "shiftCost": 3,
     "rulesText": "THORNY ARROWS Whenever this character is challenged, the challenging character's player discards all cards in their hand.",
     "flavorText": "She slips through the trees as easily as shadow.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_db68b32c197d4f808a46afc957338877.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "THORNY ARROWS",
@@ -2285,6 +2357,7 @@
     "lore": 1,
     "rulesText": "SQUEAK Whenever you play a Floodborn character, if you used Shift to play them, each opponent chooses and discards a card.",
     "flavorText": "\"There's a lot of nuance to squirrel.\"\n—Kronk",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b577553c749f4093b477e1ade7e52a2b.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "SQUEAK",
@@ -2314,7 +2387,8 @@
     "strength": 3,
     "willpower": 2,
     "lore": 1,
-    "flavorText": "Alice felt quite confused. \"But I don't see much ink here at all. How can the flood still be changing the Inklands?\"\n\"Things are always changing, you know,\" said the cat. \"It would be quite a change if they didn't.\""
+    "flavorText": "Alice felt quite confused. \"But I don't see much ink here at all. How can the flood still be changing the Inklands?\"\n\"Things are always changing, you know,\" said the cat. \"It would be quite a change if they didn't.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_6ba7d8ee8a894df9a67bc08fa0ad9b35.avif?1709690747"
   },
   {
     "id": "cheshire-cat-from-the-shadows",
@@ -2349,6 +2423,7 @@
     "lore": 2,
     "shiftCost": 5,
     "rulesText": "WICKED SMILE {E} — Banish chosen damaged character.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7212b4d89eff4f039568f65cc8fd9855.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "WICKED SMILE",
@@ -2380,6 +2455,7 @@
     "willpower": 3,
     "lore": 2,
     "rulesText": "THWART Whenever this character quests, each opponent chooses and discards a card.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_8f7af60c55b644ffbd49a856e3187bc8.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "THWART",
@@ -2418,6 +2494,7 @@
     "lore": 2,
     "shiftCost": 3,
     "rulesText": "ALLOW ME At the start of your turn, each player may draw a card.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c189dd421b024c29b83e86aea8bbc347.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -2449,6 +2526,7 @@
     "lore": 1,
     "rulesText": "STARTLED AWAKE Whenever you play an action, this character gets +2 {S} this turn.",
     "flavorText": "Heading toward a rude awakening!",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7388269750db42eebdd7fbe6cbcfe30b.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "STARTLED AWAKE",
@@ -2486,6 +2564,7 @@
     "willpower": 4,
     "lore": 3,
     "rulesText": "YOU'RE IN MY WORLD Whenever this character quests, chosen opposing character can't quest during their next turn.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d544feae1c8b4accae8e8f3d185380c4.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "YOU'RE IN MY WORLD",
@@ -2518,6 +2597,7 @@
     "lore": 2,
     "rulesText": "TRUE FORM While being challenged, this character gets +2 {S}.",
     "flavorText": "Appearances can be deceiving.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3b397fb706a24feab4001ec2becf901a.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "TRUE FORM",
@@ -2549,7 +2629,8 @@
     "strength": 1,
     "willpower": 3,
     "lore": 1,
-    "flavorText": "\"I love a good fan club, but they could at least try to get the nose right!\""
+    "flavorText": "\"I love a good fan club, but they could at least try to get the nose right!\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e6055fbcee8a4a03a980c5e2e3a2cff9.avif?1709690747"
   },
   {
     "id": "flynn-rider-his-own-biggest-fan",
@@ -2586,6 +2667,7 @@
     "lore": 4,
     "shiftCost": 2,
     "rulesText": "ONE LAST, BIG SCORE This character gets -1 {L} for each card in your opponents' hands.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_ce8e3338542f433193eaf3a3737ba1c4.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "ONE LAST, BIG SCORE",
@@ -2618,6 +2700,7 @@
     "lore": 1,
     "rulesText": "YES, I'M INTIMIDATING While one or more opponents have no cards in their hands, this character gets +3 {S}.",
     "flavorText": "\"Don't I deserve the best?\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4cb55532004549e59945436fd57a62b7.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "YES, I'M INTIMIDATING",
@@ -2648,7 +2731,8 @@
     "strength": 6,
     "willpower": 6,
     "lore": 2,
-    "flavorText": "\"What's the rush, Rob? Take a load off! There's plenty of time to go lookin' for lore lost in that crazy ink.\""
+    "flavorText": "\"What's the rush, Rob? Take a load off! There's plenty of time to go lookin' for lore lost in that crazy ink.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_dd74aaf06b6e48c59d8b8e4aea1dcad4.avif?1709690747"
   },
   {
     "id": "lucifer-cunning-cat",
@@ -2674,6 +2758,7 @@
     "lore": 2,
     "rulesText": "MOUSE CATCHER When you play this character, each opponent chooses and discards either 2 cards or 1 action card.",
     "flavorText": "\"There must be something good about him.\"\n—Cinderella",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_436427be3a944c3983c61f6038ef6ea6.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "MOUSE CATCHER",
@@ -2706,6 +2791,7 @@
     "lore": 1,
     "rulesText": "COMING, YOUR MOST LUGUBRIOUSNESS While this character has 5 {S} or more, he gets +2 {L}.",
     "flavorText": "\"Get a move on! I'm a busy god, lots to do—meetings, curses, a little light scheming.\"\n—Hades",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_756eca11fdec48c2bc3b4f427b151b6e.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "COMING, YOUR MOST LUGUBRIOUSNESS",
@@ -2738,6 +2824,7 @@
     "lore": 2,
     "rulesText": "I CAN HANDLE IT When you play this character, chosen character gets +2 {S} this turn. If the chosen character is named Pain, he gets +4 {S} instead.",
     "flavorText": "\"Who says it's hard to find good help these days? Oh, yeah... ME!\"\n—Hades",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_995ce4bea35048d3b53f224ba4fc7664.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "I CAN HANDLE IT",
@@ -2774,6 +2861,7 @@
     "willpower": 4,
     "lore": 2,
     "rulesText": "TAKE THAT! Whenever you play an action, this character gets +2 {S} this turn.\nWHO'S NEXT? While this character has 7 {S} or more, he gets +2 {L}.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_6a9fdf228b704ed9babf570ea82fcdcb.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "TAKE THAT!",
@@ -2817,6 +2905,7 @@
     "lore": 2,
     "rulesText": "I SENTENCE YOU Whenever your opponent discards 1 or more cards, you may draw a card for each card discarded.",
     "flavorText": "\"Taxes! Taxes! Beautiful, lovely taxes!\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f5e766865cfb44288cd71675cda91f7f.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "I SENTENCE YOU",
@@ -2850,6 +2939,7 @@
     "lore": 2,
     "rulesText": "ROYAL RAGE When you play this character, deal 1 damage to chosen damaged opposing character.",
     "flavorText": "\"You know, we could make her really angry. Shall we try?\"\n—Cheshire Cat",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_2f01947ccb4d4bae8b2cda6308a77323.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "ROYAL RAGE",
@@ -2885,7 +2975,8 @@
     "strength": 4,
     "willpower": 1,
     "lore": 2,
-    "flavorText": "\"I've outdone myself this time! Soon I will have everything I deserve. Riches... power... an entire kingdom at my feet!\""
+    "flavorText": "\"I've outdone myself this time! Soon I will have everything I deserve. Riches... power... an entire kingdom at my feet!\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9dcde646049c4c889034da24e175f7f8.avif?1709690747"
   },
   {
     "id": "ray-easygoing-firefly",
@@ -2914,7 +3005,8 @@
     "strength": 3,
     "willpower": 3,
     "lore": 3,
-    "flavorText": "He may be hard to follow, but his heart isn't."
+    "flavorText": "He may be hard to follow, but his heart isn't.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b7cb9265f8b84f77afabe12e61219153.avif?1709690747"
   },
   {
     "id": "the-queen-disguised-peddler",
@@ -2941,6 +3033,7 @@
     "lore": 0,
     "rulesText": "A PERFECT DISGUISE {E}, Choose and discard a character card — Gain lore equal to the discarded character's {L}.",
     "flavorText": "\"This is no ordinary apple...\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_6cdb5c7da33a4158b6646d784ec0f2d5.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "A PERFECT DISGUISE",
@@ -2972,7 +3065,8 @@
     "strength": 5,
     "willpower": 3,
     "lore": 3,
-    "flavorText": "Finding your true self will set your heart aglow."
+    "flavorText": "Finding your true self will set your heart aglow.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5403ff921bce4bbc90468b0f860dc23c.avif?1709690747"
   },
   {
     "id": "virana-fang-chief",
@@ -2997,7 +3091,8 @@
     "strength": 5,
     "willpower": 5,
     "lore": 2,
-    "flavorText": "\"I must make the hard decisions to protect my daughter, especially in this unfamiliar world.\""
+    "flavorText": "\"I must make the hard decisions to protect my daughter, especially in this unfamiliar world.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_703facdf13c34886a976ad5a31f955ff.avif?1709690747"
   },
   {
     "id": "bibbidi-bobbidi-boo",
@@ -3018,6 +3113,7 @@
     "rarity": "rare",
     "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nReturn chosen character of yours to your hand to play another character with the same cost or less for free.",
     "flavorText": "It'll do magic, believe it or not",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5438ceaeaafb4d50a66613cc5df1ac84.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -3048,6 +3144,7 @@
     "rarity": "uncommon",
     "rulesText": "Return chosen character of yours to your hand to return another chosen character to their player's hand.",
     "flavorText": "\"Are you ready for some bouncing?\"\n—Tigger",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_af02f016a89c4174baa02ff8a5355f4e.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -3073,6 +3170,7 @@
     "rarity": "common",
     "rulesText": "Each opponent chooses and discards a card. Draw a card.",
     "flavorText": "\"Look me in the eye when I'm speaking to you.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_1391eb60b4054ac9a02e6b1f0e150c0f.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -3098,6 +3196,7 @@
     "rarity": "common",
     "rulesText": "Chosen character gets +1 {S} this turn. Draw a card.",
     "flavorText": "Shan-Yu: \"It looks like you're out of ideas.\"\nMulan: \"Not quite!\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5fb3a3421c9c4fd9a83a6d235b268b2d.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -3123,6 +3222,7 @@
     "rarity": "rare",
     "rulesText": "Gain 1 lore for each damaged character opponents have in play.",
     "flavorText": "Pacha: \"You want to survive the jungle? Start thinking like you belong here.\"\nKuzco: \"No problem... Grrr, look at me, I'm a jaguar.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3255845b67e447e9821ea5cee4848f57.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -3148,6 +3248,7 @@
     "rarity": "uncommon",
     "rulesText": "Banish chosen damaged character.",
     "flavorText": "\"I'm afraid that you've gone and upset me.\"\n—Ratigan",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_50bb3e4e83fa4e7d9e603a15bc296c3e.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -3173,6 +3274,7 @@
     "rarity": "rare",
     "rulesText": "SNAP! BOOM! TWANG! Banish this item — Each opponent loses 2 lore.",
     "flavorText": "Simple in purpose, elaborate in execution—just like Ratigan.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_99154bf3bafd47f6ae3736da4cd5424f.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -3203,7 +3305,8 @@
     "strength": 4,
     "willpower": 3,
     "lore": 1,
-    "flavorText": "\"The bees are buzzin' in the tree to make some honey just for me!\""
+    "flavorText": "\"The bees are buzzin' in the tree to make some honey just for me!\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_8f2b1625f47a4b4ea1d5f90b61985827.avif?1709690747"
   },
   {
     "id": "boun-precocious-entrepreneur",
@@ -3227,7 +3330,8 @@
     "strength": 2,
     "willpower": 3,
     "lore": 1,
-    "flavorText": "\"If you see any hungry faces, send 'em my way.\""
+    "flavorText": "\"If you see any hungry faces, send 'em my way.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5531bbdbce6c4d0b86a40ea6fecac853.avif?1709690747"
   },
   {
     "id": "card-soldiers-full-deck",
@@ -3251,7 +3355,8 @@
     "strength": 5,
     "willpower": 5,
     "lore": 2,
-    "flavorText": "You'll have to deal with them sooner or later."
+    "flavorText": "You'll have to deal with them sooner or later.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_1d57accf2ede4947b8cfd1a71c7b85c6.avif?1709690747"
   },
   {
     "id": "donald-duck-not-again",
@@ -3281,6 +3386,7 @@
     "willpower": 5,
     "lore": 1,
     "rulesText": "PHOOEY! This character gets +1 {L} for each 1 damage on him.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9599f783023446468e24ada470972aa4.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "PHOOEY!",
@@ -3316,7 +3422,8 @@
     "strength": 3,
     "willpower": 1,
     "lore": 0,
-    "flavorText": "\"This isn't how most cat-and-mouse games go, is it, Dr. Dawson?\"\n—Basil"
+    "flavorText": "\"This isn't how most cat-and-mouse games go, is it, Dr. Dawson?\"\n—Basil",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5898c1f57f914c70880a9a3fee5a4962.avif?1709690747"
   },
   {
     "id": "fidget-ratigans-henchman",
@@ -3345,7 +3452,8 @@
     "strength": 3,
     "willpower": 2,
     "lore": 1,
-    "flavorText": "When a normal henchman just won't cut it."
+    "flavorText": "When a normal henchman just won't cut it.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_0883cd88c2404f829929be8755b3d865.avif?1709690747"
   },
   {
     "id": "honest-john-not-that-honest",
@@ -3371,6 +3479,7 @@
     "lore": 1,
     "rulesText": "EASY STREET Whenever you play a Floodborn character, each opponent loses 1 lore.",
     "flavorText": "\"A thing like that ought to be worth a fortune to someone!\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_834655aa7bc54dd0b1bdf69ce343359d.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "EASY STREET",
@@ -3411,6 +3520,7 @@
     "shiftCost": 4,
     "rulesText": "POWER TO RULE AT LAST When you play this character, each opponent chooses and banishes one of their characters.",
     "flavorText": "The twelfth Rule of Villainy: If you don't have a throne, take one.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_31618f4403c2423683f1b82f04a2959e.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "POWER TO RULE AT LAST",
@@ -3443,6 +3553,7 @@
     "lore": 1,
     "rulesText": "NOT FOR YOU When you play this character, each opponent with more lore than you loses 1 lore.",
     "flavorText": "\"Make no mistake: this time I will make certain the key remains safe!\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5c953b299f3b4de08ff77ddd3b041270.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "NOT FOR YOU",
@@ -3473,7 +3584,8 @@
     "strength": 7,
     "willpower": 7,
     "lore": 2,
-    "flavorText": "When things heat up, no one can hold a candle to him."
+    "flavorText": "When things heat up, no one can hold a candle to him.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_78adb82131a54205b5ba3cef451bee00.avif?1709690747"
   },
   {
     "id": "minnie-mouse-stylish-surfer",
@@ -3502,7 +3614,8 @@
     "strength": 1,
     "willpower": 3,
     "lore": 2,
-    "flavorText": "\"This goes into my top ten most fun things!\""
+    "flavorText": "\"This goes into my top ten most fun things!\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_bce37cc08d944fb99b90fa9f6fcda16d.avif?1709690747"
   },
   {
     "id": "minnie-mouse-wide-eyed-diver",
@@ -3538,6 +3651,7 @@
     "lore": 1,
     "shiftCost": 2,
     "rulesText": "UNDERSEA ADVENTURE Whenever you play a second action in a turn, this character gets +2 {L} this turn.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a79cd84bf7444d0f847f6ceb36c93f24.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "UNDERSEA ADVENTURE",
@@ -3568,7 +3682,8 @@
     "strength": 3,
     "willpower": 2,
     "lore": 1,
-    "flavorText": "Zero to fun in under three seconds!"
+    "flavorText": "Zero to fun in under three seconds!",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_08ee7216354243869129fd8d6491168e.avif?1709690747"
   },
   {
     "id": "mother-gothel-withered-and-wicked",
@@ -3594,6 +3709,7 @@
     "lore": 1,
     "rulesText": "WHAT HAVE YOU DONE?! This character enters play with 3 damage.",
     "flavorText": "Her feelings are written all over her face.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_0bac00816e484c9897881390d90a614f.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "WHAT HAVE YOU DONE?!",
@@ -3630,7 +3746,8 @@
     "strength": 4,
     "willpower": 3,
     "lore": 1,
-    "flavorText": "\"I have to do something!\""
+    "flavorText": "\"I have to do something!\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_ddd89c441cdd4795907313f38e85c1e7.avif?1709690747"
   },
   {
     "id": "namaari-nemesis",
@@ -3657,6 +3774,7 @@
     "lore": 1,
     "rulesText": "THIS SHOULDN'T TAKE LONG {E}, Banish this character — Banish chosen character.",
     "flavorText": "\"I don't need swords to beat you. They just make it more fun.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_6b414f08443c4f009d32f627f1d46256.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "THIS SHOULDN'T TAKE LONG",
@@ -3693,7 +3811,8 @@
     "strength": 2,
     "willpower": 2,
     "lore": 1,
-    "flavorText": "The glow of lore in the flood caught her eye.\n\"The spellbook!\" she cried. \"Don't let it get away!\""
+    "flavorText": "The glow of lore in the flood caught her eye.\n\"The spellbook!\" she cried. \"Don't let it get away!\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b933d7086ba94eeaacdcd18f872402c4.avif?1709690747"
   },
   {
     "id": "queen-of-hearts-sensing-weakness",
@@ -3726,6 +3845,7 @@
     "lore": 1,
     "shiftCost": 2,
     "rulesText": "LET THE GAME BEGIN Whenever one of your characters challenges another character, you may draw a card.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_137c6f751cfa4c56a1fb8443e611b0f4.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "LET THE GAME BEGIN",
@@ -3758,6 +3878,7 @@
     "lore": 2,
     "rulesText": "THIS IS MY KINGDOM When you play this character, exert chosen opposing character with 3 {S} or less. Choose one of your characters and ready them. They can't quest for the rest of this turn.",
     "flavorText": "\"This time, nothing, not even Basil, can stand in my way!\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_35af0ddde9834b5e8b37b9ba98126c71.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "THIS IS MY KINGDOM",
@@ -3791,6 +3912,7 @@
     "lore": 1,
     "rulesText": "NOTE TO SELF, DON'T DIE During your turn, whenever this character banishes another character in a challenge, you may ready this character. She can't quest for the rest of this turn.",
     "flavorText": "Two parts bravery, one part cleverness, and a whole lot of determination.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_2aef4896a5194dd69fccf9581d20e735.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "NOTE TO SELF, DON'T DIE",
@@ -3830,6 +3952,7 @@
     "lore": 2,
     "shiftCost": 4,
     "rulesText": "CHAMPION OF KUMANDRA Whenever this character challenges a damaged character, she takes no damage from the challenge.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5b613c1368aa4c94a43c012f9a73394e.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "CHAMPION OF KUMANDRA",
@@ -3861,7 +3984,8 @@
     "strength": 5,
     "willpower": 3,
     "lore": 1,
-    "flavorText": "\"My ba dreams of a united Kumandra. I fight to honor that dream.\""
+    "flavorText": "\"My ba dreams of a united Kumandra. I fight to honor that dream.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_13f1e523e8454e648cda03bba3603643.avif?1709690747"
   },
   {
     "id": "scar-vicious-cheater",
@@ -3891,6 +4015,7 @@
     "willpower": 5,
     "lore": 2,
     "rulesText": "DADDY ISN'T HERE TO SAVE YOU During your turn, whenever this character banishes another character in a challenge, you may ready this character. He can't quest for the rest of this turn.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_02f5f28e11b84721906692f042d0baee.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "DADDY ISN'T HERE TO SAVE YOU",
@@ -3923,6 +4048,7 @@
     "lore": 1,
     "rulesText": "DON'T INSULT MY INTELLIGENCE Whenever one of your characters challenges another character, gain 1 lore.",
     "flavorText": "The sixth Rule of Villainy: Keep your mind sharp and your claws sharper.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d61c5630a6b649589ac1fd4a8bcb1014.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "DON'T INSULT MY INTELLIGENCE",
@@ -3955,6 +4081,7 @@
     "lore": 1,
     "rulesText": "ENERGETIC Whenever you play an action, this character gets +2 {S} this turn.",
     "flavorText": "Bouncing in to save the day!",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a3aef995690e4b4995241341af5f31e3.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "ENERGETIC",
@@ -3990,7 +4117,8 @@
     "strength": 4,
     "willpower": 5,
     "lore": 0,
-    "flavorText": "A good friend is always ready to roll."
+    "flavorText": "A good friend is always ready to roll.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_afce8f318b6d4d68a9ff9ccb5a616655.avif?1709690747"
   },
   {
     "id": "go-the-distance",
@@ -4010,6 +4138,7 @@
     "number": 129,
     "rarity": "common",
     "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)\nReady chosen damaged character of yours. They can't quest for the rest of this turn. Draw a card.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_2d25ebdcc8874b25b749753468ba5956.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -4042,6 +4171,7 @@
     "rarity": "rare",
     "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)\nDeal 2 damage to chosen character of yours to deal 2 damage to another chosen character.",
     "flavorText": "Of course, quid pro quo, you're expected\nTo take certain duties on board",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5fede8ed6d6845b7be83496ccb0fb2f8.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -4074,6 +4204,7 @@
     "rarity": "uncommon",
     "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nBanish chosen Villain of yours to banish chosen character.",
     "flavorText": "Now comes the real tour de force\nTricky and wicked, of course",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_07082198195e40d6b940142d1383c881.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -4104,6 +4235,7 @@
     "rarity": "common",
     "rulesText": "Chosen damaged character gets +3 {S} this turn.",
     "flavorText": "\"No one can have a higher opinion of you than I have, and I think you're a slimy, contemptible sewer rat!\"\n—Basil",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b62b44f1e2144c1e9ebec3da471579c3.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -4130,6 +4262,7 @@
     "number": 133,
     "rarity": "uncommon",
     "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)\nChosen character gains Evasive until the start of your next turn. (Only characters with Evasive can challenge them.)",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_db2f742945da407b952d5bc900e43f18.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -4160,6 +4293,7 @@
     "rarity": "rare",
     "rulesText": "YOU KNOW WHAT HAPPENS {E}, 2 {I} — Draw cards equal to the damage on chosen character of yours, then banish them.",
     "flavorText": "The delicate sound of impending doom.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c6aa9e3981f6416d9cdd69d6fa76651c.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "YOU KNOW WHAT HAPPENS",
@@ -4185,6 +4319,7 @@
     "rarity": "common",
     "rulesText": "Your characters with Evasive get +1 {S}.",
     "flavorText": "Like so much other lore, Peter Pan's dagger was safe in the Great Illuminary until the flood.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d6f21fdca571497883e46666abc022bc.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -4210,6 +4345,7 @@
     "rarity": "uncommon",
     "rulesText": "{E}, 2 {I} — Chosen character gets +1 {S} this turn for each 1 damage on them.",
     "flavorText": "\"Whoso pulleth out this sword of this stone and anvil is rightwise king born of England.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_24945449688b42f699bff7a47b3f282b.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -4241,6 +4377,7 @@
     "willpower": 4,
     "lore": 1,
     "rulesText": "GOOD ADVICE Your other characters gain Support. (Whenever they quest, you may add their {S} to another chosen character's {S} this turn.)\nWHAT DID I DO? While this character has 10 {S} or more, she gets +4 {L}.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_297bfc741b2c4c01b430258d55aef604.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "GOOD ADVICE",
@@ -4286,6 +4423,7 @@
     "shiftCost": 5,
     "rulesText": "THERE'S ALWAYS A CHANCE If you used Shift to play this character, you may draw 2 cards when he enters play.",
     "flavorText": "A solution always presents itself.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_ebdef6b29bb74afaa3e5efea83fe89c7.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -4322,7 +4460,8 @@
     "strength": 2,
     "willpower": 2,
     "lore": 1,
-    "flavorText": "\"What an ingenious device! If its light is refracted through these, then its images must resolve somewhere below.\""
+    "flavorText": "\"What an ingenious device! If its light is refracted through these, then its images must resolve somewhere below.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e820659ebe3f4a2fa154ffae96da8bde.avif?1709690747"
   },
   {
     "id": "basil-perceptive-investigator",
@@ -4347,7 +4486,8 @@
     "strength": 3,
     "willpower": 4,
     "lore": 2,
-    "flavorText": "\"There is no question: something is afoot in the Great Illuminary.\""
+    "flavorText": "\"There is no question: something is afoot in the Great Illuminary.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c26b377f986245bd8f63360bcf26d5be.avif?1709690747"
   },
   {
     "id": "caterpillar-calm-and-collected",
@@ -4370,7 +4510,8 @@
     "strength": 1,
     "willpower": 3,
     "lore": 3,
-    "flavorText": "\"Keep your tempo.\""
+    "flavorText": "\"Keep your tempo.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f3402d0395ee4f5c8fe1c1f897f6e06e.avif?1709690747"
   },
   {
     "id": "cogsworth-grandfather-clock",
@@ -4406,6 +4547,7 @@
     "lore": 2,
     "shiftCost": 3,
     "rulesText": "UNWIND Your other characters gain Resist +1 (Damage dealt to them is reduced by 1.)",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d98a2d4cddac4630b7e3364443381093.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "UNWIND",
@@ -4438,6 +4580,7 @@
     "lore": 1,
     "rulesText": "WAIT A MINUTE Your characters with Reckless gain “{E} — Gain 1 lore.”",
     "flavorText": "\"This has gone far enough. I'm in charge here.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_6ae3b063360244f19a8aa03334b16078.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "WAIT A MINUTE",
@@ -4470,6 +4613,7 @@
     "lore": 1,
     "rulesText": "NOW GET GOING During your turn, this character gains Evasive. (They can challenge characters with Evasive.)",
     "flavorText": "\"Isn't it just gorgeous, darling? And just as stylish as I am.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3459a012234b4a23b83deebefa450d7b.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "NOW GET GOING",
@@ -4509,6 +4653,7 @@
     "shiftCost": 3,
     "rulesText": "OH, NO YOU DON'T Whenever this character quests, chosen opposing character gets -2 {S} this turn.",
     "flavorText": "\"It's ink couture, darling. I wear only the best!\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_1676a1863764440991d68270eaf35bcd.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "OH, NO YOU DON'T",
@@ -4543,7 +4688,8 @@
     "strength": 1,
     "willpower": 2,
     "lore": 2,
-    "flavorText": "\"It's Wee-sel-ton.\""
+    "flavorText": "\"It's Wee-sel-ton.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_302ea1ce0fe94e5c97360498d05eee9d.avif?1709690747"
   },
   {
     "id": "gaston-intellectual-powerhouse",
@@ -4575,6 +4721,7 @@
     "lore": 3,
     "shiftCost": 4,
     "rulesText": "DEVELOPED BRAIN When you play this character, look at the top 3 cards of your deck. You may put one into your hand. Put the rest on the bottom of your deck in any order.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f3d2d4123acd473da89b7358ae6dc5e4.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "DEVELOPED BRAIN",
@@ -4607,6 +4754,7 @@
     "lore": 3,
     "rulesText": "ANCIENT INSIGHT Whenever you remove 1 or more damage from one of your characters, gain 2 lore.",
     "flavorText": "When he talks, even the sky listens.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_11164a4fe7894e46882f5490ebd875cc.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "ANCIENT INSIGHT",
@@ -4639,6 +4787,7 @@
     "lore": 1,
     "rulesText": "ARTIFICER When you play this character and whenever he quests, you may banish one of your items to draw 2 cards.",
     "flavorText": "His creations are even more wondrous with the Illuminary's resources at his fingertips.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e0ddeb51820a4e46840686240e076a57.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "ARTIFICER",
@@ -4670,6 +4819,7 @@
     "willpower": 3,
     "lore": 2,
     "rulesText": "NEVER, EVER LOSE SIGHT When this character is banished, you may put this card into your inkwell facedown and exerted.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_648eda5b1ace49e1abf842cce776399d.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "NEVER, EVER LOSE SIGHT",
@@ -4703,6 +4853,7 @@
     "lore": 1,
     "rulesText": "I'M A FAST LEARNER When you play this character, remove up to 1 damage from chosen character of yours.",
     "flavorText": "She may be young, but she's got the spirit of a true leader.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_01848d5183c64bdbbc3d2bfbdf2f1aa8.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "I'M A FAST LEARNER",
@@ -4735,6 +4886,7 @@
     "lore": 2,
     "rulesText": "DON'T CALL ME CUTE When you play this character, you may banish chosen item. Its player draws a card.",
     "flavorText": "\"I'll get to the bottom of what happened with that locked lorebook. You can count on me!\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9408beff78404a25a70496ffe22a7bf4.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "DON'T CALL ME CUTE",
@@ -4767,6 +4919,7 @@
     "lore": 2,
     "rulesText": "TIDY UP Whenever you play a Floodborn character, you may put the top card of your deck into your inkwell facedown and exerted.",
     "flavorText": "\"I know just the thing. Let me fetch you a pot of tea and some of my fresh cheese crumpets.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f70bca6387dd4f34a80c7a0ac8bc102e.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "TIDY UP",
@@ -4799,6 +4952,7 @@
     "lore": 2,
     "rulesText": "IT'S CALLED A HUSTLE When you play this character, you may return an item card named Pawpsicle from your discard to your hand.",
     "flavorText": "\"It's criminal how good these things taste!\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e9c693252fcc405988a7aab7ec8d7a19.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "IT'S CALLED A HUSTLE",
@@ -4830,6 +4984,7 @@
     "willpower": 2,
     "lore": 2,
     "rulesText": "HIDE AND SEEK While you have an item in play, this character gains Resist +1 and Ward. (Damage dealt to this character is reduced by 1. Opponents can't choose this character except to challenge.)",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_1e4c0158e3ac4e989d2886cf87564dd5.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "HIDE AND SEEK",
@@ -4860,7 +5015,8 @@
     "strength": 2,
     "willpower": 2,
     "lore": 1,
-    "flavorText": "\"For instance, based on the quality of the light and the subtle change in wind direction, I can safely say that it is time for tea.\""
+    "flavorText": "\"For instance, based on the quality of the light and the subtle change in wind direction, I can safely say that it is time for tea.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c60b5558ee6c404f8cdf7955d1087b10.avif?1709690747"
   },
   {
     "id": "prince-charming-heir-to-the-throne",
@@ -4885,7 +5041,8 @@
     "strength": 3,
     "willpower": 3,
     "lore": 3,
-    "flavorText": "He'd searched across the Inklands for the young woman who'd stolen his heart at the ball, only to find more mysteries."
+    "flavorText": "He'd searched across the Inklands for the young woman who'd stolen his heart at the ball, only to find more mysteries.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_06f238177bee499eab1cf34e60e55725.avif?1709690747"
   },
   {
     "id": "rabbit-reluctant-host",
@@ -4909,7 +5066,8 @@
     "strength": 4,
     "willpower": 6,
     "lore": 2,
-    "flavorText": "Pooh: \"Isn't there anybody here at all?\"\nRabbit: \"Nobody!\"\nPooh: \"Somebody's there... because somebody must have said 'Nobody.'\""
+    "flavorText": "Pooh: \"Isn't there anybody here at all?\"\nRabbit: \"Nobody!\"\nPooh: \"Somebody's there... because somebody must have said 'Nobody.'\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3d0ac2e2f0bb4f7bbb4831522a6cbd8b.avif?1709690747"
   },
   {
     "id": "sisu-divine-water-dragon",
@@ -4937,6 +5095,7 @@
     "lore": 2,
     "rulesText": "I TRUST YOU Whenever this character quests, look at the top 2 cards of your deck. You may put one into your hand. Put the rest on the bottom of your deck in any order.",
     "flavorText": "No matter her shape, you can't mistake her heart.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_79a0419883024bdbb3b8127318829daa.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "I TRUST YOU",
@@ -4971,7 +5130,8 @@
     "strength": 4,
     "willpower": 3,
     "lore": 1,
-    "flavorText": "As elusive as water."
+    "flavorText": "As elusive as water.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_780972e5c4f84315bcd27496ef5184a3.avif?1709690747"
   },
   {
     "id": "winnie-the-pooh-having-a-think",
@@ -4997,6 +5157,7 @@
     "lore": 2,
     "rulesText": "HUNNY POT Whenever this character quests, you may put a card from your hand into your inkwell facedown.",
     "flavorText": "When he thought, he thought in the most thoughtful way he could think.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c4dbd53e73ce43b4aa66cbc1fd93885f.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "HUNNY POT",
@@ -5022,6 +5183,7 @@
     "rarity": "rare",
     "rulesText": "Each player chooses one of their characters and puts them into their inkwell facedown and exerted.",
     "flavorText": "Down, down, down she went, floating in a swirl of ink. How curious!",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_2a71e5ea621f41ce9028d6551c153764.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -5048,6 +5210,7 @@
     "number": 163,
     "rarity": "uncommon",
     "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)\nYour characters gain Resist +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5013266a9fe04d7b9685bddef9c6f6e8.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -5078,6 +5241,7 @@
     "rarity": "uncommon",
     "rulesText": "Banish chosen item of yours to deal 5 damage to chosen character.",
     "flavorText": "Ready... aim... coconut?",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_93883c73ea3d4c269ed099da7f77414b.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -5103,6 +5267,7 @@
     "rarity": "common",
     "rulesText": "Each opponent reveals their hand. Draw a card.",
     "flavorText": "Helps you avoid unpleasant surprises.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e295d49c71554b108a26b197046ca47c.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -5127,6 +5292,7 @@
     "number": 166,
     "rarity": "uncommon",
     "rulesText": "CAREFUL AIM {E}, 2 {I} — Chosen character gets -2 {S} this turn.\nSTAY BACK! {E}, Banish this item — Banish chosen Dragon character.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_8944266c591440ad9bcb0a6723cf0645.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "CAREFUL AIM",
@@ -5157,6 +5323,7 @@
     "rarity": "common",
     "rulesText": "THE BEST I'VE EVER TASTED {E} — Remove 1 damage each from up to 2 chosen characters.",
     "flavorText": "\"A gift this special just got to be shared.\"\n—James",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_45bfb8a9f002440191e7bfd8b993fd22.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "THE BEST I'VE EVER TASTED",
@@ -5182,6 +5349,7 @@
     "rarity": "rare",
     "rulesText": "LOOKING FOR THIS? Whenever you play another item, you may pay 1 {I} to draw a card.",
     "flavorText": "The solution you need could be just a few adjustments away.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3c5cc621f8c2419aa3e82f1189fb74b0.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "LOOKING FOR THIS?",
@@ -5206,6 +5374,7 @@
     "number": 169,
     "rarity": "common",
     "rulesText": "JUMBO POP When you play this item, you may draw a card.\nTHAT'S REDWOOD Banish this item — Remove up to 2 damage from chosen character.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_60f1bf0ac9ac46ca92e290a11ac334e5.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "JUMBO POP",
@@ -5231,6 +5400,7 @@
     "rarity": "uncommon",
     "rulesText": "FLIGHT CABIN Your exerted characters gain Ward. (Opponents can't choose them except to challenge.)",
     "flavorText": "\"Flight 3759 boarding now! Let's go get that lore!\"\n—Orville",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_ac6b41f1d4314cd48a6c0e40b01203fd.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "FLIGHT CABIN",
@@ -5264,6 +5434,7 @@
     "lore": 1,
     "rulesText": "YOU'RE NOT WELCOME HERE When you play this character, you may deal 1 damage to chosen character.",
     "flavorText": "Woe to the one who draws his gaze.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_eb28d5bab74d4784a6a59b2c5cfae6bc.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "YOU'RE NOT WELCOME HERE",
@@ -5297,6 +5468,7 @@
     "lore": 1,
     "rulesText": "SHIELD ANOTHER Whenever one of your other characters would be dealt damage, put that many damage counters on this character instead.",
     "flavorText": "\"You'll have to go through me first.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_966bd91d331f46b3af9f199a2e03515d.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "SHIELD ANOTHER",
@@ -5337,6 +5509,7 @@
     "shiftCost": 3,
     "rulesText": "IT'S BETTER THIS WAY At the start of your turn, if this character has no damage, draw a card. Otherwise, he gets +4 {S} this turn.",
     "flavorText": "\"It must be my destiny—to remain a beast forever.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7ffeed1a4c364378ab7814dda3b99b73.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -5370,6 +5543,7 @@
     "lore": 2,
     "rulesText": "WE HAVE A CHOICE When you play this character, you may banish chosen item.",
     "flavorText": "\"Don't mistake spirit for skill.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_694283d53b724c6aae880fe453cef8c9.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "WE HAVE A CHOICE",
@@ -5401,6 +5575,7 @@
     "lore": 2,
     "rulesText": "INSUBORDINATION! Whenever you play a Floodborn character, deal 1 damage to each opposing character.",
     "flavorText": "\"We can confirm the ink flood was caused by an explosion. We have it under control—now clear the area.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_2f24650e05da4e108e8988b03fb64a01.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "INSUBORDINATION!",
@@ -5435,6 +5610,7 @@
     "lore": 1,
     "rulesText": "HAVE COURAGE When you play this character, you may draw a card, then choose and discard a card.",
     "flavorText": "She's always had the heart of a champion—now she'll have the skills, too.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_be028c8d6e9144f4ac4f03b17462db1c.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "HAVE COURAGE",
@@ -5480,6 +5656,7 @@
     "lore": 3,
     "shiftCost": 5,
     "rulesText": "THE SINGING SWORD Whenever you play a song, this character may challenge ready characters this turn.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_ac32bfe50af84f459d9cc9d4c0d659ef.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "THE SINGING SWORD",
@@ -5510,7 +5687,8 @@
     "strength": 6,
     "willpower": 5,
     "lore": 1,
-    "flavorText": "\"You go ahead, Minnie! I'm going to see if there's any lore over here.\""
+    "flavorText": "\"You go ahead, Minnie! I'm going to see if there's any lore over here.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_0e5d59110fee4c7e922e2ec67f5fe1a6.avif?1709690747"
   },
   {
     "id": "eli-la-bouff-big-daddy",
@@ -5534,7 +5712,8 @@
     "strength": 2,
     "willpower": 5,
     "lore": 2,
-    "flavorText": "\"I don't suppose y'all could whip up some more magical beignets with them inkcasters?\""
+    "flavorText": "\"I don't suppose y'all could whip up some more magical beignets with them inkcasters?\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_8161f9ba546e46c2850f4f97f5b623eb.avif?1709690747"
   },
   {
     "id": "goofy-knight-for-a-day",
@@ -5559,7 +5738,8 @@
     "strength": 10,
     "willpower": 10,
     "lore": 4,
-    "flavorText": "It's a banner day for Sir Goofy, who is steeled to prove his mettle against anyone courting trouble—joust in case."
+    "flavorText": "It's a banner day for Sir Goofy, who is steeled to prove his mettle against anyone courting trouble—joust in case.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3efeba396af644afb4fbef6c35b58521.avif?1709690747"
   },
   {
     "id": "hercules-divine-hero",
@@ -5597,7 +5777,8 @@
     "willpower": 3,
     "lore": 2,
     "shiftCost": 4,
-    "flavorText": "A good guy to have around when something wrecks your inkworks."
+    "flavorText": "A good guy to have around when something wrecks your inkworks.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_025c5e1c614940ee94c0d2e1d96ebbf1.avif?1709690747"
   },
   {
     "id": "hercules-hero-in-training",
@@ -5622,7 +5803,8 @@
     "strength": 2,
     "willpower": 3,
     "lore": 1,
-    "flavorText": "No need to call IX-I-I!"
+    "flavorText": "No need to call IX-I-I!",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9d7dbe554e37401d8507e1b3b69c69bd.avif?1709690747"
   },
   {
     "id": "jafar-dreadnought",
@@ -5655,6 +5837,7 @@
     "lore": 1,
     "shiftCost": 2,
     "rulesText": "NOW WHERE WERE WE? During your turn, whenever this character banishes another character in a challenge, you may draw a card.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_89090f037609469eaa214e72bc12d218.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "NOW WHERE WERE WE?",
@@ -5688,6 +5871,7 @@
     "lore": 1,
     "rulesText": "I DON'T TRUST HIM, SIRE During your turn, this character gains Evasive. (They can challenge characters with Evasive.)",
     "flavorText": "\"Soon you'll learn who holds the real power!\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c9089f2ab85a42349c84cd3bc0bd3f2c.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "I DON'T TRUST HIM, SIRE",
@@ -5725,6 +5909,7 @@
     "willpower": 5,
     "lore": 2,
     "rulesText": "SCOUT LEADER During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen character.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_452868f6888045018e50e2b4e41e0f7b.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "SCOUT LEADER",
@@ -5757,6 +5942,7 @@
     "lore": 2,
     "rulesText": "PAYBACK While this character has no damage, he gets +4 {S}.",
     "flavorText": "In this new world, the crown could finally be his.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_40708d21822d4d2cb668603a1dda664f.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "PAYBACK",
@@ -5789,6 +5975,7 @@
     "lore": 2,
     "rulesText": "ARCHERY LESSON Whenever this character quests, your characters gain Evasive this turn. (They can challenge characters with Evasive.)",
     "flavorText": "Learn what to do, then learn to do it without thought.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_71250fc9f98742369de2116914b4109f.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "ARCHERY LESSON",
@@ -5821,6 +6008,7 @@
     "lore": 1,
     "rulesText": "MAKE IT SHINE When you play this character, chosen character gains Resist +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)",
     "flavorText": "Even with a hauling weight of \"seriously, a lot,\" it can only do so much in a magical flood.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e3b8971a2d4140a79429277295edc4eb.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "MAKE IT SHINE",
@@ -5858,6 +6046,7 @@
     "willpower": 4,
     "lore": 1,
     "rulesText": "BLADES This character can challenge ready characters.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f032f51e8af64d8db27c87e1f6db56a7.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "BLADES",
@@ -5888,7 +6077,8 @@
     "strength": 4,
     "willpower": 8,
     "lore": 2,
-    "flavorText": "\"Don't be fooled by the folksy peasant look.\"\n—Kuzco"
+    "flavorText": "\"Don't be fooled by the folksy peasant look.\"\n—Kuzco",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4baaef6e190c46e4b03966728f10034a.avif?1709690747"
   },
   {
     "id": "prince-naveen-penniless-royal",
@@ -5912,7 +6102,8 @@
     "strength": 4,
     "willpower": 3,
     "lore": 1,
-    "flavorText": "All he's got is his charm."
+    "flavorText": "All he's got is his charm.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_449f87a8929343be814ba9a5556c0b2d.avif?1709690747"
   },
   {
     "id": "queen-of-hearts-capricious-monarch",
@@ -5939,6 +6130,7 @@
     "lore": 1,
     "rulesText": "OFF WITH THEIR HEADS! Whenever an opposing character is banished, you may ready this character.",
     "flavorText": "The fourth Rule of Villainy: Do whatever it takes to get ahead.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e2f72bebe6594283a1d71d93ba4e72bc.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "OFF WITH THEIR HEADS!",
@@ -5971,6 +6163,7 @@
     "lore": 1,
     "rulesText": "SKIRMISH {E} — Deal 1 damage to chosen character.",
     "flavorText": "\"Capable? You don't know the half of it.\"\n—Little John",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_cd7996cdfb3146438a6c0564f5a5fb3b.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "SKIRMISH",
@@ -6003,6 +6196,7 @@
     "lore": 2,
     "rulesText": "CHANGE OF HEART Whenever this character quests, you may draw a card, then choose and discard a card.",
     "flavorText": "\"Run away, hide! In the woods, anywhere!\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_98f78d167b2e41d58e796d0124e5f9bf.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "CHANGE OF HEART",
@@ -6043,7 +6237,8 @@
     "subtitle": "Never Gives Up",
     "strength": 1,
     "willpower": 3,
-    "lore": 2
+    "lore": 2,
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9cc22e72ff234c27acb37f7d0e1f4441.avif?1709690747"
   },
   {
     "id": "tiana-celebrating-princess",
@@ -6075,6 +6270,7 @@
     "willpower": 4,
     "lore": 2,
     "rulesText": "WHAT YOU GIVE IS WHAT YOU GET While this character is exerted and you have no cards in your hand, opponents can't play actions.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5879c143b9484d898408440f80e8531e.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "WHAT YOU GIVE IS WHAT YOU GET",
@@ -6106,7 +6302,8 @@
     "strength": 1,
     "willpower": 3,
     "lore": 1,
-    "flavorText": "\"My place is going be special, with great food to fill people's bellies and hot jazz to feed their souls!\""
+    "flavorText": "\"My place is going be special, with great food to fill people's bellies and hot jazz to feed their souls!\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_ea7ccd56a6474fd897146c5e15f30fa3.avif?1709690747"
   },
   {
     "id": "charge",
@@ -6125,6 +6322,7 @@
     "rarity": "common",
     "rulesText": "Chosen character gains Challenger +2 and Resist +2 this turn. (They get +2 {S} while challenging. Damage dealt to them is reduced by 2.)",
     "flavorText": "Sometimes subtlety is required. This is not one of those times.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7f7875c57b0f49d9a0ca569ec1037777.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -6152,6 +6350,7 @@
     "rarity": "common",
     "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nDeal 2 damage to chosen character. Draw a card.",
     "flavorText": "The cold never bothered me anyway",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_ce1ec049b9994d6fae071a0f74886cb3.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -6182,6 +6381,7 @@
     "rarity": "uncommon",
     "rulesText": "Chosen character can challenge ready characters this turn.",
     "flavorText": "\"I'm gonna wreck it!\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5516a5f756734f2c89d1ef63e8c9964d.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -6209,6 +6409,7 @@
     "rarity": "rare",
     "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nDeal damage to chosen character equal to the number of characters you have in play.",
     "flavorText": "Tranquil as a forest\nBut on fire within",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c51eb90cb4f54e9dac6596ea653c956d.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -6239,6 +6440,7 @@
     "rarity": "common",
     "rulesText": "ARM YOURSELF 1 {I}, Banish this item — Chosen character gains Challenger +3 this turn. (They get +3 {S} while challenging.)",
     "flavorText": "One shot can change everything.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a776fb952998401394dcee6936d85b56.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "",
@@ -6264,6 +6466,7 @@
     "rarity": "uncommon",
     "rulesText": "PROTECTION {E} — Chosen character gains Resist +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)",
     "flavorText": "Built by the tiniest of hands for the bravest of hearts.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a529727601b84e9ca6f8b5052d1d2572.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "PROTECTION",
@@ -6289,6 +6492,7 @@
     "rarity": "rare",
     "rulesText": "TRAINING Whenever you play a character with 4 {S} or more, you may pay 1 {I} to draw a card.",
     "flavorText": "Personally endorsed by Hercules himself!",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c3f4b42a04de464a8f93814fd4e1884b.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "TRAINING",
@@ -6325,7 +6529,8 @@
     "subtitle": "Ballroom Sensation",
     "strength": 1,
     "willpower": 2,
-    "lore": 1
+    "lore": 1,
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4cf391db31ba468f948bad5a20b0bc16.avif?1709690747"
   },
   {
     "id": "snow-white-well-wisher",
@@ -6358,6 +6563,7 @@
     "lore": 2,
     "shiftCost": 4,
     "rulesText": "WISHES COME TRUE Whenever this character quests, you may return a character card from your discard to your hand.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e97e4b9894fe4c9798b0d925092d3eea.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "WISHES COME TRUE",
@@ -6390,6 +6596,7 @@
     "willpower": 3,
     "lore": 1,
     "rulesText": "STUDENT Whenever this character quests, you may return another chosen character of yours to your hand to gain 2 lore.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_19431b87131547d98fef8a693077a77e.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "STUDENT",
@@ -6428,6 +6635,7 @@
     "willpower": 7,
     "lore": 4,
     "rulesText": "I WIN, I WIN! When you play this character, banish her or return another 2 chosen characters of yours to your hand.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_26dd3cd037974467a3c4078d58f4ae25.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "I WIN, I WIN!",
@@ -6464,6 +6672,7 @@
     "willpower": 4,
     "lore": 2,
     "rulesText": "TAKE THAT! Whenever you play an action, this character gets +2 {S} this turn.\nWHO'S NEXT? While this character has 7 {S} or more, he gets +2 {L}.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_67714955a33e4508913f44b8ccb08e5c.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "TAKE THAT!",
@@ -6501,6 +6710,7 @@
     "willpower": 5,
     "lore": 2,
     "rulesText": "SECOND WIND Whenever an opposing character is damaged, you may ready this character.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_458325805fc445799aabfe4c4046f89b.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "SECOND WIND",
@@ -6540,6 +6750,7 @@
     "lore": 2,
     "shiftCost": 4,
     "rulesText": "POWER TO RULE AT LAST When you play this character, each opponent chooses and banishes one of their characters.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e08d7a85c4e84f1e83a7521ff9c15a89.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "POWER TO RULE AT LAST",
@@ -6571,6 +6782,7 @@
     "willpower": 3,
     "lore": 1,
     "rulesText": "DON'T INSULT MY INTELLIGENCE Whenever one of your characters challenges another character, gain 1 lore.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9c3f1e9961584a3ca4c8c32241d25d0b.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "DON'T INSULT MY INTELLIGENCE",
@@ -6602,6 +6814,7 @@
     "willpower": 4,
     "lore": 1,
     "rulesText": "GOOD ADVICE Your other characters gain Support. (Whenever they quest, you may add their {S} to another chosen character's {S} this turn.)\nWHAT DID I DO? While this character has 10 {S} or more, she gets +4 {L}.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3f0711ce8e06486a8bde68218e75d360.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "GOOD ADVICE",
@@ -6640,6 +6853,7 @@
     "willpower": 4,
     "lore": 2,
     "rulesText": "I TRUST YOU Whenever this character quests, look at the top 2 cards of your deck. You may put one into your hand. Put the rest on the bottom of your deck in any order.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f9edf9a591974716b2d7f02764f93737.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "I TRUST YOU",
@@ -6683,7 +6897,8 @@
     "strength": 6,
     "willpower": 3,
     "lore": 2,
-    "shiftCost": 4
+    "shiftCost": 4,
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_42ef053d7aab445fa7b0a2bf2e028864.avif?1709690747"
   },
   {
     "id": "namaari-morning-mist",
@@ -6714,6 +6929,7 @@
     "willpower": 4,
     "lore": 1,
     "rulesText": "BLADES This character can challenge ready characters.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_8b02499c992945e2990cb669d7468256.avif?1709690747",
     "_namedAbilityStubs": [
       {
         "storyName": "BLADES",

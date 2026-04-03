@@ -1,0 +1,333 @@
+[
+  {
+    "id": "mickey-mouse-brave-little-tailor",
+    "name": "Mickey Mouse",
+    "fullName": "Mickey Mouse - Brave Little Tailor",
+    "cardType": "character",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 8,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Hero"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      }
+    ],
+    "setId": "D23",
+    "number": 1,
+    "rarity": "common",
+    "subtitle": "Brave Little Tailor",
+    "strength": 5,
+    "willpower": 5,
+    "lore": 4,
+    "flavorText": "When defeat looms and victory hangs by a thread, a hero bolts to the rescue, patching things up with sheer determination.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a0a1e1bb99794f04991929ced6001ae8.avif?1723596439"
+  },
+  {
+    "id": "cinderella-stouthearted",
+    "name": "Cinderella",
+    "fullName": "Cinderella - Stouthearted",
+    "cardType": "character",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 7,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Hero",
+      "Princess",
+      "Knight"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "resist",
+        "value": 2
+      },
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 5
+      }
+    ],
+    "setId": "D23",
+    "number": 2,
+    "rarity": "common",
+    "subtitle": "Stouthearted",
+    "strength": 5,
+    "willpower": 5,
+    "lore": 3,
+    "shiftCost": 5,
+    "rulesText": "THE SINGING SWORD Whenever you play a song, this character can challenge ready characters this turn.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_8de3ae21bca6455bb44da9803af19ea8.avif?1723596597",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "THE SINGING SWORD",
+        "rulesText": "Whenever you play a song, this character can challenge ready characters this turn.",
+        "raw": "THE SINGING SWORD Whenever you play a song, this character can challenge ready characters this turn."
+      }
+    ]
+  },
+  {
+    "id": "ursula-deceiver",
+    "name": "Ursula",
+    "fullName": "Ursula - Deceiver",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Villain",
+      "Sorcerer"
+    ],
+    "abilities": [],
+    "setId": "D23",
+    "number": 3,
+    "rarity": "common",
+    "subtitle": "Deceiver",
+    "strength": 1,
+    "willpower": 3,
+    "lore": 1,
+    "rulesText": "YOU'LL NEVER EVEN MISS IT When you play this card, chosen opponent reveals their hand and discards a song card of your choice.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e18e96745a00405d8e927f8d4c75dc72.avif?1723596646",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "YOU'LL NEVER EVEN MISS IT",
+        "rulesText": "When you play this card, chosen opponent reveals their hand and discards a song card of your choice.",
+        "raw": "YOU'LL NEVER EVEN MISS IT When you play this card, chosen opponent reveals their hand and discards a song card of your choice."
+      }
+    ]
+  },
+  {
+    "id": "bruno-madrigal-undetected-uncle",
+    "name": "Bruno Madrigal",
+    "fullName": "Bruno Madrigal - Undetected Uncle",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally",
+      "Madrigal"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      }
+    ],
+    "setId": "D23",
+    "number": 4,
+    "rarity": "common",
+    "subtitle": "Undetected Uncle",
+    "strength": 3,
+    "willpower": 3,
+    "lore": 1,
+    "rulesText": "YOU JUST HAVE TO SEE IT {E} – Name a card, then reveal the top card of your deck. If it’s the named card, put that card into your hand and gain 3 lore. Otherwise, put it on the top of your deck.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_8d986fbd95984691b7fe1a27a5e110bc.avif?1723596697",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "YOU JUST HAVE TO SEE IT",
+        "rulesText": "Name a card, then reveal the top card of your deck. If it’s the named card, put that card into your hand and gain 3 lore. Otherwise, put it on the top of your deck.",
+        "raw": "YOU JUST HAVE TO SEE IT {E} – Name a card, then reveal the top card of your deck. If it’s the named card, put that card into your hand and gain 3 lore. Otherwise, put it on the top of your deck."
+      }
+    ]
+  },
+  {
+    "id": "vanellope-von-schweetz-sugar-rush-princess",
+    "name": "Vanellope Von Schweetz",
+    "fullName": "Vanellope Von Schweetz - Sugar Rush Princess",
+    "cardType": "character",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Hero",
+      "Princess",
+      "Racer"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 2
+      }
+    ],
+    "setId": "D23",
+    "number": 5,
+    "rarity": "common",
+    "subtitle": "Sugar Rush Princess",
+    "strength": 2,
+    "willpower": 4,
+    "lore": 2,
+    "shiftCost": 2,
+    "rulesText": "I HEREBY DECREE Whenever you play another Princess character, all opposing characters get -1 {S} until the start of your next turn.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b2e4820cbbda4610b54f3e9c00fa4576.avif?1723596756",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "I HEREBY DECREE",
+        "rulesText": "Whenever you play another Princess character, all opposing characters get -1 {S} until the start of your next turn.",
+        "raw": "I HEREBY DECREE Whenever you play another Princess character, all opposing characters get -1 {S} until the start of your next turn."
+      }
+    ]
+  },
+  {
+    "id": "oswald-the-lucky-rabbit",
+    "name": "Oswald",
+    "fullName": "Oswald - The Lucky Rabbit",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 2,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Hero"
+    ],
+    "abilities": [],
+    "setId": "D23",
+    "number": 6,
+    "rarity": "common",
+    "subtitle": "The Lucky Rabbit",
+    "strength": 2,
+    "willpower": 1,
+    "lore": 2,
+    "rulesText": "FAVORABLE CHANCE During your turn, whenever a card is put into your inkwell, you may reveal the top card of your deck. If it's an item card, you may play that item for free and they enter play exerted. Otherwise, put it on the bottom of your deck.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9093f79568f941ccaf0f4708a1b74133.avif?1724349802",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "FAVORABLE CHANCE",
+        "rulesText": "During your turn, whenever a card is put into your inkwell, you may reveal the top card of your deck. If it's an item card, you may play that item for free and they enter play exerted. Otherwise, put it on the bottom of your deck.",
+        "raw": "FAVORABLE CHANCE During your turn, whenever a card is put into your inkwell, you may reveal the top card of your deck. If it's an item card, you may play that item for free and they enter play exerted. Otherwise, put it on the bottom of your deck."
+      }
+    ]
+  },
+  {
+    "id": "mickey-mouse-playful-sorcerer",
+    "name": "Mickey Mouse",
+    "fullName": "Mickey Mouse - Playful Sorcerer",
+    "cardType": "character",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Hero",
+      "Sorcerer"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "resist",
+        "value": 1
+      },
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      }
+    ],
+    "setId": "D23",
+    "number": 7,
+    "rarity": "common",
+    "subtitle": "Playful Sorcerer",
+    "strength": 3,
+    "willpower": 4,
+    "lore": 2,
+    "shiftCost": 3,
+    "rulesText": "SWEEP AWAY When you play this character, deal damage to chosen character equal to the number of Broom characters you have in play.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_db6db54405ff449ba819ed521fae7df0.avif?1774402593",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "SWEEP AWAY",
+        "rulesText": "When you play this character, deal damage to chosen character equal to the number of Broom characters you have in play.",
+        "raw": "SWEEP AWAY When you play this character, deal damage to chosen character equal to the number of Broom characters you have in play."
+      }
+    ]
+  },
+  {
+    "id": "iago-out-of-reach",
+    "name": "Iago",
+    "fullName": "Iago - Out of Reach",
+    "cardType": "character",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally"
+    ],
+    "abilities": [],
+    "setId": "D23",
+    "number": 8,
+    "rarity": "common",
+    "subtitle": "Out of Reach",
+    "strength": 3,
+    "willpower": 3,
+    "lore": 2,
+    "rulesText": "SELF-PRESERVATION While you have another exerted character in play, this character can't be challenged.",
+    "flavorText": "\"Nice try, chumps! Too bad I'm all the way up here!\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a2a3f642e4704e159e4e65233aacc2fb.avif?1774402627",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "SELF-PRESERVATION",
+        "rulesText": "While you have another exerted character in play, this character can't be challenged.",
+        "raw": "SELF-PRESERVATION While you have another exerted character in play, this character can't be challenged."
+      }
+    ]
+  },
+  {
+    "id": "mad-hatter-unruly-eccentric",
+    "name": "Mad Hatter",
+    "fullName": "Mad Hatter - Unruly Eccentric",
+    "cardType": "character",
+    "inkColors": [
+      "emerald",
+      "ruby"
+    ],
+    "cost": 6,
+    "inkable": true,
+    "traits": [
+      "Storyborn"
+    ],
+    "abilities": [],
+    "setId": "D23",
+    "number": 16,
+    "rarity": "common",
+    "subtitle": "Unruly Eccentric",
+    "strength": 3,
+    "willpower": 5,
+    "lore": 2,
+    "rulesText": "UNBIRTHDAY PRESENT Whenever a damaged character challenges another character, you may draw a card.",
+    "flavorText": "\"Don't you care for tea?\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b01c656daf06443fb63d76d9df3ff108.avif?1774402653",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "UNBIRTHDAY PRESENT",
+        "rulesText": "Whenever a damaged character challenges another character, you may draw a card.",
+        "raw": "UNBIRTHDAY PRESENT Whenever a damaged character challenges another character, you may draw a card."
+      }
+    ]
+  }
+]

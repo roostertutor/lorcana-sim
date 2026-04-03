@@ -16,6 +16,12 @@ import set006 from "./lorcast-set-006.json" assert { type: "json" };
 import set007 from "./lorcast-set-007.json" assert { type: "json" };
 import set008 from "./lorcast-set-008.json" assert { type: "json" };
 import set009 from "./lorcast-set-009.json" assert { type: "json" };
+import setD23 from "./lorcast-set-D23.json" assert { type: "json" };
+import setDIS from "./lorcast-set-DIS.json" assert { type: "json" };
+import set0P1 from "./lorcast-set-0P1.json" assert { type: "json" };
+import set0P2 from "./lorcast-set-0P2.json" assert { type: "json" };
+import set0P3 from "./lorcast-set-0P3.json" assert { type: "json" };
+import set0cp from "./lorcast-set-0cp.json" assert { type: "json" };
 
 type RawCard = CardDefinition & { _namedAbilityStubs?: string[] };
 
@@ -26,6 +32,8 @@ function loadSet(raw: unknown[]): CardDefinition[] {
 
 const cards = [
   ...loadSet(set001),
+  ...loadSet(set010),
+  ...loadSet(set011),
   ...loadSet(set002),
   ...loadSet(set003),
   ...loadSet(set004),
@@ -34,8 +42,12 @@ const cards = [
   ...loadSet(set007),
   ...loadSet(set008),
   ...loadSet(set009),
-  ...loadSet(set010),
-  ...loadSet(set011),
+  ...loadSet(setD23),
+  ...loadSet(setDIS),
+  ...loadSet(set0P1),
+  ...loadSet(set0P2),
+  ...loadSet(set0P3),
+  ...loadSet(set0cp),
 ];
 
 /** Count manually-implemented abilities (non-keyword) + actionEffects on a card. */

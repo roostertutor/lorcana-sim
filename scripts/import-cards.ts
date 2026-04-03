@@ -105,6 +105,8 @@ interface CardDefinitionOut {
   setId: string;
   number: number;
   rarity: "common" | "uncommon" | "rare" | "super_rare" | "legendary" | "enchanted";
+  /** Card art URL from Lorcast API (digital.normal) */
+  imageUrl?: string;
   // CRD 5.4.3: Action effects (manually added, not from API)
   actionEffects?: object[];
   // Extra field written to JSON, stripped in lorcastCards.ts
@@ -347,6 +349,7 @@ function mapCard(c: LorcastCard): CardDefinitionOut | null {
     if (rulesLines.length > 0) out.rulesText = rulesLines.join("\n");
   }
   if (c.flavor_text) out.flavorText = c.flavor_text;
+  if (c.image_uris?.digital?.normal) out.imageUrl = c.image_uris.digital.normal;
   if (namedStubs.length > 0) out._namedAbilityStubs = namedStubs;
 
   return out;

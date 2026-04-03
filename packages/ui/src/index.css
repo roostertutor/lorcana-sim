@@ -8,6 +8,11 @@
   }
 }
 
+@layer utilities {
+  .scrollbar-none { scrollbar-width: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+}
+
 @layer components {
   .card {
     @apply bg-gray-900 border border-gray-800 rounded-xl p-5;

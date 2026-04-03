@@ -1,0 +1,122 @@
+[
+  {
+    "id": "rapunzel-appreciative-artist",
+    "name": "Rapunzel",
+    "fullName": "Rapunzel - Appreciative Artist",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Hero",
+      "Princess"
+    ],
+    "abilities": [],
+    "setId": "DIS",
+    "number": 1,
+    "rarity": "common",
+    "subtitle": "Appreciative Artist",
+    "strength": 3,
+    "willpower": 5,
+    "lore": 3,
+    "rulesText": "PERCEPTIVE PARTNER While you have a character named Pascal in play, this character gains Ward. (Opponents can’t choose them except to challenge.)",
+    "flavorText": "\"Pascal! A new flower for the wall!\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a057fe1c22c944a38de0a0784f7d4d5e.avif?1774403534",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "PERCEPTIVE PARTNER",
+        "rulesText": "While you have a character named Pascal in play, this character gains Ward. (Opponents can’t choose them except to challenge.)",
+        "raw": "PERCEPTIVE PARTNER While you have a character named Pascal in play, this character gains Ward. (Opponents can’t choose them except to challenge.)"
+      }
+    ]
+  },
+  {
+    "id": "donald-duck-pie-slinger",
+    "name": "Donald Duck",
+    "fullName": "Donald Duck - Pie Slinger",
+    "cardType": "character",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Hero",
+      "Knight"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      }
+    ],
+    "setId": "DIS",
+    "number": 2,
+    "rarity": "common",
+    "subtitle": "Pie Slinger",
+    "strength": 3,
+    "willpower": 6,
+    "lore": 1,
+    "shiftCost": 4,
+    "rulesText": "HUMBLE PIE When you play this character, if you used Shift to play him, each opponent loses 2 lore.\nRAGING DUCK While an opponent has 10 or more lore, this character gets +6 {S}.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_27e379eda1c04eabbf3be9fc19cda671.avif?1774403562",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "HUMBLE PIE",
+        "rulesText": "When you play this character, if you used Shift to play him, each opponent loses 2 lore.",
+        "raw": "HUMBLE PIE When you play this character, if you used Shift to play him, each opponent loses 2 lore."
+      },
+      {
+        "storyName": "RAGING DUCK",
+        "rulesText": "While an opponent has 10 or more lore, this character gets +6 {S}.",
+        "raw": "RAGING DUCK While an opponent has 10 or more lore, this character gets +6 {S}."
+      }
+    ]
+  },
+  {
+    "id": "stitch-rock-star",
+    "name": "Stitch",
+    "fullName": "Stitch - Rock Star",
+    "cardType": "character",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 6,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Hero",
+      "Alien"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      }
+    ],
+    "setId": "DIS",
+    "number": 3,
+    "rarity": "rare",
+    "subtitle": "Rock Star",
+    "strength": 3,
+    "willpower": 5,
+    "lore": 3,
+    "shiftCost": 4,
+    "rulesText": "ADORING FANS Whenever you play a character with cost 2 or less, you may exert them to draw a card.",
+    "flavorText": "The best part about a beachside concert is that there's always room for one more.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_65191d1c43f443469868bfc69f3aa1c4.avif?1774403589",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "ADORING FANS",
+        "rulesText": "Whenever you play a character with cost 2 or less, you may exert them to draw a card.",
+        "raw": "ADORING FANS Whenever you play a character with cost 2 or less, you may exert them to draw a card."
+      }
+    ]
+  }
+]

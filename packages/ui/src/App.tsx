@@ -89,7 +89,11 @@ export default function App() {
       </nav>
 
       {/* Content */}
-      <main className="flex-1 max-w-6xl mx-auto w-full px-4 py-6">
+      <main className={`flex-1 w-full ${
+        activeTab === "play" || activeTab === "multiplayer"
+          ? "p-0"
+          : "max-w-6xl mx-auto px-4 py-6"
+      }`}>
         {activeTab === "deck" && (
           <DeckInput
             deckText={deckText}
