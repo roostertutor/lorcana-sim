@@ -33,7 +33,7 @@ Runs the deck against itself and prints win rate, average game length, and per-c
 ### Compare two decks head-to-head
 
 ```bash
-pnpm compare -- --deck1 ./decks/set-001-ruby-amethyst-deck.txt --deck2 ./decks/lilo-stitch-deck.txt --bot greedy --iterations 500
+pnpm compare -- --deck1 ./decks/set-001-ruby-amethyst-deck.txt --deck2 ./decks/goldfish-deck.txt --bot greedy --iterations 500
 ```
 
 ### Goldfish (solo questing, opponent does nothing)
@@ -49,24 +49,24 @@ The goldfish deck is 60 uninkable cards — the opponent can never ink or play a
 
 ```bash
 # One-shot: simulate + query
-pnpm query -- --sim sims/aladdin/sim.json --questions sims/aladdin/questions.json
+pnpm query -- --sim sims/set-001-ruby-amethyst/sim.json --questions sims/set-001-ruby-amethyst/turn3-questions.json
 
 # Save results for later
-pnpm query -- --sim sims/aladdin/sim.json --questions sims/aladdin/questions.json --save results/aladdin.json
+pnpm query -- --sim sims/set-001-ruby-amethyst/sim.json --questions sims/set-001-ruby-amethyst/turn3-questions.json --save results/ruby-amethyst.json
 
 # Re-query saved results instantly
-pnpm query -- --questions sims/aladdin/questions.json --results results/aladdin.json
+pnpm query -- --questions sims/set-001-ruby-amethyst/turn3-questions.json --results results/ruby-amethyst.json
 ```
 
-Ask condition-based questions like "how often is Aladdin played on-curve, and what's the win rate when it happens?" See `docs/QUERY_SYSTEM.md` for the full condition language.
+Ask condition-based questions like "how often is Magic Broom played on T2, and what's the win rate when it happens?" See `docs/QUERY_SYSTEM.md` for the full condition language.
 
 ### Save simulation results
 
 All commands that run simulations support `--save ./path.json` to persist results for later querying:
 
 ```bash
-pnpm analyze -- --deck ./decks/set-001-ruby-amethyst-deck.txt --bot greedy --iterations 5000 --save my-results.sim-results.json
-pnpm query -- --questions sims/aladdin/questions.json --results results/my-results.json
+pnpm analyze -- --deck ./decks/set-001-ruby-amethyst-deck.txt --bot greedy --iterations 5000 --save results/ruby-amethyst.json
+pnpm query -- --questions sims/set-001-ruby-amethyst/turn3-questions.json --results results/ruby-amethyst.json
 ```
 
 ## Bot Strategies

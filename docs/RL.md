@@ -1060,7 +1060,7 @@ export function trainWithCurriculum(
 ```bash
 pnpm learn \
   --deck decks/set-001-ruby-amethyst-deck.txt \
-  --opponent decks/lilo-stitch-deck.txt \
+  --opponent decks/set-001-ruby-amethyst-deck.txt \
   --save policies/ruby-amethyst-control.json
 
 pnpm learn \

@@ -12,42 +12,42 @@
 
 ```
 decks/                      Decklists (.txt)
-  ruby-amethyst-deck.txt
-  lilo-stitch-deck.txt
-  aladdin-deck.txt
+  set-001-ruby-amethyst-deck.txt
   goldfish-deck.txt
-sims/                    Sim configs + question files (.json)
-  aladdin-sim.json          Simulation config (deck, opponent, bot, iterations)
-  aladdin-questions.json    Queries array (reusable across result sets)
-*.sim-results.json          Saved results (gitignored)
+sims/                       Sim configs + question files (.json)
+  set-001-ruby-amethyst/
+    sim.json                Simulation config (deck, opponent, bot, iterations)
+    turn3-questions.json    Queries array (reusable across result sets)
+    ...
+results/                    Saved results (gitignored)
 ```
 
 ### CLI workflows
 
 ```bash
 # One-shot: simulate + query
-pnpm query -- --sim sims/aladdin/sim.json --questions sims/aladdin/questions.json
+pnpm query -- --sim sims/set-001-ruby-amethyst/sim.json --questions sims/set-001-ruby-amethyst/turn3-questions.json
 
 # Save results for later
-pnpm query -- --sim sims/aladdin/sim.json --questions sims/aladdin/questions.json --save results/aladdin.json
+pnpm query -- --sim sims/set-001-ruby-amethyst/sim.json --questions sims/set-001-ruby-amethyst/turn3-questions.json --save results/ruby-amethyst.json
 
 # Re-query saved results instantly (iterate on questions without re-simulating)
-pnpm query -- --questions sims/aladdin/questions.json --results results/aladdin.json
+pnpm query -- --questions sims/set-001-ruby-amethyst/turn3-questions.json --results results/ruby-amethyst.json
 
-# Other commands also support --save and --opponent-bot
+# Other commands also support --save
 pnpm analyze -- --deck ./decks/set-001-ruby-amethyst-deck.txt --bot greedy --iterations 5000 --save results/ruby-amethyst.json
-pnpm compare -- --deck1 ./decks/set-001-ruby-amethyst-deck.txt --deck2 ./decks/lilo-stitch-deck.txt --bot greedy
 ```
 
 ### Sim config file format (*-sim.json)
 
 ```json
 {
-  "me": "../decks/aladdin-deck.txt",
-  "opponent": "../decks/lilo-stitch-deck.txt",
-  "bot": "greedy",
+  "me": "../../decks/set-001-ruby-amethyst-deck.txt",
+  "bot": "rl",
+  "policy": "../../policies/ruby-amethyst-control.json",
   "opponentBot": "greedy",
-  "iterations": 5000
+  "iterations": 1000,
+  "maxTurns": 30
 }
 ```
 
