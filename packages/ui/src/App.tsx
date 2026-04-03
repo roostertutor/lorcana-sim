@@ -59,9 +59,9 @@ export default function App() {
       </nav>
 
       {/* Content */}
-      <main className={`flex-1 min-h-0 w-full ${
+      <main className={`flex-1 w-full ${
         activeTab === "testbench" || activeTab === "multiplayer"
-          ? "p-0 overflow-hidden"
+          ? "p-0"
           : "max-w-6xl mx-auto px-4 py-6"
       }`}>
         {activeTab === "decks" && <DecksPage />}
