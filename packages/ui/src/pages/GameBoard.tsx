@@ -313,6 +313,25 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
   // buildLabelMap is imported from utils — wrap with local getName
   const getLabelMap = (ids: string[]) => buildLabelMap(ids, getCardName);
 
+  // ── Drag & Drop — must be declared BEFORE any early return (Rules of Hooks) ──
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor,   { activationConstraint: { delay: 150, tolerance: 5 } }),
+  );
+
+  const dnd = useBoardDnd({
+    myId,
+    gameState: session.gameState,
+    legalActions: session.legalActions,
+    dispatch: session.dispatch,
+    isEnabled: !!(
+      session.gameState &&
+      session.gameState.currentPlayer === myId &&
+      !session.pendingChoice &&
+      !session.isGameOver
+    ),
+  });
+
   // =========================================================================
   // SETUP MODE
   // =========================================================================
@@ -420,20 +439,6 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
 
   const recentLog = actionLog.slice(-30);
   const isYourTurn = gameState.currentPlayer === myId;
-
-  // ── Drag & Drop ──────────────────────────────────────────────────────────
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(TouchSensor,   { activationConstraint: { delay: 150, tolerance: 5 } }),
-  );
-
-  const dnd = useBoardDnd({
-    myId,
-    gameState,
-    legalActions,
-    dispatch: session.dispatch,
-    isEnabled: isYourTurn && !pendingChoice && !isGameOver,
-  });
 
   // Helpers for readability in JSX
   function isDraggableEnabled(isOpponent: boolean) {
