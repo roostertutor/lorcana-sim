@@ -691,7 +691,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             </div>
           )}
           {/* Opponent play zone */}
-          <div className="flex flex-wrap gap-2 pb-1 min-h-[100px] items-end">
+          <div className="flex flex-wrap gap-2 pb-1 min-h-[125px] sm:min-h-[145px] lg:min-h-[170px] items-end">
             {p2Zones.play.length === 0 ? (
               <span className="text-gray-700 text-xs italic self-center">No cards in play</span>
             ) : (
@@ -727,7 +727,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             isValidTarget={!!dnd.activeId && dnd.isValidPlayZoneDrop(dnd.activeId)}
             activeId={dnd.activeId}
           >
-            <div className="flex flex-wrap gap-2 pb-1 min-h-[100px] items-end">
+            <div className="flex flex-wrap gap-2 pb-1 min-h-[125px] sm:min-h-[145px] lg:min-h-[170px] items-end">
               {p1Zones.play.length === 0 ? (
                 <span className="text-gray-700 text-xs italic self-center">
                   {dnd.activeId && dnd.isValidPlayZoneDrop(dnd.activeId)
@@ -747,7 +747,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             <span className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">Your Hand</span>
             <span className="text-[10px] text-gray-600">{p1Zones.hand.length} cards</span>
           </div>
-          <div className="flex flex-wrap gap-2 pb-1 min-h-[100px] items-start">
+          <div className="flex flex-wrap gap-2 pb-1 min-h-[125px] sm:min-h-[145px] lg:min-h-[170px] items-start">
             {p1Zones.hand.length === 0 ? (
               <span className="text-gray-700 text-xs italic self-center">Empty hand</span>
             ) : (
