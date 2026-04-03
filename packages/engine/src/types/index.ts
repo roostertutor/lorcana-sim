@@ -711,6 +711,9 @@ export interface CostReductionEntry {
 }
 
 export interface GameState {
+  /** When true, auto-resolve heuristics are disabled — human must make all choices.
+   *  Set by createGame when player1IsHuman or player2IsHuman. */
+  interactive?: boolean;
   /** Monotonically increasing counter, used for ordering events */
   turnNumber: number;
   currentPlayer: PlayerID;
@@ -782,6 +785,8 @@ export interface PendingChoice {
   prompt: string;
   /** For choose_target: valid target instanceIds */
   validTargets?: string[];
+  /** For choose_from_revealed: all revealed cards (validTargets is the selectable subset) */
+  revealedCards?: string[];
   /** For choose_option: the effects to pick between */
   options?: Effect[][];
   /** For choose_cards: card filter and count */

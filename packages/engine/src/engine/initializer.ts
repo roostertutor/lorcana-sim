@@ -26,6 +26,8 @@ export interface GameConfig {
   startingHandSize?: number;
   /** Seed for shuffle (future: deterministic shuffle) */
   seed?: number;
+  /** When true, disables bot auto-resolve heuristics — humans must make all choices */
+  interactive?: boolean;
 }
 
 /** Shuffle an array using Fisher-Yates with seeded RNG */
@@ -162,6 +164,7 @@ export function createGame(
     cards,
     zones: { player1: p1Zones, player2: p2Zones },
     rng,
+    interactive: config.interactive ?? false,
     triggerStack: [],
     pendingChoice: null,
     actionLog: [

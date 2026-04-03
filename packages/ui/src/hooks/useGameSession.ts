@@ -16,7 +16,7 @@ import type {
 import { createGame, applyAction, getAllLegalActions } from "@lorcana-sim/engine";
 import type { BotStrategy } from "@lorcana-sim/simulator";
 import { supabase } from "../lib/supabase.js";
-import { sendAction } from "../lib/serverApi.js";
+import { sendAction, getGame } from "../lib/serverApi.js";
 
 // -----------------------------------------------------------------------------
 // Types
@@ -72,13 +72,22 @@ export function useGameSession(): GameSession {
   // ---------------------------------------------------------------------------
   const startGame = useCallback((config: GameSessionConfig) => {
     configRef.current = config;
+    setSelectedInstanceId(null);
+    setError(null);
+
+    if (config.multiplayer) {
+      // Multiplayer: fetch current state from server — don't create locally
+      getGame(config.multiplayer.token, config.multiplayer.gameId)
+        .then((state) => setGameState(state))
+        .catch((err: unknown) => setError(String(err)));
+      return;
+    }
+
     const state = createGame(
-      { player1Deck: config.player1Deck, player2Deck: config.player2Deck },
+      { player1Deck: config.player1Deck, player2Deck: config.player2Deck, interactive: true },
       config.definitions,
     );
     setGameState(state);
-    setSelectedInstanceId(null);
-    setError(null);
   }, []);
 
   // ---------------------------------------------------------------------------

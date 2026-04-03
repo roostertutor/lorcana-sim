@@ -281,18 +281,21 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
 
   const { gameState, legalActions, pendingChoice, actionLog, isGameOver, winner, error } = session;
 
-  const p1 = gameState.players.player1;
-  const p2 = gameState.players.player2;
-  const p1Zones = gameState.zones.player1;
-  const p2Zones = gameState.zones.player2;
+  const myId = multiplayerGame?.myPlayerId ?? "player1";
+  const opponentId = myId === "player1" ? "player2" : "player1";
+
+  const p1 = gameState.players[myId];
+  const p2 = gameState.players[opponentId];
+  const p1Zones = gameState.zones[myId];
+  const p2Zones = gameState.zones[opponentId];
 
   const recentLog = actionLog.slice(-30);
-  const isYourTurn = gameState.currentPlayer === "player1";
+  const isYourTurn = gameState.currentPlayer === myId;
 
   // --- Pending choice UI ---
   function renderPendingChoice() {
     if (!pendingChoice) return null;
-    const isHumanChoice = pendingChoice.choosingPlayerId === "player1";
+    const isHumanChoice = pendingChoice.choosingPlayerId === myId;
     if (!isHumanChoice) {
       return (
         <div className="rounded-lg px-4 py-3 bg-yellow-950/40 border border-yellow-700/50 backdrop-blur">
@@ -389,19 +392,32 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
       );
     }
 
+    const displayCards = pendingChoice.revealedCards ?? pendingChoice.validTargets ?? [];
+    const validSet = new Set(pendingChoice.validTargets ?? []);
+
     return (
       <div className="rounded-lg px-4 py-3 bg-yellow-950/40 border border-yellow-700/50 space-y-2">
         <div className="text-yellow-300 text-sm font-medium">{pendingChoice.prompt}</div>
         <div className="flex flex-wrap gap-1.5">
-          {(pendingChoice.validTargets ?? []).map((id) => (
-            <button
-              key={id}
-              className="px-3 py-1.5 text-xs bg-gray-700/80 hover:bg-gray-600 text-gray-200 rounded-lg border border-gray-600 transition-colors"
-              onClick={() => session.resolveChoice([id])}
-            >
-              {getCardName(id)}
-            </button>
-          ))}
+          {displayCards.map((id) => {
+            const selectable = validSet.has(id);
+            return selectable ? (
+              <button
+                key={id}
+                className="px-3 py-1.5 text-xs bg-gray-700/80 hover:bg-gray-600 text-gray-200 rounded-lg border border-gray-600 transition-colors"
+                onClick={() => session.resolveChoice([id])}
+              >
+                {getCardName(id)}
+              </button>
+            ) : (
+              <span
+                key={id}
+                className="px-3 py-1.5 text-xs bg-gray-900/60 text-gray-600 rounded-lg border border-gray-800 line-through"
+              >
+                {getCardName(id)}
+              </span>
+            );
+          })}
           {pendingChoice.optional && (
             <button
               className="px-3 py-1.5 text-xs bg-red-800/80 hover:bg-red-700 text-gray-200 rounded-lg border border-red-700 transition-colors"
@@ -447,7 +463,7 @@ export default function GameBoard({ definitions, multiplayerGame }: Props) {
                   ? "bg-green-600/20 text-green-400 border border-green-500/30"
                   : "bg-red-600/20 text-red-400 border border-red-500/30"
               }`}>
-                {isYourTurn ? "YOUR TURN" : "BOT'S TURN"}
+                {isYourTurn ? "YOUR TURN" : multiplayerGame ? "OPPONENT'S TURN" : "BOT'S TURN"}
               </div>
               <span className="text-gray-500 text-xs">
                 Turn {gameState.turnNumber}

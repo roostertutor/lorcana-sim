@@ -4,21 +4,22 @@ import type { DeckEntry } from "@lorcana-sim/engine";
 import { supabase } from "../lib/supabase.js";
 import { createLobby, joinLobby, ensureProfile, getLobbyGame } from "../lib/serverApi.js";
 
-const SAMPLE_DECK = `4 Stitch - New Dog
-4 Stitch - Rock Star
-4 Stitch - Carefree Surfer
+const SAMPLE_DECK = `4 Tinker Bell - Giant Fairy
+2 Captain Hook - Thinking a Happy Thought
 4 Ariel - Spectacular Singer
-4 Lantern
+4 Simba - Protective Cub
 4 Be Our Guest
 4 A Whole New World
-4 Grab Your Sword
-4 Simba - Protective Cub
 4 Beast - Hardheaded
+4 Stitch - Rock Star
 4 Simba - Future King
 4 Captain Hook - Forceful Duelist
+4 Grab Your Sword
 4 Rapunzel - Gifted with Healing
 2 Fire the Cannons!
-4 Tinker Bell - Giant Fairy`;
+4 Stitch - New Dog
+4 Lantern
+4 Stitch - Carefree Surfer`;
 
 interface Props {
   onGameStart: (gameId: string, myPlayerId: "player1" | "player2", token: string) => void;

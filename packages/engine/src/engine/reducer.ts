@@ -1289,8 +1289,8 @@ export function applyEffect(
 
       switch (effect.action) {
         case "one_to_hand_rest_bottom": {
-          if (effect.filter) {
-            // With filter: auto-resolve — find first card that matches
+          if (effect.filter && !state.interactive) {
+            // Headless/bot mode: auto-resolve — find first card that matches
             const chosenIdx = topCards.findIndex((id) => {
               const inst = state.cards[id];
               if (!inst) return false;
@@ -1308,6 +1308,32 @@ export function applyEffect(
             state = moveCard(state, chosenId, targetPlayer, "hand");
             state = reorderDeckTopToBottom(state, targetPlayer, rest, []);
             return state;
+          }
+          if (effect.filter && state.interactive) {
+            // Interactive mode: show filtered cards and let human choose
+            const matchingCards = topCards.filter((id) => {
+              const inst = state.cards[id];
+              if (!inst) return false;
+              const def = definitions[inst.definitionId];
+              if (!def) return false;
+              return matchesFilter(inst, def, effect.filter!, state, controllingPlayerId);
+            });
+            if (matchingCards.length === 0) {
+              state = reorderDeckTopToBottom(state, targetPlayer, topCards, []);
+              return state;
+            }
+            return {
+              ...state,
+              pendingChoice: {
+                type: "choose_from_revealed",
+                choosingPlayerId: controllingPlayerId,
+                prompt: `Choose a card to put into your hand. The rest go to the bottom of your deck.`,
+                validTargets: matchingCards,
+                revealedCards: topCards,
+                pendingEffect: effect,
+                optional: true,
+              },
+            };
           }
 
           // No filter: let the bot choose which card to keep
@@ -1740,6 +1766,15 @@ function processTriggerStack(
     }
 
     events.push({ type: "ability_triggered", instanceId: trigger.sourceInstanceId, abilityType: "triggered" });
+    const triggerSourceDef = definitions[source.definitionId];
+    const abilityName = trigger.ability.storyName ?? triggerSourceDef?.name ?? "ability";
+    const cardName = triggerSourceDef?.fullName ?? source.definitionId;
+    state = appendLog(state, {
+      turn: state.turnNumber,
+      playerId: source.ownerId,
+      message: `${cardName}'s ability "${abilityName}" triggered.`,
+      type: "ability_triggered",
+    });
 
     for (const effect of trigger.ability.effects) {
       // CRD 6.1.5.1: Sequential effects with isMay — skip prompt if cost can't be paid

@@ -30,7 +30,7 @@ export async function createNewGame(
   player1Deck: DeckEntry[],
   player2Deck: DeckEntry[],
 ) {
-  const config: GameConfig = { player1Deck, player2Deck }
+  const config: GameConfig = { player1Deck, player2Deck, interactive: true }
   const initialState = createGame(config, definitions)
 
   const { data, error } = await supabase
