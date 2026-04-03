@@ -6,7 +6,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import type { CardDefinition, DeckEntry, GameState } from "@lorcana-sim/engine";
-import type { PositionFactors } from "@lorcana-sim/simulator";
+import type { BotStrategy, PositionFactors } from "@lorcana-sim/simulator";
 import {
   computeDeckProbabilities,
   evaluatePosition,
@@ -29,6 +29,7 @@ export interface AnalysisResult {
   factors: PositionFactors | null;
   positionScore: number | null;
   isSimulating: boolean;
+  usingRL: boolean;
 }
 
 export function useAnalysis(
@@ -36,6 +37,7 @@ export function useAnalysis(
   definitions: Record<string, CardDefinition>,
   player1Deck: DeckEntry[],
   player2Deck: DeckEntry[],
+  botStrategy: BotStrategy = GreedyBot,
 ): AnalysisResult {
   const [winProbability, setWinProbability] = useState<number | null>(null);
   const [factors, setFactors] = useState<PositionFactors | null>(null);
@@ -76,8 +78,8 @@ export function useAnalysis(
           startingState: gameState,
           player1Deck,
           player2Deck,
-          player1Strategy: GreedyBot,
-          player2Strategy: GreedyBot,
+          player1Strategy: botStrategy,
+          player2Strategy: botStrategy,
           definitions,
           iterations: 200,
         });
@@ -100,7 +102,7 @@ export function useAnalysis(
       // Cancel stale sim by incrementing
       simCancelRef.current++;
     };
-  }, [gameState, definitions, player1Deck, player2Deck]);
+  }, [gameState, definitions, player1Deck, player2Deck, botStrategy]);
 
-  return { winProbability, factors, positionScore, isSimulating };
+  return { winProbability, factors, positionScore, isSimulating, usingRL: botStrategy !== GreedyBot };
 }

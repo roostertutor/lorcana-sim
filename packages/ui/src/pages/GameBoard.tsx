@@ -9,6 +9,7 @@ import { parseDecklist } from "@lorcana-sim/engine";
 import {
   GreedyBot,
   RandomBot,
+  RLPolicy,
 } from "@lorcana-sim/simulator";
 import type { BotStrategy } from "@lorcana-sim/simulator";
 import { useGameSession } from "../hooks/useGameSession.js";
@@ -101,12 +102,33 @@ export default function GameBoard({ definitions }: Props) {
   const [p1DeckText, setP1DeckText] = useState(SAMPLE_DECK);
   const [p2DeckText, setP2DeckText] = useState(SAMPLE_DECK);
   const [botId, setBotId] = useState("greedy");
+  const [rlPolicy, setRlPolicy] = useState<BotStrategy | null>(null);
+  const [rlPolicyName, setRlPolicyName] = useState<string | null>(null);
   const [multiSelectTargets, setMultiSelectTargets] = useState<string[]>([]);
 
   const p1Parse = useMemo(() => parseDecklist(p1DeckText, definitions), [p1DeckText, definitions]);
   const p2Parse = useMemo(() => parseDecklist(p2DeckText, definitions), [p2DeckText, definitions]);
 
-  const analysis = useAnalysis(session.gameState, definitions, p1Parse.entries, p2Parse.entries);
+  const analysis = useAnalysis(session.gameState, definitions, p1Parse.entries, p2Parse.entries, rlPolicy ?? GreedyBot);
+
+  function handlePolicyUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const json = JSON.parse(ev.target?.result as string);
+        const policy = RLPolicy.fromJSON(json);
+        policy.epsilon = 0;
+        setRlPolicy(policy);
+        setRlPolicyName(file.name);
+      } catch {
+        setRlPolicy(null);
+        setRlPolicyName(null);
+      }
+    };
+    reader.readAsText(file);
+  }
 
   const canStart =
     p1Parse.entries.length > 0 &&
@@ -209,6 +231,17 @@ export default function GameBoard({ definitions }: Props) {
               <option key={b.id} value={b.id}>{b.label}</option>
             ))}
           </select>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <label className="text-sm text-gray-300">Analysis policy:</label>
+          <label className="cursor-pointer px-2 py-1 bg-gray-800 border border-gray-700 rounded text-xs text-gray-300 hover:border-amber-500 transition-colors">
+            {rlPolicyName ?? "Upload .json"}
+            <input type="file" accept=".json" className="hidden" onChange={handlePolicyUpload} />
+          </label>
+          {rlPolicy && (
+            <span className="text-green-400 text-xs">RL estimate active</span>
+          )}
         </div>
 
         <button
@@ -559,7 +592,7 @@ export default function GameBoard({ definitions }: Props) {
 
       {/* ======================= Analysis sidebar ======================= */}
       <div className="space-y-4 lg:sticky lg:top-20 lg:self-start">
-        <AnalysisPanel {...analysis} />
+        <AnalysisPanel {...analysis} estimateLabel={analysis.usingRL ? "RL est." : "GreedyBot est."} />
       </div>
     </div>
   );

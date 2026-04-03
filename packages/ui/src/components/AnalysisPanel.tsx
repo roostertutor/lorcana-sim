@@ -11,6 +11,7 @@ interface Props {
   factors: PositionFactors | null;
   positionScore: number | null;
   isSimulating: boolean;
+  estimateLabel?: string;
 }
 
 // Centered bar for values in [-1, 1]: green right, red left
@@ -60,7 +61,7 @@ function FillBar({ value, label }: { value: number; label: string }) {
   );
 }
 
-export default function AnalysisPanel({ winProbability, factors, positionScore, isSimulating }: Props) {
+export default function AnalysisPanel({ winProbability, factors, positionScore, isSimulating, estimateLabel = "GreedyBot est." }: Props) {
   return (
     <div className="card space-y-4">
       {/* Win Probability */}
@@ -87,7 +88,7 @@ export default function AnalysisPanel({ winProbability, factors, positionScore, 
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-green-400">P1 {(winProbability * 100).toFixed(0)}%</span>
-              <span className="text-gray-500 text-[10px]">GreedyBot est.</span>
+              <span className="text-gray-500 text-[10px]">{estimateLabel}</span>
               <span className="text-red-400">P2 {((1 - winProbability) * 100).toFixed(0)}%</span>
             </div>
           </div>
