@@ -7,7 +7,7 @@ import {
   getLobby,
   listLobbies,
 } from "../services/lobbyService.js"
-import { getGame } from "../services/gameService.js"
+import { supabase } from "../db/client.js"
 
 const lobby = new Hono<{ Variables: { userId: string } }>()
 
@@ -57,14 +57,11 @@ lobby.get("/:id", requireAuth, async (c) => {
   // Attach game if active
   let game = null
   if (lobbyData.status === "active") {
-    const { data } = await import("../db/client.js").then((m) =>
-      m.supabase
-        .from("games")
-        .select("id, status, state")
-        .eq("lobby_id", lobbyData.id)
-        .eq("status", "active")
-        .single(),
-    )
+    const { data } = await supabase
+      .from("games")
+      .select("id, status")
+      .eq("lobby_id", lobbyData.id)
+      .single()
     game = data
   }
 

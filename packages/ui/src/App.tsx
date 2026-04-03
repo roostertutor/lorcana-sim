@@ -22,7 +22,14 @@ const TABS: { id: Tab; label: string; requiresDeck?: boolean }[] = [
 ];
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<Tab>("deck");
+  const [activeTab, setActiveTab] = useState<Tab>(
+    () => (localStorage.getItem("activeTab") as Tab | null) ?? "deck"
+  );
+
+  function handleTabChange(tab: Tab) {
+    setActiveTab(tab);
+    localStorage.setItem("activeTab", tab);
+  }
   const [deckText, setDeckText] = useState("");
   const [deck, setDeck] = useState<DeckEntry[] | null>(null);
   const [parseErrors, setParseErrors] = useState<string[]>([]);
@@ -69,7 +76,7 @@ export default function App() {
             return (
               <button
                 key={t.id}
-                onClick={() => !disabled && setActiveTab(t.id)}
+                onClick={() => !disabled && handleTabChange(t.id)}
                 className={activeTab === t.id ? "tab-active" : "tab-inactive"}
                 disabled={disabled}
                 title={disabled ? "Load a deck first" : undefined}
@@ -89,7 +96,7 @@ export default function App() {
             parseErrors={parseErrors}
             deck={deck}
             onChange={handleDeckChange}
-            onAnalyze={() => deck && setActiveTab("composition")}
+            onAnalyze={() => deck && handleTabChange("composition")}
           />
         )}
         {activeTab === "composition" && deck && (
@@ -114,7 +121,6 @@ export default function App() {
                 multiplayerGame={multiplayerGame}
               />
             : <MultiplayerLobby
-                deck={deck}
                 onGameStart={(gameId, myPlayerId, token) => {
                   setMultiplayerGame({ gameId, myPlayerId, token });
                 }}

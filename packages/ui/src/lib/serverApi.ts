@@ -9,6 +9,22 @@ async function authHeaders(token: string) {
   }
 }
 
+export async function getLobbyGame(token: string, lobbyId: string) {
+  const res = await fetch(`${SERVER_URL}/lobby/${lobbyId}`, {
+    headers: await authHeaders(token),
+  })
+  if (!res.ok) return null
+  const data = await res.json() as { lobby: { status: string }; game: { id: string } | null }
+  return data
+}
+
+export async function ensureProfile(token: string) {
+  const res = await fetch(`${SERVER_URL}/auth/me`, {
+    headers: await authHeaders(token),
+  })
+  if (!res.ok) throw new Error("Failed to initialize profile")
+}
+
 export async function createLobby(token: string, deck: DeckEntry[]) {
   const res = await fetch(`${SERVER_URL}/lobby/create`, {
     method: "POST",

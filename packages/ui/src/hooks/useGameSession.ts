@@ -154,6 +154,7 @@ export function useGameSession(): GameSession {
   useEffect(() => {
     if (!gameState || !configRef.current) return;
     if (gameState.isGameOver) return;
+    if (configRef.current.multiplayer) return; // both sides are humans in multiplayer
 
     const config = configRef.current;
 
