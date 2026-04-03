@@ -1,3 +1,4 @@
+import "dotenv/config"
 import { Hono } from "hono"
 import { cors } from "hono/cors"
 import { logger } from "hono/logger"
@@ -27,9 +28,10 @@ app.route("/auth", auth)
 app.route("/lobby", lobby)
 app.route("/game", game)
 
+import { serve } from "@hono/node-server"
+
 const port = parseInt(process.env["PORT"] ?? "3001", 10)
 
-export default {
-  port,
-  fetch: app.fetch,
-}
+serve({ fetch: app.fetch, port }, () => {
+  console.log(`Server running on http://localhost:${port}`)
+})
