@@ -271,11 +271,7 @@ for discovery. See ANALYTICS_PHILOSOPHY.md for the full philosophy.
     Replaces the need to use the CLI for day-to-day query work
 ```
 
-**Note on 2a:** No code needed — the queries are ready. But first:
-1. Train an RL policy for the deck: `pnpm learn --deck ./deck.txt --episodes 50000 --save ./policies/deck.json`
-2. Update the sim config to use `"bot": "rl"` + `"policy": "..."` (or use `--policy` CLI flag)
-3. Run `pnpm query --sim sim.json --questions questions.json --policy ./policies/deck.json --save results.json`
-   Do NOT re-use old RampCindyCowBot or GreedyBot results — those reflect encoded strategy, not discovered play.
+**Note on 2a–2e:** All done. Results are in `sims/set-001-ruby-amethyst/` and `sims/set-001-amber-steel/`. See DECISIONS.md "RL Ceiling and Strategic Pivot (Session 17)" for full analysis of findings and why RL training is now paused.
 
 ---
 
@@ -319,10 +315,9 @@ to be useful — even GreedyBot as an opponent is enough to test card interactio
       GreedyBot suggestion = "play most expensive card" — you already know that
       Not worth showing until RL is trained
 
-    Phase 2 — NOW UNBLOCKED (Stream 1 done, implement via 3f below):
-      Swap GreedyBot for RLPolicy in win probability simulation
-      Add bot suggestion: "RL bot would play X (+8% win probability)"
-      Win probability becomes genuinely trustworthy
+    Phase 2 — DONE ✅ (Stream 3f, Session 17):
+      File picker → RLPolicy loaded → win probability uses RL policy
+      Label shows "RL est." when policy loaded, "GreedyBot est." otherwise
 
 3c/3d status: functional but far from presentable. Missing for a real UI:
     Card images, animations (play/banish/quest/challenge transitions),
@@ -368,20 +363,15 @@ to be useful — even GreedyBot as an opponent is enough to test card interactio
     AnalysisPanel shows "RL est." vs "GreedyBot est." based on usingRL flag
 ```
 
-**Claude Code session prompt (3a-3d done — next is 3e or 3f):**
+**Claude Code session prompt (3a-3d + 3f done — next is 3e):**
 ```
-For 3f (wire RL into analysis overlay):
-  Read docs/RL.md policy persistence section.
-  Replace GreedyBot in useAnalysis.ts with RLPolicy loaded from --policy path.
-  Add policy path config to GameBoard / useGameSession.
-  Label win probability as "RL estimate" instead of "GreedyBot estimate".
-
 For 3e (replay mode):
   Read docs/GAME_BOARD.md replay section.
   Prereqs done: seeded RNG in GameState, GameAction[] in GameResult.
   Build ReplayControls component + loadReplay() in useGameSession.
   Reconstruct GameState at each step by replaying actions[] from seed via applyAction.
   Feed reconstructed states to GameBoard read-only (disable action buttons).
+  Show what the bot chose at each step + win probability before/after.
 ```
 
 ---
@@ -498,8 +488,7 @@ Stream 4d (multiplayer mode in useGameSession)
 Stream 1 (RL) + Stream 4 (multiplayer) — both prerequisites for
 Stream 5 (clone bot + coaching map)
 
-Stream 2a-2e — unblocked, train an RL policy for the deck first
-  Do NOT use old RampCindyCowBot/GreedyBot results — data is biased
+Stream 2a-2e — ✅ done (ruby-amethyst + amber-steel queries complete, policies trained)
 
 Everything else — parallel, no blocking dependencies
 ```
@@ -688,18 +677,18 @@ Ask in order:
    Next direction: Stream 4 (multiplayer) → ranked games → supervised clone trainer (Stream 5).
    See DECISIONS.md "RL Ceiling and Strategic Pivot".
 
-2. **Streams 2a-2f are done. ✅ Key findings for ruby-amethyst deck:**
-   - Bot never mulligans — RLPolicy mulliganNet is undertrained, fix is more training
-   - High-curve cards (5-7 cost) almost never played in RL game plan
-   - Singer/Song combo (Maleficent → free Friends) fires in only 1.3% of games
-   - RL policy loses the mirror to GreedyBot — quest-first heuristic suits this deck
-   - 97.8% win rate vs goldfish
-   Next: train a better policy that learns the Singer/Song line (needs harder opponent),
-   or move to 2g (slot optimization) to answer "what should I cut?"
+2. **Streams 2a-2f are done. ✅ Key findings:**
+   Ruby-amethyst: bot never mulligans, high-curve cards largely dead weight,
+   Singer/Song combo fires 1.3% of games, loses mirror to GreedyBot 27.2%.
+   Amber-steel: Stitch shift line +20.4% win rate, songs anti-correlate with winning,
+   Lantern+NewDog T2 line never fired (RL multi-turn ceiling).
+   Do NOT retrain — RL ceiling reached, more episodes won't fix multi-turn planning.
+   Next: Stream 4 (multiplayer) → human game logs → Stream 5 (supervised clone trainer).
+   Or: 2g (slot optimization) if you want decklist advice now from existing policies.
 
-3. **Want better analysis overlay on the game board?**
-   Stream 3f — wire RL policy into win probability (unblocked, small change).
+3. **Want to watch RL games or explore "what if" positions?**
    Stream 3e — replay mode (unblocked, prereqs done, UI only remaining).
+   Stream 3f — done ✅ (RL policy upload in GameBoard/TestBench, Session 17).
 
 4. **Do I want to play against a real person?**
    If yes — Stream 4 (server). Stream 3's useGameSession already done ✅.
