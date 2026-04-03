@@ -3,7 +3,7 @@
 # Cross-references all docs in docs/ folder.
 # Does NOT replace SPEC.md or DECISIONS.md.
 #
-# Last updated: Session 17 (amber-steel deck + policies; Lantern shift bug fix; Stream 3f done; RL ceiling reached; pivot to multiplayer + supervised learning)
+# Last updated: Session 19 (engine mulligan CRD 2.2.2; GameBoard card-contextual actions; bug fixes: items challenged, self-trigger filter; UX: disambiguation, effect logs)
 
 ---
 
@@ -12,7 +12,7 @@
 ```
 ✅ Rule engine — Sets 1-11 imported, Set 1 fully implemented, CRD audited
 ✅ Simulator — RandomBot, GreedyBot, RLPolicy (deprecated bots deleted)
-✅ Mulligan — shouldMulligan/performMulligan, bot-specific strategies, mulliganed in GameResult
+✅ Mulligan — engine-level partial mulligan CRD 2.2.2 (choose_mulligan pendingChoice, mulligan_p1/p2 phases, all bots + RLPolicy handle it)
 ✅ Analytics — composition, aggregation, comparison, calibration, sensitivity
 ✅ Query system — GameCondition language, ref/mulliganed conditions, save/load results
 ✅ CLI — analyze, compare, query (query accepts --policy for RL bot), learn
@@ -319,10 +319,20 @@ to be useful — even GreedyBot as an opponent is enough to test card interactio
       File picker → RLPolicy loaded → win probability uses RL policy
       Label shows "RL est." when policy loaded, "GreedyBot est." otherwise
 
+✅ 3g. GameBoard UX improvements (Session 18–19)
+    Card-contextual action buttons — per-card Play/Quest/Challenge/Shift/Ink/Activate
+      (replaced flat "Actions" list)
+    2-step challenge flow: click Challenge → attacker highlighted → click target
+    2-step shift flow: click Shift → hand card highlighted → click play target
+    Duplicate card disambiguation: "(1)"/"(2)" badge in choice buttons + board overlay
+    Effect log messages: "Removed N damage from X" / "Drew N card(s)" after triggers
+    "Opponent is thinking..." (was "Bot is thinking...")
+    Engine mulligan (CRD 2.2.2) surfaced as choose_mulligan choice in GameBoard
+
 3c/3d status: functional but far from presentable. Missing for a real UI:
     Card images, animations (play/banish/quest/challenge transitions),
     drag-and-drop, sound, hover tooltips with rules text, mobile layout,
-    hand fan layout, smooth exert/ready animations, legal target highlights,
+    hand fan layout, smooth exert/ready animations,
     opponent card backs, inkwell/discard visualization.
     Good enough for solo bot testing — revisit when multiplayer ships.
 

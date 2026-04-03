@@ -864,4 +864,47 @@ close the gap before multiplayer exists.
   A Whole New World anti-correlates with winning (played when behind). Songs overall
   correlate with losing. Lantern + New Dog T2 line never fired (RL misses multi-turn setup).
 
+---
+
+## Session 18–19 Changes (Apr 3 2026)
+
+### Engine: partial mulligan (CRD 2.2.2)
+- **Phases added:** `mulligan_p1` / `mulligan_p2` before `main`. Game now starts in
+  `mulligan_p1` with a `choose_mulligan` pendingChoice for player1.
+- **Pre-game bypass removed:** `runGame.ts` no longer runs its own mulligan loop.
+  All bots (GreedyBot, RandomBot, RLPolicy) handle `choose_mulligan` through the
+  normal `decideAction` pendingChoice dispatch path.
+- **Partial selection:** player chooses specific cards to return (not "full mulligan or
+  keep"). Bot heuristic: sort hand by non-inkable first, then lowest cost; return bottom
+  half if `shouldMulligan()` says yes.
+- **`pendingEffect` made optional** on `PendingChoice` — mulligan has no underlying effect.
+
+### Engine: bug fixes
+- **Items/locations cannot be challenged** (CRD 4.6.2): `validateChallenge` now checks
+  `defenderDef.cardType === "character"` before accepting the action.
+- **Self-trigger filter bug fixed**: `queueTrigger` was only applying trigger filters to
+  cross-card watchers, not to the source card's own triggered abilities. ADORING FANS
+  (Stitch - Rock Star) was firing on his own `card_played` event even though the
+  `costAtMost: 2` filter excluded him. Fixed by applying `matchesFilter` to self-triggers
+  the same way as watcher triggers.
+
+### Engine: effect log messages
+- Added `"effect_resolved"` to `GameLogEntryType`.
+- `applyEffectToTarget` for `remove_damage`: logs "Removed N damage from [Card]." after
+  applying the heal.
+- `applyEffect` for `draw`: logs "Drew N card(s)." after the draw.
+- Result: triggered abilities now produce a full log sequence — trigger announcement,
+  then each resolved effect — instead of a single opaque "triggered" line.
+
+### GameBoard UX (Session 18–19)
+- **Card-contextual actions**: flat action list replaced with per-card button rows.
+  Play / Ink / Quest / Challenge / Shift / Sing / Activate buttons appear below each card.
+- **2-step challenge/shift flows**: clicking Challenge or Shift enters a pending mode
+  (orange/purple ring on source card), then clicking a valid target dispatches the action.
+- **Rules of Hooks fix**: `challengeAttackerId`/`shiftCardId` useState and all
+  dependent `useCallback`/`useMemo` hooks moved above the early return for setup mode.
+- **Duplicate card disambiguation**: `buildLabelMap()` numbers identical-named cards
+  "(1)"/"(2)" in choice buttons AND overlays the badge on board cards during that choice.
+- **"Opponent is thinking..."** (was "Bot is thinking...").
+
 *Last updated: 2026-04-03*

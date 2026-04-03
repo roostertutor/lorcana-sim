@@ -244,76 +244,51 @@ Prompt: "Choose a character to deal 1 damage to"
 
 ---
 
-## Phase 3: GameBoard.tsx
+## Phase 3: GameBoard.tsx ✅ IMPLEMENTED
 
 Location: `packages/ui/src/pages/GameBoard.tsx`
 
 Pretty version. Same `useGameSession` hook. Different components.
-Build this after TestBench confirms everything works correctly.
 
-### Layout
+### What's built
 
-```
-┌─────────────────────────────────────────────────────┐
-│  ⬡ Lorcana Sim    P1: 8 lore ████░░░░░░ P2: 6 lore  │
-│  Turn 3 — Player 1's turn     Win prob: P1 62%       │
-├─────────────────────────────────────────────────────┤
-│                                                      │
-│  [P2 Hand — face down]  ┌──────────────────────────┐│
-│  3 cards                │  P2 Board                ││
-│                         │  [Gaston exerted]        ││
-│                         │  [Stitch ready]          ││
-│                         └──────────────────────────┘│
-│                         ┌──────────────────────────┐│
-│                         │  P1 Board                ││
-│                         │  [Mickey ready]          ││
-│                         └──────────────────────────┘│
-│  [P1 Hand]                                           │
-│  [Simba][Moana][Fire!][Elsa]                         │
-├─────────────────────────────────────────────────────┤
-│  Action Bar (context-sensitive)                      │
-│  Selected: Mickey Mouse  [Quest +2] [Challenge Gaston│
-│                                                      │
-│  Suggested: Quest with Mickey Mouse (+9% win prob)   │
-│                                          [Pass Turn] │
-├─────────────────────────────────────────────────────┤
-│  Log: [T3 P1] Played Mickey... [T2 P2] Gaston...    │
-└─────────────────────────────────────────────────────┘
-```
+**Card component (GameCard.tsx):**
+- Name + subtitle, cost, STR/WP/lore (characters), inkable indicator (hand)
+- Ink color gradient background + border
+- Exerted state (rotated 15°), damage badge, drying badge
+- `isSelected` / `isTarget` (pulse ring) / `isAttacker` (solid ring) props
+- Disambiguation badge overlay "(1)"/"(2)" when pending choice has duplicate names
 
-### Analysis overlay
+**Card-contextual actions (Session 19):**
+- Per-card button row: Play / Ink / Quest / Challenge / Shift / Sing / Activate
+- No flat "Actions" bar — actions belong to the card they affect
+- 2-step Challenge: click Challenge → attacker highlighted orange → click enemy target
+- 2-step Shift: click Shift → hand card highlighted → click play zone target
+- "Challenge mode" / "Shift mode" banner + Cancel shown during 2-step flows
+- Pass Turn button always visible at bottom
 
-Win probability bar updates after every action.
-Bot suggestion shown with win% delta.
-Position factors available in a collapsible "Analysis" panel.
+**Pending choice UI:**
+- Mulligan: card buttons to select/deselect cards to put back; "Keep All" or "Put back N"
+- choose_target / choose_cards / choose_discard / choose_from_revealed: labeled buttons
+- choose_may: Accept / Decline
+- choose_option: Option 1, 2, ...
+- Duplicate-named cards get "(1)"/"(2)" suffix in buttons AND board badge overlay
+- "Opponent is thinking..." shown when it's the bot's choice
 
-```
-Win Probability
-P1 ████████████░░░░ 62%   P2 38%
+**Effect log (Session 19):**
+- Triggered ability fires: "[Card]'s ability 'NAME' triggered."
+- After heal effect resolves: "Removed N damage from [Card]."
+- After draw effect resolves: "Drew N card(s)."
 
-Bot suggests: Quest with Mickey Mouse
-Expected: +9% win probability
+**Analysis overlay:**
+- Win probability bar (P1 vs P2), updates after every action
+- AnalysisPanel: position factors (lore/board/hand/ink advantage)
+- File picker → upload RLPolicy JSON → label shows "RL est." vs "GreedyBot est."
 
-▼ Position Breakdown
-  Lore advantage:  +0.4
-  Board advantage: +0.2
-  Hand advantage:  +0.1
-  Deck quality:    0.6
-  Urgency:         0.3
-```
-
-### Card component
-
-Each card shows:
-- Name + subtitle
-- Cost, STR/WP/Lore (if character)
-- Exerted state (rotated 90°)
-- Damage counters
-- Drying indicator (can't act yet)
-- Highlight when selected or is a valid target
-
-No card art for now. Ink color as background tint.
-Card art can be added later without changing any logic.
+**Bug fixes shipped (Session 18–19):**
+- Items/locations/actions can no longer be challenged (CRD 4.6.2)
+- Self-trigger filter now applied correctly (fixed ADORING FANS firing on own play)
+- Engine-level mulligan CRD 2.2.2: choose_mulligan phase before game begins
 
 ---
 
