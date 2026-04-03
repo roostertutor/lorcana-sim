@@ -788,6 +788,20 @@ describe("§5.4 Action card effects (data-driven)", () => {
     expect(getInstance(result.newState, ownId).damage).toBe(0);
   });
 
+  // CRD 8.15.2: "all" effects require no choice — Ward does not protect
+  it("Grab Your Sword deals damage to opposing Ward characters (CRD 8.15.2)", () => {
+    let state = startGame(["grab-your-sword"]);
+    let cardId: string, wardId: string;
+    ({ state, instanceId: cardId }  = injectCard(state, "player1", "grab-your-sword", "hand"));
+    ({ state, instanceId: wardId }  = injectCard(state, "player2", "aladdin-prince-ali", "play")); // Ward
+    state = giveInk(state, "player1", 5);
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: cardId }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, wardId).damage).toBe(2);
+  });
+
   // --- exert action ---
 
   it("Freeze exerts chosen opposing character", () => {
