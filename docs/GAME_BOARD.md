@@ -267,13 +267,16 @@ Pretty version. Same `useGameSession` hook. Different components.
 - "Challenge mode" / "Shift mode" banner + Cancel shown during 2-step flows
 - Pass Turn button always visible at bottom
 
-**Pending choice UI:**
-- Mulligan: card buttons to select/deselect cards to put back; "Keep All" or "Put back N"
+**Pending choice UI (Session 20: PendingChoiceModal):**
+- All choice types now render in a modal overlay (not inline in the board scroll area)
+- Desktop: centered dark panel `max-w-lg`; Mobile: bottom sheet with drag handle
+- Backdrop click auto-declines `choose_may` and optional choices; no-op for required ones
+- Mulligan: card buttons to select/deselect; "Keep All" or "Put back N"
 - choose_target / choose_cards / choose_discard / choose_from_revealed: labeled buttons
-- choose_may: Accept / Decline
+- choose_may: Accept / Decline with "Tap outside to decline" hint
 - choose_option: Option 1, 2, ...
 - Duplicate-named cards get "(1)"/"(2)" suffix in buttons AND board badge overlay
-- "Opponent is thinking..." shown when it's the bot's choice
+- "Opponent is thinking..." shown inline (not a modal) when it's the bot's choice
 
 **Effect log (Session 19):**
 - Triggered ability fires: "[Card]'s ability 'NAME' triggered."
@@ -284,6 +287,15 @@ Pretty version. Same `useGameSession` hook. Different components.
 - Win probability bar (P1 vs P2), updates after every action
 - AnalysisPanel: position factors (lore/board/hand/ink advantage)
 - File picker → upload RLPolicy JSON → label shows "RL est." vs "GreedyBot est."
+
+**Drag and drop (Session 20, @dnd-kit/core):**
+- Hand card → play zone: PLAY_CARD
+- Hand card → inkwell header: PLAY_INK (blue ring feedback)
+- Hand card → own character in play: shift (PLAY_CARD + shiftTargetInstanceId)
+- Own ready character → exerted opponent: CHALLENGE
+- PointerSensor (distance: 8px) preserves tap-to-select; TouchSensor (delay: 150ms) preserves scroll
+- DragOverlay: floating card follows cursor, 80% opacity + slight rotate
+- Drop zones pulse green when valid, dim when invalid
 
 **Bug fixes shipped (Session 18–19):**
 - Items/locations/actions can no longer be challenged (CRD 4.6.2)
@@ -372,10 +384,9 @@ const TABS = [
 
 ## What NOT to Build Yet
 
-- Drag and drop (click is enough for testing)
-- Card art (ink color tint is sufficient)
-- Animations (correctness first)
-- Mobile layout (desktop only for now)
+- Animations (play/banish/quest/challenge transitions)
+- Sound effects
+- Hover tooltips with rules text
 - Undo/redo (out of scope)
 - Chat (multiplayer feature)
 - Spectator mode (multiplayer feature)

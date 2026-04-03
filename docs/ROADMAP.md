@@ -3,7 +3,7 @@
 # Cross-references all docs in docs/ folder.
 # Does NOT replace SPEC.md or DECISIONS.md.
 #
-# Last updated: Session 19 (engine mulligan CRD 2.2.2; GameBoard card-contextual actions; bug fixes: items challenged, self-trigger filter; UX: disambiguation, effect logs)
+# Last updated: Session 20 (GameBoard drag-and-drop via @dnd-kit/core; PendingChoiceModal; buildLabelMap extracted to utils)
 
 ---
 
@@ -329,12 +329,28 @@ to be useful — even GreedyBot as an opponent is enough to test card interactio
     "Opponent is thinking..." (was "Bot is thinking...")
     Engine mulligan (CRD 2.2.2) surfaced as choose_mulligan choice in GameBoard
 
-3c/3d status: functional but far from presentable. Missing for a real UI:
-    Card images, animations (play/banish/quest/challenge transitions),
-    drag-and-drop, sound, hover tooltips with rules text, mobile layout,
-    hand fan layout, smooth exert/ready animations,
-    opponent card backs, inkwell/discard visualization.
-    Good enough for solo bot testing — revisit when multiplayer ships.
+✅ 3h. GameBoard DnD + choice modal (Session 20)
+    Drag & drop via @dnd-kit/core — coexists with click-to-select
+      Hand card → play zone = PLAY_CARD
+      Hand card → inkwell (header area) = PLAY_INK; blue ring feedback
+      Hand card → own character in play = shift (PLAY_CARD + shiftTargetInstanceId)
+      Own ready character → exerted opponent = CHALLENGE
+      All dispatches validated against legalActions — silent no-op if invalid
+      PointerSensor (distance: 8px) + TouchSensor (delay: 150ms) for mobile coexistence
+      DragOverlay: floating card copy follows cursor/finger (80% opacity, scale+rotate)
+      Drop zones: green pulse when valid drag active, dim when invalid, bright ring on hover
+    PendingChoiceModal — replaces inline renderPendingChoice()
+      Desktop: centered dark panel (max-w-lg)
+      Mobile: bottom sheet with drag handle
+      choose_may / optional choices: backdrop click auto-declines/skips
+      Required choices (mulligan, target): backdrop click is no-op
+      Opponent "thinking..." stays as inline banner, not a modal
+    buildLabelMap extracted to utils/buildLabelMap.ts (parameterized getName)
+    New files: useBoardDnd.ts, PendingChoiceModal.tsx, utils/buildLabelMap.ts
+
+3c/3d status: functional and reasonably presentable. Missing for a complete UI:
+    Animations (play/banish/quest/challenge transitions), sound,
+    hover tooltips with rules text, smooth exert/ready animations.
 
 3e. Replay mode — three distinct features, not one
 

@@ -256,6 +256,35 @@ When encountering ambiguous card text, decompose it into this grammar:
 
 ## UI Architecture Decisions
 
+### Drag and drop library: @dnd-kit/core (Session 20)
+
+Chosen over `react-beautiful-dnd` (unmaintained for React 18, poor mobile) and
+`react-dnd` (heavier API, older). `@dnd-kit/core` ships its own types, has good
+touch/pointer support, and a small API surface.
+
+**Key design:** `PointerSensor` with `activationConstraint: { distance: 8 }` lets
+short taps still fire `onClick` normally — drag only activates after 8px of movement.
+`TouchSensor` with `delay: 150ms` lets horizontal scroll gestures complete before
+DnD activates. Both coexist with the existing click-to-select + action strip pattern.
+
+All drag-to-action dispatch is validated against `legalActions` — if no matching legal
+action exists the drop silently no-ops. No separate validation logic needed.
+
+**Components stay dumb:** `DraggableCard` and `DroppableZone` are thin wrappers.
+`useBoardDnd` hook handles all state and dispatch. `GameCard` is never modified.
+
+### Choice modal: bottom sheet on mobile, centered panel on desktop (Session 20)
+
+Inline pending choice rendering competed with card zones for vertical space and was
+easy to miss on mobile. Modal creates a clear visual interrupt.
+
+**Dismissal contract:**
+- `choose_may` → backdrop click auto-declines (always optional by definition)
+- choice with `optional: true` → backdrop click skips
+- Required choices (mulligan, target selection) → backdrop click no-op
+
+Opponent "thinking..." stays inline — it's status, not a decision.
+
 ### Simulation runs in-browser
 All engine/simulator/analytics code is pure TypeScript with no Node.js
 APIs. Vite bundles it into the frontend. No server needed.
