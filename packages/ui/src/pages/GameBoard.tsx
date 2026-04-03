@@ -587,13 +587,13 @@ export default function GameBoard({ definitions, sandboxMode, onBack, multiplaye
       onDragEnd={dnd.handleDragEnd}
       onDragCancel={dnd.handleDragCancel}
     >
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-5 px-3 lg:px-4 pb-16 lg:pb-6 pt-3">
+    <div className="h-full grid grid-cols-1 lg:grid-cols-[1fr_280px] lg:gap-5 px-2 lg:px-4 pb-14 lg:pb-6 pt-2">
       {/* ======================= Main game area ======================= */}
-      <div className="min-w-0 space-y-2">
+      <div className="min-w-0 flex flex-col min-h-0 gap-1 lg:gap-2">
 
         {/* Game Over Overlay */}
         {isGameOver && (
-          <div className="rounded-xl p-6 text-center space-y-3 bg-gradient-to-b from-amber-900/30 to-amber-950/50 border border-amber-500/30">
+          <div className="shrink-0 rounded-xl p-6 text-center space-y-3 bg-gradient-to-b from-amber-900/30 to-amber-950/50 border border-amber-500/30">
             <div className="text-3xl font-black text-amber-400 tracking-tight">
               {winner === "player1" ? "Victory!" : winner === "player2" ? "Defeat" : "Draw"}
             </div>
@@ -610,7 +610,7 @@ export default function GameBoard({ definitions, sandboxMode, onBack, multiplaye
         )}
 
         {/* ---- Scoreboard ---- */}
-        <div className="rounded-xl bg-gray-900/60 border border-gray-800/50 px-3 py-2">
+        <div className="shrink-0 rounded-xl bg-gray-900/60 border border-gray-800/50 px-3 py-2">
           <div className="flex items-center gap-2">
             {/* Turn badge */}
             <div className={`px-2 py-0.5 rounded text-xs font-bold tracking-wide shrink-0 ${
@@ -648,23 +648,23 @@ export default function GameBoard({ definitions, sandboxMode, onBack, multiplaye
         </div>
 
         {error && (
-          <div className="text-red-400 text-sm bg-red-950/30 border border-red-800/50 rounded-lg px-3 py-2">
+          <div className="shrink-0 text-red-400 text-sm bg-red-950/30 border border-red-800/50 rounded-lg px-3 py-2">
             {error}
           </div>
         )}
 
         {/* ---- Opponent zone ---- */}
-        <div className="rounded-xl bg-gradient-to-b from-red-950/10 to-transparent border border-gray-800/30 p-2">
-          <div className="flex items-center justify-between mb-1.5">
+        <div className="flex-1 min-h-0 flex flex-col rounded-xl bg-gradient-to-b from-red-950/10 to-transparent border border-gray-800/30 p-2">
+          <div className="shrink-0 flex items-center justify-between mb-1">
             <span className="text-[10px] text-red-400/60 uppercase tracking-wider font-bold">Opponent</span>
             <div className="flex gap-3 text-[10px] text-gray-600 items-center">
               <InkDisplay available={p2.availableInk} total={p2Zones.inkwell.length} />
               <span>📦 {p2Zones.deck.length}</span>
             </div>
           </div>
-          {/* Opponent hand — face-down card backs */}
+          {/* Opponent hand — face-down card backs (hidden on mobile to save vertical space) */}
           {p2Zones.hand.length > 0 && (
-            <div className="flex gap-1.5 overflow-x-auto scrollbar-none pb-1 mb-1.5">
+            <div className="hidden sm:flex shrink-0 gap-1.5 overflow-x-auto scrollbar-none pb-1 mb-1">
               {p2Zones.hand.map((id) => (
                 <div key={id}
                   className="snap-start shrink-0 w-[52px] sm:w-[60px] lg:w-[72px] aspect-[5/7]
@@ -676,7 +676,7 @@ export default function GameBoard({ definitions, sandboxMode, onBack, multiplaye
             </div>
           )}
           {/* Opponent play zone — droppable for challenge */}
-          <div className="flex gap-2 overflow-x-auto overscroll-x-contain scrollbar-none snap-x snap-mandatory pb-1 min-h-[120px] items-end">
+          <div className="flex-1 min-h-0 flex gap-2 overflow-x-auto overscroll-x-contain scrollbar-none snap-x snap-mandatory pb-1 items-end">
             {p2Zones.play.length === 0 ? (
               <span className="text-gray-700 text-xs italic self-center">No cards in play</span>
             ) : (
@@ -686,15 +686,15 @@ export default function GameBoard({ definitions, sandboxMode, onBack, multiplaye
         </div>
 
         {/* ---- Battlefield divider ---- */}
-        <div className="flex items-center gap-3 py-0.5">
+        <div className="shrink-0 flex items-center gap-3">
           <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-700/50 to-transparent" />
           <span className="text-[9px] text-gray-700 uppercase tracking-widest">Battlefield</span>
           <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-700/50 to-transparent" />
         </div>
 
         {/* ---- Player zone ---- */}
-        <div className="rounded-xl bg-gradient-to-t from-green-950/10 to-transparent border border-gray-800/30 p-2">
-          <div className="flex items-center justify-between mb-1.5">
+        <div className="flex-1 min-h-0 flex flex-col rounded-xl bg-gradient-to-t from-green-950/10 to-transparent border border-gray-800/30 p-2">
+          <div className="shrink-0 flex items-center justify-between mb-1">
             <span className="text-[10px] text-green-400/60 uppercase tracking-wider font-bold">Your Board</span>
             <div className="flex gap-3 text-[10px] text-gray-600 items-center">
               {/* Inkwell — droppable drop target */}
@@ -712,7 +712,7 @@ export default function GameBoard({ definitions, sandboxMode, onBack, multiplaye
             isValidTarget={!!dnd.activeId && dnd.isValidPlayZoneDrop(dnd.activeId)}
             activeId={dnd.activeId}
           >
-            <div className="flex gap-2 overflow-x-auto overscroll-x-contain scrollbar-none snap-x snap-mandatory pb-1 min-h-[120px] items-end">
+            <div className="flex-1 min-h-0 flex gap-2 overflow-x-auto overscroll-x-contain scrollbar-none snap-x snap-mandatory pb-1 items-end">
               {p1Zones.play.length === 0 ? (
                 <span className="text-gray-700 text-xs italic self-center">
                   {dnd.activeId && dnd.isValidPlayZoneDrop(dnd.activeId)
@@ -727,12 +727,12 @@ export default function GameBoard({ definitions, sandboxMode, onBack, multiplaye
         </div>
 
         {/* ---- Hand ---- */}
-        <div className="rounded-xl bg-gray-900/40 border border-gray-800/30 p-2">
-          <div className="flex items-center justify-between mb-1.5">
+        <div className="shrink-0 rounded-xl bg-gray-900/40 border border-gray-800/30 p-2">
+          <div className="flex items-center justify-between mb-1">
             <span className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">Your Hand</span>
             <span className="text-[10px] text-gray-600">{p1Zones.hand.length} cards</span>
           </div>
-          <div className="flex gap-2 overflow-x-auto overscroll-x-contain scrollbar-none snap-x snap-mandatory pb-1 min-h-[100px] items-start">
+          <div className="flex gap-2 overflow-x-auto overscroll-x-contain scrollbar-none snap-x snap-mandatory pb-1 h-[104px] sm:h-[124px] lg:h-auto items-start">
             {p1Zones.hand.length === 0 ? (
               <span className="text-gray-700 text-xs italic self-center">Empty hand</span>
             ) : (
@@ -743,14 +743,14 @@ export default function GameBoard({ definitions, sandboxMode, onBack, multiplaye
 
         {/* ---- Pending Choice: opponent indicator (inline) or human choice (modal) ---- */}
         {pendingChoice && pendingChoice.choosingPlayerId !== myId && (
-          <div className="rounded-lg px-4 py-3 bg-yellow-950/40 border border-yellow-700/50">
+          <div className="shrink-0 rounded-lg px-4 py-2 bg-yellow-950/40 border border-yellow-700/50">
             <span className="text-yellow-400 text-sm animate-pulse">Opponent is thinking...</span>
           </div>
         )}
 
         {/* ---- Desktop: mode hints + pass turn ---- */}
         {!pendingChoice && !isGameOver && isYourTurn && (
-          <div className="hidden lg:flex items-center gap-2">
+          <div className="shrink-0 hidden lg:flex items-center gap-2">
             {challengeAttackerId && (
               <div className="flex-1 flex items-center gap-2 rounded-lg px-3 py-2 bg-red-950/40 border border-red-700/40 text-red-300 text-xs">
                 <span className="font-bold">Challenge mode</span>
@@ -777,7 +777,7 @@ export default function GameBoard({ definitions, sandboxMode, onBack, multiplaye
         )}
 
         {/* ---- Desktop: Game Log ---- */}
-        <details className="hidden lg:block">
+        <details className="shrink-0 hidden lg:block">
           <summary className="text-[10px] text-gray-600 uppercase tracking-wider cursor-pointer select-none hover:text-gray-400 transition-colors py-1">
             Game Log ({actionLog.length})
           </summary>
@@ -1018,7 +1018,7 @@ function DroppablePlayZone({
     ? "opacity-70"
     : "";
   return (
-    <div ref={setNodeRef} className={`rounded-lg transition-all duration-150 ${ring}`}>
+    <div ref={setNodeRef} className={`flex-1 min-h-0 flex flex-col rounded-lg transition-all duration-150 ${ring}`}>
       {children}
     </div>
   );
