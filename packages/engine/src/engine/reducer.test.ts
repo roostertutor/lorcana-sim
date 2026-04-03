@@ -1871,6 +1871,26 @@ describe("§8 Keywords", () => {
     expect(resolveResult.success).toBe(true);
   });
 
+  // CRD 8.15.2: "All" effects don't require choosing — Ward does not protect
+  it("Ward: Be Prepared banishes Ward characters (CRD 8.15.2)", () => {
+    let state = startGame(["be-prepared"]);
+    let bePreparedId: string, wardId: string, normalId: string;
+    ({ state, instanceId: bePreparedId } = injectCard(state, "player1", "be-prepared", "hand"));
+    ({ state, instanceId: wardId }    = injectCard(state, "player2", "aladdin-prince-ali", "play")); // Ward
+    ({ state, instanceId: normalId }  = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play"));
+    state = giveInk(state, "player1", 7);
+
+    const result = applyAction(state, {
+      type: "PLAY_CARD",
+      playerId: "player1",
+      instanceId: bePreparedId,
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, wardId).zone).toBe("discard");
+    expect(getInstance(result.newState, normalId).zone).toBe("discard");
+  });
+
   // ---------------------------------------------------------------------------
   // §5.1.2.1 Characters enter play drying
   // ---------------------------------------------------------------------------
