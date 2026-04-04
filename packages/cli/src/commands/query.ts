@@ -56,7 +56,13 @@ export async function runQuery(args: QueryArgs): Promise<void> {
     console.error(`Error: could not read questions file "${args.questions}"`);
     process.exit(1);
   }
-  const questions = JSON.parse(questionsRaw) as QuestionsFile;
+  let questions: QuestionsFile;
+  try {
+    questions = JSON.parse(questionsRaw) as QuestionsFile;
+  } catch {
+    console.error(`Error: "${args.questions}" is not valid JSON`);
+    process.exit(1);
+  }
 
   let gameResults: StoredGameResult[];
   let metadata: StoredResultSet["metadata"] | undefined;
@@ -85,7 +91,13 @@ export async function runQuery(args: QueryArgs): Promise<void> {
       console.error(`Error: could not read sim file "${args.sim}"`);
       process.exit(1);
     }
-    const simConfig = JSON.parse(simRaw) as SimFile;
+    let simConfig: SimFile;
+    try {
+      simConfig = JSON.parse(simRaw) as SimFile;
+    } catch {
+      console.error(`Error: "${args.sim}" is not valid JSON`);
+      process.exit(1);
+    }
 
     // Resolve deck paths relative to the sim file's directory
     const simDir = dirname(resolve(args.sim));

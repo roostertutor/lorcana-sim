@@ -510,9 +510,16 @@ export function evaluateCondition(
         return def?.cardType === "character" && def.traits.includes(condition.trait);
       });
     }
-    case "card_has_trait":
-    case "card_is_type":
-      return true;
+    case "card_has_trait": {
+      const inst = state.cards[sourceInstanceId];
+      const def = inst ? definitions[inst.definitionId] : undefined;
+      return def ? def.traits.includes(condition.trait) : false;
+    }
+    case "card_is_type": {
+      const inst = state.cards[sourceInstanceId];
+      const def = inst ? definitions[inst.definitionId] : undefined;
+      return def ? def.cardType === condition.cardType : false;
+    }
     default:
       return true;
   }

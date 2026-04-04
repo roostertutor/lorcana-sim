@@ -20,7 +20,13 @@ export function resolveBot(name: string, policyPath?: string): BotStrategy {
         console.error("rl bot requires --policy <path> to a saved policy JSON file");
         process.exit(1);
       }
-      const json = JSON.parse(readFileSync(policyPath, "utf-8"));
+      let json: unknown;
+      try {
+        json = JSON.parse(readFileSync(policyPath, "utf-8"));
+      } catch {
+        console.error(`Error: "${policyPath}" is not valid JSON`);
+        process.exit(1);
+      }
       const policy = RLPolicy.fromJSON(json);
       policy.epsilon = 0; // Pure exploitation for evaluation
       return policy;

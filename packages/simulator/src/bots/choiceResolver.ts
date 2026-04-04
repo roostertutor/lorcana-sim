@@ -87,6 +87,9 @@ export function resolveChoiceIntelligently(
   const targets = choice.validTargets ?? [];
 
   if (targets.length === 0) {
+    if (!choice.optional) {
+      console.warn("[choiceResolver] required choice has no valid targets — returning empty");
+    }
     return { type: "RESOLVE_CHOICE", playerId, choice: [] };
   }
 

@@ -26,9 +26,10 @@ and simulation where card specifics matter.
 
 ## What We Considered and Rejected
 
-**Human-playable simulator** — pivoted away. UI complexity (pending choice,
-board rendering) doesn't serve the analytics goal. Can revisit as thin
-layer later once analytics is solid.
+**Human-playable simulator** — initially rejected; revisited and built once
+analytics was solid. Now exists as GameBoard.tsx (solo play vs bot) and
+MultiplayerLobby.tsx. Kept as a thin interactive layer over the existing
+engine — all game logic lives in the engine, none in the UI components.
 
 **Rule engine as open source library** — Lorcana developer ecosystem is too
 small today. MTG has this after 30 years. Lorcana doesn't yet.

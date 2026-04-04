@@ -46,6 +46,9 @@ import {
 } from "../utils/index.js";
 import { rngNextInt } from "../utils/seededRng.js";
 
+// Maximum trigger chain depth before treating as an infinite loop (CRD 6.2.x)
+const MAX_TRIGGER_CHAIN = 100;
+
 // -----------------------------------------------------------------------------
 // PUBLIC TYPES
 // -----------------------------------------------------------------------------
@@ -81,6 +84,7 @@ export function applyAction(
 
     return { success: true, newState, events };
   } catch (err) {
+    console.error("[engine] applyAction threw:", err);
     return {
       success: false,
       newState: state,
@@ -178,7 +182,8 @@ export function getAllLegalActions(
     }
 
     // Shift: check independent of normal play affordability
-    const cardDef = definitions[state.cards[instanceId]?.definitionId ?? ""];
+    const cardInst = state.cards[instanceId];
+    const cardDef = cardInst ? definitions[cardInst.definitionId] : undefined;
     if (cardDef?.shiftCost !== undefined) {
       for (const targetId of myPlay) {
         const shiftPlay: GameAction = {
@@ -196,7 +201,8 @@ export function getAllLegalActions(
 
   // SING — each song in hand × each eligible singer in play (CRD 5.4.4.2)
   for (const songId of hand) {
-    const songDef = definitions[state.cards[songId]?.definitionId ?? ""];
+    const songInst = state.cards[songId];
+    const songDef = songInst ? definitions[songInst.definitionId] : undefined;
     if (!songDef || !isSong(songDef)) continue;
     for (const singerId of myPlay) {
       const singAction: GameAction = {
@@ -1852,7 +1858,7 @@ function processTriggerStack(
 ): GameState {
   let safety = 0;
   while (state.triggerStack.length > 0 && !state.pendingChoice) {
-    if (++safety > 100) throw new Error("Trigger loop detected");
+    if (++safety > MAX_TRIGGER_CHAIN) throw new Error("Trigger loop detected");
 
     const [trigger, ...rest] = state.triggerStack;
     if (!trigger) break;

@@ -174,8 +174,9 @@ export function runGame(config: SimGameConfig): GameResult {
     let action: GameAction;
     try {
       action = bot.decideAction(state, activePlayerId, config.definitions);
-    } catch {
+    } catch (err) {
       // Bot threw — force a pass to keep the game moving
+      console.warn("[simulator] bot.decideAction threw:", err);
       action = { type: "PASS_TURN", playerId: state.currentPlayer };
     }
 

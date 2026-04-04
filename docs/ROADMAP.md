@@ -95,9 +95,8 @@ not hardcoded heuristics.
 ✅ 1g. Training scripts
     train-mirror.ts    — self-play mirror match (✅ exists, ran successfully)
     train-tournament.ts — multi-policy round-robin (✅ exists)
-    train-ladder.ts    — adversarial fine-tuning + curriculum (❌ never built — ROADMAP was wrong)
-    Note: --curriculum flag in pnpm learn is silently ignored (parseArgs discards it).
-    Curriculum training requires implementing train-ladder.ts or adding the flag to learn.ts.
+    train-ladder.ts    — adversarial fine-tuning + practice games (✅ built, Stage 2 of full pipeline, ~4.5 hrs)
+    Note: --curriculum flag in pnpm learn is silently ignored (parseArgs discards it); use train-ladder.ts directly.
 
 ✅ 1h. Trained policies (policies/*.json, all CARD_FEATURE_SIZE=45)
     Full pipeline: ~6.5 hrs total wall time (confirmed Apr 3 2026)

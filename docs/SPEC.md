@@ -24,10 +24,10 @@ deck analytics, win rates, consistency metrics, and card evaluation.
 | `@lorcana-sim/simulator` | ✅ Done | Layer 3 invariants (1000 games) |
 | `@lorcana-sim/analytics` | ✅ Done | Composition + simulation + comparison |
 | `@lorcana-sim/cli` | ✅ Done | analyze, compare, optimize, sweep |
-| `@lorcana-sim/ui` | ✅ Done | 5 screens, runs in-browser |
+| `@lorcana-sim/ui` | ✅ Done | 7 screens, runs in-browser |
 | Card import script | ✅ Done | Per-set JSON files (`lorcast-set-XXX.json`) |
 | Set 1 card abilities | ✅ Done | 216 entries, all abilities implemented |
-| Additional sets (2–11) | ⬜ Pending | `pnpm import-cards --sets 2,3,...` |
+| Additional sets (2–11) | ✅ Done | Imported as keyword stubs (2504 cards); run `pnpm import-cards --sets N` to refresh |
 | PersonalBot calibration UI | ⬜ Pending | Analytics function exists, UI screen not built |
 | Layer 4 — Known replays | ⬜ Pending | Schema TBD |
 | Puzzle of the day / crowd UI | ⬜ Pending | Needs backend |

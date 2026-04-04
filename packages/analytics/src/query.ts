@@ -81,7 +81,7 @@ function resolvePlayer(ref: PlayerRef | undefined, defaultPlayer: PlayerID): Pla
   if (!ref) return defaultPlayer;
   if (ref === "me" || ref === "player1") return "player1";
   if (ref === "opponent" || ref === "player2") return "player2";
-  return defaultPlayer;
+  throw new Error(`Unknown PlayerRef: "${ref as string}"`);
 }
 
 function toGlobalTurn(playerTurn: number, player: PlayerID): number {

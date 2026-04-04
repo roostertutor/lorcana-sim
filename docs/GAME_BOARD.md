@@ -255,7 +255,8 @@ Pretty version. Same `useGameSession` hook. Different components.
 **Card component (GameCard.tsx):**
 - Name + subtitle, cost, STR/WP/lore (characters), inkable indicator (hand)
 - Ink color gradient background + border
-- Exerted state (rotated 15°), damage badge, drying badge
+- Exerted state (rotated 90° + opacity-80), damage badge, drying badge
+- EXR text badge only renders alongside DRY/damage badges (inside shared conditional); 90° rotation is the primary exerted signal
 - `isSelected` / `isTarget` (pulse ring) / `isAttacker` (solid ring) props
 - Disambiguation badge overlay "(1)"/"(2)" when pending choice has duplicate names
 
@@ -270,10 +271,11 @@ Pretty version. Same `useGameSession` hook. Different components.
 **Pending choice UI (Session 20: PendingChoiceModal):**
 - All choice types now render in a modal overlay (not inline in the board scroll area)
 - Desktop: centered dark panel `max-w-lg`; Mobile: bottom sheet with drag handle
-- Backdrop click auto-declines `choose_may` and optional choices; no-op for required ones
+- Backdrop click hides the modal so the player can peek at the board; "View Choice" pill restores it
+- New pending choice auto-restores the modal (useEffect on `session.gameState?.pendingChoice`)
 - Mulligan: card buttons to select/deselect; "Keep All" or "Put back N"
 - choose_target / choose_cards / choose_discard / choose_from_revealed: labeled buttons
-- choose_may: Accept / Decline with "Tap outside to decline" hint
+- choose_may: Accept / Decline with "Tap outside to peek" hint
 - choose_option: Option 1, 2, ...
 - Duplicate-named cards get "(1)"/"(2)" suffix in buttons AND board badge overlay
 - "Opponent is thinking..." shown inline (not a modal) when it's the bot's choice
@@ -364,21 +366,23 @@ This is a 3-line change. It unlocks:
 
 ---
 
-## Add to App.tsx
+## App.tsx — Current State ✅
 
-Add TestBench (and later GameBoard) as a tab:
+Four tabs. GameBoard launches from within the Sandbox tab (full-screen, hides nav).
 
 ```typescript
+type Tab = "decks" | "simulate" | "testbench" | "multiplayer"
+
 const TABS = [
-  { id: "deck", label: "Deck Input" },
-  { id: "composition", label: "Composition", requiresDeck: true },
-  { id: "simulate", label: "Simulate", requiresDeck: true },
-  { id: "compare", label: "Compare" },
-  { id: "weights", label: "Weight Explorer", requiresDeck: true },
-  { id: "testbench", label: "Test Bench", requiresDeck: true },  // NEW
-  // { id: "board", label: "Play" }  // later replaces testbench
+  { id: "decks",       label: "Decks" },
+  { id: "simulate",    label: "Simulate" },
+  { id: "testbench",   label: "Sandbox" },    // launches TestBench → GameBoard full-screen
+  { id: "multiplayer", label: "Multiplayer" }, // launches MultiplayerLobby
 ]
 ```
+
+WeightExplorer tab was deleted. CompositionView, DeckInput, ComparisonView exist as
+page components used within DecksPage/SimulationView — not standalone tabs.
 
 ---
 

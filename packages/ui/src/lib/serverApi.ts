@@ -2,6 +2,15 @@ import type { GameAction, GameState, DeckEntry } from "@lorcana-sim/engine"
 
 const SERVER_URL = (import.meta.env["VITE_SERVER_URL"] as string | undefined) ?? "http://localhost:3001"
 
+async function extractError(res: Response): Promise<string> {
+  try {
+    const data = await res.json() as { error?: string }
+    return data.error ?? `HTTP ${res.status}`
+  } catch {
+    return `HTTP ${res.status}`
+  }
+}
+
 async function authHeaders(token: string) {
   return {
     "Content-Type": "application/json",
@@ -31,7 +40,7 @@ export async function createLobby(token: string, deck: DeckEntry[]) {
     headers: await authHeaders(token),
     body: JSON.stringify({ deck }),
   })
-  if (!res.ok) throw new Error((await res.json() as { error: string }).error)
+  if (!res.ok) throw new Error(await extractError(res))
   return res.json() as Promise<{ lobbyId: string; code: string }>
 }
 
@@ -41,7 +50,7 @@ export async function joinLobby(token: string, code: string, deck: DeckEntry[]) 
     headers: await authHeaders(token),
     body: JSON.stringify({ code, deck }),
   })
-  if (!res.ok) throw new Error((await res.json() as { error: string }).error)
+  if (!res.ok) throw new Error(await extractError(res))
   return res.json() as Promise<{ lobbyId: string; gameId: string }>
 }
 
@@ -49,7 +58,7 @@ export async function getGame(token: string, gameId: string) {
   const res = await fetch(`${SERVER_URL}/game/${gameId}`, {
     headers: await authHeaders(token),
   })
-  if (!res.ok) throw new Error((await res.json() as { error: string }).error)
+  if (!res.ok) throw new Error(await extractError(res))
   const data = await res.json() as { game: { state: GameState } }
   return data.game.state
 }
@@ -60,10 +69,7 @@ export async function sendAction(token: string, gameId: string, action: GameActi
     headers: await authHeaders(token),
     body: JSON.stringify({ action }),
   })
-  if (!res.ok) {
-    const data = await res.json() as { error?: string }
-    throw new Error(data.error ?? "Action failed")
-  }
+  if (!res.ok) throw new Error(await extractError(res))
   return res.json() as Promise<{ success: boolean; newState: GameState }>
 }
 
@@ -72,5 +78,5 @@ export async function resignGame(token: string, gameId: string) {
     method: "POST",
     headers: await authHeaders(token),
   })
-  if (!res.ok) throw new Error((await res.json() as { error: string }).error)
+  if (!res.ok) throw new Error(await extractError(res))
 }

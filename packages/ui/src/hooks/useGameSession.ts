@@ -228,7 +228,7 @@ export function useGameSession(): GameSession {
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [gameState?.isGameOver]); // re-subscribe only if game ends (cleanup)
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- intentionally runs once; subscription handles its own state updates
 
   // ---------------------------------------------------------------------------
   // selectCard
