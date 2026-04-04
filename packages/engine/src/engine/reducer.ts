@@ -439,6 +439,8 @@ function applyPlayCard(
       ability: {
         type: "triggered",
         trigger: { on: "enters_play" },
+        storyName: "Bodyguard",
+        rulesText: "This character may enter play exerted to protect your other characters.",
         effects: [{
           type: "exert",
           target: { type: "this" },
@@ -554,6 +556,8 @@ function applyQuest(
           ability: {
             type: "triggered",
             trigger: { on: "quests" },
+            storyName: "Support",
+            rulesText: `Whenever this character quests, you may add their strength (${supportStrength}) to another chosen character's strength this turn.`,
             effects: [{
               type: "gain_stats",
               strength: supportStrength,
@@ -943,13 +947,56 @@ function applyResolveChoice(
     return state;
   }
 
-  if (pendingChoice.type === "choose_from_revealed" && Array.isArray(choice) && choice.length === 1) {
-    // Bot picked one revealed card to keep — move to hand, rest to bottom of deck
-    const chosenId = choice[0]!;
-    const rest = (pendingChoice.validTargets ?? []).filter(id => id !== chosenId);
-    const owner = state.cards[chosenId]?.ownerId ?? playerId;
-    state = moveCard(state, chosenId, owner, "hand");
-    state = reorderDeckTopToBottom(state, owner, rest, []);
+  if (pendingChoice.type === "choose_from_revealed" && Array.isArray(choice)) {
+    const owner = playerId;
+    if (choice.length === 1) {
+      // Player picked a card to put in hand — rest go to bottom
+      const chosenId = choice[0]!;
+      // Bug fix: use revealedCards (all revealed) not validTargets (filtered subset) for rest
+      const allRevealed = pendingChoice.revealedCards ?? pendingChoice.validTargets ?? [];
+      const rest = allRevealed.filter(id => id !== chosenId);
+      state = moveCard(state, chosenId, owner, "hand");
+      if (rest.length > 1 && state.interactive) {
+        // Let human choose the order the rest go to the bottom
+        state = { ...state, pendingChoice: null };
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_order",
+            choosingPlayerId: owner,
+            prompt: `Choose the order to place the remaining ${rest.length} cards on the bottom of your deck (first selected = bottommost).`,
+            validTargets: rest,
+          },
+        };
+      }
+      state = reorderDeckTopToBottom(state, owner, rest, []);
+    } else {
+      // Empty choice (optional skip — no valid targets): put all revealed to bottom
+      const allRevealed = pendingChoice.revealedCards ?? [];
+      if (allRevealed.length > 1 && state.interactive) {
+        state = { ...state, pendingChoice: null };
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_order",
+            choosingPlayerId: owner,
+            prompt: `Choose the order to place the ${allRevealed.length} revealed cards on the bottom of your deck (first selected = bottommost).`,
+            validTargets: allRevealed,
+          },
+        };
+      }
+      state = reorderDeckTopToBottom(state, owner, allRevealed, []);
+    }
+    state = resumePendingEffectQueue(state, definitions, events);
+    state = cleanupPendingAction(state, playerId);
+    return state;
+  }
+
+  if (pendingChoice.type === "choose_order" && Array.isArray(choice)) {
+    // Player has specified an order for cards going to bottom of deck
+    const ordered = choice as string[];
+    const owner = playerId;
+    state = reorderDeckTopToBottom(state, owner, ordered, []);
     state = resumePendingEffectQueue(state, definitions, events);
     state = cleanupPendingAction(state, playerId);
     return state;
@@ -1369,8 +1416,20 @@ export function applyEffect(
               return matchesFilter(inst, def, effect.filter!, state, controllingPlayerId);
             });
             if (matchingCards.length === 0) {
-              state = reorderDeckTopToBottom(state, targetPlayer, topCards, []);
-              return state;
+              // No valid cards — show all revealed cards so human can see what was looked at,
+              // then auto-send rest to bottom when they dismiss (optional with empty validTargets)
+              return {
+                ...state,
+                pendingChoice: {
+                  type: "choose_from_revealed",
+                  choosingPlayerId: controllingPlayerId,
+                  prompt: `No matching cards found. All revealed cards go to the bottom of your deck.`,
+                  validTargets: [],
+                  revealedCards: topCards,
+                  pendingEffect: effect,
+                  optional: true,
+                },
+              };
             }
             return {
               ...state,
@@ -1841,12 +1900,19 @@ function processTriggerStack(
 
       // CRD 6.1.4: "may" effects require player decision before resolving
       if ("isMay" in effect && effect.isMay) {
+        const sourceDef = definitions[source.definitionId];
+        const cardName = sourceDef?.fullName ?? source.definitionId;
+        const abilityName = trigger.ability.storyName ? `"${trigger.ability.storyName}"` : "ability";
+        const rulesText = trigger.ability.rulesText ?? "";
+        const mayPrompt = rulesText
+          ? `${cardName} — ${abilityName}: ${rulesText}`
+          : `${cardName} — ${abilityName}: use this effect?`;
         state = {
           ...state,
           pendingChoice: {
             type: "choose_may",
             choosingPlayerId: source.ownerId,
-            prompt: "You may use this effect. Accept or decline?",
+            prompt: mayPrompt,
             pendingEffect: effect,
             optional: true,
             sourceInstanceId: trigger.sourceInstanceId,

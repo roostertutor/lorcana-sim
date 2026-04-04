@@ -21,6 +21,12 @@ function resolveChoiceRandom(state: GameState, playerId: PlayerID): GameAction {
     return { type: "RESOLVE_CHOICE", playerId, choice: Math.random() < 0.5 ? "accept" : "decline" };
   }
 
+  // choose_order: return all targets in a random order
+  if (choice.type === "choose_order") {
+    const shuffled = [...(choice.validTargets ?? [])].sort(() => Math.random() - 0.5);
+    return { type: "RESOLVE_CHOICE", playerId, choice: shuffled };
+  }
+
   const targets = choice.validTargets ?? [];
   if (targets.length > 0) {
     const idx = Math.floor(Math.random() * targets.length);

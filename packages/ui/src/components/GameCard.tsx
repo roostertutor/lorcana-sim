@@ -42,12 +42,15 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   if (faceDown) {
     return (
       <div
-        className="w-[88px] sm:w-[104px] lg:w-[120px] aspect-[5/7] rounded-xl
-                   bg-gray-800/80 border-2 border-gray-700/60
-                   flex items-center justify-center shrink-0"
+        className="w-[88px] sm:w-[104px] lg:w-[120px] aspect-[5/7] rounded-xl overflow-hidden shrink-0"
         onClick={onClick}
       >
-        <span className="text-gray-600 text-xl">⬡</span>
+        <img
+          src="/card-back-small.jpg"
+          alt="Card back"
+          className="w-full h-full object-cover"
+          draggable={false}
+        />
       </div>
     );
   }

@@ -235,6 +235,11 @@ export class RLPolicy implements BotStrategy {
         }
         break;
       }
+      case "choose_order": {
+        // Bot uses the existing order (no preference on ordering)
+        candidates.push({ type: "RESOLVE_CHOICE", playerId, choice: choice.validTargets ?? [] });
+        break;
+      }
       case "choose_discard": {
         // Greedy: pick targets one at a time by score
         const targets = choice.validTargets ?? [];

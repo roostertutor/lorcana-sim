@@ -4,7 +4,7 @@
 // =============================================================================
 
 import React, { useState, useMemo, useRef, useEffect } from "react";
-import type { CardDefinition, DeckEntry, PlayerID } from "@lorcana-sim/engine";
+import type { CardDefinition, DeckEntry, PlayerID, GameState } from "@lorcana-sim/engine";
 import { parseDecklist } from "@lorcana-sim/engine";
 import {
   GreedyBot,
@@ -18,7 +18,6 @@ import {
   useDraggable,
   useDroppable,
   PointerSensor,
-  TouchSensor,
   useSensor,
   useSensors,
   pointerWithin,
@@ -116,6 +115,83 @@ function InkDisplay({ available, total }: { available: number; total: number }) 
   );
 }
 
+function InkwellZone({
+  inkwellIds, availableInk, inksUsed, canStillInk, isYourTurn,
+  isValidTarget, droppable = false, gameState, definitions,
+}: {
+  inkwellIds: string[];
+  availableInk: number;
+  inksUsed: number;
+  canStillInk: boolean;
+  isYourTurn: boolean;
+  isValidTarget: boolean;
+  droppable?: boolean;
+  gameState: GameState;
+  definitions: Record<string, CardDefinition>;
+}) {
+  const { setNodeRef, isOver } = useDroppable({ id: droppable ? DROP_INKWELL : "inkwell-display-only" });
+  const total = inkwellIds.length;
+
+  const borderClass = isOver && isValidTarget
+    ? "border-blue-400 bg-blue-950/20 shadow-lg shadow-blue-400/20"
+    : isValidTarget
+    ? "border-blue-600/50 animate-pulse"
+    : canStillInk
+    ? "border-blue-800/50"
+    : "border-transparent";
+
+  // Quota pips: filled = used this turn, empty = still available
+  const filledPips = inksUsed;
+  const emptyPips = canStillInk ? 1 : 0;
+
+  return (
+    <div ref={setNodeRef} className={`mt-1 rounded-lg border-2 transition-all duration-150 ${borderClass} relative`}>
+      {/* Quota pips — top right, only on your turn */}
+      {isYourTurn && (filledPips > 0 || emptyPips > 0) && (
+        <div className="absolute top-1 right-1.5 z-10 flex gap-0.5 items-center">
+          {Array.from({ length: filledPips }, (_, i) => (
+            <div key={`f${i}`} className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+          ))}
+          {Array.from({ length: emptyPips }, (_, i) => (
+            <div key={`e${i}`} className="w-1.5 h-1.5 rounded-full border border-blue-400/70 animate-pulse" />
+          ))}
+        </div>
+      )}
+
+      {/* Card strip */}
+      <div className="h-14 md:h-auto md:min-h-[146px] lg:min-h-[168px] overflow-hidden md:overflow-visible flex flex-nowrap items-start px-1 pt-1">
+        {total === 0 ? (
+          <div className="flex-1 flex items-center justify-center h-full">
+            <span className="text-[9px] text-gray-700 italic">No cards inked</span>
+          </div>
+        ) : (
+          inkwellIds.map((id, i) => {
+            const isFaceUp = i >= total - inksUsed;
+            const isAvailable = i >= total - availableInk;
+            return (
+              <div
+                key={id}
+                style={{ marginLeft: i > 0 ? "-52px" : "0", zIndex: i }}
+                className={`shrink-0 transition-opacity ${isAvailable ? "opacity-100" : "opacity-40"}`}
+              >
+                <GameCard
+                  instanceId={id}
+                  gameState={gameState}
+                  definitions={definitions}
+                  isSelected={false}
+                  onClick={() => {}}
+                  zone="play"
+                  faceDown={!isFaceUp}
+                />
+              </div>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function GameBoard({ definitions, sandboxMode, initialDeck, onBack, multiplayerGame }: Props) {
   const session = useGameSession();
 
@@ -125,6 +201,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   const [rlPolicy, setRlPolicy] = useState<BotStrategy | null>(null);
   const [rlPolicyName, setRlPolicyName] = useState<string | null>(null);
   const [multiSelectTargets, setMultiSelectTargets] = useState<string[]>([]);
+  const [choiceModalHidden, setChoiceModalHidden] = useState(false);
   const [challengeAttackerId, setChallengeAttackerId] = useState<string | null>(null);
   const [shiftCardId, setShiftCardId] = useState<string | null>(null);
   const [showAnalysis, setShowAnalysis] = useState(false);
@@ -277,15 +354,23 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     }
   }, [session.actionLog.length]);
 
-  // Disable pull-to-refresh and overscroll bounce while the game board is mounted
+  // Disable pull-to-refresh, overscroll bounce, and long-press callout while the game board is mounted
   useEffect(() => {
     const html = document.documentElement;
     const body = document.body;
     html.style.overscrollBehavior = "none";
     body.style.overscrollBehavior = "none";
+    // Suppress iOS long-press callout and text selection on touch
+    body.style.webkitUserSelect = "none";
+    (body.style as any)["-webkit-touch-callout"] = "none";
+    const onContextMenu = (e: MouseEvent) => e.preventDefault();
+    document.addEventListener("contextmenu", onContextMenu);
     return () => {
       html.style.overscrollBehavior = "";
       body.style.overscrollBehavior = "";
+      body.style.webkitUserSelect = "";
+      (body.style as any)["-webkit-touch-callout"] = "";
+      document.removeEventListener("contextmenu", onContextMenu);
     };
   }, []);
 
@@ -352,6 +437,15 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sandboxMode, autoPassP2, session.gameState]);
 
+  // Restore modal whenever a new choice arrives
+  useEffect(() => {
+    const pc = session.gameState?.pendingChoice;
+    if (pc && pc.choosingPlayerId === myId) {
+      setChoiceModalHidden(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session.gameState?.pendingChoice]);
+
   function handleStart() {
     const botOption = BOT_OPTIONS.find((b) => b.id === botId) ?? BOT_OPTIONS[0]!;
     session.startGame({
@@ -378,7 +472,6 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   // ── Drag & Drop — must be declared BEFORE any early return (Rules of Hooks) ──
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(TouchSensor,   { activationConstraint: { delay: 150, tolerance: 5 } }),
   );
 
   const dnd = useBoardDnd({
@@ -504,6 +597,8 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
 
   const recentLog = actionLog.slice(-30);
   const isYourTurn = gameState.currentPlayer === myId;
+  const inksUsed = p1.inkPlaysThisTurn ?? (p1.hasPlayedInkThisTurn ? 1 : 0);
+  const canStillInk = isYourTurn && !pendingChoice && !isGameOver && legalActions.some(a => a.type === "PLAY_INK");
 
   // Helpers for readability in JSX
   function isDraggableEnabled(isOpponent: boolean) {
@@ -539,7 +634,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     const overlapPx = total >= 7 ? 50 : total >= 5 ? 32 : 22;
     const handStyle: React.CSSProperties | undefined = isHandCard ? {
       marginLeft: index > 0 ? `-${overlapPx}px` : "0",
-      transform: isCardSelected ? "translateY(-10px)" : `rotate(${normalizedPos * (isOpponent ? -6 : 6)}deg)`,
+      transform: isCardSelected ? "translateY(-10px)" : `rotate(${normalizedPos * 6}deg)`,
       transformOrigin: isOpponent ? "top center" : "bottom center",
       zIndex: isCardSelected ? 20 : index,
       transition: "transform 0.15s ease, z-index 0s",
@@ -582,21 +677,22 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                   {disambigBadge}
                 </span>
               )}
+              {/* Action buttons overlaid on card when selected — all screen sizes */}
+              {btns.length > 0 && session.selectedInstanceId === id && (
+                <div className="absolute inset-x-0 top-0 z-20 flex flex-col gap-0.5 p-1 bg-black/60 rounded-t-xl">
+                  {btns.filter(btn => btn.label !== "Ink").map((btn, i) => (
+                    <button
+                      key={i}
+                      className={`w-full text-[10px] font-bold py-1 rounded transition-colors active:scale-95 ${btn.color}`}
+                      onClick={btn.onClick}
+                    >
+                      {btn.label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </DroppableCardTarget>
-          {btns.length > 0 && (
-            <div className="hidden md:flex flex-wrap gap-0.5 justify-center max-w-[120px]">
-              {btns.filter(btn => btn.label !== "Ink").map((btn, i) => (
-                <button
-                  key={i}
-                  className={`text-[9px] font-bold px-2 py-0.5 rounded-full transition-colors ${btn.color}`}
-                  onClick={btn.onClick}
-                >
-                  {btn.label}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
       </DraggableCard>
     );
@@ -724,15 +820,27 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-[10px] text-red-400/60 uppercase tracking-wider font-bold">Opponent</span>
             <div className="flex gap-3 text-[10px] text-gray-600 items-center">
-              <InkDisplay available={p2.availableInk} total={p2Zones.inkwell.length} />
               <span>📦 {p2Zones.deck.length}</span>
             </div>
           </div>
-          {/* Opponent hand — face-down, same fan component as player hand */}
+          {/* Opponent hand — face-down, clipped to just show card tops */}
           {p2Zones.hand.length > 0 && (
-            <div className="shrink-0 flex flex-nowrap pb-3 mb-1 items-start justify-center">
+            <div className="shrink-0 h-16 overflow-hidden flex flex-nowrap items-end justify-center mb-1">
               {p2Zones.hand.map((id, i) => renderCardWithActions(id, "hand", true, i, p2Zones.hand.length, true))}
             </div>
+          )}
+          {/* Opponent inkwell */}
+          {p2Zones.inkwell.length > 0 && (
+            <InkwellZone
+              inkwellIds={p2Zones.inkwell}
+              availableInk={p2.availableInk}
+              inksUsed={p2.inkPlaysThisTurn ?? (p2.hasPlayedInkThisTurn ? 1 : 0)}
+              canStillInk={false}
+              isYourTurn={false}
+              isValidTarget={false}
+              gameState={gameState}
+              definitions={definitions}
+            />
           )}
           {/* Opponent play zone — characters left, items right */}
           <div className="flex-1 min-h-0 overflow-y-auto flex items-end justify-between gap-2 pb-1">
@@ -763,7 +871,6 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-[10px] text-green-400/60 uppercase tracking-wider font-bold">Your Board</span>
             <div className="flex gap-3 text-[10px] text-gray-600 items-center">
-              <InkDisplay available={p1.availableInk} total={p1Zones.inkwell.length} />
               <span>📦 {p1Zones.deck.length}</span>
             </div>
           </div>
@@ -774,7 +881,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             className="flex-1 min-h-0 flex flex-col"
           >
             {/* Player play zone — characters left, items right */}
-            <div className="flex-1 min-h-0 overflow-y-auto flex items-end justify-between gap-2 pb-1">
+            <div className="flex-1 min-h-0 overflow-x-hidden overflow-y-auto flex items-end justify-between gap-2 pb-1 px-1">
               {p1Zones.play.length === 0 ? (
                 <span className="text-gray-700 text-xs italic self-center">
                   {dnd.activeId && dnd.isValidPlayZoneDrop(dnd.activeId)
@@ -793,25 +900,28 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               )}
             </div>
           </DroppablePlayZone>
+
+          {/* Inkwell — always-on card zone, doubles as drop target */}
+          <InkwellZone
+            inkwellIds={p1Zones.inkwell}
+            availableInk={p1.availableInk}
+            inksUsed={inksUsed}
+            canStillInk={canStillInk}
+            isYourTurn={isYourTurn}
+            isValidTarget={!!dnd.activeId && dnd.isValidInkwellDrop(dnd.activeId)}
+            droppable
+            gameState={gameState}
+            definitions={definitions}
+          />
         </div>
 
-        {/* Inkwell drop zone — appears between board and hand while dragging an inkable card */}
-        {dnd.activeId && dnd.isValidInkwellDrop(dnd.activeId) && (
-          <DroppableInkwell isValidTarget={true} activeId={dnd.activeId}>
-            <div className="shrink-0 w-full rounded-lg border-2 border-dashed border-blue-500/60 bg-blue-950/30
-                            flex items-center justify-center gap-2 py-5 text-xs text-blue-400 font-medium">
-              💧 Drop here to ink
-            </div>
-          </DroppableInkwell>
-        )}
-
         {/* ---- Hand ---- */}
-        <div className="shrink-0 rounded-xl bg-gray-900/40 border border-gray-800/30 p-2">
-          <div className="flex items-center justify-between mb-1.5">
+        <div className="shrink-0 md:rounded-xl md:bg-gray-900/40 md:border md:border-gray-800/30 md:p-2">
+          <div className="hidden md:flex items-center justify-between mb-1.5">
             <span className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">Your Hand</span>
             <span className="text-[10px] text-gray-600">{p1Zones.hand.length} cards</span>
           </div>
-          <div className="flex flex-nowrap overflow-x-auto snap-x snap-mandatory scrollbar-none md:flex-wrap md:overflow-x-hidden md:overflow-y-auto md:snap-none md:max-h-[260px] lg:max-h-[355px] pb-4 items-end min-h-[80px] justify-center">
+          <div className="h-20 overflow-hidden flex flex-nowrap items-start justify-center md:h-auto md:overflow-hidden md:flex-wrap md:max-h-[260px] lg:max-h-[355px] md:p-1 md:min-h-[80px]">
             {p1Zones.hand.length === 0 ? (
               <span className="text-gray-700 text-xs italic self-center">Empty hand</span>
             ) : (
@@ -820,32 +930,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           </div>
         </div>
 
-        {/* ---- Pending Choice: opponent indicator (inline) or human choice (modal) ---- */}
-        {pendingChoice && pendingChoice.choosingPlayerId !== myId && (
-          <div className="shrink-0 rounded-lg px-4 py-3 bg-yellow-950/40 border border-yellow-700/50">
-            <span className="text-yellow-400 text-sm animate-pulse">Opponent is thinking...</span>
-          </div>
-        )}
 
-        {/* ---- Desktop: mode hints (challenge / shift) ---- */}
-        {!pendingChoice && !isGameOver && isYourTurn && (challengeAttackerId || shiftCardId) && (
-          <div className="shrink-0 hidden md:flex items-center gap-2">
-            {challengeAttackerId && (
-              <div className="flex-1 flex items-center gap-2 rounded-lg px-3 py-2 bg-red-950/40 border border-red-700/40 text-red-300 text-xs">
-                <span className="font-bold">Challenge mode</span>
-                <span className="text-red-500">— click a highlighted opponent card</span>
-                <button className="ml-auto text-red-500 hover:text-red-300 font-bold" onClick={cancelMode}>✕</button>
-              </div>
-            )}
-            {shiftCardId && (
-              <div className="flex-1 flex items-center gap-2 rounded-lg px-3 py-2 bg-purple-950/40 border border-purple-700/40 text-purple-300 text-xs">
-                <span className="font-bold">Shift mode</span>
-                <span className="text-purple-500">— click a highlighted character to shift onto</span>
-                <button className="ml-auto text-purple-500 hover:text-purple-300 font-bold" onClick={cancelMode}>✕</button>
-              </div>
-            )}
-          </div>
-        )}
 
       </div>
 
@@ -865,32 +950,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             <div className="text-[10px] text-gray-500 uppercase tracking-wider font-bold shrink-0">
               Game Log ({actionLog.length})
             </div>
-            <div ref={logRef} className="flex-1 min-h-0 overflow-y-auto rounded-lg border border-gray-800/30 p-2 bg-gray-950/50 text-[11px] font-mono space-y-0.5">
+            <div ref={logRef} className="flex-1 min-h-0 overflow-y-auto rounded-lg border border-gray-800/30 p-2 bg-gray-950/50 text-[11px] font-mono space-y-0.5 select-text">
               {logEntries}
             </div>
           </div>
         )}
       </div>
 
-      {/* ======================= Mobile: card action strip ======================= */}
-      {selectedCardButtons.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 z-30 md:hidden
-                        bg-gray-950/95 border-t border-gray-800 backdrop-blur-sm px-3 py-2
-                        pb-[env(safe-area-inset-bottom,8px)]
-                        flex gap-2 overflow-x-auto scrollbar-none">
-          <span className="text-[10px] text-gray-500 self-center shrink-0 mr-1">
-            {getCardName(session.selectedInstanceId!)}:
-          </span>
-          {selectedCardButtons.map((btn, i) => (
-            <button key={i}
-              className={`shrink-0 px-4 min-h-[44px] rounded-lg text-sm font-bold
-                          transition-colors active:scale-95 ${btn.color}`}
-              onClick={btn.onClick}>
-              {btn.label}
-            </button>
-          ))}
-        </div>
-      )}
 
 
       {/* ======================= Mobile: Analysis/Sandbox bottom sheet ======================= */}
@@ -915,7 +981,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                 <div className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">
                   Game Log ({actionLog.length})
                 </div>
-                <div className="h-48 overflow-y-auto rounded-lg border border-gray-800/30 p-2 bg-gray-950/50 text-[11px] font-mono space-y-0.5">
+                <div className="h-48 overflow-y-auto rounded-lg border border-gray-800/30 p-2 bg-gray-950/50 text-[11px] font-mono space-y-0.5 select-text">
                   {logEntries}
                 </div>
               </div>
@@ -935,7 +1001,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               <span className="text-sm font-bold text-gray-300">Game Log ({actionLog.length})</span>
               <button onClick={() => setShowLog(false)} className="text-gray-500 hover:text-gray-300 text-lg leading-none active:scale-95">✕</button>
             </div>
-            <div className="flex-1 overflow-y-auto p-3 font-mono text-[11px] space-y-0.5">
+            <div className="flex-1 overflow-y-auto p-3 font-mono text-[11px] space-y-0.5 select-text">
               {recentLog.map((entry, i) => (
                 <div key={i} className="text-gray-500">
                   <span className="text-gray-700">T{entry.turn}</span>{" "}
@@ -947,6 +1013,33 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               ))}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ======================= Floating mode toasts ======================= */}
+      {pendingChoice && pendingChoice.choosingPlayerId !== myId && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
+          <div className="bg-yellow-950/90 border border-yellow-700/60 rounded-full px-4 py-1.5 shadow-lg">
+            <span className="text-yellow-400 text-xs font-medium animate-pulse">Opponent is thinking…</span>
+          </div>
+        </div>
+      )}
+      {!pendingChoice && !isGameOver && isYourTurn && (challengeAttackerId || shiftCardId) && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2">
+          {challengeAttackerId && (
+            <div className="flex items-center gap-2 rounded-full px-4 py-1.5 bg-red-950/90 border border-red-700/60 text-red-300 text-xs shadow-lg">
+              <span className="font-bold">Challenge</span>
+              <span className="text-red-500">— tap a highlighted opponent card</span>
+              <button className="text-red-500 hover:text-red-300 font-bold active:scale-95" onClick={cancelMode}>✕</button>
+            </div>
+          )}
+          {shiftCardId && (
+            <div className="flex items-center gap-2 rounded-full px-4 py-1.5 bg-purple-950/90 border border-purple-700/60 text-purple-300 text-xs shadow-lg">
+              <span className="font-bold">Shift</span>
+              <span className="text-purple-500">— tap a highlighted character</span>
+              <button className="text-purple-500 hover:text-purple-300 font-bold active:scale-95" onClick={cancelMode}>✕</button>
+            </div>
+          )}
         </div>
       )}
 
@@ -967,7 +1060,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       </DragOverlay>
 
       {/* ======================= Pending Choice Modal ======================= */}
-      {pendingChoice && pendingChoice.choosingPlayerId === myId && (
+      {pendingChoice && pendingChoice.choosingPlayerId === myId && !choiceModalHidden && (
         <PendingChoiceModal
           pendingChoice={pendingChoice}
           myId={myId}
@@ -975,11 +1068,27 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           definitions={definitions}
           multiSelectTargets={multiSelectTargets}
           onMultiSelectChange={setMultiSelectTargets}
+          onHide={() => setChoiceModalHidden(true)}
           onResolveChoice={(choice) => {
             session.resolveChoice(choice);
             setMultiSelectTargets([]);
           }}
         />
+      )}
+
+      {/* Floating restore pill — shown when modal is hidden */}
+      {pendingChoice && pendingChoice.choosingPlayerId === myId && choiceModalHidden && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+          <button
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-700 hover:bg-indigo-600 active:scale-95 text-white text-xs font-semibold rounded-full shadow-lg border border-indigo-500 transition-all"
+            onClick={() => setChoiceModalHidden(false)}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
+            </svg>
+            View Choice
+          </button>
+        </div>
       )}
     </div>
     </DndContext>

@@ -57,6 +57,11 @@ export function resolveChoiceIntelligently(
     return { type: "RESOLVE_CHOICE", playerId, choice: "accept" };
   }
 
+  // choose_order: bot uses the original order (validTargets as-is)
+  if (choice.type === "choose_order") {
+    return { type: "RESOLVE_CHOICE", playerId, choice: choice.validTargets ?? [] };
+  }
+
   // choose_discard: sort validTargets by card cost ascending, discard cheapest N
   if (choice.type === "choose_discard") {
     const targets = choice.validTargets ?? [];

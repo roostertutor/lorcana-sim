@@ -442,6 +442,20 @@ function validateResolveChoice(
     return OK;
   }
 
+  // choose_order: player reorders cards for deck placement — must include all validTargets exactly once
+  if (state.pendingChoice.type === "choose_order" && Array.isArray(choice)) {
+    const required = state.pendingChoice.validTargets ?? [];
+    const chosen = choice as string[];
+    if (chosen.length !== required.length) {
+      return fail(`Must order exactly ${required.length} card(s).`);
+    }
+    const requiredSet = new Set(required);
+    for (const id of chosen) {
+      if (!requiredSet.has(id)) return fail("Invalid card in ordering.");
+    }
+    return OK;
+  }
+
   // CRD 8.15.1: Ward — opponents can't choose this character for their effects
   if (state.pendingChoice.type === "choose_target" && Array.isArray(choice)) {
     // CRD 6.1.3: "up to N" — validate count
