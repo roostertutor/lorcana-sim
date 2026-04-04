@@ -678,7 +678,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             <div className="flex flex-wrap gap-1.5 pb-1 mb-1.5">
               {p2Zones.hand.map((id) => (
                 <div key={id}
-                  className="shrink-0 w-[52px] sm:w-[60px] lg:w-[72px] aspect-[5/7]
+                  className="shrink-0 w-[88px] sm:w-[104px] lg:w-[120px] aspect-[5/7]
                              rounded-lg bg-gray-800/80 border border-gray-700/60
                              flex items-center justify-center">
                   <span className="text-gray-600 text-base">⬡</span>
