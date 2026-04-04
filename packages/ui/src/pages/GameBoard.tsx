@@ -790,7 +790,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       </div>
 
       {/* ======================= Sidebar (Sandbox or Game Log) ======================= */}
-      <div className="hidden md:block space-y-4 md:sticky md:top-20 md:self-start">
+      <div className="hidden md:block space-y-4 md:sticky md:top-3 md:self-start">
         {sandboxMode ? (
           <SandboxPanel
             session={session}

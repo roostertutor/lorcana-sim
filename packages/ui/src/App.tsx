@@ -33,6 +33,21 @@ export default function App() {
     localStorage.setItem("activeTab", tab);
   }
 
+  const inGame = activeTab === "testbench" || soloMode || !!multiplayerGame;
+
+  // Full-screen game view — no header/nav chrome
+  if (inGame) {
+    if (activeTab === "testbench") {
+      return <TestBench definitions={LORCAST_CARD_DEFINITIONS} />;
+    }
+    if (soloMode) {
+      return <GameBoard definitions={LORCAST_CARD_DEFINITIONS} initialDeck={soloDeck} onBack={() => setSoloMode(false)} />;
+    }
+    if (multiplayerGame) {
+      return <GameBoard definitions={LORCAST_CARD_DEFINITIONS} multiplayerGame={multiplayerGame} onBack={() => setMultiplayerGame(null)} />;
+    }
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
@@ -66,23 +81,13 @@ export default function App() {
       }`}>
         {activeTab === "decks" && <DecksPage />}
         {activeTab === "simulate" && <SimulationView />}
-        {activeTab === "testbench" && (
-          <TestBench definitions={LORCAST_CARD_DEFINITIONS} />
-        )}
         {activeTab === "multiplayer" && (
-          soloMode
-            ? <GameBoard definitions={LORCAST_CARD_DEFINITIONS} initialDeck={soloDeck} onBack={() => setSoloMode(false)} />
-            : multiplayerGame
-              ? <GameBoard
-                  definitions={LORCAST_CARD_DEFINITIONS}
-                  multiplayerGame={multiplayerGame}
-                />
-              : <MultiplayerLobby
-                  onGameStart={(gameId, myPlayerId, token) => {
-                    setMultiplayerGame({ gameId, myPlayerId, token });
-                  }}
-                  onPlaySolo={(deck) => { setSoloDeck(deck); setSoloMode(true); }}
-                />
+          <MultiplayerLobby
+            onGameStart={(gameId, myPlayerId, token) => {
+              setMultiplayerGame({ gameId, myPlayerId, token });
+            }}
+            onPlaySolo={(deck) => { setSoloDeck(deck); setSoloMode(true); }}
+          />
         )}
       </main>
     </div>
