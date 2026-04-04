@@ -86,15 +86,18 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
 
   // ── With image: card art fills the frame, overlays show only game state ──
   if (def.imageUrl) {
+    // Lorcast provides three sizes: small (~9KB), normal (~47KB), large (~71KB).
+    // Board cards are displayed at 88–120px CSS width — small is sufficient.
+    const boardImageUrl = def.imageUrl.replace("/digital/normal/", "/digital/small/");
     return (
       <div className={`${baseClass} aspect-[5/7] overflow-hidden`} onClick={onClick}>
         <img
-          src={def.imageUrl}
+          src={boardImageUrl}
           alt={def.fullName}
           loading="lazy"
           decoding="async"
-          width={480}
-          height={680}
+          width={200}
+          height={280}
           className="w-full h-full object-cover"
           onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
         />
