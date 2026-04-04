@@ -723,7 +723,9 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   // Mobile: action strip for selected card
   const selectedCardButtons = session.selectedInstanceId ? (cardButtons.get(session.selectedInstanceId) ?? []) : [];
 
-  const fmtMsg = (msg: string) => msg.replace(/\bplayer1\b/g, "P1").replace(/\bplayer2\b/g, "P2");
+  const fmtMsg = (msg: string) => msg
+    .replace(/\bplayer1\b/g, "P1").replace(/\bplayer2\b/g, "P2")
+    .replace(/^(P1|P2)\s+/, ""); // strip leading "P1 "/"P2 " — the colored prefix already shows it
 
   // Log entries — rendered inline; caller wraps with appropriate height class
   const logEntries = recentLog.map((entry, i) => (
