@@ -503,7 +503,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   const choiceLabels = getLabelMap(choiceTargetIds); // id → "Name (N)" or "Name"
 
   // Helper: render card + its action buttons, wrapped in DnD primitives
-  function renderCardWithActions(id: string, zone: "play" | "hand", isOpponent = false) {
+  function renderCardWithActions(id: string, zone: "play" | "hand", isOpponent = false, index = 0, total = 1) {
     const isChallTarget = challengeTargets.has(id);
     const isShiftTarget = shiftTargets.has(id);
     const isAttacker = id === challengeAttackerId || id === shiftCardId;
@@ -516,6 +516,19 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
 
     // Whether this card can be a DnD drop target (shift or challenge)
     const isDropTarget = !!dnd.activeId && dnd.isValidCardDrop(dnd.activeId, id);
+
+    // Fan effect for hand cards — overlap + subtle rotation
+    const isHandCard = zone === "hand" && !isOpponent;
+    const isCardSelected = session.selectedInstanceId === id;
+    const midpoint = (total - 1) / 2;
+    const normalizedPos = total > 1 ? (index - midpoint) / midpoint : 0; // -1..1
+    const handStyle: React.CSSProperties | undefined = isHandCard ? {
+      marginLeft: index > 0 ? "-22px" : "0",
+      transform: isCardSelected ? "translateY(-10px)" : `rotate(${normalizedPos * 6}deg)`,
+      transformOrigin: "bottom center",
+      zIndex: isCardSelected ? 20 : index,
+      transition: "transform 0.15s ease, z-index 0s",
+    } : undefined;
 
     function handleClick() {
       if (isOpponent && challengeAttackerId && isChallTarget) {
@@ -535,7 +548,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
 
     return (
       <DraggableCard key={id} instanceId={id} zone={zone} isEnabled={isDraggableEnabled(isOpponent)}>
-        <div className="snap-start shrink-0 flex flex-col items-center gap-1 px-0.5">
+        <div className="snap-start shrink-0 flex flex-col items-center gap-1 px-0.5" style={handStyle}>
           <DroppableCardTarget id={id} isValidTarget={isDropTarget} activeId={dnd.activeId}>
             <div className="relative">
               <GameCard
@@ -752,11 +765,11 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             <span className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">Your Hand</span>
             <span className="text-[10px] text-gray-600">{p1Zones.hand.length} cards</span>
           </div>
-          <div className="flex flex-nowrap overflow-x-auto snap-x snap-mandatory scrollbar-none md:flex-wrap md:overflow-x-hidden md:overflow-y-auto md:snap-none md:max-h-[260px] lg:max-h-[355px] gap-2 pb-2 items-start min-h-[80px]">
+          <div className="flex flex-nowrap overflow-x-auto snap-x snap-mandatory scrollbar-none md:flex-wrap md:overflow-x-hidden md:overflow-y-auto md:snap-none md:max-h-[260px] lg:max-h-[355px] pb-4 items-end min-h-[80px]">
             {p1Zones.hand.length === 0 ? (
               <span className="text-gray-700 text-xs italic self-center">Empty hand</span>
             ) : (
-              p1Zones.hand.map((id) => renderCardWithActions(id, "hand", false))
+              p1Zones.hand.map((id, i) => renderCardWithActions(id, "hand", false, i, p1Zones.hand.length))
             )}
           </div>
         </div>
