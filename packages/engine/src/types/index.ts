@@ -802,6 +802,8 @@ export interface PendingChoice {
   optional?: boolean;
   /** For choose_may: the source card's instanceId (needed to resume trigger processing) */
   sourceInstanceId?: string;
+  /** For choose_may with sequential effects: the card that triggered the ability (e.g. the card to exert) */
+  triggeringCardInstanceId?: string;
   /** Additional effects to apply to the same chosen target(s) after the primary effect resolves */
   followUpEffects?: Effect[] | undefined;
 }

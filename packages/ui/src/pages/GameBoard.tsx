@@ -21,6 +21,7 @@ import {
   TouchSensor,
   useSensor,
   useSensors,
+  pointerWithin,
 } from "@dnd-kit/core";
 import { useGameSession } from "../hooks/useGameSession.js";
 import { useBoardDnd, DROP_PLAY_ZONE, DROP_INKWELL, dropCardId } from "../hooks/useBoardDnd.js";
@@ -276,6 +277,18 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     }
   }, [session.actionLog.length]);
 
+  // Disable pull-to-refresh and overscroll bounce while the game board is mounted
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    html.style.overscrollBehavior = "none";
+    body.style.overscrollBehavior = "none";
+    return () => {
+      html.style.overscrollBehavior = "";
+      body.style.overscrollBehavior = "";
+    };
+  }, []);
+
   // Auto-start when entering multiplayer mode — state arrives via Realtime
   useEffect(() => {
     if (!multiplayerGame) return;
@@ -522,8 +535,10 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     const isCardSelected = session.selectedInstanceId === id;
     const midpoint = (total - 1) / 2;
     const normalizedPos = total > 1 ? (index - midpoint) / midpoint : 0; // -1..1
+    // Tighten overlap as hand grows so all cards stay visible
+    const overlapPx = total >= 7 ? 50 : total >= 5 ? 32 : 22;
     const handStyle: React.CSSProperties | undefined = isHandCard ? {
-      marginLeft: index > 0 ? "-22px" : "0",
+      marginLeft: index > 0 ? `-${overlapPx}px` : "0",
       transform: isCardSelected ? "translateY(-10px)" : `rotate(${normalizedPos * (isOpponent ? -6 : 6)}deg)`,
       transformOrigin: isOpponent ? "top center" : "bottom center",
       zIndex: isCardSelected ? 20 : index,
@@ -571,7 +586,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           </DroppableCardTarget>
           {btns.length > 0 && (
             <div className="hidden md:flex flex-wrap gap-0.5 justify-center max-w-[120px]">
-              {btns.map((btn, i) => (
+              {btns.filter(btn => btn.label !== "Ink").map((btn, i) => (
                 <button
                   key={i}
                   className={`text-[9px] font-bold px-2 py-0.5 rounded-full transition-colors ${btn.color}`}
@@ -590,31 +605,28 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   // Mobile: action strip for selected card
   const selectedCardButtons = session.selectedInstanceId ? (cardButtons.get(session.selectedInstanceId) ?? []) : [];
 
-  // Log rows (shared between desktop inline and mobile sheet)
-  const logRows = (
-    <div ref={logRef} className="overflow-y-auto rounded-lg border border-gray-800/30 p-2 bg-gray-950/50 text-[11px] font-mono space-y-0.5 h-40">
-      {recentLog.map((entry, i) => (
-        <div key={i} className="text-gray-500">
-          <span className="text-gray-700">T{entry.turn}</span>{" "}
-          <span className={entry.playerId === "player1" ? "text-green-600" : "text-red-600"}>
-            {entry.playerId === "player1" ? "P1" : "P2"}
-          </span>{" "}
-          {entry.message}
-        </div>
-      ))}
+  // Log entries — rendered inline; caller wraps with appropriate height class
+  const logEntries = recentLog.map((entry, i) => (
+    <div key={i} className="text-gray-500">
+      <span className="text-gray-700">T{entry.turn}</span>{" "}
+      <span className={entry.playerId === "player1" ? "text-green-600" : "text-red-600"}>
+        {entry.playerId === "player1" ? "P1" : "P2"}
+      </span>{" "}
+      {entry.message}
     </div>
-  );
+  ));
 
   return (
     <DndContext
       sensors={sensors}
+      collisionDetection={pointerWithin}
       onDragStart={dnd.handleDragStart}
       onDragEnd={dnd.handleDragEnd}
       onDragCancel={dnd.handleDragCancel}
     >
     <div className="h-dvh overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_220px] lg:grid-cols-[1fr_280px] gap-0 md:gap-4 lg:gap-5">
       {/* ======================= Main game area ======================= */}
-      <div className="min-w-0 flex flex-col gap-2 min-h-0 overflow-hidden px-3 md:pl-4 md:pr-0 pt-3 pb-14 md:pb-3">
+      <div className="min-w-0 flex flex-col gap-2 min-h-0 overflow-hidden px-3 md:pl-4 md:pr-0 pt-3 pb-3">
 
         {/* Game Over Overlay */}
         {isGameOver && (
@@ -663,20 +675,41 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               <LoreTracker lore={p2.lore} label={multiplayerGame ? "Opp" : "Bot"} color="red" />
             </div>
 
-            <button
-              className="ml-auto px-2 py-0.5 text-[10px] bg-gray-800 hover:bg-gray-700 text-gray-500 hover:text-gray-300 rounded transition-colors uppercase tracking-wider shrink-0"
-              onClick={() => {
-                if (sandboxMode) {
-                  // Restart sandbox in-place — don't go through null (would blank screen)
-                  session.startGame({ player1Deck: [], player2Deck: [], definitions, botStrategy: GreedyBot, player1IsHuman: true, player2IsHuman: false });
-                } else {
-                  session.reset();
-                  onBack?.();
-                }
-              }}
-            >
-              {onBack ? "← Back" : sandboxMode ? "Reset" : "Concede"}
-            </button>
+            <div className="ml-auto flex items-center gap-2 shrink-0">
+              {(challengeAttackerId || shiftCardId) && (
+                <button
+                  className={`px-3 py-1 text-xs rounded border font-medium transition-colors
+                    ${challengeAttackerId
+                      ? "bg-red-900/40 hover:bg-red-900/60 text-red-400 border-red-700/40"
+                      : "bg-purple-900/40 hover:bg-purple-900/60 text-purple-400 border-purple-700/40"}`}
+                  onClick={cancelMode}
+                >
+                  Cancel
+                </button>
+              )}
+              {isYourTurn && !pendingChoice && !isGameOver && !challengeAttackerId && !shiftCardId && (
+                <button
+                  className="px-3 py-1 text-xs bg-green-700/30 hover:bg-green-700/50 text-green-400 rounded border border-green-600/40 font-medium transition-colors"
+                  onClick={() => session.dispatch({ type: "PASS_TURN", playerId: myId })}
+                >
+                  Pass
+                </button>
+              )}
+              <button
+                className="px-2 py-0.5 text-[10px] bg-gray-800 hover:bg-gray-700 text-gray-500 hover:text-gray-300 rounded transition-colors uppercase tracking-wider"
+                onClick={() => {
+                  if (sandboxMode) {
+                    // Restart sandbox in-place — don't go through null (would blank screen)
+                    session.startGame({ player1Deck: [], player2Deck: [], definitions, botStrategy: GreedyBot, player1IsHuman: true, player2IsHuman: false });
+                  } else {
+                    session.reset();
+                    onBack?.();
+                  }
+                }}
+              >
+                {onBack ? "← Back" : sandboxMode ? "Reset" : "Concede"}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -723,13 +756,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-[10px] text-green-400/60 uppercase tracking-wider font-bold">Your Board</span>
             <div className="flex gap-3 text-[10px] text-gray-600 items-center">
-              {/* Inkwell — droppable drop target */}
-              <DroppableInkwell
-                isValidTarget={!!dnd.activeId && dnd.isValidInkwellDrop(dnd.activeId)}
-                activeId={dnd.activeId}
-              >
-                <InkDisplay available={p1.availableInk} total={p1Zones.inkwell.length} />
-              </DroppableInkwell>
+              <InkDisplay available={p1.availableInk} total={p1Zones.inkwell.length} />
               <span>📦 {p1Zones.deck.length}</span>
             </div>
           </div>
@@ -753,6 +780,16 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           </DroppablePlayZone>
         </div>
 
+        {/* Inkwell drop zone — appears between board and hand while dragging an inkable card */}
+        {dnd.activeId && dnd.isValidInkwellDrop(dnd.activeId) && (
+          <DroppableInkwell isValidTarget={true} activeId={dnd.activeId}>
+            <div className="shrink-0 w-full rounded-lg border-2 border-dashed border-blue-500/60 bg-blue-950/30
+                            flex items-center justify-center gap-2 py-5 text-xs text-blue-400 font-medium">
+              💧 Drop here to ink
+            </div>
+          </DroppableInkwell>
+        )}
+
         {/* ---- Hand ---- */}
         <div className="shrink-0 rounded-xl bg-gray-900/40 border border-gray-800/30 p-2">
           <div className="flex items-center justify-between mb-1.5">
@@ -775,8 +812,8 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           </div>
         )}
 
-        {/* ---- Desktop: mode hints + pass turn ---- */}
-        {!pendingChoice && !isGameOver && isYourTurn && (
+        {/* ---- Desktop: mode hints (challenge / shift) ---- */}
+        {!pendingChoice && !isGameOver && isYourTurn && (challengeAttackerId || shiftCardId) && (
           <div className="shrink-0 hidden md:flex items-center gap-2">
             {challengeAttackerId && (
               <div className="flex-1 flex items-center gap-2 rounded-lg px-3 py-2 bg-red-950/40 border border-red-700/40 text-red-300 text-xs">
@@ -791,14 +828,6 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                 <span className="text-purple-500">— click a highlighted character to shift onto</span>
                 <button className="ml-auto text-purple-500 hover:text-purple-300 font-bold" onClick={cancelMode}>✕</button>
               </div>
-            )}
-            {!challengeAttackerId && !shiftCardId && (
-              <button
-                className="ml-auto px-4 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-200 rounded-lg border border-gray-700 font-medium transition-colors"
-                onClick={() => session.dispatch({ type: "PASS_TURN", playerId: myId })}
-              >
-                Pass Turn
-              </button>
             )}
           </div>
         )}
@@ -817,19 +846,22 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             onAutoPassP2Change={setAutoPassP2}
           />
         ) : (
-          <div className="rounded-xl bg-gray-900/60 border border-gray-800/50 p-3 space-y-2">
-            <div className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">
+          <div className="flex-1 min-h-0 flex flex-col rounded-xl bg-gray-900/60 border border-gray-800/50 p-3 gap-2">
+            <div className="text-[10px] text-gray-500 uppercase tracking-wider font-bold shrink-0">
               Game Log ({actionLog.length})
             </div>
-            {logRows}
+            <div ref={logRef} className="flex-1 min-h-0 overflow-y-auto rounded-lg border border-gray-800/30 p-2 bg-gray-950/50 text-[11px] font-mono space-y-0.5">
+              {logEntries}
+            </div>
           </div>
         )}
       </div>
 
       {/* ======================= Mobile: card action strip ======================= */}
       {selectedCardButtons.length > 0 && (
-        <div className="fixed bottom-14 left-0 right-0 z-30 md:hidden
+        <div className="fixed bottom-0 left-0 right-0 z-30 md:hidden
                         bg-gray-950/95 border-t border-gray-800 backdrop-blur-sm px-3 py-2
+                        pb-[env(safe-area-inset-bottom,8px)]
                         flex gap-2 overflow-x-auto scrollbar-none">
           <span className="text-[10px] text-gray-500 self-center shrink-0 mr-1">
             {getCardName(session.selectedInstanceId!)}:
@@ -845,45 +877,6 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         </div>
       )}
 
-      {/* ======================= Mobile: sticky bottom bar ======================= */}
-      <div className="fixed bottom-0 left-0 right-0 z-20 md:hidden
-                      bg-gray-950/95 border-t border-gray-800 backdrop-blur-sm
-                      pb-[env(safe-area-inset-bottom,0px)]">
-        <div className="flex items-center gap-2 px-3 h-14">
-          {challengeAttackerId || shiftCardId ? (
-            <>
-              <span className={`flex-1 text-xs font-medium ${challengeAttackerId ? "text-red-300" : "text-purple-300"}`}>
-                {challengeAttackerId ? "Tap an opponent character to challenge" : "Tap your character to shift onto"}
-              </span>
-              <button className="px-3 py-2 text-sm text-gray-400 font-bold active:scale-95" onClick={cancelMode}>
-                Cancel
-              </button>
-            </>
-          ) : (
-            <>
-              <button onClick={() => setShowLog(true)}
-                className="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-800 text-gray-400 text-base active:scale-95"
-                aria-label="Game log">
-                📋
-              </button>
-              <button onClick={() => setShowAnalysis(true)}
-                className="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-800 text-gray-400 text-base active:scale-95"
-                aria-label="Analysis">
-                📊
-              </button>
-              {isYourTurn && !pendingChoice && !isGameOver && (
-                <button
-                  className="ml-auto px-5 min-h-[44px] text-sm font-bold rounded-xl
-                             bg-gray-700 hover:bg-gray-600 border border-gray-600 text-gray-200
-                             transition-colors active:scale-95"
-                  onClick={() => session.dispatch({ type: "PASS_TURN", playerId: myId })}>
-                  Pass Turn
-                </button>
-              )}
-            </>
-          )}
-        </div>
-      </div>
 
       {/* ======================= Mobile: Analysis/Sandbox bottom sheet ======================= */}
       {showAnalysis && (
@@ -907,7 +900,9 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                 <div className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">
                   Game Log ({actionLog.length})
                 </div>
-                {logRows}
+                <div className="h-48 overflow-y-auto rounded-lg border border-gray-800/30 p-2 bg-gray-950/50 text-[11px] font-mono space-y-0.5">
+                  {logEntries}
+                </div>
               </div>
             )}
           </div>
@@ -1058,7 +1053,6 @@ function DroppablePlayZone({
 
 function DroppableInkwell({
   isValidTarget,
-  activeId,
   children,
 }: {
   isValidTarget: boolean;
@@ -1066,13 +1060,8 @@ function DroppableInkwell({
   children: React.ReactNode;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: DROP_INKWELL });
-  const ring = isOver && isValidTarget
-    ? "ring-2 ring-blue-400 ring-inset shadow-blue-400/20 rounded px-1"
-    : isValidTarget
-    ? "ring-1 ring-blue-500/50 ring-inset animate-pulse rounded px-1"
-    : "";
   return (
-    <div ref={setNodeRef} className={`transition-all duration-150 ${ring}`} title={isValidTarget ? "Drop to ink" : undefined}>
+    <div ref={setNodeRef} className={`transition-colors duration-150 ${isOver && isValidTarget ? "brightness-125" : ""}`}>
       {children}
     </div>
   );

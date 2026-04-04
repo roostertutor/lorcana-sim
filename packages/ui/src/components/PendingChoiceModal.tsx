@@ -56,7 +56,6 @@ export default function PendingChoiceModal({
     return (
       <div
         className={`flex flex-col items-center cursor-pointer transition-opacity overflow-hidden ${isDimmed ? "opacity-40" : ""}`}
-        onClick={handleClick}
       >
         {/* scale wrapper so cards fit comfortably in the modal */}
         <div className="scale-[0.78] origin-top">

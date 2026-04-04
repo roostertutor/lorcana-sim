@@ -924,7 +924,7 @@ function applyResolveChoice(
     if (choice === "accept") {
       // Apply the effect — which may itself create a target choice (e.g. Support)
       const sourceId = pendingChoice.sourceInstanceId ?? "";
-      state = applyEffect(state, pendingEffect!, sourceId, playerId, definitions, events);
+      state = applyEffect(state, pendingEffect!, sourceId, playerId, definitions, events, pendingChoice.triggeringCardInstanceId);
     }
     // "decline" → skip, clear pendingChoice (already done above)
     return state;
@@ -1558,11 +1558,11 @@ export function applyEffect(
       }
       // Apply cost effects [A]
       for (const costEffect of effect.costEffects) {
-        state = applyEffect(state, costEffect, sourceInstanceId, controllingPlayerId, definitions, events);
+        state = applyEffect(state, costEffect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
       }
       // Apply reward effects [B]
       for (const rewardEffect of effect.rewardEffects) {
-        state = applyEffect(state, rewardEffect, sourceInstanceId, controllingPlayerId, definitions, events);
+        state = applyEffect(state, rewardEffect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
       }
       return state;
     }
@@ -1850,6 +1850,7 @@ function processTriggerStack(
             pendingEffect: effect,
             optional: true,
             sourceInstanceId: trigger.sourceInstanceId,
+            triggeringCardInstanceId: trigger.context.triggeringCardInstanceId,
           },
         };
         break; // Pause trigger processing — will resume after choice

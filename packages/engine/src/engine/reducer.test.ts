@@ -3686,3 +3686,99 @@ describe("§6.1.5 Sequential Effects", () => {
     expect(playResult.newState.players.player1.availableInk).toBe(0);
   });
 });
+
+describe("Stitch - Rock Star: ADORING FANS (CRD 6.1.5.1 + sequential exert fix)", () => {
+  // stitch-rock-star: cost 6, shift 4
+  // "Whenever you play a character with cost 2 or less, you may exert them to draw a card."
+  // triggeringCard = the 2-cost char played; costEffect = exert triggeringCard; rewardEffect = draw 1
+
+  it("accept: exerts the 2-cost character AND draws a card", () => {
+    let state = startGame(["stitch-rock-star"]);
+    let stitchId: string, targetId: string;
+    ({ state, instanceId: stitchId } = injectCard(state, "player1", "stitch-rock-star", "play"));
+    ({ state, instanceId: targetId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand")); // cost 2
+    ({ state } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "deck")); // card to draw
+    state = giveInk(state, "player1", 6);
+
+    const deckBefore = getZone(state, "player1", "deck").length;
+
+    // Play the 2-cost character — triggers ADORING FANS
+    const playActions = getAllLegalActions(state, "player1", LORCAST_CARD_DEFINITIONS);
+    const playAction = playActions.find((a) => a.type === "PLAY_CARD" && a.instanceId === targetId);
+    expect(playAction).toBeDefined();
+
+    const afterPlay = applyAction(state, playAction!, LORCAST_CARD_DEFINITIONS);
+    expect(afterPlay.success).toBe(true);
+    let s = afterPlay.newState;
+
+    // Should have a choose_may prompt for ADORING FANS
+    expect(s.pendingChoice?.type).toBe("choose_may");
+    expect(s.pendingChoice?.triggeringCardInstanceId).toBe(targetId);
+
+    // Accept
+    const afterAccept = applyAction(s, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    expect(afterAccept.success).toBe(true);
+    s = afterAccept.newState;
+
+    // The 2-cost character (triggering card) should be exerted
+    expect(getInstance(s, targetId).isExerted).toBe(true);
+    // Stitch should NOT be exerted (he is not the triggering card)
+    expect(getInstance(s, stitchId).isExerted).toBe(false);
+    // Drew 1 card from deck
+    expect(getZone(s, "player1", "deck").length).toBe(deckBefore - 1);
+  });
+
+  it("decline: neither exerts the character nor draws a card", () => {
+    let state = startGame(["stitch-rock-star"]);
+    let targetId: string;
+    ({ state } = injectCard(state, "player1", "stitch-rock-star", "play"));
+    ({ state, instanceId: targetId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand")); // cost 2
+    state = giveInk(state, "player1", 6);
+
+    const handBefore = getZone(state, "player1", "hand").length;
+    const deckBefore = getZone(state, "player1", "deck").length;
+
+    const playActions = getAllLegalActions(state, "player1", LORCAST_CARD_DEFINITIONS);
+    const playAction = playActions.find((a) => a.type === "PLAY_CARD" && a.instanceId === targetId);
+    const afterPlay = applyAction(state, playAction!, LORCAST_CARD_DEFINITIONS);
+    let s = afterPlay.newState;
+
+    expect(s.pendingChoice?.type).toBe("choose_may");
+
+    // Decline
+    const afterDecline = applyAction(s, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "decline" }, LORCAST_CARD_DEFINITIONS);
+    s = afterDecline.newState;
+
+    expect(getInstance(s, targetId).isExerted).toBe(false);
+    expect(getZone(s, "player1", "deck").length).toBe(deckBefore); // no draw
+  });
+
+  it("Bodyguard character (cost 2) enters exerted — ADORING FANS cannot trigger (no prompt)", () => {
+    // simba-protective-cub: cost 2, Bodyguard
+    // Playing Simba triggers Bodyguard (isMay: exert Simba). If player accepts, Simba is exerted.
+    // Stitch's ADORING FANS then checks: can we exert Simba? No → skip, no prompt, no draw.
+    let state = startGame(["stitch-rock-star"]);
+    let simbaId: string;
+    ({ state } = injectCard(state, "player1", "stitch-rock-star", "play"));
+    ({ state, instanceId: simbaId } = injectCard(state, "player1", "simba-protective-cub", "hand")); // cost 2, Bodyguard
+    ({ state } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "deck")); // card to draw
+    state = giveInk(state, "player1", 6);
+
+    const deckBefore = getZone(state, "player1", "deck").length;
+
+    // Play Simba — triggers Bodyguard prompt first
+    const playActions = getAllLegalActions(state, "player1", LORCAST_CARD_DEFINITIONS);
+    const playAction = playActions.find((a) => a.type === "PLAY_CARD" && a.instanceId === simbaId);
+    expect(playAction).toBeDefined();
+    let s = applyAction(state, playAction!, LORCAST_CARD_DEFINITIONS).newState;
+
+    // Bodyguard choose_may — accept (exert Simba)
+    expect(s.pendingChoice?.type).toBe("choose_may");
+    s = applyAction(s, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS).newState;
+    expect(getInstance(s, simbaId).isExerted).toBe(true);
+
+    // ADORING FANS should be skipped — Simba is already exerted, no prompt, no draw
+    expect(s.pendingChoice).toBeNull();
+    expect(getZone(s, "player1", "deck").length).toBe(deckBefore); // no card drawn
+  });
+});

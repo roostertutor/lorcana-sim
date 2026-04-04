@@ -110,11 +110,6 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
           </div>
         )}
 
-        {/* Inkable dot for hand zone */}
-        {zone === "hand" && def.inkable && (
-          <div className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-blue-400/80 shadow" />
-        )}
-
         {/* State badges */}
         {(isExerted || isDrying || damage > 0) && (
           <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
@@ -175,12 +170,6 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
                 {Array.from({ length: def.lore }, (_, i) => <span key={i} className="text-amber-400 text-[10px]">&#9670;</span>)}
               </div>
             )}
-          </div>
-        )}
-        {zone === "hand" && def.inkable && (
-          <div className="mt-1.5 flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-blue-400/80" />
-            <span className="text-[8px] text-blue-400 uppercase tracking-wider">Inkable</span>
           </div>
         )}
       </div>
