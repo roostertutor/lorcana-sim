@@ -723,6 +723,8 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   // Mobile: action strip for selected card
   const selectedCardButtons = session.selectedInstanceId ? (cardButtons.get(session.selectedInstanceId) ?? []) : [];
 
+  const fmtMsg = (msg: string) => msg.replace(/\bplayer1\b/g, "P1").replace(/\bplayer2\b/g, "P2");
+
   // Log entries — rendered inline; caller wraps with appropriate height class
   const logEntries = recentLog.map((entry, i) => (
     <div key={i} className="text-gray-500">
@@ -730,7 +732,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       <span className={entry.playerId === "player1" ? "text-green-600" : "text-red-600"}>
         {entry.playerId === "player1" ? "P1" : "P2"}
       </span>{" "}
-      {entry.message}
+      {fmtMsg(entry.message)}
     </div>
   ));
 
@@ -1042,7 +1044,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                   <span className={entry.playerId === "player1" ? "text-green-600" : "text-red-600"}>
                     {entry.playerId === "player1" ? "P1" : "P2"}
                   </span>{" "}
-                  {entry.message}
+                  {fmtMsg(entry.message)}
                 </div>
               ))}
             </div>
