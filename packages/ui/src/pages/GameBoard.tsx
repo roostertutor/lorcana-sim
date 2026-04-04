@@ -503,7 +503,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   const choiceLabels = getLabelMap(choiceTargetIds); // id → "Name (N)" or "Name"
 
   // Helper: render card + its action buttons, wrapped in DnD primitives
-  function renderCardWithActions(id: string, zone: "play" | "hand", isOpponent = false, index = 0, total = 1) {
+  function renderCardWithActions(id: string, zone: "play" | "hand", isOpponent = false, index = 0, total = 1, faceDown = false) {
     const isChallTarget = challengeTargets.has(id);
     const isShiftTarget = shiftTargets.has(id);
     const isAttacker = id === challengeAttackerId || id === shiftCardId;
@@ -518,14 +518,14 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     const isDropTarget = !!dnd.activeId && dnd.isValidCardDrop(dnd.activeId, id);
 
     // Fan effect for hand cards — overlap + subtle rotation
-    const isHandCard = zone === "hand" && !isOpponent;
+    const isHandCard = zone === "hand";
     const isCardSelected = session.selectedInstanceId === id;
     const midpoint = (total - 1) / 2;
     const normalizedPos = total > 1 ? (index - midpoint) / midpoint : 0; // -1..1
     const handStyle: React.CSSProperties | undefined = isHandCard ? {
       marginLeft: index > 0 ? "-22px" : "0",
-      transform: isCardSelected ? "translateY(-10px)" : `rotate(${normalizedPos * 6}deg)`,
-      transformOrigin: "bottom center",
+      transform: isCardSelected ? "translateY(-10px)" : `rotate(${normalizedPos * (isOpponent ? -6 : 6)}deg)`,
+      transformOrigin: isOpponent ? "top center" : "bottom center",
       zIndex: isCardSelected ? 20 : index,
       transition: "transform 0.15s ease, z-index 0s",
     } : undefined;
@@ -560,6 +560,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                 isAttacker={isAttacker}
                 onClick={handleClick}
                 zone={zone}
+                faceDown={faceDown}
               />
               {disambigBadge && (
                 <span className="absolute top-1 right-1 text-[10px] font-black bg-white/90 text-gray-900 px-1.5 py-0.5 rounded shadow pointer-events-none">
@@ -694,29 +695,10 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               <span>📦 {p2Zones.deck.length}</span>
             </div>
           </div>
-          {/* Opponent hand — face-down card backs, fanned like a held hand */}
+          {/* Opponent hand — face-down, same fan component as player hand */}
           {p2Zones.hand.length > 0 && (
-            <div className="shrink-0 flex flex-nowrap pb-3 mb-1 items-start">
-              {p2Zones.hand.map((id, i) => {
-                const total = p2Zones.hand.length;
-                const mid = (total - 1) / 2;
-                const norm = total > 1 ? (i - mid) / mid : 0;
-                return (
-                  <div key={id}
-                    className="shrink-0 w-[88px] sm:w-[104px] lg:w-[120px] aspect-[5/7]
-                               rounded-lg bg-gray-800/80 border border-gray-700/60
-                               flex items-center justify-center"
-                    style={{
-                      marginLeft: i > 0 ? "-22px" : "0",
-                      transform: `rotate(${norm * -6}deg)`,
-                      transformOrigin: "top center",
-                      zIndex: i,
-                    }}
-                  >
-                    <span className="text-gray-600 text-base">⬡</span>
-                  </div>
-                );
-              })}
+            <div className="shrink-0 flex flex-nowrap pb-3 mb-1 items-start justify-center">
+              {p2Zones.hand.map((id, i) => renderCardWithActions(id, "hand", true, i, p2Zones.hand.length, true))}
             </div>
           )}
           {/* Opponent play zone */}

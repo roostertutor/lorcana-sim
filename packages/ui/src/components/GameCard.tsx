@@ -24,17 +24,33 @@ interface Props {
   isSelected: boolean;
   onClick: () => void;
   zone: "play" | "hand";
+  /** Show card back instead of face (opponent hand) */
+  faceDown?: boolean;
   /** Pulse ring — valid target for pending challenge or shift */
   isTarget?: boolean;
   /** Solid ring — this card is the selected attacker/shifter */
   isAttacker?: boolean;
 }
 
-export default function GameCard({ instanceId, gameState, definitions, isSelected, onClick, zone, isTarget, isAttacker }: Props) {
+export default function GameCard({ instanceId, gameState, definitions, isSelected, onClick, zone, faceDown, isTarget, isAttacker }: Props) {
   const instance = gameState.cards[instanceId];
   if (!instance) return null;
   const def = definitions[instance.definitionId];
   if (!def) return null;
+
+  // ── Face-down card back (opponent hand) ──
+  if (faceDown) {
+    return (
+      <div
+        className="w-[88px] sm:w-[104px] lg:w-[120px] aspect-[5/7] rounded-xl
+                   bg-gray-800/80 border-2 border-gray-700/60
+                   flex items-center justify-center shrink-0"
+        onClick={onClick}
+      >
+        <span className="text-gray-600 text-xl">⬡</span>
+      </div>
+    );
+  }
 
   const inkColor = def.inkColors[0] ?? "steel";
   const theme = INK_THEME[inkColor] ?? DEFAULT_THEME;
