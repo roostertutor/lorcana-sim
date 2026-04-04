@@ -395,6 +395,10 @@ page components used within DecksPage/SimulationView — not standalone tabs.
 - Chat (multiplayer feature)
 - Spectator mode (multiplayer feature)
 - Matchmaking (separate server spec)
+- **Display names in game log**: log currently shows "P1"/"P2". When multiplayer has real
+  usernames, pass a `displayNames: Record<PlayerID, string>` map into GameBoard and use it
+  in `fmtMsg()` (`GameBoard.tsx`) to substitute before rendering. `PlayerID` ("player1"/
+  "player2") stays as the internal engine key forever — display names are UI-only.
 
 ---
 
