@@ -734,12 +734,19 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               {p2Zones.hand.map((id, i) => renderCardWithActions(id, "hand", true, i, p2Zones.hand.length, true))}
             </div>
           )}
-          {/* Opponent play zone */}
-          <div className="flex-1 min-h-0 overflow-y-auto flex flex-wrap gap-2 pb-1 items-end content-end">
+          {/* Opponent play zone — characters left, items right */}
+          <div className="flex-1 min-h-0 overflow-y-auto flex items-end justify-between gap-2 pb-1">
             {p2Zones.play.length === 0 ? (
               <span className="text-gray-700 text-xs italic self-center">No cards in play</span>
             ) : (
-              p2Zones.play.map((id) => renderCardWithActions(id, "play", true))
+              <>
+                <div className="flex flex-wrap gap-2 items-end content-end">
+                  {p2Zones.play.filter(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType === "character").map((id) => renderCardWithActions(id, "play", true))}
+                </div>
+                <div className="flex flex-wrap gap-2 items-end content-end justify-end">
+                  {p2Zones.play.filter(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType !== "character").map((id) => renderCardWithActions(id, "play", true))}
+                </div>
+              </>
             )}
           </div>
         </div>
@@ -766,7 +773,8 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             activeId={dnd.activeId}
             className="flex-1 min-h-0 flex flex-col"
           >
-            <div className="flex-1 min-h-0 overflow-y-auto flex flex-wrap gap-2 pb-1 items-end content-end">
+            {/* Player play zone — characters left, items right */}
+            <div className="flex-1 min-h-0 overflow-y-auto flex items-end justify-between gap-2 pb-1">
               {p1Zones.play.length === 0 ? (
                 <span className="text-gray-700 text-xs italic self-center">
                   {dnd.activeId && dnd.isValidPlayZoneDrop(dnd.activeId)
@@ -774,7 +782,14 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                     : "No cards in play"}
                 </span>
               ) : (
-                p1Zones.play.map((id) => renderCardWithActions(id, "play", false))
+                <>
+                  <div className="flex flex-wrap gap-2 items-end content-end">
+                    {p1Zones.play.filter(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType === "character").map((id) => renderCardWithActions(id, "play", false))}
+                  </div>
+                  <div className="flex flex-wrap gap-2 items-end content-end justify-end">
+                    {p1Zones.play.filter(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType !== "character").map((id) => renderCardWithActions(id, "play", false))}
+                  </div>
+                </>
               )}
             </div>
           </DroppablePlayZone>

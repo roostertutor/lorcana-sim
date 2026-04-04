@@ -78,7 +78,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
 
   const baseClass = `game-card relative border-2 rounded-xl w-[88px] sm:w-[104px] lg:w-[120px] shrink-0 cursor-pointer
     transition-all duration-200 ${ringClass}
-    ${isExerted ? "rotate-[15deg] opacity-70" : ""}
+    ${isExerted ? "rotate-90 opacity-80" : ""}
     hover:scale-105 hover:z-10 hover:shadow-lg hover:${theme.glow}`;
 
   // ── With image: card art fills the frame, overlays show only game state ──
@@ -111,9 +111,8 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
         )}
 
         {/* State badges */}
-        {(isExerted || isDrying || damage > 0) && (
+        {(isDrying || damage > 0) && (
           <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
-            {isExerted && <span className="text-[7px] bg-yellow-600 text-yellow-100 px-1.5 py-0.5 rounded-full font-bold shadow">EXR</span>}
             {isDrying  && <span className="text-[7px] bg-cyan-600 text-cyan-100 px-1.5 py-0.5 rounded-full font-bold shadow">DRY</span>}
             {damage > 0 && <span className="text-[7px] bg-red-600 text-red-100 px-1.5 py-0.5 rounded-full font-bold shadow">-{damage}</span>}
           </div>
@@ -175,7 +174,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
       </div>
 
       {/* State badges */}
-      {(isExerted || isDrying || damage > 0) && (
+      {(isDrying || damage > 0) && (
         <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
           {isExerted && <span className="text-[7px] bg-yellow-600 text-yellow-100 px-1.5 py-0.5 rounded-full font-bold shadow">EXR</span>}
           {isDrying  && <span className="text-[7px] bg-cyan-600 text-cyan-100 px-1.5 py-0.5 rounded-full font-bold shadow">DRY</span>}
