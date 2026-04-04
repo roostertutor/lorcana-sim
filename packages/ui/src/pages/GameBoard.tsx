@@ -373,10 +373,11 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     const body = document.body;
     html.style.overscrollBehavior = "none";
     body.style.overscrollBehavior = "none";
-    // Suppress iOS long-press callout and text selection on touch
+    // Suppress right-click context menu in production (keeps the game feel).
+    // Allowed in local dev so you can inspect elements normally.
+    const onContextMenu = (e: MouseEvent) => { if (!import.meta.env.DEV) e.preventDefault(); };
     body.style.webkitUserSelect = "none";
     (body.style as any)["-webkit-touch-callout"] = "none";
-    const onContextMenu = (e: MouseEvent) => e.preventDefault();
     document.addEventListener("contextmenu", onContextMenu);
     return () => {
       html.style.overscrollBehavior = "";
