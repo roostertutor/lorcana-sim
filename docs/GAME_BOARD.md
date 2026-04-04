@@ -395,3 +395,108 @@ page components used within DecksPage/SimulationView — not standalone tabs.
 - Chat (multiplayer feature)
 - Spectator mode (multiplayer feature)
 - Matchmaking (separate server spec)
+
+---
+
+## Desktop vs Mobile Design Directions
+
+> Open questions — not decided yet. Review and pick a direction before building.
+
+### Current state (as of Apr 2026)
+
+| Aspect | Mobile (< md / 768px) | Desktop (md+) |
+|--------|-----------------------|---------------|
+| Layout | Single column | Main area + 220–280px sidebar |
+| Play zones | Horizontal scroll strip | Wrapped grid, chars left / items right |
+| Hand | Fixed 80px height, single row | Auto-height, wraps up to 260–355px |
+| Opponent hand | 40–64px peeked strip | 64px strip |
+| Lore display | Compact inline "8 ♦ vs 12 ♦ /20" | Full 20-pip LoreTracker components |
+| Sidebar | Hidden; bottom-sheet overlay on demand | Always visible, vertical scroll |
+| Analysis panel | Bottom-sheet (tap button to open) | Sidebar section, always rendered |
+| Game log | Bottom-sheet (tap button to open) | Sidebar section, always rendered |
+| Card size | 64px (play), 88px (hand) | 104–120px across all zones |
+| Pending choice | Full-width bottom sheet | Centered modal (max-w-lg) |
+
+---
+
+### Direction A — Richer information density
+
+Desktop surfaces information that mobile hides due to space constraints.
+
+**What changes:**
+- Sidebar gains a **Card Detail panel**: when a card is selected, the sidebar top section
+  shows the large card image, full ability text, current STR/WP/lore (including any
+  active modifiers from gameModifiers.ts), and action buttons. Replaces the current
+  small inline action buttons.
+- **Always-visible game log** in sidebar alongside analysis (tabbed or stacked),
+  so you never have to open a panel to see what just happened.
+- At xl+ (1280px+), sidebar expands to ~360px to fit both analysis and log simultaneously.
+- Hover tooltip on card (desktop only): floating panel with card text on hover —
+  non-destructive, no click required.
+
+**What stays the same:** All core game interactions work identically on mobile.
+
+**Tradeoffs:**
+- More to build and maintain (hover state, card detail panel).
+- Sidebar at 360px takes meaningful board real estate on 1280px screens.
+- "What NOT to Build Yet" listed hover tooltips — still deferred until card detail panel exists.
+
+---
+
+### Direction B — Layout density (same info, better use of space)
+
+Desktop just arranges the existing information better. No new data surfaces.
+
+**What changes:**
+- At lg+ (1024px+), the sidebar shows analysis + log in a two-tab switcher (already close
+  to what exists — just make the log tab always-visible rather than a bottom-sheet).
+- At xl+ (1280px+), sidebar grows to ~340px. Analysis and sandbox get more room.
+- Opponent hand zone grows taller at lg+ to show more card tops (current 64px → 88px).
+- Hand zone max-height increases at xl+ to show 3 wrapped rows before scrolling.
+
+**What stays the same:** No new components. No card detail panel. No hover tooltips.
+
+**Tradeoffs:**
+- Smallest implementation effort — mostly Tailwind class changes.
+- Doesn't add information mobile users don't have, just uses space better.
+- May feel like a missed opportunity given desktop screen real estate.
+
+---
+
+### Direction C — Power-user features (desktop-only capabilities)
+
+Desktop unlocks features that are impractical on touch screens.
+
+**What changes:**
+- **Keyboard shortcuts**: [I] ink, [Q] quest all eligible, [P] pass, [C] enter challenge mode,
+  [S] enter sing mode, [Esc] cancel mode. Shown as small badges on action buttons.
+- **Hover card preview**: full card image + text in a floating panel on hover (desktop only).
+- **Shortcut reference card** in sidebar (collapsible) showing the key bindings.
+- Sidebar log is always expanded at md+ (no bottom sheet needed).
+
+**What stays the same:** Mobile experience unchanged. No two-column layout changes.
+
+**Tradeoffs:**
+- Keyboard shortcuts require a `useKeyboardShortcuts` hook + focus management.
+- Most useful for people playing many test games (testbench use case), less for casual multiplayer.
+- Can be combined with Direction A or B (they're not mutually exclusive).
+
+---
+
+### Open questions before deciding
+
+1. **Who is the primary desktop user?** Someone doing deck testing (testbench/sandbox, rapid
+   play against bot) or someone playing a real multiplayer game?
+   - If testbench: keyboard shortcuts + always-visible log matter most.
+   - If multiplayer: card detail + richer visual state matters most.
+
+2. **Sidebar width ceiling**: At 1440px+ monitors, the board has unused horizontal space.
+   Two-column sidebar? Or let the board zone cards grow larger?
+
+3. **Card detail panel vs hover tooltip**: These serve the same need (read card text quickly).
+   Hover is faster but requires mouse. Click-to-detail works on touch too, so it's more universal.
+   Pick one pattern to avoid building both.
+
+4. **Log visibility**: Should the game log be always-on at md+, or keep it behind a tab
+   to save sidebar space for analysis? The analysis panel is more useful during a game;
+   the log is more useful for reviewing after.
