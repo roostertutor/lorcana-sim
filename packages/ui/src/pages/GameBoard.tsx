@@ -204,6 +204,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   const [choiceModalHidden, setChoiceModalHidden] = useState(false);
   const [challengeAttackerId, setChallengeAttackerId] = useState<string | null>(null);
   const [shiftCardId, setShiftCardId] = useState<string | null>(null);
+  const [singCardId, setSingCardId] = useState<string | null>(null);
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [showLog, setShowLog] = useState(false);
   const [autoPassP2, setAutoPassP2] = useState(true);
@@ -218,6 +219,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   const cancelMode = React.useCallback(() => {
     setChallengeAttackerId(null);
     setShiftCardId(null);
+    setSingCardId(null);
   }, []);
 
   // Valid challenge targets for the selected attacker
@@ -239,6 +241,16 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         .map(a => (a as { shiftTargetInstanceId: string }).shiftTargetInstanceId)
     );
   }, [shiftCardId, session.legalActions]);
+
+  // Valid singers for the selected song card — instanceIds of characters that can sing it
+  const singTargets = useMemo(() => {
+    if (!singCardId) return new Set<string>();
+    return new Set(
+      session.legalActions
+        .filter(a => a.type === "PLAY_CARD" && (a as { instanceId: string }).instanceId === singCardId && (a as { singerInstanceId?: string }).singerInstanceId)
+        .map(a => (a as { singerInstanceId: string }).singerInstanceId)
+    );
+  }, [singCardId, session.legalActions]);
 
   // Per-card action buttons — derived from legalActions
   type CardBtn = { label: string; color: string; onClick: (e: React.MouseEvent) => void };
@@ -279,7 +291,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               singerAdded.add(action.instanceId);
               add(action.instanceId, {
                 label: "Sing", color: "bg-yellow-700 hover:bg-yellow-600 text-yellow-100",
-                onClick: (e) => { e.stopPropagation(); session.dispatch(action); },
+                onClick: (e) => { e.stopPropagation(); cancelMode(); setSingCardId(action.instanceId); },
               });
             }
           } else {
@@ -614,8 +626,9 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   function renderCardWithActions(id: string, zone: "play" | "hand", isOpponent = false, index = 0, total = 1, faceDown = false) {
     const isChallTarget = challengeTargets.has(id);
     const isShiftTarget = shiftTargets.has(id);
+    const isSingTarget = singTargets.has(id);
     const isAttacker = id === challengeAttackerId || id === shiftCardId;
-    const btns = (!isOpponent && !challengeAttackerId && !shiftCardId) ? (cardButtons.get(id) ?? []) : [];
+    const btns = (!isOpponent && !challengeAttackerId && !shiftCardId && !singCardId) ? (cardButtons.get(id) ?? []) : [];
     const choiceLabel = choiceLabels.get(id);
     const plainName = getCardName(id);
     const disambigBadge = choiceLabel && choiceLabel !== plainName
@@ -652,7 +665,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         setShiftCardId(null);
         return;
       }
-      if (challengeAttackerId || shiftCardId) { cancelMode(); return; }
+      if (!isOpponent && singCardId && isSingTarget) {
+        const singAction = legalActions.find(a => a.type === "PLAY_CARD" && a.instanceId === singCardId && a.singerInstanceId === id);
+        if (singAction) session.dispatch(singAction);
+        setSingCardId(null);
+        return;
+      }
+      if (challengeAttackerId || shiftCardId || singCardId) { cancelMode(); return; }
       session.selectCard(session.selectedInstanceId === id ? null : id);
     }
 
@@ -666,7 +685,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                 gameState={gameState}
                 definitions={definitions}
                 isSelected={session.selectedInstanceId === id}
-                isTarget={isChallTarget || isShiftTarget}
+                isTarget={isChallTarget || isShiftTarget || isSingTarget}
                 isAttacker={isAttacker}
                 onClick={handleClick}
                 zone={zone}
@@ -825,7 +844,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           </div>
           {/* Opponent hand — face-down, clipped to just show card tops */}
           {p2Zones.hand.length > 0 && (
-            <div className="shrink-0 h-16 overflow-hidden flex flex-nowrap items-end justify-center mb-1">
+            <div className="shrink-0 h-10 sm:h-16 overflow-hidden flex flex-nowrap items-end justify-center mb-1">
               {p2Zones.hand.map((id, i) => renderCardWithActions(id, "hand", true, i, p2Zones.hand.length, true))}
             </div>
           )}
@@ -842,21 +861,28 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               definitions={definitions}
             />
           )}
-          {/* Opponent play zone — characters left, items right */}
-          <div className="flex-1 min-h-0 overflow-y-auto flex items-end justify-between gap-2 pb-1">
-            {p2Zones.play.length === 0 ? (
-              <span className="text-gray-700 text-xs italic self-center">No cards in play</span>
-            ) : (
-              <>
+          {/* Opponent play zone */}
+          {p2Zones.play.length === 0 ? (
+            <div className="flex-1 flex items-center justify-center">
+              <span className="text-gray-700 text-xs italic">No cards in play</span>
+            </div>
+          ) : (
+            <>
+              {/* Mobile: single horizontal scroll strip */}
+              <div className="md:hidden flex-1 overflow-x-auto overflow-y-hidden flex flex-nowrap items-end gap-2 pb-1">
+                {p2Zones.play.map((id) => renderCardWithActions(id, "play", true))}
+              </div>
+              {/* md+: characters left, items right */}
+              <div className="hidden md:flex flex-1 min-h-0 overflow-y-auto items-end justify-between gap-2 pb-1">
                 <div className="flex flex-wrap gap-2 items-end content-end">
                   {p2Zones.play.filter(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType === "character").map((id) => renderCardWithActions(id, "play", true))}
                 </div>
                 <div className="flex flex-wrap gap-2 items-end content-end justify-end">
                   {p2Zones.play.filter(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType !== "character").map((id) => renderCardWithActions(id, "play", true))}
                 </div>
-              </>
-            )}
-          </div>
+              </div>
+            </>
+          )}
         </div>
 
         {/* ---- Play zone divider ---- */}
@@ -880,25 +906,30 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             activeId={dnd.activeId}
             className="flex-1 min-h-0 flex flex-col"
           >
-            {/* Player play zone — characters left, items right */}
-            <div className="flex-1 min-h-0 overflow-x-hidden overflow-y-auto flex items-end justify-between gap-2 pb-1 px-1">
-              {p1Zones.play.length === 0 ? (
-                <span className="text-gray-700 text-xs italic self-center">
-                  {dnd.activeId && dnd.isValidPlayZoneDrop(dnd.activeId)
-                    ? "Drop here to play"
-                    : "No cards in play"}
+            {/* Player play zone */}
+            {p1Zones.play.length === 0 ? (
+              <div className="flex-1 flex items-center justify-center">
+                <span className="text-gray-700 text-xs italic">
+                  {dnd.activeId && dnd.isValidPlayZoneDrop(dnd.activeId) ? "Drop here to play" : "No cards in play"}
                 </span>
-              ) : (
-                <>
+              </div>
+            ) : (
+              <>
+                {/* Mobile: single horizontal scroll strip */}
+                <div className="md:hidden flex-1 overflow-x-auto overflow-y-hidden flex flex-nowrap items-end gap-2 pb-1 px-1">
+                  {p1Zones.play.map((id) => renderCardWithActions(id, "play", false))}
+                </div>
+                {/* md+: characters left, items right */}
+                <div className="hidden md:flex flex-1 min-h-0 overflow-y-auto items-end justify-between gap-2 pb-1 px-1">
                   <div className="flex flex-wrap gap-2 items-end content-end">
                     {p1Zones.play.filter(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType === "character").map((id) => renderCardWithActions(id, "play", false))}
                   </div>
                   <div className="flex flex-wrap gap-2 items-end content-end justify-end">
                     {p1Zones.play.filter(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType !== "character").map((id) => renderCardWithActions(id, "play", false))}
                   </div>
-                </>
-              )}
-            </div>
+                </div>
+              </>
+            )}
           </DroppablePlayZone>
 
           {/* Inkwell — always-on card zone, doubles as drop target */}
@@ -1024,7 +1055,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           </div>
         </div>
       )}
-      {!pendingChoice && !isGameOver && isYourTurn && (challengeAttackerId || shiftCardId) && (
+      {!pendingChoice && !isGameOver && isYourTurn && (challengeAttackerId || shiftCardId || singCardId) && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2">
           {challengeAttackerId && (
             <div className="flex items-center gap-2 rounded-full px-4 py-1.5 bg-red-950/90 border border-red-700/60 text-red-300 text-xs shadow-lg">
@@ -1038,6 +1069,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               <span className="font-bold">Shift</span>
               <span className="text-purple-500">— tap a highlighted character</span>
               <button className="text-purple-500 hover:text-purple-300 font-bold active:scale-95" onClick={cancelMode}>✕</button>
+            </div>
+          )}
+          {singCardId && (
+            <div className="flex items-center gap-2 rounded-full px-4 py-1.5 bg-yellow-950/90 border border-yellow-700/60 text-yellow-300 text-xs shadow-lg">
+              <span className="font-bold">Sing</span>
+              <span className="text-yellow-600">— tap a highlighted character to sing</span>
+              <button className="text-yellow-600 hover:text-yellow-300 font-bold active:scale-95" onClick={cancelMode}>✕</button>
             </div>
           )}
         </div>

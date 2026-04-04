@@ -38,11 +38,14 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   const def = definitions[instance.definitionId];
   if (!def) return null;
 
+  // Mobile width: hand cards are full size for readability; play zone + face-down backs are smaller
+  const mobileWidth = zone === "play" || faceDown ? "w-[64px]" : "w-[88px]";
+
   // ── Face-down card back (opponent hand) ──
   if (faceDown) {
     return (
       <div
-        className="w-[88px] sm:w-[104px] lg:w-[120px] aspect-[5/7] rounded-xl overflow-hidden shrink-0"
+        className={`${mobileWidth} sm:w-[104px] lg:w-[120px] aspect-[5/7] rounded-xl overflow-hidden shrink-0`}
         onClick={onClick}
       >
         <img
@@ -79,7 +82,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
     ? "border-red-400 ring-2 ring-red-400/50 animate-pulse z-10"
     : theme.border;
 
-  const baseClass = `game-card relative border-2 rounded-xl w-[88px] sm:w-[104px] lg:w-[120px] shrink-0 cursor-pointer
+  const baseClass = `game-card relative border-2 rounded-xl ${mobileWidth} sm:w-[104px] lg:w-[120px] shrink-0 cursor-pointer
     transition-all duration-200 ${ringClass}
     ${isExerted ? "rotate-90 opacity-80" : ""}
     hover:scale-105 hover:z-10 hover:shadow-lg hover:${theme.glow}`;
