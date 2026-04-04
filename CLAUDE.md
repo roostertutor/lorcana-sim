@@ -9,11 +9,11 @@ to produce deck analytics and win rates. NOT a human-playable simulator.
 
 ## Status
 
-- engine:    done (170 passing, 1 todo). CRD audited. Tests organized by CRD.
+- engine:    done (173 passing, 1 todo). CRD audited. Tests organized by CRD.
 - simulator: done (46 passing). Layer 3 invariants passing. RL bot implemented (Actor-Critic + GAE).
 - analytics: done (15 passing).
 - cli:       done. analyze, compare, query, learn.
-- ui:        done. 7 screens, React+Vite. Analysis overlay on Play + TestBench.
+- ui:        done. 7 screens, React+Vite. Responsive (mobile/tablet/desktop). Full-screen game board (no header/nav in-game).
 - testbench: done. Interactive game board with bot opponent.
 - cards:     set 1 complete (204 unique cards, 216 entries, all abilities implemented, 0 stubs).
 - sets 2–11: imported as stubs (keyword-only, 2504 total cards incl. dual-ink). Run `pnpm import-cards --sets N` to refresh.
@@ -92,3 +92,14 @@ Only fizzle if the card instance doesn't exist at all.
 
 **Win threshold (CRD 1.8.1.1):**
 Never hardcode `lore >= 20`. Always use `getLoreThreshold(state, definitions)`.
+
+**Sequential effect triggeringCardInstanceId (CRD 6.1.5.1):**
+When applying `sequential` costEffects/rewardEffects via `applyEffect`, always forward `triggeringCardInstanceId`.
+When creating a `choose_may` PendingChoice for a sequential effect, store `triggeringCardInstanceId` on the choice
+so the accept path can resolve the exert correctly.
+```typescript
+// WRONG — triggeringCardInstanceId lost, exert on triggering_card silently no-ops
+state = applyEffect(state, costEffect, sourceId, playerId, definitions, events);
+// CORRECT
+state = applyEffect(state, costEffect, sourceId, playerId, definitions, events, triggeringCardInstanceId);
+```
