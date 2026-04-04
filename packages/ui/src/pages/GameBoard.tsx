@@ -694,17 +694,29 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               <span>📦 {p2Zones.deck.length}</span>
             </div>
           </div>
-          {/* Opponent hand — face-down card backs */}
+          {/* Opponent hand — face-down card backs, fanned like a held hand */}
           {p2Zones.hand.length > 0 && (
-            <div className="shrink-0 flex flex-wrap gap-1.5 pb-1 mb-1.5">
-              {p2Zones.hand.map((id) => (
-                <div key={id}
-                  className="shrink-0 w-[88px] sm:w-[104px] lg:w-[120px] aspect-[5/7]
-                             rounded-lg bg-gray-800/80 border border-gray-700/60
-                             flex items-center justify-center">
-                  <span className="text-gray-600 text-base">⬡</span>
-                </div>
-              ))}
+            <div className="shrink-0 flex flex-nowrap pb-3 mb-1 items-start">
+              {p2Zones.hand.map((id, i) => {
+                const total = p2Zones.hand.length;
+                const mid = (total - 1) / 2;
+                const norm = total > 1 ? (i - mid) / mid : 0;
+                return (
+                  <div key={id}
+                    className="shrink-0 w-[88px] sm:w-[104px] lg:w-[120px] aspect-[5/7]
+                               rounded-lg bg-gray-800/80 border border-gray-700/60
+                               flex items-center justify-center"
+                    style={{
+                      marginLeft: i > 0 ? "-22px" : "0",
+                      transform: `rotate(${norm * -6}deg)`,
+                      transformOrigin: "top center",
+                      zIndex: i,
+                    }}
+                  >
+                    <span className="text-gray-600 text-base">⬡</span>
+                  </div>
+                );
+              })}
             </div>
           )}
           {/* Opponent play zone */}
