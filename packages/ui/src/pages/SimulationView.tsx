@@ -87,6 +87,9 @@ export default function SimulationView() {
     setRunning(true);
     setMirrorStats(null);
     setMatchupStats(null);
+    // TODO: move to a Web Worker to avoid blocking the main thread on large
+    // iteration counts. Requires serializing LORCAST_CARD_DEFINITIONS (~2MB)
+    // and posting results back via postMessage.
     setTimeout(() => {
       try {
         const bot = botOpt.bot();

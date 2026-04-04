@@ -87,10 +87,22 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo }: Props) {
     setStatus(null);
   }
 
-  // Poll lobby status after creating — transition to game when guest joins
+  // Poll lobby status after creating — transition to game when guest joins.
+  // Caps at 150 attempts (5 min) to avoid hammering the server indefinitely.
   useEffect(() => {
     if (!lobbyId || !session) return;
+    let attempts = 0;
+    const MAX_POLL_ATTEMPTS = 150;
     pollRef.current = setInterval(async () => {
+      attempts++;
+      if (attempts >= MAX_POLL_ATTEMPTS) {
+        clearInterval(pollRef.current!);
+        setError("Lobby timed out waiting for a player. Please create a new lobby.");
+        setStatus(null);
+        setLobbyCode(null);
+        setLobbyId(null);
+        return;
+      }
       const data = await getLobbyGame(session.token, lobbyId);
       if (data?.lobby.status === "active" && data.game) {
         clearInterval(pollRef.current!);

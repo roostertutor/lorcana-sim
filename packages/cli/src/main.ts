@@ -49,10 +49,7 @@ function parseArgs(argv: string[]): Record<string, string> {
 
 function requireArg(args: Record<string, string>, key: string, usage: string): string {
   const v = args[key];
-  if (!v) {
-    console.error(`Missing required argument: --${key}\n${usage}`);
-    process.exit(1);
-  }
+  if (!v) throw new Error(`Missing required argument: --${key}\n${usage}`);
   return v;
 }
 
@@ -60,10 +57,7 @@ function optionalInt(args: Record<string, string>, key: string, defaultVal: numb
   const v = args[key];
   if (!v) return defaultVal;
   const n = parseInt(v, 10);
-  if (isNaN(n) || n < 1) {
-    console.error(`--${key} must be a positive integer, got: "${v}"`);
-    process.exit(1);
-  }
+  if (isNaN(n) || n < 1) throw new Error(`--${key} must be a positive integer, got: "${v}"`);
   return n;
 }
 
@@ -74,6 +68,7 @@ function optionalInt(args: Record<string, string>, key: string, defaultVal: numb
 const [, , subcommand, ...rest] = process.argv;
 const args = parseArgs(rest ?? []);
 
+try {
 switch (subcommand) {
   case "analyze": {
     const usage = "Usage: pnpm analyze --deck ./deck.txt --bot greedy --iterations 1000 [--verbose] [--save ./results.json]";
@@ -154,4 +149,8 @@ Bot options: random, greedy, rl (use --policy with rl)
 `);
     process.exit(subcommand ? 1 : 0);
   }
+}
+} catch (err) {
+  console.error(err instanceof Error ? err.message : String(err));
+  process.exit(1);
 }

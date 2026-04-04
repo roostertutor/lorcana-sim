@@ -28,7 +28,6 @@ import {
   canSingSong,
   evaluateCondition,
   findMatchingInstances,
-  generateId,
   getDefinition,
   getEffectiveLore,
   getEffectiveStrength,

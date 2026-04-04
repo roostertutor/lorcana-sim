@@ -41,12 +41,20 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   // Mobile width: hand cards are full size for readability; play zone + face-down backs are smaller
   const mobileWidth = zone === "play" || faceDown ? "w-[64px]" : "w-[88px]";
 
+  const handleKey = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); }
+  };
+
   // ── Face-down card back (opponent hand) ──
   if (faceDown) {
     return (
       <div
         className={`${mobileWidth} sm:w-[104px] lg:w-[120px] aspect-[5/7] rounded-xl overflow-hidden shrink-0`}
         onClick={onClick}
+        tabIndex={0}
+        onKeyDown={handleKey}
+        role="button"
+        aria-label="Opponent card"
       >
         <img
           src="/card-back-small.jpg"
@@ -93,7 +101,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
     // Board cards are displayed at 88–120px CSS width — small is sufficient.
     const boardImageUrl = def.imageUrl.replace("/digital/normal/", "/digital/small/");
     return (
-      <div className={`${baseClass} aspect-[5/7] overflow-hidden`} onClick={onClick}>
+      <div className={`${baseClass} aspect-[5/7] overflow-hidden`} onClick={onClick} tabIndex={0} onKeyDown={handleKey} role="button" aria-label={`${def.fullName}${isExerted ? ", exerted" : ""}${damage > 0 ? `, ${damage} damage` : ""}`}>
         <img
           src={boardImageUrl}
           alt={def.fullName}
@@ -135,6 +143,10 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
     <div
       className={`${baseClass} bg-gradient-to-b ${theme.gradFrom} ${theme.gradTo}`}
       onClick={onClick}
+      tabIndex={0}
+      onKeyDown={handleKey}
+      role="button"
+      aria-label={`${def.fullName}${isExerted ? ", exerted" : ""}${damage > 0 ? `, ${damage} damage` : ""}`}
     >
       {/* Top bar: cost + type */}
       <div className="flex items-start justify-between px-2 pt-1.5">
