@@ -18,6 +18,7 @@ import {
   useDraggable,
   useDroppable,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   pointerWithin,
@@ -484,6 +485,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   // ── Drag & Drop — must be declared BEFORE any early return (Rules of Hooks) ──
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
   );
 
   const dnd = useBoardDnd({
