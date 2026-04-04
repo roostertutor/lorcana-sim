@@ -33,13 +33,11 @@ export default function App() {
     localStorage.setItem("activeTab", tab);
   }
 
-  const inGame = activeTab === "testbench" || soloMode || !!multiplayerGame;
+  // Solo and multiplayer games go full-screen (no header/nav)
+  // Sandbox stays with nav so users can switch tabs freely
+  const inGame = soloMode || !!multiplayerGame;
 
-  // Full-screen game view — no header/nav chrome
   if (inGame) {
-    if (activeTab === "testbench") {
-      return <TestBench definitions={LORCAST_CARD_DEFINITIONS} />;
-    }
     if (soloMode) {
       return <GameBoard definitions={LORCAST_CARD_DEFINITIONS} initialDeck={soloDeck} onBack={() => setSoloMode(false)} />;
     }
@@ -81,6 +79,9 @@ export default function App() {
       }`}>
         {activeTab === "decks" && <DecksPage />}
         {activeTab === "simulate" && <SimulationView />}
+        {activeTab === "testbench" && (
+          <TestBench definitions={LORCAST_CARD_DEFINITIONS} />
+        )}
         {activeTab === "multiplayer" && (
           <MultiplayerLobby
             onGameStart={(gameId, myPlayerId, token) => {

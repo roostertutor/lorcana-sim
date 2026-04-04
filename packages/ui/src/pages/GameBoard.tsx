@@ -598,13 +598,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       onDragEnd={dnd.handleDragEnd}
       onDragCancel={dnd.handleDragCancel}
     >
-    <div className="grid grid-cols-1 md:grid-cols-[1fr_220px] lg:grid-cols-[1fr_280px] gap-5 px-3 md:px-4 pb-20 md:pb-6 pt-3">
+    <div className="h-dvh overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_220px] lg:grid-cols-[1fr_280px] gap-0 md:gap-4 lg:gap-5">
       {/* ======================= Main game area ======================= */}
-      <div className="min-w-0 space-y-2">
+      <div className="min-w-0 flex flex-col gap-2 min-h-0 overflow-hidden px-3 md:pl-4 md:pr-0 pt-3 pb-14 md:pb-3">
 
         {/* Game Over Overlay */}
         {isGameOver && (
-          <div className="rounded-xl p-6 text-center space-y-3 bg-gradient-to-b from-amber-900/30 to-amber-950/50 border border-amber-500/30">
+          <div className="shrink-0 rounded-xl p-6 text-center space-y-3 bg-gradient-to-b from-amber-900/30 to-amber-950/50 border border-amber-500/30">
             <div className="text-3xl font-black text-amber-400 tracking-tight">
               {winner === "player1" ? "Victory!" : winner === "player2" ? "Defeat" : "Draw"}
             </div>
@@ -621,7 +621,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         )}
 
         {/* ---- Scoreboard ---- */}
-        <div className="rounded-xl bg-gray-900/60 border border-gray-800/50 px-3 py-2">
+        <div className="shrink-0 rounded-xl bg-gray-900/60 border border-gray-800/50 px-3 py-2">
           <div className="flex items-center gap-2">
             {/* Turn badge */}
             <div className={`px-2 py-0.5 rounded text-xs font-bold tracking-wide shrink-0 ${
@@ -653,19 +653,19 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               className="ml-auto px-2 py-0.5 text-[10px] bg-gray-800 hover:bg-gray-700 text-gray-500 hover:text-gray-300 rounded transition-colors uppercase tracking-wider shrink-0"
               onClick={() => { session.reset(); onBack?.(); }}
             >
-              {onBack ? "← Back" : "Concede"}
+              {onBack ? "← Back" : sandboxMode ? "Reset" : "Concede"}
             </button>
           </div>
         </div>
 
         {error && (
-          <div className="text-red-400 text-sm bg-red-950/30 border border-red-800/50 rounded-lg px-3 py-2">
+          <div className="shrink-0 text-red-400 text-sm bg-red-950/30 border border-red-800/50 rounded-lg px-3 py-2">
             {error}
           </div>
         )}
 
         {/* ---- Opponent zone ---- */}
-        <div className="rounded-xl bg-gradient-to-b from-red-950/10 to-transparent border border-gray-800/30 p-2">
+        <div className="flex-1 min-h-0 flex flex-col rounded-xl bg-gradient-to-b from-red-950/10 to-transparent border border-gray-800/30 p-2">
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-[10px] text-red-400/60 uppercase tracking-wider font-bold">Opponent</span>
             <div className="flex gap-3 text-[10px] text-gray-600 items-center">
@@ -675,7 +675,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           </div>
           {/* Opponent hand — face-down card backs */}
           {p2Zones.hand.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 pb-1 mb-1.5">
+            <div className="shrink-0 flex flex-wrap gap-1.5 pb-1 mb-1.5">
               {p2Zones.hand.map((id) => (
                 <div key={id}
                   className="shrink-0 w-[88px] sm:w-[104px] lg:w-[120px] aspect-[5/7]
@@ -687,7 +687,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             </div>
           )}
           {/* Opponent play zone */}
-          <div className="flex flex-wrap gap-2 pb-1 min-h-[125px] sm:min-h-[145px] lg:min-h-[170px] items-end">
+          <div className="flex-1 min-h-0 overflow-y-auto flex flex-wrap gap-2 pb-1 items-end content-end">
             {p2Zones.play.length === 0 ? (
               <span className="text-gray-700 text-xs italic self-center">No cards in play</span>
             ) : (
@@ -697,14 +697,14 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         </div>
 
         {/* ---- Play zone divider ---- */}
-        <div className="flex items-center gap-3 py-0.5">
+        <div className="shrink-0 flex items-center gap-3 py-0.5">
           <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-700/50 to-transparent" />
           <span className="text-[9px] text-gray-700 uppercase tracking-widest">Play</span>
           <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-700/50 to-transparent" />
         </div>
 
         {/* ---- Player zone ---- */}
-        <div className="rounded-xl bg-gradient-to-t from-green-950/10 to-transparent border border-gray-800/30 p-2">
+        <div className="flex-1 min-h-0 flex flex-col rounded-xl bg-gradient-to-t from-green-950/10 to-transparent border border-gray-800/30 p-2">
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-[10px] text-green-400/60 uppercase tracking-wider font-bold">Your Board</span>
             <div className="flex gap-3 text-[10px] text-gray-600 items-center">
@@ -722,8 +722,9 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           <DroppablePlayZone
             isValidTarget={!!dnd.activeId && dnd.isValidPlayZoneDrop(dnd.activeId)}
             activeId={dnd.activeId}
+            className="flex-1 min-h-0 flex flex-col"
           >
-            <div className="flex flex-wrap gap-2 pb-1 min-h-[125px] sm:min-h-[145px] lg:min-h-[170px] items-end">
+            <div className="flex-1 min-h-0 overflow-y-auto flex flex-wrap gap-2 pb-1 items-end content-end">
               {p1Zones.play.length === 0 ? (
                 <span className="text-gray-700 text-xs italic self-center">
                   {dnd.activeId && dnd.isValidPlayZoneDrop(dnd.activeId)
@@ -738,12 +739,12 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         </div>
 
         {/* ---- Hand ---- */}
-        <div className="rounded-xl bg-gray-900/40 border border-gray-800/30 p-2">
+        <div className="shrink-0 rounded-xl bg-gray-900/40 border border-gray-800/30 p-2">
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">Your Hand</span>
             <span className="text-[10px] text-gray-600">{p1Zones.hand.length} cards</span>
           </div>
-          <div className="flex flex-wrap gap-2 pb-1 min-h-[125px] sm:min-h-[145px] lg:min-h-[170px] items-start">
+          <div className="overflow-y-auto max-h-[260px] sm:max-h-[305px] lg:max-h-[355px] min-h-[80px] flex flex-wrap gap-2 pb-1 items-start">
             {p1Zones.hand.length === 0 ? (
               <span className="text-gray-700 text-xs italic self-center">Empty hand</span>
             ) : (
@@ -754,14 +755,14 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
 
         {/* ---- Pending Choice: opponent indicator (inline) or human choice (modal) ---- */}
         {pendingChoice && pendingChoice.choosingPlayerId !== myId && (
-          <div className="rounded-lg px-4 py-3 bg-yellow-950/40 border border-yellow-700/50">
+          <div className="shrink-0 rounded-lg px-4 py-3 bg-yellow-950/40 border border-yellow-700/50">
             <span className="text-yellow-400 text-sm animate-pulse">Opponent is thinking...</span>
           </div>
         )}
 
         {/* ---- Desktop: mode hints + pass turn ---- */}
         {!pendingChoice && !isGameOver && isYourTurn && (
-          <div className="hidden md:flex items-center gap-2">
+          <div className="shrink-0 hidden md:flex items-center gap-2">
             {challengeAttackerId && (
               <div className="flex-1 flex items-center gap-2 rounded-lg px-3 py-2 bg-red-950/40 border border-red-700/40 text-red-300 text-xs">
                 <span className="font-bold">Challenge mode</span>
@@ -790,7 +791,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       </div>
 
       {/* ======================= Sidebar (Sandbox or Game Log) ======================= */}
-      <div className="hidden md:block space-y-4 md:sticky md:top-3 md:self-start">
+      <div className="hidden md:flex flex-col min-h-0 overflow-y-auto pt-3 pb-3 pr-4 gap-4">
         {sandboxMode ? (
           <SandboxPanel
             session={session}
@@ -1018,10 +1019,12 @@ function DroppablePlayZone({
   isValidTarget,
   activeId,
   children,
+  className = "",
 }: {
   isValidTarget: boolean;
   activeId: string | null;
   children: React.ReactNode;
+  className?: string;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: DROP_PLAY_ZONE });
   const ring = isOver && isValidTarget
@@ -1032,7 +1035,7 @@ function DroppablePlayZone({
     ? "opacity-70"
     : "";
   return (
-    <div ref={setNodeRef} className={`rounded-lg transition-all duration-150 ${ring}`}>
+    <div ref={setNodeRef} className={`rounded-lg transition-all duration-150 ${ring} ${className}`}>
       {children}
     </div>
   );
