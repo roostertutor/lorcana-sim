@@ -651,7 +651,15 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
 
             <button
               className="ml-auto px-2 py-0.5 text-[10px] bg-gray-800 hover:bg-gray-700 text-gray-500 hover:text-gray-300 rounded transition-colors uppercase tracking-wider shrink-0"
-              onClick={() => { session.reset(); onBack?.(); }}
+              onClick={() => {
+                if (sandboxMode) {
+                  // Restart sandbox in-place — don't go through null (would blank screen)
+                  session.startGame({ player1Deck: [], player2Deck: [], definitions, botStrategy: GreedyBot, player1IsHuman: true, player2IsHuman: false });
+                } else {
+                  session.reset();
+                  onBack?.();
+                }
+              }}
             >
               {onBack ? "← Back" : sandboxMode ? "Reset" : "Concede"}
             </button>
