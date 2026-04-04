@@ -38,7 +38,7 @@
 ### 1.6 Abilities
 | Rule | Quote | Status |
 |------|-------|--------|
-| 1.6.1 | Abilities apply only when source is in play (with exceptions) | ✅ Trigger fizzle logic in `processTriggerStack` |
+| 1.6.1 | Abilities apply only when source is in play (with exceptions) | ✅ Trigger fizzle logic in `processTriggerStack`. Exceptions (fire after leaving play): `is_banished`, `leaves_play`, `banished_in_challenge`, `banished_other_in_challenge` (per 4.6.6.2 — simultaneous damage means attacker banished another even if also banished), `is_challenged`, `challenges`. |
 | 1.6.1.1 | Triggered abilities | ✅ |
 | 1.6.1.2 | Activated abilities | ✅ |
 | 1.6.1.3 | Static abilities | ✅ 8 static types: grant_keyword, modify_stat, modify_stat_per_count, cant_be_challenged, cost_reduction, action_restriction, extra_ink_play, self_cost_reduction. Conditional statics via `condition` on StaticAbility. |
@@ -192,7 +192,7 @@
 | 4.6.4.4 | Exert the challenging character | ✅ |
 | 4.6.5 | "challenges" / "is challenged" triggered abilities added to bag | ✅ `queueTrigger("challenges", ...)` and `queueTrigger("is_challenged", ...)` |
 | 4.6.6.1 | Calculate damage: apply {S} increases/decreases first, then damage modifiers | ✅ `getEffectiveStrength` + Challenger bonus + Resist |
-| 4.6.6.2 | Damage dealt simultaneously | ✅ Both characters take damage before banish check |
+| 4.6.6.2 | Damage dealt simultaneously | ✅ Both characters take damage before banish check. Implication: "banishes another in a challenge" triggers (`banished_other_in_challenge`) fire even when the attacker is also banished — see 1.6.1 exceptions. |
 | 4.6.6.3 | Game state check after challenge damage | ✅ `applyWinCheck` runs after action |
 | 4.6.8 | Characters can challenge **locations** | ❌ Locations not implemented |
 | 4.6.8.2 | Locations aren't ready/exerted; can be challenged at any time | ❌ |

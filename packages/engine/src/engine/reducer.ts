@@ -1868,7 +1868,10 @@ function processTriggerStack(
     // fire even after card leaves play — only fizzle if instance doesn't exist.
     if (!source) continue;
     // CRD 6.2.3 / 1.6.1: triggers fire from bag even after card leaves play
-    const requiresInPlay = !["is_banished", "leaves_play", "banished_in_challenge", "is_challenged", "challenges"].includes(trigger.ability.trigger.on);
+    // CRD 1.6.1: these triggers fire because of the challenge/banishment event itself,
+    // not because the source is still in play. banished_other_in_challenge included per
+    // CRD 4.6.6.2 — simultaneous damage means attacker banished another even if also banished.
+    const requiresInPlay = !["is_banished", "leaves_play", "banished_in_challenge", "banished_other_in_challenge", "is_challenged", "challenges"].includes(trigger.ability.trigger.on);
     if (requiresInPlay && source.zone !== "play") continue;
 
     // CRD 6.2.1: Check condition before resolving trigger effects
@@ -2068,9 +2071,11 @@ function zoneTransition(
           state = queueTrigger(state, "banished_in_challenge", instanceId, definitions, {
             triggeringCardInstanceId: ctx.challengeOpponentId,
           });
-          // Fire on the surviving opponent: "this character banished another in a challenge"
+          // CRD 4.6.6.2: challenge damage is simultaneous — the opponent banished this card
+          // even if the opponent was also banished in the same exchange. Only require the
+          // instance to exist; zone check would incorrectly suppress mutual-banishment triggers.
           const opponent = state.cards[ctx.challengeOpponentId];
-          if (opponent && opponent.zone === "play") {
+          if (opponent) {
             state = queueTrigger(state, "banished_other_in_challenge", ctx.challengeOpponentId, definitions, {
               triggeringCardInstanceId: instanceId,
             });

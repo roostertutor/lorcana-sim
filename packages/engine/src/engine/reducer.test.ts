@@ -3132,6 +3132,31 @@ describe("banished_other_in_challenge (attacker-side trigger)", () => {
     expect(getInstance(result.newState, defenderId).zone).toBe("discard");
     expect(result.newState.players.player1.lore).toBe(loreBefore + 2);
   });
+
+  // CRD 4.6.6.2 + 1.6.1: mutual banishment — attacker's trigger still fires
+  it("Tinker Bell PUNY PIRATE! triggers even when both attacker and defender are banished", () => {
+    // Tinker Bell: STR 4, WP 5. Scar - Fiery Usurper: STR 5, WP 3.
+    // Tinker Bell (STR 4) kills Scar (WP 3); Scar (STR 5) kills Tinker Bell (WP 5). Both banished.
+    let state = startGame(["tinker-bell-giant-fairy"]);
+    let tinkId: string, scarId: string, targetId: string;
+    ({ state, instanceId: tinkId } = injectCard(state, "player1", "tinker-bell-giant-fairy", "play"));
+    ({ state, instanceId: scarId } = injectCard(state, "player2", "scar-fiery-usurper", "play", { isExerted: true }));
+    // A target on the board for PUNY PIRATE! to choose
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play"));
+
+    const result = applyAction(state, {
+      type: "CHALLENGE", playerId: "player1",
+      attackerInstanceId: tinkId, defenderInstanceId: scarId,
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    // Both banished
+    expect(getInstance(result.newState, tinkId).zone).toBe("discard");
+    expect(getInstance(result.newState, scarId).zone).toBe("discard");
+    // PUNY PIRATE! fires — "you may" presents a choose_may choice first
+    expect(result.newState.pendingChoice).not.toBeNull();
+    expect(result.newState.pendingChoice?.type).toBe("choose_may");
+  });
 });
 
 // =============================================================================
