@@ -752,7 +752,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             <span className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">Your Hand</span>
             <span className="text-[10px] text-gray-600">{p1Zones.hand.length} cards</span>
           </div>
-          <div className="overflow-y-auto max-h-[260px] sm:max-h-[305px] lg:max-h-[355px] min-h-[80px] flex flex-wrap gap-2 pb-1 items-start">
+          <div className="flex flex-nowrap overflow-x-auto snap-x snap-mandatory scrollbar-none md:flex-wrap md:overflow-x-hidden md:overflow-y-auto md:snap-none md:max-h-[260px] lg:max-h-[355px] gap-2 pb-2 items-start min-h-[80px]">
             {p1Zones.hand.length === 0 ? (
               <span className="text-gray-700 text-xs italic self-center">Empty hand</span>
             ) : (
