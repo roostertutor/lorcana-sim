@@ -401,6 +401,30 @@ if this becomes a pain:
 - **Skip-choice undo**: undo automatically steps back past RESOLVE_CHOICE entries to the
   preceding non-choice action.
 
+**Undo is disabled during bot turns.**
+The Undo button only appears when it's the human's turn (`canUndo && !pendingChoice && isYourTurn`).
+Bot actions are recorded in `actionHistory[]` and undo does step back through them correctly,
+but the button is hidden while the bot is playing to avoid confusing mid-bot-turn states.
+If you want to undo a bot action, you currently have to wait for the bot to finish its turn,
+then undo once (to reverse the bot's last action), then undo again if needed.
+Future option: show undo at any time including during bot turns.
+
+**Bot resolves choices randomly.**
+When a triggered ability or effect requires a target (e.g. "deal 2 damage to chosen character"),
+the bot picks a random valid target rather than the strategically best one. This affects the
+quality of games played against GreedyBot and RandomBot. The RL bot has a choice resolver but
+it's also not fully optimal. Tracked as ❌ in ROADMAP.md ("Smart choice resolution").
+
+**Branch analysis in replay not wired to the analysis panel.**
+The "Branch analysis" button in ReplayControls calls `onBranchAnalysis(state)` in GameBoard,
+but the callback doesn't currently trigger the analysis panel to run a simulation from that
+position. It needs to be connected to `useAnalysis` with the forked state as `startingState`.
+
+**Simulation blocks the main thread.**
+`SimulationView` runs `runSimulation()` synchronously on the main thread. For large run counts
+(≥ 1000 games) this freezes the UI for several seconds. Tracked as a TODO in `SimulationView.tsx`.
+Fix: move simulation to a Web Worker.
+
 ---
 
 ## What NOT to Build Yet
