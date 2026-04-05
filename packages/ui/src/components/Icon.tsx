@@ -62,9 +62,10 @@ export default function Icon({ name, className = "w-4 h-4" }: IconProps) {
       return outline("M15.75 5.25v13.5m-7.5-13.5v13.5");
 
     case "rectangle-stack":
+      // Two offset rectangles suggesting a card stack
       return (
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={className}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0a2.246 2.246 0 0 0-.244 1A2.25 2.25 0 0 0 6 9.75V15a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 15V9.75a2.25 2.25 0 0 0-.244-1m-12 0A2.25 2.25 0 0 1 8.25 4.5h7.5a2.25 2.25 0 0 1 2.25 2.25m0 0H18.75a2.25 2.25 0 0 1 2.25 2.25v4.5a2.25 2.25 0 0 1-2.25 2.25H5.25a2.25 2.25 0 0 1-2.25-2.25V9a2.25 2.25 0 0 1 2.25-2.25H6" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 4h9v12H9z M5 8h9v12H5z" />
         </svg>
       );
 
