@@ -804,41 +804,6 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       {/* ======================= Main game area ======================= */}
       <div className="min-w-0 flex flex-col gap-2 min-h-0 overflow-hidden px-3 md:pl-4 md:pr-0 pt-3 pb-3">
 
-        {/* Game Over Overlay */}
-        {isGameOver && !replayData && (
-          <div className="shrink-0 rounded-xl p-4 text-center space-y-3 bg-gradient-to-b from-amber-900/30 to-amber-950/50 border border-amber-500/30">
-            <div className="text-3xl font-black text-amber-400 tracking-tight">
-              {winner === "player1" ? "Victory!" : winner === "player2" ? "Defeat" : "Draw"}
-            </div>
-            <div className="text-sm text-gray-400">
-              {winner === "player1" ? "You won the game" : winner === "player2" ? "The bot won" : "The game ended in a draw"}
-            </div>
-            <div className="flex items-center justify-center gap-2 flex-wrap">
-              <button
-                className="px-5 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold transition-colors shadow-lg shadow-amber-600/20"
-                onClick={() => { session.reset(); setReplayData(null); }}
-              >
-                Play Again
-              </button>
-              {session.completedGame && (
-                <>
-                  <button
-                    className="px-4 py-2 bg-indigo-700/50 hover:bg-indigo-700/70 text-indigo-200 rounded-lg font-medium transition-colors border border-indigo-600/40 text-sm"
-                    onClick={() => setReplayData(session.completedGame)}
-                  >
-                    Review Game
-                  </button>
-                  <button
-                    className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg font-medium transition-colors border border-gray-700 text-sm"
-                    onClick={handleDownloadReplay}
-                  >
-                    Download Replay
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        )}
 
         {/* Replay mode banner */}
         {replayData && (
@@ -1260,6 +1225,44 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         </div>
       )}
     </div>
+
+      {/* ======================= Game Over Modal ======================= */}
+      {isGameOver && !replayData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-gray-950 border border-amber-500/30 rounded-2xl p-8 text-center space-y-4 shadow-2xl mx-4 w-full max-w-sm">
+            <div className="text-4xl font-black text-amber-400 tracking-tight">
+              {winner === "player1" ? "Victory!" : winner === "player2" ? "Defeat" : "Draw"}
+            </div>
+            <div className="text-sm text-gray-400">
+              {winner === "player1" ? "You won the game" : winner === "player2" ? "The bot won" : "The game ended in a draw"}
+            </div>
+            <div className="flex flex-col items-center gap-2 pt-1">
+              <button
+                className="w-full px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold transition-colors shadow-lg shadow-amber-600/20"
+                onClick={() => { session.reset(); setReplayData(null); }}
+              >
+                Play Again
+              </button>
+              {session.completedGame && (
+                <>
+                  <button
+                    className="w-full px-4 py-2 bg-indigo-700/50 hover:bg-indigo-700/70 text-indigo-200 rounded-lg font-medium transition-colors border border-indigo-600/40 text-sm"
+                    onClick={() => setReplayData(session.completedGame)}
+                  >
+                    Review Game
+                  </button>
+                  <button
+                    className="w-full px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg font-medium transition-colors border border-gray-700 text-sm"
+                    onClick={handleDownloadReplay}
+                  >
+                    Download Replay
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ======================= Discard Zone Viewer ======================= */}
       {discardViewerId && (
