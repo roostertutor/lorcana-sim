@@ -1,6 +1,7 @@
 import React from "react";
 import type { CardDefinition, GameState } from "@lorcana-sim/engine";
 import GameCard from "./GameCard.js";
+import Icon from "./Icon.js";
 
 interface ZoneViewModalProps {
   title: string;
@@ -28,7 +29,7 @@ export default function ZoneViewModal({ title, cardIds, gameState, definitions, 
             className="text-gray-500 hover:text-gray-300 text-lg leading-none active:scale-95 transition-colors"
             onClick={onClose}
           >
-            x
+            <Icon name="x-mark" className="w-4 h-4" />
           </button>
         </div>
 

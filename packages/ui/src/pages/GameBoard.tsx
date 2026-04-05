@@ -33,6 +33,7 @@ import GameCard from "../components/GameCard.js";
 import PendingChoiceModal from "../components/PendingChoiceModal.js";
 import ReplayControls from "../components/ReplayControls.js";
 import ZoneViewModal from "../components/ZoneViewModal.js";
+import Icon from "../components/Icon.js";
 
 // -----------------------------------------------------------------------------
 // Bot options
@@ -893,7 +894,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                 }}
                 title={onBack ? "Back" : sandboxMode ? "Reset" : "Concede"}
               >
-                <span className="md:hidden text-base leading-none">x</span>
+                <Icon name="arrow-left" className="w-4 h-4 md:hidden" />
                 <span className="hidden md:inline text-[10px] uppercase tracking-wider">
                   {onBack ? "Back" : sandboxMode ? "Reset" : "Concede"}
                 </span>
@@ -913,13 +914,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-[10px] text-red-400/60 uppercase tracking-wider font-bold">Opponent</span>
             <div className="flex gap-3 text-[10px] text-gray-600 items-center">
-              <span>deck {p2Zones.deck.length}</span>
+              <span className="flex items-center gap-1"><Icon name="rectangle-stack" className="w-3 h-3" />{p2Zones.deck.length}</span>
               <button
-                className="hover:text-gray-400 transition-colors disabled:cursor-default disabled:hover:text-gray-600"
+                className="flex items-center gap-1 hover:text-gray-400 transition-colors disabled:cursor-default disabled:hover:text-gray-600"
                 disabled={p2Zones.discard.length === 0}
                 onClick={() => setDiscardViewerId("opponent")}
               >
-                disc {p2Zones.discard.length}
+                <Icon name="trash" className="w-3 h-3" />{p2Zones.discard.length}
               </button>
             </div>
           </div>
@@ -976,7 +977,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                 onClick={() => { session.undo(); cancelMode(); }}
                 title="Undo last action"
               >
-                Undo
+                <Icon name="arrow-uturn-left" className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
@@ -1013,13 +1014,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-[10px] text-green-400/60 uppercase tracking-wider font-bold">Your Board</span>
             <div className="flex gap-3 text-[10px] text-gray-600 items-center">
-              <span>📦 {p1Zones.deck.length}</span>
+              <span className="flex items-center gap-1"><Icon name="rectangle-stack" className="w-3 h-3" />{p1Zones.deck.length}</span>
               <button
-                className="hover:text-gray-400 transition-colors disabled:cursor-default disabled:hover:text-gray-600"
+                className="flex items-center gap-1 hover:text-gray-400 transition-colors disabled:cursor-default disabled:hover:text-gray-600"
                 disabled={p1Zones.discard.length === 0}
                 onClick={() => setDiscardViewerId("player")}
               >
-                disc {p1Zones.discard.length}
+                <Icon name="trash" className="w-3 h-3" />{p1Zones.discard.length}
               </button>
             </div>
           </div>
@@ -1163,7 +1164,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                           pb-[env(safe-area-inset-bottom,0px)]">
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800 shrink-0">
               <span className="text-sm font-bold text-gray-300">Game Log ({actionLog.length})</span>
-              <button onClick={() => setShowLog(false)} className="text-gray-500 hover:text-gray-300 text-lg leading-none active:scale-95">x</button>
+              <button onClick={() => setShowLog(false)} className="text-gray-500 hover:text-gray-300 active:scale-95"><Icon name="x-mark" className="w-4 h-4" /></button>
             </div>
             <div className="flex-1 overflow-y-auto p-3 font-mono text-[11px] space-y-0.5 select-text">
               {recentLog.map((entry, i) => (
@@ -1194,21 +1195,21 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             <div className="flex items-center gap-2 rounded-full px-4 py-1.5 bg-red-950/90 border border-red-700/60 text-red-300 text-xs shadow-lg">
               <span className="font-bold">Challenge</span>
               <span className="text-red-500">— tap a highlighted opponent card</span>
-              <button className="text-red-500 hover:text-red-300 font-bold active:scale-95" onClick={cancelMode}>x</button>
+              <button className="text-red-500 hover:text-red-300 font-bold active:scale-95" onClick={cancelMode}><Icon name="x-mark" className="w-3.5 h-3.5" /></button>
             </div>
           )}
           {shiftCardId && (
             <div className="flex items-center gap-2 rounded-full px-4 py-1.5 bg-purple-950/90 border border-purple-700/60 text-purple-300 text-xs shadow-lg">
               <span className="font-bold">Shift</span>
               <span className="text-purple-500">— tap a highlighted character</span>
-              <button className="text-purple-500 hover:text-purple-300 font-bold active:scale-95" onClick={cancelMode}>x</button>
+              <button className="text-purple-500 hover:text-purple-300 font-bold active:scale-95" onClick={cancelMode}><Icon name="x-mark" className="w-3.5 h-3.5" /></button>
             </div>
           )}
           {singCardId && (
             <div className="flex items-center gap-2 rounded-full px-4 py-1.5 bg-yellow-950/90 border border-yellow-700/60 text-yellow-300 text-xs shadow-lg">
               <span className="font-bold">Sing</span>
               <span className="text-yellow-600">— tap a highlighted character to sing</span>
-              <button className="text-yellow-600 hover:text-yellow-300 font-bold active:scale-95" onClick={cancelMode}>x</button>
+              <button className="text-yellow-600 hover:text-yellow-300 font-bold active:scale-95" onClick={cancelMode}><Icon name="x-mark" className="w-3.5 h-3.5" /></button>
             </div>
           )}
         </div>
