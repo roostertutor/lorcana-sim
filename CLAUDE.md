@@ -9,12 +9,12 @@ to produce deck analytics and win rates. NOT a human-playable simulator.
 
 ## Status
 
-- engine:    done (178 passing, 1 todo). CRD audited. Tests organized by CRD.
+- engine:    done (180 passing, 1 todo). CRD audited. Tests organized by CRD.
 - simulator: done (46 passing). Layer 3 invariants passing. RL bot implemented (Actor-Critic + GAE).
 - analytics: done (15 passing).
 - cli:       done. analyze, compare, query, learn.
 - ui:        done. 7 screens, React+Vite. Responsive (mobile/tablet/desktop). Full-screen game board (no header/nav in-game).
-- testbench: done. Interactive game board with bot opponent. Replay mode + undo (Stream 3e). Deck/discard zone badges with discard viewer modal.
+- testbench: done. Interactive game board with bot opponent. Replay mode + undo (Stream 3e). Deck/discard zone badges with discard viewer modal. Keyword ability icon badges on cards. Exerted card nudging. Inkwell rotation + grayscale for spent ink. Mobile polish (border radius, floating zone badges, scroll fixes).
 - cards:     set 1 complete (204 unique cards, 216 entries, all abilities implemented, 0 stubs).
 - sets 2–11: imported as stubs (keyword-only, 2504 total cards incl. dual-ink). Run `pnpm import-cards --sets N` to refresh.
 
@@ -92,6 +92,12 @@ Only fizzle if the card instance doesn't exist at all.
 
 **Win threshold (CRD 1.8.1.1):**
 Never hardcode `lore >= 20`. Always use `getLoreThreshold(state, definitions)`.
+
+**banished_other_in_challenge turn condition:**
+Abilities that say "during your turn" on `banished_other_in_challenge` triggers require
+`"condition": { "type": "is_your_turn" }` in the card JSON. Without it the ability fires
+on the opponent's turn during mutual banishment (attacker and defender both banished).
+Later set cards without "during your turn" in their rules text correctly omit this condition.
 
 **Sequential effect triggeringCardInstanceId (CRD 6.1.5.1):**
 When applying `sequential` costEffects/rewardEffects via `applyEffect`, always forward `triggeringCardInstanceId`.
