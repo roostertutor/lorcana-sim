@@ -876,18 +876,16 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         )}
 
         {/* ---- Opponent zone ---- */}
-        <div className={`flex-1 min-h-0 flex flex-col -mx-3 px-2 md:mx-0 rounded-xl bg-gradient-to-b from-red-950/10 to-transparent border p-2 transition-colors duration-300 ${!isYourTurn ? "border-red-600/50" : "border-gray-800/30"}`}>
-          <div className="flex items-center justify-end mb-1.5">
-            <div className="flex gap-3 text-[10px] text-gray-600 items-center">
-              <span className="flex items-center gap-1"><Icon name="rectangle-stack" className="w-3 h-3" />{p2Zones.deck.length}</span>
-              <button
-                className="flex items-center gap-1 hover:text-gray-400 transition-colors disabled:cursor-default disabled:hover:text-gray-600"
-                disabled={p2Zones.discard.length === 0}
-                onClick={() => setDiscardViewerId("opponent")}
-              >
-                <Icon name="trash" className="w-3 h-3" />{p2Zones.discard.length}
-              </button>
-            </div>
+        <div className={`relative flex-1 min-h-0 flex flex-col -mx-3 px-2 md:mx-0 rounded-xl bg-gradient-to-b from-red-950/10 to-transparent border p-2 transition-colors duration-300 ${!isYourTurn ? "border-red-600/50" : "border-gray-800/30"}`}>
+          <div className="absolute top-1.5 right-2 z-10 flex gap-3 text-[10px] text-gray-600 items-center">
+            <span className="flex items-center gap-1"><Icon name="rectangle-stack" className="w-3 h-3" />{p2Zones.deck.length}</span>
+            <button
+              className="flex items-center gap-1 hover:text-gray-400 transition-colors disabled:cursor-default disabled:hover:text-gray-600"
+              disabled={p2Zones.discard.length === 0}
+              onClick={() => setDiscardViewerId("opponent")}
+            >
+              <Icon name="trash" className="w-3 h-3" />{p2Zones.discard.length}
+            </button>
           </div>
           {/* Opponent hand — face-down, clipped to just show card tops */}
           {p2Zones.hand.length > 0 && (
@@ -994,18 +992,16 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         </div>
 
         {/* ---- Player zone ---- */}
-        <div className={`flex-1 min-h-0 flex flex-col -mx-3 px-2 md:mx-0 rounded-xl bg-gradient-to-t from-green-950/10 to-transparent border p-2 transition-colors duration-300 ${isYourTurn ? "border-green-600/50" : "border-gray-800/30"}`}>
-          <div className="flex items-center justify-end mb-1.5">
-            <div className="flex gap-3 text-[10px] text-gray-600 items-center">
-              <span className="flex items-center gap-1"><Icon name="rectangle-stack" className="w-3 h-3" />{p1Zones.deck.length}</span>
-              <button
-                className="flex items-center gap-1 hover:text-gray-400 transition-colors disabled:cursor-default disabled:hover:text-gray-600"
-                disabled={p1Zones.discard.length === 0}
-                onClick={() => setDiscardViewerId("player")}
-              >
-                <Icon name="trash" className="w-3 h-3" />{p1Zones.discard.length}
-              </button>
-            </div>
+        <div className={`relative flex-1 min-h-0 flex flex-col -mx-3 px-2 md:mx-0 rounded-xl bg-gradient-to-t from-green-950/10 to-transparent border p-2 transition-colors duration-300 ${isYourTurn ? "border-green-600/50" : "border-gray-800/30"}`}>
+          <div className="absolute top-1.5 right-2 z-10 flex gap-3 text-[10px] text-gray-600 items-center">
+            <span className="flex items-center gap-1"><Icon name="rectangle-stack" className="w-3 h-3" />{p1Zones.deck.length}</span>
+            <button
+              className="flex items-center gap-1 hover:text-gray-400 transition-colors disabled:cursor-default disabled:hover:text-gray-600"
+              disabled={p1Zones.discard.length === 0}
+              onClick={() => setDiscardViewerId("player")}
+            >
+              <Icon name="trash" className="w-3 h-3" />{p1Zones.discard.length}
+            </button>
           </div>
           {/* Play zone — droppable for card play */}
           <DroppablePlayZone
