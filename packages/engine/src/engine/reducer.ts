@@ -1088,6 +1088,8 @@ export function applyEffect(
       }
       if (effect.target.type === "chosen") {
         const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        // CRD 1.7.7: if no legal choices exist, the effect resolves with no effect
+        if (validTargets.length === 0) return state;
         return {
           ...state,
           pendingChoice: {
@@ -1113,6 +1115,7 @@ export function applyEffect(
     case "banish": {
       if (effect.target.type === "chosen") {
         const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        if (validTargets.length === 0) return state; // CRD 1.7.7
         return {
           ...state,
           pendingChoice: {
@@ -1150,6 +1153,7 @@ export function applyEffect(
     case "return_to_hand": {
       if (effect.target.type === "chosen") {
         const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        if (validTargets.length === 0) return state; // CRD 1.7.7
         return {
           ...state,
           pendingChoice: {
@@ -1182,6 +1186,7 @@ export function applyEffect(
       }
       if (effect.target.type === "chosen") {
         const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        if (validTargets.length === 0) return state; // CRD 1.7.7
         return {
           ...state,
           pendingChoice: {
@@ -1218,6 +1223,7 @@ export function applyEffect(
       }
       if (effect.target.type === "chosen") {
         const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        if (validTargets.length === 0) return state; // CRD 1.7.7
         return {
           ...state,
           pendingChoice: {
@@ -1245,6 +1251,7 @@ export function applyEffect(
       }
       if (effect.target.type === "chosen") {
         const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        if (validTargets.length === 0) return state; // CRD 1.7.7
         const count = effect.target.count ?? 1;
         return {
           ...state,
@@ -1289,6 +1296,7 @@ export function applyEffect(
       }
       if (effect.target.type === "chosen") {
         const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        if (validTargets.length === 0) return state; // CRD 1.7.7
         return {
           ...state,
           pendingChoice: {
@@ -1323,6 +1331,7 @@ export function applyEffect(
       }
       if (effect.target.type === "chosen") {
         const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        if (validTargets.length === 0) return state; // CRD 1.7.7
         return {
           ...state,
           pendingChoice: {
@@ -1363,6 +1372,7 @@ export function applyEffect(
       }
       if (effect.target.type === "chosen") {
         const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        if (validTargets.length === 0) return state; // CRD 1.7.7
         return {
           ...state,
           pendingChoice: {

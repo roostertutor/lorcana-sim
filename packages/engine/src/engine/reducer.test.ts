@@ -3433,6 +3433,29 @@ describe("Shuffle into deck", () => {
 });
 
 // =============================================================================
+// CRD 1.7.7: Effects with no legal targets fizzle (resolve with no effect)
+// =============================================================================
+
+describe("CRD 1.7.7: chosen-target effects fizzle when no valid targets exist", () => {
+  it("Fire the Cannons! can be played with no characters in play and resolves with no effect", () => {
+    let state = startGame(["fire-the-cannons"]);
+    let cardId: string;
+    ({ state, instanceId: cardId } = injectCard(state, "player1", "fire-the-cannons", "hand"));
+    state = giveInk(state, "player1", 3);
+
+    // No characters in play — deal_damage chosen should fizzle, not create a pendingChoice
+    const result = applyAction(state, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: cardId,
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    expect(result.newState.pendingChoice).toBeNull();
+    // Card should be in discard (played and resolved)
+    expect(getInstance(result.newState, cardId).zone).toBe("discard");
+  });
+});
+
+// =============================================================================
 // §6.1.5 SEQUENTIAL EFFECTS
 // =============================================================================
 
