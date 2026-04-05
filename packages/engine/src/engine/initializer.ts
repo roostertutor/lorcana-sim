@@ -197,7 +197,7 @@ export function createGame(
           timestamp: Date.now(),
           turn: 1,
           playerId,
-          message: `${playerId} was dealt: ${cardNames}.`,
+          message: `${playerId} drew: ${cardNames}.`,
           type: "card_drawn" as const,
         },
       ],
