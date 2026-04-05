@@ -130,7 +130,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
         {/* State badges */}
         {(isDrying || damage > 0) && (
           <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
-            {isDrying  && <span className="text-[7px] bg-cyan-600 text-cyan-100 px-1.5 py-0.5 rounded-full font-bold shadow">DRY</span>}
+            {isDrying  && <span className="text-[7px] bg-cyan-600 text-cyan-100 px-1.5 py-0.5 rounded-full font-bold shadow">WET</span>}
             {damage > 0 && <span className="text-[7px] bg-red-600 text-red-100 px-1.5 py-0.5 rounded-full font-bold shadow">-{damage}</span>}
           </div>
         )}
@@ -198,7 +198,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
       {(isDrying || damage > 0) && (
         <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
           {isExerted && <span className="text-[7px] bg-yellow-600 text-yellow-100 px-1.5 py-0.5 rounded-full font-bold shadow">EXR</span>}
-          {isDrying  && <span className="text-[7px] bg-cyan-600 text-cyan-100 px-1.5 py-0.5 rounded-full font-bold shadow">DRY</span>}
+          {isDrying  && <span className="text-[7px] bg-cyan-600 text-cyan-100 px-1.5 py-0.5 rounded-full font-bold shadow">WET</span>}
           {damage > 0 && <span className="text-[7px] bg-red-600 text-red-100 px-1.5 py-0.5 rounded-full font-bold shadow">-{damage}</span>}
         </div>
       )}
