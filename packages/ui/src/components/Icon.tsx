@@ -15,7 +15,17 @@ export type IconName =
   | "pause"
   | "rectangle-stack"
   | "trash"
-  | "hand-raised";
+  | "hand-raised"
+  // Keyword ability icons
+  | "shield-check"
+  | "arrow-up"
+  | "exclamation-triangle"
+  | "lock-closed"
+  | "bolt"
+  | "arrow-right"
+  | "musical-note"
+  | "user-plus"
+  | "minus-circle";
 
 interface IconProps {
   name: IconName;
@@ -78,5 +88,33 @@ export default function Icon({ name, className = "w-4 h-4" }: IconProps) {
           <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
         </svg>
       );
+
+    // Keyword ability icons
+    case "shield-check":
+      return outline("M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z");
+
+    case "arrow-up":
+      return outline("M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18");
+
+    case "exclamation-triangle":
+      return outline("M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z");
+
+    case "lock-closed":
+      return outline("M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z");
+
+    case "bolt":
+      return outline("m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z");
+
+    case "arrow-right":
+      return outline("M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3");
+
+    case "musical-note":
+      return outline("M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3");
+
+    case "user-plus":
+      return outline("M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z");
+
+    case "minus-circle":
+      return outline("M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z");
   }
 }

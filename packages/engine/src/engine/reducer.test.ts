@@ -3157,6 +3157,30 @@ describe("banished_other_in_challenge (attacker-side trigger)", () => {
     expect(result.newState.pendingChoice).not.toBeNull();
     expect(result.newState.pendingChoice?.type).toBe("choose_may");
   });
+
+  // CRD condition: "during your turn" — must NOT fire when it is the opponent's turn
+  it("Tinker Bell PUNY PIRATE! does NOT fire when Tinker Bell is challenged on opponent's turn", () => {
+    // It's player2's turn. Player2 challenges player1's Tinker Bell and banishes her.
+    // Tinker Bell's PUNY PIRATE! should NOT trigger because it's not player1's turn.
+    let state = startGame(["tinker-bell-giant-fairy"]);
+    let tinkId: string, attackerId: string;
+    ({ state, instanceId: tinkId } = injectCard(state, "player1", "tinker-bell-giant-fairy", "play", { isExerted: true })); // Tinker Bell is exerted — valid defender
+    // Attacker strong enough to banish Tinker Bell (WP 5): use Te Kā STR 5
+    ({ state, instanceId: attackerId } = injectCard(state, "player2", "te-k-heartless", "play")); // STR 5
+    // Switch to player2's turn
+    state = { ...state, currentPlayer: "player2" };
+
+    const result = applyAction(state, {
+      type: "CHALLENGE", playerId: "player2",
+      attackerInstanceId: attackerId, defenderInstanceId: tinkId,
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    // Tinker Bell banished (5 damage >= 5 WP)
+    expect(getInstance(result.newState, tinkId).zone).toBe("discard");
+    // PUNY PIRATE! must NOT fire — no pending choice for player1
+    expect(result.newState.pendingChoice).toBeNull();
+  });
 });
 
 // =============================================================================

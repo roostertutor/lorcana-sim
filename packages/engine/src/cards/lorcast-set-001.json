@@ -4973,7 +4973,10 @@
           }
         ],
         "storyName": "DARING EXPLOIT",
-        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you gain 2 lore and each opponent loses 2 lore."
+        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you gain 2 lore and each opponent loses 2 lore.",
+        "condition": {
+          "type": "is_your_turn"
+        }
       }
     ],
     "setId": "1",
@@ -5606,7 +5609,10 @@
           }
         ],
         "storyName": "LEAD BY EXAMPLE",
-        "rulesText": "During your turn, whenever this character banishes another character in a challenge, your other characters get +1 {L} this turn."
+        "rulesText": "During your turn, whenever this character banishes another character in a challenge, your other characters get +1 {L} this turn.",
+        "condition": {
+          "type": "is_your_turn"
+        }
       }
     ],
     "setId": "1",
@@ -8917,7 +8923,10 @@
           }
         ],
         "storyName": "I KNOW WHAT I HAVE TO DO",
-        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you gain 1 lore."
+        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you gain 1 lore.",
+        "condition": {
+          "type": "is_your_turn"
+        }
       }
     ],
     "setId": "1",
@@ -9024,7 +9033,10 @@
           }
         ],
         "storyName": "SEEK THE HEART",
-        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you gain 2 lore."
+        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you gain 2 lore.",
+        "condition": {
+          "type": "is_your_turn"
+        }
       }
     ],
     "setId": "1",
@@ -9117,7 +9129,10 @@
           }
         ],
         "storyName": "PUNY PIRATE!",
-        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character."
+        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character.",
+        "condition": {
+          "type": "is_your_turn"
+        }
       }
     ],
     "setId": "1",
@@ -10135,7 +10150,10 @@
           }
         ],
         "storyName": "DARING EXPLOIT",
-        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you gain 2 lore and each opponent loses 2 lore."
+        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you gain 2 lore and each opponent loses 2 lore.",
+        "condition": {
+          "type": "is_your_turn"
+        }
       }
     ],
     "setId": "1",
@@ -10444,7 +10462,10 @@
           }
         ],
         "storyName": "PUNY PIRATE!",
-        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character."
+        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character.",
+        "condition": {
+          "type": "is_your_turn"
+        }
       }
     ],
     "setId": "1",

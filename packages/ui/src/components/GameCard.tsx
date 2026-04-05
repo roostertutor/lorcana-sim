@@ -3,7 +3,9 @@
 // =============================================================================
 
 import React from "react";
-import type { CardDefinition, GameState } from "@lorcana-sim/engine";
+import type { CardDefinition, GameState, KeywordAbility } from "@lorcana-sim/engine";
+import Icon from "./Icon.js";
+import type { IconName } from "./Icon.js";
 
 // Ink color → gradient + border
 const INK_THEME: Record<string, { border: string; gradFrom: string; gradTo: string; costBg: string; glow: string }> = {
@@ -30,9 +32,11 @@ interface Props {
   isTarget?: boolean;
   /** Solid ring — this card is the selected attacker/shifter */
   isAttacker?: boolean;
+  /** Suppress 90° rotation for inkwell fan display */
+  skipRotation?: boolean;
 }
 
-export default function GameCard({ instanceId, gameState, definitions, isSelected, onClick, zone, faceDown, isTarget, isAttacker }: Props) {
+export default function GameCard({ instanceId, gameState, definitions, isSelected, onClick, zone, faceDown, isTarget, isAttacker, skipRotation }: Props) {
   const instance = gameState.cards[instanceId];
   if (!instance) return null;
   const def = definitions[instance.definitionId];
@@ -44,7 +48,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   const mobileWidth = faceDown
     ? "w-[52px]"
     : zone === "play"
-    ? isExerted ? "w-[73px]" : "w-[52px]"
+    ? "w-[52px]"
     : "w-[88px]";
 
   const handleKey = (e: React.KeyboardEvent) => {
@@ -81,11 +85,45 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   const strength = def.strength != null
     ? def.strength + (instance.tempStrengthModifier ?? 0)
     : null;
-  const willpower = def.willpower != null
-    ? (def.willpower ?? 0) + (instance.tempWillpowerModifier ?? 0) - damage
+  // Stat strip shows base+modifier WP (not reduced by damage — damage counter handles that separately)
+  const willpowerModified = def.willpower != null
+    ? (def.willpower ?? 0) + (instance.tempWillpowerModifier ?? 0)
     : null;
 
   const hasModifiedStats = (instance.tempStrengthModifier ?? 0) !== 0 || (instance.tempWillpowerModifier ?? 0) !== 0;
+
+  // Keyword badges — check both printed abilities and dynamically granted keywords
+  const BADGE_KEYWORDS = ["bodyguard", "challenger", "evasive", "reckless", "resist", "rush", "singer", "support", "ward"] as const;
+  type BadgeKeyword = typeof BADGE_KEYWORDS[number];
+  const keywordAbilities = def.abilities.filter((a): a is KeywordAbility => a.type === "keyword");
+  const printedKeywords = new Set(keywordAbilities.map(a => a.keyword));
+  const keywordValues = new Map(keywordAbilities.filter(a => a.value != null).map(a => [a.keyword, a.value!]));
+  const allKeywords = new Set([...printedKeywords, ...(instance.grantedKeywords ?? [])]);
+  const activeKeywordBadges = zone === "play"
+    ? BADGE_KEYWORDS.filter(k => allKeywords.has(k))
+    : [];
+  const KEYWORD_STYLE: Record<BadgeKeyword, string> = {
+    bodyguard:  "bg-blue-600/90",
+    challenger: "bg-amber-500/90",
+    evasive:    "bg-sky-500/90",
+    reckless:   "bg-orange-600/90",
+    resist:     "bg-rose-700/90",
+    rush:       "bg-green-600/90",
+    singer:     "bg-yellow-500/90",
+    support:    "bg-teal-600/90",
+    ward:       "bg-purple-600/90",
+  };
+  const KEYWORD_ICON: Record<BadgeKeyword, IconName> = {
+    bodyguard:  "shield-check",
+    challenger: "bolt",
+    evasive:    "arrow-up",
+    reckless:   "exclamation-triangle",
+    resist:     "minus-circle",
+    rush:       "arrow-right",
+    singer:     "musical-note",
+    support:    "user-plus",
+    ward:       "lock-closed",
+  };
 
   const ringClass = isAttacker
     ? "border-orange-400 ring-2 ring-orange-400/60 scale-105 z-10"
@@ -97,7 +135,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
 
   const baseClass = `game-card relative border-2 rounded-xl ${mobileWidth} sm:w-[104px] lg:w-[120px] shrink-0 cursor-pointer
     transition-all duration-200 ${ringClass}
-    ${isExerted ? "rotate-90 opacity-80" : ""}
+    ${isExerted && !skipRotation ? "rotate-90 opacity-80" : ""}
     hover:scale-105 hover:z-10 hover:shadow-lg hover:${theme.glow}`;
 
   // ── With image: card art fills the frame, overlays show only game state ──
@@ -118,17 +156,31 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
           onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
         />
 
-        {/* Damage + modified stats strip — only when relevant */}
-        {(damage > 0 || hasModifiedStats) && strength != null && willpower != null && (
+        {/* Modified stats strip — only when temp buff/debuff active */}
+        {hasModifiedStats && strength != null && willpowerModified != null && (
           <div className="absolute bottom-4 left-0 right-0 flex items-center justify-between px-1.5">
-            <span className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-black
-              ${hasModifiedStats ? "bg-orange-500/90" : "bg-orange-700/70"} text-white shadow`}>
+            <span className="inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-black bg-orange-500/90 text-white shadow">
               {strength}
             </span>
-            <span className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-black
-              ${damage > 0 ? "bg-red-600/90 text-red-100" : "bg-blue-700/70 text-blue-100"} shadow`}>
-              {willpower}
+            <span className="inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-black bg-blue-500/90 text-blue-100 shadow">
+              {willpowerModified}
             </span>
+          </div>
+        )}
+
+        {/* Keyword badges — right-side icon column */}
+        {activeKeywordBadges.length > 0 && (
+          <div className="absolute right-1 top-1/2 -translate-y-1/2 flex flex-col gap-0.5 pointer-events-none items-end">
+            {activeKeywordBadges.map(k => {
+              // Support's "value" is the card's current STR at resolution — not a fixed number to display
+              const val = k === "support" ? undefined : keywordValues.get(k);
+              return (
+                <div key={k} className={`h-4 flex items-center gap-0.5 rounded-full px-1 shadow ${KEYWORD_STYLE[k]}`}>
+                  <Icon name={KEYWORD_ICON[k]} className="w-2.5 h-2.5 text-white shrink-0" />
+                  {val != null && <span className="text-white text-[8px] font-black leading-none">{val}</span>}
+                </div>
+              );
+            })}
           </div>
         )}
 
@@ -137,10 +189,10 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
           <div className="absolute inset-0 rounded-xl bg-cyan-400/25 pointer-events-none" />
         )}
 
-        {/* Damage badge */}
+        {/* Damage counter — positive number, red circle floating below card */}
         {damage > 0 && (
-          <div className="absolute -bottom-1 left-1/2 -translate-x-1/2">
-            <span className="text-[7px] bg-red-600 text-red-100 px-1.5 py-0.5 rounded-full font-bold shadow">-{damage}</span>
+          <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-10">
+            <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-red-600 text-red-100 text-[8px] font-black shadow border border-red-400/50">{damage}</span>
           </div>
         )}
       </div>
@@ -185,14 +237,14 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
         </div>
       )}
 
-      {/* Bottom: stats or inkable */}
+      {/* Bottom: stats */}
       <div className="px-2 pb-2 mt-auto">
-        {strength != null && willpower != null && (
+        {strength != null && willpowerModified != null && (
           <div className="flex items-center justify-between mt-2">
             <div className="flex items-center gap-0.5">
-              <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-orange-700/60 text-[10px] font-black text-orange-200">{strength}</span>
+              <span className={`inline-flex items-center justify-center w-5 h-5 rounded bg-orange-700/60 text-[10px] font-black text-orange-200 ${hasModifiedStats ? "ring-1 ring-orange-400" : ""}`}>{strength}</span>
               <span className="text-gray-600 text-[9px]">/</span>
-              <span className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-black ${damage > 0 ? "bg-red-700/60 text-red-200" : "bg-blue-700/60 text-blue-200"}`}>{willpower}</span>
+              <span className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-black ${hasModifiedStats ? "bg-blue-600/80 text-blue-100 ring-1 ring-blue-400" : "bg-blue-700/60 text-blue-200"}`}>{willpowerModified}</span>
             </div>
             {def.lore != null && def.lore > 0 && (
               <div className="flex items-center gap-0.5">
@@ -203,15 +255,26 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
         )}
       </div>
 
+      {/* Keyword badges — top-right column */}
+      {activeKeywordBadges.length > 0 && (
+        <div className="absolute top-1 right-1 flex flex-col gap-0.5 items-end pointer-events-none">
+          {activeKeywordBadges.map(k => (
+            <span key={k} className={`text-[7px] font-black px-1 py-0.5 rounded leading-none ${KEYWORD_STYLE[k]} shadow`}>
+              {KEYWORD_LABEL[k]}
+            </span>
+          ))}
+        </div>
+      )}
+
       {/* Summoning sickness overlay */}
       {isDrying && (
         <div className="absolute inset-0 rounded-xl bg-cyan-400/25 pointer-events-none" />
       )}
 
-      {/* Damage badge */}
+      {/* Damage counter — positive number, red circle */}
       {damage > 0 && (
-        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
-          <span className="text-[7px] bg-red-600 text-red-100 px-1.5 py-0.5 rounded-full font-bold shadow">-{damage}</span>
+        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2">
+          <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-red-600 text-red-100 text-[8px] font-black shadow border border-red-400/50">{damage}</span>
         </div>
       )}
     </div>
