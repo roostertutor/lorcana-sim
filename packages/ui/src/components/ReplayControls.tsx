@@ -109,7 +109,7 @@ export default function ReplayControls({ session, onTakeOver, onBranchAnalysis }
               className="flex-1 px-2 py-1.5 rounded text-[11px] bg-green-900/30 hover:bg-green-900/50 text-green-400 border border-green-700/40 transition-colors"
               title="Take over from this position — play out the game yourself"
             >
-              ↗ Take over here
+              Take over here
             </button>
           )}
           {onBranchAnalysis && state && (

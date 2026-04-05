@@ -853,7 +853,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                 className="px-3 py-1 text-xs bg-gray-800 hover:bg-gray-700 text-gray-400 rounded border border-gray-700 transition-colors"
                 onClick={() => setReplayData(null)}
               >
-                ✕ Exit replay
+                Exit replay
               </button>
             </div>
           </div>
@@ -893,9 +893,9 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                 }}
                 title={onBack ? "Back" : sandboxMode ? "Reset" : "Concede"}
               >
-                <span className="md:hidden text-base leading-none">✕</span>
+                <span className="md:hidden text-base leading-none">x</span>
                 <span className="hidden md:inline text-[10px] uppercase tracking-wider">
-                  {onBack ? "← Back" : sandboxMode ? "Reset" : "Concede"}
+                  {onBack ? "Back" : sandboxMode ? "Reset" : "Concede"}
                 </span>
               </button>
             </div>
@@ -976,7 +976,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                 onClick={() => { session.undo(); cancelMode(); }}
                 title="Undo last action"
               >
-                ↩ Undo
+                Undo
               </button>
             )}
           </div>
@@ -1163,7 +1163,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                           pb-[env(safe-area-inset-bottom,0px)]">
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800 shrink-0">
               <span className="text-sm font-bold text-gray-300">Game Log ({actionLog.length})</span>
-              <button onClick={() => setShowLog(false)} className="text-gray-500 hover:text-gray-300 text-lg leading-none active:scale-95">✕</button>
+              <button onClick={() => setShowLog(false)} className="text-gray-500 hover:text-gray-300 text-lg leading-none active:scale-95">x</button>
             </div>
             <div className="flex-1 overflow-y-auto p-3 font-mono text-[11px] space-y-0.5 select-text">
               {recentLog.map((entry, i) => (
@@ -1194,21 +1194,21 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             <div className="flex items-center gap-2 rounded-full px-4 py-1.5 bg-red-950/90 border border-red-700/60 text-red-300 text-xs shadow-lg">
               <span className="font-bold">Challenge</span>
               <span className="text-red-500">— tap a highlighted opponent card</span>
-              <button className="text-red-500 hover:text-red-300 font-bold active:scale-95" onClick={cancelMode}>✕</button>
+              <button className="text-red-500 hover:text-red-300 font-bold active:scale-95" onClick={cancelMode}>x</button>
             </div>
           )}
           {shiftCardId && (
             <div className="flex items-center gap-2 rounded-full px-4 py-1.5 bg-purple-950/90 border border-purple-700/60 text-purple-300 text-xs shadow-lg">
               <span className="font-bold">Shift</span>
               <span className="text-purple-500">— tap a highlighted character</span>
-              <button className="text-purple-500 hover:text-purple-300 font-bold active:scale-95" onClick={cancelMode}>✕</button>
+              <button className="text-purple-500 hover:text-purple-300 font-bold active:scale-95" onClick={cancelMode}>x</button>
             </div>
           )}
           {singCardId && (
             <div className="flex items-center gap-2 rounded-full px-4 py-1.5 bg-yellow-950/90 border border-yellow-700/60 text-yellow-300 text-xs shadow-lg">
               <span className="font-bold">Sing</span>
               <span className="text-yellow-600">— tap a highlighted character to sing</span>
-              <button className="text-yellow-600 hover:text-yellow-300 font-bold active:scale-95" onClick={cancelMode}>✕</button>
+              <button className="text-yellow-600 hover:text-yellow-300 font-bold active:scale-95" onClick={cancelMode}>x</button>
             </div>
           )}
         </div>

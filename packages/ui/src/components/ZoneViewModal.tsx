@@ -28,7 +28,7 @@ export default function ZoneViewModal({ title, cardIds, gameState, definitions, 
             className="text-gray-500 hover:text-gray-300 text-lg leading-none active:scale-95 transition-colors"
             onClick={onClose}
           >
-            ✕
+            x
           </button>
         </div>
 
