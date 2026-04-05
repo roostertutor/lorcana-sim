@@ -189,10 +189,10 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
           <div className="absolute inset-0 rounded-md sm:rounded-xl bg-cyan-400/25 pointer-events-none" />
         )}
 
-        {/* Damage counter — positive number, red circle floating below card */}
+        {/* Damage counter — centered on card */}
         {damage > 0 && (
-          <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-10">
-            <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-red-600 text-red-100 text-[8px] font-black shadow border border-red-400/50">{damage}</span>
+          <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-600 text-red-100 text-[9px] font-black shadow-lg border border-red-400/50">{damage}</span>
           </div>
         )}
       </div>
@@ -271,10 +271,10 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
         <div className="absolute inset-0 rounded-xl bg-cyan-400/25 pointer-events-none" />
       )}
 
-      {/* Damage counter — positive number, red circle */}
+      {/* Damage counter — centered on card */}
       {damage > 0 && (
-        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2">
-          <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-red-600 text-red-100 text-[8px] font-black shadow border border-red-400/50">{damage}</span>
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-600 text-red-100 text-[9px] font-black shadow-lg border border-red-400/50">{damage}</span>
         </div>
       )}
     </div>

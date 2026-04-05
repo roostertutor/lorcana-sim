@@ -895,7 +895,6 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         {/* ---- Scoreboard ---- */}
         <div className="shrink-0 rounded-xl bg-gray-900/60 border border-gray-800/50 px-3 py-2">
           <div className="flex items-center gap-2">
-            <span className="text-gray-600 text-xs shrink-0">T{gameState.turnNumber}</span>
 
             {/* Mobile compact lore scores */}
             <div className="flex items-center gap-1.5 ml-1 md:hidden">
@@ -1241,23 +1240,23 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       {!pendingChoice && !isGameOver && isYourTurn && (challengeAttackerId || shiftCardId || singCardId) && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2">
           {challengeAttackerId && (
-            <div className="flex items-center gap-2 rounded-full px-4 py-1.5 bg-red-950/90 border border-red-700/60 text-red-300 text-xs shadow-lg">
+            <div className="flex items-center gap-2 rounded-full px-3 py-1 sm:px-4 sm:py-1.5 bg-red-950/90 border border-red-700/60 text-red-300 text-xs shadow-lg">
               <span className="font-bold">Challenge</span>
-              <span className="text-red-500">— tap a highlighted opponent card</span>
+              <span className="hidden sm:inline text-red-500">— tap a highlighted opponent card</span>
               <button className="text-red-500 hover:text-red-300 font-bold active:scale-95" onClick={cancelMode}><Icon name="x-mark" className="w-3.5 h-3.5" /></button>
             </div>
           )}
           {shiftCardId && (
-            <div className="flex items-center gap-2 rounded-full px-4 py-1.5 bg-purple-950/90 border border-purple-700/60 text-purple-300 text-xs shadow-lg">
+            <div className="flex items-center gap-2 rounded-full px-3 py-1 sm:px-4 sm:py-1.5 bg-purple-950/90 border border-purple-700/60 text-purple-300 text-xs shadow-lg">
               <span className="font-bold">Shift</span>
-              <span className="text-purple-500">— tap a highlighted character</span>
+              <span className="hidden sm:inline text-purple-500">— tap a highlighted character</span>
               <button className="text-purple-500 hover:text-purple-300 font-bold active:scale-95" onClick={cancelMode}><Icon name="x-mark" className="w-3.5 h-3.5" /></button>
             </div>
           )}
           {singCardId && (
-            <div className="flex items-center gap-2 rounded-full px-4 py-1.5 bg-yellow-950/90 border border-yellow-700/60 text-yellow-300 text-xs shadow-lg">
+            <div className="flex items-center gap-2 rounded-full px-3 py-1 sm:px-4 sm:py-1.5 bg-yellow-950/90 border border-yellow-700/60 text-yellow-300 text-xs shadow-lg">
               <span className="font-bold">Sing</span>
-              <span className="text-yellow-600">— tap a highlighted character to sing</span>
+              <span className="hidden sm:inline text-yellow-600">— tap a highlighted character to sing</span>
               <button className="text-yellow-600 hover:text-yellow-300 font-bold active:scale-95" onClick={cancelMode}><Icon name="x-mark" className="w-3.5 h-3.5" /></button>
             </div>
           )}
