@@ -151,21 +151,10 @@ function InkwellZone({
   const emptyPips = canStillInk ? 1 : 0;
 
   return (
-    <div ref={setNodeRef} className={`mt-1 rounded-lg border-2 transition-all duration-150 ${borderClass} relative`}>
-      {/* Quota pips — top right, only on your turn */}
-      {isYourTurn && (filledPips > 0 || emptyPips > 0) && (
-        <div className="absolute top-1 right-1.5 z-10 flex gap-0.5 items-center">
-          {Array.from({ length: filledPips }, (_, i) => (
-            <div key={`f${i}`} className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-          ))}
-          {Array.from({ length: emptyPips }, (_, i) => (
-            <div key={`e${i}`} className="w-1.5 h-1.5 rounded-full border border-blue-400/70 animate-pulse" />
-          ))}
-        </div>
-      )}
+    <div ref={setNodeRef} className={`rounded-lg border-2 transition-all duration-150 ${borderClass} relative h-full`}>
 
       {/* Card strip */}
-      <div className="h-14 md:h-auto md:min-h-[146px] lg:min-h-[168px] overflow-hidden md:overflow-visible flex flex-nowrap items-start px-1 pt-1">
+      <div className="h-10 sm:h-[78px] lg:h-[90px] flex flex-nowrap items-start px-1 -mt-px" style={{ clipPath: "inset(0 -9999px 0 0)" }}>
         {total === 0 ? (
           <div className="flex-1 flex items-center justify-center h-full">
             <span className="text-[9px] text-gray-700 italic">No cards inked</span>
@@ -178,23 +167,99 @@ function InkwellZone({
               <div
                 key={id}
                 style={{ zIndex: i }}
-                className={`shrink-0 transition-all duration-200 ${i > 0 ? "-ml-[36px] sm:-ml-[52px]" : ""} ${!isAvailable ? "rotate-90 grayscale brightness-75" : ""}`}
+                className={`shrink-0 w-7 h-10 sm:w-14 sm:h-[78px] lg:w-16 lg:h-[90px] relative transition-all duration-200 ${i > 0 ? "-ml-3 sm:-ml-6 lg:-ml-7" : ""}`}
               >
-                <GameCard
-                  instanceId={id}
-                  gameState={gameState}
-                  definitions={definitions}
-                  isSelected={false}
-                  onClick={() => {}}
-                  zone="play"
-                  faceDown={!isFaceUp}
-                  skipRotation
-                />
+                <div className="absolute top-0 left-0 origin-top-left scale-[0.538] pointer-events-none">
+                  <div className={`transition-all duration-200 ${!isAvailable ? "rotate-90 grayscale brightness-75" : ""}`}>
+                    <GameCard
+                      instanceId={id}
+                      gameState={gameState}
+                      definitions={definitions}
+                      isSelected={false}
+                      onClick={() => {}}
+                      zone="play"
+                      faceDown={!isFaceUp}
+                      skipRotation
+                    />
+                  </div>
+                </div>
               </div>
             );
           })
         )}
+
       </div>
+    </div>
+  );
+}
+
+function UtilityStrip({
+  deckCount, deckTopId, onDeckClick,
+  inkwellIds, availableInk, inksUsed, canStillInk, isYourTurn, isValidInkwellTarget, droppable,
+  discardCount, discardTopId, onDiscardClick,
+  gameState, definitions,
+}: {
+  deckCount: number; deckTopId: string | undefined; onDeckClick?: () => void;
+  inkwellIds: string[]; availableInk: number; inksUsed: number; canStillInk: boolean;
+  isYourTurn: boolean; isValidInkwellTarget: boolean; droppable?: boolean;
+  discardCount: number; discardTopId: string | undefined; onDiscardClick: () => void;
+  gameState: GameState; definitions: Record<string, CardDefinition>;
+}) {
+  return (
+    <div className="shrink-0 flex items-stretch gap-1 mt-1">
+      {/* Deck tile */}
+      <button
+        onClick={onDeckClick}
+        disabled={!onDeckClick}
+        className="relative w-7 h-10 sm:w-14 sm:h-[78px] lg:w-16 lg:h-[90px] shrink-0 rounded overflow-hidden disabled:cursor-default hover:enabled:brightness-110 transition-all border border-gray-800/40"
+      >
+        {deckTopId ? (
+          <img src="/card-back-small.jpg" alt="Deck" className="w-full h-full object-cover" draggable={false} />
+        ) : (
+          <div className="w-full h-full border border-dashed border-gray-700/40 rounded" />
+        )}
+        <span className="absolute bottom-0.5 right-0.5 text-[8px] font-mono leading-none bg-black/60 text-gray-300 px-0.5 rounded">{deckCount}</span>
+      </button>
+
+      {/* Inkwell — flex-1 */}
+      <div className="flex-1 min-w-0">
+        <InkwellZone
+          inkwellIds={inkwellIds}
+          availableInk={availableInk}
+          inksUsed={inksUsed}
+          canStillInk={canStillInk}
+          isYourTurn={isYourTurn}
+          isValidTarget={isValidInkwellTarget}
+          droppable={droppable ?? false}
+          gameState={gameState}
+          definitions={definitions}
+        />
+      </div>
+
+      {/* Discard tile */}
+      <button
+        onClick={onDiscardClick}
+        disabled={discardCount === 0}
+        className="relative w-7 h-10 sm:w-14 sm:h-[78px] lg:w-16 lg:h-[90px] shrink-0 rounded overflow-hidden disabled:cursor-default hover:enabled:brightness-110 transition-all border border-gray-800/40"
+      >
+        {discardTopId ? (
+          <div className="absolute inset-0">
+            <div className="absolute top-0 left-0 origin-top-left scale-[0.538] pointer-events-none">
+              <GameCard
+                instanceId={discardTopId}
+                gameState={gameState}
+                definitions={definitions}
+                isSelected={false}
+                onClick={() => {}}
+                zone="play"
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="w-full h-full border border-dashed border-gray-700/40 rounded" />
+        )}
+        <span className="absolute bottom-0.5 right-0.5 text-[8px] font-mono leading-none bg-black/60 text-gray-300 px-0.5 rounded">{discardCount}</span>
+      </button>
     </div>
   );
 }
@@ -219,6 +284,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [showLog, setShowLog] = useState(false);
   const [discardViewerId, setDiscardViewerId] = useState<"player" | "opponent" | null>(null);
+  const [deckViewerOpen, setDeckViewerOpen] = useState(false);
   const [autoPassP2, setAutoPassP2] = useState(true);
 
   const p1Parse = useMemo(() => parseDecklist(p1DeckText, definitions), [p1DeckText, definitions]);
@@ -876,36 +942,29 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         )}
 
         {/* ---- Opponent zone ---- */}
-        <div className={`relative flex-1 min-h-0 flex flex-col -mx-3 px-2 md:mx-0 rounded-xl bg-gradient-to-b from-red-950/10 to-transparent border p-2 transition-colors duration-300 ${!isYourTurn ? "border-red-600/50" : "border-gray-800/30"}`}>
-          <div className="absolute top-1.5 right-2 z-10 flex gap-3 text-[10px] text-gray-600 items-center">
-            <span className="flex items-center gap-1"><Icon name="rectangle-stack" className="w-3 h-3" />{p2Zones.deck.length}</span>
-            <button
-              className="flex items-center gap-1 hover:text-gray-400 transition-colors disabled:cursor-default disabled:hover:text-gray-600"
-              disabled={p2Zones.discard.length === 0}
-              onClick={() => setDiscardViewerId("opponent")}
-            >
-              <Icon name="trash" className="w-3 h-3" />{p2Zones.discard.length}
-            </button>
-          </div>
+        <div className={`flex-1 min-h-0 flex flex-col -mx-3 px-2 md:mx-0 rounded-xl bg-gradient-to-b from-red-950/10 to-transparent border p-2 transition-colors duration-300 ${!isYourTurn ? "border-red-600/50" : "border-gray-800/30"}`}>
           {/* Opponent hand — face-down, clipped to just show card tops */}
           {p2Zones.hand.length > 0 && (
             <div className="shrink-0 h-10 sm:h-16 overflow-hidden flex flex-nowrap items-end justify-center mb-1">
               {p2Zones.hand.map((id, i) => renderCardWithActions(id, "hand", true, i, p2Zones.hand.length, true))}
             </div>
           )}
-          {/* Opponent inkwell */}
-          {p2Zones.inkwell.length > 0 && (
-            <InkwellZone
-              inkwellIds={p2Zones.inkwell}
-              availableInk={p2.availableInk}
-              inksUsed={p2.inkPlaysThisTurn ?? (p2.hasPlayedInkThisTurn ? 1 : 0)}
-              canStillInk={false}
-              isYourTurn={false}
-              isValidTarget={false}
-              gameState={gameState}
-              definitions={definitions}
-            />
-          )}
+          {/* Opponent utility strip */}
+          <UtilityStrip
+            deckCount={p2Zones.deck.length}
+            deckTopId={p2Zones.deck[p2Zones.deck.length - 1]}
+            inkwellIds={p2Zones.inkwell}
+            availableInk={p2.availableInk}
+            inksUsed={p2.inkPlaysThisTurn ?? (p2.hasPlayedInkThisTurn ? 1 : 0)}
+            canStillInk={false}
+            isYourTurn={false}
+            isValidInkwellTarget={false}
+            discardCount={p2Zones.discard.length}
+            discardTopId={p2Zones.discard[p2Zones.discard.length - 1]}
+            onDiscardClick={() => setDiscardViewerId("opponent")}
+            gameState={gameState}
+            definitions={definitions}
+          />
           {/* Opponent play zone */}
           {p2Zones.play.length === 0 ? (
             <div className="flex-1 flex items-center justify-center">
@@ -992,17 +1051,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         </div>
 
         {/* ---- Player zone ---- */}
-        <div className={`relative flex-1 min-h-0 flex flex-col -mx-3 px-2 md:mx-0 rounded-xl bg-gradient-to-t from-green-950/10 to-transparent border p-2 transition-colors duration-300 ${isYourTurn ? "border-green-600/50" : "border-gray-800/30"}`}>
-          <div className="absolute top-1.5 right-2 z-10 flex gap-3 text-[10px] text-gray-600 items-center">
-            <span className="flex items-center gap-1"><Icon name="rectangle-stack" className="w-3 h-3" />{p1Zones.deck.length}</span>
-            <button
-              className="flex items-center gap-1 hover:text-gray-400 transition-colors disabled:cursor-default disabled:hover:text-gray-600"
-              disabled={p1Zones.discard.length === 0}
-              onClick={() => setDiscardViewerId("player")}
-            >
-              <Icon name="trash" className="w-3 h-3" />{p1Zones.discard.length}
-            </button>
-          </div>
+        <div className={`flex-1 min-h-0 flex flex-col -mx-3 px-2 md:mx-0 rounded-xl bg-gradient-to-t from-green-950/10 to-transparent border p-2 transition-colors duration-300 ${isYourTurn ? "border-green-600/50" : "border-gray-800/30"}`}>
           {/* Play zone — droppable for card play */}
           <DroppablePlayZone
             isValidTarget={!!dnd.activeId && dnd.isValidPlayZoneDrop(dnd.activeId)}
@@ -1054,31 +1103,34 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             )}
           </DroppablePlayZone>
 
-          {/* Inkwell — always-on card zone, doubles as drop target */}
-          <InkwellZone
+          {/* Player utility strip */}
+          <UtilityStrip
+            deckCount={p1Zones.deck.length}
+            deckTopId={p1Zones.deck[p1Zones.deck.length - 1]}
+            onDeckClick={() => setDeckViewerOpen(true)}
             inkwellIds={p1Zones.inkwell}
             availableInk={p1.availableInk}
             inksUsed={inksUsed}
             canStillInk={canStillInk}
             isYourTurn={isYourTurn}
-            isValidTarget={!!dnd.activeId && dnd.isValidInkwellDrop(dnd.activeId)}
+            isValidInkwellTarget={!!dnd.activeId && dnd.isValidInkwellDrop(dnd.activeId)}
             droppable
+            discardCount={p1Zones.discard.length}
+            discardTopId={p1Zones.discard[p1Zones.discard.length - 1]}
+            onDiscardClick={() => setDiscardViewerId("player")}
             gameState={gameState}
             definitions={definitions}
           />
-        </div>
 
-        {/* ---- Hand ---- */}
-        <div className="shrink-0 -mx-3 md:mx-0 md:rounded-xl md:bg-gray-900/40 md:border md:border-gray-800/30 md:p-2">
-          <div className="flex items-center justify-end mb-1 px-2 md:px-0 md:mb-1.5">
-            <span className="flex items-center gap-1 text-[10px] text-gray-600"><Icon name="hand-raised" className="w-3 h-3" />{p1Zones.hand.length}</span>
-          </div>
-          <div className="h-20 overflow-hidden flex flex-nowrap items-start justify-center md:h-auto md:overflow-hidden md:flex-wrap md:max-h-[260px] lg:max-h-[355px] md:p-1 md:min-h-[80px]">
-            {p1Zones.hand.length === 0 ? (
-              <span className="text-gray-700 text-xs italic self-center">Empty hand</span>
-            ) : (
-              p1Zones.hand.map((id, i) => renderCardWithActions(id, "hand", false, i, p1Zones.hand.length))
-            )}
+          {/* Hand */}
+          <div className="shrink-0 mt-1">
+            <div className="h-20 overflow-hidden flex flex-nowrap items-start justify-center md:h-auto md:overflow-hidden md:flex-wrap md:max-h-[260px] lg:max-h-[355px] md:p-1 md:min-h-[80px]">
+              {p1Zones.hand.length === 0 ? (
+                <span className="text-gray-700 text-xs italic self-center">Empty hand</span>
+              ) : (
+                p1Zones.hand.map((id, i) => renderCardWithActions(id, "hand", false, i, p1Zones.hand.length))
+              )}
+            </div>
           </div>
         </div>
 
@@ -1307,6 +1359,18 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           gameState={gameState}
           definitions={definitions}
           onClose={() => setDiscardViewerId(null)}
+        />
+      )}
+
+      {/* ======================= Deck Viewer (your deck only) ======================= */}
+      {deckViewerOpen && (
+        <ZoneViewModal
+          title="Your Deck"
+          cardIds={p1Zones.deck}
+          faceDown
+          gameState={gameState}
+          definitions={definitions}
+          onClose={() => setDeckViewerOpen(false)}
         />
       )}
     </DndContext>

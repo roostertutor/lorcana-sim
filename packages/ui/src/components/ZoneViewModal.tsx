@@ -9,9 +9,10 @@ interface ZoneViewModalProps {
   gameState: GameState;
   definitions: Record<string, CardDefinition>;
   onClose: () => void;
+  faceDown?: boolean;
 }
 
-export default function ZoneViewModal({ title, cardIds, gameState, definitions, onClose }: ZoneViewModalProps) {
+export default function ZoneViewModal({ title, cardIds, gameState, definitions, onClose, faceDown }: ZoneViewModalProps) {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
@@ -55,6 +56,7 @@ export default function ZoneViewModal({ title, cardIds, gameState, definitions, 
                         isSelected={false}
                         onClick={() => {}}
                         zone={zone}
+                        faceDown={faceDown}
                       />
                     </div>
                   </div>
