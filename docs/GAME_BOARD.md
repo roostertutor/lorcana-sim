@@ -244,6 +244,42 @@ Prompt: "Choose a character to deal 1 damage to"
 
 ---
 
+## Board Layout — Named Regions
+
+Use these names when discussing UI changes.
+
+```
+┌─────────────────────────────────────────────┬──────────────┐
+│  Replay Bar (replay mode only)              │              │
+├─────────────────────────────────────────────│              │
+│  Scoreboard                                 │              │
+├─────────────────────────────────────────────│   Sidebar    │
+│  Opponent Zone                              │  (desktop)   │
+│    header: "Opponent"  📦 N  🗑 N           │              │
+│    face-down hand strip                     │  Game Log    │
+│    inkwell                                  │    or        │
+│    play field (chars left, items right)     │  Sandbox     │
+├──────────── Play Divider ───────────────────│  Panel       │
+│  Player Zone                                │              │
+│    header: "Your Board"  📦 N  🗑 N         │              │
+│    play field (chars left, items right)     │              │
+│    inkwell                                  │              │
+├─────────────────────────────────────────────│              │
+│  Hand                                       │              │
+├─────────────────────────────────────────────│              │
+│  Replay Controls (replay mode only)         │              │
+└─────────────────────────────────────────────┴──────────────┘
+```
+
+**Floating / modal layers (not in layout flow):**
+- **Game Over Overlay** — Victory/Defeat banner, Play Again / Review Game / Download Replay
+- **PendingChoiceModal** — choice prompt (centered panel desktop, bottom sheet mobile)
+- **ZoneViewModal** — discard pile viewer (full-screen backdrop, card grid)
+- **Mode Toasts** — `Challenge — tap a highlighted card`, `Shift`, `Sing`, `Opponent is thinking…`
+- **View Choice pill** — restore button when PendingChoiceModal is hidden
+
+---
+
 ## Phase 3: GameBoard.tsx ✅ IMPLEMENTED
 
 Location: `packages/ui/src/pages/GameBoard.tsx`
