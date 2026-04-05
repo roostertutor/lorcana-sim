@@ -778,12 +778,6 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     .replace(/\bplayer1\b/g, "P1").replace(/\bplayer2\b/g, "P2")
     .replace(/^(P1|P2)\s+/, ""); // strip leading "P1 "/"P2 " — the colored prefix already shows it
 
-  // Mask opponent card draws — in a real game you can't see what they drew
-  const fmtEntryMsg = (entry: typeof recentLog[number]) => {
-    if (entry.type === "card_drawn" && entry.playerId !== myId) return "drew a card";
-    return fmtMsg(entry.message);
-  };
-
   // Log entries — rendered inline; caller wraps with appropriate height class
   const logEntries = recentLog.map((entry, i) => (
     <div key={i} className="text-gray-500">
@@ -791,7 +785,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       <span className={entry.playerId === "player1" ? "text-green-600" : "text-red-600"}>
         {entry.playerId === "player1" ? "P1" : "P2"}
       </span>{" "}
-      {fmtEntryMsg(entry)}
+      {fmtMsg(entry.message)}
     </div>
   ));
 
@@ -1160,7 +1154,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                   <span className={entry.playerId === "player1" ? "text-green-600" : "text-red-600"}>
                     {entry.playerId === "player1" ? "P1" : "P2"}
                   </span>{" "}
-                  {fmtEntryMsg(entry)}
+                  {fmtMsg(entry.message)}
                 </div>
               ))}
             </div>
