@@ -911,8 +911,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
 
         {/* ---- Opponent zone ---- */}
         <div className={`flex-1 min-h-0 flex flex-col rounded-xl bg-gradient-to-b from-red-950/10 to-transparent border p-2 transition-colors duration-300 ${!isYourTurn ? "border-red-600/50" : "border-gray-800/30"}`}>
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] text-red-400/60 uppercase tracking-wider font-bold">Opponent</span>
+          <div className="flex items-center justify-end mb-1.5">
             <div className="flex gap-3 text-[10px] text-gray-600 items-center">
               <span className="flex items-center gap-1"><Icon name="rectangle-stack" className="w-3 h-3" />{p2Zones.deck.length}</span>
               <button
@@ -1011,8 +1010,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
 
         {/* ---- Player zone ---- */}
         <div className={`flex-1 min-h-0 flex flex-col rounded-xl bg-gradient-to-t from-green-950/10 to-transparent border p-2 transition-colors duration-300 ${isYourTurn ? "border-green-600/50" : "border-gray-800/30"}`}>
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] text-green-400/60 uppercase tracking-wider font-bold">Your Board</span>
+          <div className="flex items-center justify-end mb-1.5">
             <div className="flex gap-3 text-[10px] text-gray-600 items-center">
               <span className="flex items-center gap-1"><Icon name="rectangle-stack" className="w-3 h-3" />{p1Zones.deck.length}</span>
               <button
@@ -1072,9 +1070,8 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
 
         {/* ---- Hand ---- */}
         <div className="shrink-0 md:rounded-xl md:bg-gray-900/40 md:border md:border-gray-800/30 md:p-2">
-          <div className="hidden md:flex items-center justify-between mb-1.5">
-            <span className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">Your Hand</span>
-            <span className="text-[10px] text-gray-600">{p1Zones.hand.length} cards</span>
+          <div className="hidden md:flex items-center justify-end mb-1.5">
+            <span className="flex items-center gap-1 text-[10px] text-gray-600"><Icon name="hand-raised" className="w-3 h-3" />{p1Zones.hand.length}</span>
           </div>
           <div className="h-20 overflow-hidden flex flex-nowrap items-start justify-center md:h-auto md:overflow-hidden md:flex-wrap md:max-h-[260px] lg:max-h-[355px] md:p-1 md:min-h-[80px]">
             {p1Zones.hand.length === 0 ? (
