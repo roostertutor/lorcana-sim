@@ -426,8 +426,10 @@ function applyPlayCard(
     state = zoneTransition(state, instanceId, "play", definitions, events, {
       reason: "played", triggeringPlayerId: playerId,
     });
-    // CRD 5.1.2.1: All characters enter play drying
-    state = updateInstance(state, instanceId, { isDrying: true });
+    // CRD 5.1.2.1: Characters enter play drying; items/locations do not (CRD 5.5.4, 6.3.1.2)
+    if (def.cardType === "character") {
+      state = updateInstance(state, instanceId, { isDrying: true });
+    }
     state = appendLog(state, {
       turn: state.turnNumber,
       playerId,
