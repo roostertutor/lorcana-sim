@@ -104,6 +104,10 @@ export function useGameSession(): GameSession {
   // Store config in a ref so effects don't retrigger on identity changes
   const configRef = useRef<GameSessionConfig | null>(null);
   const botTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Mirror of gameState in a ref — always current, readable in callbacks without triggering re-renders.
+  // Needed so dispatch can read current state synchronously without the updater form
+  // (React Strict Mode double-invokes updater functions, causing side effects to run twice).
+  const gameStateRef = useRef<GameState | null>(null);
   // Replay / undo infra (local mode only)
   const seedRef = useRef<number>(0);
   const initialStateRef = useRef<GameState | null>(null);
@@ -136,6 +140,7 @@ export function useGameSession(): GameSession {
       config.definitions,
     );
     initialStateRef.current = state;
+    gameStateRef.current = state;
     setGameState(state);
   }, []);
 
@@ -151,31 +156,32 @@ export function useGameSession(): GameSession {
       });
       return;
     }
-    // Local: apply immediately
-    setGameState((prev) => {
-      if (!prev || !configRef.current) return prev;
-      const result = applyAction(prev, action, configRef.current.definitions);
-      if (!result.success) {
-        setError(result.error ?? "Unknown error");
-        return prev;
-      }
-      setError(null);
-      // Track action for undo/replay
-      actionHistoryRef.current = [...actionHistoryRef.current, action];
-      setActionCount((c) => c + 1);
-      // Assemble completedGame when the game ends
-      if (result.newState.isGameOver && configRef.current) {
-        setCompletedGame({
-          seed: seedRef.current,
-          p1Deck: configRef.current.player1Deck,
-          p2Deck: configRef.current.player2Deck,
-          actions: actionHistoryRef.current,
-          winner: result.newState.winner,
-          turnCount: result.newState.turnNumber,
-        });
-      }
-      return result.newState;
-    });
+    // Local: read current state from ref (not updater form — React Strict Mode
+    // double-invokes updater functions in dev, which would record the action twice).
+    const prev = gameStateRef.current;
+    if (!prev || !configRef.current) return;
+    const result = applyAction(prev, action, configRef.current.definitions);
+    if (!result.success) {
+      setError(result.error ?? "Unknown error");
+      return;
+    }
+    setError(null);
+    // Track action for undo/replay — runs exactly once
+    actionHistoryRef.current = [...actionHistoryRef.current, action];
+    setActionCount((c) => c + 1);
+    gameStateRef.current = result.newState;
+    setGameState(result.newState);
+    // Assemble completedGame when the game ends
+    if (result.newState.isGameOver && configRef.current) {
+      setCompletedGame({
+        seed: seedRef.current,
+        p1Deck: configRef.current.player1Deck,
+        p2Deck: configRef.current.player2Deck,
+        actions: actionHistoryRef.current,
+        winner: result.newState.winner,
+        turnCount: result.newState.turnNumber,
+      });
+    }
   }, []);
 
   // ---------------------------------------------------------------------------
@@ -281,6 +287,7 @@ export function useGameSession(): GameSession {
         },
         (payload) => {
           const newState = (payload.new as { state: GameState }).state;
+          gameStateRef.current = newState;
           setGameState(newState);
           setError(null);
         },
@@ -303,7 +310,11 @@ export function useGameSession(): GameSession {
   // patchState — sandbox direct mutation, bypasses engine validation
   // ---------------------------------------------------------------------------
   const patchState = useCallback((updater: (prev: GameState) => GameState) => {
-    setGameState((prev) => (prev ? updater(prev) : prev));
+    const prev = gameStateRef.current;
+    if (!prev) return;
+    const next = updater(prev);
+    gameStateRef.current = next;
+    setGameState(next);
   }, []);
 
   // ---------------------------------------------------------------------------
@@ -318,6 +329,7 @@ export function useGameSession(): GameSession {
     actionHistoryRef.current = newHistory;
     setActionCount((c) => c - 1);
     const reconstructed = reconstructState(init, newHistory, newHistory.length, configRef.current.definitions);
+    gameStateRef.current = reconstructed;
     setGameState(reconstructed);
     setError(null);
   }, []);
@@ -330,6 +342,7 @@ export function useGameSession(): GameSession {
   const reset = useCallback(() => {
     if (botTimerRef.current) clearTimeout(botTimerRef.current);
     configRef.current = null;
+    gameStateRef.current = null;
     setGameState(null);
     setSelectedInstanceId(null);
     setError(null);
