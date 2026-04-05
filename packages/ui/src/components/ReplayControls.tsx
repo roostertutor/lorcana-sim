@@ -65,7 +65,7 @@ export default function ReplayControls({ session, onTakeOver, onBranchAnalysis }
           className="px-2 py-1.5 rounded text-xs text-gray-400 hover:text-gray-100 hover:bg-gray-700/50 disabled:opacity-30 transition-colors"
           title="Go to start"
         >
-          ⏮
+          |&lt;
         </button>
         <button
           onClick={stepBack}
@@ -73,14 +73,14 @@ export default function ReplayControls({ session, onTakeOver, onBranchAnalysis }
           className="px-2 py-1.5 rounded text-xs text-gray-400 hover:text-gray-100 hover:bg-gray-700/50 disabled:opacity-30 transition-colors"
           title="Step back"
         >
-          ◀
+          &lt;
         </button>
         <button
           onClick={togglePlay}
-          className="px-3 py-1.5 rounded text-sm bg-amber-700/40 hover:bg-amber-700/60 text-amber-300 border border-amber-600/40 transition-colors min-w-[2.5rem]"
+          className="px-3 py-1.5 rounded text-xs bg-amber-700/40 hover:bg-amber-700/60 text-amber-300 border border-amber-600/40 transition-colors min-w-[3rem] font-medium"
           title={isPlaying ? "Pause" : "Play"}
         >
-          {isPlaying ? "⏸" : "▶"}
+          {isPlaying ? "Pause" : "Play"}
         </button>
         <button
           onClick={stepForward}
@@ -88,7 +88,7 @@ export default function ReplayControls({ session, onTakeOver, onBranchAnalysis }
           className="px-2 py-1.5 rounded text-xs text-gray-400 hover:text-gray-100 hover:bg-gray-700/50 disabled:opacity-30 transition-colors"
           title="Step forward"
         >
-          ▶
+          &gt;
         </button>
         <button
           onClick={() => goTo(totalSteps)}
@@ -96,7 +96,7 @@ export default function ReplayControls({ session, onTakeOver, onBranchAnalysis }
           className="px-2 py-1.5 rounded text-xs text-gray-400 hover:text-gray-100 hover:bg-gray-700/50 disabled:opacity-30 transition-colors"
           title="Go to end"
         >
-          ⏭
+          &gt;|
         </button>
       </div>
 

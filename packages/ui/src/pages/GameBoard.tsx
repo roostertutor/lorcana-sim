@@ -913,13 +913,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-[10px] text-red-400/60 uppercase tracking-wider font-bold">Opponent</span>
             <div className="flex gap-3 text-[10px] text-gray-600 items-center">
-              <span>📦 {p2Zones.deck.length}</span>
+              <span>deck {p2Zones.deck.length}</span>
               <button
                 className="hover:text-gray-400 transition-colors disabled:cursor-default disabled:hover:text-gray-600"
                 disabled={p2Zones.discard.length === 0}
                 onClick={() => setDiscardViewerId("opponent")}
               >
-                🗑 {p2Zones.discard.length}
+                disc {p2Zones.discard.length}
               </button>
             </div>
           </div>
@@ -1019,7 +1019,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                 disabled={p1Zones.discard.length === 0}
                 onClick={() => setDiscardViewerId("player")}
               >
-                🗑 {p1Zones.discard.length}
+                disc {p1Zones.discard.length}
               </button>
             </div>
           </div>
