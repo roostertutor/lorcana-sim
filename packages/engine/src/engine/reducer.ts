@@ -281,7 +281,7 @@ function applyActionInner(
     case "PASS_TURN":
       return applyPassTurn(state, action.playerId, definitions, events);
     case "DRAW_CARD":
-      return applyDraw(state, action.playerId, action.amount ?? 1, events);
+      return applyDraw(state, action.playerId, action.amount ?? 1, events, definitions);
     case "RESOLVE_CHOICE":
       return applyResolveChoice(state, action.playerId, action.choice, definitions, events);
     default:
@@ -834,7 +834,7 @@ function applyPassTurn(
   }
 
   // CRD 3.2.3.1: draw step — active player draws a card
-  state = applyDraw(state, opponent, 1, events);
+  state = applyDraw(state, opponent, 1, events, definitions);
 
   state = { ...state, phase: "main" };
 
@@ -855,7 +855,8 @@ function applyDraw(
   state: GameState,
   playerId: PlayerID,
   amount: number,
-  events: GameEvent[]
+  events: GameEvent[],
+  definitions: Record<string, CardDefinition>
 ): GameState {
   for (let i = 0; i < amount; i++) {
     const deck = getZone(state, playerId, "deck");
@@ -864,6 +865,13 @@ function applyDraw(
     if (!topCardId) break;
     state = moveCard(state, topCardId, playerId, "hand");
     events.push({ type: "card_drawn", playerId, instanceId: topCardId });
+    const cardName = getDefinition(state, topCardId, definitions)?.fullName ?? "a card";
+    state = appendLog(state, {
+      turn: state.turnNumber,
+      playerId,
+      message: `${playerId} drew ${cardName}.`,
+      type: "card_drawn",
+    });
   }
   return state;
 }
@@ -892,7 +900,7 @@ function applyResolveChoice(
 
     // Draw same number of replacements
     for (let i = 0; i < drawCount; i++) {
-      state = applyDraw(state, playerId, 1, events);
+      state = applyDraw(state, playerId, 1, events, definitions);
     }
 
     // Log the mulligan decision
@@ -1054,18 +1062,15 @@ export function applyEffect(
         : effect.amount;
       if (amount <= 0) return state;
       if (effect.target.type === "both") {
-        state = applyDraw(state, controllingPlayerId, amount, events);
-        state = appendLog(state, { turn: state.turnNumber, playerId: controllingPlayerId, message: `Drew ${amount} card(s).`, type: "effect_resolved" });
-        state = applyDraw(state, getOpponent(controllingPlayerId), amount, events);
-        state = appendLog(state, { turn: state.turnNumber, playerId: getOpponent(controllingPlayerId), message: `Drew ${amount} card(s).`, type: "effect_resolved" });
+        state = applyDraw(state, controllingPlayerId, amount, events, definitions);
+        state = applyDraw(state, getOpponent(controllingPlayerId), amount, events, definitions);
         return state;
       }
       const targetPlayer =
         effect.target.type === "opponent"
           ? getOpponent(controllingPlayerId)
           : controllingPlayerId;
-      state = applyDraw(state, targetPlayer, amount, events);
-      return appendLog(state, { turn: state.turnNumber, playerId: targetPlayer, message: `Drew ${amount} card(s).`, type: "effect_resolved" });
+      return applyDraw(state, targetPlayer, amount, events, definitions);
     }
 
     case "gain_lore": {
