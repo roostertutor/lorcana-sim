@@ -386,12 +386,28 @@ page components used within DecksPage/SimulationView — not standalone tabs.
 
 ---
 
+## Known Limitations
+
+**Undo is per-`GameAction`, not per-card-play.**
+Each `RESOLVE_CHOICE` is a separate recorded action. Playing a card with a triggered ability
+that requires multiple choices (e.g. Ariel - On Human Legs: look at top 4, pick one, rest go
+to bottom) requires one undo click per step to fully reverse — not one click for the whole
+play. For example: PLAY_CARD + RESOLVE_CHOICE + RESOLVE_CHOICE = 3 undo clicks.
+
+This is transparent and predictable but can be annoying for complex cards. Two future options
+if this becomes a pain:
+- **Checkpoint undo**: mark a checkpoint before each card play; one undo reverts to the
+  checkpoint (requires tracking which actions belong to the same "play event").
+- **Skip-choice undo**: undo automatically steps back past RESOLVE_CHOICE entries to the
+  preceding non-choice action.
+
+---
+
 ## What NOT to Build Yet
 
 - Animations (play/banish/quest/challenge transitions)
 - Sound effects
 - Hover tooltips with rules text
-- Undo/redo (out of scope)
 - Chat (multiplayer feature)
 - Spectator mode (multiplayer feature)
 - Matchmaking (separate server spec)
