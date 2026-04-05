@@ -178,7 +178,7 @@ function InkwellZone({
               <div
                 key={id}
                 style={{ zIndex: i }}
-                className={`shrink-0 transition-opacity ${i > 0 ? "-ml-[36px] sm:-ml-[52px]" : ""} ${isAvailable ? "opacity-100" : "opacity-40"}`}
+                className={`shrink-0 transition-all duration-200 ${i > 0 ? "-ml-[36px] sm:-ml-[52px]" : ""} ${!isAvailable ? "rotate-90 grayscale brightness-75" : ""}`}
               >
                 <GameCard
                   instanceId={id}
