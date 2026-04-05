@@ -38,8 +38,14 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   const def = definitions[instance.definitionId];
   if (!def) return null;
 
-  // Mobile width: hand cards are full size for readability; play zone + face-down backs are smaller
-  const mobileWidth = zone === "play" || faceDown ? "w-[64px]" : "w-[88px]";
+  // Mobile width: play cards shrink to fit 7 ready across; exerted cards use rotated width so
+  // flex layout nudges neighbours rather than overlapping them. Hand cards stay full size.
+  const isExerted = instance.isExerted;
+  const mobileWidth = faceDown
+    ? "w-[52px]"
+    : zone === "play"
+    ? isExerted ? "w-[73px]" : "w-[52px]"
+    : "w-[88px]";
 
   const handleKey = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); }
@@ -69,7 +75,6 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   const inkColor = def.inkColors[0] ?? "steel";
   const theme = INK_THEME[inkColor] ?? DEFAULT_THEME;
 
-  const isExerted = zone === "play" && instance.isExerted;
   const isDrying = zone === "play" && instance.isDrying;
   const damage = zone === "play" ? instance.damage : 0;
 

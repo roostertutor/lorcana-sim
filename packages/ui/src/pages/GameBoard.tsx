@@ -914,9 +914,16 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             </div>
           ) : (
             <>
-              {/* Mobile: single horizontal scroll strip */}
-              <div className="md:hidden flex-1 overflow-x-auto overflow-y-hidden flex flex-nowrap items-end gap-2 pb-1">
-                {p2Zones.play.map((id) => renderCardWithActions(id, "play", true))}
+              {/* Mobile: 2 rows — characters, then items. Vertical scroll if overflow */}
+              <div className="md:hidden flex-1 overflow-y-auto flex flex-col gap-1 pb-1">
+                <div className="flex flex-wrap gap-1 items-end">
+                  {p2Zones.play.filter(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType === "character").map((id) => renderCardWithActions(id, "play", true))}
+                </div>
+                {p2Zones.play.some(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType !== "character") && (
+                  <div className="flex flex-wrap gap-1 items-end">
+                    {p2Zones.play.filter(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType !== "character").map((id) => renderCardWithActions(id, "play", true))}
+                  </div>
+                )}
               </div>
               {/* md+: characters left, items right */}
               <div className="hidden md:flex flex-1 min-h-0 overflow-y-auto items-end justify-between gap-2 pb-1">
@@ -1002,9 +1009,16 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               </div>
             ) : (
               <>
-                {/* Mobile: single horizontal scroll strip */}
-                <div className="md:hidden flex-1 overflow-x-auto overflow-y-hidden flex flex-nowrap items-end gap-2 pb-1 px-1">
-                  {p1Zones.play.map((id) => renderCardWithActions(id, "play", false))}
+                {/* Mobile: 2 rows — characters, then items. Vertical scroll if overflow */}
+                <div className="md:hidden flex-1 overflow-y-auto flex flex-col gap-1 pb-1">
+                  <div className="flex flex-wrap gap-1 items-end">
+                    {p1Zones.play.filter(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType === "character").map((id) => renderCardWithActions(id, "play", false))}
+                  </div>
+                  {p1Zones.play.some(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType !== "character") && (
+                    <div className="flex flex-wrap gap-1 items-end">
+                      {p1Zones.play.filter(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType !== "character").map((id) => renderCardWithActions(id, "play", false))}
+                    </div>
+                  )}
                 </div>
                 {/* md+: characters left, items right */}
                 <div className="hidden md:flex flex-1 min-h-0 overflow-y-auto items-end justify-between gap-2 pb-1 px-1">
