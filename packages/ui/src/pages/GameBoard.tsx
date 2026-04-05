@@ -920,14 +920,14 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                 <div className="flex flex-wrap gap-1 items-end">
                   {p2Zones.play.filter(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType === "character").map((id) => {
                     const exerted = gameState.cards[id]?.isExerted ?? false;
-                    return <div key={id} className={`shrink-0 ${exerted ? "w-[73px] h-[52px] flex items-center justify-center overflow-visible" : ""}`}>{renderCardWithActions(id, "play", true)}</div>;
+                    return <div key={id} className={`shrink-0 ${exerted ? "w-[73px] h-[52px] flex items-center justify-center overflow-hidden" : ""}`}>{renderCardWithActions(id, "play", true)}</div>;
                   })}
                 </div>
                 {p2Zones.play.some(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType !== "character") && (
                   <div className="flex flex-wrap gap-1 items-end">
                     {p2Zones.play.filter(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType !== "character").map((id) => {
                       const exerted = gameState.cards[id]?.isExerted ?? false;
-                      return <div key={id} className={`shrink-0 ${exerted ? "w-[73px] h-[52px] flex items-center justify-center overflow-visible" : ""}`}>{renderCardWithActions(id, "play", true)}</div>;
+                      return <div key={id} className={`shrink-0 ${exerted ? "w-[73px] h-[52px] flex items-center justify-center overflow-hidden" : ""}`}>{renderCardWithActions(id, "play", true)}</div>;
                     })}
                   </div>
                 )}
@@ -937,13 +937,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                 <div className="flex flex-wrap gap-2 items-end content-end">
                   {p2Zones.play.filter(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType === "character").map((id) => {
                     const exerted = gameState.cards[id]?.isExerted ?? false;
-                    return <div key={id} className={`shrink-0 ${exerted ? "sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] flex items-center justify-center overflow-visible" : ""}`}>{renderCardWithActions(id, "play", true)}</div>;
+                    return <div key={id} className={`shrink-0 ${exerted ? "sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] flex items-center justify-center overflow-hidden" : ""}`}>{renderCardWithActions(id, "play", true)}</div>;
                   })}
                 </div>
                 <div className="flex flex-wrap gap-2 items-end content-end justify-end">
                   {p2Zones.play.filter(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType !== "character").map((id) => {
                     const exerted = gameState.cards[id]?.isExerted ?? false;
-                    return <div key={id} className={`shrink-0 ${exerted ? "sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] flex items-center justify-center overflow-visible" : ""}`}>{renderCardWithActions(id, "play", true)}</div>;
+                    return <div key={id} className={`shrink-0 ${exerted ? "sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] flex items-center justify-center overflow-hidden" : ""}`}>{renderCardWithActions(id, "play", true)}</div>;
                   })}
                 </div>
               </div>
@@ -1027,14 +1027,14 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                   <div className="flex flex-wrap gap-1 items-end">
                     {p1Zones.play.filter(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType === "character").map((id) => {
                       const exerted = gameState.cards[id]?.isExerted ?? false;
-                      return <div key={id} className={`shrink-0 ${exerted ? "w-[73px] h-[52px] flex items-center justify-center overflow-visible" : ""}`}>{renderCardWithActions(id, "play", false)}</div>;
+                      return <div key={id} className={`shrink-0 ${exerted ? "w-[73px] h-[52px] flex items-center justify-center overflow-hidden" : ""}`}>{renderCardWithActions(id, "play", false)}</div>;
                     })}
                   </div>
                   {p1Zones.play.some(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType !== "character") && (
                     <div className="flex flex-wrap gap-1 items-end">
                       {p1Zones.play.filter(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType !== "character").map((id) => {
                         const exerted = gameState.cards[id]?.isExerted ?? false;
-                        return <div key={id} className={`shrink-0 ${exerted ? "w-[73px] h-[52px] flex items-center justify-center overflow-visible" : ""}`}>{renderCardWithActions(id, "play", false)}</div>;
+                        return <div key={id} className={`shrink-0 ${exerted ? "w-[73px] h-[52px] flex items-center justify-center overflow-hidden" : ""}`}>{renderCardWithActions(id, "play", false)}</div>;
                       })}
                     </div>
                   )}
@@ -1044,13 +1044,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                   <div className="flex flex-wrap gap-2 items-end content-end">
                     {p1Zones.play.filter(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType === "character").map((id) => {
                       const exerted = gameState.cards[id]?.isExerted ?? false;
-                      return <div key={id} className={`shrink-0 ${exerted ? "sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] flex items-center justify-center overflow-visible" : ""}`}>{renderCardWithActions(id, "play", false)}</div>;
+                      return <div key={id} className={`shrink-0 ${exerted ? "sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] flex items-center justify-center overflow-hidden" : ""}`}>{renderCardWithActions(id, "play", false)}</div>;
                     })}
                   </div>
                   <div className="flex flex-wrap gap-2 items-end content-end justify-end">
                     {p1Zones.play.filter(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType !== "character").map((id) => {
                       const exerted = gameState.cards[id]?.isExerted ?? false;
-                      return <div key={id} className={`shrink-0 ${exerted ? "sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] flex items-center justify-center overflow-visible" : ""}`}>{renderCardWithActions(id, "play", false)}</div>;
+                      return <div key={id} className={`shrink-0 ${exerted ? "sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] flex items-center justify-center overflow-hidden" : ""}`}>{renderCardWithActions(id, "play", false)}</div>;
                     })}
                   </div>
                 </div>
