@@ -14,7 +14,7 @@ to produce deck analytics and win rates. NOT a human-playable simulator.
 - analytics: done (15 passing).
 - cli:       done. analyze, compare, query, learn.
 - ui:        done. 7 screens, React+Vite. Responsive (mobile/tablet/desktop). Full-screen game board (no header/nav in-game).
-- testbench: done. Interactive game board with bot opponent. Replay mode + undo (Stream 3e).
+- testbench: done. Interactive game board with bot opponent. Replay mode + undo (Stream 3e). Deck/discard zone badges with discard viewer modal.
 - cards:     set 1 complete (204 unique cards, 216 entries, all abilities implemented, 0 stubs).
 - sets 2–11: imported as stubs (keyword-only, 2504 total cards incl. dual-ink). Run `pnpm import-cards --sets N` to refresh.
 

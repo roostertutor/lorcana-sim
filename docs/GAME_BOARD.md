@@ -285,6 +285,12 @@ Pretty version. Same `useGameSession` hook. Different components.
 - After heal effect resolves: "Removed N damage from [Card]."
 - After draw effect resolves: "Drew N card(s)."
 
+**Zone badges:**
+- Each play zone header shows `📦 N` (deck count) and `🗑 N` (discard count)
+- Discard badge is always visible (shows 0 when empty, disabled); clicking opens `ZoneViewModal`
+- `ZoneViewModal`: full-screen backdrop, scrollable 4-column card grid, face-up, read-only
+- Works for both player and opponent discard
+
 **Analysis overlay:**
 - Win probability bar (P1 vs P2), updates after every action
 - AnalysisPanel: position factors (lore/board/hand/ink advantage)

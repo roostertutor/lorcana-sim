@@ -32,6 +32,7 @@ import SandboxPanel from "../components/SandboxPanel.js";
 import GameCard from "../components/GameCard.js";
 import PendingChoiceModal from "../components/PendingChoiceModal.js";
 import ReplayControls from "../components/ReplayControls.js";
+import ZoneViewModal from "../components/ZoneViewModal.js";
 
 // -----------------------------------------------------------------------------
 // Bot options
@@ -215,6 +216,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   const [singCardId, setSingCardId] = useState<string | null>(null);
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [showLog, setShowLog] = useState(false);
+  const [discardViewerId, setDiscardViewerId] = useState<"player" | "opponent" | null>(null);
   const [autoPassP2, setAutoPassP2] = useState(true);
 
   const p1Parse = useMemo(() => parseDecklist(p1DeckText, definitions), [p1DeckText, definitions]);
@@ -945,6 +947,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             <span className="text-[10px] text-red-400/60 uppercase tracking-wider font-bold">Opponent</span>
             <div className="flex gap-3 text-[10px] text-gray-600 items-center">
               <span>📦 {p2Zones.deck.length}</span>
+              <button
+                className="hover:text-gray-400 transition-colors disabled:cursor-default disabled:hover:text-gray-600"
+                disabled={p2Zones.discard.length === 0}
+                onClick={() => setDiscardViewerId("opponent")}
+              >
+                🗑 {p2Zones.discard.length}
+              </button>
             </div>
           </div>
           {/* Opponent hand — face-down, clipped to just show card tops */}
@@ -1003,6 +1012,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             <span className="text-[10px] text-green-400/60 uppercase tracking-wider font-bold">Your Board</span>
             <div className="flex gap-3 text-[10px] text-gray-600 items-center">
               <span>📦 {p1Zones.deck.length}</span>
+              <button
+                className="hover:text-gray-400 transition-colors disabled:cursor-default disabled:hover:text-gray-600"
+                disabled={p1Zones.discard.length === 0}
+                onClick={() => setDiscardViewerId("player")}
+              >
+                🗑 {p1Zones.discard.length}
+              </button>
             </div>
           </div>
           {/* Play zone — droppable for card play */}
@@ -1244,6 +1260,17 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         </div>
       )}
     </div>
+
+      {/* ======================= Discard Zone Viewer ======================= */}
+      {discardViewerId && (
+        <ZoneViewModal
+          title={discardViewerId === "player" ? "Your Discard" : "Opponent's Discard"}
+          cardIds={discardViewerId === "player" ? p1Zones.discard : p2Zones.discard}
+          gameState={gameState}
+          definitions={definitions}
+          onClose={() => setDiscardViewerId(null)}
+        />
+      )}
     </DndContext>
   );
 }

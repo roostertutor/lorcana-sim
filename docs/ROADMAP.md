@@ -40,6 +40,7 @@
 ✅ Raw GameAction[] capture in GameResult (Stream 1/3e prereq)
 ✅ RL training loop — autoTag, network, policy, trainer, learn CLI (per-card scoring)
 ✅ Replay mode — seeded RNG + action capture + ReplayControls UI (Stream 3e)
+✅ Discard zone viewer — 🗑 badge in each zone header opens face-up card grid modal
 ❌ Multiplayer server
 ```
 
