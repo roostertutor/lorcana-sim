@@ -59,7 +59,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   if (faceDown) {
     return (
       <div
-        className={`${mobileWidth} sm:w-[104px] lg:w-[120px] aspect-[5/7] rounded-xl overflow-hidden shrink-0`}
+        className={`${mobileWidth} sm:w-[104px] lg:w-[120px] aspect-[5/7] rounded-md sm:rounded-xl overflow-hidden shrink-0`}
         onClick={onClick}
         tabIndex={0}
         onKeyDown={handleKey}
@@ -133,7 +133,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
     ? "border-red-400 ring-2 ring-red-400/50 animate-pulse z-10"
     : theme.border;
 
-  const baseClass = `game-card relative border-2 rounded-xl ${mobileWidth} sm:w-[104px] lg:w-[120px] shrink-0 cursor-pointer
+  const baseClass = `game-card relative border-2 rounded-md sm:rounded-xl ${mobileWidth} sm:w-[104px] lg:w-[120px] shrink-0 cursor-pointer
     transition-all duration-200 ${ringClass}
     ${isExerted && !skipRotation ? "rotate-90 opacity-80" : ""}
     hover:scale-105 hover:z-10 hover:shadow-lg hover:${theme.glow}`;
@@ -186,7 +186,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
 
         {/* Summoning sickness overlay — blue-cyan wash, like MTGO */}
         {isDrying && (
-          <div className="absolute inset-0 rounded-xl bg-cyan-400/25 pointer-events-none" />
+          <div className="absolute inset-0 rounded-md sm:rounded-xl bg-cyan-400/25 pointer-events-none" />
         )}
 
         {/* Damage counter — positive number, red circle floating below card */}
