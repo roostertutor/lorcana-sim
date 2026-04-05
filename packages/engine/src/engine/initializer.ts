@@ -128,7 +128,7 @@ const EMPTY_ZONES: Record<ZoneName, string[]> = {
 
 export function createGame(
   config: GameConfig,
-  _definitions: Record<string, CardDefinition>
+  definitions: Record<string, CardDefinition>
 ): GameState {
   const handSize = config.startingHandSize ?? 7;
   const seed = config.seed ?? Date.now();
@@ -182,6 +182,27 @@ export function createGame(
 
   // Deal opening hands
   state = dealOpeningHands(state, handSize);
+
+  // Log the opening hands
+  for (const playerId of ["player1", "player2"] as const) {
+    const handIds = state.zones[playerId].hand;
+    const cardNames = handIds
+      .map((id) => definitions[state.cards[id]?.definitionId ?? ""]?.fullName ?? "Unknown")
+      .join(", ");
+    state = {
+      ...state,
+      actionLog: [
+        ...state.actionLog,
+        {
+          timestamp: Date.now(),
+          turn: 1,
+          playerId,
+          message: `${playerId} was dealt: ${cardNames}.`,
+          type: "card_drawn" as const,
+        },
+      ],
+    };
+  }
 
   // CRD 2.2.2: Start in mulligan phase — player1 chooses first
   const p1HandIds = state.zones.player1.hand;

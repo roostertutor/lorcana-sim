@@ -903,9 +903,9 @@ function applyResolveChoice(
       state = applyDraw(state, playerId, 1, events, definitions);
     }
 
-    // Log the mulligan decision
+    // Log the mulligan decision with specific card names
     const msg = drawCount > 0
-      ? `${playerId} mulliganed ${drawCount} card(s).`
+      ? `${playerId} mulliganed: ${cardsToReturn.map((id) => getDefinition(state, id, definitions)?.fullName ?? "Unknown").join(", ")}.`
       : `${playerId} kept their opening hand.`;
     state = appendLog(state, { turn: state.turnNumber, playerId, message: msg, type: "mulligan" });
 
