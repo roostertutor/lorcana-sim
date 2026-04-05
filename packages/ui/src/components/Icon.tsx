@@ -25,7 +25,8 @@ export type IconName =
   | "arrow-right"
   | "musical-note"
   | "user-plus"
-  | "minus-circle";
+  | "minus-circle"
+  | "magnifying-glass";
 
 interface IconProps {
   name: IconName;
@@ -116,5 +117,8 @@ export default function Icon({ name, className = "w-4 h-4" }: IconProps) {
 
     case "minus-circle":
       return outline("M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z");
+
+    case "magnifying-glass":
+      return outline("m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z");
   }
 }

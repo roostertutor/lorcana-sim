@@ -33,6 +33,7 @@ import GameCard from "../components/GameCard.js";
 import PendingChoiceModal from "../components/PendingChoiceModal.js";
 import ReplayControls from "../components/ReplayControls.js";
 import ZoneViewModal from "../components/ZoneViewModal.js";
+import CardInspectModal from "../components/CardInspectModal.js";
 import Icon from "../components/Icon.js";
 
 // -----------------------------------------------------------------------------
@@ -285,6 +286,8 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   const [showLog, setShowLog] = useState(false);
   const [discardViewerId, setDiscardViewerId] = useState<"player" | "opponent" | null>(null);
   const [deckViewerOpen, setDeckViewerOpen] = useState(false);
+  const [inspectCardId, setInspectCardId] = useState<string | null>(null);
+  const [inspectModalOpen, setInspectModalOpen] = useState(false);
   const [autoPassP2, setAutoPassP2] = useState(true);
 
   const p1Parse = useMemo(() => parseDecklist(p1DeckText, definitions), [p1DeckText, definitions]);
@@ -752,7 +755,6 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     const isShiftTarget = shiftTargets.has(id);
     const isSingTarget = singTargets.has(id);
     const isAttacker = id === challengeAttackerId || id === shiftCardId;
-    const btns = (!isOpponent && !challengeAttackerId && !shiftCardId && !singCardId) ? (cardButtons.get(id) ?? []) : [];
     const choiceLabel = choiceLabels.get(id);
     const plainName = getCardName(id);
     const disambigBadge = choiceLabel && choiceLabel !== plainName
@@ -764,17 +766,16 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
 
     // Fan effect for hand cards — overlap + subtle rotation
     const isHandCard = zone === "hand";
-    const isCardSelected = session.selectedInstanceId === id;
     const midpoint = (total - 1) / 2;
     const normalizedPos = total > 1 ? (index - midpoint) / midpoint : 0; // -1..1
     // Tighten overlap as hand grows so all cards stay visible
     const overlapPx = total >= 7 ? 50 : total >= 5 ? 32 : 22;
     const handStyle: React.CSSProperties | undefined = isHandCard ? {
       marginLeft: index > 0 ? `-${overlapPx}px` : "0",
-      transform: isCardSelected ? "translateY(-10px)" : `rotate(${normalizedPos * 6}deg)`,
+      transform: `rotate(${normalizedPos * 6}deg)`,
       transformOrigin: isOpponent ? "top center" : "bottom center",
-      zIndex: isCardSelected ? 20 : index,
-      transition: "transform 0.15s ease, z-index 0s",
+      zIndex: index,
+      transition: "transform 0.15s ease",
     } : undefined;
 
     function handleClick() {
@@ -796,7 +797,9 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         return;
       }
       if (challengeAttackerId || shiftCardId || singCardId) { cancelMode(); return; }
-      session.selectCard(session.selectedInstanceId === id ? null : id);
+      // Toggle: tap same card → deselect; tap different card → select it
+      setInspectCardId(prev => prev === id ? null : id);
+      if (inspectModalOpen) setInspectModalOpen(false);
     }
 
     return (
@@ -808,7 +811,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                 instanceId={id}
                 gameState={gameState}
                 definitions={definitions}
-                isSelected={session.selectedInstanceId === id}
+                isSelected={false}
                 isTarget={isChallTarget || isShiftTarget || isSingTarget}
                 isAttacker={isAttacker}
                 onClick={handleClick}
@@ -820,29 +823,12 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                   {disambigBadge}
                 </span>
               )}
-              {/* Action buttons overlaid on card when selected — all screen sizes */}
-              {btns.length > 0 && session.selectedInstanceId === id && (
-                <div className="absolute inset-x-0 top-0 z-20 flex flex-col gap-0.5 p-1 bg-black/60 rounded-t-xl">
-                  {btns.filter(btn => btn.label !== "Ink").map((btn, i) => (
-                    <button
-                      key={i}
-                      className={`w-full text-[10px] font-bold py-1 rounded transition-colors active:scale-95 ${btn.color}`}
-                      onClick={btn.onClick}
-                    >
-                      {btn.label}
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
           </DroppableCardTarget>
         </div>
       </DraggableCard>
     );
   }
-
-  // Mobile: action strip for selected card
-  const selectedCardButtons = session.selectedInstanceId ? (cardButtons.get(session.selectedInstanceId) ?? []) : [];
 
   const fmtMsg = (msg: string) => msg
     .replace(/\bplayer1\b/g, "P1").replace(/\bplayer2\b/g, "P2")
@@ -1121,6 +1107,39 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             definitions={definitions}
           />
 
+          {/* Card action bar — shown when a card is selected */}
+          {inspectCardId && (
+            <div className="shrink-0 mt-1 flex items-center gap-1 px-0.5 min-w-0" onClick={e => e.stopPropagation()}>
+              <span className="text-[11px] font-semibold text-gray-300 truncate flex-1 min-w-0 pl-0.5">
+                {getCardName(inspectCardId)}
+              </span>
+              <div className="flex items-center gap-1 flex-wrap justify-end shrink-0">
+                {(cardButtons.get(inspectCardId) ?? []).map((btn, i) => (
+                  <button
+                    key={i}
+                    className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors active:scale-95 ${btn.color}`}
+                    onClick={(e) => { btn.onClick(e); setInspectCardId(null); }}
+                  >
+                    {btn.label}
+                  </button>
+                ))}
+              </div>
+              <button
+                className="shrink-0 p-1 text-gray-600 hover:text-gray-300 transition-colors"
+                onClick={() => setInspectModalOpen(true)}
+                title="Inspect card"
+              >
+                <Icon name="magnifying-glass" className="w-3.5 h-3.5" />
+              </button>
+              <button
+                className="shrink-0 p-1 text-gray-600 hover:text-gray-300 transition-colors"
+                onClick={() => { setInspectCardId(null); setInspectModalOpen(false); }}
+              >
+                <Icon name="x-mark" className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+
           {/* Hand */}
           <div className="shrink-0 mt-1">
             <div className="h-20 overflow-hidden flex flex-nowrap items-start justify-center md:h-auto md:overflow-hidden md:flex-wrap md:max-h-[260px] lg:max-h-[355px] md:p-1 md:min-h-[80px]">
@@ -1348,6 +1367,17 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             </div>
           </div>
         </div>
+      )}
+
+      {/* ======================= Card Inspect Modal (full image) ======================= */}
+      {inspectCardId && inspectModalOpen && (
+        <CardInspectModal
+          instanceId={inspectCardId}
+          gameState={gameState}
+          definitions={definitions}
+          actions={[]}
+          onClose={() => setInspectModalOpen(false)}
+        />
       )}
 
       {/* ======================= Discard Zone Viewer ======================= */}
