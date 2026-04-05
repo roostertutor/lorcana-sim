@@ -2105,6 +2105,20 @@ function zoneTransition(
   // The actual move (pure, no side effects)
   state = moveCard(state, instanceId, instance.ownerId, targetZone);
 
+  // CRD 1.9.3 / 7.1.6: leaving play resets all play-only state — card becomes a "new" card
+  if (fromZone === "play" && targetZone !== "play") {
+    state = updateInstance(state, instanceId, {
+      isExerted: false,
+      damage: 0,
+      isDrying: false,
+      tempStrengthModifier: 0,
+      tempWillpowerModifier: 0,
+      tempLoreModifier: 0,
+      grantedKeywords: [],
+      timedEffects: [],
+    });
+  }
+
   // Fire post-move triggers + events
   if (!ctx.silent) {
     // Entering play

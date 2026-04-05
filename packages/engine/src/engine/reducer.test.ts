@@ -803,7 +803,8 @@ describe("§5.4 Action card effects (data-driven)", () => {
     const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: cardId }, LORCAST_CARD_DEFINITIONS);
 
     expect(result.success).toBe(true);
-    expect(getInstance(result.newState, wardId).damage).toBe(2);
+    // Aladdin (WP 2) takes 2 damage → banished; Ward does not protect against "all" effects (CRD 8.15.2)
+    expect(getInstance(result.newState, wardId).zone).toBe("discard");
   });
 
   // --- exert action ---
