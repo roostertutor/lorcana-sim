@@ -1,4 +1,4 @@
-import type { GameAction, GameState, DeckEntry } from "@lorcana-sim/engine"
+import type { GameAction, GameState, DeckEntry, PlayerID } from "@lorcana-sim/engine"
 
 const SERVER_URL = (import.meta.env["VITE_SERVER_URL"] as string | undefined) ?? "http://localhost:3001"
 
@@ -79,4 +79,27 @@ export async function resignGame(token: string, gameId: string) {
     headers: await authHeaders(token),
   })
   if (!res.ok) throw new Error(await extractError(res))
+}
+
+export interface ReplayPayload {
+  seed: number
+  p1Deck: DeckEntry[]
+  p2Deck: DeckEntry[]
+  actions: GameAction[]
+  winner: PlayerID | null
+  turnCount: number
+  shareForTraining: boolean
+}
+
+/** Save a completed game replay to the server. Fire-and-forget — errors suppressed. */
+export async function saveReplay(token: string, replay: ReplayPayload): Promise<void> {
+  try {
+    await fetch(`${SERVER_URL}/replay`, {
+      method: "POST",
+      headers: await authHeaders(token),
+      body: JSON.stringify(replay),
+    })
+  } catch {
+    // Non-critical — replay save failure should not surface to the user
+  }
 }

@@ -3,7 +3,7 @@
 // Human plays P1, bot plays P2. Uses useGameSession + useAnalysis hooks.
 // =============================================================================
 
-import React, { useState, useMemo, useRef, useEffect } from "react";
+import React, { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import type { CardDefinition, DeckEntry, PlayerID, GameState } from "@lorcana-sim/engine";
 import { parseDecklist } from "@lorcana-sim/engine";
 import {
@@ -24,11 +24,14 @@ import {
   pointerWithin,
 } from "@dnd-kit/core";
 import { useGameSession } from "../hooks/useGameSession.js";
+import type { ReplayData } from "../hooks/useGameSession.js";
+import { useReplaySession } from "../hooks/useReplaySession.js";
 import { useBoardDnd, DROP_PLAY_ZONE, DROP_INKWELL, dropCardId } from "../hooks/useBoardDnd.js";
 import { buildLabelMap } from "../utils/buildLabelMap.js";
 import SandboxPanel from "../components/SandboxPanel.js";
 import GameCard from "../components/GameCard.js";
 import PendingChoiceModal from "../components/PendingChoiceModal.js";
+import ReplayControls from "../components/ReplayControls.js";
 
 // -----------------------------------------------------------------------------
 // Bot options
@@ -195,6 +198,10 @@ function InkwellZone({
 
 export default function GameBoard({ definitions, sandboxMode, initialDeck, onBack, multiplayerGame }: Props) {
   const session = useGameSession();
+
+  // Replay mode — null = live mode; non-null = reviewing a completed game
+  const [replayData, setReplayData] = useState<ReplayData | null>(null);
+  const replaySession = useReplaySession(replayData, definitions);
 
   const [p1DeckText, setP1DeckText] = useState(SAMPLE_DECK);
   const [p2DeckText, setP2DeckText] = useState(SAMPLE_DECK);
@@ -461,6 +468,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   }, [session.gameState?.pendingChoice]);
 
   function handleStart() {
+    setReplayData(null);
     const botOption = BOT_OPTIONS.find((b) => b.id === botId) ?? BOT_OPTIONS[0]!;
     session.startGame({
       player1Deck: p1Parse.entries,
@@ -471,6 +479,37 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       player2IsHuman: false,
     });
   }
+
+  const handleDownloadReplay = useCallback(() => {
+    const data = session.completedGame;
+    if (!data) return;
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `replay_${ts}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [session.completedGame]);
+
+  const handleUploadReplay = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(ev.target?.result as string) as ReplayData;
+        if (typeof data.seed !== "number" || !Array.isArray(data.actions) || !Array.isArray(data.p1Deck) || !Array.isArray(data.p2Deck)) return;
+        setReplayData(data);
+      } catch {
+        // Invalid file — silently ignore
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = ""; // reset so same file can be re-uploaded
+  }, []);
 
   const getCardName = (instanceId: string): string => {
     if (!session.gameState) return "Unknown";
@@ -505,10 +544,10 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   // =========================================================================
   // SETUP MODE
   // =========================================================================
-  if (!session.gameState && (sandboxMode || onBack || !!multiplayerGame)) {
+  if (!session.gameState && !replayData && (sandboxMode || onBack || !!multiplayerGame)) {
     return null; // waiting for auto-start effect
   }
-  if (!session.gameState) {
+  if (!session.gameState && !replayData) {
     return (
       <div className="space-y-6">
         <h2 className="text-xl font-bold text-amber-400">Play</h2>
@@ -586,13 +625,19 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           )}
         </div>
 
-        <button
-          className="px-4 py-2 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded font-medium transition-colors"
-          disabled={!canStart}
-          onClick={handleStart}
-        >
-          Start Game
-        </button>
+        <div className="flex items-center gap-3 flex-wrap">
+          <button
+            className="px-4 py-2 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded font-medium transition-colors"
+            disabled={!canStart}
+            onClick={handleStart}
+          >
+            Start Game
+          </button>
+          <label className="cursor-pointer px-4 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded font-medium text-sm text-gray-300 transition-colors">
+            Load Replay
+            <input type="file" accept=".json" className="hidden" onChange={handleUploadReplay} />
+          </label>
+        </div>
       </div>
     );
   }
@@ -601,7 +646,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   // PLAYING MODE
   // =========================================================================
 
-  const { gameState, legalActions, pendingChoice, actionLog, isGameOver, winner, error } = session;
+  const { legalActions, pendingChoice, actionLog, isGameOver, winner, error } = session;
+  // In replay mode, show the replay state instead of the live game state.
+  // replaySession.state may be null while states are being built — fall back to session.gameState.
+  // Cast to GameState: the null guard below prevents any actual null from reaching the render.
+  const gameState = ((replayData ? replaySession.state : null) ?? session.gameState) as GameState;
+  // Guard: if we somehow have no state yet (replay still loading), render nothing
+  if (!gameState) return null;
 
   const opponentId = myId === "player1" ? "player2" : "player1";
 
@@ -751,20 +802,58 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       <div className="min-w-0 flex flex-col gap-2 min-h-0 overflow-hidden px-3 md:pl-4 md:pr-0 pt-3 pb-3">
 
         {/* Game Over Overlay */}
-        {isGameOver && (
-          <div className="shrink-0 rounded-xl p-6 text-center space-y-3 bg-gradient-to-b from-amber-900/30 to-amber-950/50 border border-amber-500/30">
+        {isGameOver && !replayData && (
+          <div className="shrink-0 rounded-xl p-4 text-center space-y-3 bg-gradient-to-b from-amber-900/30 to-amber-950/50 border border-amber-500/30">
             <div className="text-3xl font-black text-amber-400 tracking-tight">
               {winner === "player1" ? "Victory!" : winner === "player2" ? "Defeat" : "Draw"}
             </div>
             <div className="text-sm text-gray-400">
               {winner === "player1" ? "You won the game" : winner === "player2" ? "The bot won" : "The game ended in a draw"}
             </div>
-            <button
-              className="px-5 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold transition-colors shadow-lg shadow-amber-600/20"
-              onClick={session.reset}
-            >
-              Play Again
-            </button>
+            <div className="flex items-center justify-center gap-2 flex-wrap">
+              <button
+                className="px-5 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold transition-colors shadow-lg shadow-amber-600/20"
+                onClick={() => { session.reset(); setReplayData(null); }}
+              >
+                Play Again
+              </button>
+              {session.completedGame && (
+                <>
+                  <button
+                    className="px-4 py-2 bg-indigo-700/50 hover:bg-indigo-700/70 text-indigo-200 rounded-lg font-medium transition-colors border border-indigo-600/40 text-sm"
+                    onClick={() => setReplayData(session.completedGame)}
+                  >
+                    Review Game
+                  </button>
+                  <button
+                    className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg font-medium transition-colors border border-gray-700 text-sm"
+                    onClick={handleDownloadReplay}
+                  >
+                    Download Replay
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Replay mode banner */}
+        {replayData && (
+          <div className="shrink-0 rounded-xl px-3 py-2 flex items-center gap-3 bg-indigo-950/60 border border-indigo-700/40">
+            <span className="text-indigo-300 text-xs font-bold uppercase tracking-wider">Replay</span>
+            <span className="text-gray-500 text-xs">Turn {replaySession.state?.turnNumber ?? "–"}</span>
+            <div className="ml-auto flex items-center gap-2">
+              <label className="cursor-pointer px-2 py-1 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded text-xs text-gray-300 transition-colors">
+                Load replay
+                <input type="file" accept=".json" className="hidden" onChange={handleUploadReplay} />
+              </label>
+              <button
+                className="px-3 py-1 text-xs bg-gray-800 hover:bg-gray-700 text-gray-400 rounded border border-gray-700 transition-colors"
+                onClick={() => setReplayData(null)}
+              >
+                ✕ Exit replay
+              </button>
+            </div>
           </div>
         )}
 
@@ -815,6 +904,15 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                   onClick={() => session.dispatch({ type: "PASS_TURN", playerId: myId })}
                 >
                   Pass
+                </button>
+              )}
+              {session.canUndo && !replayData && (
+                <button
+                  className="px-3 py-1 text-xs bg-gray-700/40 hover:bg-gray-700/60 text-gray-400 hover:text-gray-200 rounded border border-gray-600/40 font-medium transition-colors"
+                  onClick={() => { session.undo(); cancelMode(); }}
+                  title="Undo last action"
+                >
+                  ↩ Undo
                 </button>
               )}
               <button
@@ -968,7 +1066,17 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           </div>
         </div>
 
-
+        {/* Replay controls — shown when reviewing a completed game */}
+        {replayData && (
+          <ReplayControls
+            session={replaySession}
+            onTakeOver={(state) => {
+              // Fork: inject the replay state as the live game state
+              setReplayData(null);
+              session.patchState(() => state);
+            }}
+          />
+        )}
 
       </div>
 

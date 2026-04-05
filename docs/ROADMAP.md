@@ -39,7 +39,7 @@
 ✅ Seeded RNG — xoshiro128** in GameState (Stream 1/3e prereq)
 ✅ Raw GameAction[] capture in GameResult (Stream 1/3e prereq)
 ✅ RL training loop — autoTag, network, policy, trainer, learn CLI (per-card scoring)
-❌ Replay mode — seeded RNG + action capture done, UI not yet built
+✅ Replay mode — seeded RNG + action capture + ReplayControls UI (Stream 3e)
 ❌ Multiplayer server
 ```
 
@@ -97,6 +97,14 @@ not hardcoded heuristics.
     train-tournament.ts — multi-policy round-robin (✅ exists)
     train-ladder.ts    — adversarial fine-tuning + practice games (✅ built, Stage 2 of full pipeline, ~4.5 hrs)
     Note: --curriculum flag in pnpm learn is silently ignored (parseArgs discards it); use train-ladder.ts directly.
+
+❌ 1i. Supervised learning from human replays
+    Replays saved to Supabase via Stream 3e (seed + decks + actions + winner)
+    Players opt-in: "Share for bot training" checkbox at game end
+    Training pipeline: extract (GameState, action) pairs → behavioral cloning pass
+    Bootstraps RL policy before self-play fine-tuning
+    Prerequisite: Stream 4 replays table (client-side saveReplay() already built in serverApi.ts)
+    Human games provide quality signal self-play alone cannot produce
 
 ✅ 1h. Trained policies (policies/*.json, all CARD_FEATURE_SIZE=45)
     Full pipeline: ~6.5 hrs total wall time (confirmed Apr 3 2026)
@@ -351,36 +359,32 @@ to be useful — even GreedyBot as an opponent is enough to test card interactio
     Animations (play/banish/quest/challenge transitions), sound,
     hover tooltips with rules text, smooth exert/ready animations.
 
-3e. Replay mode — three distinct features, not one
+✅ 3e. Replay mode + undo (Session 21)
 
-    3e-i. Visual replay (read-only scrubbing)
-      Same GameBoard component, read-only
-      ReplayControls: prev/next/scrub slider, play/pause, speed control
-      Reconstructs GameState at each step by replaying GameAction[] from seed
-      At each step: show what the bot chose + win probability before/after
-      This is the interpretability layer for RL — watch what it learned to do
+    ✅ 3e-i. Visual replay (read-only scrubbing)
+      ReplayControls component: prev/next/scrub slider, play/pause, 3 speeds
+      useReplaySession hook: reconstructs GameState at each step from seed + actions[]
+      "Review Game" button in game-over overlay → switches GameBoard to replay state
+      Load Replay button: upload .json file → replay instantly
 
-    3e-ii. "What if" — human takeover (SC2-style resume from replay)
-      From any point in replay, fork into a live game session
-      Human takes over P1, bot plays P2 from that board state
-      useGameSession.startGame() needs to accept injected GameState
-      runGame already supports startingState (simulator/runGame.ts:137)
+    ✅ 3e-ii. "What if" — human takeover (SC2-style resume from replay)
+      "Take over here" button in ReplayControls
+      Injects replay state as live game state via patchState()
+      Human takes over P1 from that board position
 
-    3e-iii. "What if" — automated branch analysis
-      Fork from a position, sim 200 games with action X vs without
-      Compare win% delta to evaluate whether a play was correct
-      Already works today via useAnalysis + runSimulation({ startingState })
-      No new infrastructure needed — just UI to trigger it from replay
+    ✅ 3e-iii. "What if" — automated branch analysis
+      "Branch analysis" button in ReplayControls (wired to onBranchAnalysis callback)
+      Already works via useAnalysis + runSimulation({ startingState })
 
-    Prerequisites — BOTH DONE ✅:
-      ✅ Seeded RNG — xoshiro128** in GameState, seed stored in GameResult
-      ✅ GameAction[] capture — actions[] stored alongside text actionLog[] in GameResult
-      3e is fully unblocked. Remaining work is the UI only.
+    ✅ 3e-iv. Undo (mid-game)
+      useGameSession tracks seed + initialState snapshot + actionHistory[]
+      undo() replays N-1 actions from initial snapshot
+      Undo button in scoreboard — only visible on your turn, live mode only
 
-    NOTE: Replaying one game does NOT help RL learn. RL needs thousands
-    of full games — volume produces signal, not single-game analysis.
-    Replay is for human understanding; "what if" is for human exploration.
-    Neither is a training mechanism.
+    ✅ 3e-v. Replay persistence
+      Download Replay button → saves replay_TIMESTAMP.json (seed + decks + actions)
+      saveReplay() in serverApi.ts — POST /replay when authenticated (Stream 4 wires server end)
+      Replays are self-contained: seed + p1Deck + p2Deck + actions[] → deterministic reconstruction
 
 ✅ 3f. Wire in RL bot analysis (Session 17, Apr 3 2026)
     File upload button in GameBoard + TestBench → RLPolicy.fromJSON() → epsilon=0
@@ -414,8 +418,10 @@ the server transport layer.
 ```
 4a. Supabase setup
     Database schema (games, lobbies, profiles tables)
+    replays table: id, created_at, player_id (nullable), seed, p1_deck, p2_deck, actions, winner, turn_count, share_for_training
     Row Level Security policies
     Auth: Google + Discord OAuth via Supabase
+    NOTE: client-side saveReplay() already implemented in serverApi.ts (Stream 3e-v); just needs POST /replay endpoint
 
 4b. Hono server
     POST /game/:id/action — receives action, runs applyAction, saves, broadcasts
