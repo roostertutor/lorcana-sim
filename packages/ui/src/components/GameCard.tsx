@@ -127,11 +127,15 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
           </div>
         )}
 
-        {/* State badges */}
-        {(isDrying || damage > 0) && (
-          <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
-            {isDrying  && <span className="text-[7px] bg-cyan-600 text-cyan-100 px-1.5 py-0.5 rounded-full font-bold shadow">WET</span>}
-            {damage > 0 && <span className="text-[7px] bg-red-600 text-red-100 px-1.5 py-0.5 rounded-full font-bold shadow">-{damage}</span>}
+        {/* Summoning sickness overlay — blue-cyan wash, like MTGO */}
+        {isDrying && (
+          <div className="absolute inset-0 rounded-xl bg-cyan-400/25 pointer-events-none" />
+        )}
+
+        {/* Damage badge */}
+        {damage > 0 && (
+          <div className="absolute -bottom-1 left-1/2 -translate-x-1/2">
+            <span className="text-[7px] bg-red-600 text-red-100 px-1.5 py-0.5 rounded-full font-bold shadow">-{damage}</span>
           </div>
         )}
       </div>
@@ -194,12 +198,15 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
         )}
       </div>
 
-      {/* State badges */}
-      {(isDrying || damage > 0) && (
+      {/* Summoning sickness overlay */}
+      {isDrying && (
+        <div className="absolute inset-0 rounded-xl bg-cyan-400/25 pointer-events-none" />
+      )}
+
+      {/* Damage badge */}
+      {damage > 0 && (
         <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
-          {isExerted && <span className="text-[7px] bg-yellow-600 text-yellow-100 px-1.5 py-0.5 rounded-full font-bold shadow">EXR</span>}
-          {isDrying  && <span className="text-[7px] bg-cyan-600 text-cyan-100 px-1.5 py-0.5 rounded-full font-bold shadow">WET</span>}
-          {damage > 0 && <span className="text-[7px] bg-red-600 text-red-100 px-1.5 py-0.5 rounded-full font-bold shadow">-{damage}</span>}
+          <span className="text-[7px] bg-red-600 text-red-100 px-1.5 py-0.5 rounded-full font-bold shadow">-{damage}</span>
         </div>
       )}
     </div>
