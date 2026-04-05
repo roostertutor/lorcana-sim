@@ -862,18 +862,10 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         {/* ---- Scoreboard ---- */}
         <div className="shrink-0 rounded-xl bg-gray-900/60 border border-gray-800/50 px-3 py-2">
           <div className="flex items-center gap-2">
-            {/* Turn badge */}
-            <div className={`px-2 py-0.5 rounded text-xs font-bold tracking-wide shrink-0 ${
-              isYourTurn
-                ? "bg-green-600/20 text-green-400 border border-green-500/30"
-                : "bg-red-600/20 text-red-400 border border-red-500/30"
-            }`}>
-              {isYourTurn ? (sandboxMode ? "YOUR TURN" : "YOUR TURN") : multiplayerGame ? "OPP." : sandboxMode ? "P2" : "BOT"}
-            </div>
-            <span className="text-gray-600 text-xs">T{gameState.turnNumber}</span>
+            <span className="text-gray-600 text-xs shrink-0">T{gameState.turnNumber}</span>
 
             {/* Mobile compact lore scores */}
-            <div className="flex items-center gap-1.5 ml-2 md:hidden">
+            <div className="flex items-center gap-1.5 ml-1 md:hidden">
               <span className="text-green-400 font-mono text-sm font-black">{p1.lore}</span>
               <span className="text-gray-700 text-xs">♦</span>
               <span className="text-gray-600 text-xs">vs</span>
@@ -888,48 +880,23 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               <LoreTracker lore={p2.lore} label={multiplayerGame ? "Opp" : "Bot"} color="red" />
             </div>
 
-            <div className="ml-auto flex items-center gap-2 shrink-0">
-              {(challengeAttackerId || shiftCardId) && (
-                <button
-                  className={`px-3 py-1 text-xs rounded border font-medium transition-colors
-                    ${challengeAttackerId
-                      ? "bg-red-900/40 hover:bg-red-900/60 text-red-400 border-red-700/40"
-                      : "bg-purple-900/40 hover:bg-purple-900/60 text-purple-400 border-purple-700/40"}`}
-                  onClick={cancelMode}
-                >
-                  Cancel
-                </button>
-              )}
-              {isYourTurn && !pendingChoice && !isGameOver && !challengeAttackerId && !shiftCardId && (
-                <button
-                  className="px-3 py-1 text-xs bg-green-700/30 hover:bg-green-700/50 text-green-400 rounded border border-green-600/40 font-medium transition-colors"
-                  onClick={() => session.dispatch({ type: "PASS_TURN", playerId: myId })}
-                >
-                  Pass
-                </button>
-              )}
-              {session.canUndo && !replayData && (
-                <button
-                  className="px-3 py-1 text-xs bg-gray-700/40 hover:bg-gray-700/60 text-gray-400 hover:text-gray-200 rounded border border-gray-600/40 font-medium transition-colors"
-                  onClick={() => { session.undo(); cancelMode(); }}
-                  title="Undo last action"
-                >
-                  ↩ Undo
-                </button>
-              )}
+            <div className="ml-auto shrink-0">
               <button
-                className="px-2 py-0.5 text-[10px] bg-gray-800 hover:bg-gray-700 text-gray-500 hover:text-gray-300 rounded transition-colors uppercase tracking-wider"
+                className="px-2 py-1 text-gray-600 hover:text-gray-400 rounded transition-colors"
                 onClick={() => {
                   if (sandboxMode) {
-                    // Restart sandbox in-place — don't go through null (would blank screen)
                     session.startGame({ player1Deck: [], player2Deck: [], definitions, botStrategy: GreedyBot, player1IsHuman: true, player2IsHuman: false });
                   } else {
                     session.reset();
                     onBack?.();
                   }
                 }}
+                title={onBack ? "Back" : sandboxMode ? "Reset" : "Concede"}
               >
-                {onBack ? "← Back" : sandboxMode ? "Reset" : "Concede"}
+                <span className="md:hidden text-base leading-none">✕</span>
+                <span className="hidden md:inline text-[10px] uppercase tracking-wider">
+                  {onBack ? "← Back" : sandboxMode ? "Reset" : "Concede"}
+                </span>
               </button>
             </div>
           </div>
@@ -942,7 +909,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         )}
 
         {/* ---- Opponent zone ---- */}
-        <div className="flex-1 min-h-0 flex flex-col rounded-xl bg-gradient-to-b from-red-950/10 to-transparent border border-gray-800/30 p-2">
+        <div className={`flex-1 min-h-0 flex flex-col rounded-xl bg-gradient-to-b from-red-950/10 to-transparent border p-2 transition-colors duration-300 ${!isYourTurn ? "border-red-600/50" : "border-gray-800/30"}`}>
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-[10px] text-red-400/60 uppercase tracking-wider font-bold">Opponent</span>
             <div className="flex gap-3 text-[10px] text-gray-600 items-center">
@@ -1000,14 +967,49 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         </div>
 
         {/* ---- Play zone divider ---- */}
-        <div className="shrink-0 flex items-center gap-3 py-0.5">
+        <div className="shrink-0 flex items-center gap-2 py-0.5">
+          {/* Undo — left side */}
+          <div className="w-16 flex justify-start">
+            {session.canUndo && !replayData && (
+              <button
+                className="px-2 py-0.5 text-[10px] bg-gray-700/40 hover:bg-gray-700/60 text-gray-400 hover:text-gray-200 rounded border border-gray-600/40 font-medium transition-colors"
+                onClick={() => { session.undo(); cancelMode(); }}
+                title="Undo last action"
+              >
+                ↩ Undo
+              </button>
+            )}
+          </div>
+
           <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-700/50 to-transparent" />
-          <span className="text-[9px] text-gray-700 uppercase tracking-widest">Play</span>
+          <span className="text-[9px] text-gray-700 uppercase tracking-widest shrink-0">Play</span>
           <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-700/50 to-transparent" />
+
+          {/* Pass / Cancel — right side */}
+          <div className="w-16 flex justify-end">
+            {(challengeAttackerId || shiftCardId) ? (
+              <button
+                className={`px-2 py-0.5 text-[10px] rounded border font-medium transition-colors
+                  ${challengeAttackerId
+                    ? "bg-red-900/40 hover:bg-red-900/60 text-red-400 border-red-700/40"
+                    : "bg-purple-900/40 hover:bg-purple-900/60 text-purple-400 border-purple-700/40"}`}
+                onClick={cancelMode}
+              >
+                Cancel
+              </button>
+            ) : isYourTurn && !pendingChoice && !isGameOver ? (
+              <button
+                className="px-2 py-0.5 text-[10px] bg-green-700/30 hover:bg-green-700/50 text-green-400 rounded border border-green-600/40 font-medium transition-colors"
+                onClick={() => session.dispatch({ type: "PASS_TURN", playerId: myId })}
+              >
+                Pass
+              </button>
+            ) : null}
+          </div>
         </div>
 
         {/* ---- Player zone ---- */}
-        <div className="flex-1 min-h-0 flex flex-col rounded-xl bg-gradient-to-t from-green-950/10 to-transparent border border-gray-800/30 p-2">
+        <div className={`flex-1 min-h-0 flex flex-col rounded-xl bg-gradient-to-t from-green-950/10 to-transparent border p-2 transition-colors duration-300 ${isYourTurn ? "border-green-600/50" : "border-gray-800/30"}`}>
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-[10px] text-green-400/60 uppercase tracking-wider font-bold">Your Board</span>
             <div className="flex gap-3 text-[10px] text-gray-600 items-center">
