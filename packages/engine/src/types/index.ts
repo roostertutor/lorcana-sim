@@ -141,7 +141,7 @@ export interface GrantChallengeReadyEffect {
 
 export interface DrawEffect {
   type: "draw";
-  amount: number | "X" | "cost_result";
+  amount: number | "X" | "cost_result" | "damage_on_target" | { type: "count"; filter: CardFilter };
   target: PlayerTarget;
   /** CRD 6.1.4: player may choose not to apply this effect */
   isMay?: boolean;
@@ -151,7 +151,7 @@ export interface DrawEffect {
 
 export interface DealDamageEffect {
   type: "deal_damage";
-  amount: number | "X";
+  amount: number | "X" | { type: "count"; filter: CardFilter };
   target: CardTarget;
   /** CRD 6.1.3: "up to" — player may choose 0..amount. Engine resolves at max for now. */
   isUpTo?: boolean;
@@ -179,7 +179,7 @@ export interface ReturnToHandEffect {
 
 export interface GainLoreEffect {
   type: "gain_lore";
-  amount: number;
+  amount: number | { type: "count"; filter: CardFilter };
   target: PlayerTarget;
 }
 
@@ -193,6 +193,8 @@ export interface GainStatsEffect {
   duration: "this_turn" | "permanent";
   /** CRD 6.1.4: player may choose not to apply this effect */
   isMay?: boolean;
+  /** +1 strength per damage on target (Sword in the Stone) */
+  strengthPerDamage?: boolean;
 }
 
 export interface CreateCardEffect {
@@ -367,7 +369,7 @@ export interface SequentialEffect {
  */
 export interface CostReductionEffect {
   type: "cost_reduction";
-  amount: number;
+  amount: number | { type: "count"; filter: CardFilter };
   /** Filter for which cards get the discount */
   filter: CardFilter;
 }
@@ -397,6 +399,7 @@ export type StaticEffect =
   | GainKeywordStatic
   | ModifyStatStatic
   | ModifyStatPerCountStatic
+  | ModifyStatPerDamageStatic
   | CantBeChallengedException
   | CostReductionStatic
   | ActionRestrictionStatic
@@ -449,6 +452,18 @@ export interface ModifyStatPerCountStatic {
   /** What to count */
   countFilter: CardFilter;
   /** Who this bonus applies to (usually "this") */
+  target: CardTarget;
+}
+
+/**
+ * "+N stat per 1 damage on this card" — Donald Duck - Not Again! pattern.
+ * Computed dynamically based on current damage counters.
+ */
+export interface ModifyStatPerDamageStatic {
+  type: "modify_stat_per_damage";
+  stat: "strength" | "willpower" | "lore";
+  /** Bonus per damage counter on this card */
+  perDamage: number;
   target: CardTarget;
 }
 
@@ -539,6 +554,8 @@ export interface CardFilter {
   strengthAtMost?: number;
   /** Match characters with effective strength ≥ N */
   strengthAtLeast?: number;
+  /** Match characters that were challenged this turn */
+  challengedThisTurn?: boolean;
 }
 
 // -----------------------------------------------------------------------------
@@ -569,7 +586,11 @@ export type TriggerEvent =
   | { on: "ink_played"; player: PlayerTarget }
   | { on: "card_played"; filter?: CardFilter }
   | { on: "item_played"; filter?: CardFilter }
-  | { on: "banished_other_in_challenge"; filter?: CardFilter };
+  | { on: "banished_other_in_challenge"; filter?: CardFilter }
+  | { on: "damage_dealt_to"; filter?: CardFilter }
+  | { on: "damage_removed_from"; filter?: CardFilter }
+  | { on: "readied"; filter?: CardFilter }
+  | { on: "returned_to_hand"; filter?: CardFilter };
 
 // -----------------------------------------------------------------------------
 // CONDITIONS — Guards on triggered/activated abilities
@@ -589,7 +610,11 @@ export type Condition =
   | { type: "is_your_turn" }
   | { type: "this_is_exerted" }
   | { type: "cards_in_zone_gte"; zone: ZoneName; amount: number; player: PlayerTarget }
-  | { type: "played_character_with_trait_this_turn"; trait: string };
+  | { type: "played_character_with_trait_this_turn"; trait: string }
+  | { type: "self_stat_gte"; stat: "strength" | "willpower" | "lore"; amount: number }
+  | { type: "compound_and"; conditions: Condition[] }
+  | { type: "songs_played_this_turn_gte"; amount: number }
+  | { type: "actions_played_this_turn_gte"; amount: number };
 
 export type AbilityTiming = "your_turn_main" | "any_time" | "opponent_turn";
 
@@ -705,6 +730,8 @@ export interface CardInstance {
   // --- Shift tracking ---
   /** If this card was shifted, the instanceId of the card it shifted onto */
   shiftedOntoInstanceId?: string;
+  /** True if this character was challenged (as defender) this turn */
+  challengedThisTurn?: boolean;
 }
 
 // -----------------------------------------------------------------------------
@@ -735,6 +762,10 @@ export interface PlayerState {
   costReductions?: CostReductionEntry[];
   /** Extra ink plays granted by effects this turn (cleared on PASS_TURN) */
   extraInkPlaysGranted?: number;
+  /** Number of action cards played this turn */
+  actionsPlayedThisTurn?: number;
+  /** Number of songs played this turn */
+  songsPlayedThisTurn?: number;
 }
 
 /** A cost reduction entry that applies to the next matching card played. */

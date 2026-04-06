@@ -282,6 +282,11 @@ export function matchesFilter(
     if (filter.strengthAtLeast !== undefined && str < filter.strengthAtLeast) return false;
   }
 
+  if (filter.challengedThisTurn !== undefined) {
+    if (filter.challengedThisTurn && !instance.challengedThisTurn) return false;
+    if (!filter.challengedThisTurn && instance.challengedThisTurn) return false;
+  }
+
   return true;
 }
 
@@ -545,6 +550,28 @@ export function evaluateCondition(
       const inst = state.cards[sourceInstanceId];
       const def = inst ? definitions[inst.definitionId] : undefined;
       return def ? def.cardType === condition.cardType : false;
+    }
+    case "self_stat_gte": {
+      const inst = state.cards[sourceInstanceId];
+      if (!inst) return false;
+      const def = definitions[inst.definitionId];
+      if (!def) return false;
+      let value = 0;
+      if (condition.stat === "strength") value = getEffectiveStrength(inst, def);
+      else if (condition.stat === "willpower") value = getEffectiveWillpower(inst, def);
+      else if (condition.stat === "lore") value = getEffectiveLore(inst, def);
+      return value >= condition.amount;
+    }
+    case "compound_and": {
+      return condition.conditions.every(sub =>
+        evaluateCondition(sub, state, definitions, controllingPlayerId, sourceInstanceId)
+      );
+    }
+    case "songs_played_this_turn_gte": {
+      return (state.players[controllingPlayerId].songsPlayedThisTurn ?? 0) >= condition.amount;
+    }
+    case "actions_played_this_turn_gte": {
+      return (state.players[controllingPlayerId].actionsPlayedThisTurn ?? 0) >= condition.amount;
     }
     default:
       return true;

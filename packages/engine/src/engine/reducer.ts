@@ -393,6 +393,22 @@ function applyPlayCard(
       reason: "played", triggeringPlayerId: playerId,
     });
 
+    // Track actions and songs played this turn
+    const currentActions = state.players[playerId].actionsPlayedThisTurn ?? 0;
+    const currentSongs = state.players[playerId].songsPlayedThisTurn ?? 0;
+    const isSongCard = isSong(def);
+    state = {
+      ...state,
+      players: {
+        ...state.players,
+        [playerId]: {
+          ...state.players[playerId],
+          actionsPlayedThisTurn: currentActions + 1,
+          ...(isSongCard ? { songsPlayedThisTurn: currentSongs + 1 } : {}),
+        },
+      },
+    };
+
     if (!singerInstanceId) {
       state = appendLog(state, {
         turn: state.turnNumber,
@@ -617,6 +633,8 @@ function applyChallenge(
   attackerStr += challengerValue;
 
   state = updateInstance(state, attackerInstanceId, { isExerted: true });
+  // Mark defender as challenged this turn (for Last Stand and similar cards)
+  state = updateInstance(state, defenderInstanceId, { challengedThisTurn: true });
 
   // CRD 8.8.1: Resist +N reduces incoming challenge damage (min 0)
   const attackerResist = getKeywordValue(attacker, attackerDef, "resist", modifiers.grantedKeywords.get(attackerInstanceId));
@@ -634,6 +652,8 @@ function applyChallenge(
     const inst = getInstance(state, atkTarget);
     state = updateInstance(state, atkTarget, { damage: inst.damage + actualAttackerDamage });
     events.push({ type: "damage_dealt", instanceId: atkTarget, amount: actualAttackerDamage });
+    // Fire damage_dealt_to trigger for challenge damage
+    state = queueTrigger(state, "damage_dealt_to", atkTarget, definitions, {});
   }
 
   // Apply defender damage (or redirect)
@@ -642,6 +662,8 @@ function applyChallenge(
     const inst = getInstance(state, defTarget);
     state = updateInstance(state, defTarget, { damage: inst.damage + actualDefenderDamage });
     events.push({ type: "damage_dealt", instanceId: defTarget, amount: actualDefenderDamage });
+    // Fire damage_dealt_to trigger for challenge damage
+    state = queueTrigger(state, "damage_dealt_to", defTarget, definitions, {});
   }
 
   state = appendLog(state, {
@@ -787,6 +809,8 @@ function applyPassTurn(
         availableInk: getZone(state, opponent, "inkwell").length,
         costReductions: [], // Clear one-shot cost reductions at turn start
         extraInkPlaysGranted: 0, // Clear turn-scoped extra ink grants
+        actionsPlayedThisTurn: 0,
+        songsPlayedThisTurn: 0,
       },
     },
   };
@@ -802,7 +826,12 @@ function applyPassTurn(
       // CRD: Can't ready — only clear isDrying, keep exerted
       state = updateInstance(state, id, { isDrying: false });
     } else {
+      const wasExerted = inst.isExerted;
       state = updateInstance(state, id, { isExerted: false, isDrying: false });
+      // Fire readied trigger when going from exerted to ready
+      if (wasExerted) {
+        state = queueTrigger(state, "readied", id, definitions, {});
+      }
     }
   }
   const opponentInkwell = getZone(state, opponent, "inkwell");
@@ -815,20 +844,22 @@ function applyPassTurn(
     state = { ...state, floatingTriggers: [] };
   }
 
-  // CRD 3.4.1.2: effects that end "this turn" — clear temp modifiers
+  // CRD 3.4.1.2: effects that end "this turn" — clear temp modifiers and challengedThisTurn
   for (const id of Object.keys(state.cards)) {
     const instance = getInstance(state, id);
     if (
       instance.tempStrengthModifier !== 0 ||
       instance.tempWillpowerModifier !== 0 ||
       instance.tempLoreModifier !== 0 ||
-      instance.grantedKeywords.length > 0
+      instance.grantedKeywords.length > 0 ||
+      instance.challengedThisTurn
     ) {
       state = updateInstance(state, id, {
         tempStrengthModifier: 0,
         tempWillpowerModifier: 0,
         tempLoreModifier: 0,
         grantedKeywords: [],
+        challengedThisTurn: false,
       });
     }
   }
@@ -1104,7 +1135,10 @@ export function applyEffect(
     case "draw": {
       const amount = effect.amount === "X" ? 1
         : effect.amount === "cost_result" ? (state.lastEffectResult ?? 0)
-        : effect.amount;
+        : effect.amount === "damage_on_target" ? (state.lastEffectResult ?? 0)
+        : (typeof effect.amount === "object" && effect.amount.type === "count")
+          ? findMatchingInstances(state, definitions, effect.amount.filter, controllingPlayerId).length
+        : effect.amount as number;
       if (amount <= 0) return state;
       if (effect.target.type === "both") {
         state = applyDraw(state, controllingPlayerId, amount, events, definitions);
@@ -1123,13 +1157,25 @@ export function applyEffect(
         effect.target.type === "opponent"
           ? getOpponent(controllingPlayerId)
           : controllingPlayerId;
-      return gainLore(state, targetPlayer, effect.amount, events);
+      let amount: number;
+      if (typeof effect.amount === "object" && effect.amount.type === "count") {
+        amount = findMatchingInstances(state, definitions, effect.amount.filter, controllingPlayerId).length;
+      } else {
+        amount = effect.amount as number;
+      }
+      return gainLore(state, targetPlayer, amount, events);
     }
 
     case "deal_damage": {
+      const resolveAmount = (amt: typeof effect.amount): number => {
+        if (amt === "X") return 1;
+        if (typeof amt === "object" && amt.type === "count") {
+          return findMatchingInstances(state, definitions, amt.filter, controllingPlayerId).length;
+        }
+        return amt as number;
+      };
       if (effect.target.type === "this") {
-        const amount = effect.amount === "X" ? 1 : effect.amount;
-        return dealDamageToCard(state, sourceInstanceId, amount, definitions, events);
+        return dealDamageToCard(state, sourceInstanceId, resolveAmount(effect.amount), definitions, events);
       }
       if (effect.target.type === "chosen") {
         const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
@@ -1148,7 +1194,7 @@ export function applyEffect(
       }
       if (effect.target.type === "all") {
         const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
-        const amount = effect.amount === "X" ? 1 : effect.amount;
+        const amount = resolveAmount(effect.amount);
         for (const targetId of targets) {
           state = dealDamageToCard(state, targetId, amount, definitions, events);
         }
@@ -1225,9 +1271,14 @@ export function applyEffect(
     case "remove_damage": {
       if (effect.target.type === "this") {
         const instance = getInstance(state, sourceInstanceId);
-        return updateInstance(state, sourceInstanceId, {
+        const actualHeal = Math.min(effect.amount, instance.damage);
+        state = updateInstance(state, sourceInstanceId, {
           damage: Math.max(0, instance.damage - effect.amount),
         });
+        if (actualHeal > 0) {
+          state = queueTrigger(state, "damage_removed_from", sourceInstanceId, definitions, {});
+        }
+        return state;
       }
       if (effect.target.type === "chosen") {
         const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
@@ -1248,9 +1299,13 @@ export function applyEffect(
         const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         for (const targetId of targets) {
           const inst = getInstance(state, targetId);
+          const actualHeal = Math.min(effect.amount, inst.damage);
           state = updateInstance(state, targetId, {
             damage: Math.max(0, inst.damage - effect.amount),
           });
+          if (actualHeal > 0) {
+            state = queueTrigger(state, "damage_removed_from", targetId, definitions, {});
+          }
         }
         return state;
       }
@@ -1365,7 +1420,11 @@ export function applyEffect(
 
     case "ready": {
       if (effect.target.type === "this") {
+        const wasExerted = getInstance(state, sourceInstanceId).isExerted;
         state = updateInstance(state, sourceInstanceId, { isExerted: false });
+        if (wasExerted) {
+          state = queueTrigger(state, "readied", sourceInstanceId, definitions, {});
+        }
         // Apply follow-up effects to self
         if (effect.followUpEffects) {
           for (const followUp of effect.followUpEffects) {
@@ -1392,7 +1451,11 @@ export function applyEffect(
       if (effect.target.type === "all") {
         const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         for (const targetId of targets) {
+          const wasExerted = getInstance(state, targetId).isExerted;
           state = updateInstance(state, targetId, { isExerted: false });
+          if (wasExerted) {
+            state = queueTrigger(state, "readied", targetId, definitions, {});
+          }
           if (effect.followUpEffects) {
             for (const followUp of effect.followUpEffects) {
               state = applyEffectToTarget(state, followUp, targetId, controllingPlayerId, definitions, events);
@@ -1715,13 +1778,19 @@ export function applyEffect(
     // "You pay N less for the next X you play this turn"
     case "cost_reduction": {
       const existing = state.players[controllingPlayerId].costReductions ?? [];
+      let resolvedAmount: number;
+      if (typeof effect.amount === "object" && effect.amount.type === "count") {
+        resolvedAmount = findMatchingInstances(state, definitions, effect.amount.filter, controllingPlayerId).length;
+      } else {
+        resolvedAmount = effect.amount as number;
+      }
       return {
         ...state,
         players: {
           ...state.players,
           [controllingPlayerId]: {
             ...state.players[controllingPlayerId],
-            costReductions: [...existing, { amount: effect.amount, filter: effect.filter }],
+            costReductions: [...existing, { amount: resolvedAmount, filter: effect.filter }],
           },
         },
       };
@@ -2233,6 +2302,11 @@ function zoneTransition(
       }
     }
 
+    // returned_to_hand trigger
+    if (ctx.reason === "returned" && fromZone === "play" && targetZone === "hand") {
+      state = queueTrigger(state, "returned_to_hand", instanceId, definitions, triggerCtx);
+    }
+
     // Banish events/logging
     if (ctx.reason === "banished") {
       events.push({ type: "card_banished", instanceId });
@@ -2338,6 +2412,11 @@ function dealDamageToCard(
   state = updateInstance(state, instanceId, { damage: newDamage });
   events.push({ type: "damage_dealt", instanceId, amount: actualDamage });
 
+  // Fire damage_dealt_to trigger after damage is applied
+  if (actualDamage > 0) {
+    state = queueTrigger(state, "damage_dealt_to", instanceId, definitions, {});
+  }
+
   const willpower = getEffectiveWillpower(instance, def);
   if (newDamage >= willpower) {
     state = banishCard(state, instanceId, definitions, events);
@@ -2356,17 +2435,32 @@ function applyEffectToTarget(
 ): GameState {
   switch (effect.type) {
     case "deal_damage": {
-      const amount = effect.amount === "X" ? 1 : effect.amount;
+      let amount: number;
+      if (effect.amount === "X") amount = 1;
+      else if (typeof effect.amount === "object" && effect.amount.type === "count") {
+        amount = findMatchingInstances(state, definitions, effect.amount.filter, controllingPlayerId).length;
+      } else {
+        amount = effect.amount as number;
+      }
       return dealDamageToCard(state, targetInstanceId, amount, definitions, events);
     }
-    case "banish":
+    case "banish": {
+      // Store the target's damage in lastEffectResult before banishing (Dinner Bell pattern)
+      const banishInst = getInstance(state, targetInstanceId);
+      state = { ...state, lastEffectResult: banishInst.damage };
       return banishCard(state, targetInstanceId, definitions, events);
+    }
     case "return_to_hand":
       return zoneTransition(state, targetInstanceId, "hand", definitions, events, { reason: "returned" });
     case "gain_stats": {
       const instance = getInstance(state, targetInstanceId);
+      let strBonus = effect.strength ?? 0;
+      // Sword in the Stone: +1 strength per damage on target
+      if (effect.strengthPerDamage) {
+        strBonus = instance.damage;
+      }
       return updateInstance(state, targetInstanceId, {
-        tempStrengthModifier: instance.tempStrengthModifier + (effect.strength ?? 0),
+        tempStrengthModifier: instance.tempStrengthModifier + strBonus,
         tempWillpowerModifier: instance.tempWillpowerModifier + (effect.willpower ?? 0),
         tempLoreModifier: instance.tempLoreModifier + (effect.lore ?? 0),
       });
@@ -2388,6 +2482,8 @@ function applyEffectToTarget(
           message: `Removed ${actualHeal} damage from ${targetName}.`,
           type: "effect_resolved",
         });
+        // Fire damage_removed_from trigger after damage is removed
+        state = queueTrigger(state, "damage_removed_from", targetInstanceId, definitions, {});
       }
       return state;
     }
@@ -2404,8 +2500,14 @@ function applyEffectToTarget(
       };
       return addTimedEffect(state, targetInstanceId, timedEffect);
     }
-    case "ready":
-      return updateInstance(state, targetInstanceId, { isExerted: false });
+    case "ready": {
+      const wasExerted = getInstance(state, targetInstanceId).isExerted;
+      state = updateInstance(state, targetInstanceId, { isExerted: false });
+      if (wasExerted) {
+        state = queueTrigger(state, "readied", targetInstanceId, definitions, {});
+      }
+      return state;
+    }
     case "cant_action": {
       const timedEffect: TimedEffect = {
         type: "cant_action",

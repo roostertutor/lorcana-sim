@@ -132,6 +132,17 @@ export function getGameModifiers(
           break;
         }
 
+        case "modify_stat_per_damage": {
+          // Donald Duck - Not Again!: +N stat per damage on this card
+          if (effect.target.type === "this") {
+            const bonus = instance.damage * effect.perDamage;
+            if (bonus > 0) {
+              addStatBonus(modifiers, instance.instanceId, effect.stat, bonus);
+            }
+          }
+          break;
+        }
+
         case "modify_stat": {
           if (effect.target.type === "this") {
             addStatBonus(modifiers, instance.instanceId, effect.stat, effect.modifier);

@@ -63,17 +63,29 @@
     ],
     "abilities": [
       {
-        "type": "static",
+        "type": "triggered",
         "storyName": "ADVENTUROUS SPIRIT",
         "rulesText": "Whenever you ready this character, if you have 2 or more other characters in play, gain 2 lore.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "willpower",
-          "modifier": 0,
-          "target": {
-            "type": "this"
+        "trigger": {
+          "on": "readied"
+        },
+        "condition": {
+          "type": "characters_in_play_gte",
+          "amount": 2,
+          "player": {
+            "type": "self"
+          },
+          "excludeSelf": true
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
           }
-        }
+        ]
       }
     ],
     "setId": "2",
@@ -837,17 +849,27 @@
     ],
     "abilities": [
       {
-        "type": "static",
+        "type": "triggered",
         "storyName": "HEALING GLOW",
         "rulesText": "Whenever you remove 1 or more damage from one of your characters, you may draw a card.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "willpower",
-          "modifier": 0,
-          "target": {
-            "type": "this"
+        "trigger": {
+          "on": "damage_removed_from",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
           }
-        }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "2",
@@ -1386,7 +1408,8 @@
             "zone": "play",
             "cardType": [
               "character"
-            ]
+            ],
+            "challengedThisTurn": true
           }
         }
       }
@@ -1530,7 +1553,18 @@
     "actionEffects": [
       {
         "type": "cost_reduction",
-        "amount": 3,
+        "amount": {
+          "type": "count",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
         "filter": {
           "cardType": [
             "character"
@@ -1621,7 +1655,11 @@
               "type": "self"
             }
           }
-        ]
+        ],
+        "condition": {
+          "type": "songs_played_this_turn_gte",
+          "amount": 1
+        }
       }
     ],
     "setId": "2",
@@ -2696,17 +2734,31 @@
     ],
     "abilities": [
       {
-        "type": "static",
+        "type": "triggered",
         "storyName": "VERSATILE WIZARD",
-        "rulesText": "Whenever one of your other characters is returned to your hand from play, this character gets +1 {L} this turn.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "willpower",
-          "modifier": 0,
-          "target": {
-            "type": "this"
+        "rulesText": "Whenever one of your other characters is returned to your hand from play, this character gets +1 lore this turn.",
+        "trigger": {
+          "on": "returned_to_hand",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true
           }
-        }
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "lore": 1,
+            "target": {
+              "type": "this"
+            },
+            "duration": "this_turn"
+          }
+        ]
       }
     ],
     "setId": "2",
@@ -3500,7 +3552,7 @@
         "storyName": "UNBRIDLED FURY",
         "rulesText": "Whenever an opposing character is damaged, you may ready this character.",
         "trigger": {
-          "on": "is_challenged",
+          "on": "damage_dealt_to",
           "filter": {
             "owner": {
               "type": "opponent"
@@ -4289,7 +4341,7 @@
       {
         "type": "static",
         "storyName": "PAIN POWER",
-        "rulesText": "While this character has 5 {S} or more, he gets +2 {L}.",
+        "rulesText": "While this character has 5 strength or more, he gets +2 lore.",
         "effect": {
           "type": "modify_stat",
           "stat": "lore",
@@ -4297,6 +4349,11 @@
           "target": {
             "type": "this"
           }
+        },
+        "condition": {
+          "type": "self_stat_gte",
+          "stat": "strength",
+          "amount": 5
         }
       }
     ],
@@ -5002,7 +5059,19 @@
     "actionEffects": [
       {
         "type": "gain_lore",
-        "amount": 1,
+        "amount": {
+          "type": "count",
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasDamage": true
+          }
+        },
         "target": {
           "type": "self"
         }
@@ -5189,11 +5258,11 @@
       {
         "type": "static",
         "storyName": "WHAT A DAY!",
-        "rulesText": "This character gets +1 {L} for each 1 damage on him.",
+        "rulesText": "This character gets +1 lore for each 1 damage on him.",
         "effect": {
-          "type": "modify_stat",
+          "type": "modify_stat_per_damage",
           "stat": "lore",
-          "modifier": 1,
+          "perDamage": 1,
           "target": {
             "type": "this"
           }
@@ -5517,17 +5586,31 @@
     ],
     "abilities": [
       {
-        "type": "static",
+        "type": "triggered",
         "storyName": "DEEP BREATH",
-        "rulesText": "Whenever you play a second action in a turn, this character gets +2 {L} this turn.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "willpower",
-          "modifier": 0,
-          "target": {
-            "type": "this"
+        "rulesText": "Whenever you play a second action in a turn, this character gets +2 lore this turn.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "action"
+            ]
           }
-        }
+        },
+        "condition": {
+          "type": "actions_played_this_turn_gte",
+          "amount": 2
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "lore": 2,
+            "target": {
+              "type": "this"
+            },
+            "duration": "this_turn"
+          }
+        ]
       }
     ],
     "setId": "2",
@@ -6558,13 +6641,6 @@
             "costEffects": [],
             "rewardEffects": [
               {
-                "type": "draw",
-                "amount": 2,
-                "target": {
-                  "type": "self"
-                }
-              },
-              {
                 "type": "banish",
                 "target": {
                   "type": "chosen",
@@ -6578,6 +6654,13 @@
                     ],
                     "hasDamage": true
                   }
+                }
+              },
+              {
+                "type": "draw",
+                "amount": "cost_result",
+                "target": {
+                  "type": "self"
                 }
               }
             ]
@@ -6664,7 +6747,7 @@
       {
         "type": "activated",
         "storyName": "LEGENDARY BLADE",
-        "rulesText": "Chosen character gets +1 {S} this turn for each 1 damage on them.",
+        "rulesText": "Chosen character gets +1 strength this turn for each 1 damage on them.",
         "costs": [
           {
             "type": "exert"
@@ -6677,7 +6760,7 @@
         "effects": [
           {
             "type": "gain_stats",
-            "strength": 2,
+            "strengthPerDamage": true,
             "target": {
               "type": "chosen",
               "filter": {
@@ -7215,17 +7298,26 @@
     ],
     "abilities": [
       {
-        "type": "static",
+        "type": "triggered",
         "storyName": "ANCIENT KNOWLEDGE",
         "rulesText": "Whenever you remove 1 or more damage from one of your characters, gain 2 lore.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "willpower",
-          "modifier": 0,
-          "target": {
-            "type": "this"
+        "trigger": {
+          "on": "damage_removed_from",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
           }
-        }
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "2",
@@ -9657,10 +9749,27 @@
           "restricts": "play",
           "affectedPlayer": {
             "type": "opponent"
+          },
+          "filter": {
+            "cardType": [
+              "action"
+            ]
           }
         },
         "condition": {
-          "type": "this_is_exerted"
+          "type": "compound_and",
+          "conditions": [
+            {
+              "type": "this_is_exerted"
+            },
+            {
+              "type": "cards_in_hand_eq",
+              "amount": 0,
+              "player": {
+                "type": "self"
+              }
+            }
+          ]
         }
       }
     ],
@@ -9896,7 +10005,18 @@
     "actionEffects": [
       {
         "type": "deal_damage",
-        "amount": 3,
+        "amount": {
+          "type": "count",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
         "target": {
           "type": "chosen",
           "filter": {
