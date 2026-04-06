@@ -1126,39 +1126,6 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             definitions={definitions}
           />
 
-          {/* Mobile action bar — between utility strip and hand; always reserves height to prevent layout shift */}
-          <div
-            className={`shrink-0 mt-1 md:hidden flex items-center gap-1 px-0.5 min-w-0 ${inspectCardId ? "visible" : "invisible"}`}
-            onClick={e => e.stopPropagation()}
-          >
-            <span className="text-[11px] font-semibold text-gray-300 truncate flex-1 min-w-0 pl-0.5">
-              {inspectCardId ? getCardName(inspectCardId) : ""}
-            </span>
-            <div className="flex items-center gap-1 flex-wrap justify-end shrink-0">
-              {(inspectCardId ? cardButtons.get(inspectCardId) ?? [] : []).map((btn, i) => (
-                <button
-                  key={i}
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors active:scale-95 ${btn.color}`}
-                  onClick={(e) => { btn.onClick(e); setInspectCardId(null); }}
-                >
-                  {btn.label}
-                </button>
-              ))}
-            </div>
-            <button
-              className="shrink-0 p-1 text-gray-600 hover:text-gray-300 transition-colors"
-              onClick={() => setInspectModalOpen(true)}
-              title="Inspect card"
-            >
-              <Icon name="magnifying-glass" className="w-3.5 h-3.5" />
-            </button>
-            <button
-              className="shrink-0 p-1 text-gray-600 hover:text-gray-300 transition-colors"
-              onClick={() => { setInspectCardId(null); setInspectModalOpen(false); }}
-            >
-              <Icon name="x-mark" className="w-3.5 h-3.5" />
-            </button>
-          </div>
 
           {/* Hand */}
           <div className="shrink-0 mt-1">
@@ -1392,14 +1359,14 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       {/* ======================= Desktop: card action popover (fixed near card) ======================= */}
       {inspectCardId && popoverPos && (
         <div
-          className="fixed z-50 hidden md:flex items-center gap-1 pointer-events-auto"
+          className="fixed z-50 flex items-center gap-1 pointer-events-auto"
           style={{ top: popoverPos.top, left: popoverPos.left, transform: "translateX(-50%)" }}
           onClick={e => e.stopPropagation()}
         >
           {(cardButtons.get(inspectCardId) ?? []).map((btn, i) => (
             <button
               key={i}
-              className={`px-2.5 py-1 rounded-lg text-xs font-bold whitespace-nowrap shadow-lg transition-colors active:scale-95 ${btn.color}`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap shadow-lg transition-colors active:scale-95 ${btn.color}`}
               onClick={(e) => { btn.onClick(e); setInspectCardId(null); }}
             >
               {btn.label}
