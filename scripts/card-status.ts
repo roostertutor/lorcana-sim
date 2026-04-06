@@ -78,6 +78,17 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   [/\bput .{0,30}facedown under\b/i, "boost"],
   [/\bcards? (facedown )?under .{0,30}(character|location)\b/i, "boost"],
   [/\bboost ability\b/i, "boost"],
+  // CRD 6.5 Replacement effects — "would ... instead"
+  [/\bwould be dealt damage.{0,80}instead\b/i, "replacement-effect"],
+  [/\bwould take damage.{0,80}instead\b/i, "replacement-effect"],
+  // Skip Draw step — turn structure modification
+  [/\bskip .{0,20}draw step\b/i, "turn-structure"],
+  // Global challenge limiter
+  [/\bonly one character can challenge\b/i, "challenge-limiter"],
+  // Super-Bodyguard — must choose this for actions AND abilities
+  [/\bmust choose this character for actions and abilities\b/i, "super-bodyguard"],
+  // Conditional lore lock — "can't gain lore unless"
+  [/\bcan'?t gain lore unless\b/i, "conditional-lore-lock"],
 ];
 
 const NEW_TYPE_PATTERNS: [RegExp, string][] = [
@@ -102,30 +113,53 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   [/\buntil (you|they|each player) have \d+ cards? in .{0,20}inkwell/i, "trim-inkwell"],
   // Inkwell static that affects entering
   [/\benter.{0,10}opponents'.{0,20}inkwell.{0,20}exerted\b/i, "inkwell-static"],
-  // Ink from discard (Moana)
-  [/\bink .{0,30}from .{0,20}discard/i, "ink-from-zone"],
+  // Ink from discard / play from non-hand zone (Moana, Black Cauldron)
+  [/\bink .{0,30}from .{0,20}discard/i, "alternate-source-zone"],
+  [/\byou may play .{0,40}from under\b/i, "alternate-source-zone"],
+  [/\bplay .{0,30}from (your|their) discard\b/i, "alternate-source-zone"],
   // "Enters play exerted" for opposing cards (static)
   [/opposing .{0,40}enter.{0,10}play exerted/i, "enter-play-exerted-static"],
-  // Move damage counters (not remove+deal, a distinct effect)
+  // Move damage counters (CRD 1.9.1.4)
   [/\bmove .{0,20}damage counter/i, "move-damage"],
+  [/\bmove .{0,10}damage from\b/i, "move-damage"],
+  [/\bmove up to \d+ damage\b/i, "move-damage"],
   // Reveal opponent's hand
   [/\breveal.{0,30}(their|opponent'?s?) hand\b/i, "reveal-hand"],
+  [/\blook at each opponent'?s? hand\b/i, "reveal-hand"],
   // "Can't be challenged" as a timed effect (RestrictedAction needs "be_challenged")
   [/can'?t be challenged until\b/i, "timed-cant-be-challenged"],
   [/chosen .{0,40}can'?t be challenged\b/i, "timed-cant-be-challenged"],
-  // Damage immunity / damage prevention
-  [/\btakes? no damage\b/i, "damage-immunity"],
+  // Conditional "can't be challenged" with filter (Nick Wilde, Kenai, Iago)
+  [/while .{0,60}can'?t be challenged\b/i, "conditional-cant-be-challenged"],
+  // Damage immunity / damage prevention (non-replacement: "takes no damage from challenges this turn")
+  [/\btakes? no damage from challenges\b/i, "damage-immunity"],
   [/\bcan'?t be dealt damage\b/i, "damage-immunity"],
   [/\bprevent .{0,30}damage\b/i, "damage-prevention"],
-  // "Discard until they have N" — trim hand
+  // Damage removal prevention (Vision Slab: "damage counters can't be removed")
+  [/\bdamage counters can'?t be removed\b/i, "damage-removal-prevention"],
+  // "Discard until they have N" / "draw until you have N" — trim hand
   [/\bdiscard.{0,20}until .{0,20}have \d+ cards?\b/i, "trim-hand"],
   [/\bdiscards? until they have\b/i, "trim-hand"],
+  [/\bdraw until you have \d+\b/i, "draw-to-n"],
+  [/\bdraw cards? until you have\b/i, "draw-to-n"],
+  // Mill — top N cards from deck to discard
+  [/\bputs? the top \d+ cards? .{0,30}into .{0,20}discard\b/i, "mill"],
+  [/\bputs? the top card .{0,30}into .{0,20}discard\b/i, "mill"],
   // Put card on bottom of deck (no shuffle — different from ShuffleIntoDeckEffect)
   [/\bput .{0,40}on the bottom of .{0,20}deck\b/i, "put-on-bottom"],
   // Opponent-chosen banish ("each opponent chooses and banishes one of their characters")
   [/\beach opponent chooses and banishes\b/i, "opponent-chosen-banish"],
+  // Opponent-chosen return to hand ("each opponent chooses one of their characters and returns")
+  [/\beach opponent chooses .{0,40}returns?\b/i, "opponent-chosen-return"],
   // Exert a chosen filtered character or item as a cost
   [/\{E\} .{0,30}(your|one of your) .{0,40}(character|item|[A-Z][a-z]+ character)/i, "exert-filtered-cost"],
+  // Shift variants — classification shift, universal shift, name aliases
+  [/\buniversal shift\b/i, "shift-variant"],
+  [/\b[A-Z][a-z]+ shift \d+\b/i, "shift-variant"],
+  [/\bcounts as being named (both|any)\b/i, "shift-variant"],
+  [/\bcounts as .{0,30}named .{0,30}for shift\b/i, "shift-variant"],
+  [/\bMIMICRY\b/i, "shift-variant"],
+  [/\bas if this character had any name\b/i, "shift-variant"],
   // "If you used Shift" condition
   [/\bif you used shift\b/i, "shift-condition"],
   // Opposing can't sing / exert to sing
@@ -150,15 +184,60 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   [/\bplay .{0,40}again from your discard\b/i, "replay-from-discard"],
   // "All cards in your hand count as having [ink color]" — dual ink grant
   [/\bcount as having \{I/i, "virtual-ink-color"],
-  // New trigger events: "when this character exerts" / "deals damage in challenge"
+  // New trigger events: "when this character exerts" / "deals damage in challenge" / "is dealt damage"
   [/whenever this character exerts\b/i, "new-trigger-exerts"],
   [/whenever this character deals damage\b/i, "new-trigger-deals-damage"],
+  [/whenever this character is dealt damage\b/i, "new-trigger-is-dealt-damage"],
   // "Whenever you play a song" trigger
   [/whenever (you|this character) (play|sing)s? a song\b/i, "song-trigger"],
   // Condition based on character strength threshold ("if you have a character with 5 {S}")
   [/if you have a character with \d+ \{S\}/i, "stat-threshold-condition"],
+  // Self stat condition ("while he has 5 {S} or more")
+  [/while .{0,20}has? \d+ \{S\} or more\b/i, "self-stat-condition"],
   // "Whenever this character sings" — trigger on sing action
   [/whenever this character sings\b/i, "new-trigger-sings"],
+  // "Can't play actions/items" scoped to card type (Pete, Keep the Ancient Ways)
+  [/can'?t play (actions|items|actions or items)\b/i, "restricted-play-by-type"],
+  // "Can't play this character unless" — play restriction condition
+  [/can'?t play this (character|card) unless\b/i, "play-restriction"],
+  // "Was damaged this turn" — event-tracking condition
+  [/was damaged this turn\b/i, "event-tracking-condition"],
+  // Name a card effect (Sorcerer's Hat, Bruno - Undetected Uncle)
+  [/\bname a card\b/i, "name-a-card"],
+  // "Reveal top card... if it's a [type] card... put into hand. Otherwise, top/bottom"
+  [/\breveal the top card.{0,60}(if it'?s?|put).{0,40}(into (your|their) hand|on the (top|bottom))/i, "reveal-top-conditional"],
+  // "During your turn, this character has [keyword]" — conditional keyword by turn
+  [/during your turn.{0,40}(has|gains?) (evasive|rush|bodyguard|ward|reckless|resist|challenger|support)/i, "conditional-keyword-by-turn"],
+  // "can't be challenged by [filter]" — needs strengthAtLeast/hasTrait on attackerFilter
+  [/can'?t be challenged by .{0,30}(character|pirate|[A-Z])/i, "filtered-cant-be-challenged"],
+  // "each player draws N" / "each player discards"
+  [/\beach player (draws?|discards?) .{0,10}(card|\d+|their hand)\b/i, "both-players-effect"],
+  // "put a damage counter on" (1 damage without using "deal")
+  [/\bput a damage counter on\b/i, "put-damage-counter"],
+  // Dynamic filter based on card's own stat ("cost equal to or less than this character's {S}")
+  [/cost equal to or less than .{0,30}\{S\}/i, "dynamic-filter"],
+  // "chosen character can't be challenged until" — timed restriction (broader match)
+  [/character .{0,30}can'?t be challenged until\b/i, "timed-cant-be-challenged"],
+  [/can'?t be challenged until the start\b/i, "timed-cant-be-challenged"],
+  // "Reveal top card, if matching type put in hand, otherwise top/bottom of deck"
+  [/\breveal the top card of your deck\b/i, "reveal-top-conditional"],
+  // Compound condition (exerted + named character in play, etc.)
+  [/\bwhile .{0,30}exerted.{0,30}(if you have|you have)\b/i, "compound-condition"],
+  // "play it as if it were in your hand" — play-from-revealed
+  [/\bplay it as if it were in your hand\b/i, "play-from-revealed"],
+  // "lose the [ability name] ability" — ability removal static
+  [/\blose the .{0,30} ability\b/i, "remove-ability"],
+  // Alice — "put all cards from under her into your hand" (boost related but also a specific effect)
+  [/\bput all cards from under\b/i, "cards-under-to-hand"],
+  // "gets +{S} equal to the {S} of chosen character" — dynamic stat gain from another card
+  [/gets? \+\{S\} equal to\b/i, "dynamic-stat-gain"],
+  // "Chosen character of yours can't be challenged until" — timed cant-be-challenged
+  [/character of yours can'?t be challenged\b/i, "timed-cant-be-challenged"],
+  [/\bchosen character can'?t be challenged\b/i, "timed-cant-be-challenged"],
+  // "can't challenge during their next turn" — timed cant_action
+  [/can'?t (challenge|quest) during their next turn\b/i, "timed-cant-action"],
+  // "was banished in a challenge this turn" — event tracking condition
+  [/was banished in a challenge this turn\b/i, "event-tracking-condition"],
 ];
 
 // Patterns that strongly suggest the card fits existing grammar.
@@ -173,8 +252,9 @@ const FITS_GRAMMAR_PATTERNS: RegExp[] = [
   /\bput \d+ damage (counter|on)\b/i,
   // Remove damage (fixed, "up to N", or "all")
   /\bremove .{0,15}damage\b/i,
-  // Return to hand
+  // Return to hand (all variants: chosen, all, opposing, etc.)
   /\breturn .{0,60}to .{0,25}(their|your|a player'?s?) hand\b/i,
+  /\breturn .{0,30}(character|item|card).{0,30}to .{0,20}hand\b/i,
   // Lore — gain/lose fixed amounts
   /\bgain \d+ lore\b/i,
   /\bgains? \d+ lore\b/i,
@@ -184,6 +264,10 @@ const FITS_GRAMMAR_PATTERNS: RegExp[] = [
   /\bgives? .{0,30}[+-]\d+ \{[SWL]\}/i,
   /\bgets? [+-]\d+ (strength|willpower|lore)\b/i,
   /\b[+-]\d+\/[+-]?\d+\b/i,
+  // Stat changes — "gets +3 this turn" (missing {S}/{W}/{L} in some card text)
+  /\bgets? \+\d+ this turn\b/i,
+  /\bgets? -\d+ this turn\b/i,
+  /\bgets? -\d+ until\b/i,
   // Banish / ready / exert
   /\bbanish\b/i,
   /\bready\b/i,
@@ -194,10 +278,11 @@ const FITS_GRAMMAR_PATTERNS: RegExp[] = [
   /\blook at the top \d+/i,
   /\blook at the top (card|of)\b/i,
   /\blook at .{0,20}top card\b/i,
-  // Discard from hand
+  // Discard from hand (all patterns)
   /\bdiscard (a|one|chosen|\d+)/i,
   /\bchoose and discard\b/i,
   /\bchooses? and discards?\b/i,
+  /\bdiscard your hand\b/i,
   // Shuffle
   /\bshuffle\b/i,
   // Cost reduction (fixed — handles {I} symbol in rules text)
@@ -209,6 +294,8 @@ const FITS_GRAMMAR_PATTERNS: RegExp[] = [
   /\bcan'?t quest\b/i,
   /\bcan'?t challenge\b/i,
   /\bcan'?t ready\b/i,
+  // Can't be challenged (permanent static — CantBeChallengedException)
+  /\bthis character can'?t be challenged\b/i,
   // Move to inkwell
   /\binto .{0,30}inkwell\b/i,
   // Play for free
@@ -237,17 +324,45 @@ const FITS_GRAMMAR_PATTERNS: RegExp[] = [
   /\bfrom .{0,20}discard on the top of .{0,20}deck\b/i,
   // "deal damage to each opposing character" — deal_damage all
   /\bdeal \d+ damage to each (opposing|opponent'?s?)\b/i,
+  // "Choose one:" — bare ChooseEffect (sub-effects handled separately)
+  /^choose one:$/i,
+  /\bchoose one:\s*$/i,
+  // Conditional upgrade "instead" — ConditionalOnTargetEffect (not replacement)
+  /\bif .{0,40}(is chosen|character is chosen|is named).{0,40}instead\b/i,
+  /\bgets? \+\d+ \{S\}.{0,40}instead\b/i,
+  // "Deck construction" rules — no in-game engine effect (mark as fits-grammar/vanilla)
+  /\byou may have up to \d+ copies\b/i,
+  // "each opponent chooses one of their characters and returns"
+  /\beach opponent chooses one .{0,40}returns?\b/i,
+  // "return all opposing characters to their players' hands"
+  /\breturn all opposing characters\b/i,
+  // "give chosen character Resist/Challenger +N until" — grant_keyword with value
+  /\bgive .{0,40}(resist|challenger) \+\d+ until\b/i,
+  // "can't quest during their next turn" / "can't challenge during their next turn"
+  /\bcan'?t (quest|challenge) during (their|your) next turn\b/i,
+  // "chosen opposing character can't quest" — cant_action
+  /\bchosen opposing character can'?t (quest|challenge)\b/i,
+  // "This character can't challenge" — static action restriction on self
+  /\bthis character can'?t (challenge|quest)\b/i,
+  // "takes no damage from the challenge" — conditional damage immunity during challenge
+  /\btakes? no damage from the challenge\b/i,
+  // "This character can't be challenged by [trait] characters" — CantBeChallengedException with attackerFilter
+  /\bcan'?t be challenged by .{0,30}characters\b/i,
+  // "While being challenged" — existing trigger/static context
+  /\bwhile being challenged\b/i,
 ];
 
 function categorizeStub(rulesText: string, cardType: string): StubCategory {
+  // Normalize curly quotes/apostrophes to straight — Lorcast data uses both
+  const normalized = rulesText.replace(/[\u2018\u2019\u2032]/g, "'").replace(/[\u2013\u2014]/g, "-");
   for (const [pattern, _label] of NEW_MECHANIC_PATTERNS) {
-    if (pattern.test(rulesText)) return "needs-new-mechanic";
+    if (pattern.test(normalized)) return "needs-new-mechanic";
   }
   for (const [pattern, _label] of NEW_TYPE_PATTERNS) {
-    if (pattern.test(rulesText)) return "needs-new-type";
+    if (pattern.test(normalized)) return "needs-new-type";
   }
   for (const pattern of FITS_GRAMMAR_PATTERNS) {
-    if (pattern.test(rulesText)) return "fits-grammar";
+    if (pattern.test(normalized)) return "fits-grammar";
   }
   return "unknown";
 }

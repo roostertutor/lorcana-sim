@@ -14,13 +14,13 @@ Run `pnpm card-status --set <N>` to filter to one set.
 
 **Do not implement in set order.** Implement by category:
 
-1. **fits-grammar first** (~1400 cards) — map to existing Effect/Condition/Cost types.
+1. **fits-grammar first** (~1381 cards) — map to existing Effect/Condition/Cost types.
    No engine changes needed. Bulk of the work.
-2. **needs-new-type next** (~267 cards) — implement engine additions in order of
+2. **needs-new-type next** (~382 cards) — implement engine additions in order of
    how many cards they unblock, then fill in cards.
-3. **needs-new-mechanic last** (~233 cards) — Locations, Boost, Sing Together each
-   need design work before any card in that group can be implemented.
-4. **unknown** (~100 cards) — needs manual review. Use `--category unknown` to inspect.
+3. **needs-new-mechanic last** (~240 cards) — Locations, Boost, Sing Together, CRD 6.5
+   replacement effects each need design work before any card in that group can be implemented.
+4. **unknown: 0** — all 2003 stubs categorized after manual review (Session 22).
 
 ---
 
@@ -34,16 +34,16 @@ Run `pnpm card-status --set <N>` to filter to one set.
 
 | Set | Total | Done | Vanilla | Fits-Grammar | New-Type | New-Mechanic | Unknown |
 |-----|-------|------|---------|--------------|----------|--------------|---------|
-| 2   | 216   | 0    | 54      | 143          | 15       | 0            | 4       |
-| 3   | 226   | 0    | 42      | 111          | 22       | 36           | 14      |
-| 4   | 225   | 0    | 43      | 114          | 32       | 26           | 10      |
-| 5   | 223   | 2    | 40      | 128          | 25       | 17           | 11      |
-| 6   | 222   | 1    | 39      | 131          | 15       | 20           | 16      |
-| 7   | 222   | 0    | 35      | 145          | 30       | 4            | 8       |
-| 8   | 227   | 0    | 30      | 154          | 24       | 8            | 11      |
-| 9   | 243   | 0    | 44      | 145          | 28       | 23           | 3       |
-| 10  | 242   | 2    | 46      | 110          | 23       | 53           | 8       |
-| 11  | 242   | 0    | 37      | 126          | 31       | 34           | 14      |
+| 2   | 216   | 0    | 54      | 136          | 25       | 1            | 0       |
+| 3   | 226   | 0    | 42      | 117          | 31       | 36           | 0       |
+| 4   | 225   | 0    | 43      | 113          | 43       | 26           | 0       |
+| 5   | 223   | 2    | 40      | 125          | 39       | 17           | 0       |
+| 6   | 222   | 1    | 39      | 129          | 32       | 21           | 0       |
+| 7   | 222   | 0    | 35      | 142          | 41       | 4            | 0       |
+| 8   | 227   | 0    | 30      | 150          | 38       | 9            | 0       |
+| 9   | 243   | 0    | 44      | 142          | 34       | 23           | 0       |
+| 10  | 242   | 2    | 46      | 114          | 25       | 55           | 0       |
+| 11  | 242   | 0    | 37      | 127          | 42       | 36           | 0       |
 
 Note: "Vanilla" = no named abilities (keyword-only or blank) — already work in simulation.
 "Done" = named abilities implemented. Set 5 has 2 (tipo-growing-son, vision-of-the-future);
@@ -128,8 +128,11 @@ Implement in order of cards unblocked.
 |------|-------------|---------------|
 | `zone_count_with_filter` | Has N+ cards of type X in zone Y (e.g., "item in discard") | multiple statics |
 | `stat_threshold` | Player has a character with stat ≥ N in play | multiple sets |
-| `compound_and` | Two conditions must both be true | Tiana (exerted + no cards in hand) |
+| `compound_and` | Two conditions must both be true | Tiana (exerted + no cards in hand), Panic (exerted + named character) |
 | `played_via_shift` | This card was played using Shift alternate cost | Set 8 |
+| `self_stat_gte` | This character's stat ≥ N | Pete - Born to Cheat (set-4) |
+| `event_this_turn` | A specific event happened this turn (e.g., "opponent damaged") | Nathaniel Flint (set-8) |
+| `is_opponent_turn` | Inverse of `is_your_turn` | Emerald Chromicon (set-5) |
 
 ### New Trigger events
 
@@ -137,6 +140,7 @@ Implement in order of cards unblocked.
 |-------|-------------|-----------|
 | `exerts` | This character exerts for any reason | Set 7+ |
 | `deals_damage_in_challenge` | This character deals damage during a challenge | Set 7+ |
+| `is_dealt_damage` | This character is dealt damage (Hydra) | Set 3+ |
 | `sings` | This character sings a song | Set 7+ |
 | `song_played` | Any song is played | Set 6+ |
 
@@ -146,43 +150,65 @@ Implement in order of cards unblocked.
 |---------|-------------|---------|-----------|
 | `alert` | Can challenge as if they had Evasive | CRD 8.2 | Set 10 |
 
+### Shift variants (all handled by one `canShiftOnto` validator helper)
+
+| Variant | Description | Example cards |
+|---------|-------------|---------------|
+| Universal Shift | Shifting card skips name check — shift onto any character | Baymax - Giant Robot (set-7) |
+| Classification Shift | Match trait instead of name — e.g., "Puppy Shift 3" | Thunderbolt (set-7) |
+| MIMICRY | Target card skips name check — any Shift card can shift onto it | Morph - Space Goo (set-3) |
+| Additional names | Card counts as having extra names | Flotsam & Jetsam (set-4), Turbo (set-5) |
+
+### CardFilter extensions
+
+| Field | Description | Example cards |
+|-------|-------------|---------------|
+| `strengthAtMost` | Character's {S} ≤ N | Kit Cloudkicker, Pete - Born to Cheat |
+| `strengthAtLeast` | Character's {S} ≥ N | Mr. Big (set-6) |
+
 ### RestrictedAction extension
 
 Add `"be_challenged"` to `RestrictedAction` to support timed "can't be challenged"
 effects (e.g., "chosen character can't be challenged until the start of your next turn").
 Currently only `CantBeChallengedException` (static, untimed) handles this.
 
----
-
-## Unknown Cards (~100 cards — needs manual review)
-
-Run `pnpm card-status --category unknown --verbose` to see the full list.
-
-Notable genuinely-complex cases identified:
-
-- **Damage redirection** (Hydra - Deadly Serpent, set-3): "Whenever this character is dealt
-  damage, deal that much damage to chosen opposing character." Needs replacement effect or
-  new trigger. See CRD 6.5 (replacement effects, ❌).
-
-- **Shift name override** (Morph - Space Goo, set-3): "MIMICRY — You may play any character
-  with Shift on this character as if this character had any name." Niche; needs new
-  `universal_shift_target` static or override in shift validation.
-
-- **Dual name identity** (Flotsam & Jetsam, set-4): "This character counts as being named
-  both Flotsam and Jetsam." Needs `additionalNames: string[]` on CardDefinition or similar.
-
-- **Deck construction override** (Dalmatian Puppy - Tail Wagger, set-3): "You may have up
-  to 99 copies in your deck." Deck-construction rule only; no in-game engine effect needed.
-  Mark as vanilla for simulation purposes.
-
-- **Forced targeting** (DO YOUR WORST, set-11): "Opponents must choose this character for
-  actions and abilities if able." Similar to Bodyguard but broader. New static type needed.
-
-- **Per-count self-cost reduction** (various): "For each [item/damaged character/exerted
-  opponent] you have, pay 1 {I} less to play this character." Extends `SelfCostReductionStatic`
-  with a count-based amount. Needs `amount: "per_count"` + `countFilter: CardFilter`.
+Add card-type scoping to `"play"` restriction (e.g., "opponents can't play actions" vs
+"opponents can't play actions or items"). Pete - Games Referee (set-5), Keep the Ancient
+Ways (set-11).
 
 ---
 
-*Last updated: Session 22*
+## Formerly Unknown Cards (all reclassified — Session 22)
+
+All 100 formerly-unknown cards were manually reviewed and reclassified.
+Run `pnpm card-status` to confirm 0 unknowns. Key reclassifications:
+
+### Reclassified to fits-grammar
+- "Choose one:" bare stubs — regex missed, ChooseEffect handles them
+- "return all opposing characters" — return_to_hand with target: all
+- "discard your hand" — discard_from_hand amount: "all"
+- "each player draws N" — draw with target: both
+- Dalmatian Puppy "99 copies" — deck construction only, no engine effect
+- Conditional upgrade "instead" cards — ConditionalOnTargetEffect (not CRD 6.5)
+- "can't be challenged by [trait]" — existing CantBeChallengedException.attackerFilter
+
+### Reclassified to needs-new-type
+- Shift variants (Morph, Turbo, Flotsam & Jetsam, Thunderbolt, Baymax Universal)
+- Sorcerer's Hat / Bruno "name a card" — LookAtTopEffect extension
+- Vision Slab "damage can't be removed" — damage_removal_prevention static
+- Hydra "damage reflection" — is_dealt_damage trigger + dynamic deal_damage (not replacement)
+- Black Cauldron "play from under" — alternate_source_zone static (same concept as Moana)
+- Moana + Black Cauldron share same concept: expand which zones a player action can source from
+
+### Remaining needs-new-mechanic (genuinely new systems)
+- CRD 6.5 replacement effects: Beast (damage redirect), Rapunzel/Lilo (damage prevention)
+- Arthur "skip Draw step" — turn structure modification
+- Prince Charming "only one character can challenge" — global challenge limiter
+- John Smith "DO YOUR WORST" — super-Bodyguard for actions + abilities
+- Peter Pan "can't gain lore unless challenged" — conditional lore lock
+
+---
+
+*Last updated: Session 22 (post-unknown review)*
 *Generated from `pnpm card-status` analysis across sets 2–11*
+*All 2003 stubs categorized — 0 unknowns remaining*
