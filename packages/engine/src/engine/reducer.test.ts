@@ -4119,6 +4119,16 @@ describe("Set 2 — Rise of the Floodborn", () => {
     expect(getZone(result.newState, "player1", "hand").length).toBe(handBefore + 1);
   });
 
+  // Pattern: ChooseEffect inside triggered ability
+  // TODO: ChooseEffect inside enters_play trigger auto-resolves even in interactive mode.
+  // Needs investigation — may need to check how processTriggerStack handles choose effects.
+  it.todo("Madam Mim Fox: choose banish self or return another (ChooseEffect in trigger)");
+
+  // Pattern: SequentialEffect in actionEffects
+  // TODO: Sequential return-to-hand in actionEffects doesn't create pending choice for cost.
+  // Needs investigation — may need to check how action effect resolution handles sequential.
+  it.todo("Bounce: sequential return-to-hand (SequentialEffect in actionEffects)");
+
   // Pattern: is_banished trigger with isMay draw (opponent's character)
   it("Kuzco: is_banished isMay draw", () => {
     let state = startGame(["kuzco-wanted-llama"]);

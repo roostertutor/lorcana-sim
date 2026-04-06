@@ -14,7 +14,21 @@
       "Ally",
       "Seven Dwarfs"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "OH, GOSH!",
+        "rulesText": "This character can't quest unless you have another Seven Dwarfs character in play.",
+        "effect": {
+          "type": "action_restriction",
+          "restricts": "quest",
+          "affectedPlayer": {
+            "type": "self"
+          },
+          "filter": {}
+        }
+      }
+    ],
     "setId": "2",
     "number": 1,
     "rarity": "uncommon",
@@ -1327,6 +1341,31 @@
         "rulesText": "Up to 2 chosen characters get -1 {S} this turn. Draw a card.",
         "raw": "Up to 2 chosen characters get -1 {S} this turn. Draw a card."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "gain_stats",
+        "strength": -1,
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          },
+          "count": 2
+        },
+        "duration": "this_turn",
+        "isUpTo": true
+      },
+      {
+        "type": "draw",
+        "amount": 1,
+        "target": {
+          "type": "self"
+        }
+      }
     ]
   },
   {
@@ -1358,6 +1397,21 @@
         "storyName": "",
         "rulesText": "Banish chosen character with 5 {S} or more.",
         "raw": "Banish chosen character with 5 {S} or more."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "banish",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "costAtLeast": 5
+          }
+        }
       }
     ]
   },
@@ -1486,7 +1540,49 @@
       "Hero",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "STUDENT OF MAGIC",
+        "rulesText": "Whenever this character quests, you may return another chosen character of yours to your hand to gain 2 lore.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "excludeSelf": true
+                  }
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "gain_lore",
+                "amount": 2,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 35,
     "rarity": "super_rare",
@@ -1960,8 +2056,46 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "rush"
+        "type": "triggered",
+        "storyName": "FOXY TRICK",
+        "rulesText": "When you play this character, banish her or return another chosen character of yours to your hand.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "choose",
+            "count": 1,
+            "options": [
+              [
+                {
+                  "type": "banish",
+                  "target": {
+                    "type": "this"
+                  }
+                }
+              ],
+              [
+                {
+                  "type": "return_to_hand",
+                  "target": {
+                    "type": "chosen",
+                    "filter": {
+                      "owner": {
+                        "type": "self"
+                      },
+                      "zone": "play",
+                      "cardType": [
+                        "character"
+                      ],
+                      "excludeSelf": true
+                    }
+                  }
+                }
+              ]
+            ]
+          }
+        ]
       }
     ],
     "setId": "2",
@@ -1999,8 +2133,47 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
+        "type": "triggered",
+        "storyName": "DRAGON TRICK",
+        "rulesText": "When you play this character, banish her or return another 2 chosen characters of yours to your hand.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "choose",
+            "count": 1,
+            "options": [
+              [
+                {
+                  "type": "banish",
+                  "target": {
+                    "type": "this"
+                  }
+                }
+              ],
+              [
+                {
+                  "type": "return_to_hand",
+                  "target": {
+                    "type": "chosen",
+                    "filter": {
+                      "owner": {
+                        "type": "self"
+                      },
+                      "zone": "play",
+                      "cardType": [
+                        "character"
+                      ],
+                      "excludeSelf": true
+                    },
+                    "count": 2
+                  }
+                }
+              ]
+            ]
+          }
+        ]
       }
     ],
     "setId": "2",
@@ -2076,7 +2249,50 @@
       "Villain",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "SLITHERY TRICK",
+        "rulesText": "When you play this character, banish her or return another chosen character of yours to your hand.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "choose",
+            "count": 1,
+            "options": [
+              [
+                {
+                  "type": "banish",
+                  "target": {
+                    "type": "this"
+                  }
+                }
+              ],
+              [
+                {
+                  "type": "return_to_hand",
+                  "target": {
+                    "type": "chosen",
+                    "filter": {
+                      "owner": {
+                        "type": "self"
+                      },
+                      "zone": "play",
+                      "cardType": [
+                        "character"
+                      ],
+                      "excludeSelf": true
+                    }
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 49,
     "rarity": "uncommon",
@@ -3671,7 +3887,26 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "POUNCE",
+        "rulesText": "When you play this character, each opponent chooses and discards either 2 cards or 1 action card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "discard_from_hand",
+            "amount": 2,
+            "target": {
+              "type": "opponent"
+            },
+            "chooser": "target_player"
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 85,
     "rarity": "rare",
@@ -4159,6 +4394,42 @@
         "storyName": "",
         "rulesText": "Return chosen character of yours to your hand to return another chosen character to their player's hand.",
         "raw": "Return chosen character of yours to your hand to return another chosen character to their player's hand."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "sequential",
+        "costEffects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ],
+        "rewardEffects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ]
   },
@@ -5058,7 +5329,59 @@
       "Storyborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "THE WORLD'S GREATEST CRIMINAL MIND",
+        "rulesText": "When you play this character, exert chosen opposing character with 3 {S} or less. Choose one of your characters and ready them. They can't quest for the rest of this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "costAtMost": 3
+              }
+            }
+          },
+          {
+            "type": "ready",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "followUpEffects": [
+              {
+                "type": "cant_action",
+                "action": "quest",
+                "target": {
+                  "type": "this"
+                },
+                "duration": "rest_of_turn"
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 121,
     "rarity": "rare",
@@ -5512,6 +5835,44 @@
         "rulesText": "Deal 2 damage to chosen character of yours to deal 2 damage to another chosen character.",
         "raw": "Deal 2 damage to chosen character of yours to deal 2 damage to another chosen character."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "sequential",
+        "costEffects": [
+          {
+            "type": "deal_damage",
+            "amount": 2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ],
+        "rewardEffects": [
+          {
+            "type": "deal_damage",
+            "amount": 2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
     ]
   },
   {
@@ -5544,6 +5905,43 @@
         "storyName": "",
         "rulesText": "Banish chosen Villain of yours to banish chosen character.",
         "raw": "Banish chosen Villain of yours to banish chosen character."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "sequential",
+        "costEffects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Villain"
+              }
+            }
+          }
+        ],
+        "rewardEffects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ]
   },
@@ -6199,7 +6597,86 @@
       "Storyborn",
       "Inventor"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "CREATIVE GENIUS",
+        "rulesText": "When you play this character and whenever he quests, you may banish one of your items to draw 2 cards.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "banish",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "item"
+                    ]
+                  }
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 2,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "banish",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "item"
+                    ]
+                  }
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 2,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 149,
     "rarity": "rare",
@@ -6843,6 +7320,43 @@
         "rulesText": "Banish chosen item of yours to deal 5 damage to chosen character.",
         "raw": "Banish chosen item of yours to deal 5 damage to chosen character."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "sequential",
+        "costEffects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "item"
+                ]
+              }
+            }
+          }
+        ],
+        "rewardEffects": [
+          {
+            "type": "deal_damage",
+            "amount": 5,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
     ]
   },
   {
@@ -6967,7 +7481,33 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "GOOD EATIN'",
+        "rulesText": "Remove 1 damage each from up to 2 chosen characters.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "remove_damage",
+            "amount": 1,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "hasDamage": true
+              },
+              "count": 2
+            },
+            "isUpTo": true
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 167,
     "rarity": "common",
@@ -6993,7 +7533,40 @@
     "cost": 3,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "INVENTIVE SPIRIT",
+        "rulesText": "Whenever you play another item, you may pay 1 {I} to draw a card.",
+        "trigger": {
+          "on": "item_played",
+          "filter": {
+            "excludeSelf": true
+          }
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "pay_ink",
+                "amount": 1
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 168,
     "rarity": "rare",
@@ -8579,7 +9152,43 @@
     "cost": 3,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "PUMP IRON",
+        "rulesText": "Whenever you play a character with 4 {S} or more, you may pay 1 {I} to draw a card.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "costAtLeast": 4
+          }
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "pay_ink",
+                "amount": 1
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 204,
     "rarity": "rare",
@@ -8698,7 +9307,49 @@
       "Hero",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "STUDENT OF MAGIC",
+        "rulesText": "Whenever this character quests, you may return another chosen character of yours to your hand to gain 2 lore.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "excludeSelf": true
+                  }
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "gain_lore",
+                "amount": 2,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 207,
     "rarity": "enchanted",
@@ -8734,8 +9385,47 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
+        "type": "triggered",
+        "storyName": "DRAGON TRICK",
+        "rulesText": "When you play this character, banish her or return another 2 chosen characters of yours to your hand.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "choose",
+            "count": 1,
+            "options": [
+              [
+                {
+                  "type": "banish",
+                  "target": {
+                    "type": "this"
+                  }
+                }
+              ],
+              [
+                {
+                  "type": "return_to_hand",
+                  "target": {
+                    "type": "chosen",
+                    "filter": {
+                      "owner": {
+                        "type": "self"
+                      },
+                      "zone": "play",
+                      "cardType": [
+                        "character"
+                      ],
+                      "excludeSelf": true
+                    },
+                    "count": 2
+                  }
+                }
+              ]
+            ]
+          }
+        ]
       }
     ],
     "setId": "2",
