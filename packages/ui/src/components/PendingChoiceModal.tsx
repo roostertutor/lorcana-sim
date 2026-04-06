@@ -11,7 +11,7 @@ interface Props {
   multiSelectTargets: string[];
   onMultiSelectChange: React.Dispatch<React.SetStateAction<string[]>>;
   onHide: () => void;
-  onResolveChoice: (choice: string[] | number | "accept" | "decline") => void;
+  onResolveChoice: (choice: string | string[] | number) => void;
 }
 
 export default function PendingChoiceModal({
@@ -223,6 +223,44 @@ export default function PendingChoiceModal({
             >
               Skip
             </button>
+          </div>
+        </div>
+      );
+    }
+
+    // CRD 7.7.4: trigger ordering — pick which ability to resolve first
+    if (pendingChoice.type === "choose_trigger") {
+      const indices = pendingChoice.validTargets ?? [];
+      return (
+        <div className="space-y-3">
+          <div>
+            <div className="text-yellow-300 text-sm font-bold mb-0.5">Triggered Abilities</div>
+            <div className="text-gray-400 text-xs">{pendingChoice.prompt}</div>
+          </div>
+          <div className="flex flex-col gap-2">
+            {indices.map((idxStr) => {
+              const trigger = gameState.triggerStack[parseInt(idxStr, 10)];
+              if (!trigger) return null;
+              const sourceCard = gameState.cards[trigger.sourceInstanceId];
+              const def = sourceCard ? definitions[sourceCard.definitionId] : undefined;
+              const cardName = def?.fullName ?? trigger.sourceInstanceId;
+              const abilityName = trigger.ability.storyName ?? "Ability";
+              return (
+                <button
+                  key={idxStr}
+                  className="flex items-center gap-3 px-3 py-2.5 bg-gray-800 hover:bg-gray-700 border border-gray-600 hover:border-indigo-500 rounded-lg transition-colors text-left"
+                  onClick={() => onResolveChoice(idxStr)}
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold text-white truncate">{cardName}</div>
+                    <div className="text-xs text-indigo-300 italic truncate">{abilityName}</div>
+                  </div>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                  </svg>
+                </button>
+              );
+            })}
           </div>
         </div>
       );

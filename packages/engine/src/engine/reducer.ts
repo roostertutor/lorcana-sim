@@ -938,6 +938,21 @@ function applyResolveChoice(
 
   const pendingEffect = pendingChoice.pendingEffect;
 
+  // CRD 7.7.4: player chose which of their simultaneous triggers to resolve first.
+  // We must process the chosen trigger NOW (not just reorder) — otherwise processTriggerStack
+  // would see 2+ triggers again on its next iteration and re-ask indefinitely.
+  if (pendingChoice.type === "choose_trigger" && typeof choice === "string") {
+    const chosenIndex = parseInt(choice, 10);
+    const chosen = state.triggerStack[chosenIndex];
+    const rest = state.triggerStack.filter((_, i) => i !== chosenIndex);
+    // Process only the chosen trigger in isolation, then merge remaining back.
+    state = { ...state, triggerStack: [chosen], pendingChoice: null };
+    state = processTriggerStack(state, definitions, events);
+    // Re-append the remaining triggers (they'll go through ordering again if needed).
+    state = { ...state, triggerStack: [...state.triggerStack, ...rest] };
+    return state;
+  }
+
   // CRD 6.1.4: "may" effect — accept or decline
   if (pendingChoice.type === "choose_may") {
     if (choice === "accept") {
@@ -1876,6 +1891,31 @@ function processTriggerStack(
   while (state.triggerStack.length > 0 && !state.pendingChoice) {
     if (++safety > MAX_TRIGGER_CHAIN) throw new Error("Trigger loop detected");
 
+    // CRD 7.7.4: if interactive and a player has 2+ triggers simultaneously, let them choose order.
+    // Active player orders their triggers first, then non-active player.
+    if (state.interactive && state.triggerStack.length > 1) {
+      const activePlayerId = state.currentPlayer;
+      const nonActivePlayerId = activePlayerId === "player1" ? "player2" : "player1";
+      for (const choosingPlayerId of [activePlayerId, nonActivePlayerId]) {
+        const playerIndices = state.triggerStack
+          .map((t, i) => ({ t, i }))
+          .filter(({ t }) => state.cards[t.sourceInstanceId]?.ownerId === choosingPlayerId)
+          .map(({ i }) => String(i));
+        if (playerIndices.length > 1) {
+          state = {
+            ...state,
+            pendingChoice: {
+              type: "choose_trigger",
+              choosingPlayerId,
+              prompt: "Choose which triggered ability to resolve next.",
+              validTargets: playerIndices,
+            },
+          };
+          return state;
+        }
+      }
+    }
+
     const [trigger, ...rest] = state.triggerStack;
     if (!trigger) break;
     state = { ...state, triggerStack: rest };
@@ -1920,7 +1960,15 @@ function processTriggerStack(
         const canAfford = effect.costEffects.every(
           (ce) => canPerformCostEffect(state, ce, source.ownerId, trigger.context.triggeringCardInstanceId)
         );
-        if (!canAfford) continue; // Can't pay [A] → skip entirely, no prompt
+        if (!canAfford) {
+          state = appendLog(state, {
+            turn: state.turnNumber,
+            playerId: source.ownerId,
+            message: `${cardName}'s "${abilityName}" skipped — cost can't be paid.`,
+            type: "ability_triggered",
+          });
+          continue;
+        }
       }
 
       // CRD 6.1.4: "may" effects require player decision before resolving

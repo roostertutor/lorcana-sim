@@ -52,6 +52,11 @@ export function resolveChoiceIntelligently(
     return { type: "RESOLVE_CHOICE", playerId, choice: scored.slice(0, returnCount).map(s => s.id) };
   }
 
+  // CRD 7.7.4: trigger ordering — pick first (order rarely matters for bots)
+  if (choice.type === "choose_trigger") {
+    return { type: "RESOLVE_CHOICE", playerId, choice: choice.validTargets?.[0] ?? "0" };
+  }
+
   // CRD 6.1.4: "may" choices — always accept (free benefit in Set 1)
   if (choice.type === "choose_may") {
     return { type: "RESOLVE_CHOICE", playerId, choice: "accept" };

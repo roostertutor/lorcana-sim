@@ -783,7 +783,7 @@ export interface TriggerContext {
 }
 
 export interface PendingChoice {
-  type: "choose_mulligan" | "choose_target" | "choose_option" | "choose_cards" | "choose_may" | "choose_discard" | "choose_from_revealed" | "choose_order";
+  type: "choose_mulligan" | "choose_target" | "choose_option" | "choose_cards" | "choose_may" | "choose_discard" | "choose_from_revealed" | "choose_order" | "choose_trigger";
   /** Which player must make the choice */
   choosingPlayerId: PlayerID;
   prompt: string;
@@ -897,8 +897,8 @@ export interface PassTurnAction {
 export interface ResolveChoiceAction {
   type: "RESOLVE_CHOICE";
   playerId: PlayerID;
-  /** instanceIds of chosen targets, index of chosen option, or "accept"/"decline" for may */
-  choice: string[] | number | "accept" | "decline";
+  /** instanceIds of chosen targets, index of chosen option, "accept"/"decline" for may, or plain string for choose_trigger */
+  choice: string | string[] | number;
 }
 
 export interface DrawCardAction {

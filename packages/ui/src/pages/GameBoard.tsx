@@ -1109,16 +1109,28 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       </div>
 
       {/* ======================= Sidebar (Sandbox or Game Log) ======================= */}
-      <div className="hidden md:flex flex-col min-h-0 overflow-y-auto pt-3 pb-3 pr-4 gap-4">
+      <div className="hidden md:flex flex-col min-h-0 pt-3 pb-3 pr-4 gap-4">
         {sandboxMode ? (
-          <SandboxPanel
-            session={session}
-            gameState={gameState}
-            definitions={definitions}
-            myId={myId}
-            autoPassP2={autoPassP2}
-            onAutoPassP2Change={setAutoPassP2}
-          />
+          <>
+            <div className="shrink-0">
+              <SandboxPanel
+                session={session}
+                gameState={gameState}
+                definitions={definitions}
+                myId={myId}
+                autoPassP2={autoPassP2}
+                onAutoPassP2Change={setAutoPassP2}
+              />
+            </div>
+            <div className="flex-1 min-h-0 flex flex-col rounded-xl bg-gray-900/60 border border-gray-800/50 p-3 gap-2">
+              <div className="text-[10px] text-gray-500 uppercase tracking-wider font-bold shrink-0">
+                Game Log ({actionLog.length})
+              </div>
+              <div ref={logRef} className="flex-1 min-h-0 overflow-y-auto rounded-lg border border-gray-800/30 p-2 bg-gray-950/50 text-[11px] font-mono space-y-0.5 select-text">
+                {logEntries}
+              </div>
+            </div>
+          </>
         ) : (
           <div className="flex-1 min-h-0 flex flex-col rounded-xl bg-gray-900/60 border border-gray-800/50 p-3 gap-2">
             <div className="text-[10px] text-gray-500 uppercase tracking-wider font-bold shrink-0">
@@ -1142,14 +1154,24 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                           pb-[env(safe-area-inset-bottom,16px)]">
             <div className="w-10 h-1 bg-gray-700 rounded-full mx-auto mb-4" />
             {sandboxMode ? (
-              <SandboxPanel
-                session={session}
-                gameState={gameState}
-                definitions={definitions}
-                myId={myId}
-                autoPassP2={autoPassP2}
-                onAutoPassP2Change={setAutoPassP2}
-              />
+              <div className="space-y-4">
+                <SandboxPanel
+                  session={session}
+                  gameState={gameState}
+                  definitions={definitions}
+                  myId={myId}
+                  autoPassP2={autoPassP2}
+                  onAutoPassP2Change={setAutoPassP2}
+                />
+                <div className="space-y-2">
+                  <div className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">
+                    Game Log ({actionLog.length})
+                  </div>
+                  <div className="h-48 overflow-y-auto rounded-lg border border-gray-800/30 p-2 bg-gray-950/50 text-[11px] font-mono space-y-0.5 select-text">
+                    {logEntries}
+                  </div>
+                </div>
+              </div>
             ) : (
               <div className="space-y-2">
                 <div className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">

@@ -16,6 +16,13 @@ function resolveChoiceRandom(state: GameState, playerId: PlayerID): GameAction {
     return { type: "RESOLVE_CHOICE", playerId, choice: [] };
   }
 
+  // CRD 7.7.4: trigger ordering — pick a random trigger to resolve first
+  if (choice.type === "choose_trigger") {
+    const targets = choice.validTargets ?? [];
+    const pick = targets[Math.floor(Math.random() * targets.length)] ?? "0";
+    return { type: "RESOLVE_CHOICE", playerId, choice: pick };
+  }
+
   // CRD 6.1.4: "may" choices — 50% accept, 50% decline
   if (choice.type === "choose_may") {
     return { type: "RESOLVE_CHOICE", playerId, choice: Math.random() < 0.5 ? "accept" : "decline" };

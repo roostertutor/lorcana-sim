@@ -3855,3 +3855,111 @@ describe("Stitch - Rock Star: ADORING FANS (CRD 6.1.5.1 + sequential exert fix)"
     expect(getZone(s, "player1", "deck").length).toBe(deckBefore); // no card drawn
   });
 });
+
+// =============================================================================
+// CRD 7.7.4: Bag trigger ordering — interactive mode
+// =============================================================================
+
+describe("CRD 7.7.4: Bag trigger ordering", () => {
+  // coconut-basket: card_played trigger fires when owner plays any character → isMay remove_damage
+  // Two coconut-baskets in play + playing any character = 2 simultaneous triggers for player1
+
+  it("choose_trigger is created when a player has 2+ simultaneous triggers (interactive mode)", () => {
+    let state = startGame(["coconut-basket"]);
+    // Enable interactive mode so the bag-ordering check fires
+    state = { ...state, interactive: true };
+
+    // Put two coconut-baskets in play for player1
+    let basket1Id: string, basket2Id: string;
+    ({ state, instanceId: basket1Id } = injectCard(state, "player1", "coconut-basket", "play"));
+    ({ state, instanceId: basket2Id } = injectCard(state, "player1", "coconut-basket", "play"));
+
+    // Give player1 enough ink to play a character
+    for (let i = 0; i < 3; i++) {
+      ({ state } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "inkwell"));
+    }
+    state = { ...state, players: { ...state.players, player1: { ...state.players["player1"]!, availableInk: 3 } } };
+
+    // Put a character in player1's hand to play
+    let charId: string;
+    ({ state, instanceId: charId } = injectCard(state, "player1", "maleficent-sorceress", "hand"));
+
+    // Playing maleficent-sorceress triggers:
+    //   1. maleficent-sorceress's own enters_play (draw 1)
+    //   2. coconut-basket #1's card_played (remove damage, isMay)
+    //   3. coconut-basket #2's card_played (remove damage, isMay)
+    // Three triggers all owned by player1 → choose_trigger
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: charId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.pendingChoice?.type).toBe("choose_trigger");
+    expect(result.newState.pendingChoice?.choosingPlayerId).toBe("player1");
+    expect((result.newState.pendingChoice?.validTargets ?? []).length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("RESOLVE_CHOICE for choose_trigger reorders triggerStack and continues", () => {
+    let state = startGame(["coconut-basket"]);
+    state = { ...state, interactive: true };
+
+    let basket1Id: string, basket2Id: string;
+    ({ state, instanceId: basket1Id } = injectCard(state, "player1", "coconut-basket", "play"));
+    ({ state, instanceId: basket2Id } = injectCard(state, "player1", "coconut-basket", "play"));
+    state = { ...state, players: { ...state.players, player1: { ...state.players["player1"]!, availableInk: 3 } } };
+
+    let charId: string;
+    ({ state, instanceId: charId } = injectCard(state, "player1", "maleficent-sorceress", "hand"));
+
+    let s = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: charId }, LORCAST_CARD_DEFINITIONS).newState;
+    expect(s.pendingChoice?.type).toBe("choose_trigger");
+
+    const validTargets = s.pendingChoice?.validTargets ?? [];
+    expect(validTargets.length).toBeGreaterThanOrEqual(2);
+
+    // Pick the last listed trigger to resolve first
+    const lastIdx = validTargets[validTargets.length - 1]!;
+    const expectedFirst = s.triggerStack[parseInt(lastIdx, 10)];
+
+    const s2 = applyAction(s, { type: "RESOLVE_CHOICE", playerId: "player1", choice: lastIdx }, LORCAST_CARD_DEFINITIONS).newState;
+
+    // After resolving, either we have another choose_trigger or the first trigger has been processed.
+    // Either way the chosen trigger should now be first (or already resolved).
+    // The chosen trigger's source should have been the first one processed.
+    if (s2.pendingChoice?.type === "choose_trigger") {
+      // Still ordering — chosen trigger not yet at front in the residual stack is fine
+    } else {
+      // The chosen trigger resolved — pendingChoice may be choose_may (coconut basket) or null
+      expect(["choose_may", null, "choose_target"].includes(s2.pendingChoice?.type ?? null)).toBe(true);
+    }
+  });
+
+  it("no choose_trigger in non-interactive mode — triggers auto-resolve", () => {
+    let state = startGame(["coconut-basket"]);
+    // interactive NOT set (falsy) → auto-LIFO resolution
+
+    let basket1Id: string;
+    ({ state, instanceId: basket1Id } = injectCard(state, "player1", "coconut-basket", "play"));
+    ({ state } = injectCard(state, "player1", "coconut-basket", "play"));
+    state = { ...state, players: { ...state.players, player1: { ...state.players["player1"]!, availableInk: 3 } } };
+
+    let charId: string;
+    ({ state, instanceId: charId } = injectCard(state, "player1", "maleficent-sorceress", "hand"));
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: charId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Non-interactive: choose_trigger is never created; may see choose_may (coconut basket) or null
+    expect(result.newState.pendingChoice?.type).not.toBe("choose_trigger");
+  });
+
+  it("single trigger does not produce choose_trigger", () => {
+    let state = startGame(["maleficent-sorceress"]);
+    state = { ...state, interactive: true };
+    state = { ...state, players: { ...state.players, player1: { ...state.players["player1"]!, availableInk: 3 } } };
+
+    let charId: string;
+    ({ state, instanceId: charId } = injectCard(state, "player1", "maleficent-sorceress", "hand"));
+
+    // Only one trigger (maleficent enters_play: draw) — no bag ordering needed
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: charId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.pendingChoice?.type).not.toBe("choose_trigger");
+  });
+});

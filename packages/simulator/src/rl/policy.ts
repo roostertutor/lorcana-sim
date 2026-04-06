@@ -217,6 +217,11 @@ export class RLPolicy implements BotStrategy {
     const candidates: GameAction[] = [];
 
     switch (choice.type) {
+      case "choose_trigger": {
+        // CRD 7.7.4: pick first trigger (order rarely affects outcome; not worth scoring)
+        candidates.push({ type: "RESOLVE_CHOICE", playerId, choice: choice.validTargets?.[0] ?? "0" });
+        break;
+      }
       case "choose_may": {
         candidates.push(
           { type: "RESOLVE_CHOICE", playerId, choice: "accept" },

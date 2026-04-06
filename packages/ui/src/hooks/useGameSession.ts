@@ -67,7 +67,7 @@ export interface GameSession {
   startGame: (config: GameSessionConfig) => void;
   dispatch: (action: GameAction) => void;
   selectCard: (instanceId: string | null) => void;
-  resolveChoice: (choice: string[] | number | "accept" | "decline") => void;
+  resolveChoice: (choice: string | string[] | number) => void;
   patchState: (updater: (prev: GameState) => GameState) => void;
   /** Replay to N-1 actions. No-op in multiplayer or when canUndo is false. */
   undo: () => void;
@@ -215,7 +215,7 @@ export function useGameSession(): GameSession {
   // resolveChoice
   // ---------------------------------------------------------------------------
   const resolveChoice = useCallback(
-    (choice: string[] | number | "accept" | "decline") => {
+    (choice: string | string[] | number) => {
       if (!gameState?.pendingChoice) return;
       dispatch({
         type: "RESOLVE_CHOICE",
