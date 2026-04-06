@@ -805,7 +805,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     }
 
     return (
-      <DraggableCard key={id} instanceId={id} zone={zone} isEnabled={isDraggableEnabled(isOpponent)}>
+      <DraggableCard key={id} instanceId={id} zone={zone} isEnabled={zone === "hand" && isDraggableEnabled(isOpponent)}>
         <div
           className="snap-start shrink-0 flex flex-col items-center gap-1 px-0.5"
           style={handStyle}
