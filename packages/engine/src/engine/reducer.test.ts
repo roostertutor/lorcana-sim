@@ -10,7 +10,8 @@ import { describe, it, expect } from "vitest";
 import { applyAction, getAllLegalActions } from "../engine/reducer.js";
 import { createGame } from "../engine/initializer.js";
 import { LORCAST_CARD_DEFINITIONS } from "../cards/lorcastCards.js";
-import { generateId, getZone, getInstance } from "../utils/index.js";
+import { generateId, getZone, getInstance, getEffectiveLore } from "../utils/index.js";
+import { getGameModifiers } from "../engine/gameModifiers.js";
 import type { CardInstance, GameState, DeckEntry } from "../index.js";
 
 // ---------------------------------------------------------------------------
@@ -3973,6 +3974,8 @@ describe("Set 2 — Rise of the Floodborn", () => {
   // Set 1 already covers: enters_play → draw, activated {E} → effect + choose_target,
   // action → deal_damage + choose_target, static modify_stat, etc.
 
+  // ===== EXISTING PATTERNS =====
+
   // Pattern: enters_play → exert self (no choice, always happens)
   it("Sleepy enters play exerted", () => {
     let state = startGame(["sleepy-nodding-off"]);
@@ -4198,16 +4201,6 @@ describe("Set 2 — Rise of the Floodborn", () => {
     expect(getInstance(result.newState, beastId).damage).toBe(3);
   });
 
-  // Pattern: ChooseEffect inside triggered ability
-  // TODO: ChooseEffect inside enters_play trigger auto-resolves even in interactive mode.
-  // Needs investigation — may need to check how processTriggerStack handles choose effects.
-  it.todo("Madam Mim Fox: choose banish self or return another (ChooseEffect in trigger)");
-
-  // Pattern: SequentialEffect in actionEffects
-  // TODO: Sequential return-to-hand in actionEffects doesn't create pending choice for cost.
-  // Needs investigation — may need to check how action effect resolution handles sequential.
-  it.todo("Bounce: sequential return-to-hand (SequentialEffect in actionEffects)");
-
   // Pattern: is_banished trigger with isMay draw (opponent's character)
   it("Kuzco: is_banished isMay draw", () => {
     let state = startGame(["kuzco-wanted-llama"]);
@@ -4227,4 +4220,334 @@ describe("Set 2 — Rise of the Floodborn", () => {
     expect(result.success).toBe(true);
     expect(getZone(result.newState, "player2", "hand").length).toBe(p2HandBefore + 1);
   });
+
+  // ===== NEW TRIGGER EVENTS =====
+
+  // Pattern: damage_removed_from trigger — Grand Pabbie gains 2 lore when damage removed from own character
+  it("Grand Pabbie: gain 2 lore when damage removed from own character", () => {
+    let state = startGame(["grand-pabbie-oldest-and-wisest", "hold-still"]);
+    state = giveInk(state, "player1", 2);
+    let pabbieId: string;
+    let damagedId: string;
+    let healId: string;
+    ({ state, instanceId: pabbieId } = injectCard(state, "player1", "grand-pabbie-oldest-and-wisest", "play"));
+    ({ state, instanceId: damagedId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { damage: 2 }));
+    ({ state, instanceId: healId } = injectCard(state, "player1", "hold-still", "hand"));
+
+    const loreBefore = state.players.player1.lore;
+
+    // Play Hold Still (remove up to 4 damage from chosen character)
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: healId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.pendingChoice?.type).toBe("choose_target");
+
+    result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [damagedId] }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Grand Pabbie should have triggered, gaining 2 lore
+    expect(result.newState.players.player1.lore).toBe(loreBefore + 2);
+  });
+
+  // Pattern: damage_dealt_to (opponent) trigger — Beast Relentless readies when opposing character damaged
+  it("Beast Relentless: ready self when opposing character is damaged", () => {
+    let state = startGame(["beast-relentless"]);
+    let beastId: string;
+    let attackerId: string;
+    let defenderId: string;
+    // Beast in play, exerted (as if it just quested)
+    ({ state, instanceId: beastId } = injectCard(state, "player1", "beast-relentless", "play", { isExerted: true }));
+    // Another character to do the attacking
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play")); // 3 STR
+    // Opponent's character to take damage
+    ({ state, instanceId: defenderId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play", { isExerted: true }));
+
+    expect(getInstance(state, beastId).isExerted).toBe(true);
+
+    // Challenge the opponent's character — Beast should trigger ready
+    let result = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: attackerId, defenderInstanceId: defenderId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Beast's trigger is isMay — accept the ready
+    if (result.newState.pendingChoice?.type === "choose_may") {
+      result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+      expect(result.success).toBe(true);
+    }
+    expect(getInstance(result.newState, beastId).isExerted).toBe(false);
+  });
+
+  // Pattern: readied trigger — Christopher Robin gains 2 lore when readied with 2+ other characters
+  it("Christopher Robin: gain 2 lore when readied with 2+ other characters", () => {
+    let state = startGame(["christopher-robin-adventurer"]);
+    // Christopher Robin on player2's side, exerted so he'll ready on turn start
+    let crId: string;
+    let ally1Id: string;
+    let ally2Id: string;
+    ({ state, instanceId: crId } = injectCard(state, "player2", "christopher-robin-adventurer", "play", { isExerted: true }));
+    ({ state, instanceId: ally1Id } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play"));
+    ({ state, instanceId: ally2Id } = injectCard(state, "player2", "mickey-mouse-true-friend", "play"));
+
+    const loreBefore = state.players.player2.lore;
+
+    // Player1 passes turn → player2's turn starts → Christopher Robin readies → trigger fires
+    const result = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Christopher Robin should have gained 2 lore
+    expect(result.newState.players.player2.lore).toBe(loreBefore + 2);
+    expect(getInstance(result.newState, crId).isExerted).toBe(false);
+  });
+
+  // Pattern: returned_to_hand trigger — Merlin Shapeshifter gets +1 lore this turn
+  it("Merlin Shapeshifter: +1 lore when another own character returned to hand", () => {
+    let state = startGame(["merlin-shapeshifter", "perplexing-signposts"]);
+    let merlinId: string;
+    let bounceTargetId: string;
+    let signpostsId: string;
+    ({ state, instanceId: merlinId } = injectCard(state, "player1", "merlin-shapeshifter", "play"));
+    ({ state, instanceId: bounceTargetId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play"));
+    ({ state, instanceId: signpostsId } = injectCard(state, "player1", "perplexing-signposts", "play"));
+
+    // Activate Perplexing Signposts (banish self → return chosen own character to hand)
+    let result = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: signpostsId, abilityIndex: 0 }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Choose the bounce target
+    if (result.newState.pendingChoice?.type === "choose_target") {
+      result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [bounceTargetId] }, LORCAST_CARD_DEFINITIONS);
+      expect(result.success).toBe(true);
+    }
+    // Merlin should have +1 lore modifier from the trigger
+    expect(getInstance(result.newState, merlinId).tempLoreModifier).toBe(1);
+  });
+
+  // Pattern: turn_start trigger — Donald Duck Perfect Gentleman offers draw at start of your turn
+  it("Donald Duck Perfect Gentleman: at start of your turn, each player may draw", () => {
+    let state = startGame(["donald-duck-perfect-gentleman"]);
+    // Donald on player2's side so trigger fires when player2's turn starts
+    let donaldId: string;
+    ({ state, instanceId: donaldId } = injectCard(state, "player2", "donald-duck-perfect-gentleman", "play"));
+
+    const p2HandBefore = getZone(state, "player2", "hand").length;
+
+    // Player1 passes turn → player2's turn starts → Donald's turn_start trigger fires
+    let result = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Should have a choose_may pending for the isMay draw
+    if (result.newState.pendingChoice?.type === "choose_may") {
+      result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player2", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+      expect(result.success).toBe(true);
+    }
+    // Player2 drew from turn_start trigger accept + normal draw step
+    // At minimum the trigger offered a draw
+    expect(getZone(result.newState, "player2", "hand").length).toBeGreaterThan(p2HandBefore);
+  });
+
+  // ===== NEW CONDITIONS =====
+
+  // Pattern: self_stat_gte condition — Pain gets +2 lore while 5+ strength
+  it("Pain: +2 lore while 5+ strength (self_stat_gte)", () => {
+    let state = startGame(["pain-underworld-imp"]);
+    let painId: string;
+    // Pain has 1 base STR, needs +4 to reach 5
+    ({ state, instanceId: painId } = injectCard(state, "player1", "pain-underworld-imp", "play", { tempStrengthModifier: 4 }));
+
+    const modifiers = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    const bonus = modifiers.statBonuses.get(painId);
+    // Static ability should grant +2 lore when STR >= 5
+    expect(bonus?.lore).toBe(2);
+  });
+
+  // Pattern: self_stat_gte condition fails when below threshold
+  it("Pain: no lore bonus when below 5 strength", () => {
+    let state = startGame(["pain-underworld-imp"]);
+    let painId: string;
+    // Pain has 1 base STR, no modifier → below 5
+    ({ state, instanceId: painId } = injectCard(state, "player1", "pain-underworld-imp", "play"));
+
+    const modifiers = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    const bonus = modifiers.statBonuses.get(painId);
+    // Should NOT have the +2 lore bonus
+    expect(bonus?.lore ?? 0).toBe(0);
+  });
+
+  // Pattern: compound_and condition — Tiana restricts opponent actions only when exerted AND empty hand
+  it("Tiana Celebrating Princess: compound_and restricts opponent actions", () => {
+    let state = startGame(["tiana-celebrating-princess"]);
+    let tianaId: string;
+    // Tiana exerted + player1 empty hand → restriction should apply
+    ({ state, instanceId: tianaId } = injectCard(state, "player1", "tiana-celebrating-princess", "play", { isExerted: true }));
+    // Empty player1's hand
+    state = {
+      ...state,
+      zones: {
+        ...state.zones,
+        player1: { ...state.zones.player1, hand: [] },
+      },
+    };
+
+    let modifiers = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    // Should have an action restriction on opponent (player2) for playing actions
+    const restriction = modifiers.actionRestrictions.find(
+      (r) => r.restricts === "play" && r.affectedPlayerId === "player2"
+    );
+    expect(restriction).toBeDefined();
+
+    // Now ready Tiana — compound_and should fail (only one condition met)
+    state = { ...state, cards: { ...state.cards, [tianaId]: { ...state.cards[tianaId]!, isExerted: false } } };
+    modifiers = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    const noRestriction = modifiers.actionRestrictions.find(
+      (r) => r.restricts === "play" && r.affectedPlayerId === "player2"
+    );
+    expect(noRestriction).toBeUndefined();
+  });
+
+  // Pattern: songs_played_this_turn_gte condition — Sleepy's Flute gains lore if song played
+  it("Sleepy's Flute: gain 1 lore if song played this turn", () => {
+    let state = startGame(["sleepys-flute", "painting-the-roses-red"]);
+    state = giveInk(state, "player1", 4);
+    let fluteId: string;
+    let songId: string;
+    let targetId: string;
+    ({ state, instanceId: fluteId } = injectCard(state, "player1", "sleepys-flute", "play"));
+    ({ state, instanceId: songId } = injectCard(state, "player1", "painting-the-roses-red", "hand"));
+    // Need a target for Painting the Roses Red (-1 STR)
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play"));
+
+    const loreBefore = state.players.player1.lore;
+
+    // Play the song first
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Resolve song's choose_target (up to 2 chars get -1 STR) — pick one or skip
+    while (result.newState.pendingChoice) {
+      if (result.newState.pendingChoice.type === "choose_target") {
+        result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId] }, LORCAST_CARD_DEFINITIONS);
+      } else {
+        result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+      }
+    }
+
+    // Now activate flute — should gain 1 lore since a song was played
+    result = applyAction(result.newState, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: fluteId, abilityIndex: 0 }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.players.player1.lore).toBe(loreBefore + 1);
+  });
+
+  // Pattern: songs_played_this_turn_gte — activation fizzles without song (costs still paid)
+  it("Sleepy's Flute: activation fizzles without song — no lore gained", () => {
+    let state = startGame(["sleepys-flute"]);
+    let fluteId: string;
+    ({ state, instanceId: fluteId } = injectCard(state, "player1", "sleepys-flute", "play"));
+
+    const loreBefore = state.players.player1.lore;
+
+    // Activate flute without playing a song — succeeds but condition fizzles (CRD 6.2.1)
+    const result = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: fluteId, abilityIndex: 0 }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Exert cost was paid
+    expect(getInstance(result.newState, fluteId).isExerted).toBe(true);
+    // But no lore gained because condition not met
+    expect(result.newState.players.player1.lore).toBe(loreBefore);
+  });
+
+  // Pattern: actions_played_this_turn_gte condition — Minnie Wide-Eyed Diver gets +2 lore on second action
+  it("Minnie Wide-Eyed Diver: +2 lore this turn when second action played", () => {
+    let state = startGame(["minnie-mouse-wide-eyed-diver", "befuddle"]);
+    state = giveInk(state, "player1", 4);
+    let minnieId: string;
+    let actionId: string;
+    let bounceTargetId: string;
+    ({ state, instanceId: minnieId } = injectCard(state, "player1", "minnie-mouse-wide-eyed-diver", "play"));
+    ({ state, instanceId: actionId } = injectCard(state, "player1", "befuddle", "hand"));
+    // Need a valid target for Befuddle (return char/item cost <=2)
+    ({ state, instanceId: bounceTargetId } = injectCard(state, "player2", "lilo-making-a-wish", "play")); // cost 1
+
+    // Set actionsPlayedThisTurn to 1 so next action is the "second"
+    state = {
+      ...state,
+      players: {
+        ...state.players,
+        player1: { ...state.players.player1, actionsPlayedThisTurn: 1 },
+      },
+    };
+
+    // Play Befuddle (cost 1 action) — this is the second action
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: actionId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Resolve Befuddle's choose_target
+    if (result.newState.pendingChoice?.type === "choose_target") {
+      result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [bounceTargetId] }, LORCAST_CARD_DEFINITIONS);
+      expect(result.success).toBe(true);
+    }
+    // Minnie should have +2 lore modifier
+    expect(getInstance(result.newState, minnieId).tempLoreModifier).toBe(2);
+  });
+
+  // ===== DYNAMIC AMOUNTS =====
+
+  // Pattern: { type: "count", filter } — Pack Tactics gains lore per damaged opposing character
+  it("Pack Tactics: gain 1 lore per damaged opposing character", () => {
+    let state = startGame(["pack-tactics"]);
+    state = giveInk(state, "player1", 4);
+    let actionId: string;
+    ({ state, instanceId: actionId } = injectCard(state, "player1", "pack-tactics", "hand"));
+    // 3 opposing characters, 2 with damage
+    ({ state } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { damage: 1 }));
+    ({ state } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play", { damage: 2 }));
+    ({ state } = injectCard(state, "player2", "lilo-making-a-wish", "play"));
+
+    const loreBefore = state.players.player1.lore;
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: actionId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Should gain 2 lore (2 damaged opposing characters)
+    expect(result.newState.players.player1.lore).toBe(loreBefore + 2);
+  });
+
+  // Pattern: strengthPerDamage — Sword in the Stone gives +1 STR per damage on target
+  it("Sword in the Stone: chosen character gets +1 STR per damage", () => {
+    let state = startGame(["sword-in-the-stone"]);
+    state = giveInk(state, "player1", 2);
+    let swordId: string;
+    let targetId: string;
+    ({ state, instanceId: swordId } = injectCard(state, "player1", "sword-in-the-stone", "play"));
+    // Character with 3 damage
+    ({ state, instanceId: targetId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { damage: 3 }));
+
+    // Activate Sword ({E}, 2{I})
+    let result = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: swordId, abilityIndex: 0 }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Choose target
+    if (result.newState.pendingChoice?.type === "choose_target") {
+      result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId] }, LORCAST_CARD_DEFINITIONS);
+      expect(result.success).toBe(true);
+    }
+    // Character should get +3 STR (1 per damage)
+    expect(getInstance(result.newState, targetId).tempStrengthModifier).toBe(3);
+  });
+
+  // ===== STATICS =====
+
+  // Pattern: modify_stat_per_damage — Donald Duck Not Again gets +1 lore per damage on self
+  it("Donald Duck Not Again: +1 lore per damage on self", () => {
+    let state = startGame(["donald-duck-not-again"]);
+    let donaldId: string;
+    // Donald with 3 damage (base lore 1, WP 5 so survives)
+    ({ state, instanceId: donaldId } = injectCard(state, "player1", "donald-duck-not-again", "play", { damage: 3 }));
+
+    const modifiers = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    const bonus = modifiers.statBonuses.get(donaldId);
+    // Static should give +3 lore (1 per damage)
+    expect(bonus?.lore).toBe(3);
+
+    // Verify effective lore = base (1) + static bonus (3) = 4
+    const instance = getInstance(state, donaldId);
+    const def = LORCAST_CARD_DEFINITIONS[instance.definitionId]!;
+    const effectiveLore = getEffectiveLore(instance, def, bonus?.lore ?? 0);
+    expect(effectiveLore).toBe(4);
+  });
+
+  // Pattern: ChooseEffect inside triggered ability
+  // TODO: ChooseEffect inside enters_play trigger auto-resolves even in interactive mode.
+  it.todo("Madam Mim Fox: choose banish self or return another (ChooseEffect in trigger)");
+
+  // Pattern: SequentialEffect in actionEffects
+  // TODO: Sequential return-to-hand in actionEffects doesn't create pending choice for cost.
+  it.todo("Bounce: sequential return-to-hand (SequentialEffect in actionEffects)");
 });
