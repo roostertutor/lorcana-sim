@@ -14,7 +14,8 @@
     "query": "pnpm --filter cli query",
     "learn": "pnpm --filter cli learn",
     "import-cards": "tsx scripts/import-cards.ts",
-    "train-mirror": "tsx --tsconfig scripts/tsconfig.scripts.json scripts/train-mirror.ts"
+    "train-mirror": "tsx --tsconfig scripts/tsconfig.scripts.json scripts/train-mirror.ts",
+    "card-status": "tsx --tsconfig scripts/tsconfig.scripts.json scripts/card-status.ts"
   },
   "devDependencies": {
     "tsx": "^4.7.0",

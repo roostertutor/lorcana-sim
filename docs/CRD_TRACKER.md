@@ -30,7 +30,7 @@
 | Rule | Quote | Status |
 |------|-------|--------|
 | 1.5.3 | Cost must be paid in full; can't play if unable | ✅ Validated in `validatePlayCard` / `validateActivateAbility` |
-| 1.5.5 | Alternate costs (Shift, Singer, "for free") | ✅ Shift and Singer implemented; "for free" ❌ |
+| 1.5.5 | Alternate costs (Shift, Singer, Sing Together, "for free") | ✅ Shift and Singer implemented; ❌ Sing Together; ❌ "for free" |
 | 1.5.5.1 | Singing a song is an alternate cost | ✅ `singerInstanceId` skips ink deduction |
 | 1.5.5.2 | Shift is an alternate cost | ✅ |
 | 1.5.5.3 | "For free" means ignore all costs | ❌ |
@@ -41,7 +41,7 @@
 | 1.6.1 | Abilities apply only when source is in play (with exceptions) | ✅ Trigger fizzle logic in `processTriggerStack`. Exceptions (fire after leaving play): `is_banished`, `leaves_play`, `banished_in_challenge`, `banished_other_in_challenge` (per 4.6.6.2 — simultaneous damage means attacker banished another even if also banished), `is_challenged`, `challenges`. |
 | 1.6.1.1 | Triggered abilities | ✅ |
 | 1.6.1.2 | Activated abilities | ✅ |
-| 1.6.1.3 | Static abilities | ✅ 8 static types: grant_keyword, modify_stat, modify_stat_per_count, cant_be_challenged, cost_reduction, action_restriction, extra_ink_play, self_cost_reduction. Conditional statics via `condition` on StaticAbility. |
+| 1.6.1.3 | Static abilities | ✅ 8 static types: grant_keyword, modify_stat, modify_stat_per_count, cant_be_challenged, cost_reduction, action_restriction, extra_ink_play, self_cost_reduction. Conditional statics via `condition` on StaticAbility. ❌ Missing types for sets 2–11: modify_win_threshold, ink_from_zone, enter_play_exerted_static, grant_classification, stat_floor, prevent_lore_loss, damage_immunity, virtual_cost_modifier. See CARD_ISSUES.md. |
 | 1.6.1.4 | Replacement effects | ❌ Not implemented |
 | 1.6.1.5 | Keywords | ✅ Most set 1 keywords implemented |
 
@@ -55,7 +55,7 @@
 ### 1.8 Game State Check
 | Rule | Quote | Status |
 |------|-------|--------|
-| 1.8.1.1 | Player with 20+ lore wins | ✅ `checkWinConditions` / `getLoreThreshold` |
+| 1.8.1.1 | Player with 20+ lore wins | ✅ `checkWinConditions` / `getLoreThreshold`. ❌ Win threshold modification not implemented: some cards raise the threshold for opponents (e.g., Donald Duck - Flustered Sorcerer set-7: "Opponents need 25 lore to win"). Needs `modify_win_threshold` StaticEffect; `getLoreThreshold()` already takes state+definitions so the hook exists. |
 | 1.8.1.2 | Player who ends turn with empty deck loses | ✅ Checked in `applyPassTurn`; game ends immediately with opponent as winner |
 | 1.8.1.4 | Character/location with damage >= willpower is banished | ✅ `banishCard` called from damage resolution |
 | 1.8.2 | Triggered abilities from state check added to bag before resolving | ✅ `evaluateCondition()` checks `trigger.ability.condition` before resolving effects in `processTriggerStack()`. Supports `characters_in_play_gte`, `cards_in_hand_eq`, lore conditions. Tested with Stitch - Carefree Surfer, Beast's Mirror |
@@ -67,7 +67,7 @@
 | 1.9.1.1 | Deal/Dealt – placing damage counters during a challenge or from an effect that deals damage | ✅ `deal_damage` effect + challenge damage in reducer |
 | 1.9.1.2 | Put – placing damage counters from an effect that puts damage on a character/location | ❌ No distinction between "deal" and "put" damage (both use `deal_damage`) |
 | 1.9.1.3 | Remove/Removed – taking damage counters off as a result of an effect that removes damage | ✅ `remove_damage` effect (being renamed from "heal" to match CRD terminology) |
-| 1.9.1.4 | Move – taking damage counters off one character/location and placing on another | ❌ Not implemented (no move-damage effect) |
+| 1.9.1.4 | Move – taking damage counters off one character/location and placing on another | ❌ Needs `move_damage` effect type: `{ type: "move_damage"; amount: number; from: CardTarget; to: CardTarget }`. Appears in 20+ cards across sets 5–11. |
 | 1.9.1.5 | Take – a character/location takes damage whenever damage is dealt to, put on, or moved to it | ⚠️ Implicit — any damage placement triggers "takes damage" but no explicit tracking |
 | 1.9.2 | "Is damaged" / "was damaged" / "is dealt damage" / "was dealt damage" all mean "takes damage" for printed text | ⚠️ `hasDamage` filter exists but "was damaged" / "is dealt damage" event tracking not distinct |
 | 1.9.3 | When a character/location with damage leaves play, all damage counters cease to exist | ✅ Damage cleared when card leaves play (`moveCard` resets card state) |
@@ -244,10 +244,15 @@
 |------|-------|--------|
 | 5.5.4 | Item activated ability can be used turn played | ✅ Tested (Eye of Fates) |
 
-### 5.6 Locations
+### 5.6 Locations (first appears Set 3, ~87 location cards across sets 3–11)
 | Rule | Quote | Status |
 |------|-------|--------|
-| 5.6 | Locations (entire section) | ❌ Not implemented |
+| 5.6.1 | Locations are a card type that enter the Play zone; have willpower and optional lore value | ❌ `cardType: "location"` exists in data but engine ignores it. Locations have willpower (health) and lore per turn. |
+| 5.6.2 | Locations gain lore for their controller at the Start-of-turn Set step | ❌ CRD 3.2.2.2: each location with {L} > 0 adds lore during Set step. |
+| 5.6.3 | Characters can be moved to a location (CRD 4.7 Move action) | ❌ New MOVE action needed. Characters at a location gain "while here" bonuses. |
+| 5.6.4 | Characters at a location: "while here" static/triggered abilities | ❌ Need location context on CardInstance (`atLocationInstanceId?: string`) to evaluate "while here" conditions. |
+| 5.6.5 | Locations can be challenged; have 0 {S}; deal no damage back | ❌ CRD 4.6.8. Locations are never exerted but can be challenged at any time. |
+| 5.6.6 | Locations are banished when damage ≥ willpower (same rule as characters) | ❌ Same `banishCard` path applies once locations are in play. |
 
 ---
 
@@ -258,6 +263,7 @@
 |------|-------|--------|
 | 6.1.1 | Abilities apply when source is in play | ✅ |
 | 6.1.3 | Choices made as effect resolves | ✅ `pendingChoice` / `RESOLVE_CHOICE` |
+| 6.1.3a | Dynamic effect amounts (equal to a stat, count, or cost) | ❌ `DealDamageEffect` and `GainLoreEffect` only support fixed numbers or "X"/"cost_result". Needed: amounts like "equal to this character's {S}", "equal to number of characters in play", "equal to the cost of chosen item". Affects 50+ cards across sets 5–11. |
 | 6.1.4 | "May" = optional; choosing not to has no effect | ✅ `isMay` flag on effects; `choose_may` PendingChoice; accept/decline flow in processTriggerStack |
 | 6.1.5.1 | Sequential effects: [A] to [B] — cost must resolve before reward | ✅ `SequentialEffect` with `costEffects[]` → `rewardEffects[]`; `canPerformCostEffect()` pre-check. `triggeringCardInstanceId` must be forwarded through `applyEffect` and stored on `choose_may` PendingChoice — see CLAUDE.md critical bug patterns |
 | 6.1.7 | "For free" = ignore all costs | ❌ |
@@ -270,7 +276,7 @@
 |------|-------|--------|
 | 6.2.1 | Trigger fires once per condition met | ✅ |
 | 6.2.3 | Triggered abilities go to bag (our: `triggerStack`) | ✅ |
-| 6.2.4 | Secondary "if" condition checked when effect resolves (not when triggered) | ✅ `evaluateCondition()` called in processTriggerStack before resolving effects. 12 condition types supported. |
+| 6.2.4 | Secondary "if" condition checked when effect resolves (not when triggered) | ✅ `evaluateCondition()` called in processTriggerStack before resolving effects. 12 condition types supported. ❌ Missing condition types for sets 2–11: zone_count_with_filter (has item in discard), stat_threshold (character with {S} ≥ N in play), compound_and (two conditions), played_via_shift. See CARD_ISSUES.md. |
 | 6.2.7.1 | Floating triggered abilities (created by resolving effects; last a duration) | ✅ `floatingTriggers[]` on GameState. `CreateFloatingTriggerEffect` creates them; cleared at end of turn. Checked during event dispatch. |
 | 6.2.7.2 | Delayed triggered abilities (fire at a specific later moment) | ❌ |
 
@@ -331,10 +337,10 @@
 |------|-------|--------|
 | 8.1.2 | Non-+N keywords don't stack; +N keywords stack | ⚠️ Stacking for Challenger/Resist/Singer implemented; non-stacking enforcement not |
 
-### 8.2 Alert (Set 10)
+### 8.2 Alert (first appears Set 10, affects ~20–30 cards across sets 10–11)
 | Rule | Quote | Status |
 |------|-------|--------|
-| 8.2.1 | Alert: ignores Evasive challenging restriction | ❌ Not in set 1; scaffolded in code comments |
+| 8.2.1 | Alert: this character can challenge as if they had Evasive (ignores Evasive restriction on defenders) | ❌ `alert` not in `Keyword` type. Add to `Keyword` union; update `validateChallenge` to allow Alert attackers to challenge Evasive defenders. Also appears as a timed grant: "chosen character gains Alert this turn." |
 | 8.2.2 | Alert doesn't grant Evasive | N/A until Alert implemented |
 
 ### 8.3 Bodyguard
@@ -343,10 +349,11 @@
 | 8.3.2 | Bodyguard may **enter play exerted** | ✅ Synthesized trigger in `applyPlayCard`; `choose_may` → exert flow |
 | 8.3.3 | Opponent must challenge Bodyguard before other characters if able | ✅ Tested |
 
-### 8.4 Boost (Set 10+)
+### 8.4 Boost (first appears Set 6, major in Sets 8–10, ~78 cards affected)
 | Rule | Quote | Status |
 |------|-------|--------|
-| 8.4 | Boost keyword | ❌ Not in set 1 |
+| 8.4.1 | Boost N {I}: once per turn, pay N ink to put top card of deck facedown under this character/location | ❌ New keyword + new mechanic. Needs: `boost` in `Keyword` type; `cardsUnder: string[]` (instanceIds) on `CardInstance`; new `BOOST` action or activated ability path; cards under leave play with the character. |
+| 8.4.2 | Cards under a character are used by many triggered/static effects ("if there's a card under", "for each card under", "put all cards from under into hand") | ❌ All effects referencing cards-under are blocked until 8.4.1 is implemented. ~50 cards across sets 8–11 have Boost-dependent abilities. |
 
 ### 8.5 Challenger
 | Rule | Quote | Status |
@@ -397,20 +404,20 @@
 | 8.11.1 | Singer N: character counts as cost N for singing songs | ✅ `canSingSong()` uses `getKeywordValue` for Singer |
 | 8.11.2 | Singer only changes cost for singing, not other purposes | ✅ Tested: actual card cost unchanged |
 
-### 8.12 Sing Together
+### 8.12 Sing Together (first appears Set 4, ~26 song cards)
 | Rule | Quote | Status |
 |------|-------|--------|
-| 8.12 | Sing Together N: exert characters with total cost N+ to play a song | ❌ Not implemented |
+| 8.12.1 | Sing Together N: exert any number of your characters with combined cost ≥ N to play this song for free | ❌ Extends Singer alternate cost. Needs: new alternate cost path in `validatePlayCard`; `singerInstanceIds: string[]` (multiple) on `PlayCardAction` alongside existing `singerInstanceId`; sum of costs ≥ song's Sing Together value. Bot needs to know to combine cheap characters. |
 
 ### 8.13 Support
 | Rule | Quote | Status |
 |------|-------|--------|
 | 8.13.1 | Support: when questing, may add this character's {S} to another chosen character's {S} this turn | ✅ Synthesized trigger in applyQuest; 7 tests |
 
-### 8.14 Vanish (Set 7+)
+### 8.14 Vanish (Set 7+, ~few cards)
 | Rule | Quote | Status |
 |------|-------|--------|
-| 8.14 | Vanish: when chosen by opponent for action's effect, banish this character | ❌ Not in set 1 |
+| 8.14.1 | Vanish: when this character is chosen by an opponent for an action's effect, banish this character instead of applying the effect | ❌ Replacement effect (CRD 6.5). Needs replacement effect system or special-case in target resolution. Low priority — few cards. |
 
 ### 8.15 Ward
 | Rule | Quote | Status |
@@ -454,5 +461,70 @@
 
 ---
 
-*Last updated: Session 9*
+---
+
+## New Effect / Type Gaps (Sets 2–11, discovered via card-status analysis)
+
+These are additions to the type system needed before the `needs-new-type` card group
+can be implemented. Full details in CARD_ISSUES.md.
+
+### Effect types to add
+| Effect | Cards unblocked (approx) | Notes |
+|--------|--------------------------|-------|
+| `move_damage` | 20+ | CRD 1.9.1.4 already ❌ |
+| `trim_inkwell` | ~2 | Ink Geyser + variants |
+| `trim_hand` | ~5 | "discard until you have N" |
+| `put_on_bottom` | 15+ | move card to bottom of deck, no shuffle |
+| `reveal_hand` | ~10 | reveal + controller-chosen discard |
+| `random_discard` | ~15 | discard at random |
+| `dynamic_gain_lore` | 20+ | lore equal to stat/cost/count |
+| `dynamic_deal_damage` | 10+ | damage equal to stat/count |
+| `replay_from_discard` | ~8 | play from discard, put on bottom |
+
+### Static effect types to add
+| StaticEffect | Notes |
+|-------------|-------|
+| `modify_win_threshold` | Donald Duck (set-7); update `getLoreThreshold()` |
+| `ink_from_zone` | Moana (set-11); update `PLAY_INK` validation |
+| `enter_play_exerted_static` | opposing cards enter exerted |
+| `grant_classification` | trait granting |
+| `stat_floor` | {S} can't go below printed value |
+| `prevent_lore_loss` | during opponents' turns |
+| `damage_immunity` | takes no damage |
+| `virtual_cost_modifier` | count as having +N cost for singing |
+
+### Cost types to add
+| Cost | Notes |
+|------|-------|
+| `exert_filtered_character` | exert a matching character as cost |
+| `exert_filtered_item` | exert a matching item as cost |
+
+### Condition types to add
+| Condition | Notes |
+|-----------|-------|
+| `zone_count_with_filter` | has N+ cards of type X in zone Y |
+| `stat_threshold` | character with stat ≥ N in play |
+| `compound_and` | two conditions both true |
+| `played_via_shift` | this card entered play via Shift |
+
+### Trigger events to add
+| TriggerEvent | Notes |
+|-------------|-------|
+| `exerts` | this character exerts for any reason |
+| `deals_damage_in_challenge` | deals damage during a challenge |
+| `sings` | this character sings a song |
+| `song_played` | any song is played by the controller |
+
+### Keyword to add
+| Keyword | CRD | Notes |
+|---------|-----|-------|
+| `alert` | 8.2 | Add to `Keyword` union; update challenge validator |
+
+### RestrictedAction extension
+Add `"be_challenged"` to allow timed "can't be challenged" on specific cards
+(currently only the permanent `CantBeChallengedException` StaticEffect exists).
+
+---
+
+*Last updated: Session 22*
 *CRD version: 2.0.1, effective Feb 5, 2026*
