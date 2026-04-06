@@ -4024,6 +4024,87 @@ describe("Set 2 — Rise of the Floodborn", () => {
     expect(getInstance(result.newState, targetId).damage).toBe(1);
   });
 
+  // Pattern: static grant_keyword to filtered characters
+  // TODO: getKeywordValue() returns 0 for statically-granted keywords because
+  // grantedKeywords is Keyword[] with no value. Resist +1 granted by Cogsworth
+  // shows hasKeyword=true but value=0, so no damage reduction occurs.
+  // Fix: track {keyword, value} pairs in gameModifiers.grantedKeywords.
+  it.todo("Cogsworth: static Resist +1 to other characters (blocked by keyword value tracking)");
+
+  // Pattern: static cost_reduction
+  it("Snow White - Unexpected Houseguest: Seven Dwarfs cost 1 less", () => {
+    let state = startGame(["snow-white-unexpected-houseguest", "grumpy-bad-tempered"]);
+    state = giveInk(state, "player1", 3); // Grumpy costs 4, but should cost 3 with Snow White
+    let snowId: string;
+    let grumpyId: string;
+    ({ state, instanceId: snowId } = injectCard(state, "player1", "snow-white-unexpected-houseguest", "play"));
+    ({ state, instanceId: grumpyId } = injectCard(state, "player1", "grumpy-bad-tempered", "hand"));
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: grumpyId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true); // Should succeed with 3 ink (4 cost - 1 reduction)
+  });
+
+  // Pattern: triggered quests → effect on opponent
+  it("Cruella: quest trigger gives -2 {S} to chosen opposing character", () => {
+    let state = startGame(["cruella-de-vil-perfectly-wretched"]);
+    let cruellaId: string;
+    let targetId: string;
+    ({ state, instanceId: cruellaId } = injectCard(state, "player1", "cruella-de-vil-perfectly-wretched", "play"));
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play")); // 3 STR
+
+    let result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: cruellaId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.pendingChoice?.type).toBe("choose_target");
+
+    result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId] }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, targetId).tempStrengthModifier).toBe(-2);
+  });
+
+  // Pattern: triggered card_played with trait filter (Floodborn)
+  it("Blue Fairy: draw on Floodborn character played", () => {
+    let state = startGame(["blue-fairy-rewarding-good-deeds", "hades-king-of-olympus"]);
+    state = giveInk(state, "player1", 10);
+    let fairyId: string;
+    let hadesId: string;
+    ({ state, instanceId: fairyId } = injectCard(state, "player1", "blue-fairy-rewarding-good-deeds", "play"));
+    // Hades - King of Olympus is Floodborn with Shift 6
+    ({ state, instanceId: hadesId } = injectCard(state, "player1", "hades-king-of-olympus", "hand"));
+    // Need a base Hades to shift onto
+    let hadesBaseId: string;
+    ({ state, instanceId: hadesBaseId } = injectCard(state, "player1", "hades-lord-of-the-underworld", "play"));
+
+    const handBefore = getZone(state, "player1", "hand").length;
+
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: hadesId, shiftTargetInstanceId: hadesBaseId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Blue Fairy triggers isMay draw — accept
+    if (result.newState.pendingChoice?.type === "choose_may") {
+      result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    }
+    expect(getZone(result.newState, "player1", "hand").length).toBe(handBefore); // -1 played +1 drawn = same
+  });
+
+  // Pattern: banished_other_in_challenge + is_your_turn condition
+  it("Jafar: draw when banishing in challenge during your turn", () => {
+    let state = startGame(["jafar-dreadnought"]);
+    let jafarId: string;
+    let defenderId: string;
+    ({ state, instanceId: jafarId } = injectCard(state, "player1", "jafar-dreadnought", "play")); // 3 STR
+    // Weak defender that will be banished
+    ({ state, instanceId: defenderId } = injectCard(state, "player2", "lilo-making-a-wish", "play", { isExerted: true })); // 1 WP
+
+    const handBefore = getZone(state, "player1", "hand").length;
+
+    let result = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: jafarId, defenderInstanceId: defenderId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Jafar triggers isMay draw — accept
+    if (result.newState.pendingChoice?.type === "choose_may") {
+      result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    }
+    expect(getZone(result.newState, "player1", "hand").length).toBe(handBefore + 1);
+  });
+
   // Pattern: is_banished trigger with isMay draw (opponent's character)
   it("Kuzco: is_banished isMay draw", () => {
     let state = startGame(["kuzco-wanted-llama"]);

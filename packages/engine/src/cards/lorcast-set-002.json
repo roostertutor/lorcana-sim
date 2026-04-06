@@ -172,7 +172,37 @@
       "Ally",
       "Seven Dwarfs"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "PICK ME UP!",
+        "rulesText": "When this character is banished, your other Seven Dwarfs characters get +2 {S} until the start of your next turn.",
+        "trigger": {
+          "on": "is_banished"
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": 2,
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Seven Dwarfs",
+                "excludeSelf": true
+              }
+            },
+            "duration": "end_of_owner_next_turn"
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 6,
     "rarity": "uncommon",
@@ -261,7 +291,30 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "POMP AND CEREMONY",
+        "rulesText": "Your Prince, Princess, King, and Queen characters get +1 {S}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "strength",
+          "modifier": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ]
+            }
+          }
+        }
+      }
+    ],
     "setId": "2",
     "number": 9,
     "rarity": "rare",
@@ -295,7 +348,32 @@
       "Ally",
       "Seven Dwarfs"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "I'M NOT GRUMPY!",
+        "rulesText": "Your other Seven Dwarfs characters get +1 {S}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "strength",
+          "modifier": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Seven Dwarfs",
+              "excludeSelf": true
+            }
+          }
+        }
+      }
+    ],
     "setId": "2",
     "number": 10,
     "rarity": "common",
@@ -830,7 +908,23 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "HOW DO YOU DO?",
+        "rulesText": "You pay 1 {I} less to play Seven Dwarfs characters.",
+        "effect": {
+          "type": "cost_reduction",
+          "amount": 1,
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Seven Dwarfs"
+          }
+        }
+      }
+    ],
     "setId": "2",
     "number": 24,
     "rarity": "uncommon",
@@ -866,9 +960,27 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 4
+        "type": "triggered",
+        "storyName": "A WISHING WELL",
+        "rulesText": "Whenever this character quests, you may return a character card from your discard to your hand.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "search",
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            },
+            "target": {
+              "type": "self"
+            },
+            "zone": "discard",
+            "putInto": "hand"
+          }
+        ]
       }
     ],
     "setId": "2",
@@ -1128,7 +1240,34 @@
     "cost": 3,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "REUNITING POWER",
+        "rulesText": "Return a character card with Support from your discard to your hand.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "search",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "hasKeyword": "support"
+            },
+            "target": {
+              "type": "self"
+            },
+            "zone": "discard",
+            "putInto": "hand"
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 33,
     "rarity": "rare",
@@ -1219,8 +1358,28 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
+        "type": "triggered",
+        "storyName": "GIFTS OF VIRTUE",
+        "rulesText": "Whenever you play a Floodborn character, you may draw a card.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Floodborn"
+          }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "2",
@@ -1443,7 +1602,24 @@
       "Dreamborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "BAWK!",
+        "rulesText": "When this character is banished in a challenge, return this card to your hand.",
+        "trigger": {
+          "on": "banished_in_challenge"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 43,
     "rarity": "uncommon",
@@ -1890,12 +2066,27 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
-      },
-      {
-        "type": "keyword",
-        "keyword": "rush"
+        "type": "static",
+        "storyName": "UNFETTERED",
+        "rulesText": "Your other characters with Rush gain Evasive.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasKeyword": "rush",
+              "excludeSelf": true
+            }
+          }
+        }
       }
     ],
     "setId": "2",
@@ -1956,9 +2147,29 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 3
+        "type": "triggered",
+        "storyName": "I'M FREE!",
+        "rulesText": "When you play this character, you may return chosen character or item with cost 3 or less to their player's hand.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character",
+                  "item"
+                ],
+                "costAtMost": 3
+              }
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "2",
@@ -1994,7 +2205,34 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "HI THERE!",
+        "rulesText": "When you play this character, you may exert chosen opposing character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 58,
     "rarity": "uncommon",
@@ -2194,6 +2432,23 @@
         "rulesText": "Chosen character gains Challenger +3 this turn. (They get +3 {S} while challenging.)",
         "raw": "Chosen character gains Challenger +3 this turn. (They get +3 {S} while challenging.)"
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "grant_keyword",
+        "keyword": "challenger",
+        "value": 3,
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "duration": "end_of_turn"
+      }
     ]
   },
   {
@@ -2233,7 +2488,34 @@
     "cost": 1,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "HURTLING HEDGEHOG",
+        "rulesText": "Chosen character gains Rush this turn.",
+        "costs": [
+          {
+            "type": "banish_self"
+          }
+        ],
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "rush",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "end_of_turn"
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 66,
     "rarity": "common",
@@ -2258,7 +2540,35 @@
     "cost": 2,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "TO WONDERLAND",
+        "rulesText": "Return chosen character of yours to your hand.",
+        "costs": [
+          {
+            "type": "banish_self"
+          }
+        ],
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 67,
     "rarity": "rare",
@@ -2569,7 +2879,26 @@
       "Dreamborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "CLASSIFIED INFORMATION",
+        "rulesText": "Whenever this character quests, each opponent chooses and discards a card.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            },
+            "chooser": "target_player"
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 76,
     "rarity": "uncommon",
@@ -4365,6 +4694,23 @@
         "rulesText": "Chosen damaged character gets +3 {S} this turn.",
         "raw": "Chosen damaged character gets +3 {S} this turn."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "gain_stats",
+        "strength": 3,
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasDamage": true
+          }
+        },
+        "duration": "this_turn"
+      }
     ]
   },
   {
@@ -4396,6 +4742,22 @@
         "storyName": "",
         "rulesText": "Chosen character gains Evasive until the start of your next turn. (Only characters with Evasive can challenge them.)",
         "raw": "Chosen character gains Evasive until the start of your next turn. (Only characters with Evasive can challenge them.)"
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "grant_keyword",
+        "keyword": "evasive",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "duration": "end_of_owner_next_turn"
       }
     ]
   },
@@ -4436,7 +4798,31 @@
     "cost": 2,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "LOST BOYS' BLADE",
+        "rulesText": "Your characters with Evasive get +1 {S}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "strength",
+          "modifier": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasKeyword": "evasive"
+            }
+          }
+        }
+      }
+    ],
     "setId": "2",
     "number": 135,
     "rarity": "common",
@@ -4652,13 +5038,27 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 3
-      },
-      {
-        "type": "keyword",
-        "keyword": "ward"
+        "type": "static",
+        "storyName": "SET THE PACE",
+        "rulesText": "Your other characters gain Resist +1.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "resist",
+          "value": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "excludeSelf": true
+            }
+          }
+        }
       }
     ],
     "setId": "2",
@@ -4761,9 +5161,31 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 3
+        "type": "triggered",
+        "storyName": "CRUEL INTENTIONS",
+        "rulesText": "Whenever this character quests, chosen opposing character gets -2 {S} this turn.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": -2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "this_turn"
+          }
+        ]
       }
     ],
     "setId": "2",
@@ -4933,7 +5355,26 @@
       "Storyborn",
       "Mentor"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "NEVER GIVE UP",
+        "rulesText": "When this character is banished, you may put this card into your inkwell facedown and exerted.",
+        "trigger": {
+          "on": "is_banished"
+        },
+        "effects": [
+          {
+            "type": "move_to_inkwell",
+            "target": {
+              "type": "this"
+            },
+            "enterExerted": true,
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 150,
     "rarity": "common",
@@ -5025,7 +5466,38 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "I'M ON THE CASE!",
+        "rulesText": "When you play this character, you may banish chosen item. Its player draws a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "item"
+                ]
+              }
+            },
+            "isMay": true
+          },
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 152,
     "rarity": "uncommon",
@@ -5058,7 +5530,33 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "TIDY UP",
+        "rulesText": "Whenever you play a Floodborn character, you may put the top card of your deck into your inkwell facedown and exerted.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Floodborn"
+          }
+        },
+        "effects": [
+          {
+            "type": "move_to_inkwell",
+            "target": {
+              "type": "this"
+            },
+            "enterExerted": true,
+            "isMay": true,
+            "fromZone": "deck"
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 153,
     "rarity": "rare",
@@ -5091,7 +5589,32 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "PAWPSICLE BUSINESS",
+        "rulesText": "When you play this character, you may return an item card named Pawpsicle from your discard to your hand.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "search",
+            "filter": {
+              "cardType": [
+                "item"
+              ],
+              "hasName": "Pawpsicle"
+            },
+            "target": {
+              "type": "self"
+            },
+            "zone": "discard",
+            "putInto": "hand"
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 154,
     "rarity": "uncommon",
@@ -5296,7 +5819,33 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "THINK, THINK, THINK",
+        "rulesText": "Whenever this character quests, you may put a card from your hand into your inkwell facedown.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "move_to_inkwell",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "hand"
+              }
+            },
+            "enterExerted": false,
+            "isMay": true,
+            "fromZone": "hand"
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 161,
     "rarity": "rare",
@@ -5436,7 +5985,62 @@
     "cost": 3,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "TAKE AIM",
+        "rulesText": "Chosen character gets -2 {S} this turn.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": -2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "this_turn"
+          }
+        ]
+      },
+      {
+        "type": "activated",
+        "storyName": "DRAGON SLAYER",
+        "rulesText": "Banish chosen Dragon character.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "banish_self"
+          }
+        ],
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Dragon"
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 166,
     "rarity": "uncommon",
@@ -5562,7 +6166,30 @@
     "cost": 4,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "PROTECTED PROVISIONS",
+        "rulesText": "Your exerted characters gain Ward.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "ward",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "isExerted": true
+            }
+          }
+        }
+      }
+    ],
     "setId": "2",
     "number": 170,
     "rarity": "uncommon",
@@ -5726,7 +6353,31 @@
       "Mentor",
       "King"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "GUARDIAN'S DUTY",
+        "rulesText": "When you play this character, you may banish chosen item.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "item"
+                ]
+              }
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 174,
     "rarity": "common",
@@ -5758,7 +6409,40 @@
     "traits": [
       "Dreamborn"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "LIFE ISN'T SOME CARTOON",
+        "rulesText": "Whenever you play a Floodborn character, deal 1 damage to each opposing character.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Floodborn"
+          }
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 1,
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 175,
     "rarity": "rare",
@@ -5793,7 +6477,34 @@
       "Princess",
       "Knight"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "SWORD TRAINING",
+        "rulesText": "When you play this character, you may draw a card, then choose and discard a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          },
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "chooser": "target_player"
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 176,
     "rarity": "common",
@@ -6016,9 +6727,25 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 2
+        "type": "triggered",
+        "storyName": "POWER SURGE",
+        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may draw a card.",
+        "trigger": {
+          "on": "banished_other_in_challenge"
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "2",
@@ -6089,9 +6816,31 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "resist",
-        "value": 1
+        "type": "triggered",
+        "storyName": "PULL THE LEVER!",
+        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen character.",
+        "trigger": {
+          "on": "banished_other_in_challenge"
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "2",
@@ -6125,7 +6874,25 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "LOOKING THE PART",
+        "rulesText": "While this character has no damage, he gets +4 {S}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "strength",
+          "modifier": 4,
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "card_has_trait",
+          "trait": "__no_damage"
+        }
+      }
+    ],
     "setId": "2",
     "number": 186,
     "rarity": "uncommon",
@@ -6191,7 +6958,33 @@
       "Dreamborn",
       "Broom"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "SWEEP AND MOP",
+        "rulesText": "When you play this character, chosen character gains Resist +1 until the start of your next turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "resist",
+            "value": 1,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "end_of_owner_next_turn"
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 188,
     "rarity": "common",
@@ -6405,7 +7198,34 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "GUILTY CONSCIENCE",
+        "rulesText": "Whenever this character quests, you may draw a card, then choose and discard a card.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          },
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "chooser": "target_player"
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 194,
     "rarity": "rare",
@@ -6548,6 +7368,38 @@
         "rulesText": "Chosen character gains Challenger +2 and Resist +2 this turn. (They get +2 {S} while challenging. Damage dealt to them is reduced by 2.)",
         "raw": "Chosen character gains Challenger +2 and Resist +2 this turn. (They get +2 {S} while challenging. Damage dealt to them is reduced by 2.)"
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "grant_keyword",
+        "keyword": "challenger",
+        "value": 2,
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "duration": "end_of_turn"
+      },
+      {
+        "type": "grant_keyword",
+        "keyword": "resist",
+        "value": 2,
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "duration": "end_of_turn"
+      }
     ]
   },
   {
@@ -6580,6 +7432,28 @@
         "storyName": "",
         "rulesText": "Deal 2 damage to chosen character. Draw a card.",
         "raw": "Deal 2 damage to chosen character. Draw a card."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "deal_damage",
+        "amount": 2,
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      },
+      {
+        "type": "draw",
+        "amount": 1,
+        "target": {
+          "type": "self"
+        }
       }
     ]
   },
@@ -6653,7 +7527,39 @@
     "cost": 1,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "ARM YOURSELF",
+        "rulesText": "Chosen character gains Challenger +3 this turn.",
+        "costs": [
+          {
+            "type": "pay_ink",
+            "amount": 1
+          },
+          {
+            "type": "banish_self"
+          }
+        ],
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "challenger",
+            "value": 3,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "end_of_turn"
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 202,
     "rarity": "common",
@@ -6691,6 +7597,23 @@
         "storyName": "PROTECTION",
         "rulesText": "Chosen character gains Resist +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)",
         "raw": "PROTECTION {E} — Chosen character gains Resist +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)"
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "grant_keyword",
+        "keyword": "resist",
+        "value": 1,
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "duration": "end_of_owner_next_turn"
       }
     ]
   },
@@ -6768,9 +7691,27 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 4
+        "type": "triggered",
+        "storyName": "A WISHING WELL",
+        "rulesText": "Whenever this character quests, you may return a character card from your discard to your hand.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "search",
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            },
+            "target": {
+              "type": "self"
+            },
+            "zone": "discard",
+            "putInto": "hand"
+          }
+        ]
       }
     ],
     "setId": "2",
