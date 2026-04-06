@@ -61,7 +61,21 @@
       "Dreamborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "ADVENTUROUS SPIRIT",
+        "rulesText": "Whenever you ready this character, if you have 2 or more other characters in play, gain 2 lore.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "modifier": 0,
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "2",
     "number": 2,
     "rarity": "rare",
@@ -584,7 +598,32 @@
       "Mentor",
       "King"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "THE SUN WILL SET",
+        "rulesText": "When this character is banished, you may reveal the top card of your deck. If it's a character card, you may play that character for free and they enter play exerted. Otherwise, put it on the top of your deck.",
+        "trigger": {
+          "on": "is_banished"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 1,
+            "action": "one_to_hand_rest_bottom",
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            },
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 14,
     "rarity": "legendary",
@@ -650,9 +689,29 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 2
+        "type": "triggered",
+        "storyName": "REFLECTION",
+        "rulesText": "Whenever this character quests, you may reveal the top card of your deck. If it's a song card, you may play it for free. Otherwise, put it on the top of your deck.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 1,
+            "action": "one_to_hand_rest_bottom",
+            "filter": {
+              "cardType": [
+                "action"
+              ],
+              "hasTrait": "Song"
+            },
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "2",
@@ -778,9 +837,17 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 3
+        "type": "static",
+        "storyName": "HEALING GLOW",
+        "rulesText": "Whenever you remove 1 or more damage from one of your characters, you may draw a card.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "modifier": 0,
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "2",
@@ -1309,6 +1376,20 @@
         "rulesText": "Banish chosen character who was challenged this turn.",
         "raw": "Banish chosen character who was challenged this turn."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "banish",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      }
     ]
   },
   {
@@ -1445,6 +1526,17 @@
         "rulesText": "Count the number of characters you have in play. You pay that amount of {I} less for the next character you play this turn.",
         "raw": "Count the number of characters you have in play. You pay that amount of {I} less for the next character you play this turn."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "cost_reduction",
+        "amount": 3,
+        "filter": {
+          "cardType": [
+            "character"
+          ]
+        }
+      }
     ]
   },
   {
@@ -1511,7 +1603,27 @@
     "cost": 2,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "LULLABY",
+        "rulesText": "If you played a song this turn, gain 1 lore.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 34,
     "rarity": "rare",
@@ -1791,9 +1903,32 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 2
+        "type": "triggered",
+        "storyName": "ENCHANTED ARMOR",
+        "rulesText": "Whenever this character quests, your characters gain Challenger +3 and 'When this character is banished in a challenge, return this card to your hand' this turn.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "challenger",
+            "value": 3,
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "end_of_turn"
+          }
+        ]
       }
     ],
     "setId": "2",
@@ -2211,9 +2346,23 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 3
+        "type": "triggered",
+        "storyName": "MAGNIFICENT, MARVELOUS, MAD MADAM MIM",
+        "rulesText": "Play a character with cost 4 or less for free. They gain Rush. At the end of the turn, banish them.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "play_for_free",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "costAtMost": 4
+            }
+          }
+        ]
       }
     ],
     "setId": "2",
@@ -2545,7 +2694,21 @@
       "Mentor",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "VERSATILE WIZARD",
+        "rulesText": "Whenever one of your other characters is returned to your hand from play, this character gets +1 {L} this turn.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "modifier": 0,
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "2",
     "number": 53,
     "rarity": "rare",
@@ -2981,6 +3144,17 @@
         "rulesText": "Play a character with cost 4 or less for free. They gain Rush. At the end of the turn, banish them. (They can challenge the turn they're played.)",
         "raw": "Play a character with cost 4 or less for free. They gain Rush. At the end of the turn, banish them. (They can challenge the turn they're played.)"
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "play_for_free",
+        "filter": {
+          "cardType": [
+            "character"
+          ],
+          "costAtMost": 4
+        }
+      }
     ]
   },
   {
@@ -3084,7 +3258,32 @@
     "cost": 4,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "SIGNED IN BLOOD",
+        "rulesText": "Exert chosen character.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 65,
     "rarity": "uncommon",
@@ -3295,7 +3494,30 @@
       "Hero",
       "Prince"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "UNBRIDLED FURY",
+        "rulesText": "Whenever an opposing character is damaged, you may ready this character.",
+        "trigger": {
+          "on": "is_challenged",
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "ready",
+            "target": {
+              "type": "this"
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 70,
     "rarity": "legendary",
@@ -3328,7 +3550,28 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "WELL-READ",
+        "rulesText": "While an opponent has no cards in their hand, this character gets +2 {L}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "modifier": 2,
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "cards_in_hand_eq",
+          "amount": 0,
+          "player": {
+            "type": "opponent"
+          }
+        }
+      }
+    ],
     "setId": "2",
     "number": 71,
     "rarity": "uncommon",
@@ -3860,13 +4103,23 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
-      },
-      {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 2
+        "type": "static",
+        "storyName": "WANTED",
+        "rulesText": "This character gets -1 {L} for each card in your opponents' hands.",
+        "effect": {
+          "type": "modify_stat_per_count",
+          "stat": "lore",
+          "perCount": -1,
+          "countFilter": {
+            "owner": {
+              "type": "opponent"
+            },
+            "zone": "hand"
+          },
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "2",
@@ -3901,7 +4154,28 @@
       "Storyborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "SCHEMING",
+        "rulesText": "While one or more opponents have no cards in their hands, this character gets +3 {S}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "strength",
+          "modifier": 3,
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "cards_in_hand_eq",
+          "amount": 0,
+          "player": {
+            "type": "opponent"
+          }
+        }
+      }
+    ],
     "setId": "2",
     "number": 83,
     "rarity": "common",
@@ -4011,7 +4285,21 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "PAIN POWER",
+        "rulesText": "While this character has 5 {S} or more, he gets +2 {L}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "modifier": 2,
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "2",
     "number": 86,
     "rarity": "uncommon",
@@ -4199,8 +4487,17 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "ward"
+        "type": "static",
+        "storyName": "TAXES!",
+        "rulesText": "Whenever your opponent discards 1 or more cards, you may draw a card for each card discarded.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "modifier": 0,
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "2",
@@ -4358,7 +4655,36 @@
       "Villain",
       "Queen"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "POISONED APPLE",
+        "rulesText": "Gain lore equal to the discarded character's {L}.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "discard",
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            },
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 93,
     "rarity": "super_rare",
@@ -4459,6 +4785,38 @@
         "storyName": "",
         "rulesText": "Return chosen character of yours to your hand to play another character with the same cost or less for free.",
         "raw": "Return chosen character of yours to your hand to play another character with the same cost or less for free."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "sequential",
+        "costEffects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ],
+        "rewardEffects": [
+          {
+            "type": "play_for_free",
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            }
+          }
+        ]
       }
     ]
   },
@@ -4640,6 +4998,15 @@
         "rulesText": "Gain 1 lore for each damaged character opponents have in play.",
         "raw": "Gain 1 lore for each damaged character opponents have in play."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "gain_lore",
+        "amount": 1,
+        "target": {
+          "type": "self"
+        }
+      }
     ]
   },
   {
@@ -4820,8 +5187,17 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
+        "type": "static",
+        "storyName": "WHAT A DAY!",
+        "rulesText": "This character gets +1 {L} for each 1 damage on him.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "modifier": 1,
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "2",
@@ -5141,13 +5517,17 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
-      },
-      {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 2
+        "type": "static",
+        "storyName": "DEEP BREATH",
+        "rulesText": "Whenever you play a second action in a turn, this character gets +2 {L} this turn.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "modifier": 0,
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "2",
@@ -5593,9 +5973,13 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 4
+        "type": "triggered",
+        "storyName": "HEART OF A WARRIOR",
+        "rulesText": "Whenever this character challenges a damaged character, she takes no damage from the challenge.",
+        "trigger": {
+          "on": "challenges"
+        },
+        "effects": []
       }
     ],
     "setId": "2",
@@ -6158,7 +6542,49 @@
     "cost": 4,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "COME AND GET IT!",
+        "rulesText": "Draw cards equal to the damage on chosen character of yours, then banish them.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "sequential",
+            "costEffects": [],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 2,
+                "target": {
+                  "type": "self"
+                }
+              },
+              {
+                "type": "banish",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "hasDamage": true
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 134,
     "rarity": "rare",
@@ -6234,7 +6660,39 @@
     "cost": 1,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "LEGENDARY BLADE",
+        "rulesText": "Chosen character gets +1 {S} this turn for each 1 damage on them.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 2
+          }
+        ],
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": 2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasDamage": true
+              }
+            },
+            "duration": "this_turn"
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 136,
     "rarity": "uncommon",
@@ -6515,7 +6973,21 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "TIMELY ADVICE",
+        "rulesText": "Your characters with Reckless gain '{E} — Gain 1 lore.'",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "modifier": 0,
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "2",
     "number": 143,
     "rarity": "uncommon",
@@ -6741,7 +7213,21 @@
       "Storyborn",
       "Mentor"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "ANCIENT KNOWLEDGE",
+        "rulesText": "Whenever you remove 1 or more damage from one of your characters, gain 2 lore.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "modifier": 0,
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "2",
     "number": 148,
     "rarity": "super_rare",
@@ -7178,7 +7664,47 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "RESOURCEFUL",
+        "rulesText": "While you have an item in play, this character gains Resist +1 and Ward.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "resist",
+          "value": 1,
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "cards_in_zone_gte",
+          "zone": "play",
+          "amount": 1,
+          "player": {
+            "type": "self"
+          }
+        }
+      },
+      {
+        "type": "static",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "ward",
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "cards_in_zone_gte",
+          "zone": "play",
+          "amount": 1,
+          "player": {
+            "type": "self"
+          }
+        }
+      }
+    ],
     "setId": "2",
     "number": 155,
     "rarity": "rare",
@@ -8266,14 +8792,17 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "resist",
-        "value": 2
-      },
-      {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 5
+        "type": "static",
+        "storyName": "BRAVE HEART",
+        "rulesText": "Whenever you play a song, this character may challenge ready characters this turn.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "modifier": 0,
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "2",
@@ -9098,9 +9627,19 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "resist",
-        "value": 2
+        "type": "static",
+        "storyName": "CELEBRATION",
+        "rulesText": "While this character is exerted and you have no cards in your hand, opponents can't play actions.",
+        "effect": {
+          "type": "action_restriction",
+          "restricts": "play",
+          "affectedPlayer": {
+            "type": "opponent"
+          }
+        },
+        "condition": {
+          "type": "this_is_exerted"
+        }
       }
     ],
     "setId": "2",
@@ -9283,7 +9822,8 @@
         "rulesText": "Chosen character can challenge ready characters this turn.",
         "raw": "Chosen character can challenge ready characters this turn."
       }
-    ]
+    ],
+    "actionEffects": []
   },
   {
     "id": "strength-of-a-raging-fire",
@@ -9315,6 +9855,21 @@
         "storyName": "",
         "rulesText": "Deal damage to chosen character equal to the number of characters you have in play.",
         "raw": "Deal damage to chosen character equal to the number of characters you have in play."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "deal_damage",
+        "amount": 3,
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
       }
     ]
   },
@@ -9799,7 +10354,30 @@
       "Hero",
       "Prince"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "UNBRIDLED FURY",
+        "rulesText": "Whenever an opposing character is damaged, you may ready this character.",
+        "trigger": {
+          "on": "is_challenged",
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "ready",
+            "target": {
+              "type": "this"
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 210,
     "rarity": "enchanted",
