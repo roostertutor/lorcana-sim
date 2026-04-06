@@ -14,7 +14,7 @@ to produce deck analytics and win rates. NOT a human-playable simulator.
 - analytics: done (15 passing).
 - cli:       done. analyze, compare, query, learn.
 - ui:        done. 7 screens, React+Vite. Responsive (mobile/tablet/desktop). Full-screen game board (no header/nav in-game).
-- testbench: done. Interactive game board with bot opponent. Replay mode + undo (Stream 3e). Deck/discard zone badges with discard viewer modal. Keyword ability icon badges on cards. Exerted card nudging. Inkwell rotation + grayscale for spent ink. Mobile polish (border radius, floating zone badges, scroll fixes).
+- testbench: done. Interactive game board with bot opponent. Replay mode + undo. Utility strip (deck tile, inkwell, discard tile). Card action popover anchored to clicked card (fixed-position, works on all breakpoints). Keyword badges, exerted rotation/grayscale, damage counter, summoning sickness overlay. Play zone reset on leave (CRD 1.9.3).
 - cards:     set 1 complete (204 unique cards, 216 entries, all abilities implemented, 0 stubs).
 - sets 2–11: imported as stubs (keyword-only, 2504 total cards incl. dual-ink). Run `pnpm import-cards --sets N` to refresh.
 
@@ -98,6 +98,21 @@ Abilities that say "during your turn" on `banished_other_in_challenge` triggers 
 `"condition": { "type": "is_your_turn" }` in the card JSON. Without it the ability fires
 on the opponent's turn during mutual banishment (attacker and defender both banished).
 Later set cards without "during your turn" in their rules text correctly omit this condition.
+
+**Dual-container DnD / ref ID collision (UI):**
+Never render the same React component with the same ID in two sibling containers
+toggled by `md:hidden` / `hidden md:flex`. dnd-kit and ref maps only expect each
+ID once — the hidden container overwrites the visible one, causing `getBoundingClientRect`
+to return `{0,0}`. Use a single container with responsive Tailwind classes instead:
+```tsx
+// WRONG — card renders twice, DnD IDs collide
+<div className="md:hidden ...">  {cards.map(id => <DraggableCard id={id} />)} </div>
+<div className="hidden md:flex">{cards.map(id => <DraggableCard id={id} />)} </div>
+// CORRECT — one container, responsive layout
+<div className="flex flex-col md:flex-row ...">
+  {cards.map(id => <DraggableCard id={id} />)}
+</div>
+```
 
 **Sequential effect triggeringCardInstanceId (CRD 6.1.5.1):**
 When applying `sequential` costEffects/rewardEffects via `applyEffect`, always forward `triggeringCardInstanceId`.
