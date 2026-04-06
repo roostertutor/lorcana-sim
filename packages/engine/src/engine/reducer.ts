@@ -831,6 +831,10 @@ function applyPassTurn(
     }
   }
 
+  // CRD 3.2.1.4: "At the start of your turn" triggered abilities
+  state = queueTriggersByEvent(state, "turn_start", opponent, definitions, {});
+  state = processTriggerStack(state, definitions, events);
+
   // CRD 3.2.3.1: draw step — active player draws a card
   state = applyDraw(state, opponent, 1, events, definitions);
 

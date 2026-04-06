@@ -393,7 +393,14 @@ export type StaticEffect =
   | CostReductionStatic
   | ActionRestrictionStatic
   | ExtraInkPlayStatic
-  | SelfCostReductionStatic;
+  | SelfCostReductionStatic
+  | CanChallengeReadyStatic;
+
+/** This character can challenge ready (non-exerted) characters. */
+export interface CanChallengeReadyStatic {
+  type: "can_challenge_ready";
+  target: CardTarget;
+}
 
 export interface GainKeywordStatic {
   type: "grant_keyword";
@@ -508,6 +515,10 @@ export interface CardFilter {
   hasName?: string;
   /** Match characters with damage > 0 */
   hasDamage?: boolean;
+  /** Match characters with effective strength ≤ N */
+  strengthAtMost?: number;
+  /** Match characters with effective strength ≥ N */
+  strengthAtLeast?: number;
 }
 
 // -----------------------------------------------------------------------------

@@ -276,6 +276,12 @@ export function matchesFilter(
     if (!filter.hasDamage && instance.damage > 0) return false;
   }
 
+  if (filter.strengthAtMost !== undefined || filter.strengthAtLeast !== undefined) {
+    const str = getEffectiveStrength(instance, definition);
+    if (filter.strengthAtMost !== undefined && str > filter.strengthAtMost) return false;
+    if (filter.strengthAtLeast !== undefined && str < filter.strengthAtLeast) return false;
+  }
+
   return true;
 }
 

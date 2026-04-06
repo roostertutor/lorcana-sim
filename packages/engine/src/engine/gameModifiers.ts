@@ -190,6 +190,13 @@ export function getGameModifiers(
           modifiers.extraInkPlays.set(instance.ownerId, current + effect.amount);
           break;
         }
+
+        case "can_challenge_ready": {
+          if (effect.target.type === "this") {
+            modifiers.canChallengeReady.add(instance.instanceId);
+          }
+          break;
+        }
       }
     }
   }

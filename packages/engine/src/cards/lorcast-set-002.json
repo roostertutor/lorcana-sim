@@ -1409,7 +1409,7 @@
             "cardType": [
               "character"
             ],
-            "costAtLeast": 5
+            "strengthAtLeast": 5
           }
         }
       }
@@ -3415,7 +3415,32 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "SQUEAK SQUEAK",
+        "rulesText": "Whenever you play a Floodborn character, if you used Shift to play them, each opponent chooses and discards a card.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Floodborn"
+          }
+        },
+        "effects": [
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            },
+            "chooser": "target_player"
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 73,
     "rarity": "uncommon",
@@ -3581,9 +3606,33 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 3
+        "type": "triggered",
+        "storyName": "ALLOW ME",
+        "rulesText": "At the start of your turn, each player may draw a card.",
+        "trigger": {
+          "on": "turn_start",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          },
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "2",
@@ -3677,8 +3726,31 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
+        "type": "triggered",
+        "storyName": "I READ YOUR FUTURE",
+        "rulesText": "Whenever this character quests, chosen opposing character can't quest during their next turn.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "cant_action",
+            "action": "quest",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "end_of_owner_next_turn"
+          }
+        ]
       }
     ],
     "setId": "2",
@@ -4065,8 +4137,27 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "ward"
+        "type": "triggered",
+        "storyName": "BULLY",
+        "rulesText": "Whenever you play an action, this character gets +2 {S} this turn.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "action"
+            ]
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": 2,
+            "target": {
+              "type": "this"
+            },
+            "duration": "this_turn"
+          }
+        ]
       }
     ],
     "setId": "2",
@@ -4884,9 +4975,29 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 4
+        "type": "triggered",
+        "storyName": "SINISTER AUTHORITY",
+        "rulesText": "When you play this character, each opponent chooses and banishes one of their characters.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "2",
@@ -5350,7 +5461,7 @@
                 "cardType": [
                   "character"
                 ],
-                "costAtMost": 3
+                "strengthAtMost": 3
               }
             }
           },
@@ -6152,7 +6263,30 @@
       "Dreamborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "GROWING",
+        "rulesText": "Your other characters gain Support.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "support",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "excludeSelf": true
+            }
+          }
+        }
+      }
+    ],
     "setId": "2",
     "number": 137,
     "rarity": "legendary",
@@ -6192,9 +6326,22 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 5
+        "type": "triggered",
+        "storyName": "THERE'S ALWAYS A CHANCE",
+        "rulesText": "If you used Shift to play this character, you may draw 2 cards when he enters play.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "2",
@@ -6401,7 +6548,23 @@
       "Dreamborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "STYLISH ENTRANCE",
+        "rulesText": "During your turn, this character gains Evasive.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        }
+      }
+    ],
     "setId": "2",
     "number": 144,
     "rarity": "common",
@@ -6527,9 +6690,23 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 4
+        "type": "triggered",
+        "storyName": "ROUGHLY THE SIZE OF A BARGE",
+        "rulesText": "When you play this character, look at the top 3 cards of your deck. You may put one into your hand. Put the rest on the bottom of your deck in any order.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 3,
+            "action": "one_to_hand_rest_bottom",
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "2",
@@ -7111,7 +7288,27 @@
       "Deity",
       "Dragon"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "DIVINE WISDOM",
+        "rulesText": "Whenever this character quests, look at the top 2 cards of your deck. You may put one into your hand. Put the rest on the bottom of your deck in any order.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 2,
+            "action": "one_to_hand_rest_bottom",
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 159,
     "rarity": "legendary",
@@ -7241,6 +7438,40 @@
         "storyName": "",
         "rulesText": "Each player chooses one of their characters and puts them into their inkwell facedown and exerted.",
         "raw": "Each player chooses one of their characters and puts them into their inkwell facedown and exerted."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "move_to_inkwell",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "enterExerted": true
+      },
+      {
+        "type": "move_to_inkwell",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "enterExerted": true
       }
     ]
   },
@@ -7382,6 +7613,15 @@
         "storyName": "",
         "rulesText": "Each opponent reveals their hand. Draw a card.",
         "raw": "Each opponent reveals their hand. Draw a card."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "draw",
+        "amount": 1,
+        "target": {
+          "type": "self"
+        }
       }
     ]
   },
@@ -7784,9 +8024,24 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 3
+        "type": "triggered",
+        "storyName": "IT'S BETTER THIS WAY",
+        "rulesText": "At the start of your turn, if this character has no damage, draw a card. Otherwise, he gets +4 {S} this turn.",
+        "trigger": {
+          "on": "turn_start",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "2",
@@ -8251,7 +8506,23 @@
       "Villain",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "CUNNING SCHEME",
+        "rulesText": "During your turn, this character gains Evasive.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        }
+      }
+    ],
     "setId": "2",
     "number": 184,
     "rarity": "common",
@@ -8518,8 +8789,15 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "bodyguard"
+        "type": "static",
+        "storyName": "WARRIOR INSTINCT",
+        "rulesText": "This character can challenge ready characters.",
+        "effect": {
+          "type": "can_challenge_ready",
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "2",
@@ -9163,7 +9441,7 @@
             "cardType": [
               "character"
             ],
-            "costAtLeast": 4
+            "strengthAtLeast": 4
           }
         },
         "effects": [
@@ -9461,8 +9739,27 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "ward"
+        "type": "triggered",
+        "storyName": "BULLY",
+        "rulesText": "Whenever you play an action, this character gets +2 {S} this turn.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "action"
+            ]
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": 2,
+            "target": {
+              "type": "this"
+            },
+            "duration": "this_turn"
+          }
+        ]
       }
     ],
     "setId": "2",
@@ -9537,9 +9834,29 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 4
+        "type": "triggered",
+        "storyName": "SINISTER AUTHORITY",
+        "rulesText": "When you play this character, each opponent chooses and banishes one of their characters.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "2",
@@ -9629,7 +9946,30 @@
       "Dreamborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "GROWING",
+        "rulesText": "Your other characters gain Support.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "support",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "excludeSelf": true
+            }
+          }
+        }
+      }
+    ],
     "setId": "2",
     "number": 213,
     "rarity": "enchanted",
@@ -9668,7 +10008,27 @@
       "Deity",
       "Dragon"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "DIVINE WISDOM",
+        "rulesText": "Whenever this character quests, look at the top 2 cards of your deck. You may put one into your hand. Put the rest on the bottom of your deck in any order.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 2,
+            "action": "one_to_hand_rest_bottom",
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 214,
     "rarity": "enchanted",
@@ -9741,8 +10101,15 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "bodyguard"
+        "type": "static",
+        "storyName": "WARRIOR INSTINCT",
+        "rulesText": "This character can challenge ready characters.",
+        "effect": {
+          "type": "can_challenge_ready",
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "2",

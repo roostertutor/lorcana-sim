@@ -4119,6 +4119,39 @@ describe("Set 2 — Rise of the Floodborn", () => {
     expect(getZone(result.newState, "player1", "hand").length).toBe(handBefore + 1);
   });
 
+  // Pattern: canChallengeReady static (Namaari can challenge ready characters)
+  it("Namaari: can challenge ready (non-exerted) characters", () => {
+    let state = startGame(["namaari-morning-mist"]);
+    let namaariId: string;
+    let targetId: string;
+    ({ state, instanceId: namaariId } = injectCard(state, "player1", "namaari-morning-mist", "play"));
+    // Target is NOT exerted — normally can't be challenged
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play"));
+
+    const result = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: namaariId, defenderInstanceId: targetId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, targetId).damage).toBeGreaterThan(0);
+  });
+
+  // Pattern: strengthAtLeast on CardFilter
+  it("World's Greatest Criminal Mind: banish character with 5+ strength", () => {
+    let state = startGame(["worlds-greatest-criminal-mind"]);
+    state = giveInk(state, "player1", 4);
+    let actionId: string;
+    let weakId: string;
+    let strongId: string;
+    ({ state, instanceId: actionId } = injectCard(state, "player1", "worlds-greatest-criminal-mind", "hand"));
+    ({ state, instanceId: weakId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play")); // 2 STR
+    ({ state, instanceId: strongId } = injectCard(state, "player2", "hades-king-of-olympus", "play")); // 6 STR
+
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: actionId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.pendingChoice?.type).toBe("choose_target");
+    // Only the strong character should be a valid target
+    expect(result.newState.pendingChoice?.validTargets).toContain(strongId);
+    expect(result.newState.pendingChoice?.validTargets).not.toContain(weakId);
+  });
+
   // Pattern: ChooseEffect inside triggered ability
   // TODO: ChooseEffect inside enters_play trigger auto-resolves even in interactive mode.
   // Needs investigation — may need to check how processTriggerStack handles choose effects.
