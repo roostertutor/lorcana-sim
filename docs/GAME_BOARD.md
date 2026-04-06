@@ -255,17 +255,14 @@ Use these names when discussing UI changes.
 │  Scoreboard                                 │              │
 ├─────────────────────────────────────────────│   Sidebar    │
 │  Opponent Zone                              │  (desktop)   │
-│    header: "Opponent"  📦 N  🗑 N           │              │
-│    face-down hand strip                     │  Game Log    │
-│    inkwell                                  │    or        │
-│    play field (chars left, items right)     │  Sandbox     │
-├──────────── Play Divider ───────────────────│  Panel       │
-│  Player Zone                                │              │
-│    header: "Your Board"  📦 N  🗑 N         │              │
+│    face-down hand fan (peeked tops)         │              │
+│    utility strip: [deck] [inkwell] [discard]│  Game Log    │
+│    play field (chars left, items right)     │    or        │
+├──────────── Play Divider ───────────────────│  Sandbox     │
+│  Player Zone                                │  Panel       │
 │    play field (chars left, items right)     │              │
-│    inkwell                                  │              │
-├─────────────────────────────────────────────│              │
-│  Hand                                       │              │
+│    utility strip: [deck] [inkwell] [discard]│              │
+│    hand fan                                 │              │
 ├─────────────────────────────────────────────│              │
 │  Replay Controls (replay mode only)         │              │
 └─────────────────────────────────────────────┴──────────────┘
@@ -296,13 +293,16 @@ Pretty version. Same `useGameSession` hook. Different components.
 - `isSelected` / `isTarget` (pulse ring) / `isAttacker` (solid ring) props
 - Disambiguation badge overlay "(1)"/"(2)" when pending choice has duplicate names
 
-**Card-contextual actions (Session 19):**
-- Per-card button row: Play / Ink / Quest / Challenge / Shift / Sing / Activate
-- No flat "Actions" bar — actions belong to the card they affect
+**Card-contextual actions (Session 21):**
+- Tap any card → fixed-position popover appears just below the clicked card
+- Popover: action buttons (Play / Ink / Quest / Challenge / Shift / Sing / Activate) + 🔍 inspect + ×
+- 🔍 opens CardInspectModal (full card image, normal size); all other actions close the popover
+- Tapping same card again toggles the popover off
 - 2-step Challenge: click Challenge → attacker highlighted orange → click enemy target
 - 2-step Shift: click Shift → hand card highlighted → click play zone target
-- "Challenge mode" / "Shift mode" banner + Cancel shown during 2-step flows
-- Pass Turn button always visible at bottom
+- "Challenge mode" / "Shift mode" floating toast + Cancel shown during 2-step flows
+- Popover position captured from click event (e.currentTarget.getBoundingClientRect) — not a ref map
+- Pass Turn / Cancel / Undo buttons on the play divider row; scale up on sm+
 
 **Pending choice UI (Session 20: PendingChoiceModal):**
 - All choice types now render in a modal overlay (not inline in the board scroll area)
@@ -321,11 +321,14 @@ Pretty version. Same `useGameSession` hook. Different components.
 - After heal effect resolves: "Removed N damage from [Card]."
 - After draw effect resolves: "Drew N card(s)."
 
-**Zone badges:**
-- Each play zone header shows `📦 N` (deck count) and `🗑 N` (discard count)
-- Discard badge is always visible (shows 0 when empty, disabled); clicking opens `ZoneViewModal`
-- `ZoneViewModal`: full-screen backdrop, scrollable 4-column card grid, face-up, read-only
-- Works for both player and opponent discard
+**Utility strip (Session 21):**
+- Replaces floating badge clusters; lives between the play zone and hand fan in each player div
+- Layout: [deck tile] [inkwell — flex-1] [discard tile]
+- Deck tile: card back + count badge; player deck clickable → face-down ZoneViewModal (hides order)
+- Discard tile: top card scaled preview (scale-[0.538]) + count; clickable → face-up ZoneViewModal
+- Inkwell: scaled card thumbnails (constant 0.538 scale factor), clip-path height-only clipping
+- Responsive: w-7/h-10 → sm:w-14/sm:h-[78px] → lg:w-16/lg:h-[90px]
+- `ZoneViewModal`: full-screen backdrop, scrollable card grid, face-up or face-down, read-only
 
 **Analysis overlay:**
 - Win probability bar (P1 vs P2), updates after every action
@@ -486,22 +489,24 @@ Fix: move simulation to a Web Worker.
 
 ## Desktop vs Mobile Design Directions
 
-> Open questions — not decided yet. Review and pick a direction before building.
-
 ### Current state (as of Apr 2026)
 
 | Aspect | Mobile (< md / 768px) | Desktop (md+) |
 |--------|-----------------------|---------------|
 | Layout | Single column | Main area + 220–280px sidebar |
-| Play zones | Horizontal scroll strip | Wrapped grid, chars left / items right |
+| Play zones | flex-col wrap (chars row, items row) | flex-row justify-between, chars left / items right |
 | Hand | Fixed 80px height, single row | Auto-height, wraps up to 260–355px |
-| Opponent hand | 40–64px peeked strip | 64px strip |
+| Opponent hand | 40px peeked strip (h-10) | 64px strip (sm:h-16) |
+| Utility strip | deck tile \| inkwell \| discard tile | Same — responsive sizes |
 | Lore display | Compact inline "8 ♦ vs 12 ♦ /20" | Full 20-pip LoreTracker components |
 | Sidebar | Hidden; bottom-sheet overlay on demand | Always visible, vertical scroll |
 | Analysis panel | Bottom-sheet (tap button to open) | Sidebar section, always rendered |
 | Game log | Bottom-sheet (tap button to open) | Sidebar section, always rendered |
-| Card size | 64px (play), 88px (hand) | 104–120px across all zones |
+| Card size | 52px (play), 88px (hand) | 104–120px across all zones |
 | Pending choice | Full-width bottom sheet | Centered modal (max-w-lg) |
+| Card actions | Fixed popover anchored to tapped card | Fixed popover anchored to clicked card |
+
+> Open questions — still undecided: Card Detail panel in sidebar (Direction A), keyboard shortcuts (Direction C), sidebar width at xl+.
 
 ---
 

@@ -3,7 +3,7 @@
 # Cross-references all docs in docs/ folder.
 # Does NOT replace SPEC.md or DECISIONS.md.
 #
-# Last updated: Session 20 (GameBoard drag-and-drop via @dnd-kit/core; PendingChoiceModal; buildLabelMap extracted to utils)
+# Last updated: Session 21 (UI polish: utility strip, card action popover, play-state reset CRD 1.9.3, DnD dual-container fix)
 
 ---
 
@@ -40,7 +40,12 @@
 ✅ Raw GameAction[] capture in GameResult (Stream 1/3e prereq)
 ✅ RL training loop — autoTag, network, policy, trainer, learn CLI (per-card scoring)
 ✅ Replay mode — seeded RNG + action capture + ReplayControls UI (Stream 3e)
-✅ Discard zone viewer — 🗑 badge in each zone header opens face-up card grid modal
+✅ Discard zone viewer — clickable discard tile in utility strip opens face-up card grid modal
+✅ Deck viewer — clickable deck tile opens face-down card grid (hides order, no cheating)
+✅ Utility strip — deck tile | inkwell | discard tile row; replaces floating badge clusters
+✅ Card action popover — fixed-position popover anchored to clicked card; works on all breakpoints
+✅ Play-state reset on leave-play — damage/exerted/isDrying/modifiers cleared (CRD 1.9.3 / 7.1.6)
+✅ Engine tests — 180 passing (up from 162)
 ❌ Multiplayer server
 ```
 
