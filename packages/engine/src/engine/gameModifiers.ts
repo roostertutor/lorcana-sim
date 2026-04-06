@@ -49,6 +49,12 @@ export interface GameModifiers {
 
   /** Extra ink plays allowed per turn per player. */
   extraInkPlays: Map<import("../types/index.js").PlayerID, number>;
+
+  /**
+   * CRD 6.5: Damage redirect — key = protector instanceId,
+   * value = the owner whose other characters are protected.
+   */
+  damageRedirects: Map<string, import("../types/index.js").PlayerID>;
 }
 
 /**
@@ -68,6 +74,7 @@ export function getGameModifiers(
     costReductions: new Map(),
     actionRestrictions: [],
     extraInkPlays: new Map(),
+    damageRedirects: new Map(),
   };
 
   for (const instance of Object.values(state.cards)) {
@@ -195,6 +202,12 @@ export function getGameModifiers(
           if (effect.target.type === "this") {
             modifiers.canChallengeReady.add(instance.instanceId);
           }
+          break;
+        }
+
+        case "damage_redirect": {
+          // CRD 6.5: This character absorbs damage for other own characters
+          modifiers.damageRedirects.set(instance.instanceId, instance.ownerId);
           break;
         }
       }

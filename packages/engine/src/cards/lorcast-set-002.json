@@ -8514,7 +8514,29 @@
       "Hero",
       "Prince"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "SHIELD ANOTHER",
+        "rulesText": "Whenever one of your other characters would be dealt damage, put that many damage counters on this character instead.",
+        "effect": {
+          "type": "damage_redirect",
+          "from": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "excludeSelf": true
+            }
+          }
+        }
+      }
+    ],
     "setId": "2",
     "number": 172,
     "rarity": "super_rare",
@@ -9823,7 +9845,21 @@
         "raw": "Chosen character can challenge ready characters this turn."
       }
     ],
-    "actionEffects": []
+    "actionEffects": [
+      {
+        "type": "grant_challenge_ready",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "duration": "end_of_turn"
+      }
+    ]
   },
   {
     "id": "strength-of-a-raging-fire",

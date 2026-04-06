@@ -274,7 +274,8 @@ function validateChallenge(
   }
 
   // CRD 4.6.4.2: defender must be exerted (unless modifier overrides)
-  if (!defender.isExerted && !modifiers.canChallengeReady.has(attackerInstanceId)) {
+  const hasTimedChallengeReady = attacker.timedEffects.some(te => te.type === "can_challenge_ready");
+  if (!defender.isExerted && !modifiers.canChallengeReady.has(attackerInstanceId) && !hasTimedChallengeReady) {
     return fail("Can only challenge exerted characters.");
   }
 

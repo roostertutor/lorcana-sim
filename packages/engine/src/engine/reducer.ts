@@ -624,14 +624,25 @@ function applyChallenge(
   const actualAttackerDamage = Math.max(0, defenderStr - attackerResist);
   const actualDefenderDamage = Math.max(0, attackerStr - defenderResist);
 
-  const newAttackerDamage = attacker.damage + actualAttackerDamage;
-  const newDefenderDamage = defender.damage + actualDefenderDamage;
+  // CRD 6.5: Check for damage redirect on each combatant
+  const attackerRedirect = actualAttackerDamage > 0 ? findDamageRedirect(state, attackerInstanceId, definitions, modifiers) : null;
+  const defenderRedirect = actualDefenderDamage > 0 ? findDamageRedirect(state, defenderInstanceId, definitions, modifiers) : null;
 
-  state = updateInstance(state, attackerInstanceId, { damage: newAttackerDamage });
-  state = updateInstance(state, defenderInstanceId, { damage: newDefenderDamage });
+  // Apply attacker damage (or redirect)
+  if (actualAttackerDamage > 0) {
+    const atkTarget = attackerRedirect ?? attackerInstanceId;
+    const inst = getInstance(state, atkTarget);
+    state = updateInstance(state, atkTarget, { damage: inst.damage + actualAttackerDamage });
+    events.push({ type: "damage_dealt", instanceId: atkTarget, amount: actualAttackerDamage });
+  }
 
-  events.push({ type: "damage_dealt", instanceId: attackerInstanceId, amount: actualAttackerDamage });
-  events.push({ type: "damage_dealt", instanceId: defenderInstanceId, amount: actualDefenderDamage });
+  // Apply defender damage (or redirect)
+  if (actualDefenderDamage > 0) {
+    const defTarget = defenderRedirect ?? defenderInstanceId;
+    const inst = getInstance(state, defTarget);
+    state = updateInstance(state, defTarget, { damage: inst.damage + actualDefenderDamage });
+    events.push({ type: "damage_dealt", instanceId: defTarget, amount: actualDefenderDamage });
+  }
 
   state = appendLog(state, {
     turn: state.turnNumber,
@@ -652,8 +663,25 @@ function applyChallenge(
   const attackerWp = getEffectiveWillpower(attacker, attackerDef, atkStaticWp);
   const defenderWp = getEffectiveWillpower(defender, defenderDef, defStaticWp);
 
-  const attackerBanished = newAttackerDamage >= attackerWp;
-  const defenderBanished = newDefenderDamage >= defenderWp;
+  // Re-read damage after potential redirect
+  const attackerBanished = getInstance(state, attackerInstanceId).damage >= attackerWp;
+  const defenderBanished = getInstance(state, defenderInstanceId).damage >= defenderWp;
+
+  // Also check if redirect targets need banishing
+  if (attackerRedirect) {
+    const rInst = getInstance(state, attackerRedirect);
+    const rDef = definitions[rInst.definitionId];
+    if (rDef && rInst.damage >= getEffectiveWillpower(rInst, rDef)) {
+      state = banishCard(state, attackerRedirect, definitions, events);
+    }
+  }
+  if (defenderRedirect) {
+    const rInst = getInstance(state, defenderRedirect);
+    const rDef = definitions[rInst.definitionId];
+    if (rDef && rInst.damage >= getEffectiveWillpower(rInst, rDef)) {
+      state = banishCard(state, defenderRedirect, definitions, events);
+    }
+  }
 
   if (attackerBanished) {
     state = banishCard(state, attackerInstanceId, definitions, events, {
@@ -1728,6 +1756,33 @@ export function applyEffect(
       };
     }
 
+    // Grant "can challenge ready characters" for a duration
+    case "grant_challenge_ready": {
+      if (effect.target.type === "chosen") {
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        if (validTargets.length === 0) return state;
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_target",
+            choosingPlayerId: controllingPlayerId,
+            prompt: "Choose a character to grant challenge-ready",
+            validTargets,
+            pendingEffect: effect,
+          },
+        };
+      }
+      if (effect.target.type === "this") {
+        const timedEffect: TimedEffect = {
+          type: "can_challenge_ready",
+          expiresAt: effect.duration,
+          appliedOnTurn: state.turnNumber,
+        };
+        return addTimedEffect(state, sourceInstanceId, timedEffect);
+      }
+      return state;
+    }
+
     // CRD 6.2.7.1: Create a floating triggered ability for rest of turn
     case "create_floating_trigger": {
       const existing = state.floatingTriggers ?? [];
@@ -2220,6 +2275,29 @@ function banishCard(
   });
 }
 
+/**
+ * CRD 6.5: Check if damage to this character should be redirected to a protector.
+ * Returns the protector's instanceId, or null if no redirect applies.
+ */
+function findDamageRedirect(
+  state: GameState,
+  targetInstanceId: string,
+  definitions: Record<string, CardDefinition>,
+  modifiers: ReturnType<typeof getGameModifiers>
+): string | null {
+  const target = getInstance(state, targetInstanceId);
+  for (const [protectorId, ownerId] of modifiers.damageRedirects) {
+    // Only redirects damage for the protector's owner's other characters
+    if (target.ownerId !== ownerId) continue;
+    if (protectorId === targetInstanceId) continue; // Don't redirect damage to self
+    // Protector must still be in play
+    const protector = getInstance(state, protectorId);
+    if (protector.zone !== "play") continue;
+    return protectorId;
+  }
+  return null;
+}
+
 function dealDamageToCard(
   state: GameState,
   instanceId: string,
@@ -2229,11 +2307,30 @@ function dealDamageToCard(
   /** CRD 8.8.3: Resist only reduces "dealt" damage, not "put" or "moved" damage */
   ignoreResist = false
 ): GameState {
+  const modifiers = getGameModifiers(state, definitions);
+
+  // CRD 6.5: Check for damage redirect (e.g. Beast - Selfless Protector)
+  const redirectTo = findDamageRedirect(state, instanceId, definitions, modifiers);
+  if (redirectTo) {
+    // Redirect: put damage counters on protector instead (ignoreResist for "put" damage — CRD 8.8.3)
+    const protector = getInstance(state, redirectTo);
+    const protectorDef = definitions[protector.definitionId];
+    if (protectorDef) {
+      const newDamage = protector.damage + amount;
+      state = updateInstance(state, redirectTo, { damage: newDamage });
+      events.push({ type: "damage_dealt", instanceId: redirectTo, amount });
+      const willpower = getEffectiveWillpower(protector, protectorDef);
+      if (newDamage >= willpower) {
+        state = banishCard(state, redirectTo, definitions, events);
+      }
+      return state;
+    }
+  }
+
   const instance = getInstance(state, instanceId);
   const def = definitions[instance.definitionId];
   if (!def) return state;
 
-  const modifiers = getGameModifiers(state, definitions);
   const resistValue = ignoreResist ? 0 : getKeywordValue(instance, def, "resist", modifiers.grantedKeywords.get(instanceId));
   const actualDamage = Math.max(0, amount - resistValue);
 
@@ -2369,6 +2466,14 @@ function applyEffectToTarget(
       // Shuffle the owner's deck
       state = shuffleDeck(state, inst.ownerId);
       return state;
+    }
+    case "grant_challenge_ready": {
+      const timedEffect: TimedEffect = {
+        type: "can_challenge_ready",
+        expiresAt: effect.duration,
+        appliedOnTurn: state.turnNumber,
+      };
+      return addTimedEffect(state, targetInstanceId, timedEffect);
     }
     default:
       return state;

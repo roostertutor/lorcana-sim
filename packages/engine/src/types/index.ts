@@ -129,7 +129,15 @@ export type Effect =
   | CostReductionEffect
   | LoseLoreEffect
   | CreateFloatingTriggerEffect
-  | GrantExtraInkPlayEffect;
+  | GrantExtraInkPlayEffect
+  | GrantChallengeReadyEffect;
+
+/** Grant "can challenge ready characters" for a duration. */
+export interface GrantChallengeReadyEffect {
+  type: "grant_challenge_ready";
+  target: CardTarget;
+  duration: EffectDuration;
+}
 
 export interface DrawEffect {
   type: "draw";
@@ -394,12 +402,24 @@ export type StaticEffect =
   | ActionRestrictionStatic
   | ExtraInkPlayStatic
   | SelfCostReductionStatic
-  | CanChallengeReadyStatic;
+  | CanChallengeReadyStatic
+  | DamageRedirectStatic;
 
 /** This character can challenge ready (non-exerted) characters. */
 export interface CanChallengeReadyStatic {
   type: "can_challenge_ready";
   target: CardTarget;
+}
+
+/**
+ * CRD 6.5: Replacement effect — "Whenever one of your other characters would be
+ * dealt damage, put that many damage counters on this character instead."
+ * Only Beast - Selfless Protector uses this currently.
+ */
+export interface DamageRedirectStatic {
+  type: "damage_redirect";
+  /** Which characters' damage gets redirected ("other own characters" = all others you control) */
+  from: CardTarget;
 }
 
 export interface GainKeywordStatic {
@@ -584,7 +604,7 @@ export type EffectDuration =
 
 export interface TimedEffect {
   type: "grant_keyword" | "modify_strength" | "modify_willpower" | "modify_lore"
-    | "cant_action";
+    | "cant_action" | "can_challenge_ready";
   keyword?: Keyword | undefined;
   value?: number | undefined;       // for keyword values (e.g. Challenger +N)
   amount?: number | undefined;      // for modify_* effects

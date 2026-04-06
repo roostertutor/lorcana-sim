@@ -4152,6 +4152,52 @@ describe("Set 2 — Rise of the Floodborn", () => {
     expect(result.newState.pendingChoice?.validTargets).not.toContain(weakId);
   });
 
+  // Pattern: grant_challenge_ready timed effect (Pick a Fight)
+  it("Pick a Fight: grants challenge-ready for the turn", () => {
+    let state = startGame(["pick-a-fight"]);
+    state = { ...state, interactive: true };
+    state = giveInk(state, "player1", 2);
+    let actionId: string;
+    let ownCharId: string;
+    let targetId: string;
+    ({ state, instanceId: actionId } = injectCard(state, "player1", "pick-a-fight", "hand"));
+    ({ state, instanceId: ownCharId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play"));
+    // Target is NOT exerted
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play"));
+
+    // Play Pick a Fight
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: actionId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Choose which character gains challenge-ready
+    expect(result.newState.pendingChoice?.type).toBe("choose_target");
+    result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [ownCharId] }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+
+    // Now that character should be able to challenge a ready (non-exerted) target
+    const challengeResult = applyAction(result.newState, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: ownCharId, defenderInstanceId: targetId }, LORCAST_CARD_DEFINITIONS);
+    expect(challengeResult.success).toBe(true);
+  });
+
+  // Pattern: CRD 6.5 damage redirect (Beast - Selfless Protector)
+  it("Beast Selfless Protector: redirects damage from allies to self", () => {
+    let state = startGame(["beast-selfless-protector"]);
+    let beastId: string;
+    let allyId: string;
+    ({ state, instanceId: beastId } = injectCard(state, "player1", "beast-selfless-protector", "play"));
+    ({ state, instanceId: allyId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { isExerted: true }));
+    let attackerId: string;
+    ({ state, instanceId: attackerId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play")); // 3 STR
+    state = { ...state, currentPlayer: "player2" };
+
+    // Challenge the ally — Beast should absorb the damage
+    const result = applyAction(state, { type: "CHALLENGE", playerId: "player2", attackerInstanceId: attackerId, defenderInstanceId: allyId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Minnie should have 0 damage (redirected to Beast)
+    expect(getInstance(result.newState, allyId).damage).toBe(0);
+    // Beast should have 3 damage (absorbed Minnie's share)
+    expect(getInstance(result.newState, beastId).damage).toBe(3);
+  });
+
   // Pattern: ChooseEffect inside triggered ability
   // TODO: ChooseEffect inside enters_play trigger auto-resolves even in interactive mode.
   // Needs investigation — may need to check how processTriggerStack handles choose effects.
