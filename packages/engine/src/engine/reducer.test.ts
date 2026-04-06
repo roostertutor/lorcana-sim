@@ -4024,12 +4024,26 @@ describe("Set 2 — Rise of the Floodborn", () => {
     expect(getInstance(result.newState, targetId).damage).toBe(1);
   });
 
-  // Pattern: static grant_keyword to filtered characters
-  // TODO: getKeywordValue() returns 0 for statically-granted keywords because
-  // grantedKeywords is Keyword[] with no value. Resist +1 granted by Cogsworth
-  // shows hasKeyword=true but value=0, so no damage reduction occurs.
-  // Fix: track {keyword, value} pairs in gameModifiers.grantedKeywords.
-  it.todo("Cogsworth: static Resist +1 to other characters (blocked by keyword value tracking)");
+  // Pattern: static grant_keyword with value to filtered characters
+  it("Cogsworth: static Resist +1 to other characters", () => {
+    let state = startGame(["cogsworth-grandfather-clock"]);
+    let cogsworthId: string;
+    let allyId: string;
+    ({ state, instanceId: cogsworthId } = injectCard(state, "player1", "cogsworth-grandfather-clock", "play"));
+    ({ state, instanceId: allyId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play"));
+
+    // Exert ally so it can be challenged, switch to player2's turn
+    state = { ...state, cards: { ...state.cards, [allyId]: { ...state.cards[allyId]!, isExerted: true } } };
+    let attackerId: string;
+    ({ state, instanceId: attackerId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play")); // 3 STR
+    state = { ...state, currentPlayer: "player2" };
+
+    const result = applyAction(state, { type: "CHALLENGE", playerId: "player2", attackerInstanceId: attackerId, defenderInstanceId: allyId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Minnie: 3 WP, takes 3-1=2 damage (Resist +1 from Cogsworth), survives
+    expect(getInstance(result.newState, allyId).damage).toBe(2);
+    expect(getInstance(result.newState, allyId).zone).toBe("play");
+  });
 
   // Pattern: static cost_reduction
   it("Snow White - Unexpected Houseguest: Seven Dwarfs cost 1 less", () => {

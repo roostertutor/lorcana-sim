@@ -613,18 +613,14 @@ function applyChallenge(
   const defenderStr = getEffectiveStrength(defender, defenderDef, defStaticStr);
 
   // CRD 8.5.1: Challenger +N bonus (only when attacking, not defending — CRD 8.5.2)
-  const challengerBonus = attackerDef.abilities.find(
-    (a) => a.type === "keyword" && a.keyword === "challenger"
-  );
-  if (challengerBonus?.type === "keyword") {
-    attackerStr += challengerBonus.value ?? 0;
-  }
+  const challengerValue = getKeywordValue(attacker, attackerDef, "challenger", modifiers.grantedKeywords.get(attackerInstanceId));
+  attackerStr += challengerValue;
 
   state = updateInstance(state, attackerInstanceId, { isExerted: true });
 
   // CRD 8.8.1: Resist +N reduces incoming challenge damage (min 0)
-  const attackerResist = getKeywordValue(attacker, attackerDef, "resist");
-  const defenderResist = getKeywordValue(defender, defenderDef, "resist");
+  const attackerResist = getKeywordValue(attacker, attackerDef, "resist", modifiers.grantedKeywords.get(attackerInstanceId));
+  const defenderResist = getKeywordValue(defender, defenderDef, "resist", modifiers.grantedKeywords.get(defenderInstanceId));
   const actualAttackerDamage = Math.max(0, defenderStr - attackerResist);
   const actualDefenderDamage = Math.max(0, attackerStr - defenderResist);
 
@@ -2233,7 +2229,8 @@ function dealDamageToCard(
   const def = definitions[instance.definitionId];
   if (!def) return state;
 
-  const resistValue = ignoreResist ? 0 : getKeywordValue(instance, def, "resist");
+  const modifiers = getGameModifiers(state, definitions);
+  const resistValue = ignoreResist ? 0 : getKeywordValue(instance, def, "resist", modifiers.grantedKeywords.get(instanceId));
   const actualDamage = Math.max(0, amount - resistValue);
 
   const newDamage = instance.damage + actualDamage;

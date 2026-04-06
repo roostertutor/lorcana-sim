@@ -174,16 +174,36 @@ export function hasKeyword(
 export function getKeywordValue(
   instance: CardInstance,
   definition: CardDefinition,
-  keyword: Keyword
+  keyword: Keyword,
+  /** Optional static-granted keywords from gameModifiers (includes {keyword, value} pairs) */
+  staticGrants?: { keyword: Keyword; value?: number }[]
 ): number {
-  // Check granted keywords (value not tracked for granted, default 0)
-  if (instance.grantedKeywords.includes(keyword)) return 0;
+  let total = 0;
 
-  const ability = definition.abilities.find(
-    (a) => a.type === "keyword" && a.keyword === keyword
-  );
-  if (!ability || ability.type !== "keyword") return 0;
-  return ability.value ?? 0;
+  // Check definition keyword abilities (e.g. Challenger +2, Resist +1, Singer 5)
+  for (const ability of definition.abilities) {
+    if (ability.type === "keyword" && ability.keyword === keyword) {
+      total += ability.value ?? 0;
+    }
+  }
+
+  // Check timed effects (e.g. "gains Challenger +3 this turn")
+  for (const te of instance.timedEffects) {
+    if (te.type === "grant_keyword" && te.keyword === keyword) {
+      total += te.value ?? 0;
+    }
+  }
+
+  // Check static-granted keywords from gameModifiers (e.g. Cogsworth Resist +1)
+  if (staticGrants) {
+    for (const grant of staticGrants) {
+      if (grant.keyword === keyword) {
+        total += grant.value ?? 0;
+      }
+    }
+  }
+
+  return total;
 }
 
 // -----------------------------------------------------------------------------

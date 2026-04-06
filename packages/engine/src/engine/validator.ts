@@ -310,9 +310,9 @@ function validateChallenge(
 
   // CRD 8.6.1: Evasive — can only be challenged by Evasive characters
   const defHasEvasive = hasKeyword(defender, defenderDef, "evasive") ||
-    (modifiers.grantedKeywords.get(defenderInstanceId)?.includes("evasive") ?? false);
+    (modifiers.grantedKeywords.get(defenderInstanceId)?.some(g => g.keyword === "evasive") ?? false);
   const atkHasEvasive = hasKeyword(attacker, attackerDef, "evasive") ||
-    (modifiers.grantedKeywords.get(attackerInstanceId)?.includes("evasive") ?? false);
+    (modifiers.grantedKeywords.get(attackerInstanceId)?.some(g => g.keyword === "evasive") ?? false);
   if (defHasEvasive) {
     if (!atkHasEvasive) {
       return fail("Only Evasive characters can challenge an Evasive character.");

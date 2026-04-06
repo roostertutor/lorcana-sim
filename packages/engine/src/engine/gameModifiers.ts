@@ -32,8 +32,8 @@ export interface GameModifiers {
    */
   statBonuses: Map<string, { strength: number; willpower: number; lore: number }>;
 
-  /** Keywords granted by conditional static abilities (e.g. Pascal gains Evasive). */
-  grantedKeywords: Map<string, import("../types/index.js").Keyword[]>;
+  /** Keywords granted by conditional static abilities (e.g. Pascal gains Evasive, Cogsworth grants Resist +1). */
+  grantedKeywords: Map<string, { keyword: import("../types/index.js").Keyword; value?: number }[]>;
 
   /** Static cost reductions (e.g. Mickey: Broom chars cost 1 less). Key = playerId. */
   costReductions: Map<import("../types/index.js").PlayerID, { amount: number; filter: import("../types/index.js").CardFilter }[]>;
@@ -144,10 +144,10 @@ export function getGameModifiers(
 
 
         case "grant_keyword": {
-          // Conditional static keyword granting (e.g. Pascal gains Evasive while condition met)
+          // Conditional static keyword granting (e.g. Pascal gains Evasive, Cogsworth grants Resist +1)
           if (effect.target.type === "this") {
             const existing = modifiers.grantedKeywords.get(instance.instanceId) ?? [];
-            existing.push(effect.keyword);
+            existing.push({ keyword: effect.keyword, value: effect.value });
             modifiers.grantedKeywords.set(instance.instanceId, existing);
           } else if (effect.target.type === "all") {
             for (const candidate of Object.values(state.cards)) {
@@ -157,7 +157,7 @@ export function getGameModifiers(
               if (!candidateDef) continue;
               if (matchesFilter(candidate, candidateDef, effect.target.filter, state, instance.ownerId)) {
                 const existing = modifiers.grantedKeywords.get(candidate.instanceId) ?? [];
-                existing.push(effect.keyword);
+                existing.push({ keyword: effect.keyword, value: effect.value });
                 modifiers.grantedKeywords.set(candidate.instanceId, existing);
               }
             }
