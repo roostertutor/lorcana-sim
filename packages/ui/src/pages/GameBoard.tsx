@@ -288,8 +288,6 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   const [deckViewerOpen, setDeckViewerOpen] = useState(false);
   const [inspectCardId, setInspectCardId] = useState<string | null>(null);
   const [inspectModalOpen, setInspectModalOpen] = useState(false);
-  // Map from instanceId → the wrapper div DOM element (for popover positioning)
-  const cardEls = useRef<Map<string, HTMLElement>>(new Map());
   const [popoverPos, setPopoverPos] = useState<{ top: number; left: number } | null>(null);
   const [autoPassP2, setAutoPassP2] = useState(true);
 
@@ -543,17 +541,6 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session.gameState?.pendingChoice]);
 
-  // Update popover position whenever selected card changes
-  useEffect(() => {
-    if (!inspectCardId) { setPopoverPos(null); return; }
-    const el = cardEls.current.get(inspectCardId);
-    if (!el) { setPopoverPos(null); return; }
-    const rect = el.getBoundingClientRect();
-    // Anchor below the card, centered, clamped to viewport
-    const left = Math.max(8, Math.min(window.innerWidth - 8, rect.left + rect.width / 2));
-    const top = rect.bottom + 6;
-    setPopoverPos({ top, left });
-  }, [inspectCardId]);
 
   function handleStart() {
     setReplayData(null);
@@ -820,9 +807,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     return (
       <DraggableCard key={id} instanceId={id} zone={zone} isEnabled={isDraggableEnabled(isOpponent)}>
         <div
-          ref={(el) => { el ? cardEls.current.set(id, el) : cardEls.current.delete(id); }}
           className="snap-start shrink-0 flex flex-col items-center gap-1 px-0.5"
           style={handStyle}
+          onClick={(e) => {
+            const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+            const left = Math.max(8, Math.min(window.innerWidth - 8, rect.left + rect.width / 2));
+            setPopoverPos({ top: rect.bottom + 6, left });
+          }}
         >
           <DroppableCardTarget id={id} isValidTarget={isDropTarget} activeId={dnd.activeId}>
             <div className="relative">
