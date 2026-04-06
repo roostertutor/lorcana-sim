@@ -219,7 +219,7 @@ function UtilityStrip({
         ) : (
           <div className="w-full h-full border border-dashed border-gray-700/40 rounded" />
         )}
-        <span className="absolute bottom-0.5 right-0.5 text-[8px] font-mono leading-none bg-black/60 text-gray-300 px-0.5 rounded">{deckCount}</span>
+        <span className="absolute bottom-0.5 right-0.5 text-[8px] sm:text-[10px] sm:px-1 font-mono leading-none bg-black/60 text-gray-300 px-0.5 rounded">{deckCount}</span>
       </button>
 
       {/* Inkwell — flex-1 */}
@@ -259,7 +259,7 @@ function UtilityStrip({
         ) : (
           <div className="w-full h-full border border-dashed border-gray-700/40 rounded" />
         )}
-        <span className="absolute bottom-0.5 right-0.5 text-[8px] font-mono leading-none bg-black/60 text-gray-300 px-0.5 rounded">{discardCount}</span>
+        <span className="absolute bottom-0.5 right-0.5 text-[8px] sm:text-[10px] sm:px-1 font-mono leading-none bg-black/60 text-gray-300 px-0.5 rounded">{discardCount}</span>
       </button>
     </div>
   );
