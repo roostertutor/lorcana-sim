@@ -1009,11 +1009,11 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           <div className="w-16 flex justify-start">
             {session.canUndo && !replayData && (
               <button
-                className="px-2 py-0.5 text-[10px] bg-gray-700/40 hover:bg-gray-700/60 text-gray-400 hover:text-gray-200 rounded border border-gray-600/40 font-medium transition-colors"
+                className="px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-xs bg-gray-700/40 hover:bg-gray-700/60 text-gray-400 hover:text-gray-200 rounded sm:rounded-md border border-gray-600/40 font-medium transition-colors"
                 onClick={() => { session.undo(); cancelMode(); }}
                 title="Undo last action"
               >
-                <Icon name="arrow-uturn-left" className="w-3.5 h-3.5" />
+                <Icon name="arrow-uturn-left" className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
             )}
           </div>
@@ -1026,7 +1026,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           <div className="w-16 flex justify-end">
             {(challengeAttackerId || shiftCardId) ? (
               <button
-                className={`px-2 py-0.5 text-[10px] rounded border font-medium transition-colors
+                className={`px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-xs rounded sm:rounded-md border font-medium transition-colors
                   ${challengeAttackerId
                     ? "bg-red-900/40 hover:bg-red-900/60 text-red-400 border-red-700/40"
                     : "bg-purple-900/40 hover:bg-purple-900/60 text-purple-400 border-purple-700/40"}`}
@@ -1036,7 +1036,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               </button>
             ) : isYourTurn && !pendingChoice && !isGameOver ? (
               <button
-                className="px-2 py-0.5 text-[10px] bg-green-700/30 hover:bg-green-700/50 text-green-400 rounded border border-green-600/40 font-medium transition-colors"
+                className="px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-xs bg-green-700/30 hover:bg-green-700/50 text-green-400 rounded sm:rounded-md border border-green-600/40 font-medium transition-colors"
                 onClick={() => session.dispatch({ type: "PASS_TURN", playerId: myId })}
               >
                 Pass
