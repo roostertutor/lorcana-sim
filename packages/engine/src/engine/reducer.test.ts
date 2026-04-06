@@ -3963,3 +3963,224 @@ describe("CRD 7.7.4: Bag trigger ordering", () => {
     expect(result.newState.pendingChoice?.type).not.toBe("choose_trigger");
   });
 });
+
+// =============================================================================
+// SET 2 — Rise of the Floodborn
+// =============================================================================
+
+describe("Set 2 — Batch 1: Simple cards", () => {
+  // -------------------------------------------------------------------------
+  // SLEEPY - NODDING OFF: "This character enters play exerted."
+  // -------------------------------------------------------------------------
+  it("Sleepy enters play exerted", () => {
+    let state = startGame(["sleepy-nodding-off"]);
+    state = giveInk(state, "player1", 4);
+    let sleepyId: string;
+    ({ state, instanceId: sleepyId } = injectCard(state, "player1", "sleepy-nodding-off", "hand"));
+
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: sleepyId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, sleepyId).isExerted).toBe(true);
+  });
+
+  // -------------------------------------------------------------------------
+  // HOLD STILL: Action — "Remove up to 4 damage from chosen character."
+  // -------------------------------------------------------------------------
+  it("Hold Still removes damage from chosen character", () => {
+    let state = startGame(["hold-still"]);
+    state = giveInk(state, "player1", 3); // cost 3
+    let actionId: string;
+    let targetId: string;
+    ({ state, instanceId: actionId } = injectCard(state, "player1", "hold-still", "hand"));
+    ({ state, instanceId: targetId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { damage: 3 }));
+
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: actionId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Should have a pending choice to pick target
+    expect(result.newState.pendingChoice).not.toBeNull();
+    expect(result.newState.pendingChoice?.type).toBe("choose_target");
+
+    result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId] }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, targetId).damage).toBe(0); // 3 damage removed (up to 4)
+  });
+
+  // -------------------------------------------------------------------------
+  // PAWPSICLE: "When you play this item, you may draw a card."
+  // -------------------------------------------------------------------------
+  it("Pawpsicle draws a card when played", () => {
+    let state = startGame(["pawpsicle"]);
+    state = giveInk(state, "player1", 2); // cost 2
+    let itemId: string;
+    ({ state, instanceId: itemId } = injectCard(state, "player1", "pawpsicle", "hand"));
+    const handBefore = getZone(state, "player1", "hand").length;
+
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: itemId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // isMay → choose_may pending choice
+    expect(result.newState.pendingChoice?.type).toBe("choose_may");
+
+    result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // hand went -1 (played item) +1 (drew) = same
+    expect(getZone(result.newState, "player1", "hand").length).toBe(handBefore);
+  });
+
+  // -------------------------------------------------------------------------
+  // THE SORCERER'S SPELLBOOK: "{E}, 1 {I} — Gain 1 lore."
+  // -------------------------------------------------------------------------
+  it("Sorcerer's Spellbook gains 1 lore on activation", () => {
+    let state = startGame(["the-sorcerers-spellbook"]);
+    state = giveInk(state, "player1", 5); // cost 3 to play + 1 to activate
+    let itemId: string;
+    ({ state, instanceId: itemId } = injectCard(state, "player1", "the-sorcerers-spellbook", "play"));
+
+    const loreBefore = state.players["player1"]!.lore;
+    const result = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: itemId, abilityIndex: 0 }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.players["player1"]!.lore).toBe(loreBefore + 1);
+    expect(getInstance(result.newState, itemId).isExerted).toBe(true);
+  });
+
+  // -------------------------------------------------------------------------
+  // ROBIN HOOD - CAPABLE FIGHTER: "{E} — Deal 1 damage to chosen character."
+  // -------------------------------------------------------------------------
+  it("Robin Hood deals 1 damage via activated ability", () => {
+    let state = startGame(["robin-hood-capable-fighter"]);
+    let robinId: string;
+    let targetId: string;
+    ({ state, instanceId: robinId } = injectCard(state, "player1", "robin-hood-capable-fighter", "play"));
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play"));
+
+    let result = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: robinId, abilityIndex: 0 }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Pending choice to pick target
+    expect(result.newState.pendingChoice?.type).toBe("choose_target");
+
+    result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId] }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, targetId).damage).toBe(1);
+  });
+
+  // -------------------------------------------------------------------------
+  // BEAST - FORBIDDING RECLUSE: "When you play, you may deal 1 damage to chosen character."
+  // -------------------------------------------------------------------------
+  it("Beast - Forbidding Recluse deals 1 damage on enters_play", () => {
+    let state = startGame(["beast-forbidding-recluse"]);
+    state = giveInk(state, "player1", 5); // cost 5
+    let beastId: string;
+    let targetId: string;
+    ({ state, instanceId: beastId } = injectCard(state, "player1", "beast-forbidding-recluse", "hand"));
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play"));
+
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: beastId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // isMay → choose_may prompt
+    expect(result.newState.pendingChoice).not.toBeNull();
+
+    // Accept the "may"
+    result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Now pick target
+    if (result.newState.pendingChoice?.type === "choose_target") {
+      result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId] }, LORCAST_CARD_DEFINITIONS);
+      expect(result.success).toBe(true);
+    }
+    expect(getInstance(result.newState, targetId).damage).toBe(1);
+  });
+
+  // -------------------------------------------------------------------------
+  // KUZCO - WANTED LLAMA: "When this character is banished, you may draw a card."
+  // -------------------------------------------------------------------------
+  it("Kuzco draws a card when banished", () => {
+    let state = startGame(["kuzco-wanted-llama"]);
+    let kuzcoId: string;
+    let attackerId: string;
+    // Put Kuzco in play exerted (so he can be challenged)
+    ({ state, instanceId: kuzcoId } = injectCard(state, "player2", "kuzco-wanted-llama", "play", { isExerted: true }));
+    // Strong attacker that will banish Kuzco (Kuzco: 2 STR / 3 WP)
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play")); // 3 STR
+
+    const p2HandBefore = getZone(state, "player2", "hand").length;
+
+    // Challenge Kuzco — Mickey (3 STR) vs Kuzco (3 WP) → banished
+    let result = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: attackerId, defenderInstanceId: kuzcoId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+
+    // Kuzco should be banished (3 damage >= 3 willpower)
+    expect(getInstance(result.newState, kuzcoId).zone).toBe("discard");
+    // isMay → choose_may pending choice for player2
+    expect(result.newState.pendingChoice?.type).toBe("choose_may");
+
+    result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player2", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(getZone(result.newState, "player2", "hand").length).toBe(p2HandBefore + 1);
+  });
+
+  // -------------------------------------------------------------------------
+  // JASMINE - HEIR OF AGRABAH: "When you play, remove up to 1 damage from chosen character of yours."
+  // -------------------------------------------------------------------------
+  it("Jasmine removes 1 damage from own character on play", () => {
+    let state = startGame(["jasmine-heir-of-agrabah"]);
+    state = giveInk(state, "player1", 4); // cost 4
+    let jasmineId: string;
+    let damagedId: string;
+    ({ state, instanceId: jasmineId } = injectCard(state, "player1", "jasmine-heir-of-agrabah", "hand"));
+    ({ state, instanceId: damagedId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { damage: 2 }));
+
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: jasmineId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Should have pending choice to pick damaged character
+    expect(result.newState.pendingChoice?.type).toBe("choose_target");
+
+    result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [damagedId] }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, damagedId).damage).toBe(1); // 2 - 1 = 1
+  });
+
+  // -------------------------------------------------------------------------
+  // RAPUNZEL - SUNSHINE: "{E} — Remove up to 2 damage from chosen character."
+  // -------------------------------------------------------------------------
+  it("Rapunzel removes 2 damage via activated ability", () => {
+    let state = startGame(["rapunzel-sunshine"]);
+    let rapunzelId: string;
+    let targetId: string;
+    ({ state, instanceId: rapunzelId } = injectCard(state, "player1", "rapunzel-sunshine", "play"));
+    ({ state, instanceId: targetId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { damage: 2 }));
+
+    let result = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: rapunzelId, abilityIndex: 0 }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.pendingChoice?.type).toBe("choose_target");
+
+    result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId] }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, targetId).damage).toBe(0); // 2 - 2 = 0
+  });
+
+  // -------------------------------------------------------------------------
+  // SNOW WHITE - LOST IN THE FOREST: "When you play, you may remove up to 2 damage from chosen character."
+  // -------------------------------------------------------------------------
+  it("Snow White removes damage on play (may)", () => {
+    let state = startGame(["snow-white-lost-in-the-forest"]);
+    state = giveInk(state, "player1", 4); // cost 4
+    let snowId: string;
+    let damagedId: string;
+    ({ state, instanceId: snowId } = injectCard(state, "player1", "snow-white-lost-in-the-forest", "hand"));
+    ({ state, instanceId: damagedId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { damage: 3 }));
+
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: snowId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.pendingChoice).not.toBeNull();
+
+    // Accept the "may"
+    result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+
+    // Pick target
+    if (result.newState.pendingChoice?.type === "choose_target") {
+      result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [damagedId] }, LORCAST_CARD_DEFINITIONS);
+      expect(result.success).toBe(true);
+    }
+    expect(getInstance(result.newState, damagedId).damage).toBe(1); // 3 - 2 = 1
+  });
+});

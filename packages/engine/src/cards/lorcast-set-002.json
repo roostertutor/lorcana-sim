@@ -628,7 +628,32 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "MAGIC HAIR",
+        "rulesText": "Remove up to 2 damage from chosen character.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "remove_damage",
+            "amount": 2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "hasDamage": true
+              }
+            },
+            "isUpTo": true
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 20,
     "rarity": "common",
@@ -662,7 +687,24 @@
       "Ally",
       "Seven Dwarfs"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "YAWN!",
+        "rulesText": "This character enters play exerted.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 21,
     "rarity": "common",
@@ -730,7 +772,31 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "I WON'T HURT YOU",
+        "rulesText": "When you play this character, you may remove up to 2 damage from chosen character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "remove_damage",
+            "amount": 2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "hasDamage": true
+              }
+            },
+            "isUpTo": true,
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 23,
     "rarity": "common",
@@ -912,6 +978,20 @@
         "storyName": "",
         "rulesText": "Remove up to 4 damage from chosen character.",
         "raw": "Remove up to 4 damage from chosen character."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "remove_damage",
+        "amount": 4,
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "hasDamage": true
+          }
+        },
+        "isUpTo": true
       }
     ]
   },
@@ -1434,7 +1514,26 @@
       "Storyborn",
       "King"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "OK, WHERE AM I?",
+        "rulesText": "When this character is banished, you may draw a card.",
+        "trigger": {
+          "on": "is_banished"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 45,
     "rarity": "common",
@@ -2185,7 +2284,31 @@
     "cost": 3,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "KNOWLEDGE",
+        "rulesText": "Gain 1 lore.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 68,
     "rarity": "rare",
@@ -4843,7 +4966,33 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "I'M A FAST LEARNER",
+        "rulesText": "When you play this character, remove up to 1 damage from chosen character of yours.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "remove_damage",
+            "amount": 1,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "owner": {
+                  "type": "self"
+                },
+                "hasDamage": true
+              }
+            },
+            "isUpTo": true
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 151,
     "rarity": "common",
@@ -5369,7 +5518,26 @@
     "cost": 1,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "JUMBO POP",
+        "rulesText": "When you play this item, you may draw a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 169,
     "rarity": "common",
@@ -5424,7 +5592,32 @@
       "Hero",
       "Prince"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "YOU'RE NOT WELCOME HERE",
+        "rulesText": "When you play this character, you may deal 1 damage to chosen character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 1,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 171,
     "rarity": "common",
@@ -6153,7 +6346,33 @@
       "Dreamborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "SKIRMISH",
+        "rulesText": "Deal 1 damage to chosen character.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 1,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 193,
     "rarity": "uncommon",
