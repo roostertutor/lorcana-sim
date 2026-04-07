@@ -1482,20 +1482,13 @@ function applyResolveChoice(
   }
 
   if (pendingChoice.type === "choose_player" && typeof choice === "string") {
-    // Controller has picked a player. Re-apply the pending effect with target
-    // substituted to that specific player. Currently only "draw" supports
-    // chosen players; other effects (lose_lore, reveal_hand, etc.) can opt in
-    // by adding the same chosen branch.
+    // Controller has picked a player. Re-apply the pending effect with the
+    // chosen player substituted via target.type. Generic — works for any
+    // effect with a PlayerTarget (draw, lose_lore, gain_lore, etc.).
     const chosenPlayer = choice as PlayerID;
-    if (pendingEffect && pendingEffect.type === "draw") {
-      const substituted = {
-        ...pendingEffect,
-        target: chosenPlayer === playerId
-          ? ({ type: "self" } as const)
-          : ({ type: "opponent" } as const),
-      };
+    if (pendingEffect) {
       const sourceId = pendingChoice.sourceInstanceId ?? "";
-      state = applyEffect(state, substituted, sourceId, playerId, definitions, events);
+      state = applyChosenPlayerEffect(state, pendingEffect, chosenPlayer, playerId, sourceId, definitions, events);
     }
     state = resumePendingEffectQueue(state, definitions, events);
     state = cleanupPendingAction(state, playerId);
@@ -1579,16 +1572,7 @@ export function applyEffect(
       }
       // Chosen player — controller picks any player (Second Star to the Right etc.)
       if (effect.target.type === "chosen") {
-        return {
-          ...state,
-          pendingChoice: {
-            type: "choose_player",
-            choosingPlayerId: controllingPlayerId,
-            prompt: "Choose a player.",
-            validTargets: ["player1", "player2"],
-            pendingEffect: effect,
-          },
-        };
+        return surfaceChoosePlayer(state, effect, controllingPlayerId, sourceInstanceId, definitions, events);
       }
       const targetPlayer =
         effect.target.type === "opponent"
@@ -1600,10 +1584,15 @@ export function applyEffect(
     }
 
     case "gain_lore": {
+      if (effect.target.type === "chosen") {
+        return surfaceChoosePlayer(state, effect, controllingPlayerId, sourceInstanceId, definitions, events);
+      }
       const targetPlayer =
         effect.target.type === "opponent"
           ? getOpponent(controllingPlayerId)
-          : controllingPlayerId;
+          : effect.target.type === "target_owner"
+            ? (state.lastTargetOwnerId ?? controllingPlayerId)
+            : controllingPlayerId;
       let amount: number;
       if (typeof effect.amount === "object" && effect.amount.type === "count") {
         amount = findMatchingInstances(state, definitions, effect.amount.filter, controllingPlayerId).length;
@@ -2608,8 +2597,11 @@ export function applyEffect(
       };
     }
 
-    // "Each opponent loses N lore"
+    // "Each opponent loses N lore" / "Chosen player loses N lore"
     case "lose_lore": {
+      if (effect.target.type === "chosen") {
+        return surfaceChoosePlayer(state, effect, controllingPlayerId, sourceInstanceId, definitions, events);
+      }
       const targetPlayer = effect.target.type === "opponent"
         ? getOpponent(controllingPlayerId)
         : controllingPlayerId;
@@ -3628,6 +3620,58 @@ function shuffleDeck(state: GameState, playerId: PlayerID): GameState {
 }
 
 /** Add a timed effect to a card instance */
+/** Surface a choose_player pendingChoice for an effect with a chosen-PlayerTarget.
+ *  When excludeSelf is set and only one valid target remains, auto-resolves
+ *  inline by substituting the effect's target and re-applying. */
+function surfaceChoosePlayer(
+  state: GameState,
+  effect: Effect,
+  controllingPlayerId: PlayerID,
+  sourceInstanceId: string,
+  definitions: Record<string, CardDefinition>,
+  events: GameEvent[]
+): GameState {
+  const target = (effect as { target?: { excludeSelf?: boolean } }).target;
+  const opponent = getOpponent(controllingPlayerId);
+  const validTargets: PlayerID[] = target?.excludeSelf
+    ? [opponent]
+    : ["player1", "player2"];
+  // Single valid target → auto-resolve without prompting (chosen opponent in 2P).
+  if (validTargets.length === 1) {
+    return applyChosenPlayerEffect(state, effect, validTargets[0]!, controllingPlayerId, sourceInstanceId, definitions, events);
+  }
+  return {
+    ...state,
+    pendingChoice: {
+      type: "choose_player",
+      choosingPlayerId: controllingPlayerId,
+      prompt: "Choose a player.",
+      validTargets,
+      pendingEffect: effect,
+      sourceInstanceId,
+    },
+  };
+}
+
+/** Re-apply an effect with the chosen player substituted into target.type. */
+function applyChosenPlayerEffect(
+  state: GameState,
+  effect: Effect,
+  chosenPlayer: PlayerID,
+  resolverPlayerId: PlayerID,
+  sourceInstanceId: string,
+  definitions: Record<string, CardDefinition>,
+  events: GameEvent[]
+): GameState {
+  const substituted = {
+    ...(effect as object),
+    target: chosenPlayer === resolverPlayerId
+      ? { type: "self" as const }
+      : { type: "opponent" as const },
+  } as Effect;
+  return applyEffect(state, substituted, sourceInstanceId, resolverPlayerId, definitions, events);
+}
+
 function addTimedEffect(state: GameState, instanceId: string, effect: TimedEffect): GameState {
   const instance = getInstance(state, instanceId);
   return updateInstance(state, instanceId, {

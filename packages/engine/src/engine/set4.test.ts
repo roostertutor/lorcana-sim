@@ -4,6 +4,7 @@
 
 import { describe, it, expect } from "vitest";
 import { applyAction, applyEffect } from "./reducer.js";
+import { setLore } from "./test-helpers.js";
 import {
   LORCAST_CARD_DEFINITIONS,
   startGame,
@@ -216,6 +217,35 @@ describe("§4 Set 4 — Sing Together", () => {
     // + 5 drawn = +4. But we played the song so it leaves hand first. handBefore counted Second Star.
     // After play: handBefore - 1 (song removed) + 5 = handBefore + 4.
     expect(getZone(state, "player1", "hand").length).toBe(handBefore + 4);
+  });
+
+  it("chosen player + lose_lore: pendingChoice surfaces and resolves to opponent", () => {
+    let state = startGame();
+    state = setLore(state, "player2", 5);
+    state = applyEffect(state, {
+      type: "lose_lore",
+      amount: 2,
+      target: { type: "chosen" },
+    }, "synthetic-source", "player1", LORCAST_CARD_DEFINITIONS, []);
+    expect(state.pendingChoice?.type).toBe("choose_player");
+
+    const r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "player2" }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(state.players.player2.lore).toBe(3);
+  });
+
+  it("chosen player with excludeSelf in 2P: auto-resolves to opponent without prompting", () => {
+    let state = startGame();
+    state = setLore(state, "player2", 5);
+    state = applyEffect(state, {
+      type: "lose_lore",
+      amount: 2,
+      target: { type: "chosen", excludeSelf: true },
+    }, "synthetic-source", "player1", LORCAST_CARD_DEFINITIONS, []);
+    // No pendingChoice — collapsed to opponent in 2P
+    expect(state.pendingChoice).toBeFalsy();
+    expect(state.players.player2.lore).toBe(3);
   });
 
   it("Second Star to the Right: chosen player can be opponent", () => {

@@ -832,11 +832,13 @@ export type PlayerTarget =
   | { type: "both" }
   | { type: "choosing_player" }
   | { type: "target_owner" }
-  /** "Chosen player" — controller picks any player (including themselves).
-   *  Surfaces a choose_player pendingChoice. Used by Second Star to the Right
-   *  ("Chosen player draws 5 cards"), Mad Hatter, Madame Medusa, Water Has
-   *  Memory, etc. */
-  | { type: "chosen" };
+  /** "Chosen player" — controller picks any player. Surfaces a choose_player
+   *  pendingChoice. Set excludeSelf for "chosen opponent" patterns (in 2P this
+   *  collapses to a single valid target → auto-resolves; in 3+P it'd genuinely
+   *  prompt the controller to pick among opponents).
+   *  Used by Second Star to the Right ("Chosen player draws 5 cards"),
+   *  Mad Hatter, Madame Medusa, Water Has Memory, Copper Hound Pup, etc. */
+  | { type: "chosen"; excludeSelf?: boolean };
 
 export type CardTarget =
   | { type: "this" } // The card itself
