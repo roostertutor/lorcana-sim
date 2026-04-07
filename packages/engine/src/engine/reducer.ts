@@ -2153,6 +2153,12 @@ export function applyEffect(
     }
 
     case "ready": {
+      // Note: effect-driven ready does NOT honor the "ready" restriction.
+      // Lorcana's "can't ready" wording is uniformly narrow ("at the start of
+      // your turn") — Shield of Virtue and other active ready effects override
+      // it. The ready loop in applyPassTurn enforces the narrow check.
+      // If a future card needs broad "can't be readied period" semantics, add
+      // a new RestrictedAction value (e.g. "ready_anywhere") and check it here.
       if (effect.target.type === "this") {
         const wasExerted = getInstance(state, sourceInstanceId).isExerted;
         state = updateInstance(state, sourceInstanceId, { isExerted: false });

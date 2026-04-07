@@ -21,7 +21,20 @@ export type InkColor =
   | "steel";
 export type CardType = "character" | "action" | "item" | "location";
 /** CRD 6.6.1: Unified type for actions that ability modifiers can restrict. */
-export type RestrictedAction = "quest" | "challenge" | "ready" | "play" | "sing" | "move";
+export type RestrictedAction =
+  | "quest"
+  | "challenge"
+  /** "can't ready at the start of your turn" — blocks the start-of-turn ready
+   *  loop (CRD 3.2.1.1) only, NOT effect-driven readying. Lorcana's "can't ready"
+   *  cards are uniformly narrow (Elsa's "can't ready at the start of their next
+   *  turn", Maui's "can't ready at the start of your turn"); Shield of Virtue
+   *  and similar active-ready effects override the restriction.
+   *  If a future card needs a broader "can't be readied period" semantic, add
+   *  a new value (e.g. "ready_anywhere") rather than changing this one. */
+  | "ready"
+  | "play"
+  | "sing"
+  | "move";
 export type Keyword =
   | "evasive"
   | "rush"
