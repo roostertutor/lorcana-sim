@@ -1110,6 +1110,9 @@ export interface CardDefinition {
   id: string;
   /** Full card name */
   name: string;
+  /** Additional names this card counts as having (CRD §10.6 reminder text — e.g.
+   * Flotsam & Jetsam Entangling Eels "counts as being named both Flotsam and Jetsam"). */
+  alternateNames?: string[];
   /** Subtitle/version, e.g. "Snow Queen", "Of Motunui" */
   subtitle?: string;
   /** Full display name for UI */

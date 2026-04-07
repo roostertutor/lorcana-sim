@@ -414,7 +414,10 @@ function isImplemented(card: any): boolean {
     ["triggered", "activated", "static"].includes(a.type)
   );
   const hasActionEffects = card.actionEffects?.length > 0;
-  return hasNamedAbility || hasActionEffects;
+  // alternateNames satisfies the only "named ability" of dual-name cards
+  // (e.g. Flotsam & Jetsam Entangling Eels — CRD §10.6 reminder text).
+  const hasAlternateNames = Array.isArray(card.alternateNames) && card.alternateNames.length > 0;
+  return hasNamedAbility || hasActionEffects || hasAlternateNames;
 }
 
 function hasNamedStubs(card: any): boolean {

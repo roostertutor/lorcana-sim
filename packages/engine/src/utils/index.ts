@@ -288,7 +288,8 @@ export function matchesFilter(
   }
 
   if (filter.hasName) {
-    if (definition.name !== filter.hasName) return false;
+    const altNames = definition.alternateNames ?? [];
+    if (definition.name !== filter.hasName && !altNames.includes(filter.hasName)) return false;
   }
 
   if (filter.hasDamage !== undefined) {
