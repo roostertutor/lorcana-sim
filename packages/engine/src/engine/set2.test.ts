@@ -1061,4 +1061,93 @@ describe("§6 Set 2 Card Coverage", () => {
     // HeiHei should end up in hand (one of the two return_to_hand triggers resolved)
     expect(getInstance(result.newState, heiheiId).zone).toBe("hand");
   });
+
+  // ===== COGSWORTH TALKING CLOCK: grants {E} → gain 1 lore to Reckless characters =====
+  it("Cogsworth Talking Clock: Reckless character gains an activated {E}→gain lore", () => {
+    let state = startGame(["cogsworth-talking-clock", "gaston-arrogant-hunter"]);
+    let cogsworthId: string;
+    let gastonId: string;
+    ({ state, instanceId: cogsworthId } = injectCard(state, "player1", "cogsworth-talking-clock", "play"));
+    // Gaston Arrogant Hunter has Reckless
+    ({ state, instanceId: gastonId } = injectCard(state, "player1", "gaston-arrogant-hunter", "play"));
+
+    const loreBefore = state.players["player1"]!.lore;
+    const gastonDef = LORCAST_CARD_DEFINITIONS["gaston-arrogant-hunter"]!;
+    const grantedAbilityIndex = gastonDef.abilities.length; // Granted abilities come AFTER own
+
+    // Activate the granted ability on Gaston
+    const result = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: gastonId, abilityIndex: grantedAbilityIndex }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Gaston should be exerted and lore gained
+    expect(getInstance(result.newState, gastonId).isExerted).toBe(true);
+    expect(result.newState.players["player1"]!.lore).toBe(loreBefore + 1);
+  });
+
+  // Cogsworth granted ability disappears when Cogsworth leaves play
+  it("Cogsworth Talking Clock: granted ability removed when Cogsworth banished", () => {
+    let state = startGame(["cogsworth-talking-clock", "gaston-arrogant-hunter"]);
+    let cogsworthId: string;
+    let gastonId: string;
+    ({ state, instanceId: cogsworthId } = injectCard(state, "player1", "cogsworth-talking-clock", "play"));
+    ({ state, instanceId: gastonId } = injectCard(state, "player1", "gaston-arrogant-hunter", "play"));
+
+    // Cogsworth in play → Gaston has the granted ability
+    let modifiers = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    expect(modifiers.grantedActivatedAbilities.get(gastonId)?.length).toBeGreaterThan(0);
+
+    // Move Cogsworth to discard
+    state = {
+      ...state,
+      cards: { ...state.cards, [cogsworthId]: { ...state.cards[cogsworthId]!, zone: "discard" } },
+      zones: {
+        ...state.zones,
+        player1: {
+          ...state.zones.player1,
+          play: state.zones.player1.play.filter(id => id !== cogsworthId),
+          discard: [...state.zones.player1.discard, cogsworthId],
+        },
+      },
+    };
+
+    // Granted ability should be gone
+    modifiers = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    expect(modifiers.grantedActivatedAbilities.get(gastonId) ?? []).toEqual([]);
+  });
+
+  // ===== LUCIFER: ChooseEffect — discard 2 OR discard 1 action =====
+  // TODO: ChooseEffect inside triggered abilities silently no-ops — neither
+  // option resolves. Same family as the Madam Mim Fox todo. Needs investigation
+  // into how processTriggerStack handles ChooseEffect.
+  it.todo("Lucifer Cunning Cat: opponent chooses discard option (ChooseEffect in trigger)");
+
+  // ===== YZMA: target_owner draw — opponent draws 2 when their character shuffled =====
+  it("Yzma: shuffles opponent's character into deck → opponent draws 2", () => {
+    let state = startGame(["yzma-scary-beyond-all-reason"]);
+    state = { ...state, interactive: true };
+    state = giveInk(state, "player1", 6);
+    let yzmaId: string;
+    let opponentCharId: string;
+    ({ state, instanceId: yzmaId } = injectCard(state, "player1", "yzma-scary-beyond-all-reason", "hand"));
+    ({ state, instanceId: opponentCharId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play"));
+
+    const p2HandBefore = getZone(state, "player2", "hand").length;
+    const p1HandBefore = getZone(state, "player1", "hand").length;
+
+    // Play Yzma → enters_play trigger
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: yzmaId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+
+    // Choose opponent's character to shuffle
+    if (result.newState.pendingChoice?.type === "choose_target") {
+      result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [opponentCharId] }, LORCAST_CARD_DEFINITIONS);
+      expect(result.success).toBe(true);
+    }
+
+    // Opponent's character should be in their deck
+    expect(getInstance(result.newState, opponentCharId).zone).toBe("deck");
+    // Opponent (target_owner) should have drawn 2 cards
+    expect(getZone(result.newState, "player2", "hand").length).toBe(p2HandBefore + 2);
+    // Player1: -1 (played Yzma), no draw
+    expect(getZone(result.newState, "player1", "hand").length).toBe(p1HandBefore - 1);
+  });
 });
