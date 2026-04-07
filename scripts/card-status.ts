@@ -62,11 +62,10 @@ interface CardEntry {
 const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // Sing Together alternate cost mechanic
   [/sing together/i, "sing-together"],
-  // Location interactions (for non-location cards)
-  [/\bat a location\b/i, "location-interaction"],
-  [/\bwhile here\b/i, "location-interaction"],
-  [/\bmove .{0,40}to .{0,30}location/i, "location-interaction"],
-  [/\bplay .{0,30}location\b/i, "location-interaction"],
+  // Location interactions: "play a location for free", "may move here for free" still need new mechanics
+  [/\bplay .{0,30}location for free\b/i, "play-location-for-free"],
+  [/\bmay move .{0,20}here for free\b/i, "move-for-free"],
+  [/\bmay move (there|here) for free\b/i, "move-for-free"],
   // Win threshold modification (Donald Duck)
   [/\b\d+ lore to win\b/i, "win-threshold"],
   [/\bneed \d+ lore to win\b/i, "win-threshold"],
@@ -243,6 +242,11 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
 // Patterns that strongly suggest the card fits existing grammar.
 // Each is associated with one or more Effect/Ability types we already have.
 const FITS_GRAMMAR_PATTERNS: RegExp[] = [
+  // Locations: "while here" and "at a location" — atLocation filter + this_at_location condition
+  /\bwhile here\b/i,
+  /\bwhile .{0,20}is at a location\b/i,
+  /\bat the start of your turn,? for each character .{0,20}here\b/i,
+  /\bwhenever .{0,30}moves to a location\b/i,
   // Draw
   /\bdraw (a|\d+) cards?\b/i,
   /\bdraws? a card\b/i,
@@ -410,17 +414,23 @@ for (const filename of SET_FILES) {
     let category: CardCategory;
     const categorizedStubs: CardEntry["stubs"] = [];
 
-    if (card.cardType === "location") {
-      // Locations are always new-mechanic regardless of stub content
-      category = "needs-new-mechanic";
-      for (const stub of card._namedAbilityStubs ?? []) {
-        if (stub.rulesText?.trim()) {
+    if (isImplemented(card)) {
+      category = "implemented";
+    } else if (card.cardType === "location") {
+      // Unimplemented locations: vanilla locations have no stubs, otherwise stubs use existing categorization
+      if (!hasNamedStubs(card)) {
+        category = "vanilla";
+      } else {
+        for (const stub of card._namedAbilityStubs ?? []) {
+          if (!stub.rulesText?.trim()) continue;
+          const stubCat = categorizeStub(stub.rulesText, card.cardType);
           categorizedStubs.push({
             storyName: stub.storyName ?? "",
             rulesText: stub.rulesText,
-            category: "needs-new-mechanic",
+            category: stubCat,
           });
         }
+        category = worstCategory(categorizedStubs.map((s) => s.category));
       }
     } else if (isImplemented(card)) {
       category = "implemented";

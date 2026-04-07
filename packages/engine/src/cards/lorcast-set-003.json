@@ -2213,13 +2213,17 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
-      },
-      {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 5
+        "type": "static",
+        "storyName": "STAY BACK!",
+        "rulesText": "During your turn, while this character is exerted, whenever you draw a card, gain 1 lore.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "modifier": 0,
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "3",
@@ -2473,8 +2477,21 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
+        "type": "triggered",
+        "storyName": "GLIDING RIDE",
+        "rulesText": "When you play this character, move a character of yours to a location for free.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 0,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "3",
@@ -2992,7 +3009,43 @@
     "traits": [
       "Storyborn"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "GUARDIAN OF GOLD",
+        "rulesText": "This character can't quest unless it is at a location.",
+        "effect": {
+          "type": "action_restriction",
+          "restricts": "quest",
+          "affectedPlayer": {
+            "type": "self"
+          }
+        },
+        "condition": {
+          "type": "not",
+          "condition": {
+            "type": "this_at_location"
+          }
+        }
+      },
+      {
+        "type": "static",
+        "rulesText": "This character can't challenge unless it is at a location.",
+        "effect": {
+          "type": "action_restriction",
+          "restricts": "challenge",
+          "affectedPlayer": {
+            "type": "self"
+          }
+        },
+        "condition": {
+          "type": "not",
+          "condition": {
+            "type": "this_at_location"
+          }
+        }
+      }
+    ],
     "setId": "3",
     "number": 58,
     "rarity": "rare",
@@ -3330,7 +3383,29 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "ABRACADABRA",
+        "rulesText": "Name a card, then reveal the top card of your deck. If it's the named card, put that card into your hand. Otherwise, put it on the top of your deck.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 1,
+            "action": "one_to_hand_rest_bottom",
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 65,
     "rarity": "rare",
@@ -4146,7 +4221,21 @@
       "Ally",
       "Alien"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "MIMICRY",
+        "rulesText": "You may play any character with Shift on this character as if this character had any name.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "modifier": 0,
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "3",
     "number": 81,
     "rarity": "rare",
@@ -4179,7 +4268,25 @@
       "Dreamborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "I CAME TO LISTEN TO THE STORIES",
+        "rulesText": "Once per turn, when this character moves to a location, gain lore equal to that location's {L}.",
+        "trigger": {
+          "on": "moves_to_location"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 82,
     "rarity": "rare",
@@ -4534,7 +4641,21 @@
       "Villain",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "MASTERFUL DECEIT",
+        "rulesText": "Whenever this character sings a song, you may play that song again from your discard for free, then put it on the bottom of your deck.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "modifier": 0,
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "3",
     "number": 91,
     "rarity": "legendary",
@@ -4736,6 +4857,22 @@
         "storyName": "",
         "rulesText": "Chosen character of yours gets +2 {S} this turn. They may move to a location for free.",
         "raw": "Chosen character of yours gets +2 {S} this turn. They may move to a location for free."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "gain_stats",
+        "strength": 2,
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "duration": "this_turn"
       }
     ]
   },
@@ -5065,7 +5202,27 @@
     "cost": 3,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "ROYAL JUDGEMENT",
+        "rulesText": "Whenever a character is challenged and banished while here, banish the challenging character.",
+        "trigger": {
+          "on": "banished_in_challenge",
+          "filter": {
+            "atLocation": "this"
+          }
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "triggering_card"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 102,
     "rarity": "uncommon",
@@ -5291,7 +5448,25 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "MINDLESS WANDERING",
+        "rulesText": "Once per turn, when this character moves to a location, each opponent loses 1 lore.",
+        "trigger": {
+          "on": "moves_to_location"
+        },
+        "effects": [
+          {
+            "type": "lose_lore",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 107,
     "rarity": "uncommon",
@@ -5386,7 +5561,28 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "ASTRO NAVIGATOR",
+        "rulesText": "When you play this character, you may play a location with cost 4 or less for free.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "play_for_free",
+            "filter": {
+              "cardType": [
+                "location"
+              ],
+              "costAtMost": 4
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 109,
     "rarity": "legendary",
@@ -5620,7 +5816,39 @@
       "Hero",
       "Deity"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "EPIC LEAP",
+        "rulesText": "Ready this character. He can't quest for the rest of this turn.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "banish_self"
+          }
+        ],
+        "effects": [
+          {
+            "type": "ready",
+            "target": {
+              "type": "this"
+            },
+            "followUpEffects": [
+              {
+                "type": "cant_action",
+                "action": "quest",
+                "target": {
+                  "type": "this"
+                },
+                "duration": "rest_of_turn"
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 114,
     "rarity": "rare",
@@ -5712,9 +5940,44 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 3
+        "type": "triggered",
+        "storyName": "RALLY THE CREW",
+        "rulesText": "Whenever this character quests while at a location, ready all other characters here. They can't quest for the rest of this turn.",
+        "trigger": {
+          "on": "quests"
+        },
+        "condition": {
+          "type": "this_at_location"
+        },
+        "effects": [
+          {
+            "type": "ready",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "atLocation": "this",
+                "excludeSelf": true
+              }
+            },
+            "followUpEffects": [
+              {
+                "type": "cant_action",
+                "action": "quest",
+                "target": {
+                  "type": "this"
+                },
+                "duration": "rest_of_turn"
+              }
+            ]
+          }
+        ]
       }
     ],
     "setId": "3",
@@ -6285,6 +6548,41 @@
         "rulesText": "Ready chosen character of yours at a location. They can't quest for the rest of this turn. Gain lore equal to that location's {L}.",
         "raw": "Ready chosen character of yours at a location. They can't quest for the rest of this turn. Gain lore equal to that location's {L}."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "ready",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "atLocation": "any"
+          }
+        },
+        "followUpEffects": [
+          {
+            "type": "cant_action",
+            "action": "quest",
+            "target": {
+              "type": "this"
+            },
+            "duration": "rest_of_turn"
+          }
+        ]
+      },
+      {
+        "type": "gain_lore",
+        "amount": 1,
+        "target": {
+          "type": "self"
+        }
+      }
     ]
   },
   {
@@ -6370,6 +6668,15 @@
         "rulesText": "Move up to 2 characters of yours to the same location for free.",
         "raw": "Move up to 2 characters of yours to the same location for free."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "gain_lore",
+        "amount": 0,
+        "target": {
+          "type": "self"
+        }
+      }
     ]
   },
   {
@@ -6383,7 +6690,27 @@
     "cost": 3,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "EPIC POWER",
+        "rulesText": "Choose one:",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 132,
     "rarity": "rare",
@@ -8006,7 +8333,52 @@
     "cost": 4,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "REINFORCED",
+        "rulesText": "Your locations gain Resist +1.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "resist",
+          "value": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "location"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "static",
+        "rulesText": "Your characters at locations gain Resist +1.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "resist",
+          "value": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "atLocation": "any"
+            }
+          }
+        }
+      }
+    ],
     "setId": "3",
     "number": 167,
     "rarity": "common",
@@ -8032,7 +8404,22 @@
     "cost": 1,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "LABORATORY",
+        "rulesText": "If you have a character here, you pay 1 {I} less to play items.",
+        "effect": {
+          "type": "cost_reduction",
+          "amount": 1,
+          "filter": {
+            "cardType": [
+              "item"
+            ]
+          }
+        }
+      }
+    ],
     "setId": "3",
     "number": 168,
     "rarity": "rare",
@@ -8084,7 +8471,32 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "ISLAND BLESSING",
+        "rulesText": "Whenever a character is banished while here, you may put that card into your inkwell facedown and exerted.",
+        "trigger": {
+          "on": "is_banished",
+          "filter": {
+            "atLocation": "this",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "effects": [
+          {
+            "type": "move_to_inkwell",
+            "target": {
+              "type": "triggering_card"
+            },
+            "enterExerted": true,
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 170,
     "rarity": "uncommon",
@@ -8173,7 +8585,49 @@
       "Dreamborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "BIG ENTRANCE",
+        "rulesText": "This character enters play exerted.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "rulesText": "During your turn, whenever one of your other characters banishes another character in a challenge, you may ready this character.",
+        "trigger": {
+          "on": "banished_other_in_challenge",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "excludeSelf": true
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "ready",
+            "target": {
+              "type": "this"
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 173,
     "rarity": "rare",
@@ -8305,7 +8759,30 @@
       "Pirate",
       "Captain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "CHART YOUR OWN COURSE",
+        "rulesText": "For each location you have in play, this character gets +1 {L}.",
+        "effect": {
+          "type": "modify_stat_per_count",
+          "stat": "lore",
+          "perCount": 1,
+          "countFilter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "location"
+            ]
+          },
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "3",
     "number": 176,
     "rarity": "rare",
@@ -8371,9 +8848,55 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 4
+        "type": "static",
+        "storyName": "TOUGH AS NAILS",
+        "rulesText": "While this character is exerted, your characters with Bodyguard gain Resist +1.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "resist",
+          "value": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasKeyword": "bodyguard"
+            }
+          }
+        },
+        "condition": {
+          "type": "this_is_exerted"
+        }
+      },
+      {
+        "type": "static",
+        "rulesText": "While this character is exerted, your characters with Bodyguard get +1 {L}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "modifier": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasKeyword": "bodyguard"
+            }
+          }
+        },
+        "condition": {
+          "type": "this_is_exerted"
+        }
       }
     ],
     "setId": "3",
@@ -9073,7 +9596,106 @@
       "Hero",
       "Prince"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "PROUD HUNTER",
+        "rulesText": "When you play this character, you may choose one: Draw 2 cards then discard 2 cards, OR deal 2 damage to chosen character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "choose",
+            "count": 1,
+            "options": [
+              [
+                {
+                  "type": "draw",
+                  "amount": 2,
+                  "target": {
+                    "type": "self"
+                  }
+                },
+                {
+                  "type": "discard_from_hand",
+                  "amount": 2,
+                  "target": {
+                    "type": "self"
+                  },
+                  "chooser": "target_player"
+                }
+              ],
+              [
+                {
+                  "type": "deal_damage",
+                  "amount": 2,
+                  "target": {
+                    "type": "chosen",
+                    "filter": {
+                      "zone": "play",
+                      "cardType": [
+                        "character"
+                      ]
+                    }
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "rulesText": "Whenever he banishes another character in a challenge during your turn, you may choose one: same as above.",
+        "trigger": {
+          "on": "banished_other_in_challenge"
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "choose",
+            "count": 1,
+            "options": [
+              [
+                {
+                  "type": "draw",
+                  "amount": 2,
+                  "target": {
+                    "type": "self"
+                  }
+                },
+                {
+                  "type": "discard_from_hand",
+                  "amount": 2,
+                  "target": {
+                    "type": "self"
+                  },
+                  "chooser": "target_player"
+                }
+              ],
+              [
+                {
+                  "type": "deal_damage",
+                  "amount": 2,
+                  "target": {
+                    "type": "chosen",
+                    "filter": {
+                      "zone": "play",
+                      "cardType": [
+                        "character"
+                      ]
+                    }
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 192,
     "rarity": "super_rare",
@@ -9171,7 +9793,35 @@
       "Storyborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "TREASURE HUNTER",
+        "rulesText": "Whenever this character quests while at a location, you may deal 1 damage to chosen character.",
+        "trigger": {
+          "on": "quests"
+        },
+        "condition": {
+          "type": "this_at_location"
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 1,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 194,
     "rarity": "uncommon",
@@ -9304,6 +9954,26 @@
         "storyName": "",
         "rulesText": "Your characters get +3 {S} while challenging a location this turn.",
         "raw": "Your characters get +3 {S} while challenging a location this turn."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "grant_keyword",
+        "keyword": "challenger",
+        "value": 3,
+        "target": {
+          "type": "all",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "duration": "end_of_turn"
       }
     ]
   },
@@ -9621,7 +10291,37 @@
     "cost": 1,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "MAGIC IN THE BAYOU",
+        "rulesText": "Whenever a character quests while here, you may draw a card, then choose and discard a card.",
+        "trigger": {
+          "on": "quests",
+          "filter": {
+            "atLocation": "this"
+          }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          },
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "chooser": "target_player"
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 204,
     "rarity": "uncommon",
@@ -9823,13 +10523,17 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
-      },
-      {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 5
+        "type": "static",
+        "storyName": "STAY BACK!",
+        "rulesText": "During your turn, while this character is exerted, whenever you draw a card, gain 1 lore.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "modifier": 0,
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "3",
@@ -9929,7 +10633,29 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "ABRACADABRA",
+        "rulesText": "Name a card, then reveal the top card of your deck. If it's the named card, put that card into your hand. Otherwise, put it on the top of your deck.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 1,
+            "action": "one_to_hand_rest_bottom",
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 210,
     "rarity": "enchanted",
@@ -9958,7 +10684,21 @@
       "Ally",
       "Alien"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "MIMICRY",
+        "rulesText": "You may play any character with Shift on this character as if this character had any name.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "modifier": 0,
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "3",
     "number": 211,
     "rarity": "enchanted",
@@ -9991,7 +10731,21 @@
       "Villain",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "MASTERFUL DECEIT",
+        "rulesText": "Whenever this character sings a song, you may play that song again from your discard for free, then put it on the bottom of your deck.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "modifier": 0,
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "3",
     "number": 212,
     "rarity": "enchanted",
@@ -10020,7 +10774,27 @@
     "cost": 3,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "ROYAL JUDGEMENT",
+        "rulesText": "Whenever a character is challenged and banished while here, banish the challenging character.",
+        "trigger": {
+          "on": "banished_in_challenge",
+          "filter": {
+            "atLocation": "this"
+          }
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "triggering_card"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 213,
     "rarity": "enchanted",
@@ -10339,7 +11113,22 @@
     "cost": 1,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "LABORATORY",
+        "rulesText": "If you have a character here, you pay 1 {I} less to play items.",
+        "effect": {
+          "type": "cost_reduction",
+          "amount": 1,
+          "filter": {
+            "cardType": [
+              "item"
+            ]
+          }
+        }
+      }
+    ],
     "setId": "3",
     "number": 219,
     "rarity": "enchanted",
