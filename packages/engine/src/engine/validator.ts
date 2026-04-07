@@ -362,6 +362,14 @@ function validateActivateAbility(
   }
   if (!ability || ability.type !== "activated") return fail("No activated ability at that index.");
 
+  // CRD 6.1.13: "Once per turn" — block reactivation if already used this turn
+  if (ability.oncePerTurn) {
+    const key = ability.storyName ?? ability.rulesText ?? "anon";
+    if (instance.oncePerTurnTriggered?.[key]) {
+      return fail("This ability has already been used this turn.");
+    }
+  }
+
   // Check costs
   for (const cost of ability.costs) {
     if (cost.type === "exert") {
@@ -456,7 +464,7 @@ function validatePassTurn(
 function validateResolveChoice(
   state: GameState,
   playerId: PlayerID,
-  choice: string[] | number | "accept" | "decline",
+  choice: string | string[] | number,
   definitions: Record<string, CardDefinition>
 ): ValidationResult {
   if (!state.pendingChoice) return fail("No pending choice to resolve.");

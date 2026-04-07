@@ -1084,13 +1084,14 @@
       {
         "type": "activated",
         "storyName": "TWILIGHT BARK",
-        "rulesText": "You may pay 2 {I} to reveal the top card of your deck. If it's a character card, put it into your hand. Otherwise, put it on the bottom of your deck.",
+        "rulesText": "Once per turn, you may pay 2 {I} to reveal the top card of your deck. If it's a character card, put it into your hand. Otherwise, put it on the bottom of your deck.",
         "costs": [
           {
             "type": "pay_ink",
             "amount": 2
           }
         ],
+        "oncePerTurn": true,
         "effects": [
           {
             "type": "look_at_top",

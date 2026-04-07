@@ -290,6 +290,23 @@ describe("§7 Set 3 — Locations", () => {
     expect(result.newState.players["player2"]!.lore).toBe(4);
   });
 
+  // ActivatedAbility oncePerTurn (Pongo Determined Father)
+  it("Pongo Determined Father: activated ability blocked after second use same turn", () => {
+    let state = startGame(["pongo-determined-father"]);
+    state = giveInk(state, "player1", 10);
+    let pongoId: string;
+    ({ state, instanceId: pongoId } = injectCard(state, "player1", "pongo-determined-father", "play"));
+
+    // First activation succeeds
+    let result = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: pongoId, abilityIndex: 0 }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+
+    // Second activation same turn should fail (validator rejects)
+    result = applyAction(result.newState, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: pongoId, abilityIndex: 0 }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(/already been used this turn/);
+  });
+
   // CRD 7.1.6: leaving play resets once-per-turn (becomes a "new" card)
   it("oncePerTurn resets when card leaves play and re-enters", () => {
     let state = startGame(["heihei-accidental-explorer", "never-land-mermaid-lagoon"]);

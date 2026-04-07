@@ -836,6 +836,16 @@ function applyActivateAbility(
   }
   if (!ability || ability.type !== "activated") throw new Error("Invalid ability");
 
+  // CRD 6.1.13: "Once per turn" — mark the ability as used. The validator already
+  // blocked re-activation, so we mark BEFORE paying costs/applying effects.
+  if (ability.oncePerTurn) {
+    const key = ability.storyName ?? ability.rulesText ?? "anon";
+    const inst = getInstance(state, instanceId);
+    state = updateInstance(state, instanceId, {
+      oncePerTurnTriggered: { ...(inst.oncePerTurnTriggered ?? {}), [key]: true },
+    });
+  }
+
   state = payCosts(state, playerId, instanceId, ability.costs, events, definitions);
 
   // CRD 6.2.1: Check condition before resolving effects (costs still paid)

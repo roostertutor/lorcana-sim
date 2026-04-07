@@ -88,6 +88,10 @@ export interface ActivatedAbility {
   timing?: AbilityTiming;
   /** Optional condition */
   condition?: Condition;
+  /** CRD 6.1.13: "Once per turn" — ability can be activated at most once per turn per instance.
+   *  Combine with `condition: { type: "is_your_turn" }` for "once during your turn".
+   *  Reset at end of turn and when the card leaves play (CRD 7.1.6). */
+  oncePerTurn?: boolean;
 }
 
 export interface StaticAbility {

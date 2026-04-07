@@ -245,12 +245,12 @@ patchSet("3", {
   },
 
   // Pongo - Determined Father: "Once per turn, may pay 2 ink to look at top, char to hand"
-  // Activated ability
   "pongo-determined-father": {
     abilities: [{
       type: "activated", storyName: "TWILIGHT BARK",
-      rulesText: "You may pay 2 {I} to reveal the top card of your deck. If it's a character card, put it into your hand. Otherwise, put it on the bottom of your deck.",
+      rulesText: "Once per turn, you may pay 2 {I} to reveal the top card of your deck. If it's a character card, put it into your hand. Otherwise, put it on the bottom of your deck.",
       costs: [{ type: "pay_ink", amount: 2 }],
+      oncePerTurn: true,
       effects: [{ type: "look_at_top", count: 1, action: "one_to_hand_rest_bottom", filter: { cardType: ["character"] }, target: { type: "self" } }],
     }],
   },
