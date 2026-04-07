@@ -584,13 +584,59 @@ describe("§6 Set 2 Card Coverage", () => {
     expect(effectiveLore).toBe(4);
   });
 
-  // Pattern: ChooseEffect inside triggered ability
-  // TODO: ChooseEffect inside enters_play trigger auto-resolves even in interactive mode.
-  it.todo("Madam Mim Fox: choose banish self or return another (ChooseEffect in trigger)");
+  // Pattern: ChooseEffect inside triggered ability — interactive mode
+  it("Madam Mim Fox: choose banish self or return another (ChooseEffect in trigger)", () => {
+    let state = startGame(["madam-mim-fox"]);
+    state = { ...state, interactive: true };
+    state = giveInk(state, "player1", 3);
+    let mimId: string;
+    let allyId: string;
+    ({ state, instanceId: mimId } = injectCard(state, "player1", "madam-mim-fox", "hand"));
+    ({ state, instanceId: allyId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play"));
+
+    // Play Madam Mim → enters_play trigger creates choose_option
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: mimId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.pendingChoice?.type).toBe("choose_option");
+
+    // Pick option 1 (return another character to hand instead of banishing self)
+    result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: 1 }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Pick the ally to return
+    if (result.newState.pendingChoice?.type === "choose_target") {
+      result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [allyId] }, LORCAST_CARD_DEFINITIONS);
+    }
+    // Ally returned to hand, Mim still in play
+    expect(getInstance(result.newState, allyId).zone).toBe("hand");
+    expect(getInstance(result.newState, mimId).zone).toBe("play");
+  });
 
   // Pattern: SequentialEffect in actionEffects
-  // TODO: Sequential return-to-hand in actionEffects doesn't create pending choice for cost.
-  it.todo("Bounce: sequential return-to-hand (SequentialEffect in actionEffects)");
+  it("Bounce: sequential return-to-hand (return yours → return another)", () => {
+    let state = startGame(["bounce"]);
+    state = { ...state, interactive: true };
+    state = giveInk(state, "player1", 2);
+    let bounceId: string;
+    let ownCharId: string;
+    let oppCharId: string;
+    ({ state, instanceId: bounceId } = injectCard(state, "player1", "bounce", "hand"));
+    ({ state, instanceId: ownCharId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play"));
+    ({ state, instanceId: oppCharId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play"));
+
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: bounceId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Cost: choose own character to return
+    expect(result.newState.pendingChoice?.type).toBe("choose_target");
+    result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [ownCharId] }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(getInstance(result.newState, ownCharId).zone).toBe("hand");
+
+    // Reward: choose another character to return
+    if (result.newState.pendingChoice?.type === "choose_target") {
+      result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [oppCharId] }, LORCAST_CARD_DEFINITIONS);
+    }
+    expect(getInstance(result.newState, oppCharId).zone).toBe("hand");
+  });
 
   // ===== ACCURACY FIXES =====
 
@@ -1115,10 +1161,32 @@ describe("§6 Set 2 Card Coverage", () => {
   });
 
   // ===== LUCIFER: ChooseEffect — discard 2 OR discard 1 action =====
-  // TODO: ChooseEffect inside triggered abilities silently no-ops — neither
-  // option resolves. Same family as the Madam Mim Fox todo. Needs investigation
-  // into how processTriggerStack handles ChooseEffect.
-  it.todo("Lucifer Cunning Cat: opponent chooses discard option (ChooseEffect in trigger)");
+  it("Lucifer Cunning Cat: ChooseEffect in trigger (auto-resolves option 0 → discard 2)", () => {
+    let state = startGame(["lucifer-cunning-cat"]);
+    state = giveInk(state, "player1", 5);
+    let luciferId: string;
+    ({ state, instanceId: luciferId } = injectCard(state, "player1", "lucifer-cunning-cat", "hand"));
+
+    // Give opponent exactly 3 cards
+    state = { ...state, zones: { ...state.zones, player2: { ...state.zones.player2, hand: [] } } };
+    ({ state } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "hand"));
+    ({ state } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "hand"));
+    ({ state } = injectCard(state, "player2", "fire-the-cannons", "hand"));
+
+    // Play Lucifer → enters_play trigger fires
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: luciferId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+
+    // Non-interactive: choose auto-picks option 0 (discard 2)
+    // Opponent picks 2 cards to discard
+    if (result.newState.pendingChoice?.type === "choose_discard") {
+      const oppHand = getZone(result.newState, "player2", "hand");
+      result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player2", choice: [oppHand[0]!, oppHand[1]!] }, LORCAST_CARD_DEFINITIONS);
+      expect(result.success).toBe(true);
+    }
+    // Opponent should have 1 card left (3 - 2 = 1)
+    expect(getZone(result.newState, "player2", "hand").length).toBe(1);
+  });
 
   // ===== YZMA: target_owner draw — opponent draws 2 when their character shuffled =====
   it("Yzma: shuffles opponent's character into deck → opponent draws 2", () => {

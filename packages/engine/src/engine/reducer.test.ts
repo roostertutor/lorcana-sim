@@ -3131,7 +3131,23 @@ describe("§8 Keywords", () => {
   // UNIMPLEMENTED — stubs for keywords not yet built
   // ---------------------------------------------------------------------------
 
-  it.todo("Resist: reduces incoming challenge damage by N (CRD 8.8.1)");
+  // CRD 8.8.1: Resist +N reduces incoming challenge damage by N
+  it("Resist: reduces incoming challenge damage by N (CRD 8.8.1)", () => {
+    let state = startGame(["the-prince-never-gives-up"]);
+    let princeId: string;
+    let attackerId: string;
+    // The Prince - Never Gives Up: 1 STR, 3 WP, Resist +1
+    ({ state, instanceId: princeId } = injectCard(state, "player1", "the-prince-never-gives-up", "play", { isExerted: true }));
+    // Mickey: 3 STR
+    ({ state, instanceId: attackerId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play"));
+    state = { ...state, currentPlayer: "player2" };
+
+    const result = applyAction(state, { type: "CHALLENGE", playerId: "player2", attackerInstanceId: attackerId, defenderInstanceId: princeId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Mickey deals 3 damage, Resist +1 reduces to 2 → Prince has 2 damage (3 WP, survives)
+    expect(getInstance(result.newState, princeId).damage).toBe(2);
+    expect(getInstance(result.newState, princeId).zone).toBe("play");
+  });
   // CRD 8.7.2: Reckless characters can't quest
   it("Reckless: character cannot quest (CRD 8.7.2)", () => {
     let state = startGame();

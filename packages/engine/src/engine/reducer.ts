@@ -1074,6 +1074,19 @@ function applyResolveChoice(
     return state;
   }
 
+  // CRD 6.1.3: "choose one of" — apply the chosen option's sub-effects
+  if (pendingChoice.type === "choose_option" && typeof choice === "number") {
+    const options = pendingChoice.options ?? [];
+    const chosen = options[choice];
+    if (!chosen) return state;
+    const sourceId = pendingChoice.sourceInstanceId ?? "";
+    for (const subEffect of chosen) {
+      state = applyEffect(state, subEffect, sourceId, playerId, definitions, events);
+      if (state.pendingChoice) return state; // Sub-effect needs choice — pause
+    }
+    return state;
+  }
+
   if (pendingChoice.type === "choose_discard" && Array.isArray(choice)) {
     // Discard the chosen cards from hand
     const discardCount = choice.length;
@@ -1814,6 +1827,31 @@ export function applyEffect(
     }
 
     // CRD 6.1.5.1: "[A] to [B]" sequential effect
+    // CRD 6.1.3: "choose one of" — present options to the controller
+    case "choose": {
+      if (state.interactive) {
+        // Surface a choose_option pending choice for the human/UI
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_option",
+            choosingPlayerId: controllingPlayerId,
+            prompt: "Choose one:",
+            options: effect.options,
+            pendingEffect: effect,
+          },
+        };
+      }
+      // Non-interactive: bot picks option 0 by default and applies sub-effects
+      const chosen = effect.options[0];
+      if (!chosen) return state;
+      for (const subEffect of chosen) {
+        state = applyEffect(state, subEffect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+        if (state.pendingChoice) return state; // Sub-effect needs choice — pause here
+      }
+      return state;
+    }
+
     case "sequential": {
       // Check if all cost effects can be performed
       for (const costEffect of effect.costEffects) {
