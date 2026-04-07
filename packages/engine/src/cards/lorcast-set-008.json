@@ -5761,7 +5761,14 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "NO MORE BOOKS",
+        "rulesText": "Skip your turn's Draw step.",
+        "effect": { "type": "skip_draw_step_self" }
+      }
+    ],
     "setId": "8",
     "number": 168,
     "rarity": "uncommon",

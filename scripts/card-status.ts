@@ -60,12 +60,10 @@ interface CardEntry {
 // Each rule: [pattern, category, label]
 // Applied in order — first match wins. More specific patterns come first.
 const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
-  // Sing Together alternate cost mechanic
-  [/sing together/i, "sing-together"],
-  // Location interactions: "play a location for free", "may move here for free" still need new mechanics
-  [/\bplay .{0,30}location for free\b/i, "play-location-for-free"],
-  [/\bmay move .{0,20}here for free\b/i, "move-for-free"],
-  [/\bmay move (there|here) for free\b/i, "move-for-free"],
+  // (sing-together removed: implemented in Phase A.1 via singTogetherCost on CardDefinition)
+  // (move-for-free / play-location-for-free removed: move_character effect implemented in Phase A.3
+  //  (Magic Carpet, Jim Hawkins TAKE THE HELM); play_for_free with location filter implemented
+  //  (Jim Hawkins ASTRO NAVIGATOR — Set 3).)
   // Win threshold modification (Donald Duck)
   [/\b\d+ lore to win\b/i, "win-threshold"],
   [/\bneed \d+ lore to win\b/i, "win-threshold"],
@@ -240,7 +238,7 @@ const FITS_GRAMMAR_PATTERNS: RegExp[] = [
   /\bat the start of your turn,? for each character .{0,20}here\b/i,
   /\bwhenever .{0,30}moves to a location\b/i,
   // Draw
-  /\bdraw (a|\d+) cards?\b/i,
+  /\bdraws? (a|\d+) cards?\b/i,
   /\bdraws? a card\b/i,
   // Deal damage (fixed numeric amount)
   /\bdeal \d+ damage\b/i,
@@ -361,6 +359,10 @@ const FITS_GRAMMAR_PATTERNS: RegExp[] = [
   /can'?t (challenge|quest) during their next turn\b/i,
   // "Name a card" — name_a_card_then_reveal effect (Phase A.0)
   /\bname a card\b/i,
+  // Sing Together reminder text — implemented in Phase A.1 via singTogetherCost.
+  // The reminder is informational; the actual cost lives in CardDefinition, not in
+  // a stub effect, so the stub itself just needs to be recognized as no-op.
+  /^sing together \d/i,
 ];
 
 function categorizeStub(rulesText: string, cardType: string): StubCategory {

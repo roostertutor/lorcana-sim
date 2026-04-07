@@ -565,7 +565,30 @@ export type StaticEffect =
   | MimicryTargetSelfStatic
   | UniversalShiftSelfStatic
   | ClassificationShiftSelfStatic
-  | PlayableFromZoneSelfStatic;
+  | PlayableFromZoneSelfStatic
+  | ModifyWinThresholdStatic
+  | SkipDrawStepSelfStatic;
+
+/**
+ * Arthur - Determined Squire (Set 8): "NO MORE BOOKS Skip your turn's Draw step."
+ * While this card is in play, the owner skips the draw step at the start of their turn.
+ */
+export interface SkipDrawStepSelfStatic {
+  type: "skip_draw_step_self";
+}
+
+/**
+ * Donald Duck - Flustered Sorcerer (Set 7): "OBFUSCATE! Opponents need 25 lore
+ * to win the game." Modifies the lore threshold for `affectedPlayer` (typically
+ * "opponent" — meaning the player who is NOT the source's owner).
+ */
+export interface ModifyWinThresholdStatic {
+  type: "modify_win_threshold";
+  /** Whose threshold is changed, from the source's owner perspective */
+  affectedPlayer: PlayerTarget;
+  /** New threshold value (e.g. 25) */
+  newThreshold: number;
+}
 
 /**
  * MIMICRY (Morph - Space Goo, Set 3): any character with Shift may shift onto this

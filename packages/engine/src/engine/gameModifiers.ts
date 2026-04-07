@@ -98,6 +98,18 @@ export interface GameModifiers {
    * Key = instanceId, value = set of zones the card can be played from in addition to hand.
    */
   playableFromZones: Map<string, Set<import("../types/index.js").ZoneName>>;
+
+  /**
+   * Per-player lore threshold overrides (CRD 1.8.1.1, Donald Duck Flustered Sorcerer).
+   * Key = playerId, value = the modified threshold (e.g. 25). Absent = default 20.
+   * If multiple statics target the same player, the highest value wins (most restrictive).
+   */
+  loreThresholds: Map<import("../types/index.js").PlayerID, number>;
+
+  /**
+   * Players who skip their turn's draw step (Arthur Determined Squire Set 8).
+   */
+  skipsDrawStep: Set<import("../types/index.js").PlayerID>;
 }
 
 /**
@@ -125,6 +137,8 @@ export function getGameModifiers(
     universalShifters: new Set(),
     classificationShifters: new Map(),
     playableFromZones: new Map(),
+    loreThresholds: new Map(),
+    skipsDrawStep: new Set(),
   };
 
   for (const instance of Object.values(state.cards)) {
@@ -284,6 +298,24 @@ export function getGameModifiers(
         case "classification_shift_self": {
           // Thunderbolt (Set 8): this in-hand shifter requires the target to have `trait`.
           modifiers.classificationShifters.set(instance.instanceId, effect.trait);
+          break;
+        }
+
+        case "skip_draw_step_self": {
+          // Arthur Determined Squire (Set 8): owner skips their draw step.
+          modifiers.skipsDrawStep.add(instance.ownerId);
+          break;
+        }
+
+        case "modify_win_threshold": {
+          // Donald Duck Flustered Sorcerer (Set 7): "Opponents need 25 lore to win."
+          const affectedPlayerId = effect.affectedPlayer.type === "opponent"
+            ? (instance.ownerId === "player1" ? "player2" : "player1")
+            : instance.ownerId;
+          const current = modifiers.loreThresholds.get(affectedPlayerId);
+          if (current === undefined || effect.newThreshold > current) {
+            modifiers.loreThresholds.set(affectedPlayerId, effect.newThreshold);
+          }
           break;
         }
 

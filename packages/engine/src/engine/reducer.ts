@@ -98,15 +98,19 @@ export function applyAction(
 // -----------------------------------------------------------------------------
 
 /**
- * CRD 1.8.1.1: Default lore threshold is 20.
- * Scans in-play cards for static effects that modify it
- * (e.g. Donald Duck - Musketeer).
+ * CRD 1.8.1.1: Default lore threshold is 20. Per-player override possible via
+ * `modify_win_threshold` static effects (Donald Duck - Flustered Sorcerer:
+ * "OBFUSCATE! Opponents need 25 lore to win the game"). Pass `playerId` to get
+ * THAT player's threshold; the modifier is keyed per-player so opposing-player
+ * effects don't change the source player's own threshold.
  */
 export function getLoreThreshold(
-  _state: GameState,
-  _definitions: Record<string, CardDefinition>
+  state: GameState,
+  definitions: Record<string, CardDefinition>,
+  playerId: PlayerID
 ): number {
-  return 20;
+  const modifiers = getGameModifiers(state, definitions);
+  return modifiers.loreThresholds.get(playerId) ?? 20;
 }
 
 /**
@@ -121,8 +125,8 @@ export function checkWinConditions(
     return { isOver: true, winner: state.winner, reason: "lore_threshold" };
   }
 
-  const threshold = getLoreThreshold(state, definitions);
   for (const [playerId, playerState] of Object.entries(state.players)) {
+    const threshold = getLoreThreshold(state, definitions, playerId as PlayerID);
     if (playerState.lore >= threshold) {
       return { isOver: true, winner: playerId as PlayerID, reason: "lore_threshold" };
     }
@@ -1215,8 +1219,13 @@ function applyPassTurn(
   state = queueTriggersByEvent(state, "turn_start", opponent, definitions, {});
   state = processTriggerStack(state, definitions, events);
 
-  // CRD 3.2.3.1: draw step — active player draws a card
-  state = applyDraw(state, opponent, 1, events, definitions);
+  // CRD 3.2.3.1: draw step — active player draws a card.
+  // Skip if a static effect on a card the active player owns says so
+  // (Arthur Determined Squire — "Skip your turn's Draw step").
+  const drawModifiers = getGameModifiers(state, definitions);
+  if (!drawModifiers.skipsDrawStep.has(opponent)) {
+    state = applyDraw(state, opponent, 1, events, definitions);
+  }
 
   state = { ...state, phase: "main" };
 
@@ -3599,7 +3608,9 @@ function findValidTargets(
     .map((i) => i.instanceId);
 }
 
-/** CRD 1.8: Game state check — uses getLoreThreshold, never hardcodes 20. */
+/** CRD 1.8: Game state check — uses getLoreThreshold, never hardcodes 20.
+ *  Per-player threshold so Donald Duck Flustered Sorcerer's "Opponents need 25 lore"
+ *  raises only the affected player's bar. */
 function applyWinCheck(
   state: GameState,
   definitions: Record<string, CardDefinition>,
@@ -3607,8 +3618,8 @@ function applyWinCheck(
 ): GameState {
   if (state.isGameOver) return state;
 
-  const threshold = getLoreThreshold(state, definitions);
   for (const [playerId, playerState] of Object.entries(state.players)) {
+    const threshold = getLoreThreshold(state, definitions, playerId as PlayerID);
     if (playerState.lore >= threshold) {
       return { ...state, winner: playerId as PlayerID, isGameOver: true };
     }
