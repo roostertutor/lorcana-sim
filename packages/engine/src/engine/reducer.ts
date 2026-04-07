@@ -1689,11 +1689,14 @@ export function applyEffect(
           for (const cardId of [...hand]) {
             state = moveCard(state, cardId, pid, "discard");
           }
-          // Fire cards_discarded trigger (Prince John - Greediest of All)
+          // Queue cards_discarded trigger (Prince John - Greediest of All).
+          // Don't processTriggerStack inline — it interrupts the current action's
+          // remaining effects (e.g. A Whole New World draws 7 after discarding).
+          // Triggers will be processed after the action completes via the wrapping
+          // applyAction → processTriggerStack at line 80.
           if (discardCount > 0) {
             state = { ...state, lastEffectResult: discardCount };
             state = queueTriggersByEvent(state, "cards_discarded", pid, definitions, {});
-            state = processTriggerStack(state, definitions, events);
           }
           continue;
         }

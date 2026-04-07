@@ -756,4 +756,105 @@ describe("§6 Set 2 Card Coverage", () => {
     expect(grants.some(g => g.keyword === "resist" && g.value === 1)).toBe(true);
     expect(grants.some(g => g.keyword === "ward")).toBe(true);
   });
+
+  // ===== PRINCE JOHN: cards_discarded trigger scenarios =====
+  // "Whenever your opponent discards 1 or more cards, you may draw a card for each card discarded."
+
+  // Helper: set up a game with PJ in play and opponent holding exactly N cards
+  function setupPrinceJohn(opponentHandSize: number) {
+    let state = startGame(["prince-john-greediest-of-all", "sudden-chill", "you-have-forgotten-me", "a-whole-new-world"]);
+    state = giveInk(state, "player1", 10);
+    let pjId: string;
+    ({ state, instanceId: pjId } = injectCard(state, "player1", "prince-john-greediest-of-all", "play"));
+    // Clear both players' hands first (mulligan dealt 7 each)
+    state = { ...state, zones: { ...state.zones, player1: { ...state.zones.player1, hand: [] }, player2: { ...state.zones.player2, hand: [] } } };
+    // Give opponent exactly N cards
+    for (let i = 0; i < opponentHandSize; i++) {
+      ({ state } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "hand"));
+    }
+    return { state, pjId };
+  }
+
+  // Test 1: Sudden Chill — opponent discards 1, PJ draws 1
+  it("Prince John: Sudden Chill (opponent discards 1) → PJ draws 1", () => {
+    let { state } = setupPrinceJohn(6);
+    let chillId: string;
+    ({ state, instanceId: chillId } = injectCard(state, "player1", "sudden-chill", "hand"));
+    const p1HandBefore = getZone(state, "player1", "hand").length;
+    const p2HandBefore = getZone(state, "player2", "hand").length;
+
+    // Play Sudden Chill (opponent picks 1 to discard)
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: chillId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Opponent must choose 1 card to discard
+    expect(result.newState.pendingChoice?.type).toBe("choose_discard");
+    const oppHand = getZone(result.newState, "player2", "hand");
+    result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player2", choice: [oppHand[0]!] }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+
+    // PJ's may draw triggered
+    if (result.newState.pendingChoice?.type === "choose_may") {
+      result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    }
+
+    // Opponent: -1 (discarded), Player1: -1 (played Sudden Chill) + 1 (drew via PJ) = 0 net
+    expect(getZone(result.newState, "player2", "hand").length).toBe(p2HandBefore - 1);
+    expect(getZone(result.newState, "player1", "hand").length).toBe(p1HandBefore - 1 + 1);
+  });
+
+  // Test 2: You Have Forgotten Me — opponent discards 2, PJ draws 2 (one trigger)
+  it("Prince John: You Have Forgotten Me (opponent discards 2) → PJ draws 2 in one trigger", () => {
+    let { state } = setupPrinceJohn(6);
+    let yhfmId: string;
+    ({ state, instanceId: yhfmId } = injectCard(state, "player1", "you-have-forgotten-me", "hand"));
+    const p1HandBefore = getZone(state, "player1", "hand").length;
+    const p2HandBefore = getZone(state, "player2", "hand").length;
+
+    // Play You Have Forgotten Me (opponent picks 2 to discard)
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: yhfmId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.pendingChoice?.type).toBe("choose_discard");
+    const oppHand = getZone(result.newState, "player2", "hand");
+    result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player2", choice: [oppHand[0]!, oppHand[1]!] }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+
+    // PJ's may draw triggered (one trigger, draws 2)
+    if (result.newState.pendingChoice?.type === "choose_may") {
+      result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    }
+
+    // Opponent: -2, Player1: -1 (played YHFM) + 2 (drew via PJ) = +1 net
+    expect(getZone(result.newState, "player2", "hand").length).toBe(p2HandBefore - 2);
+    expect(getZone(result.newState, "player1", "hand").length).toBe(p1HandBefore - 1 + 2);
+  });
+
+  // Test 3: A Whole New World — both players discard hand and draw 7.
+  // PJ should fire AFTER A Whole New World fully resolves, seeing opponent's discard count (3),
+  // and PJ should NOT fire on player1's own discard (the trigger filter is opponent only).
+  it("Prince John: A Whole New World (opp discards 3, PJ draws 3 after the action resolves)", () => {
+    let { state } = setupPrinceJohn(3);
+    let awnwId: string;
+    ({ state, instanceId: awnwId } = injectCard(state, "player1", "a-whole-new-world", "hand"));
+    // Player1 also has some cards in hand (so they have something to discard via Whole New World)
+    ({ state } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
+    ({ state } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
+
+    const p2HandBefore = getZone(state, "player2", "hand").length; // 3
+    const p1HandBefore = getZone(state, "player1", "hand").length; // 3 (2 minnies + AWNW)
+
+    // Play A Whole New World
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: awnwId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+
+    // PJ's may draw triggered
+    if (result.newState.pendingChoice?.type === "choose_may") {
+      result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    }
+
+    // Opponent: discarded 3, drew 7 = 7 cards in hand
+    expect(getZone(result.newState, "player2", "hand").length).toBe(7);
+    // Player1: discarded 2 (minnies, AWNW already played), drew 7, then PJ drew 3 from opponent's discard
+    // = 7 + 3 = 10 cards
+    expect(getZone(result.newState, "player1", "hand").length).toBe(7 + 3);
+  });
 });
