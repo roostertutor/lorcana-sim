@@ -981,7 +981,32 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "WHAT IS TO COME",
+        "rulesText": "When you play this item, look at the top 4 cards of your deck. You may reveal a character card and put it into your hand. Put the rest on the bottom of your deck in any order.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 4,
+            "action": "up_to_n_to_hand_rest_bottom",
+            "maxToHand": 1,
+            "target": {
+              "type": "self"
+            },
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 30,
     "rarity": "uncommon",
@@ -2574,28 +2599,40 @@
       "Whisper"
     ],
     "abilities": [
-      { "type": "keyword", "keyword": "boost", "value": 2 },
+      {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 2
+      },
       {
         "type": "static",
         "storyName": "I'LL TAKE THAT",
         "rulesText": "As long as this character has at least one card under it, it gets +2 {S} and +1 {L}.",
-        "condition": { "type": "this_has_cards_under" },
+        "condition": {
+          "type": "this_has_cards_under"
+        },
         "effect": {
           "type": "modify_stat",
           "stat": "strength",
           "modifier": 2,
-          "target": { "type": "this" }
+          "target": {
+            "type": "this"
+          }
         }
       },
       {
         "type": "static",
         "rulesText": "(continued) +1 {L}.",
-        "condition": { "type": "this_has_cards_under" },
+        "condition": {
+          "type": "this_has_cards_under"
+        },
         "effect": {
           "type": "modify_stat",
           "stat": "lore",
           "modifier": 1,
-          "target": { "type": "this" }
+          "target": {
+            "type": "this"
+          }
         }
       }
     ],
@@ -5041,7 +5078,33 @@
       "Hero",
       "Detective"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "THOROUGH INVESTIGATION",
+        "rulesText": "When you play this character and whenever she quests, look at the top 3 cards of your deck. You may reveal a Detective character card and put it into your hand. Put the rest on the bottom of your deck in any order. (approximation: triggers only on enters_play, not on quest)",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 3,
+            "action": "up_to_n_to_hand_rest_bottom",
+            "maxToHand": 1,
+            "target": {
+              "type": "self"
+            },
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Detective"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 156,
     "rarity": "super_rare",
@@ -5277,6 +5340,17 @@
         "storyName": "",
         "rulesText": "Look at the top 4 cards of your deck. You may reveal up to 1 character card and up to 1 item card and put them into your hand. Put the rest on the bottom of your deck in any order.",
         "raw": "Look at the top 4 cards of your deck. You may reveal up to 1 character card and up to 1 item card and put them into your hand. Put the rest on the bottom of your deck in any order."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "look_at_top",
+        "count": 4,
+        "action": "up_to_n_to_hand_rest_bottom",
+        "maxToHand": 2,
+        "target": {
+          "type": "self"
+        }
       }
     ]
   },

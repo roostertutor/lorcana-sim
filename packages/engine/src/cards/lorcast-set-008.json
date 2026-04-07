@@ -4058,6 +4058,21 @@
         "rulesText": "- Put a Pull the Lever! card from your discard pile on the bottom of your deck to put chosen character on the bottom of their owner's deck.",
         "raw": "- Put a Pull the Lever! card from your discard pile on the bottom of your deck to put chosen character on the bottom of their owner's deck."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "put_on_bottom_of_deck",
+        "from": "play",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      }
     ]
   },
   {
@@ -5766,7 +5781,9 @@
         "type": "static",
         "storyName": "NO MORE BOOKS",
         "rulesText": "Skip your turn's Draw step.",
-        "effect": { "type": "skip_draw_step_self" }
+        "effect": {
+          "type": "skip_draw_step_self"
+        }
       }
     ],
     "setId": "8",
@@ -5878,9 +5895,29 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 2
+        "type": "triggered",
+        "storyName": "ALWAYS PLANNING",
+        "rulesText": "Whenever this character quests, look at the top 3 cards of your deck. You may reveal an Ally character card and put it into your hand. Put the rest on the bottom of your deck in any order.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 3,
+            "action": "up_to_n_to_hand_rest_bottom",
+            "maxToHand": 1,
+            "target": {
+              "type": "self"
+            },
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Ally"
+            }
+          }
+        ]
       }
     ],
     "setId": "8",
@@ -6087,6 +6124,20 @@
         "storyName": "",
         "rulesText": "Look at the top 3 cards of your deck. You may reveal a character, item, or location card with cost 6 or less and play it for free. Put the rest on the bottom of your deck in any order.",
         "raw": "Look at the top 3 cards of your deck. You may reveal a character, item, or location card with cost 6 or less and play it for free. Put the rest on the bottom of your deck in any order."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "look_at_top",
+        "count": 3,
+        "action": "up_to_n_to_hand_rest_bottom",
+        "maxToHand": 1,
+        "target": {
+          "type": "self"
+        },
+        "filter": {
+          "maxCost": 6
+        }
       }
     ]
   },
@@ -7371,6 +7422,21 @@
         "rulesText": "- Put a card named Pull the Lever! from your discard on the bottom of your deck to put chosen character on the bottom of their player's deck.",
         "raw": "- Put a card named Pull the Lever! from your discard on the bottom of your deck to put chosen character on the bottom of their player's deck."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "put_on_bottom_of_deck",
+        "from": "play",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      }
     ]
   },
   {
@@ -7527,9 +7593,29 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 2
+        "type": "triggered",
+        "storyName": "ALWAYS PLANNING",
+        "rulesText": "Whenever this character quests, look at the top 3 cards of your deck. You may reveal an Ally character card and put it into your hand. Put the rest on the bottom of your deck in any order.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 3,
+            "action": "up_to_n_to_hand_rest_bottom",
+            "maxToHand": 1,
+            "target": {
+              "type": "self"
+            },
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Ally"
+            }
+          }
+        ]
       }
     ],
     "setId": "8",

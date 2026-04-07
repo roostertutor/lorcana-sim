@@ -22,6 +22,22 @@
         "rulesText": "Reveal the top 2 cards of your deck. Put revealed character cards into your hand. Put the rest on the bottom of your deck in any order.",
         "raw": "Reveal the top 2 cards of your deck. Put revealed character cards into your hand. Put the rest on the bottom of your deck in any order."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "look_at_top",
+        "count": 2,
+        "action": "up_to_n_to_hand_rest_bottom",
+        "maxToHand": 99,
+        "target": {
+          "type": "self"
+        },
+        "filter": {
+          "cardType": [
+            "character"
+          ]
+        }
+      }
     ]
   },
   {

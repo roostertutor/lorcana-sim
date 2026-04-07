@@ -2451,7 +2451,9 @@
         "rulesText": "Opponents need 25 lore to win the game.",
         "effect": {
           "type": "modify_win_threshold",
-          "affectedPlayer": { "type": "opponent" },
+          "affectedPlayer": {
+            "type": "opponent"
+          },
           "newThreshold": 25
         }
       }
@@ -4166,9 +4168,37 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 7
+        "type": "triggered",
+        "storyName": "REPURPOSE",
+        "rulesText": "Whenever this character quests, you may put up to 3 item cards from your discard on the bottom of your deck to gain 1 lore for each item card moved this way. (approximation: flat +1 lore instead of per-card)",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "effects": [
+              {
+                "type": "put_on_bottom_of_deck",
+                "from": "discard",
+                "filter": {
+                  "cardType": [
+                    "item"
+                  ]
+                },
+                "amount": 3
+              },
+              {
+                "type": "gain_lore",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
       }
     ],
     "setId": "7",
@@ -5061,7 +5091,32 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "FORTUNE HUNTER",
+        "rulesText": "When you play this character, look at the top 4 cards of your deck. You may reveal an item card and put it into your hand. Put the rest on the bottom of your deck in any order.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 4,
+            "action": "up_to_n_to_hand_rest_bottom",
+            "maxToHand": 1,
+            "target": {
+              "type": "self"
+            },
+            "filter": {
+              "cardType": [
+                "item"
+              ]
+            }
+          }
+        ]
+      }
+    ],
     "setId": "7",
     "number": 154,
     "rarity": "legendary",
@@ -5246,7 +5301,33 @@
       "Storyborn",
       "Puppy"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "FOLLOW MY VOICE",
+        "rulesText": "Whenever this character quests, look at the top 2 cards of your deck. You may reveal any number of Puppy character cards and put them in your hand. Put the rest on the bottom of your deck in any order.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 2,
+            "action": "up_to_n_to_hand_rest_bottom",
+            "maxToHand": 99,
+            "target": {
+              "type": "self"
+            },
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Puppy"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "7",
     "number": 160,
     "rarity": "rare",
@@ -5747,8 +5828,29 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "support"
+        "type": "triggered",
+        "storyName": "ADVANCED SCANNER",
+        "rulesText": "When you play this character, look at the top 4 cards of your deck. You may reveal a Floodborn character card and put it into your hand. Put the rest on the bottom of your deck in any order.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 4,
+            "action": "up_to_n_to_hand_rest_bottom",
+            "maxToHand": 1,
+            "target": {
+              "type": "self"
+            },
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Floodborn"
+            }
+          }
+        ]
       }
     ],
     "setId": "7",
@@ -6828,7 +6930,9 @@
         "rulesText": "Opponents need 25 lore to win the game.",
         "effect": {
           "type": "modify_win_threshold",
-          "affectedPlayer": { "type": "opponent" },
+          "affectedPlayer": {
+            "type": "opponent"
+          },
           "newThreshold": 25
         }
       }
@@ -7088,7 +7192,41 @@
       "Princess",
       "Inventor"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "REPURPOSE",
+        "rulesText": "Whenever this character quests, you may put up to 3 item cards from your discard on the bottom of your deck to gain 1 lore for each item card moved this way. (approximation: flat +1 lore instead of per-card)",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "effects": [
+              {
+                "type": "put_on_bottom_of_deck",
+                "from": "discard",
+                "filter": {
+                  "cardType": [
+                    "item"
+                  ]
+                },
+                "amount": 3
+              },
+              {
+                "type": "gain_lore",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "7",
     "number": 217,
     "rarity": "enchanted",

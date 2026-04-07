@@ -808,8 +808,29 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "bodyguard"
+        "type": "triggered",
+        "storyName": "HIRE A CREW",
+        "rulesText": "When you play this character, look at the top 4 cards of your deck. You may reveal any number of Pirate character cards and put them into your hand. Put the rest on the bottom of your deck in any order.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 4,
+            "action": "up_to_n_to_hand_rest_bottom",
+            "maxToHand": 99,
+            "target": {
+              "type": "self"
+            },
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Pirate"
+            }
+          }
+        ]
       }
     ],
     "setId": "6",

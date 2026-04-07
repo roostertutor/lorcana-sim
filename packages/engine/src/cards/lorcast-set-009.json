@@ -422,7 +422,32 @@
       "Ally",
       "Fairy"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "MAKE A NEW FRIEND",
+        "rulesText": "When you play this character, look at the top 4 cards of your deck. You may reveal a character card and put it into your hand. Put the rest on the bottom of your deck in any order.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 4,
+            "action": "up_to_n_to_hand_rest_bottom",
+            "maxToHand": 1,
+            "target": {
+              "type": "self"
+            },
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            }
+          }
+        ]
+      }
+    ],
     "setId": "9",
     "number": 12,
     "rarity": "uncommon",
@@ -1068,6 +1093,22 @@
         "storyName": "",
         "rulesText": "Look at the top 4 cards of your deck. You may reveal a character card and put it into your hand. Put the rest on the bottom of your deck in any order.",
         "raw": "Look at the top 4 cards of your deck. You may reveal a character card and put it into your hand. Put the rest on the bottom of your deck in any order."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "look_at_top",
+        "count": 4,
+        "action": "up_to_n_to_hand_rest_bottom",
+        "maxToHand": 1,
+        "target": {
+          "type": "self"
+        },
+        "filter": {
+          "cardType": [
+            "character"
+          ]
+        }
       }
     ]
   },
@@ -2036,7 +2077,9 @@
       {
         "type": "draw",
         "amount": 5,
-        "target": { "type": "chosen" }
+        "target": {
+          "type": "chosen"
+        }
       }
     ],
     "setId": "9",
@@ -3263,9 +3306,13 @@
       {
         "type": "return_all_to_bottom_in_order",
         "filter": {
-          "owner": { "type": "opponent" },
+          "owner": {
+            "type": "opponent"
+          },
           "zone": "play",
-          "cardType": ["character"],
+          "cardType": [
+            "character"
+          ],
           "strengthAtMost": 2
         }
       }
@@ -4750,7 +4797,33 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "IMPERIAL INVITATION",
+        "rulesText": "Whenever this character quests, look at the top 4 cards of your deck. You may reveal a Princess character card and put it into your hand. Put the rest on the bottom of your deck in any order.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 4,
+            "action": "up_to_n_to_hand_rest_bottom",
+            "maxToHand": 1,
+            "target": {
+              "type": "self"
+            },
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Princess"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "9",
     "number": 142,
     "rarity": "super_rare",
@@ -5451,6 +5524,17 @@
         "storyName": "",
         "rulesText": "Look at the top 2 cards of your deck. Put one into your hand and the other on the bottom of your deck.",
         "raw": "Look at the top 2 cards of your deck. Put one into your hand and the other on the bottom of your deck."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "look_at_top",
+        "count": 2,
+        "action": "up_to_n_to_hand_rest_bottom",
+        "maxToHand": 1,
+        "target": {
+          "type": "self"
+        }
       }
     ]
   },
@@ -7848,7 +7932,33 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "IMPERIAL INVITATION",
+        "rulesText": "Whenever this character quests, look at the top 4 cards of your deck. You may reveal a Princess character card and put it into your hand. Put the rest on the bottom of your deck in any order.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 4,
+            "action": "up_to_n_to_hand_rest_bottom",
+            "maxToHand": 1,
+            "target": {
+              "type": "self"
+            },
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Princess"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "9",
     "number": 235,
     "rarity": "enchanted",

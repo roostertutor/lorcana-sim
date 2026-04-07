@@ -636,7 +636,33 @@
       "Dreamborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "THAT'S YOUR CUE",
+        "rulesText": "When you play this character, look at the top 4 cards of your deck. You may reveal a character card with cost 2 or less and put it into your hand. Put the rest on the bottom of your deck in any order.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 4,
+            "action": "up_to_n_to_hand_rest_bottom",
+            "maxToHand": 1,
+            "target": {
+              "type": "self"
+            },
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "maxCost": 2
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 20,
     "rarity": "uncommon",
@@ -1656,7 +1682,28 @@
       "Dreamborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "HIDDEN DEPTHS",
+        "rulesText": "When you play this character, if you have a character named Anna in play, you may put a card from chosen player's discard on the bottom of their deck. (approximation: targets opponent in 2P)",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "has_character_named",
+          "name": "Anna"
+        },
+        "effects": [
+          {
+            "type": "put_on_bottom_of_deck",
+            "from": "discard",
+            "ownerScope": "opponent",
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 51,
     "rarity": "rare",
@@ -1689,7 +1736,24 @@
       "Hero",
       "Queen"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "UNEXPECTED DISCOVERY",
+        "rulesText": "When you play this character, you may put a card from chosen player's discard on the bottom of their deck. (approximation: targets opponent in 2P)",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "put_on_bottom_of_deck",
+            "from": "discard",
+            "ownerScope": "opponent",
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 52,
     "rarity": "uncommon",
@@ -2519,7 +2583,47 @@
       "Ally",
       "Dinosaur"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "COLLATERAL DAMAGE",
+        "rulesText": "When you play this character, you may put 3 item cards from your discard on the bottom of your deck in any order. If you do, deal 3 damage to chosen character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "effects": [
+              {
+                "type": "put_on_bottom_of_deck",
+                "from": "discard",
+                "filter": {
+                  "cardType": [
+                    "item"
+                  ]
+                },
+                "amount": 3
+              },
+              {
+                "type": "deal_damage",
+                "amount": 3,
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 79,
     "rarity": "rare",
@@ -4383,28 +4487,44 @@
           "on": "moves_to_location",
           "filter": {
             "zone": "play",
-            "cardType": ["character"],
+            "cardType": [
+              "character"
+            ],
             "atLocation": "this"
           }
         },
         "effects": [
-          { "type": "put_top_of_deck_under", "target": { "type": "this" } }
+          {
+            "type": "put_top_of_deck_under",
+            "target": {
+              "type": "this"
+            }
+          }
         ]
       },
       {
         "type": "triggered",
         "storyName": "ANOTHER CHANCE",
         "rulesText": "At the start of your turn, you may put all cards from under this location into your hand. If you do, banish this location.",
-        "trigger": { "on": "turn_start", "player": { "type": "self" } },
+        "trigger": {
+          "on": "turn_start",
+          "player": {
+            "type": "self"
+          }
+        },
         "effects": [
           {
             "type": "put_cards_under_into_hand",
-            "target": { "type": "this" },
+            "target": {
+              "type": "this"
+            },
             "isMay": true
           },
           {
             "type": "banish",
-            "target": { "type": "this" }
+            "target": {
+              "type": "this"
+            }
           }
         ]
       }
@@ -4854,7 +4974,32 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "KEEN GEAR",
+        "rulesText": "When you play this character, look at the top 4 cards of your deck. You may reveal an item card and put it into your hand. Put the rest on the bottom of your deck in any order.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 4,
+            "action": "up_to_n_to_hand_rest_bottom",
+            "maxToHand": 1,
+            "target": {
+              "type": "self"
+            },
+            "filter": {
+              "cardType": [
+                "item"
+              ]
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 149,
     "rarity": "uncommon",
@@ -4888,7 +5033,28 @@
       "Hero",
       "Detective"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "MODERN MARVEL",
+        "rulesText": "Whenever this character quests, you may put an item card from your discard on the bottom of your deck. If you do, you may play an item with cost 5 or less from your discard for free. (approximation: play-from-discard reward dropped)",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "put_on_bottom_of_deck",
+            "from": "discard",
+            "filter": {
+              "cardType": [
+                "item"
+              ]
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 150,
     "rarity": "super_rare",
@@ -6783,7 +6949,24 @@
       "Hero",
       "Queen"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "UNEXPECTED DISCOVERY",
+        "rulesText": "When you play this character, you may put a card from chosen player's discard on the bottom of their deck. (approximation: targets opponent in 2P)",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "put_on_bottom_of_deck",
+            "from": "discard",
+            "ownerScope": "opponent",
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 209,
     "rarity": "common",

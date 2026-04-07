@@ -495,7 +495,31 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "BIG PRIZE",
+        "rulesText": "Whenever this character quests, each opponent reveals the top card of their deck. If it's a character card, they may put it into their hand. Otherwise, they put it on the bottom of their deck. (approximation: opponent always keeps on hit)",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "reveal_top_conditional",
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            },
+            "matchAction": "to_hand",
+            "noMatchDestination": "bottom",
+            "target": {
+              "type": "opponent"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "5",
     "number": 16,
     "rarity": "super_rare",
@@ -917,6 +941,22 @@
         "rulesText": "Reveal the top 2 cards of your deck. Put revealed character cards into your hand. Put the rest on the bottom of your deck in any order.",
         "raw": "Reveal the top 2 cards of your deck. Put revealed character cards into your hand. Put the rest on the bottom of your deck in any order."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "look_at_top",
+        "count": 2,
+        "action": "up_to_n_to_hand_rest_bottom",
+        "maxToHand": 99,
+        "target": {
+          "type": "self"
+        },
+        "filter": {
+          "cardType": [
+            "character"
+          ]
+        }
+      }
     ]
   },
   {
@@ -961,20 +1001,32 @@
         "storyName": "ROYAL SEARCH",
         "rulesText": "{E}, 2 {I} — Reveal the top card of your deck. If it's a Princess or Queen character card, you may put it into your hand. Otherwise, put it on the top of your deck.",
         "costs": [
-          { "type": "exert" },
-          { "type": "pay_ink", "amount": 2 }
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 2
+          }
         ],
         "effects": [
           {
             "type": "reveal_top_conditional",
             "filter": {
-              "cardType": ["character"],
-              "hasAnyTrait": ["Princess", "Queen"]
+              "cardType": [
+                "character"
+              ],
+              "hasAnyTrait": [
+                "Princess",
+                "Queen"
+              ]
             },
             "matchAction": "to_hand",
             "isMay": true,
             "noMatchDestination": "top",
-            "target": { "type": "self" }
+            "target": {
+              "type": "self"
+            }
           }
         ]
       }
@@ -3220,9 +3272,13 @@
           "type": "move_to_self_cost_reduction",
           "amount": "all",
           "filter": {
-            "owner": { "type": "self" },
+            "owner": {
+              "type": "self"
+            },
             "zone": "play",
-            "cardType": ["character"],
+            "cardType": [
+              "character"
+            ],
             "hasName": "Robin Hood"
           }
         }
@@ -3238,7 +3294,9 @@
             "type": "all",
             "filter": {
               "zone": "play",
-              "cardType": ["character"],
+              "cardType": [
+                "character"
+              ],
               "atLocation": "this"
             }
           }
@@ -3254,7 +3312,9 @@
             "type": "all",
             "filter": {
               "zone": "play",
-              "cardType": ["character"],
+              "cardType": [
+                "character"
+              ],
               "atLocation": "this"
             }
           },
@@ -3262,8 +3322,13 @@
             "type": "activated",
             "rulesText": "{E}, 1 {I} — Deal 2 damage to chosen damaged character.",
             "costs": [
-              { "type": "exert" },
-              { "type": "pay_ink", "amount": 1 }
+              {
+                "type": "exert"
+              },
+              {
+                "type": "pay_ink",
+                "amount": 1
+              }
             ],
             "effects": [
               {
@@ -3273,7 +3338,9 @@
                   "type": "chosen",
                   "filter": {
                     "zone": "play",
-                    "cardType": ["character"],
+                    "cardType": [
+                      "character"
+                    ],
                     "hasDamage": true
                   }
                 }
@@ -4369,9 +4436,13 @@
             "target": {
               "type": "chosen",
               "filter": {
-                "owner": { "type": "self" },
+                "owner": {
+                  "type": "self"
+                },
                 "zone": "play",
-                "cardType": ["character"],
+                "cardType": [
+                  "character"
+                ],
                 "atLocation": "this",
                 "isExerted": false
               }
@@ -4380,17 +4451,25 @@
               {
                 "type": "deal_damage",
                 "amount": 1,
-                "target": { "type": "this" }
+                "target": {
+                  "type": "this"
+                }
               },
               {
                 "type": "move_character",
-                "character": { "type": "this" },
+                "character": {
+                  "type": "this"
+                },
                 "location": {
                   "type": "chosen",
                   "filter": {
-                    "owner": { "type": "self" },
+                    "owner": {
+                      "type": "self"
+                    },
                     "zone": "play",
-                    "cardType": ["location"]
+                    "cardType": [
+                      "location"
+                    ]
                   }
                 }
               }
@@ -4828,8 +4907,29 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "ward"
+        "type": "triggered",
+        "storyName": "GATHERER OF THE WICKED",
+        "rulesText": "When you play this character, look at the top 3 cards of your deck. You may reveal any number of character cards named The Queen and put them into your hand. Put the rest on the bottom of your deck in any order.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 3,
+            "action": "up_to_n_to_hand_rest_bottom",
+            "maxToHand": 99,
+            "target": {
+              "type": "self"
+            },
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "hasName": "The Queen"
+            }
+          }
+        ]
       }
     ],
     "setId": "5",
@@ -5032,9 +5132,31 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 3
+        "type": "triggered",
+        "storyName": "CHANGING THE CODE",
+        "rulesText": "When you play this character, you may draw 2 cards, then put a card from your hand on the bottom of your deck.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "effects": [
+              {
+                "type": "draw",
+                "amount": 2,
+                "target": {
+                  "type": "self"
+                }
+              },
+              {
+                "type": "put_on_bottom_of_deck",
+                "from": "hand"
+              }
+            ]
+          }
+        ]
       }
     ],
     "setId": "5",
@@ -5442,7 +5564,32 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "FIND WHAT'S HIDDEN",
+        "rulesText": "Look at the top 3 cards of your deck. You may reveal an item card and put it into your hand. Put the rest on the bottom of your deck in any order.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 3,
+            "action": "up_to_n_to_hand_rest_bottom",
+            "maxToHand": 1,
+            "target": {
+              "type": "self"
+            },
+            "filter": {
+              "cardType": [
+                "item"
+              ]
+            }
+          }
+        ]
+      }
+    ],
     "setId": "5",
     "number": 166,
     "rarity": "rare",
@@ -5561,7 +5708,9 @@
         "rulesText": "Each player plays with the top card of their deck face up.",
         "effect": {
           "type": "top_of_deck_visible",
-          "affectedPlayer": { "type": "both" }
+          "affectedPlayer": {
+            "type": "both"
+          }
         }
       }
     ],
@@ -7140,9 +7289,31 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 3
+        "type": "triggered",
+        "storyName": "CHANGING THE CODE",
+        "rulesText": "When you play this character, you may draw 2 cards, then put a card from your hand on the bottom of your deck.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "effects": [
+              {
+                "type": "draw",
+                "amount": 2,
+                "target": {
+                  "type": "self"
+                }
+              },
+              {
+                "type": "put_on_bottom_of_deck",
+                "from": "hand"
+              }
+            ]
+          }
+        ]
       }
     ],
     "setId": "5",
