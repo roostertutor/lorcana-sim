@@ -911,7 +911,40 @@
     "cost": 1,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "LOOK ALIVE, YOU SWABS!",
+        "rulesText": "Characters gain Rush while here. (They can challenge the turn they're played.)",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "rush",
+          "target": {
+            "type": "all",
+            "filter": {
+              "zone": "play",
+              "cardType": ["character"],
+              "atLocation": "this"
+            }
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "ALL HANDS ON DECK!",
+        "rulesText": "Your Pirate characters may move here for free.",
+        "effect": {
+          "type": "move_to_self_cost_reduction",
+          "amount": "all",
+          "filter": {
+            "owner": { "type": "self" },
+            "zone": "play",
+            "cardType": ["character"],
+            "hasTrait": "Pirate"
+          }
+        }
+      }
+    ],
     "setId": "P1",
     "number": 27,
     "rarity": "common",

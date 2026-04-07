@@ -22,7 +22,7 @@ import type {
   ZoneName,
 } from "../types/index.js";
 import { getGameModifiers } from "./gameModifiers.js";
-import { validateAction } from "./validator.js";
+import { validateAction, applyMoveCostReduction } from "./validator.js";
 import {
   appendLog,
   canSingSong,
@@ -886,7 +886,12 @@ function applyMoveCharacter(
   events: GameEvent[]
 ): GameState {
   const locDef = getDefinition(state, locationInstanceId, definitions);
-  const moveCost = locDef.moveCost ?? 0;
+  const baseCost = locDef.moveCost ?? 0;
+  // Apply per-location move cost reductions (Jolly Roger).
+  const moveModifiers = getGameModifiers(state, definitions);
+  const charInst = getInstance(state, characterInstanceId);
+  const charDef = getDefinition(state, characterInstanceId, definitions);
+  const moveCost = applyMoveCostReduction(baseCost, charInst, charDef, locationInstanceId, moveModifiers, state, playerId);
 
   // Deduct ink (the move_character effect path skips this — see performMove)
   if (moveCost > 0) {

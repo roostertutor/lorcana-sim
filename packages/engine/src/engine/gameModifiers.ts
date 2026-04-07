@@ -117,6 +117,14 @@ export interface GameModifiers {
    * The UI consults this to render the deck top face-up.
    */
   topOfDeckVisible: Set<import("../types/index.js").PlayerID>;
+
+  /**
+   * Per-location move cost reductions (Jolly Roger - Hook's Ship: "Your Pirate
+   * characters may move here for free"). Key = location instanceId, value =
+   * list of { amount, filter } entries. validateMoveCharacter / applyMoveCharacter
+   * consult this when computing the effective move cost to that location.
+   */
+  moveToSelfCostReductions: Map<string, { amount: number | "all"; filter: import("../types/index.js").CardFilter }[]>;
 }
 
 /**
@@ -147,6 +155,7 @@ export function getGameModifiers(
     loreThresholds: new Map(),
     skipsDrawStep: new Set(),
     topOfDeckVisible: new Set(),
+    moveToSelfCostReductions: new Map(),
   };
 
   for (const instance of Object.values(state.cards)) {
@@ -317,6 +326,18 @@ export function getGameModifiers(
         case "skip_draw_step_self": {
           // Arthur Determined Squire (Set 8): owner skips their draw step.
           modifiers.skipsDrawStep.add(instance.ownerId);
+          break;
+        }
+
+        case "move_to_self_cost_reduction": {
+          // Jolly Roger - Hook's Ship: "Your Pirate characters may move here for free."
+          // Keyed on the location instance — the validator looks up the destination's id.
+          let entries = modifiers.moveToSelfCostReductions.get(instance.instanceId);
+          if (!entries) {
+            entries = [];
+            modifiers.moveToSelfCostReductions.set(instance.instanceId, entries);
+          }
+          entries.push({ amount: effect.amount, filter: effect.filter });
           break;
         }
 

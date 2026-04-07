@@ -510,12 +510,39 @@ function validateMoveCharacter(
     return fail("Character is already at this location.");
   }
 
-  const cost = locDef.moveCost ?? 0;
-  if (!canAfford(state, playerId, cost)) {
-    return fail(`Not enough ink to move. Need ${cost}.`);
+  const baseCost = locDef.moveCost ?? 0;
+  // CRD: a static effect on the destination may reduce or zero out the move cost
+  // for matching characters (Jolly Roger - Hook's Ship: "Your Pirate characters
+  // may move here for free.").
+  const moveModifiers = getGameModifiers(state, definitions);
+  const effectiveCost = applyMoveCostReduction(baseCost, char, charDef, locationInstanceId, moveModifiers, state, playerId);
+  if (!canAfford(state, playerId, effectiveCost)) {
+    return fail(`Not enough ink to move. Need ${effectiveCost}.`);
   }
 
   return OK;
+}
+
+/** Compute the effective move cost after location-bound move-cost reductions
+ *  (Jolly Roger Hook's Ship "Your Pirate characters may move here for free"). */
+export function applyMoveCostReduction(
+  baseCost: number,
+  charInstance: import("../types/index.js").CardInstance,
+  charDef: CardDefinition,
+  locationInstanceId: string,
+  modifiers: { moveToSelfCostReductions: Map<string, { amount: number | "all"; filter: import("../types/index.js").CardFilter }[]> },
+  state: GameState,
+  viewingPlayerId: PlayerID
+): number {
+  const entries = modifiers.moveToSelfCostReductions.get(locationInstanceId);
+  if (!entries || entries.length === 0) return baseCost;
+  let cost = baseCost;
+  for (const entry of entries) {
+    if (!matchesFilter(charInstance, charDef, entry.filter, state, viewingPlayerId)) continue;
+    if (entry.amount === "all") return 0;
+    cost = Math.max(0, cost - entry.amount);
+  }
+  return cost;
 }
 
 // CRD 8.4: Boost N {I} — once per turn, pay N {I} to put the top card of your

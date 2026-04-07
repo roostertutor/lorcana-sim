@@ -593,7 +593,23 @@ export type StaticEffect =
   | PlayableFromZoneSelfStatic
   | ModifyWinThresholdStatic
   | SkipDrawStepSelfStatic
-  | TopOfDeckVisibleStatic;
+  | TopOfDeckVisibleStatic
+  | MoveToSelfCostReductionStatic;
+
+/**
+ * Jolly Roger - Hook's Ship: "Your Pirate characters may move here for free."
+ * Applies when a character matching `filter` would move TO the source location.
+ * Reduces the move cost by `amount` (or to 0 if "all"). The filter typically
+ * narrows by trait (Pirate, Dwarf, etc.) and owner (self).
+ */
+export interface MoveToSelfCostReductionStatic {
+  type: "move_to_self_cost_reduction";
+  /** How much to reduce the move cost. Use a large number (or specifically the
+   *  location's moveCost) to make it free. */
+  amount: number | "all";
+  /** Which characters get the discount when moving here. */
+  filter: CardFilter;
+}
 
 /**
  * Merlin's Cottage - The Wizard's Home (Set 5): "KNOWLEDGE IS POWER Each
