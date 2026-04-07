@@ -144,7 +144,33 @@
       "Dreamborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "AS YOU WERE!",
+        "rulesText": "Whenever this character quests, you may give chosen character -2 {S} until the start of your next turn.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": -2,
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "until_caster_next_turn"
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 5,
     "rarity": "common",
@@ -1038,6 +1064,25 @@
       "Song"
     ],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "gain_stats",
+        "strength": -2,
+        "target": {
+          "type": "all",
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "duration": "until_caster_next_turn"
+      }
+    ],
     "setId": "4",
     "number": 29,
     "rarity": "uncommon",
@@ -3230,7 +3275,7 @@
             ]
           }
         },
-        "duration": "end_of_owner_next_turn",
+        "duration": "until_caster_next_turn",
         "followUpEffects": [
           {
             "type": "grant_keyword",
@@ -3238,7 +3283,7 @@
             "target": {
               "type": "this"
             },
-            "duration": "end_of_owner_next_turn"
+            "duration": "until_caster_next_turn"
           }
         ]
       }

@@ -104,6 +104,24 @@ Only fizzle if the card instance doesn't exist at all.
 **Win threshold (CRD 1.8.1.1):**
 Never hardcode `lore >= 20`. Always use `getLoreThreshold(state, definitions)`.
 
+**"Until the start of your next turn" — caster vs owner duration:**
+Two distinct EffectDuration values, easy to confuse:
+- `end_of_owner_next_turn` — expires at end of the AFFECTED CARD'S OWNER'S next
+  turn. Use for "they / their next turn" wording (Elsa Spirit of Winter "they
+  can't ready at the start of their next turn", Iago "Reckless during their
+  next turn"). Owner-anchored.
+- `until_caster_next_turn` — expires when the CASTER starts their next turn.
+  Use for "until the start of YOUR next turn" wording (Mouse Armor, Four Dozen
+  Eggs, Cogsworth Majordomo, Lost in the Woods, Dodge). Caster-anchored,
+  requires `casterPlayerId` on the TimedEffect.
+
+Naming the wrong one matters: `end_of_owner_next_turn` for a self-cast
+"your next turn" buff is broken — it expires at the end of the caster's OWN
+turn (effectively `this_turn`), giving zero turns of uptime past cast.
+For 2P opponent debuffs the two happen to coincide; for self-cast or 3+P
+they diverge. Always read the card's exact pronoun: "their" → owner, "your"
+→ caster.
+
 **banished_other_in_challenge turn condition:**
 Abilities that say "during your turn" on `banished_other_in_challenge` triggers require
 `"condition": { "type": "is_your_turn" }` in the card JSON. Without it the ability fires

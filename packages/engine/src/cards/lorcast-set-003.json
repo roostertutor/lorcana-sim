@@ -502,7 +502,7 @@
                 ]
               }
             },
-            "duration": "end_of_owner_next_turn"
+            "duration": "until_caster_next_turn"
           }
         ]
       }
@@ -798,7 +798,7 @@
                 ]
               }
             },
-            "duration": "end_of_owner_next_turn"
+            "duration": "until_caster_next_turn"
           }
         ]
       }
@@ -1532,7 +1532,11 @@
         },
         "chooser": "controller",
         "filter": {
-          "cardType": ["action", "item", "location"]
+          "cardType": [
+            "action",
+            "item",
+            "location"
+          ]
         }
       }
     ]
@@ -2511,17 +2515,25 @@
             "character": {
               "type": "chosen",
               "filter": {
-                "owner": { "type": "self" },
+                "owner": {
+                  "type": "self"
+                },
                 "zone": "play",
-                "cardType": ["character"]
+                "cardType": [
+                  "character"
+                ]
               }
             },
             "location": {
               "type": "chosen",
               "filter": {
-                "owner": { "type": "self" },
+                "owner": {
+                  "type": "self"
+                },
                 "zone": "play",
-                "cardType": ["location"]
+                "cardType": [
+                  "location"
+                ]
               }
             }
           }
@@ -2532,7 +2544,9 @@
         "storyName": "FIND THE WAY",
         "rulesText": "{E} — Move a character of yours to a location for free.",
         "costs": [
-          { "type": "exert" }
+          {
+            "type": "exert"
+          }
         ],
         "effects": [
           {
@@ -2540,17 +2554,25 @@
             "character": {
               "type": "chosen",
               "filter": {
-                "owner": { "type": "self" },
+                "owner": {
+                  "type": "self"
+                },
                 "zone": "play",
-                "cardType": ["character"]
+                "cardType": [
+                  "character"
+                ]
               }
             },
             "location": {
               "type": "chosen",
               "filter": {
-                "owner": { "type": "self" },
+                "owner": {
+                  "type": "self"
+                },
                 "zone": "play",
-                "cardType": ["location"]
+                "cardType": [
+                  "location"
+                ]
               }
             }
           }
@@ -3452,13 +3474,20 @@
         "storyName": "INCREDIBLE ENERGY",
         "rulesText": "{E}, 1 {I} — Name a card, then reveal the top card of your deck. If it's the named card, put that card into your hand. Otherwise, put it on the top of your deck.",
         "costs": [
-          { "type": "exert" },
-          { "type": "pay_ink", "amount": 1 }
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
         ],
         "effects": [
           {
             "type": "name_a_card_then_reveal",
-            "target": { "type": "self" }
+            "target": {
+              "type": "self"
+            }
           }
         ]
       }
@@ -4659,7 +4688,9 @@
             },
             "chooser": "controller",
             "filter": {
-              "cardType": ["action"],
+              "cardType": [
+                "action"
+              ],
               "hasTrait": "Song"
             }
           }
@@ -4710,7 +4741,9 @@
           {
             "type": "play_for_free",
             "sourceZone": "discard",
-            "target": { "type": "triggering_card" },
+            "target": {
+              "type": "triggering_card"
+            },
             "thenPutOnBottomOfDeck": true,
             "isMay": true
           }
@@ -5347,7 +5380,7 @@
                 ]
               }
             },
-            "duration": "end_of_owner_next_turn"
+            "duration": "until_caster_next_turn"
           }
         ]
       }
@@ -5651,14 +5684,20 @@
         "trigger": {
           "on": "card_played",
           "filter": {
-            "cardType": ["location"]
+            "cardType": [
+              "location"
+            ]
           }
         },
         "effects": [
           {
             "type": "move_character",
-            "character": { "type": "this" },
-            "location": { "type": "triggering_card" },
+            "character": {
+              "type": "this"
+            },
+            "location": {
+              "type": "triggering_card"
+            },
             "isMay": true
           }
         ]
@@ -8499,7 +8538,9 @@
         "type": "static",
         "storyName": "LABORATORY",
         "rulesText": "If you have a character here, you pay 1 {I} less to play items.",
-        "condition": { "type": "this_location_has_character" },
+        "condition": {
+          "type": "this_location_has_character"
+        },
         "effect": {
           "type": "cost_reduction",
           "amount": 1,
@@ -10052,7 +10093,9 @@
         "type": "gain_conditional_challenge_bonus",
         "strength": 3,
         "defenderFilter": {
-          "cardType": ["location"]
+          "cardType": [
+            "location"
+          ]
         },
         "duration": "this_turn"
       }
@@ -10224,7 +10267,7 @@
                 ]
               }
             },
-            "duration": "end_of_owner_next_turn"
+            "duration": "until_caster_next_turn"
           }
         ]
       }
@@ -10515,7 +10558,7 @@
                 ]
               }
             },
-            "duration": "end_of_owner_next_turn"
+            "duration": "until_caster_next_turn"
           }
         ]
       }
@@ -10738,13 +10781,20 @@
         "storyName": "INCREDIBLE ENERGY",
         "rulesText": "{E}, 1 {I} — Name a card, then reveal the top card of your deck. If it's the named card, put that card into your hand. Otherwise, put it on the top of your deck.",
         "costs": [
-          { "type": "exert" },
-          { "type": "pay_ink", "amount": 1 }
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
         ],
         "effects": [
           {
             "type": "name_a_card_then_reveal",
-            "target": { "type": "self" }
+            "target": {
+              "type": "self"
+            }
           }
         ]
       }
@@ -10831,7 +10881,9 @@
           {
             "type": "play_for_free",
             "sourceZone": "discard",
-            "target": { "type": "triggering_card" },
+            "target": {
+              "type": "triggering_card"
+            },
             "thenPutOnBottomOfDeck": true,
             "isMay": true
           }
@@ -11210,7 +11262,9 @@
         "type": "static",
         "storyName": "LABORATORY",
         "rulesText": "If you have a character here, you pay 1 {I} less to play items.",
-        "condition": { "type": "this_location_has_character" },
+        "condition": {
+          "type": "this_location_has_character"
+        },
         "effect": {
           "type": "cost_reduction",
           "amount": 1,

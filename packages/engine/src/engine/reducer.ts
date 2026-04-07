@@ -1184,12 +1184,22 @@ function applyPassTurn(
       if (te.expiresAt === "end_of_turn") return false;
       // "rest_of_turn" expires at end of the turn it was applied
       if (te.expiresAt === "rest_of_turn") return false;
-      // "end_of_owner_next_turn" expires at end of the owner's next turn
-      // It persists through the opponent's turn, then expires when the owner's turn ends
+      // "end_of_owner_next_turn" — expires at end of the AFFECTED CARD'S OWNER's next turn.
+      // (Elsa Spirit of Winter, Iago, etc — "during their next turn".)
       if (te.expiresAt === "end_of_owner_next_turn") {
-        // The effect was applied on a previous turn AND the current turn's owner matches
-        // the card's owner — this is the owner's turn ending
         if (te.appliedOnTurn < newTurnNumber && instance.ownerId === playerId) {
+          return false;
+        }
+        return true;
+      }
+      // "until_caster_next_turn" — expires just before the CASTER starts their next turn.
+      // After applyPassTurn updates currentPlayer to the new active player, that new
+      // active player IS the next turn-taker. If they equal the caster, the caster's
+      // next turn is starting now → expire. Correct in 2P AND 3+P.
+      if (te.expiresAt === "until_caster_next_turn") {
+        if (te.appliedOnTurn < newTurnNumber && te.casterPlayerId === opponent) {
+          // `opponent` here is the NEW current player (set above as the new active player).
+          // The caster's next turn is beginning, expire the effect.
           return false;
         }
         return true;
@@ -1696,12 +1706,7 @@ export function applyEffect(
 
     case "gain_stats": {
       if (effect.target.type === "this") {
-        const instance = getInstance(state, sourceInstanceId);
-        return updateInstance(state, sourceInstanceId, {
-          tempStrengthModifier: instance.tempStrengthModifier + (effect.strength ?? 0),
-          tempWillpowerModifier: instance.tempWillpowerModifier + (effect.willpower ?? 0),
-          tempLoreModifier: instance.tempLoreModifier + (effect.lore ?? 0),
-        });
+        return applyGainStatsToInstance(state, sourceInstanceId, effect, controllingPlayerId);
       }
       if (effect.target.type === "chosen") {
         const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
@@ -1714,8 +1719,14 @@ export function applyEffect(
             prompt: "Choose a target.",
             validTargets,
             pendingEffect: effect,
+            optional: effect.isMay ?? false,
           },
         };
+      }
+      if (effect.target.type === "all") {
+        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        for (const id of targets) state = applyGainStatsToInstance(state, id, effect, controllingPlayerId);
+        return state;
       }
       return state;
     }
@@ -1726,6 +1737,7 @@ export function applyEffect(
         type: "cant_be_challenged",
         expiresAt: effect.duration,
         appliedOnTurn: state.turnNumber,
+        casterPlayerId: controllingPlayerId,
       };
       if (effect.target.type === "this") {
         return addTimedEffect(state, sourceInstanceId, timed);
@@ -1946,6 +1958,9 @@ export function applyEffect(
         amount: 0,
         expiresAt: effect.duration,
         appliedOnTurn: state.turnNumber,
+        // Caster anchor for "until your next turn" durations (until_caster_next_turn).
+        // Harmless to set unconditionally — only consulted when expiresAt matches.
+        casterPlayerId: controllingPlayerId,
       };
       if (effect.target.type === "this") {
         return addTimedEffect(state, sourceInstanceId, timedEffect);
@@ -2030,6 +2045,7 @@ export function applyEffect(
         amount: 0,
         expiresAt: effect.duration,
         appliedOnTurn: state.turnNumber,
+        casterPlayerId: controllingPlayerId,
       };
       if (effect.target.type === "this") {
         return addTimedEffect(state, sourceInstanceId, timedEffect);
@@ -2520,6 +2536,7 @@ export function applyEffect(
           type: "can_challenge_ready",
           expiresAt: effect.duration,
           appliedOnTurn: state.turnNumber,
+          casterPlayerId: controllingPlayerId,
         };
         return addTimedEffect(state, sourceInstanceId, timedEffect);
       }
@@ -3247,17 +3264,16 @@ function applyEffectToTarget(
     case "return_to_hand":
       return zoneTransition(state, targetInstanceId, "hand", definitions, events, { reason: "returned" });
     case "gain_stats": {
-      const instance = getInstance(state, targetInstanceId);
-      let strBonus = effect.strength ?? 0;
       // Sword in the Stone: +1 strength per damage on target
       if (effect.strengthPerDamage) {
-        strBonus = instance.damage;
+        const instance = getInstance(state, targetInstanceId);
+        return updateInstance(state, targetInstanceId, {
+          tempStrengthModifier: instance.tempStrengthModifier + instance.damage,
+          tempWillpowerModifier: instance.tempWillpowerModifier + (effect.willpower ?? 0),
+          tempLoreModifier: instance.tempLoreModifier + (effect.lore ?? 0),
+        });
       }
-      return updateInstance(state, targetInstanceId, {
-        tempStrengthModifier: instance.tempStrengthModifier + strBonus,
-        tempWillpowerModifier: instance.tempWillpowerModifier + (effect.willpower ?? 0),
-        tempLoreModifier: instance.tempLoreModifier + (effect.lore ?? 0),
-      });
+      return applyGainStatsToInstance(state, targetInstanceId, effect, controllingPlayerId);
     }
     case "remove_damage": {
       const instance = getInstance(state, targetInstanceId);
@@ -3291,6 +3307,7 @@ function applyEffectToTarget(
         amount: 0,
         expiresAt: effect.duration,
         appliedOnTurn: state.turnNumber,
+        casterPlayerId: controllingPlayerId,
       };
       return addTimedEffect(state, targetInstanceId, timedEffect);
     }
@@ -3309,6 +3326,7 @@ function applyEffectToTarget(
         amount: 0,
         expiresAt: effect.duration,
         appliedOnTurn: state.turnNumber,
+        casterPlayerId: controllingPlayerId,
       };
       return addTimedEffect(state, targetInstanceId, timedEffect);
     }
@@ -3317,6 +3335,7 @@ function applyEffectToTarget(
         type: "cant_be_challenged",
         expiresAt: effect.duration,
         appliedOnTurn: state.turnNumber,
+        casterPlayerId: controllingPlayerId,
       });
     }
     case "move_to_inkwell": {
@@ -3435,6 +3454,7 @@ function applyEffectToTarget(
         type: "can_challenge_ready",
         expiresAt: effect.duration,
         appliedOnTurn: state.turnNumber,
+        casterPlayerId: controllingPlayerId,
       };
       return addTimedEffect(state, targetInstanceId, timedEffect);
     }
@@ -3485,6 +3505,45 @@ function addTimedEffect(state: GameState, instanceId: string, effect: TimedEffec
   return updateInstance(state, instanceId, {
     timedEffects: [...instance.timedEffects, effect],
   });
+}
+
+/** Apply a gain_stats effect to a single instance. Routes to tempStatModifier
+ *  (for "this_turn") or addTimedEffect (for end_of_turn / rest_of_turn /
+ *  end_of_owner_next_turn / until_caster_next_turn — which need to survive
+ *  across turn boundaries). For until_caster_next_turn, the casterPlayerId is
+ *  recorded so cleanup can compare against the right player (CRD "your next turn"). */
+function applyGainStatsToInstance(
+  state: GameState,
+  instanceId: string,
+  effect: import("../types/index.js").GainStatsEffect,
+  casterPlayerId: PlayerID
+): GameState {
+  const instance = state.cards[instanceId];
+  if (!instance) return state;
+
+  const isTempThisTurn = effect.duration === "this_turn" || effect.duration === "permanent";
+  if (isTempThisTurn) {
+    // Existing path: write to tempStrengthModifier (cleared at end of turn).
+    // Note: "permanent" currently shares the temp path — pre-existing semantics.
+    return updateInstance(state, instanceId, {
+      tempStrengthModifier: instance.tempStrengthModifier + (effect.strength ?? 0),
+      tempWillpowerModifier: instance.tempWillpowerModifier + (effect.willpower ?? 0),
+      tempLoreModifier: instance.tempLoreModifier + (effect.lore ?? 0),
+    });
+  }
+  // EffectDuration: append separate timedEffects so the duration logic expires them.
+  const expiresAt = effect.duration as import("../types/index.js").EffectDuration;
+  const baseTimed = { expiresAt, appliedOnTurn: state.turnNumber, casterPlayerId };
+  if (effect.strength) {
+    state = addTimedEffect(state, instanceId, { type: "modify_strength", amount: effect.strength, ...baseTimed });
+  }
+  if (effect.willpower) {
+    state = addTimedEffect(state, instanceId, { type: "modify_willpower", amount: effect.willpower, ...baseTimed });
+  }
+  if (effect.lore) {
+    state = addTimedEffect(state, instanceId, { type: "modify_lore", amount: effect.lore, ...baseTimed });
+  }
+  return state;
 }
 
 function payCosts(

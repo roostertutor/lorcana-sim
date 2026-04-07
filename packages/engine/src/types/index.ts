@@ -220,8 +220,14 @@ export interface GainStatsEffect {
   willpower?: number;
   lore?: number;
   target: CardTarget;
-  /** "this_turn" = wears off at end of turn, "permanent" = stays */
-  duration: "this_turn" | "permanent";
+  /**
+   * "this_turn" = wears off at end of current turn (writes to tempStrengthModifier directly).
+   * "permanent" = stays for the rest of the game.
+   * EffectDuration values ("end_of_turn", "rest_of_turn", "end_of_owner_next_turn") use the
+   * timedEffects mechanism so the bonus expires correctly across turn boundaries
+   * (Cogsworth Majordomo, Lost in the Woods).
+   */
+  duration: "this_turn" | "permanent" | EffectDuration;
   /** CRD 6.1.4: player may choose not to apply this effect */
   isMay?: boolean;
   /** +1 strength per damage on target (Sword in the Stone) */
@@ -877,7 +883,24 @@ export type AbilityTiming = "your_turn_main" | "any_time" | "opponent_turn";
 export type EffectDuration =
   | "end_of_turn"
   | "rest_of_turn"
-  | "end_of_owner_next_turn";
+  /**
+   * Expires at the end of the AFFECTED CARD'S OWNER'S next turn (CRD wording
+   * "during their next turn" / "at the start of their next turn").
+   * Use for opponent-targeting "they can't ready / they're Reckless next turn"
+   * patterns: Elsa Spirit of Winter, Iago, Jasper, Anna Heir, etc.
+   */
+  | "end_of_owner_next_turn"
+  /**
+   * Expires when the EFFECT'S CASTER starts their next turn (CRD wording
+   * "until the start of your next turn"). Tracks the controlling player at
+   * cast time via TimedEffect.casterPlayerId. Correct in 2P AND 3+P.
+   * Use for "your characters gain X / chosen character gets X until your next
+   * turn": Mouse Armor, Four Dozen Eggs, Cogsworth Majordomo, Dodge, etc.
+   * Note: in 2P self-cast cases, end_of_owner_next_turn is BROKEN (it expires
+   * at end of caster's own turn = same as this_turn). until_caster_next_turn
+   * is the only correct option for caster-anchored "your next turn" effects.
+   */
+  | "until_caster_next_turn";
 
 export interface TimedEffect {
   type: "grant_keyword" | "modify_strength" | "modify_willpower" | "modify_lore"
@@ -890,6 +913,9 @@ export interface TimedEffect {
   expiresAt: EffectDuration;
   /** Turn number when this effect was applied (for multi-turn expiry) */
   appliedOnTurn: number;
+  /** For until_caster_next_turn: the player who applied this effect (the "you"
+   *  in "until your next turn"). Required when expiresAt === "until_caster_next_turn". */
+  casterPlayerId?: PlayerID;
 }
 
 // -----------------------------------------------------------------------------

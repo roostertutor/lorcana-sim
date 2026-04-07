@@ -268,7 +268,7 @@
                 "excludeSelf": true
               }
             },
-            "duration": "end_of_owner_next_turn"
+            "duration": "until_caster_next_turn"
           }
         ]
       }
@@ -3612,7 +3612,9 @@
             "owner": {
               "type": "opponent"
             },
-            "cardType": ["character"]
+            "cardType": [
+              "character"
+            ]
           }
         },
         "effects": [
@@ -6699,7 +6701,7 @@
             ]
           }
         },
-        "duration": "end_of_owner_next_turn"
+        "duration": "until_caster_next_turn"
       }
     ]
   },
@@ -8271,7 +8273,7 @@
             ]
           }
         },
-        "duration": "end_of_owner_next_turn"
+        "duration": "until_caster_next_turn"
       }
     ]
   },
@@ -9521,7 +9523,7 @@
                 ]
               }
             },
-            "duration": "end_of_owner_next_turn"
+            "duration": "until_caster_next_turn"
           }
         ]
       }
@@ -10255,7 +10257,7 @@
             ]
           }
         },
-        "duration": "end_of_owner_next_turn"
+        "duration": "until_caster_next_turn"
       }
     ]
   },
