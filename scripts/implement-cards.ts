@@ -752,15 +752,15 @@ patchSet("3", {
     ],
   },
 
-  // Olympus Would Be That Way: "Your characters get +3 STR while challenging a location this turn"
-  // Approximation: floating trigger that grants Challenger +3 vs locations — complex.
-  // Simpler: floating trigger fires on challenges + grant +3 STR for the turn.
-  // Even simpler: blanket Challenger +3 to all own characters this turn.
+  // Olympus Would Be That Way: "Your characters get +3 {S} while challenging a location this turn"
+  // Note: this is +3 STR (a stat modifier), NOT Challenger (which is a keyword bonus).
+  // Approximation: blanket +3 STR to all own characters this turn.
+  // TODO: should only apply during challenges against locations
   "olympus-would-be-that-way": {
     actionEffects: [
-      { type: "grant_keyword", keyword: "challenger", value: 3,
+      { type: "gain_stats", strength: 3,
         target: { type: "all", filter: { owner: { type: "self" }, zone: "play", cardType: ["character"] } },
-        duration: "end_of_turn" },
+        duration: "this_turn" },
       // TODO: should only apply when challenging a location specifically
     ],
   },

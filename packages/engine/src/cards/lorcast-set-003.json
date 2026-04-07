@@ -9958,9 +9958,8 @@
     ],
     "actionEffects": [
       {
-        "type": "grant_keyword",
-        "keyword": "challenger",
-        "value": 3,
+        "type": "gain_stats",
+        "strength": 3,
         "target": {
           "type": "all",
           "filter": {
@@ -9973,7 +9972,7 @@
             ]
           }
         },
-        "duration": "end_of_turn"
+        "duration": "this_turn"
       }
     ]
   },
