@@ -29,7 +29,7 @@ Source script: `scripts/mechanic-gaps.ts` (run via `pnpm tsx scripts/mechanic-ga
 | Capability | Cards | Sets | Priority | Complexity | Notes |
 |---|---:|---|---|---|---|
 | `put-on-bottom` | 44 | 5–11, cp, D23 | HIGH | SMALL | New `put_on_bottom_of_deck` Effect (no shuffle, no reveal). Quick win. |
-| `pay-extra-cost-mid-effect` | 23 | 4–11, P2 | HIGH | MEDIUM | Optional embedded "you may pay X to <effect>" — needs PendingChoice for cost-then-effect resolution |
+| ~~`pay-extra-cost-mid-effect`~~ | done | — | — | — | Implemented via existing `SequentialEffect` (`isMay: true` + `pay_ink` cost effect). No new Effect type needed. Categorizer + 10 cards wired (Ariel Sonic Warrior set 4/9, Merryweather, Scroop, Clarabelle, Mother Gothel, Honey Lemon set 6/P2, Raya, Ursula's Shell Necklace, Max Goof, Finnick). 8 deferred for unrelated gaps (dynamic-amount, shift-variant, new triggers, choose-inside-reward). |
 | `dynamic-amount` | 18 | 5–9, 11, D23, P3 | HIGH | MEDIUM | Effect amount as `{ type: "this_character_strength" \| "chosen_lore" \| ... }`; touches draw, deal_damage, gain_lore amount unions |
 | `card-under-static` | 15 | 10, 11, P3 | HIGH | MEDIUM | Boost sub-capability. Statics that read "while there's a card under this / with a card under them" — needs the cards-under subzone first |
 | `card-under-trigger` | 13 | 10, 11, P3 | HIGH | MEDIUM | Boost sub-capability. "Whenever you put a card under …" trigger event — depends on subzone + placement pipeline |

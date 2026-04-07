@@ -59,7 +59,7 @@ const NEW_MECHANIC: [RegExp, string][] = [
   [/\bplay a .{0,30}with the same name as\b/i, "play-same-name-as-banished"],
   [/\bmove .{0,20}and one of your other .{0,30}to the same location\b/i, "multi-character-move"],
   [/\bis chosen for support\b/i, "chosen-for-support-trigger"],
-  [/\bmay pay \d+ \{I\} to\b/i, "pay-extra-cost-mid-effect"],
+  // (pay-extra-cost-mid-effect removed: implemented via SequentialEffect+pay_ink.)
 ];
 
 const NEW_TYPE: [RegExp, string][] = [

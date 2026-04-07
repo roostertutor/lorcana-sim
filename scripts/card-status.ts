@@ -106,8 +106,9 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   [/\bmove .{0,20}and one of your other .{0,30}to the same location\b/i, "multi-character-move"],
   // "Whenever one of your characters is chosen for Support" — chosen_for_support trigger event
   [/\bis chosen for support\b/i, "chosen-for-support-trigger"],
-  // "you may pay N {I} to <effect>" — pay-extra-cost mid-effect (Ariel Sonic Warrior)
-  [/\bmay pay \d+ \{I\} to\b/i, "pay-extra-cost-mid-effect"],
+  // (pay-extra-cost-mid-effect removed: SequentialEffect with isMay + pay_ink
+  //  cost effect already supports the "you may pay N {I} to <effect>" pattern.
+  //  Matched by FITS_GRAMMAR_PATTERNS targeting `sequential` capability.)
 ];
 
 const NEW_TYPE_PATTERNS: [RegExp, string][] = [
@@ -273,7 +274,7 @@ const CAPABILITIES = new Set<string>([
   "exert", "ready", "grant_keyword", "cant_action", "look_at_top",
   "discard_from_hand", "conditional_on_target", "play_for_free",
   "shuffle_into_deck", "move_to_inkwell", "grant_extra_ink_play",
-  "put_on_bottom_of_deck",
+  "put_on_bottom_of_deck", "pay_ink",
   "sequential", "create_floating_trigger_on_self",
   // Static effects
   "stat_static", "cant_be_challenged_static", "cost_reduction_static",
@@ -389,6 +390,8 @@ const FITS_GRAMMAR_PATTERNS: [RegExp, string][] = [
   [/^sing together \d/i, "sing_together_reminder"],
   // Put card on bottom of deck (no shuffle — different from shuffle_into_deck)
   [/\bput .{0,40}on the bottom of .{0,20}deck\b/i, "put_on_bottom_of_deck"],
+  // "you may pay N {I} to <effect>" — sequential w/ isMay + pay_ink cost effect.
+  [/\bmay pay \d+ \{I\} to\b/i, "sequential"],
 ];
 
 function categorizeStub(rulesText: string, cardType: string): StubCategory {
