@@ -59,6 +59,8 @@ export function validateAction(
       return validatePassTurn(state, action.playerId, definitions);
     case "RESOLVE_CHOICE":
       return validateResolveChoice(state, action.playerId, action.choice, definitions);
+    case "MOVE_CHARACTER":
+      return validateMoveCharacter(state, action.playerId, action.characterInstanceId, action.locationInstanceId, definitions);
     case "DRAW_CARD":
       return OK; // Always legal (used internally)
     default:
@@ -273,9 +275,12 @@ function validateChallenge(
     return fail("This character can't challenge.");
   }
 
+  const defenderDefEarly = getDefinition(state, defenderInstanceId, definitions);
+
   // CRD 4.6.4.2: defender must be exerted (unless modifier overrides)
+  // CRD 4.6.8: locations are always valid challenge targets — they never exert
   const hasTimedChallengeReady = attacker.timedEffects.some(te => te.type === "can_challenge_ready");
-  if (!defender.isExerted && !modifiers.canChallengeReady.has(attackerInstanceId) && !hasTimedChallengeReady) {
+  if (defenderDefEarly.cardType !== "location" && !defender.isExerted && !modifiers.canChallengeReady.has(attackerInstanceId) && !hasTimedChallengeReady) {
     return fail("Can only challenge exerted characters.");
   }
 
@@ -291,8 +296,10 @@ function validateChallenge(
     }
   }
 
-  const defenderDef = getDefinition(state, defenderInstanceId, definitions);
-  if (defenderDef.cardType !== "character") return fail("Only characters can be challenged."); // CRD 4.6.2
+  const defenderDef = defenderDefEarly;
+  if (defenderDef.cardType !== "character" && defenderDef.cardType !== "location") {
+    return fail("Can only challenge characters or locations."); // CRD 4.6.2 / 4.6.8
+  }
 
   const opponentPlay = getZone(state, opponent, "play");
 
@@ -305,11 +312,15 @@ function validateChallenge(
     return inst.isExerted && hasKeyword(inst, def, "bodyguard");
   });
 
-  if (exertedBodyguards.length > 0 && !hasKeyword(defender, defenderDef, "bodyguard")) {
+  // Bodyguard only protects characters — locations bypass it (CRD 4.6.8)
+  if (defenderDef.cardType === "character" && exertedBodyguards.length > 0 && !hasKeyword(defender, defenderDef, "bodyguard")) {
     return fail("Must challenge an exerted Bodyguard character first.");
   }
 
-  // CRD 8.6.1: Evasive — can only be challenged by Evasive characters
+  // CRD 8.6.1: Evasive — can only be challenged by Evasive characters (locations don't have Evasive)
+  if (defenderDef.cardType !== "character") {
+    return OK;
+  }
   const defHasEvasive = hasKeyword(defender, defenderDef, "evasive") ||
     (modifiers.grantedKeywords.get(defenderInstanceId)?.some(g => g.keyword === "evasive") ?? false);
   const atkHasEvasive = hasKeyword(attacker, attackerDef, "evasive") ||
@@ -366,6 +377,43 @@ function validateActivateAbility(
         return fail(`Not enough ink. Need ${cost.amount}.`);
       }
     }
+  }
+
+  return OK;
+}
+
+// CRD 4.7: Move a character to a location
+function validateMoveCharacter(
+  state: GameState,
+  playerId: PlayerID,
+  characterInstanceId: string,
+  locationInstanceId: string,
+  definitions: Record<string, CardDefinition>
+): ValidationResult {
+  if (!isMainPhase(state, playerId)) return fail("Not your main phase.");
+
+  const char = getInstance(state, characterInstanceId);
+  if (char.ownerId !== playerId) return fail("You don't own this character.");
+  if (char.zone !== "play") return fail("Character is not in play.");
+  const charDef = getDefinition(state, characterInstanceId, definitions);
+  if (charDef.cardType !== "character") return fail("Only characters can move to locations.");
+  if (char.isDrying) return fail("Character is still drying and cannot move.");
+  if (char.isExerted) return fail("Exerted characters cannot move.");
+  if (char.movedThisTurn) return fail("This character has already moved this turn.");
+
+  const loc = getInstance(state, locationInstanceId);
+  if (loc.ownerId !== playerId) return fail("You don't own this location.");
+  if (loc.zone !== "play") return fail("Location is not in play.");
+  const locDef = getDefinition(state, locationInstanceId, definitions);
+  if (locDef.cardType !== "location") return fail("Target is not a location.");
+
+  if (char.atLocationInstanceId === locationInstanceId) {
+    return fail("Character is already at this location.");
+  }
+
+  const cost = locDef.moveCost ?? 0;
+  if (!canAfford(state, playerId, cost)) {
+    return fail(`Not enough ink to move. Need ${cost}.`);
   }
 
   return OK;

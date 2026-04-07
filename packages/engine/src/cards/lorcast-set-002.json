@@ -3611,7 +3611,8 @@
           "filter": {
             "owner": {
               "type": "opponent"
-            }
+            },
+            "cardType": ["character"]
           }
         },
         "effects": [

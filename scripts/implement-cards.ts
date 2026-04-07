@@ -286,3 +286,204 @@ patchSet("3", {
     actionEffects: [{ type: "discard_from_hand", amount: 1, target: { type: "opponent" }, chooser: "controller" }],
   },
 });
+
+// =============================================================================
+// SET 3 — Locations (CRD 5.6, 4.7)
+// =============================================================================
+patchSet("3", {
+  // Pride Lands - Pride Rock: characters get +2 WP while here
+  "pride-lands-pride-rock": {
+    abilities: [{
+      type: "static", storyName: "WE ARE ALL CONNECTED",
+      rulesText: "Characters get +2 {W} while here.",
+      effect: {
+        type: "modify_stat", stat: "willpower", modifier: 2,
+        target: { type: "all", filter: { cardType: ["character"], atLocation: "this" } },
+      },
+    }],
+  },
+
+  // Tiana's Palace - Jazz Restaurant: can't be challenged while here
+  "tianas-palace-jazz-restaurant": {
+    abilities: [{
+      type: "static", storyName: "NIGHT OUT",
+      rulesText: "Characters can't be challenged while here.",
+      effect: {
+        type: "cant_be_challenged",
+        target: { type: "all", filter: { cardType: ["character"], atLocation: "this" } },
+      },
+    }],
+  },
+
+  // The Queen's Castle - Mirror Chamber: turn_start, draw N where N = chars at this location
+  "the-queens-castle-mirror-chamber": {
+    abilities: [{
+      type: "triggered", storyName: "USING THE MIRROR",
+      rulesText: "At the start of your turn, for each character you have here, you may draw a card.",
+      trigger: { on: "turn_start", player: { type: "self" } },
+      effects: [{
+        type: "draw",
+        amount: { type: "count", filter: { owner: { type: "self" }, zone: "play", cardType: ["character"], atLocation: "this" } },
+        target: { type: "self" },
+      }],
+    }],
+  },
+
+  // Cubby - Mighty Lost Boy: moves_to_location → +3 STR this turn (self)
+  "cubby-mighty-lost-boy": {
+    abilities: [{
+      type: "triggered", storyName: "FEELING STRONG",
+      rulesText: "Whenever this character moves to a location, he gets +3 {S} this turn.",
+      trigger: { on: "moves_to_location" },
+      effects: [{
+        type: "gain_stats", strength: 3,
+        target: { type: "this" },
+        duration: "this_turn",
+      }],
+    }],
+  },
+
+  // Mickey Mouse - Stalwart Explorer: +1 STR for each location you have
+  "mickey-mouse-stalwart-explorer": {
+    abilities: [{
+      type: "static", storyName: "ADVENTURE AWAITS",
+      rulesText: "This character gets +1 {S} for each location you have in play.",
+      effect: {
+        type: "modify_stat_per_count", stat: "strength", perCount: 1,
+        countFilter: { owner: { type: "self" }, zone: "play", cardType: ["location"] },
+        target: { type: "this" },
+      },
+    }],
+  },
+
+  // ===== MORE LOCATIONS — "while here" patterns =====
+
+  // Rapunzel's Tower - Secluded Prison: characters get +3 WP while here
+  "rapunzels-tower-secluded-prison": {
+    abilities: [{
+      type: "static", storyName: "SAFE AND SOUND",
+      rulesText: "Characters get +3 {W} while here.",
+      effect: { type: "modify_stat", stat: "willpower", modifier: 3,
+        target: { type: "all", filter: { cardType: ["character"], atLocation: "this" } } },
+    }],
+  },
+
+  // The Sorcerer's Tower - Wondrous Workspace: characters get +1 lore while here
+  "the-sorcerers-tower-wondrous-workspace": {
+    abilities: [{
+      type: "static", storyName: "MAGICAL WORKSHOP",
+      rulesText: "Characters get +1 {L} while here.",
+      effect: { type: "modify_stat", stat: "lore", modifier: 1,
+        target: { type: "all", filter: { cardType: ["character"], atLocation: "this" } } },
+    }],
+  },
+
+  // Fang - River City: characters gain Ward and Evasive while here
+  "fang-river-city": {
+    abilities: [
+      { type: "static", storyName: "SAFE HARBOR",
+        rulesText: "Characters gain Ward while here.",
+        effect: { type: "grant_keyword", keyword: "ward",
+          target: { type: "all", filter: { cardType: ["character"], atLocation: "this" } } },
+      },
+      { type: "static",
+        rulesText: "Characters gain Evasive while here.",
+        effect: { type: "grant_keyword", keyword: "evasive",
+          target: { type: "all", filter: { cardType: ["character"], atLocation: "this" } } },
+      },
+    ],
+  },
+
+  // RLS Legacy - Solar Galleon: characters gain Evasive while here
+  "rls-legacy-solar-galleon": {
+    abilities: [{
+      type: "static", storyName: "FLOATING SHIP",
+      rulesText: "Characters gain Evasive while here.",
+      effect: { type: "grant_keyword", keyword: "evasive",
+        target: { type: "all", filter: { cardType: ["character"], atLocation: "this" } } },
+    }],
+  },
+
+  // Maui's Place of Exile - Hidden Island: characters gain Resist +1 while here
+  "mauis-place-of-exile-hidden-island": {
+    abilities: [{
+      type: "static", storyName: "SECLUDED REFUGE",
+      rulesText: "Characters gain Resist +1 while here.",
+      effect: { type: "grant_keyword", keyword: "resist", value: 1,
+        target: { type: "all", filter: { cardType: ["character"], atLocation: "this" } } },
+    }],
+  },
+
+  // Jolly Roger - Hook's Ship: characters gain Rush while here
+  // (also: Pirates may move here for free — defer)
+  "jolly-roger-hooks-ship": {
+    abilities: [{
+      type: "static", storyName: "SET SAIL",
+      rulesText: "Characters gain Rush while here.",
+      effect: { type: "grant_keyword", keyword: "rush",
+        target: { type: "all", filter: { cardType: ["character"], atLocation: "this" } } },
+    }],
+  },
+
+  // ===== CHARACTER CARDS — "while at a location" (atLocation: "any") =====
+
+  // Magic Broom - The Big Sweeper: while at a location, +2 STR
+  "magic-broom-the-big-sweeper": {
+    abilities: [{
+      type: "static", storyName: "STEADY GROUND",
+      rulesText: "While this character is at a location, it gets +2 {S}.",
+      effect: { type: "modify_stat", stat: "strength", modifier: 2, target: { type: "this" } },
+      condition: { type: "this_at_location" },
+    }],
+  },
+
+  // Shenzi - Hyena Pack Leader: while at location, +3 STR
+  "shenzi-hyena-pack-leader": {
+    abilities: [{
+      type: "static", storyName: "BIG IDEA",
+      rulesText: "While this character is at a location, she gets +3 {S}.",
+      effect: { type: "modify_stat", stat: "strength", modifier: 3, target: { type: "this" } },
+      condition: { type: "this_at_location" },
+    }],
+  },
+
+  // Stitch - Covert Agent: while at location, gains Ward
+  "stitch-covert-agent": {
+    abilities: [{
+      type: "static", storyName: "STEALTH MODE",
+      rulesText: "While this character is at a location, he gains Ward.",
+      effect: { type: "grant_keyword", keyword: "ward", target: { type: "this" } },
+      condition: { type: "this_at_location" },
+    }],
+  },
+
+  // Zazu - Steward of the Pride Lands: while at location, +1 lore
+  "zazu-steward-of-the-pride-lands": {
+    abilities: [{
+      type: "static", storyName: "STEWARD",
+      rulesText: "While this character is at a location, he gets +1 {L}.",
+      effect: { type: "modify_stat", stat: "lore", modifier: 1, target: { type: "this" } },
+      condition: { type: "this_at_location" },
+    }],
+  },
+
+  // Milo Thatch - Spirited Scholar: while at location, +2 STR
+  "milo-thatch-spirited-scholar": {
+    abilities: [{
+      type: "static", storyName: "ATLANTEAN EXPERTISE",
+      rulesText: "While this character is at a location, he gets +2 {S}.",
+      effect: { type: "modify_stat", stat: "strength", modifier: 2, target: { type: "this" } },
+      condition: { type: "this_at_location" },
+    }],
+  },
+
+  // Minnie Mouse - Funky Spelunker: while at location, +2 STR
+  "minnie-mouse-funky-spelunker": {
+    abilities: [{
+      type: "static", storyName: "DEEP DIVING",
+      rulesText: "While this character is at a location, she gets +2 {S}.",
+      effect: { type: "modify_stat", stat: "strength", modifier: 2, target: { type: "this" } },
+      condition: { type: "this_at_location" },
+    }],
+  },
+});

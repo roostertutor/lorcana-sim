@@ -99,6 +99,7 @@ interface CardDefinitionOut {
   willpower?: number;
   lore?: number;
   shiftCost?: number;
+  moveCost?: number;
   abilities: KeywordAbility[]; // named abilities left as stubs (empty)
   rulesText?: string;
   flavorText?: string;
@@ -342,6 +343,7 @@ function mapCard(c: LorcastCard): CardDefinitionOut | null {
   if (c.willpower !== null) out.willpower = c.willpower;
   if (c.lore !== null) out.lore = c.lore;
   if (shiftCost !== undefined) out.shiftCost = shiftCost;
+  if (c.move_cost !== null) out.moveCost = c.move_cost;
   // CRD 5.2.8: Preserve the full printed rules text (excluding keyword reminder lines)
   if (c.text) {
     const rulesLines = c.text.split("\n").map((l) => l.trim()).filter(Boolean)

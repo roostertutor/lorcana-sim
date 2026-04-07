@@ -216,8 +216,17 @@ export function matchesFilter(
   definition: CardDefinition,
   filter: CardFilter,
   state: GameState,
-  viewingPlayerId: PlayerID
+  viewingPlayerId: PlayerID,
+  /** CRD 5.6.4: source instanceId for "atLocation: this" — only set by gameModifiers static iteration */
+  sourceInstanceId?: string
 ): boolean {
+  if (filter.atLocation === "this") {
+    if (!sourceInstanceId) return false;
+    if (instance.atLocationInstanceId !== sourceInstanceId) return false;
+  }
+  if (filter.atLocation === "any") {
+    if (!instance.atLocationInstanceId) return false;
+  }
   const opponent: PlayerID = viewingPlayerId === "player1" ? "player2" : "player1";
 
   if (filter.zone) {
@@ -299,12 +308,13 @@ export function findMatchingInstances(
   state: GameState,
   definitions: Record<string, CardDefinition>,
   filter: CardFilter,
-  viewingPlayerId: PlayerID
+  viewingPlayerId: PlayerID,
+  sourceInstanceId?: string
 ): CardInstance[] {
   return Object.values(state.cards).filter((instance) => {
     const def = definitions[instance.definitionId];
     if (!def) return false;
-    return matchesFilter(instance, def, filter, state, viewingPlayerId);
+    return matchesFilter(instance, def, filter, state, viewingPlayerId, sourceInstanceId);
   });
 }
 
@@ -591,6 +601,10 @@ export function evaluateCondition(
     case "this_has_no_damage": {
       const inst = state.cards[sourceInstanceId];
       return inst ? inst.damage === 0 : false;
+    }
+    case "this_at_location": {
+      const inst = state.cards[sourceInstanceId];
+      return inst ? !!inst.atLocationInstanceId : false;
     }
     case "not": {
       return !evaluateCondition(condition.condition, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId);

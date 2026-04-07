@@ -122,7 +122,7 @@
 | Rule | Quote | Status |
 |------|-------|--------|
 | 3.2.2.1 | Active player's characters are no longer drying; can quest/challenge/{E} | ✅ `isDrying` cleared on turn start |
-| 3.2.2.2 | Active player gains lore from locations with {L} | ❌ Locations not implemented (no set 1 locations) |
+| 3.2.2.2 | Active player gains lore from locations with {L} | ✅ Set step lore gain in `applyPassTurn` after readying. Tested in set3.test.ts. |
 | 3.2.2.3 | Resolve triggered abilities from Ready + Set steps | ❌ No start-of-turn trigger resolution |
 
 #### 3.2.3 Draw step
@@ -194,14 +194,14 @@
 | 4.6.6.1 | Calculate damage: apply {S} increases/decreases first, then damage modifiers | ✅ `getEffectiveStrength` + Challenger bonus + Resist |
 | 4.6.6.2 | Damage dealt simultaneously | ✅ Both characters take damage before banish check. Implication: "banishes another in a challenge" triggers (`banished_other_in_challenge`) fire even when the attacker is also banished — see 1.6.1 exceptions. |
 | 4.6.6.3 | Game state check after challenge damage | ✅ `applyWinCheck` runs after action |
-| 4.6.8 | Characters can challenge **locations** | ❌ Locations not implemented |
-| 4.6.8.2 | Locations aren't ready/exerted; can be challenged at any time | ❌ |
-| 4.6.8.3 | Locations have no {S}; deal no damage to challenger | ❌ |
+| 4.6.8 | Characters can challenge **locations** | ✅ `validateChallenge` allows location defenders. Bodyguard/Evasive bypassed for locations. |
+| 4.6.8.2 | Locations aren't ready/exerted; can be challenged at any time | ✅ Exerted check bypassed for location defenders. |
+| 4.6.8.3 | Locations have no {S}; deal no damage to challenger | ✅ Symmetric damage math (location STR=0 → 0 attacker damage). Challenger +N guarded to character defenders only. |
 
 ### 4.7 Move a Character
 | Rule | Quote | Status |
 |------|-------|--------|
-| 4.7 | Move a character to a location (entire section) | ❌ Locations not implemented |
+| 4.7 | Move a character to a location (entire section) | ✅ `MOVE_CHARACTER` action. `applyMoveCharacter` deducts ink, sets `atLocationInstanceId`, marks `movedThisTurn`, fires `moves_to_location` trigger. |
 
 ---
 
@@ -247,12 +247,12 @@
 ### 5.6 Locations (first appears Set 3, ~87 location cards across sets 3–11)
 | Rule | Quote | Status |
 |------|-------|--------|
-| 5.6.1 | Locations are a card type that enter the Play zone; have willpower and optional lore value | ❌ `cardType: "location"` exists in data but engine ignores it. Locations have willpower (health) and lore per turn. |
-| 5.6.2 | Locations gain lore for their controller at the Start-of-turn Set step | ❌ CRD 3.2.2.2: each location with {L} > 0 adds lore during Set step. |
-| 5.6.3 | Characters can be moved to a location (CRD 4.7 Move action) | ❌ New MOVE action needed. Characters at a location gain "while here" bonuses. |
-| 5.6.4 | Characters at a location: "while here" static/triggered abilities | ❌ Need location context on CardInstance (`atLocationInstanceId?: string`) to evaluate "while here" conditions. |
-| 5.6.5 | Locations can be challenged; have 0 {S}; deal no damage back | ❌ CRD 4.6.8. Locations are never exerted but can be challenged at any time. |
-| 5.6.6 | Locations are banished when damage ≥ willpower (same rule as characters) | ❌ Same `banishCard` path applies once locations are in play. |
+| 5.6.1 | Locations are a card type that enter the Play zone; have willpower and optional lore value | ✅ `applyPlayCard` else-branch handles locations (no drying). `CardDefinition.moveCost` field added. |
+| 5.6.2 | Locations gain lore for their controller at the Start-of-turn Set step | ✅ Set step lore gain in `applyPassTurn` (CRD 3.2.2.2). |
+| 5.6.3 | Characters can be moved to a location (CRD 4.7 Move action) | ✅ `MOVE_CHARACTER` action + `validateMoveCharacter`. `movedThisTurn` flag prevents double-move. |
+| 5.6.4 | Characters at a location: "while here" static/triggered abilities | ✅ `CardFilter.atLocation: "this" \| "any"` + `Condition.this_at_location`. `matchesFilter` accepts optional `sourceInstanceId` for "this" mode. |
+| 5.6.5 | Locations can be challenged; have 0 {S}; deal no damage back | ✅ See 4.6.8. Bodyguard/Evasive bypassed. |
+| 5.6.6 | Locations are banished when damage ≥ willpower (same rule as characters) | ✅ Reuses `dealDamageToCard`/`banishCard`. On location banish, all characters with `atLocationInstanceId === locId` are cleaned up. |
 
 ---
 

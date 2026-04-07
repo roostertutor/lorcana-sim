@@ -597,6 +597,9 @@ export interface CardFilter {
   strengthAtLeast?: number;
   /** Match characters that were challenged this turn */
   challengedThisTurn?: boolean;
+  /** CRD 5.6.4: Match characters currently at the source location ("while here")
+   *  or at any location ("while at a location"). */
+  atLocation?: "this" | "any";
 }
 
 // -----------------------------------------------------------------------------
@@ -629,6 +632,7 @@ export type TriggerEvent =
   | { on: "item_played"; filter?: CardFilter }
   | { on: "banished_other_in_challenge"; filter?: CardFilter }
   | { on: "damage_dealt_to"; filter?: CardFilter }
+  | { on: "moves_to_location"; filter?: CardFilter }
   | { on: "damage_removed_from"; filter?: CardFilter }
   | { on: "readied"; filter?: CardFilter }
   | { on: "returned_to_hand"; filter?: CardFilter }
@@ -658,6 +662,7 @@ export type Condition =
   | { type: "songs_played_this_turn_gte"; amount: number }
   | { type: "actions_played_this_turn_gte"; amount: number }
   | { type: "this_has_no_damage" }
+  | { type: "this_at_location" }
   | { type: "not"; condition: Condition }
   | { type: "played_via_shift" }
   | { type: "triggering_card_played_via_shift" };
@@ -717,6 +722,9 @@ export interface CardDefinition {
   // --- Shift ---
   /** If this card has Shift, the ink cost to shift */
   shiftCost?: number;
+
+  /** CRD 4.7: Locations — ink a character pays to move here */
+  moveCost?: number;
 
   abilities: Ability[];
 
@@ -780,6 +788,11 @@ export interface CardInstance {
   playedViaShift?: boolean;
   /** True if this character was challenged (as defender) this turn */
   challengedThisTurn?: boolean;
+
+  /** CRD 4.7: instanceId of the location this character is currently at, if any */
+  atLocationInstanceId?: string | undefined;
+  /** CRD 4.7.4: True if this character has moved to a location this turn */
+  movedThisTurn?: boolean | undefined;
 }
 
 // -----------------------------------------------------------------------------
@@ -949,6 +962,7 @@ export type GameLogEntryType =
   | "effect_resolved"
   | "choice_made"
   | "mulligan"
+  | "character_moved"
   | "game_over";
 
 // -----------------------------------------------------------------------------
@@ -965,7 +979,15 @@ export type GameAction =
   | ActivateAbilityAction
   | PassTurnAction
   | ResolveChoiceAction
-  | DrawCardAction; // Usually automatic, but exposed for debugging
+  | DrawCardAction // Usually automatic, but exposed for debugging
+  | MoveCharacterAction;
+
+export interface MoveCharacterAction {
+  type: "MOVE_CHARACTER";
+  playerId: PlayerID;
+  characterInstanceId: string;
+  locationInstanceId: string;
+}
 
 export interface PlayCardAction {
   type: "PLAY_CARD";

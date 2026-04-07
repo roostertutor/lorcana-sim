@@ -239,6 +239,22 @@ export function getAllLegalActions(
     }
   }
 
+  // MOVE_CHARACTER — each ready character × each owned location with affordable move cost
+  for (const characterInstanceId of myPlay) {
+    for (const locationInstanceId of myPlay) {
+      if (characterInstanceId === locationInstanceId) continue;
+      const action: GameAction = {
+        type: "MOVE_CHARACTER",
+        playerId,
+        characterInstanceId,
+        locationInstanceId,
+      };
+      if (validateAction(state, action, definitions).valid) {
+        actions.push(action);
+      }
+    }
+  }
+
   // ACTIVATE_ABILITY — each activatable ability on each card in play
   const modifiersForAbilities = getGameModifiers(state, definitions);
   for (const instanceId of myPlay) {
@@ -294,6 +310,8 @@ function applyActionInner(
       return applyPassTurn(state, action.playerId, definitions, events);
     case "DRAW_CARD":
       return applyDraw(state, action.playerId, action.amount ?? 1, events, definitions);
+    case "MOVE_CHARACTER":
+      return applyMoveCharacter(state, action.playerId, action.characterInstanceId, action.locationInstanceId, definitions, events);
     case "RESOLVE_CHOICE":
       return applyResolveChoice(state, action.playerId, action.choice, definitions, events);
     default:
@@ -650,13 +668,19 @@ function applyChallenge(
     }
   }
 
-  // CRD 8.5.1: Challenger +N bonus (only when attacking, not defending — CRD 8.5.2)
-  const challengerValue = getKeywordValue(attacker, attackerDef, "challenger", modifiers.grantedKeywords.get(attackerInstanceId));
-  attackerStr += challengerValue;
+  // CRD 8.5.1: Challenger +N bonus (only when attacking a character, not defending — CRD 8.5.2)
+  // CRD 4.6.8: Challenger does not apply when challenging a location.
+  if (defenderDef.cardType === "character") {
+    const challengerValue = getKeywordValue(attacker, attackerDef, "challenger", modifiers.grantedKeywords.get(attackerInstanceId));
+    attackerStr += challengerValue;
+  }
 
   state = updateInstance(state, attackerInstanceId, { isExerted: true });
   // Mark defender as challenged this turn (for Last Stand and similar cards)
-  state = updateInstance(state, defenderInstanceId, { challengedThisTurn: true });
+  // CRD 4.6.8: Locations don't track challengedThisTurn (no character-state).
+  if (defenderDef.cardType === "character") {
+    state = updateInstance(state, defenderInstanceId, { challengedThisTurn: true });
+  }
 
   // CRD 8.8.1: Resist +N reduces incoming challenge damage (min 0)
   const attackerResist = getKeywordValue(attacker, attackerDef, "resist", modifiers.grantedKeywords.get(attackerInstanceId));
@@ -706,9 +730,11 @@ function applyChallenge(
   state = queueTrigger(state, "challenges", attackerInstanceId, definitions, {
     triggeringCardInstanceId: defenderInstanceId,
   });
-  state = queueTrigger(state, "is_challenged", defenderInstanceId, definitions, {
-    triggeringCardInstanceId: attackerInstanceId,
-  });
+  if (defenderDef.cardType === "character") {
+    state = queueTrigger(state, "is_challenged", defenderInstanceId, definitions, {
+      triggeringCardInstanceId: attackerInstanceId,
+    });
+  }
 
   const atkStaticWp = modifiers.statBonuses.get(attackerInstanceId)?.willpower ?? 0;
   const defStaticWp = modifiers.statBonuses.get(defenderInstanceId)?.willpower ?? 0;
@@ -745,6 +771,45 @@ function applyChallenge(
       challengeOpponentId: attackerInstanceId,
     });
   }
+
+  return state;
+}
+
+// CRD 4.7: Move a character to a location — pay move cost, set pointer, fire trigger
+function applyMoveCharacter(
+  state: GameState,
+  playerId: PlayerID,
+  characterInstanceId: string,
+  locationInstanceId: string,
+  definitions: Record<string, CardDefinition>,
+  events: GameEvent[]
+): GameState {
+  const locDef = getDefinition(state, locationInstanceId, definitions);
+  const moveCost = locDef.moveCost ?? 0;
+
+  // Deduct ink
+  if (moveCost > 0) {
+    state = updatePlayerInk(state, playerId, -moveCost);
+  }
+
+  state = updateInstance(state, characterInstanceId, {
+    atLocationInstanceId: locationInstanceId,
+    movedThisTurn: true,
+  });
+
+  const charDef = getDefinition(state, characterInstanceId, definitions);
+  state = appendLog(state, {
+    turn: state.turnNumber,
+    playerId,
+    message: `${playerId} moved ${charDef.fullName} to ${locDef.fullName}.`,
+    type: "character_moved",
+  });
+
+  // Fire moves_to_location triggers (sourced from the moving character)
+  state = queueTrigger(state, "moves_to_location", characterInstanceId, definitions, {
+    triggeringCardInstanceId: locationInstanceId,
+    triggeringPlayerId: playerId,
+  });
 
   return state;
 }
@@ -890,6 +955,18 @@ function applyPassTurn(
     state = updateInstance(state, id, { isExerted: false });
   }
 
+  // CRD 3.2.2.2: Set step — gain lore from each location the active player controls
+  for (const id of getZone(state, opponent, "play")) {
+    const inst = state.cards[id];
+    if (!inst) continue;
+    const def = definitions[inst.definitionId];
+    if (!def || def.cardType !== "location") continue;
+    const locLore = getEffectiveLore(inst, def);
+    if (locLore > 0) {
+      state = gainLore(state, opponent, locLore, events);
+    }
+  }
+
   // CRD 6.2.7.1: Clear floating triggers at end of turn
   if (state.floatingTriggers && state.floatingTriggers.length > 0) {
     state = { ...state, floatingTriggers: [] };
@@ -903,7 +980,8 @@ function applyPassTurn(
       instance.tempWillpowerModifier !== 0 ||
       instance.tempLoreModifier !== 0 ||
       instance.grantedKeywords.length > 0 ||
-      instance.challengedThisTurn
+      instance.challengedThisTurn ||
+      instance.movedThisTurn
     ) {
       state = updateInstance(state, id, {
         tempStrengthModifier: 0,
@@ -911,6 +989,7 @@ function applyPassTurn(
         tempLoreModifier: 0,
         grantedKeywords: [],
         challengedThisTurn: false,
+        movedThisTurn: false,
       });
     }
   }
@@ -1216,7 +1295,7 @@ export function applyEffect(
         : effect.amount === "cost_result" ? (state.lastEffectResult ?? 0)
         : effect.amount === "damage_on_target" ? (state.lastEffectResult ?? 0)
         : (typeof effect.amount === "object" && effect.amount.type === "count")
-          ? findMatchingInstances(state, definitions, effect.amount.filter, controllingPlayerId).length
+          ? findMatchingInstances(state, definitions, effect.amount.filter, controllingPlayerId, sourceInstanceId).length
         : effect.amount as number;
       if (amount <= 0) return state;
       if (effect.target.type === "both") {
@@ -2474,6 +2553,15 @@ function zoneTransition(
 
   // CRD 1.9.3 / 7.1.6: leaving play resets all play-only state — card becomes a "new" card
   if (fromZone === "play" && targetZone !== "play") {
+    // CRD 4.7: If a location is leaving play, clear hosted characters' atLocation pointer.
+    const leavingDef = definitions[state.cards[instanceId]?.definitionId ?? ""];
+    if (leavingDef?.cardType === "location") {
+      for (const [otherId, other] of Object.entries(state.cards)) {
+        if (other.atLocationInstanceId === instanceId) {
+          state = updateInstance(state, otherId, { atLocationInstanceId: undefined });
+        }
+      }
+    }
     state = updateInstance(state, instanceId, {
       isExerted: false,
       damage: 0,
@@ -2483,6 +2571,8 @@ function zoneTransition(
       tempLoreModifier: 0,
       grantedKeywords: [],
       timedEffects: [],
+      atLocationInstanceId: undefined,
+      movedThisTurn: false,
     });
   }
 
@@ -2555,6 +2645,9 @@ function findDamageRedirect(
   modifiers: ReturnType<typeof getGameModifiers>
 ): string | null {
   const target = getInstance(state, targetInstanceId);
+  // CRD 6.5: Damage redirect only applies between characters — locations are excluded.
+  const targetDef = definitions[target.definitionId];
+  if (targetDef?.cardType !== "character") return null;
   for (const [protectorId, ownerId] of modifiers.damageRedirects) {
     // Only redirects damage for the protector's owner's other characters
     if (target.ownerId !== ownerId) continue;

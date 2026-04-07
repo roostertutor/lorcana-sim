@@ -117,7 +117,7 @@ export function getGameModifiers(
               if (candidate.zone !== "play") continue;
               const candidateDef = definitions[candidate.definitionId];
               if (!candidateDef) continue;
-              if (matchesFilter(candidate, candidateDef, target.filter, state, instance.ownerId)) {
+              if (matchesFilter(candidate, candidateDef, target.filter, state, instance.ownerId, instance.instanceId)) {
                 modifiers.cantBeChallenged.set(candidate.instanceId, effect.attackerFilter);
               }
             }
@@ -138,7 +138,7 @@ export function getGameModifiers(
               if (candidate.zone !== "play") continue;
               const candidateDef = definitions[candidate.definitionId];
               if (!candidateDef) continue;
-              if (matchesFilter(candidate, candidateDef, effect.target.filter, state, instance.ownerId)) {
+              if (matchesFilter(candidate, candidateDef, effect.target.filter, state, instance.ownerId, instance.instanceId)) {
                 addStatBonus(modifiers, candidate.instanceId, effect.stat, bonus);
               }
             }
@@ -166,7 +166,7 @@ export function getGameModifiers(
               if (effect.target.filter.excludeSelf && candidate.instanceId === instance.instanceId) continue;
               const candidateDef = definitions[candidate.definitionId];
               if (!candidateDef) continue;
-              if (matchesFilter(candidate, candidateDef, effect.target.filter, state, instance.ownerId)) {
+              if (matchesFilter(candidate, candidateDef, effect.target.filter, state, instance.ownerId, instance.instanceId)) {
                 addStatBonus(modifiers, candidate.instanceId, effect.stat, effect.modifier);
               }
             }
@@ -187,7 +187,7 @@ export function getGameModifiers(
               if (effect.target.filter.excludeSelf && candidate.instanceId === instance.instanceId) continue;
               const candidateDef = definitions[candidate.definitionId];
               if (!candidateDef) continue;
-              if (matchesFilter(candidate, candidateDef, effect.target.filter, state, instance.ownerId)) {
+              if (matchesFilter(candidate, candidateDef, effect.target.filter, state, instance.ownerId, instance.instanceId)) {
                 const existing = modifiers.grantedKeywords.get(candidate.instanceId) ?? [];
                 existing.push({ keyword: effect.keyword, value: effect.value });
                 modifiers.grantedKeywords.set(candidate.instanceId, existing);
@@ -249,7 +249,7 @@ export function getGameModifiers(
               if (candidate.zone !== "play") continue;
               const candidateDef = definitions[candidate.definitionId];
               if (!candidateDef) continue;
-              if (matchesFilter(candidate, candidateDef, effect.target.filter, state, instance.ownerId)) {
+              if (matchesFilter(candidate, candidateDef, effect.target.filter, state, instance.ownerId, instance.instanceId)) {
                 const existing = modifiers.grantedActivatedAbilities.get(candidate.instanceId) ?? [];
                 existing.push(effect.ability);
                 modifiers.grantedActivatedAbilities.set(candidate.instanceId, existing);
