@@ -14,13 +14,14 @@ Run `pnpm card-status --set <N>` to filter to one set.
 
 **Do not implement in set order.** Implement by category:
 
-1. **fits-grammar first** (~1381 cards) — map to existing Effect/Condition/Cost types.
+1. **fits-grammar first** (~1245 cards) — map to existing Effect/Condition/Cost types.
    No engine changes needed. Bulk of the work.
-2. **needs-new-type next** (~382 cards) — implement engine additions in order of
+2. **needs-new-type next** (~357 cards) — implement engine additions in order of
    how many cards they unblock, then fill in cards.
-3. **needs-new-mechanic last** (~240 cards) — Locations, Boost, Sing Together, CRD 6.5
-   replacement effects each need design work before any card in that group can be implemented.
-4. **unknown: 0** — all 2003 stubs categorized after manual review (Session 22).
+3. **needs-new-mechanic last** (~239 cards) — Locations, Boost, Sing Together each
+   need design work before any card in that group can be implemented. CRD 6.5
+   replacement effects ✅ implemented (Beast Selfless Protector).
+4. **unknown: 0** — all stubs categorized.
 
 ---
 
@@ -28,13 +29,16 @@ Run `pnpm card-status --set <N>` to filter to one set.
 
 216 cards. All abilities implemented. All story names tagged. No open issues.
 
+## Set 2 — Rise of the Floodborn
+
+216 cards. All 162 named-ability cards implemented. Zero approximations. No open issues.
+
 ---
 
-## Sets 2–11 Status (as of card-status analysis)
+## Sets 3–11 Status (as of card-status analysis)
 
 | Set | Total | Done | Vanilla | Fits-Grammar | New-Type | New-Mechanic | Unknown |
 |-----|-------|------|---------|--------------|----------|--------------|---------|
-| 2   | 216   | 0    | 54      | 136          | 25       | 1            | 0       |
 | 3   | 226   | 0    | 42      | 117          | 31       | 36           | 0       |
 | 4   | 225   | 0    | 43      | 113          | 43       | 26           | 0       |
 | 5   | 223   | 2    | 40      | 125          | 39       | 17           | 0       |
@@ -46,8 +50,6 @@ Run `pnpm card-status --set <N>` to filter to one set.
 | 11  | 242   | 0    | 37      | 127          | 42       | 36           | 0       |
 
 Note: "Vanilla" = no named abilities (keyword-only or blank) — already work in simulation.
-"Done" = named abilities implemented. Set 5 has 2 (tipo-growing-son, vision-of-the-future);
-Set 6 has 1 (unnamed); Set 10 has 2 (clarabelle + unnamed).
 
 ---
 

@@ -9,13 +9,13 @@ to produce deck analytics and win rates. NOT a human-playable simulator.
 
 ## Status
 
-- engine:    done (180 passing, 1 todo). CRD audited. Tests organized by CRD.
+- engine:    done (240 passing, 0 todos). CRD audited. Tests split: reducer.test.ts (CRD), set1.test.ts, set2.test.ts.
 - simulator: done (46 passing). Layer 3 invariants passing. RL bot implemented (Actor-Critic + GAE).
 - analytics: done (15 passing).
 - cli:       done. analyze, compare, query, learn.
 - ui:        done. 7 screens, React+Vite. Responsive (mobile/tablet/desktop). Full-screen game board (no header/nav in-game).
 - testbench: done. Interactive game board with bot opponent. Replay mode + undo. Utility strip (deck tile, inkwell, discard tile). Card action popover anchored to clicked card (fixed-position, works on all breakpoints). Keyword badges, exerted rotation/grayscale, damage counter, summoning sickness overlay. Play zone reset on leave (CRD 1.9.3).
-- cards:     set 1 complete (204 unique cards, 216 entries, all abilities implemented, 0 stubs).
+- cards:     sets 1 + 2 complete. Set 1: 216 entries, all abilities implemented. Set 2: 216 entries, zero approximations.
 - sets 2–11: imported as stubs (keyword-only, 2504 total cards incl. dual-ink). Run `pnpm import-cards --sets N` to refresh.
 
 ## Quick Reference

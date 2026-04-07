@@ -41,8 +41,8 @@
 | 1.6.1 | Abilities apply only when source is in play (with exceptions) | ✅ Trigger fizzle logic in `processTriggerStack`. Exceptions (fire after leaving play): `is_banished`, `leaves_play`, `banished_in_challenge`, `banished_other_in_challenge` (per 4.6.6.2 — simultaneous damage means attacker banished another even if also banished), `is_challenged`, `challenges`. |
 | 1.6.1.1 | Triggered abilities | ✅ |
 | 1.6.1.2 | Activated abilities | ✅ |
-| 1.6.1.3 | Static abilities | ✅ 8 static types: grant_keyword, modify_stat, modify_stat_per_count, cant_be_challenged, cost_reduction, action_restriction, extra_ink_play, self_cost_reduction. Conditional statics via `condition` on StaticAbility. ❌ Missing types for sets 2–11: modify_win_threshold, ink_from_zone, enter_play_exerted_static, grant_classification, stat_floor, prevent_lore_loss, damage_immunity, virtual_cost_modifier. See CARD_ISSUES.md. |
-| 1.6.1.4 | Replacement effects | ❌ Not implemented |
+| 1.6.1.3 | Static abilities | ✅ 14 static types: grant_keyword (with value), modify_stat, modify_stat_per_count, modify_stat_per_damage, modify_stat_while_challenged, cant_be_challenged, cost_reduction, action_restriction, extra_ink_play, self_cost_reduction, can_challenge_ready, damage_redirect, grant_activated_ability, challenge_damage_immunity. Conditional statics via `condition` on StaticAbility. Still missing for later sets: modify_win_threshold, ink_from_zone, enter_play_exerted_static, grant_classification, stat_floor, prevent_lore_loss. See CARD_ISSUES.md. |
+| 1.6.1.4 | Replacement effects | ⚠️ Damage redirect (CRD 6.5) implemented for Beast - Selfless Protector. General replacement effect system not built. |
 | 1.6.1.5 | Keywords | ✅ Most set 1 keywords implemented |
 
 ### 1.7 Game Actions, Timing, and Illegal Actions
@@ -116,7 +116,7 @@
 | 3.2.1.1 | Active player readies all cards **in play and in inkwell** | ✅ Both play and inkwell cards readied |
 | 3.2.1.2 | "During your turn" effects start applying | ❌ No duration tracking for "during your turn" static effects |
 | 3.2.1.3 | "Start of your turn" / "start of your next turn" effects end | ❌ Not implemented (no set 1 cards) |
-| 3.2.1.4 | "At the start of your turn" triggered abilities added to bag | ⚠️ `turn_start` trigger type exists in TriggerEvent union but `queueTriggersByEvent("turn_start")` is never called. Plumbing ready, wiring missing. |
+| 3.2.1.4 | "At the start of your turn" triggered abilities added to bag | ✅ `queueTriggersByEvent("turn_start", opponent, ...)` fires in `applyPassTurn` after readying. Tested with Donald Duck Perfect Gentleman, Christopher Robin (via `readied` trigger). |
 
 #### 3.2.2 Set step
 | Rule | Quote | Status |
@@ -276,7 +276,7 @@
 |------|-------|--------|
 | 6.2.1 | Trigger fires once per condition met | ✅ |
 | 6.2.3 | Triggered abilities go to bag (our: `triggerStack`) | ✅ |
-| 6.2.4 | Secondary "if" condition checked when effect resolves (not when triggered) | ✅ `evaluateCondition()` called in processTriggerStack before resolving effects. 12 condition types supported. ❌ Missing condition types for sets 2–11: zone_count_with_filter (has item in discard), stat_threshold (character with {S} ≥ N in play), compound_and (two conditions), played_via_shift. See CARD_ISSUES.md. |
+| 6.2.4 | Secondary "if" condition checked when effect resolves (not when triggered) | ✅ `evaluateCondition()` called in processTriggerStack before resolving effects. 20+ condition types supported including: self_stat_gte, compound_and, songs/actions_played_this_turn_gte, this_has_no_damage, not, played_via_shift, triggering_card_played_via_shift, cards_in_zone_gte (with cardType filter), has_character_with_trait (with excludeSelf). See CARD_ISSUES.md. |
 | 6.2.7.1 | Floating triggered abilities (created by resolving effects; last a duration) | ✅ `floatingTriggers[]` on GameState. `CreateFloatingTriggerEffect` creates them; cleared at end of turn. Checked during event dispatch. |
 | 6.2.7.2 | Delayed triggered abilities (fire at a specific later moment) | ❌ |
 
@@ -298,7 +298,7 @@
 ### 6.5 Replacement Effects
 | Rule | Quote | Status |
 |------|-------|--------|
-| 6.5 | Replacement effects (entire section) | ❌ Not implemented |
+| 6.5 | Replacement effects (entire section) | ⚠️ Partial. `damage_redirect` static implemented for Beast - Selfless Protector (CRD 6.5: "would be dealt damage... instead"). General replacement effect system not built — current implementation is damage-redirect-specific. |
 
 ### 6.6 Ability Modifiers
 | Rule | Quote | Status |

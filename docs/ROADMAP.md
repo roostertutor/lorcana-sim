@@ -10,7 +10,7 @@
 ## Where We Are
 
 ```
-✅ Rule engine — Sets 1-11 imported, Set 1 fully implemented, CRD audited
+✅ Rule engine — Sets 1-11 imported, Sets 1 + 2 fully implemented, CRD audited
 ✅ Simulator — RandomBot, GreedyBot, RLPolicy (deprecated bots deleted)
 ✅ Mulligan — engine-level partial mulligan CRD 2.2.2 (choose_mulligan pendingChoice, mulligan_p1/p2 phases, all bots + RLPolicy handle it)
 ✅ Analytics — composition, aggregation, comparison, calibration, sensitivity
@@ -25,6 +25,7 @@
 ✅ Layer 1-3 tests — 162 engine tests + 1000 RandomBot invariant games
 ✅ Layer 5 bot tests — 12 tests in bot.test.ts
 ✅ Set 1 complete — 204 unique cards, 216 entries, all abilities implemented, 0 stubs
+✅ Set 2 complete — 162 named-ability cards, 216 entries, zero approximations, fully tested
 ✅ Dual-ink support — inkColors is always an array
 ✅ Reckless keyword — can't quest, can't pass if able to challenge, 4 tests
 ✅ Floating triggers — floatingTriggers[], CreateFloatingTriggerEffect
