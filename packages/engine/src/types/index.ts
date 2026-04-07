@@ -148,6 +148,7 @@ export type Effect =
   | PutCardsUnderIntoHandEffect
   | ReturnAllToBottomInOrderEffect
   | PutTopOfDeckUnderEffect
+  | PutOnBottomOfDeckEffect
   | MoveDamageEffect
   | GrantCostReductionEffect
   | CreateCardEffect
@@ -299,6 +300,45 @@ export interface PutTopOfDeckUnderEffect {
   type: "put_top_of_deck_under";
   /** Which card receives the new under-card. "this" = the source instance. */
   target: { type: "this" };
+}
+
+/**
+ * Put a card on the bottom of a deck WITHOUT shuffling. Distinct from
+ * `shuffle_into_deck` (which mixes the card in randomly) and from
+ * `look_at_top` (which moves cards from the top of the deck).
+ *
+ * Variants:
+ *  - from "hand": pick a card from controller's hand (engine auto-picks first
+ *    matching the filter — bot simplification, no pendingChoice surfaced).
+ *    Used by King Candy SUGAR RUSH ("draw 2, then put a card from your hand
+ *    on the bottom").
+ *  - from "discard": pick `amount` cards from `ownerScope`'s discard matching
+ *    the filter and put them on the bottom of THAT player's deck. Used by
+ *    Belle Mechanic, Stegmutt, Anna Soothing Sister, Anna Little Sister,
+ *    Kristoff Icy Explorer, etc.
+ *  - from "play": chosen character moves to the bottom of its OWNER'S deck.
+ *    Used by Wrong Lever!, Do You Want to Build A Snowman?
+ *
+ * Engine ordering: cards are appended to the end of the deck array via
+ * `moveCard(..., "bottom")` — exactly the same path the look_at_top
+ * "rest_to_bottom" pattern uses.
+ */
+export interface PutOnBottomOfDeckEffect {
+  type: "put_on_bottom_of_deck";
+  /** Source zone of the card(s) being moved. */
+  from: "hand" | "discard" | "play";
+  /** Whose zone the source comes from. Defaults to "self".
+   *  "target_player" surfaces as the controller's choice (Anna Little Sister:
+   *  "chosen player's discard"). The engine picks the opponent in 2P. */
+  ownerScope?: "self" | "opponent" | "target_player";
+  /** CardFilter for selecting eligible cards. */
+  filter?: CardFilter;
+  /** Number of cards to move. Defaults to 1. */
+  amount?: number;
+  /** For from "play": chosen character target. */
+  target?: CardTarget;
+  /** CRD 6.1.4: optional. */
+  isMay?: boolean;
 }
 
 /**

@@ -20,6 +20,7 @@ import type {
   Cost,
   PendingTrigger,
   ZoneName,
+  CardTarget,
 } from "../types/index.js";
 import { getGameModifiers } from "./gameModifiers.js";
 import { validateAction, applyMoveCostReduction } from "./validator.js";
@@ -1907,6 +1908,67 @@ export function applyEffect(
       return state;
     }
 
+    case "put_on_bottom_of_deck": {
+      // CRD: place card(s) on the bottom of a deck without shuffling.
+      // See PutOnBottomOfDeckEffect docs for variants.
+      const amount = effect.amount ?? 1;
+      const ownerScope = effect.ownerScope ?? "self";
+      const targetPlayer =
+        ownerScope === "self" ? controllingPlayerId
+        : ownerScope === "opponent" ? getOpponent(controllingPlayerId)
+        : /* target_player — controller picks; engine picks opponent in 2P */ getOpponent(controllingPlayerId);
+
+      if (effect.from === "play") {
+        // Surface choose_target like return_to_hand. Each chosen instance moves
+        // to the bottom of ITS OWN owner's deck.
+        const target: CardTarget = effect.target ?? { type: "chosen", filter: { zone: "play", cardType: ["character"] } };
+        if (target.type === "this") {
+          const inst = state.cards[sourceInstanceId];
+          if (!inst) return state;
+          return moveCard(state, sourceInstanceId, inst.ownerId, "deck", "bottom");
+        }
+        if (target.type === "chosen") {
+          const validTargets = findValidTargets(state, target.filter, controllingPlayerId, definitions, sourceInstanceId);
+          if (validTargets.length === 0) return state;
+          return {
+            ...state,
+            pendingChoice: {
+              type: "choose_target",
+              choosingPlayerId: controllingPlayerId,
+              prompt: "Choose a card to put on the bottom of its owner's deck.",
+              validTargets,
+              pendingEffect: effect,
+              optional: effect.isMay ?? false,
+            },
+          };
+        }
+        return state;
+      }
+
+      // from: "hand" | "discard" — auto-pick eligible cards from the source zone
+      // (bot simplification — no pendingChoice surfaced for which card to pick).
+      const sourceZone: ZoneName = effect.from;
+      let pool = getZone(state, targetPlayer, sourceZone);
+      if (effect.filter) {
+        pool = pool.filter((cardId) => {
+          const inst = state.cards[cardId];
+          const def = inst ? definitions[inst.definitionId] : undefined;
+          return inst && def ? matchesFilter(inst, def, effect.filter!, state, targetPlayer) : false;
+        });
+      }
+      if (pool.length === 0) return state; // CRD 1.7.7
+      const moveCount = Math.min(amount, pool.length);
+      let moved = 0;
+      for (let i = 0; i < moveCount; i++) {
+        const cardId = pool[i]!;
+        state = moveCard(state, cardId, targetPlayer, "deck", "bottom");
+        moved++;
+      }
+      // CRD 6.1.5.1: store count for "for each card moved this way" patterns
+      state = { ...state, lastEffectResult: moved };
+      return state;
+    }
+
     case "return_all_to_bottom_in_order": {
       // Find all matching cards. The controller picks the order they go to
       // the bottom of their respective owners' decks. Used by Under the Sea.
@@ -3530,6 +3592,14 @@ function applyEffectToTarget(
     }
     case "return_to_hand":
       return zoneTransition(state, targetInstanceId, "hand", definitions, events, { reason: "returned" });
+    case "put_on_bottom_of_deck": {
+      // Resolution path for chosen-from-play targets. The chosen instance moves
+      // to the bottom of its OWNER'S deck (Wrong Lever!, Do You Want to Build
+      // A Snowman?, opponent-chosen variants).
+      const inst = state.cards[targetInstanceId];
+      if (!inst) return state;
+      return moveCard(state, targetInstanceId, inst.ownerId, "deck", "bottom");
+    }
     case "gain_stats": {
       // Sword in the Stone: +1 strength per damage on target
       if (effect.strengthPerDamage) {

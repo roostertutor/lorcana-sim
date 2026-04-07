@@ -207,3 +207,72 @@ describe("§5 Set 5 — reveal_top_conditional", () => {
     expect(getInstance(state, coreId).isExerted).toBe(true);
   });
 });
+
+describe("§5 Set 5 — put_on_bottom_of_deck Effect", () => {
+  it("from hand: moves a card from controller's hand to bottom of own deck", () => {
+    let state = startGame();
+    // Inject a known card into player1's hand
+    let handCardId: string;
+    ({ state, instanceId: handCardId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
+
+    const deckBefore = getZone(state, "player1", "deck");
+    const handBefore = getZone(state, "player1", "hand");
+    expect(handBefore).toContain(handCardId);
+    const deckLenBefore = deckBefore.length;
+
+    state = applyEffect(
+      state,
+      { type: "put_on_bottom_of_deck", from: "hand" },
+      "src",
+      "player1",
+      LORCAST_CARD_DEFINITIONS,
+      []
+    );
+
+    const deckAfter = getZone(state, "player1", "deck");
+    const handAfter = getZone(state, "player1", "hand");
+    // First eligible hand card was moved
+    expect(handAfter.length).toBe(handBefore.length - 1);
+    expect(deckAfter.length).toBe(deckLenBefore + 1);
+    // The moved card is now the last (bottom) card of the deck
+    expect(deckAfter[deckAfter.length - 1]).toBe(handBefore[0]);
+  });
+
+  it("from discard with filter: moves matching cards from discard to bottom of own deck", () => {
+    let state = startGame();
+    // Inject 2 item cards + 1 character into player1's discard
+    let item1Id: string, item2Id: string;
+    ({ state, instanceId: item1Id } = injectCard(state, "player1", "basils-magnifying-glass", "discard"));
+    ({ state, instanceId: item2Id } = injectCard(state, "player1", "basils-magnifying-glass", "discard"));
+    let charId: string;
+    ({ state, instanceId: charId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "discard"));
+
+    const deckLenBefore = getZone(state, "player1", "deck").length;
+    state = applyEffect(
+      state,
+      {
+        type: "put_on_bottom_of_deck",
+        from: "discard",
+        filter: { cardType: ["item"] },
+        amount: 3,
+      },
+      "src",
+      "player1",
+      LORCAST_CARD_DEFINITIONS,
+      []
+    );
+
+    const discardAfter = getZone(state, "player1", "discard");
+    const deckAfter = getZone(state, "player1", "deck");
+    // Only the 2 item cards moved (filter), character stays in discard
+    expect(discardAfter).toContain(charId);
+    expect(discardAfter).not.toContain(item1Id);
+    expect(discardAfter).not.toContain(item2Id);
+    expect(deckAfter.length).toBe(deckLenBefore + 2);
+    // Items now sit at the bottom (order matches discard scan order)
+    expect(deckAfter[deckAfter.length - 2]).toBe(item1Id);
+    expect(deckAfter[deckAfter.length - 1]).toBe(item2Id);
+    // lastEffectResult exposes the count moved
+    expect(state.lastEffectResult).toBe(2);
+  });
+});
