@@ -902,7 +902,11 @@ function applyMoveCharacter(
 
 /** Pure mutation shared by the MOVE_CHARACTER action and the move_character effect.
  *  Sets atLocationInstanceId, marks movedThisTurn, logs, and queues the
- *  moves_to_location trigger. Does NOT pay ink — the action wrapper handles that. */
+ *  moves_to_location trigger. Does NOT pay ink — the action wrapper handles that.
+ *
+ *  Honors action restrictions (Max Goof Rockin' Teen "I JUST WANNA STAY HOME"
+ *  — "This character can't move to locations.") regardless of how the move was
+ *  initiated. Magic Carpet trying to move Max Goof should fizzle. */
 function performMove(
   state: GameState,
   characterInstanceId: string,
@@ -914,6 +918,15 @@ function performMove(
   const locationInst = state.cards[locationInstanceId];
   if (!characterInst || !locationInst) return state;
   const playerId = characterInst.ownerId;
+
+  // Restriction check (Max Goof Rockin' Teen and any future "can't move" effects)
+  const charDef0 = definitions[characterInst.definitionId];
+  if (charDef0) {
+    const moveModifiers = getGameModifiers(state, definitions);
+    if (isActionRestricted(characterInst, charDef0, "move", playerId, state, moveModifiers)) {
+      return state;
+    }
+  }
 
   state = updateInstance(state, characterInstanceId, {
     atLocationInstanceId: locationInstanceId,
@@ -1372,7 +1385,10 @@ function applyResolveChoice(
       const sourceId = pendingChoice.sourceInstanceId ?? "";
       state = applyEffect(state, pendingEffect!, sourceId, playerId, definitions, events, pendingChoice.triggeringCardInstanceId);
     }
-    // "decline" → skip, clear pendingChoice (already done above)
+    // "decline" → skip; either path resumes any queued remaining effects from
+    // the same trigger (Graveyard of Christmas Future ANOTHER CHANCE has a
+    // banish queued behind the may'd put_cards_under_into_hand).
+    state = resumePendingEffectQueue(state, definitions, events);
     return state;
   }
 
@@ -1898,6 +1914,37 @@ export function applyEffect(
           choosingPlayerId: controllingPlayerId,
           prompt: `Choose the order to place ${targets.length} cards on the bottom of their players' decks (first selected = bottommost).`,
           validTargets: targets,
+        },
+      };
+    }
+
+    case "put_top_of_deck_under": {
+      // Move the top card of the source's owner's deck under the source.
+      // Same mutation as BOOST_CARD's pay-N path, just without the cost.
+      const sourceInst = state.cards[sourceInstanceId];
+      if (!sourceInst) return state;
+      const owner = sourceInst.ownerId;
+      const deck = getZone(state, owner, "deck");
+      const topId = deck[0];
+      if (!topId) return state;
+      const topInst = state.cards[topId];
+      if (!topInst) return state;
+      return {
+        ...state,
+        cards: {
+          ...state.cards,
+          [topId]: { ...topInst, zone: "under" },
+          [sourceInstanceId]: {
+            ...sourceInst,
+            cardsUnder: [...sourceInst.cardsUnder, topId],
+          },
+        },
+        zones: {
+          ...state.zones,
+          [owner]: {
+            ...state.zones[owner],
+            deck: state.zones[owner].deck.filter(id => id !== topId),
+          },
         },
       };
     }
@@ -2769,8 +2816,10 @@ function queueTrigger(
       // Cross-card triggers MUST have a filter to match against the source card
       const triggerFilter = "filter" in ability.trigger ? ability.trigger.filter : undefined;
       if (!triggerFilter) continue;
-      // Check if the source card matches the trigger's filter
-      if (!matchesFilter(instance, def, triggerFilter, state, watcher.ownerId)) continue;
+      // Check if the source card matches the trigger's filter. Pass the watcher's
+      // instanceId so atLocation: "this" filters resolve relative to the watcher
+      // (e.g. Graveyard of Christmas Future "Whenever you move a character HERE").
+      if (!matchesFilter(instance, def, triggerFilter, state, watcher.ownerId, watcher.instanceId)) continue;
 
       state = {
         ...state,
@@ -2948,6 +2997,22 @@ function processTriggerStack(
             triggeringCardInstanceId: trigger.context.triggeringCardInstanceId,
           },
         };
+        // Queue any remaining effects in the same trigger so they fire after the may resolves.
+        // (Graveyard of Christmas Future ANOTHER CHANCE: "may put cards from under into hand.
+        // If you do, banish this location." — the banish must run after the may.)
+        const remainingAfterMay = trigger.ability.effects.slice(
+          trigger.ability.effects.indexOf(effect) + 1
+        );
+        if (remainingAfterMay.length > 0) {
+          state = {
+            ...state,
+            pendingEffectQueue: {
+              effects: remainingAfterMay,
+              sourceInstanceId: trigger.sourceInstanceId,
+              controllingPlayerId: source.ownerId,
+            },
+          };
+        }
         break; // Pause trigger processing — will resume after choice
       }
 

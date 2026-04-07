@@ -6,6 +6,7 @@ import { describe, it, expect } from "vitest";
 import { applyAction, applyEffect } from "./reducer.js";
 import { evaluateCondition } from "../utils/index.js";
 import { getGameModifiers } from "./gameModifiers.js";
+import { applyMoveCostReduction } from "./validator.js";
 import {
   LORCAST_CARD_DEFINITIONS,
   startGame,
@@ -105,6 +106,38 @@ describe("§5 Set 5 — reveal_top_conditional", () => {
     // Both players had a character damaged this turn (challenge is mutual)
     expect(state.players.player1.aCharacterWasDamagedThisTurn).toBe(true);
     expect(state.players.player2.aCharacterWasDamagedThisTurn).toBe(true);
+  });
+
+  it("Sherwood Forest FOREST HOME: Robin Hood-named characters get free move; non-Robin-Hood pays", () => {
+    // Synthetic check via the helper since Sherwood Forest's printed moveCost is undefined.
+    let state = startGame();
+    let sherwoodId: string, mickeyId: string;
+    ({ state, instanceId: sherwoodId } = injectCard(state, "player1", "sherwood-forest-outlaw-hideaway", "play", { isDrying: false }));
+    ({ state, instanceId: mickeyId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    const mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    const entries = mods.moveToSelfCostReductions.get(sherwoodId);
+    expect(entries?.length).toBe(1);
+    expect(entries?.[0]?.filter.hasName).toBe("Robin Hood");
+    // Mickey isn't named Robin Hood — base cost stays
+    const inst = getInstance(state, mickeyId);
+    const def = LORCAST_CARD_DEFINITIONS[inst.definitionId]!;
+    expect(applyMoveCostReduction(2, inst, def, sherwoodId, mods, state, "player1")).toBe(2);
+  });
+
+  it("Sherwood Forest FAMILIAR TERRAIN: characters here gain Ward + the granted activated ability", () => {
+    let state = startGame();
+    let sherwoodId: string, mickeyId: string;
+    ({ state, instanceId: sherwoodId } = injectCard(state, "player1", "sherwood-forest-outlaw-hideaway", "play", { isDrying: false }));
+    ({ state, instanceId: mickeyId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, atLocationInstanceId: sherwoodId }));
+
+    const mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    // Ward granted
+    const granted = mods.grantedKeywords.get(mickeyId) ?? [];
+    expect(granted.some(k => k.keyword === "ward")).toBe(true);
+    // Activated ability granted
+    const activated = mods.grantedActivatedAbilities.get(mickeyId) ?? [];
+    expect(activated.length).toBeGreaterThanOrEqual(1);
+    expect(activated[0]?.costs?.length).toBe(2); // exert + 1 ink
   });
 
   it("Sugar Rush Speedway ON YOUR MARKS!: exerts chosen here, deals 1 damage, moves to another location, excludes current loc", () => {

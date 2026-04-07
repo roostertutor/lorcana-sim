@@ -500,6 +500,13 @@ function validateMoveCharacter(
   if (char.isExerted) return fail("Exerted characters cannot move.");
   if (char.movedThisTurn) return fail("This character has already moved this turn.");
 
+  // Self-restriction (Max Goof Rockin' Teen "I JUST WANNA STAY HOME") + any
+  // future "can't move" timed/static effects.
+  const moveRestrictModifiers = getGameModifiers(state, definitions);
+  if (isActionRestricted(char, charDef, "move", playerId, state, moveRestrictModifiers)) {
+    return fail("This character can't move to locations.");
+  }
+
   const loc = getInstance(state, locationInstanceId);
   if (loc.ownerId !== playerId) return fail("You don't own this location.");
   if (loc.zone !== "play") return fail("Location is not in play.");

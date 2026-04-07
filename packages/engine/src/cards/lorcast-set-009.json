@@ -3760,6 +3760,15 @@
         "type": "keyword",
         "keyword": "singer",
         "value": 5
+      },
+      {
+        "type": "static",
+        "storyName": "I JUST WANNA STAY HOME",
+        "rulesText": "This character can't move to locations.",
+        "effect": {
+          "type": "cant_action_self",
+          "action": "move"
+        }
       }
     ],
     "setId": "9",
@@ -7083,6 +7092,15 @@
         "type": "keyword",
         "keyword": "singer",
         "value": 5
+      },
+      {
+        "type": "static",
+        "storyName": "I JUST WANNA STAY HOME",
+        "rulesText": "This character can't move to locations.",
+        "effect": {
+          "type": "cant_action_self",
+          "action": "move"
+        }
       }
     ],
     "setId": "9",

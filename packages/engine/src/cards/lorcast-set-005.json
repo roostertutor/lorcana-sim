@@ -3211,7 +3211,78 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "FOREST HOME",
+        "rulesText": "Your characters named Robin Hood may move here for free.",
+        "effect": {
+          "type": "move_to_self_cost_reduction",
+          "amount": "all",
+          "filter": {
+            "owner": { "type": "self" },
+            "zone": "play",
+            "cardType": ["character"],
+            "hasName": "Robin Hood"
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "FAMILIAR TERRAIN (Ward)",
+        "rulesText": "Characters gain Ward while here.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "ward",
+          "target": {
+            "type": "all",
+            "filter": {
+              "zone": "play",
+              "cardType": ["character"],
+              "atLocation": "this"
+            }
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "FAMILIAR TERRAIN (Activated)",
+        "rulesText": "Characters gain \"{E}, 1 {I} — Deal 2 damage to chosen damaged character\" while here.",
+        "effect": {
+          "type": "grant_activated_ability",
+          "target": {
+            "type": "all",
+            "filter": {
+              "zone": "play",
+              "cardType": ["character"],
+              "atLocation": "this"
+            }
+          },
+          "ability": {
+            "type": "activated",
+            "rulesText": "{E}, 1 {I} — Deal 2 damage to chosen damaged character.",
+            "costs": [
+              { "type": "exert" },
+              { "type": "pay_ink", "amount": 1 }
+            ],
+            "effects": [
+              {
+                "type": "deal_damage",
+                "amount": 2,
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": ["character"],
+                    "hasDamage": true
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    ],
     "setId": "5",
     "number": 101,
     "rarity": "rare",

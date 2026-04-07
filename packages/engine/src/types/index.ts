@@ -21,7 +21,7 @@ export type InkColor =
   | "steel";
 export type CardType = "character" | "action" | "item" | "location";
 /** CRD 6.6.1: Unified type for actions that ability modifiers can restrict. */
-export type RestrictedAction = "quest" | "challenge" | "ready" | "play" | "sing";
+export type RestrictedAction = "quest" | "challenge" | "ready" | "play" | "sing" | "move";
 export type Keyword =
   | "evasive"
   | "rush"
@@ -134,6 +134,7 @@ export type Effect =
   | CantBeChallengedTimedEffect
   | PutCardsUnderIntoHandEffect
   | ReturnAllToBottomInOrderEffect
+  | PutTopOfDeckUnderEffect
   | CreateCardEffect
   | SearchEffect
   | ChooseEffect
@@ -237,6 +238,19 @@ export interface GainStatsEffect {
 }
 
 /**
+ * "Put the top card of [your] deck under this card facedown" — the same
+ * mechanism as Boost (CRD 8.4.1) but as a triggered effect rather than a
+ * pay-N player action. Used by Graveyard of Christmas Future
+ * ("Whenever you move a character here, put the top card of your deck
+ * under this location facedown.").
+ */
+export interface PutTopOfDeckUnderEffect {
+  type: "put_top_of_deck_under";
+  /** Which card receives the new under-card. "this" = the source instance. */
+  target: { type: "this" };
+}
+
+/**
  * "Put all matching cards on the bottom of their players' decks in any order"
  * (Under the Sea: opposing characters with strength ≤ 2). The CONTROLLER picks
  * the order — surfaces a choose_order pendingChoice when 2+ matches exist.
@@ -257,6 +271,11 @@ export interface PutCardsUnderIntoHandEffect {
   type: "put_cards_under_into_hand";
   /** Which card's under-pile to drain. "this" = the source instance. */
   target: { type: "this" };
+  /** CRD 6.1.4: player may choose not to apply this effect. When part of a
+   *  triggered ability with multiple effects (Graveyard of Christmas Future:
+   *  "may put all cards... If you do, banish this location") the may gates the
+   *  whole sequence — declining skips both this and any subsequent effects. */
+  isMay?: boolean;
 }
 
 /**

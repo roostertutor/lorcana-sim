@@ -4374,7 +4374,41 @@
     "cost": 4,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "NEW ARRIVAL",
+        "rulesText": "Whenever you move a character here, put the top card of your deck under this location facedown.",
+        "trigger": {
+          "on": "moves_to_location",
+          "filter": {
+            "zone": "play",
+            "cardType": ["character"],
+            "atLocation": "this"
+          }
+        },
+        "effects": [
+          { "type": "put_top_of_deck_under", "target": { "type": "this" } }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "ANOTHER CHANCE",
+        "rulesText": "At the start of your turn, you may put all cards from under this location into your hand. If you do, banish this location.",
+        "trigger": { "on": "turn_start", "player": { "type": "self" } },
+        "effects": [
+          {
+            "type": "put_cards_under_into_hand",
+            "target": { "type": "this" },
+            "isMay": true
+          },
+          {
+            "type": "banish",
+            "target": { "type": "this" }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 135,
     "rarity": "rare",
