@@ -473,7 +473,8 @@ export function evaluateCondition(
   state: GameState,
   definitions: Record<string, CardDefinition>,
   controllingPlayerId: PlayerID,
-  sourceInstanceId: string
+  sourceInstanceId: string,
+  triggeringCardInstanceId?: string
 ): boolean {
   const opponent = getOpponent(controllingPlayerId);
   switch (condition.type) {
@@ -577,7 +578,7 @@ export function evaluateCondition(
     }
     case "compound_and": {
       return condition.conditions.every(sub =>
-        evaluateCondition(sub, state, definitions, controllingPlayerId, sourceInstanceId)
+        evaluateCondition(sub, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId)
       );
     }
     case "songs_played_this_turn_gte": {
@@ -591,10 +592,15 @@ export function evaluateCondition(
       return inst ? inst.damage === 0 : false;
     }
     case "not": {
-      return !evaluateCondition(condition.condition, state, definitions, controllingPlayerId, sourceInstanceId);
+      return !evaluateCondition(condition.condition, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId);
     }
     case "played_via_shift": {
       const inst = state.cards[sourceInstanceId];
+      return inst?.playedViaShift === true;
+    }
+    case "triggering_card_played_via_shift": {
+      if (!triggeringCardInstanceId) return false;
+      const inst = state.cards[triggeringCardInstanceId];
       return inst?.playedViaShift === true;
     }
     default:

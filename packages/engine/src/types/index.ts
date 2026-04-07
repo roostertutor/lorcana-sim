@@ -404,6 +404,7 @@ export type StaticEffect =
   | ModifyStatStatic
   | ModifyStatPerCountStatic
   | ModifyStatPerDamageStatic
+  | ModifyStatWhileChallengedStatic
   | CantBeChallengedException
   | CostReductionStatic
   | ActionRestrictionStatic
@@ -494,6 +495,16 @@ export interface ModifyStatPerDamageStatic {
   target: CardTarget;
 }
 
+/**
+ * "While being challenged, this character gets +N {stat}."
+ * Only applies during challenge damage calculation — not an always-on modifier.
+ */
+export interface ModifyStatWhileChallengedStatic {
+  type: "modify_stat_while_challenged";
+  stat: "strength" | "willpower";
+  modifier: number;
+}
+
 export interface CantBeChallengedException {
   type: "cant_be_challenged";
   target: CardTarget;
@@ -550,7 +561,8 @@ export type PlayerTarget =
   | { type: "self" }
   | { type: "opponent" }
   | { type: "both" }
-  | { type: "choosing_player" };
+  | { type: "choosing_player" }
+  | { type: "target_owner" };
 
 export type CardTarget =
   | { type: "this" } // The card itself
@@ -647,7 +659,8 @@ export type Condition =
   | { type: "actions_played_this_turn_gte"; amount: number }
   | { type: "this_has_no_damage" }
   | { type: "not"; condition: Condition }
-  | { type: "played_via_shift" };
+  | { type: "played_via_shift" }
+  | { type: "triggering_card_played_via_shift" };
 
 export type AbilityTiming = "your_turn_main" | "any_time" | "opponent_turn";
 
@@ -849,6 +862,9 @@ export interface GameState {
 
   /** CRD 6.1.5.1: Result of the last cost effect in a sequential (for "[A]. For each X, [B]" patterns) */
   lastEffectResult?: number;
+
+  /** Owner of the last card targeted by a choose_target resolution (for "its player draws" patterns) */
+  lastTargetOwnerId?: PlayerID;
 
   winner: PlayerID | null;
   isGameOver: boolean;

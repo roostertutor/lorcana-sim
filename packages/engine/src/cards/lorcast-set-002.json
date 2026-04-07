@@ -3166,7 +3166,7 @@
             "type": "draw",
             "amount": 2,
             "target": {
-              "type": "opponent"
+              "type": "target_owner"
             }
           }
         ]
@@ -3778,6 +3778,9 @@
             "hasTrait": "Floodborn"
           }
         },
+        "condition": {
+          "type": "triggering_card_played_via_shift"
+        },
         "effects": [
           {
             "type": "discard_from_hand",
@@ -4139,12 +4142,9 @@
         "storyName": "TEST OF CHARACTER",
         "rulesText": "While being challenged, this character gets +2 {S}.",
         "effect": {
-          "type": "modify_stat",
+          "type": "modify_stat_while_challenged",
           "stat": "strength",
-          "modifier": 2,
-          "target": {
-            "type": "this"
-          }
+          "modifier": 2
         }
       }
     ],
@@ -7700,24 +7700,31 @@
         },
         "effects": [
           {
-            "type": "banish",
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "zone": "play",
-                "cardType": [
-                  "item"
-                ]
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "banish",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "item"
+                    ]
+                  }
+                }
               }
-            },
-            "isMay": true
-          },
-          {
-            "type": "draw",
-            "amount": 1,
-            "target": {
-              "type": "opponent"
-            }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "target_owner"
+                }
+              }
+            ]
           }
         ]
       }

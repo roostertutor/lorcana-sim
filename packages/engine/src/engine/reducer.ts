@@ -639,7 +639,16 @@ function applyChallenge(
   const atkStaticStr = modifiers.statBonuses.get(attackerInstanceId)?.strength ?? 0;
   const defStaticStr = modifiers.statBonuses.get(defenderInstanceId)?.strength ?? 0;
   let attackerStr = getEffectiveStrength(attacker, attackerDef, atkStaticStr);
-  const defenderStr = getEffectiveStrength(defender, defenderDef, defStaticStr);
+  let defenderStr = getEffectiveStrength(defender, defenderDef, defStaticStr);
+
+  // Check for "while being challenged" stat bonuses on the defender
+  for (const ability of defenderDef.abilities) {
+    if (ability.type !== "static") continue;
+    if (ability.effect.type !== "modify_stat_while_challenged") continue;
+    if (ability.effect.stat === "strength") {
+      defenderStr += ability.effect.modifier;
+    }
+  }
 
   // CRD 8.5.1: Challenger +N bonus (only when attacking, not defending — CRD 8.5.2)
   const challengerValue = getKeywordValue(attacker, attackerDef, "challenger", modifiers.grantedKeywords.get(attackerInstanceId));
@@ -1151,6 +1160,11 @@ function applyResolveChoice(
       return state;
     }
     for (const targetId of choice) {
+      // Track the owner of the targeted card (for "its player draws" patterns)
+      const targetInst = state.cards[targetId];
+      if (targetInst) {
+        state = { ...state, lastTargetOwnerId: targetInst.ownerId };
+      }
       state = applyEffectToTarget(state, pendingEffect!, targetId, playerId, definitions, events);
       // Apply follow-up effects to the same target
       if (pendingChoice.followUpEffects) {
@@ -1200,7 +1214,9 @@ export function applyEffect(
       const targetPlayer =
         effect.target.type === "opponent"
           ? getOpponent(controllingPlayerId)
-          : controllingPlayerId;
+          : effect.target.type === "target_owner"
+            ? (state.lastTargetOwnerId ?? controllingPlayerId)
+            : controllingPlayerId;
       return applyDraw(state, targetPlayer, amount, events, definitions);
     }
 
@@ -1805,10 +1821,51 @@ export function applyEffect(
       // Apply cost effects [A]
       for (const costEffect of effect.costEffects) {
         state = applyEffect(state, costEffect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+        // If cost effect created a pending choice (e.g. choose_target for banish),
+        // queue reward effects so they run after the choice resolves
+        if (state.pendingChoice) {
+          const existingQueue = state.pendingEffectQueue;
+          const rewardEffects = effect.rewardEffects;
+          if (rewardEffects.length > 0) {
+            const combinedEffects = existingQueue
+              ? [...existingQueue.effects, ...rewardEffects]
+              : rewardEffects;
+            state = {
+              ...state,
+              pendingEffectQueue: {
+                effects: combinedEffects,
+                sourceInstanceId,
+                controllingPlayerId,
+              },
+            };
+          }
+          return state;
+        }
       }
       // Apply reward effects [B]
       for (const rewardEffect of effect.rewardEffects) {
         state = applyEffect(state, rewardEffect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+        // If reward effect created a pending choice, queue remaining rewards
+        if (state.pendingChoice) {
+          const remainingRewards = effect.rewardEffects.slice(
+            effect.rewardEffects.indexOf(rewardEffect) + 1
+          );
+          if (remainingRewards.length > 0) {
+            const existingQueue = state.pendingEffectQueue;
+            const combinedEffects = existingQueue
+              ? [...existingQueue.effects, ...remainingRewards]
+              : remainingRewards;
+            state = {
+              ...state,
+              pendingEffectQueue: {
+                effects: combinedEffects,
+                sourceInstanceId,
+                controllingPlayerId,
+              },
+            };
+          }
+          return state;
+        }
       }
       return state;
     }
@@ -2131,7 +2188,8 @@ function processTriggerStack(
         state,
         definitions,
         source.ownerId,
-        trigger.sourceInstanceId
+        trigger.sourceInstanceId,
+        trigger.context.triggeringCardInstanceId
       );
       if (!conditionMet) continue;
     }
