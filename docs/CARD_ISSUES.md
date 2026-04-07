@@ -48,6 +48,15 @@ session. ~7 cards remain with approximations for engine features not yet built:
 - **Jim Hawkins - Space Traveler**: "may move here for free" alt-cost (when playing a location, the character moves for free)
 - **Olympus Would Be That Way**: stat boost only during challenges against locations
 - **The Sorcerer's Hat**: player-named-card matching (name-a-card mechanic)
+- **Ursula - Deceiver / The Bare Necessities (set 3) / Mowgli - Man Cub (set 10)**:
+  `DiscardEffect` needs an optional `filter?: CardFilter` field to restrict which
+  hand cards are eligible for discard. Three patterns to support:
+  - Ursula - Deceiver: filter `{ cardType: ["action"], hasTrait: "Song" }`, `chooser: "controller"` (you pick a song from their hand)
+  - The Bare Necessities: filter `{ cardType: ["character"] }` inverted (non-character), `chooser: "controller"` (you pick a non-character)
+  - Mowgli - Man Cub: filter same as Bare Necessities (non-character), `chooser: "target_player"` (opponent picks which non-character to discard)
+  Implementation: add `filter?` to DiscardEffect; in `discard_from_hand` resolution
+  pre-filter the hand by the filter before creating the `choose_discard` pending
+  choice. If no cards match, the effect fizzles (CRD 1.7.7).
 
 Engine systems built this session:
 - Locations (CRD 5.6, 4.7, 4.6.8, 3.2.2.2) — full system
