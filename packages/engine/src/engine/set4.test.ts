@@ -465,4 +465,89 @@ describe("§4 Set 4 — Sing Together", () => {
     // any "named X" effect that targets these characters.)
     expect(getInstance(state, eelsId)).toBeDefined();
   });
+
+  // CRD 6.1.5.1 + 6.1.4 + 6.1.5: pay-extra-cost-mid-effect via SequentialEffect.
+  // Ariel Sonic Warrior AMPLIFIED VOICE: "Whenever you play a song, you may pay
+  // 2 {I} to deal 3 damage to chosen character."
+  it("Ariel Sonic Warrior AMPLIFIED VOICE — pay 2 ink to deal 3 damage on song-play", () => {
+    let state = startGame();
+    let arielId: string, songId: string, victimId: string;
+    ({ state, instanceId: arielId } = injectCard(state, "player1", "ariel-sonic-warrior", "play", { isDrying: false }));
+    ({ state, instanceId: songId } = injectCard(state, "player1", "friends-on-the-other-side", "hand"));
+    // Use a high-willpower target (5 will) so 3 damage doesn't banish.
+    ({ state, instanceId: victimId } = injectCard(state, "player2", "mr-smee-loyal-first-mate", "play", { isDrying: false }));
+    state = giveInk(state, "player1", 6);
+
+    // Play the song (cost 3) — should trigger AMPLIFIED VOICE.
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Surfaces choose_may.
+    expect(state.pendingChoice?.type).toBe("choose_may");
+
+    // Accept — pay 2 ink.
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Then choose target for the 3 damage.
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [victimId] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Ink: started 6, song cost 3, AMPLIFIED VOICE cost 2 → 1 left.
+    expect(state.players.player1.availableInk).toBe(1);
+    // Damage applied.
+    expect(getInstance(state, victimId).damage).toBe(3);
+  });
+
+  // CRD 6.1.4: declining the may does not pay ink and does not deal damage.
+  it("AMPLIFIED VOICE decline — no ink spent, no damage", () => {
+    let state = startGame();
+    let songId: string, victimId: string;
+    ({ state } = injectCard(state, "player1", "ariel-sonic-warrior", "play", { isDrying: false }));
+    ({ state, instanceId: songId } = injectCard(state, "player1", "friends-on-the-other-side", "hand"));
+    // Use a high-willpower target (5 will) so 3 damage doesn't banish.
+    ({ state, instanceId: victimId } = injectCard(state, "player2", "mr-smee-loyal-first-mate", "play", { isDrying: false }));
+    state = giveInk(state, "player1", 6);
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(state.pendingChoice?.type).toBe("choose_may");
+
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "decline" }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Ink: 6 - 3 (song) = 3, no extra paid.
+    expect(state.players.player1.availableInk).toBe(3);
+    expect(getInstance(state, victimId).damage).toBe(0);
+    // No further pending choice (no target prompt because reward was skipped).
+    expect(state.pendingChoice).toBeNull();
+  });
+
+  // CRD 6.1.5.1: when the controller can't afford the extra cost, the may is
+  // not even offered — effect silently skipped.
+  it("AMPLIFIED VOICE can't afford — no prompt, no damage", () => {
+    let state = startGame();
+    let songId: string, victimId: string;
+    ({ state } = injectCard(state, "player1", "ariel-sonic-warrior", "play", { isDrying: false }));
+    ({ state, instanceId: songId } = injectCard(state, "player1", "friends-on-the-other-side", "hand"));
+    // Use a high-willpower target (5 will) so 3 damage doesn't banish.
+    ({ state, instanceId: victimId } = injectCard(state, "player2", "mr-smee-loyal-first-mate", "play", { isDrying: false }));
+    // Just enough ink for the song (cost 3) and not a drop more.
+    state = giveInk(state, "player1", 3);
+
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Cost can't be paid → no choose_may surfaced.
+    expect(state.pendingChoice).toBeNull();
+    expect(getInstance(state, victimId).damage).toBe(0);
+    expect(state.players.player1.availableInk).toBe(0);
+  });
 });
