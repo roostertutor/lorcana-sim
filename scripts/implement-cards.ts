@@ -25,410 +25,661 @@ function patchSet(setCode: string, patches: Record<string, any>) {
 }
 
 // =============================================================================
-// SET 2 — Batch 6: remaining cards (approximations where engine gaps exist)
+// SET 3 — Into the Inklands: Batch 1 (fits-grammar, no engine changes)
 // =============================================================================
-patchSet("2", {
+patchSet("3", {
 
-  // --- Using existing modify_stat_per_count ---
+  // ===== STATIC ABILITIES =====
 
-  // Donald Duck - Not Again!: "+1 {L} for each 1 damage on him"
-  "donald-duck-not-again": {
+  // Pluto - Friendly Pooch: "You pay 1 {I} less for the next character you play this turn."
+  // (one-shot — applied as triggered when entering play)
+  "pluto-friendly-pooch": {
     abilities: [{
-      type: "static", storyName: "WHAT A DAY!",
-      rulesText: "This character gets +1 {L} for each 1 damage on him.",
-      // modify_stat_per_count counts cards matching a filter.
-      // Damage-per-self isn't a card count — this needs a new static type.
-      // Approximation: +1 lore flat (doesn't scale with damage).
-      // TODO: needs "modify_stat_per_damage" static type
-      effect: { type: "modify_stat", stat: "lore", modifier: 1, target: { type: "this" } },
-    }],
-  },
-
-  // Flynn Rider: "-1 {L} for each card in opponents' hands"
-  // modify_stat_per_count with countFilter for opponent's hand
-  "flynn-rider-his-own-biggest-fan": {
-    abilities: [{
-      type: "static", storyName: "WANTED",
-      rulesText: "This character gets -1 {L} for each card in your opponents' hands.",
-      effect: {
-        type: "modify_stat_per_count", stat: "lore", perCount: -1,
-        countFilter: { owner: { type: "opponent" }, zone: "hand" },
-        target: { type: "this" },
-      },
-    }],
-  },
-
-  // --- Using existing cards_in_zone_gte / cards_in_hand_eq conditions ---
-
-  // Belle - Bookworm: "While an opponent has no cards in their hand, +2 {L}"
-  "belle-bookworm": {
-    abilities: [{
-      type: "static", storyName: "WELL-READ",
-      rulesText: "While an opponent has no cards in their hand, this character gets +2 {L}.",
-      effect: { type: "modify_stat", stat: "lore", modifier: 2, target: { type: "this" } },
-      condition: { type: "cards_in_hand_eq", amount: 0, player: { type: "opponent" } },
-    }],
-  },
-
-  // Gaston - Scheming Suitor: "While opponents have no cards in hand, +3 {S}"
-  "gaston-scheming-suitor": {
-    abilities: [{
-      type: "static", storyName: "SCHEMING",
-      rulesText: "While one or more opponents have no cards in their hands, this character gets +3 {S}.",
-      effect: { type: "modify_stat", stat: "strength", modifier: 3, target: { type: "this" } },
-      condition: { type: "cards_in_hand_eq", amount: 0, player: { type: "opponent" } },
-    }],
-  },
-
-  // Noi - Orphaned Thief: "While you have an item in play, gains Resist +1 and Ward."
-  // Uses cards_in_zone_gte condition
-  "noi-orphaned-thief": {
-    abilities: [
-      {
-        type: "static", storyName: "RESOURCEFUL",
-        rulesText: "While you have an item in play, this character gains Resist +1 and Ward.",
-        effect: { type: "grant_keyword", keyword: "resist", value: 1, target: { type: "this" } },
-        condition: { type: "cards_in_zone_gte", zone: "play", amount: 1, player: { type: "self" } },
-        // NOTE: cards_in_zone_gte counts all cards in play, not just items.
-        // TODO: needs CardFilter on the zone count condition to filter by cardType: item
-      },
-      {
-        type: "static",
-        effect: { type: "grant_keyword", keyword: "ward", target: { type: "this" } },
-        condition: { type: "cards_in_zone_gte", zone: "play", amount: 1, player: { type: "self" } },
-      },
-    ],
-  },
-
-  // Pain - Underworld Imp: "While this character has 5 {S} or more, he gets +2 {L}."
-  // TODO: needs self_stat_gte condition. Approximation: always applies.
-  "pain-underworld-imp": {
-    abilities: [{
-      type: "static", storyName: "PAIN POWER",
-      rulesText: "While this character has 5 {S} or more, he gets +2 {L}.",
-      effect: { type: "modify_stat", stat: "lore", modifier: 2, target: { type: "this" } },
-      // TODO: condition should be self_stat_gte: { stat: "strength", amount: 5 }
-    }],
-  },
-
-  // --- Timed can_challenge_ready ---
-
-  // Pick a Fight: "Chosen character can challenge ready characters this turn."
-  // Model as granting canChallengeReady via a timed effect — but TimedEffect doesn't support this type.
-  // Approximation: do nothing (the effect is niche and can't be modeled without new timed type).
-  // TODO: needs timed "can_challenge_ready" effect
-  "pick-a-fight": {
-    actionEffects: [
-      // Placeholder — can't model timed canChallengeReady yet
-      // The action still "works" (plays, goes to discard) but has no mechanical effect
-    ],
-  },
-
-  // --- play_for_free + Rush + end-of-turn banish ---
-
-  // Madam Mim - Rival of Merlin: "Play a character cost 4 or less for free. Rush. Banish at end of turn."
-  // play_for_free exists but the Rush grant + delayed banish is complex.
-  // Approximation: play_for_free only (Rush + banish not tracked)
-  "madam-mim-rival-of-merlin": {
-    abilities: [{
-      type: "triggered", storyName: "MAGNIFICENT, MARVELOUS, MAD MADAM MIM",
-      rulesText: "Play a character with cost 4 or less for free. They gain Rush. At the end of the turn, banish them.",
+      type: "triggered", storyName: "PLAYFUL PUP",
+      rulesText: "You pay 1 {I} less for the next character you play this turn.",
       trigger: { on: "enters_play" },
-      effects: [{ type: "play_for_free", filter: { cardType: ["character"], costAtMost: 4 } }],
-      // TODO: grant Rush to the played character + create delayed trigger to banish at end of turn
+      effects: [{ type: "cost_reduction", amount: 1, filter: { cardType: ["character"] } }],
     }],
   },
 
-  // Gruesome and Grim: Song — same as Madam Mim
-  "gruesome-and-grim": {
-    actionEffects: [
-      { type: "play_for_free", filter: { cardType: ["character"], costAtMost: 4 } },
-      // TODO: grant Rush + delayed end-of-turn banish
-    ],
-  },
-
-  // --- Approximations for remaining complex cards ---
-
-  // Beast - Relentless: "Whenever an opposing character is damaged, you may ready this character."
-  // Needs is_damaged trigger for opponent's characters. Approximation: no-op.
-  // TODO: needs is_damaged trigger event (fires when any character takes damage)
-  "beast-relentless": {
+  // Heart of Atlantis: same one-shot
+  "heart-of-atlantis": {
     abilities: [{
-      type: "triggered", storyName: "UNBRIDLED FURY",
-      rulesText: "Whenever an opposing character is damaged, you may ready this character.",
-      // Approximation: trigger on is_challenged (close but not exact)
-      trigger: { on: "is_challenged", filter: { owner: { type: "opponent" } } },
-      effects: [{ type: "ready", target: { type: "this" }, isMay: true }],
+      type: "triggered", storyName: "POWER SOURCE",
+      rulesText: "You pay 2 {I} less for the next character you play this turn.",
+      trigger: { on: "enters_play" },
+      effects: [{ type: "cost_reduction", amount: 2, filter: { cardType: ["character"] } }],
     }],
   },
 
-  // Rapunzel - Gifted Artist: "Whenever you remove damage from one of your characters, you may draw a card."
-  // TODO: needs damage_removed trigger event
-  // Approximation: no trigger (can't model without new event)
-  "rapunzel-gifted-artist": {
+  // Map of Treasure Planet: pay 1 less for next location
+  "map-of-treasure-planet": {
     abilities: [{
-      type: "static", storyName: "HEALING GLOW",
-      rulesText: "Whenever you remove 1 or more damage from one of your characters, you may draw a card.",
-      // STUB: no damage_removed trigger available. Marking as static placeholder.
-      effect: { type: "modify_stat", stat: "willpower", modifier: 0, target: { type: "this" } },
+      type: "triggered", storyName: "DISCOVERY",
+      rulesText: "You pay 1 {I} less for the next location you play this turn.",
+      trigger: { on: "enters_play" },
+      effects: [{ type: "cost_reduction", amount: 1, filter: { cardType: ["location"] } }],
     }],
   },
 
-  // Grand Pabbie: same issue — needs damage_removed trigger
-  "grand-pabbie-oldest-and-wisest": {
+  // Scrooge's Top Hat: pay 1 less for next item
+  "scrooges-top-hat": {
     abilities: [{
-      type: "static", storyName: "ANCIENT KNOWLEDGE",
-      rulesText: "Whenever you remove 1 or more damage from one of your characters, gain 2 lore.",
-      // STUB: no damage_removed trigger available
-      effect: { type: "modify_stat", stat: "willpower", modifier: 0, target: { type: "this" } },
+      type: "triggered", storyName: "CLASSY",
+      rulesText: "You pay 1 {I} less for the next item you play this turn.",
+      trigger: { on: "enters_play" },
+      effects: [{ type: "cost_reduction", amount: 1, filter: { cardType: ["item"] } }],
     }],
   },
 
-  // Christopher Robin: "Whenever you ready this character, if 2+ other characters, gain 2 lore."
-  // TODO: needs "ready" trigger event
-  "christopher-robin-adventurer": {
+  // Razoul - Palace Guard: "While this character has no damage, he gets +2 {S}."
+  "razoul-palace-guard": {
     abilities: [{
-      type: "static", storyName: "ADVENTUROUS SPIRIT",
-      rulesText: "Whenever you ready this character, if you have 2 or more other characters in play, gain 2 lore.",
-      // STUB: no "ready" trigger event
-      effect: { type: "modify_stat", stat: "willpower", modifier: 0, target: { type: "this" } },
+      type: "static", storyName: "PROUD GUARD",
+      rulesText: "While this character has no damage, he gets +2 {S}.",
+      effect: { type: "modify_stat", stat: "strength", modifier: 2, target: { type: "this" } },
+      condition: { type: "this_has_no_damage" },
     }],
   },
 
-  // Merlin - Shapeshifter: "Whenever one of your other characters is returned to your hand from play, +1 {L} this turn."
-  // TODO: needs returned_to_hand trigger
-  "merlin-shapeshifter": {
+  // Piglet - Pooh Pirate Captain: "While you have 2 or more other characters in play, +2 {L}."
+  "piglet-pooh-pirate-captain": {
     abilities: [{
-      type: "static", storyName: "VERSATILE WIZARD",
-      rulesText: "Whenever one of your other characters is returned to your hand from play, this character gets +1 {L} this turn.",
-      // STUB: no returned_to_hand trigger
-      effect: { type: "modify_stat", stat: "willpower", modifier: 0, target: { type: "this" } },
+      type: "static", storyName: "BRAVE LITTLE PIRATE",
+      rulesText: "While you have 2 or more other characters in play, this character gets +2 {L}.",
+      effect: { type: "modify_stat", stat: "lore", modifier: 2, target: { type: "this" } },
+      condition: { type: "characters_in_play_gte", amount: 2, player: { type: "self" }, excludeSelf: true },
     }],
   },
 
-  // Prince John: "Whenever your opponent discards, you may draw a card for each card discarded."
-  // TODO: needs opponent_discards trigger
-  "prince-john-greediest-of-all": {
+  // ===== ENTERS_PLAY TRIGGERS =====
+
+  // Patch - Intimidating Pup: action — chosen char -2 STR until next turn
+  // (this is actually a character with an enters_play effect)
+  "patch-intimidating-pup": {
     abilities: [{
-      type: "static", storyName: "TAXES!",
-      rulesText: "Whenever your opponent discards 1 or more cards, you may draw a card for each card discarded.",
-      // STUB: no opponent_discards trigger
-      effect: { type: "modify_stat", stat: "willpower", modifier: 0, target: { type: "this" } },
+      type: "triggered", storyName: "WHO ME?",
+      rulesText: "Chosen character gets -2 {S} until the start of your next turn.",
+      trigger: { on: "enters_play" },
+      effects: [{ type: "gain_stats", strength: -2, target: { type: "chosen", filter: { zone: "play", cardType: ["character"] } }, duration: "end_of_owner_next_turn" }],
     }],
   },
 
-  // Minnie Mouse - Wide-Eyed Diver: "second action in a turn → +2 {L}"
-  // TODO: needs action-count-this-turn tracking
-  "minnie-mouse-wide-eyed-diver": {
+  // Kida - Protector of Atlantis: "When you play, all characters get -3 {S} until next turn."
+  "kida-protector-of-atlantis": {
     abilities: [{
-      type: "static", storyName: "DEEP BREATH",
-      rulesText: "Whenever you play a second action in a turn, this character gets +2 {L} this turn.",
-      // STUB: no action counter tracking
-      effect: { type: "modify_stat", stat: "willpower", modifier: 0, target: { type: "this" } },
+      type: "triggered", storyName: "ANCIENT POWER",
+      rulesText: "When you play this character, all characters get -3 {S} until the start of your next turn.",
+      trigger: { on: "enters_play" },
+      effects: [{ type: "gain_stats", strength: -3, target: { type: "all", filter: { zone: "play", cardType: ["character"] } }, duration: "end_of_owner_next_turn" }],
     }],
   },
 
-  // Fairy Godmother - Mystic Armorer: grants triggered ability to other characters
-  // TODO: needs meta-ability (granting abilities to other cards)
-  "fairy-godmother-mystic-armorer": {
+  // Maid Marian - Delightful Dreamer: "When you play, chosen character gets -2 {S} this turn."
+  "maid-marian-delightful-dreamer": {
     abilities: [{
-      type: "triggered", storyName: "ENCHANTED ARMOR",
-      rulesText: "Whenever this character quests, your characters gain Challenger +3 and 'When this character is banished in a challenge, return this card to your hand' this turn.",
-      trigger: { on: "quests" },
-      // Approximation: just grant Challenger +3
-      effects: [{ type: "grant_keyword", keyword: "challenger", value: 3, target: { type: "all", filter: { owner: { type: "self" }, zone: "play", cardType: ["character"] } }, duration: "end_of_turn" }],
-      // TODO: also grant "banished_in_challenge → return to hand" triggered ability
+      type: "triggered", storyName: "GENTLE TOUCH",
+      rulesText: "When you play this character, chosen character gets -2 {S} this turn.",
+      trigger: { on: "enters_play" },
+      effects: [{ type: "gain_stats", strength: -2, target: { type: "chosen", filter: { zone: "play", cardType: ["character"] } }, duration: "this_turn" }],
     }],
   },
 
-  // Cogsworth - Talking Clock: "Your characters with Reckless gain '{E} — Gain 1 lore.'"
-  // TODO: needs meta-ability (granting activated abilities to other cards)
-  // Approximation: no-op static
-  "cogsworth-talking-clock": {
+  // Chernabog - Evildoer: "When you play, shuffle all character cards from your discard into your deck."
+  "chernabog-evildoer": {
     abilities: [{
-      type: "static", storyName: "TIMELY ADVICE",
-      rulesText: "Your characters with Reckless gain '{E} — Gain 1 lore.'",
-      // STUB: can't grant activated abilities
-      effect: { type: "modify_stat", stat: "willpower", modifier: 0, target: { type: "this" } },
+      type: "triggered", storyName: "GATHER MY MINIONS",
+      rulesText: "When you play this character, shuffle all character cards from your discard into your deck.",
+      trigger: { on: "enters_play" },
+      effects: [{ type: "shuffle_into_deck", target: { type: "all", filter: { owner: { type: "self" }, zone: "discard", cardType: ["character"] } } }],
     }],
   },
 
-  // Last Stand: "Banish chosen character who was challenged this turn."
-  // TODO: needs "was_challenged_this_turn" tracking on CardInstance
-  // Approximation: banish any character
-  "last-stand": {
-    actionEffects: [
-      { type: "banish", target: { type: "chosen", filter: { zone: "play", cardType: ["character"] } } },
-      // TODO: should only target characters that were challenged this turn
-    ],
-  },
-
-  // Sleepy's Flute: "If you played a song this turn, gain 1 lore."
-  // TODO: needs "played_song_this_turn" condition
-  // Approximation: always gain 1 lore
-  "sleepys-flute": {
+  // Jafar - Lamp Thief: "look at top 2, put one on top, other on bottom"
+  "jafar-lamp-thief": {
     abilities: [{
-      type: "activated", storyName: "LULLABY",
-      rulesText: "If you played a song this turn, gain 1 lore.",
-      costs: [{ type: "exert" }],
-      // TODO: condition should check played_song_this_turn
-      effects: [{ type: "gain_lore", amount: 1, target: { type: "self" } }],
+      type: "triggered", storyName: "BIG STEP UP",
+      rulesText: "When you play this character, look at the top 2 cards of your deck. Put one on the top of your deck and the other on the bottom.",
+      trigger: { on: "enters_play" },
+      effects: [{ type: "look_at_top", count: 2, action: "reorder", target: { type: "self" } }],
     }],
   },
 
-  // Raya - Leader of Heart: "Whenever challenges a damaged character, takes no damage from the challenge."
-  // TODO: needs damage_immunity during challenge (conditional)
-  // Approximation: gains Resist +99 when challenging (effectively immune)
-  "raya-leader-of-heart": {
+  // Magic Broom - Swift Cleaner: "shuffle all Broom cards from discard into deck"
+  "magic-broom-swift-cleaner": {
     abilities: [{
-      type: "triggered", storyName: "HEART OF A WARRIOR",
-      rulesText: "Whenever this character challenges a damaged character, she takes no damage from the challenge.",
-      trigger: { on: "challenges" },
-      // STUB: no challenge damage immunity. Approximation: no-op
-      effects: [],
+      type: "triggered", storyName: "TIDY UP",
+      rulesText: "When you play this character, you may shuffle all Broom cards from your discard into your deck.",
+      trigger: { on: "enters_play" },
+      effects: [{ type: "shuffle_into_deck", target: { type: "all", filter: { owner: { type: "self" }, zone: "discard", hasName: "Magic Broom" } }, isMay: true }],
     }],
   },
 
-  // Bibbidi Bobbidi Boo: "Return chosen character to hand to play another with same cost or less for free."
-  // Complex sequential with dynamic cost filter. Approximation: just return to hand.
-  "bibbidi-bobbidi-boo": {
-    actionEffects: [{
-      type: "sequential",
-      costEffects: [{ type: "return_to_hand", target: { type: "chosen", filter: { owner: { type: "self" }, zone: "play", cardType: ["character"] } } }],
-      rewardEffects: [{ type: "play_for_free", filter: { cardType: ["character"] } }],
-      // TODO: play_for_free filter should be costAtMost = returned character's cost (dynamic)
-    }],
-  },
-
-  // Pack Tactics: "Gain 1 lore for each damaged character opponents have in play."
-  // TODO: needs count-based gain_lore. Approximation: gain 1 lore.
-  "pack-tactics": {
-    actionEffects: [
-      { type: "gain_lore", amount: 1, target: { type: "self" } },
-      // TODO: amount should be count of damaged opposing characters
-    ],
-  },
-
-  // Dinner Bell: "Draw cards equal to the damage on chosen character, then banish them."
-  // TODO: needs dynamic draw amount from damage. Approximation: draw 2 + banish.
-  "dinner-bell": {
+  // Magic Broom - Dancing Duster: "if you have a Sorcerer, may exert chosen opposing char (can't ready)"
+  "magic-broom-dancing-duster": {
     abilities: [{
-      type: "activated", storyName: "COME AND GET IT!",
-      rulesText: "Draw cards equal to the damage on chosen character of yours, then banish them.",
-      costs: [{ type: "exert" }],
-      effects: [{
-        type: "sequential",
-        costEffects: [],
-        rewardEffects: [
-          { type: "draw", amount: 2, target: { type: "self" } },
-          // TODO: amount should equal chosen character's damage
-          { type: "banish", target: { type: "chosen", filter: { owner: { type: "self" }, zone: "play", cardType: ["character"], hasDamage: true } } },
-        ],
-      }],
+      type: "triggered", storyName: "MUSICAL SWEEPING",
+      rulesText: "When you play this character, if you have a Sorcerer character in play, you may exert chosen opposing character. They can't ready at the start of their next turn.",
+      trigger: { on: "enters_play" },
+      condition: { type: "has_character_with_trait", trait: "Sorcerer", player: { type: "self" }, excludeSelf: true },
+      effects: [{ type: "exert", target: { type: "chosen", filter: { owner: { type: "opponent" }, zone: "play", cardType: ["character"] } }, isMay: true, followUpEffects: [{ type: "cant_action", action: "ready", target: { type: "this" }, duration: "end_of_owner_next_turn" }] }],
     }],
   },
 
-  // Sword in the Stone: "{E}, 2 {I} — Chosen character gets +1 {S} per damage on them."
-  // TODO: needs dynamic stat gain per damage. Approximation: +2 {S}.
-  "sword-in-the-stone": {
-    abilities: [{
-      type: "activated", storyName: "LEGENDARY BLADE",
-      rulesText: "Chosen character gets +1 {S} this turn for each 1 damage on them.",
-      costs: [{ type: "exert" }, { type: "pay_ink", amount: 2 }],
-      effects: [{ type: "gain_stats", strength: 2, target: { type: "chosen", filter: { zone: "play", cardType: ["character"], hasDamage: true } }, duration: "this_turn" }],
-      // TODO: strength bonus should equal target's damage count
-    }],
-  },
+  // ===== IS_BANISHED TRIGGERS =====
 
-  // --- needs-new-type cards: implement what we can, stub the rest ---
-
-  // Mufasa - Betrayed Leader: reveal top, if character play for free exerted
-  // Approximation: look_at_top with filter
-  "mufasa-betrayed-leader": {
+  // Baloo - von Bruinwald XIII: "When banished, gain 2 lore."
+  "baloo-von-bruinwald-xiii": {
     abilities: [{
-      type: "triggered", storyName: "THE SUN WILL SET",
-      rulesText: "When this character is banished, you may reveal the top card of your deck. If it's a character card, you may play that character for free and they enter play exerted. Otherwise, put it on the top of your deck.",
+      type: "triggered", storyName: "GENTLEMAN OF LEISURE",
+      rulesText: "When this character is banished, gain 2 lore.",
       trigger: { on: "is_banished" },
-      effects: [{ type: "look_at_top", count: 1, action: "one_to_hand_rest_bottom", filter: { cardType: ["character"] }, target: { type: "self" }, isMay: true }],
-      // TODO: should play for free + enter exerted, not put into hand
+      effects: [{ type: "gain_lore", amount: 2, target: { type: "self" } }],
     }],
   },
 
-  // Mulan - Reflecting: same pattern but for songs on quest
-  "mulan-reflecting": {
+  // Pua - Potbellied Buddy: "When banished, may shuffle this card into deck."
+  "pua-potbellied-buddy": {
     abilities: [{
-      type: "triggered", storyName: "REFLECTION",
-      rulesText: "Whenever this character quests, you may reveal the top card of your deck. If it's a song card, you may play it for free. Otherwise, put it on the top of your deck.",
+      type: "triggered", storyName: "BACK FOR MORE",
+      rulesText: "When this character is banished, you may shuffle this card into your deck.",
+      trigger: { on: "is_banished" },
+      effects: [{ type: "shuffle_into_deck", target: { type: "this" }, isMay: true }],
+    }],
+  },
+
+  // Rufus - Orphanage Cat: "When banished, may put into inkwell facedown exerted"
+  "rufus-orphanage-cat": {
+    abilities: [{
+      type: "triggered", storyName: "STILL HAS HIS USES",
+      rulesText: "When this character is banished, you may put this card into your inkwell facedown and exerted.",
+      trigger: { on: "is_banished" },
+      effects: [{ type: "move_to_inkwell", target: { type: "this" }, enterExerted: true, isMay: true }],
+    }],
+  },
+
+  // ===== QUEST TRIGGERS =====
+
+  // Queen of Hearts - Wonderland Empress: "Whenever quests, your other Villains get +1 {L} this turn"
+  "queen-of-hearts-wonderland-empress": {
+    abilities: [{
+      type: "triggered", storyName: "OFF WITH THEIR HEADS!",
+      rulesText: "Whenever this character quests, your other Villain characters get +1 {L} this turn.",
       trigger: { on: "quests" },
-      effects: [{ type: "look_at_top", count: 1, action: "one_to_hand_rest_bottom", filter: { cardType: ["action"], hasTrait: "Song" }, target: { type: "self" }, isMay: true }],
-      // TODO: should play for free, not put into hand
+      effects: [{ type: "gain_stats", lore: 1, target: { type: "all", filter: { owner: { type: "self" }, zone: "play", cardType: ["character"], hasTrait: "Villain", excludeSelf: true } }, duration: "this_turn" }],
     }],
   },
 
-  // Zero to Hero: "Count characters in play, pay that much less for next character."
-  // TODO: needs count-based cost_reduction. Approximation: cost_reduction 3 (average).
-  "zero-to-hero": {
-    actionEffects: [
-      { type: "cost_reduction", amount: 3, filter: { cardType: ["character"] } },
-      // TODO: amount should equal count of characters in play
-    ],
+  // Ursula - Sea Witch: "quests → chosen opposing can't ready at start of their next turn"
+  "ursula-sea-witch": {
+    abilities: [{
+      type: "triggered", storyName: "PUT ON A SHOW",
+      rulesText: "Whenever this character quests, chosen opposing character can't ready at the start of their next turn.",
+      trigger: { on: "quests" },
+      effects: [{ type: "cant_action", action: "ready", target: { type: "chosen", filter: { owner: { type: "opponent" }, zone: "play", cardType: ["character"] } }, duration: "end_of_owner_next_turn" }],
+    }],
   },
 
-  // Binding Contract: "{E}, {E} one of your characters — Exert chosen character."
-  // TODO: needs exert_filtered_character cost type
-  // Approximation: just exert + exert chosen (missing the character cost)
-  "binding-contract": {
+  // The Queen - Mirror Seeker: "look at top 3 and reorder"
+  "the-queen-mirror-seeker": {
     abilities: [{
-      type: "activated", storyName: "SIGNED IN BLOOD",
+      type: "triggered", storyName: "DIVINATION",
+      rulesText: "Whenever this character quests, you may look at the top 3 cards of your deck and put them back in any order.",
+      trigger: { on: "quests" },
+      effects: [{ type: "look_at_top", count: 3, action: "reorder", target: { type: "self" }, isMay: true }],
+    }],
+  },
+
+  // Audrey Ramirez: "quests → ready one of your items"
+  "audrey-ramirez-the-engineer": {
+    abilities: [{
+      type: "triggered", storyName: "TINKER",
+      rulesText: "Whenever this character quests, ready one of your items.",
+      trigger: { on: "quests" },
+      effects: [{ type: "ready", target: { type: "chosen", filter: { owner: { type: "self" }, zone: "play", cardType: ["item"] } } }],
+    }],
+  },
+
+  // Scrooge McDuck - Uncle Moneybags: "quests → pay 1 less for next item"
+  "scrooge-mcduck-uncle-moneybags": {
+    abilities: [{
+      type: "triggered", storyName: "I OWN THE PLACE",
+      rulesText: "Whenever this character quests, you pay 1 {I} less for the next item you play this turn.",
+      trigger: { on: "quests" },
+      effects: [{ type: "cost_reduction", amount: 1, filter: { cardType: ["item"] } }],
+    }],
+  },
+
+  // Hydros - Ice Titan: enters_play exert chosen
+  "hydros-ice-titan": {
+    abilities: [{
+      type: "triggered", storyName: "FREEZE",
       rulesText: "Exert chosen character.",
-      costs: [{ type: "exert" }],
-      // TODO: should also cost "exert one of your characters"
+      trigger: { on: "enters_play" },
       effects: [{ type: "exert", target: { type: "chosen", filter: { zone: "play", cardType: ["character"] } } }],
     }],
   },
 
-  // The Queen - Disguised Peddler: "{E}, discard character card — Gain lore equal to {L}"
-  // TODO: needs dynamic lore from discarded card's {L}. Approximation: gain 2 lore.
-  "the-queen-disguised-peddler": {
+  // Lythos - Rock Titan: enters_play grant Resist +2 this turn
+  "lythos-rock-titan": {
     abilities: [{
-      type: "activated", storyName: "POISONED APPLE",
-      rulesText: "Gain lore equal to the discarded character's {L}.",
-      costs: [{ type: "exert" }, { type: "discard", filter: { cardType: ["character"] }, amount: 1 }],
-      effects: [{ type: "gain_lore", amount: 2, target: { type: "self" } }],
-      // TODO: amount should equal the discarded character's lore value
+      type: "triggered", storyName: "ROCK SHIELD",
+      rulesText: "Chosen character gains Resist +2 this turn.",
+      trigger: { on: "enters_play" },
+      effects: [{ type: "grant_keyword", keyword: "resist", value: 2, target: { type: "chosen", filter: { zone: "play", cardType: ["character"] } }, duration: "end_of_turn" }],
     }],
   },
 
-  // Cinderella - Stouthearted: "Whenever you play a song, may challenge ready this turn."
-  // TODO: needs song_played trigger + timed canChallengeReady
-  "cinderella-stouthearted": {
+  // Hades - Hotheaded Ruler: enters_play ready your Titan characters
+  "hades-hotheaded-ruler": {
     abilities: [{
-      type: "static", storyName: "BRAVE HEART",
-      rulesText: "Whenever you play a song, this character may challenge ready characters this turn.",
-      // STUB: needs song_played trigger + timed canChallengeReady
-      effect: { type: "modify_stat", stat: "willpower", modifier: 0, target: { type: "this" } },
+      type: "triggered", storyName: "ARISE, MY WARRIORS",
+      rulesText: "Ready your Titan characters.",
+      trigger: { on: "enters_play" },
+      effects: [{ type: "ready", target: { type: "all", filter: { owner: { type: "self" }, zone: "play", cardType: ["character"], hasTrait: "Titan" } } }],
     }],
   },
 
-  // Tiana - Celebrating Princess: "While exerted and no cards in hand, opponents can't play actions."
-  // TODO: needs compound_and condition (this_is_exerted + cards_in_hand_eq 0)
-  // Approximation: use this_is_exerted only
-  "tiana-celebrating-princess": {
+  // ===== ACTIVATED ABILITIES =====
+
+  // Cleansing Rainwater: "Banish — Remove up to 2 damage from each of your characters"
+  "cleansing-rainwater": {
     abilities: [{
-      type: "static", storyName: "CELEBRATION",
-      rulesText: "While this character is exerted and you have no cards in your hand, opponents can't play actions.",
-      effect: { type: "action_restriction", restricts: "play", affectedPlayer: { type: "opponent" } },
-      condition: { type: "this_is_exerted" },
-      // TODO: should also require cards_in_hand_eq 0 (compound_and condition)
+      type: "activated", storyName: "ANCIENT POWER",
+      rulesText: "Remove up to 2 damage from each of your characters.",
+      costs: [{ type: "banish_self" }],
+      effects: [{ type: "remove_damage", amount: 2, target: { type: "all", filter: { owner: { type: "self" }, zone: "play", cardType: ["character"], hasDamage: true } }, isUpTo: true }],
     }],
   },
 
-  // Strength of a Raging Fire: "Deal damage equal to number of characters you have in play."
-  // TODO: needs dynamic damage amount. Approximation: deal 3 damage.
-  "strength-of-a-raging-fire": {
+  // Wildcat's Wrench: "Remove up to 2 damage from chosen location"
+  "wildcats-wrench": {
+    abilities: [{
+      type: "activated", storyName: "GREASE MONKEY",
+      rulesText: "Remove up to 2 damage from chosen location.",
+      costs: [{ type: "exert" }],
+      effects: [{ type: "remove_damage", amount: 2, target: { type: "chosen", filter: { zone: "play", cardType: ["location"] } }, isUpTo: true }],
+    }],
+  },
+
+  // Gizmosuit: "Banish — Resist +2 chosen until next turn"
+  "gizmosuit": {
+    abilities: [{
+      type: "activated", storyName: "CYBERNETIC ARMOR",
+      rulesText: "Chosen character gains Resist +2 until the start of your next turn.",
+      costs: [{ type: "banish_self" }],
+      effects: [{ type: "grant_keyword", keyword: "resist", value: 2, target: { type: "chosen", filter: { zone: "play", cardType: ["character"] } }, duration: "end_of_owner_next_turn" }],
+    }],
+  },
+
+  // Gyro Gearloose: enters_play put item from discard on top of deck
+  // TODO: not exactly a top-of-deck effect we have, use shuffle as approximation
+  "gyro-gearloose-gadget-whiz": {
+    abilities: [{
+      type: "triggered", storyName: "INVENTOR",
+      rulesText: "Put an item card from your discard on the top of your deck.",
+      trigger: { on: "enters_play" },
+      effects: [{ type: "shuffle_into_deck", target: { type: "chosen", filter: { owner: { type: "self" }, zone: "discard", cardType: ["item"] } } }],
+    }],
+  },
+
+  // ===== ACTIONS =====
+
+  // Boss's Orders: chosen character gains Support this turn
+  "bosss-orders": {
+    actionEffects: [{ type: "grant_keyword", keyword: "support", target: { type: "chosen", filter: { zone: "play", cardType: ["character"] } }, duration: "end_of_turn" }],
+  },
+
+  // Heal What Has Been Hurt: remove up to 3 damage + draw a card
+  "heal-what-has-been-hurt": {
     actionEffects: [
-      { type: "deal_damage", amount: 3, target: { type: "chosen", filter: { zone: "play", cardType: ["character"] } } },
-      // TODO: amount should equal count of own characters in play
+      { type: "remove_damage", amount: 3, target: { type: "chosen", filter: { zone: "play", hasDamage: true } }, isUpTo: true },
+      { type: "draw", amount: 1, target: { type: "self" } },
     ],
+  },
+
+  // Quick Patch: remove up to 3 damage from chosen location
+  "quick-patch": {
+    actionEffects: [
+      { type: "remove_damage", amount: 3, target: { type: "chosen", filter: { zone: "play", cardType: ["location"] } }, isUpTo: true },
+    ],
+  },
+
+  // Distract: -2 STR + draw a card
+  "distract": {
+    actionEffects: [
+      { type: "gain_stats", strength: -2, target: { type: "chosen", filter: { zone: "play", cardType: ["character"] } }, duration: "this_turn" },
+      { type: "draw", amount: 1, target: { type: "self" } },
+    ],
+  },
+
+  // Repair: remove up to 3 damage from one of your locations or characters
+  "repair": {
+    actionEffects: [
+      { type: "remove_damage", amount: 3, target: { type: "chosen", filter: { owner: { type: "self" }, zone: "play", hasDamage: true } }, isUpTo: true },
+    ],
+  },
+
+  // Last-Ditch Effort: exert opposing + Challenger +2 this turn
+  "last-ditch-effort": {
+    actionEffects: [
+      { type: "exert", target: { type: "chosen", filter: { owner: { type: "opponent" }, zone: "play", cardType: ["character"] } } },
+      { type: "grant_keyword", keyword: "challenger", value: 2, target: { type: "chosen", filter: { zone: "play", cardType: ["character"] } }, duration: "end_of_turn" },
+    ],
+  },
+
+  // The Boss is on a Roll: look at top 5 reorder + gain 1 lore
+  "the-boss-is-on-a-roll": {
+    actionEffects: [
+      { type: "look_at_top", count: 5, action: "reorder", target: { type: "self" } },
+      { type: "gain_lore", amount: 1, target: { type: "self" } },
+    ],
+  },
+
+  // It Calls Me: draw + shuffle up to 3 from opponent's discard into deck
+  // TODO: shuffle from opponent's discard to opponent's deck not directly supported. Just draw.
+  "it-calls-me": {
+    actionEffects: [
+      { type: "draw", amount: 1, target: { type: "self" } },
+      // Approximation: skip the shuffle-from-opponent-discard portion
+    ],
+  },
+
+  // How Far I'll Go: look top 2, one to hand + one to inkwell facedown exerted
+  // TODO: split-target look_at_top isn't standard. Approximation: just put one in hand.
+  "how-far-ill-go": {
+    actionEffects: [
+      { type: "look_at_top", count: 2, action: "one_to_hand_rest_bottom", target: { type: "self" } },
+    ],
+  },
+
+  // 99 Puppies: floating trigger — quests this turn → gain 1 lore
+  "99-puppies": {
+    actionEffects: [
+      { type: "create_floating_trigger",
+        trigger: { on: "quests", filter: { owner: { type: "self" } } },
+        effects: [{ type: "gain_lore", amount: 1, target: { type: "self" } }],
+      },
+    ],
+  },
+
+  // Ba-Boom!: deal 2 to character or location
+  "ba-boom": {
+    actionEffects: [
+      { type: "deal_damage", amount: 2, target: { type: "chosen", filter: { zone: "play", cardType: ["character", "location"] } } },
+    ],
+  },
+
+  // And Then Along Came Zeus: deal 5 to character or location
+  "and-then-along-came-zeus": {
+    actionEffects: [
+      { type: "deal_damage", amount: 5, target: { type: "chosen", filter: { zone: "play", cardType: ["character", "location"] } } },
+    ],
+  },
+
+  // Rise of the Titans: banish chosen location or item
+  "rise-of-the-titans": {
+    actionEffects: [
+      { type: "banish", target: { type: "chosen", filter: { zone: "play", cardType: ["location", "item"] } } },
+    ],
+  },
+
+  // Olympus Would Be That Way: floating trigger — your characters get +3 STR while challenging a location
+  // TODO: "while challenging a location" is challenge-specific damage modifier, not a flat +STR. Skip.
+
+  // ===== MISC TRIGGERS =====
+
+  // Diablo - Faithful Pet: card_played(Maleficent) → look at top
+  "diablo-faithful-pet": {
+    abilities: [{
+      type: "triggered", storyName: "MISTRESS' SPY",
+      rulesText: "Whenever you play a character named Maleficent, you may look at the top card of your deck. Put it on either the top or the bottom of your deck.",
+      trigger: { on: "card_played", filter: { cardType: ["character"], hasName: "Maleficent" } },
+      effects: [{ type: "look_at_top", count: 1, action: "top_or_bottom", target: { type: "self" }, isMay: true }],
+    }],
+  },
+
+  // Minnie Mouse - Musical Artist: "Whenever you play a character with Bodyguard, may remove up to 2 damage from chosen character."
+  "minnie-mouse-musical-artist": {
+    abilities: [{
+      type: "triggered", storyName: "MUSICAL DEBUT",
+      rulesText: "Whenever you play a character with Bodyguard, you may remove up to 2 damage from chosen character.",
+      trigger: { on: "card_played", filter: { cardType: ["character"], hasKeyword: "bodyguard" } },
+      effects: [{ type: "remove_damage", amount: 2, target: { type: "chosen", filter: { zone: "play", hasDamage: true } }, isUpTo: true, isMay: true }],
+    }],
+  },
+
+  // Aurelian Gyrosensor: "Whenever one of your characters quests, may look at top card top/bottom"
+  "aurelian-gyrosensor": {
+    abilities: [{
+      type: "triggered", storyName: "FUTURE SIGHT",
+      rulesText: "Whenever one of your characters quests, you may look at the top card of your deck. Put it on either the top or the bottom of your deck.",
+      trigger: { on: "quests", filter: { owner: { type: "self" } } },
+      effects: [{ type: "look_at_top", count: 1, action: "top_or_bottom", target: { type: "self" }, isMay: true }],
+    }],
+  },
+
+  // Heart of Te Fiti: enters_play → put top of deck into inkwell exerted
+  "heart-of-te-fiti": {
+    abilities: [{
+      type: "triggered", storyName: "GIFT OF LIFE",
+      rulesText: "Put the top card of your deck into your inkwell facedown and exerted.",
+      trigger: { on: "enters_play" },
+      effects: [{ type: "move_to_inkwell", target: { type: "this" }, enterExerted: true, fromZone: "deck" }],
+    }],
+  },
+
+  // Tinker Bell - Very Clever Fairy: when item banished, may put into inkwell
+  "tinker-bell-very-clever-fairy": {
+    abilities: [{
+      type: "triggered", storyName: "TINKER",
+      rulesText: "Whenever one of your items is banished, you may put that card into your inkwell facedown and exerted.",
+      trigger: { on: "is_banished", filter: { owner: { type: "self" }, cardType: ["item"] } },
+      effects: [{ type: "move_to_inkwell", target: { type: "triggering_card" }, enterExerted: true, isMay: true }],
+    }],
+  },
+
+  // Sumerian Talisman: "During your turn, when one of your characters is banished in challenge, may draw"
+  "sumerian-talisman": {
+    abilities: [{
+      type: "triggered", storyName: "ANCIENT WISDOM",
+      rulesText: "During your turn, whenever one of your characters is banished in a challenge, you may draw a card.",
+      trigger: { on: "banished_in_challenge", filter: { owner: { type: "self" } } },
+      condition: { type: "is_your_turn" },
+      effects: [{ type: "draw", amount: 1, target: { type: "self" }, isMay: true }],
+    }],
+  },
+
+  // ===== BANISHED_OTHER_IN_CHALLENGE =====
+
+  // Pyros - Lava Titan: "during your turn, when banishes another, may ready chosen"
+  "pyros-lava-titan": {
+    abilities: [{
+      type: "triggered", storyName: "ERUPTION",
+      rulesText: "During your turn, whenever this character banishes another character in a challenge, you may ready chosen character.",
+      trigger: { on: "banished_other_in_challenge" },
+      condition: { type: "is_your_turn" },
+      effects: [{ type: "ready", target: { type: "chosen", filter: { zone: "play", cardType: ["character"] } }, isMay: true }],
+    }],
+  },
+
+  // Robin Hood - Champion of Sherwood: "during your turn, banishes another → gain 2 lore" + "banished_in_challenge → may draw"
+  "robin-hood-champion-of-sherwood": {
+    abilities: [
+      { type: "triggered", storyName: "WHO'S NEXT?",
+        rulesText: "During your turn, whenever this character banishes another character in a challenge, gain 2 lore.",
+        trigger: { on: "banished_other_in_challenge" },
+        condition: { type: "is_your_turn" },
+        effects: [{ type: "gain_lore", amount: 2, target: { type: "self" } }],
+      },
+      { type: "triggered",
+        rulesText: "When this character is banished in a challenge, you may draw a card.",
+        trigger: { on: "banished_in_challenge" },
+        effects: [{ type: "draw", amount: 1, target: { type: "self" }, isMay: true }],
+      },
+    ],
+  },
+
+  // Captain Hook - Master Swordsman: "during turn, banishes another → ready, can't quest" + "characters named Peter Pan lose Evasive"
+  // TODO: removing Evasive from opposing characters is complex. Implement just the ready part.
+  "captain-hook-master-swordsman": {
+    abilities: [{
+      type: "triggered", storyName: "EN GARDE",
+      rulesText: "During your turn, whenever this character banishes another character in a challenge, ready this character. He can't quest for the rest of this turn.",
+      trigger: { on: "banished_other_in_challenge" },
+      condition: { type: "is_your_turn" },
+      effects: [{ type: "ready", target: { type: "this" }, followUpEffects: [{ type: "cant_action", action: "quest", target: { type: "this" }, duration: "rest_of_turn" }] }],
+    }],
+  },
+
+  // ===== STATIC GRANT KEYWORD TO FILTERED =====
+
+  // Captain Hook's Rapier: "Your characters named Captain Hook gain Challenger +1"
+  // Plus: "during your turn, when one of your characters banishes another in challenge, may pay 1 ink to draw"
+  "captain-hooks-rapier": {
+    abilities: [
+      { type: "static", storyName: "DUELING WEAPON",
+        rulesText: "Your characters named Captain Hook gain Challenger +1.",
+        effect: { type: "grant_keyword", keyword: "challenger", value: 1, target: { type: "all", filter: { owner: { type: "self" }, zone: "play", cardType: ["character"], hasName: "Captain Hook" } } },
+      },
+      { type: "triggered",
+        rulesText: "During your turn, whenever one of your characters banishes another character in a challenge, you may pay 1 {I} to draw a card.",
+        trigger: { on: "banished_other_in_challenge", filter: { owner: { type: "self" } } },
+        condition: { type: "is_your_turn" },
+        effects: [{ type: "sequential", isMay: true,
+          costEffects: [{ type: "pay_ink", amount: 1 }],
+          rewardEffects: [{ type: "draw", amount: 1, target: { type: "self" } }],
+        }],
+      },
+    ],
+  },
+
+  // ===== MORE TRIGGERS =====
+
+  // Genie - Supportive Friend: "quests → may shuffle this card into deck to draw 3"
+  "genie-supportive-friend": {
+    abilities: [{
+      type: "triggered", storyName: "PHENOMENAL COSMIC POWER",
+      rulesText: "Whenever this character quests, you may shuffle this card into your deck to draw 3 cards.",
+      trigger: { on: "quests" },
+      effects: [{ type: "sequential", isMay: true,
+        costEffects: [{ type: "shuffle_into_deck", target: { type: "this" } }],
+        rewardEffects: [{ type: "draw", amount: 3, target: { type: "self" } }],
+      }],
+    }],
+  },
+
+  // Chernabog's Followers - Creatures of Evil: "quests → may banish them to draw a card"
+  "chernabogs-followers-creatures-of-evil": {
+    abilities: [{
+      type: "triggered", storyName: "DARK SACRIFICE",
+      rulesText: "Whenever this character quests, you may banish them to draw a card.",
+      trigger: { on: "quests" },
+      effects: [{ type: "sequential", isMay: true,
+        costEffects: [{ type: "banish", target: { type: "this" } }],
+        rewardEffects: [{ type: "draw", amount: 1, target: { type: "self" } }],
+      }],
+    }],
+  },
+
+  // Perdita - Devoted Mother: "When you play and whenever quests, may play character cost 2 or less from discard for free"
+  "perdita-devoted-mother": {
+    abilities: [
+      { type: "triggered", storyName: "PROTECT MY FAMILY",
+        rulesText: "When you play this character and whenever she quests, you may play a character with cost 2 or less from your discard for free.",
+        trigger: { on: "enters_play" },
+        // TODO: play_for_free with fromZone: discard. Approximation: search discard.
+        effects: [{ type: "search", filter: { cardType: ["character"], costAtMost: 2 }, target: { type: "self" }, zone: "discard", putInto: "hand" }],
+      },
+      { type: "triggered",
+        trigger: { on: "quests" },
+        effects: [{ type: "search", filter: { cardType: ["character"], costAtMost: 2 }, target: { type: "self" }, zone: "discard", putInto: "hand" }],
+      },
+    ],
+  },
+
+  // ===== Additional SET 3 cards =====
+
+  // Mickey Mouse - Trumpeter: enters_play "Play a character for free"
+  // TODO: play_for_free for any character — works
+  "mickey-mouse-trumpeter": {
+    abilities: [{
+      type: "triggered", storyName: "TRUMPET CALL",
+      rulesText: "Play a character for free.",
+      trigger: { on: "enters_play" },
+      effects: [{ type: "play_for_free", filter: { cardType: ["character"] } }],
+    }],
+  },
+
+  // Sheriff of Nottingham - Corrupt Official: "Whenever you discard, may deal 1 damage to chosen opposing"
+  "sheriff-of-nottingham-corrupt-official": {
+    abilities: [{
+      type: "triggered", storyName: "TAX COLLECTOR",
+      rulesText: "Whenever you discard a card, you may deal 1 damage to chosen opposing character.",
+      trigger: { on: "cards_discarded", player: { type: "self" } },
+      effects: [{ type: "deal_damage", amount: 1, target: { type: "chosen", filter: { owner: { type: "opponent" }, zone: "play", cardType: ["character"] } }, isMay: true }],
+    }],
+  },
+
+  // Gramma Tala - Spirit of the Ocean: "Whenever a card is put into your inkwell, gain 1 lore"
+  // TODO: needs ink_played trigger that also fires for effect-based inkwell additions
+  // Approximation: triggers on ink_played only
+  "gramma-tala-spirit-of-the-ocean": {
+    abilities: [{
+      type: "triggered", storyName: "ONE WITH THE OCEAN",
+      rulesText: "Whenever a card is put into your inkwell, gain 1 lore.",
+      trigger: { on: "ink_played", player: { type: "self" } },
+      effects: [{ type: "gain_lore", amount: 1, target: { type: "self" } }],
+    }],
+  },
+
+  // Huey - Savvy Nephew: "quests → if Dewey + Louie in play, draw 3"
+  "huey-savvy-nephew": {
+    abilities: [{
+      type: "triggered", storyName: "MY DUCKTALES",
+      rulesText: "Whenever this character quests, if you have characters named Dewey and Louie in play, you may draw 3 cards.",
+      trigger: { on: "quests" },
+      condition: { type: "compound_and", conditions: [
+        { type: "has_character_named", name: "Dewey", player: { type: "self" } },
+        { type: "has_character_named", name: "Louie", player: { type: "self" } },
+      ]},
+      effects: [{ type: "draw", amount: 3, target: { type: "self" }, isMay: true }],
+    }],
+  },
+
+  // Bernard - Brand-New Agent: "At end of turn, if exerted, may ready another"
+  // TODO: condition this_is_exerted
+  "bernard-brand-new-agent": {
+    abilities: [{
+      type: "triggered", storyName: "I'LL CHECK IT OUT",
+      rulesText: "At the end of your turn, if this character is exerted, you may ready another chosen character of yours.",
+      trigger: { on: "turn_end", player: { type: "self" } },
+      condition: { type: "this_is_exerted" },
+      effects: [{ type: "ready", target: { type: "chosen", filter: { owner: { type: "self" }, zone: "play", cardType: ["character"], excludeSelf: true } }, isMay: true }],
+    }],
+  },
+
+  // Pluto - Determined Defender: "At start of your turn, remove up to 3 damage from this"
+  "pluto-determined-defender": {
+    abilities: [{
+      type: "triggered", storyName: "GUARD DOG",
+      rulesText: "At the start of your turn, remove up to 3 damage from this character.",
+      trigger: { on: "turn_start", player: { type: "self" } },
+      effects: [{ type: "remove_damage", amount: 3, target: { type: "this" }, isUpTo: true }],
+    }],
+  },
+
+  // Mr. Smee - Bumbling Mate: "At end of turn, if exerted and no Captain, deal 1 to this"
+  "mr-smee-bumbling-mate": {
+    abilities: [{
+      type: "triggered", storyName: "OH DEAR, DEAR, DEAR",
+      rulesText: "At the end of your turn, if this character is exerted and you don't have a Captain character in play, deal 1 damage to this character.",
+      trigger: { on: "turn_end", player: { type: "self" } },
+      condition: { type: "compound_and", conditions: [
+        { type: "this_is_exerted" },
+        { type: "not", condition: { type: "has_character_with_trait", trait: "Captain", player: { type: "self" } } },
+      ]},
+      effects: [{ type: "deal_damage", amount: 1, target: { type: "this" } }],
+    }],
   },
 });
