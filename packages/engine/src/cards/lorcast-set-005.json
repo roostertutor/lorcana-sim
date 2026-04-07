@@ -5440,7 +5440,17 @@
     "cost": 1,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "KNOWLEDGE IS POWER",
+        "rulesText": "Each player plays with the top card of their deck face up.",
+        "effect": {
+          "type": "top_of_deck_visible",
+          "affectedPlayer": { "type": "both" }
+        }
+      }
+    ],
     "setId": "5",
     "number": 170,
     "rarity": "uncommon",

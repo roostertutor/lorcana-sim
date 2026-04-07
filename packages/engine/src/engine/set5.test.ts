@@ -5,6 +5,7 @@
 import { describe, it, expect } from "vitest";
 import { applyAction, applyEffect } from "./reducer.js";
 import { evaluateCondition } from "../utils/index.js";
+import { getGameModifiers } from "./gameModifiers.js";
 import {
   LORCAST_CARD_DEFINITIONS,
   startGame,
@@ -104,6 +105,15 @@ describe("§5 Set 5 — reveal_top_conditional", () => {
     // Both players had a character damaged this turn (challenge is mutual)
     expect(state.players.player1.aCharacterWasDamagedThisTurn).toBe(true);
     expect(state.players.player2.aCharacterWasDamagedThisTurn).toBe(true);
+  });
+
+  it("Merlin's Cottage KNOWLEDGE IS POWER: both players' top-of-deck visibility flag set", () => {
+    let state = startGame();
+    ({ state } = injectCard(state, "player1", "merlins-cottage-the-wizards-home", "play", { isDrying: false }));
+
+    const mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    expect(mods.topOfDeckVisible.has("player1")).toBe(true);
+    expect(mods.topOfDeckVisible.has("player2")).toBe(true);
   });
 
   it("Queen's Sensor Core: pays cost (exert + 2 ink)", () => {

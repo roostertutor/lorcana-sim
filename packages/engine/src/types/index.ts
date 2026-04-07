@@ -592,7 +592,22 @@ export type StaticEffect =
   | ClassificationShiftSelfStatic
   | PlayableFromZoneSelfStatic
   | ModifyWinThresholdStatic
-  | SkipDrawStepSelfStatic;
+  | SkipDrawStepSelfStatic
+  | TopOfDeckVisibleStatic;
+
+/**
+ * Merlin's Cottage - The Wizard's Home (Set 5): "KNOWLEDGE IS POWER Each
+ * player plays with the top card of their deck face up." Pure visibility
+ * modifier — no gameplay-state change in the engine (the engine is already
+ * all-knowing). The UI consults gameModifiers.topOfDeckVisible to render the
+ * affected players' deck-top card face-up.
+ */
+export interface TopOfDeckVisibleStatic {
+  type: "top_of_deck_visible";
+  /** Whose top card is exposed. Use "both" for Merlin's Cottage; "self" or
+   *  "opponent" for future asymmetric variants. */
+  affectedPlayer: PlayerTarget;
+}
 
 /**
  * Arthur - Determined Squire (Set 8): "NO MORE BOOKS Skip your turn's Draw step."

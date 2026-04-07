@@ -78,6 +78,14 @@ cards when later mechanics land.
 **Phase B status:** ~14 cards wired (Set 4 batch 1 — pre-strategy-clarification).
 Will resume after Phase A is complete.
 
+### TODO — GUI work for engine modifiers that are visibility-only
+- **Merlin's Cottage** (Set 5, KNOWLEDGE IS POWER): engine sets
+  `gameModifiers.topOfDeckVisible: Set<PlayerID>`. UI deck-tile component
+  should consult this and render the affected players' top-of-deck card
+  face-up instead of as a card back. The engine is already all-knowing so
+  no engine-side info-hiding work is needed; this is purely a UI render
+  conditional. Probably 5-10 lines in the deck tile component.
+
 **unknown: 0** — all stubs categorized.
 
 ---

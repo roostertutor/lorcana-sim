@@ -110,6 +110,13 @@ export interface GameModifiers {
    * Players who skip their turn's draw step (Arthur Determined Squire Set 8).
    */
   skipsDrawStep: Set<import("../types/index.js").PlayerID>;
+
+  /**
+   * Players whose deck-top card is visible to all players (Merlin's Cottage Set 5).
+   * Pure information-visibility modifier — engine state doesn't change.
+   * The UI consults this to render the deck top face-up.
+   */
+  topOfDeckVisible: Set<import("../types/index.js").PlayerID>;
 }
 
 /**
@@ -139,6 +146,7 @@ export function getGameModifiers(
     playableFromZones: new Map(),
     loreThresholds: new Map(),
     skipsDrawStep: new Set(),
+    topOfDeckVisible: new Set(),
   };
 
   for (const instance of Object.values(state.cards)) {
@@ -309,6 +317,20 @@ export function getGameModifiers(
         case "skip_draw_step_self": {
           // Arthur Determined Squire (Set 8): owner skips their draw step.
           modifiers.skipsDrawStep.add(instance.ownerId);
+          break;
+        }
+
+        case "top_of_deck_visible": {
+          // Merlin's Cottage (Set 5): each player plays with the top card of
+          // their deck face up. Pure visibility flag — UI consults the modifier.
+          if (effect.affectedPlayer.type === "both") {
+            modifiers.topOfDeckVisible.add("player1");
+            modifiers.topOfDeckVisible.add("player2");
+          } else if (effect.affectedPlayer.type === "self") {
+            modifiers.topOfDeckVisible.add(instance.ownerId);
+          } else if (effect.affectedPlayer.type === "opponent") {
+            modifiers.topOfDeckVisible.add(instance.ownerId === "player1" ? "player2" : "player1");
+          }
           break;
         }
 
