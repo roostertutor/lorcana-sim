@@ -86,6 +86,28 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   [/\bmust choose this character for actions and abilities\b/i, "super-bodyguard"],
   // Conditional lore lock — "can't gain lore unless"
   [/\bcan'?t gain lore unless\b/i, "conditional-lore-lock"],
+  // Phase B — gaps surfaced by Set 4 wiring (regex used to false-positive into fits-grammar):
+  // "For each opponent who doesn't" — per-opponent inverse-sequential branch
+  [/\bfor each opponent who (doesn'?t|does not)\b/i, "for-each-opponent-who-didnt"],
+  [/\beach opponent (may )?(choose and )?discards? .{0,40}\.\s*for each opponent\b/i, "for-each-opponent-who-didnt"],
+  // "Chosen character gains "<quoted floating triggered ability>" this turn"
+  // create_floating_trigger applies to source, not chosen target (Bruno Madrigal).
+  [/\bchosen .{0,30}gains? "[^"]+"\s*this turn\b/i, "grant-floating-trigger-to-target"],
+  [/\bcharacter gains? \u201C[^\u201D]+\u201D this turn\b/i, "grant-floating-trigger-to-target"],
+  // "Whenever they challenge another character this turn" — floating trigger attached to chosen target
+  [/\bwhenever they challenge\b/i, "grant-floating-trigger-to-target"],
+  // "if no other character has quested this turn" — historical event-count condition
+  [/\bif no other character has quested this turn\b/i, "no-other-quested-condition"],
+  // "your other characters can't quest for the rest of this turn"
+  [/\byour other characters can'?t (quest|challenge)\b/i, "group-cant-action-this-turn"],
+  // "Play a character with the same name as the banished character" — dynamic same-name play_for_free
+  [/\bplay a .{0,30}with the same name as\b/i, "play-same-name-as-banished"],
+  // "Move him and one of your other characters to the same location" — multi-character move
+  [/\bmove .{0,20}and one of your other .{0,30}to the same location\b/i, "multi-character-move"],
+  // "Whenever one of your characters is chosen for Support" — chosen_for_support trigger event
+  [/\bis chosen for support\b/i, "chosen-for-support-trigger"],
+  // "you may pay N {I} to <effect>" — pay-extra-cost mid-effect (Ariel Sonic Warrior)
+  [/\bmay pay \d+ \{I\} to\b/i, "pay-extra-cost-mid-effect"],
 ];
 
 const NEW_TYPE_PATTERNS: [RegExp, string][] = [
@@ -230,154 +252,140 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
 ];
 
 // Patterns that strongly suggest the card fits existing grammar.
-// Each is associated with one or more Effect/Ability types we already have.
-const FITS_GRAMMAR_PATTERNS: RegExp[] = [
-  // Locations: "while here" and "at a location" — atLocation filter + this_at_location condition
-  /\bwhile here\b/i,
-  /\bwhile .{0,20}is at a location\b/i,
-  /\bat the start of your turn,? for each character .{0,20}here\b/i,
-  /\bwhenever .{0,30}moves to a location\b/i,
-  // Draw
-  /\bdraws? (a|\d+) cards?\b/i,
-  /\bdraws? a card\b/i,
-  // Deal damage (fixed numeric amount)
-  /\bdeal \d+ damage\b/i,
-  /\bdeals? \d+ damage\b/i,
-  /\bput \d+ damage (counter|on)\b/i,
-  // Remove damage (fixed, "up to N", or "all")
-  /\bremove .{0,15}damage\b/i,
-  // Return to hand (all variants: chosen, all, opposing, etc.)
-  /\breturn .{0,60}to .{0,25}(their|your|a player'?s?) hand\b/i,
-  /\breturn .{0,30}(character|item|card).{0,30}to .{0,20}hand\b/i,
-  // Lore — gain/lose fixed amounts
-  /\bgain \d+ lore\b/i,
-  /\bgains? \d+ lore\b/i,
-  /\blose[s]? \d+ lore\b/i,
-  // Stat changes with {S}/{W}/{L} symbols or words
-  /\bgets? [+-]\d+ \{[SWL]\}/i,
-  /\bgives? .{0,30}[+-]\d+ \{[SWL]\}/i,
-  /\bgets? [+-]\d+ (strength|willpower|lore)\b/i,
-  /\b[+-]\d+\/[+-]?\d+\b/i,
-  // Stat changes — "gets +3 this turn" (missing {S}/{W}/{L} in some card text)
-  /\bgets? \+\d+ this turn\b/i,
-  /\bgets? -\d+ this turn\b/i,
-  /\bgets? -\d+ until\b/i,
-  // Banish / ready / exert
-  /\bbanish\b/i,
-  /\bready\b/i,
-  /\bexert\b/i,
-  // Search
-  /\bsearch (your|their|a|chosen) (player'?s? )?deck\b/i,
-  // Look at top of deck
-  /\blook at the top \d+/i,
-  /\blook at the top (card|of)\b/i,
-  /\blook at .{0,20}top card\b/i,
-  // Discard from hand (all patterns)
-  /\bdiscard (a|one|chosen|\d+)/i,
-  /\bchoose and discard\b/i,
-  /\bchooses? and discards?\b/i,
-  /\bdiscard your hand\b/i,
-  // Shuffle
-  /\bshuffle\b/i,
-  // Cost reduction (fixed — handles {I} symbol in rules text)
-  /\bpay .{0,10}less\b/i,
-  /\bcosts? .{0,10}less\b/i,
-  // Grant keywords (existing Keyword type)
-  /\b(gains?|have|get|give) .{0,20}(evasive|rush|bodyguard|ward|reckless|resist|challenger|support|singer|shift)\b/i,
-  // Can't quest / can't challenge (attacker restriction)
-  /\bcan'?t quest\b/i,
-  /\bcan'?t challenge\b/i,
-  /\bcan'?t ready\b/i,
-  // Can't be challenged (permanent static — CantBeChallengedException)
-  /\bthis character can'?t be challenged\b/i,
-  // Move to inkwell
-  /\binto .{0,30}inkwell\b/i,
-  // Play for free
-  /\bplay .{0,50}for free\b/i,
-  /\bwithout paying .{0,20}(ink )?cost\b/i,
-  // Create token
-  /\bcreate .{0,30}token\b/i,
-  // Self enters play exerted (modeled as triggered enters_play + exert self)
-  /\benter[s]? play exerted\b/i,
-  // Singer keyword reminder text — not a real effect, keyword handles it
-  /^\(?A character with cost \d+ or more can/i,
-  // Put top card on top or bottom of deck (LookAtTopEffect)
-  /\bput it on (either the )?(top|bottom)/i,
-  // Self cost reduction with named-character condition
-  /if you have a character named .{0,40}(pay|less)\b/i,
-  // Triggered at start/end of turn (TriggerEvent exists)
-  /\bat the (start|end) of (your|each opponent'?s?) turn\b/i,
-  // Stat static while exerted
-  /\bgets? \+\d+ \{[SWL]\}/i,
-  // "enters play with N damage" — triggered enters_play + deal_damage self
-  /\benter[s]? play with \d+ damage\b/i,
-  // "discard all cards in their hand" — DiscardEffect amount: "all"
-  /\bdiscards? all (the )?cards? in (their|your|a) hand\b/i,
-  /\bdiscard all\b/i,
-  // "put [card/item] from your discard on the top of your deck" — ShuffleIntoDeckEffect variation
-  /\bfrom .{0,20}discard on the top of .{0,20}deck\b/i,
-  // "deal damage to each opposing character" — deal_damage all
-  /\bdeal \d+ damage to each (opposing|opponent'?s?)\b/i,
-  // "Choose one:" — bare ChooseEffect (sub-effects handled separately)
-  /^choose one:$/i,
-  /\bchoose one:\s*$/i,
-  // Conditional upgrade "instead" — ConditionalOnTargetEffect (not replacement)
-  /\bif .{0,40}(is chosen|character is chosen|is named).{0,40}instead\b/i,
-  /\bgets? \+\d+ \{S\}.{0,40}instead\b/i,
-  // "Deck construction" rules — no in-game engine effect (mark as fits-grammar/vanilla)
-  /\byou may have up to \d+ copies\b/i,
-  // "each opponent chooses one of their characters and returns"
-  /\beach opponent chooses one .{0,40}returns?\b/i,
-  // "return all opposing characters to their players' hands"
-  /\breturn all opposing characters\b/i,
-  // "give chosen character Resist/Challenger +N until" — grant_keyword with value
-  /\bgive .{0,40}(resist|challenger) \+\d+ until\b/i,
-  // "can't quest during their next turn" / "can't challenge during their next turn"
-  /\bcan'?t (quest|challenge) during (their|your) next turn\b/i,
-  // "chosen opposing character can't quest" — cant_action
-  /\bchosen opposing character can'?t (quest|challenge)\b/i,
-  // "This character can't challenge" — static action restriction on self
-  /\bthis character can'?t (challenge|quest)\b/i,
-  // "takes no damage from the challenge" — conditional damage immunity during challenge
-  /\btakes? no damage from the challenge\b/i,
-  // "This character can't be challenged by [trait] characters" — CantBeChallengedException with attackerFilter
-  /\bcan'?t be challenged by .{0,30}characters\b/i,
-  // "While being challenged" — existing trigger/static context
-  /\bwhile being challenged\b/i,
-  // Phase A reclassifications (categorizer was conservative on these):
-  // "During your turn, this character gains [keyword]" — grant_keyword static + is_your_turn condition
-  /during your turn.{0,40}(has|gains?) (evasive|rush|bodyguard|ward|reckless|resist|challenger|support)/i,
-  // Phase A.4 additions:
-  // "Move N damage counter from chosen ... to chosen opposing" — move_damage effect
-  /\bmove .{0,15}damage counter\b/i,
-  /\bmove (a |all )?damage from\b/i,
-  /\bmove up to \d+ damage\b/i,
-  // "Each opponent chooses one of their characters and X" — opponent-chosen target via chooser: target_player
-  /\beach opponent chooses .{0,40}(banishes?|exerts?|returns?|deals?)\b/i,
-  // "+S equal to this character's S" — strengthEqualsSourceStrength variant
-  /gets? \+\{S\} equal to this character'?s? \{S\}/i,
-  // "+1 strength for each card in your hand" — strengthPerCardInHand
-  /\+\d+ \{S\}.{0,20}for each card in your hand/i,
-  // "You pay N {I} less for the next character" — grant_cost_reduction
-  /\byou pay \d+ \{I\} less for the next\b/i,
-  // "Banish one of your X" as part of activated cost — modeled as leading effect
-  /banish one of your\b/i,
-  // "Whenever you play a song" / "Whenever this character sings a song" — card_played filter / sings trigger (Phase A.1)
-  /whenever (you|this character) (play|sing)s? a song\b/i,
-  // "While ... has N {S} or more" — self_stat_gte condition exists
-  /while .{0,20}has? \d+ \{S\} or more\b/i,
-  // "If you used Shift" — played_via_shift condition exists
-  /\bif you used shift\b/i,
-  // "While you have ... in your discard/hand/play/inkwell" — cards_in_zone_gte condition with cardType filter
-  /while .{0,10}(you|they) have .{0,40}in (your|their) (play|hand|discard|inkwell)\b/i,
-  // "Chosen ... can't (challenge|quest) during their next turn" — cant_action with end_of_owner_next_turn duration
-  /can'?t (challenge|quest) during their next turn\b/i,
-  // "Name a card" — name_a_card_then_reveal effect (Phase A.0)
-  /\bname a card\b/i,
-  // Sing Together reminder text — implemented in Phase A.1 via singTogetherCost.
-  // The reminder is informational; the actual cost lives in CardDefinition, not in
-  // a stub effect, so the stub itself just needs to be recognized as no-op.
-  /^sing together \d/i,
+// Each entry pairs a regex with a capability_id. A regex match only counts as
+// fits-grammar if its capability_id is listed in CAPABILITIES below — otherwise
+// the card falls through to needs-new-mechanic. This prevents the categorizer
+// from lying when a regex matches text whose underlying primitive isn't actually
+// implemented (e.g. "chosen char gains \"...\" this turn" matches a return-to-hand
+// regex via the inner quoted text, but the engine can't grant a floating trigger
+// to a target character).
+//
+// Capability IDs are derived from the actual Effect/StaticEffect/Condition/
+// TriggerEvent/Cost union members in packages/engine/src/types/index.ts. When
+// you implement a new primitive, add its capability_id to CAPABILITIES.
+const CAPABILITIES = new Set<string>([
+  // Effects (Effect union)
+  "draw", "deal_damage", "remove_damage", "banish", "return_to_hand",
+  "gain_lore", "lose_lore", "gain_stats", "grant_cost_reduction",
+  "move_damage", "put_top_of_deck_under", "return_all_to_bottom_in_order",
+  "put_cards_under_into_hand", "cant_be_challenged_timed",
+  "reveal_top_conditional", "name_a_card_then_reveal", "move_character",
+  "gain_conditional_challenge_bonus", "create_card", "search", "choose",
+  "exert", "ready", "grant_keyword", "cant_action", "look_at_top",
+  "discard_from_hand", "conditional_on_target", "play_for_free",
+  "shuffle_into_deck", "move_to_inkwell", "grant_extra_ink_play",
+  "sequential", "create_floating_trigger_on_self",
+  // Static effects
+  "stat_static", "cant_be_challenged_static", "cost_reduction_static",
+  "action_restriction_static", "grant_activated_ability_static",
+  // Triggers (TriggerEvent.on)
+  "trigger_enters_play", "trigger_leaves_play", "trigger_quests",
+  "trigger_sings", "trigger_challenges", "trigger_is_challenged",
+  "trigger_is_banished", "trigger_banished_in_challenge",
+  "trigger_turn_start", "trigger_turn_end", "trigger_card_played",
+  "trigger_item_played", "trigger_banished_other_in_challenge",
+  "trigger_damage_dealt_to", "trigger_moves_to_location",
+  "trigger_damage_removed_from", "trigger_readied",
+  "trigger_returned_to_hand", "trigger_cards_discarded",
+  "trigger_deals_damage_in_challenge",
+  // Conditions
+  "condition_is_your_turn", "condition_self_stat_gte",
+  "condition_played_via_shift", "condition_cards_in_zone_gte",
+  "condition_has_character_named",
+  // Locations / location-related
+  "location_at_location_filter",
+  // Misc grammars
+  "vanilla_reminder_text", "deck_construction_rule",
+  "sing_together_reminder",
+]);
+
+const FITS_GRAMMAR_PATTERNS: [RegExp, string][] = [
+  [/\bwhile here\b/i, "location_at_location_filter"],
+  [/\bwhile .{0,20}is at a location\b/i, "location_at_location_filter"],
+  [/\bat the start of your turn,? for each character .{0,20}here\b/i, "location_at_location_filter"],
+  [/\bwhenever .{0,30}moves to a location\b/i, "trigger_moves_to_location"],
+  [/\bdraws? (a|\d+) cards?\b/i, "draw"],
+  [/\bdraws? a card\b/i, "draw"],
+  [/\bdeal \d+ damage\b/i, "deal_damage"],
+  [/\bdeals? \d+ damage\b/i, "deal_damage"],
+  [/\bput \d+ damage (counter|on)\b/i, "deal_damage"],
+  [/\bremove .{0,15}damage\b/i, "remove_damage"],
+  [/\breturn .{0,60}to .{0,25}(their|your|a player'?s?) hand\b/i, "return_to_hand"],
+  [/\breturn .{0,30}(character|item|card).{0,30}to .{0,20}hand\b/i, "return_to_hand"],
+  [/\bgain \d+ lore\b/i, "gain_lore"],
+  [/\bgains? \d+ lore\b/i, "gain_lore"],
+  [/\blose[s]? \d+ lore\b/i, "lose_lore"],
+  [/\bgets? [+-]\d+ \{[SWL]\}/i, "gain_stats"],
+  [/\bgives? .{0,30}[+-]\d+ \{[SWL]\}/i, "gain_stats"],
+  [/\bgets? [+-]\d+ (strength|willpower|lore)\b/i, "gain_stats"],
+  [/\b[+-]\d+\/[+-]?\d+\b/i, "gain_stats"],
+  [/\bgets? \+\d+ this turn\b/i, "gain_stats"],
+  [/\bgets? -\d+ this turn\b/i, "gain_stats"],
+  [/\bgets? -\d+ until\b/i, "gain_stats"],
+  [/\bbanish\b/i, "banish"],
+  [/\bready\b/i, "ready"],
+  [/\bexert\b/i, "exert"],
+  [/\bsearch (your|their|a|chosen) (player'?s? )?deck\b/i, "search"],
+  [/\blook at the top \d+/i, "look_at_top"],
+  [/\blook at the top (card|of)\b/i, "look_at_top"],
+  [/\blook at .{0,20}top card\b/i, "look_at_top"],
+  [/\bdiscard (a|one|chosen|\d+)/i, "discard_from_hand"],
+  [/\bchoose and discard\b/i, "discard_from_hand"],
+  [/\bchooses? and discards?\b/i, "discard_from_hand"],
+  [/\bdiscard your hand\b/i, "discard_from_hand"],
+  [/\bshuffle\b/i, "shuffle_into_deck"],
+  [/\bpay .{0,10}less\b/i, "cost_reduction_static"],
+  [/\bcosts? .{0,10}less\b/i, "cost_reduction_static"],
+  [/\b(gains?|have|get|give) .{0,20}(evasive|rush|bodyguard|ward|reckless|resist|challenger|support|singer|shift)\b/i, "grant_keyword"],
+  [/\bcan'?t quest\b/i, "cant_action"],
+  [/\bcan'?t challenge\b/i, "cant_action"],
+  [/\bcan'?t ready\b/i, "cant_action"],
+  [/\bthis character can'?t be challenged\b/i, "cant_be_challenged_static"],
+  [/\binto .{0,30}inkwell\b/i, "move_to_inkwell"],
+  [/\bplay .{0,50}for free\b/i, "play_for_free"],
+  [/\bwithout paying .{0,20}(ink )?cost\b/i, "play_for_free"],
+  [/\bcreate .{0,30}token\b/i, "create_card"],
+  [/\benter[s]? play exerted\b/i, "exert"],
+  [/^\(?A character with cost \d+ or more can/i, "vanilla_reminder_text"],
+  [/\bput it on (either the )?(top|bottom)/i, "look_at_top"],
+  [/if you have a character named .{0,40}(pay|less)\b/i, "condition_has_character_named"],
+  [/\bat the (start|end) of (your|each opponent'?s?) turn\b/i, "trigger_turn_start"],
+  [/\bgets? \+\d+ \{[SWL]\}/i, "stat_static"],
+  [/\benter[s]? play with \d+ damage\b/i, "deal_damage"],
+  [/\bdiscards? all (the )?cards? in (their|your|a) hand\b/i, "discard_from_hand"],
+  [/\bdiscard all\b/i, "discard_from_hand"],
+  [/\bfrom .{0,20}discard on the top of .{0,20}deck\b/i, "shuffle_into_deck"],
+  [/\bdeal \d+ damage to each (opposing|opponent'?s?)\b/i, "deal_damage"],
+  [/^choose one:$/i, "choose"],
+  [/\bchoose one:\s*$/i, "choose"],
+  [/\bif .{0,40}(is chosen|character is chosen|is named).{0,40}instead\b/i, "conditional_on_target"],
+  [/\bgets? \+\d+ \{S\}.{0,40}instead\b/i, "conditional_on_target"],
+  [/\byou may have up to \d+ copies\b/i, "deck_construction_rule"],
+  [/\beach opponent chooses one .{0,40}returns?\b/i, "return_to_hand"],
+  [/\breturn all opposing characters\b/i, "return_to_hand"],
+  [/\bgive .{0,40}(resist|challenger) \+\d+ until\b/i, "grant_keyword"],
+  [/\bcan'?t (quest|challenge) during (their|your) next turn\b/i, "cant_action"],
+  [/\bchosen opposing character can'?t (quest|challenge)\b/i, "cant_action"],
+  [/\bthis character can'?t (challenge|quest)\b/i, "action_restriction_static"],
+  [/\btakes? no damage from the challenge\b/i, "stat_static"],
+  [/\bcan'?t be challenged by .{0,30}characters\b/i, "cant_be_challenged_static"],
+  [/\bwhile being challenged\b/i, "trigger_is_challenged"],
+  [/during your turn.{0,40}(has|gains?) (evasive|rush|bodyguard|ward|reckless|resist|challenger|support)/i, "grant_keyword"],
+  [/\bmove .{0,15}damage counter\b/i, "move_damage"],
+  [/\bmove (a |all )?damage from\b/i, "move_damage"],
+  [/\bmove up to \d+ damage\b/i, "move_damage"],
+  [/\beach opponent chooses .{0,40}(banishes?|exerts?|returns?|deals?)\b/i, "choose"],
+  [/gets? \+\{S\} equal to this character'?s? \{S\}/i, "gain_stats"],
+  [/\+\d+ \{S\}.{0,20}for each card in your hand/i, "gain_stats"],
+  [/\byou pay \d+ \{I\} less for the next\b/i, "grant_cost_reduction"],
+  [/banish one of your\b/i, "banish"],
+  [/whenever (you|this character) (play|sing)s? a song\b/i, "trigger_card_played"],
+  [/while .{0,20}has? \d+ \{S\} or more\b/i, "condition_self_stat_gte"],
+  [/\bif you used shift\b/i, "condition_played_via_shift"],
+  [/while .{0,10}(you|they) have .{0,40}in (your|their) (play|hand|discard|inkwell)\b/i, "condition_cards_in_zone_gte"],
+  [/can'?t (challenge|quest) during their next turn\b/i, "cant_action"],
+  [/\bname a card\b/i, "name_a_card_then_reveal"],
+  [/^sing together \d/i, "sing_together_reminder"],
 ];
 
 function categorizeStub(rulesText: string, cardType: string): StubCategory {
@@ -389,8 +397,13 @@ function categorizeStub(rulesText: string, cardType: string): StubCategory {
   for (const [pattern, _label] of NEW_TYPE_PATTERNS) {
     if (pattern.test(normalized)) return "needs-new-type";
   }
-  for (const pattern of FITS_GRAMMAR_PATTERNS) {
-    if (pattern.test(normalized)) return "fits-grammar";
+  for (const [pattern, capabilityId] of FITS_GRAMMAR_PATTERNS) {
+    if (pattern.test(normalized)) {
+      // Honest check: regex match alone isn't enough — the underlying engine
+      // primitive must actually exist. Otherwise this is a hidden new-mechanic.
+      if (CAPABILITIES.has(capabilityId)) return "fits-grammar";
+      return "needs-new-mechanic";
+    }
   }
   return "unknown";
 }
