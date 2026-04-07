@@ -1941,9 +1941,14 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 2
+      },
+      {
         "type": "triggered",
-        "storyName": "ENCHANTED ARMOR",
-        "rulesText": "Whenever this character quests, your characters gain Challenger +3 and 'When this character is banished in a challenge, return this card to your hand' this turn.",
+        "storyName": "FORGET THE COACH, HERE'S A SWORD",
+        "rulesText": "Whenever this character quests, your characters gain Challenger +3 and \"When this character is banished in a challenge, return this card to your hand\" this turn.",
         "trigger": {
           "on": "quests"
         },
@@ -1965,6 +1970,25 @@
               }
             },
             "duration": "end_of_turn"
+          },
+          {
+            "type": "create_floating_trigger",
+            "trigger": {
+              "on": "banished_in_challenge",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                }
+              }
+            },
+            "effects": [
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "triggering_card"
+                }
+              }
+            ]
           }
         ]
       }
@@ -2384,12 +2408,19 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
-        "storyName": "MAGNIFICENT, MARVELOUS, MAD MADAM MIM",
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
+      {
+        "type": "activated",
+        "storyName": "GRUESOME AND GRIM",
         "rulesText": "Play a character with cost 4 or less for free. They gain Rush. At the end of the turn, banish them.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "play_for_free",
@@ -2398,7 +2429,11 @@
                 "character"
               ],
               "costAtMost": 4
-            }
+            },
+            "grantKeywords": [
+              "rush"
+            ],
+            "banishAtEndOfTurn": true
           }
         ]
       }
@@ -3205,7 +3240,11 @@
             "character"
           ],
           "costAtMost": 4
-        }
+        },
+        "grantKeywords": [
+          "rush"
+        ],
+        "banishAtEndOfTurn": true
       }
     ]
   },
@@ -4544,17 +4583,25 @@
     ],
     "abilities": [
       {
-        "type": "static",
-        "storyName": "TAXES!",
+        "type": "triggered",
+        "storyName": "I SENTENCE YOU",
         "rulesText": "Whenever your opponent discards 1 or more cards, you may draw a card for each card discarded.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "willpower",
-          "modifier": 0,
-          "target": {
-            "type": "this"
+        "trigger": {
+          "on": "cards_discarded",
+          "player": {
+            "type": "opponent"
           }
-        }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": "cost_result",
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "2",
@@ -6056,13 +6103,20 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
-        "storyName": "HEART OF A WARRIOR",
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      },
+      {
+        "type": "static",
+        "storyName": "CHAMPION OF KUMANDRA",
         "rulesText": "Whenever this character challenges a damaged character, she takes no damage from the challenge.",
-        "trigger": {
-          "on": "challenges"
-        },
-        "effects": []
+        "effect": {
+          "type": "challenge_damage_immunity",
+          "targetFilter": {
+            "hasDamage": true
+          }
+        }
       }
     ],
     "setId": "2",
@@ -7059,14 +7113,39 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "TIMELY ADVICE",
-        "rulesText": "Your characters with Reckless gain '{E} — Gain 1 lore.'",
+        "storyName": "WAIT A MINUTE",
+        "rulesText": "Your characters with Reckless gain \"{E} — Gain 1 lore.\"",
         "effect": {
-          "type": "modify_stat",
-          "stat": "willpower",
-          "modifier": 0,
+          "type": "grant_activated_ability",
           "target": {
-            "type": "this"
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasKeyword": "reckless"
+            }
+          },
+          "ability": {
+            "type": "activated",
+            "costs": [
+              {
+                "type": "exert"
+              }
+            ],
+            "effects": [
+              {
+                "type": "gain_lore",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           }
         }
       }

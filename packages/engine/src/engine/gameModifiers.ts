@@ -55,6 +55,18 @@ export interface GameModifiers {
    * value = the owner whose other characters are protected.
    */
   damageRedirects: Map<string, import("../types/index.js").PlayerID>;
+
+  /**
+   * Characters with challenge damage immunity (Raya - Leader of Heart).
+   * Key = instanceId, value = optional filter the defender must match (undefined = always immune).
+   */
+  challengeDamageImmunity: Map<string, import("../types/index.js").CardFilter | undefined>;
+
+  /**
+   * Activated abilities granted by static effects (Cogsworth - Talking Clock).
+   * Key = instanceId, value = list of granted activated abilities.
+   */
+  grantedActivatedAbilities: Map<string, import("../types/index.js").ActivatedAbility[]>;
 }
 
 /**
@@ -75,6 +87,8 @@ export function getGameModifiers(
     actionRestrictions: [],
     extraInkPlays: new Map(),
     damageRedirects: new Map(),
+    challengeDamageImmunity: new Map(),
+    grantedActivatedAbilities: new Map(),
   };
 
   for (const instance of Object.values(state.cards)) {
@@ -219,6 +233,29 @@ export function getGameModifiers(
         case "damage_redirect": {
           // CRD 6.5: This character absorbs damage for other own characters
           modifiers.damageRedirects.set(instance.instanceId, instance.ownerId);
+          break;
+        }
+
+        case "challenge_damage_immunity": {
+          // Raya - Leader of Heart: immune to challenge damage vs damaged characters
+          modifiers.challengeDamageImmunity.set(instance.instanceId, effect.targetFilter);
+          break;
+        }
+
+        case "grant_activated_ability": {
+          // Cogsworth - Talking Clock: grant activated ability to matching characters
+          if (effect.target.type === "all") {
+            for (const candidate of Object.values(state.cards)) {
+              if (candidate.zone !== "play") continue;
+              const candidateDef = definitions[candidate.definitionId];
+              if (!candidateDef) continue;
+              if (matchesFilter(candidate, candidateDef, effect.target.filter, state, instance.ownerId)) {
+                const existing = modifiers.grantedActivatedAbilities.get(candidate.instanceId) ?? [];
+                existing.push(effect.ability);
+                modifiers.grantedActivatedAbilities.set(candidate.instanceId, existing);
+              }
+            }
+          }
           break;
         }
       }

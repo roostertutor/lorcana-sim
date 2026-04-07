@@ -338,7 +338,17 @@ function validateActivateAbility(
   if (instance.zone !== "play") return fail("Card is not in play.");
 
   const def = getDefinition(state, instanceId, definitions);
-  const ability = def.abilities[abilityIndex];
+  // Check if this is a granted activated ability (index beyond definition's own abilities)
+  let ability;
+  if (abilityIndex < def.abilities.length) {
+    ability = def.abilities[abilityIndex];
+  } else {
+    // Granted by static effect (e.g. Cogsworth - Talking Clock)
+    const modifiers = getGameModifiers(state, definitions);
+    const grantedAbilities = modifiers.grantedActivatedAbilities.get(instanceId);
+    const grantedIndex = abilityIndex - def.abilities.length;
+    ability = grantedAbilities?.[grantedIndex];
+  }
   if (!ability || ability.type !== "activated") return fail("No activated ability at that index.");
 
   // Check costs

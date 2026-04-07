@@ -240,6 +240,7 @@ export function getAllLegalActions(
   }
 
   // ACTIVATE_ABILITY — each activatable ability on each card in play
+  const modifiersForAbilities = getGameModifiers(state, definitions);
   for (const instanceId of myPlay) {
     const instance = state.cards[instanceId];
     if (!instance) continue;
@@ -250,6 +251,17 @@ export function getAllLegalActions(
       const action: GameAction = { type: "ACTIVATE_ABILITY", playerId, instanceId, abilityIndex: i };
       if (validateAction(state, action, definitions).valid) {
         actions.push(action);
+      }
+    }
+    // Also check granted activated abilities from static effects (Cogsworth)
+    const grantedAbilities = modifiersForAbilities.grantedActivatedAbilities.get(instanceId);
+    if (grantedAbilities) {
+      for (let j = 0; j < grantedAbilities.length; j++) {
+        const grantedIndex = def.abilities.length + j;
+        const action: GameAction = { type: "ACTIVATE_ABILITY", playerId, instanceId, abilityIndex: grantedIndex };
+        if (validateAction(state, action, definitions).valid) {
+          actions.push(action);
+        }
       }
     }
   }
@@ -639,8 +651,16 @@ function applyChallenge(
   // CRD 8.8.1: Resist +N reduces incoming challenge damage (min 0)
   const attackerResist = getKeywordValue(attacker, attackerDef, "resist", modifiers.grantedKeywords.get(attackerInstanceId));
   const defenderResist = getKeywordValue(defender, defenderDef, "resist", modifiers.grantedKeywords.get(defenderInstanceId));
-  const actualAttackerDamage = Math.max(0, defenderStr - attackerResist);
+  let actualAttackerDamage = Math.max(0, defenderStr - attackerResist);
   const actualDefenderDamage = Math.max(0, attackerStr - defenderResist);
+
+  // Raya - Leader of Heart: challenge damage immunity when defender matches filter
+  const immuneFilter = modifiers.challengeDamageImmunity.get(attackerInstanceId);
+  if (immuneFilter !== undefined) {
+    if (!immuneFilter || matchesFilter(defender, defenderDef, immuneFilter, state, playerId)) {
+      actualAttackerDamage = 0;
+    }
+  }
 
   // CRD 6.5: Check for damage redirect on each combatant
   const attackerRedirect = actualAttackerDamage > 0 ? findDamageRedirect(state, attackerInstanceId, definitions, modifiers) : null;
@@ -728,7 +748,17 @@ function applyActivateAbility(
   events: GameEvent[]
 ): GameState {
   const def = getDefinition(state, instanceId, definitions);
-  const ability = def.abilities[abilityIndex];
+  // Check if this is a granted activated ability (index beyond definition's own abilities)
+  let ability;
+  if (abilityIndex < def.abilities.length) {
+    ability = def.abilities[abilityIndex];
+  } else {
+    // Granted by static effect (e.g. Cogsworth - Talking Clock)
+    const modifiers = getGameModifiers(state, definitions);
+    const grantedAbilities = modifiers.grantedActivatedAbilities.get(instanceId);
+    const grantedIndex = abilityIndex - def.abilities.length;
+    ability = grantedAbilities?.[grantedIndex];
+  }
   if (!ability || ability.type !== "activated") throw new Error("Invalid ability");
 
   state = payCosts(state, playerId, instanceId, ability.costs, events, definitions);
@@ -771,6 +801,17 @@ function applyPassTurn(
     message: `${playerId} passed the turn.`,
     type: "turn_end",
   });
+
+  // Banish cards queued for end-of-turn removal (Gruesome and Grim, Madam Mim)
+  if (state.pendingEndOfTurnBanish?.length) {
+    for (const id of state.pendingEndOfTurnBanish) {
+      const inst = state.cards[id];
+      if (inst && inst.zone === "play") {
+        state = banishCard(state, id, definitions, events);
+      }
+    }
+    state = { ...state, pendingEndOfTurnBanish: [] };
+  }
 
   // CRD 3.4.1.1: end-of-turn triggered abilities
   state = queueTriggersByEvent(state, "turn_end", playerId, definitions, {});
@@ -1025,11 +1066,21 @@ function applyResolveChoice(
 
   if (pendingChoice.type === "choose_discard" && Array.isArray(choice)) {
     // Discard the chosen cards from hand
+    const discardCount = choice.length;
+    // Determine who is discarding (the owner of the first card chosen)
+    let discardingPlayerId: PlayerID | undefined;
     for (const cardId of choice) {
       const inst = state.cards[cardId];
       if (inst && inst.zone === "hand") {
+        discardingPlayerId = inst.ownerId;
         state = moveCard(state, cardId, inst.ownerId, "discard");
       }
+    }
+    // Fire cards_discarded trigger (Prince John - Greediest of All)
+    if (discardCount > 0 && discardingPlayerId) {
+      state = { ...state, lastEffectResult: discardCount };
+      state = queueTriggersByEvent(state, "cards_discarded", discardingPlayerId, definitions, {});
+      state = processTriggerStack(state, definitions, events);
     }
     state = resumePendingEffectQueue(state, definitions, events);
     state = cleanupPendingAction(state, playerId);
@@ -1617,8 +1668,15 @@ export function applyEffect(
 
         // "all" = discard entire hand, no choice
         if (effect.amount === "all") {
+          const discardCount = hand.length;
           for (const cardId of [...hand]) {
             state = moveCard(state, cardId, pid, "discard");
+          }
+          // Fire cards_discarded trigger (Prince John - Greediest of All)
+          if (discardCount > 0) {
+            state = { ...state, lastEffectResult: discardCount };
+            state = queueTriggersByEvent(state, "cards_discarded", pid, definitions, {});
+            state = processTriggerStack(state, definitions, events);
           }
           continue;
         }
@@ -1994,6 +2052,16 @@ function queueTriggersByEvent(
     for (const ability of def.abilities) {
       if (ability.type !== "triggered") continue;
       if (ability.trigger.on !== eventType) continue;
+
+      // For triggers with a "player" field, check the player matches
+      if ("player" in ability.trigger && ability.trigger.player) {
+        const playerTarget = ability.trigger.player;
+        const cardOwner = instance.ownerId;
+        const opponent = getOpponent(cardOwner);
+        if (playerTarget.type === "self" && playerId !== cardOwner) continue;
+        if (playerTarget.type === "opponent" && playerId !== opponent) continue;
+      }
+
       state = {
         ...state,
         triggerStack: [
@@ -2260,6 +2328,33 @@ function zoneTransition(
           state = queueTrigger(state, "banished_in_challenge", instanceId, definitions, {
             triggeringCardInstanceId: ctx.challengeOpponentId,
           });
+          // CRD 6.2.7.1: Check floating triggers for banished_in_challenge (Fairy Godmother)
+          if (state.floatingTriggers) {
+            for (const ft of state.floatingTriggers) {
+              if (ft.trigger.on !== "banished_in_challenge") continue;
+              const triggerFilter = "filter" in ft.trigger ? ft.trigger.filter : undefined;
+              if (triggerFilter) {
+                if (def && !matchesFilter(instance, def, triggerFilter, state, ft.controllingPlayerId)) continue;
+              }
+              // Synthesize a triggered ability for the trigger stack
+              const floatingAbility: TriggeredAbility = {
+                type: "triggered",
+                trigger: ft.trigger,
+                effects: ft.effects,
+              };
+              state = {
+                ...state,
+                triggerStack: [
+                  ...state.triggerStack,
+                  {
+                    ability: floatingAbility,
+                    sourceInstanceId: instanceId,
+                    context: { triggeringCardInstanceId: instanceId },
+                  },
+                ],
+              };
+            }
+          }
           // CRD 4.6.6.2: challenge damage is simultaneous — the opponent banished this card
           // even if the opponent was also banished in the same exchange. Only require the
           // instance to exist; zone check would incorrectly suppress mutual-banishment triggers.
@@ -2552,6 +2647,18 @@ function applyEffectToTarget(
       // Characters enter drying
       if (def.cardType === "character") {
         state = updateInstance(state, targetInstanceId, { isDrying: true });
+      }
+      // Grant keywords (e.g. Rush from Gruesome and Grim / Madam Mim)
+      if (effect.grantKeywords) {
+        const playedInst = getInstance(state, targetInstanceId);
+        state = updateInstance(state, targetInstanceId, {
+          grantedKeywords: [...playedInst.grantedKeywords, ...effect.grantKeywords],
+        });
+      }
+      // Queue for end-of-turn banishment (Gruesome and Grim / Madam Mim)
+      if (effect.banishAtEndOfTurn) {
+        const existing = state.pendingEndOfTurnBanish ?? [];
+        state = { ...state, pendingEndOfTurnBanish: [...existing, targetInstanceId] };
       }
       state = appendLog(state, {
         turn: state.turnNumber,

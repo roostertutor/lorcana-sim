@@ -309,6 +309,10 @@ export interface PlayForFreeEffect {
   filter: CardFilter;
   /** CRD 6.1.4 */
   isMay?: boolean;
+  /** Keywords to grant to the played character (e.g. Rush from Gruesome and Grim) */
+  grantKeywords?: Keyword[];
+  /** If true, banish the played character at end of turn (e.g. Gruesome and Grim) */
+  banishAtEndOfTurn?: boolean;
 }
 
 /** Move a card from one zone into its owner's deck, then shuffle. */
@@ -406,7 +410,9 @@ export type StaticEffect =
   | ExtraInkPlayStatic
   | SelfCostReductionStatic
   | CanChallengeReadyStatic
-  | DamageRedirectStatic;
+  | DamageRedirectStatic
+  | ChallengeDamageImmunityStatic
+  | GrantActivatedAbilityStatic;
 
 /** This character can challenge ready (non-exerted) characters. */
 export interface CanChallengeReadyStatic {
@@ -423,6 +429,27 @@ export interface DamageRedirectStatic {
   type: "damage_redirect";
   /** Which characters' damage gets redirected ("other own characters" = all others you control) */
   from: CardTarget;
+}
+
+/**
+ * Raya - Leader of Heart: "Whenever this character challenges a damaged character,
+ * she takes no damage from the challenge."
+ * Checked in applyChallenge — if attacker has this and defender matches filter, skip attacker damage.
+ */
+export interface ChallengeDamageImmunityStatic {
+  type: "challenge_damage_immunity";
+  /** Only immune when challenging characters matching this filter */
+  targetFilter?: CardFilter;
+}
+
+/**
+ * Cogsworth - Talking Clock: "Your characters with Reckless gain '{E} — Gain 1 lore.'"
+ * Grants an activated ability to matching characters in play.
+ */
+export interface GrantActivatedAbilityStatic {
+  type: "grant_activated_ability";
+  target: CardTarget;
+  ability: ActivatedAbility;
 }
 
 export interface GainKeywordStatic {
@@ -590,7 +617,8 @@ export type TriggerEvent =
   | { on: "damage_dealt_to"; filter?: CardFilter }
   | { on: "damage_removed_from"; filter?: CardFilter }
   | { on: "readied"; filter?: CardFilter }
-  | { on: "returned_to_hand"; filter?: CardFilter };
+  | { on: "returned_to_hand"; filter?: CardFilter }
+  | { on: "cards_discarded"; player: PlayerTarget };
 
 // -----------------------------------------------------------------------------
 // CONDITIONS — Guards on triggered/activated abilities
@@ -808,6 +836,9 @@ export interface GameState {
 
   /** CRD 6.2.7.1: Floating triggered abilities that last until end of turn */
   floatingTriggers?: FloatingTrigger[];
+
+  /** Cards to banish at end of turn (e.g., Gruesome and Grim, Madam Mim - Rival of Merlin) */
+  pendingEndOfTurnBanish?: string[];
 
   /** CRD 6.1.5.1: Result of the last cost effect in a sequential (for "[A]. For each X, [B]" patterns) */
   lastEffectResult?: number;
