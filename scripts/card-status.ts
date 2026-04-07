@@ -362,7 +362,6 @@ const FITS_GRAMMAR_PATTERNS: RegExp[] = [
   /\byou pay \d+ \{I\} less for the next\b/i,
   // "Banish one of your X" as part of activated cost — modeled as leading effect
   /banish one of your\b/i,
-];
   // "Whenever you play a song" / "Whenever this character sings a song" — card_played filter / sings trigger (Phase A.1)
   /whenever (you|this character) (play|sing)s? a song\b/i,
   // "While ... has N {S} or more" — self_stat_gte condition exists

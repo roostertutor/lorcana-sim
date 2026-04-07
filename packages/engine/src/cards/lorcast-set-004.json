@@ -108,9 +108,33 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "singer",
-        "value": 9
+        "type": "triggered",
+        "storyName": "MUSICAL DEBUT",
+        "rulesText": "Whenever this character sings a song, your other Princess characters get +1 {L} this turn.",
+        "trigger": {
+          "on": "sings"
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "lore": 1,
+            "duration": "this_turn",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Princess",
+                "excludeSelf": true
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -284,8 +308,28 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "bodyguard"
+        "type": "triggered",
+        "storyName": "ALL FOR ONE",
+        "rulesText": "When you play this character, chosen character gets +1 {L} this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "lore": 1,
+            "duration": "this_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -611,8 +655,28 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "support"
+        "type": "triggered",
+        "storyName": "STRIKE UP THE MUSIC",
+        "rulesText": "When you play this character, chosen character gains Support this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "support",
+            "duration": "end_of_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -694,8 +758,30 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "bodyguard"
+        "type": "triggered",
+        "storyName": "EN GARDE!",
+        "rulesText": "When you play this character, banish chosen opposing character with 5 {S} or more.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "strengthAtLeast": 5
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -732,8 +818,33 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "support"
+        "type": "triggered",
+        "storyName": "GIFT OF THE FAMILY",
+        "rulesText": "Whenever this character quests, your other Madrigal characters get +1 {L} this turn.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "lore": 1,
+            "duration": "this_turn",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Madrigal",
+                "excludeSelf": true
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -893,9 +1004,43 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 4
+        "type": "static",
+        "storyName": "I'M A FAST LEARNER",
+        "rulesText": "While you have a character named Ursula in play, this character gains Bodyguard.",
+        "condition": {
+          "type": "has_character_named",
+          "name": "Ursula",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "bodyguard",
+          "target": {
+            "type": "this"
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "I'M A FAST LEARNER",
+        "rulesText": "While you have a character named Ursula in play, this character gets +2 {W}.",
+        "condition": {
+          "type": "has_character_named",
+          "name": "Ursula",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "modifier": 2,
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "4",
@@ -2419,12 +2564,27 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
-      },
-      {
-        "type": "keyword",
-        "keyword": "rush"
+        "type": "static",
+        "storyName": "YOU'RE FLYING!",
+        "rulesText": "Your other characters with Evasive gain Rush.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "rush",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasKeyword": "evasive",
+              "excludeSelf": true
+            }
+          }
+        }
       }
     ],
     "setId": "4",
@@ -2549,9 +2709,26 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 5
+        "type": "triggered",
+        "storyName": "YOU'LL LISTEN TO ME!",
+        "rulesText": "Whenever this character quests, exert chosen character.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -3455,8 +3632,48 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "ward"
+        "type": "static",
+        "storyName": "MY HERO",
+        "rulesText": "Your characters named Zeus gain Ward.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "ward",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasName": "Zeus"
+            }
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "MY HERO",
+        "rulesText": "Your characters named Hercules gain Evasive.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasName": "Hercules"
+            }
+          }
+        }
       }
     ],
     "setId": "4",
@@ -3695,8 +3912,30 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "ward"
+        "type": "triggered",
+        "storyName": "HEAD HELD HIGH",
+        "rulesText": "Whenever you play a character named Hercules, you may ready this character.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ],
+            "hasName": "Hercules"
+          }
+        },
+        "effects": [
+          {
+            "type": "ready",
+            "target": {
+              "type": "this"
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -3827,13 +4066,34 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
-      },
-      {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 3
+        "type": "triggered",
+        "storyName": "FLYING LESSONS",
+        "rulesText": "When you play this character, if you used Shift to play him, your characters gain Evasive until the start of your next turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "played_via_shift"
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "evasive",
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -3989,13 +4249,30 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
-      },
-      {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 6
+        "type": "triggered",
+        "storyName": "DRAGON SLAYER",
+        "rulesText": "When you play this character, banish all opposing damaged characters.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasDamage": true
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -4133,8 +4410,37 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "ward"
+        "type": "triggered",
+        "storyName": "FROM THE TOP",
+        "rulesText": "Whenever you play a song, you may return chosen character with 2 {S} or less to their player's hand.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "action"
+            ],
+            "hasTrait": "Song"
+          }
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "strengthAtMost": 2
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -4944,8 +5250,21 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "rush"
+        "type": "triggered",
+        "storyName": "SUPER PEANUT POWERS",
+        "rulesText": "Whenever this character challenges another character, gain 2 lore.",
+        "trigger": {
+          "on": "challenges"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -5624,8 +5943,30 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
+        "type": "triggered",
+        "storyName": "WHO'S NEXT?",
+        "rulesText": "When you play this character, banish chosen opposing character with 1 {S} or less.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "strengthAtMost": 1
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -5719,9 +6060,30 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 6
+        "type": "triggered",
+        "storyName": "WE'VE GOT WORK TO DO",
+        "rulesText": "When you play this character, banish all opposing characters with 2 {S} or less.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "strengthAtMost": 2
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -5846,7 +6208,23 @@
         "raw": "Each opponent loses 2 lore. You gain 2 lore."
       }
     ],
-    "singTogetherCost": 6
+    "singTogetherCost": 6,
+    "actionEffects": [
+      {
+        "type": "lose_lore",
+        "amount": 2,
+        "target": {
+          "type": "opponent"
+        }
+      },
+      {
+        "type": "gain_lore",
+        "amount": 2,
+        "target": {
+          "type": "self"
+        }
+      }
+    ]
   },
   {
     "id": "be-king-undisputed",
@@ -7263,9 +7641,35 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 6
+        "type": "static",
+        "storyName": "RULER OF THE SEAS",
+        "rulesText": "Opposing characters get -1 {S} for each location you have in play.",
+        "effect": {
+          "type": "modify_stat_per_count",
+          "stat": "strength",
+          "perCount": -1,
+          "countFilter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "location"
+            ]
+          },
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "opponent"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ]
+            }
+          }
+        }
       }
     ],
     "setId": "4",
@@ -8546,9 +8950,28 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "resist",
-        "value": 1
+        "type": "static",
+        "storyName": "WORK TOGETHER",
+        "rulesText": "This character gets +2 {S} for each other character named Magic Broom you have in play.",
+        "effect": {
+          "type": "modify_stat_per_count",
+          "stat": "strength",
+          "perCount": 2,
+          "countFilter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasName": "Magic Broom",
+            "excludeSelf": true
+          },
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "4",
@@ -8892,14 +9315,25 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "challenger",
-        "value": 2
-      },
-      {
-        "type": "keyword",
-        "keyword": "resist",
-        "value": 2
+        "type": "triggered",
+        "storyName": "MY MOMENT",
+        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may draw a card.",
+        "trigger": {
+          "on": "banished_other_in_challenge"
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -9429,9 +9863,33 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "singer",
-        "value": 9
+        "type": "triggered",
+        "storyName": "MUSICAL DEBUT",
+        "rulesText": "Whenever this character sings a song, your other Princess characters get +1 {L} this turn.",
+        "trigger": {
+          "on": "sings"
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "lore": 1,
+            "duration": "this_turn",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Princess",
+                "excludeSelf": true
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -9468,8 +9926,30 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "bodyguard"
+        "type": "triggered",
+        "storyName": "EN GARDE!",
+        "rulesText": "When you play this character, banish chosen opposing character with 5 {S} or more.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "strengthAtLeast": 5
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -9545,9 +10025,26 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 5
+        "type": "triggered",
+        "storyName": "YOU'LL LISTEN TO ME!",
+        "rulesText": "Whenever this character quests, exert chosen character.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -9872,8 +10369,21 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "rush"
+        "type": "triggered",
+        "storyName": "SUPER PEANUT POWERS",
+        "rulesText": "Whenever this character challenges another character, gain 2 lore.",
+        "trigger": {
+          "on": "challenges"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -9911,9 +10421,30 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 6
+        "type": "triggered",
+        "storyName": "WE'VE GOT WORK TO DO",
+        "rulesText": "When you play this character, banish all opposing characters with 2 {S} or less.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "strengthAtMost": 2
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "4",
