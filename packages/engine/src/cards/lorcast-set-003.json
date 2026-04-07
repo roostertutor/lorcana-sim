@@ -2213,17 +2213,35 @@
     ],
     "abilities": [
       {
-        "type": "static",
+        "type": "triggered",
         "storyName": "STAY BACK!",
         "rulesText": "During your turn, while this character is exerted, whenever you draw a card, gain 1 lore.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "willpower",
-          "modifier": 0,
-          "target": {
-            "type": "this"
+        "trigger": {
+          "on": "card_drawn",
+          "player": {
+            "type": "self"
           }
-        }
+        },
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            {
+              "type": "is_your_turn"
+            },
+            {
+              "type": "this_is_exerted"
+            }
+          ]
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "3",
@@ -10522,17 +10540,35 @@
     ],
     "abilities": [
       {
-        "type": "static",
+        "type": "triggered",
         "storyName": "STAY BACK!",
         "rulesText": "During your turn, while this character is exerted, whenever you draw a card, gain 1 lore.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "willpower",
-          "modifier": 0,
-          "target": {
-            "type": "this"
+        "trigger": {
+          "on": "card_drawn",
+          "player": {
+            "type": "self"
           }
-        }
+        },
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            {
+              "type": "is_your_turn"
+            },
+            {
+              "type": "this_is_exerted"
+            }
+          ]
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "3",

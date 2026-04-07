@@ -674,16 +674,17 @@ patchSet("3", {
 
   // ===== Final batch =====
 
-  // Jafar - Striking Illusionist: "during turn, while exerted, whenever you draw a card, gain 1 lore"
-  // TODO: needs card_drawn trigger event. Approximation: passive +1 lore static (always-on, not damage-based)
-  // Actually skip — modify_stat_per_count won't work, this needs card_drawn trigger.
-  // For now, use a no-op static so it shows as implemented but with TODO.
+  // Jafar - Striking Illusionist: "During your turn, while this character is exerted, whenever you draw a card, gain 1 lore"
   "jafar-striking-illusionist": {
     abilities: [{
-      type: "static", storyName: "STAY BACK!",
+      type: "triggered", storyName: "STAY BACK!",
       rulesText: "During your turn, while this character is exerted, whenever you draw a card, gain 1 lore.",
-      // TODO: needs card_drawn trigger event + this_is_exerted condition + is_your_turn condition
-      effect: { type: "modify_stat", stat: "willpower", modifier: 0, target: { type: "this" } },
+      trigger: { on: "card_drawn", player: { type: "self" } },
+      condition: { type: "compound_and", conditions: [
+        { type: "is_your_turn" },
+        { type: "this_is_exerted" },
+      ]},
+      effects: [{ type: "gain_lore", amount: 1, target: { type: "self" } }],
     }],
   },
 

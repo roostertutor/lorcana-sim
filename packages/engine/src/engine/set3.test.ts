@@ -210,4 +210,34 @@ describe("§7 Set 3 — Locations", () => {
     const moves = actions.filter(a => a.type === "MOVE_CHARACTER");
     expect(moves.length).toBeGreaterThan(0);
   });
+
+  // card_drawn trigger event (Jafar Striking Illusionist)
+  // "During your turn, while this character is exerted, whenever you draw a card, gain 1 lore."
+  it("Jafar Striking Illusionist: gains lore on each card drawn while exerted on own turn", () => {
+    let state = startGame(["jafar-striking-illusionist"]);
+    let jafarId: string;
+    // Jafar exerted, in play, on player1's turn
+    ({ state, instanceId: jafarId } = injectCard(state, "player1", "jafar-striking-illusionist", "play", { isExerted: true }));
+
+    const loreBefore = state.players["player1"]!.lore;
+
+    // Draw a card → trigger fires (player matches, exerted, your turn)
+    const result = applyAction(state, { type: "DRAW_CARD", playerId: "player1", amount: 1 }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.players["player1"]!.lore).toBe(loreBefore + 1);
+  });
+
+  // Verify the card_drawn trigger does NOT fire when Jafar is unexerted
+  it("Jafar Striking Illusionist: no lore when ready (this_is_exerted condition fails)", () => {
+    let state = startGame(["jafar-striking-illusionist"]);
+    let jafarId: string;
+    // Jafar ready (not exerted)
+    ({ state, instanceId: jafarId } = injectCard(state, "player1", "jafar-striking-illusionist", "play", { isExerted: false }));
+
+    const loreBefore = state.players["player1"]!.lore;
+
+    const result = applyAction(state, { type: "DRAW_CARD", playerId: "player1", amount: 1 }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.players["player1"]!.lore).toBe(loreBefore);
+  });
 });

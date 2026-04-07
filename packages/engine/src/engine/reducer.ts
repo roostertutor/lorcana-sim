@@ -1063,6 +1063,12 @@ function applyDraw(
       message: `${playerId} drew ${cardName}.`,
       type: "card_drawn",
     });
+    // CRD 6.2: queue card_drawn triggers (Jafar Striking Illusionist, etc.)
+    // Player filter is handled by queueTriggersByEvent matching trigger.player
+    // against the drawing player.
+    state = queueTriggersByEvent(state, "card_drawn", playerId, definitions, {
+      triggeringCardInstanceId: topCardId,
+    });
   }
   return state;
 }
