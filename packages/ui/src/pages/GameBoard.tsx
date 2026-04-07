@@ -282,6 +282,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   const [challengeAttackerId, setChallengeAttackerId] = useState<string | null>(null);
   const [shiftCardId, setShiftCardId] = useState<string | null>(null);
   const [singCardId, setSingCardId] = useState<string | null>(null);
+  const [moveCharId, setMoveCharId] = useState<string | null>(null);
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [showLog, setShowLog] = useState(false);
   const [discardViewerId, setDiscardViewerId] = useState<"player" | "opponent" | null>(null);
@@ -302,6 +303,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     setChallengeAttackerId(null);
     setShiftCardId(null);
     setSingCardId(null);
+    setMoveCharId(null);
   }, []);
 
   // Valid challenge targets for the selected attacker
@@ -323,6 +325,16 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         .map(a => (a as { shiftTargetInstanceId: string }).shiftTargetInstanceId)
     );
   }, [shiftCardId, session.legalActions]);
+
+  // Valid location targets for the selected character (CRD 4.7)
+  const moveTargets = useMemo(() => {
+    if (!moveCharId) return new Set<string>();
+    return new Set(
+      session.legalActions
+        .filter(a => a.type === "MOVE_CHARACTER" && (a as { characterInstanceId: string }).characterInstanceId === moveCharId)
+        .map(a => (a as { locationInstanceId: string }).locationInstanceId)
+    );
+  }, [moveCharId, session.legalActions]);
 
   // Valid singers for the selected song card — instanceIds of characters that can sing it
   const singTargets = useMemo(() => {
@@ -350,6 +362,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     const challengeAdded = new Set<string>();
     const shiftAdded = new Set<string>();
     const singerAdded = new Set<string>();
+    const moveAdded = new Set<string>();
 
     for (const action of session.legalActions) {
       switch (action.type) {
@@ -398,6 +411,16 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             });
           }
           break;
+        case "MOVE_CHARACTER": {
+          if (!moveAdded.has(action.characterInstanceId)) {
+            moveAdded.add(action.characterInstanceId);
+            add(action.characterInstanceId, {
+              label: "Move", color: "bg-cyan-700 hover:bg-cyan-600 text-cyan-100",
+              onClick: (e) => { e.stopPropagation(); cancelMode(); setMoveCharId(action.characterInstanceId); },
+            });
+          }
+          break;
+        }
         case "ACTIVATE_ABILITY": {
           const def = gs.cards[action.instanceId]
             ? definitions[gs.cards[action.instanceId]!.definitionId]
@@ -752,11 +775,74 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   const choiceLabels = getLabelMap(choiceTargetIds); // id → "Name (N)" or "Name"
 
   // Helper: render card + its action buttons, wrapped in DnD primitives
+  // Render a single in-play card cell with the exerted-rotation sizing kludge
+  function renderPlayCell(id: string, isOpponent: boolean) {
+    const exerted = gameState!.cards[id]?.isExerted ?? false;
+    return (
+      <div key={id} className={`shrink-0 ${exerted ? "w-[73px] h-[52px] sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] flex items-center justify-center overflow-hidden" : ""}`}>
+        {renderCardWithActions(id, "play", isOpponent)}
+      </div>
+    );
+  }
+
+  // Render the play area: locations (each with its hosted characters in a colored box),
+  // wandering characters, then items/actions on the right.
+  function renderPlayArea(playIds: string[], isOpponent: boolean) {
+    const locationIds = playIds.filter(id => definitions[gameState!.cards[id]?.definitionId ?? ""]?.cardType === "location");
+    const characterIds = playIds.filter(id => definitions[gameState!.cards[id]?.definitionId ?? ""]?.cardType === "character");
+    const otherIds = playIds.filter(id => {
+      const t = definitions[gameState!.cards[id]?.definitionId ?? ""]?.cardType;
+      return t !== "location" && t !== "character";
+    });
+    // Group characters by their atLocationInstanceId
+    const wandering: string[] = [];
+    const byLocation = new Map<string, string[]>();
+    for (const cid of characterIds) {
+      const at = gameState!.cards[cid]?.atLocationInstanceId;
+      if (at && locationIds.includes(at)) {
+        if (!byLocation.has(at)) byLocation.set(at, []);
+        byLocation.get(at)!.push(cid);
+      } else {
+        wandering.push(cid);
+      }
+    }
+    return (
+      <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1 md:gap-2 pb-1 md:px-1">
+        {/* Locations row — each with its hosted characters bordered together */}
+        {locationIds.length > 0 && (
+          <div className="flex flex-wrap gap-2 items-end content-end">
+            {locationIds.map(locId => {
+              const hosted = byLocation.get(locId) ?? [];
+              return (
+                <div key={locId} className="flex items-end gap-1 md:gap-2 p-1 md:p-1.5 rounded-lg border border-cyan-700/50 bg-cyan-950/20">
+                  {renderPlayCell(locId, isOpponent)}
+                  {hosted.map(cid => renderPlayCell(cid, isOpponent))}
+                </div>
+              );
+            })}
+          </div>
+        )}
+        {/* Wandering characters + items/actions row */}
+        <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-1 md:gap-2">
+          <div className="flex flex-wrap gap-1 md:gap-2 items-end content-end">
+            {wandering.map(id => renderPlayCell(id, isOpponent))}
+          </div>
+          {otherIds.length > 0 && (
+            <div className="flex flex-wrap gap-1 md:gap-2 items-end content-end md:justify-end">
+              {otherIds.map(id => renderPlayCell(id, isOpponent))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   function renderCardWithActions(id: string, zone: "play" | "hand", isOpponent = false, index = 0, total = 1, faceDown = false) {
     const isChallTarget = challengeTargets.has(id);
     const isShiftTarget = shiftTargets.has(id);
     const isSingTarget = singTargets.has(id);
-    const isAttacker = id === challengeAttackerId || id === shiftCardId;
+    const isMoveTarget = moveTargets.has(id);
+    const isAttacker = id === challengeAttackerId || id === shiftCardId || id === moveCharId;
     const choiceLabel = choiceLabels.get(id);
     const plainName = getCardName(id);
     const disambigBadge = choiceLabel && choiceLabel !== plainName
@@ -798,7 +884,12 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         setSingCardId(null);
         return;
       }
-      if (challengeAttackerId || shiftCardId || singCardId) { cancelMode(); return; }
+      if (!isOpponent && moveCharId && isMoveTarget) {
+        session.dispatch({ type: "MOVE_CHARACTER", playerId: myId, characterInstanceId: moveCharId, locationInstanceId: id });
+        setMoveCharId(null);
+        return;
+      }
+      if (challengeAttackerId || shiftCardId || singCardId || moveCharId) { cancelMode(); return; }
       // Toggle: tap same card → deselect; tap different card → select it
       setInspectCardId(prev => prev === id ? null : id);
       if (inspectModalOpen) setInspectModalOpen(false);
@@ -822,7 +913,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                 gameState={gameState}
                 definitions={definitions}
                 isSelected={false}
-                isTarget={isChallTarget || isShiftTarget || isSingTarget}
+                isTarget={isChallTarget || isShiftTarget || isSingTarget || isMoveTarget}
                 isAttacker={isAttacker}
                 onClick={handleClick}
                 zone={zone}
@@ -966,22 +1057,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               <span className="text-gray-700 text-xs italic">No cards in play</span>
             </div>
           ) : (
-            <div className="flex-1 min-h-0 overflow-y-auto flex flex-col md:flex-row md:justify-between md:items-end gap-1 md:gap-2 pb-1 md:px-1">
-              <div className="flex flex-wrap gap-1 md:gap-2 items-end content-end">
-                {p2Zones.play.filter(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType === "character").map((id) => {
-                  const exerted = gameState.cards[id]?.isExerted ?? false;
-                  return <div key={id} className={`shrink-0 ${exerted ? "w-[73px] h-[52px] sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] flex items-center justify-center overflow-hidden" : ""}`}>{renderCardWithActions(id, "play", true)}</div>;
-                })}
-              </div>
-              {p2Zones.play.some(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType !== "character") && (
-                <div className="flex flex-wrap gap-1 md:gap-2 items-end content-end md:justify-end">
-                  {p2Zones.play.filter(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType !== "character").map((id) => {
-                    const exerted = gameState.cards[id]?.isExerted ?? false;
-                    return <div key={id} className={`shrink-0 ${exerted ? "w-[73px] h-[52px] sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] flex items-center justify-center overflow-hidden" : ""}`}>{renderCardWithActions(id, "play", true)}</div>;
-                  })}
-                </div>
-              )}
-            </div>
+            renderPlayArea(p2Zones.play, true)
           )}
         </div>
 
@@ -1006,12 +1082,14 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
 
           {/* Pass / Cancel — right side */}
           <div className="w-16 flex justify-end">
-            {(challengeAttackerId || shiftCardId) ? (
+            {(challengeAttackerId || shiftCardId || moveCharId) ? (
               <button
                 className={`px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-xs rounded sm:rounded-md border font-medium transition-colors
                   ${challengeAttackerId
                     ? "bg-red-900/40 hover:bg-red-900/60 text-red-400 border-red-700/40"
-                    : "bg-purple-900/40 hover:bg-purple-900/60 text-purple-400 border-purple-700/40"}`}
+                    : moveCharId
+                      ? "bg-cyan-900/40 hover:bg-cyan-900/60 text-cyan-400 border-cyan-700/40"
+                      : "bg-purple-900/40 hover:bg-purple-900/60 text-purple-400 border-purple-700/40"}`}
                 onClick={cancelMode}
               >
                 Cancel
@@ -1043,22 +1121,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                 </span>
               </div>
             ) : (
-              <div className="flex-1 min-h-0 overflow-y-auto flex flex-col md:flex-row md:justify-between md:items-end gap-1 md:gap-2 pb-1 md:px-1">
-                <div className="flex flex-wrap gap-1 md:gap-2 items-end content-end">
-                  {p1Zones.play.filter(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType === "character").map((id) => {
-                    const exerted = gameState.cards[id]?.isExerted ?? false;
-                    return <div key={id} className={`shrink-0 ${exerted ? "w-[73px] h-[52px] sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] flex items-center justify-center overflow-hidden" : ""}`}>{renderCardWithActions(id, "play", false)}</div>;
-                  })}
-                </div>
-                {p1Zones.play.some(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType !== "character") && (
-                  <div className="flex flex-wrap gap-1 md:gap-2 items-end content-end md:justify-end">
-                    {p1Zones.play.filter(id => definitions[gameState.cards[id]?.definitionId ?? ""]?.cardType !== "character").map((id) => {
-                      const exerted = gameState.cards[id]?.isExerted ?? false;
-                      return <div key={id} className={`shrink-0 ${exerted ? "w-[73px] h-[52px] sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] flex items-center justify-center overflow-hidden" : ""}`}>{renderCardWithActions(id, "play", false)}</div>;
-                    })}
-                  </div>
-                )}
-              </div>
+              renderPlayArea(p1Zones.play, false)
             )}
           </DroppablePlayZone>
 
@@ -1220,7 +1283,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           </div>
         </div>
       )}
-      {!pendingChoice && !isGameOver && isYourTurn && (challengeAttackerId || shiftCardId || singCardId) && (
+      {!pendingChoice && !isGameOver && isYourTurn && (challengeAttackerId || shiftCardId || singCardId || moveCharId) && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2">
           {challengeAttackerId && (
             <div className="flex items-center gap-2 rounded-full px-3 py-1 sm:px-4 sm:py-1.5 bg-red-950/90 border border-red-700/60 text-red-300 text-xs shadow-lg">
@@ -1241,6 +1304,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               <span className="font-bold">Sing</span>
               <span className="hidden sm:inline text-yellow-600">— tap a highlighted character to sing</span>
               <button className="text-yellow-600 hover:text-yellow-300 font-bold active:scale-95" onClick={cancelMode}><Icon name="x-mark" className="w-3.5 h-3.5" /></button>
+            </div>
+          )}
+          {moveCharId && (
+            <div className="flex items-center gap-2 rounded-full px-3 py-1 sm:px-4 sm:py-1.5 bg-cyan-950/90 border border-cyan-700/60 text-cyan-300 text-xs shadow-lg">
+              <span className="font-bold">Move</span>
+              <span className="hidden sm:inline text-cyan-600">— tap a highlighted location</span>
+              <button className="text-cyan-600 hover:text-cyan-300 font-bold active:scale-95" onClick={cancelMode}><Icon name="x-mark" className="w-3.5 h-3.5" /></button>
             </div>
           )}
         </div>

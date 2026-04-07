@@ -42,9 +42,12 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   const def = definitions[instance.definitionId];
   if (!def) return null;
 
+  // CRD 5.5.4: locations never exert and never dry
+  const isLocation = def.cardType === "location";
+
   // Mobile width: play cards shrink to fit 7 ready across; exerted cards use rotated width so
   // flex layout nudges neighbours rather than overlapping them. Hand cards stay full size.
-  const isExerted = instance.isExerted;
+  const isExerted = !isLocation && instance.isExerted;
   const mobileWidth = faceDown
     ? "w-[52px]"
     : zone === "play"
@@ -79,7 +82,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   const inkColor = def.inkColors[0] ?? "steel";
   const theme = INK_THEME[inkColor] ?? DEFAULT_THEME;
 
-  const isDrying = zone === "play" && instance.isDrying;
+  const isDrying = zone === "play" && !isLocation && instance.isDrying;
   const damage = zone === "play" ? instance.damage : 0;
 
   const strength = def.strength != null
@@ -112,6 +115,17 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
     singer:     "bg-yellow-500/90",
     support:    "bg-teal-600/90",
     ward:       "bg-purple-600/90",
+  };
+  const KEYWORD_LABEL: Record<BadgeKeyword, string> = {
+    bodyguard:  "BG",
+    challenger: "CH",
+    evasive:    "EV",
+    reckless:   "RK",
+    resist:     "RS",
+    rush:       "RU",
+    singer:     "SG",
+    support:    "SP",
+    ward:       "WD",
   };
   const KEYWORD_ICON: Record<BadgeKeyword, IconName> = {
     bodyguard:  "shield-check",
@@ -239,7 +253,23 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
 
       {/* Bottom: stats */}
       <div className="px-2 pb-2 mt-auto">
-        {strength != null && willpowerModified != null && (
+        {/* Locations: willpower + lore + moveCost (no strength) */}
+        {isLocation && willpowerModified != null && (
+          <div className="flex items-center justify-between mt-2">
+            <div className="flex items-center gap-0.5">
+              <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-blue-700/60 text-[10px] font-black text-blue-200">{willpowerModified}</span>
+              {def.moveCost != null && (
+                <span className="ml-1 inline-flex items-center justify-center w-5 h-5 rounded bg-cyan-700/60 text-[10px] font-black text-cyan-200" title="Move cost">{def.moveCost}</span>
+              )}
+            </div>
+            {def.lore != null && def.lore > 0 && (
+              <div className="flex items-center gap-0.5">
+                {Array.from({ length: def.lore }, (_, i) => <span key={i} className="text-amber-400 text-[10px]">&#9670;</span>)}
+              </div>
+            )}
+          </div>
+        )}
+        {!isLocation && strength != null && willpowerModified != null && (
           <div className="flex items-center justify-between mt-2">
             <div className="flex items-center gap-0.5">
               <span className={`inline-flex items-center justify-center w-5 h-5 rounded bg-orange-700/60 text-[10px] font-black text-orange-200 ${hasModifiedStats ? "ring-1 ring-orange-400" : ""}`}>{strength}</span>

@@ -62,6 +62,12 @@ export function useBoardDnd(params: {
         (a) => a.type === "CHALLENGE" && a.attackerInstanceId === draggingId && a.defenderInstanceId === targetId,
       );
       if (challengeAction) { dispatch(challengeAction); return; }
+
+      // Move: drag own ready character onto own location (CRD 4.7)
+      const moveAction = legalActions.find(
+        (a) => a.type === "MOVE_CHARACTER" && a.characterInstanceId === draggingId && a.locationInstanceId === targetId,
+      );
+      if (moveAction) { dispatch(moveAction); return; }
     }
   }
 
@@ -84,7 +90,8 @@ export function useBoardDnd(params: {
     return legalActions.some(
       (a) =>
         (a.type === "PLAY_CARD" && a.instanceId === draggingId && a.shiftTargetInstanceId === targetId) ||
-        (a.type === "CHALLENGE" && a.attackerInstanceId === draggingId && a.defenderInstanceId === targetId),
+        (a.type === "CHALLENGE" && a.attackerInstanceId === draggingId && a.defenderInstanceId === targetId) ||
+        (a.type === "MOVE_CHARACTER" && a.characterInstanceId === draggingId && a.locationInstanceId === targetId),
     );
   }
 
