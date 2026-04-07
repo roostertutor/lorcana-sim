@@ -412,7 +412,41 @@
       "Hero",
       "Musketeer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "EN GAWRSH!",
+        "rulesText": "Whenever you play a character with Bodyguard, ready this character. He can't quest for the rest of this turn.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "hasKeyword": "bodyguard",
+            "excludeSelf": true
+          }
+        },
+        "effects": [
+          {
+            "type": "ready",
+            "target": {
+              "type": "this"
+            },
+            "followUpEffects": [
+              {
+                "type": "cant_action",
+                "action": "quest",
+                "target": {
+                  "type": "this"
+                },
+                "duration": "rest_of_turn"
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 12,
     "rarity": "rare",
@@ -479,7 +513,24 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "HERE BOY",
+        "rulesText": "If you have a character named Prince Eric in play, you pay 1 {I} less to play this character.",
+        "condition": {
+          "type": "has_character_named",
+          "name": "Prince Eric",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 1
+        }
+      }
+    ],
     "setId": "4",
     "number": 14,
     "rarity": "common",
@@ -860,7 +911,33 @@
       "Princess",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "VANESSA'S DESIGN",
+        "rulesText": "Whenever this character quests, chosen opponent reveals their hand and discards a non-character card of your choice.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            },
+            "chooser": "controller",
+            "filter": {
+              "cardType": [
+                "action",
+                "item",
+                "location"
+              ]
+            }
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 24,
     "rarity": "rare",
@@ -1468,7 +1545,37 @@
       "Ally",
       "Madrigal"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "MAGICAL INFORMANT",
+        "rulesText": "When you play this character, if an opponent has an exerted character in play, you may draw a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "cards_in_zone_gte",
+          "zone": "play",
+          "amount": 1,
+          "player": {
+            "type": "opponent"
+          },
+          "cardType": [
+            "character"
+          ]
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 41,
     "rarity": "common",
@@ -1502,7 +1609,43 @@
       "Queen",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "TEMPEST",
+        "rulesText": "Chosen character gains Challenger +2 and Rush this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "challenger",
+            "value": 2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "end_of_turn",
+            "followUpEffects": [
+              {
+                "type": "grant_keyword",
+                "keyword": "rush",
+                "target": {
+                  "type": "this"
+                },
+                "duration": "end_of_turn"
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 42,
     "rarity": "rare",
@@ -1535,7 +1678,24 @@
       "Dreamborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "QUICK ESCAPE",
+        "rulesText": "When this character is banished in a challenge, return this card to your hand.",
+        "trigger": {
+          "on": "banished_in_challenge"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 43,
     "rarity": "uncommon",
@@ -1650,9 +1810,20 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "challenger",
-        "value": 2
+        "type": "triggered",
+        "storyName": "QUICK ESCAPE",
+        "rulesText": "When this character is banished in a challenge, return this card to your hand.",
+        "trigger": {
+          "on": "banished_in_challenge"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -1718,7 +1889,45 @@
       "Dreamborn",
       "Broom"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "NICE AND TIDY",
+        "rulesText": "Whenever you play another character, you may banish this character to draw a card.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true
+          }
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "banish",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 48,
     "rarity": "common",
@@ -1853,7 +2062,45 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "IT'LL TURN OUT ALL RIGHT",
+        "rulesText": "When you play this character, if you have a character named Lumiere or Cogsworth in play, you may draw a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "compound_or",
+          "conditions": [
+            {
+              "type": "has_character_named",
+              "name": "Lumiere",
+              "player": {
+                "type": "self"
+              }
+            },
+            {
+              "type": "has_character_named",
+              "name": "Cogsworth",
+              "player": {
+                "type": "self"
+              }
+            }
+          ]
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 52,
     "rarity": "rare",
@@ -2209,7 +2456,9 @@
       {
         "type": "draw",
         "amount": 5,
-        "target": { "type": "chosen" }
+        "target": {
+          "type": "chosen"
+        }
       }
     ],
     "setId": "4",
@@ -3344,9 +3593,13 @@
       {
         "type": "return_all_to_bottom_in_order",
         "filter": {
-          "owner": { "type": "opponent" },
+          "owner": {
+            "type": "opponent"
+          },
           "zone": "play",
-          "cardType": ["character"],
+          "cardType": [
+            "character"
+          ],
           "strengthAtMost": 2
         }
       }
@@ -5464,7 +5717,27 @@
       "Dreamborn",
       "Prince"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      },
+      {
+        "type": "static",
+        "rulesText": "During your turn, this character gains Evasive.",
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "4",
     "number": 160,
     "rarity": "uncommon",
@@ -6274,7 +6547,26 @@
       "Dreamborn",
       "Broom"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "rush"
+      },
+      {
+        "type": "static",
+        "rulesText": "During your turn, this character gains Evasive.",
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "4",
     "number": 185,
     "rarity": "common",
@@ -6524,7 +6816,29 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "REGAL GUARDIAN",
+        "rulesText": "While you have no cards in your hand, characters with cost 4 or less can't challenge this character.",
+        "condition": {
+          "type": "cards_in_hand_eq",
+          "amount": 0,
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "cant_be_challenged",
+          "target": {
+            "type": "this"
+          },
+          "attackerFilter": {
+            "costAtMost": 4
+          }
+        }
+      }
+    ],
     "setId": "4",
     "number": 192,
     "rarity": "rare",
@@ -7176,7 +7490,9 @@
       {
         "type": "draw",
         "amount": 5,
-        "target": { "type": "chosen" }
+        "target": {
+          "type": "chosen"
+        }
       }
     ],
     "setId": "4",
