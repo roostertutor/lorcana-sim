@@ -540,7 +540,33 @@
       "Storyborn",
       "Puppy"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "OOOOH, SHINY!",
+        "rulesText": "Reveal the top 3 cards of your deck. You may put each character card with cost 2 or less into your hand. Put the rest on the bottom of your deck in any order.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 3,
+            "action": "one_to_hand_rest_bottom",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "costAtMost": 2
+            },
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 8,
     "rarity": "rare",
@@ -1054,7 +1080,34 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "TWILIGHT BARK",
+        "rulesText": "You may pay 2 {I} to reveal the top card of your deck. If it's a character card, put it into your hand. Otherwise, put it on the bottom of your deck.",
+        "costs": [
+          {
+            "type": "pay_ink",
+            "amount": 2
+          }
+        ],
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 1,
+            "action": "one_to_hand_rest_bottom",
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            },
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 19,
     "rarity": "super_rare",
@@ -1182,7 +1235,32 @@
       "Ally",
       "Fairy"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "FAIRY GIFTS",
+        "rulesText": "When you play this character, look at the top 4 cards of your deck. You may reveal a character card and put it into your hand. Put the rest on the bottom of your deck in any order.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 4,
+            "action": "one_to_hand_rest_bottom",
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            },
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 22,
     "rarity": "uncommon",
@@ -1442,6 +1520,16 @@
         "storyName": "",
         "rulesText": "Chosen opponent reveals their hand and discards a non-character card of your choice.",
         "raw": "Chosen opponent reveals their hand and discards a non-character card of your choice."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "discard_from_hand",
+        "amount": 1,
+        "target": {
+          "type": "opponent"
+        },
+        "chooser": "controller"
       }
     ]
   },
@@ -2392,9 +2480,21 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 5
+        "type": "triggered",
+        "storyName": "GOLDEN TOUCH",
+        "rulesText": "Whenever this character quests, gain lore equal to the cost of one of your items in play.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "3",
@@ -2431,7 +2531,30 @@
       "Villain",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "MAGIC THEFT",
+        "rulesText": "Return chosen item with cost equal to or less than this character's {S} to its player's hand.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "item"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 50,
     "rarity": "uncommon",
@@ -2465,7 +2588,37 @@
       "Villain",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "ROYAL FORM",
+        "rulesText": "Whenever this character quests, you may draw a card.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "rulesText": "During your turn, whenever you draw a card, you may move 1 damage counter from chosen character to chosen opposing character.",
+        "trigger": {
+          "on": "quests"
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": []
+      }
+    ],
     "setId": "3",
     "number": 51,
     "rarity": "legendary",
@@ -2503,7 +2656,41 @@
       "Ally",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "DEEP CONNECTION",
+        "rulesText": "Whenever this character quests, you may move up to 2 damage counters from chosen character to chosen opposing character.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "move_damage",
+            "amount": 2,
+            "from": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "hasDamage": true
+              }
+            },
+            "to": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 52,
     "rarity": "uncommon",
@@ -2635,8 +2822,33 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
+        "type": "triggered",
+        "storyName": "WHIRLWIND ENTRANCE",
+        "rulesText": "Gain lore equal to the number of Titan characters you have in play.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": {
+              "type": "count",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Titan"
+              }
+            },
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "3",
@@ -2826,6 +3038,31 @@
         "storyName": "",
         "rulesText": "Move 1 damage counter from chosen character to chosen opposing character.",
         "raw": "Move 1 damage counter from chosen character to chosen opposing character."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "move_damage",
+        "amount": 1,
+        "from": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "hasDamage": true
+          }
+        },
+        "to": {
+          "type": "chosen",
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
       }
     ]
   },
@@ -4084,7 +4321,26 @@
       "Villain",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "WICKED PLAN",
+        "rulesText": "When you play this character, chosen opponent reveals their hand and discards a song card of your choice.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            },
+            "chooser": "controller"
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 90,
     "rarity": "uncommon",
@@ -4628,8 +4884,37 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
+        "type": "triggered",
+        "storyName": "PART OF YOUR WORLD",
+        "rulesText": "Whenever you play a song, chosen character of yours gains Evasive until the start of your next turn.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "action"
+            ],
+            "hasTrait": "Song"
+          }
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "evasive",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "end_of_owner_next_turn"
+          }
+        ]
       }
     ],
     "setId": "3",
@@ -4821,7 +5106,37 @@
     "traits": [
       "Storyborn"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "MULTI-HEADED MONSTER",
+        "rulesText": "Whenever this character is dealt damage, deal that much damage to chosen opposing character.",
+        "trigger": {
+          "on": "damage_dealt_to",
+          "filter": {
+            "excludeSelf": false
+          }
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": "X",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 108,
     "rarity": "legendary",
@@ -6057,7 +6372,23 @@
       "Alien",
       "Captain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "STORMY SAILING",
+        "rulesText": "During your turn, this character gains Evasive.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        }
+      }
+    ],
     "setId": "3",
     "number": 138,
     "rarity": "common",
@@ -6120,7 +6451,23 @@
       "Storyborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "I DON'T NEED ANYONE",
+        "rulesText": "During your turn, this character gains Evasive.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        }
+      }
+    ],
     "setId": "3",
     "number": 140,
     "rarity": "uncommon",
@@ -6178,7 +6525,27 @@
       "Storyborn",
       "Mentor"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "I'M HERE",
+        "rulesText": "When you play this character, look at the top 2 cards of your deck. You may put one into your hand. Put the rest on the bottom of your deck in any order.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 2,
+            "action": "one_to_hand_rest_bottom",
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 142,
     "rarity": "common",
@@ -6576,7 +6943,33 @@
       "Storyborn",
       "Mentor"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "DIG DEEPER",
+        "rulesText": "Whenever you play a song, you may put the top card of your deck into your inkwell facedown and exerted.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "action"
+            ],
+            "hasTrait": "Song"
+          }
+        },
+        "effects": [
+          {
+            "type": "move_to_inkwell",
+            "target": {
+              "type": "this"
+            },
+            "enterExerted": true,
+            "fromZone": "deck",
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 151,
     "rarity": "rare",
@@ -6686,7 +7079,44 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "I OWN THIS PLACE",
+        "rulesText": "During your turn, this character gains Evasive.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        }
+      },
+      {
+        "type": "triggered",
+        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may play an item for free.",
+        "trigger": {
+          "on": "banished_other_in_challenge"
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "play_for_free",
+            "filter": {
+              "cardType": [
+                "item"
+              ]
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 154,
     "rarity": "super_rare",
@@ -6991,6 +7421,32 @@
         "rulesText": "Each player puts the top 3 cards of their deck into their inkwell facedown and exerted.",
         "raw": "Each player puts the top 3 cards of their deck into their inkwell facedown and exerted."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "move_to_inkwell",
+        "target": {
+          "type": "this"
+        },
+        "enterExerted": true,
+        "fromZone": "deck"
+      },
+      {
+        "type": "move_to_inkwell",
+        "target": {
+          "type": "this"
+        },
+        "enterExerted": true,
+        "fromZone": "deck"
+      },
+      {
+        "type": "move_to_inkwell",
+        "target": {
+          "type": "this"
+        },
+        "enterExerted": true,
+        "fromZone": "deck"
+      }
     ]
   },
   {
@@ -7185,7 +7641,25 @@
     "cost": 7,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "FOR A RAINY DAY",
+        "rulesText": "Choose a character of yours and gain lore equal to their {L}.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 165,
     "rarity": "legendary",
@@ -7658,8 +8132,19 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "bodyguard"
+        "type": "static",
+        "storyName": "ALWAYS THERE",
+        "rulesText": "During your turn, this character gains Evasive.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        }
       }
     ],
     "setId": "3",
@@ -8304,7 +8789,38 @@
       "Hero",
       "King"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "MUFASA'S LEGACY",
+        "rulesText": "During your turn, whenever this character banishes another character in a challenge, chosen opposing character can't challenge during their next turn.",
+        "trigger": {
+          "on": "banished_other_in_challenge"
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "cant_action",
+            "action": "challenge",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "end_of_owner_next_turn"
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 193,
     "rarity": "uncommon",
@@ -8987,7 +9503,37 @@
       "Villain",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "ROYAL FORM",
+        "rulesText": "Whenever this character quests, you may draw a card.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "rulesText": "During your turn, whenever you draw a card, you may move 1 damage counter from chosen character to chosen opposing character.",
+        "trigger": {
+          "on": "quests"
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": []
+      }
+    ],
     "setId": "3",
     "number": 209,
     "rarity": "enchanted",
@@ -9339,7 +9885,44 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "I OWN THIS PLACE",
+        "rulesText": "During your turn, this character gains Evasive.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        }
+      },
+      {
+        "type": "triggered",
+        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may play an item for free.",
+        "trigger": {
+          "on": "banished_other_in_challenge"
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "play_for_free",
+            "filter": {
+              "cardType": [
+                "item"
+              ]
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 218,
     "rarity": "enchanted",

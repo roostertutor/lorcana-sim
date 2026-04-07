@@ -25,341 +25,264 @@ function patchSet(setCode: string, patches: Record<string, any>) {
 }
 
 // =============================================================================
-// SET 3 — Batch 2: remaining fits-grammar (skipping location-dependent cards)
+// SET 3 — Batch 3: needs-new-type cards that fit existing patterns
 // =============================================================================
 patchSet("3", {
 
-  // ===== STATICS — grant_keyword to filtered =====
+  // ===== look_at_top variants =====
 
-  // Flotsam - Riffraff: "Your characters named Jetsam get +3 {S}."
-  "flotsam-riffraff": {
+  // Tinker Bell - Generous Fairy: look top 4, may put character to hand
+  "tinker-bell-generous-fairy": {
     abilities: [{
-      type: "static", storyName: "WE'LL STICK TOGETHER",
-      rulesText: "Your characters named Jetsam get +3 {S}.",
-      effect: { type: "modify_stat", stat: "strength", modifier: 3, target: { type: "all", filter: { owner: { type: "self" }, zone: "play", cardType: ["character"], hasName: "Jetsam" } } },
-    }],
-  },
-
-  // Jetsam - Riffraff: "Your characters named Flotsam gain Ward."
-  "jetsam-riffraff": {
-    abilities: [{
-      type: "static", storyName: "WE STICK TOGETHER",
-      rulesText: "Your characters named Flotsam gain Ward.",
-      effect: { type: "grant_keyword", keyword: "ward", target: { type: "all", filter: { owner: { type: "self" }, zone: "play", cardType: ["character"], hasName: "Flotsam" } } },
-    }],
-  },
-
-  // Trigger - Not-So-Sharp Shooter: "Your characters named Nutsy get +1 {L}."
-  "trigger-not-so-sharp-shooter": {
-    abilities: [{
-      type: "static", storyName: "PARTNERS",
-      rulesText: "Your characters named Nutsy get +1 {L}.",
-      effect: { type: "modify_stat", stat: "lore", modifier: 1, target: { type: "all", filter: { owner: { type: "self" }, zone: "play", cardType: ["character"], hasName: "Nutsy" } } },
-    }],
-  },
-
-  // Peter Pan - Never Land Hero: "While Tinker Bell in play, +2 {S}"
-  "peter-pan-never-land-hero": {
-    abilities: [{
-      type: "static", storyName: "YOU CAN FLY!",
-      rulesText: "While you have a character named Tinker Bell in play, this character gets +2 {S}.",
-      effect: { type: "modify_stat", stat: "strength", modifier: 2, target: { type: "this" } },
-      condition: { type: "has_character_named", name: "Tinker Bell", player: { type: "self" } },
-    }],
-  },
-
-  // Slightly - Lost Boy: self_cost_reduction with named-character condition
-  "slightly-lost-boy": {
-    abilities: [{
-      type: "static", storyName: "THE FOX",
-      rulesText: "If you have a character named Peter Pan in play, you pay 1 {I} less to play this character.",
-      effect: { type: "self_cost_reduction", amount: 1 },
-      condition: { type: "has_character_named", name: "Peter Pan", player: { type: "self" } },
-    }],
-  },
-
-  // Scroop - Backstabber: "While damaged, +3 {S}"
-  "scroop-backstabber": {
-    abilities: [{
-      type: "static", storyName: "BACKSTABBER",
-      rulesText: "While this character has damage, he gets +3 {S}.",
-      effect: { type: "modify_stat", stat: "strength", modifier: 3, target: { type: "this" } },
-      condition: { type: "not", condition: { type: "this_has_no_damage" } },
-    }],
-  },
-
-  // ===== ENTERS_PLAY =====
-
-  // Kit Cloudkicker - Tough Guy: "may return chosen opposing with 2 STR or less"
-  "kit-cloudkicker-tough-guy": {
-    abilities: [{
-      type: "triggered", storyName: "I'M READY!",
-      rulesText: "When you play this character, you may return chosen opposing character with 2 {S} or less to their player's hand.",
+      type: "triggered", storyName: "FAIRY GIFTS",
+      rulesText: "When you play this character, look at the top 4 cards of your deck. You may reveal a character card and put it into your hand. Put the rest on the bottom of your deck in any order.",
       trigger: { on: "enters_play" },
-      effects: [{ type: "return_to_hand", target: { type: "chosen", filter: { owner: { type: "opponent" }, zone: "play", cardType: ["character"], strengthAtMost: 2 } }, isMay: true }],
+      effects: [{ type: "look_at_top", count: 4, action: "one_to_hand_rest_bottom", filter: { cardType: ["character"] }, target: { type: "self" }, isMay: true }],
     }],
   },
 
-  // Madame Medusa - The Boss: "banish chosen opposing with 3 STR or less"
-  "madame-medusa-the-boss": {
+  // Gramma Tala - Keeper of Ancient Stories: look top 2, may put one in hand
+  "gramma-tala-keeper-of-ancient-stories": {
     abilities: [{
-      type: "triggered", storyName: "WHERE'S MY DIAMOND?",
-      rulesText: "When you play this character, banish chosen opposing character with 3 {S} or less.",
+      type: "triggered", storyName: "I'M HERE",
+      rulesText: "When you play this character, look at the top 2 cards of your deck. You may put one into your hand. Put the rest on the bottom of your deck in any order.",
       trigger: { on: "enters_play" },
-      effects: [{ type: "banish", target: { type: "chosen", filter: { owner: { type: "opponent" }, zone: "play", cardType: ["character"], strengthAtMost: 3 } } }],
+      effects: [{ type: "look_at_top", count: 2, action: "one_to_hand_rest_bottom", target: { type: "self" }, isMay: true }],
     }],
   },
 
-  // Kakamora - Menacing Sailor: enters_play opp loses 1 lore
-  "kakamora-menacing-sailor": {
+  // Lucky - The 15th Puppy: reveal top 3, put each character cost 2 or less into hand
+  // Approximation: look at top 3, one_to_hand_rest_bottom with filter
+  "lucky-the-15th-puppy": {
     abilities: [{
-      type: "triggered", storyName: "ATTACK!",
-      rulesText: "When you play this character, each opponent loses 1 lore.",
+      type: "triggered", storyName: "OOOOH, SHINY!",
+      rulesText: "Reveal the top 3 cards of your deck. You may put each character card with cost 2 or less into your hand. Put the rest on the bottom of your deck in any order.",
       trigger: { on: "enters_play" },
-      effects: [{ type: "lose_lore", amount: 1, target: { type: "opponent" } }],
+      effects: [{ type: "look_at_top", count: 3, action: "one_to_hand_rest_bottom", filter: { cardType: ["character"], costAtMost: 2 }, target: { type: "self" }, isMay: true }],
     }],
   },
 
-  // Friar Tuck: enters_play - opponent with most cards in hand discards
-  // TODO: needs "player with most cards in hand" target. Approximation: opponent discards 1
-  "friar-tuck-priest-of-nottingham": {
+  // ===== "During your turn" Evasive (we have this pattern) =====
+
+  // Captain Amelia - First in Command
+  "captain-amelia-first-in-command": {
     abilities: [{
-      type: "triggered", storyName: "MISMATCHED PRIEST",
-      rulesText: "When you play this character, the player or players with the most cards in their hand chooses and discards a card.",
-      trigger: { on: "enters_play" },
-      effects: [{ type: "discard_from_hand", amount: 1, target: { type: "opponent" }, chooser: "target_player" }],
+      type: "static", storyName: "STORMY SAILING",
+      rulesText: "During your turn, this character gains Evasive.",
+      effect: { type: "grant_keyword", keyword: "evasive", target: { type: "this" } },
+      condition: { type: "is_your_turn" },
     }],
   },
 
-  // Lyle Tiberius Rourke: enters_play grant Reckless next turn + when other banished, opp loses 1 lore
-  "lyle-tiberius-rourke-cunning-mercenary": {
+  // Flintheart Glomgold - Lone Cheater
+  "flintheart-glomgold-lone-cheater": {
+    abilities: [{
+      type: "static", storyName: "I DON'T NEED ANYONE",
+      rulesText: "During your turn, this character gains Evasive.",
+      effect: { type: "grant_keyword", keyword: "evasive", target: { type: "this" } },
+      condition: { type: "is_your_turn" },
+    }],
+  },
+
+  // Little John - Robin's Pal
+  "little-john-robins-pal": {
+    abilities: [{
+      type: "static", storyName: "ALWAYS THERE",
+      rulesText: "During your turn, this character gains Evasive.",
+      effect: { type: "grant_keyword", keyword: "evasive", target: { type: "this" } },
+      condition: { type: "is_your_turn" },
+    }],
+  },
+
+  // Scrooge McDuck - Richest Duck in the World
+  "scrooge-mcduck-richest-duck-in-the-world": {
     abilities: [
-      { type: "triggered", storyName: "AERIAL RECON",
-        rulesText: "When you play this character, chosen opposing character gains Reckless during their next turn.",
-        trigger: { on: "enters_play" },
-        effects: [{ type: "grant_keyword", keyword: "reckless", target: { type: "chosen", filter: { owner: { type: "opponent" }, zone: "play", cardType: ["character"] } }, duration: "end_of_owner_next_turn" }],
+      { type: "static", storyName: "I OWN THIS PLACE",
+        rulesText: "During your turn, this character gains Evasive.",
+        effect: { type: "grant_keyword", keyword: "evasive", target: { type: "this" } },
+        condition: { type: "is_your_turn" },
       },
       { type: "triggered",
-        rulesText: "Whenever one of your other characters is banished, each opponent loses 1 lore.",
-        trigger: { on: "is_banished", filter: { owner: { type: "self" }, cardType: ["character"], excludeSelf: true } },
-        effects: [{ type: "lose_lore", amount: 1, target: { type: "opponent" } }],
+        rulesText: "During your turn, whenever this character banishes another character in a challenge, you may play an item for free.",
+        trigger: { on: "banished_other_in_challenge" },
+        condition: { type: "is_your_turn" },
+        effects: [{ type: "play_for_free", filter: { cardType: ["item"] }, isMay: true }],
       },
     ],
   },
 
-  // Milo Thatch - King of Atlantis: "When banished, return all opposing characters"
-  "milo-thatch-king-of-atlantis": {
+  // ===== Other =====
+
+  // Ariel - Adventurous Collector: "Whenever you play a song, chosen char gains Evasive until next turn"
+  "ariel-adventurous-collector": {
     abilities: [{
-      type: "triggered", storyName: "FOR ATLANTIS!",
-      rulesText: "When this character is banished, return all opposing characters to their players' hands.",
-      trigger: { on: "is_banished" },
-      effects: [{ type: "return_to_hand", target: { type: "all", filter: { owner: { type: "opponent" }, zone: "play", cardType: ["character"] } } }],
+      type: "triggered", storyName: "PART OF YOUR WORLD",
+      rulesText: "Whenever you play a song, chosen character of yours gains Evasive until the start of your next turn.",
+      trigger: { on: "card_played", filter: { cardType: ["action"], hasTrait: "Song" } },
+      effects: [{ type: "grant_keyword", keyword: "evasive", target: { type: "chosen", filter: { owner: { type: "self" }, zone: "play", cardType: ["character"] } }, duration: "end_of_owner_next_turn" }],
     }],
   },
 
-  // ===== QUEST TRIGGERS =====
-
-  // Helga Sinclair - Femme Fatale: "quests → may deal 3 to chosen damaged"
-  "helga-sinclair-femme-fatale": {
+  // Mama Odie - Mystical Maven: "Whenever you play a song, may put top of deck into inkwell exerted"
+  "mama-odie-mystical-maven": {
     abilities: [{
-      type: "triggered", storyName: "I'M ON YOUR SIDE",
-      rulesText: "Whenever this character quests, you may deal 3 damage to chosen damaged character.",
-      trigger: { on: "quests" },
-      effects: [{ type: "deal_damage", amount: 3, target: { type: "chosen", filter: { zone: "play", cardType: ["character"], hasDamage: true } }, isMay: true }],
+      type: "triggered", storyName: "DIG DEEPER",
+      rulesText: "Whenever you play a song, you may put the top card of your deck into your inkwell facedown and exerted.",
+      trigger: { on: "card_played", filter: { cardType: ["action"], hasTrait: "Song" } },
+      effects: [{ type: "move_to_inkwell", target: { type: "this" }, enterExerted: true, fromZone: "deck", isMay: true }],
     }],
   },
 
-  // Helga Sinclair - Vengeful Partner: "When challenged and banished, banish challenger"
-  "helga-sinclair-vengeful-partner": {
-    abilities: [{
-      type: "triggered", storyName: "REVENGE",
-      rulesText: "When this character is challenged and banished, banish the challenging character.",
-      trigger: { on: "banished_in_challenge" },
-      effects: [{ type: "banish", target: { type: "triggering_card" } }],
-    }],
-  },
-
-  // Prince John - Phony King: "quests → each opponent with more lore loses 2"
-  // TODO: condition check at effect time. Approximation: lose 2 lore.
-  "prince-john-phony-king": {
-    abilities: [{
-      type: "triggered", storyName: "I LOVE GOLD",
-      rulesText: "Whenever this character quests, each opponent with more lore than you loses 2 lore.",
-      trigger: { on: "quests" },
-      effects: [{ type: "lose_lore", amount: 2, target: { type: "opponent" } }],
-    }],
-  },
-
-  // ===== IS_BANISHED / IS_CHALLENGED =====
-
-  // Cursed Merfolk: "is_challenged → each opponent discards"
-  "cursed-merfolk-ursulas-handiwork": {
-    abilities: [{
-      type: "triggered", storyName: "WHAT A WRETCHED FATE",
-      rulesText: "Whenever this character is challenged, each opponent chooses and discards a card.",
-      trigger: { on: "is_challenged" },
-      effects: [{ type: "discard_from_hand", amount: 1, target: { type: "opponent" }, chooser: "target_player" }],
-    }],
-  },
-
-  // Prince Eric - Expert Helmsman: "When banished, may banish chosen character"
-  "prince-eric-expert-helmsman": {
-    abilities: [{
-      type: "triggered", storyName: "VENGEANCE",
-      rulesText: "When this character is banished, you may banish chosen character.",
-      trigger: { on: "is_banished" },
-      effects: [{ type: "banish", target: { type: "chosen", filter: { zone: "play", cardType: ["character"] } }, isMay: true }],
-    }],
-  },
-
-  // ===== ACTIONS =====
-
-  // Wildcat - Mechanic: enters_play banish chosen item
-  "wildcat-mechanic": {
-    abilities: [{
-      type: "triggered", storyName: "WRECK IT",
-      rulesText: "Banish chosen item.",
-      trigger: { on: "enters_play" },
-      effects: [{ type: "banish", target: { type: "chosen", filter: { zone: "play", cardType: ["item"] } } }],
-    }],
-  },
-
-  // Has Set My Heaaaaaart...: Song — banish chosen item
-  "has-set-my-heaaaaaaart": {
-    actionEffects: [
-      { type: "banish", target: { type: "chosen", filter: { zone: "play", cardType: ["item"] } } },
+  // Maleficent - Mistress of All Evil: quests draw + draw → move damage
+  // Uses move_damage which exists
+  "maleficent-mistress-of-all-evil": {
+    abilities: [
+      { type: "triggered", storyName: "ROYAL FORM",
+        rulesText: "Whenever this character quests, you may draw a card.",
+        trigger: { on: "quests" },
+        effects: [{ type: "draw", amount: 1, target: { type: "self" }, isMay: true }],
+      },
+      { type: "triggered",
+        rulesText: "During your turn, whenever you draw a card, you may move 1 damage counter from chosen character to chosen opposing character.",
+        // TODO: needs "card_drawn" trigger event - we don't have it. Skip second ability for now.
+        trigger: { on: "quests" }, // placeholder
+        condition: { type: "is_your_turn" },
+        effects: [],
+      },
     ],
   },
 
-  // Strike a Good Match: Song — draw 2 then discard 1
-  "strike-a-good-match": {
-    actionEffects: [
-      { type: "draw", amount: 2, target: { type: "self" } },
-      { type: "discard_from_hand", amount: 1, target: { type: "self" }, chooser: "target_player" },
-    ],
+  // Mama Odie - Voice of Wisdom: quests → may move up to 2 damage
+  // Uses move_damage which we have
+  "mama-odie-voice-of-wisdom": {
+    abilities: [{
+      type: "triggered", storyName: "DEEP CONNECTION",
+      rulesText: "Whenever this character quests, you may move up to 2 damage counters from chosen character to chosen opposing character.",
+      trigger: { on: "quests" },
+      effects: [{
+        type: "move_damage",
+        amount: 2,
+        from: { type: "chosen", filter: { zone: "play", hasDamage: true } },
+        to: { type: "chosen", filter: { owner: { type: "opponent" }, zone: "play", cardType: ["character"] } },
+      }],
+    }],
   },
 
-  // Divebomb: Banish your Reckless to banish chosen with less STR
-  // TODO: "less STR than that character" needs dynamic strength comparison. Approximation: banish chosen.
-  "divebomb": {
+  // Bestow a Gift: action → move 1 damage
+  "bestow-a-gift": {
     actionEffects: [{
-      type: "sequential",
-      costEffects: [{ type: "banish", target: { type: "chosen", filter: { owner: { type: "self" }, zone: "play", cardType: ["character"], hasKeyword: "reckless" } } }],
-      rewardEffects: [{ type: "banish", target: { type: "chosen", filter: { zone: "play", cardType: ["character"] } } }],
+      type: "move_damage",
+      amount: 1,
+      from: { type: "chosen", filter: { zone: "play", hasDamage: true } },
+      to: { type: "chosen", filter: { owner: { type: "opponent" }, zone: "play", cardType: ["character"] } },
     }],
   },
 
-  // On Your Feet! Now!: Ready all + 1 damage to each + can't quest
-  "on-your-feet-now": {
+  // Hydra - Deadly Serpent: "Whenever dealt damage, deal that much to chosen opposing"
+  // Uses damage_dealt_to trigger and dynamic damage_on_target
+  "hydra-deadly-serpent": {
+    abilities: [{
+      type: "triggered", storyName: "MULTI-HEADED MONSTER",
+      rulesText: "Whenever this character is dealt damage, deal that much damage to chosen opposing character.",
+      trigger: { on: "damage_dealt_to", filter: { excludeSelf: false } },
+      // Uses lastEffectResult set by damage application
+      effects: [{ type: "deal_damage", amount: "X", target: { type: "chosen", filter: { owner: { type: "opponent" }, zone: "play", cardType: ["character"] } } }],
+      // TODO: actual amount should be set in trigger context, not "X"
+    }],
+  },
+
+  // Stratos - Tornado Titan: "Gain lore equal to number of Titan characters in play"
+  "stratos-tornado-titan": {
+    abilities: [{
+      type: "triggered", storyName: "WHIRLWIND ENTRANCE",
+      rulesText: "Gain lore equal to the number of Titan characters you have in play.",
+      trigger: { on: "enters_play" },
+      effects: [{ type: "gain_lore", amount: { type: "count", filter: { owner: { type: "self" }, zone: "play", cardType: ["character"], hasTrait: "Titan" } }, target: { type: "self" } }],
+    }],
+  },
+
+  // Magica De Spell - The Midas Touch: "quests → gain lore equal to cost of one of your items"
+  // TODO: dynamic lore from item cost. Approximation: gain 2 lore.
+  "magica-de-spell-the-midas-touch": {
+    abilities: [{
+      type: "triggered", storyName: "GOLDEN TOUCH",
+      rulesText: "Whenever this character quests, gain lore equal to the cost of one of your items in play.",
+      trigger: { on: "quests" },
+      effects: [{ type: "gain_lore", amount: 2, target: { type: "self" } }],
+    }],
+  },
+
+  // Ursula - Deceiver: enters_play opponent reveals + discards a song
+  // Approximation: opponent discards 1 (no song-targeting yet)
+  "ursula-deceiver": {
+    abilities: [{
+      type: "triggered", storyName: "WICKED PLAN",
+      rulesText: "When you play this character, chosen opponent reveals their hand and discards a song card of your choice.",
+      trigger: { on: "enters_play" },
+      effects: [{ type: "discard_from_hand", amount: 1, target: { type: "opponent" }, chooser: "controller" }],
+    }],
+  },
+
+  // Friend Like Me: Song — each player ink top 3
+  "friend-like-me": {
     actionEffects: [
-      { type: "ready", target: { type: "all", filter: { owner: { type: "self" }, zone: "play", cardType: ["character"] } } },
-      { type: "deal_damage", amount: 1, target: { type: "all", filter: { owner: { type: "self" }, zone: "play", cardType: ["character"] } } },
-      // TODO: cant_action quest for the rest of this turn for all readied chars (not on each separately)
+      { type: "move_to_inkwell", target: { type: "this" }, enterExerted: true, fromZone: "deck" },
+      { type: "move_to_inkwell", target: { type: "this" }, enterExerted: true, fromZone: "deck" },
+      { type: "move_to_inkwell", target: { type: "this" }, enterExerted: true, fromZone: "deck" },
+      // TODO: should affect both players. Current is just self.
     ],
   },
 
-  // ===== ITEMS =====
-
-  // The Lamp: Banish — if Jafar draw 2; if Genie return chosen with cost 4 or less
-  // TODO: conditional sub-effects. Approximation: just draw 2.
-  "the-lamp": {
+  // Lucky Dime: "Choose a character of yours and gain lore equal to their lore"
+  // TODO: dynamic from chosen target's lore. Approximation: gain 1 lore.
+  "lucky-dime": {
     abilities: [{
-      type: "activated", storyName: "GOOD OR EVIL",
-      rulesText: "If you have a character named Jafar in play, draw 2 cards. If you have a character named Genie in play, return chosen character with cost 4 or less to their player's hand.",
-      costs: [{ type: "banish_self" }],
-      effects: [{ type: "draw", amount: 2, target: { type: "self" } }],
-    }],
-  },
-
-  // Robin's Bow: deal 1 to damaged char/loc + ready when Robin Hood quests
-  "robins-bow": {
-    abilities: [
-      { type: "activated", storyName: "ARROW SHOT",
-        rulesText: "Deal 1 damage to chosen damaged character or location.",
-        costs: [{ type: "exert" }],
-        effects: [{ type: "deal_damage", amount: 1, target: { type: "chosen", filter: { zone: "play", cardType: ["character", "location"], hasDamage: true } } }],
-      },
-      { type: "triggered",
-        rulesText: "Whenever a character of yours named Robin Hood quests, you may ready this item.",
-        trigger: { on: "quests", filter: { owner: { type: "self" }, hasName: "Robin Hood" } },
-        effects: [{ type: "ready", target: { type: "this" }, isMay: true }],
-      },
-    ],
-  },
-
-  // Starlight Vial: pay 2 less for next action
-  "starlight-vial": {
-    abilities: [{
-      type: "triggered", storyName: "SPARKLE",
-      rulesText: "You pay 2 {I} less for the next action you play this turn.",
+      type: "triggered", storyName: "FOR A RAINY DAY",
+      rulesText: "Choose a character of yours and gain lore equal to their {L}.",
       trigger: { on: "enters_play" },
-      effects: [{ type: "cost_reduction", amount: 2, filter: { cardType: ["action"] } }],
+      effects: [{ type: "gain_lore", amount: 1, target: { type: "self" } }],
     }],
   },
 
-  // Airfoil: "If you've played 2+ actions, draw a card" — activated
-  "airfoil": {
+  // Pongo - Determined Father: "Once per turn, may pay 2 ink to look at top, char to hand"
+  // Activated ability
+  "pongo-determined-father": {
     abilities: [{
-      type: "activated", storyName: "FLY!",
-      rulesText: "If you've played 2 or more actions this turn, draw a card.",
-      costs: [{ type: "exert" }],
-      condition: { type: "actions_played_this_turn_gte", amount: 2 },
-      effects: [{ type: "draw", amount: 1, target: { type: "self" } }],
+      type: "activated", storyName: "TWILIGHT BARK",
+      rulesText: "You may pay 2 {I} to reveal the top card of your deck. If it's a character card, put it into your hand. Otherwise, put it on the bottom of your deck.",
+      costs: [{ type: "pay_ink", amount: 2 }],
+      effects: [{ type: "look_at_top", count: 1, action: "one_to_hand_rest_bottom", filter: { cardType: ["character"] }, target: { type: "self" } }],
     }],
   },
 
-  // ===== STILL UNIQUE =====
-
-  // Rafiki - Mystical Fighter: "Whenever he challenges a Hyena, takes no damage from the challenge"
-  // Same pattern as Raya - challenge_damage_immunity but with hasTrait filter
-  "rafiki-mystical-fighter": {
+  // Simba - Rightful King: "during turn, banishes another → chosen opposing can't challenge next turn"
+  "simba-rightful-king": {
     abilities: [{
-      type: "static", storyName: "ANCIENT INSIGHT",
-      rulesText: "Whenever he challenges a Hyena character, this character takes no damage from the challenge.",
-      effect: { type: "challenge_damage_immunity", targetFilter: { hasTrait: "Hyena" } },
+      type: "triggered", storyName: "MUFASA'S LEGACY",
+      rulesText: "During your turn, whenever this character banishes another character in a challenge, chosen opposing character can't challenge during their next turn.",
+      trigger: { on: "banished_other_in_challenge" },
+      condition: { type: "is_your_turn" },
+      effects: [{ type: "cant_action", action: "challenge", target: { type: "chosen", filter: { owner: { type: "opponent" }, zone: "play", cardType: ["character"] } }, duration: "end_of_owner_next_turn" }],
     }],
   },
 
-  // Peter Pan - Pirate's Bane: same — immunity vs Pirate
-  "peter-pan-pirates-bane": {
+  // Magica De Spell - Thieving Sorceress: "Return chosen item with cost <= this character's STR"
+  // TODO: dynamic strength comparison. Approximation: return any item.
+  "magica-de-spell-thieving-sorceress": {
     abilities: [{
-      type: "static", storyName: "YOU'RE NEXT!",
-      rulesText: "Whenever he challenges a Pirate character, this character takes no damage from the challenge.",
-      effect: { type: "challenge_damage_immunity", targetFilter: { hasTrait: "Pirate" } },
-    }],
-  },
-
-  // Alice - Tea Alchemist: "Exert chosen opposing character and all other opposing characters with the same name."
-  // TODO: needs "same name as chosen target" filter. Approximation: just exert chosen.
-  "alice-tea-alchemist": {
-    abilities: [{
-      type: "triggered", storyName: "GROWING UP",
-      rulesText: "Exert chosen opposing character and all other opposing characters with the same name.",
+      type: "triggered", storyName: "MAGIC THEFT",
+      rulesText: "Return chosen item with cost equal to or less than this character's {S} to its player's hand.",
       trigger: { on: "enters_play" },
-      effects: [{ type: "exert", target: { type: "chosen", filter: { owner: { type: "opponent" }, zone: "play", cardType: ["character"] } } }],
+      effects: [{ type: "return_to_hand", target: { type: "chosen", filter: { zone: "play", cardType: ["item"] } } }],
     }],
   },
 
-  // Maui - Soaring Demigod: "Whenever HeiHei quests, +1 lore + lose Reckless this turn"
-  // Approximation: +1 lore (lose Reckless not directly supported)
-  "maui-soaring-demigod": {
-    abilities: [{
-      type: "triggered", storyName: "MENEHUNE MISCHIEF",
-      rulesText: "Whenever a character of yours named HeiHei quests, this character gets +1 {L} and loses Reckless this turn.",
-      trigger: { on: "quests", filter: { owner: { type: "self" }, hasName: "HeiHei" } },
-      effects: [{ type: "gain_stats", lore: 1, target: { type: "this" }, duration: "this_turn" }],
-    }],
-  },
+  // Ursula - Deceiver of All: "Whenever sings a song, may play that song again from discard"
+  // TODO: needs "sings" trigger event AND replay from discard. Skip for now.
 
-  // ===== Dalmatian Puppy — vanilla (deck construction only) =====
-  // The "99 copies" rule is a deck construction rule, not an in-game effect.
-  // Mark as having a static no-op so card-status counts it as implemented.
-  "dalmatian-puppy-tail-wagger": {
-    abilities: [{
-      type: "static", storyName: "WHERE DID THEY ALL COME FROM?",
-      rulesText: "You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck.",
-      effect: { type: "modify_stat", stat: "willpower", modifier: 0, target: { type: "this" } },
-      // NOTE: deck construction rule only; no in-game engine effect needed.
-    }],
+  // The Bare Necessities: Song — opponent reveals + discards non-character of your choice
+  // Approximation: opponent discards 1 (controller chooses)
+  "the-bare-necessities": {
+    actionEffects: [{ type: "discard_from_hand", amount: 1, target: { type: "opponent" }, chooser: "controller" }],
   },
 });
