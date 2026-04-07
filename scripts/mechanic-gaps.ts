@@ -97,7 +97,7 @@ const NEW_TYPE: [RegExp, string][] = [
   [/\bdraw cards? until you have\b/i, "draw-to-n"],
   [/\bputs? the top \d+ cards? .{0,30}into .{0,20}discard\b/i, "mill"],
   [/\bputs? the top card .{0,30}into .{0,20}discard\b/i, "mill"],
-  [/\bput .{0,40}on the bottom of .{0,20}deck\b/i, "put-on-bottom"],
+  // (put-on-bottom removed: put_on_bottom_of_deck Effect implemented.)
   [/\beach opponent chooses and banishes\b/i, "opponent-chosen-banish"],
   [/\beach opponent chooses .{0,40}returns?\b/i, "opponent-chosen-return"],
   [/\{E\} .{0,30}(your|one of your) .{0,40}(character|item|[A-Z][a-z]+ character)/i, "exert-filtered-cost"],

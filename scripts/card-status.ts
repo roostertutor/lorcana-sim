@@ -163,8 +163,8 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   // Mill — top N cards from deck to discard
   [/\bputs? the top \d+ cards? .{0,30}into .{0,20}discard\b/i, "mill"],
   [/\bputs? the top card .{0,30}into .{0,20}discard\b/i, "mill"],
-  // Put card on bottom of deck (no shuffle — different from ShuffleIntoDeckEffect)
-  [/\bput .{0,40}on the bottom of .{0,20}deck\b/i, "put-on-bottom"],
+  // (put-on-bottom removed: put_on_bottom_of_deck Effect implemented; matched
+  //  by FITS_GRAMMAR_PATTERNS below.)
   // Opponent-chosen banish ("each opponent chooses and banishes one of their characters")
   [/\beach opponent chooses and banishes\b/i, "opponent-chosen-banish"],
   // Opponent-chosen return to hand ("each opponent chooses one of their characters and returns")
@@ -273,6 +273,7 @@ const CAPABILITIES = new Set<string>([
   "exert", "ready", "grant_keyword", "cant_action", "look_at_top",
   "discard_from_hand", "conditional_on_target", "play_for_free",
   "shuffle_into_deck", "move_to_inkwell", "grant_extra_ink_play",
+  "put_on_bottom_of_deck",
   "sequential", "create_floating_trigger_on_self",
   // Static effects
   "stat_static", "cant_be_challenged_static", "cost_reduction_static",
@@ -386,6 +387,8 @@ const FITS_GRAMMAR_PATTERNS: [RegExp, string][] = [
   [/can'?t (challenge|quest) during their next turn\b/i, "cant_action"],
   [/\bname a card\b/i, "name_a_card_then_reveal"],
   [/^sing together \d/i, "sing_together_reminder"],
+  // Put card on bottom of deck (no shuffle — different from shuffle_into_deck)
+  [/\bput .{0,40}on the bottom of .{0,20}deck\b/i, "put_on_bottom_of_deck"],
 ];
 
 function categorizeStub(rulesText: string, cardType: string): StubCategory {
