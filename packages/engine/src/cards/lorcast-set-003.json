@@ -189,7 +189,21 @@
       "Storyborn",
       "Puppy"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "WHERE DID THEY ALL COME FROM?",
+        "rulesText": "You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "modifier": 0,
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "3",
     "number": 4,
     "rarity": "common",
@@ -222,7 +236,21 @@
       "Storyborn",
       "Puppy"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "WHERE DID THEY ALL COME FROM?",
+        "rulesText": "You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "modifier": 0,
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "3",
     "number": 4,
     "rarity": "common",
@@ -255,7 +283,21 @@
       "Storyborn",
       "Puppy"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "WHERE DID THEY ALL COME FROM?",
+        "rulesText": "You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "modifier": 0,
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "3",
     "number": 4,
     "rarity": "common",
@@ -288,7 +330,21 @@
       "Storyborn",
       "Puppy"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "WHERE DID THEY ALL COME FROM?",
+        "rulesText": "You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "modifier": 0,
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "3",
     "number": 4,
     "rarity": "common",
@@ -321,7 +377,21 @@
       "Storyborn",
       "Puppy"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "WHERE DID THEY ALL COME FROM?",
+        "rulesText": "You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "modifier": 0,
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "3",
     "number": 4,
     "rarity": "common",
@@ -1624,7 +1694,33 @@
       "Hero",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "GROWING UP",
+        "rulesText": "Exert chosen opposing character and all other opposing characters with the same name.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 35,
     "rarity": "super_rare",
@@ -2494,9 +2590,15 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "challenger",
-        "value": 3
+        "type": "static",
+        "storyName": "ANCIENT INSIGHT",
+        "rulesText": "Whenever he challenges a Hyena character, this character takes no damage from the challenge.",
+        "effect": {
+          "type": "challenge_damage_immunity",
+          "targetFilter": {
+            "hasTrait": "Hyena"
+          }
+        }
       }
     ],
     "setId": "3",
@@ -2888,7 +2990,27 @@
     "cost": 2,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "GOOD OR EVIL",
+        "rulesText": "If you have a character named Jafar in play, draw 2 cards. If you have a character named Genie in play, return chosen character with cost 4 or less to their player's hand.",
+        "costs": [
+          {
+            "type": "banish_self"
+          }
+        ],
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 64,
     "rarity": "rare",
@@ -3058,7 +3180,26 @@
     "traits": [
       "Storyborn"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "WHAT A WRETCHED FATE",
+        "rulesText": "Whenever this character is challenged, each opponent chooses and discards a card.",
+        "trigger": {
+          "on": "is_challenged"
+        },
+        "effects": [
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            },
+            "chooser": "target_player"
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 70,
     "rarity": "rare",
@@ -3123,7 +3264,31 @@
       "Dreamborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "WE'LL STICK TOGETHER",
+        "rulesText": "Your characters named Jetsam get +3 {S}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "strength",
+          "modifier": 3,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasName": "Jetsam"
+            }
+          }
+        }
+      }
+    ],
     "setId": "3",
     "number": 72,
     "rarity": "common",
@@ -3156,7 +3321,26 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "MISMATCHED PRIEST",
+        "rulesText": "When you play this character, the player or players with the most cards in their hand chooses and discards a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            },
+            "chooser": "target_player"
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 73,
     "rarity": "uncommon",
@@ -3191,9 +3375,29 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 3
+        "type": "triggered",
+        "storyName": "I'M ON YOUR SIDE",
+        "rulesText": "Whenever this character quests, you may deal 3 damage to chosen damaged character.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 3,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasDamage": true
+              }
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "3",
@@ -3228,7 +3432,24 @@
       "Storyborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "REVENGE",
+        "rulesText": "When this character is challenged and banished, banish the challenging character.",
+        "trigger": {
+          "on": "banished_in_challenge"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "triggering_card"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 75,
     "rarity": "rare",
@@ -3263,8 +3484,26 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "ward"
+        "type": "static",
+        "storyName": "WE STICK TOGETHER",
+        "rulesText": "Your characters named Flotsam gain Ward.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "ward",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasName": "Flotsam"
+            }
+          }
+        }
       }
     ],
     "setId": "3",
@@ -3299,7 +3538,35 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "I'M READY!",
+        "rulesText": "When you play this character, you may return chosen opposing character with 2 {S} or less to their player's hand.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "strengthAtMost": 2
+              }
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 77,
     "rarity": "uncommon",
@@ -3332,7 +3599,60 @@
       "Storyborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "AERIAL RECON",
+        "rulesText": "When you play this character, chosen opposing character gains Reckless during their next turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "reckless",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "end_of_owner_next_turn"
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "rulesText": "Whenever one of your other characters is banished, each opponent loses 1 lore.",
+        "trigger": {
+          "on": "is_banished",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true
+          }
+        },
+        "effects": [
+          {
+            "type": "lose_lore",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 78,
     "rarity": "super_rare",
@@ -3397,9 +3717,29 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 4
+        "type": "triggered",
+        "storyName": "FOR ATLANTIS!",
+        "rulesText": "When this character is banished, return all opposing characters to their players' hands.",
+        "trigger": {
+          "on": "is_banished"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "3",
@@ -3503,7 +3843,25 @@
       "Villain",
       "Prince"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "I LOVE GOLD",
+        "rulesText": "Whenever this character quests, each opponent with more lore than you loses 2 lore.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "lose_lore",
+            "amount": 2,
+            "target": {
+              "type": "opponent"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 83,
     "rarity": "uncommon",
@@ -3794,8 +4152,26 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
+        "type": "triggered",
+        "storyName": "WRECK IT",
+        "rulesText": "Banish chosen item.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "item"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "3",
@@ -3880,6 +4256,20 @@
         "rulesText": "Banish chosen item.",
         "raw": "Banish chosen item."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "banish",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "item"
+            ]
+          }
+        }
+      }
     ]
   },
   {
@@ -3946,6 +4336,23 @@
         "rulesText": "Draw 2 cards, then choose and discard a card.",
         "raw": "Draw 2 cards, then choose and discard a card."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "draw",
+        "amount": 2,
+        "target": {
+          "type": "self"
+        }
+      },
+      {
+        "type": "discard_from_hand",
+        "amount": 1,
+        "target": {
+          "type": "self"
+        },
+        "chooser": "target_player"
+      }
     ]
   },
   {
@@ -3959,7 +4366,31 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "FLY!",
+        "rulesText": "If you've played 2 or more actions this turn, draw a card.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "condition": {
+          "type": "actions_played_this_turn_gte",
+          "amount": 2
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 97,
     "rarity": "common",
@@ -3985,7 +4416,57 @@
     "cost": 3,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "ARROW SHOT",
+        "rulesText": "Deal 1 damage to chosen damaged character or location.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 1,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character",
+                  "location"
+                ],
+                "hasDamage": true
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "rulesText": "Whenever a character of yours named Robin Hood quests, you may ready this item.",
+        "trigger": {
+          "on": "quests",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "hasName": "Robin Hood"
+          }
+        },
+        "effects": [
+          {
+            "type": "ready",
+            "target": {
+              "type": "this"
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 98,
     "rarity": "uncommon",
@@ -4016,7 +4497,27 @@
     "cost": 4,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "SPARKLE",
+        "rulesText": "You pay 2 {I} less for the next action you play this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "cost_reduction",
+            "amount": 2,
+            "filter": {
+              "cardType": [
+                "action"
+              ]
+            }
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 99,
     "rarity": "rare",
@@ -4416,7 +4917,25 @@
       "Storyborn",
       "Pirate"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "ATTACK!",
+        "rulesText": "When you play this character, each opponent loses 1 lore.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "lose_lore",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 111,
     "rarity": "common",
@@ -4449,7 +4968,34 @@
       "Storyborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "WHERE'S MY DIAMOND?",
+        "rulesText": "When you play this character, banish chosen opposing character with 3 {S} or less.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "strengthAtMost": 3
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 112,
     "rarity": "super_rare",
@@ -4485,8 +5031,28 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "reckless"
+        "type": "triggered",
+        "storyName": "MENEHUNE MISCHIEF",
+        "rulesText": "Whenever a character of yours named HeiHei quests, this character gets +1 {L} and loses Reckless this turn.",
+        "trigger": {
+          "on": "quests",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "hasName": "HeiHei"
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "lore": 1,
+            "target": {
+              "type": "this"
+            },
+            "duration": "this_turn"
+          }
+        ]
       }
     ],
     "setId": "3",
@@ -4692,8 +5258,24 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "rush"
+        "type": "static",
+        "storyName": "YOU CAN FLY!",
+        "rulesText": "While you have a character named Tinker Bell in play, this character gets +2 {S}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "strength",
+          "modifier": 2,
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "has_character_named",
+          "name": "Tinker Bell",
+          "player": {
+            "type": "self"
+          }
+        }
       }
     ],
     "setId": "3",
@@ -4730,13 +5312,15 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
-      },
-      {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 4
+        "type": "static",
+        "storyName": "YOU'RE NEXT!",
+        "rulesText": "Whenever he challenges a Pirate character, this character takes no damage from the challenge.",
+        "effect": {
+          "type": "challenge_damage_immunity",
+          "targetFilter": {
+            "hasTrait": "Pirate"
+          }
+        }
       }
     ],
     "setId": "3",
@@ -4772,7 +5356,31 @@
       "Hero",
       "Prince"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "VENGEANCE",
+        "rulesText": "When this character is banished, you may banish chosen character.",
+        "trigger": {
+          "on": "is_banished"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "3",
     "number": 121,
     "rarity": "super_rare",
@@ -4807,7 +5415,27 @@
       "Alien",
       "Pirate"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "BACKSTABBER",
+        "rulesText": "While this character has damage, he gets +3 {S}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "strength",
+          "modifier": 3,
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "not",
+          "condition": {
+            "type": "this_has_no_damage"
+          }
+        }
+      }
+    ],
     "setId": "3",
     "number": 122,
     "rarity": "uncommon",
@@ -4868,8 +5496,20 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
+        "type": "static",
+        "storyName": "THE FOX",
+        "rulesText": "If you have a character named Peter Pan in play, you pay 1 {I} less to play this character.",
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 1
+        },
+        "condition": {
+          "type": "has_character_named",
+          "name": "Peter Pan",
+          "player": {
+            "type": "self"
+          }
+        }
       }
     ],
     "setId": "3",
@@ -4935,7 +5575,31 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "PARTNERS",
+        "rulesText": "Your characters named Nutsy get +1 {L}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "modifier": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasName": "Nutsy"
+            }
+          }
+        }
+      }
+    ],
     "setId": "3",
     "number": 126,
     "rarity": "uncommon",
@@ -5002,6 +5666,43 @@
         "rulesText": "Banish one of your characters with Reckless to banish chosen character with less {S} than that character.",
         "raw": "Banish one of your characters with Reckless to banish chosen character with less {S} than that character."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "sequential",
+        "costEffects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasKeyword": "reckless"
+              }
+            }
+          }
+        ],
+        "rewardEffects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
     ]
   },
   {
@@ -5060,6 +5761,39 @@
         "storyName": "",
         "rulesText": "Ready all your characters and deal 1 damage to each of them. They can't quest for the rest of this turn.",
         "raw": "Ready all your characters and deal 1 damage to each of them. They can't quest for the rest of this turn."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "ready",
+        "target": {
+          "type": "all",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      },
+      {
+        "type": "deal_damage",
+        "amount": 1,
+        "target": {
+          "type": "all",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
       }
     ]
   },
@@ -8480,13 +9214,15 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
-      },
-      {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 4
+        "type": "static",
+        "storyName": "YOU'RE NEXT!",
+        "rulesText": "Whenever he challenges a Pirate character, this character takes no damage from the challenge.",
+        "effect": {
+          "type": "challenge_damage_immunity",
+          "targetFilter": {
+            "hasTrait": "Pirate"
+          }
+        }
       }
     ],
     "setId": "3",
