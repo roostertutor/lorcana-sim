@@ -269,7 +269,7 @@
 | 6.1.7 | "For free" = ignore all costs | ❌ |
 | 6.1.8 | "For each" — defines single number used in subsequent effect | ✅ `lastEffectResult` on GameState; `amount: "cost_result"` on DrawEffect |
 | 6.1.12 | Some abilities apply outside play zone (from hand) | ✅ `SelfCostReductionStatic` checked at play time from hand |
-| 6.1.13 | Duration mechanics: "this turn", "end of turn", etc. | ✅ `timedEffects[]` with `expiresAt: end_of_turn / rest_of_turn / end_of_owner_next_turn`. Expiry in applyPassTurn. ❌ "during your turn" / "once per turn" not tracked as distinct durations. |
+| 6.1.13 | Duration mechanics: "this turn", "end of turn", etc. | ✅ `timedEffects[]` with `expiresAt: end_of_turn / rest_of_turn / end_of_owner_next_turn`. Expiry in applyPassTurn. "Once per turn" supported via `oncePerTurn?: boolean` flag on TriggeredAbility + ActivatedAbility, tracked via `oncePerTurnTriggered` map on CardInstance. "Once during your turn" = `oncePerTurn` + `condition: { type: "is_your_turn" }`. |
 
 ### 6.2 Triggered Abilities
 | Rule | Quote | Status |
@@ -315,7 +315,7 @@
 | Rule | Quote | Status |
 |------|-------|--------|
 | 7.1.5 | Card exists in only one zone at a time | ✅ Layer 3 invariant test |
-| 7.1.6 | When card leaves play, gained effects/damage removed; becomes "new" card | ⚠️ `moveCard` changes zone but doesn't strip temp state (temp modifiers cleared at end of turn, not immediately on banish) |
+| 7.1.6 | When card leaves play, gained effects/damage removed; becomes "new" card | ✅ `zoneTransition` reset block clears: damage, isExerted, isDrying, temp stat modifiers, grantedKeywords, timedEffects, atLocationInstanceId, movedThisTurn, oncePerTurnTriggered, playedViaShift, challengedThisTurn. |
 
 ### 7.4 Play
 | Rule | Quote | Status |

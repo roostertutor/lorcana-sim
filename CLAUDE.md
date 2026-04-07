@@ -9,13 +9,13 @@ to produce deck analytics and win rates. NOT a human-playable simulator.
 
 ## Status
 
-- engine:    done (251 passing, 0 todos). Locations (CRD 5.6) implemented. Tests split: reducer.test.ts (CRD), set1.test.ts, set2.test.ts, set3.test.ts.
+- engine:    done (257 passing, 0 todos). Locations (CRD 5.6) + oncePerTurn (CRD 6.1.13) implemented. Tests split: reducer.test.ts (CRD), set1.test.ts, set2.test.ts, set3.test.ts.
 - simulator: done (46 passing). Layer 3 invariants passing. RL bot implemented (Actor-Critic + GAE).
 - analytics: done (15 passing).
 - cli:       done. analyze, compare, query, learn.
 - ui:        done. 7 screens, React+Vite. Responsive (mobile/tablet/desktop). Full-screen game board (no header/nav in-game).
 - testbench: done. Interactive game board with bot opponent. Replay mode + undo. Utility strip (deck tile, inkwell, discard tile). Card action popover anchored to clicked card (fixed-position, works on all breakpoints). Keyword badges, exerted rotation/grayscale, damage counter, summoning sickness overlay. Play zone reset on leave (CRD 1.9.3).
-- cards:     sets 1 + 2 + 3 complete. Set 3: 226/226 with locations (~10 cards have approximations for features not yet built: card_drawn trigger, MIMICRY shift, sings trigger, move-as-effect, dynamic location lore). Set 1+2: zero approximations.
+- cards:     sets 1 + 2 + 3 complete. Set 3: 226/226. ~7 cards have approximations remaining (MIMICRY shift, sings trigger, move-as-effect, dynamic location lore, persistent restrictions). Set 1+2: zero approximations.
 - sets 2–11: imported as stubs (keyword-only, 2504 total cards incl. dual-ink). Run `pnpm import-cards --sets N` to refresh.
 
 ## Quick Reference

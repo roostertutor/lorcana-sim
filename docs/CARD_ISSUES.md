@@ -36,16 +36,25 @@ Run `pnpm card-status --set <N>` to filter to one set.
 ## Set 3 — Into the Inklands
 
 226 cards (178 named-ability + 48 vanilla). Locations (CRD 5.6, 4.7, 4.6.8, 3.2.2.2)
-implemented. ~10 cards have approximations for engine features not yet built:
-- Jafar Striking Illusionist — needs `card_drawn` trigger event
-- Morph Space Goo — MIMICRY shift name override
-- Ursula Deceiver of All — `sings` trigger + replay-from-discard
-- Magic Carpet, Voyage — `move_character` as an effect (currently only as an action)
-- Maui Whale — persistent "can't ready at start of turn" restriction
-- Belle's House — cost reduction conditional on "have a character here"
-- Peter Pan Lost Boy Leader, I've Got a Dream — dynamic gain_lore from location's lore
-- Jim Hawkins — "may move here for free" alt-cost
-- Olympus Would Be That Way — Challenger bonus only when challenging a location
+fully implemented. `card_drawn` trigger and `oncePerTurn` ability flag wired this
+session. ~7 cards remain with approximations for engine features not yet built:
+
+- **Morph - Space Goo**: MIMICRY shift name override (universal shift target)
+- **Ursula - Deceiver of All**: `sings` trigger event + replay-from-discard pattern
+- **Maui - Whale**: persistent "can't ready at start of turn" restriction
+- **Belle's House - Maurice's Workshop**: cost reduction conditional on "have a character at this location" (zone-count with atLocation filter)
+- **Peter Pan - Lost Boy Leader / I've Got a Dream**: dynamic gain_lore from chosen target's lore stat
+- **Magic Carpet / Voyage**: `move_character` as an effect type (currently only as a top-level action)
+- **Jim Hawkins - Space Traveler**: "may move here for free" alt-cost (when playing a location, the character moves for free)
+- **Olympus Would Be That Way**: stat boost only during challenges against locations
+- **The Sorcerer's Hat**: player-named-card matching (name-a-card mechanic)
+
+Engine systems built this session:
+- Locations (CRD 5.6, 4.7, 4.6.8, 3.2.2.2) — full system
+- `card_drawn` trigger event with player filter (Jafar Striking Illusionist)
+- `oncePerTurn` ability flag (HeiHei, Peter Pan Lost Boy Leader, Pongo)
+- `this_at_location` condition + `atLocation: "this" | "any"` CardFilter (while-here / while-at-a-location)
+- Beast Relentless filter fix (cardType: character to avoid firing on locations)
 
 ---
 
