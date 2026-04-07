@@ -10,7 +10,7 @@ import {
   injectCard,
   passTurns,
 } from "./test-helpers.js";
-import { getInstance, getEffectiveStrength } from "../utils/index.js";
+import { getInstance, getEffectiveStrength, getZone } from "../utils/index.js";
 
 describe("§4 Set 4 — Sing Together", () => {
   it("a-pirate-s-life Sing Together 6: two characters with combined cost ≥ 6 may sing", () => {
@@ -132,6 +132,61 @@ describe("§4 Set 4 — Sing Together", () => {
     // Pass back to player1 — buff expires at start of player1's next turn.
     state = passTurns(state, 1);
     expect(getInstance(state, p1Char).timedEffects.some(te => te.type === "modify_strength" && te.amount === 2)).toBe(false);
+  });
+
+  it("Under the Sea: opposing characters with str ≤ 2 go to the bottom of opponent's deck, controller picks order", () => {
+    let state = startGame();
+    let songId: string, weakOpp1: string, weakOpp2: string, strongOpp: string, ownChar: string, singer1: string, singer2: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "under-the-sea", "hand"));
+    // Singers with combined cost ≥ 8 (Under the Sea is Sing Together 8)
+    ({ state, instanceId: singer1 } = injectCard(state, "player1", "elsa-spirit-of-winter", "play", { isDrying: false }));
+    ({ state, instanceId: singer2 } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    // Two opposing weak chars (should be returned), one strong (stays), one own char (stays)
+    ({ state, instanceId: weakOpp1 } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play", { isDrying: false })); // str 2
+    ({ state, instanceId: weakOpp2 } = injectCard(state, "player2", "lilo-making-a-wish", "play", { isDrying: false })); // str 1
+    ({ state, instanceId: strongOpp } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false })); // str 3
+    ({ state, instanceId: ownChar } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { isDrying: false }));
+
+    const p2DeckSizeBefore = getZone(state, "player2", "deck").length;
+
+    let r = applyAction(state, {
+      type: "PLAY_CARD",
+      playerId: "player1",
+      instanceId: songId,
+      singerInstanceIds: [singer1, singer2],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Two matches → choose_order surfaces for player1
+    expect(state.pendingChoice?.type).toBe("choose_order");
+    expect(state.pendingChoice?.choosingPlayerId).toBe("player1");
+    const validTargets = state.pendingChoice?.validTargets ?? [];
+    expect(validTargets).toContain(weakOpp1);
+    expect(validTargets).toContain(weakOpp2);
+    expect(validTargets).not.toContain(strongOpp);
+    expect(validTargets).not.toContain(ownChar);
+
+    // Player1 picks order: weakOpp1 first (= bottommost), weakOpp2 second
+    r = applyAction(state, {
+      type: "RESOLVE_CHOICE",
+      playerId: "player1",
+      choice: [weakOpp1, weakOpp2],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Both weak opp characters now in player2's deck at the bottom
+    expect(getInstance(state, weakOpp1).zone).toBe("deck");
+    expect(getInstance(state, weakOpp2).zone).toBe("deck");
+    expect(getInstance(state, strongOpp).zone).toBe("play");
+    expect(getInstance(state, ownChar).zone).toBe("play");
+
+    const p2Deck = getZone(state, "player2", "deck");
+    expect(p2Deck.length).toBe(p2DeckSizeBefore + 2);
+    // Bottom two slots reflect the chosen order: bottommost first, next-to-bottom second
+    expect(p2Deck[p2Deck.length - 2]).toBe(weakOpp1);
+    expect(p2Deck[p2Deck.length - 1]).toBe(weakOpp2);
   });
 
   it("Sing Together rejects duplicate singers", () => {

@@ -1455,10 +1455,27 @@ function applyResolveChoice(
   }
 
   if (pendingChoice.type === "choose_order" && Array.isArray(choice)) {
-    // Player has specified an order for cards going to bottom of deck
+    // Player has specified an order for cards going to bottom of deck.
+    // Route each card to ITS OWNER'S deck — Under the Sea sends opposing
+    // characters to the bottom of their owner's deck (not the controller's).
     const ordered = choice as string[];
-    const owner = playerId;
-    state = reorderDeckTopToBottom(state, owner, ordered, []);
+    const byOwner = new Map<PlayerID, string[]>();
+    for (const id of ordered) {
+      const inst = state.cards[id];
+      if (!inst) continue;
+      const owner = inst.ownerId;
+      if (!byOwner.has(owner)) byOwner.set(owner, []);
+      byOwner.get(owner)!.push(id);
+      // For cards not currently in their owner's deck (Under the Sea sends
+      // characters from PLAY → bottom of deck), we need to actually MOVE them
+      // first. reorderDeckTopToBottom only re-orders cards already in deck.
+      if (inst.zone !== "deck") {
+        state = moveCard(state, id, owner, "deck");
+      }
+    }
+    for (const [owner, ids] of byOwner) {
+      state = reorderDeckTopToBottom(state, owner, ids, []);
+    }
     state = resumePendingEffectQueue(state, definitions, events);
     state = cleanupPendingAction(state, playerId);
     return state;
@@ -1831,6 +1848,30 @@ export function applyEffect(
         // else: stays where it is — already on top.
       }
       return state;
+    }
+
+    case "return_all_to_bottom_in_order": {
+      // Find all matching cards. The controller picks the order they go to
+      // the bottom of their respective owners' decks. Used by Under the Sea.
+      const targets = findValidTargets(state, effect.filter, controllingPlayerId, definitions, sourceInstanceId);
+      if (targets.length === 0) return state;
+      if (targets.length === 1) {
+        const id = targets[0]!;
+        const inst = state.cards[id];
+        if (!inst) return state;
+        return moveCard(state, id, inst.ownerId, "deck");
+      }
+      // 2+ — surface choose_order for the controller. The choose_order resolver
+      // routes each chosen id to its OWN owner's deck.
+      return {
+        ...state,
+        pendingChoice: {
+          type: "choose_order",
+          choosingPlayerId: controllingPlayerId,
+          prompt: `Choose the order to place ${targets.length} cards on the bottom of their players' decks (first selected = bottommost).`,
+          validTargets: targets,
+        },
+      };
     }
 
     case "put_cards_under_into_hand": {

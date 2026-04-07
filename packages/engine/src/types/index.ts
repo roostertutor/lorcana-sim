@@ -133,6 +133,7 @@ export type Effect =
   | RevealTopConditionalEffect
   | CantBeChallengedTimedEffect
   | PutCardsUnderIntoHandEffect
+  | ReturnAllToBottomInOrderEffect
   | CreateCardEffect
   | SearchEffect
   | ChooseEffect
@@ -233,6 +234,17 @@ export interface GainStatsEffect {
   isMay?: boolean;
   /** +1 strength per damage on target (Sword in the Stone) */
   strengthPerDamage?: boolean;
+}
+
+/**
+ * "Put all matching cards on the bottom of their players' decks in any order"
+ * (Under the Sea: opposing characters with strength ≤ 2). The CONTROLLER picks
+ * the order — surfaces a choose_order pendingChoice when 2+ matches exist.
+ * Each card moves to the bottom of its OWN owner's deck.
+ */
+export interface ReturnAllToBottomInOrderEffect {
+  type: "return_all_to_bottom_in_order";
+  filter: CardFilter;
 }
 
 /**

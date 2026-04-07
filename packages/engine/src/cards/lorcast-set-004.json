@@ -3337,10 +3337,16 @@
     "traits": [
       "Song"
     ],
-    "abilities": [
+    "abilities": [],
+    "actionEffects": [
       {
-        "type": "keyword",
-        "keyword": "sing together"
+        "type": "return_all_to_bottom_in_order",
+        "filter": {
+          "owner": { "type": "opponent" },
+          "zone": "play",
+          "cardType": ["character"],
+          "strengthAtMost": 2
+        }
       }
     ],
     "setId": "4",
