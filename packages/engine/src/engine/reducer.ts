@@ -3521,7 +3521,13 @@ function applyEffectToTarget(
       }
       // Stage 1: targetInstanceId is the chosen character. Resolve the location side.
       if (effect.location.type === "chosen") {
-        const validLocations = findValidTargets(state, effect.location.filter, controllingPlayerId, definitions, targetInstanceId);
+        let validLocations = findValidTargets(state, effect.location.filter, controllingPlayerId, definitions, targetInstanceId);
+        // Sugar Rush Speedway "to ANOTHER location" — exclude the character's current location.
+        const charInst = state.cards[targetInstanceId];
+        const currentLoc = charInst?.atLocationInstanceId;
+        if (currentLoc) {
+          validLocations = validLocations.filter(id => id !== currentLoc);
+        }
         if (validLocations.length === 0) return state;
         return {
           ...state,
@@ -3682,7 +3688,9 @@ function findValidTargets(
       if (filter.excludeSelf && sourceInstanceId && instance.instanceId === sourceInstanceId) return false;
       const def = definitions[instance.definitionId];
       if (!def) return false;
-      return matchesFilter(instance, def, filter, state, controllingPlayerId);
+      // Pass sourceInstanceId so atLocation: "this" filters resolve correctly
+      // (Sugar Rush Speedway "chosen character here" needs the location's instanceId).
+      return matchesFilter(instance, def, filter, state, controllingPlayerId, sourceInstanceId);
     })
     .map((i) => i.instanceId);
 }

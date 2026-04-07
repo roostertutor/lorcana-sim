@@ -107,6 +107,44 @@ describe("§5 Set 5 — reveal_top_conditional", () => {
     expect(state.players.player2.aCharacterWasDamagedThisTurn).toBe(true);
   });
 
+  it("Sugar Rush Speedway ON YOUR MARKS!: exerts chosen here, deals 1 damage, moves to another location, excludes current loc", () => {
+    let state = startGame();
+    let sugarId: string, otherLocId: string, charId: string;
+    ({ state, instanceId: sugarId } = injectCard(state, "player1", "sugar-rush-speedway-starting-line", "play", { isDrying: false }));
+    ({ state, instanceId: otherLocId } = injectCard(state, "player1", "never-land-mermaid-lagoon", "play", { isDrying: false }));
+    // Inject Mickey at Sugar Rush
+    ({ state, instanceId: charId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, atLocationInstanceId: sugarId }));
+
+    // Activate ON YOUR MARKS!
+    let r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: sugarId, abilityIndex: 0 }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Stage 1: choose the character (must be at sugar rush, must be ready)
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    expect(state.pendingChoice?.validTargets).toContain(charId);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [charId] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Mickey now exerted + 1 damage
+    expect(getInstance(state, charId).isExerted).toBe(true);
+    expect(getInstance(state, charId).damage).toBe(1);
+
+    // Stage 2: choose destination location — sugar rush itself must be EXCLUDED
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    const validLocs = state.pendingChoice?.validTargets ?? [];
+    expect(validLocs).toContain(otherLocId);
+    expect(validLocs).not.toContain(sugarId);
+
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [otherLocId] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Mickey now at other location
+    expect(getInstance(state, charId).atLocationInstanceId).toBe(otherLocId);
+  });
+
   it("Merlin's Cottage KNOWLEDGE IS POWER: both players' top-of-deck visibility flag set", () => {
     let state = startGame();
     ({ state } = injectCard(state, "player1", "merlins-cottage-the-wizards-home", "play", { isDrying: false }));

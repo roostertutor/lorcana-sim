@@ -4284,7 +4284,50 @@
     "cost": 1,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "ON YOUR MARKS!",
+        "rulesText": "Once per turn, you may {E} chosen character here and deal them 1 damage to move them to another location for free.",
+        "oncePerTurn": true,
+        "costs": [],
+        "effects": [
+          {
+            "type": "exert",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": { "type": "self" },
+                "zone": "play",
+                "cardType": ["character"],
+                "atLocation": "this",
+                "isExerted": false
+              }
+            },
+            "followUpEffects": [
+              {
+                "type": "deal_damage",
+                "amount": 1,
+                "target": { "type": "this" }
+              },
+              {
+                "type": "move_character",
+                "character": { "type": "this" },
+                "location": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": { "type": "self" },
+                    "zone": "play",
+                    "cardType": ["location"]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "5",
     "number": 135,
     "rarity": "rare",
