@@ -20,13 +20,29 @@ const CARDS_DIR = join(__dirname, "../packages/engine/src/cards");
 const NEW_MECHANIC: [RegExp, string][] = [
   [/\b\d+ lore to win\b/i, "win-threshold"],
   [/\bneed \d+ lore to win\b/i, "win-threshold"],
-  [/\bboost \d+/i, "boost"],
-  [/facedown under (this|a|your|them|him|her|one of your)\b/i, "boost"],
-  [/\bcard[s]? under (this|a|your|them|him|her|one of your)\b/i, "boost"],
-  [/\bif there'?s? (a )?card under\b/i, "boost"],
-  [/\bput .{0,30}facedown under\b/i, "boost"],
-  [/\bcards? (facedown )?under .{0,30}(character|location)\b/i, "boost"],
-  [/\bboost ability\b/i, "boost"],
+  // Boost = Set 10+ keyword with face-DOWN cards as a resource. The keyword
+  // itself (pay N {I}, put top of deck facedown under this) is trivial; the
+  // complexity lives in the triggers, statics, and effects that read the
+  // "cards under" subzone. Decomposed into sub-capabilities so the gap report
+  // can show which sub-systems are needed for each card.
+  //
+  // A single boost card will often match multiple sub-capabilities — that's
+  // fine: the JSON output is per-stub and dedup happens at card level.
+  //
+  // boost-subzone — the cards-under subzone itself, granted by the keyword.
+  [/\bboost \d+ \{I\}/i, "boost-subzone"],
+  [/\bboost ability\b/i, "boost-subzone"],
+  // card-under-trigger — "whenever you put a card under X"
+  [/\bwhenever you put a card .{0,40}under\b/i, "card-under-trigger"],
+  // card-under-static — statics that read whether a card is under this/another
+  [/\bwhile (there'?s? a card|you have .{0,30}with a card) under\b/i, "card-under-static"],
+  [/\bwith a card under (this|them|him|her|one of)\b/i, "card-under-static"],
+  // put-facedown-under-effect — effects that put a card under (not via the keyword)
+  [/\bput .{0,30}facedown under\b/i, "put-facedown-under-effect"],
+  [/\bput the top card .{0,30}under\b/i, "put-facedown-under-effect"],
+  // cards-under-count — dynamic amounts from the cards-under subzone
+  [/\bfor each card under\b/i, "cards-under-count"],
+  [/\bnumber of cards under\b/i, "cards-under-count"],
   [/\bwould be dealt damage.{0,80}instead\b/i, "replacement-effect"],
   [/\bwould take damage.{0,80}instead\b/i, "replacement-effect"],
   [/\bskip .{0,20}draw step\b/i, "turn-structure"],
@@ -65,9 +81,7 @@ const NEW_TYPE: [RegExp, string][] = [
   [/\byou may play .{0,40}from under\b/i, "alternate-source-zone"],
   [/\bplay .{0,30}from (your|their) discard\b/i, "alternate-source-zone"],
   [/opposing .{0,40}enter.{0,10}play exerted/i, "enter-play-exerted-static"],
-  [/\bmove .{0,20}damage counter/i, "move-damage"],
-  [/\bmove .{0,10}damage from\b/i, "move-damage"],
-  [/\bmove up to \d+ damage\b/i, "move-damage"],
+  // (move-damage removed: move_damage Effect exists; these are fits-grammar.)
   [/\breveal.{0,30}(their|opponent'?s?) hand\b/i, "reveal-hand"],
   [/\blook at each opponent'?s? hand\b/i, "reveal-hand"],
   [/can'?t be challenged until\b/i, "timed-cant-be-challenged"],

@@ -1,39 +1,56 @@
 # Mechanic Gaps — Cross-Set Implementation Backlog
 
 Auto-generated from `pnpm card-status` after the categorizer was tied to a
-capability allow-list (commit 3a8b50b). Each row is a missing engine
-capability, the cards across all sets that need it, and a priority bucket.
+capability allow-list (commit 3a8b50b), then refined by:
+
+- Tightening the Boost regex so Shift cards no longer false-positive as Boost,
+  and **decomposing Boost into sub-capabilities** (the keyword itself is
+  trivial — the complexity lives in the triggers/statics/effects that read the
+  cards-under subzone).
+- Removing the over-broad `move-damage` matcher in `scripts/mechanic-gaps.ts`
+  and promoting the corresponding cards to `fits-grammar` in
+  `scripts/card-status.ts` (the `move_damage` Effect already exists in
+  `packages/engine/src/types/index.ts` and is wired for Belle Untrained
+  Mystic, Belle Accomplished Mystic, and Rose Lantern).
 
 - **HIGH** — 10+ cards across sets
 - **MEDIUM** — 3–9 cards
 - **LOW** — 1–2 cards
 
-Totals: **52 missing capabilities** across **343 stub-instances** (some cards
-have multiple stubs).
+Totals: **55 missing capabilities** across ~320 stub-instances (some cards
+have multiple stubs; boost cards now hit multiple sub-capabilities).
 
-Source script: `scripts/mechanic-gaps.ts` (run via `npx tsx scripts/mechanic-gaps.ts`).
+Source script: `scripts/mechanic-gaps.ts` (run via `pnpm tsx scripts/mechanic-gaps.ts`).
 
 ---
 
-## Priority table
+## Priority table (top 10)
 
 | Capability | Cards | Sets | Priority | Complexity | Notes |
 |---|---:|---|---|---|---|
-| `boost` | 76 | 7, 9, 10, 11, P2, P3 | HIGH | LARGE | New "cards-under" subzone, replacement-style placement, references-from-static |
 | `put-on-bottom` | 44 | 5–11, cp, D23 | HIGH | SMALL | New `put_on_bottom_of_deck` Effect (no shuffle, no reveal). Quick win. |
 | `pay-extra-cost-mid-effect` | 23 | 4–11, P2 | HIGH | MEDIUM | Optional embedded "you may pay X to <effect>" — needs PendingChoice for cost-then-effect resolution |
-| `move-damage` | 21 | 5–11, P3 | HIGH | SMALL | `move_damage` Effect already exists; the regex was over-broad. Verify each card actually fits the existing primitive — many likely become fits-grammar after a regex tightening pass. |
 | `dynamic-amount` | 18 | 5–9, 11, D23, P3 | HIGH | MEDIUM | Effect amount as `{ type: "this_character_strength" \| "chosen_lore" \| ... }`; touches draw, deal_damage, gain_lore amount unions |
+| `card-under-static` | 15 | 10, 11, P3 | HIGH | MEDIUM | Boost sub-capability. Statics that read "while there's a card under this / with a card under them" — needs the cards-under subzone first |
+| `card-under-trigger` | 13 | 10, 11, P3 | HIGH | MEDIUM | Boost sub-capability. "Whenever you put a card under …" trigger event — depends on subzone + placement pipeline |
+| `damage-immunity` | 11 | 4, 6, 7, 8, 10, P2, P3 | HIGH | MEDIUM | Timed/conditional "takes no damage from challenges this turn" — `ChallengeDamageImmunityStatic` exists for permanent; needs timed variant |
+| `alternate-source-zone` | 11 | 5, 9, 10, 11 | HIGH | LARGE | Play card from discard / from-under-character; touches play pipeline + zone validation |
 | `reveal-hand` | 10 | 7, 8, 9, 10, 11, D23, P3 | HIGH | SMALL | New `reveal_hand` Effect; UI surfacing optional |
+| `put-facedown-under-effect` | 10 | 10, 11 | HIGH | MEDIUM | Boost sub-capability. Effects that put top-of-deck facedown under a card outside the keyword cost |
 | `alert-keyword` | 10 | 10, 11 | HIGH | SMALL | Add `alert` to Keyword union + trigger on quest |
-| `damage-immunity` | 9 | 4, 6, 7, 8, 10, P2, P3 | MEDIUM | MEDIUM | Timed/conditional "takes no damage from challenges this turn" — `ChallengeDamageImmunityStatic` exists for permanent; needs timed variant |
-| `alternate-source-zone` | 9 | 5, 9, 10, 11 | MEDIUM | LARGE | Play card from discard / from-under-character; touches play pipeline + zone validation |
+
+### Rest of the backlog
+
+| Capability | Cards | Sets | Priority | Complexity | Notes |
+|---|---:|---|---|---|---|
 | `reveal-top-conditional` | 9 | 5–9, 11, D23 | MEDIUM | SMALL | `reveal_top_conditional` Effect already exists. Confirm regex tightening — many should become fits-grammar. |
 | `per-count-cost-reduction` | 8 | 5, 6, P2 | MEDIUM | MEDIUM | Self cost = N − count(filter); StaticEffect variant |
 | `draw-to-n` | 7 | 5, 6, 8 | MEDIUM | SMALL | New `draw_to_hand_size` Effect |
 | `timed-cant-be-challenged` | 7 | 6, 7, 11 | MEDIUM | SMALL | `cant_be_challenged_timed` exists. Likely a regex-tightening / fits-grammar promotion. |
+| `cards-under-count` | 7 | 11 | MEDIUM | SMALL | Boost sub-capability. Dynamic amount "for each card under" / "equal to the number of cards under" — dynamic-amount variant over the subzone |
 | `both-players-effect` | 6 | 7, 9, cp | MEDIUM | SMALL | "Each player draws/discards" — looped existing Effect over both players |
 | `event-tracking-condition` | 6 | 7, 8, 11 | MEDIUM | MEDIUM | "was damaged this turn" / "was banished in a challenge this turn" — turn-scoped event log |
+| `boost-subzone` | 6 | 10, 11 | MEDIUM | LARGE | **Foundation** of the whole Boost family. New cards-under subzone + Boost keyword cost wiring (pay N {I}, put top of deck facedown under this). Must land first before the triggers/statics/effects/count sub-capabilities. |
 | `conditional-cant-be-challenged` | 5 | 5, 6, 8, D23 | MEDIUM | SMALL | "while X, can't be challenged" — combine existing static with condition |
 | `mass-inkwell` | 5 | 5, 7 | MEDIUM | LARGE | "all cards in inkwell" / "each player's inkwell" — touches new ZoneTarget |
 | `exert-filtered-cost` | 5 | 6, 7, 8 | MEDIUM | MEDIUM | New `Cost` variant: exert a chosen filtered card |
@@ -54,7 +71,7 @@ Source script: `scripts/mechanic-gaps.ts` (run via `npx tsx scripts/mechanic-gap
 | `enter-play-exerted-static` | 2 | 8 | LOW | SMALL | Opposing characters enter exerted — global static |
 | `replacement-effect` | 2 | 10, 11 | LOW | LARGE | CRD 6.5 — "would X instead" replacement layer |
 | `stat-threshold-condition` | 2 | 10 | LOW | SMALL | "if you have a character with N {S}" — Condition variant |
-| `cards-under-to-hand` | 2 | 11 | LOW | SMALL | Tied to `boost` system |
+| `cards-under-to-hand` | 2 | 11 | LOW | SMALL | Tied to Boost system (Alice: "put all cards from under her into your hand") |
 | `stat-floor` | 2 | 11, P3 | LOW | MEDIUM | "Can't be reduced below printed strength" — stat clamp layer |
 | `no-other-quested-condition` | 1 | 4 | LOW | SMALL | Isabela Madrigal — no_other_character_has_quested condition |
 | `group-cant-action-this-turn` | 1 | 4 | LOW | SMALL | "Your other characters can't quest" — filtered cant_action this_turn |
@@ -72,6 +89,11 @@ Source script: `scripts/mechanic-gaps.ts` (run via `npx tsx scripts/mechanic-gap
 | `super-bodyguard` | 1 | 11 | LOW | MEDIUM | Forced-target mod for both actions and abilities |
 | `virtual-ink-color` | 1 | P1 | LOW | MEDIUM | "All cards in your hand count as having {I} ink" — pseudo-color |
 
+> **Note:** `move-damage` no longer appears in the gap report. The `move_damage`
+> Effect already exists and is wired (Belle Untrained Mystic, Belle Accomplished
+> Mystic, Rose Lantern). The 23 stubs previously tagged `move-damage` now
+> correctly fall into `fits-grammar` and can be wired without new engine work.
+
 ---
 
 ## Recommended implementation order
@@ -84,24 +106,67 @@ Sequence weighted by frequency × low complexity:
 4. **`draw-to-n`** (7 cards, SMALL) — One Effect.
 5. **`mill`** (4 cards, SMALL) — One Effect.
 6. **`random-discard`** (4 cards, SMALL) — DiscardEffect mode flag.
-7. **Regex tightening sweep** for `move-damage`, `reveal-top-conditional`, `timed-cant-be-challenged`, `filtered-cant-be-challenged`, `opponent-chosen-banish`, `opponent-chosen-return` — these primitives already exist; the matchers are over-broad. Cheap reclassification work that should reduce the gap count by ~40 cards without writing engine code.
-8. **`dynamic-amount`** (18 cards, MEDIUM) — Touches multiple Effect amount unions but is mechanical.
-9. **`pay-extra-cost-mid-effect`** (23 cards, MEDIUM) — High frequency, requires choose-then-cost-then-effect plumbing.
-10. **`per-count-cost-reduction`** + **`event-tracking-condition`** + **`damage-immunity` (timed)** — moderate-frequency MEDIUM gaps.
-11. **`grant-floating-trigger-to-target`** (3 cards, MEDIUM) — Small extension of existing primitive.
-12. **`boost`** (76 cards, LARGE) — Highest cardinality but the largest design lift. Worth a dedicated session because it unlocks Set 7+9+10+11 in bulk.
-13. **`alternate-source-zone`** (9 cards, LARGE) — Touches play pipeline; pair with `boost` if doing a play-pipeline overhaul.
-14. **`replacement-effect`** (2 cards, LARGE) — Defer; CRD 6.5 layer is invasive and only 2 cards in the backlog.
+7. **`move-damage` fits-grammar wiring pass** — now that these 23 cards are
+   correctly classified as fits-grammar, they can be wired card-by-card with
+   zero new engine work. Biggest cheap cardinality left in the backlog.
+8. **Regex tightening sweep** for `reveal-top-conditional`,
+   `timed-cant-be-challenged`, `filtered-cant-be-challenged`,
+   `opponent-chosen-banish`, `opponent-chosen-return` — these primitives
+   already exist; the matchers are over-broad. Cheap reclassification work.
+9. **`dynamic-amount`** (18 cards, MEDIUM) — Touches multiple Effect amount unions but is mechanical.
+10. **`pay-extra-cost-mid-effect`** (23 cards, MEDIUM) — High frequency, requires choose-then-cost-then-effect plumbing.
+11. **`per-count-cost-reduction`** + **`event-tracking-condition`** + **`damage-immunity` (timed)** — moderate-frequency MEDIUM gaps.
+12. **`grant-floating-trigger-to-target`** (3 cards, MEDIUM) — Small extension of existing primitive.
+13. **Boost family, in dependency order** (40+ cards across 5 sub-capabilities):
+    1. `boost-subzone` (6 cards, LARGE) — foundation. Cards-under subzone + keyword cost wiring.
+    2. `put-facedown-under-effect` (10 cards, MEDIUM) — effects that place cards into the subzone outside the keyword.
+    3. `card-under-trigger` (13 cards, MEDIUM) — "whenever you put a card under" trigger event.
+    4. `card-under-static` (15 cards, MEDIUM) — statics that read the subzone.
+    5. `cards-under-count` (7 cards, SMALL) — dynamic-amount variant over the subzone.
+    6. `cards-under-to-hand` (2 cards, SMALL) — Alice-style retrieval effect.
+14. **`alternate-source-zone`** (11 cards, LARGE) — Touches play pipeline; pair with the Boost work if doing a play-pipeline overhaul.
+15. **`replacement-effect`** (2 cards, LARGE) — Defer; CRD 6.5 layer is invasive and only 2 cards in the backlog.
 
 ---
 
 ## Capability descriptions and example rules text
 
-### `boost` (76 cards)
-Cards placed face-down under characters/locations as resources or buff fuel.
-Requires a new sub-zone, placement plumbing, and statics that read "has a card under".
-- "Your Floodborn characters that have a card under them gain Evasive and Ward."
-- "While this character has a card under him, he gets +3 {S}, +3 {W}, and +3 {L}."
+### Boost family (decomposed)
+
+The Boost keyword itself (pay N {I}, put the top card of your deck facedown
+under this) is **trivial** — a fixed cost and a fixed placement. All the
+interesting variation lives in the triggers, statics, and effects that read
+the cards-under subzone. The gap report now tracks those as distinct
+sub-capabilities so the work can be sequenced incrementally.
+
+#### `boost-subzone` (6 cards)
+Foundation capability. Introduces the cards-under subzone and wires the
+Boost keyword cost. Nothing else in the Boost family compiles until this
+lands.
+- "Boost 3 {I} (You may pay 3 {I} when you play this character to put the top card of your deck facedown under him.)"
+
+#### `put-facedown-under-effect` (10 cards)
+Effects (not the keyword cost) that place a card facedown under a character.
+- "Put the top card of your deck facedown under this character."
+
+#### `card-under-trigger` (13 cards)
+New TriggerEvent: "whenever you put a card under <filter>". Fires both from
+the keyword cost and from `put-facedown-under-effect` resolutions.
+- "Whenever you put a card under another character, this character gets +1 {L} this turn."
+
+#### `card-under-static` (15 cards)
+Statics that read whether a card is under this or another character.
+- "While there's a card under this character, he gets +3 {S}."
+- "Your Floodborn characters with a card under them gain Evasive and Ward."
+
+#### `cards-under-count` (7 cards)
+Dynamic-amount variant that counts cards in the subzone.
+- "This character gets +1 {L} for each card under him."
+- "Gain lore equal to the number of cards under this character."
+
+#### `cards-under-to-hand` (2 cards)
+One-off effect that retrieves all cards from under a character into a hand.
+- "Put all cards from under her into your hand." (Alice)
 
 ### `put-on-bottom` (44 cards)
 Place a card on the bottom of a deck without shuffling. Distinct from `shuffle_into_deck`.
@@ -111,14 +176,18 @@ Place a card on the bottom of a deck without shuffling. Distinct from `shuffle_i
 Optional cost embedded in an effect resolution: "you may pay N {I} to do Y".
 - "Whenever you play a song, you may pay 2 {I} to deal 3 damage to chosen character." (Ariel — Sonic Warrior)
 
-### `move-damage` (21 cards — many likely false positives)
-Move damage counters between characters. Engine effect exists; tighten regex.
-- "Move 1 damage counter from chosen character to chosen opposing character."
-
 ### `dynamic-amount` (18 cards)
 Effect amount derived from a stat or count, e.g. "deal damage equal to chosen character's {S}".
 - "Gain lore equal to this character's {L}."
 - "Deal damage equal to the cost of chosen character."
+
+### `damage-immunity` (11 cards)
+Timed/conditional damage prevention beyond the existing permanent static.
+- "Chosen character takes no damage from challenges this turn."
+
+### `alternate-source-zone` (11 cards)
+Play a card from a non-hand zone (discard, under-character).
+- "You may play a character with cost 5 or less from your discard."
 
 ### `reveal-hand` (10 cards)
 Look at or reveal an opponent's hand.
@@ -129,22 +198,12 @@ Look at or reveal an opponent's hand.
 Set 10/11 keyword. Trigger when this character quests, do effect.
 - "Alert — Whenever this character quests, gain 1 lore."
 
-### `damage-immunity` (9 cards)
-Timed/conditional damage prevention beyond the existing permanent static.
-- "Chosen character takes no damage from challenges this turn."
-
-### `alternate-source-zone` (9 cards)
-Play a card from a non-hand zone (discard, under-character).
-- "You may play a character with cost 5 or less from your discard."
-
 ### `reveal-top-conditional` (9 cards — likely false positives)
 Reveal top, branch by type, hand or top/bottom. Effect exists; tighten regex.
 
 ### `per-count-cost-reduction` (8 cards)
 Self cost = printed − count of filter.
 - "This character costs 1 {I} less for each character you have in play."
-
-### `pay-extra-cost-mid-effect` (23 cards) — see above
 
 ### `grant-floating-trigger-to-target` (3 cards)
 `create_floating_trigger` already exists for source-attached triggers. Extend

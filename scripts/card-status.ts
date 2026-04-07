@@ -138,10 +138,9 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   [/\bplay .{0,30}from (your|their) discard\b/i, "alternate-source-zone"],
   // "Enters play exerted" for opposing cards (static)
   [/opposing .{0,40}enter.{0,10}play exerted/i, "enter-play-exerted-static"],
-  // Move damage counters (CRD 1.9.1.4)
-  [/\bmove .{0,20}damage counter/i, "move-damage"],
-  [/\bmove .{0,10}damage from\b/i, "move-damage"],
-  [/\bmove up to \d+ damage\b/i, "move-damage"],
+  // (move-damage removed: move_damage Effect already exists — Belle Untrained Mystic,
+  //  Belle Accomplished Mystic, Rose Lantern. Regex was over-broad, shunting real
+  //  fits-grammar cards into needs-new-type. Fits-grammar patterns below handle it.)
   // Reveal opponent's hand
   [/\breveal.{0,30}(their|opponent'?s?) hand\b/i, "reveal-hand"],
   [/\blook at each opponent'?s? hand\b/i, "reveal-hand"],
@@ -371,9 +370,10 @@ const FITS_GRAMMAR_PATTERNS: [RegExp, string][] = [
   [/\bcan'?t be challenged by .{0,30}characters\b/i, "cant_be_challenged_static"],
   [/\bwhile being challenged\b/i, "trigger_is_challenged"],
   [/during your turn.{0,40}(has|gains?) (evasive|rush|bodyguard|ward|reckless|resist|challenger|support)/i, "grant_keyword"],
-  [/\bmove .{0,15}damage counter\b/i, "move_damage"],
-  [/\bmove (a |all )?damage from\b/i, "move_damage"],
+  [/\bmove .{0,15}damage counter/i, "move_damage"],
+  [/\bmove (a |all |\d+ )?damage from\b/i, "move_damage"],
   [/\bmove up to \d+ damage\b/i, "move_damage"],
+  [/\bmove \d+ damage from\b/i, "move_damage"],
   [/\beach opponent chooses .{0,40}(banishes?|exerts?|returns?|deals?)\b/i, "choose"],
   [/gets? \+\{S\} equal to this character'?s? \{S\}/i, "gain_stats"],
   [/\+\d+ \{S\}.{0,20}for each card in your hand/i, "gain_stats"],
