@@ -16,6 +16,7 @@ import {
   evaluateCondition,
   getDefinition,
   getInstance,
+  getKeywordValue,
   getOpponent,
   getZone,
   hasKeyword,
@@ -34,6 +35,41 @@ export interface ValidationResult {
 const OK: ValidationResult = { valid: true };
 const fail = (reason: string): ValidationResult => ({ valid: false, reason });
 
+/**
+ * CRD 8.10.1 + variants: can `shifting` be played via Shift onto `target`?
+ * Variants are zone-aware static abilities (see types/index.ts) — pass GameModifiers
+ * for the lookups. additionalNames stays a printed-name property on CardDefinition.
+ *
+ * Handles:
+ *  - base Shift (same name)
+ *  - Universal Shift (Baymax, Set 7+) — shifting card ignores name match (in-hand static)
+ *  - MIMICRY (Morph - Space Goo, Set 3) — target ignores name match (in-play static)
+ *  - Classification / Puppy Shift (Thunderbolt, Set 8) — target must have a trait (in-hand static)
+ *  - additionalNames — either side may declare extra names (Turbo, Flotsam & Jetsam)
+ */
+export function canShiftOnto(
+  shiftingInstanceId: string,
+  shifting: CardDefinition,
+  targetInstanceId: string,
+  target: CardDefinition,
+  modifiers: { universalShifters: Set<string>; mimicryTargets: Set<string>; classificationShifters: Map<string, string> }
+): boolean {
+  // Universal: shifting card explicitly ignores name match.
+  if (modifiers.universalShifters.has(shiftingInstanceId)) return true;
+  // MIMICRY: target card explicitly ignores name match for any shifter.
+  if (modifiers.mimicryTargets.has(targetInstanceId)) return true;
+  // Classification shift: target must have the required trait (e.g. "Puppy").
+  const requiredTrait = modifiers.classificationShifters.get(shiftingInstanceId);
+  if (requiredTrait) {
+    return target.traits.includes(requiredTrait);
+  }
+  // Base shift: name must match. Either side may carry additional names.
+  if (shifting.name === target.name) return true;
+  if (shifting.additionalNames?.includes(target.name)) return true;
+  if (target.additionalNames?.includes(shifting.name)) return true;
+  return false;
+}
+
 export function validateAction(
   state: GameState,
   action: GameAction,
@@ -46,7 +82,7 @@ export function validateAction(
 
   switch (action.type) {
     case "PLAY_CARD":
-      return validatePlayCard(state, action.playerId, action.instanceId, definitions, action.shiftTargetInstanceId, action.singerInstanceId);
+      return validatePlayCard(state, action.playerId, action.instanceId, definitions, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds);
     case "PLAY_INK":
       return validatePlayInk(state, action.playerId, action.instanceId, definitions);
     case "QUEST":
@@ -61,6 +97,8 @@ export function validateAction(
       return validateResolveChoice(state, action.playerId, action.choice, definitions);
     case "MOVE_CHARACTER":
       return validateMoveCharacter(state, action.playerId, action.characterInstanceId, action.locationInstanceId, definitions);
+    case "BOOST_CARD":
+      return validateBoostCard(state, action.playerId, action.instanceId, definitions);
     case "DRAW_CARD":
       return OK; // Always legal (used internally)
     default:
@@ -77,13 +115,22 @@ function validatePlayCard(
   instanceId: string,
   definitions: Record<string, CardDefinition>,
   shiftTargetInstanceId?: string,
-  singerInstanceId?: string
+  singerInstanceId?: string,
+  singerInstanceIds?: string[]
 ): ValidationResult {
   if (!isMainPhase(state, playerId)) return fail("Not your main phase.");
 
   const instance = getInstance(state, instanceId);
   if (instance.ownerId !== playerId) return fail("You don't own this card.");
-  if (instance.zone !== "hand") return fail("Card is not in your hand."); // CRD 4.3.2
+  if (instance.zone !== "hand") {
+    // CRD 4.3.2: cards are normally played from hand. An ability may grant permission
+    // to play from another zone (Lilo - Escape Artist Set 6 — discard).
+    const zoneMods = getGameModifiers(state, definitions);
+    const allowedZones = zoneMods.playableFromZones.get(instanceId);
+    if (!allowedZones || !allowedZones.has(instance.zone)) {
+      return fail("Card is not in your hand.");
+    }
+  }
 
   const def = getDefinition(state, instanceId, definitions);
 
@@ -94,7 +141,10 @@ function validatePlayCard(
     if (shiftTarget.zone !== "play") return fail("Shift target is not in play.");
     if (shiftTarget.ownerId !== playerId) return fail("You don't own the shift target.");
     const shiftTargetDef = getDefinition(state, shiftTargetInstanceId, definitions);
-    if (shiftTargetDef.name !== def.name) return fail("Shift target must share this character's name.");
+    const shiftModifiers = getGameModifiers(state, definitions);
+    if (!canShiftOnto(instanceId, def, shiftTargetInstanceId, shiftTargetDef, shiftModifiers)) {
+      return fail("Shift target must share this character's name.");
+    }
     // CRD 1.5.3: cost reductions (e.g. Lantern) apply to shift cost too
     const effectiveShiftCost = getEffectiveCostWithReductions(state, playerId, instanceId, definitions, def.shiftCost);
     if (!canAfford(state, playerId, effectiveShiftCost)) {
@@ -125,6 +175,43 @@ function validatePlayCard(
       return fail(`Singer's cost is too low to sing this song.`);
     }
     return OK; // No ink check — singing replaces ink cost entirely (CRD 1.5.5.1)
+  }
+
+  // CRD 8.12: Sing Together — multiple characters with combined effective cost ≥ singTogetherCost
+  if (singerInstanceIds && singerInstanceIds.length > 0) {
+    if (!isSong(def)) return fail("Only songs can be sung.");
+    if (def.singTogetherCost === undefined) return fail("This song does not have Sing Together.");
+    if (singerInstanceIds.length < 1) return fail("Sing Together requires at least one singer.");
+    // Validate uniqueness — no duplicate IDs
+    const seen = new Set<string>();
+    for (const id of singerInstanceIds) {
+      if (seen.has(id)) return fail("Sing Together singers must be distinct.");
+      seen.add(id);
+    }
+    const stModifiers = getGameModifiers(state, definitions);
+    let totalCost = 0;
+    for (const sId of singerInstanceIds) {
+      const s = getInstance(state, sId);
+      const sDef = getDefinition(state, sId, definitions);
+      if (sDef.cardType !== "character") return fail("Only characters can sing songs.");
+      if (s.zone !== "play") return fail("Singer is not in play.");
+      if (s.ownerId !== playerId) return fail("You don't own one of the singers.");
+      if (s.isExerted) return fail("One of the singers is already exerted.");
+      if (s.isDrying) return fail("One of the singers is still drying.");
+      if (isActionRestricted(s, sDef, "sing", playerId, state, stModifiers)) {
+        return fail("One of the singers can't sing songs.");
+      }
+      // CRD 8.11.1: Singer N counts as cost N
+      let effectiveCost = sDef.cost;
+      if (hasKeyword(s, sDef, "singer")) {
+        effectiveCost = getKeywordValue(s, sDef, "singer");
+      }
+      totalCost += effectiveCost;
+    }
+    if (totalCost < def.singTogetherCost) {
+      return fail(`Sing Together cost not met: ${totalCost} < ${def.singTogetherCost}.`);
+    }
+    return OK;
   }
 
   // Apply cost reductions (static + one-shot)
@@ -295,6 +382,10 @@ function validateChallenge(
       return fail("This character cannot be challenged by this attacker.");
     }
   }
+  // Timed cant_be_challenged (Phase A.3 — "chosen character can't be challenged until ...")
+  if (defender.timedEffects.some(te => te.type === "cant_be_challenged")) {
+    return fail("This character cannot be challenged this turn.");
+  }
 
   const defenderDef = defenderDefEarly;
   if (defenderDef.cardType !== "character" && defenderDef.cardType !== "location") {
@@ -423,6 +514,35 @@ function validateMoveCharacter(
   if (!canAfford(state, playerId, cost)) {
     return fail(`Not enough ink to move. Need ${cost}.`);
   }
+
+  return OK;
+}
+
+// CRD 8.4: Boost N {I} — once per turn, pay N {I} to put the top card of your
+// deck facedown under this character.
+function validateBoostCard(
+  state: GameState,
+  playerId: PlayerID,
+  instanceId: string,
+  definitions: Record<string, CardDefinition>
+): ValidationResult {
+  if (!isMainPhase(state, playerId)) return fail("Not your main phase.");
+
+  const inst = getInstance(state, instanceId);
+  if (inst.ownerId !== playerId) return fail("You don't own this card.");
+  if (inst.zone !== "play") return fail("Card is not in play.");
+  const def = getDefinition(state, instanceId, definitions);
+  if (!hasKeyword(inst, def, "boost")) return fail("This card doesn't have Boost.");
+  if (inst.boostedThisTurn) return fail("This card has already boosted this turn.");
+  // Boost cost is the keyword value (Boost N {I})
+  const cost = getKeywordValue(inst, def, "boost");
+  if (cost <= 0) return fail("This card's Boost has no cost.");
+  if (!canAfford(state, playerId, cost)) {
+    return fail(`Not enough ink to Boost. Need ${cost}.`);
+  }
+  // CRD 8.4.1: deck must have at least one card to put under
+  const deck = getZone(state, playerId, "deck");
+  if (deck.length === 0) return fail("Your deck is empty.");
 
   return OK;
 }

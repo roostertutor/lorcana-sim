@@ -591,7 +591,33 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "HAVE A BETTER LOOK",
+        "rulesText": "When you play this character, chosen opponent reveals their hand and discards a non-character card of their choice.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            },
+            "chooser": "target_player",
+            "filter": {
+              "cardType": [
+                "action",
+                "item",
+                "location"
+              ]
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 19,
     "rarity": "super_rare",
@@ -2547,7 +2573,32 @@
       "Prince",
       "Whisper"
     ],
-    "abilities": [],
+    "abilities": [
+      { "type": "keyword", "keyword": "boost", "value": 2 },
+      {
+        "type": "static",
+        "storyName": "I'LL TAKE THAT",
+        "rulesText": "As long as this character has at least one card under it, it gets +2 {S} and +1 {L}.",
+        "condition": { "type": "this_has_cards_under" },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "strength",
+          "modifier": 2,
+          "target": { "type": "this" }
+        }
+      },
+      {
+        "type": "static",
+        "rulesText": "(continued) +1 {L}.",
+        "condition": { "type": "this_has_cards_under" },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "modifier": 1,
+          "target": { "type": "this" }
+        }
+      }
+    ],
     "setId": "10",
     "number": 81,
     "rarity": "uncommon",

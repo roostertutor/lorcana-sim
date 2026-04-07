@@ -159,8 +159,6 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   [/\bcounts as .{0,30}named .{0,30}for shift\b/i, "shift-variant"],
   [/\bMIMICRY\b/i, "shift-variant"],
   [/\bas if this character had any name\b/i, "shift-variant"],
-  // "If you used Shift" condition
-  [/\bif you used shift\b/i, "shift-condition"],
   // Opposing can't sing / exert to sing
   [/can'?t .{0,30}(exert to )?sing\b/i, "restrict-sing"],
   // "If they don't" — inverse sequential (no matching branch in SequentialEffect)
@@ -168,8 +166,6 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   [/\bif (he|she|it|they) doesn'?t\b/i, "inverse-sequential"],
   // Random discard
   [/discards? .{0,20}(at random|randomly)\b/i, "random-discard"],
-  // Zone-count condition for static ("while you have an item in your discard")
-  [/while .{0,10}(you|they) have .{0,40}in (your|their) (play|hand|discard|inkwell)\b/i, "zone-count-condition"],
   // "Gains the [Trait] classification" — trait granting
   [/\bgain.{0,10}classification\b/i, "grant-classification"],
   [/\blose.{0,10}(the )?[A-Z][a-z]+ (classification|ability)\b/i, "remove-ability"],
@@ -187,26 +183,23 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   [/whenever this character exerts\b/i, "new-trigger-exerts"],
   [/whenever this character deals damage\b/i, "new-trigger-deals-damage"],
   [/whenever this character is dealt damage\b/i, "new-trigger-is-dealt-damage"],
-  // "Whenever you play a song" trigger
-  [/whenever (you|this character) (play|sing)s? a song\b/i, "song-trigger"],
+  // (song-trigger removed: "Whenever you play a song" → card_played with hasTrait Song filter
+  //  works today; "Whenever this character sings a song" → sings trigger event implemented in
+  //  Phase A.1.)
   // Condition based on character strength threshold ("if you have a character with 5 {S}")
   [/if you have a character with \d+ \{S\}/i, "stat-threshold-condition"],
-  // Self stat condition ("while he has 5 {S} or more")
-  [/while .{0,20}has? \d+ \{S\} or more\b/i, "self-stat-condition"],
-  // "Whenever this character sings" — trigger on sing action
-  [/whenever this character sings\b/i, "new-trigger-sings"],
+  // (self-stat-condition removed: self_stat_gte exists.)
+  // (new-trigger-sings removed: sings trigger event implemented in Phase A.1.)
   // "Can't play actions/items" scoped to card type (Pete, Keep the Ancient Ways)
   [/can'?t play (actions|items|actions or items)\b/i, "restricted-play-by-type"],
   // "Can't play this character unless" — play restriction condition
   [/can'?t play this (character|card) unless\b/i, "play-restriction"],
   // "Was damaged this turn" — event-tracking condition
   [/was damaged this turn\b/i, "event-tracking-condition"],
-  // Name a card effect (Sorcerer's Hat, Bruno - Undetected Uncle)
-  [/\bname a card\b/i, "name-a-card"],
+  // (name-a-card removed: name_a_card_then_reveal effect implemented in Phase A.0.)
   // "Reveal top card... if it's a [type] card... put into hand. Otherwise, top/bottom"
   [/\breveal the top card.{0,60}(if it'?s?|put).{0,40}(into (your|their) hand|on the (top|bottom))/i, "reveal-top-conditional"],
-  // "During your turn, this character has [keyword]" — conditional keyword by turn
-  [/during your turn.{0,40}(has|gains?) (evasive|rush|bodyguard|ward|reckless|resist|challenger|support)/i, "conditional-keyword-by-turn"],
+  // (conditional-keyword-by-turn removed: grant_keyword static + is_your_turn condition both exist.)
   // "can't be challenged by [filter]" — needs strengthAtLeast/hasTrait on attackerFilter
   [/can'?t be challenged by .{0,30}(character|pirate|[A-Z])/i, "filtered-cant-be-challenged"],
   // "each player draws N" / "each player discards"
@@ -233,8 +226,7 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   // "Chosen character of yours can't be challenged until" — timed cant-be-challenged
   [/character of yours can'?t be challenged\b/i, "timed-cant-be-challenged"],
   [/\bchosen character can'?t be challenged\b/i, "timed-cant-be-challenged"],
-  // "can't challenge during their next turn" — timed cant_action
-  [/can'?t (challenge|quest) during their next turn\b/i, "timed-cant-action"],
+  // (timed-cant-action removed: cant_action effect with end_of_owner_next_turn duration works today.)
   // "was banished in a challenge this turn" — event tracking condition
   [/was banished in a challenge this turn\b/i, "event-tracking-condition"],
 ];
@@ -354,6 +346,21 @@ const FITS_GRAMMAR_PATTERNS: RegExp[] = [
   /\bcan'?t be challenged by .{0,30}characters\b/i,
   // "While being challenged" — existing trigger/static context
   /\bwhile being challenged\b/i,
+  // Phase A reclassifications (categorizer was conservative on these):
+  // "During your turn, this character gains [keyword]" — grant_keyword static + is_your_turn condition
+  /during your turn.{0,40}(has|gains?) (evasive|rush|bodyguard|ward|reckless|resist|challenger|support)/i,
+  // "Whenever you play a song" / "Whenever this character sings a song" — card_played filter / sings trigger (Phase A.1)
+  /whenever (you|this character) (play|sing)s? a song\b/i,
+  // "While ... has N {S} or more" — self_stat_gte condition exists
+  /while .{0,20}has? \d+ \{S\} or more\b/i,
+  // "If you used Shift" — played_via_shift condition exists
+  /\bif you used shift\b/i,
+  // "While you have ... in your discard/hand/play/inkwell" — cards_in_zone_gte condition with cardType filter
+  /while .{0,10}(you|they) have .{0,40}in (your|their) (play|hand|discard|inkwell)\b/i,
+  // "Chosen ... can't (challenge|quest) during their next turn" — cant_action with end_of_owner_next_turn duration
+  /can'?t (challenge|quest) during their next turn\b/i,
+  // "Name a card" — name_a_card_then_reveal effect (Phase A.0)
+  /\bname a card\b/i,
 ];
 
 function categorizeStub(rulesText: string, cardType: string): StubCategory {

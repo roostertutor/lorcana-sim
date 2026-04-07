@@ -67,6 +67,37 @@ export interface GameModifiers {
    * Key = instanceId, value = list of granted activated abilities.
    */
   grantedActivatedAbilities: Map<string, import("../types/index.js").ActivatedAbility[]>;
+
+  /**
+   * Permanent self-restrictions from static `cant_action_self` effects (Maui - Whale).
+   * Key = instanceId, value = set of actions that instance cannot perform.
+   */
+  selfActionRestrictions: Map<string, Set<import("../types/index.js").RestrictedAction>>;
+
+  /**
+   * MIMICRY targets (Morph - Space Goo): in-play instances that any shifter may
+   * shift onto regardless of name.
+   */
+  mimicryTargets: Set<string>;
+
+  /**
+   * Universal shifters (Baymax Set 7+): in-hand instances whose Shift may target
+   * any character of yours regardless of name.
+   */
+  universalShifters: Set<string>;
+
+  /**
+   * Classification shifters (Thunderbolt Set 8 — "Puppy Shift"): in-hand instances
+   * whose Shift may target any character of yours that has the named trait.
+   * Key = instanceId, value = required trait.
+   */
+  classificationShifters: Map<string, string>;
+
+  /**
+   * "You may play this card from {zone}" (Lilo - Escape Artist Set 6 — discard).
+   * Key = instanceId, value = set of zones the card can be played from in addition to hand.
+   */
+  playableFromZones: Map<string, Set<import("../types/index.js").ZoneName>>;
 }
 
 /**
@@ -89,15 +120,23 @@ export function getGameModifiers(
     damageRedirects: new Map(),
     challengeDamageImmunity: new Map(),
     grantedActivatedAbilities: new Map(),
+    selfActionRestrictions: new Map(),
+    mimicryTargets: new Set(),
+    universalShifters: new Set(),
+    classificationShifters: new Map(),
+    playableFromZones: new Map(),
   };
 
   for (const instance of Object.values(state.cards)) {
-    if (instance.zone !== "play") continue;
     const def = definitions[instance.definitionId];
     if (!def) continue;
 
     for (const ability of def.abilities) {
       if (ability.type !== "static") continue;
+      // CRD 6.3-ish: an ability functions only in play unless it says otherwise.
+      // activeZones declares where this static is active; default is ["play"].
+      const activeZones = ability.activeZones ?? ["play"];
+      if (!activeZones.includes(instance.zone)) continue;
 
       // Check condition on static ability (e.g. "while you have a Captain in play")
       if (ability.condition) {
@@ -227,6 +266,47 @@ export function getGameModifiers(
           if (effect.target.type === "this") {
             modifiers.canChallengeReady.add(instance.instanceId);
           }
+          break;
+        }
+
+        case "mimicry_target_self": {
+          // Morph - Space Goo: any shifter may target this instance regardless of name.
+          modifiers.mimicryTargets.add(instance.instanceId);
+          break;
+        }
+
+        case "universal_shift_self": {
+          // Baymax (Set 7+): this in-hand shifter ignores name match on its target.
+          modifiers.universalShifters.add(instance.instanceId);
+          break;
+        }
+
+        case "classification_shift_self": {
+          // Thunderbolt (Set 8): this in-hand shifter requires the target to have `trait`.
+          modifiers.classificationShifters.set(instance.instanceId, effect.trait);
+          break;
+        }
+
+        case "playable_from_zone_self": {
+          // Lilo - Escape Artist (Set 6): this card may be played from `effect.zone`.
+          let zones = modifiers.playableFromZones.get(instance.instanceId);
+          if (!zones) {
+            zones = new Set();
+            modifiers.playableFromZones.set(instance.instanceId, zones);
+          }
+          zones.add(effect.zone);
+          break;
+        }
+
+        case "cant_action_self": {
+          // Maui - Whale: "This character can't ready at the start of your turn."
+          // Permanent self-restriction tied to this instance.
+          let set = modifiers.selfActionRestrictions.get(instance.instanceId);
+          if (!set) {
+            set = new Set();
+            modifiers.selfActionRestrictions.set(instance.instanceId, set);
+          }
+          set.add(effect.action);
           break;
         }
 

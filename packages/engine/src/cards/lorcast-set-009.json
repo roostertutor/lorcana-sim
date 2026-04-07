@@ -879,7 +879,8 @@
         "rulesText": "Look at the top 5 cards of your deck. You may reveal up to 2 character cards and put them into your hand. Put the rest on the bottom of your deck in any order.",
         "raw": "Look at the top 5 cards of your deck. You may reveal up to 2 character cards and put them into your hand. Put the rest on the bottom of your deck in any order."
       }
-    ]
+    ],
+    "singTogetherCost": 7
   },
   {
     "id": "circle-of-life",
@@ -911,7 +912,8 @@
         "rulesText": "Sing Together 8 (Any number of your or your teammates’ characters with total cost 8 or more may {E} to sing this song for free.) Play a character from your discard for free.",
         "raw": "Sing Together 8 (Any number of your or your teammates’ characters with total cost 8 or more may {E} to sing this song for free.) Play a character from your discard for free."
       }
-    ]
+    ],
+    "singTogetherCost": 8
   },
   {
     "id": "heal-what-has-been-hurt",
@@ -2052,7 +2054,8 @@
         "rulesText": "Chosen player draws 5 cards.",
         "raw": "Chosen player draws 5 cards."
       }
-    ]
+    ],
+    "singTogetherCost": 10
   },
   {
     "id": "poor-unfortunate-souls",
@@ -2569,6 +2572,30 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "storyName": "NUMBER ONE HIT",
+        "rulesText": "Whenever this character quests, you may play a song card with cost 4 or less from your discard for free, then put it on the bottom of your deck instead of into your discard.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "play_for_free",
+            "sourceZone": "discard",
+            "filter": {
+              "zone": "discard",
+              "cardType": [
+                "action"
+              ],
+              "hasTrait": "Song",
+              "costAtMost": 4
+            },
+            "thenPutOnBottomOfDeck": true,
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "9",
@@ -3252,7 +3279,8 @@
         "rulesText": "Put all opposing characters with 2 {S} or less on the bottom of their players’ decks in any order.",
         "raw": "Put all opposing characters with 2 {S} or less on the bottom of their players’ decks in any order."
       }
-    ]
+    ],
+    "singTogetherCost": 8
   },
   {
     "id": "make-the-potion",
@@ -4341,7 +4369,8 @@
         "rulesText": "Each player draws 2 cards and gains 2 lore. If 2 or more characters sang this song, ready them. They can’t quest for the rest of this turn.",
         "raw": "Each player draws 2 cards and gains 2 lore. If 2 or more characters sang this song, ready them. They can’t quest for the rest of this turn."
       }
-    ]
+    ],
+    "singTogetherCost": 9
   },
   {
     "id": "you-can-fly",
@@ -4411,7 +4440,8 @@
         "rulesText": "Each opponent loses 2 lore. You gain 2 lore.",
         "raw": "Each opponent loses 2 lore. You gain 2 lore."
       }
-    ]
+    ],
+    "singTogetherCost": 6
   },
   {
     "id": "be-king-undisputed",
@@ -5502,7 +5532,8 @@
         "rulesText": "Sing Together 8 (Any number of your or your teammates’ characters with total cost 8 or more may {E} to sing this song for free.) Look at the top 7 cards of your deck. Put 2 into your hand and the rest on the bottom of your deck in any order.",
         "raw": "Sing Together 8 (Any number of your or your teammates’ characters with total cost 8 or more may {E} to sing this song for free.) Look at the top 7 cards of your deck. Put 2 into your hand and the rest on the bottom of your deck in any order."
       }
-    ]
+    ],
+    "singTogetherCost": 8
   },
   {
     "id": "aurelian-gyrosensor",
@@ -6672,7 +6703,8 @@
         "rulesText": "Deal 3 damage to up to 3 chosen characters and/or locations.",
         "raw": "Deal 3 damage to up to 3 chosen characters and/or locations."
       }
-    ]
+    ],
+    "singTogetherCost": 10
   },
   {
     "id": "beasts-mirror",
@@ -7431,7 +7463,8 @@
         "rulesText": "Play a character from your discard for free.",
         "raw": "Play a character from your discard for free."
       }
-    ]
+    ],
+    "singTogetherCost": 8
   },
   {
     "id": "belle-accomplished-mystic",
@@ -7598,6 +7631,30 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "storyName": "NUMBER ONE HIT",
+        "rulesText": "Whenever this character quests, you may play a song card with cost 4 or less from your discard for free, then put it on the bottom of your deck instead of into your discard.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "play_for_free",
+            "sourceZone": "discard",
+            "filter": {
+              "zone": "discard",
+              "cardType": [
+                "action"
+              ],
+              "hasTrait": "Song",
+              "costAtMost": 4
+            },
+            "thenPutOnBottomOfDeck": true,
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "9",
@@ -7747,7 +7804,8 @@
         "rulesText": "Each player draws 2 cards and gains 2 lore. If 2 or more characters sang this song, ready them. They can't quest for the rest of this turn.",
         "raw": "Each player draws 2 cards and gains 2 lore. If 2 or more characters sang this song, ready them. They can't quest for the rest of this turn."
       }
-    ]
+    ],
+    "singTogetherCost": 9
   },
   {
     "id": "mulan-considerate-diplomat",

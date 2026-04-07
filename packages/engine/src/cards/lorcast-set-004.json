@@ -203,7 +203,26 @@
       "Hero",
       "Musketeer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "INFILTRATION",
+        "rulesText": "When you play this character, each opponent chooses and discards a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            },
+            "chooser": "target_player"
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 7,
     "rarity": "common",
@@ -655,7 +674,36 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "TO THE RESCUE",
+        "rulesText": "When you play this character, you may remove up to 3 damage from one of your characters.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "remove_damage",
+            "amount": 3,
+            "isUpTo": true,
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 20,
     "rarity": "common",
@@ -860,6 +908,37 @@
         "rulesText": "Return a character card from your discard to your hand. Then remove up to 2 damage from chosen character.",
         "raw": "Return a character card from your discard to your hand. Then remove up to 2 damage from chosen character."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "return_to_hand",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "discard",
+            "cardType": [
+              "character"
+            ],
+            "owner": {
+              "type": "self"
+            }
+          }
+        }
+      },
+      {
+        "type": "remove_damage",
+        "amount": 2,
+        "isUpTo": true,
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      }
     ]
   },
   {
@@ -885,6 +964,25 @@
         "storyName": "",
         "rulesText": "Remove up to 1 damage from each of your characters.",
         "raw": "Remove up to 1 damage from each of your characters."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "remove_damage",
+        "amount": 1,
+        "isUpTo": true,
+        "target": {
+          "type": "all",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
       }
     ]
   },
@@ -923,7 +1021,8 @@
         "rulesText": "Look at the top 5 cards of your deck. You may reveal up to 2 character cards and put them into your hand. Put the rest on the bottom of your deck in any order.",
         "raw": "Look at the top 5 cards of your deck. You may reveal up to 2 character cards and put them into your hand. Put the rest on the bottom of your deck in any order."
       }
-    ]
+    ],
+    "singTogetherCost": 7
   },
   {
     "id": "lost-in-the-woods",
@@ -1656,7 +1755,27 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "BEHEMOTH",
+        "rulesText": "This character gets +1 {S} for each card in your hand.",
+        "effect": {
+          "type": "modify_stat_per_count",
+          "stat": "strength",
+          "amountPer": 1,
+          "target": {
+            "type": "this"
+          },
+          "countFilter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "hand"
+          }
+        }
+      }
+    ],
     "setId": "4",
     "number": 51,
     "rarity": "uncommon",
@@ -1924,7 +2043,54 @@
       "Hero",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "TIMELY INTERVENTION",
+        "rulesText": "When you play this character, if you have a character named Magic Broom in play, you may draw a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "has_character_named",
+          "name": "Magic Broom",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
+      {
+        "type": "static",
+        "storyName": "ARCANE STUDY",
+        "rulesText": "While you have 2 or more Broom characters in play, this character gets +2 {L}.",
+        "condition": {
+          "type": "has_character_with_trait",
+          "trait": "Broom",
+          "player": {
+            "type": "self"
+          },
+          "excludeSelf": true
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "modifier": 2,
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "4",
     "number": 59,
     "rarity": "legendary",
@@ -2016,7 +2182,8 @@
         "rulesText": "Chosen player draws 5 cards.",
         "raw": "Chosen player draws 5 cards."
       }
-    ]
+    ],
+    "singTogetherCost": 10
   },
   {
     "id": "swing-into-action",
@@ -2040,6 +2207,22 @@
         "storyName": "",
         "rulesText": "Chosen character gains Rush this turn. (They can challenge the turn they're played.)",
         "raw": "Chosen character gains Rush this turn. (They can challenge the turn they're played.)"
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "grant_keyword",
+        "keyword": "rush",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "duration": "end_of_turn"
       }
     ]
   },
@@ -3033,6 +3216,32 @@
         "rulesText": "Chosen character gains Ward and Evasive until the start of your next turn. (Opponents can't choose them except to challenge. Only characters with Evasive can challenge them.)",
         "raw": "Chosen character gains Ward and Evasive until the start of your next turn. (Opponents can't choose them except to challenge. Only characters with Evasive can challenge them.)"
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "grant_keyword",
+        "keyword": "ward",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "duration": "end_of_owner_next_turn",
+        "followUpEffects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "evasive",
+            "target": {
+              "type": "this"
+            },
+            "duration": "end_of_owner_next_turn"
+          }
+        ]
+      }
     ]
   },
   {
@@ -3106,7 +3315,8 @@
         "rulesText": "Put all opposing characters with 2 {S} or less on the bottom of their players' decks in any order.",
         "raw": "Put all opposing characters with 2 {S} or less on the bottom of their players' decks in any order."
       }
-    ]
+    ],
+    "singTogetherCost": 8
   },
   {
     "id": "ursula-s-trickery",
@@ -4182,7 +4392,8 @@
         "rulesText": "Each opponent loses 2 lore. You gain 2 lore.",
         "raw": "Each opponent loses 2 lore. You gain 2 lore."
       }
-    ]
+    ],
+    "singTogetherCost": 6
   },
   {
     "id": "be-king-undisputed",
@@ -4240,6 +4451,21 @@
         "storyName": "",
         "rulesText": "Banish chosen character with 2 {S} or less.",
         "raw": "Banish chosen character with 2 {S} or less."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "banish",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "strengthAtMost": 2
+          }
+        }
       }
     ]
   },
@@ -5268,7 +5494,8 @@
         "rulesText": "Look at the top 7 cards of your deck. Put 2 into your hand. Put the rest on the bottom of your deck in any order.",
         "raw": "Look at the top 7 cards of your deck. Put 2 into your hand. Put the rest on the bottom of your deck in any order."
       }
-    ]
+    ],
+    "singTogetherCost": 8
   },
   {
     "id": "glean",
@@ -5293,6 +5520,27 @@
         "storyName": "",
         "rulesText": "Banish chosen item. Its player gains 2 lore.",
         "raw": "Banish chosen item. Its player gains 2 lore."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "banish",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "item"
+            ]
+          }
+        }
+      },
+      {
+        "type": "gain_lore",
+        "amount": 2,
+        "target": {
+          "type": "target_owner"
+        }
       }
     ]
   },
@@ -5326,6 +5574,22 @@
         "storyName": "",
         "rulesText": "Chosen character gets -3 {S} this turn.",
         "raw": "Chosen character gets -3 {S} this turn."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "gain_stats",
+        "strength": -3,
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "duration": "this_turn"
       }
     ]
   },
@@ -6358,6 +6622,20 @@
         "rulesText": "Banish all items.",
         "raw": "Banish all items."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "banish",
+        "target": {
+          "type": "all",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "item"
+            ]
+          }
+        }
+      }
     ]
   },
   {
@@ -6427,7 +6705,8 @@
         "rulesText": "Deal 3 damage to up to 3 chosen characters and/or locations.",
         "raw": "Deal 3 damage to up to 3 chosen characters and/or locations."
       }
-    ]
+    ],
+    "singTogetherCost": 10
   },
   {
     "id": "tritons-decree",
@@ -6697,7 +6976,8 @@
         "rulesText": "Look at the top 5 cards of your deck. You may reveal up to 2 character cards and put them into your hand. Put the rest on the bottom of your deck in any order.",
         "raw": "Look at the top 5 cards of your deck. You may reveal up to 2 character cards and put them into your hand. Put the rest on the bottom of your deck in any order."
       }
-    ]
+    ],
+    "singTogetherCost": 7
   },
   {
     "id": "ursula-sea-witch-queen",
@@ -6755,7 +7035,54 @@
       "Hero",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "TIMELY INTERVENTION",
+        "rulesText": "When you play this character, if you have a character named Magic Broom in play, you may draw a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "has_character_named",
+          "name": "Magic Broom",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
+      {
+        "type": "static",
+        "storyName": "ARCANE STUDY",
+        "rulesText": "While you have 2 or more Broom characters in play, this character gets +2 {L}.",
+        "condition": {
+          "type": "has_character_with_trait",
+          "trait": "Broom",
+          "player": {
+            "type": "self"
+          },
+          "excludeSelf": true
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "modifier": 2,
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "4",
     "number": 209,
     "rarity": "enchanted",
@@ -6813,7 +7140,8 @@
         "rulesText": "Chosen player draws 5 cards.",
         "raw": "Chosen player draws 5 cards."
       }
-    ]
+    ],
+    "singTogetherCost": 10
   },
   {
     "id": "diablo-devoted-herald",
@@ -7237,7 +7565,54 @@
       "Hero",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "TIMELY INTERVENTION",
+        "rulesText": "When you play this character, if you have a character named Magic Broom in play, you may draw a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "has_character_named",
+          "name": "Magic Broom",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
+      {
+        "type": "static",
+        "storyName": "ARCANE STUDY",
+        "rulesText": "While you have 2 or more Broom characters in play, this character gets +2 {L}.",
+        "condition": {
+          "type": "has_character_with_trait",
+          "trait": "Broom",
+          "player": {
+            "type": "self"
+          },
+          "excludeSelf": true
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "modifier": 2,
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "4",
     "number": 223,
     "rarity": "legendary",

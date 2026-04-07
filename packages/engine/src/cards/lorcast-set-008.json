@@ -1534,7 +1534,8 @@
         "rulesText": "Return up to 3 character cards from your discard to your hand. You pay 2 {I} less for the next character you play this turn.",
         "raw": "Return up to 3 character cards from your discard to your hand. You pay 2 {I} less for the next character you play this turn."
       }
-    ]
+    ],
+    "singTogetherCost": 9
   },
   {
     "id": "trials-and-tribulations",
@@ -2812,7 +2813,8 @@
         "rulesText": "For each character that sang this song, draw a card and gain 1 lore.",
         "raw": "For each character that sang this song, draw a card and gain 1 lore."
       }
-    ]
+    ],
+    "singTogetherCost": 9
   },
   {
     "id": "pull-the-lever",
@@ -4020,7 +4022,8 @@
         "rulesText": "Return up to 2 chosen characters with 3 {S} or less each to their player's hand.",
         "raw": "Return up to 2 chosen characters with 3 {S} or less each to their player's hand."
       }
-    ]
+    ],
+    "singTogetherCost": 8
   },
   {
     "id": "wrong-lever",
@@ -5122,7 +5125,8 @@
         "rulesText": "Ready all your characters. For the rest of this turn, they take no damage from challenges and can't quest.",
         "raw": "Ready all your characters. For the rest of this turn, they take no damage from challenges and can't quest."
       }
-    ]
+    ],
+    "singTogetherCost": 8
   },
   {
     "id": "get-out",
@@ -6018,7 +6022,8 @@
         "rulesText": "Remove up to 3 damage from any number of chosen characters. All opposing characters get -3 {S} this turn.",
         "raw": "Remove up to 3 damage from any number of chosen characters. All opposing characters get -3 {S} this turn."
       }
-    ]
+    ],
+    "singTogetherCost": 6
   },
   {
     "id": "pouncing-practice",
@@ -6859,7 +6864,8 @@
         "rulesText": "Choose any number of players. They discard their hands and draw 3 cards each.",
         "raw": "Choose any number of players. They discard their hands and draw 3 cards each."
       }
-    ]
+    ],
+    "singTogetherCost": 7
   },
   {
     "id": "quick-shot",
@@ -7058,7 +7064,8 @@
         "rulesText": "Return up to 3 character cards from your discard to your hand. You pay 2 {I} less for the next character you play this turn.",
         "raw": "Return up to 3 character cards from your discard to your hand. You pay 2 {I} less for the next character you play this turn."
       }
-    ]
+    ],
+    "singTogetherCost": 9
   },
   {
     "id": "bambi-little-prince",
@@ -7207,7 +7214,8 @@
         "rulesText": "For each character that sang this song, draw a card and gain 1 lore.",
         "raw": "For each character that sang this song, draw a card and gain 1 lore."
       }
-    ]
+    ],
+    "singTogetherCost": 9
   },
   {
     "id": "into-the-unknown",

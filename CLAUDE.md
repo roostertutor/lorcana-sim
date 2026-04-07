@@ -37,7 +37,7 @@ pnpm learn               # train RL policy (see --help)
 | docs/DECISIONS.md | Why decisions were made | Before proposing architecture changes |
 | docs/CRD_TRACKER.md | CRD v2.0.1 rule-to-engine map | Implementing/fixing game rules |
 | docs/CARD_ISSUES.md | Card implementation gaps | Importing new sets / fixing card bugs |
-| docs/IMPLEMENTING_A_SET.md | End-to-end playbook for implementing a set | Starting a new set |
+| docs/IMPLEMENTING_BY_MECHANIC.md | Mechanic-driven playbook for implementing cards across sets 4–11 | Starting a card-implementation session |
 | docs/RL.md | RL training architecture, policies, reward design | Touching the RL training pipeline |
 | docs/QUERY_SYSTEM.md | Query condition types, sim file format, CLI workflows | Writing or running queries |
 | docs/ANALYTICS_PHILOSOPHY.md | Why we ask certain questions, query design principles | Designing new question files |

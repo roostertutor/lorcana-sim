@@ -111,6 +111,7 @@ function buildDeckInstances(
         tempLoreModifier: 0,
         grantedKeywords: [],
         timedEffects: [],
+        cardsUnder: [],
       });
     }
   }
@@ -124,6 +125,11 @@ const EMPTY_ZONES: Record<ZoneName, string[]> = {
   play: [],
   discard: [],
   inkwell: [],
+  // CRD 8.10.4 / 8.4.2: cards under another card live here logically.
+  // The "under" zone array is unused — cards-under membership is tracked
+  // by the parent's CardInstance.cardsUnder field. We declare it for type
+  // completeness so getZone(state, p, "under") returns [] without error.
+  under: [],
 };
 
 export function createGame(
@@ -141,8 +147,8 @@ export function createGame(
 
   // Build the cards record and zone lists
   const cards: Record<string, CardInstance> = {};
-  const p1Zones: Record<ZoneName, string[]> = { ...EMPTY_ZONES, deck: [], hand: [], play: [], discard: [], inkwell: [] };
-  const p2Zones: Record<ZoneName, string[]> = { ...EMPTY_ZONES, deck: [], hand: [], play: [], discard: [], inkwell: [] };
+  const p1Zones: Record<ZoneName, string[]> = { ...EMPTY_ZONES, deck: [], hand: [], play: [], discard: [], inkwell: [], under: [] };
+  const p2Zones: Record<ZoneName, string[]> = { ...EMPTY_ZONES, deck: [], hand: [], play: [], discard: [], inkwell: [], under: [] };
 
   for (const instance of allInstances) {
     cards[instance.instanceId] = instance;

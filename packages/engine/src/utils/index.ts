@@ -123,7 +123,10 @@ export function isActionRestricted(
   action: RestrictedAction,
   playerId: PlayerID,
   state: GameState,
-  modifiers: { actionRestrictions: { restricts: string; affectedPlayerId: PlayerID; filter?: CardFilter }[] }
+  modifiers: {
+    actionRestrictions: { restricts: string; affectedPlayerId: PlayerID; filter?: CardFilter }[];
+    selfActionRestrictions?: Map<string, Set<RestrictedAction>>;
+  }
 ): boolean {
   // Source 1: timed effects on the card
   if (instance.timedEffects.some(te => te.type === "cant_action" && te.action === action)) {
@@ -135,6 +138,10 @@ export function isActionRestricted(
     if (!r.filter || matchesFilter(instance, definition, r.filter, state, playerId)) {
       return true;
     }
+  }
+  // Source 3: permanent self-restrictions tied to the source instance (Maui - Whale)
+  if (modifiers.selfActionRestrictions?.get(instance.instanceId)?.has(action)) {
+    return true;
   }
   return false;
 }
@@ -592,6 +599,11 @@ export function evaluateCondition(
         evaluateCondition(sub, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId)
       );
     }
+    case "compound_or": {
+      return condition.conditions.some(sub =>
+        evaluateCondition(sub, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId)
+      );
+    }
     case "songs_played_this_turn_gte": {
       return (state.players[controllingPlayerId].songsPlayedThisTurn ?? 0) >= condition.amount;
     }
@@ -605,6 +617,28 @@ export function evaluateCondition(
     case "this_at_location": {
       const inst = state.cards[sourceInstanceId];
       return inst ? !!inst.atLocationInstanceId : false;
+    }
+    case "this_location_has_character": {
+      // True if any character (any owner) is currently at this location.
+      // Used by Belle's House - Maurice's Workshop ("If you have a character here, items cost 1 less").
+      for (const c of Object.values(state.cards)) {
+        if (c.atLocationInstanceId === sourceInstanceId) return true;
+      }
+      return false;
+    }
+    case "this_has_cards_under": {
+      // CRD 8.10.4 / 8.4.2: true if this card has at least one card under it
+      // (from Shift base or Boost). Used by Flynn Rider Spectral Scoundrel etc.
+      const inst = state.cards[sourceInstanceId];
+      return !!inst && inst.cardsUnder.length > 0;
+    }
+    case "your_character_was_damaged_this_turn": {
+      // Devil's Eye Diamond / Brutus - Fearsome Crocodile.
+      return !!state.players[controllingPlayerId].aCharacterWasDamagedThisTurn;
+    }
+    case "opponent_character_was_banished_in_challenge_this_turn": {
+      // LeFou - Opportunistic Flunky: free play if an opposing character was banished in a challenge this turn.
+      return !!state.players[opponent].aCharacterWasBanishedInChallengeThisTurn;
     }
     case "not": {
       return !evaluateCondition(condition.condition, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId);

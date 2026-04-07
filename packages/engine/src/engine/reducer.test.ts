@@ -2910,7 +2910,9 @@ describe("§8 Keywords", () => {
 
     expect(result.success).toBe(true);
     expect(getInstance(result.newState, shiftId).zone).toBe("play");
-    expect(getInstance(result.newState, baseId).zone).toBe("discard");
+    // CRD 8.10.4: base card goes UNDER the shifted character, not to discard.
+    expect(getInstance(result.newState, baseId).zone).toBe("under");
+    expect(getInstance(result.newState, shiftId).cardsUnder).toContain(baseId);
   });
 
   it("Shift: cannot shift without enough ink for shiftCost", () => {

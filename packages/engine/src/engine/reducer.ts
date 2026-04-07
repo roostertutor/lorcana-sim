@@ -297,7 +297,7 @@ function applyActionInner(
 ): GameState {
   switch (action.type) {
     case "PLAY_CARD":
-      return applyPlayCard(state, action.playerId, action.instanceId, definitions, events, action.shiftTargetInstanceId, action.singerInstanceId);
+      return applyPlayCard(state, action.playerId, action.instanceId, definitions, events, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds);
     case "PLAY_INK":
       return applyPlayInk(state, action.playerId, action.instanceId, definitions, events);
     case "QUEST":
@@ -312,6 +312,8 @@ function applyActionInner(
       return applyDraw(state, action.playerId, action.amount ?? 1, events, definitions);
     case "MOVE_CHARACTER":
       return applyMoveCharacter(state, action.playerId, action.characterInstanceId, action.locationInstanceId, definitions, events);
+    case "BOOST_CARD":
+      return applyBoostCard(state, action.playerId, action.instanceId, definitions, events);
     case "RESOLVE_CHOICE":
       return applyResolveChoice(state, action.playerId, action.choice, definitions, events);
     default:
@@ -326,12 +328,33 @@ function applyPlayCard(
   definitions: Record<string, CardDefinition>,
   events: GameEvent[],
   shiftTargetInstanceId?: string,
-  singerInstanceId?: string
+  singerInstanceId?: string,
+  singerInstanceIds?: string[]
 ): GameState {
   const def = getDefinition(state, instanceId, definitions);
 
-  // CRD 5.4.4.2: Singing — exert character instead of paying ink
-  if (singerInstanceId) {
+  // CRD 8.12: Sing Together — multiple characters all exert; sings trigger fires per singer
+  if (singerInstanceIds && singerInstanceIds.length > 0) {
+    for (const sId of singerInstanceIds) {
+      state = updateInstance(state, sId, { isExerted: true });
+    }
+    const singerNames = singerInstanceIds
+      .map(id => getDefinition(state, id, definitions).fullName)
+      .join(", ");
+    state = appendLog(state, {
+      turn: state.turnNumber,
+      playerId,
+      message: `${playerId} played ${def.fullName} (Sing Together: ${singerNames}).`,
+      type: "card_played",
+    });
+    // Queue "sings" for each contributing singer (CRD 8.12 — each is singing the song).
+    for (const sId of singerInstanceIds) {
+      state = queueTrigger(state, "sings", sId, definitions, {
+        triggeringPlayerId: playerId,
+        triggeringCardInstanceId: instanceId,
+      });
+    }
+  } else if (singerInstanceId) {
     // Don't deduct ink — singing is the alternate cost (CRD 1.5.5.1)
     state = updateInstance(state, singerInstanceId, { isExerted: true });
     const singerDef = getDefinition(state, singerInstanceId, definitions);
@@ -340,6 +363,15 @@ function applyPlayCard(
       playerId,
       message: `${playerId} played ${def.fullName} (sung by ${singerDef.fullName}).`,
       type: "card_played",
+    });
+    // Queue "sings" trigger on the singer (e.g. Ursula - Deceiver of All).
+    // The triggering card is the song instance — Ursula's WHAT A DEAL uses
+    // target: { type: "triggering_card" } to replay it from discard.
+    // Processed by the wrapping applyAction → processTriggerStack call after the
+    // song's actionEffects resolve and the song moves to discard (CRD 5.4.3 timing).
+    state = queueTrigger(state, "sings", singerInstanceId, definitions, {
+      triggeringPlayerId: playerId,
+      triggeringCardInstanceId: instanceId,
     });
   } else {
     const baseCost = shiftTargetInstanceId ? (def.shiftCost ?? def.cost) : def.cost;
@@ -399,6 +431,10 @@ function applyPlayCard(
 
   if (shiftTargetInstanceId) {
     const shiftTarget = getInstance(state, shiftTargetInstanceId);
+    // CRD 8.10.4: when you shift, the previous version is placed UNDER the shifted character
+    // (not in discard). The previous version inherits the new character's cardsUnder pile too —
+    // a Floodborn shifted onto another Floodborn carries its under-stack with it.
+    const inheritedUnder = shiftTarget.cardsUnder;
     // Shifted card enters play — fires enters_play, card_played
     state = zoneTransition(state, instanceId, "play", definitions, events, {
       reason: "played", triggeringPlayerId: playerId,
@@ -409,9 +445,37 @@ function applyPlayCard(
       isDrying: shiftTarget.isDrying, // CRD 8.10.4: inherit dry/drying from base card
       shiftedOntoInstanceId: shiftTargetInstanceId,
       playedViaShift: true,
+      cardsUnder: [...inheritedUnder, shiftTargetInstanceId],
     });
-    // Base card goes to discard silently (not a "banish" or "leaves play" per CRD 8.10)
-    state = zoneTransition(state, shiftTargetInstanceId, "discard", definitions, events, { silent: true });
+    // CRD 8.10.4: the base card moves from play to "under". Reset its play-state fields
+    // (it's no longer the active version of the card) and inherit-empty cardsUnder
+    // (its under-pile has already been moved onto the new top card above).
+    state = {
+      ...state,
+      cards: {
+        ...state.cards,
+        [shiftTargetInstanceId]: {
+          ...state.cards[shiftTargetInstanceId]!,
+          zone: "under",
+          damage: 0,
+          isExerted: false,
+          isDrying: false,
+          tempStrengthModifier: 0,
+          tempWillpowerModifier: 0,
+          tempLoreModifier: 0,
+          grantedKeywords: [],
+          timedEffects: [],
+          cardsUnder: [],
+        },
+      },
+      zones: {
+        ...state.zones,
+        [playerId]: {
+          ...state.zones[playerId],
+          play: state.zones[playerId].play.filter(id => id !== shiftTargetInstanceId),
+        },
+      },
+    };
     state = appendLog(state, {
       turn: state.turnNumber,
       playerId,
@@ -675,6 +739,17 @@ function applyChallenge(
     attackerStr += challengerValue;
   }
 
+  // Conditional challenge bonuses (e.g. Olympus Would Be That Way: +3 {S} while challenging a location).
+  // These are turn-scoped player-wide bonuses that behave like Challenger but with a defender filter.
+  const turnBonuses = state.players[playerId].turnChallengeBonuses;
+  if (turnBonuses && turnBonuses.length > 0) {
+    for (const bonus of turnBonuses) {
+      if (matchesFilter(defender, defenderDef, bonus.defenderFilter, state, playerId)) {
+        attackerStr += bonus.strength;
+      }
+    }
+  }
+
   state = updateInstance(state, attackerInstanceId, { isExerted: true });
   // Mark defender as challenged this turn (for Last Stand and similar cards)
   // CRD 4.6.8: Locations don't track challengedThisTurn (no character-state).
@@ -705,6 +780,13 @@ function applyChallenge(
     const atkTarget = attackerRedirect ?? attackerInstanceId;
     const inst = getInstance(state, atkTarget);
     state = updateInstance(state, atkTarget, { damage: inst.damage + actualAttackerDamage });
+    state = {
+      ...state,
+      players: {
+        ...state.players,
+        [inst.ownerId]: { ...state.players[inst.ownerId], aCharacterWasDamagedThisTurn: true },
+      },
+    };
     events.push({ type: "damage_dealt", instanceId: atkTarget, amount: actualAttackerDamage });
     // Fire damage_dealt_to trigger for challenge damage
     state = queueTrigger(state, "damage_dealt_to", atkTarget, definitions, {});
@@ -715,6 +797,13 @@ function applyChallenge(
     const defTarget = defenderRedirect ?? defenderInstanceId;
     const inst = getInstance(state, defTarget);
     state = updateInstance(state, defTarget, { damage: inst.damage + actualDefenderDamage });
+    state = {
+      ...state,
+      players: {
+        ...state.players,
+        [inst.ownerId]: { ...state.players[inst.ownerId], aCharacterWasDamagedThisTurn: true },
+      },
+    };
     events.push({ type: "damage_dealt", instanceId: defTarget, amount: actualDefenderDamage });
     // Fire damage_dealt_to trigger for challenge damage
     state = queueTrigger(state, "damage_dealt_to", defTarget, definitions, {});
@@ -787,21 +876,39 @@ function applyMoveCharacter(
   const locDef = getDefinition(state, locationInstanceId, definitions);
   const moveCost = locDef.moveCost ?? 0;
 
-  // Deduct ink
+  // Deduct ink (the move_character effect path skips this — see performMove)
   if (moveCost > 0) {
     state = updatePlayerInk(state, playerId, -moveCost);
   }
+  return performMove(state, characterInstanceId, locationInstanceId, definitions, events);
+}
+
+/** Pure mutation shared by the MOVE_CHARACTER action and the move_character effect.
+ *  Sets atLocationInstanceId, marks movedThisTurn, logs, and queues the
+ *  moves_to_location trigger. Does NOT pay ink — the action wrapper handles that. */
+function performMove(
+  state: GameState,
+  characterInstanceId: string,
+  locationInstanceId: string,
+  definitions: Record<string, CardDefinition>,
+  _events: GameEvent[]
+): GameState {
+  const characterInst = state.cards[characterInstanceId];
+  const locationInst = state.cards[locationInstanceId];
+  if (!characterInst || !locationInst) return state;
+  const playerId = characterInst.ownerId;
 
   state = updateInstance(state, characterInstanceId, {
     atLocationInstanceId: locationInstanceId,
     movedThisTurn: true,
   });
 
-  const charDef = getDefinition(state, characterInstanceId, definitions);
+  const charDef = definitions[characterInst.definitionId];
+  const locDef = definitions[locationInst.definitionId];
   state = appendLog(state, {
     turn: state.turnNumber,
     playerId,
-    message: `${playerId} moved ${charDef.fullName} to ${locDef.fullName}.`,
+    message: `${playerId} moved ${charDef?.fullName ?? characterInstanceId} to ${locDef?.fullName ?? locationInstanceId}.`,
     type: "character_moved",
   });
 
@@ -811,6 +918,53 @@ function applyMoveCharacter(
     triggeringPlayerId: playerId,
   });
 
+  return state;
+}
+
+/** CRD 8.4: Boost N {I} — pay N, top of deck → cardsUnder, mark boostedThisTurn. */
+function applyBoostCard(
+  state: GameState,
+  playerId: PlayerID,
+  instanceId: string,
+  definitions: Record<string, CardDefinition>,
+  _events: GameEvent[]
+): GameState {
+  const inst = getInstance(state, instanceId);
+  const def = getDefinition(state, instanceId, definitions);
+  const cost = getKeywordValue(inst, def, "boost");
+  state = updatePlayerInk(state, playerId, -cost);
+
+  // Move top card of deck → under this card. The under card's instance stays
+  // addressable but its zone becomes "under" and it's removed from the deck array.
+  const deck = getZone(state, playerId, "deck");
+  const topId = deck[0]!;
+  const topInst = state.cards[topId]!;
+  state = {
+    ...state,
+    cards: {
+      ...state.cards,
+      [topId]: { ...topInst, zone: "under" },
+      [instanceId]: {
+        ...state.cards[instanceId]!,
+        cardsUnder: [...state.cards[instanceId]!.cardsUnder, topId],
+        boostedThisTurn: true,
+      },
+    },
+    zones: {
+      ...state.zones,
+      [playerId]: {
+        ...state.zones[playerId],
+        deck: state.zones[playerId].deck.filter(id => id !== topId),
+      },
+    },
+  };
+
+  state = appendLog(state, {
+    turn: state.turnNumber,
+    playerId,
+    message: `${playerId} Boosted ${def.fullName} (paid ${cost} ink, put top of deck under).`,
+    type: "ability_activated",
+  });
   return state;
 }
 
@@ -937,6 +1091,18 @@ function applyPassTurn(
         extraInkPlaysGranted: 0, // Clear turn-scoped extra ink grants
         actionsPlayedThisTurn: 0,
         songsPlayedThisTurn: 0,
+        // Per-turn event flags reset on the new active player too (defensive)
+        aCharacterWasDamagedThisTurn: false,
+        aCharacterWasBanishedInChallengeThisTurn: false,
+      },
+      // CRD 3.4.1.2: clear the ending player's turn-scoped conditional challenge bonuses
+      // and per-turn event flags (damaged-this-turn, banished-in-challenge-this-turn).
+      // Both players' event flags reset at turn boundary — "this turn" is the global turn.
+      [playerId]: {
+        ...state.players[playerId],
+        turnChallengeBonuses: [],
+        aCharacterWasDamagedThisTurn: false,
+        aCharacterWasBanishedInChallengeThisTurn: false,
       },
     },
   };
@@ -992,7 +1158,8 @@ function applyPassTurn(
       instance.grantedKeywords.length > 0 ||
       instance.challengedThisTurn ||
       instance.movedThisTurn ||
-      instance.oncePerTurnTriggered
+      instance.oncePerTurnTriggered ||
+      instance.boostedThisTurn
     ) {
       state = updateInstance(state, id, {
         tempStrengthModifier: 0,
@@ -1003,6 +1170,7 @@ function applyPassTurn(
         movedThisTurn: false,
         // CRD 6.1.13: once-per-turn flags reset at end of turn
         oncePerTurnTriggered: undefined,
+        boostedThisTurn: false,
       });
     }
   }
@@ -1201,11 +1369,13 @@ function applyResolveChoice(
         state = moveCard(state, cardId, inst.ownerId, "discard");
       }
     }
-    // Fire cards_discarded trigger (Prince John - Greediest of All)
+    // Queue cards_discarded trigger (Prince John - Greediest of All) — but DO NOT
+    // process the trigger stack inline. The triggering action (e.g. Sudden Chill being
+    // sung) must finish its cleanup first so other triggers (e.g. Ursula DOA's "sings"
+    // → "play that song from discard") see the action card in discard, not still in play.
     if (discardCount > 0 && discardingPlayerId) {
       state = { ...state, lastEffectResult: discardCount };
       state = queueTriggersByEvent(state, "cards_discarded", discardingPlayerId, definitions, {});
-      state = processTriggerStack(state, definitions, events);
     }
     state = resumePendingEffectQueue(state, definitions, events);
     state = cleanupPendingAction(state, playerId);
@@ -1267,6 +1437,21 @@ function applyResolveChoice(
     return state;
   }
 
+  if (pendingChoice.type === "choose_card_name" && typeof choice === "string") {
+    // The Sorcerer's Hat: compare the named card to the top of deck.
+    const deck = getZone(state, playerId, "deck");
+    const topId = deck[0];
+    if (topId) {
+      const topInst = state.cards[topId];
+      const topDef = topInst ? definitions[topInst.definitionId] : undefined;
+      if (topDef && topDef.name === choice) {
+        state = moveCard(state, topId, playerId, "hand");
+      }
+      // else: leave on top — no-op
+    }
+    return state;
+  }
+
   if (pendingChoice.type === "choose_target" && Array.isArray(choice)) {
     // CRD 6.1.4: optional target choice — empty array = skip
     if (pendingChoice.optional && choice.length === 0) {
@@ -1275,10 +1460,11 @@ function applyResolveChoice(
       return state;
     }
     for (const targetId of choice) {
-      // Track the owner of the targeted card (for "its player draws" patterns)
+      // Track the owner and instance of the targeted card. lastTargetInstanceId is
+      // used for "lore equal to that location's lore" patterns (I've Got a Dream).
       const targetInst = state.cards[targetId];
       if (targetInst) {
-        state = { ...state, lastTargetOwnerId: targetInst.ownerId };
+        state = { ...state, lastTargetOwnerId: targetInst.ownerId, lastTargetInstanceId: targetId };
       }
       state = applyEffectToTarget(state, pendingEffect!, targetId, playerId, definitions, events);
       // Apply follow-up effects to the same target
@@ -1343,6 +1529,19 @@ export function applyEffect(
       let amount: number;
       if (typeof effect.amount === "object" && effect.amount.type === "count") {
         amount = findMatchingInstances(state, definitions, effect.amount.filter, controllingPlayerId).length;
+      } else if (effect.amount === "triggering_card_lore") {
+        // Peter Pan - Lost Boy Leader: lore equal to the triggering location's lore
+        const triggeringInst = triggeringCardInstanceId ? state.cards[triggeringCardInstanceId] : undefined;
+        const triggeringDef = triggeringInst ? definitions[triggeringInst.definitionId] : undefined;
+        amount = triggeringDef?.lore ?? 0;
+      } else if (effect.amount === "last_target_location_lore") {
+        // I've Got a Dream: lore equal to the lore of the most recent chosen target's location
+        const lastTargetId = state.lastTargetInstanceId;
+        const lastTargetInst = lastTargetId ? state.cards[lastTargetId] : undefined;
+        const locId = lastTargetInst?.atLocationInstanceId;
+        const locInst = locId ? state.cards[locId] : undefined;
+        const locDef = locInst ? definitions[locInst.definitionId] : undefined;
+        amount = locDef?.lore ?? 0;
       } else {
         amount = effect.amount as number;
       }
@@ -1519,6 +1718,180 @@ export function applyEffect(
         };
       }
       return state;
+    }
+
+    case "cant_be_challenged_timed": {
+      // Apply a timed cant_be_challenged effect to the chosen character.
+      const timed: TimedEffect = {
+        type: "cant_be_challenged",
+        expiresAt: effect.duration,
+        appliedOnTurn: state.turnNumber,
+      };
+      if (effect.target.type === "this") {
+        return addTimedEffect(state, sourceInstanceId, timed);
+      }
+      if (effect.target.type === "chosen") {
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        if (validTargets.length === 0) return state;
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_target",
+            choosingPlayerId: controllingPlayerId,
+            prompt: "Choose a character that can't be challenged.",
+            validTargets,
+            pendingEffect: effect,
+            optional: effect.isMay ?? false,
+          },
+        };
+      }
+      if (effect.target.type === "all") {
+        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        for (const id of targets) state = addTimedEffect(state, id, timed);
+        return state;
+      }
+      return state;
+    }
+
+    case "reveal_top_conditional": {
+      // Reveal top card of deck. If it matches the filter, apply matchAction.
+      // Else, put it back on top (default) or bottom of deck.
+      const targetPlayer = effect.target.type === "opponent" ? getOpponent(controllingPlayerId) : controllingPlayerId;
+      const deck = getZone(state, targetPlayer, "deck");
+      const topId = deck[0];
+      if (!topId) return state;
+      const topInst = state.cards[topId];
+      const topDef = topInst ? definitions[topInst.definitionId] : undefined;
+      if (!topInst || !topDef) return state;
+      const matches = matchesFilter(topInst, topDef, effect.filter, state, targetPlayer);
+      if (matches) {
+        // CRD 6.1.4: "may" — in non-interactive mode the bot accepts (best-case for the controller).
+        // Interactive choose_may flow could be added later if needed.
+        switch (effect.matchAction) {
+          case "to_hand":
+            state = moveCard(state, topId, targetPlayer, "hand");
+            break;
+          case "play_for_free": {
+            // Move to play and resolve any action effects (mirrors play_for_free direct path).
+            state = zoneTransition(state, topId, "play", definitions, events, {
+              reason: "played", triggeringPlayerId: targetPlayer,
+            });
+            if (topDef.cardType === "character") {
+              state = updateInstance(state, topId, { isDrying: true });
+            }
+            if (topDef.cardType === "action" && topDef.actionEffects) {
+              for (const ae of topDef.actionEffects) {
+                state = applyEffect(state, ae, topId, targetPlayer, definitions, events);
+              }
+              state = zoneTransition(state, topId, "discard", definitions, events, { reason: "discarded" });
+            }
+            break;
+          }
+          case "to_inkwell_exerted": {
+            // Move to inkwell facedown and exerted (no ink granted, no inkable check)
+            state = zoneTransition(state, topId, "inkwell", definitions, events, { reason: "inked" });
+            state = updateInstance(state, topId, { isExerted: true });
+            break;
+          }
+        }
+      } else {
+        // CRD: revealed but not matching → put on top (default) or bottom.
+        if (effect.noMatchDestination === "bottom") {
+          state = moveCard(state, topId, targetPlayer, "deck");
+        }
+        // else: stays where it is — already on top.
+      }
+      return state;
+    }
+
+    case "name_a_card_then_reveal": {
+      // The Sorcerer's Hat / ABRACADABRA: name a card, reveal top of deck, put it
+      // in hand on a match (else leave on top — no-op).
+      if (state.interactive) {
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_card_name",
+            choosingPlayerId: controllingPlayerId,
+            prompt: "Name a card",
+            pendingEffect: effect,
+          },
+        };
+      }
+      // Non-interactive (bot): peek the top card and "name" it correctly. The bot
+      // is essentially clairvoyant for this effect — acceptable for analytics sims.
+      const deckNonInt = getZone(state, controllingPlayerId, "deck");
+      const topIdNonInt = deckNonInt[0];
+      if (!topIdNonInt) return state;
+      return moveCard(state, topIdNonInt, controllingPlayerId, "hand");
+    }
+
+    case "move_character": {
+      // Resolve the character side first.
+      let characterId: string | undefined;
+      if (effect.character.type === "this") {
+        characterId = sourceInstanceId;
+      } else if (effect.character.type === "triggering_card") {
+        characterId = triggeringCardInstanceId;
+      } else if (effect.character.type === "chosen") {
+        // Stage 1: present a choice for the character. The chosen-character then drives
+        // stage 2 via applyEffectToTarget(move_character).
+        const validTargets = findValidTargets(state, effect.character.filter, controllingPlayerId, definitions, sourceInstanceId);
+        if (validTargets.length === 0) return state; // CRD 1.7.7
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_target",
+            choosingPlayerId: controllingPlayerId,
+            prompt: "Choose a character to move.",
+            validTargets,
+            pendingEffect: effect,
+            optional: effect.isMay ?? false,
+          },
+        };
+      }
+      if (!characterId) return state;
+
+      // Resolve the location side.
+      if (effect.location.type === "triggering_card") {
+        if (!triggeringCardInstanceId) return state;
+        return performMove(state, characterId, triggeringCardInstanceId, definitions, events);
+      }
+      if (effect.location.type === "chosen") {
+        // Edge case: character is "this"/"triggering_card" but location is "chosen".
+        const validLocations = findValidTargets(state, effect.location.filter, controllingPlayerId, definitions, sourceInstanceId);
+        if (validLocations.length === 0) return state;
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_target",
+            choosingPlayerId: controllingPlayerId,
+            prompt: "Choose a location to move to.",
+            validTargets: validLocations,
+            // Stash the resolved character on a clone of the effect for stage 2.
+            pendingEffect: { ...effect, _resolvedCharacterInstanceId: characterId },
+            optional: effect.isMay ?? false,
+          },
+        };
+      }
+      return state;
+    }
+
+    case "gain_conditional_challenge_bonus": {
+      // CRD 6.1.4 / 8.5.1-style: add a turn-scoped conditional challenge bonus
+      // for the controlling player. Applied in performChallenge against matching defenders.
+      const player = state.players[controllingPlayerId];
+      const existing = player.turnChallengeBonuses ?? [];
+      return {
+        ...state,
+        players: {
+          ...state.players,
+          [controllingPlayerId]: {
+            ...player,
+            turnChallengeBonuses: [...existing, { strength: effect.strength, defenderFilter: effect.defenderFilter }],
+          },
+        },
+      };
     }
 
     case "exert": {
@@ -1796,9 +2169,21 @@ export function applyEffect(
       else if (effect.target.type === "both") players.push("player1", "player2");
 
       for (const pid of players) {
-        const hand = getZone(state, pid, "hand");
+        let hand = getZone(state, pid, "hand");
 
-        // "all" = discard entire hand, no choice
+        // CRD 1.7.7: if a filter is set, narrow the eligible hand cards.
+        // Used by Ursula - Deceiver of All (songs), Bare Necessities / Mowgli (non-character).
+        if (effect.filter) {
+          hand = hand.filter((cardId) => {
+            const inst = state.cards[cardId];
+            const def = inst ? definitions[inst.definitionId] : undefined;
+            return inst && def ? matchesFilter(inst, def, effect.filter!, state, pid) : false;
+          });
+          // Fizzle if no eligible cards.
+          if (hand.length === 0) continue;
+        }
+
+        // "all" = discard entire hand (or entire filtered subset), no choice
         if (effect.amount === "all") {
           const discardCount = hand.length;
           for (const cardId of [...hand]) {
@@ -1818,6 +2203,25 @@ export function applyEffect(
 
         const discardCount = Math.min(effect.amount, hand.length);
         if (discardCount === 0) continue;
+
+        // Random chooser: pick uniformly at random from the eligible hand cards
+        // (Bruno reveal, Lady Tremaine, Basil etc.). No pending choice — engine resolves.
+        if (effect.chooser === "random") {
+          const picked: string[] = [];
+          const pool = [...hand];
+          for (let i = 0; i < discardCount && pool.length > 0; i++) {
+            const idx = Math.floor(Math.random() * pool.length);
+            const id = pool[idx]!;
+            picked.push(id);
+            pool.splice(idx, 1);
+            state = moveCard(state, id, pid, "discard");
+          }
+          state = { ...state, lastEffectResult: picked.length };
+          if (picked.length > 0) {
+            state = queueTriggersByEvent(state, "cards_discarded", pid, definitions, {});
+          }
+          continue;
+        }
 
         // Create pending choice for the choosing player
         const choosingPlayer = effect.chooser === "target_player" ? pid : controllingPlayerId;
@@ -1898,14 +2302,25 @@ export function applyEffect(
     }
 
     case "play_for_free": {
-      // Choose a card from hand matching filter, play it without paying ink
-      const hand = getZone(state, controllingPlayerId, "hand");
-      const validCards = hand.filter((id) => {
+      // Direct-target form (e.g. Ursula - Deceiver of All replays the song that
+      // triggered the ability). Skip the choose-from-zone flow and apply directly.
+      if (effect.target) {
+        if (effect.target.type === "triggering_card" && triggeringCardInstanceId) {
+          return applyEffectToTarget(state, effect, triggeringCardInstanceId, controllingPlayerId, definitions, events);
+        }
+        // Other direct target shapes can be added as cards demand them.
+        return state;
+      }
+      // Choose-from-zone form: filter the source zone (default hand) and present a choice.
+      const sourceZone = effect.sourceZone ?? "hand";
+      const sourceCards = getZone(state, controllingPlayerId, sourceZone);
+      const filter = effect.filter;
+      const validCards = sourceCards.filter((id) => {
         const inst = state.cards[id];
         if (!inst) return false;
         const def = definitions[inst.definitionId];
         if (!def) return false;
-        return matchesFilter(inst, def, effect.filter, state, controllingPlayerId);
+        return filter ? matchesFilter(inst, def, filter, state, controllingPlayerId) : true;
       });
       if (validCards.length === 0) return state;
       return {
@@ -2461,14 +2876,17 @@ function resumePendingEffectQueue(
   return state;
 }
 
-/** CRD 4.3.3.2: After action effect resolves, move action card from play to discard */
-function cleanupPendingAction(state: GameState, playerId: PlayerID): GameState {
+/** CRD 4.3.3.2: After action effect resolves, move action card from play to discard.
+ *  Always moves to the action card's own owner's discard, not the resolving player's
+ *  (the resolving player may be the OPPONENT — e.g. Sudden Chill's "each opponent
+ *  chooses and discards" surfaces the choose_discard pendingChoice on the opponent). */
+function cleanupPendingAction(state: GameState, _playerId: PlayerID): GameState {
   if (state.pendingActionInstanceId && !state.pendingChoice) {
     const actionInstanceId = state.pendingActionInstanceId;
     // Verify the card is still in play before moving (it might have been moved by an effect)
     const instance = state.cards[actionInstanceId];
     if (instance && instance.zone === "play") {
-      state = moveCard(state, actionInstanceId, playerId, "discard");
+      state = moveCard(state, actionInstanceId, instance.ownerId, "discard");
     }
     const { pendingActionInstanceId: _, ...rest } = state;
     state = rest as GameState;
@@ -2541,6 +2959,18 @@ function zoneTransition(
           state = queueTrigger(state, "banished_in_challenge", instanceId, definitions, {
             triggeringCardInstanceId: ctx.challengeOpponentId,
           });
+          // Per-turn flag for "if an opposing character was banished in a challenge this turn"
+          // (LeFou - Opportunistic Flunky). Set on the OWNER of the banished character.
+          state = {
+            ...state,
+            players: {
+              ...state.players,
+              [instance.ownerId]: {
+                ...state.players[instance.ownerId],
+                aCharacterWasBanishedInChallengeThisTurn: true,
+              },
+            },
+          };
           // CRD 6.2.7.1: Check floating triggers for banished_in_challenge (Fairy Godmother)
           if (state.floatingTriggers) {
             for (const ft of state.floatingTriggers) {
@@ -2596,6 +3026,29 @@ function zoneTransition(
         }
       }
     }
+    // CRD 8.10.5: when a card with cards under it leaves play, those cards go to discard.
+    const leavingInstSnapshot = state.cards[instanceId];
+    const underToDiscard = leavingInstSnapshot?.cardsUnder ?? [];
+    for (const underId of underToDiscard) {
+      const underInst = state.cards[underId];
+      if (!underInst) continue;
+      // Cards under don't live in any zone array — set zone to "discard" and append to discard.
+      state = {
+        ...state,
+        cards: {
+          ...state.cards,
+          [underId]: { ...underInst, zone: "discard" },
+        },
+        zones: {
+          ...state.zones,
+          [underInst.ownerId]: {
+            ...state.zones[underInst.ownerId],
+            discard: [...state.zones[underInst.ownerId].discard, underId],
+          },
+        },
+      };
+    }
+
     state = updateInstance(state, instanceId, {
       isExerted: false,
       damage: 0,
@@ -2611,6 +3064,8 @@ function zoneTransition(
       oncePerTurnTriggered: undefined,
       playedViaShift: false,
       challengedThisTurn: false,
+      cardsUnder: [],
+      boostedThisTurn: false,
     });
   }
 
@@ -2737,6 +3192,19 @@ function dealDamageToCard(
   const newDamage = instance.damage + actualDamage;
   state = updateInstance(state, instanceId, { damage: newDamage });
   events.push({ type: "damage_dealt", instanceId, amount: actualDamage });
+  // Per-turn event flags for "if one of your characters was damaged this turn" (Brutus, Devil's Eye Diamond)
+  if (actualDamage > 0 && def.cardType === "character") {
+    state = {
+      ...state,
+      players: {
+        ...state.players,
+        [instance.ownerId]: {
+          ...state.players[instance.ownerId],
+          aCharacterWasDamagedThisTurn: true,
+        },
+      },
+    };
+  }
 
   // Fire damage_dealt_to trigger after damage is applied
   if (actualDamage > 0) {
@@ -2844,6 +3312,13 @@ function applyEffectToTarget(
       };
       return addTimedEffect(state, targetInstanceId, timedEffect);
     }
+    case "cant_be_challenged_timed": {
+      return addTimedEffect(state, targetInstanceId, {
+        type: "cant_be_challenged",
+        expiresAt: effect.duration,
+        appliedOnTurn: state.turnNumber,
+      });
+    }
     case "move_to_inkwell": {
       const inst = getInstance(state, targetInstanceId);
       state = zoneTransition(state, targetInstanceId, "inkwell", definitions, events, { reason: "inked" });
@@ -2866,18 +3341,35 @@ function applyEffectToTarget(
       return state;
     }
     case "play_for_free": {
-      // Play the chosen card from hand without paying ink
+      // Play the chosen card without paying ink. Source zone defaults to "hand"
+      // but may be "discard" (Ursula - Deceiver of All) or any other zone.
       const inst = getInstance(state, targetInstanceId);
-      if (inst.zone !== "hand") return state;
+      const expectedSource = effect.sourceZone ?? "hand";
+      if (inst.zone !== expectedSource) return state;
       const def = definitions[inst.definitionId];
       if (!def) return state;
-      // Move to play via zoneTransition (fires enters_play, card_played triggers)
+      // Move to play via zoneTransition (fires enters_play, card_played triggers).
+      // Note: actions resolve their effects on play and then return to discard via the
+      // normal play-card path; play_for_free skips that path, so songs/actions handled
+      // here will need their actionEffects resolved separately. For Ursula's case
+      // (replaying a song from discard), the song's actionEffects must run, then the
+      // song itself goes to bottom-of-deck via thenPutOnBottomOfDeck.
       state = zoneTransition(state, targetInstanceId, "play", definitions, events, {
         reason: "played", triggeringPlayerId: controllingPlayerId,
       });
       // Characters enter drying
       if (def.cardType === "character") {
         state = updateInstance(state, targetInstanceId, { isDrying: true });
+      }
+      // Actions: resolve their effects and then move to discard (CRD 5.4.3).
+      if (def.cardType === "action" && def.actionEffects) {
+        for (const actionEffect of def.actionEffects) {
+          state = applyEffect(state, actionEffect, targetInstanceId, controllingPlayerId, definitions, events);
+        }
+        // CRD 5.4.3: actions go to discard after resolving (unless re-routed by thenPutOnBottomOfDeck below).
+        if (!effect.thenPutOnBottomOfDeck) {
+          state = zoneTransition(state, targetInstanceId, "discard", definitions, events, { reason: "discarded" });
+        }
       }
       // Grant keywords (e.g. Rush from Gruesome and Grim / Madam Mim)
       if (effect.grantKeywords) {
@@ -2890,6 +3382,14 @@ function applyEffectToTarget(
       if (effect.banishAtEndOfTurn) {
         const existing = state.pendingEndOfTurnBanish ?? [];
         state = { ...state, pendingEndOfTurnBanish: [...existing, targetInstanceId] };
+      }
+      // CRD: "...then put it on the bottom of your deck" (Ursula - Deceiver of All).
+      // For actions: bypass the normal post-resolution discard and route to bottom of deck instead.
+      // For characters: they're now in play; this would be unusual but supported.
+      if (effect.thenPutOnBottomOfDeck) {
+        const owner = getInstance(state, targetInstanceId).ownerId;
+        // moveCard appends to the end of the destination zone array → bottom of deck.
+        state = moveCard(state, targetInstanceId, owner, "deck");
       }
       state = appendLog(state, {
         turn: state.turnNumber,
@@ -2905,6 +3405,29 @@ function applyEffectToTarget(
       state = zoneTransition(state, targetInstanceId, "deck", definitions, events, { reason: "effect" });
       // Shuffle the owner's deck
       state = shuffleDeck(state, inst.ownerId);
+      return state;
+    }
+    case "move_character": {
+      // Stage 2 path: if a character was already resolved, the targetInstanceId is the LOCATION.
+      if (effect._resolvedCharacterInstanceId) {
+        return performMove(state, effect._resolvedCharacterInstanceId, targetInstanceId, definitions, events);
+      }
+      // Stage 1: targetInstanceId is the chosen character. Resolve the location side.
+      if (effect.location.type === "chosen") {
+        const validLocations = findValidTargets(state, effect.location.filter, controllingPlayerId, definitions, targetInstanceId);
+        if (validLocations.length === 0) return state;
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_target",
+            choosingPlayerId: controllingPlayerId,
+            prompt: "Choose a location to move to.",
+            validTargets: validLocations,
+            pendingEffect: { ...effect, _resolvedCharacterInstanceId: targetInstanceId },
+          },
+        };
+      }
+      // location: triggering_card not supported in this path (no triggeringCardInstanceId here)
       return state;
     }
     case "grant_challenge_ready": {

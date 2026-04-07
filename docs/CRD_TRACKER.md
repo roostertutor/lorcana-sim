@@ -352,8 +352,8 @@
 ### 8.4 Boost (first appears Set 6, major in Sets 8–10, ~78 cards affected)
 | Rule | Quote | Status |
 |------|-------|--------|
-| 8.4.1 | Boost N {I}: once per turn, pay N ink to put top card of deck facedown under this character/location | ❌ New keyword + new mechanic. Needs: `boost` in `Keyword` type; `cardsUnder: string[]` (instanceIds) on `CardInstance`; new `BOOST` action or activated ability path; cards under leave play with the character. |
-| 8.4.2 | Cards under a character are used by many triggered/static effects ("if there's a card under", "for each card under", "put all cards from under into hand") | ❌ All effects referencing cards-under are blocked until 8.4.1 is implemented. ~50 cards across sets 8–11 have Boost-dependent abilities. |
+| 8.4.1 | Boost N {I}: once per turn, pay N ink to put top card of deck facedown under this character/location | ✅ `boost` Keyword + `BOOST_CARD` action + `boostedThisTurn` per-turn flag. `CardInstance.cardsUnder: string[]`, new `"under"` ZoneName. Cleanup on leave-play (CRD 8.10.5). |
+| 8.4.2 | Cards under a character are used by many triggered/static effects ("if there's a card under", "for each card under", "put all cards from under into hand") | 🟡 `this_has_cards_under` Condition implemented (boolean check — Flynn Rider Spectral Scoundrel). Stat-per-count over cardsUnder, `put_cards_under_into_hand` effect, bot enumeration of BOOST_CARD all still TODO in Phase A.3 long-tail. |
 
 ### 8.5 Challenger
 | Rule | Quote | Status |

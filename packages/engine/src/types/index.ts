@@ -11,7 +11,7 @@
 // -----------------------------------------------------------------------------
 
 export type PlayerID = "player1" | "player2";
-export type ZoneName = "deck" | "hand" | "play" | "discard" | "inkwell";
+export type ZoneName = "deck" | "hand" | "play" | "discard" | "inkwell" | "under";
 export type InkColor =
   | "amber"
   | "amethyst"
@@ -32,7 +32,8 @@ export type Keyword =
   | "support"
   | "singer"
   | "shift"
-  | "resist";
+  | "resist"
+  | "boost";
 
 // -----------------------------------------------------------------------------
 // CARD DEFINITIONS
@@ -104,6 +105,14 @@ export interface StaticAbility {
   effect: StaticEffect;
   /** Optional condition — static only applies while condition is true */
   condition?: Condition;
+  /**
+   * CRD 6.3-ish: which zones this ability is active in. Defaults to ["play"].
+   * Use ["hand"] for Universal Shift / Classification Shift (Baymax, Thunderbolt) where
+   * the ability tells you HOW the card may be played. Use ["discard"] for "you may play
+   * this from your discard" (Lilo - Escape Artist). Use ["play"] (default) for
+   * everything else.
+   */
+  activeZones?: ZoneName[];
 }
 
 // -----------------------------------------------------------------------------
@@ -118,6 +127,11 @@ export type Effect =
   | ReturnToHandEffect
   | GainLoreEffect
   | GainStatsEffect
+  | GainConditionalChallengeBonusEffect
+  | MoveCharacterEffect
+  | NameACardThenRevealEffect
+  | RevealTopConditionalEffect
+  | CantBeChallengedTimedEffect
   | CreateCardEffect
   | SearchEffect
   | ChooseEffect
@@ -186,7 +200,17 @@ export interface ReturnToHandEffect {
 
 export interface GainLoreEffect {
   type: "gain_lore";
-  amount: number | { type: "count"; filter: CardFilter };
+  /**
+   * Amount variants:
+   *  - number: literal amount
+   *  - { type: "count" }: number of cards matching filter
+   *  - "triggering_card_lore": triggering card's printed lore stat (Peter Pan Lost Boy Leader —
+   *    "gain lore equal to that location's {L}" on moves_to_location)
+   *  - "last_target_location_lore": lore stat of the location the most recently chosen target
+   *    is at (I've Got a Dream — "Gain lore equal to that location's {L}" after readying a
+   *    chosen character at a location).
+   */
+  amount: number | { type: "count"; filter: CardFilter } | "triggering_card_lore" | "last_target_location_lore";
   target: PlayerTarget;
 }
 
@@ -202,6 +226,92 @@ export interface GainStatsEffect {
   isMay?: boolean;
   /** +1 strength per damage on target (Sword in the Stone) */
   strengthPerDamage?: boolean;
+}
+
+/**
+ * "Chosen character can't be challenged until the start of your next turn."
+ * Timed equivalent of CantBeChallengedException — applied as a TimedEffect
+ * with the standard EffectDuration values.
+ */
+export interface CantBeChallengedTimedEffect {
+  type: "cant_be_challenged_timed";
+  target: CardTarget;
+  duration: EffectDuration;
+  /** CRD 6.1.4: player may choose not to apply this effect */
+  isMay?: boolean;
+}
+
+/**
+ * "Reveal the top card of your deck. If it [matches], [matchAction]. Otherwise,
+ * put it on (top|bottom) of your deck." Common in Sets 5–11.
+ *
+ * Examples:
+ *  - Queen's/King's Sensor Core: matchAction "to_hand", filter Princess|Queen
+ *  - Pete - Wrestling Champ: matchAction "play_for_free", filter name "Pete"
+ *  - Chief Bogo - Commanding Officer: matchAction "play_for_free", filter cardType character cost≤5
+ */
+export interface RevealTopConditionalEffect {
+  type: "reveal_top_conditional";
+  /** Filter the revealed card must match for matchAction to apply. */
+  filter: CardFilter;
+  /** What to do with the revealed card if it matches. */
+  matchAction: "to_hand" | "play_for_free" | "to_inkwell_exerted";
+  /** CRD 6.1.4: revealed-and-matched cards are optional (player may decline). */
+  isMay?: boolean;
+  /** Where to put the revealed card if it does NOT match. Default "top". */
+  noMatchDestination?: "top" | "bottom";
+  target: PlayerTarget;
+}
+
+/**
+ * The Sorcerer's Hat: "Name a card, then reveal the top card of your deck.
+ * If it's the named card, put that card into your hand. Otherwise, put it on
+ * the top of your deck." (i.e. it stays on top — no-op on miss.)
+ * Player names a card name (free-form string), then the top card is revealed
+ * and compared by definition.name.
+ */
+export interface NameACardThenRevealEffect {
+  type: "name_a_card_then_reveal";
+  target: PlayerTarget;
+}
+
+/**
+ * Move a character of yours to one of your locations as an effect (CRD 4.7).
+ * Differs from the MOVE_CHARACTER player action: effects don't pay the location's
+ * moveCost and bypass the "drying" / movedThisTurn restrictions, since the ability
+ * is the source of the move (e.g. Magic Carpet GLIDING RIDE / FIND THE WAY,
+ * Jim Hawkins TAKE THE HELM).
+ *
+ * Resolution depends on target shapes:
+ *  - character "this" + location "triggering_card" — direct (Jim Hawkins TAKE THE HELM)
+ *  - character "chosen" + location "chosen" — two stages of choose_target (Magic Carpet)
+ */
+export interface MoveCharacterEffect {
+  type: "move_character";
+  /** The character being moved. */
+  character: { type: "this" } | { type: "triggering_card" } | { type: "chosen"; filter: CardFilter };
+  /** The location being moved to. */
+  location: { type: "triggering_card" } | { type: "chosen"; filter: CardFilter };
+  /** CRD 6.1.4 */
+  isMay?: boolean;
+  /** Internal: set during stage 2 of a chosen+chosen flow to carry the chosen character ID
+   *  across the second pendingChoice. Not part of the JSON spec — set by the reducer only. */
+  _resolvedCharacterInstanceId?: string;
+}
+
+/**
+ * "Your characters get +N {S} while challenging a [filter] this turn."
+ * Adds a turn-scoped conditional challenge bonus on the controlling player.
+ * Applied during `performChallenge` only when the defender matches `defenderFilter`.
+ * This is the "conditional challenger" pattern — works like the Challenger keyword
+ * (only on attack, only against matching defender) but cannot reuse the keyword
+ * because Challenger by rule (CRD 4.6.8) does not apply against locations.
+ */
+export interface GainConditionalChallengeBonusEffect {
+  type: "gain_conditional_challenge_bonus";
+  strength: number;
+  defenderFilter: CardFilter;
+  duration: "this_turn";
 }
 
 export interface CreateCardEffect {
@@ -290,8 +400,15 @@ export interface DiscardEffect {
   type: "discard_from_hand";
   amount: number | "all";
   target: PlayerTarget;
-  /** Who picks what to discard — "target_player" = they choose, "controller" = you choose from their hand */
-  chooser: "target_player" | "controller";
+  /** Who picks what to discard — "target_player" = they choose, "controller" = you choose from their hand,
+   *  "random" = engine picks uniformly at random from the eligible hand cards (Bruno reveal, Lady Tremaine, etc.) */
+  chooser: "target_player" | "controller" | "random";
+  /**
+   * Optional filter restricting which hand cards are eligible for discard
+   * (e.g. Ursula - Deceiver of All: songs only; Bare Necessities / Mowgli: non-character).
+   * If set and no card in hand matches, the effect fizzles per CRD 1.7.7.
+   */
+  filter?: CardFilter;
 }
 
 /**
@@ -312,14 +429,31 @@ export interface ConditionalOnTargetEffect {
 /** Play a card from hand for free (skip ink payment). */
 export interface PlayForFreeEffect {
   type: "play_for_free";
-  /** Filter for which cards can be played (e.g. character with cost ≤ 5) */
-  filter: CardFilter;
+  /**
+   * Where to look for the card. Default: "hand".
+   * Use "discard" for "play that song again from your discard" (Ursula - Deceiver of All).
+   */
+  sourceZone?: ZoneName;
+  /**
+   * If set, skip the choose-from-zone flow and play this specific instance directly.
+   * Use { type: "triggering_card" } to replay the card that triggered the ability
+   * (Ursula - Deceiver of All). When `target` is set, `filter` is ignored.
+   */
+  target?: CardTarget;
+  /** Filter for which cards can be played when no `target` is given. */
+  filter?: CardFilter;
   /** CRD 6.1.4 */
   isMay?: boolean;
   /** Keywords to grant to the played character (e.g. Rush from Gruesome and Grim) */
   grantKeywords?: Keyword[];
   /** If true, banish the played character at end of turn (e.g. Gruesome and Grim) */
   banishAtEndOfTurn?: boolean;
+  /**
+   * After the play resolves (and any post-resolution discard for actions),
+   * put the played card on the bottom of its owner's deck.
+   * Used by Ursula - Deceiver of All ("...then put it on the bottom of your deck.").
+   */
+  thenPutOnBottomOfDeck?: boolean;
 }
 
 /** Move a card from one zone into its owner's deck, then shuffle. */
@@ -420,7 +554,61 @@ export type StaticEffect =
   | CanChallengeReadyStatic
   | DamageRedirectStatic
   | ChallengeDamageImmunityStatic
-  | GrantActivatedAbilityStatic;
+  | GrantActivatedAbilityStatic
+  | CantActionSelfStatic
+  | MimicryTargetSelfStatic
+  | UniversalShiftSelfStatic
+  | ClassificationShiftSelfStatic
+  | PlayableFromZoneSelfStatic;
+
+/**
+ * MIMICRY (Morph - Space Goo, Set 3): any character with Shift may shift onto this
+ * card regardless of name. Lives on the in-PLAY target. activeZones defaults to ["play"].
+ */
+export interface MimicryTargetSelfStatic {
+  type: "mimicry_target_self";
+}
+
+/**
+ * Universal Shift (Baymax, Set 7+): this card with Shift may shift onto ANY
+ * character of yours regardless of name. Lives on the in-HAND shifter — the
+ * static must declare activeZones: ["hand"] so the scanner picks it up while
+ * the card is still in hand at validation time.
+ */
+export interface UniversalShiftSelfStatic {
+  type: "universal_shift_self";
+}
+
+/**
+ * Classification / Puppy Shift (Thunderbolt, Set 8): this card with Shift may
+ * shift onto any character of yours that has the named trait. Lives on the
+ * in-HAND shifter — declare activeZones: ["hand"].
+ */
+export interface ClassificationShiftSelfStatic {
+  type: "classification_shift_self";
+  trait: string;
+}
+
+/**
+ * "You may play this card from {zone}" (Lilo - Escape Artist Set 6 — discard).
+ * Lives on the source instance and is active in that zone — declare
+ * activeZones: [zone] so validatePlayCard's zone check consults it.
+ */
+export interface PlayableFromZoneSelfStatic {
+  type: "playable_from_zone_self";
+  zone: ZoneName;
+}
+
+/**
+ * Permanent self-restriction: this character can't perform `action`.
+ * Used for cards like Maui - Whale ("This character can't ready at the start of your turn").
+ * Differs from CantActionEffect (a one-shot timed debuff applied to a target) — this is a
+ * static, never-expiring restriction tied to the source instance.
+ */
+export interface CantActionSelfStatic {
+  type: "cant_action_self";
+  action: RestrictedAction;
+}
 
 /** This character can challenge ready (non-exerted) characters. */
 export interface CanChallengeReadyStatic {
@@ -627,6 +815,7 @@ export type TriggerEvent =
   | { on: "enters_play"; filter?: CardFilter }
   | { on: "leaves_play"; filter?: CardFilter }
   | { on: "quests"; filter?: CardFilter }
+  | { on: "sings"; filter?: CardFilter }
   | { on: "challenges"; filter?: CardFilter }
   | { on: "is_challenged"; filter?: CardFilter }
   | { on: "is_banished"; filter?: CardFilter }
@@ -666,10 +855,15 @@ export type Condition =
   | { type: "played_character_with_trait_this_turn"; trait: string }
   | { type: "self_stat_gte"; stat: "strength" | "willpower" | "lore"; amount: number }
   | { type: "compound_and"; conditions: Condition[] }
+  | { type: "compound_or"; conditions: Condition[] }
   | { type: "songs_played_this_turn_gte"; amount: number }
   | { type: "actions_played_this_turn_gte"; amount: number }
   | { type: "this_has_no_damage" }
   | { type: "this_at_location" }
+  | { type: "this_location_has_character" }
+  | { type: "this_has_cards_under" }
+  | { type: "your_character_was_damaged_this_turn" }
+  | { type: "opponent_character_was_banished_in_challenge_this_turn" }
   | { type: "not"; condition: Condition }
   | { type: "played_via_shift" }
   | { type: "triggering_card_played_via_shift" };
@@ -687,7 +881,7 @@ export type EffectDuration =
 
 export interface TimedEffect {
   type: "grant_keyword" | "modify_strength" | "modify_willpower" | "modify_lore"
-    | "cant_action" | "can_challenge_ready";
+    | "cant_action" | "can_challenge_ready" | "cant_be_challenged";
   keyword?: Keyword | undefined;
   value?: number | undefined;       // for keyword values (e.g. Challenger +N)
   amount?: number | undefined;      // for modify_* effects
@@ -729,6 +923,15 @@ export interface CardDefinition {
   // --- Shift ---
   /** If this card has Shift, the ink cost to shift */
   shiftCost?: number;
+  /** Cards that count as having additional names for Shift purposes (Turbo, Flotsam & Jetsam).
+   *  Stays on CardDefinition because it's a printed-name property, not an ability.
+   *  All other shift variants (Universal, MIMICRY, Classification) are now zone-aware
+   *  static abilities — see types/index.ts MimicryTargetSelfStatic et al. */
+  additionalNames?: string[];
+  /** CRD 8.12: Sing Together N — any number of your characters with total cost ≥ N
+   *  may exert to sing this song for free. Stays on CardDefinition because it's a
+   *  printed cost property, not an ability. Set 4+ songs only. */
+  singTogetherCost?: number;
 
   /** CRD 4.7: Locations — ink a character pays to move here */
   moveCost?: number;
@@ -793,8 +996,26 @@ export interface CardInstance {
   shiftedOntoInstanceId?: string;
   /** True if this card was played via Shift this turn */
   playedViaShift?: boolean;
+
+  /**
+   * CRD 8.10.4 / 8.4.2: instanceIds of cards beneath this card. Sources:
+   *  - Shift base cards (CRD 8.10.4): when you shift, the previous version
+   *    is placed underneath the shifted character
+   *  - Boost (CRD 8.4): once per turn, pay N {I} to put the top card of your
+   *    deck facedown under this character
+   * Cards under a parent are addressable but not in any zone array. When the
+   * parent leaves play, all cards under it go to discard (CRD 8.10.5).
+   */
+  cardsUnder: string[];
+
+  /** CRD 6.1.13: per-turn flag tracking — extends to Boost ("once during your turn"). */
+  boostedThisTurn?: boolean;
   /** True if this character was challenged (as defender) this turn */
   challengedThisTurn?: boolean;
+  /** CRD per-turn event flag — true if this card was dealt damage at any point this turn.
+   *  Used by event_tracking conditions like "if one of your characters was damaged this turn"
+   *  (Devil's Eye Diamond, Brutus - Fearsome Crocodile). Cleared at end of turn. */
+  damagedThisTurn?: boolean;
 
   /** CRD 4.7: instanceId of the location this character is currently at, if any */
   atLocationInstanceId?: string | undefined;
@@ -837,6 +1058,26 @@ export interface PlayerState {
   actionsPlayedThisTurn?: number;
   /** Number of songs played this turn */
   songsPlayedThisTurn?: number;
+  /**
+   * Conditional challenge strength bonuses active this turn (CRD 6.1.4 / 8.5.1-style).
+   * Each entry adds `strength` to any of this player's characters when challenging
+   * a defender that matches `defenderFilter`. Cleared at end of turn.
+   * Used for "conditional challenger" cards like Olympus Would Be That Way
+   * ("+3 {S} while challenging a location this turn"). Behaves like Challenger but
+   * targets a non-character defender type, so it can't reuse the keyword.
+   */
+  turnChallengeBonuses?: TurnChallengeBonus[];
+  /** True if any of this player's characters was dealt damage at any point this turn.
+   *  Used by Devil's Eye Diamond, Brutus - Fearsome Crocodile. Cleared at PASS_TURN. */
+  aCharacterWasDamagedThisTurn?: boolean;
+  /** True if any of this player's characters was banished in a challenge this turn.
+   *  Used by LeFou - Opportunistic Flunky (checks the opposing player's flag). Cleared at PASS_TURN. */
+  aCharacterWasBanishedInChallengeThisTurn?: boolean;
+}
+
+export interface TurnChallengeBonus {
+  strength: number;
+  defenderFilter: CardFilter;
 }
 
 /** A cost reduction entry that applies to the next matching card played. */
@@ -888,6 +1129,10 @@ export interface GameState {
 
   /** Owner of the last card targeted by a choose_target resolution (for "its player draws" patterns) */
   lastTargetOwnerId?: PlayerID;
+  /** Most recently chosen target instance ID — used by gain_lore "from_target_location_lore"
+   *  (I've Got a Dream: "Gain lore equal to that location's {L}" where "that" = the
+   *  ready target's location). */
+  lastTargetInstanceId?: string;
 
   winner: PlayerID | null;
   isGameOver: boolean;
@@ -922,7 +1167,7 @@ export interface TriggerContext {
 }
 
 export interface PendingChoice {
-  type: "choose_mulligan" | "choose_target" | "choose_option" | "choose_cards" | "choose_may" | "choose_discard" | "choose_from_revealed" | "choose_order" | "choose_trigger";
+  type: "choose_mulligan" | "choose_target" | "choose_option" | "choose_cards" | "choose_may" | "choose_discard" | "choose_from_revealed" | "choose_order" | "choose_trigger" | "choose_card_name";
   /** Which player must make the choice */
   choosingPlayerId: PlayerID;
   prompt: string;
@@ -990,7 +1235,17 @@ export type GameAction =
   | PassTurnAction
   | ResolveChoiceAction
   | DrawCardAction // Usually automatic, but exposed for debugging
-  | MoveCharacterAction;
+  | MoveCharacterAction
+  | BoostCardAction;
+
+/** CRD 8.4: Boost N {I} — once per turn, pay N {I} to put the top card of your
+ *  deck facedown under this character. */
+export interface BoostCardAction {
+  type: "BOOST_CARD";
+  playerId: PlayerID;
+  /** The character with Boost being activated */
+  instanceId: string;
+}
 
 export interface MoveCharacterAction {
   type: "MOVE_CHARACTER";
@@ -1007,6 +1262,9 @@ export interface PlayCardAction {
   shiftTargetInstanceId?: string;
   /** CRD 5.4.4.2: For singing — the character exerted to pay for this song */
   singerInstanceId?: string;
+  /** CRD 8.12: For Sing Together — multiple characters whose combined effective cost
+   *  must be ≥ the song's singTogetherCost. Mutually exclusive with singerInstanceId. */
+  singerInstanceIds?: string[];
 }
 
 export interface PlayInkAction {

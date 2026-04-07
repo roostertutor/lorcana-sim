@@ -955,7 +955,30 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "ROYAL SEARCH",
+        "rulesText": "{E}, 2 {I} — Reveal the top card of your deck. If it's a Princess or Queen character card, you may put it into your hand. Otherwise, put it on the top of your deck.",
+        "costs": [
+          { "type": "exert" },
+          { "type": "pay_ink", "amount": 2 }
+        ],
+        "effects": [
+          {
+            "type": "reveal_top_conditional",
+            "filter": {
+              "cardType": ["character"],
+              "hasAnyTrait": ["Princess", "Queen"]
+            },
+            "matchAction": "to_hand",
+            "isMay": true,
+            "noMatchDestination": "top",
+            "target": { "type": "self" }
+          }
+        ]
+      }
+    ],
     "setId": "5",
     "number": 31,
     "rarity": "rare",

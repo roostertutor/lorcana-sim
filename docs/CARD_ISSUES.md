@@ -10,18 +10,71 @@ Run `pnpm card-status --set <N>` to filter to one set.
 
 ---
 
-## Implementation Strategy
+## Implementation Strategy — two phases
 
-**Do not implement in set order.** Implement by category:
+See `docs/IMPLEMENTING_BY_MECHANIC.md` for the full playbook. Short version:
 
-1. **fits-grammar first** (~1245 cards) — map to existing Effect/Condition/Cost types.
-   No engine changes needed. Bulk of the work.
-2. **needs-new-type next** (~357 cards) — implement engine additions in order of
-   how many cards they unblock, then fill in cards.
-3. **needs-new-mechanic last** (~239 cards) — Locations, Boost, Sing Together each
-   need design work before any card in that group can be implemented. CRD 6.5
-   replacement effects ✅ implemented (Beast Selfless Protector).
-4. **unknown: 0** — all stubs categorized.
+**Phase A — Engine work, by mechanic, cross-set.** Each engine addition
+unlocks cards across many sets at once. Order by cards-unblocked count.
+Wire only one canary card per mechanic to prove the path; bulk wiring
+comes in Phase B.
+
+**Phase B — JSON wiring, by set, sequential.** Once Phase A is done, every
+card maps cleanly to existing engine features. Pure JSON edits in batches
+of 20–30 cards via a per-batch `scripts/implement-setN-batchM.ts` script.
+Inherently per-card, naturally per-set.
+
+**Don't interleave the phases** — wiring during Phase A means re-touching
+cards when later mechanics land.
+
+**Phase A status (post Set 3 complete):**
+
+0. ~~Zone-aware static abilities refactor~~ — DONE. Unblocks Lilo (Set 6),
+   Baymax (Set 7), Thunderbolt (Set 8). Cards still need wiring (Phase B).
+1. ~~Sing Together~~ — DONE. 26 songs across Sets 4/8/9 carry
+   `singTogetherCost` and validate via the new alternate-cost path.
+2. ~~**Boost** (Set 6 onward, peaks Set 10)~~ — DONE (foundation). Added
+   `CardInstance.cardsUnder: string[]`, new `"under"` ZoneName, `boost` keyword,
+   `BOOST_CARD` action, `boostedThisTurn` per-turn flag (cleared at turn end +
+   on leaving play), `this_has_cards_under` Condition. **Fixed Shift bug**:
+   base card now goes UNDER the shifted character (CRD 8.10.4) instead of being
+   silently discarded; cards under inherit when shifting onto a shifted character.
+   When a parent leaves play, all cards under it move to discard (CRD 8.10.5).
+   Canary card wired: Flynn Rider - Spectral Scoundrel (Boost 2 + I'LL TAKE THAT
+   conditional static). **Still TODO in long-tail (A.3):** stat-per-cards-under
+   for "+1 {S} for each card under him", `put_cards_under_into_hand` effect for
+   "put all cards from under her into your hand", and bot enumeration of BOOST_CARD
+   in `getAllLegalActions`. ~70 cards across sets 7/9/10/11 reference cards-under
+   for these patterns and stay as stubs until those long-tail effects land.
+3. **Long tail of needs-new-type cards** (~251 cards across all sets, down
+   from 334 after categorizer cleanup) — implement engine additions in
+   order of cards-unlocked count. Progress so far:
+   - ~~`reveal_top_conditional`~~ (12 cards) — DONE. New effect with
+     `to_hand`/`play_for_free`/`to_inkwell_exerted` match actions and
+     top/bottom no-match destinations. Canary: Queen's Sensor Core ROYAL SEARCH.
+   - ~~`compound_or` Condition~~ — DONE. Mirror of `compound_and`.
+   - ~~`random_discard`~~ (4 cards) — DONE. `DiscardEffect.chooser: "random"`
+     resolves inline (engine picks uniformly at random, no pendingChoice).
+   - ~~`event_tracking_condition`~~ (6 cards) — DONE. New
+     `aCharacterWasDamagedThisTurn` and `aCharacterWasBanishedInChallengeThisTurn`
+     flags on PlayerState; set in dealDamageToCard, the challenge damage path,
+     and the banished_in_challenge zoneTransition; cleared at PASS_TURN.
+     Two new conditions: `your_character_was_damaged_this_turn` and
+     `opponent_character_was_banished_in_challenge_this_turn`.
+   - ~~`timed_cant_be_challenged`~~ (6 cards) — DONE. New
+     `cant_be_challenged_timed` Effect that adds a `cant_be_challenged`
+     TimedEffect with EffectDuration to a chosen character. validateChallenge
+     consults the defender's timedEffects for the new flag.
+   - **Categorizer fix**: dropped 82 false-positive needs-new-type tags.
+   - Remaining clusters: small singletons (filtered-cant-be-challenged 2,
+     both-players-effect 2, restrict-sing 2, play-restriction 2,
+     restricted-play-by-type 2, dynamic-stat-gain 2, virtual-cost-modifier 2,
+     etc.) plus various one-offs.
+
+**Phase B status:** ~14 cards wired (Set 4 batch 1 — pre-strategy-clarification).
+Will resume after Phase A is complete.
+
+**unknown: 0** — all stubs categorized.
 
 ---
 
@@ -39,24 +92,42 @@ Run `pnpm card-status --set <N>` to filter to one set.
 fully implemented. `card_drawn` trigger and `oncePerTurn` ability flag wired this
 session. ~7 cards remain with approximations for engine features not yet built:
 
-- **Morph - Space Goo**: MIMICRY shift name override (universal shift target)
-- **Ursula - Deceiver of All**: `sings` trigger event + replay-from-discard pattern
-- **Maui - Whale**: persistent "can't ready at start of turn" restriction
-- **Belle's House - Maurice's Workshop**: cost reduction conditional on "have a character at this location" (zone-count with atLocation filter)
-- **Peter Pan - Lost Boy Leader / I've Got a Dream**: dynamic gain_lore from chosen target's lore stat
-- **Magic Carpet / Voyage**: `move_character` as an effect type (currently only as a top-level action)
-- **Jim Hawkins - Space Traveler**: "may move here for free" alt-cost (when playing a location, the character moves for free)
-- **Olympus Would Be That Way**: stat boost only during challenges against locations
-- **The Sorcerer's Hat**: player-named-card matching (name-a-card mechanic)
-- **Ursula - Deceiver / The Bare Necessities (set 3) / Mowgli - Man Cub (set 10)**:
-  `DiscardEffect` needs an optional `filter?: CardFilter` field to restrict which
-  hand cards are eligible for discard. Three patterns to support:
-  - Ursula - Deceiver: filter `{ cardType: ["action"], hasTrait: "Song" }`, `chooser: "controller"` (you pick a song from their hand)
-  - The Bare Necessities: filter `{ cardType: ["character"] }` inverted (non-character), `chooser: "controller"` (you pick a non-character)
-  - Mowgli - Man Cub: filter same as Bare Necessities (non-character), `chooser: "target_player"` (opponent picks which non-character to discard)
-  Implementation: add `filter?` to DiscardEffect; in `discard_from_hand` resolution
-  pre-filter the hand by the filter before creating the `choose_discard` pending
-  choice. If no cards match, the effect fizzles (CRD 1.7.7).
+- ~~**Morph - Space Goo**~~: resolved. New `canShiftOnto(shifting, target)` helper in validator.ts. CardDefinition gained `universalShift` (Baymax, Set 7+), `universalShiftTarget` (Morph MIMICRY), `classificationShift` (Thunderbolt Puppy Shift, Set 8), and `additionalNames` (Turbo, Flotsam & Jetsam). Morph wired with `universalShiftTarget: true`.
+- ~~**Ursula - Deceiver of All**~~: resolved. Generalized `play_for_free` (added `sourceZone`, optional direct `target`, `thenPutOnBottomOfDeck`, plus action-effect resolution for songs played for free) + new `sings` trigger event fired from the singer in `applyPlayCard` with the song as `triggeringCardInstanceId`. Ursula's WHAT A DEAL is now a `triggered` ability on `sings` whose effect is `play_for_free` with `sourceZone: "discard"`, `target: { type: "triggering_card" }`, `thenPutOnBottomOfDeck: true`, `isMay: true`. **Bonus:** Max Goof - Chart Topper (Set 9) wired in the same pass — same `play_for_free` shape but on `quests` trigger with a song-cost-≤-4 filter instead of direct target.
+- ~~**Maui - Whale**~~: resolved. New `cant_action_self` static effect + `selfActionRestrictions` modifier slot. `isActionRestricted` consults it as Source 3. Differs from `CantActionEffect` (one-shot timed debuff) — this is a permanent self-restriction tied to the source instance. Maui's THIS MISSION IS CURSED now wired as a `static` ability with `cant_action_self` / action `ready`.
+- ~~**Belle's House - Maurice's Workshop**~~: resolved. New `this_location_has_character` Condition. Belle's House LABORATORY now wired as static `cost_reduction` with that condition.
+- ~~**Peter Pan - Lost Boy Leader / I've Got a Dream**~~: resolved. `GainLoreEffect.amount` extended with two variants: `"triggering_card_lore"` (Peter Pan moves_to_location → location's lore) and `"last_target_location_lore"` (I've Got a Dream → readied target's location's lore). Added `state.lastTargetInstanceId` tracked alongside `lastTargetOwnerId` in choose_target resolution.
+- ~~**Magic Carpet / Jim Hawkins**~~: resolved. New `MoveCharacterEffect` (`move_character`) with `character` + `location` target shapes (`this`/`triggering_card`/`chosen`). Extracted shared `performMove` helper used by both the `MOVE_CHARACTER` action (with ink) and the new effect (no ink — effects don't pay costs). Two-stage chained `choose_target` flow for `chosen + chosen` (Magic Carpet) via an internal `_resolvedCharacterInstanceId` carried on the effect clone. Wired GLIDING RIDE (Magic Carpet enters_play), FIND THE WAY (Magic Carpet activated, exert), and TAKE THE HELM (Jim Hawkins `card_played` location filter, character `this`, location `triggering_card`).
+- ~~**Olympus Would Be That Way**~~: resolved. New `gain_conditional_challenge_bonus` effect + per-player `turnChallengeBonuses` field. Behaves like the Challenger keyword (only on attack, only against matching defender) but with a defender filter — needed because Challenger by rule (CRD 4.6.8) does not apply against locations, so the keyword can't be reused.
+- ~~**The Sorcerer's Hat**~~: resolved. New `name_a_card_then_reveal` effect + `choose_card_name` PendingChoice subtype (string choice). Interactive: surfaces a name-a-card prompt; resolution compares to top of deck and moves to hand on match. Non-interactive (bot/sim): bot is clairvoyant — auto-names the top card and draws it. Cost fixed (was missing the 1 ink).
+- ~~**Ursula - Deceiver / The Bare Necessities (set 3) / Mowgli - Man Cub (set 10)**~~:
+  Resolved. `DiscardEffect.filter?: CardFilter` added; `discard_from_hand`
+  pre-filters the hand and fizzles per CRD 1.7.7 if nothing matches.
+  Wired up: Ursula - Deceiver (`{cardType:["action"], hasTrait:"Song"}`, controller),
+  The Bare Necessities (`{cardType:["action","item","location"]}`, controller),
+  Mowgli - Man Cub (same non-character filter, target_player chooser).
+
+### ~~TODO before Set 6 — zone-aware static abilities~~ — DONE
+
+Lorcana has abilities that function in zones other than play (CRD 6.3-ish:
+"abilities function only while the card is in play unless the ability says otherwise,
+or unless they define how the card may be played"). Currently `gameModifiers.ts`
+only scans `zone === "play"`. Three concrete cards force this:
+
+- **Lilo - Escape Artist (Set 6)** — "you may play this from your discard" (in-discard active)
+- **Baymax (Set 7)** — Universal Shift, shifter ignores name (in-hand active)
+- **Thunderbolt (Set 8)** — Puppy Shift, target must have Puppy trait (in-hand active on shifter)
+
+Plan: add `activeZones?: ZoneName[]` to `StaticAbility` (default `["play"]`), update
+the scanner loop in `gameModifiers.ts` to respect it, then:
+- Move MIMICRY (Morph) back to a real `static` ability with `activeZones: ["play"]`
+- Wire Universal Shift / Classification Shift / Lilo as static abilities with the right zones
+- Drop `universalShift`, `universalShiftTarget`, `classificationShift` from `CardDefinition`
+  (keep `additionalNames` — that's a printed-name property, not an ability)
+
+The Morph definition flags added in Set 3 work but are a shortcut: they hide MIMICRY
+from `def.abilities` and can't be granted/conditional. Land the refactor before Set 6
+so Lilo, Baymax, and Thunderbolt all share one mechanism.
 
 Engine systems built this session:
 - Locations (CRD 5.6, 4.7, 4.6.8, 3.2.2.2) — full system
