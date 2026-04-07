@@ -925,4 +925,140 @@ describe("§6 Set 2 Card Coverage", () => {
     // Hiram is now exerted (he quested)
     expect(getInstance(result.newState, hiramId).isExerted).toBe(true);
   });
+
+  // ===== MADAM MIM RIVAL OF MERLIN: play_for_free + Rush + end-of-turn banish =====
+  // "Play a character with cost 4 or less for free. They gain Rush. At the end of
+  //  the turn, banish them."
+  it("Madam Mim Rival: plays Maleficent for free, her enters_play fires, gets banished at end of turn", () => {
+    let state = startGame(["madam-mim-rival-of-merlin", "maleficent-sorceress"]);
+    state = { ...state, interactive: true };
+    let mimId: string;
+    ({ state, instanceId: mimId } = injectCard(state, "player1", "madam-mim-rival-of-merlin", "play", { isDrying: false }));
+    // Maleficent Sorceress (cost 3, has enters_play: may draw 1)
+    let malId: string;
+    ({ state, instanceId: malId } = injectCard(state, "player1", "maleficent-sorceress", "hand"));
+
+    const handBefore = getZone(state, "player1", "hand").length;
+
+    // Activate Madam Mim ({E} → play_for_free) — index 1 (index 0 is the shift keyword)
+    let result = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: mimId, abilityIndex: 1 }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+
+    // Choose Maleficent to play for free
+    if (result.newState.pendingChoice?.type === "choose_target") {
+      result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [malId] }, LORCAST_CARD_DEFINITIONS);
+      expect(result.success).toBe(true);
+    }
+
+    // Maleficent's enters_play trigger should fire (may draw 1)
+    if (result.newState.pendingChoice?.type === "choose_may") {
+      result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+      expect(result.success).toBe(true);
+    }
+
+    // Maleficent should be in play
+    expect(getInstance(result.newState, malId).zone).toBe("play");
+    // She should have Rush in grantedKeywords
+    expect(getInstance(result.newState, malId).grantedKeywords).toContain("rush");
+    // -1 played from hand (well, brought into play from hand) +1 drawn from her enters_play
+    expect(getZone(result.newState, "player1", "hand").length).toBe(handBefore - 1 + 1);
+
+    state = result.newState;
+
+    // Pass turn — Maleficent should be banished at end of turn
+    state = passTurns(state, 1);
+    expect(getInstance(state, malId).zone).toBe("discard");
+  });
+
+  // ===== BEAST SELFLESS PROTECTOR: damage redirect with full amount =====
+  // CRD 6.5: Beast absorbs the FULL amount of damage that would be dealt,
+  // not the amount capped to the original target's willpower.
+  it("Beast Selfless Protector: 1WP ally hit by Smash (3 damage) → Beast takes 3, not 1", () => {
+    let state = startGame(["beast-selfless-protector", "smash", "lilo-making-a-wish"]);
+    state = giveInk(state, "player1", 3); // smash cost 3
+    let beastId: string;
+    let allyId: string;
+    let smashId: string;
+    ({ state, instanceId: beastId } = injectCard(state, "player1", "beast-selfless-protector", "play"));
+    // Lilo: 1 STR / 1 WP — 3 damage from Smash would banish her
+    ({ state, instanceId: allyId } = injectCard(state, "player1", "lilo-making-a-wish", "play"));
+    ({ state, instanceId: smashId } = injectCard(state, "player1", "smash", "hand"));
+
+    // Play Smash targeting Lilo
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: smashId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    if (result.newState.pendingChoice?.type === "choose_target") {
+      result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [allyId] }, LORCAST_CARD_DEFINITIONS);
+      expect(result.success).toBe(true);
+    }
+
+    // Lilo should be unscathed (damage redirected)
+    expect(getInstance(result.newState, allyId).damage).toBe(0);
+    expect(getInstance(result.newState, allyId).zone).toBe("play");
+    // Beast should take the FULL 3 damage (not 1, the original target's WP)
+    // Beast: 4 WP, takes 3 → survives with 3 damage
+    expect(getInstance(result.newState, beastId).damage).toBe(3);
+    expect(getInstance(result.newState, beastId).zone).toBe("play");
+  });
+
+  // ===== FAIRY GODMOTHER + HEIHEI: floating + native trigger interaction =====
+  // Fairy Godmother grants "When banished in a challenge, return to hand" to all
+  // your characters this turn. HeiHei already has the same ability natively.
+  // When HeiHei is banished in a challenge, BOTH abilities go to the bag.
+  // Player must choose which to resolve first. The second can't resolve because
+  // HeiHei is no longer in play.
+  it("Fairy Godmother Mystic Armorer + HeiHei: two return_to_hand triggers, only one resolves", () => {
+    let state = startGame(["fairy-godmother-mystic-armorer", "heihei-persistent-presence"]);
+    state = { ...state, interactive: true };
+    let fgId: string;
+    let heiheiId: string;
+    ({ state, instanceId: fgId } = injectCard(state, "player1", "fairy-godmother-mystic-armorer", "play"));
+    ({ state, instanceId: heiheiId } = injectCard(state, "player1", "heihei-persistent-presence", "play"));
+
+    // Fairy Godmother quests — grants Challenger +3 + floating banished_in_challenge trigger
+    let result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: fgId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Resolve any pending choices from her quest trigger
+    while (result.newState.pendingChoice) {
+      const ch = result.newState.pendingChoice;
+      if (ch.type === "choose_may") {
+        result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+      } else {
+        break;
+      }
+    }
+    state = result.newState;
+
+    // Floating trigger should be in place
+    expect(state.floatingTriggers?.length ?? 0).toBeGreaterThan(0);
+
+    // Now have an opponent challenge HeiHei → HeiHei banished in challenge
+    // HeiHei has 2 STR, 1 WP. Opposing 3 STR Mickey will banish him.
+    let attackerId: string;
+    ({ state, instanceId: attackerId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play"));
+    state = { ...state, cards: { ...state.cards, [heiheiId]: { ...state.cards[heiheiId]!, isExerted: true } } };
+    state = { ...state, currentPlayer: "player2" };
+
+    result = applyAction(state, { type: "CHALLENGE", playerId: "player2", attackerInstanceId: attackerId, defenderInstanceId: heiheiId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+
+    // In interactive mode with multiple simultaneous triggers, expect choose_trigger
+    // (or the triggers may have already resolved if engine prioritizes them)
+    // Resolve all pending choices
+    let safetyCounter = 0;
+    while (result.newState.pendingChoice && safetyCounter < 10) {
+      const ch = result.newState.pendingChoice;
+      if (ch.type === "choose_trigger" && ch.validTargets?.length) {
+        result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: ch.validTargets[0]! }, LORCAST_CARD_DEFINITIONS);
+      } else if (ch.type === "choose_may") {
+        result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+      } else {
+        break;
+      }
+      safetyCounter++;
+    }
+
+    // HeiHei should end up in hand (one of the two return_to_hand triggers resolved)
+    expect(getInstance(result.newState, heiheiId).zone).toBe("hand");
+  });
 });
