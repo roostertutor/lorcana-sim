@@ -24,8 +24,17 @@
           "restricts": "quest",
           "affectedPlayer": {
             "type": "self"
-          },
-          "filter": {}
+          }
+        },
+        "condition": {
+          "type": "not",
+          "condition": {
+            "type": "has_character_with_trait",
+            "trait": "Seven Dwarfs",
+            "player": {
+              "type": "self"
+            }
+          }
         }
       }
     ],
@@ -369,6 +378,12 @@
               "zone": "play",
               "cardType": [
                 "character"
+              ],
+              "hasAnyTrait": [
+                "Prince",
+                "Princess",
+                "King",
+                "Queen"
               ]
             }
           }
@@ -4334,12 +4349,30 @@
         },
         "effects": [
           {
-            "type": "discard_from_hand",
-            "amount": 2,
-            "target": {
-              "type": "opponent"
-            },
-            "chooser": "target_player"
+            "type": "choose",
+            "count": 1,
+            "options": [
+              [
+                {
+                  "type": "discard_from_hand",
+                  "amount": 2,
+                  "target": {
+                    "type": "opponent"
+                  },
+                  "chooser": "target_player"
+                }
+              ],
+              [
+                {
+                  "type": "discard_from_hand",
+                  "amount": 1,
+                  "target": {
+                    "type": "opponent"
+                  },
+                  "chooser": "target_player"
+                }
+              ]
+            ]
           }
         ]
       }
@@ -6927,6 +6960,9 @@
         "trigger": {
           "on": "enters_play"
         },
+        "condition": {
+          "type": "played_via_shift"
+        },
         "effects": [
           {
             "type": "draw",
@@ -7854,7 +7890,10 @@
           "amount": 1,
           "player": {
             "type": "self"
-          }
+          },
+          "cardType": [
+            "item"
+          ]
         }
       },
       {
@@ -7872,7 +7911,10 @@
           "amount": 1,
           "player": {
             "type": "self"
-          }
+          },
+          "cardType": [
+            "item"
+          ]
         }
       }
     ],
@@ -9351,8 +9393,7 @@
           }
         },
         "condition": {
-          "type": "card_has_trait",
-          "trait": "__no_damage"
+          "type": "this_has_no_damage"
         }
       }
     ],

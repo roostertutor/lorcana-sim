@@ -390,6 +390,7 @@ function applyPlayCard(
       damage: shiftTarget.damage, // CRD 8.10.6: shifted character retains damage from base
       isDrying: shiftTarget.isDrying, // CRD 8.10.4: inherit dry/drying from base card
       shiftedOntoInstanceId: shiftTargetInstanceId,
+      playedViaShift: true,
     });
     // Base card goes to discard silently (not a "banish" or "leaves play" per CRD 8.10)
     state = zoneTransition(state, shiftTargetInstanceId, "discard", definitions, events, { silent: true });

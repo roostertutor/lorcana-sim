@@ -565,6 +565,8 @@ export interface CardFilter {
   cardType?: CardType[];
   inkColors?: InkColor[];
   hasTrait?: string;
+  /** Match cards that have ANY of these traits */
+  hasAnyTrait?: string[];
   hasKeyword?: Keyword;
   isExerted?: boolean;
   costAtMost?: number;
@@ -637,12 +639,15 @@ export type Condition =
   | { type: "opponent_has_more_cards_in_hand" }
   | { type: "is_your_turn" }
   | { type: "this_is_exerted" }
-  | { type: "cards_in_zone_gte"; zone: ZoneName; amount: number; player: PlayerTarget }
+  | { type: "cards_in_zone_gte"; zone: ZoneName; amount: number; player: PlayerTarget; cardType?: CardType[] }
   | { type: "played_character_with_trait_this_turn"; trait: string }
   | { type: "self_stat_gte"; stat: "strength" | "willpower" | "lore"; amount: number }
   | { type: "compound_and"; conditions: Condition[] }
   | { type: "songs_played_this_turn_gte"; amount: number }
-  | { type: "actions_played_this_turn_gte"; amount: number };
+  | { type: "actions_played_this_turn_gte"; amount: number }
+  | { type: "this_has_no_damage" }
+  | { type: "not"; condition: Condition }
+  | { type: "played_via_shift" };
 
 export type AbilityTiming = "your_turn_main" | "any_time" | "opponent_turn";
 
@@ -758,6 +763,8 @@ export interface CardInstance {
   // --- Shift tracking ---
   /** If this card was shifted, the instanceId of the card it shifted onto */
   shiftedOntoInstanceId?: string;
+  /** True if this card was played via Shift this turn */
+  playedViaShift?: boolean;
   /** True if this character was challenged (as defender) this turn */
   challengedThisTurn?: boolean;
 }

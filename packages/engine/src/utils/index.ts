@@ -247,6 +247,10 @@ export function matchesFilter(
     if (!definition.traits.includes(filter.hasTrait)) return false;
   }
 
+  if (filter.hasAnyTrait) {
+    if (!filter.hasAnyTrait.some(t => definition.traits.includes(t))) return false;
+  }
+
   if (filter.hasKeyword) {
     if (!hasKeyword(instance, definition, filter.hasKeyword)) return false;
   }
@@ -530,7 +534,16 @@ export function evaluateCondition(
     case "cards_in_zone_gte": {
       const targetPlayer = condition.player.type === "self" ? controllingPlayerId
         : condition.player.type === "opponent" ? opponent : controllingPlayerId;
-      return getZone(state, targetPlayer, condition.zone).length >= condition.amount;
+      const zoneCards = getZone(state, targetPlayer, condition.zone);
+      if (condition.cardType) {
+        // Filter by card type (e.g., only count items)
+        const matchingCount = zoneCards.filter(id => {
+          const def = definitions[state.cards[id]?.definitionId ?? ""];
+          return def && condition.cardType!.includes(def.cardType);
+        }).length;
+        return matchingCount >= condition.amount;
+      }
+      return zoneCards.length >= condition.amount;
     }
     case "played_character_with_trait_this_turn": {
       // Check if any character in play was played this turn (isDrying) and has the trait
@@ -572,6 +585,17 @@ export function evaluateCondition(
     }
     case "actions_played_this_turn_gte": {
       return (state.players[controllingPlayerId].actionsPlayedThisTurn ?? 0) >= condition.amount;
+    }
+    case "this_has_no_damage": {
+      const inst = state.cards[sourceInstanceId];
+      return inst ? inst.damage === 0 : false;
+    }
+    case "not": {
+      return !evaluateCondition(condition.condition, state, definitions, controllingPlayerId, sourceInstanceId);
+    }
+    case "played_via_shift": {
+      const inst = state.cards[sourceInstanceId];
+      return inst?.playedViaShift === true;
     }
     default:
       return true;
