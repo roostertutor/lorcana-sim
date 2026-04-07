@@ -26,6 +26,7 @@
 ✅ Layer 5 bot tests — 12 tests in bot.test.ts
 ✅ Set 1 complete — 204 unique cards, 216 entries, all abilities implemented, 0 stubs
 ✅ Set 2 complete — 162 named-ability cards, 216 entries, zero approximations, fully tested
+✅ Set 3 complete — 178 named-ability cards, 226 entries, Locations engine implemented, ~10 approximations for unbuilt features
 ✅ Dual-ink support — inkColors is always an array
 ✅ Reckless keyword — can't quest, can't pass if able to challenge, 4 tests
 ✅ Floating triggers — floatingTriggers[], CreateFloatingTriggerEffect

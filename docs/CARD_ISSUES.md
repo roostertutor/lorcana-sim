@@ -33,13 +33,26 @@ Run `pnpm card-status --set <N>` to filter to one set.
 
 216 cards. All 162 named-ability cards implemented. Zero approximations. No open issues.
 
+## Set 3 — Into the Inklands
+
+226 cards (178 named-ability + 48 vanilla). Locations (CRD 5.6, 4.7, 4.6.8, 3.2.2.2)
+implemented. ~10 cards have approximations for engine features not yet built:
+- Jafar Striking Illusionist — needs `card_drawn` trigger event
+- Morph Space Goo — MIMICRY shift name override
+- Ursula Deceiver of All — `sings` trigger + replay-from-discard
+- Magic Carpet, Voyage — `move_character` as an effect (currently only as an action)
+- Maui Whale — persistent "can't ready at start of turn" restriction
+- Belle's House — cost reduction conditional on "have a character here"
+- Peter Pan Lost Boy Leader, I've Got a Dream — dynamic gain_lore from location's lore
+- Jim Hawkins — "may move here for free" alt-cost
+- Olympus Would Be That Way — Challenger bonus only when challenging a location
+
 ---
 
-## Sets 3–11 Status (as of card-status analysis)
+## Sets 4–11 Status (as of card-status analysis)
 
 | Set | Total | Done | Vanilla | Fits-Grammar | New-Type | New-Mechanic | Unknown |
 |-----|-------|------|---------|--------------|----------|--------------|---------|
-| 3   | 226   | 0    | 42      | 117          | 31       | 36           | 0       |
 | 4   | 225   | 0    | 43      | 113          | 43       | 26           | 0       |
 | 5   | 223   | 2    | 40      | 125          | 39       | 17           | 0       |
 | 6   | 222   | 1    | 39      | 129          | 32       | 21           | 0       |

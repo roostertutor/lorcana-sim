@@ -15,7 +15,7 @@ to produce deck analytics and win rates. NOT a human-playable simulator.
 - cli:       done. analyze, compare, query, learn.
 - ui:        done. 7 screens, React+Vite. Responsive (mobile/tablet/desktop). Full-screen game board (no header/nav in-game).
 - testbench: done. Interactive game board with bot opponent. Replay mode + undo. Utility strip (deck tile, inkwell, discard tile). Card action popover anchored to clicked card (fixed-position, works on all breakpoints). Keyword badges, exerted rotation/grayscale, damage counter, summoning sickness overlay. Play zone reset on leave (CRD 1.9.3).
-- cards:     sets 1 + 2 complete. Set 3: 178/226 (79%) — locations implemented. Set 1: 216 entries, all abilities implemented. Set 2: 216 entries, zero approximations.
+- cards:     sets 1 + 2 + 3 complete. Set 3: 226/226 with locations (~10 cards have approximations for features not yet built: card_drawn trigger, MIMICRY shift, sings trigger, move-as-effect, dynamic location lore). Set 1+2: zero approximations.
 - sets 2–11: imported as stubs (keyword-only, 2504 total cards incl. dual-ink). Run `pnpm import-cards --sets N` to refresh.
 
 ## Quick Reference
