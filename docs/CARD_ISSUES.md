@@ -33,19 +33,23 @@ cards when later mechanics land.
    Baymax (Set 7), Thunderbolt (Set 8). Cards still need wiring (Phase B).
 1. ~~Sing Together~~ — DONE. 26 songs across Sets 4/8/9 carry
    `singTogetherCost` and validate via the new alternate-cost path.
-2. ~~**Boost** (Set 6 onward, peaks Set 10)~~ — DONE (foundation). Added
-   `CardInstance.cardsUnder: string[]`, new `"under"` ZoneName, `boost` keyword,
-   `BOOST_CARD` action, `boostedThisTurn` per-turn flag (cleared at turn end +
-   on leaving play), `this_has_cards_under` Condition. **Fixed Shift bug**:
-   base card now goes UNDER the shifted character (CRD 8.10.4) instead of being
-   silently discarded; cards under inherit when shifting onto a shifted character.
-   When a parent leaves play, all cards under it move to discard (CRD 8.10.5).
-   Canary card wired: Flynn Rider - Spectral Scoundrel (Boost 2 + I'LL TAKE THAT
-   conditional static). **Still TODO in long-tail (A.3):** stat-per-cards-under
-   for "+1 {S} for each card under him", `put_cards_under_into_hand` effect for
-   "put all cards from under her into your hand", and bot enumeration of BOOST_CARD
-   in `getAllLegalActions`. ~70 cards across sets 7/9/10/11 reference cards-under
-   for these patterns and stay as stubs until those long-tail effects land.
+2. ~~**Boost** (Set 6 onward, peaks Set 10)~~ — DONE (foundation + long-tail).
+   Foundation: `CardInstance.cardsUnder: string[]`, new `"under"` ZoneName,
+   `boost` keyword, `BOOST_CARD` action, `boostedThisTurn` per-turn flag (cleared
+   at turn end + on leaving play), `this_has_cards_under` Condition. **Fixed
+   Shift bug**: base card now goes UNDER the shifted character (CRD 8.10.4)
+   instead of being silently discarded; cards under inherit when shifting onto
+   a shifted character. When a parent leaves play, all cards under it move to
+   discard (CRD 8.10.5). Canary card: Flynn Rider Spectral Scoundrel.
+   Long-tail (this session):
+   - `ModifyStatPerCountStatic.countCardsUnderSelf` flag — counts `cardsUnder.length`
+     instead of a CardFilter for "+1 {S} for each card under him" patterns.
+   - `put_cards_under_into_hand` Effect — drains source's cardsUnder to owner's
+     hand, used by Alice Well-Read Whisper, Graveyard of Christmas Future, etc.
+   - `getAllLegalActions` now enumerates `BOOST_CARD` for in-play boost characters
+     so bots can use the mechanic.
+   ~70 cards across sets 7/9/10/11 reference cards-under and now have the engine
+   plumbing they need; remaining work is JSON wiring (Phase B).
 3. **Long tail of needs-new-type cards** (~251 cards across all sets, down
    from 334 after categorizer cleanup) — implement engine additions in
    order of cards-unlocked count. Progress so far:

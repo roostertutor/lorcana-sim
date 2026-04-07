@@ -179,8 +179,13 @@ export function getGameModifiers(
         }
 
         case "modify_stat_per_count": {
-          // Count matching cards, multiply by perCount, apply to target
-          const count = countMatchingCards(state, definitions, effect.countFilter, instance.ownerId, instance.instanceId);
+          // Count matching cards, multiply by perCount, apply to target.
+          // Boost (CRD 8.4.2): countCardsUnderSelf bypasses the filter and uses cardsUnder.length.
+          const count = effect.countCardsUnderSelf
+            ? instance.cardsUnder.length
+            : (effect.countFilter
+              ? countMatchingCards(state, definitions, effect.countFilter, instance.ownerId, instance.instanceId)
+              : 0);
           const bonus = count * effect.perCount;
           if (bonus === 0) break;
 

@@ -259,6 +259,14 @@ export function getAllLegalActions(
     }
   }
 
+  // BOOST_CARD — each in-play card with the boost keyword that hasn't boosted this turn
+  for (const instanceId of myPlay) {
+    const action: GameAction = { type: "BOOST_CARD", playerId, instanceId };
+    if (validateAction(state, action, definitions).valid) {
+      actions.push(action);
+    }
+  }
+
   // ACTIVATE_ABILITY — each activatable ability on each card in play
   const modifiersForAbilities = getGameModifiers(state, definitions);
   for (const instanceId of myPlay) {
@@ -1822,6 +1830,36 @@ export function applyEffect(
         }
         // else: stays where it is — already on top.
       }
+      return state;
+    }
+
+    case "put_cards_under_into_hand": {
+      // Drain the source's cardsUnder pile into hand. Each card moves from
+      // its current zone (logically "under") to its OWNER's hand.
+      const inst = state.cards[sourceInstanceId];
+      if (!inst || inst.cardsUnder.length === 0) return state;
+      const undersToMove = [...inst.cardsUnder];
+      for (const id of undersToMove) {
+        const u = state.cards[id];
+        if (!u) continue;
+        // Move directly: under cards aren't in any zone array, so just append to hand.
+        state = {
+          ...state,
+          cards: {
+            ...state.cards,
+            [id]: { ...u, zone: "hand" },
+          },
+          zones: {
+            ...state.zones,
+            [u.ownerId]: {
+              ...state.zones[u.ownerId],
+              hand: [...state.zones[u.ownerId].hand, id],
+            },
+          },
+        };
+      }
+      // Clear the parent's cardsUnder pile.
+      state = updateInstance(state, sourceInstanceId, { cardsUnder: [] });
       return state;
     }
 

@@ -132,6 +132,7 @@ export type Effect =
   | NameACardThenRevealEffect
   | RevealTopConditionalEffect
   | CantBeChallengedTimedEffect
+  | PutCardsUnderIntoHandEffect
   | CreateCardEffect
   | SearchEffect
   | ChooseEffect
@@ -232,6 +233,18 @@ export interface GainStatsEffect {
   isMay?: boolean;
   /** +1 strength per damage on target (Sword in the Stone) */
   strengthPerDamage?: boolean;
+}
+
+/**
+ * CRD 8.4.2 / 8.10.5: "Put all cards from under [this] into your hand"
+ * (Alice - Well-Read Whisper, Graveyard of Christmas Future, etc.).
+ * Moves every instanceId in the source's cardsUnder pile to its owner's hand
+ * and clears cardsUnder. The source itself stays in play.
+ */
+export interface PutCardsUnderIntoHandEffect {
+  type: "put_cards_under_into_hand";
+  /** Which card's under-pile to drain. "this" = the source instance. */
+  target: { type: "this" };
 }
 
 /**
@@ -701,8 +714,13 @@ export interface ModifyStatPerCountStatic {
   stat: "strength" | "willpower" | "lore";
   /** Bonus per matching card */
   perCount: number;
-  /** What to count */
-  countFilter: CardFilter;
+  /** What to count. Required unless countCardsUnderSelf is set. */
+  countFilter?: CardFilter;
+  /**
+   * CRD 8.4.2: instead of countFilter, count cards under the source instance
+   * (Boost / Shift base pile). Used for "+1 {S} for each card under him".
+   */
+  countCardsUnderSelf?: boolean;
   /** Who this bonus applies to (usually "this") */
   target: CardTarget;
 }
