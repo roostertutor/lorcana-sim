@@ -857,4 +857,72 @@ describe("§6 Set 2 Card Coverage", () => {
     // = 7 + 3 = 10 cards
     expect(getZone(result.newState, "player1", "hand").length).toBe(7 + 3);
   });
+
+  // ===== HIRAM FLAVERSHAM: dual triggers (enters_play + quests) sequential isMay =====
+  // "When you play this character and whenever he quests, you may banish one of
+  //  your items to draw 2 cards."
+  it("Hiram Flaversham: banish item on enter, then again on quest next turn", () => {
+    let state = startGame(["hiram-flaversham-toymaker", "scepter-of-arendelle"]);
+    state = { ...state, interactive: true };
+    state = giveInk(state, "player1", 4); // cost 4
+    let hiramId: string;
+    let scepter1Id: string;
+    let scepter2Id: string;
+    ({ state, instanceId: hiramId } = injectCard(state, "player1", "hiram-flaversham-toymaker", "hand"));
+    ({ state, instanceId: scepter1Id } = injectCard(state, "player1", "scepter-of-arendelle", "play"));
+    ({ state, instanceId: scepter2Id } = injectCard(state, "player1", "scepter-of-arendelle", "play"));
+
+    const handBefore = getZone(state, "player1", "hand").length;
+
+    // === Play Hiram → enters_play trigger ===
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: hiramId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+
+    // isMay → choose_may pending
+    expect(result.newState.pendingChoice?.type).toBe("choose_may");
+    result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+
+    // Sequential cost: choose item to banish
+    expect(result.newState.pendingChoice?.type).toBe("choose_target");
+    result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [scepter1Id] }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+
+    // First scepter banished, drew 2 cards
+    expect(getInstance(result.newState, scepter1Id).zone).toBe("discard");
+    // Net hand: -1 (played Hiram) + 2 (drew) = +1
+    expect(getZone(result.newState, "player1", "hand").length).toBe(handBefore - 1 + 2);
+    // Second scepter still in play
+    expect(getInstance(result.newState, scepter2Id).zone).toBe("play");
+    state = result.newState;
+
+    // === Pass to opponent, opponent passes back ===
+    state = passTurns(state, 2);
+
+    // Hiram should now be dry (can quest)
+    expect(getInstance(state, hiramId).isDrying).toBe(false);
+    expect(getInstance(state, hiramId).isExerted).toBe(false);
+
+    const handBeforeQuest = getZone(state, "player1", "hand").length;
+
+    // === Quest with Hiram → quest trigger ===
+    result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: hiramId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+
+    // isMay → choose_may pending
+    expect(result.newState.pendingChoice?.type).toBe("choose_may");
+    result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+
+    // Sequential cost: choose the second scepter to banish
+    expect(result.newState.pendingChoice?.type).toBe("choose_target");
+    result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [scepter2Id] }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+
+    // Second scepter banished, drew 2 more cards
+    expect(getInstance(result.newState, scepter2Id).zone).toBe("discard");
+    expect(getZone(result.newState, "player1", "hand").length).toBe(handBeforeQuest + 2);
+    // Hiram is now exerted (he quested)
+    expect(getInstance(result.newState, hiramId).isExerted).toBe(true);
+  });
 });
