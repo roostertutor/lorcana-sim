@@ -9,6 +9,7 @@ import {
   startGame,
   injectCard,
   passTurns,
+  giveInk,
 } from "./test-helpers.js";
 import { getInstance, getEffectiveStrength, getZone } from "../utils/index.js";
 
@@ -187,6 +188,51 @@ describe("§4 Set 4 — Sing Together", () => {
     // Bottom two slots reflect the chosen order: bottommost first, next-to-bottom second
     expect(p2Deck[p2Deck.length - 2]).toBe(weakOpp1);
     expect(p2Deck[p2Deck.length - 1]).toBe(weakOpp2);
+  });
+
+  it("Second Star to the Right: chosen player draws 5 cards (controller picks self)", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let songId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "second-star-to-the-right", "hand"));
+    const handBefore = getZone(state, "player1", "hand").length;
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Surfaces choose_player pendingChoice
+    expect(state.pendingChoice?.type).toBe("choose_player");
+    expect(state.pendingChoice?.choosingPlayerId).toBe("player1");
+    expect(state.pendingChoice?.validTargets).toContain("player1");
+    expect(state.pendingChoice?.validTargets).toContain("player2");
+
+    // Controller picks self
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "player1" }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Player1 drew 5 cards. Net hand delta: -1 (Second Star itself moves from hand to discard)
+    // + 5 drawn = +4. But we played the song so it leaves hand first. handBefore counted Second Star.
+    // After play: handBefore - 1 (song removed) + 5 = handBefore + 4.
+    expect(getZone(state, "player1", "hand").length).toBe(handBefore + 4);
+  });
+
+  it("Second Star to the Right: chosen player can be opponent", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let songId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "second-star-to-the-right", "hand"));
+    const p2HandBefore = getZone(state, "player2", "hand").length;
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "player2" }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Player2 drew 5
+    expect(getZone(state, "player2", "hand").length).toBe(p2HandBefore + 5);
   });
 
   it("Sing Together rejects duplicate singers", () => {

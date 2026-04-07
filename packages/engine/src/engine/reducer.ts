@@ -1481,6 +1481,27 @@ function applyResolveChoice(
     return state;
   }
 
+  if (pendingChoice.type === "choose_player" && typeof choice === "string") {
+    // Controller has picked a player. Re-apply the pending effect with target
+    // substituted to that specific player. Currently only "draw" supports
+    // chosen players; other effects (lose_lore, reveal_hand, etc.) can opt in
+    // by adding the same chosen branch.
+    const chosenPlayer = choice as PlayerID;
+    if (pendingEffect && pendingEffect.type === "draw") {
+      const substituted = {
+        ...pendingEffect,
+        target: chosenPlayer === playerId
+          ? ({ type: "self" } as const)
+          : ({ type: "opponent" } as const),
+      };
+      const sourceId = pendingChoice.sourceInstanceId ?? "";
+      state = applyEffect(state, substituted, sourceId, playerId, definitions, events);
+    }
+    state = resumePendingEffectQueue(state, definitions, events);
+    state = cleanupPendingAction(state, playerId);
+    return state;
+  }
+
   if (pendingChoice.type === "choose_card_name" && typeof choice === "string") {
     // The Sorcerer's Hat: compare the named card to the top of deck.
     const deck = getZone(state, playerId, "deck");
@@ -1555,6 +1576,19 @@ export function applyEffect(
         state = applyDraw(state, controllingPlayerId, amount, events, definitions);
         state = applyDraw(state, getOpponent(controllingPlayerId), amount, events, definitions);
         return state;
+      }
+      // Chosen player — controller picks any player (Second Star to the Right etc.)
+      if (effect.target.type === "chosen") {
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_player",
+            choosingPlayerId: controllingPlayerId,
+            prompt: "Choose a player.",
+            validTargets: ["player1", "player2"],
+            pendingEffect: effect,
+          },
+        };
       }
       const targetPlayer =
         effect.target.type === "opponent"

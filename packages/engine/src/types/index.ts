@@ -831,7 +831,12 @@ export type PlayerTarget =
   | { type: "opponent" }
   | { type: "both" }
   | { type: "choosing_player" }
-  | { type: "target_owner" };
+  | { type: "target_owner" }
+  /** "Chosen player" — controller picks any player (including themselves).
+   *  Surfaces a choose_player pendingChoice. Used by Second Star to the Right
+   *  ("Chosen player draws 5 cards"), Mad Hatter, Madame Medusa, Water Has
+   *  Memory, etc. */
+  | { type: "chosen" };
 
 export type CardTarget =
   | { type: "this" } // The card itself
@@ -1261,7 +1266,7 @@ export interface TriggerContext {
 }
 
 export interface PendingChoice {
-  type: "choose_mulligan" | "choose_target" | "choose_option" | "choose_cards" | "choose_may" | "choose_discard" | "choose_from_revealed" | "choose_order" | "choose_trigger" | "choose_card_name";
+  type: "choose_mulligan" | "choose_target" | "choose_option" | "choose_cards" | "choose_may" | "choose_discard" | "choose_from_revealed" | "choose_order" | "choose_trigger" | "choose_card_name" | "choose_player";
   /** Which player must make the choice */
   choosingPlayerId: PlayerID;
   prompt: string;

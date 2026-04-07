@@ -2031,10 +2031,12 @@
     "traits": [
       "Song"
     ],
-    "abilities": [
+    "abilities": [],
+    "actionEffects": [
       {
-        "type": "keyword",
-        "keyword": "sing together"
+        "type": "draw",
+        "amount": 5,
+        "target": { "type": "chosen" }
       }
     ],
     "setId": "9",
