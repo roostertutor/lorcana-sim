@@ -240,4 +240,20 @@ describe("§7 Set 3 — Locations", () => {
     expect(result.success).toBe(true);
     expect(result.newState.players["player1"]!.lore).toBe(loreBefore);
   });
+
+  // Jafar fires PER card drawn — drawing 3 cards creates 3 triggers, gaining 3 lore
+  // (different from Prince John's "1 or more discards" which is one trigger drawing N)
+  it("Jafar: fires once per card drawn (draw 3 → +3 lore)", () => {
+    let state = startGame(["jafar-striking-illusionist"]);
+    let jafarId: string;
+    ({ state, instanceId: jafarId } = injectCard(state, "player1", "jafar-striking-illusionist", "play", { isExerted: true }));
+
+    const loreBefore = state.players["player1"]!.lore;
+
+    // Draw 3 cards in one action
+    const result = applyAction(state, { type: "DRAW_CARD", playerId: "player1", amount: 3 }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Jafar fires 3 times → +3 lore
+    expect(result.newState.players["player1"]!.lore).toBe(loreBefore + 3);
+  });
 });
