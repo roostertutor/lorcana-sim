@@ -71,6 +71,16 @@ This links code to the authoritative rules document.
 - Layer 3 invariants are data integrity only (total cards = 60, no card in two zones,
   availableInk >= 0, lore >= 0). Do NOT assert things cards can change
   (inkwell contents, lore direction, win threshold).
+- **Test file organization** — engine tests are split:
+  - `reducer.test.ts` — CRD rules (core mechanics, organized by §1, §2, §3, etc.)
+  - `set1.test.ts` — Set 1 card-specific tests (only unique patterns, not every card)
+  - `set2.test.ts` — Set 2 card-specific tests
+  - Future sets get their own file: `set3.test.ts`, `set4.test.ts`, etc.
+  - Shared helpers (`startGame`, `injectCard`, `giveInk`, `passTurns`, etc.) live in
+    `engine/test-helpers.ts` — import from there, don't duplicate.
+  - Test by pattern not by card — if a pattern (e.g. "enters_play → draw") is already
+    tested in Set 1, don't retest it in Set 2 with a different card. Only test new
+    patterns or unique edge cases.
 
 ### Bot type separation
 `BotType = "algorithm" | "personal" | "crowd"` — never mix in aggregation.
