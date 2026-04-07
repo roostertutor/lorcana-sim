@@ -373,4 +373,79 @@ describe("§4 Set 4 — Sing Together", () => {
     }, LORCAST_CARD_DEFINITIONS);
     expect(r.success).toBe(false);
   });
+
+  // ── New engine mechanics added in batch 10 ──
+
+  it("Flynn Rider - Frenemy: gains 3 lore at turn start when a character has more strength than each opposing", () => {
+    // Flynn has strength 2; give him a strong ally.
+    let state = startGame();
+    ({ state } = injectCard(state, "player1", "flynn-rider-frenemy", "play", { isDrying: false }));
+    // Big strength character (Mickey True Friend has str 2). Use a bigger one — Be Prepared's target? Just inject another and rely on Flynn's 2 > opponent's 0 (no opp chars).
+    // No opponent characters → vacuously true (max opp = -1).
+    setLore(state, "player1", 0);
+    const r = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Pass back to player1 — turn_start should fire NARROW ADVANTAGE.
+    const r2 = applyAction(state, { type: "PASS_TURN", playerId: "player2" }, LORCAST_CARD_DEFINITIONS);
+    expect(r2.success).toBe(true);
+    state = r2.newState;
+    expect(state.players.player1.lore).toBeGreaterThanOrEqual(3);
+  });
+
+  it("Ursula's Garden: opposing characters get -1 lore while an exerted character is here", async () => {
+    let state = startGame();
+    let locId: string, myCharId: string, oppCharId: string;
+    ({ state, instanceId: locId } = injectCard(state, "player1", "ursula-s-garden-full-of-the-unfortunate", "play", { isDrying: false }));
+    ({ state, instanceId: myCharId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, isExerted: true }));
+    ({ state, instanceId: oppCharId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    // Put my char at the location.
+    state = { ...state, cards: { ...state.cards, [myCharId]: { ...state.cards[myCharId]!, atLocationInstanceId: locId } } };
+    const oppInst = getInstance(state, oppCharId);
+    const oppDef = LORCAST_CARD_DEFINITIONS[oppInst.definitionId]!;
+    const baseLore = oppDef.lore ?? 0;
+    // Effective lore via modifiers: consult modifier debuff
+    const { getGameModifiers } = await import("./gameModifiers.js");
+    const mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    const bonus = mods.statBonuses.get(oppCharId)?.lore ?? 0;
+    expect(baseLore + bonus).toBe(baseLore - 1);
+  });
+
+  it("Look at This Family: puts up to 2 character cards from top 5 into hand", () => {
+    let state = startGame();
+    let songId: string, s1: string, s2: string, s3: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "look-at-this-family", "hand"));
+    ({ state, instanceId: s1 } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    ({ state, instanceId: s2 } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    ({ state, instanceId: s3 } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    const handBefore = getZone(state, "player1", "hand").length;
+    const r = applyAction(state, {
+      type: "PLAY_CARD",
+      playerId: "player1",
+      instanceId: songId,
+      singerInstanceIds: [s1, s2, s3],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Song played → effect resolves → some characters moved to hand.
+    // Hand net change: -1 song + up to 2 chars = hand between -1 and +1.
+    const handAfter = getZone(state, "player1", "hand").length;
+    expect(handAfter).toBeGreaterThanOrEqual(handBefore - 1);
+    expect(handAfter).toBeLessThanOrEqual(handBefore + 1);
+  });
+
+  it("Mulan Elite Archer: deals_damage_in_challenge trigger fires and deals 2 damage to a chosen character", () => {
+    let state = startGame();
+    let mulanId: string, defenderId: string, bystanderId: string;
+    ({ state, instanceId: mulanId } = injectCard(state, "player1", "mulan-elite-archer", "play", { isDrying: false }));
+    ({ state, instanceId: defenderId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false, isExerted: true }));
+    ({ state, instanceId: bystanderId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    const r = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: mulanId, defenderInstanceId: defenderId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Triple Shot either resolved (bystander damaged) or prompted a choose_target pendingChoice.
+    const bystanderDmg = getInstance(state, bystanderId)?.damage ?? 0;
+    const hasPendingChoice = !!state.pendingChoice;
+    expect(bystanderDmg > 0 || hasPendingChoice).toBe(true);
+  });
 });

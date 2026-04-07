@@ -485,9 +485,11 @@ export interface CantActionEffect {
 export interface LookAtTopEffect {
   type: "look_at_top";
   count: number;
-  action: "one_to_hand_rest_bottom" | "top_or_bottom" | "reorder";
+  action: "one_to_hand_rest_bottom" | "top_or_bottom" | "reorder" | "up_to_n_to_hand_rest_bottom";
   /** Optional filter — only matching cards can go to hand (for "may reveal matching" patterns) */
   filter?: CardFilter;
+  /** For "up_to_n_to_hand_rest_bottom": max number of cards to put into hand (Look at This Family = 2, Dig a Little Deeper = 2). */
+  maxToHand?: number;
   target: PlayerTarget;
   /** CRD 6.1.4: player may choose not to apply this effect */
   isMay?: boolean;
@@ -1007,7 +1009,12 @@ export type TriggerEvent =
   | { on: "damage_removed_from"; filter?: CardFilter }
   | { on: "readied"; filter?: CardFilter }
   | { on: "returned_to_hand"; filter?: CardFilter }
-  | { on: "cards_discarded"; player: PlayerTarget };
+  | { on: "cards_discarded"; player: PlayerTarget }
+  /** CRD 4.3.6: fires when a character deals damage to another character in a challenge.
+   * Filter is matched against the source (damage-dealer) card. The triggering card in
+   * context is the damaged character, and the damage amount is stored on the trigger context.
+   * Used by Mulan - Elite Archer (Triple Shot), Namaari - Heir of Fang (Two-Weapon Fighting). */
+  | { on: "deals_damage_in_challenge"; filter?: CardFilter };
 
 // -----------------------------------------------------------------------------
 // CONDITIONS — Guards on triggered/activated abilities
@@ -1041,7 +1048,14 @@ export type Condition =
   | { type: "opponent_character_was_banished_in_challenge_this_turn" }
   | { type: "not"; condition: Condition }
   | { type: "played_via_shift" }
-  | { type: "triggering_card_played_via_shift" };
+  | { type: "triggering_card_played_via_shift" }
+  /** True if an exerted character is currently at the source location (Ursula's Garden, The Wall). */
+  | { type: "this_location_has_exerted_character" }
+  /** True if you control a character in play with strictly more `stat` than every opposing character.
+   *  Used by Flynn Rider Frenemy ("more strength than each opposing"), Ariel Treasure Collector
+   *  ("more items than each opp" → metric="items_in_play"), HeiHei Bumbling Rooster
+   *  (metric="cards_in_inkwell"; inverse — opponent has more → use `not`). */
+  | { type: "self_has_more_than_each_opponent"; metric: "strength_in_play" | "items_in_play" | "cards_in_inkwell" };
 
 export type AbilityTiming = "your_turn_main" | "any_time" | "opponent_turn";
 

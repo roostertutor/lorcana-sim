@@ -652,6 +652,52 @@ export function evaluateCondition(
       const inst = state.cards[triggeringCardInstanceId];
       return inst?.playedViaShift === true;
     }
+    case "this_location_has_exerted_character": {
+      // Any character at this location that is exerted.
+      for (const c of Object.values(state.cards)) {
+        if (c.atLocationInstanceId !== sourceInstanceId) continue;
+        if (c.isExerted) return true;
+      }
+      return false;
+    }
+    case "self_has_more_than_each_opponent": {
+      if (condition.metric === "strength_in_play") {
+        // You control a character whose effective strength > every opposing character's strength.
+        const oppChars = getZone(state, opponent, "play")
+          .map((id) => {
+            const inst = state.cards[id];
+            if (!inst) return -1;
+            const def = definitions[inst.definitionId];
+            if (!def || def.cardType !== "character") return -1;
+            return getEffectiveStrength(inst, def);
+          })
+          .filter((s) => s >= 0);
+        const maxOpp = oppChars.length === 0 ? -1 : Math.max(...oppChars);
+        const yours = getZone(state, controllingPlayerId, "play");
+        for (const id of yours) {
+          const inst = state.cards[id];
+          if (!inst) continue;
+          const def = definitions[inst.definitionId];
+          if (!def || def.cardType !== "character") continue;
+          if (getEffectiveStrength(inst, def) > maxOpp) return true;
+        }
+        return false;
+      }
+      if (condition.metric === "items_in_play") {
+        const count = (pid: PlayerID) =>
+          getZone(state, pid, "play").filter((id) => {
+            const inst = state.cards[id];
+            if (!inst) return false;
+            const def = definitions[inst.definitionId];
+            return def?.cardType === "item";
+          }).length;
+        return count(controllingPlayerId) > count(opponent);
+      }
+      if (condition.metric === "cards_in_inkwell") {
+        return getZone(state, controllingPlayerId, "inkwell").length > getZone(state, opponent, "inkwell").length;
+      }
+      return false;
+    }
     default:
       return true;
   }

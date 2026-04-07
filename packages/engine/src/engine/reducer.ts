@@ -802,6 +802,10 @@ function applyChallenge(
     events.push({ type: "damage_dealt", instanceId: atkTarget, amount: actualAttackerDamage });
     // Fire damage_dealt_to trigger for challenge damage
     state = queueTrigger(state, "damage_dealt_to", atkTarget, definitions, {});
+    // CRD 4.3.6: defender is the damage-dealer for attacker-side damage
+    state = queueTrigger(state, "deals_damage_in_challenge", defenderInstanceId, definitions, {
+      triggeringCardInstanceId: atkTarget,
+    });
   }
 
   // Apply defender damage (or redirect)
@@ -819,6 +823,10 @@ function applyChallenge(
     events.push({ type: "damage_dealt", instanceId: defTarget, amount: actualDefenderDamage });
     // Fire damage_dealt_to trigger for challenge damage
     state = queueTrigger(state, "damage_dealt_to", defTarget, definitions, {});
+    // CRD 4.3.6: attacker dealt damage to defender
+    state = queueTrigger(state, "deals_damage_in_challenge", attackerInstanceId, definitions, {
+      triggeringCardInstanceId: defTarget,
+    });
   }
 
   state = appendLog(state, {
@@ -2382,6 +2390,33 @@ export function applyEffect(
         }
         case "reorder": {
           // Bot keeps default order — no change
+          return state;
+        }
+        case "up_to_n_to_hand_rest_bottom": {
+          // Look at top N, put up to maxToHand matching (optional filter) into hand, rest to bottom.
+          // Headless/bot: greedy — take the first maxToHand matching cards.
+          const maxToHand = effect.maxToHand ?? 1;
+          const picked: string[] = [];
+          const rest: string[] = [];
+          for (const id of topCards) {
+            if (picked.length >= maxToHand) {
+              rest.push(id);
+              continue;
+            }
+            if (effect.filter) {
+              const inst = state.cards[id];
+              const def = inst ? definitions[inst.definitionId] : undefined;
+              if (!inst || !def || !matchesFilter(inst, def, effect.filter, state, controllingPlayerId)) {
+                rest.push(id);
+                continue;
+              }
+            }
+            picked.push(id);
+          }
+          for (const id of picked) {
+            state = moveCard(state, id, targetPlayer, "hand");
+          }
+          state = reorderDeckTopToBottom(state, targetPlayer, rest, []);
           return state;
         }
         default:

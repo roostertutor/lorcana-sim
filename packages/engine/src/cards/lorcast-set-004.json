@@ -40,7 +40,32 @@
       "Mentor",
       "Madrigal"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "TO THE TABLE",
+        "rulesText": "When you play this character, you may search your deck for a Madrigal character card and reveal that card to all players. Shuffle your deck and put that card on top of it. (approximation: put into hand instead of top of deck)",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "search",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Madrigal"
+            },
+            "target": {
+              "type": "self"
+            },
+            "zone": "deck",
+            "putInto": "hand"
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 2,
     "rarity": "rare",
@@ -1366,7 +1391,23 @@
         "raw": "Look at the top 5 cards of your deck. You may reveal up to 2 character cards and put them into your hand. Put the rest on the bottom of your deck in any order."
       }
     ],
-    "singTogetherCost": 7
+    "singTogetherCost": 7,
+    "actionEffects": [
+      {
+        "type": "look_at_top",
+        "count": 5,
+        "action": "up_to_n_to_hand_rest_bottom",
+        "maxToHand": 2,
+        "filter": {
+          "cardType": [
+            "character"
+          ]
+        },
+        "target": {
+          "type": "self"
+        }
+      }
+    ]
   },
   {
     "id": "lost-in-the-woods",
@@ -1892,8 +1933,22 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
+        "type": "activated",
+        "storyName": "YOU JUST HAVE TO SEE IT",
+        "rulesText": "{E} — Name a card, then reveal the top card of your deck. If it's the named card, put that card into your hand and gain 3 lore. Otherwise, put it on the top of your deck. (approximation: lore gain on hit skipped)",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "name_a_card_then_reveal",
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -2610,7 +2665,53 @@
       "Ally",
       "Madrigal"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "IT LOOKS LIKE RAIN",
+        "rulesText": "When you play this character, you may exert chosen opposing character. That character can't ready at the start of their next turn unless they're at a location. (approximation: unconditional can't-ready)",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "isMay": true,
+            "followUpEffects": [
+              {
+                "type": "cant_action",
+                "action": "ready",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "opponent"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                },
+                "duration": "end_of_owner_next_turn"
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 53,
     "rarity": "rare",
@@ -3481,8 +3582,28 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
+        "type": "triggered",
+        "storyName": "CIRCLE FAR AND WIDE",
+        "rulesText": "During each opponent's turn, whenever they draw a card while this character is exerted, you may draw a card.",
+        "trigger": {
+          "on": "card_drawn",
+          "player": {
+            "type": "opponent"
+          }
+        },
+        "condition": {
+          "type": "this_is_exerted"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -3677,7 +3798,34 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "FATTEN YOU UP",
+        "rulesText": "When you play this character, if an opponent has more cards in their inkwell than you, you may put the top card of your deck into your inkwell facedown and exerted. (approximation: triggers when not strictly ahead in inkwell)",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "not",
+          "condition": {
+            "type": "self_has_more_than_each_opponent",
+            "metric": "cards_in_inkwell"
+          }
+        },
+        "effects": [
+          {
+            "type": "reveal_top_conditional",
+            "filter": {},
+            "matchAction": "to_inkwell_exerted",
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 75,
     "rarity": "uncommon",
@@ -4580,7 +4728,27 @@
       "King",
       "Deity"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "TARGET PRACTICE",
+        "rulesText": "Whenever this character challenges another character, he gets +{S} equal to the {S} of chosen character this turn. (approximation: +3 strength)",
+        "trigger": {
+          "on": "challenges"
+        },
+        "effects": [
+          {
+            "type": "modify_stat",
+            "stat": "strength",
+            "modifier": 3,
+            "target": {
+              "type": "this"
+            },
+            "duration": "end_of_turn"
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 92,
     "rarity": "super_rare",
@@ -5099,7 +5267,33 @@
     "cost": 4,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "ABANDON HOPE",
+        "rulesText": "While you have an exerted character here, opposing characters get -1 {L}.",
+        "condition": {
+          "type": "this_location_has_exerted_character"
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "modifier": -1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "opponent"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ]
+            }
+          }
+        }
+      }
+    ],
     "setId": "4",
     "number": 102,
     "rarity": "rare",
@@ -5295,7 +5489,32 @@
       "Hero",
       "Prince"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "NARROW ADVANTAGE",
+        "rulesText": "At the start of your turn, if you have a character in play with more {S} than each opposing character, gain 3 lore.",
+        "trigger": {
+          "on": "turn_start",
+          "player": {
+            "type": "self"
+          }
+        },
+        "condition": {
+          "type": "self_has_more_than_each_opponent",
+          "metric": "strength_in_play"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 3,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 106,
     "rarity": "super_rare",
@@ -5610,9 +5829,53 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 5
+        "type": "triggered",
+        "storyName": "STRAIGHT SHOOTER",
+        "rulesText": "When you play this character, if you used Shift to play her, she gets +3 {S} this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "played_via_shift"
+        },
+        "effects": [
+          {
+            "type": "modify_stat",
+            "stat": "strength",
+            "modifier": 3,
+            "target": {
+              "type": "this"
+            },
+            "duration": "end_of_turn"
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "TRIPLE SHOT",
+        "rulesText": "During your turn, whenever this character deals damage to another character in a challenge, deal the same amount of damage to up to 2 other chosen characters. (approximation: deals 2 damage to 1 chosen character)",
+        "trigger": {
+          "on": "deals_damage_in_challenge"
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -5763,7 +6026,35 @@
       "Villain",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "TWO-WEAPON FIGHTING",
+        "rulesText": "During your turn, whenever this character deals damage to another character in a challenge, you may deal the same amount of damage to another chosen character. (approximation: deals 3 damage)",
+        "trigger": {
+          "on": "deals_damage_in_challenge"
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 3,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 117,
     "rarity": "rare",
@@ -6889,8 +7180,21 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "ward"
+        "type": "static",
+        "storyName": "THE GIRL WHO HAS EVERYTHING",
+        "rulesText": "While you have more items in play than each opponent, this character gets +2 {L}.",
+        "condition": {
+          "type": "self_has_more_than_each_opponent",
+          "metric": "items_in_play"
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "modifier": 2,
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "4",
@@ -7667,7 +7971,34 @@
       "Queen",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "CONSULT THE SPELLBOOK",
+        "rulesText": "{E} — Look at the top 4 cards of your deck. You may reveal an item card and put it into your hand. (approximation: free-play escalation for cost ≤3 items is skipped)",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 4,
+            "action": "up_to_n_to_hand_rest_bottom",
+            "maxToHand": 1,
+            "filter": {
+              "cardType": [
+                "item"
+              ]
+            },
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 156,
     "rarity": "legendary",
@@ -7994,7 +8325,18 @@
         "raw": "Look at the top 7 cards of your deck. Put 2 into your hand. Put the rest on the bottom of your deck in any order."
       }
     ],
-    "singTogetherCost": 8
+    "singTogetherCost": 8,
+    "actionEffects": [
+      {
+        "type": "look_at_top",
+        "count": 7,
+        "action": "up_to_n_to_hand_rest_bottom",
+        "maxToHand": 2,
+        "target": {
+          "type": "self"
+        }
+      }
+    ]
   },
   {
     "id": "glean",
@@ -8843,7 +9185,28 @@
       "Dreamborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "I LEARNED FROM THE BEST",
+        "rulesText": "During your turn, you may play this character for free if an opposing character was banished in a challenge this turn.",
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            {
+              "type": "is_your_turn"
+            },
+            {
+              "type": "opponent_character_was_banished_in_challenge_this_turn"
+            }
+          ]
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 99
+        }
+      }
+    ],
     "setId": "4",
     "number": 181,
     "rarity": "rare",
@@ -9729,7 +10092,22 @@
         "raw": "Deal 3 damage to up to 3 chosen characters and/or locations."
       }
     ],
-    "singTogetherCost": 10
+    "singTogetherCost": 10,
+    "actionEffects": [
+      {
+        "type": "deal_damage",
+        "amount": 3,
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      }
+    ]
   },
   {
     "id": "tritons-decree",
@@ -9959,7 +10337,32 @@
     "cost": 4,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "PROTECT THE REALM",
+        "rulesText": "While you have an exerted character here, your other locations can't be challenged.",
+        "condition": {
+          "type": "this_location_has_exerted_character"
+        },
+        "effect": {
+          "type": "cant_be_challenged",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "location"
+              ],
+              "excludeSelf": true
+            }
+          }
+        }
+      }
+    ],
     "setId": "4",
     "number": 203,
     "rarity": "rare",
@@ -9986,7 +10389,35 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "IF YOU CAN MAKE IT HERE...",
+        "rulesText": "During your turn, whenever a character banishes another character in a challenge while here, gain 2 lore.",
+        "trigger": {
+          "on": "banished_other_in_challenge",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "atLocation": "this"
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 204,
     "rarity": "common",
@@ -10161,7 +10592,23 @@
         "raw": "Look at the top 5 cards of your deck. You may reveal up to 2 character cards and put them into your hand. Put the rest on the bottom of your deck in any order."
       }
     ],
-    "singTogetherCost": 7
+    "singTogetherCost": 7,
+    "actionEffects": [
+      {
+        "type": "look_at_top",
+        "count": 5,
+        "action": "up_to_n_to_hand_rest_bottom",
+        "maxToHand": 2,
+        "filter": {
+          "cardType": [
+            "character"
+          ]
+        },
+        "target": {
+          "type": "self"
+        }
+      }
+    ]
   },
   {
     "id": "ursula-sea-witch-queen",
@@ -10364,8 +10811,28 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
+        "type": "triggered",
+        "storyName": "CIRCLE FAR AND WIDE",
+        "rulesText": "During each opponent's turn, whenever they draw a card while this character is exerted, you may draw a card.",
+        "trigger": {
+          "on": "card_drawn",
+          "player": {
+            "type": "opponent"
+          }
+        },
+        "condition": {
+          "type": "this_is_exerted"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -10754,7 +11221,34 @@
       "Queen",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "CONSULT THE SPELLBOOK",
+        "rulesText": "{E} — Look at the top 4 cards of your deck. You may reveal an item card and put it into your hand. (approximation: free-play escalation for cost ≤3 items is skipped)",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 4,
+            "action": "up_to_n_to_hand_rest_bottom",
+            "maxToHand": 1,
+            "filter": {
+              "cardType": [
+                "item"
+              ]
+            },
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 218,
     "rarity": "enchanted",
@@ -10926,7 +11420,32 @@
     "cost": 4,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "PROTECT THE REALM",
+        "rulesText": "While you have an exerted character here, your other locations can't be challenged.",
+        "condition": {
+          "type": "this_location_has_exerted_character"
+        },
+        "effect": {
+          "type": "cant_be_challenged",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "location"
+              ],
+              "excludeSelf": true
+            }
+          }
+        }
+      }
+    ],
     "setId": "4",
     "number": 222,
     "rarity": "enchanted",
@@ -11044,9 +11563,53 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 5
+        "type": "triggered",
+        "storyName": "STRAIGHT SHOOTER",
+        "rulesText": "When you play this character, if you used Shift to play her, she gets +3 {S} this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "played_via_shift"
+        },
+        "effects": [
+          {
+            "type": "modify_stat",
+            "stat": "strength",
+            "modifier": 3,
+            "target": {
+              "type": "this"
+            },
+            "duration": "end_of_turn"
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "TRIPLE SHOT",
+        "rulesText": "During your turn, whenever this character deals damage to another character in a challenge, deal the same amount of damage to up to 2 other chosen characters. (approximation: deals 2 damage to 1 chosen character)",
+        "trigger": {
+          "on": "deals_damage_in_challenge"
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "4",
