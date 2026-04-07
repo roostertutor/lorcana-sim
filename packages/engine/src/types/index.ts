@@ -69,6 +69,9 @@ export interface TriggeredAbility {
   effects: Effect[];
   /** Optional condition that must be true for the trigger to fire */
   condition?: Condition;
+  /** CRD 6.1.13: "Once per turn" — ability fires at most once per turn per instance.
+   *  Reset at end of turn and when the card leaves play (CRD 7.1.6 — becomes a "new" card). */
+  oncePerTurn?: boolean;
 }
 
 export interface ActivatedAbility {
@@ -793,6 +796,9 @@ export interface CardInstance {
   atLocationInstanceId?: string | undefined;
   /** CRD 4.7.4: True if this character has moved to a location this turn */
   movedThisTurn?: boolean | undefined;
+  /** CRD 6.1.13: "Once per turn" tracking — keyed by ability storyName.
+   *  Cleared at end of turn AND when the card leaves play (CRD 7.1.6 — becomes a "new" card). */
+  oncePerTurnTriggered?: Record<string, boolean> | undefined;
 }
 
 // -----------------------------------------------------------------------------

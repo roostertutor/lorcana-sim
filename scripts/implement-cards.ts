@@ -610,12 +610,12 @@ patchSet("3", {
   },
 
   // HeiHei - Accidental Explorer: "Once per turn, when this moves to a location, each opponent loses 1 lore"
-  // Approximation: skip "once per turn" tracking — fires every move
   "heihei-accidental-explorer": {
     abilities: [{
       type: "triggered", storyName: "MINDLESS WANDERING",
       rulesText: "Once per turn, when this character moves to a location, each opponent loses 1 lore.",
       trigger: { on: "moves_to_location" },
+      oncePerTurn: true,
       effects: [{ type: "lose_lore", amount: 1, target: { type: "opponent" } }],
     }],
   },
@@ -627,6 +627,7 @@ patchSet("3", {
       type: "triggered", storyName: "I CAME TO LISTEN TO THE STORIES",
       rulesText: "Once per turn, when this character moves to a location, gain lore equal to that location's {L}.",
       trigger: { on: "moves_to_location" },
+      oncePerTurn: true,
       effects: [{ type: "gain_lore", amount: 1, target: { type: "self" } }],
       // TODO: dynamic amount from location's lore
     }],

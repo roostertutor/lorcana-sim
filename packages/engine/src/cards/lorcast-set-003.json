@@ -4294,6 +4294,7 @@
         "trigger": {
           "on": "moves_to_location"
         },
+        "oncePerTurn": true,
         "effects": [
           {
             "type": "gain_lore",
@@ -5474,6 +5475,7 @@
         "trigger": {
           "on": "moves_to_location"
         },
+        "oncePerTurn": true,
         "effects": [
           {
             "type": "lose_lore",

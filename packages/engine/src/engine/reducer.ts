@@ -981,7 +981,8 @@ function applyPassTurn(
       instance.tempLoreModifier !== 0 ||
       instance.grantedKeywords.length > 0 ||
       instance.challengedThisTurn ||
-      instance.movedThisTurn
+      instance.movedThisTurn ||
+      instance.oncePerTurnTriggered
     ) {
       state = updateInstance(state, id, {
         tempStrengthModifier: 0,
@@ -990,6 +991,8 @@ function applyPassTurn(
         grantedKeywords: [],
         challengedThisTurn: false,
         movedThisTurn: false,
+        // CRD 6.1.13: once-per-turn flags reset at end of turn
+        oncePerTurnTriggered: undefined,
       });
     }
   }
@@ -1076,7 +1079,7 @@ function applyDraw(
 function applyResolveChoice(
   state: GameState,
   playerId: PlayerID,
-  choice: string[] | number | "accept" | "decline",
+  choice: string | string[] | number,
   definitions: Record<string, CardDefinition>,
   events: GameEvent[]
 ): GameState {
@@ -1139,6 +1142,10 @@ function applyResolveChoice(
   if (pendingChoice.type === "choose_trigger" && typeof choice === "string") {
     const chosenIndex = parseInt(choice, 10);
     const chosen = state.triggerStack[chosenIndex];
+    if (!chosen) {
+      state = { ...state, pendingChoice: null };
+      return state;
+    }
     const rest = state.triggerStack.filter((_, i) => i !== chosenIndex);
     // Process only the chosen trigger in isolation, then merge remaining back.
     state = { ...state, triggerStack: [chosen], pendingChoice: null };
@@ -2320,6 +2327,17 @@ function processTriggerStack(
       if (!conditionMet) continue;
     }
 
+    // CRD 6.1.13: "Once per turn" — skip if already fired this turn for this instance.
+    // Reset on end of turn (applyPassTurn) and when leaving play (zoneTransition).
+    if (trigger.ability.oncePerTurn) {
+      const key = trigger.ability.storyName ?? trigger.ability.rulesText ?? "anon";
+      if (source.oncePerTurnTriggered?.[key]) continue;
+      // Mark as fired BEFORE applying effects so re-entrancy is blocked.
+      state = updateInstance(state, trigger.sourceInstanceId, {
+        oncePerTurnTriggered: { ...(source.oncePerTurnTriggered ?? {}), [key]: true },
+      });
+    }
+
     events.push({ type: "ability_triggered", instanceId: trigger.sourceInstanceId, abilityType: "triggered" });
     const triggerSourceDef = definitions[source.definitionId];
     const abilityName = trigger.ability.storyName ?? triggerSourceDef?.name ?? "ability";
@@ -2579,6 +2597,10 @@ function zoneTransition(
       timedEffects: [],
       atLocationInstanceId: undefined,
       movedThisTurn: false,
+      // CRD 7.1.6: card becomes a "new" card on leaving play
+      oncePerTurnTriggered: undefined,
+      playedViaShift: false,
+      challengedThisTurn: false,
     });
   }
 
