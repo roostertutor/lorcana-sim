@@ -571,7 +571,32 @@
       "Mentor",
       "Madrigal"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "FAMILY RECIPE",
+        "rulesText": "When you play this character, you may remove up to 2 damage from chosen character. If you removed damage this way, you may draw a card. (draw approximation skipped)",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "remove_damage",
+            "amount": 2,
+            "isUpTo": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 13,
     "rarity": "uncommon",
@@ -714,13 +739,37 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "bodyguard"
-      },
-      {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 5
+        "type": "triggered",
+        "storyName": "ALL FOR ONE",
+        "rulesText": "When you play this character, if you used Shift to play him, you may draw a card for each character with Bodyguard you have in play.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "played_via_shift"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": {
+              "type": "count",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasKeyword": "bodyguard"
+              }
+            },
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -1667,9 +1716,40 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 3
+        "type": "triggered",
+        "storyName": "MENDING TOUCH",
+        "rulesText": "When you play this character, move up to 3 damage counters from chosen character to chosen opposing character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "move_damage",
+            "amount": 3,
+            "isUpTo": true,
+            "source": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "destination": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -6847,9 +6927,35 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 2
+        "type": "activated",
+        "storyName": "GOOD ADVICE",
+        "rulesText": "{E} one of your items — Look at the top card of your deck. Put it on either the top or the bottom of your deck.",
+        "costs": [],
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "item"
+                ]
+              }
+            }
+          },
+          {
+            "type": "look_at_top",
+            "count": 1,
+            "action": "top_or_bottom",
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -6999,8 +7105,20 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "support"
+        "type": "static",
+        "storyName": "BEST FRIENDS",
+        "rulesText": "If you have a character named Ariel in play, you pay 1 {I} less to play this character.",
+        "condition": {
+          "type": "has_character_named",
+          "name": "Ariel",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 1
+        }
       }
     ],
     "setId": "4",
@@ -9008,14 +9126,39 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "resist",
-        "value": 1
-      },
-      {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 3
+        "type": "triggered",
+        "storyName": "BROOMS EVERYWHERE",
+        "rulesText": "When you play this character, deal damage to chosen character equal to the number of Broom characters you have in play.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": {
+              "type": "count",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasName": "Magic Broom"
+              }
+            },
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -9221,9 +9364,22 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "resist",
-        "value": 1
+        "type": "static",
+        "storyName": "SHOW OF COURAGE",
+        "rulesText": "While you have no cards in your hand, this character can challenge ready characters.",
+        "condition": {
+          "type": "cards_in_hand_eq",
+          "amount": 0,
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "can_challenge_ready",
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "4",
@@ -10724,9 +10880,22 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "resist",
-        "value": 1
+        "type": "static",
+        "storyName": "SHOW OF COURAGE",
+        "rulesText": "While you have no cards in your hand, this character can challenge ready characters.",
+        "condition": {
+          "type": "cards_in_hand_eq",
+          "amount": 0,
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "can_challenge_ready",
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "4",
@@ -10920,14 +11089,39 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "resist",
-        "value": 1
-      },
-      {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 3
+        "type": "triggered",
+        "storyName": "BROOMS EVERYWHERE",
+        "rulesText": "When you play this character, deal damage to chosen character equal to the number of Broom characters you have in play.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": {
+              "type": "count",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasName": "Magic Broom"
+              }
+            },
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "4",
