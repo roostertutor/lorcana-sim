@@ -148,6 +148,8 @@ export type Effect =
   | PutCardsUnderIntoHandEffect
   | ReturnAllToBottomInOrderEffect
   | PutTopOfDeckUnderEffect
+  | MoveDamageEffect
+  | GrantCostReductionEffect
   | CreateCardEffect
   | SearchEffect
   | ChooseEffect
@@ -248,6 +250,42 @@ export interface GainStatsEffect {
   isMay?: boolean;
   /** +1 strength per damage on target (Sword in the Stone) */
   strengthPerDamage?: boolean;
+  /** +1 strength per card in the controller's hand (Triton's Trident SYMBOL OF POWER).
+   *  Resolved at apply time using the current hand count. */
+  strengthPerCardInHand?: boolean;
+  /** +S equal to the SOURCE instance's effective strength (Olaf Carrot Enthusiast).
+   *  Resolved at apply time per target. */
+  strengthEqualsSourceStrength?: boolean;
+}
+
+/**
+ * "You pay N {I} less for the next [filter] you play this turn." Adds a
+ * one-shot CostReductionEntry to the controlling player's PlayerState.
+ * Used by Gaston Despicable Dealer (next character), Imperial Proclamation
+ * (next character — fired by an own-character challenge trigger).
+ */
+export interface GrantCostReductionEffect {
+  type: "grant_cost_reduction";
+  amount: number;
+  filter: CardFilter;
+}
+
+/**
+ * CRD 1.9.1.4: "Move N damage counters from chosen character to chosen
+ * opposing character." Two-stage chosen flow (source → destination).
+ * Used by Belle Untrained Mystic, Rose Lantern, Mystical Rose, etc.
+ */
+export interface MoveDamageEffect {
+  type: "move_damage";
+  amount: number;
+  /** "up to N" — engine moves min(N, source.damage) */
+  isUpTo?: boolean;
+  /** Source character (must have damage). */
+  source: { type: "chosen"; filter: CardFilter };
+  /** Destination character. */
+  destination: { type: "chosen"; filter: CardFilter };
+  /** Internal: stage-2 marker carrying the resolved source instanceId. */
+  _resolvedSourceInstanceId?: string;
 }
 
 /**
@@ -890,7 +928,12 @@ export type PlayerTarget =
 
 export type CardTarget =
   | { type: "this" } // The card itself
-  | { type: "chosen"; filter: CardFilter; count?: number } // Player picks count card(s) (default 1)
+  /** Player picks count card(s) (default 1). `chooser` defaults to "controller";
+   *  set "target_player" for "each opponent chooses one of their characters and X"
+   *  patterns (Ursula's Plan, Be King Undisputed, Triton's Decree, Gunther
+   *  Interior Designer). The pendingChoice surfaces with the opponent as the
+   *  choosing player; the effect then applies to the chosen instance. */
+  | { type: "chosen"; filter: CardFilter; count?: number; chooser?: "controller" | "target_player" }
   | { type: "all"; filter: CardFilter } // All matching cards
   | { type: "random"; filter: CardFilter } // Random matching card
   | { type: "triggering_card" }; // The card that caused the trigger
@@ -935,6 +978,9 @@ export type Cost =
   | { type: "pay_ink"; amount: number } // Pay X ink from inkwell
   | { type: "banish_self" } // Banish this card as cost
   | { type: "discard"; filter: CardFilter; amount: number }; // Discard a card
+// Note: "banish one of your X" cost wording is modeled as a leading effect
+// in the activated ability's effects[] array, not a Cost type. The mechanical
+// outcome is identical and the existing banish/chosen-target machinery handles it.
 
 // -----------------------------------------------------------------------------
 // TRIGGERS — When triggered abilities fire

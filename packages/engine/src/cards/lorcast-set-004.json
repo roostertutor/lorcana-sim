@@ -345,7 +345,27 @@
       "Storyborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "DUBIOUS RECRUITMENT",
+        "rulesText": "When you play this character, you pay 2 {I} less for the next character you play this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "grant_cost_reduction",
+            "amount": 2,
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            }
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 10,
     "rarity": "super_rare",
@@ -1541,7 +1561,44 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "HERE NOW, DON'T DO THAT",
+        "rulesText": "When you play this character, move up to 1 damage counter from chosen character to chosen opposing character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "move_damage",
+            "amount": 1,
+            "isUpTo": true,
+            "source": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "destination": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 37,
     "rarity": "common",
@@ -2758,6 +2815,34 @@
         "rulesText": "Each opponent chooses and exerts one of their characters. Those characters can't ready at the start of their next turn.",
         "raw": "Each opponent chooses and exerts one of their characters. Those characters can't ready at the start of their next turn."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "exert",
+        "target": {
+          "type": "chosen",
+          "chooser": "target_player",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "followUpEffects": [
+          {
+            "type": "cant_action",
+            "action": "ready",
+            "target": {
+              "type": "this"
+            },
+            "duration": "end_of_owner_next_turn"
+          }
+        ]
+      }
     ]
   },
   {
@@ -2825,7 +2910,45 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "MYSTICAL PETALS",
+        "rulesText": "{E} — Move 1 damage counter from chosen character to chosen opposing character.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "move_damage",
+            "amount": 1,
+            "source": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "destination": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 65,
     "rarity": "common",
@@ -2851,7 +2974,34 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "SYMBOL OF POWER",
+        "rulesText": "Banish this item — Chosen character gets +1 {S} this turn for each card in your hand.",
+        "costs": [
+          {
+            "type": "banish_self"
+          }
+        ],
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strengthPerCardInHand": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "this_turn"
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 66,
     "rarity": "uncommon",
@@ -3152,7 +3302,34 @@
       "Dreamborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "SAD-EYED PUPPY",
+        "rulesText": "When this character is challenged and banished, each opponent chooses one of their characters and returns that card to their hand.",
+        "trigger": {
+          "on": "banished_in_challenge"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "chosen",
+              "chooser": "target_player",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 72,
     "rarity": "common",
@@ -5702,6 +5879,24 @@
         "rulesText": "Each opponent chooses and banishes one of their characters.",
         "raw": "Each opponent chooses and banishes one of their characters."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "banish",
+        "target": {
+          "type": "chosen",
+          "chooser": "target_player",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      }
     ]
   },
   {
@@ -5756,7 +5951,36 @@
     "cost": 1,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "CALL TO THE FRONT",
+        "rulesText": "Whenever one of your characters challenges another character, you pay 1 {I} less for the next character you play this turn.",
+        "trigger": {
+          "on": "challenges",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "effects": [
+          {
+            "type": "grant_cost_reduction",
+            "amount": 1,
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            }
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 131,
     "rarity": "rare",
@@ -6625,7 +6849,36 @@
       "Floodborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "CARROTS ALL AROUND!",
+        "rulesText": "Whenever he quests, each of your other characters gets +{S} equal to this character's {S} this turn.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strengthEqualsSourceStrength": true,
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true
+              }
+            },
+            "duration": "this_turn"
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 149,
     "rarity": "uncommon",
@@ -7047,7 +7300,42 @@
       "Storyborn",
       "King"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "CONSIGN TO THE DEPTHS",
+        "rulesText": "{E}, Banish one of your items — Gain 3 lore.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "item"
+                ]
+              }
+            }
+          },
+          {
+            "type": "gain_lore",
+            "amount": 3,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 159,
     "rarity": "rare",
@@ -8876,6 +9164,25 @@
         "storyName": "",
         "rulesText": "Each opponent chooses one of their characters and deals 2 damage to them.",
         "raw": "Each opponent chooses one of their characters and deals 2 damage to them."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "deal_damage",
+        "amount": 2,
+        "target": {
+          "type": "chosen",
+          "chooser": "target_player",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
       }
     ]
   },

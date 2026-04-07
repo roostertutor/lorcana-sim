@@ -1648,14 +1648,15 @@ export function applyEffect(
         return dealDamageToCard(state, sourceInstanceId, resolveAmount(effect.amount), definitions, events);
       }
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        const choosingPlayerId = chosenChooserPlayerId(effect.target, controllingPlayerId);
+        const validTargets = findValidTargets(state, effect.target.filter, choosingPlayerId, definitions, sourceInstanceId);
         // CRD 1.7.7: if no legal choices exist, the effect resolves with no effect
         if (validTargets.length === 0) return state;
         return {
           ...state,
           pendingChoice: {
             type: "choose_target",
-            choosingPlayerId: controllingPlayerId,
+            choosingPlayerId,
             prompt: "Choose a target to deal damage to.",
             validTargets,
             pendingEffect: effect,
@@ -1675,16 +1676,18 @@ export function applyEffect(
 
     case "banish": {
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        const choosingPlayerId = chosenChooserPlayerId(effect.target, controllingPlayerId);
+        const validTargets = findValidTargets(state, effect.target.filter, choosingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state; // CRD 1.7.7
         return {
           ...state,
           pendingChoice: {
             type: "choose_target",
-            choosingPlayerId: controllingPlayerId,
+            choosingPlayerId,
             prompt: "Choose a target to banish.",
             validTargets,
             pendingEffect: effect,
+            optional: effect.isMay ?? false,
           },
         };
       }
@@ -1713,16 +1716,18 @@ export function applyEffect(
 
     case "return_to_hand": {
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        const choosingPlayerId = chosenChooserPlayerId(effect.target, controllingPlayerId);
+        const validTargets = findValidTargets(state, effect.target.filter, choosingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state; // CRD 1.7.7
         return {
           ...state,
           pendingChoice: {
             type: "choose_target",
-            choosingPlayerId: controllingPlayerId,
+            choosingPlayerId,
             prompt: "Choose a card to return to hand.",
             validTargets,
             pendingEffect: effect,
+            optional: effect.isMay ?? false,
           },
         };
       }
@@ -1918,6 +1923,42 @@ export function applyEffect(
       };
     }
 
+    case "grant_cost_reduction": {
+      // Add a one-shot CostReductionEntry to the controlling player. The next
+      // card played that matches `filter` will have its cost reduced by `amount`.
+      const player = state.players[controllingPlayerId];
+      const existing = player.costReductions ?? [];
+      return {
+        ...state,
+        players: {
+          ...state.players,
+          [controllingPlayerId]: {
+            ...player,
+            costReductions: [...existing, { amount: effect.amount, filter: effect.filter }],
+          },
+        },
+      };
+    }
+
+    case "move_damage": {
+      // CRD 1.9.1.4: two-stage chosen flow (source → destination).
+      // Stage 1: pick source character (must currently have damage; isUpTo
+      // doesn't apply at filter time — we let any matching char be picked).
+      const sourceFilter = { ...effect.source.filter, hasDamage: true };
+      const validSources = findValidTargets(state, sourceFilter, controllingPlayerId, definitions, sourceInstanceId);
+      if (validSources.length === 0) return state; // CRD 1.7.7
+      return {
+        ...state,
+        pendingChoice: {
+          type: "choose_target",
+          choosingPlayerId: controllingPlayerId,
+          prompt: "Choose a character to move damage from.",
+          validTargets: validSources,
+          pendingEffect: effect,
+        },
+      };
+    }
+
     case "put_top_of_deck_under": {
       // Move the top card of the source's owner's deck under the source.
       // Same mutation as BOOST_CARD's pay-N path, just without the cost.
@@ -2081,14 +2122,15 @@ export function applyEffect(
         return state;
       }
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        const choosingPlayerId = chosenChooserPlayerId(effect.target, controllingPlayerId);
+        const validTargets = findValidTargets(state, effect.target.filter, choosingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state; // CRD 1.7.7
         const count = effect.target.count ?? 1;
         return {
           ...state,
           pendingChoice: {
             type: "choose_target",
-            choosingPlayerId: controllingPlayerId,
+            choosingPlayerId,
             prompt: count > 1 ? `Choose up to ${count} characters to exert.` : "Choose a character to exert.",
             validTargets,
             pendingEffect: effect,
@@ -3463,6 +3505,28 @@ function applyEffectToTarget(
           tempLoreModifier: instance.tempLoreModifier + (effect.lore ?? 0),
         });
       }
+      // Triton's Trident SYMBOL OF POWER: +1 strength per card in controller's hand.
+      if (effect.strengthPerCardInHand) {
+        const instance = getInstance(state, targetInstanceId);
+        const handSize = getZone(state, controllingPlayerId, "hand").length;
+        return updateInstance(state, targetInstanceId, {
+          tempStrengthModifier: instance.tempStrengthModifier + handSize,
+          tempWillpowerModifier: instance.tempWillpowerModifier + (effect.willpower ?? 0),
+          tempLoreModifier: instance.tempLoreModifier + (effect.lore ?? 0),
+        });
+      }
+      // Olaf Carrot Enthusiast: +S equal to the source's effective strength.
+      if (effect.strengthEqualsSourceStrength) {
+        const instance = getInstance(state, targetInstanceId);
+        const sourceInst = state.cards[sourceInstanceId];
+        const sourceDef = sourceInst ? definitions[sourceInst.definitionId] : undefined;
+        const srcStrength = sourceInst && sourceDef ? getEffectiveStrength(sourceInst, sourceDef, 0) : 0;
+        return updateInstance(state, targetInstanceId, {
+          tempStrengthModifier: instance.tempStrengthModifier + srcStrength,
+          tempWillpowerModifier: instance.tempWillpowerModifier + (effect.willpower ?? 0),
+          tempLoreModifier: instance.tempLoreModifier + (effect.lore ?? 0),
+        });
+      }
       return applyGainStatsToInstance(state, targetInstanceId, effect, controllingPlayerId);
     }
     case "remove_damage": {
@@ -3616,6 +3680,33 @@ function applyEffectToTarget(
       state = shuffleDeck(state, inst.ownerId);
       return state;
     }
+    case "move_damage": {
+      // Stage 2 path: source already resolved → targetInstanceId is the destination
+      if (effect._resolvedSourceInstanceId) {
+        const src = state.cards[effect._resolvedSourceInstanceId];
+        const dst = state.cards[targetInstanceId];
+        if (!src || !dst) return state;
+        const moveAmt = Math.min(effect.amount, src.damage);
+        if (moveAmt <= 0) return state;
+        state = updateInstance(state, src.instanceId, { damage: src.damage - moveAmt });
+        state = updateInstance(state, targetInstanceId, { damage: dst.damage + moveAmt });
+        return state;
+      }
+      // Stage 1: targetInstanceId is the chosen SOURCE. Surface destination choice.
+      const validDests = findValidTargets(state, effect.destination.filter, controllingPlayerId, definitions, targetInstanceId)
+        .filter(id => id !== targetInstanceId);
+      if (validDests.length === 0) return state;
+      return {
+        ...state,
+        pendingChoice: {
+          type: "choose_target",
+          choosingPlayerId: controllingPlayerId,
+          prompt: "Choose a character to move damage to.",
+          validTargets: validDests,
+          pendingEffect: { ...effect, _resolvedSourceInstanceId: targetInstanceId },
+        },
+      };
+    }
     case "move_character": {
       // Stage 2 path: if a character was already resolved, the targetInstanceId is the LOCATION.
       if (effect._resolvedCharacterInstanceId) {
@@ -3696,6 +3787,19 @@ function shuffleDeck(state: GameState, playerId: PlayerID): GameState {
 }
 
 /** Add a timed effect to a card instance */
+/** Pick the choosingPlayerId for a chosen CardTarget — controller or opponent
+ *  (if `chooser === "target_player"`, used by "each opponent chooses one of
+ *  their characters and X" patterns: Ursula's Plan, Be King Undisputed,
+ *  Triton's Decree, Gunther Interior Designer). */
+function chosenChooserPlayerId(
+  target: { type: "chosen"; chooser?: "controller" | "target_player" },
+  controllingPlayerId: PlayerID
+): PlayerID {
+  return target.chooser === "target_player"
+    ? getOpponent(controllingPlayerId)
+    : controllingPlayerId;
+}
+
 /** Surface a choose_player pendingChoice for an effect with a chosen-PlayerTarget.
  *  When excludeSelf is set and only one valid target remains, auto-resolves
  *  inline by substituting the effect's target and re-applying. */

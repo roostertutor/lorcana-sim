@@ -265,6 +265,100 @@ describe("§4 Set 4 — Sing Together", () => {
     expect(getZone(state, "player2", "hand").length).toBe(p2HandBefore + 5);
   });
 
+  it("Belle Untrained Mystic move_damage: damage moves from chosen to chosen opposing", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let belleId: string, sourceId: string, destId: string;
+    ({ state, instanceId: sourceId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, damage: 2 }));
+    ({ state, instanceId: destId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    ({ state, instanceId: belleId } = injectCard(state, "player1", "belle-untrained-mystic", "hand"));
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: belleId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Stage 1: pick the source (must have damage)
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    expect(state.pendingChoice?.validTargets).toContain(sourceId);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [sourceId] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Stage 2: pick the opposing destination
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    expect(state.pendingChoice?.validTargets).toContain(destId);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [destId] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Source went from 2 → 1 damage (up to 1 moved); destination went from 0 → 1
+    expect(getInstance(state, sourceId).damage).toBe(1);
+    expect(getInstance(state, destId).damage).toBe(1);
+  });
+
+  it("Gaston Despicable Dealer grant_cost_reduction: next character costs 2 less", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let gastonId: string, otherId: string;
+    ({ state, instanceId: gastonId } = injectCard(state, "player1", "gaston-despicable-dealer", "hand"));
+    ({ state, instanceId: otherId } = injectCard(state, "player1", "mickey-mouse-true-friend", "hand"));
+
+    // Play Gaston (cost 3) — adds the cost reduction entry
+    const inkBefore = state.players.player1.availableInk;
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: gastonId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(state.players.player1.availableInk).toBe(inkBefore - 3);
+    expect(state.players.player1.costReductions?.length).toBe(1);
+
+    // Play Mickey True Friend (cost 3) — should be reduced by 2
+    const inkBeforeMickey = state.players.player1.availableInk;
+    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: otherId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Mickey cost 3 - 2 reduction = 1
+    expect(state.players.player1.availableInk).toBe(inkBeforeMickey - 1);
+    // Cost reduction was consumed
+    expect(state.players.player1.costReductions?.length ?? 0).toBe(0);
+  });
+
+  it("Be King Undisputed: opponent-chosen banish — opponent picks which of their characters to banish", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let songId: string, oppA: string, oppB: string, singer1: string, singer2: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "be-king-undisputed", "hand"));
+    // Sing Together threshold isn't on this card; it's a regular sing-cost-4 song.
+    // Inject a singer that can sing it (Cost 4).
+    ({ state, instanceId: singer1 } = injectCard(state, "player1", "elsa-spirit-of-winter", "play", { isDrying: false }));
+    ({ state, instanceId: oppA } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play", { isDrying: false }));
+    ({ state, instanceId: oppB } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
+
+    // Sing Be King Undisputed
+    let r = applyAction(state, {
+      type: "PLAY_CARD",
+      playerId: "player1",
+      instanceId: songId,
+      singerInstanceId: singer1,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Opponent (player2) is the chooser
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    expect(state.pendingChoice?.choosingPlayerId).toBe("player2");
+    expect(state.pendingChoice?.validTargets).toContain(oppA);
+    expect(state.pendingChoice?.validTargets).toContain(oppB);
+
+    // Player2 picks oppA
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player2", choice: [oppA] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // oppA banished, oppB still in play
+    expect(getInstance(state, oppA).zone).toBe("discard");
+    expect(getInstance(state, oppB).zone).toBe("play");
+  });
+
   it("Sing Together rejects duplicate singers", () => {
     let state = startGame();
     let songId: string, singer1Id: string;

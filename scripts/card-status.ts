@@ -347,6 +347,22 @@ const FITS_GRAMMAR_PATTERNS: RegExp[] = [
   // Phase A reclassifications (categorizer was conservative on these):
   // "During your turn, this character gains [keyword]" — grant_keyword static + is_your_turn condition
   /during your turn.{0,40}(has|gains?) (evasive|rush|bodyguard|ward|reckless|resist|challenger|support)/i,
+  // Phase A.4 additions:
+  // "Move N damage counter from chosen ... to chosen opposing" — move_damage effect
+  /\bmove .{0,15}damage counter\b/i,
+  /\bmove (a |all )?damage from\b/i,
+  /\bmove up to \d+ damage\b/i,
+  // "Each opponent chooses one of their characters and X" — opponent-chosen target via chooser: target_player
+  /\beach opponent chooses .{0,40}(banishes?|exerts?|returns?|deals?)\b/i,
+  // "+S equal to this character's S" — strengthEqualsSourceStrength variant
+  /gets? \+\{S\} equal to this character'?s? \{S\}/i,
+  // "+1 strength for each card in your hand" — strengthPerCardInHand
+  /\+\d+ \{S\}.{0,20}for each card in your hand/i,
+  // "You pay N {I} less for the next character" — grant_cost_reduction
+  /\byou pay \d+ \{I\} less for the next\b/i,
+  // "Banish one of your X" as part of activated cost — modeled as leading effect
+  /banish one of your\b/i,
+];
   // "Whenever you play a song" / "Whenever this character sings a song" — card_played filter / sings trigger (Phase A.1)
   /whenever (you|this character) (play|sing)s? a song\b/i,
   // "While ... has N {S} or more" — self_stat_gte condition exists
