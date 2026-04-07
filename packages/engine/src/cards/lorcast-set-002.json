@@ -33,7 +33,8 @@
             "trait": "Seven Dwarfs",
             "player": {
               "type": "self"
-            }
+            },
+            "excludeSelf": true
           }
         }
       }

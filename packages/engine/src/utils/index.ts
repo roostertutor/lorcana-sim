@@ -518,6 +518,7 @@ export function evaluateCondition(
       const targetPlayer = condition.player.type === "self" ? controllingPlayerId
         : condition.player.type === "opponent" ? opponent : controllingPlayerId;
       return getZone(state, targetPlayer, "play").some((id) => {
+        if (condition.excludeSelf && id === sourceInstanceId) return false;
         const inst = state.cards[id];
         if (!inst) return false;
         const def = definitions[inst.definitionId];

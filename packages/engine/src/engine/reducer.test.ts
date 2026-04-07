@@ -3532,6 +3532,171 @@ describe("§6 Set 2 Card Coverage", () => {
   // Pattern: SequentialEffect in actionEffects
   // TODO: Sequential return-to-hand in actionEffects doesn't create pending choice for cost.
   it.todo("Bounce: sequential return-to-hand (SequentialEffect in actionEffects)");
+
+  // ===== ACCURACY FIXES =====
+
+  // modify_stat_while_challenged: bonus only applies during challenge damage calc
+  it("Enchantress: +2 STR only during challenge, not permanently", () => {
+    let state = startGame(["enchantress-unexpected-judge"]);
+    let enchantressId: string;
+    let attackerId: string;
+    // Enchantress (1 STR, 1 WP) in play exerted for player2
+    ({ state, instanceId: enchantressId } = injectCard(state, "player2", "enchantress-unexpected-judge", "play", { isExerted: true }));
+    // Attacker: Minnie (2 STR, 3 WP) for player1
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play"));
+
+    // Enchantress has 1 base STR. Static modifier should NOT show +2 outside of challenge.
+    const modifiers = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    const staticStrBonus = modifiers.statBonuses.get(enchantressId)?.strength ?? 0;
+    expect(staticStrBonus).toBe(0); // No permanent bonus
+
+    // Challenge: Enchantress should deal 1+2=3 damage to attacker (while being challenged bonus)
+    const result = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: attackerId, defenderInstanceId: enchantressId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Attacker (Minnie 3 WP) takes 3 damage from Enchantress (1 base + 2 while challenged)
+    // 3 damage >= 3 WP → Minnie is banished (damage reset to 0 on zone transition)
+    expect(getInstance(result.newState, attackerId).zone).toBe("discard");
+  });
+
+  // target_owner: draw targets the owner of the banished/shuffled card
+  it("Judy Hopps: banish opponent's item, OPPONENT draws (not controller)", () => {
+    let state = startGame(["judy-hopps-optimistic-officer", "dinglehopper"]);
+    state = { ...state, interactive: true };
+    state = giveInk(state, "player1", 3);
+    let judyId: string;
+    let itemId: string;
+    ({ state, instanceId: judyId } = injectCard(state, "player1", "judy-hopps-optimistic-officer", "hand"));
+    // Opponent's item in play
+    ({ state, instanceId: itemId } = injectCard(state, "player2", "dinglehopper", "play"));
+
+    const p1HandBefore = getZone(state, "player1", "hand").length;
+    const p2HandBefore = getZone(state, "player2", "hand").length;
+
+    // Play Judy → enters_play trigger → sequential: may banish item → owner draws
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: judyId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+
+    // Accept the "may"
+    if (result.newState.pendingChoice?.type === "choose_may") {
+      result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    }
+    // Choose the item to banish
+    if (result.newState.pendingChoice?.type === "choose_target") {
+      result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [itemId] }, LORCAST_CARD_DEFINITIONS);
+    }
+
+    // Item should be banished
+    expect(getInstance(result.newState, itemId).zone).toBe("discard");
+    // Player2 (item owner) should have drawn 1 card
+    expect(getZone(result.newState, "player2", "hand").length).toBe(p2HandBefore + 1);
+    // Player1 should NOT have drawn (played Judy = -1 hand)
+    expect(getZone(result.newState, "player1", "hand").length).toBe(p1HandBefore - 1);
+  });
+
+  // triggering_card_played_via_shift: condition checks the played card, not Bucky
+  it("Bucky: only triggers when Floodborn is played via Shift, not normally", () => {
+    let state = startGame(["bucky-squirrel-squeak-tutor", "hades-king-of-olympus", "hades-lord-of-the-underworld"]);
+    state = giveInk(state, "player1", 10);
+    let buckyId: string;
+    ({ state, instanceId: buckyId } = injectCard(state, "player1", "bucky-squirrel-squeak-tutor", "play"));
+
+    // Give opponent cards to discard
+    ({ state } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "hand"));
+    const p2HandBefore = getZone(state, "player2", "hand").length;
+
+    // Play Hades King (Floodborn) normally WITHOUT shift — Bucky should NOT trigger
+    let hadesId: string;
+    ({ state, instanceId: hadesId } = injectCard(state, "player1", "hades-king-of-olympus", "hand"));
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: hadesId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Opponent hand should be unchanged (Bucky didn't trigger)
+    expect(getZone(result.newState, "player2", "hand").length).toBe(p2HandBefore);
+
+    // Now play another Hades King via Shift — Bucky SHOULD trigger
+    let hadesBaseId: string;
+    let hades2Id: string;
+    state = result.newState;
+    ({ state, instanceId: hadesBaseId } = injectCard(state, "player1", "hades-lord-of-the-underworld", "play"));
+    ({ state, instanceId: hades2Id } = injectCard(state, "player1", "hades-king-of-olympus", "hand"));
+    state = giveInk(state, "player1", 10);
+    result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: hades2Id, shiftTargetInstanceId: hadesBaseId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // Bucky triggered → opponent should have discarded (or have choose_discard pending)
+    const p2HandAfter = getZone(result.newState, "player2", "hand").length;
+    const hasDiscardChoice = result.newState.pendingChoice?.type === "choose_discard";
+    expect(p2HandAfter < p2HandBefore || hasDiscardChoice).toBe(true);
+  });
+
+  // hasAnyTrait: Grand Duke applies to characters with ANY royal trait
+  it("Grand Duke: +1 STR to Prince/Princess/King/Queen only", () => {
+    let state = startGame(["grand-duke-advisor-to-the-king", "hades-king-of-olympus"]);
+    let dukeId: string;
+    let royalId: string;
+    let nonRoyalId: string;
+    ({ state, instanceId: dukeId } = injectCard(state, "player1", "grand-duke-advisor-to-the-king", "play"));
+    // Hades King of Olympus has traits: Floodborn, Villain, King, Deity → should get +1
+    ({ state, instanceId: royalId } = injectCard(state, "player1", "hades-king-of-olympus", "play"));
+    // Mickey has traits: Dreamborn, Hero → no royal traits → should NOT get +1
+    ({ state, instanceId: nonRoyalId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play"));
+
+    const modifiers = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    expect(modifiers.statBonuses.get(royalId)?.strength ?? 0).toBe(1);
+    expect(modifiers.statBonuses.get(nonRoyalId)?.strength ?? 0).toBe(0);
+  });
+
+  // not condition: Bashful can't quest without another Seven Dwarfs
+  it("Bashful: can't quest without Seven Dwarfs, can quest with one", () => {
+    let state = startGame(["bashful-hopeless-romantic", "grumpy-bad-tempered"]);
+    let bashfulId: string;
+    ({ state, instanceId: bashfulId } = injectCard(state, "player1", "bashful-hopeless-romantic", "play"));
+
+    // No other Seven Dwarfs in play — quest should fail
+    let result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: bashfulId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(false);
+
+    // Add a Seven Dwarfs character — quest should succeed
+    let grumpyId: string;
+    ({ state, instanceId: grumpyId } = injectCard(state, "player1", "grumpy-bad-tempered", "play"));
+    result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: bashfulId }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+  });
+
+  // this_has_no_damage condition: Lawrence gets +4 STR only with no damage
+  it("Lawrence: +4 STR while no damage, loses bonus when damaged", () => {
+    let state = startGame(["lawrence-jealous-manservant"]);
+    let lawrenceId: string;
+    // Lawrence: 0 base STR, 4 WP
+    ({ state, instanceId: lawrenceId } = injectCard(state, "player1", "lawrence-jealous-manservant", "play"));
+
+    // No damage → should have +4 STR bonus
+    let modifiers = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    expect(modifiers.statBonuses.get(lawrenceId)?.strength ?? 0).toBe(4);
+
+    // Add 1 damage → condition fails, no bonus
+    state = { ...state, cards: { ...state.cards, [lawrenceId]: { ...state.cards[lawrenceId]!, damage: 1 } } };
+    modifiers = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    expect(modifiers.statBonuses.get(lawrenceId)?.strength ?? 0).toBe(0);
+  });
+
+  // cards_in_zone_gte with cardType: Noi needs an item specifically
+  it("Noi: Resist+Ward only while an item is in play", () => {
+    let state = startGame(["noi-orphaned-thief", "dinglehopper"]);
+    let noiId: string;
+    ({ state, instanceId: noiId } = injectCard(state, "player1", "noi-orphaned-thief", "play"));
+
+    // No items in play → no keywords granted
+    let modifiers = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    let grants = modifiers.grantedKeywords.get(noiId) ?? [];
+    expect(grants.some(g => g.keyword === "resist")).toBe(false);
+
+    // Add an item → should gain Resist +1 and Ward
+    let itemId: string;
+    ({ state, instanceId: itemId } = injectCard(state, "player1", "dinglehopper", "play"));
+    modifiers = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    grants = modifiers.grantedKeywords.get(noiId) ?? [];
+    expect(grants.some(g => g.keyword === "resist" && g.value === 1)).toBe(true);
+    expect(grants.some(g => g.keyword === "ward")).toBe(true);
+  });
 });
 
 describe("§7.7 Bag Trigger Ordering", () => {

@@ -647,7 +647,7 @@ export type Condition =
   | { type: "characters_in_play_gte"; amount: number; player: PlayerTarget; excludeSelf?: boolean }
   | { type: "cards_in_hand_eq"; amount: number; player: PlayerTarget }
   | { type: "has_character_named"; name: string; player: PlayerTarget }
-  | { type: "has_character_with_trait"; trait: string; player: PlayerTarget }
+  | { type: "has_character_with_trait"; trait: string; player: PlayerTarget; excludeSelf?: boolean }
   | { type: "opponent_has_more_cards_in_hand" }
   | { type: "is_your_turn" }
   | { type: "this_is_exerted" }
