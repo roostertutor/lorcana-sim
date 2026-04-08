@@ -1799,7 +1799,28 @@
       "Villain",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "FEEL THE POWER",
+        "rulesText": "{E} — If you have fewer than 3 cards in your hand, draw until you have 3 cards in your hand.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 0,
+            "target": {
+              "type": "self"
+            },
+            "untilHandSize": 3
+          }
+        ]
+      }
+    ],
     "setId": "6",
     "number": 56,
     "rarity": "legendary",
@@ -2050,7 +2071,30 @@
     "cost": 5,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "",
+        "rulesText": "For each Sorcerer character you have in play, you pay 1 {I} less to play this action.",
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": {
+            "type": "count",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Sorcerer"
+            }
+          },
+          "perMatch": 1
+        }
+      }
+    ],
     "setId": "6",
     "number": 64,
     "rarity": "rare",
@@ -2067,6 +2111,15 @@
         "storyName": "",
         "rulesText": "Draw 2 cards.",
         "raw": "Draw 2 cards."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "draw",
+        "amount": 2,
+        "target": {
+          "type": "self"
+        }
       }
     ]
   },
@@ -6941,7 +6994,28 @@
       "Villain",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "FEEL THE POWER",
+        "rulesText": "{E} — If you have fewer than 3 cards in your hand, draw until you have 3 cards in your hand.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 0,
+            "target": {
+              "type": "self"
+            },
+            "untilHandSize": 3
+          }
+        ]
+      }
+    ],
     "setId": "6",
     "number": 209,
     "rarity": "enchanted",

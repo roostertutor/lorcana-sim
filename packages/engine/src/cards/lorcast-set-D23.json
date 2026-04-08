@@ -90,7 +90,38 @@
       "Villain",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "YOU'LL NEVER EVEN MISS IT",
+        "rulesText": "When you play this card, chosen opponent reveals their hand and discards a song card of your choice.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "reveal_hand",
+            "target": {
+              "type": "opponent"
+            }
+          },
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            },
+            "chooser": "controller",
+            "filter": {
+              "zone": "hand",
+              "cardType": [
+                "action"
+              ]
+            }
+          }
+        ]
+      }
+    ],
     "setId": "D23",
     "number": 3,
     "rarity": "common",

@@ -3284,7 +3284,38 @@
     "traits": [
       "Storyborn"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "CLAIM JUMPER",
+        "rulesText": "When you play this character, chosen opponent reveals their hand and discards a location card of your choice.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "reveal_hand",
+            "target": {
+              "type": "opponent"
+            }
+          },
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            },
+            "chooser": "controller",
+            "filter": {
+              "zone": "hand",
+              "cardType": [
+                "location"
+              ]
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 87,
     "rarity": "rare",

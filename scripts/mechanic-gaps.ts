@@ -47,9 +47,8 @@ const NEW_TYPE: [RegExp, string][] = [
   [/\balert\b/i, "alert-keyword"],
   // (dynamic-amount removed: DynamicAmount variants implemented in the engine.)
   [/count the number of\b/i, "count-based-effect"],
-  [/for each (exerted|damaged|[a-z]+ character|item|song) .{0,40}you pay\b/i, "per-count-cost-reduction"],
-  [/for each .{0,20}(character|item) you have .{0,20}you pay\b/i, "per-count-cost-reduction"],
-  [/\bpay .{0,20}equal to the number\b/i, "per-count-cost-reduction"],
+  // (per-count-cost-reduction removed — self_cost_reduction.amount supports
+  //  DynamicAmount `count` + perMatch. Matched as fits-grammar in card-status.ts.)
   [/\beach player.{0,60}inkwell/i, "mass-inkwell"],
   [/\ball (the )?cards? in .{0,30}inkwell/i, "mass-inkwell"],
   [/\buntil (you|they|each player) have \d+ cards? in .{0,20}inkwell/i, "trim-inkwell"],
@@ -62,8 +61,7 @@ const NEW_TYPE: [RegExp, string][] = [
   [/\byou may play .{0,40}from under\b/i, "play-from-under"],
   [/opposing .{0,40}enter.{0,10}play exerted/i, "enter-play-exerted-static"],
   // (move-damage removed: move_damage Effect exists; these are fits-grammar.)
-  [/\breveal.{0,30}(their|opponent'?s?) hand\b/i, "reveal-hand"],
-  [/\blook at each opponent'?s? hand\b/i, "reveal-hand"],
+  // (reveal-hand removed — reveal_hand Effect implemented.)
   [/can'?t be challenged until\b/i, "timed-cant-be-challenged"],
   [/chosen .{0,40}can'?t be challenged\b/i, "timed-cant-be-challenged"],
   [/while .{0,60}can'?t be challenged\b/i, "conditional-cant-be-challenged"],
@@ -73,8 +71,7 @@ const NEW_TYPE: [RegExp, string][] = [
   [/\bdamage counters can'?t be removed\b/i, "damage-removal-prevention"],
   [/\bdiscard.{0,20}until .{0,20}have \d+ cards?\b/i, "trim-hand"],
   [/\bdiscards? until they have\b/i, "trim-hand"],
-  [/\bdraw until you have \d+\b/i, "draw-to-n"],
-  [/\bdraw cards? until you have\b/i, "draw-to-n"],
+  // (draw-to-n removed — DrawEffect.untilHandSize implemented.)
   [/\bputs? the top \d+ cards? .{0,30}into .{0,20}discard\b/i, "mill"],
   [/\bputs? the top card .{0,30}into .{0,20}discard\b/i, "mill"],
   // (put-on-bottom removed: put_on_bottom_of_deck Effect implemented.)

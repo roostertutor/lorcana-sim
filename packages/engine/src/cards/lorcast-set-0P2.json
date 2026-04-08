@@ -49,8 +49,26 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "bodyguard"
+        "type": "static",
+        "storyName": "SONG OF THE HERD",
+        "rulesText": "For each song card in your discard, you pay 1 {I} less to play this character.",
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": {
+            "type": "count",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "discard",
+              "cardType": [
+                "action"
+              ],
+              "hasTrait": "Song"
+            }
+          },
+          "perMatch": 1
+        }
       }
     ],
     "setId": "P2",

@@ -2644,7 +2644,29 @@
       "Ally",
       "Madrigal"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "I HEAR YOU",
+        "rulesText": "Whenever one of your characters sings a song, chosen opponent reveals their hand.",
+        "trigger": {
+          "on": "sings",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "reveal_hand",
+            "target": {
+              "type": "opponent"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "7",
     "number": 78,
     "rarity": "common",

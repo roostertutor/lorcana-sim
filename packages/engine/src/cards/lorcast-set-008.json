@@ -301,7 +301,39 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "SUPERIOR MIND",
+        "rulesText": "When you play this character, chosen opponent reveals their hand and discards a non-character card of your choice.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "reveal_hand",
+            "target": {
+              "type": "opponent"
+            }
+          },
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            },
+            "chooser": "controller",
+            "filter": {
+              "zone": "hand",
+              "cardType": [
+                "action",
+                "item"
+              ]
+            }
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 7,
     "rarity": "rare",

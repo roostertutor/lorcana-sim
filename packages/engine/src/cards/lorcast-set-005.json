@@ -390,7 +390,30 @@
       "Dreamborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "SONG OF THE HERD",
+        "rulesText": "For each song card in your discard, you pay 1 {I} less to play this character.",
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": {
+            "type": "count",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "discard",
+              "cardType": [
+                "action"
+              ],
+              "hasTrait": "Song"
+            }
+          },
+          "perMatch": 1
+        }
+      }
+    ],
     "setId": "5",
     "number": 13,
     "rarity": "rare",
@@ -1689,8 +1712,26 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
+        "type": "static",
+        "storyName": "CLEAR THE PATH",
+        "rulesText": "For each exerted character opponents have in play, you pay 1 {I} less to play this character.",
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": {
+            "type": "count",
+            "filter": {
+              "owner": {
+                "type": "opponent"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "isExerted": true
+            }
+          },
+          "perMatch": 1
+        }
       }
     ],
     "setId": "5",
@@ -2877,9 +2918,29 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 5
+        "type": "triggered",
+        "storyName": "KEEP IN STEP",
+        "rulesText": "At the end of your turn, if chosen opponent has more cards in their hand than you, you may draw cards until you have the same number.",
+        "trigger": {
+          "on": "turn_end",
+          "player": {
+            "type": "self"
+          }
+        },
+        "condition": {
+          "type": "opponent_has_more_cards_in_hand"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 0,
+            "target": {
+              "type": "self"
+            },
+            "untilHandSize": "match_opponent_hand",
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "5",
@@ -3395,6 +3456,16 @@
         "storyName": "",
         "rulesText": "If chosen opponent has more cards in their hand than you, draw cards until you have the same number.",
         "raw": "If chosen opponent has more cards in their hand than you, draw cards until you have the same number."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "draw",
+        "amount": 0,
+        "target": {
+          "type": "self"
+        },
+        "untilHandSize": "match_opponent_hand"
       }
     ]
   },
@@ -4164,8 +4235,26 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "rush"
+        "type": "static",
+        "storyName": "A MAN AMONG MEN!",
+        "rulesText": "For each damaged character you have in play, you pay 2 {I} less to play this character.",
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": {
+            "type": "count",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasDamage": true
+            }
+          },
+          "perMatch": 2
+        }
       }
     ],
     "setId": "5",
@@ -5024,8 +5113,25 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "support"
+        "type": "static",
+        "storyName": "EVERY LITTLE BIT HELPS",
+        "rulesText": "For each item you have in play, you pay 1 {I} less to play this character.",
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": {
+            "type": "count",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "item"
+              ]
+            }
+          },
+          "perMatch": 1
+        }
       }
     ],
     "setId": "5",
@@ -7229,8 +7335,26 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
+        "type": "static",
+        "storyName": "CLEAR THE PATH",
+        "rulesText": "For each exerted character opponents have in play, you pay 1 {I} less to play this character.",
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": {
+            "type": "count",
+            "filter": {
+              "owner": {
+                "type": "opponent"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "isExerted": true
+            }
+          },
+          "perMatch": 1
+        }
       }
     ],
     "setId": "5",
@@ -7291,9 +7415,29 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 5
+        "type": "triggered",
+        "storyName": "KEEP IN STEP",
+        "rulesText": "At the end of your turn, if chosen opponent has more cards in their hand than you, you may draw cards until you have the same number.",
+        "trigger": {
+          "on": "turn_end",
+          "player": {
+            "type": "self"
+          }
+        },
+        "condition": {
+          "type": "opponent_has_more_cards_in_hand"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 0,
+            "target": {
+              "type": "self"
+            },
+            "untilHandSize": "match_opponent_hand",
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "5",

@@ -496,7 +496,39 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "GET RID OF THAT",
+        "rulesText": "When you play this character, chosen opponent reveals their hand and discards a non-character card of your choice.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "reveal_hand",
+            "target": {
+              "type": "opponent"
+            }
+          },
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            },
+            "chooser": "controller",
+            "filter": {
+              "zone": "hand",
+              "cardType": [
+                "action",
+                "item"
+              ]
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 16,
     "rarity": "rare",
@@ -2943,7 +2975,24 @@
       "Hero",
       "Puppy"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "FOUND YA",
+        "rulesText": "When you play this character, chosen player reveals their hand.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "reveal_hand",
+            "target": {
+              "type": "opponent"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 85,
     "rarity": "common",

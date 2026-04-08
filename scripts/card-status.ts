@@ -118,11 +118,10 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   // target_*/source_* variants + max cap implemented in the engine.)
   // "Count the number of X, then do Y"
   [/count the number of\b/i, "count-based-effect"],
-  // Variable cost reduction based on counts (per damaged/exerted/item count, etc.)
-  [/for each (exerted|damaged|[a-z]+ character|item|song) .{0,40}you pay\b/i, "per-count-cost-reduction"],
-  [/for each .{0,20}(character|item) you have .{0,20}you pay\b/i, "per-count-cost-reduction"],
-  // Per-count self cost reduction (FOR EACH card/character = variable self cost)
-  [/\bpay .{0,20}equal to the number\b/i, "per-count-cost-reduction"],
+  // (per-count-cost-reduction removed: self_cost_reduction.amount accepts
+  //  `{ type: "count", filter }` with perMatch multiplier. Matched as
+  //  fits-grammar via the "pay .{0,10} less" entry in FITS_GRAMMAR_PATTERNS.)
+  [/\bpay .{0,20}equal to the number\b/i, "pay-equal-to-count"],
   // Mass inkwell manipulation
   [/\beach player.{0,60}inkwell/i, "mass-inkwell"],
   [/\ball (the )?cards? in .{0,30}inkwell/i, "mass-inkwell"],
@@ -139,9 +138,8 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   // (move-damage removed: move_damage Effect already exists — Belle Untrained Mystic,
   //  Belle Accomplished Mystic, Rose Lantern. Regex was over-broad, shunting real
   //  fits-grammar cards into needs-new-type. Fits-grammar patterns below handle it.)
-  // Reveal opponent's hand
-  [/\breveal.{0,30}(their|opponent'?s?) hand\b/i, "reveal-hand"],
-  [/\blook at each opponent'?s? hand\b/i, "reveal-hand"],
+  // (reveal-hand removed: reveal_hand Effect implemented. Matched as
+  //  fits-grammar below.)
   // "Can't be challenged" as a timed effect (RestrictedAction needs "be_challenged")
   [/can'?t be challenged until\b/i, "timed-cant-be-challenged"],
   [/chosen .{0,40}can'?t be challenged\b/i, "timed-cant-be-challenged"],
@@ -156,8 +154,8 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   // "Discard until they have N" / "draw until you have N" — trim hand
   [/\bdiscard.{0,20}until .{0,20}have \d+ cards?\b/i, "trim-hand"],
   [/\bdiscards? until they have\b/i, "trim-hand"],
-  [/\bdraw until you have \d+\b/i, "draw-to-n"],
-  [/\bdraw cards? until you have\b/i, "draw-to-n"],
+  // (draw-to-n removed: DrawEffect.untilHandSize implemented — matched as
+  //  fits-grammar via the "draw..until" pattern below.)
   // Mill — top N cards from deck to discard
   [/\bputs? the top \d+ cards? .{0,30}into .{0,20}discard\b/i, "mill"],
   [/\bputs? the top card .{0,30}into .{0,20}discard\b/i, "mill"],
@@ -274,6 +272,7 @@ const CAPABILITIES = new Set<string>([
   "put_on_bottom_of_deck", "pay_ink",
   "sequential", "create_floating_trigger_on_self",
   "dynamic-amount",
+  "reveal_hand", "draw_until_hand_size", "per_count_self_cost_reduction",
   // Static effects
   "stat_static", "cant_be_challenged_static", "cost_reduction_static",
   "action_restriction_static", "grant_activated_ability_static",
@@ -340,6 +339,13 @@ const FITS_GRAMMAR_PATTERNS: [RegExp, string][] = [
   [/\bshuffle\b/i, "shuffle_into_deck"],
   [/\bpay .{0,10}less\b/i, "cost_reduction_static"],
   [/\bcosts? .{0,10}less\b/i, "cost_reduction_static"],
+  // reveal-hand: pure reveal + reveal-and-discard-X grammars
+  [/\breveal.{0,30}(their|opponent'?s?|your) hand\b/i, "reveal_hand"],
+  [/\blook at each opponent'?s? hand\b/i, "reveal_hand"],
+  // draw-to-n: "draw until you have N" / "draw until you have the same number"
+  [/\bdraw (cards? )?until you have\b/i, "draw_until_hand_size"],
+  // per-count self cost reduction: "For each X, you pay N {I} less"
+  [/for each .{0,60}you pay .{0,10}(\{i\}|less)/i, "per_count_self_cost_reduction"],
   [/\b(gains?|have|get|give) .{0,20}(evasive|rush|bodyguard|ward|reckless|resist|challenger|support|singer|shift)\b/i, "grant_keyword"],
   [/\bcan'?t quest\b/i, "cant_action"],
   [/\bcan'?t challenge\b/i, "cant_action"],
