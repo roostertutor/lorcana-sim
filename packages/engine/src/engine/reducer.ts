@@ -1004,6 +1004,12 @@ function applyBoostCard(
     message: `${playerId} Boosted ${def.fullName} (paid ${cost} ink, put top of deck under).`,
     type: "ability_activated",
   });
+  // CRD 8.4.2: emit card_put_under trigger — carrier is the instance receiving
+  // the card, triggering card is the card that was placed.
+  state = queueTrigger(state, "card_put_under", instanceId, definitions, {
+    triggeringPlayerId: playerId,
+    triggeringCardInstanceId: topId,
+  });
   return state;
 }
 
@@ -1649,6 +1655,12 @@ function resolveDynamicAmount(
       resolved = inst && def ? getEffectiveStrength(inst, def, 0) : 0;
       break;
     }
+    case "cards_under_count": {
+      // CRD 8.4.2: "for each card under this character" — count the source's pile.
+      const inst = state.cards[sourceInstanceId];
+      resolved = inst?.cardsUnder.length ?? 0;
+      break;
+    }
   }
   const max = (amount as { max?: number }).max;
   if (typeof max === "number") resolved = Math.min(resolved, max);
@@ -2090,7 +2102,7 @@ export function applyEffect(
       if (!topId) return state;
       const topInst = state.cards[topId];
       if (!topInst) return state;
-      return {
+      state = {
         ...state,
         cards: {
           ...state.cards,
@@ -2108,6 +2120,12 @@ export function applyEffect(
           },
         },
       };
+      // CRD 8.4.2: emit card_put_under trigger (same as Boost keyword path).
+      state = queueTrigger(state, "card_put_under", sourceInstanceId, definitions, {
+        triggeringPlayerId: controllingPlayerId,
+        triggeringCardInstanceId: topId,
+      });
+      return state;
     }
 
     case "put_cards_under_into_hand": {

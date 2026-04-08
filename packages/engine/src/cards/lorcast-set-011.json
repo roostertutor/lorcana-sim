@@ -3472,7 +3472,20 @@
     "abilities": [
       {
         "type": "keyword",
-        "keyword": "boost"
+        "keyword": "boost",
+        "value": 1
+      },
+      {
+        "type": "static",
+        "storyName": "POWERED UP",
+        "rulesText": "This character gets +1 {S} for each card under him.",
+        "effect": {
+          "type": "modify_stat_per_count",
+          "stat": "strength",
+          "perCount": 1,
+          "countCardsUnderSelf": true,
+          "target": { "type": "this" }
+        }
       }
     ],
     "setId": "11",

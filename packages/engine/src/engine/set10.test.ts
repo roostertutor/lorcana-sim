@@ -11,7 +11,7 @@ import {
   giveInk,
   passTurns,
 } from "./test-helpers.js";
-import { getInstance, getZone, getEffectiveStrength, moveCard } from "../utils/index.js";
+import { getInstance, getZone, getEffectiveStrength, moveCard, matchesFilter } from "../utils/index.js";
 import { getGameModifiers } from "./gameModifiers.js";
 
 describe("§10 Set 10 — Boost (CRD 8.4)", () => {
@@ -153,6 +153,59 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     for (const id of underIds) {
       expect(getInstance(state, id).zone).toBe("hand");
     }
+  });
+
+  it("CRD 8.4.2: card_put_under trigger fires on BOOST_CARD (Webby's Diary draws on may-pay)", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let flynnId: string, diaryId: string;
+    ({ state, instanceId: flynnId } = injectCard(state, "player1", "flynn-rider-spectral-scoundrel", "play", { isDrying: false }));
+    ({ state, instanceId: diaryId } = injectCard(state, "player1", "webbys-diary", "play", { isDrying: false }));
+    void diaryId;
+    const handBefore = getZone(state, "player1", "hand").length;
+    const inkBefore = state.players.player1.availableInk;
+
+    // Boost Flynn — card_put_under fires, Diary's "may pay 1 to draw" should surface a choice.
+    const r = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Resolve any "may" pending choice — accept it (pay 1 ink, draw 1).
+    while (state.pendingChoice) {
+      state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: state.pendingChoice.choosingPlayerId, choice: "accept" }, LORCAST_CARD_DEFINITIONS).newState;
+    }
+    // Ink spent: 2 (boost cost) + 1 (may reward). Hand grew by 1 net (+1 draw − 0 = +1, but the boosted card left the deck → it's now "under", not in hand).
+    expect(state.players.player1.availableInk).toBe(inkBefore - 2 - 1);
+    expect(getZone(state, "player1", "hand").length).toBe(handBefore + 1);
+  });
+
+  it("CRD 8.4.2: modify_stat_per_count.countCardsUnderSelf (Wreck-it Ralph POWERED UP)", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let ralphId: string;
+    ({ state, instanceId: ralphId } = injectCard(state, "player1", "wreck-it-ralph-raging-wrecker", "play", { isDrying: false }));
+
+    // Zero cards under → no bonus.
+    let mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    expect(mods.statBonuses.get(ralphId)?.strength ?? 0).toBe(0);
+
+    // Boost once → +1 STR.
+    let r = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: ralphId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    expect(mods.statBonuses.get(ralphId)?.strength).toBe(1);
+  });
+
+  it("CRD 8.4.2: hasCardUnder filter matches cards with a non-empty pile", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let flynnId: string;
+    ({ state, instanceId: flynnId } = injectCard(state, "player1", "flynn-rider-spectral-scoundrel", "play", { isDrying: false }));
+    const def = LORCAST_CARD_DEFINITIONS["flynn-rider-spectral-scoundrel"]!;
+    expect(matchesFilter(getInstance(state, flynnId), def, { hasCardUnder: true }, state, "player1")).toBe(false);
+    state = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, LORCAST_CARD_DEFINITIONS).newState;
+    expect(matchesFilter(getInstance(state, flynnId), def, { hasCardUnder: true }, state, "player1")).toBe(true);
+    expect(matchesFilter(getInstance(state, flynnId), def, { hasCardUnder: false }, state, "player1")).toBe(false);
   });
 
   it("getAllLegalActions enumerates BOOST_CARD for in-play boost characters", () => {

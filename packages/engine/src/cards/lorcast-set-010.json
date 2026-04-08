@@ -1031,7 +1031,29 @@
     "cost": 3,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "LATEST ENTRY",
+        "rulesText": "Whenever you put a card under one of your characters or locations, you may pay 1 {I} to draw a card.",
+        "trigger": {
+          "on": "card_put_under",
+          "filter": { "owner": { "type": "self" } }
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              { "type": "pay_ink", "amount": 1 }
+            ],
+            "rewardEffects": [
+              { "type": "draw", "amount": 1, "target": { "type": "self" } }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 31,
     "rarity": "uncommon",

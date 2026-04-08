@@ -205,7 +205,11 @@ export type DynamicAmount =
   | { type: "target_damage"; max?: number }
   | { type: "target_strength"; max?: number }
   | { type: "source_lore"; max?: number }
-  | { type: "source_strength"; max?: number };
+  | { type: "source_strength"; max?: number }
+  /** CRD 8.4.2: number of cards in the source's cards-under pile ("for each card
+   *  under this character" / "equal to the number of cards under"). Resolved
+   *  against the SOURCE instance's `cardsUnder.length`. */
+  | { type: "cards_under_count"; max?: number };
 
 export interface DrawEffect {
   type: "draw";
@@ -1034,6 +1038,9 @@ export interface CardFilter {
   strengthAtLeast?: number;
   /** Match characters that were challenged this turn */
   challengedThisTurn?: boolean;
+  /** CRD 8.4.2: Match characters/locations with at least one card in their
+   *  cards-under pile ("with a card under them", "while there's a card under"). */
+  hasCardUnder?: boolean;
   /** CRD 5.6.4: Match characters currently at the source location ("while here")
    *  or at any location ("while at a location"). */
   atLocation?: "this" | "any";
@@ -1082,7 +1089,14 @@ export type TriggerEvent =
    * Filter is matched against the source (damage-dealer) card. The triggering card in
    * context is the damaged character, and the damage amount is stored on the trigger context.
    * Used by Mulan - Elite Archer (Triple Shot), Namaari - Heir of Fang (Two-Weapon Fighting). */
-  | { on: "deals_damage_in_challenge"; filter?: CardFilter };
+  | { on: "deals_damage_in_challenge"; filter?: CardFilter }
+  /** CRD 8.4.2: Fires when a card is placed facedown under another card (by the
+   *  Boost keyword cost, a put_top_of_deck_under effect, or any other placement
+   *  path). Filter matches the CARRIER — the character/location that received
+   *  the card. The triggering context carries the carrier as the source and the
+   *  under-card as triggeringCardInstanceId. "Whenever you put a card under
+   *  one of your characters, draw a card." — Webby's Diary. */
+  | { on: "card_put_under"; filter?: CardFilter };
 
 // -----------------------------------------------------------------------------
 // CONDITIONS — Guards on triggered/activated abilities

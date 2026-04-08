@@ -308,6 +308,13 @@ export function matchesFilter(
     if (!filter.challengedThisTurn && instance.challengedThisTurn) return false;
   }
 
+  // CRD 8.4.2: "with a card under them" / "while there's a card under".
+  if (filter.hasCardUnder !== undefined) {
+    const has = (instance.cardsUnder?.length ?? 0) > 0;
+    if (filter.hasCardUnder && !has) return false;
+    if (!filter.hasCardUnder && has) return false;
+  }
+
   return true;
 }
 
