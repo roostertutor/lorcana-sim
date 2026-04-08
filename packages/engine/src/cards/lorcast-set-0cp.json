@@ -169,6 +169,23 @@
         "rulesText": "Each player discards their hand and draws 7 cards.",
         "raw": "Each player discards their hand and draws 7 cards."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "discard_from_hand",
+        "amount": "all",
+        "target": {
+          "type": "both"
+        },
+        "chooser": "target_player"
+      },
+      {
+        "type": "draw",
+        "amount": 7,
+        "target": {
+          "type": "both"
+        }
+      }
     ]
   },
   {

@@ -427,8 +427,13 @@ function validateChallenge(
   }
   const defHasEvasive = hasKeyword(defender, defenderDef, "evasive") ||
     (modifiers.grantedKeywords.get(defenderInstanceId)?.some(g => g.keyword === "evasive") ?? false);
+  // CRD 10.x Alert: "This character can challenge as if they had Evasive."
+  // Alert grants Evasive for attack-purposes only (it does NOT make the character evasive as a defender).
+  const atkHasAlert = hasKeyword(attacker, attackerDef, "alert") ||
+    (modifiers.grantedKeywords.get(attackerInstanceId)?.some(g => g.keyword === "alert") ?? false);
   const atkHasEvasive = hasKeyword(attacker, attackerDef, "evasive") ||
-    (modifiers.grantedKeywords.get(attackerInstanceId)?.some(g => g.keyword === "evasive") ?? false);
+    (modifiers.grantedKeywords.get(attackerInstanceId)?.some(g => g.keyword === "evasive") ?? false) ||
+    atkHasAlert;
   if (defHasEvasive) {
     if (!atkHasEvasive) {
       return fail("Only Evasive characters can challenge an Evasive character.");

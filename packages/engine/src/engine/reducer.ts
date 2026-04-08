@@ -1758,13 +1758,19 @@ export function applyEffect(
       if (effect.target.type === "chosen") {
         return surfaceChoosePlayer(state, effect, controllingPlayerId, sourceInstanceId, definitions, events);
       }
+      const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, state.lastTargetInstanceId);
+      // "Each player gains N lore" — apply to both (I2I). CRD: target { type: "both" }.
+      if (effect.target.type === "both") {
+        state = gainLore(state, controllingPlayerId, amount, events);
+        state = gainLore(state, getOpponent(controllingPlayerId), amount, events);
+        return state;
+      }
       const targetPlayer =
         effect.target.type === "opponent"
           ? getOpponent(controllingPlayerId)
           : effect.target.type === "target_owner"
             ? (state.lastTargetOwnerId ?? controllingPlayerId)
             : controllingPlayerId;
-      const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, state.lastTargetInstanceId);
       return gainLore(state, targetPlayer, amount, events);
     }
 

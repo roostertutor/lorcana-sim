@@ -112,8 +112,9 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
 ];
 
 const NEW_TYPE_PATTERNS: [RegExp, string][] = [
-  // Alert keyword — not in our Keyword type
-  [/\balert\b/i, "alert-keyword"],
+  // (alert-keyword removed: "alert" is in the Keyword union and handled by
+  //  the validator — CRD 10.x. Matched by the keyword-grant regex in
+  //  FITS_GRAMMAR_PATTERNS.)
   // (dynamic-amount entries moved to FITS_GRAMMAR_PATTERNS — DynamicAmount
   // target_*/source_* variants + max cap implemented in the engine.)
   // "Count the number of X, then do Y"
@@ -140,9 +141,8 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   //  fits-grammar cards into needs-new-type. Fits-grammar patterns below handle it.)
   // (reveal-hand removed: reveal_hand Effect implemented. Matched as
   //  fits-grammar below.)
-  // "Can't be challenged" as a timed effect (RestrictedAction needs "be_challenged")
-  [/can'?t be challenged until\b/i, "timed-cant-be-challenged"],
-  [/chosen .{0,40}can'?t be challenged\b/i, "timed-cant-be-challenged"],
+  // (timed-cant-be-challenged removed: cant_be_challenged_timed Effect already
+  //  implemented. Matched as fits-grammar below.)
   // Conditional "can't be challenged" with filter (Nick Wilde, Kenai, Iago)
   [/while .{0,60}can'?t be challenged\b/i, "conditional-cant-be-challenged"],
   // (damage-immunity removed: damage_immunity_timed Effect +
@@ -165,8 +165,9 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   [/\beach opponent chooses and banishes\b/i, "opponent-chosen-banish"],
   // Opponent-chosen return to hand ("each opponent chooses one of their characters and returns")
   [/\beach opponent chooses .{0,40}returns?\b/i, "opponent-chosen-return"],
-  // Exert a chosen filtered character or item as a cost
-  [/\{E\} .{0,30}(your|one of your) .{0,40}(character|item|[A-Z][a-z]+ character)/i, "exert-filtered-cost"],
+  // (exert-filtered-cost removed: "{E} one of your X" is modeled as a leading
+  //  exert effect on an activated ability — always supported. Matched by the
+  //  generic `exert` regex in FITS_GRAMMAR_PATTERNS.)
   // Shift variants — classification shift, universal shift, name aliases
   [/\buniversal shift\b/i, "shift-variant"],
   [/\b[A-Z][a-z]+ shift \d+\b/i, "shift-variant"],
@@ -217,15 +218,13 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   // (conditional-keyword-by-turn removed: grant_keyword static + is_your_turn condition both exist.)
   // "can't be challenged by [filter]" — needs strengthAtLeast/hasTrait on attackerFilter
   [/can'?t be challenged by .{0,30}(character|pirate|[A-Z])/i, "filtered-cant-be-challenged"],
-  // "each player draws N" / "each player discards"
-  [/\beach player (draws?|discards?) .{0,10}(card|\d+|their hand)\b/i, "both-players-effect"],
+  // (both-players-effect removed: target { type: "both" } works for draw,
+  //  discard_from_hand, and (as of this batch) gain_lore.)
   // "put a damage counter on" (1 damage without using "deal")
   [/\bput a damage counter on\b/i, "put-damage-counter"],
   // Dynamic filter based on card's own stat ("cost equal to or less than this character's {S}")
   [/cost equal to or less than .{0,30}\{S\}/i, "dynamic-filter"],
-  // "chosen character can't be challenged until" — timed restriction (broader match)
-  [/character .{0,30}can'?t be challenged until\b/i, "timed-cant-be-challenged"],
-  [/can'?t be challenged until the start\b/i, "timed-cant-be-challenged"],
+  // (broader timed-cant-be-challenged entries also removed — see above.)
   // "Reveal top card, if matching type put in hand, otherwise top/bottom of deck"
   [/\breveal the top card of your deck\b/i, "reveal-top-conditional"],
   // Compound condition (exerted + named character in play, etc.)
@@ -238,9 +237,7 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   //  matched by FITS_GRAMMAR_PATTERNS below.)
   // "gets +{S} equal to the {S} of chosen character" — dynamic stat gain from another card
   [/gets? \+\{S\} equal to\b/i, "dynamic-stat-gain"],
-  // "Chosen character of yours can't be challenged until" — timed cant-be-challenged
-  [/character of yours can'?t be challenged\b/i, "timed-cant-be-challenged"],
-  [/\bchosen character can'?t be challenged\b/i, "timed-cant-be-challenged"],
+  // (final timed-cant-be-challenged entries also removed — see above.)
   // (timed-cant-action removed: cant_action effect with end_of_owner_next_turn duration works today.)
   // "was banished in a challenge this turn" — event tracking condition
   [/was banished in a challenge this turn\b/i, "event-tracking-condition"],
@@ -346,7 +343,12 @@ const FITS_GRAMMAR_PATTERNS: [RegExp, string][] = [
   [/\bdraw (cards? )?until you have\b/i, "draw_until_hand_size"],
   // per-count self cost reduction: "For each X, you pay N {I} less"
   [/for each .{0,60}you pay .{0,10}(\{i\}|less)/i, "per_count_self_cost_reduction"],
-  [/\b(gains?|have|get|give) .{0,20}(evasive|rush|bodyguard|ward|reckless|resist|challenger|support|singer|shift)\b/i, "grant_keyword"],
+  [/\b(gains?|have|get|give) .{0,20}(evasive|rush|bodyguard|ward|reckless|resist|challenger|support|singer|shift|alert)\b/i, "grant_keyword"],
+  // Alert keyword reminder text or standalone keyword line.
+  [/\balert\b/i, "grant_keyword"],
+  // Timed cant-be-challenged — cant_be_challenged_timed Effect already exists.
+  [/can'?t be challenged until\b/i, "cant_be_challenged_timed"],
+  [/chosen .{0,40}can'?t be challenged until\b/i, "cant_be_challenged_timed"],
   [/\bcan'?t quest\b/i, "cant_action"],
   [/\bcan'?t challenge\b/i, "cant_action"],
   [/\bcan'?t ready\b/i, "cant_action"],

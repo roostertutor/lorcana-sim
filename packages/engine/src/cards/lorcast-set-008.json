@@ -5438,7 +5438,57 @@
     "cost": 1,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "WORTHY WEAPON",
+        "rulesText": "{E}, {E} one of your characters — Ready chosen character. They can't quest for the rest of this turn.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "self"
+                }
+              }
+            }
+          },
+          {
+            "type": "ready",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "followUpEffects": [
+              {
+                "type": "cant_action",
+                "action": "quest",
+                "target": {
+                  "type": "this"
+                },
+                "duration": "rest_of_turn"
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 152,
     "rarity": "rare",
@@ -7706,7 +7756,57 @@
     "cost": 1,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "WORTHY WEAPON",
+        "rulesText": "{E}, {E} one of your characters — Ready chosen character. They can't quest for the rest of this turn.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "self"
+                }
+              }
+            }
+          },
+          {
+            "type": "ready",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "followUpEffects": [
+              {
+                "type": "cant_action",
+                "action": "quest",
+                "target": {
+                  "type": "this"
+                },
+                "duration": "rest_of_turn"
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 219,
     "rarity": "enchanted",

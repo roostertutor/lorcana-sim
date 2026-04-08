@@ -671,7 +671,34 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "SAFE AND SOUND",
+        "rulesText": "Whenever this character quests, choose a character of yours and that character can't be challenged until the start of your next turn.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "cant_be_challenged_timed",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "self"
+                }
+              }
+            },
+            "duration": "until_caster_next_turn"
+          }
+        ]
+      }
+    ],
     "setId": "6",
     "number": 21,
     "rarity": "rare",
@@ -992,6 +1019,24 @@
         "rulesText": "Chosen character of yours can’t be challenged until the start of your next turn.",
         "raw": "Chosen character of yours can’t be challenged until the start of your next turn."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "cant_be_challenged_timed",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "duration": "until_caster_next_turn"
+      }
     ]
   },
   {
@@ -1057,7 +1102,45 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "I MADE HER",
+        "rulesText": "{E} one of your characters - Chosen character gets -2 {S} until the start of your next turn.",
+        "costs": [],
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "self"
+                }
+              }
+            }
+          },
+          {
+            "type": "gain_stats",
+            "strength": -2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "until_caster_next_turn"
+          }
+        ]
+      }
+    ],
     "setId": "6",
     "number": 33,
     "rarity": "uncommon",

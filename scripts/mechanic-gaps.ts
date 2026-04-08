@@ -44,7 +44,8 @@ const NEW_MECHANIC: [RegExp, string][] = [
 ];
 
 const NEW_TYPE: [RegExp, string][] = [
-  [/\balert\b/i, "alert-keyword"],
+  // (alert-keyword removed: "alert" added to Keyword union + validator treats
+  //  Alert attackers as Evasive for challenge purposes. CRD 10.x.)
   // (dynamic-amount removed: DynamicAmount variants implemented in the engine.)
   [/count the number of\b/i, "count-based-effect"],
   // (per-count-cost-reduction removed — self_cost_reduction.amount supports
@@ -62,8 +63,8 @@ const NEW_TYPE: [RegExp, string][] = [
   [/opposing .{0,40}enter.{0,10}play exerted/i, "enter-play-exerted-static"],
   // (move-damage removed: move_damage Effect exists; these are fits-grammar.)
   // (reveal-hand removed — reveal_hand Effect implemented.)
-  [/can'?t be challenged until\b/i, "timed-cant-be-challenged"],
-  [/chosen .{0,40}can'?t be challenged\b/i, "timed-cant-be-challenged"],
+  // (timed-cant-be-challenged removed: cant_be_challenged_timed Effect already
+  //  existed; cards in sets 6/7/11 wired in this batch.)
   [/while .{0,60}can'?t be challenged\b/i, "conditional-cant-be-challenged"],
   // (damage-immunity removed: implemented via damage_immunity_timed Effect +
   //  damage_immunity_static StaticEffect.)
@@ -77,7 +78,8 @@ const NEW_TYPE: [RegExp, string][] = [
   // (put-on-bottom removed: put_on_bottom_of_deck Effect implemented.)
   [/\beach opponent chooses and banishes\b/i, "opponent-chosen-banish"],
   [/\beach opponent chooses .{0,40}returns?\b/i, "opponent-chosen-return"],
-  [/\{E\} .{0,30}(your|one of your) .{0,40}(character|item|[A-Z][a-z]+ character)/i, "exert-filtered-cost"],
+  // (exert-filtered-cost removed: leading `exert` effect with chosen filter
+  //  has always worked as a cost — categorizer false positive. Cards wired.)
   [/\buniversal shift\b/i, "shift-variant"],
   [/\b[A-Z][a-z]+ shift \d+\b/i, "shift-variant"],
   [/\bcounts as being named (both|any)\b/i, "shift-variant"],
@@ -106,19 +108,18 @@ const NEW_TYPE: [RegExp, string][] = [
   // noMatchDestination hand/discard + matchExtraEffects (commit ae1bcf6).
   // Categorizer now matches "reveal the top card of your deck" as fits-grammar.
   [/can'?t be challenged by .{0,30}(character|pirate|[A-Z])/i, "filtered-cant-be-challenged"],
-  [/\beach player (draws?|discards?) .{0,10}(card|\d+|their hand)\b/i, "both-players-effect"],
+  // (both-players-effect removed: draw/discard_from_hand/gain_lore all accept
+  //  target { type: "both" }. gain_lore both-branch added this batch.)
   [/\bput a damage counter on\b/i, "put-damage-counter"],
   [/cost equal to or less than .{0,30}\{S\}/i, "dynamic-filter"],
-  [/character .{0,30}can'?t be challenged until\b/i, "timed-cant-be-challenged"],
-  [/can'?t be challenged until the start\b/i, "timed-cant-be-challenged"],
+  // (second timed-cant-be-challenged block also removed — see above.)
   // (reveal-top-conditional removed — see note above.)
   [/\bwhile .{0,30}exerted.{0,30}(if you have|you have)\b/i, "compound-condition"],
   [/\bplay it as if it were in your hand\b/i, "play-from-revealed"],
   [/\blose the .{0,30} ability\b/i, "remove-ability"],
   // (cards-under-to-hand removed — see boost block above.)
   [/gets? \+\{S\} equal to\b/i, "dynamic-stat-gain"],
-  [/character of yours can'?t be challenged\b/i, "timed-cant-be-challenged"],
-  [/\bchosen character can'?t be challenged\b/i, "timed-cant-be-challenged"],
+  // (two more timed-cant-be-challenged entries removed — see above.)
   [/was banished in a challenge this turn\b/i, "event-tracking-condition"],
 ];
 

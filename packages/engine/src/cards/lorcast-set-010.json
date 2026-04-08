@@ -5137,7 +5137,12 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "alert"
+      }
+    ],
     "setId": "10",
     "number": 142,
     "rarity": "common",
@@ -6072,7 +6077,55 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "PREFLIGHT CHECK",
+        "rulesText": "When you play this item, draw a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
+      {
+        "type": "activated",
+        "storyName": "READY TO RIDE",
+        "rulesText": "{E}, 1 {I} — Chosen character gains Alert this turn.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "alert",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "this_turn"
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 169,
     "rarity": "uncommon",
@@ -6460,7 +6513,33 @@
       "Hero",
       "Detective"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "SEARCH THE SHADOWS",
+        "rulesText": "When you play this character, chosen Detective character gains Alert this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "alert",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Detective"
+              }
+            },
+            "duration": "this_turn"
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 181,
     "rarity": "common",
@@ -6519,7 +6598,12 @@
       "Ally",
       "Gargoyle"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "alert"
+      }
+    ],
     "setId": "10",
     "number": 183,
     "rarity": "uncommon",
@@ -7028,6 +7112,37 @@
         "storyName": "",
         "rulesText": "Chosen character gains Alert and Challenger +2 this turn. (They can challenge as if they had Evasive. They get +2 {S} while challenging.)",
         "raw": "Chosen character gains Alert and Challenger +2 this turn. (They can challenge as if they had Evasive. They get +2 {S} while challenging.)"
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "grant_keyword",
+        "keyword": "alert",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "duration": "this_turn"
+      },
+      {
+        "type": "grant_keyword",
+        "keyword": "challenger",
+        "value": 2,
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "duration": "this_turn"
       }
     ]
   },
@@ -7801,7 +7916,33 @@
       "Hero",
       "Detective"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "SEARCH THE SHADOWS",
+        "rulesText": "When you play this character, chosen Detective character gains Alert this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "alert",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Detective"
+              }
+            },
+            "duration": "this_turn"
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 220,
     "rarity": "common",

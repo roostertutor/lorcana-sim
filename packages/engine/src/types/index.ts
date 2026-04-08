@@ -46,7 +46,8 @@ export type Keyword =
   | "singer"
   | "shift"
   | "resist"
-  | "boost";
+  | "boost"
+  | "alert";
 
 // -----------------------------------------------------------------------------
 // CARD DEFINITIONS

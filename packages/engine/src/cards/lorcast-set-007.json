@@ -820,7 +820,30 @@
       "Ally",
       "Madrigal"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "I'M TIRED OF PERFECT",
+        "rulesText": "Whenever one of your characters sings a song, this character can't be challenged until the start of your next turn.",
+        "trigger": {
+          "on": "sings",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "cant_be_challenged_timed",
+            "target": {
+              "type": "this"
+            },
+            "duration": "until_caster_next_turn"
+          }
+        ]
+      }
+    ],
     "setId": "7",
     "number": 25,
     "rarity": "rare",
@@ -1463,7 +1486,50 @@
     "cost": 2,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "SEARCH THE KINGDOM",
+        "rulesText": "Banish this item, {E} one of your Prince characters – Search your deck for a Princess character card and reveal it to all players. Put that card into your hand and shuffle your deck.",
+        "costs": [
+          {
+            "type": "banish_self"
+          }
+        ],
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "self"
+                },
+                "hasTrait": "Prince"
+              }
+            }
+          },
+          {
+            "type": "search",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Princess"
+            },
+            "target": {
+              "type": "self"
+            },
+            "zone": "deck",
+            "putInto": "hand"
+          }
+        ]
+      }
+    ],
     "setId": "7",
     "number": 44,
     "rarity": "rare",
@@ -2388,6 +2454,44 @@
       {
         "type": "keyword",
         "keyword": "evasive"
+      },
+      {
+        "type": "triggered",
+        "storyName": "WE CAN FIGURE THIS OUT",
+        "rulesText": "At the start of your turn, choose one:\n• Each player draws a card.\n• Each player chooses and discards a card.",
+        "trigger": {
+          "on": "turn_start",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effects": [
+          {
+            "type": "choose",
+            "count": 1,
+            "options": [
+              [
+                {
+                  "type": "draw",
+                  "amount": 1,
+                  "target": {
+                    "type": "both"
+                  }
+                }
+              ],
+              [
+                {
+                  "type": "discard_from_hand",
+                  "amount": 1,
+                  "target": {
+                    "type": "both"
+                  },
+                  "chooser": "target_player"
+                }
+              ]
+            ]
+          }
+        ]
       }
     ],
     "setId": "7",
@@ -2800,6 +2904,15 @@
         "storyName": "",
         "rulesText": "Each player draws 3 cards.",
         "raw": "Each player draws 3 cards."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "draw",
+        "amount": 3,
+        "target": {
+          "type": "both"
+        }
       }
     ]
   },
@@ -6759,6 +6872,24 @@
         "rulesText": "Your characters can't be challenged until the start of your next turn.",
         "raw": "Your characters can't be challenged until the start of your next turn."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "cant_be_challenged_timed",
+        "target": {
+          "type": "all",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "duration": "until_caster_next_turn"
+      }
     ]
   },
   {
@@ -6962,7 +7093,50 @@
     "cost": 2,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "SEARCH THE KINGDOM",
+        "rulesText": "Banish this item, {E} one of your Prince characters – Search your deck for a Princess character card and reveal it to all players. Put that card into your hand and shuffle your deck.",
+        "costs": [
+          {
+            "type": "banish_self"
+          }
+        ],
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "self"
+                },
+                "hasTrait": "Prince"
+              }
+            }
+          },
+          {
+            "type": "search",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Princess"
+            },
+            "target": {
+              "type": "self"
+            },
+            "zone": "deck",
+            "putInto": "hand"
+          }
+        ]
+      }
+    ],
     "setId": "7",
     "number": 208,
     "rarity": "enchanted",
@@ -7083,6 +7257,15 @@
         "storyName": "",
         "rulesText": "Each player draws 3 cards.",
         "raw": "Each player draws 3 cards."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "draw",
+        "amount": 3,
+        "target": {
+          "type": "both"
+        }
       }
     ]
   },
@@ -7465,6 +7648,24 @@
         "storyName": "",
         "rulesText": "Your characters can't be challenged until the start of your next turn.",
         "raw": "Your characters can't be challenged until the start of your next turn."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "cant_be_challenged_timed",
+        "target": {
+          "type": "all",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "duration": "until_caster_next_turn"
       }
     ]
   }

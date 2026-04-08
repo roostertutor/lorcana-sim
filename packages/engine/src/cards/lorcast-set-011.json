@@ -1053,6 +1053,21 @@
         "rulesText": "Chosen character can’t be challenged until the start of your next turn.",
         "raw": "Chosen character can’t be challenged until the start of your next turn."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "cant_be_challenged_timed",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "duration": "until_caster_next_turn"
+      }
     ]
   },
   {
@@ -5081,7 +5096,12 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "alert"
+      }
+    ],
     "setId": "11",
     "number": 142,
     "rarity": "common",
@@ -6429,7 +6449,12 @@
     "traits": [
       "Storyborn"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "alert"
+      }
+    ],
     "setId": "11",
     "number": 180,
     "rarity": "common",
@@ -7080,6 +7105,31 @@
         "storyName": "",
         "rulesText": "Chosen location of yours can't be challenged until the start of your next turn. Draw a card.",
         "raw": "Chosen location of yours can't be challenged until the start of your next turn. Draw a card."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "cant_be_challenged_timed",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "location"
+            ],
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "duration": "until_caster_next_turn"
+      },
+      {
+        "type": "draw",
+        "amount": 1,
+        "target": {
+          "type": "self"
+        }
       }
     ]
   },
