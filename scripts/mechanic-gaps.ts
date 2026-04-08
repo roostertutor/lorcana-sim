@@ -47,7 +47,7 @@ const NEW_TYPE: [RegExp, string][] = [
   // (alert-keyword removed: "alert" added to Keyword union + validator treats
   //  Alert attackers as Evasive for challenge purposes. CRD 10.x.)
   // (dynamic-amount removed: DynamicAmount variants implemented in the engine.)
-  [/count the number of\b/i, "count-based-effect"],
+  // (count-based-effect removed: gain_stats strengthDynamic + Negate.)
   // (per-count-cost-reduction removed — self_cost_reduction.amount supports
   //  DynamicAmount `count` + perMatch. Matched as fits-grammar in card-status.ts.)
   [/\beach player.{0,60}inkwell/i, "mass-inkwell"],

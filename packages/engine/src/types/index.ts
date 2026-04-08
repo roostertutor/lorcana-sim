@@ -348,6 +348,16 @@ export interface GainStatsEffect {
   /** +S equal to the SOURCE instance's effective strength (Olaf Carrot Enthusiast).
    *  Resolved at apply time per target. */
   strengthEqualsSourceStrength?: boolean;
+  /**
+   * Dynamic strength modifier resolved via DynamicAmount (count-based, etc.).
+   * When set, overrides the literal `strength` field. The sign convention is:
+   * positive = buff, negative = debuff. Use `strengthDynamicNegate: true` to
+   * negate a positive count (Rescue Rangers Away: -S equal to your characters
+   * in play → strengthDynamic = { type: "count", filter: own chars },
+   * strengthDynamicNegate = true).
+   */
+  strengthDynamic?: DynamicAmount;
+  strengthDynamicNegate?: boolean;
 }
 
 /**

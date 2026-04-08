@@ -1009,6 +1009,25 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "gain_stats",
+        "strengthDynamic": {
+          "type": "count",
+          "filter": {
+            "owner": { "type": "self" },
+            "zone": "play",
+            "cardType": ["character"]
+          }
+        },
+        "strengthDynamicNegate": true,
+        "duration": "until_caster_next_turn",
+        "target": {
+          "type": "chosen",
+          "filter": { "zone": "play", "cardType": ["character"] }
+        }
+      }
+    ],
     "setId": "6",
     "number": 29,
     "rarity": "uncommon",

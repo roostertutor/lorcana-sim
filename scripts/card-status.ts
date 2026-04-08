@@ -117,8 +117,8 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   //  FITS_GRAMMAR_PATTERNS.)
   // (dynamic-amount entries moved to FITS_GRAMMAR_PATTERNS — DynamicAmount
   // target_*/source_* variants + max cap implemented in the engine.)
-  // "Count the number of X, then do Y"
-  [/count the number of\b/i, "count-based-effect"],
+  // (count-based-effect removed: gain_stats gained strengthDynamic +
+  //  strengthDynamicNegate fields backed by DynamicAmount count variant.)
   // (per-count-cost-reduction removed: self_cost_reduction.amount accepts
   //  `{ type: "count", filter }` with perMatch multiplier. Matched as
   //  fits-grammar via the "pay .{0,10} less" entry in FITS_GRAMMAR_PATTERNS.)

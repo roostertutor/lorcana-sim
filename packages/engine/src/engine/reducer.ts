@@ -1929,7 +1929,7 @@ export function applyEffect(
 
     case "gain_stats": {
       if (effect.target.type === "this") {
-        return applyGainStatsToInstance(state, sourceInstanceId, effect, controllingPlayerId);
+        return applyGainStatsToInstance(state, sourceInstanceId, effect, controllingPlayerId, definitions);
       }
       if (effect.target.type === "chosen") {
         const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
@@ -1948,7 +1948,7 @@ export function applyEffect(
       }
       if (effect.target.type === "all") {
         const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
-        for (const id of targets) state = applyGainStatsToInstance(state, id, effect, controllingPlayerId);
+        for (const id of targets) state = applyGainStatsToInstance(state, id, effect, controllingPlayerId, definitions);
         return state;
       }
       return state;
@@ -3960,7 +3960,7 @@ function applyEffectToTarget(
           tempLoreModifier: instance.tempLoreModifier + (effect.lore ?? 0),
         });
       }
-      return applyGainStatsToInstance(state, targetInstanceId, effect, controllingPlayerId);
+      return applyGainStatsToInstance(state, targetInstanceId, effect, controllingPlayerId, definitions);
     }
     case "remove_damage": {
       const instance = getInstance(state, targetInstanceId);
@@ -4310,17 +4310,26 @@ function applyGainStatsToInstance(
   state: GameState,
   instanceId: string,
   effect: import("../types/index.js").GainStatsEffect,
-  casterPlayerId: PlayerID
+  casterPlayerId: PlayerID,
+  definitions?: Record<string, CardDefinition>
 ): GameState {
   const instance = state.cards[instanceId];
   if (!instance) return state;
+
+  // Resolve dynamic strength override (count-based debuffs — Rescue Rangers Away).
+  let resolvedStrength: number | undefined;
+  if (effect.strengthDynamic !== undefined && definitions) {
+    const raw = resolveDynamicAmount(effect.strengthDynamic, state, definitions, casterPlayerId, instanceId, undefined, instanceId);
+    resolvedStrength = effect.strengthDynamicNegate ? -raw : raw;
+  }
+  const strengthAmount = resolvedStrength ?? effect.strength ?? 0;
 
   const isTempThisTurn = effect.duration === "this_turn" || effect.duration === "permanent";
   if (isTempThisTurn) {
     // Existing path: write to tempStrengthModifier (cleared at end of turn).
     // Note: "permanent" currently shares the temp path — pre-existing semantics.
     return updateInstance(state, instanceId, {
-      tempStrengthModifier: instance.tempStrengthModifier + (effect.strength ?? 0),
+      tempStrengthModifier: instance.tempStrengthModifier + strengthAmount,
       tempWillpowerModifier: instance.tempWillpowerModifier + (effect.willpower ?? 0),
       tempLoreModifier: instance.tempLoreModifier + (effect.lore ?? 0),
     });
@@ -4328,8 +4337,8 @@ function applyGainStatsToInstance(
   // EffectDuration: append separate timedEffects so the duration logic expires them.
   const expiresAt = effect.duration as import("../types/index.js").EffectDuration;
   const baseTimed = { expiresAt, appliedOnTurn: state.turnNumber, casterPlayerId };
-  if (effect.strength) {
-    state = addTimedEffect(state, instanceId, { type: "modify_strength", amount: effect.strength, ...baseTimed });
+  if (strengthAmount) {
+    state = addTimedEffect(state, instanceId, { type: "modify_strength", amount: strengthAmount, ...baseTimed });
   }
   if (effect.willpower) {
     state = addTimedEffect(state, instanceId, { type: "modify_willpower", amount: effect.willpower, ...baseTimed });
