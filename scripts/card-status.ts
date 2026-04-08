@@ -642,7 +642,19 @@ function isImplemented(card: any): boolean {
 }
 
 function hasNamedStubs(card: any): boolean {
-  return card._namedAbilityStubs?.some((s: any) => s.rulesText?.trim().length > 0);
+  // Filter out stubs whose entire text is just keyword reminder text for a
+  // keyword the card already has wired (e.g. Cri-Kee with only "Alert (...)").
+  const cardKeywords: string[] = (card.abilities ?? [])
+    .filter((a: any) => a.type === "keyword")
+    .map((a: any) => String(a.keyword || "").toLowerCase());
+  return card._namedAbilityStubs?.some((s: any) => {
+    const text = s.rulesText?.trim();
+    if (!text) return false;
+    // Stub is "just a keyword reminder" if its first word is one of the card's keywords.
+    const firstWord = text.split(/[\s(]/)[0]?.toLowerCase() ?? "";
+    if (cardKeywords.includes(firstWord)) return false;
+    return true;
+  });
 }
 
 const SET_FILES = readdirSync(CARDS_DIR)

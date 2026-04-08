@@ -573,7 +573,26 @@
       "Storyborn",
       "Mentor"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "SMOOTH THE WAY",
+        "rulesText": "Once during your turn, you pay 1 {I} less for the next character you play this turn.",
+        "costs": [],
+        "oncePerTurn": true,
+        "effects": [
+          {
+            "type": "grant_cost_reduction",
+            "amount": 1,
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 13,
     "rarity": "uncommon",
@@ -10106,7 +10125,26 @@
       "Storyborn",
       "Mentor"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "SMOOTH THE WAY",
+        "rulesText": "Once during your turn, you pay 1 {I} less for the next character you play this turn.",
+        "costs": [],
+        "oncePerTurn": true,
+        "effects": [
+          {
+            "type": "grant_cost_reduction",
+            "amount": 1,
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 206,
     "rarity": "common",

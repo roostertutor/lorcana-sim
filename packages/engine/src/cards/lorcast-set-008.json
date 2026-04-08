@@ -7829,6 +7829,22 @@
       {
         "type": "keyword",
         "keyword": "evasive"
+      },
+      {
+        "type": "static",
+        "storyName": "STAND OUT",
+        "rulesText": "While you have a character in play with more {S} than each opposing character, this character gets +2 {L}.",
+        "effect": {
+          "type": "gain_stats",
+          "lore": 2,
+          "target": {
+            "type": "this"
+          },
+          "condition": {
+            "type": "self_has_more_than_each_opponent",
+            "metric": "strength_in_play"
+          }
+        }
       }
     ],
     "setId": "8",
