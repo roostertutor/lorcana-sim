@@ -179,9 +179,37 @@ export interface GrantChallengeReadyEffect {
   duration: EffectDuration;
 }
 
+/**
+ * Shared "dynamic amount" shape used by damage/lore/draw/lose-lore effects.
+ * A literal number, a well-known keyword string, or an object variant.
+ *
+ * Object variants:
+ *  - { type: "count", filter } — number of cards matching filter, controller-scoped.
+ *  - { type: "target_lore", max? } — printed lore of the chosen target card.
+ *  - { type: "target_damage", max? } — damage counters on the chosen target.
+ *  - { type: "target_strength", max? } — effective strength of the chosen target.
+ *  - { type: "source_lore", max? } — printed lore of the SOURCE card (the ability's owner).
+ *  - { type: "source_strength", max? } — effective strength of the SOURCE card.
+ *
+ * `max` caps the resolved value (Mulan Resourceful Recruit: "to a maximum of 6 lore").
+ */
+export type DynamicAmount =
+  | number
+  | "X"
+  | "cost_result"
+  | "damage_on_target"
+  | "triggering_card_lore"
+  | "last_target_location_lore"
+  | { type: "count"; filter: CardFilter; max?: number }
+  | { type: "target_lore"; max?: number }
+  | { type: "target_damage"; max?: number }
+  | { type: "target_strength"; max?: number }
+  | { type: "source_lore"; max?: number }
+  | { type: "source_strength"; max?: number };
+
 export interface DrawEffect {
   type: "draw";
-  amount: number | "X" | "cost_result" | "damage_on_target" | { type: "count"; filter: CardFilter };
+  amount: DynamicAmount;
   target: PlayerTarget;
   /** CRD 6.1.4: player may choose not to apply this effect */
   isMay?: boolean;
@@ -191,7 +219,7 @@ export interface DrawEffect {
 
 export interface DealDamageEffect {
   type: "deal_damage";
-  amount: number | "X" | { type: "count"; filter: CardFilter };
+  amount: DynamicAmount;
   target: CardTarget;
   /** CRD 6.1.3: "up to" — player may choose 0..amount. Engine resolves at max for now. */
   isUpTo?: boolean;
@@ -229,7 +257,7 @@ export interface GainLoreEffect {
    *    is at (I've Got a Dream — "Gain lore equal to that location's {L}" after readying a
    *    chosen character at a location).
    */
-  amount: number | { type: "count"; filter: CardFilter } | "triggering_card_lore" | "last_target_location_lore";
+  amount: DynamicAmount;
   target: PlayerTarget;
 }
 
@@ -668,7 +696,7 @@ export interface CostReductionEffect {
  */
 export interface LoseLoreEffect {
   type: "lose_lore";
-  amount: number;
+  amount: DynamicAmount;
   target: PlayerTarget;
 }
 

@@ -1554,11 +1554,13 @@ function applyResolveChoice(
       if (targetInst) {
         state = { ...state, lastTargetOwnerId: targetInst.ownerId, lastTargetInstanceId: targetId };
       }
-      state = applyEffectToTarget(state, pendingEffect!, targetId, playerId, definitions, events);
+      const srcId = pendingChoice.sourceInstanceId ?? "";
+      const trigId = pendingChoice.triggeringCardInstanceId;
+      state = applyEffectToTarget(state, pendingEffect!, targetId, playerId, definitions, events, srcId, trigId);
       // Apply follow-up effects to the same target
       if (pendingChoice.followUpEffects) {
         for (const followUp of pendingChoice.followUpEffects) {
-          state = applyEffectToTarget(state, followUp, targetId, playerId, definitions, events);
+          state = applyEffectToTarget(state, followUp, targetId, playerId, definitions, events, srcId, trigId);
         }
       }
     }
@@ -1577,6 +1579,82 @@ function applyResolveChoice(
 // EFFECT RESOLUTION
 // -----------------------------------------------------------------------------
 
+/**
+ * Resolve a DynamicAmount to a number. See the DynamicAmount type in
+ * packages/engine/src/types/index.ts for variant semantics. Variants that
+ * depend on a chosen target (target_lore / target_damage / target_strength)
+ * require `targetInstanceId` to be passed in — when resolving at choose-from-
+ * targets time (applyEffectToTarget). source_lore / source_strength require
+ * `sourceInstanceId`. Any `max` field on the object form caps the result.
+ */
+function resolveDynamicAmount(
+  amount: import("../types").DynamicAmount,
+  state: GameState,
+  definitions: Record<string, CardDefinition>,
+  controllingPlayerId: PlayerID,
+  sourceInstanceId: string,
+  triggeringCardInstanceId: string | undefined,
+  targetInstanceId: string | undefined,
+): number {
+  // Primitive variants
+  if (typeof amount === "number") return amount;
+  if (amount === "X") return 1;
+  if (amount === "cost_result") return state.lastEffectResult ?? 0;
+  if (amount === "damage_on_target") return state.lastEffectResult ?? 0;
+  if (amount === "triggering_card_lore") {
+    const inst = triggeringCardInstanceId ? state.cards[triggeringCardInstanceId] : undefined;
+    const def = inst ? definitions[inst.definitionId] : undefined;
+    return def?.lore ?? 0;
+  }
+  if (amount === "last_target_location_lore") {
+    const lastTargetId = state.lastTargetInstanceId;
+    const lastTargetInst = lastTargetId ? state.cards[lastTargetId] : undefined;
+    const locId = lastTargetInst?.atLocationInstanceId;
+    const locInst = locId ? state.cards[locId] : undefined;
+    const locDef = locInst ? definitions[locInst.definitionId] : undefined;
+    return locDef?.lore ?? 0;
+  }
+  // Object variants
+  let resolved = 0;
+  switch (amount.type) {
+    case "count":
+      resolved = findMatchingInstances(state, definitions, amount.filter, controllingPlayerId, sourceInstanceId).length;
+      break;
+    case "target_lore": {
+      const inst = targetInstanceId ? state.cards[targetInstanceId] : undefined;
+      const def = inst ? definitions[inst.definitionId] : undefined;
+      resolved = def?.lore ?? 0;
+      break;
+    }
+    case "target_damage": {
+      const inst = targetInstanceId ? state.cards[targetInstanceId] : undefined;
+      resolved = inst?.damage ?? 0;
+      break;
+    }
+    case "target_strength": {
+      const inst = targetInstanceId ? state.cards[targetInstanceId] : undefined;
+      const def = inst ? definitions[inst.definitionId] : undefined;
+      resolved = inst && def ? getEffectiveStrength(inst, def, 0) : 0;
+      break;
+    }
+    case "source_lore": {
+      const inst = state.cards[sourceInstanceId];
+      const def = inst ? definitions[inst.definitionId] : undefined;
+      resolved = def?.lore ?? 0;
+      break;
+    }
+    case "source_strength": {
+      const inst = state.cards[sourceInstanceId];
+      const def = inst ? definitions[inst.definitionId] : undefined;
+      resolved = inst && def ? getEffectiveStrength(inst, def, 0) : 0;
+      break;
+    }
+  }
+  const max = (amount as { max?: number }).max;
+  if (typeof max === "number") resolved = Math.min(resolved, max);
+  return resolved;
+}
+
 export function applyEffect(
   state: GameState,
   effect: Effect,
@@ -1588,12 +1666,7 @@ export function applyEffect(
 ): GameState {
   switch (effect.type) {
     case "draw": {
-      const amount = effect.amount === "X" ? 1
-        : effect.amount === "cost_result" ? (state.lastEffectResult ?? 0)
-        : effect.amount === "damage_on_target" ? (state.lastEffectResult ?? 0)
-        : (typeof effect.amount === "object" && effect.amount.type === "count")
-          ? findMatchingInstances(state, definitions, effect.amount.filter, controllingPlayerId, sourceInstanceId).length
-        : effect.amount as number;
+      const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, undefined);
       if (amount <= 0) return state;
       if (effect.target.type === "both") {
         state = applyDraw(state, controllingPlayerId, amount, events, definitions);
@@ -1623,36 +1696,13 @@ export function applyEffect(
           : effect.target.type === "target_owner"
             ? (state.lastTargetOwnerId ?? controllingPlayerId)
             : controllingPlayerId;
-      let amount: number;
-      if (typeof effect.amount === "object" && effect.amount.type === "count") {
-        amount = findMatchingInstances(state, definitions, effect.amount.filter, controllingPlayerId).length;
-      } else if (effect.amount === "triggering_card_lore") {
-        // Peter Pan - Lost Boy Leader: lore equal to the triggering location's lore
-        const triggeringInst = triggeringCardInstanceId ? state.cards[triggeringCardInstanceId] : undefined;
-        const triggeringDef = triggeringInst ? definitions[triggeringInst.definitionId] : undefined;
-        amount = triggeringDef?.lore ?? 0;
-      } else if (effect.amount === "last_target_location_lore") {
-        // I've Got a Dream: lore equal to the lore of the most recent chosen target's location
-        const lastTargetId = state.lastTargetInstanceId;
-        const lastTargetInst = lastTargetId ? state.cards[lastTargetId] : undefined;
-        const locId = lastTargetInst?.atLocationInstanceId;
-        const locInst = locId ? state.cards[locId] : undefined;
-        const locDef = locInst ? definitions[locInst.definitionId] : undefined;
-        amount = locDef?.lore ?? 0;
-      } else {
-        amount = effect.amount as number;
-      }
+      const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, state.lastTargetInstanceId);
       return gainLore(state, targetPlayer, amount, events);
     }
 
     case "deal_damage": {
-      const resolveAmount = (amt: typeof effect.amount): number => {
-        if (amt === "X") return 1;
-        if (typeof amt === "object" && amt.type === "count") {
-          return findMatchingInstances(state, definitions, amt.filter, controllingPlayerId).length;
-        }
-        return amt as number;
-      };
+      const resolveAmount = (amt: typeof effect.amount): number =>
+        resolveDynamicAmount(amt, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, state.lastTargetInstanceId);
       if (effect.target.type === "this") {
         return dealDamageToCard(state, sourceInstanceId, resolveAmount(effect.amount), definitions, events);
       }
@@ -1668,7 +1718,7 @@ export function applyEffect(
             choosingPlayerId,
             prompt: "Choose a target to deal damage to.",
             validTargets,
-            pendingEffect: effect,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           },
         };
       }
@@ -1695,7 +1745,7 @@ export function applyEffect(
             choosingPlayerId,
             prompt: "Choose a target to banish.",
             validTargets,
-            pendingEffect: effect,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             optional: effect.isMay ?? false,
           },
         };
@@ -1735,7 +1785,7 @@ export function applyEffect(
             choosingPlayerId,
             prompt: "Choose a card to return to hand.",
             validTargets,
-            pendingEffect: effect,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             optional: effect.isMay ?? false,
           },
         };
@@ -1774,7 +1824,7 @@ export function applyEffect(
             choosingPlayerId: controllingPlayerId,
             prompt: "Choose a character to remove damage from.",
             validTargets,
-            pendingEffect: effect,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             optional: true, // "Remove up to N" — player can decline
           },
         };
@@ -1810,7 +1860,7 @@ export function applyEffect(
             choosingPlayerId: controllingPlayerId,
             prompt: "Choose a target.",
             validTargets,
-            pendingEffect: effect,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             optional: effect.isMay ?? false,
           },
         };
@@ -1844,7 +1894,7 @@ export function applyEffect(
             choosingPlayerId: controllingPlayerId,
             prompt: "Choose a character that can't be challenged.",
             validTargets,
-            pendingEffect: effect,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             optional: effect.isMay ?? false,
           },
         };
@@ -1937,7 +1987,7 @@ export function applyEffect(
               choosingPlayerId: controllingPlayerId,
               prompt: "Choose a card to put on the bottom of its owner's deck.",
               validTargets,
-              pendingEffect: effect,
+              pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
               optional: effect.isMay ?? false,
             },
           };
@@ -2024,7 +2074,7 @@ export function applyEffect(
           choosingPlayerId: controllingPlayerId,
           prompt: "Choose a character to move damage from.",
           validTargets: validSources,
-          pendingEffect: effect,
+          pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
         },
       };
     }
@@ -2100,7 +2150,7 @@ export function applyEffect(
             type: "choose_card_name",
             choosingPlayerId: controllingPlayerId,
             prompt: "Name a card",
-            pendingEffect: effect,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           },
         };
       }
@@ -2131,7 +2181,7 @@ export function applyEffect(
             choosingPlayerId: controllingPlayerId,
             prompt: "Choose a character to move.",
             validTargets,
-            pendingEffect: effect,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             optional: effect.isMay ?? false,
           },
         };
@@ -2203,7 +2253,7 @@ export function applyEffect(
             choosingPlayerId,
             prompt: count > 1 ? `Choose up to ${count} characters to exert.` : "Choose a character to exert.",
             validTargets,
-            pendingEffect: effect,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             followUpEffects: effect.followUpEffects,
             optional: effect.isUpTo ?? false,
             count,
@@ -2250,7 +2300,7 @@ export function applyEffect(
             choosingPlayerId: controllingPlayerId,
             prompt: `Choose a character to grant ${effect.keyword}.`,
             validTargets,
-            pendingEffect: effect,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           },
         };
       }
@@ -2295,7 +2345,7 @@ export function applyEffect(
             choosingPlayerId: controllingPlayerId,
             prompt: "Choose a character to ready.",
             validTargets,
-            pendingEffect: effect,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             followUpEffects: effect.followUpEffects,
           },
         };
@@ -2341,7 +2391,7 @@ export function applyEffect(
             choosingPlayerId: controllingPlayerId,
             prompt: `Choose a character that can't ${effect.action}.`,
             validTargets,
-            pendingEffect: effect,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           },
         };
       }
@@ -2407,7 +2457,7 @@ export function applyEffect(
                   prompt: `No matching cards found. All revealed cards go to the bottom of your deck.`,
                   validTargets: [],
                   revealedCards: topCards,
-                  pendingEffect: effect,
+                  pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
                   optional: true,
                 },
               };
@@ -2420,7 +2470,7 @@ export function applyEffect(
                 prompt: `Choose a card to put into your hand. The rest go to the bottom of your deck.`,
                 validTargets: matchingCards,
                 revealedCards: topCards,
-                pendingEffect: effect,
+                pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
                 optional: true,
               },
             };
@@ -2441,7 +2491,7 @@ export function applyEffect(
               choosingPlayerId: controllingPlayerId,
               prompt: `Choose 1 of ${topCards.length} revealed cards to put into your hand. The rest go to the bottom of your deck.`,
               validTargets: topCards,
-              pendingEffect: effect,
+              pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             },
           };
         }
@@ -2557,7 +2607,7 @@ export function applyEffect(
             prompt: `Choose ${discardCount} card(s) to discard.`,
             validTargets: hand,
             count: discardCount,
-            pendingEffect: effect,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           },
         };
       }
@@ -2601,7 +2651,7 @@ export function applyEffect(
             choosingPlayerId: controllingPlayerId,
             prompt: "Choose a card to put into inkwell.",
             validTargets,
-            pendingEffect: effect,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           },
         };
       }
@@ -2618,7 +2668,7 @@ export function applyEffect(
             choosingPlayerId: controllingPlayerId,
             prompt: "Choose a target.",
             validTargets,
-            pendingEffect: effect,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           },
         };
       }
@@ -2654,7 +2704,7 @@ export function applyEffect(
           choosingPlayerId: controllingPlayerId,
           prompt: "Choose a card to play for free.",
           validTargets: validCards,
-          pendingEffect: effect,
+          pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           optional: effect.isMay ?? false,
         },
       };
@@ -2679,7 +2729,7 @@ export function applyEffect(
             choosingPlayerId: controllingPlayerId,
             prompt: "Choose one:",
             options: effect.options,
-            pendingEffect: effect,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           },
         };
       }
@@ -2765,7 +2815,7 @@ export function applyEffect(
             choosingPlayerId: controllingPlayerId,
             prompt: "Choose a card to shuffle into its owner's deck.",
             validTargets,
-            pendingEffect: effect,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             optional: effect.isMay ?? false,
           },
         };
@@ -2802,8 +2852,9 @@ export function applyEffect(
       const targetPlayer = effect.target.type === "opponent"
         ? getOpponent(controllingPlayerId)
         : controllingPlayerId;
+      const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, state.lastTargetInstanceId);
       const loreBefore = state.players[targetPlayer].lore;
-      state = gainLore(state, targetPlayer, -effect.amount, events);
+      state = gainLore(state, targetPlayer, -amount, events);
       const loreAfter = state.players[targetPlayer].lore;
       const actualLost = loreBefore - loreAfter;
       // CRD 6.1.5.1: Store result for "[A]. For each lore lost, [B]" patterns
@@ -2838,7 +2889,7 @@ export function applyEffect(
             choosingPlayerId: controllingPlayerId,
             prompt: "Choose a character to grant challenge-ready",
             validTargets,
-            pendingEffect: effect,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           },
         };
       }
@@ -3571,18 +3622,35 @@ function applyEffectToTarget(
   targetInstanceId: string,
   controllingPlayerId: PlayerID,
   definitions: Record<string, CardDefinition>,
-  events: GameEvent[]
+  events: GameEvent[],
+  sourceInstanceId: string = "",
+  triggeringCardInstanceId?: string
 ): GameState {
   switch (effect.type) {
     case "deal_damage": {
-      let amount: number;
-      if (effect.amount === "X") amount = 1;
-      else if (typeof effect.amount === "object" && effect.amount.type === "count") {
-        amount = findMatchingInstances(state, definitions, effect.amount.filter, controllingPlayerId).length;
-      } else {
-        amount = effect.amount as number;
-      }
+      const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, targetInstanceId);
       return dealDamageToCard(state, targetInstanceId, amount, definitions, events);
+    }
+    case "gain_lore": {
+      // Support DynamicAmount variants that depend on the chosen target (target_lore etc.).
+      // Target player is controllingPlayerId by default; effect.target.type="self" etc. is
+      // honored only in the applyEffect path — here we assume "self" (the controller).
+      const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, targetInstanceId);
+      const targetPlayer = effect.target.type === "opponent"
+        ? getOpponent(controllingPlayerId)
+        : controllingPlayerId;
+      return gainLore(state, targetPlayer, amount, events);
+    }
+    case "lose_lore": {
+      const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, targetInstanceId);
+      const targetPlayer = effect.target.type === "opponent"
+        ? getOpponent(controllingPlayerId)
+        : controllingPlayerId;
+      const loreBefore = state.players[targetPlayer].lore;
+      state = gainLore(state, targetPlayer, -amount, events);
+      const loreAfter = state.players[targetPlayer].lore;
+      state = { ...state, lastEffectResult: loreBefore - loreAfter };
+      return state;
     }
     case "banish": {
       // Store the target's damage in lastEffectResult before banishing (Dinner Bell pattern)
