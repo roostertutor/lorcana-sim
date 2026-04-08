@@ -270,6 +270,8 @@ const CAPABILITIES = new Set<string>([
   "put_on_bottom_of_deck", "pay_ink",
   "sequential", "create_floating_trigger_on_self",
   "mill",
+  "mass_inkwell",
+  "create_floating_trigger_attached",
   "dynamic-amount",
   "reveal_hand", "draw_until_hand_size", "per_count_self_cost_reduction",
   // Static effects

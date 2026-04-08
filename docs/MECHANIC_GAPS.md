@@ -46,30 +46,46 @@ Source script: `scripts/mechanic-gaps.ts` (run via `pnpm tsx scripts/mechanic-ga
 | `exert-filtered-cost` | 6 | 6, 7, 8 | MEDIUM | MEDIUM | New `Cost` variant: exert a chosen filtered card |
 
 > ✅ **Done since last revision:** `put-on-bottom` (44 cards), `dynamic-amount`
-> (18 cards), `pay-extra-cost-mid-effect` (10 cards), and the entire **boost
+> (18 cards), `pay-extra-cost-mid-effect` (10 cards), the entire **boost
 > family** (~30 cards across `boost-subzone`, `card-under-trigger`,
 > `card-under-static`, `put-facedown-under-effect`, `cards-under-count`,
-> `cards-under-to-hand`).
+> `cards-under-to-hand`), and the following six families landed in commits
+> b3f2c03 + 37f6da7 + 5720bd1:
+> - `event-tracking-condition` (Devil's Eye Diamond, Brutus, Nathaniel Flint
+>   playRestrictions, Chief Seasoned Tracker, The Thunderquack)
+> - `conditional-cant-be-challenged` (Kenai, Nick Wilde, Galactic Council
+>   Chamber, Iago Out of Reach x2)
+> - `restrict-sing` (Ulf Mime, Pete Space Pirate, Gantu Experienced Enforcer)
+> - `shift-variant` partial (Flotsam P1, Turbo Royal Hack, Thunderbolt Wonder
+>   Dog Puppy Shift) — Anna Soothing Sister still skipped (combines with
+>   `card-left-discard-this-turn` event tracking which isn't tracked yet)
+> - `opponent-chosen-banish` (Be King Undisputed sets 4 + 9)
+> - `mass-inkwell` — new MassInkwellEffect with four modes (exert_all,
+>   ready_all, return_random_to_hand, return_random_until). Mufasa Ruler of
+>   Pride Rock + Ink Geyser wired.
+> - `grant-floating-trigger-to-target` — FloatingTrigger.attachedToInstanceId +
+>   CreateFloatingTriggerEffect.attachTo "chosen". Bruno Madrigal + Medallion
+>   Weights x2 wired. applyActivateAbility now properly queues remaining
+>   effects across pendingChoice (was silently dropping them).
 
 ### Rest of the backlog
 
 | Capability | Cards | Sets | Priority | Complexity | Notes |
 |---|---:|---|---|---|---|
-| `both-players-effect` | 6 | 7, 9, cp | MEDIUM | SMALL | "Each player draws/discards" — looped existing Effect over both players |
-| `event-tracking-condition` | 6 | 7, 8, 11 | MEDIUM | MEDIUM | "was damaged this turn" / "was banished in a challenge this turn" — turn-scoped event log |
-| `conditional-cant-be-challenged` | 5 | 5, 6, 8, D23 | MEDIUM | SMALL | "while X, can't be challenged" — combine existing static with condition |
-| `mass-inkwell` | 5 | 5, 7 | MEDIUM | LARGE | "all cards in inkwell" / "each player's inkwell" — touches new ZoneTarget |
+| ~~`event-tracking-condition`~~ | ~~6~~ | - | DONE | - | Wired in this batch. |
+| ~~`conditional-cant-be-challenged`~~ | ~~5~~ | - | DONE | - | Wired in this batch. |
+| ~~`mass-inkwell`~~ | ~~5~~ | - | DONE | - | New MassInkwellEffect. |
 | `exert-filtered-cost` | 5 | 6, 7, 8 | MEDIUM | MEDIUM | New `Cost` variant: exert a chosen filtered card |
 | `mill` | 4 | 6, 7 | MEDIUM | SMALL | New `mill_top_n` Effect |
 | `random-discard` | 4 | 7, 8, 10 | MEDIUM | SMALL | DiscardEffect needs `mode: "random"` variant |
-| `grant-floating-trigger-to-target` | 3 | 4, 9 | MEDIUM | MEDIUM | `create_floating_trigger` exists but only attaches to source. Extend to accept a target instanceId. |
-| `shift-variant` | 3 | 4, 5, P1 | MEDIUM | LARGE | Universal/classification/named-shift variants; partly noted in card-issues |
-| `play-same-name-as-banished` | 3 | 4, 5 | MEDIUM | MEDIUM | `play_for_free` filter referencing a previously-resolved card name |
+| ~~`grant-floating-trigger-to-target`~~ | ~~3~~ | - | DONE | - | Wired in this batch. |
+| `shift-variant` | 2 | 11 | MEDIUM | LARGE | Anna Soothing Sister only — needs `card-left-discard-this-turn` event tracking |
+| `play-same-name-as-banished` | 3 | 4, 5 | MEDIUM | MEDIUM | `play_for_free` filter referencing a previously-resolved card name (Hades Double Dealer, Bad-Anon ability grant). Skipped: needs `_resolvedBanishedName` carrier. |
 | `play-restriction` | 3 | 5, 8, P2 | MEDIUM | MEDIUM | "Can't play this card unless X" — pre-play condition gate |
-| `restrict-sing` | 3 | 5, 7 | MEDIUM | SMALL | New action restriction value |
+| ~~`restrict-sing`~~ | ~~3~~ | - | DONE | - | Wired in this batch via existing cant_action_self / action_restriction. |
 | `filtered-cant-be-challenged` | 3 | 6 | MEDIUM | SMALL | `CantBeChallengedException.attackerFilter` already exists; tighten regex |
-| `opponent-chosen-banish` | 3 | 7, 9 | MEDIUM | SMALL | `chooser: "target_player"` exists; tighten regex |
-| `inkwell-static` | 3 | 10, P3 | MEDIUM | MEDIUM | "Opposing characters enter opponents' inkwell exerted" — global pre-ink replacement |
+| ~~`opponent-chosen-banish`~~ | ~~3~~ | - | DONE | - | Be King Undisputed wired. |
+| `inkwell-static` | 3 | 10, P3 | MEDIUM | MEDIUM | Daisy Duck Paranormal Investigator — needs new "cards enter opponents' inkwell exerted" replacement layer. Skipped: orthogonal new system. |
 | `for-each-opponent-who-didnt` | 2 | 4 | LOW | MEDIUM | Per-opponent inverse-sequential branch (Sign the Scroll, Ursula's Trickery) |
 | `virtual-cost-modifier` | 2 | 4, 9 | LOW | MEDIUM | "count as having +N cost" for singer threshold |
 | `restricted-play-by-type` | 2 | 5, 11 | LOW | SMALL | Pete: "opponents can't play actions/items" |

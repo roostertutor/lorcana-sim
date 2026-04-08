@@ -32,9 +32,9 @@ const NEW_MECHANIC: [RegExp, string][] = [
   [/\bcan'?t gain lore unless\b/i, "conditional-lore-lock"],
   [/\bfor each opponent who (doesn'?t|does not)\b/i, "for-each-opponent-who-didnt"],
   [/\beach opponent (may )?(choose and )?discards? .{0,40}\.\s*for each opponent\b/i, "for-each-opponent-who-didnt"],
-  [/\bchosen .{0,30}gains? "[^"]+"\s*this turn\b/i, "grant-floating-trigger-to-target"],
-  [/\bcharacter gains? \u201C[^\u201D]+\u201D this turn\b/i, "grant-floating-trigger-to-target"],
-  [/\bwhenever they challenge\b/i, "grant-floating-trigger-to-target"],
+  // (grant-floating-trigger-to-target removed: FloatingTrigger gained
+  //  attachedToInstanceId; CreateFloatingTriggerEffect.attachTo "chosen"
+  //  surfaces a choose_target. Bruno Madrigal + Medallion Weights wired.)
   [/\bif no other character has quested this turn\b/i, "no-other-quested-condition"],
   [/\byour other characters can'?t (quest|challenge)\b/i, "group-cant-action-this-turn"],
   [/\bplay a .{0,30}with the same name as\b/i, "play-same-name-as-banished"],
@@ -50,8 +50,9 @@ const NEW_TYPE: [RegExp, string][] = [
   // (count-based-effect removed: gain_stats strengthDynamic + Negate.)
   // (per-count-cost-reduction removed — self_cost_reduction.amount supports
   //  DynamicAmount `count` + perMatch. Matched as fits-grammar in card-status.ts.)
-  [/\beach player.{0,60}inkwell/i, "mass-inkwell"],
-  [/\ball (the )?cards? in .{0,30}inkwell/i, "mass-inkwell"],
+  // (mass-inkwell removed: MassInkwellEffect implemented with modes
+  //  exert_all / ready_all / return_random_to_hand / return_random_until.
+  //  Mufasa Ruler of Pride Rock + Ink Geyser wired.)
   [/\buntil (you|they|each player) have \d+ cards? in .{0,20}inkwell/i, "trim-inkwell"],
   [/\benter.{0,10}opponents'.{0,20}inkwell.{0,20}exerted\b/i, "inkwell-static"],
   // (play-from-discard removed: play_for_free supports sourceZone="discard"
@@ -65,7 +66,9 @@ const NEW_TYPE: [RegExp, string][] = [
   // (reveal-hand removed — reveal_hand Effect implemented.)
   // (timed-cant-be-challenged removed: cant_be_challenged_timed Effect already
   //  existed; cards in sets 6/7/11 wired in this batch.)
-  [/while .{0,60}can'?t be challenged\b/i, "conditional-cant-be-challenged"],
+  // (conditional-cant-be-challenged removed: cant_be_challenged static already
+  //  honors StaticAbility.condition + matchesFilter now checks excludeSelf.
+  //  Kenai, Nick Wilde, Galactic Council Chamber, Iago Out of Reach wired.)
   // (damage-immunity removed: implemented via damage_immunity_timed Effect +
   //  damage_immunity_static StaticEffect.)
   [/\bprevent .{0,30}damage\b/i, "damage-prevention"],
@@ -75,7 +78,8 @@ const NEW_TYPE: [RegExp, string][] = [
   // (draw-to-n removed — DrawEffect.untilHandSize implemented.)
   // (mill removed: MillEffect implemented; cards wired this batch.)
   // (put-on-bottom removed: put_on_bottom_of_deck Effect implemented.)
-  [/\beach opponent chooses and banishes\b/i, "opponent-chosen-banish"],
+  // (opponent-chosen-banish removed: chooser:"target_player" already supported.
+  //  Be King Undisputed (set 4 + 9) wired with chooser target_player.)
   [/\beach opponent chooses .{0,40}returns?\b/i, "opponent-chosen-return"],
   // (exert-filtered-cost removed: leading `exert` effect with chosen filter
   //  has always worked as a cost — categorizer false positive. Cards wired.)
@@ -85,7 +89,9 @@ const NEW_TYPE: [RegExp, string][] = [
   [/\bcounts as .{0,30}named .{0,30}for shift\b/i, "shift-variant"],
   [/\bMIMICRY\b/i, "shift-variant"],
   [/\bas if this character had any name\b/i, "shift-variant"],
-  [/can'?t .{0,30}(exert to )?sing\b/i, "restrict-sing"],
+  // (restrict-sing removed: cant_action_self / action_restriction static already
+  //  support action: "sing" — sing validator already consults isActionRestricted.
+  //  Ulf Mime, Pete Space Pirate, Gantu Experienced Enforcer wired.)
   [/\bif they don'?t\b/i, "inverse-sequential"],
   [/\bif (he|she|it|they) doesn'?t\b/i, "inverse-sequential"],
   // (random-discard removed: discard_from_hand chooser:"random" supported;
@@ -103,7 +109,9 @@ const NEW_TYPE: [RegExp, string][] = [
   [/if you have a character with \d+ \{S\}/i, "stat-threshold-condition"],
   [/can'?t play (actions|items|actions or items)\b/i, "restricted-play-by-type"],
   // (play-restriction removed: CardDefinition.playRestrictions implemented.)
-  [/was damaged this turn\b/i, "event-tracking-condition"],
+  // (event-tracking-condition (damaged) removed: your_character_was_damaged_this_turn
+  //  + opposing_character_was_damaged_this_turn Conditions implemented; per-player
+  //  flags reset at PASS_TURN. Devil's Eye Diamond, Brutus, Nathaniel Flint wired.)
   // reveal-top-conditional landed: RevealTopConditionalEffect extended with
   // noMatchDestination hand/discard + matchExtraEffects (commit ae1bcf6).
   // Categorizer now matches "reveal the top card of your deck" as fits-grammar.
@@ -121,7 +129,10 @@ const NEW_TYPE: [RegExp, string][] = [
   // (cards-under-to-hand removed — see boost block above.)
   [/gets? \+\{S\} equal to\b/i, "dynamic-stat-gain"],
   // (two more timed-cant-be-challenged entries removed — see above.)
-  [/was banished in a challenge this turn\b/i, "event-tracking-condition"],
+  // (event-tracking-condition (banished_in_challenge) removed: existing
+  //  opponent_character_was_banished_in_challenge_this_turn +
+  //  a_character_was_banished_in_challenge_this_turn Conditions implemented.
+  //  Chief - Seasoned Tracker, The Thunderquack wired.)
 ];
 
 interface Hit { setId: string; name: string; text: string; }
