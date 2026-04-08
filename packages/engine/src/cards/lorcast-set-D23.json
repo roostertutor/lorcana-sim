@@ -55,6 +55,19 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "static",
+        "storyName": "BRAVE HEART",
+        "rulesText": "Whenever you play a song, this character may challenge ready characters this turn.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "modifier": 0,
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "D23",
@@ -289,6 +302,41 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "triggered",
+        "storyName": "BROOMS EVERYWHERE",
+        "rulesText": "When you play this character, deal damage to chosen character equal to the number of Broom characters you have in play.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": {
+              "type": "count",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasName": "Magic Broom"
+              }
+            },
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "D23",
@@ -376,7 +424,33 @@
     "traits": [
       "Storyborn"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "TEA FOR ALL",
+        "rulesText": "Whenever a damaged character challenges another character, you may draw a card.",
+        "trigger": {
+          "on": "challenges",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasDamage": true
+          }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "D23",
     "number": 16,
     "rarity": "common",

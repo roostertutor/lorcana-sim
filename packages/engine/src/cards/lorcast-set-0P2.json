@@ -14,7 +14,29 @@
       "Villain",
       "Prince"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "BEAUTIFUL, LOVELY TAXES",
+        "rulesText": "{E} — Play an item from your hand or discard with cost 5 or less for free, exerted. (approximation: from hand, not exerted)",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "play_for_free",
+            "filter": {
+              "cardType": [
+                "item"
+              ],
+              "costAtMost": 5
+            }
+          }
+        ]
+      }
+    ],
     "setId": "P2",
     "number": 1,
     "rarity": "common",
@@ -136,6 +158,15 @@
         "rulesText": "Draw 3 cards.",
         "raw": "Draw 3 cards."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "draw",
+        "amount": 3,
+        "target": {
+          "type": "self"
+        }
+      }
     ]
   },
   {
@@ -190,7 +221,31 @@
       "Hero",
       "Alien"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "HEAVE HO!",
+        "rulesText": "When you play this character, you may deal 2 damage to chosen character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "P2",
     "number": 6,
     "rarity": "common",
@@ -226,7 +281,13 @@
     ],
     "abilities": [],
     "playRestrictions": [
-      { "type": "characters_in_play_gte", "amount": 5, "player": { "type": "self" } }
+      {
+        "type": "characters_in_play_gte",
+        "amount": 5,
+        "player": {
+          "type": "self"
+        }
+      }
     ],
     "setId": "P2",
     "number": 7,
@@ -266,6 +327,35 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "triggered",
+        "storyName": "READY FOR ACTION",
+        "rulesText": "When you play this character, if you used Shift to play him, you may put an action card from your discard on the top of your deck.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "played_via_shift"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "discard",
+                "cardType": [
+                  "action"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "P2",
@@ -306,6 +396,32 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 2
+      },
+      {
+        "type": "triggered",
+        "storyName": "FALL IN LINE",
+        "rulesText": "When you play this character, your characters get +2 {S} this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": 2,
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "P2",
@@ -344,16 +460,25 @@
         "strengthDynamic": {
           "type": "count",
           "filter": {
-            "owner": { "type": "self" },
+            "owner": {
+              "type": "self"
+            },
             "zone": "play",
-            "cardType": ["character"]
+            "cardType": [
+              "character"
+            ]
           }
         },
         "strengthDynamicNegate": true,
         "duration": "until_caster_next_turn",
         "target": {
           "type": "chosen",
-          "filter": { "zone": "play", "cardType": ["character"] }
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
         }
       }
     ],
@@ -450,7 +575,38 @@
       "Hero",
       "Pirate"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "LAND, HO!",
+        "rulesText": "Once during your turn, whenever a card is put into your inkwell, you may return a location card from your discard to your hand.",
+        "trigger": {
+          "on": "ink_played",
+          "player": {
+            "type": "self"
+          }
+        },
+        "oncePerTurn": true,
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "discard",
+                "cardType": [
+                  "location"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "P2",
     "number": 12,
     "rarity": "common",
@@ -484,7 +640,55 @@
       "Hero",
       "Inventor"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "SCALPEL",
+        "rulesText": "When you play this character, you may banish chosen item. Its player gains 1 lore.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "item"
+                ]
+              }
+            },
+            "followUpEffects": [
+              {
+                "type": "gain_lore",
+                "amount": 1,
+                "target": {
+                  "type": "target_owner"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "static",
+        "storyName": "DODGE",
+        "rulesText": "During your turn, this character gains Evasive.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "this"
+          },
+          "condition": {
+            "type": "is_your_turn"
+          }
+        }
+      }
+    ],
     "setId": "P2",
     "number": 13,
     "rarity": "common",
@@ -521,7 +725,54 @@
       "Storyborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "BARED TEETH",
+        "rulesText": "When you play this character, deal 2 damage to chosen character of yours to deal 2 damage to chosen character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "costEffects": [
+              {
+                "type": "deal_damage",
+                "amount": 2,
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "deal_damage",
+                "amount": 2,
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "P2",
     "number": 14,
     "rarity": "common",
@@ -578,7 +829,29 @@
       "Hero",
       "Queen"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "I WAS BORN READY",
+        "rulesText": "If you have another Hero character in play, this character gets +1 {L}.",
+        "condition": {
+          "type": "has_character_with_trait",
+          "trait": "Hero",
+          "player": {
+            "type": "self"
+          },
+          "excludeSelf": true
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "modifier": 1,
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "P2",
     "number": 17,
     "rarity": "super_rare",
@@ -700,6 +973,33 @@
       {
         "type": "keyword",
         "keyword": "support"
+      },
+      {
+        "type": "triggered",
+        "storyName": "BREAKING THE ICE",
+        "rulesText": "When you play this character, chosen opposing character can't ready at the start of their next turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "cant_action",
+            "action": "ready",
+            "duration": "end_of_owner_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "P2",
@@ -764,7 +1064,50 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "ON MY WAY",
+        "rulesText": "Whenever this character quests, you pay 2 {I} less for the next Puppy character you play this turn.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "grant_cost_reduction",
+            "amount": 2,
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Puppy"
+            }
+          }
+        ]
+      },
+      {
+        "type": "static",
+        "storyName": "BE PREPARED",
+        "rulesText": "Your Puppy characters gain Ward.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "ward",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Puppy"
+            }
+          }
+        }
+      }
+    ],
     "setId": "P2",
     "number": 21,
     "rarity": "common",
@@ -803,7 +1146,34 @@
       "Hero",
       "Captain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "LEAD BY EXAMPLE",
+        "rulesText": "This character can challenge ready characters.",
+        "effect": {
+          "type": "can_challenge_ready",
+          "target": {
+            "type": "this"
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "BATTLE HARDENED",
+        "rulesText": "While this character is damaged, he gets +2 {S}.",
+        "effect": {
+          "type": "gain_stats",
+          "strength": 2,
+          "target": {
+            "type": "this"
+          },
+          "condition": {
+            "type": "this_has_damage"
+          }
+        }
+      }
+    ],
     "setId": "P2",
     "number": 22,
     "rarity": "common",
@@ -841,7 +1211,19 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "UNTOUCHABLE",
+        "rulesText": "This character can't be challenged.",
+        "effect": {
+          "type": "cant_be_challenged",
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "P2",
     "number": 23,
     "rarity": "common",
@@ -1016,7 +1398,38 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "LOYAL",
+        "rulesText": "While this character has no damage, he gets +2 {S} and gains Support.",
+        "effect": {
+          "type": "gain_stats",
+          "strength": 2,
+          "target": {
+            "type": "this"
+          },
+          "condition": {
+            "type": "this_has_no_damage"
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "LOYAL",
+        "rulesText": "While this character has no damage, he gains Support.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "support",
+          "target": {
+            "type": "this"
+          },
+          "condition": {
+            "type": "this_has_no_damage"
+          }
+        }
+      }
+    ],
     "setId": "P2",
     "number": 27,
     "rarity": "common",
@@ -1049,7 +1462,34 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "DECISIVE",
+        "rulesText": "Whenever you play a character, this character gets +1 {S} this turn.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": 1,
+            "duration": "this_turn",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "P2",
     "number": 28,
     "rarity": "common",
@@ -1092,6 +1532,35 @@
       {
         "type": "keyword",
         "keyword": "bodyguard"
+      },
+      {
+        "type": "triggered",
+        "storyName": "WATCHFUL",
+        "rulesText": "Whenever one of your Ally characters quests, you may remove up to 2 damage from this character.",
+        "trigger": {
+          "on": "quests",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Ally"
+          }
+        },
+        "effects": [
+          {
+            "type": "remove_damage",
+            "amount": 2,
+            "isUpTo": true,
+            "isMay": true,
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
       }
     ],
     "setId": "P2",
@@ -1130,6 +1599,32 @@
       {
         "type": "keyword",
         "keyword": "ward"
+      },
+      {
+        "type": "static",
+        "storyName": "PLAYFUL",
+        "rulesText": "While you have another Puppy character in play, this character gets +1 {L}.",
+        "effect": {
+          "type": "gain_stats",
+          "lore": 1,
+          "target": {
+            "type": "this"
+          },
+          "condition": {
+            "type": "you_control_matching",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "excludeSelf": true,
+              "hasTrait": "Puppy"
+            }
+          }
+        }
       }
     ],
     "setId": "P2",
@@ -1275,6 +1770,20 @@
       {
         "type": "keyword",
         "keyword": "bodyguard"
+      },
+      {
+        "type": "static",
+        "storyName": "GETTING STRONGER",
+        "rulesText": "This character gets +1 {S} for each 1 damage on her.",
+        "effect": {
+          "type": "modify_stat_per_count",
+          "stat": "strength",
+          "perCount": 1,
+          "countSelfDamage": true,
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "P2",
@@ -1335,7 +1844,35 @@
       "Queen",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
+              }
+            }
+          }
+        ],
+        "storyName": "FREEZE",
+        "rulesText": "{E} — Exert chosen opposing character."
+      }
+    ],
     "setId": "P2",
     "number": 38,
     "rarity": "common",
@@ -1369,7 +1906,23 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "HOW DO YOU DO?",
+        "rulesText": "You pay 1 {I} less to play Seven Dwarfs characters.",
+        "effect": {
+          "type": "cost_reduction",
+          "amount": 1,
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Seven Dwarfs"
+          }
+        }
+      }
+    ],
     "setId": "P2",
     "number": 42,
     "rarity": "common",

@@ -49,6 +49,46 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ],
+            "costAtMost": 2
+          }
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "costEffects": [
+              {
+                "type": "exert",
+                "target": {
+                  "type": "triggering_card"
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ],
+            "isMay": true
+          }
+        ],
+        "storyName": "ADORING FANS",
+        "rulesText": "Whenever you play a character with cost 2 or less, you may exert them to draw a card."
       }
     ],
     "setId": "P1",
@@ -86,7 +126,35 @@
       "Queen",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
+              }
+            }
+          }
+        ],
+        "storyName": "FREEZE",
+        "rulesText": "{E} — Exert chosen opposing character."
+      }
+    ],
     "setId": "P1",
     "number": 3,
     "rarity": "common",
@@ -153,7 +221,31 @@
       "Villain",
       "Dragon"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "isMay": true
+          }
+        ],
+        "storyName": "DRAGON FIRE",
+        "rulesText": "When you play this character, you may banish chosen character."
+      }
+    ],
     "setId": "P1",
     "number": 5,
     "rarity": "common",
@@ -186,7 +278,43 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "opponent_has_more_cards_in_hand"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ],
+        "storyName": "FEED THE POOR",
+        "rulesText": "When you play this character, if an opponent has more cards in their hand than you, draw a card."
+      },
+      {
+        "type": "static",
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "this"
+          }
+        },
+        "storyName": "GOOD SHOT",
+        "rulesText": "During your turn, this character gains Evasive. (They can challenge characters with Evasive.)"
+      }
+    ],
     "setId": "P1",
     "number": 6,
     "rarity": "common",
@@ -258,7 +386,27 @@
       "Hero",
       "Detective"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "move_to_inkwell",
+            "target": {
+              "type": "this"
+            },
+            "enterExerted": true,
+            "fromZone": "deck",
+            "isMay": true
+          }
+        ],
+        "storyName": "GET A CLUE",
+        "rulesText": "When you play this character, you may put the top card of your deck into your inkwell facedown and exerted."
+      }
+    ],
     "setId": "P1",
     "number": 8,
     "rarity": "common",
@@ -322,7 +470,26 @@
       "Villain",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 1,
+            "action": "top_or_bottom",
+            "target": {
+              "type": "self"
+            }
+          }
+        ],
+        "storyName": "YOU'RE EXCUSED",
+        "rulesText": "Whenever this character quests, look at the top card of your deck. Put it on either the top or the bottom of your deck."
+      }
+    ],
     "setId": "P1",
     "number": 10,
     "rarity": "common",
@@ -360,6 +527,30 @@
       {
         "type": "keyword",
         "keyword": "bodyguard"
+      },
+      {
+        "type": "static",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "strength",
+          "modifier": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Musketeer",
+              "excludeSelf": true
+            }
+          }
+        },
+        "storyName": "ALL FOR ONE",
+        "rulesText": "Your other Musketeer characters get +1 {S}."
       }
     ],
     "setId": "P1",
@@ -398,6 +589,34 @@
       {
         "type": "keyword",
         "keyword": "bodyguard"
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "remove_damage",
+            "amount": 2,
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Musketeer"
+              }
+            },
+            "isMay": true
+          }
+        ],
+        "storyName": "AND TWO FOR TEA!",
+        "rulesText": "When you play this character, you may remove up to 2 damage from each of your Musketeer characters."
       }
     ],
     "setId": "P1",
@@ -437,6 +656,31 @@
       {
         "type": "keyword",
         "keyword": "bodyguard"
+      },
+      {
+        "type": "static",
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Musketeer"
+            }
+          }
+        },
+        "storyName": "STAY ALERT!",
+        "rulesText": "During your turn, your Musketeer characters gain Evasive. (They can challenge characters with Evasive.)"
       }
     ],
     "setId": "P1",
@@ -472,7 +716,34 @@
       "Princess",
       "Knight"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "SWORD TRAINING",
+        "rulesText": "When you play this character, you may draw a card, then choose and discard a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          },
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "chooser": "target_player"
+          }
+        ]
+      }
+    ],
     "setId": "P1",
     "number": 14,
     "rarity": "common",
@@ -505,7 +776,35 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "SQUEAK SQUEAK",
+        "rulesText": "Whenever you play a Floodborn character, if you used Shift to play them, each opponent chooses and discards a card.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Floodborn"
+          }
+        },
+        "condition": {
+          "type": "triggering_card_played_via_shift"
+        },
+        "effects": [
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            },
+            "chooser": "target_player"
+          }
+        ]
+      }
+    ],
     "setId": "P1",
     "number": 15,
     "rarity": "common",
@@ -547,6 +846,33 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 2
+      },
+      {
+        "type": "triggered",
+        "storyName": "DEEP BREATH",
+        "rulesText": "Whenever you play a second action in a turn, this character gets +2 lore this turn.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "action"
+            ]
+          }
+        },
+        "condition": {
+          "type": "actions_played_this_turn_gte",
+          "amount": 2
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "lore": 2,
+            "target": {
+              "type": "this"
+            },
+            "duration": "this_turn"
+          }
+        ]
       }
     ],
     "setId": "P1",
@@ -581,7 +907,33 @@
       "Dreamborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "SKIRMISH",
+        "rulesText": "Deal 1 damage to chosen character.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 1,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "P1",
     "number": 17,
     "rarity": "common",
@@ -614,7 +966,27 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "HERE TO HELP",
+        "rulesText": "Whenever this character quests, you pay 3 {I} less for the next character you play this turn.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "cost_reduction",
+            "amount": 3,
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            }
+          }
+        ]
+      }
+    ],
     "setId": "P1",
     "number": 18,
     "rarity": "common",
@@ -689,6 +1061,30 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 6
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "play_for_free",
+            "filter": {
+              "cardType": [
+                "action"
+              ],
+              "costAtMost": 5,
+              "owner": {
+                "type": "self"
+              },
+              "zone": "hand"
+            },
+            "isMay": true
+          }
+        ],
+        "storyName": "PHENOMENAL COSMIC POWER!",
+        "rulesText": "Whenever this character quests, you may play an action with cost 5 or less for free."
       }
     ],
     "setId": "P1",
@@ -881,7 +1277,35 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "I'M READY!",
+        "rulesText": "When you play this character, you may return chosen opposing character with 2 {S} or less to their player's hand.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "strengthAtMost": 2
+              }
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "P1",
     "number": 26,
     "rarity": "common",
@@ -1003,6 +1427,16 @@
         "rulesText": "Look at the top 2 cards of your deck. Put one into your hand and the other into your inkwell facedown and exerted.",
         "raw": "Look at the top 2 cards of your deck. Put one into your hand and the other into your inkwell facedown and exerted."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "look_at_top",
+        "count": 2,
+        "action": "one_to_hand_rest_bottom",
+        "target": {
+          "type": "self"
+        }
+      }
     ]
   },
   {
@@ -1022,7 +1456,30 @@
       "Pirate",
       "Captain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "CHART YOUR OWN COURSE",
+        "rulesText": "For each location you have in play, this character gets +1 {L}.",
+        "effect": {
+          "type": "modify_stat_per_count",
+          "stat": "lore",
+          "perCount": 1,
+          "countFilter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "location"
+            ]
+          },
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "P1",
     "number": 29,
     "rarity": "common",
@@ -1061,6 +1518,46 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ],
+            "costAtMost": 2
+          }
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "costEffects": [
+              {
+                "type": "exert",
+                "target": {
+                  "type": "triggering_card"
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ],
+            "isMay": true
+          }
+        ],
+        "storyName": "ADORING FANS",
+        "rulesText": "Whenever you play a character with cost 2 or less, you may exert them to draw a card."
       }
     ],
     "setId": "P1",
@@ -1101,6 +1598,29 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "triggered",
+        "storyName": "HEALING GLOW",
+        "rulesText": "Whenever you remove 1 or more damage from one of your characters, you may draw a card.",
+        "trigger": {
+          "on": "damage_removed_from",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "P1",
@@ -1135,7 +1655,34 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "HI THERE!",
+        "rulesText": "When you play this character, you may exert chosen opposing character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "P1",
     "number": 32,
     "rarity": "common",
@@ -1184,6 +1731,26 @@
         "rulesText": "Your characters gain Resist +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)",
         "raw": "Your characters gain Resist +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)"
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "grant_keyword",
+        "keyword": "resist",
+        "value": 2,
+        "target": {
+          "type": "all",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "duration": "until_caster_next_turn"
+      }
     ]
   },
   {
@@ -1204,6 +1771,30 @@
       {
         "type": "keyword",
         "keyword": "support"
+      },
+      {
+        "type": "triggered",
+        "storyName": "STRIKE UP THE MUSIC",
+        "rulesText": "When you play this character, chosen character gains Support this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "support",
+            "duration": "end_of_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "P1",
@@ -1270,7 +1861,25 @@
     "cost": 2,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "FRESH INK",
+        "rulesText": "When you play this item, draw a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "P1",
     "number": 36,
     "rarity": "common",
@@ -1305,7 +1914,31 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "TIME TO SHINE",
+        "rulesText": "Whenever you play an action, this character gets +2 {S} this turn.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "action"
+            ]
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": 2,
+            "target": {
+              "type": "this"
+            },
+            "duration": "this_turn"
+          }
+        ]
+      }
+    ],
     "setId": "P1",
     "number": 37,
     "rarity": "common",
@@ -1345,6 +1978,28 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "storyName": "YOU'LL LISTEN TO ME!",
+        "rulesText": "Whenever this character quests, exert chosen character.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "P1",
