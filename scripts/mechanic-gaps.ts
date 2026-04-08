@@ -107,10 +107,11 @@ const NEW_TYPE: [RegExp, string][] = [
   // reveal-top-conditional landed: RevealTopConditionalEffect extended with
   // noMatchDestination hand/discard + matchExtraEffects (commit ae1bcf6).
   // Categorizer now matches "reveal the top card of your deck" as fits-grammar.
-  [/can'?t be challenged by .{0,30}(character|pirate|[A-Z])/i, "filtered-cant-be-challenged"],
+  // (filtered-cant-be-challenged removed: attackerFilter on cant_be_challenged
+  //  static; cards wired this batch.)
   // (both-players-effect removed: draw/discard_from_hand/gain_lore all accept
   //  target { type: "both" }. gain_lore both-branch added this batch.)
-  [/\bput a damage counter on\b/i, "put-damage-counter"],
+  // (put-damage-counter removed: deal_damage asDamageCounter flag added.)
   [/cost equal to or less than .{0,30}\{S\}/i, "dynamic-filter"],
   // (second timed-cant-be-challenged block also removed — see above.)
   // (reveal-top-conditional removed — see note above.)

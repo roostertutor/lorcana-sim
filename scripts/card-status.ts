@@ -214,12 +214,12 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   // "Reveal top card... if it's a [type] card... put into hand. Otherwise, top/bottom"
   [/\breveal the top card.{0,60}(if it'?s?|put).{0,40}(into (your|their) hand|on the (top|bottom))/i, "reveal-top-conditional"],
   // (conditional-keyword-by-turn removed: grant_keyword static + is_your_turn condition both exist.)
-  // "can't be challenged by [filter]" — needs strengthAtLeast/hasTrait on attackerFilter
-  [/can'?t be challenged by .{0,30}(character|pirate|[A-Z])/i, "filtered-cant-be-challenged"],
+  // (filtered-cant-be-challenged removed: cant_be_challenged static accepts
+  //  attackerFilter with strengthAtLeast/hasTrait. Cards wired this batch.)
   // (both-players-effect removed: target { type: "both" } works for draw,
   //  discard_from_hand, and (as of this batch) gain_lore.)
-  // "put a damage counter on" (1 damage without using "deal")
-  [/\bput a damage counter on\b/i, "put-damage-counter"],
+  // (put-damage-counter removed: deal_damage gained `asDamageCounter: true`
+  //  flag — bypasses Resist + immunity + dealt_damage triggers per CRD.)
   // Dynamic filter based on card's own stat ("cost equal to or less than this character's {S}")
   [/cost equal to or less than .{0,30}\{S\}/i, "dynamic-filter"],
   // (broader timed-cant-be-challenged entries also removed — see above.)

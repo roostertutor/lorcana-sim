@@ -3365,6 +3365,23 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "triggered",
+        "storyName": "IF I LOSE MY TEMPER...",
+        "rulesText": "Whenever another character is played, put a damage counter on them.",
+        "trigger": {
+          "on": "card_played",
+          "filter": { "cardType": ["character"], "excludeSelf": true }
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 1,
+            "asDamageCounter": true,
+            "target": { "type": "triggering_card" }
+          }
+        ]
       }
     ],
     "setId": "7",

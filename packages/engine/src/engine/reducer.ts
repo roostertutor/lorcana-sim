@@ -1778,7 +1778,10 @@ export function applyEffect(
       const resolveAmount = (amt: typeof effect.amount): number =>
         resolveDynamicAmount(amt, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, state.lastTargetInstanceId);
       if (effect.target.type === "this") {
-        return dealDamageToCard(state, sourceInstanceId, resolveAmount(effect.amount), definitions, events);
+        return dealDamageToCard(state, sourceInstanceId, resolveAmount(effect.amount), definitions, events, false, false, effect.asDamageCounter);
+      }
+      if (effect.target.type === "triggering_card" && triggeringCardInstanceId) {
+        return dealDamageToCard(state, triggeringCardInstanceId, resolveAmount(effect.amount), definitions, events, false, false, effect.asDamageCounter);
       }
       if (effect.target.type === "chosen") {
         const choosingPlayerId = chosenChooserPlayerId(effect.target, controllingPlayerId);
@@ -1800,7 +1803,7 @@ export function applyEffect(
         const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         const amount = resolveAmount(effect.amount);
         for (const targetId of targets) {
-          state = dealDamageToCard(state, targetId, amount, definitions, events);
+          state = dealDamageToCard(state, targetId, amount, definitions, events, false, false, effect.asDamageCounter);
         }
         return state;
       }
@@ -3764,14 +3767,18 @@ function dealDamageToCard(
   /** CRD 8.8.3: Resist only reduces "dealt" damage, not "put" or "moved" damage */
   ignoreResist = false,
   /** When true, the damage source is a challenge; used for source-tagged immunities. */
-  inChallenge = false
+  inChallenge = false,
+  /** CRD: "put a damage counter on" — bypass Resist + damage immunity + damage_dealt_to triggers.
+   *  Banishment from willpower still resolves. Used by Queen of Hearts Unpredictable Bully. */
+  asDamageCounter = false
 ): GameState {
   const modifiers = getGameModifiers(state, definitions);
 
   // Damage immunity (Baloo static, Hercules, Noi timed) — zero out ability damage
   // before it's written. No events emitted so damage_dealt_to triggers don't fire.
+  // "Put a damage counter on" bypasses immunity (CRD: counters are not "dealt").
   const immTarget = state.cards[instanceId];
-  if (immTarget && hasDamageImmunity(immTarget, modifiers, inChallenge)) {
+  if (!asDamageCounter && immTarget && hasDamageImmunity(immTarget, modifiers, inChallenge)) {
     return state;
   }
 
@@ -3797,13 +3804,17 @@ function dealDamageToCard(
   const def = definitions[instance.definitionId];
   if (!def) return state;
 
-  const resistValue = ignoreResist ? 0 : getKeywordValue(instance, def, "resist", modifiers.grantedKeywords.get(instanceId));
+  const resistValue = (ignoreResist || asDamageCounter) ? 0 : getKeywordValue(instance, def, "resist", modifiers.grantedKeywords.get(instanceId));
   const actualDamage = Math.max(0, amount - resistValue);
 
   const newDamage = instance.damage + actualDamage;
   state = updateInstance(state, instanceId, { damage: newDamage });
-  events.push({ type: "damage_dealt", instanceId, amount: actualDamage });
+  if (!asDamageCounter) {
+    events.push({ type: "damage_dealt", instanceId, amount: actualDamage });
+  }
   // Per-turn event flags for "if one of your characters was damaged this turn" (Brutus, Devil's Eye Diamond)
+  // "Put a damage counter on" still counts as the character being damaged for tracking
+  // purposes (CRD distinguishes "dealt" vs "damaged"), so flag it either way.
   if (actualDamage > 0 && def.cardType === "character") {
     state = {
       ...state,
@@ -3817,8 +3828,8 @@ function dealDamageToCard(
     };
   }
 
-  // Fire damage_dealt_to trigger after damage is applied
-  if (actualDamage > 0) {
+  // Fire damage_dealt_to trigger after damage is applied — skipped for "put damage counter".
+  if (actualDamage > 0 && !asDamageCounter) {
     state = queueTrigger(state, "damage_dealt_to", instanceId, definitions, {});
   }
 
@@ -3843,7 +3854,7 @@ function applyEffectToTarget(
   switch (effect.type) {
     case "deal_damage": {
       const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, targetInstanceId);
-      return dealDamageToCard(state, targetInstanceId, amount, definitions, events);
+      return dealDamageToCard(state, targetInstanceId, amount, definitions, events, false, false, effect.asDamageCounter);
     }
     case "gain_lore": {
       // Support DynamicAmount variants that depend on the chosen target (target_lore etc.).

@@ -278,6 +278,14 @@ export interface DealDamageEffect {
   target: CardTarget;
   /** CRD 6.1.3: "up to" — player may choose 0..amount. Engine resolves at max for now. */
   isUpTo?: boolean;
+  /**
+   * CRD distinction: "put N damage counters on" vs "deal N damage". The former
+   * does not fire `damage_dealt_to` triggers and isn't a "dealt damage" event.
+   * Used by Queen of Hearts Unpredictable Bully ("put a damage counter on them").
+   * When true, the reducer mutates `instance.damage` directly without firing
+   * dealt_damage triggers / damage_dealt events.
+   */
+  asDamageCounter?: boolean;
 }
 
 export interface RemoveDamageEffect {

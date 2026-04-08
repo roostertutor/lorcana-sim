@@ -5847,7 +5847,18 @@
     "traits": [
       "Storyborn"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "REPUTATION",
+        "rulesText": "This character can't be challenged by characters with 2 {S} or more.",
+        "effect": {
+          "type": "cant_be_challenged",
+          "target": { "type": "this" },
+          "attackerFilter": { "strengthAtLeast": 2 }
+        }
+      }
+    ],
     "setId": "6",
     "number": 174,
     "rarity": "rare",
@@ -6481,7 +6492,19 @@
       "Alien",
       "Captain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "DRIVELING GALOOTS",
+        "rulesText": "This character can't be challenged by Pirate characters.",
+        "effect": {
+          "type": "cant_be_challenged",
+          "target": { "type": "this" },
+          "attackerFilter": { "hasTrait": "Pirate" }
+        }
+      }
+    ],
+    "comment": "EVERYTHING SHIPSHAPE (Resist +1 to other own characters while being challenged) is approximated — no while_being_challenged static targeting other own characters yet.",
     "setId": "6",
     "number": 192,
     "rarity": "super_rare",
@@ -7540,7 +7563,19 @@
       "Alien",
       "Captain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "DRIVELING GALOOTS",
+        "rulesText": "This character can't be challenged by Pirate characters.",
+        "effect": {
+          "type": "cant_be_challenged",
+          "target": { "type": "this" },
+          "attackerFilter": { "hasTrait": "Pirate" }
+        }
+      }
+    ],
+    "comment": "EVERYTHING SHIPSHAPE approximated — see set 6 #192 note.",
     "setId": "6",
     "number": 221,
     "rarity": "enchanted",
