@@ -125,8 +125,22 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
+        "type": "activated",
+        "storyName": "YOU JUST HAVE TO SEE IT",
+        "rulesText": "{E} – Name a card, then reveal the top card of your deck. If it's the named card, put that card into your hand and gain 3 lore. Otherwise, put it on the top of your deck. (approximation: lore gain on hit skipped)",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "name_a_card_then_reveal",
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "D23",

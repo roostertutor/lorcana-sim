@@ -6472,7 +6472,35 @@
       "Dreamborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "RE-PETE",
+        "rulesText": "{E} — Reveal the top card of your deck. If it's a character card named Pete, you may play it for free.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "reveal_top_conditional",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "hasName": "Pete"
+            },
+            "matchAction": "play_for_free",
+            "isMay": true,
+            "noMatchDestination": "top",
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "5",
     "number": 187,
     "rarity": "rare",
