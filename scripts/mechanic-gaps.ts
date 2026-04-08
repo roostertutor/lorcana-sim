@@ -108,6 +108,13 @@ const NEW_MECHANIC: [RegExp, string][] = [
   [/\bready this character\..{0,30}can'?t quest or challenge for the rest of this turn\b/i, "ready-then-cant-act-compound"],
   [/\bready a character here\..{0,40}can'?t quest\b/i, "ready-then-cant-act-compound"],
   [/\bif you have a character in play with damage\b/i, "has-damaged-character-condition"],
+  [/\bif you played another character this turn\b/i, "played-another-this-turn-condition"],
+  [/\byou may pay \d+ \{I\} to choose one\b/i, "pay-then-modal"],
+  [/\bdraw (a |\d+ )cards? for each .{0,40}you have in play\b/i, "dynamic-draw-from-count"],
+  [/\bwhile this character is being challenged\b/i, "being-challenged-static"],
+  [/\breveal up to \d+ .{0,40}and up to \d+ .{0,30}cards?\b/i, "multi-filter-look-reveal"],
+  [/\bwhen you play a .{0,20}character on this card\b/i, "shift-onto-self-trigger"],
+  [/\bdiscard any number of cards,? then draw that many\b/i, "discard-any-number-dynamic"],
 ];
 
 const NEW_TYPE: [RegExp, string][] = [

@@ -240,6 +240,22 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // Mulan: "character in play with damage" — damage-existence condition
   [/\bif you have a character in play with damage\b/i, "has-damaged-character-condition"],
   // Fantastical etc.: Sing Together dynamic-per-singer also caught above via per-singer-dynamic
+  // "If you played another character this turn" — event-tracking condition (set P3 Travelers)
+  [/\bif you played another character this turn\b/i, "played-another-this-turn-condition"],
+  // "You may pay N {I} to choose one" on ETB — pay-then-modal sequential
+  [/\byou may pay \d+ \{I\} to choose one\b/i, "pay-then-modal"],
+  // "Draw a card for each character you have in play" — dynamic draw from count
+  [/\bdraw (a |\d+ )cards? for each .{0,40}you have in play\b/i, "dynamic-draw-from-count"],
+  // "While this character is being challenged" — static effect gated by being-challenged state
+  [/\bwhile this character is being challenged\b/i, "being-challenged-static"],
+  // "Reveal up to N X character cards and up to N Y" (Family Madrigal) — multi-filter search/look
+  [/\breveal up to \d+ .{0,40}and up to \d+ .{0,30}cards?\b/i, "multi-filter-look-reveal"],
+  // "Whenever you play a Floodborn character on this card" — shift-onto-self trigger
+  [/\bwhen you play a .{0,20}character on this card\b/i, "shift-onto-self-trigger"],
+  // Desperate Plan: "choose and discard any number of cards, then draw that many"
+  [/\bdiscard any number of cards,? then draw that many\b/i, "discard-any-number-dynamic"],
+  // Akela / Baloo — stubbed modals ("— This character gets +1 {S} this turn.") are modal inner options
+  // and render as lone stubs. These are genuinely wireable as part of a choose_one; leave as-is.
 ];
 
 const NEW_TYPE_PATTERNS: [RegExp, string][] = [
