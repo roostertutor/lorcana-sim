@@ -4121,6 +4121,11 @@ function applyEffectToTarget(
       });
       // CRD 6.1.5.1: Store result for "[A]. For each damage removed, [B]" patterns
       state = { ...state, lastEffectResult: actualHeal };
+      // Record the actual delta on lastResolvedTarget so follow-up reward effects
+      // can read how many damage counters were consumed by an isUpTo remove_damage.
+      // Baymax Armored Companion: "Gain 1 lore for each 1 damage removed this way."
+      const deltaRef = makeResolvedRef(state, definitions, targetInstanceId, { delta: actualHeal });
+      if (deltaRef) state = { ...state, lastResolvedTarget: deltaRef };
       if (actualHeal > 0) {
         const targetDef = definitions[getInstance(state, targetInstanceId).definitionId];
         const targetName = targetDef?.fullName ?? targetInstanceId;
@@ -4312,6 +4317,9 @@ function applyEffectToTarget(
         if (moveAmt <= 0) return state;
         state = updateInstance(state, src.instanceId, { damage: src.damage - moveAmt });
         state = updateInstance(state, targetInstanceId, { damage: dst.damage + moveAmt });
+        // Record actually-moved count on lastResolvedTarget for follow-up effects.
+        const deltaRef = makeResolvedRef(state, definitions, targetInstanceId, { delta: moveAmt });
+        if (deltaRef) state = { ...state, lastResolvedTarget: deltaRef };
         return state;
       }
       // Stage 1: targetInstanceId is the chosen SOURCE. Surface destination choice.
