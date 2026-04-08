@@ -3782,7 +3782,7 @@ function applyEffectToTarget(
       const matches = def ? matchesFilter(inst, def, effect.conditionFilter, state, controllingPlayerId) : false;
       const effects = matches ? effect.ifMatchEffects : effect.defaultEffects;
       for (const e of effects) {
-        state = applyEffectToTarget(state, e, targetInstanceId, controllingPlayerId, definitions, events);
+        state = applyEffectToTarget(state, e, targetInstanceId, controllingPlayerId, definitions, events, sourceInstanceId, triggeringCardInstanceId);
       }
       return state;
     }
