@@ -187,6 +187,88 @@ describe("§5 Set 5 — reveal_top_conditional", () => {
     expect(mods.topOfDeckVisible.has("player2")).toBe(true);
   });
 
+  it("reveal_top_conditional noMatchDestination=hand puts missed reveal into hand", () => {
+    // Synthetic: top of deck is minnie-mouse-beloved-princess (Princess),
+    // filter on hasTrait Dragon → miss → goes to hand (John Smith's Compass pattern).
+    let state = startGame();
+    // Force a known top via injectCard onto top of deck.
+    let topId: string;
+    ({ state, instanceId: topId } = injectCard(state, "player1", "mickey-mouse-true-friend", "deck"));
+    // Move to top (injectCard adds to bottom; relocate to position 0).
+    const deck = state.zones.player1.deck.filter(id => id !== topId);
+    state = { ...state, zones: { ...state.zones, player1: { ...state.zones.player1, deck: [topId, ...deck] } } };
+
+    const handBefore = state.zones.player1.hand.length;
+    state = applyEffect(
+      state,
+      {
+        type: "reveal_top_conditional",
+        filter: { hasAnyTrait: ["Dragon"] },
+        matchAction: "to_hand",
+        noMatchDestination: "hand",
+        target: { type: "self" },
+      },
+      "src",
+      "player1",
+      LORCAST_CARD_DEFINITIONS,
+      []
+    );
+    // Miss branch sent card to hand.
+    expect(state.zones.player1.hand).toContain(topId);
+    expect(state.zones.player1.hand.length).toBe(handBefore + 1);
+  });
+
+  it("reveal_top_conditional matchExtraEffects: gain lore on match (Bruno pattern)", () => {
+    let state = startGame();
+    let topId: string;
+    ({ state, instanceId: topId } = injectCard(state, "player1", "mickey-mouse-true-friend", "deck"));
+    const deck = state.zones.player1.deck.filter(id => id !== topId);
+    state = { ...state, zones: { ...state.zones, player1: { ...state.zones.player1, deck: [topId, ...deck] } } };
+
+    const loreBefore = state.players.player1.lore;
+    state = applyEffect(
+      state,
+      {
+        type: "reveal_top_conditional",
+        filter: { cardType: ["character"] },
+        matchAction: "to_hand",
+        matchExtraEffects: [{ type: "gain_lore", amount: 3, target: { type: "self" } }],
+        noMatchDestination: "top",
+        target: { type: "self" },
+      },
+      "src",
+      "player1",
+      LORCAST_CARD_DEFINITIONS,
+      []
+    );
+    expect(state.zones.player1.hand).toContain(topId);
+    expect(state.players.player1.lore).toBe(loreBefore + 3);
+  });
+
+  it("reveal_top_conditional noMatchDestination=discard: missed reveal goes to discard (Kristoff pattern)", () => {
+    let state = startGame();
+    let topId: string;
+    ({ state, instanceId: topId } = injectCard(state, "player1", "mickey-mouse-true-friend", "deck"));
+    const deck = state.zones.player1.deck.filter(id => id !== topId);
+    state = { ...state, zones: { ...state.zones, player1: { ...state.zones.player1, deck: [topId, ...deck] } } };
+
+    state = applyEffect(
+      state,
+      {
+        type: "reveal_top_conditional",
+        filter: { hasAnyTrait: ["Dragon"] }, // no match
+        matchAction: "to_hand",
+        noMatchDestination: "discard",
+        target: { type: "self" },
+      },
+      "src",
+      "player1",
+      LORCAST_CARD_DEFINITIONS,
+      []
+    );
+    expect(state.zones.player1.discard).toContain(topId);
+  });
+
   it("Queen's Sensor Core: pays cost (exert + 2 ink)", () => {
     let state = startGame();
     state = giveInk(state, "player1", 5);

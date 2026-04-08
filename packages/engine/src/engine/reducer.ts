@@ -1960,12 +1960,24 @@ export function applyEffect(
             break;
           }
         }
-      } else {
-        // CRD: revealed but not matching → put on top (default) or bottom.
-        if (effect.noMatchDestination === "bottom") {
-          state = moveCard(state, topId, targetPlayer, "deck");
+        // Chained match-only effects (Bruno "gain 3 lore", etc.). Revealed card is
+        // forwarded as the triggering card so `triggering_card` targets resolve to it.
+        if (effect.matchExtraEffects) {
+          for (const extra of effect.matchExtraEffects) {
+            state = applyEffect(state, extra, sourceInstanceId, controllingPlayerId, definitions, events, topId);
+          }
         }
-        // else: stays where it is — already on top.
+      } else {
+        // CRD: revealed but not matching → put on top (default), bottom, hand, or discard.
+        const dest = effect.noMatchDestination ?? "top";
+        if (dest === "bottom") {
+          state = moveCard(state, topId, targetPlayer, "deck");
+        } else if (dest === "hand") {
+          state = moveCard(state, topId, targetPlayer, "hand");
+        } else if (dest === "discard") {
+          state = zoneTransition(state, topId, "discard", definitions, events, { reason: "discarded" });
+        }
+        // else "top": stays where it is — already on top.
       }
       return state;
     }

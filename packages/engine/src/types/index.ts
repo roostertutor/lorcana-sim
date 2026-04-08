@@ -439,7 +439,15 @@ export interface RevealTopConditionalEffect {
   /** CRD 6.1.4: revealed-and-matched cards are optional (player may decline). */
   isMay?: boolean;
   /** Where to put the revealed card if it does NOT match. Default "top". */
-  noMatchDestination?: "top" | "bottom";
+  noMatchDestination?: "top" | "bottom" | "hand" | "discard";
+  /**
+   * Extra effects to apply when the revealed card matches the filter, in addition
+   * to `matchAction`. Example: Bruno Madrigal variants gain 3 lore on match; Sisu
+   * reveals another card on match ("repeat this effect" — approximate via repeat).
+   * These effects resolve with the revealed card as the triggering card so targets
+   * like `triggering_card` work. Applied AFTER matchAction.
+   */
+  matchExtraEffects?: Effect[];
   target: PlayerTarget;
 }
 
