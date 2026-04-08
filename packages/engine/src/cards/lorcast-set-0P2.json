@@ -345,7 +345,38 @@
       "Hero",
       "Inventor"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "HERE'S THE BEST PART",
+        "rulesText": "When you play this character, you may pay 2 {I} to have each opponent choose and discard a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "pay_ink",
+                "amount": 2
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "opponent"
+                },
+                "chooser": "target_player"
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "P2",
     "number": 11,
     "rarity": "common",

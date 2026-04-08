@@ -2377,7 +2377,46 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "YOU BETTER RUN",
+        "rulesText": "When you play this character, you may pay 2 {I} to return chosen opposing character with 2 {S} or less to their player's hand.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "pay_ink",
+                "amount": 2
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "owner": {
+                      "type": "opponent"
+                    },
+                    "strengthAtMost": 2
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 74,
     "rarity": "common",

@@ -2452,7 +2452,44 @@
       "Ally",
       "Fairy"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "RAY OF HOPE",
+        "rulesText": "When you play this character, you may pay 1 {I} to give chosen character +2 {S} this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "pay_ink",
+                "amount": 1
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "gain_stats",
+                "strength": 2,
+                "duration": "this_turn",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "5",
     "number": 76,
     "rarity": "common",
@@ -2645,8 +2682,39 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
+        "type": "triggered",
+        "storyName": "DO SAY HELLO TO MR. ARROW",
+        "rulesText": "When you play this character, you may pay 3 {I} to banish chosen damaged character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "pay_ink",
+                "amount": 3
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "banish",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "hasDamage": true
+                  }
+                }
+              }
+            ]
+          }
+        ]
       }
     ],
     "setId": "5",
@@ -2790,7 +2858,42 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "BUTTERFINGERS",
+        "rulesText": "When you play this character, you may pay 2 {I} to banish chosen item.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "pay_ink",
+                "amount": 2
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "banish",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "item"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "5",
     "number": 86,
     "rarity": "common",
@@ -2895,7 +2998,42 @@
       "Storyborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "MOTHER KNOWS BEST",
+        "rulesText": "When you play this character, you may pay 3 {I} to return chosen character to their player's hand.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "pay_ink",
+                "amount": 3
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "5",
     "number": 89,
     "rarity": "uncommon",

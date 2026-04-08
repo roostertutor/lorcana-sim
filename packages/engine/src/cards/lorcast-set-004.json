@@ -8942,6 +8942,44 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "storyName": "AMPLIFIED VOICE",
+        "rulesText": "Whenever you play a song, you may pay 2 {I} to deal 3 damage to chosen character.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "hasTrait": "Song"
+          }
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "pay_ink",
+                "amount": 2
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "deal_damage",
+                "amount": 3,
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -11342,6 +11380,44 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "storyName": "AMPLIFIED VOICE",
+        "rulesText": "Whenever you play a song, you may pay 2 {I} to deal 3 damage to chosen character.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "hasTrait": "Song"
+          }
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "pay_ink",
+                "amount": 2
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "deal_damage",
+                "amount": 3,
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
       }
     ],
     "setId": "4",

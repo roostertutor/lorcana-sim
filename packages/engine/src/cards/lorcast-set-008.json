@@ -3463,7 +3463,43 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "UNCONVENTIONAL TACTICS",
+        "rulesText": "Whenever this character quests, you may pay 2 {I} to ready another chosen character.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "pay_ink",
+                "amount": 2
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "ready",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "excludeSelf": true
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 100,
     "rarity": "legendary",

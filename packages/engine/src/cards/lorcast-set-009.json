@@ -1149,7 +1149,40 @@
     "cost": 3,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "NOW, SING!",
+        "rulesText": "Whenever you play a song, you may pay 1 {I} to draw a card.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "hasTrait": "Song"
+          }
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "pay_ink",
+                "amount": 1
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "9",
     "number": 33,
     "rarity": "rare",
@@ -2542,7 +2575,44 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "PERSONAL SOUNDTRACK",
+        "rulesText": "When you play this character, you may pay 1 {I} to return a song card with cost 3 or less from your discard to your hand.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "pay_ink",
+                "amount": 1
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "discard",
+                    "hasTrait": "Song",
+                    "maxCost": 3,
+                    "owner": {
+                      "type": "self"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "9",
     "number": 75,
     "rarity": "rare",
@@ -6565,6 +6635,44 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "storyName": "AMPLIFIED VOICE",
+        "rulesText": "Whenever you play a song, you may pay 2 {I} to deal 3 damage to chosen character.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "hasTrait": "Song"
+          }
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "pay_ink",
+                "amount": 2
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "deal_damage",
+                "amount": 3,
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
       }
     ],
     "setId": "9",
