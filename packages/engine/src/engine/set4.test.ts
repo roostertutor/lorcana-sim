@@ -664,4 +664,101 @@ describe("§4 Set 4 — Noi Acrobatic Baby (damage_immunity_timed)", () => {
     expect(state.lastResolvedTarget?.delta).toBe(1);
     expect(getInstance(state, tgtId).damage).toBe(0);
   });
+
+  it("Hades Double Dealer HERE'S THE TRADE-OFF: banish a character to play a same-named one from hand", () => {
+    let state = startGame();
+    let hadesId: string, sacId: string, copyInHandId: string;
+    ({ state, instanceId: hadesId } = injectCard(state, "player1", "hades-double-dealer", "play", { isDrying: false }));
+    ({ state, instanceId: sacId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    ({ state, instanceId: copyInHandId } = injectCard(state, "player1", "mickey-mouse-true-friend", "hand"));
+    // Irrelevant hand card to confirm filter is applied
+    ({ state } = injectCard(state, "player1", "maleficent-sorceress", "hand"));
+
+    let r = applyAction(state, {
+      type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: hadesId, abilityIndex: 0,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Hades exerts as a cost, then a banish choice is pending
+    expect(getInstance(state, hadesId).isExerted).toBe(true);
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    // Choose the sacrificial character
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [sacId] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Now the play_for_free choice should be pending, restricted to Mickey (not Maleficent)
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    // Valid targets = Mickey Mouse cards in hand (starter deck may contain extras).
+    expect(state.pendingChoice!.validTargets).toContain(copyInHandId);
+    for (const id of state.pendingChoice!.validTargets as string[]) {
+      const def = LORCAST_CARD_DEFINITIONS[state.cards[id]!.definitionId]!;
+      expect(def.name).toBe("Mickey Mouse");
+    }
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [copyInHandId] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // The sacrificed Mickey is banished; the replayed Mickey is in play.
+    expect(getInstance(state, sacId).zone).toBe("discard");
+    expect(getInstance(state, copyInHandId).zone).toBe("play");
+  });
+
+  it("Ambush! deals damage equal to the exerted character's {S}", () => {
+    let state = startGame();
+    let ambushId: string, attackerId: string, victimId: string;
+    ({ state, instanceId: ambushId } = injectCard(state, "player1", "ambush", "hand"));
+    // mickey-mouse-true-friend has strength 2 in set 4 (cost 3).
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    ({ state, instanceId: victimId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    state = giveInk(state, "player1", 5);
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: ambushId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // First: choose the character to exert
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [attackerId] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(getInstance(state, attackerId).isExerted).toBe(true);
+    // Then: choose the damage target
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [victimId] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Mickey has strength 3 + willpower 3 → victim Mickey takes 3 damage from Ambush and
+    // is banished (damage == willpower). The attacker's {S} drove the damage amount, so
+    // assert the victim left play and the attacker is still in play and exerted.
+    expect(getInstance(state, victimId).zone).toBe("discard");
+    expect(getInstance(state, attackerId).zone).toBe("play");
+  });
+
+  it("Baymax Armored Companion gains lore equal to damage actually removed (isUpTo → delta)", () => {
+    let state = startGame();
+    let allyId: string;
+    ({ state, instanceId: allyId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, damage: 1 }));
+    ({ state } = injectCard(state, "player1", "baymax-armored-companion", "hand"));
+    state = giveInk(state, "player1", 10);
+
+    // Play Baymax
+    const baymaxInHand = getZone(state, "player1", "hand").find(id =>
+      state.cards[id]!.definitionId === "baymax-armored-companion"
+    )!;
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: baymaxInHand }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    const loreBefore = state.players.player1.lore;
+    // enters_play trigger → choose_may
+    expect(state.pendingChoice?.type).toBe("choose_may");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Choose the damaged ally
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [allyId] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Only 1 damage was actually removed even though "up to 2" → exactly 1 lore gained.
+    expect(getInstance(state, allyId).damage).toBe(0);
+    expect(state.players.player1.lore).toBe(loreBefore + 1);
+  });
 });

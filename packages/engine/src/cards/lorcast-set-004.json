@@ -3791,7 +3791,45 @@
       "Villain",
       "Deity"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "HERE'S THE TRADE-OFF",
+        "rulesText": "{E}, Banish one of your other characters \u2014 Play a character with the same name as the banished character for free.",
+        "costs": [
+          { "type": "exert" }
+        ],
+        "effects": [
+          {
+            "type": "sequential",
+            "costEffects": [
+              {
+                "type": "banish",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": { "type": "self" },
+                    "zone": "play",
+                    "cardType": ["character"],
+                    "excludeSelf": true
+                  }
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "play_for_free",
+                "sourceZone": "hand",
+                "filter": {
+                  "cardType": ["character"],
+                  "nameFromLastResolvedSource": true
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 74,
     "rarity": "legendary",

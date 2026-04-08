@@ -301,6 +301,13 @@ export type DynamicAmount =
   | "damage_on_target"
   | "triggering_card_lore"
   | "last_target_location_lore"
+  /** Actual delta stored on `state.lastResolvedTarget` (remove_damage / move_damage
+   *  actually-consumed count). Used by "Gain 1 lore for each 1 damage removed this
+   *  way" (Baymax Armored Companion). */
+  | "last_resolved_target_delta"
+  /** Effective strength snapshot of `state.lastResolvedSource` (cost-side exerted
+   *  character). Used by Ambush ("deal damage equal to their {S}"). */
+  | "last_resolved_source_strength"
   | { type: "count"; filter: CardFilter; max?: number }
   | { type: "target_lore"; max?: number }
   | { type: "target_damage"; max?: number }
@@ -1266,6 +1273,10 @@ export interface CardFilter {
   excludeSelf?: boolean;
   /** Match by card name (e.g. "Fire the Cannons!", "Te Kā") */
   hasName?: string;
+  /** Match cards whose name equals `state.lastResolvedSource.name`. Used by
+   *  Hades Double Dealer ("play a character with the same name as the banished
+   *  character"). Resolved at match time against the live state. */
+  nameFromLastResolvedSource?: boolean;
   /** Match characters with damage > 0 */
   hasDamage?: boolean;
   /** Match characters with effective strength ≤ N */

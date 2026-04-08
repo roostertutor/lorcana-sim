@@ -335,6 +335,13 @@ export function matchesFilter(
     if (definition.name !== filter.hasName && !altNames.includes(filter.hasName)) return false;
   }
 
+  if (filter.nameFromLastResolvedSource) {
+    const srcName = state.lastResolvedSource?.name;
+    if (!srcName) return false;
+    const altNames = definition.alternateNames ?? [];
+    if (definition.name !== srcName && !altNames.includes(srcName)) return false;
+  }
+
   if (filter.hasDamage !== undefined) {
     if (filter.hasDamage && instance.damage <= 0) return false;
     if (!filter.hasDamage && instance.damage > 0) return false;

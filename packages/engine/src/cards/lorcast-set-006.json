@@ -8328,7 +8328,7 @@
       {
         "type": "triggered",
         "storyName": "THE TREATMENT IS WORKING",
-        "rulesText": "When you play this character, you may remove up to 2 damage from another chosen character of yours. Gain 1 lore for each 1 damage removed this way. (approximation: fixed 1 lore on heal)",
+        "rulesText": "When you play this character, you may remove up to 2 damage from another chosen character of yours. Gain 1 lore for each 1 damage removed this way.",
         "trigger": {
           "on": "enters_play"
         },
@@ -8359,7 +8359,7 @@
             "rewardEffects": [
               {
                 "type": "gain_lore",
-                "amount": 1,
+                "amount": "last_resolved_target_delta",
                 "target": {
                   "type": "self"
                 }
@@ -8371,7 +8371,7 @@
       {
         "type": "triggered",
         "storyName": "THE TREATMENT IS WORKING (quest)",
-        "rulesText": "Whenever he quests, you may remove up to 2 damage from another chosen character of yours. Gain 1 lore for each 1 damage removed this way. (approximation: fixed 1 lore on heal)",
+        "rulesText": "Whenever he quests, you may remove up to 2 damage from another chosen character of yours. Gain 1 lore for each 1 damage removed this way.",
         "trigger": {
           "on": "quests"
         },
@@ -8402,7 +8402,7 @@
             "rewardEffects": [
               {
                 "type": "gain_lore",
-                "amount": 1,
+                "amount": "last_resolved_target_delta",
                 "target": {
                   "type": "self"
                 }
@@ -10599,6 +10599,35 @@
         "storyName": "",
         "rulesText": "{E} one of your characters to deal damage equal to their {S} to chosen character.",
         "raw": "{E} one of your characters to deal damage equal to their {S} to chosen character."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "sequential",
+        "costEffects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": { "type": "self" },
+                "zone": "play",
+                "cardType": ["character"],
+                "isExerted": false
+              }
+            }
+          }
+        ],
+        "rewardEffects": [
+          {
+            "type": "deal_damage",
+            "amount": "last_resolved_source_strength",
+            "target": {
+              "type": "chosen",
+              "filter": { "cardType": ["character"] }
+            }
+          }
+        ]
       }
     ]
   },

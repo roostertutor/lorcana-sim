@@ -1671,6 +1671,12 @@ function resolveDynamicAmount(
     const def = inst ? definitions[inst.definitionId] : undefined;
     return def?.lore ?? 0;
   }
+  if (amount === "last_resolved_target_delta") {
+    return state.lastResolvedTarget?.delta ?? 0;
+  }
+  if (amount === "last_resolved_source_strength") {
+    return state.lastResolvedSource?.strength ?? 0;
+  }
   if (amount === "last_target_location_lore") {
     const lastTargetId = state.lastResolvedTarget?.instanceId;
     const lastTargetInst = lastTargetId ? state.cards[lastTargetId] : undefined;
