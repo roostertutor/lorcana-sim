@@ -14,6 +14,7 @@ import {
   canAfford,
   canSingSong,
   evaluateCondition,
+  findMatchingInstances,
   getDefinition,
   getInstance,
   getKeywordValue,
@@ -263,7 +264,19 @@ function getEffectiveCostWithReductions(
         continue;
       }
     }
-    cost -= ability.effect.amount;
+    // Resolve amount — literal number OR count-based DynamicAmount
+    // (per-count-cost-reduction: "For each X, pay 1 {I} less").
+    const rawAmount = ability.effect.amount;
+    let discount = 0;
+    if (typeof rawAmount === "number") {
+      discount = rawAmount;
+    } else if (typeof rawAmount === "object" && rawAmount !== null && (rawAmount as { type?: string }).type === "count") {
+      const countAmt = rawAmount as { type: "count"; filter: import("../types/index.js").CardFilter; max?: number };
+      let n = findMatchingInstances(state, definitions, countAmt.filter, playerId, instanceId).length;
+      if (typeof countAmt.max === "number") n = Math.min(n, countAmt.max);
+      discount = n * (ability.effect.perMatch ?? 1);
+    }
+    cost -= discount;
   }
 
   return Math.max(0, cost);

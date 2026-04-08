@@ -1689,6 +1689,30 @@ export function applyEffect(
 ): GameState {
   switch (effect.type) {
     case "draw": {
+      // "Draw until you have N in hand" — resolve target hand size, compute
+      // delta, draw that many. Natural no-op when already at target.
+      if (effect.untilHandSize !== undefined) {
+        const resolvePlayer = (): PlayerID =>
+          effect.target.type === "opponent"
+            ? getOpponent(controllingPlayerId)
+            : effect.target.type === "target_owner"
+              ? (state.lastTargetOwnerId ?? controllingPlayerId)
+              : controllingPlayerId;
+        const drawPlayers: PlayerID[] =
+          effect.target.type === "both"
+            ? [controllingPlayerId, getOpponent(controllingPlayerId)]
+            : [resolvePlayer()];
+        const targetSize =
+          effect.untilHandSize === "match_opponent_hand"
+            ? state.zones[getOpponent(controllingPlayerId)].hand.length
+            : effect.untilHandSize;
+        for (const p of drawPlayers) {
+          const currentHand = state.zones[p].hand.length;
+          const delta = targetSize - currentHand;
+          if (delta > 0) state = applyDraw(state, p, delta, events, definitions);
+        }
+        return state;
+      }
       const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, undefined);
       if (amount <= 0) return state;
       if (effect.target.type === "both") {
@@ -1707,6 +1731,27 @@ export function applyEffect(
             ? (state.lastTargetOwnerId ?? controllingPlayerId)
             : controllingPlayerId;
       return applyDraw(state, targetPlayer, amount, events, definitions);
+    }
+
+    case "reveal_hand": {
+      // CRD: "chosen opponent reveals their hand" — headless engine has full
+      // knowledge; emit a hand_revealed event for UI/analytics. No state change.
+      const targetPlayer: PlayerID =
+        effect.target.type === "opponent"
+          ? getOpponent(controllingPlayerId)
+          : effect.target.type === "target_owner"
+            ? (state.lastTargetOwnerId ?? getOpponent(controllingPlayerId))
+            : effect.target.type === "self"
+              ? controllingPlayerId
+              : getOpponent(controllingPlayerId);
+      const handCardIds = [...state.zones[targetPlayer].hand];
+      events.push({
+        type: "hand_revealed",
+        playerId: targetPlayer,
+        cardInstanceIds: handCardIds,
+        sourceInstanceId,
+      } as GameEvent);
+      return state;
     }
 
     case "gain_lore": {

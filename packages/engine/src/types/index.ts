@@ -171,7 +171,25 @@ export type Effect =
   | LoseLoreEffect
   | CreateFloatingTriggerEffect
   | GrantExtraInkPlayEffect
-  | GrantChallengeReadyEffect;
+  | GrantChallengeReadyEffect
+  | RevealHandEffect;
+
+/**
+ * "Chosen opponent reveals their hand" / "chosen player reveals their hand"
+ * (Dolores Madrigal, Copper - Hound Pup, etc.). In a headless analytics engine
+ * the hand is already fully known to the engine, so this effect is a
+ * no-op for game state — it emits a `hand_revealed` event for analytics/UI.
+ * Cards that combine reveal with a "discard X of your choice" follow-up use
+ * the existing `discard_from_hand` effect with `chooser: "controller"` and a
+ * filter — no separate sequential reveal step is needed.
+ */
+export interface RevealHandEffect {
+  type: "reveal_hand";
+  /** Whose hand is revealed. "opponent" = opponent of controller; "chosen"
+   *  surfaces a choose_player pendingChoice (only used when wording says
+   *  "chosen player" / "chosen opponent"). */
+  target: PlayerTarget;
+}
 
 /** Grant "can challenge ready characters" for a duration. */
 export interface GrantChallengeReadyEffect {
@@ -220,6 +238,21 @@ export interface DrawEffect {
   isMay?: boolean;
   /** CRD 6.1.3: "up to" — player may choose 0..amount. Engine resolves at max for now. */
   isUpTo?: boolean;
+  /**
+   * "Draw cards until you have N cards in your hand" (Yzma Conniving Chemist,
+   * Desperate Plan) / "until you have the same number as chosen opponent"
+   * (Clarabelle Light on Her Hooves, Remember Who You Are).
+   *
+   * When set, `amount` is ignored and the engine draws cards until the target
+   * player's hand size reaches the resolved value. If the hand is already at
+   * or above the target, no cards are drawn (natural no-op — no guard needed).
+   *
+   *  - number: literal target hand size.
+   *  - "match_opponent_hand": draw until the target's hand matches the
+   *    controller's opponent's hand size (used for "same number as opponent"
+   *    wording). Opponent is resolved as the controller's opponent in 2P.
+   */
+  untilHandSize?: number | "match_opponent_hand";
 }
 
 export interface DealDamageEffect {
@@ -1028,7 +1061,21 @@ export interface ExtraInkPlayStatic {
  */
 export interface SelfCostReductionStatic {
   type: "self_cost_reduction";
-  amount: number;
+  /**
+   * Literal number (LeFou: 1 less if Gaston in play), or a DynamicAmount.
+   *
+   * Per-count wording ("For each X, you pay 1 {I} less") uses
+   * `{ type: "count", filter }` with a per-match multiplier via `perMatch`.
+   * Example — Kristoff Reindeer Keeper ("For each song in your discard, pay
+   * 1 less"): `amount: { type: "count", filter: { cardType: ["action"],
+   * hasKeyword: "singer"... zone: "discard", owner: self } }`.
+   *
+   * For cards that pay 2 less per match (Gaston Pure Paragon, Namaari
+   * Resolute Daughter) use `perMatch: 2`.
+   */
+  amount: DynamicAmount;
+  /** Multiplier applied to a `count`-based DynamicAmount. Default 1. */
+  perMatch?: number;
 }
 
 // -----------------------------------------------------------------------------
@@ -1694,4 +1741,5 @@ export type GameEvent =
   | { type: "lore_gained"; playerId: PlayerID; amount: number }
   | { type: "card_drawn"; playerId: PlayerID; instanceId: string }
   | { type: "ability_triggered"; instanceId: string; abilityType: string }
+  | { type: "hand_revealed"; playerId: PlayerID; cardInstanceIds: string[]; sourceInstanceId: string }
   | { type: "turn_passed"; to: PlayerID };

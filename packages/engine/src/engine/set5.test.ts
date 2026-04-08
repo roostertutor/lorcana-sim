@@ -449,3 +449,75 @@ describe("§9 Set 9 — Circle of Life (alt-source-zone: song plays char from di
     expect(getZone(state, "player1", "discard")).toContain(songId);
   });
 });
+
+// ============================================================================
+// Three-mechanic batch: reveal_hand, draw-to-n, per-count-cost-reduction
+// ============================================================================
+describe("§5 three-mechanic batch", () => {
+  it("reveal_hand: emits hand_revealed event, no state change", () => {
+    let state = startGame();
+    // Inject a couple of cards into opponent's hand so the event list is meaningful.
+    ({ state } = injectCard(state, "player2", "mickey-mouse-true-friend", "hand"));
+    ({ state } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "hand"));
+    const handBefore = [...getZone(state, "player2", "hand")];
+    const events: any[] = [];
+    const newState = applyEffect(
+      state,
+      { type: "reveal_hand", target: { type: "opponent" } } as any,
+      "source-x",
+      "player1",
+      LORCAST_CARD_DEFINITIONS,
+      events,
+    );
+    // No state change
+    expect(getZone(newState, "player2", "hand")).toEqual(handBefore);
+    // Event emitted with full hand contents
+    const ev = events.find((e) => e.type === "hand_revealed");
+    expect(ev).toBeDefined();
+    expect(ev.playerId).toBe("player2");
+    expect(ev.cardInstanceIds).toEqual(handBefore);
+  });
+
+  it("draw until N: untilHandSize draws delta only, no draw when already at target", () => {
+    let state = startGame();
+    // Clear player1's hand to a known size via emptyDeck? Simpler: count delta.
+    const startHand = getZone(state, "player1", "hand").length;
+    // Draw until hand size = startHand + 3
+    const events: any[] = [];
+    const r1 = applyEffect(
+      state,
+      { type: "draw", amount: 0, target: { type: "self" }, untilHandSize: startHand + 3 } as any,
+      "src",
+      "player1",
+      LORCAST_CARD_DEFINITIONS,
+      events,
+    );
+    expect(getZone(r1, "player1", "hand").length).toBe(startHand + 3);
+    // Already at target — no more draws.
+    const r2 = applyEffect(
+      r1,
+      { type: "draw", amount: 0, target: { type: "self" }, untilHandSize: startHand + 3 } as any,
+      "src",
+      "player1",
+      LORCAST_CARD_DEFINITIONS,
+      events,
+    );
+    expect(getZone(r2, "player1", "hand").length).toBe(startHand + 3);
+  });
+
+  it("per-count self_cost_reduction: Kristoff pays 1 less per song in discard", () => {
+    // Kristoff - Reindeer Keeper: cost 9, For each song card in your discard, pay 1 {I} less.
+    let state = startGame();
+    state = giveInk(state, "player1", 7);
+    let kristoffId: string;
+    ({ state, instanceId: kristoffId } = injectCard(state, "player1", "kristoff-reindeer-keeper", "hand"));
+    // With zero songs in discard — full cost 9, should fail at 7 ink.
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: kristoffId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(false);
+    // Inject 2 songs into discard — cost becomes 9-2 = 7, should now succeed at 7 ink.
+    ({ state } = injectCard(state, "player1", "be-prepared", "discard"));
+    ({ state } = injectCard(state, "player1", "friends-on-the-other-side", "discard"));
+    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: kristoffId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+  });
+});
