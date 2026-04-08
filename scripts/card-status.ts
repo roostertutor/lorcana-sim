@@ -130,9 +130,10 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   // Inkwell static that affects entering
   [/\benter.{0,10}opponents'.{0,20}inkwell.{0,20}exerted\b/i, "inkwell-static"],
   // Ink from discard / play from non-hand zone (Moana, Black Cauldron)
-  [/\bink .{0,30}from .{0,20}discard/i, "alternate-source-zone"],
-  [/\byou may play .{0,40}from under\b/i, "alternate-source-zone"],
-  [/\bplay .{0,30}from (your|their) discard\b/i, "alternate-source-zone"],
+  // (play-from-discard removed: play_for_free has `sourceZone` since set 3 — matches
+  //  via FITS_GRAMMAR_PATTERNS below. The two remaining patterns are genuinely new.)
+  [/\bink .{0,30}from .{0,20}discard/i, "ink-from-discard"],
+  [/\byou may play .{0,40}from under\b/i, "play-from-under"],
   // "Enters play exerted" for opposing cards (static)
   [/opposing .{0,40}enter.{0,10}play exerted/i, "enter-play-exerted-static"],
   // (move-damage removed: move_damage Effect already exists — Belle Untrained Mystic,
@@ -293,6 +294,7 @@ const CAPABILITIES = new Set<string>([
   "condition_played_via_shift", "condition_cards_in_zone_gte",
   "condition_has_character_named",
   "condition_this_has_cards_under", "condition_you_control_matching",
+  "condition_characters_here_gte",
   "modify_stat_per_count",
   // Locations / location-related
   "location_at_location_filter",

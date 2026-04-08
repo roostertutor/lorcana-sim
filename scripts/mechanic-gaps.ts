@@ -54,9 +54,12 @@ const NEW_TYPE: [RegExp, string][] = [
   [/\ball (the )?cards? in .{0,30}inkwell/i, "mass-inkwell"],
   [/\buntil (you|they|each player) have \d+ cards? in .{0,20}inkwell/i, "trim-inkwell"],
   [/\benter.{0,10}opponents'.{0,20}inkwell.{0,20}exerted\b/i, "inkwell-static"],
-  [/\bink .{0,30}from .{0,20}discard/i, "alternate-source-zone"],
-  [/\byou may play .{0,40}from under\b/i, "alternate-source-zone"],
-  [/\bplay .{0,30}from (your|their) discard\b/i, "alternate-source-zone"],
+  // (play-from-discard removed: play_for_free supports sourceZone="discard"
+  //  since Ursula Deceiver of All (set 3). Wired for Pride Lands Jungle Oasis
+  //  and Circle of Life; remaining gap cards (Black Cauldron, Chernabog,
+  //  Sinister Socialite, Moana) fall under other mechanic labels below.)
+  [/\bink .{0,30}from .{0,20}discard/i, "ink-from-discard"],
+  [/\byou may play .{0,40}from under\b/i, "play-from-under"],
   [/opposing .{0,40}enter.{0,10}play exerted/i, "enter-play-exerted-static"],
   // (move-damage removed: move_damage Effect exists; these are fits-grammar.)
   [/\breveal.{0,30}(their|opponent'?s?) hand\b/i, "reveal-hand"],
