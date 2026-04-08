@@ -11,6 +11,7 @@ import type {
   GameState,
   Keyword,
   PlayerID,
+  ResolvedRef,
   RestrictedAction,
   ZoneName,
 } from "../types/index.js";
@@ -144,6 +145,43 @@ export function isActionRestricted(
     return true;
   }
   return false;
+}
+
+/**
+ * Build a ResolvedRef snapshot from a card instance. Captures identity + a
+ * stat snapshot at the current moment so downstream effect steps can reference
+ * the previously-resolved card even if it later moves zones or has its stats
+ * modified. Pass `delta` for `isUpTo` consumption tracking.
+ */
+export function makeResolvedRef(
+  state: GameState,
+  definitions: Record<string, CardDefinition>,
+  instanceId: string,
+  opts?: { delta?: number }
+): ResolvedRef | undefined {
+  const instance = state.cards[instanceId];
+  if (!instance) return undefined;
+  const def = definitions[instance.definitionId];
+  if (!def) return undefined;
+  const ref: ResolvedRef = {
+    instanceId,
+    definitionId: def.id,
+    name: def.name,
+    fullName: def.fullName,
+    ownerId: instance.ownerId,
+    cost: def.cost,
+    damage: instance.damage,
+  };
+  if (def.cardType === "character") {
+    ref.strength = getEffectiveStrength(instance, def);
+    ref.willpower = getEffectiveWillpower(instance, def);
+    ref.lore = getEffectiveLore(instance, def);
+  } else if (def.cardType === "location") {
+    ref.willpower = def.willpower;
+    ref.lore = def.lore;
+  }
+  if (opts?.delta !== undefined) ref.delta = opts.delta;
+  return ref;
 }
 
 /** Get the effective ink cost (may be reduced by effects in future) */

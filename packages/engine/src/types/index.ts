@@ -11,6 +11,37 @@
 // -----------------------------------------------------------------------------
 
 export type PlayerID = "player1" | "player2";
+
+/**
+ * A snapshot of a resolved card reference used by multi-step effect resolution.
+ * Carries identity + stat snapshot + optional delta so that a follow-up step
+ * can reference the "previously resolved" card even if it has since moved zones,
+ * had its stats modified, or been partially consumed by an `isUpTo` effect.
+ *
+ * Built via `makeResolvedRef` in utils. Used for:
+ * - `MoveDamageEffect._resolvedSource` / `MoveCharacterEffect._resolvedCharacter`
+ *   (stage-2 markers within a single effect)
+ * - `GameState.lastResolvedTarget` (cross-effect "its player draws" / "that
+ *   location's {L}" carrier)
+ * - `GameState.lastResolvedSource` (cost-side resolved snapshot, e.g. Hades
+ *   "play a character with the same name as the banished character")
+ */
+export interface ResolvedRef {
+  instanceId: string;
+  definitionId: string;
+  name: string;
+  fullName: string;
+  ownerId: PlayerID;
+  cost: number;
+  /** Effective strength snapshot at resolve time (post-modifiers) */
+  strength?: number;
+  willpower?: number;
+  lore?: number;
+  damage?: number;
+  /** How many units the previous step actually consumed (for `isUpTo` patterns).
+   *  E.g. remove_damage actually-removed count, move_damage actually-moved count. */
+  delta?: number;
+}
 export type ZoneName = "deck" | "hand" | "play" | "discard" | "inkwell" | "under";
 export type InkColor =
   | "amber"
