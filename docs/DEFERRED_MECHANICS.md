@@ -1,113 +1,57 @@
 # Deferred Mechanics — TODO
 
-Mechanics not yet implemented in the engine, with the cards they affect.
-Each entry is a single-mechanic gap; the cards listed are blocked on it.
+Mechanics not yet implemented in the engine. Run `pnpm tsx scripts/mechanic-gaps.ts` for the live list with affected cards. Run `pnpm card-status` for set-by-set totals.
 
-Regenerate live counts with `pnpm tsx scripts/mechanic-gaps.ts`.
+## Status as of 2026-04-07
 
----
+- **1982/2652 implemented (75%)** + **501 vanilla** = **2483/2652 (94%) effectively complete**
+- **17 fits-grammar** cards remain (the genuine cherry-pick floor — mostly compound mechanics or vanilla Alert miscategorizations)
+- **29 needs-new-type** + **122 needs-new-mechanic** = ~150 cards across **89 distinct labels** in the gap report
+- Engine tests: **360 passing**
 
-## High-impact (3 cards)
+The categorizer was tightened end-to-end during this session; `fits-grammar` is now an honest "wireable with current primitives" tag.
 
-### `play-same-name-as-banished`
-Capture the banished card's name in a sequential effect chain (new `_resolvedBanishedName` carrier), then play a card with that name for free.
-- [4] Hades - Double Dealer — `{E}, Banish one of your other characters — Play a character with the same name as the banished character for free.`
-- [5] Bad-Anon - Villain Support Center (×2 dual-ink) — location grants an activated ability that itself plays a same-named character; combines with location-grant-ability + recursion.
+## How the gap report is structured
 
-### `inkwell-static`
-Pre-inkwell-add replacement layer ("cards enter opponents' inkwells exerted").
-- [10] Daisy Duck - Paranormal Investigator
-- [P3] Daisy Duck - Paranormal Investigator (×2 dual-ink)
+`scripts/mechanic-gaps.ts` outputs JSON with each label, count, sets, and example cards. Top of the live list:
 
----
+1. **Single-card mechanics** (most labels) — 1-3 cards each, niche
+2. **Compound primitives** (~10 labels, 2-5 cards each) — sequential effects with cost-then-effect requiring deferred subsystems
+3. **Architectural additions** — replacement-effect, multi-player choice queue, virtual-cost-modifier
 
-## Medium (2 cards)
+## High-impact remaining mechanics
 
-### `for-each-opponent-who-didnt`
-Multi-player pendingChoice that tracks refusal count, then applies a benefit `(opponentCount - acceptances)` times.
-- [4] Sign the Scroll
-- [4] Ursula's Trickery
+These are the largest unique gaps. See `mechanic-gaps.ts` output for affected card lists.
 
-### `virtual-cost-modifier`
-Location-aware cost modifier that affects sing/play cost math for characters at the location.
-- [4] Atlantica - Concert Hall
-- [9] Atlantica - Concert Hall
+- **`replacement-effect`** (Rapunzel Ready for Adventure, Lilo Bundled Up) — CRD 6.5 layer
+- **`virtual-cost-modifier`** (Atlantica Concert Hall ×2) — location-aware sing cost
+- **`stat-floor`** (Elisa Maza ×2) — clamp `getEffectiveStrength` to printed
+- **`for-each-opponent-who-didnt`** (Sign the Scroll, Ursula's Trickery) — multi-player refusal-counting pendingChoice
+- **`play-same-name-as-banished`** (Hades Double Dealer, Bad-Anon ×2) — sequential `_resolvedBanishedName` carrier
+- **`inkwell-static`** (Daisy Duck Paranormal Investigator ×3) — pre-inkwell-add replacement
+- **`restricted-play-by-type`** (Pete Games Referee, Keep the Ancient Ways) — player-scoped TimedEffect
+- **`stat-threshold-condition`** (Next Stop Olympus ×2) — "if you have a character with N {S}"
+- **`ink-from-discard`** (Moana Curious Explorer ×2) — alternate ink source
+- **`shift-variant`** (Anna Soothing Sister ×2) — Shift 0 conditional + event tracking compound
 
-### `restricted-play-by-type`
-Player-scoped TimedEffect (not card-scoped) — `PlayerState.timedRestrictions` storage with expiry handling.
-- [5] Pete - Games Referee
-- [11] Keep the Ancient Ways
+## Categorizer-detected compound false positives
 
-### `replacement-effect`
-CRD 6.5 — "would X instead" replacement layer. Architectural addition that intercepts state changes before they apply.
-- [10] Rapunzel - Ready for Adventure
-- [11] Lilo - Bundled Up
+The categorizer-tightening pass added ~68 NEW_MECHANIC patterns to detect compound cards. Each new label maps to a distinct missing primitive — see `scripts/card-status.ts` `NEW_MECHANIC_PATTERNS` for the full list. Notable groups:
 
-### `stat-threshold-condition`
-Condition: "if you have a character with N {S}".
-- [10] Next Stop, Olympus (×2)
+**Trigger/event gaps**: `vanish-keyword`, `twice-per-turn-trigger`, `batched-sings-trigger`, `other-sings-trigger`, `opponent-exerts-trigger`, `opponent-damaged-trigger`, `chosen-by-opponent-trigger`, `nth-card-played-trigger`, `location-challenged-trigger`, `inkwell-count-trigger`, `shift-onto-self-trigger`, `exert-triggering-card`.
 
-### `shift-variant` (Anna only)
-Conditional Shift 0 grant gated on event-tracking-condition (`card-left-discard-this-turn`). Two unimplemented mechanics combined.
-- [11] Anna - Soothing Sister (×2)
+**Condition gaps**: `discard-replacement`, `underdog-condition`, `no-challenges-this-turn-condition`, `song-played-this-turn-condition`, `no-ink-put-this-turn-condition`, `card-under-event-condition`, `played-another-this-turn-condition`, `has-damaged-character-condition`.
 
-### `stat-floor`
-"Can't be reduced below printed strength." Thread `gameModifiers` through `getEffectiveStrength` and clamp at every consumer.
-- [11] Elisa Maza - Transformed Gargoyle
-- [P3] Elisa Maza - Transformed Gargoyle
+**Effect gaps**: `bulk-discard-to-inkwell`, `play-from-inkwell`, `put-self-under-effect`, `cards-under-to-inkwell`, `play-from-discard-then-bottom`, `name-then-bulk-return-from-discard`, `dynamic-draw-from-target-damage`, `lore-transfer`, `grant-activated-to-own-timed`, `per-singer-dynamic`, `discard-any-number-dynamic`, `fill-hand`.
 
-### `ink-from-discard`
-Ink-step alternate source — "you can ink cards from your discard."
-- [11] Moana - Curious Explorer (×2)
+## How to make progress on these
 
----
+Each gap is now small enough that a single focused session can knock out 5-10 mechanics. The pattern is:
 
-## Single-card mechanics
+1. Pick a label from `mechanic-gaps.ts` output
+2. Read the affected cards' rules text
+3. Add type + handler + test for the missing primitive
+4. Wire the cards
+5. Move the regex from `NEW_MECHANIC` (in `mechanic-gaps.ts` and `card-status.ts`) into `FITS_GRAMMAR_PATTERNS` with a fresh capability_id
 
-### `no-other-quested-condition`
-- [4] Isabela Madrigal - Golden Child — "if no other character has quested this turn"
-
-### `group-cant-action-this-turn`
-- [4] Isabela Madrigal - Golden Child — "your other characters can't quest"
-
-### `multi-character-move`
-- [4] Tuk Tuk - Lively Partner — move two characters to the same location atomically
-
-### `chosen-for-support-trigger`
-- [4] Prince Phillip - Gallant Defender — new trigger event for "is chosen for Support"
-
-### `prevent-lore-loss`
-- [5] Koda - Talkative Cub
-
-### `opponent-chosen-return`
-- [5] Mother Gothel - Unwavering Schemer
-
-### `trim-hand`
-- [5] Prince John's Mirror — "discard until you have N cards"
-
-### `conditional-lore-lock`
-- [6] Peter Pan - Never Land Prankster — "can't gain lore unless..."
-
-### `inverse-sequential`
-- [8] Flynn Rider - Breaking and Entering — "if they don't" branching
-
-### `new-trigger-deals-damage`
-- [9] Mulan - Elite Archer — "whenever this character deals damage to another character"
-
-### `challenge-limiter`
-- [10] Prince Charming - Protector of the Realm — "only one character can challenge"
-
-### `new-trigger-exerts`
-- [11] Bambi - Ethereal Fawn — "whenever this character exerts"
-
-### `play-from-revealed`
-- [11] Kristoff's Lute — "play it as if it were in your hand" (player still pays cost)
-
-### `remove-ability`
-- [11] Angela - Night Warrior — strip a keyword/ability from a target
-
-### `super-bodyguard`
-- [11] John Smith - Undaunted Protector — "must choose this character for actions and abilities"
-
-### `virtual-ink-color`
-- [P1] Hidden Inkcaster — "count as having {I} of any color"
+The session memory `project_phase_a_cleanup.md` documents the workflow and gotchas in detail.
