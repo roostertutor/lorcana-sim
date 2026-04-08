@@ -855,7 +855,23 @@ export type StaticEffect =
   | ModifyWinThresholdStatic
   | SkipDrawStepSelfStatic
   | TopOfDeckVisibleStatic
-  | MoveToSelfCostReductionStatic;
+  | MoveToSelfCostReductionStatic
+  | EnterPlayExertedStatic;
+
+/**
+ * "Opposing characters with Rush enter play exerted" (Jiminy Cricket
+ * Level-Headed and Wise) / "Opposing items enter play exerted" (Figaro
+ * Tuxedo Cat). The filter is matched against the played card; when a
+ * card matches an active static of this type owned by an opponent, it
+ * enters play exerted instead of ready.
+ */
+export interface EnterPlayExertedStatic {
+  type: "enter_play_exerted";
+  /** Filter for which played cards are forced to enter exerted. The owner
+   *  field is interpreted from the SOURCE card's perspective ("opponent" =
+   *  cards played by the source's opponent). */
+  filter: CardFilter;
+}
 
 /**
  * Jolly Roger - Hook's Ship: "Your Pirate characters may move here for free."
@@ -1379,6 +1395,13 @@ export interface CardDefinition {
   moveCost?: number;
 
   abilities: Ability[];
+
+  /** CRD 4.3.x: Conditional play restrictions ("you can't play this character
+   *  unless ..."). All conditions must be true for playCard validation to pass.
+   *  Used by Mirabel Madrigal Family Gatherer ("unless 5 chars in play"),
+   *  Nathaniel Flint Notorious Pirate ("unless an opposing char was damaged
+   *  this turn"). */
+  playRestrictions?: Condition[];
 
   /** CRD 5.4.3: Actions have effects, not abilities. Resolved inline, not through trigger stack. */
   actionEffects?: Effect[];

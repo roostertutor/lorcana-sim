@@ -562,6 +562,26 @@ function applyPlayCard(
     });
   }
 
+  // EnterPlayExertedStatic — Jiminy Cricket Level-Headed and Wise (opposing
+  // chars with Rush enter exerted), Figaro Tuxedo Cat (opposing items enter
+  // exerted). Force-exert here, before any enters_play triggers resolve.
+  {
+    const epeMods = getGameModifiers(state, definitions);
+    const filters = epeMods.enterPlayExerted.get(playerId) ?? [];
+    if (filters.length > 0) {
+      const playedInst = getInstance(state, instanceId);
+      const playedDefForce = getDefinition(state, instanceId, definitions);
+      for (const f of filters) {
+        // Drop owner field — already resolved when populating gameModifiers.
+        const { owner: _omit, ...rest } = f;
+        if (matchesFilter(playedInst, playedDefForce, rest, state, playerId)) {
+          state = updateInstance(state, instanceId, { isExerted: true });
+          break;
+        }
+      }
+    }
+  }
+
   // CRD 8.3.2: Bodyguard — may enter play exerted
   const playedInstance = getInstance(state, instanceId);
   const playedDef = getDefinition(state, instanceId, definitions);

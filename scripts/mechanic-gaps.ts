@@ -60,7 +60,7 @@ const NEW_TYPE: [RegExp, string][] = [
   //  Sinister Socialite, Moana) fall under other mechanic labels below.)
   [/\bink .{0,30}from .{0,20}discard/i, "ink-from-discard"],
   [/\byou may play .{0,40}from under\b/i, "play-from-under"],
-  [/opposing .{0,40}enter.{0,10}play exerted/i, "enter-play-exerted-static"],
+  // (enter-play-exerted-static removed: EnterPlayExertedStatic implemented.)
   // (move-damage removed: move_damage Effect exists; these are fits-grammar.)
   // (reveal-hand removed — reveal_hand Effect implemented.)
   // (timed-cant-be-challenged removed: cant_be_challenged_timed Effect already
@@ -102,7 +102,7 @@ const NEW_TYPE: [RegExp, string][] = [
   [/whenever this character is dealt damage\b/i, "new-trigger-is-dealt-damage"],
   [/if you have a character with \d+ \{S\}/i, "stat-threshold-condition"],
   [/can'?t play (actions|items|actions or items)\b/i, "restricted-play-by-type"],
-  [/can'?t play this (character|card) unless\b/i, "play-restriction"],
+  // (play-restriction removed: CardDefinition.playRestrictions implemented.)
   [/was damaged this turn\b/i, "event-tracking-condition"],
   // reveal-top-conditional landed: RevealTopConditionalEffect extended with
   // noMatchDestination hand/discard + matchExtraEffects (commit ae1bcf6).
@@ -138,7 +138,7 @@ const SET_FILES = readdirSync(CARDS_DIR).filter(f => f.startsWith("lorcast-set-"
 for (const f of SET_FILES) {
   const cards = JSON.parse(readFileSync(join(CARDS_DIR, f), "utf-8"));
   for (const card of cards) {
-    const impl = card.abilities?.some((a: any) => ["triggered","activated","static"].includes(a.type)) || card.actionEffects?.length > 0;
+    const impl = card.abilities?.some((a: any) => ["triggered","activated","static"].includes(a.type)) || card.actionEffects?.length > 0 || card.playRestrictions?.length > 0;
     if (impl) continue;
     for (const stub of card._namedAbilityStubs ?? []) {
       const text = stub.rulesText?.trim();

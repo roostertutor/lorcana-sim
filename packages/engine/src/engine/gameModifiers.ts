@@ -135,6 +135,15 @@ export interface GameModifiers {
    * consult this when computing the effective move cost to that location.
    */
   moveToSelfCostReductions: Map<string, { amount: number | "all"; filter: import("../types/index.js").CardFilter }[]>;
+
+  /**
+   * Per-player "force enter exerted" filters from EnterPlayExertedStatic.
+   * Key = affected player (the player whose newly-played cards are forced
+   * exerted). Value = list of filters; if any matches the played card, it
+   * enters exerted. The filter's owner field is already resolved against the
+   * source's perspective when populating this map.
+   */
+  enterPlayExerted: Map<import("../types/index.js").PlayerID, import("../types/index.js").CardFilter[]>;
 }
 
 /**
@@ -167,6 +176,7 @@ export function getGameModifiers(
     skipsDrawStep: new Set(),
     topOfDeckVisible: new Set(),
     moveToSelfCostReductions: new Map(),
+    enterPlayExerted: new Map(),
   };
 
   for (const instance of Object.values(state.cards)) {
@@ -437,6 +447,24 @@ export function getGameModifiers(
               }
             }
           }
+          break;
+        }
+
+        case "enter_play_exerted": {
+          // Filter is interpreted from the source's perspective. We resolve
+          // owner.type === "opponent" → the source's opponent, owner.type ===
+          // "self" → the source's owner. Then we key the modifier by the
+          // affected player.
+          const ownerType = effect.filter.owner?.type;
+          const affectedPlayerId: PlayerID = ownerType === "opponent"
+            ? (instance.ownerId === "player1" ? "player2" : "player1")
+            : instance.ownerId;
+          let arr = modifiers.enterPlayExerted.get(affectedPlayerId);
+          if (!arr) {
+            arr = [];
+            modifiers.enterPlayExerted.set(affectedPlayerId, arr);
+          }
+          arr.push(effect.filter);
           break;
         }
 

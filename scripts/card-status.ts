@@ -135,7 +135,8 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   [/\bink .{0,30}from .{0,20}discard/i, "ink-from-discard"],
   [/\byou may play .{0,40}from under\b/i, "play-from-under"],
   // "Enters play exerted" for opposing cards (static)
-  [/opposing .{0,40}enter.{0,10}play exerted/i, "enter-play-exerted-static"],
+  // (enter-play-exerted-static removed: EnterPlayExertedStatic implemented;
+  //  Jiminy Cricket Level-Headed and Wise + Figaro Tuxedo Cat wired.)
   // (move-damage removed: move_damage Effect already exists — Belle Untrained Mystic,
   //  Belle Accomplished Mystic, Rose Lantern. Regex was over-broad, shunting real
   //  fits-grammar cards into needs-new-type. Fits-grammar patterns below handle it.)
@@ -207,7 +208,9 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   // "Can't play actions/items" scoped to card type (Pete, Keep the Ancient Ways)
   [/can'?t play (actions|items|actions or items)\b/i, "restricted-play-by-type"],
   // "Can't play this character unless" — play restriction condition
-  [/can'?t play this (character|card) unless\b/i, "play-restriction"],
+  // (play-restriction removed: CardDefinition.playRestrictions implemented +
+  //  consulted by validatePlayCard. Mirabel x2 wired; Nathaniel Flint deferred
+  //  with event-tracking-condition.)
   // "Was damaged this turn" — event-tracking condition
   [/was damaged this turn\b/i, "event-tracking-condition"],
   // (name-a-card removed: name_a_card_then_reveal effect implemented in Phase A.0.)
@@ -485,7 +488,8 @@ function isImplemented(card: any): boolean {
   // alternateNames satisfies the only "named ability" of dual-name cards
   // (e.g. Flotsam & Jetsam Entangling Eels — CRD §10.6 reminder text).
   const hasAlternateNames = Array.isArray(card.alternateNames) && card.alternateNames.length > 0;
-  return hasNamedAbility || hasActionEffects || hasAlternateNames;
+  const hasPlayRestrictions = Array.isArray(card.playRestrictions) && card.playRestrictions.length > 0;
+  return hasNamedAbility || hasActionEffects || hasAlternateNames || hasPlayRestrictions;
 }
 
 function hasNamedStubs(card: any): boolean {

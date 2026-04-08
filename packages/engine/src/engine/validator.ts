@@ -221,6 +221,21 @@ function validatePlayCard(
     return fail(`Not enough ink. Need ${effectiveCost}, have ${state.players[playerId].availableInk}.`);
   }
 
+  // CRD 6.6.1 / 4.3.x: play restrictions from static abilities
+  // (Pete Games Referee, Keep the Ancient Ways: "opponents can't play actions").
+  // Also CardDefinition.playRestrictions: e.g. Mirabel "unless 5 chars in play".
+  const playModifiers = getGameModifiers(state, definitions);
+  if (isActionRestricted(instance, def, "play", playerId, state, playModifiers)) {
+    return fail("You can't play this card right now.");
+  }
+  if (def.playRestrictions) {
+    for (const cond of def.playRestrictions) {
+      if (!evaluateCondition(cond, state, definitions, playerId, instanceId)) {
+        return fail("Play restriction not met.");
+      }
+    }
+  }
+
   return OK;
 }
 

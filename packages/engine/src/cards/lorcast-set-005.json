@@ -447,6 +447,9 @@
       "Madrigal"
     ],
     "abilities": [],
+    "playRestrictions": [
+      { "type": "characters_in_play_gte", "amount": 5, "player": { "type": "self" } }
+    ],
     "setId": "5",
     "number": 14,
     "rarity": "legendary",

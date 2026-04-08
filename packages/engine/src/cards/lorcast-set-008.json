@@ -2237,6 +2237,20 @@
       {
         "type": "keyword",
         "keyword": "evasive"
+      },
+      {
+        "type": "static",
+        "storyName": "ENOUGH'S ENOUGH",
+        "rulesText": "While this character is exerted, opposing characters with Rush enter play exerted.",
+        "condition": { "type": "this_is_exerted" },
+        "effect": {
+          "type": "enter_play_exerted",
+          "filter": {
+            "owner": { "type": "opponent" },
+            "cardType": ["character"],
+            "hasKeyword": "rush"
+          }
+        }
       }
     ],
     "setId": "8",
@@ -4747,7 +4761,20 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "PLAYFULNESS",
+        "rulesText": "Opposing items enter play exerted.",
+        "effect": {
+          "type": "enter_play_exerted",
+          "filter": {
+            "owner": { "type": "opponent" },
+            "cardType": ["item"]
+          }
+        }
+      }
+    ],
     "setId": "8",
     "number": 133,
     "rarity": "uncommon",
