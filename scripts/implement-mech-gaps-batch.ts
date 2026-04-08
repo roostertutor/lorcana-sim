@@ -12,6 +12,12 @@ import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CARDS_DIR = join(__dirname, "../packages/engine/src/cards");
 
+// Preserve original keyword abilities (shift, evasive, ward, etc.) on a card
+// when overwriting `c.abilities`. Used by patch helpers to stay idempotent.
+function preservedKeywords(c: any): any[] {
+  return (c.abilities ?? []).filter((a: any) => a.type === "keyword");
+}
+
 type CardPatch = (card: any) => void;
 const PATCHES: Record<string, CardPatch> = {
   // ---- event-tracking-condition --------------------------------------------
@@ -28,7 +34,7 @@ const PATCHES: Record<string, CardPatch> = {
   },
   "brutus-fearsome-crocodile": (c) => {
     c.abilities = [
-      ...(c.abilities ?? []),
+      ...preservedKeywords(c),
       {
         type: "triggered",
         storyName: "WHAT A FEAST",
@@ -52,7 +58,7 @@ const PATCHES: Record<string, CardPatch> = {
   },
   "chief-seasoned-tracker": (c) => {
     c.abilities = [
-      ...(c.abilities ?? []),
+      ...preservedKeywords(c),
       {
         type: "triggered",
         storyName: "WHO'S NEXT?",
@@ -81,7 +87,7 @@ const PATCHES: Record<string, CardPatch> = {
   // ---- conditional-cant-be-challenged --------------------------------------
   "kenai-big-brother": (c) => {
     c.abilities = [
-      ...(c.abilities ?? []),
+      ...preservedKeywords(c),
       {
         type: "static",
         storyName: "BROTHERLY LOVE",
@@ -100,7 +106,7 @@ const PATCHES: Record<string, CardPatch> = {
   },
   "nick-wilde-sly-fox": (c) => {
     c.abilities = [
-      ...(c.abilities ?? []),
+      ...preservedKeywords(c),
       {
         type: "static",
         storyName: "I KNOW EVERYBODY",
@@ -116,7 +122,7 @@ const PATCHES: Record<string, CardPatch> = {
   },
   "galactic-council-chamber-courtroom": (c) => {
     c.abilities = [
-      ...(c.abilities ?? []),
+      ...preservedKeywords(c),
       {
         type: "static",
         storyName: "ORDER IN THE COURT",
@@ -138,7 +144,7 @@ const PATCHES: Record<string, CardPatch> = {
   },
   "iago-out-of-reach": (c) => {
     c.abilities = [
-      ...(c.abilities ?? []),
+      ...preservedKeywords(c),
       {
         type: "static",
         storyName: "OUT OF REACH",
@@ -162,7 +168,7 @@ const PATCHES: Record<string, CardPatch> = {
   // ---- restrict-sing --------------------------------------------------------
   "ulf-mime": (c) => {
     c.abilities = [
-      ...(c.abilities ?? []),
+      ...preservedKeywords(c),
       {
         type: "static",
         storyName: "SHHH!",
@@ -174,7 +180,7 @@ const PATCHES: Record<string, CardPatch> = {
   },
   "pete-space-pirate": (c) => {
     c.abilities = [
-      ...(c.abilities ?? []),
+      ...preservedKeywords(c),
       {
         type: "static",
         storyName: "INTIMIDATING",
@@ -209,7 +215,7 @@ const PATCHES: Record<string, CardPatch> = {
   },
   "gantu-experienced-enforcer": (c) => {
     c.abilities = [
-      ...(c.abilities ?? []),
+      ...preservedKeywords(c),
       {
         type: "triggered",
         storyName: "STOP RIGHT THERE!",
@@ -245,7 +251,7 @@ const PATCHES: Record<string, CardPatch> = {
     // Puppy Shift 3 — classification_shift_self in hand, plus shift keyword.
     c.shiftCost = 3;
     c.abilities = [
-      ...(c.abilities ?? []),
+      ...preservedKeywords(c),
       { type: "keyword", keyword: "shift", value: 3 },
       {
         type: "static",
@@ -258,10 +264,68 @@ const PATCHES: Record<string, CardPatch> = {
     c._namedAbilityStubs = [];
   },
 
+  // ---- grant-floating-trigger-to-target ------------------------------------
+  "bruno-madrigal-out-of-the-shadows": (c) => {
+    c.abilities = [
+      ...preservedKeywords(c),
+      {
+        type: "triggered",
+        storyName: "I CAN SEE YOUR FUTURE",
+        rulesText: "When you play this character, chosen character gains \"When this character is banished in a challenge, you may return this card to your hand\" this turn.",
+        trigger: { on: "enters_play" },
+        effects: [
+          {
+            type: "create_floating_trigger",
+            attachTo: "chosen",
+            targetFilter: { zone: "play", cardType: ["character"] },
+            trigger: { on: "banished_in_challenge" },
+            effects: [
+              {
+                type: "return_to_hand",
+                target: { type: "triggering_card" },
+                isMay: true,
+              },
+            ],
+          },
+        ],
+      },
+    ];
+    c._namedAbilityStubs = [];
+  },
+  "medallion-weights": (c) => {
+    c.abilities = [
+      ...preservedKeywords(c),
+      {
+        type: "activated",
+        storyName: "DISCIPLINE AND STRENGTH",
+        rulesText: "{E}, 2 {I} — Chosen character gets +2 {S} this turn. Whenever they challenge another character this turn, you may draw a card.",
+        costs: [{ type: "exert" }, { type: "pay_ink", amount: 2 }],
+        effects: [
+          {
+            type: "gain_stats",
+            strength: 2,
+            target: { type: "chosen", filter: { zone: "play", cardType: ["character"] } },
+            duration: "this_turn",
+          },
+          {
+            type: "create_floating_trigger",
+            attachTo: "chosen",
+            targetFilter: { zone: "play", cardType: ["character"] },
+            trigger: { on: "challenges" },
+            effects: [
+              { type: "draw", amount: 1, target: { type: "self" }, isMay: true },
+            ],
+          },
+        ],
+      },
+    ];
+    c._namedAbilityStubs = [];
+  },
+
   // ---- mass-inkwell ---------------------------------------------------------
   "mufasa-ruler-of-pride-rock": (c) => {
     c.abilities = [
-      ...(c.abilities ?? []),
+      ...preservedKeywords(c),
       {
         type: "triggered",
         storyName: "GREAT KINGS OF THE PAST",

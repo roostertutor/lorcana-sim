@@ -6442,56 +6442,6 @@
             }
           }
         ]
-      },
-      {
-        "type": "triggered",
-        "storyName": "WHO'S NEXT?",
-        "rulesText": "When you play this character, if an opposing character was banished in a challenge this turn, draw a card.",
-        "trigger": {
-          "on": "enters_play",
-          "filter": {
-            "owner": {
-              "type": "self"
-            }
-          }
-        },
-        "condition": {
-          "type": "opponent_character_was_banished_in_challenge_this_turn"
-        },
-        "effects": [
-          {
-            "type": "draw",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            }
-          }
-        ]
-      },
-      {
-        "type": "triggered",
-        "storyName": "WHO'S NEXT?",
-        "rulesText": "When you play this character, if an opposing character was banished in a challenge this turn, draw a card.",
-        "trigger": {
-          "on": "enters_play",
-          "filter": {
-            "owner": {
-              "type": "self"
-            }
-          }
-        },
-        "condition": {
-          "type": "opponent_character_was_banished_in_challenge_this_turn"
-        },
-        "effects": [
-          {
-            "type": "draw",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            }
-          }
-        ]
       }
     ],
     "setId": "11",

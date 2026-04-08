@@ -859,6 +859,15 @@ export interface CreateFloatingTriggerEffect {
   type: "create_floating_trigger";
   trigger: TriggerEvent;
   effects: Effect[];
+  /**
+   * If "chosen", the floating trigger is attached to a chosen target — surfaces
+   * a `choose_target` pendingChoice using `targetFilter`, and the resolved
+   * instance is stored on FloatingTrigger.attachedToInstanceId. Used by
+   * "Chosen character gains '<floating trigger>' this turn" wording
+   * (Bruno Madrigal Out of the Shadows, Medallion Weights).
+   */
+  attachTo?: "self" | "chosen";
+  targetFilter?: CardFilter;
 }
 
 // -----------------------------------------------------------------------------
@@ -1644,6 +1653,13 @@ export interface FloatingTrigger {
   trigger: TriggerEvent;
   effects: Effect[];
   controllingPlayerId: PlayerID;
+  /**
+   * If set, the floating trigger only fires when the triggering card matches
+   * this instanceId. Used by "Chosen character gains '<triggered ability>' this
+   * turn" cards (Bruno Madrigal, Medallion Weights). Without this, the floating
+   * trigger fires globally for any card matching `controllingPlayerId` + filter.
+   */
+  attachedToInstanceId?: string;
 }
 
 export type GamePhase =

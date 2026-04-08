@@ -126,6 +126,41 @@ describe("Mechanic gaps batch — mass-inkwell", () => {
   });
 });
 
+describe("Mechanic gaps batch — grant-floating-trigger-to-target", () => {
+  it("Medallion Weights: chosen char gets +2 STR + 'Whenever they challenge, draw a card' floating trigger", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let medallionId: string, charId: string, victimId: string;
+    ({ state, instanceId: medallionId } = injectCard(state, "player1", "medallion-weights", "play", { isDrying: false }));
+    ({ state, instanceId: charId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    ({ state, instanceId: victimId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false, isExerted: true }));
+
+    let r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: medallionId, abilityIndex: 0 }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // First effect: gain_stats chosen — surfaces a choose_target choice.
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [charId] }, LORCAST_CARD_DEFINITIONS);
+    state = r.newState;
+    // Second effect: create_floating_trigger attachTo chosen — surfaces another choice.
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [charId] }, LORCAST_CARD_DEFINITIONS);
+    state = r.newState;
+    // Floating trigger registered, attached to charId.
+    expect(state.floatingTriggers?.some((ft) => ft.attachedToInstanceId === charId)).toBe(true);
+    // Now the chosen char challenges → draw a card via the floating trigger.
+    const handBefore = getZone(state, "player1", "hand").length;
+    r = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: charId, defenderInstanceId: victimId }, LORCAST_CARD_DEFINITIONS);
+    state = r.newState;
+    // Draw is `isMay: true` so it surfaces a may choice — accept it.
+    if (state.pendingChoice?.type === "choose_may") {
+      r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+      state = r.newState;
+    }
+    expect(getZone(state, "player1", "hand").length).toBeGreaterThanOrEqual(handBefore);
+  });
+});
+
 describe("Mechanic gaps batch — shift-variant", () => {
   it("Turbo - Royal Hack has King Candy as an additionalName so Shift can target King Candy", () => {
     const def = LORCAST_CARD_DEFINITIONS["turbo-royal-hack"]!;

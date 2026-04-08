@@ -673,6 +673,8 @@ function applyQuest(
   if (state.floatingTriggers) {
     for (const ft of state.floatingTriggers) {
       if (ft.trigger.on === "quests" && ft.controllingPlayerId === playerId) {
+        // attachedToInstanceId scopes the trigger to a single chosen instance
+        if (ft.attachedToInstanceId && ft.attachedToInstanceId !== instanceId) continue;
         // Check filter if present
         const triggerFilter = "filter" in ft.trigger ? ft.trigger.filter : undefined;
         if (triggerFilter) {
@@ -875,6 +877,22 @@ function applyChallenge(
     state = queueTrigger(state, "is_challenged", defenderInstanceId, definitions, {
       triggeringCardInstanceId: attackerInstanceId,
     });
+  }
+
+  // CRD 6.2.7.1: Check floating triggers for `challenges` (Medallion Weights:
+  // "Whenever they challenge another character this turn, you may draw a card.")
+  if (state.floatingTriggers) {
+    for (const ft of state.floatingTriggers) {
+      if (ft.trigger.on !== "challenges") continue;
+      if (ft.attachedToInstanceId && ft.attachedToInstanceId !== attackerInstanceId) continue;
+      const triggerFilter = "filter" in ft.trigger ? ft.trigger.filter : undefined;
+      if (triggerFilter) {
+        if (!matchesFilter(attacker, attackerDef, triggerFilter, state, ft.controllingPlayerId)) continue;
+      }
+      for (const fEffect of ft.effects) {
+        state = applyEffect(state, fEffect, attackerInstanceId, ft.controllingPlayerId, definitions, events);
+      }
+    }
   }
 
   const atkStaticWp = modifiers.statBonuses.get(attackerInstanceId)?.willpower ?? 0;
@@ -1087,8 +1105,16 @@ function applyActivateAbility(
     }
   }
 
-  for (const effect of ability.effects) {
+  for (let i = 0; i < ability.effects.length; i++) {
+    const effect = ability.effects[i]!;
     state = applyEffect(state, effect, instanceId, playerId, definitions, events);
+    if (state.pendingChoice) {
+      const remaining = ability.effects.slice(i + 1);
+      if (remaining.length > 0) {
+        state = { ...state, pendingEffectQueue: { effects: remaining, sourceInstanceId: instanceId, controllingPlayerId: playerId } };
+      }
+      break;
+    }
   }
 
   events.push({ type: "ability_triggered", instanceId, abilityType: "activated" });
@@ -3161,6 +3187,23 @@ export function applyEffect(
     // CRD 6.2.7.1: Create a floating triggered ability for rest of turn
     case "create_floating_trigger": {
       const existing = state.floatingTriggers ?? [];
+      // attachTo: "chosen" — surface a choose_target so the controller picks
+      // which character receives the floating trigger.
+      if (effect.attachTo === "chosen") {
+        const filter = effect.targetFilter ?? { owner: { type: "self" }, zone: "play", cardType: ["character"] };
+        const validTargets = findValidTargets(state, filter, controllingPlayerId, definitions, sourceInstanceId);
+        if (validTargets.length === 0) return state;
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_target",
+            choosingPlayerId: controllingPlayerId,
+            prompt: "Choose a character to gain the triggered ability this turn.",
+            validTargets,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
+          },
+        };
+      }
       return {
         ...state,
         floatingTriggers: [...existing, {
@@ -3625,6 +3668,7 @@ function zoneTransition(
           if (state.floatingTriggers) {
             for (const ft of state.floatingTriggers) {
               if (ft.trigger.on !== "banished_in_challenge") continue;
+              if (ft.attachedToInstanceId && ft.attachedToInstanceId !== instanceId) continue;
               const triggerFilter = "filter" in ft.trigger ? ft.trigger.filter : undefined;
               if (triggerFilter) {
                 if (def && !matchesFilter(instance, def, triggerFilter, state, ft.controllingPlayerId)) continue;
@@ -3957,6 +4001,23 @@ function applyEffectToTarget(
     }
     case "return_to_hand":
       return zoneTransition(state, targetInstanceId, "hand", definitions, events, { reason: "returned" });
+    case "create_floating_trigger": {
+      // Resolution path for `attachTo: "chosen"` — store the floating trigger
+      // scoped to the chosen instance. Bruno Madrigal, Medallion Weights.
+      const existing = state.floatingTriggers ?? [];
+      return {
+        ...state,
+        floatingTriggers: [
+          ...existing,
+          {
+            trigger: effect.trigger,
+            effects: effect.effects,
+            controllingPlayerId,
+            attachedToInstanceId: targetInstanceId,
+          },
+        ],
+      };
+    }
     case "put_on_bottom_of_deck": {
       // Resolution path for chosen-from-play targets. The chosen instance moves
       // to the bottom of its OWNER'S deck (Wrong Lever!, Do You Want to Build

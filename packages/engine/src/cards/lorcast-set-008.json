@@ -4523,72 +4523,6 @@
             }
           }
         ]
-      },
-      {
-        "type": "triggered",
-        "storyName": "WHAT A FEAST",
-        "rulesText": "During your turn, when this character is banished, if one of your characters was damaged this turn, gain 2 lore.",
-        "trigger": {
-          "on": "is_banished",
-          "filter": {
-            "owner": {
-              "type": "self"
-            }
-          }
-        },
-        "condition": {
-          "type": "compound_and",
-          "conditions": [
-            {
-              "type": "is_your_turn"
-            },
-            {
-              "type": "your_character_was_damaged_this_turn"
-            }
-          ]
-        },
-        "effects": [
-          {
-            "type": "gain_lore",
-            "amount": 2,
-            "target": {
-              "type": "self"
-            }
-          }
-        ]
-      },
-      {
-        "type": "triggered",
-        "storyName": "WHAT A FEAST",
-        "rulesText": "During your turn, when this character is banished, if one of your characters was damaged this turn, gain 2 lore.",
-        "trigger": {
-          "on": "is_banished",
-          "filter": {
-            "owner": {
-              "type": "self"
-            }
-          }
-        },
-        "condition": {
-          "type": "compound_and",
-          "conditions": [
-            {
-              "type": "is_your_turn"
-            },
-            {
-              "type": "your_character_was_damaged_this_turn"
-            }
-          ]
-        },
-        "effects": [
-          {
-            "type": "gain_lore",
-            "amount": 2,
-            "target": {
-              "type": "self"
-            }
-          }
-        ]
       }
     ],
     "setId": "8",
@@ -4618,72 +4552,6 @@
       "Ally"
     ],
     "abilities": [
-      {
-        "type": "triggered",
-        "storyName": "WHAT A FEAST",
-        "rulesText": "During your turn, when this character is banished, if one of your characters was damaged this turn, gain 2 lore.",
-        "trigger": {
-          "on": "is_banished",
-          "filter": {
-            "owner": {
-              "type": "self"
-            }
-          }
-        },
-        "condition": {
-          "type": "compound_and",
-          "conditions": [
-            {
-              "type": "is_your_turn"
-            },
-            {
-              "type": "your_character_was_damaged_this_turn"
-            }
-          ]
-        },
-        "effects": [
-          {
-            "type": "gain_lore",
-            "amount": 2,
-            "target": {
-              "type": "self"
-            }
-          }
-        ]
-      },
-      {
-        "type": "triggered",
-        "storyName": "WHAT A FEAST",
-        "rulesText": "During your turn, when this character is banished, if one of your characters was damaged this turn, gain 2 lore.",
-        "trigger": {
-          "on": "is_banished",
-          "filter": {
-            "owner": {
-              "type": "self"
-            }
-          }
-        },
-        "condition": {
-          "type": "compound_and",
-          "conditions": [
-            {
-              "type": "is_your_turn"
-            },
-            {
-              "type": "your_character_was_damaged_this_turn"
-            }
-          ]
-        },
-        "effects": [
-          {
-            "type": "gain_lore",
-            "amount": 2,
-            "target": {
-              "type": "self"
-            }
-          }
-        ]
-      },
       {
         "type": "triggered",
         "storyName": "WHAT A FEAST",
@@ -7160,56 +7028,6 @@
       "Ally"
     ],
     "abilities": [
-      {
-        "type": "static",
-        "storyName": "OUT OF REACH",
-        "rulesText": "While you have another exerted character in play, this character can't be challenged.",
-        "condition": {
-          "type": "you_control_matching",
-          "filter": {
-            "owner": {
-              "type": "self"
-            },
-            "zone": "play",
-            "cardType": [
-              "character"
-            ],
-            "isExerted": true,
-            "excludeSelf": true
-          }
-        },
-        "effect": {
-          "type": "cant_be_challenged",
-          "target": {
-            "type": "this"
-          }
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "OUT OF REACH",
-        "rulesText": "While you have another exerted character in play, this character can't be challenged.",
-        "condition": {
-          "type": "you_control_matching",
-          "filter": {
-            "owner": {
-              "type": "self"
-            },
-            "zone": "play",
-            "cardType": [
-              "character"
-            ],
-            "isExerted": true,
-            "excludeSelf": true
-          }
-        },
-        "effect": {
-          "type": "cant_be_challenged",
-          "target": {
-            "type": "this"
-          }
-        }
-      },
       {
         "type": "static",
         "storyName": "OUT OF REACH",

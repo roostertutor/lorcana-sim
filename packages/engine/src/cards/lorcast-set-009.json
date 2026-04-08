@@ -4714,19 +4714,67 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "DISCIPLINE AND STRENGTH",
+        "rulesText": "{E}, 2 {I} — Chosen character gets +2 {S} this turn. Whenever they challenge another character this turn, you may draw a card.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 2
+          }
+        ],
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": 2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "this_turn"
+          },
+          {
+            "type": "create_floating_trigger",
+            "attachTo": "chosen",
+            "targetFilter": {
+              "zone": "play",
+              "cardType": [
+                "character"
+              ]
+            },
+            "trigger": {
+              "on": "challenges"
+            },
+            "effects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                },
+                "isMay": true
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "9",
     "number": 134,
     "rarity": "uncommon",
     "rulesText": "DISCIPLINE AND STRENGTH {E}, 2 {I} — Chosen character gets +2 {S} this turn. Whenever they challenge another character this turn, you may draw a card.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_568ccd26d0fa49ac94a67b49e599930d.avif?1755540987",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "DISCIPLINE AND STRENGTH",
-        "rulesText": "Chosen character gets +2 {S} this turn. Whenever they challenge another character this turn, you may draw a card.",
-        "raw": "DISCIPLINE AND STRENGTH {E}, 2 {I} — Chosen character gets +2 {S} this turn. Whenever they challenge another character this turn, you may draw a card."
-      }
-    ]
+    "_namedAbilityStubs": []
   },
   {
     "id": "dinner-bell",

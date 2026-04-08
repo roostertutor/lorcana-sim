@@ -161,48 +161,6 @@
             }
           }
         }
-      },
-      {
-        "type": "static",
-        "storyName": "BROTHERLY LOVE",
-        "rulesText": "While this character is exerted, your characters named Koda can't be challenged.",
-        "condition": {
-          "type": "this_is_exerted"
-        },
-        "effect": {
-          "type": "cant_be_challenged",
-          "target": {
-            "type": "all",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "hasName": "Koda"
-            }
-          }
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "BROTHERLY LOVE",
-        "rulesText": "While this character is exerted, your characters named Koda can't be challenged.",
-        "condition": {
-          "type": "this_is_exerted"
-        },
-        "effect": {
-          "type": "cant_be_challenged",
-          "target": {
-            "type": "all",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "hasName": "Koda"
-            }
-          }
-        }
       }
     ],
     "setId": "5",
@@ -2548,24 +2506,6 @@
       "Ally"
     ],
     "abilities": [
-      {
-        "type": "static",
-        "storyName": "SHHH!",
-        "rulesText": "This character can't {E} to sing songs.",
-        "effect": {
-          "type": "cant_action_self",
-          "action": "sing"
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "SHHH!",
-        "rulesText": "This character can't {E} to sing songs.",
-        "effect": {
-          "type": "cant_action_self",
-          "action": "sing"
-        }
-      },
       {
         "type": "static",
         "storyName": "SHHH!",

@@ -1898,7 +1898,40 @@
       "Ally",
       "Madrigal"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "I CAN SEE YOUR FUTURE",
+        "rulesText": "When you play this character, chosen character gains \"When this character is banished in a challenge, you may return this card to your hand\" this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "create_floating_trigger",
+            "attachTo": "chosen",
+            "targetFilter": {
+              "zone": "play",
+              "cardType": [
+                "character"
+              ]
+            },
+            "trigger": {
+              "on": "banished_in_challenge"
+            },
+            "effects": [
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "triggering_card"
+                },
+                "isMay": true
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 38,
     "rarity": "rare",
@@ -1908,13 +1941,7 @@
     "lore": 1,
     "rulesText": "IT WAS YOUR VISION When you play this character, chosen character gains “When this character is banished in a challenge, you may return this card to your hand” this turn.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_140b4894a53d4884a4ec1e15dab9319a.avif?1716052430",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "IT WAS YOUR VISION",
-        "rulesText": "When you play this character, chosen character gains “When this character is banished in a challenge, you may return this card to your hand” this turn.",
-        "raw": "IT WAS YOUR VISION When you play this character, chosen character gains “When this character is banished in a challenge, you may return this card to your hand” this turn."
-      }
-    ]
+    "_namedAbilityStubs": []
   },
   {
     "id": "bruno-madrigal-undetected-uncle",
@@ -6765,19 +6792,67 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "DISCIPLINE AND STRENGTH",
+        "rulesText": "{E}, 2 {I} — Chosen character gets +2 {S} this turn. Whenever they challenge another character this turn, you may draw a card.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 2
+          }
+        ],
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": 2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "this_turn"
+          },
+          {
+            "type": "create_floating_trigger",
+            "attachTo": "chosen",
+            "targetFilter": {
+              "zone": "play",
+              "cardType": [
+                "character"
+              ]
+            },
+            "trigger": {
+              "on": "challenges"
+            },
+            "effects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                },
+                "isMay": true
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 132,
     "rarity": "uncommon",
     "rulesText": "DISCIPLINE AND STRENGTH {E}, 2 {I} — Chosen character gets +2 {S} this turn. Whenever they challenge another character this turn, you may draw a card.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_26599f04c2b242a194da9d9207b944b4.avif?1716052430",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "DISCIPLINE AND STRENGTH",
-        "rulesText": "Chosen character gets +2 {S} this turn. Whenever they challenge another character this turn, you may draw a card.",
-        "raw": "DISCIPLINE AND STRENGTH {E}, 2 {I} — Chosen character gets +2 {S} this turn. Whenever they challenge another character this turn, you may draw a card."
-      }
-    ]
+    "_namedAbilityStubs": []
   },
   {
     "id": "the-plank",
