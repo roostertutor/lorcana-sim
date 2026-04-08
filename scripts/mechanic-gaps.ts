@@ -60,7 +60,8 @@ const NEW_TYPE: [RegExp, string][] = [
   //  and Circle of Life; remaining gap cards (Black Cauldron, Chernabog,
   //  Sinister Socialite, Moana) fall under other mechanic labels below.)
   [/\bink .{0,30}from .{0,20}discard/i, "ink-from-discard"],
-  [/\byou may play .{0,40}from under\b/i, "play-from-under"],
+  // (play-from-under removed: play_for_free supports sourceZone="under" with
+  //  cost: "normal" + sourceInstanceId: "self". The Black Cauldron wired.)
   // (enter-play-exerted-static removed: EnterPlayExertedStatic implemented.)
   // (move-damage removed: move_damage Effect exists; these are fits-grammar.)
   // (reveal-hand removed — reveal_hand Effect implemented.)

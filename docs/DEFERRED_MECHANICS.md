@@ -43,10 +43,6 @@ CRD 6.5 — "would X instead" replacement layer. Architectural addition that int
 - [10] Rapunzel - Ready for Adventure
 - [11] Lilo - Bundled Up
 
-### `play-from-under`
-Persistent paid-play relaxation from the cards-under subzone (different from `play_for_free`).
-- [10] The Black Cauldron (×2)
-
 ### `stat-threshold-condition`
 Condition: "if you have a character with N {S}".
 - [10] Next Stop, Olympus (×2)

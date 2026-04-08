@@ -266,6 +266,70 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     expect(mods.statBonuses.get(mortyId)?.lore).toBe(2);
   });
 
+  it("The Black Cauldron RISE AND JOIN ME!: paid play-from-under deducts ink and moves card to play", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let cauldronId: string, charId: string;
+    ({ state, instanceId: cauldronId } = injectCard(state, "player1", "the-black-cauldron", "play", { isDrying: false }));
+    // Inject a character into the Cauldron's cardsUnder pile (skipping the THE
+    // CAULDRON CALLS ability, which puts a card from discard under and is not
+    // implemented). The under-card lives in zone "under" with no zone-array entry.
+    ({ state, instanceId: charId } = injectCard(state, "player1", "hades-lord-of-the-underworld", "discard"));
+    // Detach from discard array and attach under the Cauldron.
+    state = {
+      ...state,
+      cards: {
+        ...state.cards,
+        [charId]: { ...state.cards[charId]!, zone: "under" },
+        [cauldronId]: {
+          ...state.cards[cauldronId]!,
+          cardsUnder: [...state.cards[cauldronId]!.cardsUnder, charId],
+        },
+      },
+      zones: {
+        ...state.zones,
+        player1: {
+          ...state.zones.player1,
+          discard: state.zones.player1.discard.filter(id => id !== charId),
+        },
+      },
+    };
+
+    const inkBefore = state.players.player1.availableInk;
+    const charDef = LORCAST_CARD_DEFINITIONS["hades-lord-of-the-underworld"]!;
+    const charCost = charDef.cost;
+
+    // Activate Cauldron's RISE AND JOIN ME! (only ability after wiring → index 0).
+    let r = applyAction(state, {
+      type: "ACTIVATE_ABILITY",
+      playerId: "player1",
+      instanceId: cauldronId,
+      abilityIndex: 0,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Cost paid: 1 {I} for activation. Card-play cost paid on accept.
+    // Resolve the play-from-under choice (isMay) — accept and pick the only target.
+    expect(state.pendingChoice).toBeTruthy();
+    if (state.pendingChoice && state.pendingChoice.type === "choose_target") {
+      expect(state.pendingChoice.validTargets).toContain(charId);
+      r = applyAction(state, {
+        type: "RESOLVE_CHOICE",
+        playerId: state.pendingChoice.choosingPlayerId,
+        choice: [charId],
+      }, LORCAST_CARD_DEFINITIONS);
+      expect(r.success).toBe(true);
+      state = r.newState;
+    }
+
+    // Activator paid: 1 (ability) + charCost (paid play).
+    expect(state.players.player1.availableInk).toBe(inkBefore - 1 - charCost);
+    // Card moved into play and detached from cauldron's pile.
+    expect(getInstance(state, charId).zone).toBe("play");
+    expect(getInstance(state, cauldronId).cardsUnder).not.toContain(charId);
+  });
+
   it("Alice Well-Read Whisper MYSTICAL INSIGHT: quest triggers put_cards_under_into_hand", () => {
     let state = startGame();
     state = giveInk(state, "player1", 5);

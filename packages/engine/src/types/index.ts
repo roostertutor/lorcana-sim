@@ -779,6 +779,20 @@ export interface PlayForFreeEffect {
    * Used by Ursula - Deceiver of All ("...then put it on the bottom of your deck.").
    */
   thenPutOnBottomOfDeck?: boolean;
+  /**
+   * Generalization to "play a card from a zone" — see card-status `play_for_free` capability.
+   * Default "free" preserves the historical behavior; "normal" deducts the card's effective
+   * ink cost using the same cost-payment helpers as the standard play action. Used by
+   * The Black Cauldron RISE AND JOIN ME! (paid play from the item's cards-under pile).
+   */
+  cost?: "free" | "normal";
+  /**
+   * Per-instance subzone source. Only meaningful when `sourceZone === "under"`. The
+   * source instance's `cardsUnder` array becomes the candidate pool. "self" resolves
+   * to the ability source (the card the effect is attached to); a CardTarget allows
+   * future cards to point at a different instance.
+   */
+  sourceInstanceId?: "self" | CardTarget;
 }
 
 /** Move a card from one zone into its owner's deck, then shuffle. */

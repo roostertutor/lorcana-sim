@@ -133,7 +133,6 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   // (play-from-discard removed: play_for_free has `sourceZone` since set 3 — matches
   //  via FITS_GRAMMAR_PATTERNS below. The two remaining patterns are genuinely new.)
   [/\bink .{0,30}from .{0,20}discard/i, "ink-from-discard"],
-  [/\byou may play .{0,40}from under\b/i, "play-from-under"],
   // "Enters play exerted" for opposing cards (static)
   // (enter-play-exerted-static removed: EnterPlayExertedStatic implemented;
   //  Jiminy Cricket Level-Headed and Wise + Figaro Tuxedo Cat wired.)
@@ -265,7 +264,7 @@ const CAPABILITIES = new Set<string>([
   "reveal_top_conditional", "name_a_card_then_reveal", "move_character",
   "gain_conditional_challenge_bonus", "create_card", "search", "choose",
   "exert", "ready", "grant_keyword", "cant_action", "look_at_top",
-  "discard_from_hand", "conditional_on_target", "play_for_free",
+  "discard_from_hand", "conditional_on_target", "play_for_free", "play-from-under",
   "shuffle_into_deck", "move_to_inkwell", "grant_extra_ink_play",
   "put_on_bottom_of_deck", "pay_ink",
   "sequential", "create_floating_trigger_on_self",
@@ -363,6 +362,7 @@ const FITS_GRAMMAR_PATTERNS: [RegExp, string][] = [
   [/\binto .{0,30}inkwell\b/i, "move_to_inkwell"],
   [/\bplay .{0,50}for free\b/i, "play_for_free"],
   [/\bwithout paying .{0,20}(ink )?cost\b/i, "play_for_free"],
+  [/\byou may play .{0,40}from under\b/i, "play-from-under"],
   [/\bcreate .{0,30}token\b/i, "create_card"],
   [/\benter[s]? play exerted\b/i, "exert"],
   [/^\(?A character with cost \d+ or more can/i, "vanilla_reminder_text"],

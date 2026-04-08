@@ -1220,7 +1220,36 @@
     "cost": 3,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "RISE AND JOIN ME!",
+        "rulesText": "{E}, 1 {I} — This turn, you may play characters from under this item.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "play_for_free",
+            "sourceZone": "under",
+            "sourceInstanceId": "self",
+            "cost": "normal",
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 32,
     "rarity": "legendary",
@@ -6301,13 +6330,23 @@
         "type": "triggered",
         "storyName": "WITCHING HOUR",
         "rulesText": "When you play this character, each player draws 3 cards, then discards 3 cards at random. Choose an opposing character and deal 2 damage to them for each action card discarded this way.",
-        "trigger": { "on": "enters_play" },
+        "trigger": {
+          "on": "enters_play"
+        },
         "effects": [
-          { "type": "draw", "amount": 3, "target": { "type": "both" } },
+          {
+            "type": "draw",
+            "amount": 3,
+            "target": {
+              "type": "both"
+            }
+          },
           {
             "type": "discard_from_hand",
             "amount": 3,
-            "target": { "type": "both" },
+            "target": {
+              "type": "both"
+            },
             "chooser": "random"
           }
         ]
@@ -8162,7 +8201,36 @@
     "cost": 3,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "RISE AND JOIN ME!",
+        "rulesText": "{E}, 1 {I} — This turn, you may play characters from under this item.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "play_for_free",
+            "sourceZone": "under",
+            "sourceInstanceId": "self",
+            "cost": "normal",
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 225,
     "rarity": "enchanted",

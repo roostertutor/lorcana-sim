@@ -2966,8 +2966,16 @@ export function applyEffect(
       }
       // Choose-from-zone form: filter the source zone (default hand) and present a choice.
       const sourceZone = effect.sourceZone ?? "hand";
-      const sourceCards = getZone(state, controllingPlayerId, sourceZone);
       const filter = effect.filter;
+      let sourceCards: string[];
+      if (sourceZone === "under") {
+        // Per-instance subzone: read cardsUnder from the source instance (default "self").
+        // Currently only "self" is supported — other CardTarget shapes can be wired as needed.
+        const parentInst = state.cards[sourceInstanceId];
+        sourceCards = parentInst ? [...parentInst.cardsUnder] : [];
+      } else {
+        sourceCards = getZone(state, controllingPlayerId, sourceZone);
+      }
       const validCards = sourceCards.filter((id) => {
         const inst = state.cards[id];
         if (!inst) return false;
@@ -2981,7 +2989,7 @@ export function applyEffect(
         pendingChoice: {
           type: "choose_target",
           choosingPlayerId: controllingPlayerId,
-          prompt: "Choose a card to play for free.",
+          prompt: effect.cost === "normal" ? "Choose a card to play." : "Choose a card to play for free.",
           validTargets: validCards,
           pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           optional: effect.isMay ?? false,
@@ -4189,13 +4197,37 @@ function applyEffectToTarget(
       return state;
     }
     case "play_for_free": {
-      // Play the chosen card without paying ink. Source zone defaults to "hand"
-      // but may be "discard" (Ursula - Deceiver of All) or any other zone.
+      // Play the chosen card. Source zone defaults to "hand" but may be "discard"
+      // (Ursula - Deceiver of All), "under" (The Black Cauldron), or any other zone.
+      // `cost: "normal"` deducts the card's effective ink cost (paid play); default is free.
       const inst = getInstance(state, targetInstanceId);
       const expectedSource = effect.sourceZone ?? "hand";
       if (inst.zone !== expectedSource) return state;
       const def = definitions[inst.definitionId];
       if (!def) return state;
+      // CRD 8.10.5: when source is the cards-under subzone, detach from parent's pile.
+      // The under subzone has no zone-array entry per player, so moveCard's filter is a
+      // no-op — we must clear the parent's cardsUnder reference ourselves to avoid the
+      // stale "card belongs under X" pointer surviving the play.
+      if (expectedSource === "under") {
+        for (const [parentId, parentInst] of Object.entries(state.cards)) {
+          if (!parentInst.cardsUnder.includes(targetInstanceId)) continue;
+          state = updateInstance(state, parentId, {
+            cardsUnder: parentInst.cardsUnder.filter(id => id !== targetInstanceId),
+          });
+          break;
+        }
+      }
+      // Paid-play branch: deduct the card's effective cost from the controller's ink
+      // (mirrors applyPlayCard's deduction step — cost reductions intentionally NOT
+      // applied here; sources gating play-from-zone already act as a permission, and
+      // adding reductions can be revisited per-card if a real example surfaces).
+      if (effect.cost === "normal") {
+        const player = state.players[controllingPlayerId];
+        const cardCost = def.cost ?? 0;
+        if (player.availableInk < cardCost) return state;
+        state = updatePlayerInk(state, controllingPlayerId, -cardCost);
+      }
       // Move to play via zoneTransition (fires enters_play, card_played triggers).
       // Note: actions resolve their effects on play and then return to discard via the
       // normal play-card path; play_for_free skips that path, so songs/actions handled
