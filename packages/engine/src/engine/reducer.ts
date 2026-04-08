@@ -2092,7 +2092,27 @@ export function applyEffect(
     }
 
     case "put_top_of_deck_under": {
-      // Move the top card of the source's owner's deck under the source.
+      // CRD 8.4.2: Move the top card of the controller's deck under a target.
+      // target: "this" → the source instance. "chosen" → player picks an
+      // eligible in-play card (typically "one of your characters or locations
+      // with Boost"). The chosen path surfaces a choose_target pendingChoice
+      // and is resolved later in applyEffectToTarget.
+      if (effect.target.type === "chosen") {
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        if (validTargets.length === 0) return state;
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_target",
+            choosingPlayerId: controllingPlayerId,
+            prompt: "Choose a card to put the top card of your deck under.",
+            validTargets,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
+            optional: effect.isMay ?? false,
+          },
+        };
+      }
+      // target: "this" — move the top card of the source's owner's deck under the source.
       // Same mutation as BOOST_CARD's pay-N path, just without the cost.
       const sourceInst = state.cards[sourceInstanceId];
       if (!sourceInst) return state;
@@ -3685,6 +3705,41 @@ function applyEffectToTarget(
       const inst = state.cards[targetInstanceId];
       if (!inst) return state;
       return moveCard(state, targetInstanceId, inst.ownerId, "deck", "bottom");
+    }
+    case "put_top_of_deck_under": {
+      // CRD 8.4.2: Resolution path for chosen-target variant. Top card of the
+      // controller's deck goes facedown under the chosen carrier, and the
+      // card_put_under trigger fires with the carrier as the source.
+      const targetInst = state.cards[targetInstanceId];
+      if (!targetInst) return state;
+      const deck = getZone(state, controllingPlayerId, "deck");
+      const topId = deck[0];
+      if (!topId) return state;
+      const topInst = state.cards[topId];
+      if (!topInst) return state;
+      state = {
+        ...state,
+        cards: {
+          ...state.cards,
+          [topId]: { ...topInst, zone: "under" },
+          [targetInstanceId]: {
+            ...targetInst,
+            cardsUnder: [...targetInst.cardsUnder, topId],
+          },
+        },
+        zones: {
+          ...state.zones,
+          [controllingPlayerId]: {
+            ...state.zones[controllingPlayerId],
+            deck: state.zones[controllingPlayerId].deck.filter(id => id !== topId),
+          },
+        },
+      };
+      state = queueTrigger(state, "card_put_under", targetInstanceId, definitions, {
+        triggeringPlayerId: controllingPlayerId,
+        triggeringCardInstanceId: topId,
+      });
+      return state;
     }
     case "gain_stats": {
       // Sword in the Stone: +1 strength per damage on target

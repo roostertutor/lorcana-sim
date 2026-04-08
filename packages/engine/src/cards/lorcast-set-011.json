@@ -1176,8 +1176,20 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "boost"
+        "type": "triggered",
+        "storyName": "MYSTICAL INSIGHT",
+        "rulesText": "Whenever this character quests, put all cards from under her into your hand.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "put_cards_under_into_hand",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
       }
     ],
     "setId": "11",
@@ -1653,7 +1665,22 @@
     "abilities": [
       {
         "type": "keyword",
-        "keyword": "boost"
+        "keyword": "boost",
+        "value": 1
+      },
+      {
+        "type": "static",
+        "storyName": "INCREASING WISDOM",
+        "rulesText": "This character gets +1 {L} for each card under him.",
+        "effect": {
+          "type": "modify_stat_per_count",
+          "stat": "lore",
+          "perCount": 1,
+          "countCardsUnderSelf": true,
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "11",
@@ -2984,8 +3011,46 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "ward"
+        "type": "triggered",
+        "storyName": "A MOTHER'S LOVE",
+        "rulesText": "When you play this character, you may put the top card of your deck facedown under one of your characters or locations with Boost. If you do, draw a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "put_top_of_deck_under",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character",
+                      "location"
+                    ],
+                    "owner": {
+                      "type": "self"
+                    },
+                    "hasKeyword": "boost"
+                  }
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
       }
     ],
     "setId": "11",
@@ -3164,7 +3229,13 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 1
+      }
+    ],
     "setId": "11",
     "number": 93,
     "rarity": "legendary",
@@ -3484,7 +3555,9 @@
           "stat": "strength",
           "perCount": 1,
           "countCardsUnderSelf": true,
-          "target": { "type": "this" }
+          "target": {
+            "type": "this"
+          }
         }
       }
     ],
@@ -3527,8 +3600,31 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "boost"
+        "type": "static",
+        "storyName": "COUNTING COINS",
+        "rulesText": "This character gets +1 {S} for each card under him.",
+        "effect": {
+          "type": "modify_stat_per_count",
+          "stat": "strength",
+          "perCount": 1,
+          "countCardsUnderSelf": true,
+          "target": {
+            "type": "this"
+          }
+        }
+      },
+      {
+        "type": "static",
+        "rulesText": "(continued) +1 {W} for each card under him.",
+        "effect": {
+          "type": "modify_stat_per_count",
+          "stat": "willpower",
+          "perCount": 1,
+          "countCardsUnderSelf": true,
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "11",
@@ -3959,8 +4055,20 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "boost"
+        "type": "static",
+        "storyName": "SUPERHUMAN STRENGTH",
+        "rulesText": "While there's a card under this character, he gets +3 {S}.",
+        "condition": {
+          "type": "this_has_cards_under"
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "strength",
+          "modifier": 3,
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "11",
@@ -4555,7 +4663,40 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 2
+      },
+      {
+        "type": "static",
+        "storyName": "GOOD BUSINESS",
+        "rulesText": "This location gets +1 {W} for each card under it.",
+        "effect": {
+          "type": "modify_stat_per_count",
+          "stat": "willpower",
+          "perCount": 1,
+          "countCardsUnderSelf": true,
+          "target": {
+            "type": "this"
+          }
+        }
+      },
+      {
+        "type": "static",
+        "rulesText": "(continued) +1 {L} for each card under it.",
+        "effect": {
+          "type": "modify_stat_per_count",
+          "stat": "lore",
+          "perCount": 1,
+          "countCardsUnderSelf": true,
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "11",
     "number": 134,
     "rarity": "uncommon",
@@ -4735,8 +4876,20 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "boost"
+        "type": "static",
+        "storyName": "EXTRA HELP",
+        "rulesText": "While there's a card under this character, she gets +1 {L}.",
+        "condition": {
+          "type": "this_has_cards_under"
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "modifier": 1,
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "11",
@@ -5382,12 +5535,27 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "boost"
-      },
-      {
-        "type": "keyword",
-        "keyword": "ward"
+        "type": "triggered",
+        "storyName": "ANYTHING THAT GLITTERS",
+        "rulesText": "Whenever you put a card under one of your characters or locations, this character gets +1 {L} this turn.",
+        "trigger": {
+          "on": "card_put_under",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "lore": 1,
+            "duration": "this_turn",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
       }
     ],
     "setId": "11",
@@ -5421,7 +5589,22 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "HOLIDAY CHEER",
+        "rulesText": "This character gets +1 {L} for each card under him.",
+        "effect": {
+          "type": "modify_stat_per_count",
+          "stat": "lore",
+          "perCount": 1,
+          "countCardsUnderSelf": true,
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "11",
     "number": 157,
     "rarity": "rare",
@@ -5487,7 +5670,24 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "HARD WORK",
+        "rulesText": "Whenever this character quests, put the top card of your deck facedown under him. (A GIVING HEART banish-in-challenge transfer not wired)",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "put_top_of_deck_under",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 159,
     "rarity": "rare",
@@ -5840,8 +6040,34 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "boost"
+        "type": "triggered",
+        "storyName": "CLONK!",
+        "rulesText": "Whenever this character quests, if there's a card under her, chosen opposing character can't challenge until the start of your next turn.",
+        "trigger": {
+          "on": "quests"
+        },
+        "condition": {
+          "type": "this_has_cards_under"
+        },
+        "effects": [
+          {
+            "type": "cant_action",
+            "action": "challenge",
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "11",

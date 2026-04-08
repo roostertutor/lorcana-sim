@@ -232,4 +232,57 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     // Opponent does not control a card with cards-under → false for opponent.
     expect(evaluateCondition(cond, state, LORCAST_CARD_DEFINITIONS, "player2", flynnId)).toBe(false);
   });
+
+  it("Webby Vanderquack Knowledge Seeker I'VE READ ABOUT THIS: +1 {L} while own card has cards-under", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let webbyId: string, flynnId: string;
+    ({ state, instanceId: webbyId } = injectCard(state, "player1", "webby-vanderquack-knowledge-seeker", "play", { isDrying: false }));
+    ({ state, instanceId: flynnId } = injectCard(state, "player1", "flynn-rider-spectral-scoundrel", "play", { isDrying: false }));
+
+    // No cards under anything yet → no bonus.
+    let mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    expect(mods.statBonuses.get(webbyId)?.lore ?? 0).toBe(0);
+
+    // Boost Flynn so Flynn has cardsUnder → Webby's static fires.
+    state = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, LORCAST_CARD_DEFINITIONS).newState;
+    mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    expect(mods.statBonuses.get(webbyId)?.lore).toBe(1);
+  });
+
+  it("Morty Fieldmouse Tiny Tim HOLIDAY CHEER: +1 {L} per card under him (modify_stat_per_count + countCardsUnderSelf)", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let mortyId: string;
+    ({ state, instanceId: mortyId } = injectCard(state, "player1", "morty-fieldmouse-tiny-tim", "play", { isDrying: false }));
+    // No cards under → no bonus.
+    let mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    expect(mods.statBonuses.get(mortyId)?.lore ?? 0).toBe(0);
+    // Apply put_top_of_deck_under effect directly (Boost keyword value may not
+    // be set on this card; we exercise the underlying counting path).
+    state = applyEffect(state, { type: "put_top_of_deck_under", target: { type: "this" } } as any, mortyId, "player1", LORCAST_CARD_DEFINITIONS, []);
+    state = applyEffect(state, { type: "put_top_of_deck_under", target: { type: "this" } } as any, mortyId, "player1", LORCAST_CARD_DEFINITIONS, []);
+    mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    expect(mods.statBonuses.get(mortyId)?.lore).toBe(2);
+  });
+
+  it("Alice Well-Read Whisper MYSTICAL INSIGHT: quest triggers put_cards_under_into_hand", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let aliceId: string;
+    ({ state, instanceId: aliceId } = injectCard(state, "player1", "alice-well-read-whisper", "play", { isDrying: false }));
+    // Seed two under-cards via the direct effect.
+    state = applyEffect(state, { type: "put_top_of_deck_under", target: { type: "this" } } as any, aliceId, "player1", LORCAST_CARD_DEFINITIONS, []);
+    state = applyEffect(state, { type: "put_top_of_deck_under", target: { type: "this" } } as any, aliceId, "player1", LORCAST_CARD_DEFINITIONS, []);
+    const aliceBefore = getInstance(state, aliceId);
+    expect(aliceBefore.cardsUnder.length).toBe(2);
+    const handBefore = getZone(state, "player1", "hand").length;
+
+    // Quest → put_cards_under_into_hand fires.
+    state = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: aliceId }, LORCAST_CARD_DEFINITIONS).newState;
+
+    const aliceAfter = getInstance(state, aliceId);
+    expect(aliceAfter.cardsUnder.length).toBe(0);
+    expect(getZone(state, "player1", "hand").length).toBe(handBefore + 2);
+  });
 });

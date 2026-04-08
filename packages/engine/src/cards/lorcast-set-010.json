@@ -229,7 +229,33 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "FABULOUS WEALTH",
+        "rulesText": "When you play this character, chosen character with a card under them gets +1 {L} this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "lore": 1,
+            "duration": "this_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasCardUnder": true
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 8,
     "rarity": "uncommon",
@@ -262,7 +288,35 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "I'VE READ ABOUT THIS",
+        "rulesText": "While you have a character or location in play with a card under them, this character gets +1 {L}.",
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character",
+              "location"
+            ],
+            "owner": {
+              "type": "self"
+            },
+            "hasCardUnder": true
+          }
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "modifier": 1,
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "10",
     "number": 9,
     "rarity": "uncommon",
@@ -515,7 +569,13 @@
       "Princess",
       "Whisper"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 1
+      }
+    ],
     "setId": "10",
     "number": 17,
     "rarity": "rare",
@@ -554,9 +614,42 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 4
+        "type": "triggered",
+        "storyName": "SPECULATION",
+        "rulesText": "Whenever you play a character or location with Boost, you may put the top card of your deck facedown under them. (approximation: chosen-target over Boost carriers rather than strictly the just-played card)",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character",
+              "location"
+            ],
+            "hasKeyword": "boost"
+          }
+        },
+        "effects": [
+          {
+            "type": "put_top_of_deck_under",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character",
+                  "location"
+                ],
+                "owner": {
+                  "type": "self"
+                },
+                "hasKeyword": "boost"
+              }
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "10",
@@ -652,7 +745,42 @@
       "Prince",
       "Whisper"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 2
+      },
+      {
+        "type": "triggered",
+        "storyName": "TIMELY ALLIANCE",
+        "rulesText": "Whenever you put a card under this character, you may reveal the top card of your deck. If it's a character card, you may play that character for free and they enter play exerted. Otherwise, put it on the bottom of your deck. (approximation: played-card does not enter exerted)",
+        "trigger": {
+          "on": "card_put_under",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "reveal_top_conditional",
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            },
+            "matchAction": "play_for_free",
+            "noMatchDestination": "bottom",
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 20,
     "rarity": "super_rare",
@@ -1038,17 +1166,30 @@
         "rulesText": "Whenever you put a card under one of your characters or locations, you may pay 1 {I} to draw a card.",
         "trigger": {
           "on": "card_put_under",
-          "filter": { "owner": { "type": "self" } }
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
         },
         "effects": [
           {
             "type": "sequential",
             "isMay": true,
             "costEffects": [
-              { "type": "pay_ink", "amount": 1 }
+              {
+                "type": "pay_ink",
+                "amount": 1
+              }
             ],
             "rewardEffects": [
-              { "type": "draw", "amount": 1, "target": { "type": "self" } }
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
             ]
           }
         ]
@@ -1402,7 +1543,39 @@
       "Ally",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "ARCANE CONNECTION",
+        "rulesText": "When you play this character, if you have a character or location in play with a card under them, gain 1 lore.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character",
+              "location"
+            ],
+            "owner": {
+              "type": "self"
+            },
+            "hasCardUnder": true
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 42,
     "rarity": "common",
@@ -1560,8 +1733,35 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "rush"
+        "type": "triggered",
+        "storyName": "FINAL ACT",
+        "rulesText": "During your turn, when this character is banished, you may put the top card of your deck facedown under one of your characters or locations with Boost.",
+        "trigger": {
+          "on": "is_banished"
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "put_top_of_deck_under",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character",
+                  "location"
+                ],
+                "owner": {
+                  "type": "self"
+                },
+                "hasKeyword": "boost"
+              }
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "10",
@@ -1723,7 +1923,49 @@
       "Villain",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "MYSTICAL MANIPULATION",
+        "rulesText": "Whenever you put a card under one of your characters or locations, you may move 1 damage counter from chosen character to chosen opposing character.",
+        "trigger": {
+          "on": "card_put_under",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "move_damage",
+            "amount": 1,
+            "source": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasDamage": true
+              }
+            },
+            "destination": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 52,
     "rarity": "rare",
@@ -1965,7 +2207,38 @@
       "Sorcerer",
       "Whisper"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "SLIPPERY SPELL",
+        "rulesText": "While there's a card under this character, she gets +1 {L} and gains Evasive.",
+        "condition": {
+          "type": "this_has_cards_under"
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "modifier": 1,
+          "target": {
+            "type": "this"
+          }
+        }
+      },
+      {
+        "type": "static",
+        "rulesText": "(continued) gains Evasive.",
+        "condition": {
+          "type": "this_has_cards_under"
+        },
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "10",
     "number": 59,
     "rarity": "rare",
@@ -1997,7 +2270,50 @@
       "Storyborn",
       "Whisper"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "IT'S LOADS OF FUN",
+        "rulesText": "Whenever you put a card under this character, you may move up to 2 damage counters from chosen character to chosen opposing character.",
+        "trigger": {
+          "on": "card_put_under",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "move_damage",
+            "amount": 2,
+            "isUpTo": true,
+            "source": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasDamage": true
+              }
+            },
+            "destination": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 60,
     "rarity": "super_rare",
@@ -2503,7 +2819,34 @@
       "Storyborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "TRY ME",
+        "rulesText": "While you have a character or location in play with a card under them, this character gains Ward.",
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character",
+              "location"
+            ],
+            "owner": {
+              "type": "self"
+            },
+            "hasCardUnder": true
+          }
+        },
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "ward",
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "10",
     "number": 76,
     "rarity": "uncommon",
@@ -2624,7 +2967,36 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "RECOMMENDED READING",
+        "rulesText": "When you play this character, you may put the top card of your deck facedown under one of your characters or locations with Boost.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "put_top_of_deck_under",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character",
+                  "location"
+                ],
+                "owner": {
+                  "type": "self"
+                },
+                "hasKeyword": "boost"
+              }
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 80,
     "rarity": "uncommon",
@@ -2864,7 +3236,24 @@
       "Ally",
       "Whisper"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "I'LL BE FINE",
+        "rulesText": "While there's a card under this character, she gets +1 {L}. (approximation: granted 'whenever challenged, opponents discard' trigger dropped)",
+        "condition": {
+          "type": "this_has_cards_under"
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "modifier": 1,
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "10",
     "number": 86,
     "rarity": "rare",
@@ -3077,7 +3466,29 @@
       "Ally",
       "Whisper"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "READY TO RASSLE",
+        "rulesText": "Whenever you put a card under this character, ready him.",
+        "trigger": {
+          "on": "card_put_under",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "ready",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 92,
     "rarity": "super_rare",
@@ -3354,7 +3765,36 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "MCDUCK HEIRLOOM",
+        "rulesText": "When you play this item, you may put the top card of your deck facedown under one of your characters or locations with Boost.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "put_top_of_deck_under",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character",
+                  "location"
+                ],
+                "owner": {
+                  "type": "self"
+                },
+                "hasKeyword": "boost"
+              }
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 101,
     "rarity": "uncommon",
@@ -5001,7 +5441,40 @@
       "Villain",
       "Whisper"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "SURVIVAL OF THE FITTEST",
+        "rulesText": "Whenever you put a card under this character, chosen opposing character gets -5 {S} this turn.",
+        "trigger": {
+          "on": "card_put_under",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": -5,
+            "duration": "this_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 153,
     "rarity": "super_rare",
@@ -6321,7 +6794,38 @@
       "Sorcerer",
       "Whisper"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "STUNNING TRANSFORMATION",
+        "rulesText": "Whenever you put a card under this character, you may banish chosen opposing character. If you do, their player may reveal the top card of their deck. If that card is a character or item card, they may play it for free. Otherwise, they put it on the bottom of their deck. (approximation: opponent reveal-top rider dropped)",
+        "trigger": {
+          "on": "card_put_under",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 192,
     "rarity": "super_rare",
@@ -6355,7 +6859,39 @@
       "Deity",
       "Whisper"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "I NEED MORE THUNDERBOLTS!",
+        "rulesText": "While there's a card under this character, he gets +2 {S} and +2 {W}.",
+        "condition": {
+          "type": "this_has_cards_under"
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "strength",
+          "modifier": 2,
+          "target": {
+            "type": "this"
+          }
+        }
+      },
+      {
+        "type": "static",
+        "rulesText": "(continued) +2 {W}.",
+        "condition": {
+          "type": "this_has_cards_under"
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "modifier": 2,
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "10",
     "number": 193,
     "rarity": "uncommon",

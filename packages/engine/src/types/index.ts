@@ -330,8 +330,15 @@ export interface MoveDamageEffect {
  */
 export interface PutTopOfDeckUnderEffect {
   type: "put_top_of_deck_under";
-  /** Which card receives the new under-card. "this" = the source instance. */
-  target: { type: "this" };
+  /** Which card receives the new under-card.
+   *  - "this" = the source instance.
+   *  - "chosen" = player picks one of their in-play cards matching the filter
+   *    (typical: "one of your characters or locations with Boost"). Used by
+   *    Scrooge McDuck Cavern Prospector, Duckworth Ghost Butler, Emily
+   *    Quackfaster, Blessed Bagpipes, Minnie Cratchit, Lonely Grave. */
+  target: { type: "this" } | { type: "chosen"; filter: CardFilter };
+  /** CRD 6.1.4: player may decline. */
+  isMay?: boolean;
 }
 
 /**
