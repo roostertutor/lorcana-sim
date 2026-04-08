@@ -587,6 +587,32 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "storyName": "LET'S GO, ALREADY!",
+        "rulesText": "When you play this character, if you used Shift to play her, you may search your deck for a character card and reveal that card to all players. Shuffle your deck and put that card on top of it. (approximation: search to hand)",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "triggering_card_played_via_shift"
+        },
+        "effects": [
+          {
+            "type": "tutor",
+            "isMay": true,
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "zone": "deck",
+              "owner": {
+                "type": "self"
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "5",
@@ -1700,6 +1726,34 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 6
+      },
+      {
+        "type": "triggered",
+        "storyName": "DARK KNOWLEDGE",
+        "rulesText": "When you play this character, for each of your characters named Maleficent in play, return a chosen opposing character, item, or location with cost 3 or less to their player's hand. (approximation: single bounce)",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character",
+                  "item",
+                  "location"
+                ],
+                "costAtMost": 3,
+                "owner": {
+                  "type": "opponent"
+                }
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "5",
@@ -1929,6 +1983,24 @@
       {
         "type": "keyword",
         "keyword": "evasive"
+      },
+      {
+        "type": "triggered",
+        "storyName": "IT'S OKAY, BRUNI",
+        "rulesText": "When this character is banished, you may draw a card.",
+        "trigger": {
+          "on": "is_banished"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "5",
@@ -2170,6 +2242,31 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "storyName": "WE NEED EACH OTHER",
+        "rulesText": "When you play this character, exert all opposing characters.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "5",
@@ -2254,6 +2351,31 @@
       {
         "type": "keyword",
         "keyword": "rush"
+      },
+      {
+        "type": "triggered",
+        "storyName": "POWER BEYOND MEASURE",
+        "rulesText": "When you play this character, exert chosen opposing character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "5",
@@ -2563,6 +2685,25 @@
       {
         "type": "keyword",
         "keyword": "rush"
+      },
+      {
+        "type": "triggered",
+        "storyName": "NEVER TOO OLD",
+        "rulesText": "When you play this character, he gains Challenger +4 this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "challenger",
+            "value": 4,
+            "target": {
+              "type": "this"
+            },
+            "duration": "end_of_turn"
+          }
+        ]
       }
     ],
     "setId": "5",
@@ -3351,6 +3492,19 @@
       {
         "type": "keyword",
         "keyword": "evasive"
+      },
+      {
+        "type": "static",
+        "storyName": "THIRSTY FOR POWER",
+        "rulesText": "While challenging a damaged character, this character gets +2 {S}. (approximation: Challenger +2)",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "challenger",
+          "value": 2,
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "5",
@@ -4518,6 +4672,33 @@
       {
         "type": "keyword",
         "keyword": "ward"
+      },
+      {
+        "type": "triggered",
+        "storyName": "KINGS DON'T NEED ADVICE",
+        "rulesText": "Whenever one of your characters challenges a damaged character, you may draw a card. (approximation: any own challenge)",
+        "trigger": {
+          "on": "challenges",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "5",
@@ -5203,6 +5384,26 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "storyName": "HUMBLE PIE",
+        "rulesText": "When you play this character, if you used Shift to play him, each opponent loses 2 lore.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "triggering_card_played_via_shift"
+        },
+        "effects": [
+          {
+            "type": "lose_lore",
+            "amount": 2,
+            "target": {
+              "type": "opponent"
+            }
+          }
+        ]
       }
     ],
     "setId": "5",
@@ -5888,6 +6089,29 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "static",
+        "storyName": "THIS IS MY KINGDOM",
+        "rulesText": "Your damaged characters get +2 {S}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "strength",
+          "modifier": 2,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasDamage": true
+            }
+          }
+        }
       }
     ],
     "setId": "5",
@@ -5928,6 +6152,24 @@
       {
         "type": "keyword",
         "keyword": "rush"
+      },
+      {
+        "type": "triggered",
+        "storyName": "I'M THE BEST DRIVER IN THE WORLD",
+        "rulesText": "When you play this character, she gains Evasive until the start of your next turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "evasive",
+            "target": {
+              "type": "this"
+            },
+            "duration": "until_caster_next_turn"
+          }
+        ]
       }
     ],
     "setId": "5",
@@ -6975,6 +7217,30 @@
       {
         "type": "keyword",
         "keyword": "ward"
+      },
+      {
+        "type": "static",
+        "storyName": "REFLECTIONS OF VANITY",
+        "rulesText": "For each other character named The Queen you have in play, this character gets +1 {L}.",
+        "effect": {
+          "type": "modify_stat_per_count",
+          "stat": "lore",
+          "perCount": 1,
+          "countFilter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasName": "The Queen",
+            "excludeSelf": true
+          },
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "5",
@@ -7736,6 +8002,34 @@
       {
         "type": "keyword",
         "keyword": "ward"
+      },
+      {
+        "type": "triggered",
+        "storyName": "WHAT A WONDERFUL NIGHT",
+        "rulesText": "When you play this character, your other characters gain Ward until the start of your next turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "ward",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true
+              }
+            },
+            "duration": "until_caster_next_turn"
+          }
+        ]
       }
     ],
     "setId": "5",
@@ -7775,6 +8069,29 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "storyName": "SEEKER OF KNOWLEDGE",
+        "rulesText": "When you play this character, if you used Shift to play him, you may search your deck for any card, put that card into your hand, then shuffle your deck.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "triggering_card_played_via_shift"
+        },
+        "effects": [
+          {
+            "type": "tutor",
+            "isMay": true,
+            "filter": {
+              "zone": "deck",
+              "owner": {
+                "type": "self"
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "5",
@@ -8461,6 +8778,28 @@
         "type": "keyword",
         "keyword": "challenger",
         "value": 7
+      },
+      {
+        "type": "static",
+        "storyName": "YOU WILL OBEY ME",
+        "rulesText": "Opposing characters with cost 4 or less can't challenge.",
+        "effect": {
+          "type": "action_restriction",
+          "restricts": "challenge",
+          "affectedPlayer": {
+            "type": "opponent"
+          },
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "costAtMost": 4
+          }
+        }
       }
     ],
     "setId": "5",
@@ -9308,6 +9647,30 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "storyName": "I LAUGH IN THE FACE OF DANGER",
+        "rulesText": "When you play this character, you may banish chosen item or location.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "item",
+                  "location"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "5",
@@ -9416,6 +9779,46 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "storyName": "EXCALIBUR",
+        "rulesText": "When you play this character, chosen character gains Challenger +2 and Resist +2 this turn. (approximation: drops can-challenge-ready branch)",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "challenger",
+            "value": 2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "end_of_turn"
+          },
+          {
+            "type": "grant_keyword",
+            "keyword": "resist",
+            "value": 2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "end_of_turn"
+          }
+        ]
       }
     ],
     "setId": "5",
@@ -10260,6 +10663,33 @@
       {
         "type": "keyword",
         "keyword": "ward"
+      },
+      {
+        "type": "triggered",
+        "storyName": "KINGS DON'T NEED ADVICE",
+        "rulesText": "Whenever one of your characters challenges a damaged character, you may draw a card. (approximation: any own challenge)",
+        "trigger": {
+          "on": "challenges",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "5",
@@ -10354,6 +10784,26 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "storyName": "HUMBLE PIE",
+        "rulesText": "When you play this character, if you used Shift to play him, each opponent loses 2 lore.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "triggering_card_played_via_shift"
+        },
+        "effects": [
+          {
+            "type": "lose_lore",
+            "amount": 2,
+            "target": {
+              "type": "opponent"
+            }
+          }
+        ]
       }
     ],
     "setId": "5",
@@ -10703,6 +11153,46 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "storyName": "EXCALIBUR",
+        "rulesText": "When you play this character, chosen character gains Challenger +2 and Resist +2 this turn. (approximation: drops can-challenge-ready branch)",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "challenger",
+            "value": 2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "end_of_turn"
+          },
+          {
+            "type": "grant_keyword",
+            "keyword": "resist",
+            "value": 2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "end_of_turn"
+          }
+        ]
       }
     ],
     "setId": "5",
