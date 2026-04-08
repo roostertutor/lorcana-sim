@@ -9,14 +9,14 @@ to produce deck analytics and win rates. NOT a human-playable simulator.
 
 ## Status
 
-- engine:    done (257 passing, 0 todos). Locations (CRD 5.6) + oncePerTurn (CRD 6.1.13) implemented. Tests split: reducer.test.ts (CRD), set1.test.ts, set2.test.ts, set3.test.ts.
-- simulator: done (46 passing). Layer 3 invariants passing. RL bot implemented (Actor-Critic + GAE).
+- engine:    done (368 passing). Phase A.x cleanup landed ~25 new primitives (boost subzone, damage immunity, dynamic-amount variants, ResolvedRef carriers, etc.). Tests split: reducer.test.ts (CRD), set1-set11 + dynamic-amount + resolved-ref. ResolvedRef snapshot type unifies fragmented `_resolved*` carriers and supports name/strength/cost/delta capture.
+- simulator: done (46 passing). Layer 3 invariants passing. RL bot implemented (Actor-Critic + GAE). Pre-existing flake on rl.test.ts unrelated to engine work.
 - analytics: done (15 passing).
 - cli:       done. analyze, compare, query, learn.
-- ui:        done. 7 screens, React+Vite. Responsive (mobile/tablet/desktop). Full-screen game board (no header/nav in-game).
+- ui:        done. 7 screens, React+Vite. Responsive (mobile/tablet/desktop). Full-screen game board (no header/nav in-game). See `docs/UI_PENDING_MECHANICS.md` for mechanics needing visualization.
 - testbench: done. Interactive game board with bot opponent. Replay mode + undo. Utility strip (deck tile, inkwell, discard tile). Card action popover anchored to clicked card (fixed-position, works on all breakpoints). Keyword badges, exerted rotation/grayscale, damage counter, summoning sickness overlay. Play zone reset on leave (CRD 1.9.3).
-- cards:     sets 1 + 2 + 3 complete. Set 3: 226/226. ~7 cards have approximations remaining (MIMICRY shift, sings trigger, move-as-effect, dynamic location lore, persistent restrictions). Set 1+2: zero approximations.
-- sets 2–11: imported as stubs (keyword-only, 2504 total cards incl. dual-ink). Run `pnpm import-cards --sets N` to refresh.
+- cards:     1989/2652 (75%) wired + 506 vanilla = 2495/2652 (94%) effectively complete. Sets 1-3: complete. Sets 4-11: 90%+ complete each (vanillas + wired). Promo sets (P1-P3, cp, DIS, D23) auto-synced from main sets via `scripts/sync-promo-reprints.ts`.
+- gaps:      9 fits-grammar (compound-mechanic floor) + 29 needs-new-type + 121 needs-new-mechanic = ~159 cards across 89 distinct labels. Categorizer is honest end-to-end. See `docs/DEFERRED_MECHANICS.md` for the TODO list and `pnpm tsx scripts/mechanic-gaps.ts` for the live report.
 
 ## Quick Reference
 

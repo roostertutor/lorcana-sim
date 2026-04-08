@@ -8,6 +8,44 @@ Append to the top as new mechanics land.
 
 ---
 
+## ResolvedRef carriers (engine refactor — UI implications)
+
+**Engine**: Unified `ResolvedRef` snapshot type replaces ad-hoc `_resolvedSourceInstanceId`/`_resolvedCharacterInstanceId`/`lastTargetOwnerId`/`lastTargetInstanceId` carriers. Holds `instanceId`, `name`, `cost`, `strength`, `willpower`, `lore`, `damage`, and an optional `delta` (how much was actually consumed by an `isUpTo` step). `state.lastResolvedSource` carries the cost-side resolved card; `state.lastResolvedTarget` carries the most recent resolved target.
+
+**UI needs**: No direct visualization, but enables future UI work to show the *actual* values used by an effect (e.g. "Hades plays Mickey Mouse for free" with the banished name in the action log) instead of re-fetching from `state.cards` after the fact. Action log entries should include the ResolvedRef snapshot for accurate replay.
+
+---
+
+## Hades Double Dealer / play-same-name-as-banished
+
+**Engine**: New `CardFilter.nameFromLastResolvedSource: boolean` flag. When true, the filter matches cards whose name (or any alternate name) equals `state.lastResolvedSource.name`. Used by Hades' "play a character with the same name as the banished character for free."
+
+**UI needs**: When the player is choosing a target for the play-for-free reward, the prompt should show the banished card's name in the prompt text ("Choose a Mickey Mouse to play for free") rather than just a generic "Choose a character." Read `state.lastResolvedSource?.name` from the pending choice context.
+
+**Cards**: Hades - Double Dealer.
+
+---
+
+## isUpTo delta tracking
+
+**Engine**: `remove_damage` and `move_damage` with `isUpTo: true` now write `delta: <actually-consumed>` onto `state.lastResolvedTarget`. New `DynamicAmount` variant `{type: "last_resolved_target_delta"}` reads it. Used by "remove up to N. Gain X for each removed."
+
+**UI needs**: When a follow-up effect resolves with a delta-based amount, show the resolved value in the log/animation rather than the upper bound (e.g. "Baymax removes 2 damage. Gain 2 lore" not "Gain up to 2 lore"). Read from the trigger's resolved amount, not from the effect template.
+
+**Cards**: Baymax - Armored Companion. Future: Bruno Singing Seer, Geppetto Skilled Craftsman, Perdita Determined Mother (when wired).
+
+---
+
+## Cost-side strength snapshot
+
+**Engine**: New `DynamicAmount` variant `{type: "last_resolved_source_strength"}` reads from `state.lastResolvedSource.strength` (snapshot taken at the moment the cost-side card resolved). Used by "exert one of your characters to deal damage equal to their strength."
+
+**UI needs**: When the player picks a character to exert as the cost, the reward prompt should show the snapshot strength ("Deal 5 damage to chosen character" using the actual exerted character's S at the moment they were exerted, even if a static buff would have changed it after).
+
+**Cards**: Ambush!
+
+---
+
 ## Boost / cards-under subzone
 
 **Engine**: `CardInstance.cardsUnder: CardInstanceId[]`. Boost keyword puts the top of deck facedown under the character. Triggers (`card_put_under`), statics (`hasCardUnder` filter, `cards_under_count` dynamic amount), and effects (`put_top_of_deck_under`, `put_cards_under_into_hand`) all read/write this pile. When the base leaves play, the entire stack goes to the controller's discard.

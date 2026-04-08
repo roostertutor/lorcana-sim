@@ -2,14 +2,14 @@
 
 Mechanics not yet implemented in the engine. Run `pnpm tsx scripts/mechanic-gaps.ts` for the live list with affected cards. Run `pnpm card-status` for set-by-set totals.
 
-## Status as of 2026-04-07
+## Status as of 2026-04-07 (end of ResolvedRef refactor)
 
-- **1982/2652 implemented (75%)** + **501 vanilla** = **2483/2652 (94%) effectively complete**
-- **17 fits-grammar** cards remain (the genuine cherry-pick floor — mostly compound mechanics or vanilla Alert miscategorizations)
-- **29 needs-new-type** + **122 needs-new-mechanic** = ~150 cards across **89 distinct labels** in the gap report
-- Engine tests: **360 passing**
+- **1988/2652 implemented (75%)** + **506 vanilla** = **2494/2652 (94%) effectively complete**
+- **9 fits-grammar** cards remain (compound-mechanic floor: Kakamora Pirate Chief, Everybody's Got a Weakness, Namaari, Goofy Set for Adventure ×3, Powerline ×2, Alice Growing Girl)
+- **29 needs-new-type** + **119 needs-new-mechanic** = ~148 cards across the gap report
+- Engine tests: **368 passing**
 
-The categorizer was tightened end-to-end during this session; `fits-grammar` is now an honest "wireable with current primitives" tag.
+The categorizer is honest end-to-end. `ResolvedRef` snapshot type unifies fragmented carriers (`_resolvedSource`, `lastResolvedTarget`, `lastResolvedSource`) and supports `name`/`strength`/`cost`/`delta` capture. Hades Double Dealer, Ambush, and Baymax Armored Companion now wired without approximations.
 
 ## How the gap report is structured
 
@@ -27,12 +27,13 @@ These are the largest unique gaps. See `mechanic-gaps.ts` output for affected ca
 - **`virtual-cost-modifier`** (Atlantica Concert Hall ×2) — location-aware sing cost
 - **`stat-floor`** (Elisa Maza ×2) — clamp `getEffectiveStrength` to printed
 - **`for-each-opponent-who-didnt`** (Sign the Scroll, Ursula's Trickery) — multi-player refusal-counting pendingChoice
-- **`play-same-name-as-banished`** (Hades Double Dealer, Bad-Anon ×2) — sequential `_resolvedBanishedName` carrier
 - **`inkwell-static`** (Daisy Duck Paranormal Investigator ×3) — pre-inkwell-add replacement
 - **`restricted-play-by-type`** (Pete Games Referee, Keep the Ancient Ways) — player-scoped TimedEffect
 - **`stat-threshold-condition`** (Next Stop Olympus ×2) — "if you have a character with N {S}"
 - **`ink-from-discard`** (Moana Curious Explorer ×2) — alternate ink source
 - **`shift-variant`** (Anna Soothing Sister ×2) — Shift 0 conditional + event tracking compound
+- **`bad-anon-recursive`** (Bad-Anon Villain Support Center ×2) — location grants activated ability that plays same-named character (combines location-grant-ability + recursion)
+- **`multi-source-move`** (Everybody's Got a Weakness) — move 1 damage from EACH damaged char to chosen, draw N for total moved (multi-source loop, not single-target)
 
 ## Categorizer-detected compound false positives
 
