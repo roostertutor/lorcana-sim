@@ -653,6 +653,9 @@ function hasNamedStubs(card: any): boolean {
     // Stub is "just a keyword reminder" if its first word is one of the card's keywords.
     const firstWord = text.split(/[\s(]/)[0]?.toLowerCase() ?? "";
     if (cardKeywords.includes(firstWord)) return false;
+    // Pure deckbuild rules (e.g. Dalmatian Puppy "you may have up to 99 copies in your deck")
+    // affect deck construction only, not in-play behavior.
+    if (/\byou may have up to \d+ copies\b/i.test(text)) return false;
     return true;
   });
 }
