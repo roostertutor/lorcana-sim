@@ -47,7 +47,38 @@
       "Villain",
       "Whisper"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "INTIMIDATION",
+        "rulesText": "Whenever this character quests, if there's a card under him, chosen opposing character can't challenge during their next turn.",
+        "trigger": {
+          "on": "quests"
+        },
+        "condition": {
+          "type": "this_has_cards_under"
+        },
+        "effects": [
+          {
+            "type": "cant_action",
+            "action": "challenge",
+            "duration": "end_of_owner_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 2,
     "rarity": "uncommon",
@@ -967,7 +998,50 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "MOMS RETURN",
+        "rulesText": "When you play this character, you may ready chosen character with Boost. If you do, they can't quest or challenge for the rest of this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "ready",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasKeyword": "boost"
+              }
+            },
+            "followUpEffects": [
+              {
+                "type": "cant_action",
+                "action": "quest",
+                "duration": "end_of_turn",
+                "target": {
+                  "type": "this"
+                }
+              },
+              {
+                "type": "cant_action",
+                "action": "challenge",
+                "duration": "end_of_turn",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 22,
     "rarity": "common",
@@ -1068,6 +1142,60 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "storyName": "GALUMPH ETB",
+        "rulesText": "When you play this character, each opposing character gets -1 {S} until the start of your next turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": -1,
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "GALUMPH QUEST",
+        "rulesText": "Whenever he quests, each opposing character gets -1 {S} until the start of your next turn.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": -1,
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "10",
@@ -1107,6 +1235,30 @@
         "type": "keyword",
         "keyword": "singer",
         "value": 7
+      },
+      {
+        "type": "triggered",
+        "storyName": "BALLAD",
+        "rulesText": "When you play this character, you may put a song card from your discard on the top of your deck.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "discard",
+                "hasTrait": "Song"
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "10",
@@ -1149,6 +1301,16 @@
         "storyName": "",
         "rulesText": "The player or players with the most cards in their hands choose and discard 2 cards. If you have a Detective character in play, gain 1 lore.",
         "raw": "The player or players with the most cards in their hands choose and discard 2 cards. If you have a Detective character in play, gain 1 lore."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "discard_from_hand",
+        "amount": 2,
+        "target": {
+          "type": "opponent"
+        },
+        "chooser": "target_player"
       }
     ]
   },
@@ -1532,7 +1694,33 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "FUNZONE",
+        "rulesText": "Whenever a character quests while here, you pay 2 less for the next character you play this turn.",
+        "trigger": {
+          "on": "quests",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "atLocation": "this"
+          }
+        },
+        "effects": [
+          {
+            "type": "grant_cost_reduction",
+            "amount": 2,
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 34,
     "rarity": "rare",
@@ -1563,7 +1751,37 @@
       "Dreamborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "AMETHYST CHAMPION",
+        "rulesText": "Whenever one of your other Amethyst characters is banished in a challenge, you may draw a card.",
+        "trigger": {
+          "on": "banished_in_challenge",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true,
+            "inkColor": "amethyst"
+          }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 35,
     "rarity": "rare",
@@ -1602,6 +1820,41 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 2
+      },
+      {
+        "type": "triggered",
+        "storyName": "WICKED RULE",
+        "rulesText": "Whenever one of your other characters is banished in a challenge, you may return that card to your hand, then choose and discard a card.",
+        "trigger": {
+          "on": "banished_in_challenge",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true
+          }
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "isMay": true,
+            "target": {
+              "type": "triggering_card"
+            }
+          },
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "chooser": "target_player"
+          }
+        ]
       }
     ],
     "setId": "10",
@@ -2261,7 +2514,36 @@
       "Ally",
       "Gargoyle"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "GARGOYLE LEGACY",
+        "rulesText": "When you play this character, if you have 2 or more Gargoyle character cards in your discard, gain 2 lore.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "cards_in_zone_gte",
+          "zone": "discard",
+          "amount": 2,
+          "player": {
+            "type": "self"
+          },
+          "cardType": [
+            "character"
+          ]
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 51,
     "rarity": "rare",
@@ -2370,7 +2652,47 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "CAREGIVER",
+        "rulesText": "When you play this character, you may choose and discard a card to return chosen character with cost 2 or less to their player's hand.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                },
+                "chooser": "target_player"
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "maxCost": 2
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 53,
     "rarity": "uncommon",
@@ -2408,6 +2730,27 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 7
+      },
+      {
+        "type": "triggered",
+        "storyName": "SHIFTED DRAW",
+        "rulesText": "When you play this character, if you used Shift to play her, you may draw 4 cards.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "played_via_shift"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 4,
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "10",
@@ -2444,7 +2787,33 @@
       "Gargoyle",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "WYVERN SCOURGE",
+        "rulesText": "When you play this character, exert all opposing characters.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 55,
     "rarity": "legendary",
@@ -2824,6 +3193,23 @@
         "rulesText": "Exert chosen opposing character. Move all damage counters from all other characters to that character.",
         "raw": "Exert chosen opposing character. Move all damage counters from all other characters to that character."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "exert",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      }
     ]
   },
   {
@@ -3003,7 +3389,34 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "GUIDEBOOK",
+        "rulesText": "{E}, 1 {I}, Banish this item — Draw 2 cards.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "ink",
+            "amount": 1
+          },
+          {
+            "type": "banish_self"
+          }
+        ],
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 66,
     "rarity": "common",
@@ -3029,7 +3442,59 @@
     "cost": 3,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "EXERT DRAIN",
+        "rulesText": "During your turn, whenever an opposing character becomes exerted, gain 1 lore.",
+        "trigger": {
+          "on": "challenge_initiated",
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
+      {
+        "type": "static",
+        "storyName": "DEMONA RUSH",
+        "rulesText": "Your characters named Demona gain Rush.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "rush",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "name": "Demona"
+            }
+          }
+        }
+      }
+    ],
     "setId": "10",
     "number": 67,
     "rarity": "rare",
@@ -3059,7 +3524,44 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "RESEARCH",
+        "rulesText": "Characters gain \"{E} — Draw a card\" while here.",
+        "effect": {
+          "type": "grant_activated_ability",
+          "target": {
+            "type": "all",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "atLocation": "this"
+            }
+          },
+          "ability": {
+            "type": "activated",
+            "storyName": "RESEARCH",
+            "rulesText": "{E} — Draw a card.",
+            "costs": [
+              {
+                "type": "exert"
+              }
+            ],
+            "effects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        }
+      }
+    ],
     "setId": "10",
     "number": 68,
     "rarity": "uncommon",
@@ -4190,7 +4692,58 @@
       "Dreamborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "EMERALD CHAMPION",
+        "rulesText": "Whenever one of your other Emerald characters is challenged and banished, banish the challenging character.",
+        "trigger": {
+          "on": "banished_in_challenge",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true,
+            "inkColor": "emerald"
+          }
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "challenger"
+            }
+          }
+        ]
+      },
+      {
+        "type": "static",
+        "storyName": "EMERALD WARD",
+        "rulesText": "Your other Emerald characters gain Ward.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "ward",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "excludeSelf": true,
+              "inkColor": "emerald"
+            }
+          }
+        }
+      }
+    ],
     "setId": "10",
     "number": 91,
     "rarity": "rare",
@@ -4424,6 +4977,16 @@
         "rulesText": "- Each opponent chooses and discards 2 cards.",
         "raw": "- Each opponent chooses and discards 2 cards."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "discard_from_hand",
+        "amount": 2,
+        "target": {
+          "type": "opponent"
+        },
+        "chooser": "target_player"
+      }
     ]
   },
   {
@@ -4531,7 +5094,32 @@
     "cost": 3,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "MALICE",
+        "rulesText": "Put 1 damage counter on chosen character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 1,
+            "asDamageCounter": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 98,
     "rarity": "super_rare",
@@ -4615,7 +5203,25 @@
     "cost": 2,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "INKCAST",
+        "rulesText": "If you've played 2 or more cards this turn, gain 1 lore.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 100,
     "rarity": "rare",
@@ -4865,7 +5471,20 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "ON PATROL",
+        "rulesText": "Once during your turn, you may pay 1 {I} less to move this character to a location.",
+        "effect": {
+          "type": "move_to_self_cost_reduction",
+          "amount": 1,
+          "filter": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "10",
     "number": 107,
     "rarity": "common",
@@ -4923,7 +5542,44 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "VIGILANT",
+        "rulesText": "Whenever you play another character with 5 {S} or more, you may ready this character. If you do, he can't quest for the rest of this turn.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "owner": {
+              "type": "self"
+            },
+            "minStrength": 5
+          }
+        },
+        "effects": [
+          {
+            "type": "ready",
+            "isMay": true,
+            "target": {
+              "type": "this"
+            },
+            "followUpEffects": [
+              {
+                "type": "cant_action",
+                "action": "quest",
+                "duration": "end_of_turn",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 109,
     "rarity": "common",
@@ -4957,7 +5613,23 @@
       "Villain",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "SOMEBODYS GOT TO USE IT",
+        "rulesText": "If a character was banished this turn, this character gets +2 {S}.",
+        "effect": {
+          "type": "gain_stats",
+          "strength": 2,
+          "target": {
+            "type": "this"
+          },
+          "condition": {
+            "type": "a_character_was_banished_in_challenge_this_turn"
+          }
+        }
+      }
+    ],
     "setId": "10",
     "number": 110,
     "rarity": "common",
@@ -5046,7 +5718,35 @@
       "Prince",
       "Whisper"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "RAGE",
+        "rulesText": "Whenever he challenges another character, if there's a card under this character, each opponent loses 1 lore and you gain 1 lore.",
+        "trigger": {
+          "on": "challenge_initiated"
+        },
+        "condition": {
+          "type": "this_has_cards_under"
+        },
+        "effects": [
+          {
+            "type": "lose_lore",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            }
+          },
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 113,
     "rarity": "uncommon",
@@ -5198,7 +5898,61 @@
       "Storyborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "CHARISMA",
+        "rulesText": "During your turn, whenever one of your characters is banished, draw a card.",
+        "trigger": {
+          "on": "is_banished",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "LEAD CHARGE",
+        "rulesText": "Whenever this character quests, chosen character gains Rush this turn.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "rush",
+            "duration": "this_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 116,
     "rarity": "super_rare",
@@ -5236,7 +5990,71 @@
       "Villain",
       "Prince"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "JOSTLING FOR POWER",
+        "rulesText": "King and Queen characters can't quest.",
+        "effect": {
+          "type": "action_restriction",
+          "restricts": "quest",
+          "target": {
+            "type": "all",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "King"
+            }
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "JOSTLING FOR POWER 2",
+        "rulesText": "Queen characters can't quest.",
+        "effect": {
+          "type": "action_restriction",
+          "restricts": "quest",
+          "target": {
+            "type": "all",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Queen"
+            }
+          }
+        }
+      },
+      {
+        "type": "triggered",
+        "storyName": "GROWING INFLUENCE",
+        "rulesText": "At the start of your turn, if an opponent has 2 or more ready characters in play, gain 2 lore.",
+        "trigger": {
+          "on": "turn_start",
+          "player": {
+            "type": "self"
+          }
+        },
+        "condition": {
+          "type": "characters_in_play_gte",
+          "amount": 2,
+          "player": {
+            "type": "opponent"
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 117,
     "rarity": "super_rare",
@@ -5326,7 +6144,35 @@
       "Hero",
       "Gargoyle"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "GUARD THE CLAN",
+        "rulesText": "Whenever one of your Gargoyle characters challenges another character, gain 1 lore.",
+        "trigger": {
+          "on": "challenge_initiated",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Gargoyle"
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 119,
     "rarity": "uncommon",
@@ -5535,6 +6381,49 @@
       {
         "type": "keyword",
         "keyword": "reckless"
+      },
+      {
+        "type": "static",
+        "storyName": "BARRELING",
+        "rulesText": "While there's a card under this character, your characters with Reckless gain \"{E} — Gain 1 lore.\"",
+        "effect": {
+          "type": "grant_activated_ability",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasKeyword": "reckless"
+            }
+          },
+          "condition": {
+            "type": "this_has_cards_under"
+          },
+          "ability": {
+            "type": "activated",
+            "storyName": "RECKLESS LORE",
+            "rulesText": "{E} — Gain 1 lore.",
+            "costs": [
+              {
+                "type": "exert"
+              }
+            ],
+            "effects": [
+              {
+                "type": "gain_lore",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        }
       }
     ],
     "setId": "10",
@@ -5705,7 +6594,20 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "STANDING GROUND",
+        "rulesText": "During your turn, if you've put a card under one of your characters or locations this turn, this character takes no damage from challenges.",
+        "effect": {
+          "type": "damage_immunity_static",
+          "source": "challenge",
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "10",
     "number": 126,
     "rarity": "uncommon",
@@ -5736,7 +6638,32 @@
     "traits": [
       "Storyborn"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "BURLY",
+        "rulesText": "Whenever this character challenges a character with 2 {S} or less, each opponent loses 1 lore.",
+        "trigger": {
+          "on": "challenge_initiated",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "maxStrength": 2
+          }
+        },
+        "effects": [
+          {
+            "type": "lose_lore",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 127,
     "rarity": "common",
@@ -5774,6 +6701,35 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "activated",
+        "storyName": "WILD RAGE",
+        "rulesText": "1 {I}, Deal 1 damage to this character — Ready this character. He can't quest for the rest of this turn.",
+        "costs": [
+          {
+            "type": "ink",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "ready",
+            "target": {
+              "type": "this"
+            },
+            "followUpEffects": [
+              {
+                "type": "cant_action",
+                "action": "quest",
+                "duration": "end_of_turn",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ]
+          }
+        ]
       }
     ],
     "setId": "10",
@@ -5848,6 +6804,18 @@
         "rulesText": "Play a location with cost 3 or less from your discard for free. Then, if you have a location named Sleepy Hollow in play, draw a card.",
         "raw": "Play a location with cost 3 or less from your discard for free. Then, if you have a location named Sleepy Hollow in play, draw a card."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "play_for_free",
+        "sourceZone": "discard",
+        "filter": {
+          "cardType": [
+            "location"
+          ],
+          "maxCost": 3
+        }
+      }
     ]
   },
   {
@@ -5873,6 +6841,37 @@
         "storyName": "",
         "rulesText": "Banish chosen character of yours to draw 2 cards. If that character had a card under them, draw 3 cards instead.",
         "raw": "Banish chosen character of yours to draw 2 cards. If that character had a card under them, draw 3 cards instead."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "sequential",
+        "costEffects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ],
+        "rewardEffects": [
+          {
+            "type": "draw",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ]
   },
@@ -6021,7 +7020,37 @@
     "cost": 4,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "GATHER RESOURCES",
+        "rulesText": "Once during your turn, whenever you move a character with 5 {S} or more here, you may draw a card.",
+        "trigger": {
+          "on": "moves_to_location",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "minStrength": 5,
+            "atLocation": "this"
+          }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 135,
     "rarity": "rare",
@@ -6049,7 +7078,53 @@
     "cost": 3,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "BRIDGE ESCAPE",
+        "rulesText": "Whenever a character quests while here, you may banish this location to gain 2 lore and give them Evasive until the start of your next turn.",
+        "trigger": {
+          "on": "quests",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "atLocation": "this"
+          }
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "banish",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "gain_lore",
+                "amount": 2,
+                "target": {
+                  "type": "self"
+                }
+              },
+              {
+                "type": "grant_keyword",
+                "keyword": "evasive",
+                "duration": "until_caster_next_turn",
+                "target": {
+                  "type": "triggering_card"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 136,
     "rarity": "uncommon",
@@ -6081,7 +7156,47 @@
       "Hero",
       "Detective"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "ON THE CASE",
+        "rulesText": "When you play this character, if you have another Detective character in play, you may put chosen item into its player's inkwell facedown and exerted.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true,
+            "hasTrait": "Detective"
+          }
+        },
+        "effects": [
+          {
+            "type": "move_to_inkwell",
+            "isMay": true,
+            "enterExerted": true,
+            "fromZone": "play",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "item"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 137,
     "rarity": "uncommon",
@@ -7011,7 +8126,33 @@
       "Dreamborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "CLUEFINDER",
+        "rulesText": "If you have a Detective character in play, return an item card from your discard to your hand. Otherwise, put it on the top of your deck.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "discard",
+                "cardType": [
+                  "item"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 157,
     "rarity": "uncommon",
@@ -7291,6 +8432,36 @@
         "rulesText": "Chosen character gets +1 {L} and gains Support this turn. (Whenever they quest, you may add their {S} to another chosen character's {S} this turn.)",
         "raw": "Chosen character gets +1 {L} and gains Support this turn. (Whenever they quest, you may add their {S} to another chosen character's {S} this turn.)"
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "gain_stats",
+        "lore": 1,
+        "duration": "this_turn",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      },
+      {
+        "type": "grant_keyword",
+        "keyword": "support",
+        "duration": "end_of_turn",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      }
     ]
   },
   {
@@ -7359,6 +8530,25 @@
         "rulesText": "Put chosen opposing character into their player's inkwell facedown. That player puts the top card of their deck into their inkwell facedown.",
         "raw": "Put chosen opposing character into their player's inkwell facedown. That player puts the top card of their deck into their inkwell facedown."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "move_to_inkwell",
+        "enterExerted": true,
+        "fromZone": "play",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      }
     ]
   },
   {
@@ -7385,6 +8575,23 @@
         "rulesText": "Put all characters with cost 3 or less into their players' inkwells facedown and exerted.",
         "raw": "Put all characters with cost 3 or less into their players' inkwells facedown and exerted."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "move_to_inkwell",
+        "enterExerted": true,
+        "fromZone": "play",
+        "target": {
+          "type": "all",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "maxCost": 3
+          }
+        }
+      }
     ]
   },
   {
@@ -7398,7 +8605,33 @@
     "cost": 1,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "BADGE",
+        "rulesText": "Chosen character gains Resist +1 and the Detective classification until the start of your next turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "resist",
+            "value": 1,
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 166,
     "rarity": "common",
@@ -7424,7 +8657,32 @@
     "cost": 3,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "AMPLIFY",
+        "rulesText": "Whenever an opponent draws a card during their turn, if it's the second card they've drawn this turn, you may put the top card of your deck into your inkwell facedown and exerted.",
+        "trigger": {
+          "on": "card_drawn",
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "reveal_top_conditional",
+            "filter": {},
+            "matchAction": "to_inkwell_exerted",
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 167,
     "rarity": "rare",
@@ -7450,7 +8708,44 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "BIBBIDI WARD",
+        "rulesText": "During your turn, whenever you put a card into your inkwell, chosen Princess character of yours gains Ward until the start of your next turn.",
+        "trigger": {
+          "on": "card_put_in_inkwell",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "ward",
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Princess"
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 168,
     "rarity": "super_rare",
@@ -7554,7 +8849,40 @@
     "cost": 1,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "INTO THE GLOOM",
+        "rulesText": "Once during your turn, whenever a character quests while here, you may ready chosen item.",
+        "trigger": {
+          "on": "quests",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "atLocation": "this"
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "ready",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "item"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 170,
     "rarity": "rare",
@@ -7938,7 +9266,36 @@
       "Hero",
       "Detective"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "TENACIOUS",
+        "rulesText": "Whenever you play another Detective character, this character gains Resist +1 until the start of your next turn.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "owner": {
+              "type": "self"
+            },
+            "hasTrait": "Detective"
+          }
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "resist",
+            "value": 1,
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 179,
     "rarity": "common",
@@ -8300,7 +9657,44 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "LOST BOY STRIKE",
+        "rulesText": "When you play this character, if you have a location in play, you may deal 2 damage to chosen character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "location"
+            ]
+          }
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 2,
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 186,
     "rarity": "common",
@@ -8339,6 +9733,36 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "triggered",
+        "storyName": "PERSISTENT",
+        "rulesText": "During your turn, whenever one of your Detective characters banishes another character in a challenge, draw a card.",
+        "trigger": {
+          "on": "banished_other_in_challenge",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Detective"
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "10",
@@ -8489,7 +9913,71 @@
       "Dreamborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "STEEL CHAMPION",
+        "rulesText": "During your turn, whenever one of your other Steel characters banishes another character in a challenge, gain 2 lore.",
+        "trigger": {
+          "on": "banished_other_in_challenge",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true,
+            "inkColor": "steel"
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "STEEL SMASH",
+        "rulesText": "Whenever you play another Steel character, you may banish chosen item.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "owner": {
+              "type": "self"
+            },
+            "inkColor": "steel"
+          }
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "item"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 191,
     "rarity": "rare",
@@ -8761,6 +10249,32 @@
         "rulesText": "Chosen opposing character can't challenge during their next turn. Draw a card.",
         "raw": "Chosen opposing character can't challenge during their next turn. Draw a card."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "cant_action",
+        "action": "challenge",
+        "duration": "end_of_owner_next_turn",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      },
+      {
+        "type": "draw",
+        "amount": 1,
+        "target": {
+          "type": "self"
+        }
+      }
     ]
   },
   {
@@ -8793,6 +10307,40 @@
         "rulesText": "Deal 4 damage to chosen character. Your Deity characters gain Challenger +2 this turn. (They get +2 {S} while challenging.)",
         "raw": "Deal 4 damage to chosen character. Your Deity characters gain Challenger +2 this turn. (They get +2 {S} while challenging.)"
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "deal_damage",
+        "amount": 4,
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      },
+      {
+        "type": "grant_keyword",
+        "keyword": "challenger",
+        "value": 2,
+        "duration": "end_of_turn",
+        "target": {
+          "type": "all",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Deity"
+          }
+        }
+      }
     ]
   },
   {
@@ -8819,6 +10367,35 @@
         "rulesText": "Move up to 2 of your characters to the same location for free. That location gains Resist +2 until the start of your next turn. (Damage dealt to it is reduced by 2.)",
         "raw": "Move up to 2 of your characters to the same location for free. That location gains Resist +2 until the start of your next turn. (Damage dealt to it is reduced by 2.)"
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "move_character",
+        "character": {
+          "type": "chosen",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "location": {
+          "type": "chosen",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "location"
+            ]
+          }
+        }
+      }
     ]
   },
   {
@@ -8832,7 +10409,40 @@
     "cost": 1,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "ROBOT STRIKE",
+        "rulesText": "Whenever you play a character, you may pay 1 {I} and banish this item to deal 2 damage to chosen character.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 2,
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 199,
     "rarity": "uncommon",
@@ -8858,7 +10468,63 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "GODSLAYER",
+        "rulesText": "When you play this item, banish chosen opposing Deity character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Deity"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "HEROIC VICTORY",
+        "rulesText": "During your turn, whenever one of your characters banishes another character in a challenge, gain 1 lore.",
+        "trigger": {
+          "on": "banished_other_in_challenge",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 200,
     "rarity": "rare",
@@ -8918,7 +10584,30 @@
     "cost": 3,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "LINKED LORE",
+        "rulesText": "While you have a character here, this location gets +1 {L} for each other location you have in play.",
+        "effect": {
+          "type": "modify_stat_per_count",
+          "stat": "lore",
+          "perCount": 1,
+          "countZone": "play",
+          "countOwner": {
+            "type": "self"
+          },
+          "countFilter": {
+            "cardType": [
+              "location"
+            ]
+          },
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "10",
     "number": 202,
     "rarity": "super_rare",
@@ -8951,7 +10640,44 @@
     "cost": 1,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "NEW INFORMATION",
+        "rulesText": "Once during your turn, whenever you move a character here, you may draw a card, then choose and discard a card.",
+        "trigger": {
+          "on": "moves_to_location",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "atLocation": "this"
+          }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "chooser": "target_player"
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 203,
     "rarity": "uncommon",
@@ -9112,7 +10838,38 @@
       "Villain",
       "Whisper"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "INTIMIDATION",
+        "rulesText": "Whenever this character quests, if there's a card under him, chosen opposing character can't challenge during their next turn.",
+        "trigger": {
+          "on": "quests"
+        },
+        "condition": {
+          "type": "this_has_cards_under"
+        },
+        "effects": [
+          {
+            "type": "cant_action",
+            "action": "challenge",
+            "duration": "end_of_owner_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 206,
     "rarity": "common",
@@ -9518,7 +11275,20 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "STANDING GROUND",
+        "rulesText": "During your turn, if you've put a card under one of your characters or locations this turn, this character takes no damage from challenges.",
+        "effect": {
+          "type": "damage_immunity_static",
+          "source": "challenge",
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "10",
     "number": 215,
     "rarity": "common",
@@ -9555,6 +11325,49 @@
       {
         "type": "keyword",
         "keyword": "reckless"
+      },
+      {
+        "type": "static",
+        "storyName": "BARRELING",
+        "rulesText": "While there's a card under this character, your characters with Reckless gain \"{E} — Gain 1 lore.\"",
+        "effect": {
+          "type": "grant_activated_ability",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasKeyword": "reckless"
+            }
+          },
+          "condition": {
+            "type": "this_has_cards_under"
+          },
+          "ability": {
+            "type": "activated",
+            "storyName": "RECKLESS LORE",
+            "rulesText": "{E} — Gain 1 lore.",
+            "costs": [
+              {
+                "type": "exert"
+              }
+            ],
+            "effects": [
+              {
+                "type": "gain_lore",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        }
       }
     ],
     "setId": "10",
@@ -9682,6 +11495,25 @@
         "storyName": "",
         "rulesText": "Put chosen opposing character into their player's inkwell facedown. That player puts the top card of their deck into their inkwell facedown.",
         "raw": "Put chosen opposing character into their player's inkwell facedown. That player puts the top card of their deck into their inkwell facedown."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "move_to_inkwell",
+        "enterExerted": true,
+        "fromZone": "play",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
       }
     ]
   },
@@ -9848,6 +11680,40 @@
         "rulesText": "Deal 4 damage to chosen character. Your Deity characters gain Challenger +2 this turn. (They get +2 {S} while challenging.)",
         "raw": "Deal 4 damage to chosen character. Your Deity characters gain Challenger +2 this turn. (They get +2 {S} while challenging.)"
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "deal_damage",
+        "amount": 4,
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      },
+      {
+        "type": "grant_keyword",
+        "keyword": "challenger",
+        "value": 2,
+        "duration": "end_of_turn",
+        "target": {
+          "type": "all",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Deity"
+          }
+        }
+      }
     ]
   },
   {
@@ -9870,6 +11736,60 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "storyName": "GALUMPH ETB",
+        "rulesText": "When you play this character, each opposing character gets -1 {S} until the start of your next turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": -1,
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "GALUMPH QUEST",
+        "rulesText": "Whenever he quests, each opposing character gets -1 {S} until the start of your next turn.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": -1,
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "10",
@@ -10039,6 +11959,41 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 2
+      },
+      {
+        "type": "triggered",
+        "storyName": "WICKED RULE",
+        "rulesText": "Whenever one of your other characters is banished in a challenge, you may return that card to your hand, then choose and discard a card.",
+        "trigger": {
+          "on": "banished_in_challenge",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true
+          }
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "isMay": true,
+            "target": {
+              "type": "triggering_card"
+            }
+          },
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "chooser": "target_player"
+          }
+        ]
       }
     ],
     "setId": "10",
@@ -10075,7 +12030,33 @@
       "Gargoyle",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "WYVERN SCOURGE",
+        "rulesText": "When you play this character, exert all opposing characters.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 227,
     "rarity": "enchanted",
@@ -10117,6 +12098,23 @@
         "storyName": "",
         "rulesText": "Exert chosen opposing character. Move all damage counters from all other characters to that character.",
         "raw": "Exert chosen opposing character. Move all damage counters from all other characters to that character."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "exert",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
       }
     ]
   },
@@ -10608,6 +12606,23 @@
         "rulesText": "Put all characters with cost 3 or less into their players' inkwells facedown and exerted.",
         "raw": "Put all characters with cost 3 or less into their players' inkwells facedown and exerted."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "move_to_inkwell",
+        "enterExerted": true,
+        "fromZone": "play",
+        "target": {
+          "type": "all",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "maxCost": 3
+          }
+        }
+      }
     ]
   },
   {
@@ -10668,6 +12683,36 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "triggered",
+        "storyName": "PERSISTENT",
+        "rulesText": "During your turn, whenever one of your Detective characters banishes another character in a challenge, draw a card.",
+        "trigger": {
+          "on": "banished_other_in_challenge",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Detective"
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "10",
@@ -10699,7 +12744,63 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "GODSLAYER",
+        "rulesText": "When you play this item, banish chosen opposing Deity character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Deity"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "HEROIC VICTORY",
+        "rulesText": "During your turn, whenever one of your characters banishes another character in a challenge, gain 1 lore.",
+        "trigger": {
+          "on": "banished_other_in_challenge",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 240,
     "rarity": "enchanted",
