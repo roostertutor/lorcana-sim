@@ -1110,7 +1110,40 @@
     "cost": 3,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "OUR HUMBLE HOME",
+        "rulesText": "While you have 3 or more characters here, you may banish this location to play a character from your discard for free.",
+        "condition": {
+          "type": "characters_here_gte",
+          "amount": 3,
+          "player": {
+            "type": "self"
+          }
+        },
+        "costs": [],
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "this"
+            }
+          },
+          {
+            "type": "play_for_free",
+            "sourceZone": "discard",
+            "filter": {
+              "zone": "discard",
+              "cardType": [
+                "character"
+              ]
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "5",
     "number": 34,
     "rarity": "rare",

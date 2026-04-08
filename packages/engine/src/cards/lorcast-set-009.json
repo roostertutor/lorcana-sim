@@ -980,7 +980,20 @@
         "raw": "Sing Together 8 (Any number of your or your teammates’ characters with total cost 8 or more may {E} to sing this song for free.) Play a character from your discard for free."
       }
     ],
-    "singTogetherCost": 8
+    "singTogetherCost": 8,
+    "actionEffects": [
+      {
+        "type": "play_for_free",
+        "sourceZone": "discard",
+        "filter": {
+          "zone": "discard",
+          "cardType": [
+            "character"
+          ]
+        },
+        "isMay": true
+      }
+    ]
   },
   {
     "id": "heal-what-has-been-hurt",
@@ -7778,7 +7791,20 @@
         "raw": "Play a character from your discard for free."
       }
     ],
-    "singTogetherCost": 8
+    "singTogetherCost": 8,
+    "actionEffects": [
+      {
+        "type": "play_for_free",
+        "sourceZone": "discard",
+        "filter": {
+          "zone": "discard",
+          "cardType": [
+            "character"
+          ]
+        },
+        "isMay": true
+      }
+    ]
   },
   {
     "id": "belle-accomplished-mystic",

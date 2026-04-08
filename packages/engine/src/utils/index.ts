@@ -626,6 +626,25 @@ export function evaluateCondition(
       const inst = state.cards[sourceInstanceId];
       return inst ? !!inst.atLocationInstanceId : false;
     }
+    case "characters_here_gte": {
+      // CRD 5.6: "N or more characters here" — count characters at the source
+      // location, optionally filtered by owner.
+      const pt = condition.player;
+      const wantedOwner = !pt
+        ? null
+        : pt.type === "self" ? controllingPlayerId
+        : pt.type === "opponent" ? opponent
+        : null;
+      let count = 0;
+      for (const c of Object.values(state.cards)) {
+        if (c.atLocationInstanceId !== sourceInstanceId) continue;
+        if (wantedOwner && c.ownerId !== wantedOwner) continue;
+        const def = definitions[c.definitionId];
+        if (def?.cardType !== "character") continue;
+        count++;
+      }
+      return count >= condition.amount;
+    }
     case "this_location_has_character": {
       // True if any character (any owner) is currently at this location.
       // Used by Belle's House - Maurice's Workshop ("If you have a character here, items cost 1 less").

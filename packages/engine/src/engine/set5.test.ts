@@ -358,3 +358,94 @@ describe("§5 Set 5 — put_on_bottom_of_deck Effect", () => {
     expect(state.lastEffectResult).toBe(2);
   });
 });
+
+describe("§5 Set 5 — Pride Lands Jungle Oasis (alt-source-zone: play from discard)", () => {
+  it("OUR HUMBLE HOME: with < 3 characters at this location, ability fizzles (location stays, discard char not played)", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let locId: string, discardCharId: string;
+    ({ state, instanceId: locId } = injectCard(state, "player1", "pride-lands-jungle-oasis", "play", { isDrying: false }));
+    // Put 2 characters at the location (not enough)
+    injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, atLocationInstanceId: locId });
+    injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, atLocationInstanceId: locId });
+    ({ state, instanceId: discardCharId } = injectCard(state, "player1", "mickey-mouse-true-friend", "discard"));
+    const r = applyAction(state, {
+      type: "ACTIVATE_ABILITY",
+      playerId: "player1",
+      instanceId: locId,
+      abilityIndex: 0,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true); // activation succeeds but effects fizzle (CRD 6.2.1)
+    const s2 = r.newState;
+    // Location still in play (banish effect gated by condition, did not run)
+    expect(getZone(s2, "player1", "play")).toContain(locId);
+    // Discard char still in discard
+    expect(getZone(s2, "player1", "discard")).toContain(discardCharId);
+    expect(s2.pendingChoice).toBeNull();
+  });
+
+  it("OUR HUMBLE HOME: activates with 3 chars, banishes self, plays a character from discard for free", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 0); // explicitly 0 — play should be free
+    let locId: string;
+    ({ state, instanceId: locId } = injectCard(state, "player1", "pride-lands-jungle-oasis", "play", { isDrying: false }));
+    // 3 characters at this location
+    let c1: string, c2: string, c3: string;
+    ({ state, instanceId: c1 } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, atLocationInstanceId: locId }));
+    ({ state, instanceId: c2 } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, atLocationInstanceId: locId }));
+    ({ state, instanceId: c3 } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, atLocationInstanceId: locId }));
+    // Target character in discard
+    let discardCharId: string;
+    ({ state, instanceId: discardCharId } = injectCard(state, "player1", "mickey-mouse-true-friend", "discard"));
+
+    let r = applyAction(state, {
+      type: "ACTIVATE_ABILITY",
+      playerId: "player1",
+      instanceId: locId,
+      abilityIndex: 0,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Location is banished (cost)
+    expect(getZone(state, "player1", "discard")).toContain(locId);
+
+    // May prompt: choose the discarded char
+    if (state.pendingChoice?.type === "choose_target") {
+      r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [discardCharId] }, LORCAST_CARD_DEFINITIONS);
+      expect(r.success).toBe(true);
+      state = r.newState;
+    }
+
+    // Played for free → char in play, not still in discard
+    expect(getZone(state, "player1", "discard")).not.toContain(discardCharId);
+    expect(getZone(state, "player1", "play")).toContain(discardCharId);
+    // No ink spent
+    expect(state.players.player1.availableInk).toBe(0);
+  });
+});
+
+describe("§9 Set 9 — Circle of Life (alt-source-zone: song plays char from discard)", () => {
+  it("actionEffects replay a character from discard for free", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 8);
+    let songId: string, discardCharId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "circle-of-life", "hand"));
+    ({ state, instanceId: discardCharId } = injectCard(state, "player1", "mickey-mouse-true-friend", "discard"));
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    if (state.pendingChoice?.type === "choose_target") {
+      r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [discardCharId] }, LORCAST_CARD_DEFINITIONS);
+      expect(r.success).toBe(true);
+      state = r.newState;
+    }
+
+    // Character is now in play
+    expect(getZone(state, "player1", "play")).toContain(discardCharId);
+    // Song is in discard (CRD 5.4.3)
+    expect(getZone(state, "player1", "discard")).toContain(songId);
+  });
+});

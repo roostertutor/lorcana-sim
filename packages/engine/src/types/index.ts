@@ -1174,6 +1174,10 @@ export type Condition =
   | { type: "this_has_no_damage" }
   | { type: "this_at_location" }
   | { type: "this_location_has_character" }
+  /** True if the number of characters (of `player`, default any) at this source
+   *  location is >= `amount`. Used by Pride Lands Jungle Oasis
+   *  ("While you have 3 or more characters here, …"). */
+  | { type: "characters_here_gte"; amount: number; player?: PlayerTarget }
   | { type: "this_has_cards_under" }
   /** CRD 8.4.2: True if the controller has at least one card in play matching
    *  `filter`. Used for "While you have a character or location in play with a
