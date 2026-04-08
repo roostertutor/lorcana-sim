@@ -1683,12 +1683,11 @@ export interface GameState {
   /** CRD 6.1.5.1: Result of the last cost effect in a sequential (for "[A]. For each X, [B]" patterns) */
   lastEffectResult?: number;
 
-  /** Owner of the last card targeted by a choose_target resolution (for "its player draws" patterns) */
-  lastTargetOwnerId?: PlayerID;
-  /** Most recently chosen target instance ID — used by gain_lore "from_target_location_lore"
-   *  (I've Got a Dream: "Gain lore equal to that location's {L}" where "that" = the
-   *  ready target's location). */
-  lastTargetInstanceId?: string;
+  /** Snapshot of the last card resolved by a choose_target step. Used by
+   *  follow-up effects — "its player draws" (target_owner), "that location's
+   *  {L}" (I've Got a Dream: last_target_location_lore), etc. Unified replacement
+   *  for the old lastTargetOwnerId / lastTargetInstanceId pair. */
+  lastResolvedTarget?: ResolvedRef;
 
   winner: PlayerID | null;
   isGameOver: boolean;

@@ -1612,11 +1612,12 @@ function applyResolveChoice(
       return state;
     }
     for (const targetId of choice) {
-      // Track the owner and instance of the targeted card. lastTargetInstanceId is
-      // used for "lore equal to that location's lore" patterns (I've Got a Dream).
-      const targetInst = state.cards[targetId];
-      if (targetInst) {
-        state = { ...state, lastTargetOwnerId: targetInst.ownerId, lastTargetInstanceId: targetId };
+      // Track a snapshot of the targeted card. Used by follow-up effects like
+      // target_owner ("its player draws") and last_target_location_lore
+      // (I've Got a Dream: "lore equal to that location's {L}").
+      const ref = makeResolvedRef(state, definitions, targetId);
+      if (ref) {
+        state = { ...state, lastResolvedTarget: ref };
       }
       const srcId = pendingChoice.sourceInstanceId ?? "";
       const trigId = pendingChoice.triggeringCardInstanceId;
@@ -1671,7 +1672,7 @@ function resolveDynamicAmount(
     return def?.lore ?? 0;
   }
   if (amount === "last_target_location_lore") {
-    const lastTargetId = state.lastTargetInstanceId;
+    const lastTargetId = state.lastResolvedTarget?.instanceId;
     const lastTargetInst = lastTargetId ? state.cards[lastTargetId] : undefined;
     const locId = lastTargetInst?.atLocationInstanceId;
     const locInst = locId ? state.cards[locId] : undefined;
@@ -1743,7 +1744,7 @@ export function applyEffect(
           effect.target.type === "opponent"
             ? getOpponent(controllingPlayerId)
             : effect.target.type === "target_owner"
-              ? (state.lastTargetOwnerId ?? controllingPlayerId)
+              ? (state.lastResolvedTarget?.ownerId ?? controllingPlayerId)
               : controllingPlayerId;
         const drawPlayers: PlayerID[] =
           effect.target.type === "both"
@@ -1775,7 +1776,7 @@ export function applyEffect(
         effect.target.type === "opponent"
           ? getOpponent(controllingPlayerId)
           : effect.target.type === "target_owner"
-            ? (state.lastTargetOwnerId ?? controllingPlayerId)
+            ? (state.lastResolvedTarget?.ownerId ?? controllingPlayerId)
             : controllingPlayerId;
       return applyDraw(state, targetPlayer, amount, events, definitions);
     }
@@ -1787,7 +1788,7 @@ export function applyEffect(
         effect.target.type === "opponent"
           ? getOpponent(controllingPlayerId)
           : effect.target.type === "target_owner"
-            ? (state.lastTargetOwnerId ?? getOpponent(controllingPlayerId))
+            ? (state.lastResolvedTarget?.ownerId ?? getOpponent(controllingPlayerId))
             : effect.target.type === "self"
               ? controllingPlayerId
               : getOpponent(controllingPlayerId);
@@ -1805,7 +1806,7 @@ export function applyEffect(
       if (effect.target.type === "chosen") {
         return surfaceChoosePlayer(state, effect, controllingPlayerId, sourceInstanceId, definitions, events);
       }
-      const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, state.lastTargetInstanceId);
+      const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, state.lastResolvedTarget?.instanceId);
       // "Each player gains N lore" — apply to both (I2I). CRD: target { type: "both" }.
       if (effect.target.type === "both") {
         state = gainLore(state, controllingPlayerId, amount, events);
@@ -1816,14 +1817,14 @@ export function applyEffect(
         effect.target.type === "opponent"
           ? getOpponent(controllingPlayerId)
           : effect.target.type === "target_owner"
-            ? (state.lastTargetOwnerId ?? controllingPlayerId)
+            ? (state.lastResolvedTarget?.ownerId ?? controllingPlayerId)
             : controllingPlayerId;
       return gainLore(state, targetPlayer, amount, events);
     }
 
     case "deal_damage": {
       const resolveAmount = (amt: typeof effect.amount): number =>
-        resolveDynamicAmount(amt, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, state.lastTargetInstanceId);
+        resolveDynamicAmount(amt, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, state.lastResolvedTarget?.instanceId);
       if (effect.target.type === "this") {
         return dealDamageToCard(state, sourceInstanceId, resolveAmount(effect.amount), definitions, events, false, false, effect.asDamageCounter);
       }
@@ -1920,10 +1921,11 @@ export function applyEffect(
       if (effect.target.type === "triggering_card" && triggeringCardInstanceId) {
         const trigInst = state.cards[triggeringCardInstanceId];
         if (trigInst) {
-          // Set lastTargetOwnerId so a follow-up effect can target_owner the
+          // Set lastResolvedTarget so a follow-up effect can target_owner the
           // returned card's player (Yzma BACK TO WORK: "return that card... then
           // that player discards a card at random").
-          state = { ...state, lastTargetOwnerId: trigInst.ownerId, lastTargetInstanceId: triggeringCardInstanceId };
+          const trigRef = makeResolvedRef(state, definitions, triggeringCardInstanceId);
+          if (trigRef) state = { ...state, lastResolvedTarget: trigRef };
           return zoneTransition(state, triggeringCardInstanceId, "hand", definitions, events, { reason: "returned" });
         }
       }
@@ -3140,7 +3142,7 @@ export function applyEffect(
       const targetPlayer = effect.target.type === "opponent"
         ? getOpponent(controllingPlayerId)
         : controllingPlayerId;
-      const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, state.lastTargetInstanceId);
+      const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, state.lastResolvedTarget?.instanceId);
       const loreBefore = state.players[targetPlayer].lore;
       state = gainLore(state, targetPlayer, -amount, events);
       const loreAfter = state.players[targetPlayer].lore;
