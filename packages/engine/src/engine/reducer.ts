@@ -22,7 +22,7 @@ import type {
   ZoneName,
   CardTarget,
 } from "../types/index.js";
-import { getGameModifiers } from "./gameModifiers.js";
+import { getGameModifiers, type GameModifiers } from "./gameModifiers.js";
 import { validateAction, applyMoveCostReduction } from "./validator.js";
 import {
   appendLog,
@@ -774,7 +774,7 @@ function applyChallenge(
   const attackerResist = getKeywordValue(attacker, attackerDef, "resist", modifiers.grantedKeywords.get(attackerInstanceId));
   const defenderResist = getKeywordValue(defender, defenderDef, "resist", modifiers.grantedKeywords.get(defenderInstanceId));
   let actualAttackerDamage = Math.max(0, defenderStr - attackerResist);
-  const actualDefenderDamage = Math.max(0, attackerStr - defenderResist);
+  let actualDefenderDamage = Math.max(0, attackerStr - defenderResist);
 
   // Raya - Leader of Heart: challenge damage immunity when defender matches filter
   const immuneFilter = modifiers.challengeDamageImmunity.get(attackerInstanceId);
@@ -782,6 +782,17 @@ function applyChallenge(
     if (!immuneFilter || matchesFilter(defender, defenderDef, immuneFilter, state, playerId)) {
       actualAttackerDamage = 0;
     }
+  }
+
+  // Generic damage immunity — "takes no damage from challenges" (Noi, Pirate
+  // Mickey timed; Baloo all-source static). Applies separately to attacker and
+  // defender since either combatant may be immune. Hercules' "non_challenge"
+  // source does NOT apply here (it still takes challenge damage).
+  if (hasDamageImmunity(attacker, modifiers, true)) {
+    actualAttackerDamage = 0;
+  }
+  if (hasDamageImmunity(defender, modifiers, true)) {
+    actualDefenderDamage = 0;
   }
 
   // CRD 6.5: Check for damage redirect on each combatant
@@ -1880,6 +1891,43 @@ export function applyEffect(
       if (effect.target.type === "all") {
         const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         for (const id of targets) state = applyGainStatsToInstance(state, id, effect, controllingPlayerId);
+        return state;
+      }
+      return state;
+    }
+
+    case "damage_immunity_timed": {
+      // Noi Acrobatic Baby (self), Pirate Mickey (chosen Pirate),
+      // Nothing We Won't Do (all your chars). Applies a source-tagged
+      // damage_immunity TimedEffect for the requested duration.
+      const timed: TimedEffect = {
+        type: "damage_immunity",
+        damageSource: effect.source,
+        expiresAt: effect.duration,
+        appliedOnTurn: state.turnNumber,
+        casterPlayerId: controllingPlayerId,
+      };
+      if (effect.target.type === "this") {
+        return addTimedEffect(state, sourceInstanceId, timed);
+      }
+      if (effect.target.type === "chosen") {
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        if (validTargets.length === 0) return state;
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_target",
+            choosingPlayerId: controllingPlayerId,
+            prompt: "Choose a character to gain damage immunity.",
+            validTargets,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
+            optional: effect.isMay ?? false,
+          },
+        };
+      }
+      if (effect.target.type === "all") {
+        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        for (const id of targets) state = addTimedEffect(state, id, timed);
         return state;
       }
       return state;
@@ -3600,6 +3648,33 @@ function findDamageRedirect(
   return null;
 }
 
+/**
+ * Check whether `instance` has active damage immunity vs `source` damage.
+ * Consults both static damage_immunity entries (from gameModifiers) and the
+ * instance's own timedEffects list ("takes no damage from challenges this turn").
+ * "all" immunity blocks every source; "challenge" blocks only inChallenge; the
+ * "non_challenge" tag blocks everything EXCEPT challenge damage (Hercules wording).
+ */
+function hasDamageImmunity(
+  instance: CardInstance,
+  modifiers: GameModifiers,
+  inChallenge: boolean
+): boolean {
+  const staticSources = modifiers.damageImmunity.get(instance.instanceId);
+  if (staticSources) {
+    if (staticSources.has("all")) return true;
+    if (inChallenge && staticSources.has("challenge")) return true;
+    if (!inChallenge && staticSources.has("non_challenge")) return true;
+  }
+  for (const te of instance.timedEffects) {
+    if (te.type !== "damage_immunity") continue;
+    if (te.damageSource === "all") return true;
+    if (inChallenge && te.damageSource === "challenge") return true;
+    if (!inChallenge && te.damageSource === "non_challenge") return true;
+  }
+  return false;
+}
+
 function dealDamageToCard(
   state: GameState,
   instanceId: string,
@@ -3607,9 +3682,18 @@ function dealDamageToCard(
   definitions: Record<string, CardDefinition>,
   events: GameEvent[],
   /** CRD 8.8.3: Resist only reduces "dealt" damage, not "put" or "moved" damage */
-  ignoreResist = false
+  ignoreResist = false,
+  /** When true, the damage source is a challenge; used for source-tagged immunities. */
+  inChallenge = false
 ): GameState {
   const modifiers = getGameModifiers(state, definitions);
+
+  // Damage immunity (Baloo static, Hercules, Noi timed) — zero out ability damage
+  // before it's written. No events emitted so damage_dealt_to triggers don't fire.
+  const immTarget = state.cards[instanceId];
+  if (immTarget && hasDamageImmunity(immTarget, modifiers, inChallenge)) {
+    return state;
+  }
 
   // CRD 6.5: Check for damage redirect (e.g. Beast - Selfless Protector)
   const redirectTo = findDamageRedirect(state, instanceId, definitions, modifiers);
@@ -3845,6 +3929,15 @@ function applyEffectToTarget(
     case "cant_be_challenged_timed": {
       return addTimedEffect(state, targetInstanceId, {
         type: "cant_be_challenged",
+        expiresAt: effect.duration,
+        appliedOnTurn: state.turnNumber,
+        casterPlayerId: controllingPlayerId,
+      });
+    }
+    case "damage_immunity_timed": {
+      return addTimedEffect(state, targetInstanceId, {
+        type: "damage_immunity",
+        damageSource: effect.source,
         expiresAt: effect.duration,
         appliedOnTurn: state.turnNumber,
         casterPlayerId: controllingPlayerId,

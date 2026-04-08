@@ -145,6 +145,7 @@ export type Effect =
   | NameACardThenRevealEffect
   | RevealTopConditionalEffect
   | CantBeChallengedTimedEffect
+  | DamageImmunityTimedEffect
   | PutCardsUnderIntoHandEffect
   | ReturnAllToBottomInOrderEffect
   | PutTopOfDeckUnderEffect
@@ -419,6 +420,38 @@ export interface CantBeChallengedTimedEffect {
   duration: EffectDuration;
   /** CRD 6.1.4: player may choose not to apply this effect */
   isMay?: boolean;
+}
+
+/**
+ * "<target> takes no damage from challenges [this turn]" / "can't be dealt
+ * damage [this turn]" — applied as a TimedEffect with a damageSource tag.
+ *
+ *  - source: "challenge"     → Noi Acrobatic Baby (on action play), Pirate
+ *                              Mickey quest trigger, Nothing We Won't Do.
+ *  - source: "all"           → future "can't be dealt damage this turn" wording.
+ *  - source: "non_challenge" → reserved for "can't be dealt damage unless being
+ *                              challenged" wording applied via a timed effect.
+ */
+export interface DamageImmunityTimedEffect {
+  type: "damage_immunity_timed";
+  target: CardTarget;
+  source: "challenge" | "all" | "non_challenge";
+  duration: EffectDuration;
+  /** CRD 6.1.4: player may choose not to apply this effect */
+  isMay?: boolean;
+}
+
+/**
+ * Ongoing damage immunity static — "Your characters with 7 {S} or more can't
+ * be dealt damage" (Baloo Ol' Iron Paws), "This character can't be dealt
+ * damage unless he's being challenged" (Hercules Mighty Leader — source
+ * "non_challenge"). Scanned in gameModifiers and consulted by the damage
+ * write path in the reducer.
+ */
+export interface DamageImmunityStatic {
+  type: "damage_immunity_static";
+  source: "challenge" | "all" | "non_challenge";
+  target: CardTarget;
 }
 
 /**
@@ -744,6 +777,7 @@ export type StaticEffect =
   | CanChallengeReadyStatic
   | DamageRedirectStatic
   | ChallengeDamageImmunityStatic
+  | DamageImmunityStatic
   | GrantActivatedAbilityStatic
   | CantActionSelfStatic
   | MimicryTargetSelfStatic
@@ -1191,12 +1225,18 @@ export type EffectDuration =
 
 export interface TimedEffect {
   type: "grant_keyword" | "modify_strength" | "modify_willpower" | "modify_lore"
-    | "cant_action" | "can_challenge_ready" | "cant_be_challenged";
+    | "cant_action" | "can_challenge_ready" | "cant_be_challenged"
+    | "damage_immunity";
   keyword?: Keyword | undefined;
   value?: number | undefined;       // for keyword values (e.g. Challenger +N)
   amount?: number | undefined;      // for modify_* effects
   /** For cant_action: which action is restricted */
   action?: RestrictedAction | undefined;
+  /** For damage_immunity: which damage sources the bearer is immune to.
+   *  "challenge" — immune only to damage from challenges (Noi, Pirate Mickey).
+   *  "all" — immune to every damage source (Baloo static-equivalent, Nothing We Won't Do).
+   *  "non_challenge" — immune to ability/action damage, still takes challenge damage (Hercules). */
+  damageSource?: "challenge" | "all" | "non_challenge" | undefined;
   expiresAt: EffectDuration;
   /** Turn number when this effect was applied (for multi-turn expiry) */
   appliedOnTurn: number;

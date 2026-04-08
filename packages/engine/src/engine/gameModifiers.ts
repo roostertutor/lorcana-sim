@@ -63,6 +63,16 @@ export interface GameModifiers {
   challengeDamageImmunity: Map<string, import("../types/index.js").CardFilter | undefined>;
 
   /**
+   * Ongoing damage immunity from static abilities (Baloo Ol' Iron Paws —
+   * source "all"; Hercules Mighty Leader — source "non_challenge"). Key =
+   * instanceId of the card that IS immune. Value = set of damage sources
+   * against which the card is protected. Consulted by the reducer's damage
+   * write path (dealDamageToCard for ability damage, applyChallenge for
+   * challenge damage).
+   */
+  damageImmunity: Map<string, Set<"challenge" | "all" | "non_challenge">>;
+
+  /**
    * Activated abilities granted by static effects (Cogsworth - Talking Clock).
    * Key = instanceId, value = list of granted activated abilities.
    */
@@ -146,6 +156,7 @@ export function getGameModifiers(
     extraInkPlays: new Map(),
     damageRedirects: new Map(),
     challengeDamageImmunity: new Map(),
+    damageImmunity: new Map(),
     grantedActivatedAbilities: new Map(),
     selfActionRestrictions: new Map(),
     mimicryTargets: new Set(),
@@ -399,6 +410,33 @@ export function getGameModifiers(
         case "challenge_damage_immunity": {
           // Raya - Leader of Heart: immune to challenge damage vs damaged characters
           modifiers.challengeDamageImmunity.set(instance.instanceId, effect.targetFilter);
+          break;
+        }
+
+        case "damage_immunity_static": {
+          // Baloo Ol' Iron Paws ("your characters with 7 {S} or more can't be
+          // dealt damage" — source "all"), Hercules Mighty Leader ("can't be
+          // dealt damage unless he's being challenged" — source "non_challenge").
+          const addImmunity = (id: string) => {
+            let set = modifiers.damageImmunity.get(id);
+            if (!set) {
+              set = new Set();
+              modifiers.damageImmunity.set(id, set);
+            }
+            set.add(effect.source);
+          };
+          if (effect.target.type === "this") {
+            addImmunity(instance.instanceId);
+          } else if (effect.target.type === "all") {
+            for (const candidate of Object.values(state.cards)) {
+              if (candidate.zone !== "play") continue;
+              const candidateDef = definitions[candidate.definitionId];
+              if (!candidateDef) continue;
+              if (matchesFilter(candidate, candidateDef, effect.target.filter, state, instance.ownerId, instance.instanceId)) {
+                addImmunity(candidate.instanceId);
+              }
+            }
+          }
           break;
         }
 

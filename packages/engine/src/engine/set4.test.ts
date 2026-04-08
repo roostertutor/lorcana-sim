@@ -551,3 +551,59 @@ describe("§4 Set 4 — Sing Together", () => {
     expect(state.players.player1.availableInk).toBe(0);
   });
 });
+
+describe("§4 Set 4 — Noi Acrobatic Baby (damage_immunity_timed)", () => {
+  it("after FANCY FOOTWORK fires, Noi takes no challenge damage; still deals damage back", () => {
+    // Noi has STR 4 / WP 4. Give her the floating "takes no damage from
+    // challenges this turn" TimedEffect directly via applyEffect, mirroring
+    // what the card_played trigger does. Then have an opposing ready char be
+    // challenged by Noi and verify Noi takes 0 damage while the defender
+    // takes 4.
+    let state = startGame();
+    let noiId: string, defenderId: string;
+    ({ state, instanceId: noiId } = injectCard(state, "player1", "noi-acrobatic-baby", "play", { isDrying: false }));
+    // Defender: mickey-mouse-true-friend — STR 3 / WP 3.
+    ({ state, instanceId: defenderId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isExerted: true }));
+
+    state = applyEffect(
+      state,
+      { type: "damage_immunity_timed", target: { type: "this" }, source: "challenge", duration: "this_turn" },
+      noiId,
+      "player1",
+      LORCAST_CARD_DEFINITIONS,
+      []
+    );
+    // TimedEffect attached
+    expect(getInstance(state, noiId).timedEffects.some(te => te.type === "damage_immunity")).toBe(true);
+
+    const r = applyAction(state, {
+      type: "CHALLENGE",
+      playerId: "player1",
+      attackerInstanceId: noiId,
+      defenderInstanceId: defenderId,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // Noi took 0 damage (defender STR 3 would have dealt 3); defender took 4
+    // → banished (WP 3).
+    expect(getInstance(r.newState, noiId).damage).toBe(0);
+    expect(getInstance(r.newState, defenderId).zone).toBe("discard");
+  });
+
+  it("damage_immunity timed effect expires at end of turn", () => {
+    let state = startGame();
+    let noiId: string;
+    ({ state, instanceId: noiId } = injectCard(state, "player1", "noi-acrobatic-baby", "play", { isDrying: false }));
+    state = applyEffect(
+      state,
+      { type: "damage_immunity_timed", target: { type: "this" }, source: "challenge", duration: "end_of_turn" },
+      noiId,
+      "player1",
+      LORCAST_CARD_DEFINITIONS,
+      []
+    );
+    expect(getInstance(state, noiId).timedEffects.some(te => te.type === "damage_immunity")).toBe(true);
+    // Pass player1's turn → effect should clear.
+    state = passTurns(state, 1);
+    expect(getInstance(state, noiId).timedEffects.some(te => te.type === "damage_immunity")).toBe(false);
+  });
+});
