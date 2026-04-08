@@ -285,6 +285,32 @@
         "rulesText": "Deal damage to chosen character equal to the number of characters you have in play.",
         "raw": "Deal damage to chosen character equal to the number of characters you have in play."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "deal_damage",
+        "amount": {
+          "type": "count",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      }
     ]
   },
   {

@@ -2330,8 +2330,54 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "evasive"
+        "type": "triggered",
+        "storyName": "NEED FOR SPEED",
+        "rulesText": "When you play this character, you may pay 2 {I} to gain lore equal to the damage on chosen opposing character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "pay_ink",
+                "amount": 2
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "conditional_on_target",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "owner": {
+                      "type": "opponent"
+                    }
+                  }
+                },
+                "conditionFilter": {},
+                "ifMatchEffects": [
+                  {
+                    "type": "gain_lore",
+                    "amount": {
+                      "type": "target_damage"
+                    },
+                    "target": {
+                      "type": "self"
+                    }
+                  }
+                ],
+                "defaultEffects": []
+              }
+            ]
+          }
+        ]
       }
     ],
     "setId": "6",
@@ -5651,9 +5697,41 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 4
+        "type": "triggered",
+        "storyName": "YOU'LL BE SORRY!",
+        "rulesText": "When you play this character, you may deal damage to chosen character equal to the number of your other Pirate characters in play.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": {
+              "type": "count",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "self"
+                },
+                "hasTrait": "Pirate",
+                "excludeSelf": true
+              }
+            },
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "6",
@@ -6523,7 +6601,44 @@
     "cost": 5,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "SECRET WEAPON",
+        "rulesText": "At the start of your turn, deal damage to chosen character or location equal to the number of characters here.",
+        "trigger": {
+          "on": "turn_start",
+          "condition": {
+            "type": "is_your_turn"
+          }
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": {
+              "type": "count",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "atLocation": "this"
+              }
+            },
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character",
+                  "location"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "6",
     "number": 203,
     "rarity": "rare",
@@ -7156,7 +7271,44 @@
     "cost": 5,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "SECRET WEAPON",
+        "rulesText": "At the start of your turn, deal damage to chosen character or location equal to the number of characters here.",
+        "trigger": {
+          "on": "turn_start",
+          "condition": {
+            "type": "is_your_turn"
+          }
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": {
+              "type": "count",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "atLocation": "this"
+              }
+            },
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character",
+                  "location"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "6",
     "number": 222,
     "rarity": "enchanted",

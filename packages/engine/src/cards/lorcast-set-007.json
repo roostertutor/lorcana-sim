@@ -1033,7 +1033,35 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "ONCE UPON A TIME",
+        "rulesText": "Whenever this character quests, chosen opposing character loses {S} equal to this character's {L} until the start of your next turn.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": -2,
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "7",
     "number": 31,
     "rarity": "legendary",

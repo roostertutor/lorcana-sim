@@ -114,12 +114,8 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
 const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   // Alert keyword — not in our Keyword type
   [/\balert\b/i, "alert-keyword"],
-  // Dynamic damage/lore amounts (equal to a stat, count, or cost)
-  [/deal .{0,40}damage equal to\b/i, "dynamic-amount"],
-  [/\bgain lore equal to\b/i, "dynamic-amount"],
-  [/\blose[s]? lore equal to\b/i, "dynamic-amount"],
-  [/equal to (their|this character'?s?|chosen|the number|the cost|her \{|his \{|its \{)\b/i, "dynamic-amount"],
-  [/\bgain lore equal to (another|a|chosen|her|his)\b/i, "dynamic-amount"],
+  // (dynamic-amount entries moved to FITS_GRAMMAR_PATTERNS — DynamicAmount
+  // target_*/source_* variants + max cap implemented in the engine.)
   // "Count the number of X, then do Y"
   [/count the number of\b/i, "count-based-effect"],
   // Variable cost reduction based on counts (per damaged/exerted/item count, etc.)
@@ -276,6 +272,7 @@ const CAPABILITIES = new Set<string>([
   "shuffle_into_deck", "move_to_inkwell", "grant_extra_ink_play",
   "put_on_bottom_of_deck", "pay_ink",
   "sequential", "create_floating_trigger_on_self",
+  "dynamic-amount",
   // Static effects
   "stat_static", "cant_be_challenged_static", "cost_reduction_static",
   "action_restriction_static", "grant_activated_ability_static",
@@ -392,6 +389,12 @@ const FITS_GRAMMAR_PATTERNS: [RegExp, string][] = [
   [/\bput .{0,40}on the bottom of .{0,20}deck\b/i, "put_on_bottom_of_deck"],
   // "you may pay N {I} to <effect>" — sequential w/ isMay + pay_ink cost effect.
   [/\bmay pay \d+ \{I\} to\b/i, "sequential"],
+  // Dynamic amount: damage/lore/draw/lose-lore tied to a stat, count, or cost.
+  [/deal .{0,40}damage equal to\b/i, "dynamic-amount"],
+  [/\bgain lore equal to\b/i, "dynamic-amount"],
+  [/\blose[s]? lore equal to\b/i, "dynamic-amount"],
+  [/equal to (their|this character'?s?|chosen|the number|the cost|her \{|his \{|its \{)\b/i, "dynamic-amount"],
+  [/\bgain lore equal to (another|a|chosen|her|his)\b/i, "dynamic-amount"],
 ];
 
 function categorizeStub(rulesText: string, cardType: string): StubCategory {

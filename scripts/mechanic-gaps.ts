@@ -64,11 +64,7 @@ const NEW_MECHANIC: [RegExp, string][] = [
 
 const NEW_TYPE: [RegExp, string][] = [
   [/\balert\b/i, "alert-keyword"],
-  [/deal .{0,40}damage equal to\b/i, "dynamic-amount"],
-  [/\bgain lore equal to\b/i, "dynamic-amount"],
-  [/\blose[s]? lore equal to\b/i, "dynamic-amount"],
-  [/equal to (their|this character'?s?|chosen|the number|the cost|her \{|his \{|its \{)\b/i, "dynamic-amount"],
-  [/\bgain lore equal to (another|a|chosen|her|his)\b/i, "dynamic-amount"],
+  // (dynamic-amount removed: DynamicAmount variants implemented in the engine.)
   [/count the number of\b/i, "count-based-effect"],
   [/for each (exerted|damaged|[a-z]+ character|item|song) .{0,40}you pay\b/i, "per-count-cost-reduction"],
   [/for each .{0,20}(character|item) you have .{0,20}you pay\b/i, "per-count-cost-reduction"],

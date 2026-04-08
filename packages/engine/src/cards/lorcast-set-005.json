@@ -1914,7 +1914,63 @@
       "Ally",
       "Madrigal"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "I'M THE LIFE OF THE FAMILY",
+        "rulesText": "Whenever this character quests, you may gain lore equal to the {L} of chosen other character of yours. Return that character to your hand.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "conditional_on_target",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "self"
+                },
+                "excludeSelf": true
+              }
+            },
+            "conditionFilter": {},
+            "ifMatchEffects": [
+              {
+                "type": "gain_lore",
+                "amount": {
+                  "type": "target_lore"
+                },
+                "target": {
+                  "type": "self"
+                }
+              },
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "owner": {
+                      "type": "self"
+                    },
+                    "excludeSelf": true
+                  }
+                }
+              }
+            ],
+            "defaultEffects": []
+          }
+        ]
+      }
+    ],
     "setId": "5",
     "number": 58,
     "rarity": "legendary",

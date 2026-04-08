@@ -1369,7 +1369,45 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "LISTEN WITH YOUR HEART",
+        "rulesText": "Whenever this character quests, gain lore equal to another chosen exerted character's {L}.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "conditional_on_target",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true,
+                "isExerted": true
+              }
+            },
+            "conditionFilter": {},
+            "ifMatchEffects": [
+              {
+                "type": "gain_lore",
+                "amount": {
+                  "type": "target_lore"
+                },
+                "target": {
+                  "type": "self"
+                }
+              }
+            ],
+            "defaultEffects": []
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 42,
     "rarity": "super_rare",
@@ -2271,7 +2309,28 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "INNOVATIVE",
+        "rulesText": "Whenever this character quests, gain lore equal to her {S}, to a maximum of 6 lore.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": {
+              "type": "source_strength",
+              "max": 6
+            },
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 69,
     "rarity": "super_rare",
@@ -4250,6 +4309,44 @@
         "storyName": "",
         "rulesText": "Each opponent loses lore equal to the damage on chosen character of yours, to a maximum of 4 lore each. Draw a card.",
         "raw": "Each opponent loses lore equal to the damage on chosen character of yours, to a maximum of 4 lore each. Draw a card."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "conditional_on_target",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "conditionFilter": {},
+        "ifMatchEffects": [
+          {
+            "type": "lose_lore",
+            "amount": {
+              "type": "target_damage",
+              "max": 4
+            },
+            "target": {
+              "type": "opponent"
+            }
+          }
+        ],
+        "defaultEffects": []
+      },
+      {
+        "type": "draw",
+        "amount": 1,
+        "target": {
+          "type": "self"
+        }
       }
     ]
   },
@@ -7634,7 +7731,28 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "INNOVATIVE",
+        "rulesText": "Whenever this character quests, gain lore equal to her {S}, to a maximum of 6 lore.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": {
+              "type": "source_strength",
+              "max": 6
+            },
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 229,
     "rarity": "enchanted",
