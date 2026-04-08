@@ -73,8 +73,7 @@ const NEW_TYPE: [RegExp, string][] = [
   [/\bdiscard.{0,20}until .{0,20}have \d+ cards?\b/i, "trim-hand"],
   [/\bdiscards? until they have\b/i, "trim-hand"],
   // (draw-to-n removed — DrawEffect.untilHandSize implemented.)
-  [/\bputs? the top \d+ cards? .{0,30}into .{0,20}discard\b/i, "mill"],
-  [/\bputs? the top card .{0,30}into .{0,20}discard\b/i, "mill"],
+  // (mill removed: MillEffect implemented; cards wired this batch.)
   // (put-on-bottom removed: put_on_bottom_of_deck Effect implemented.)
   [/\beach opponent chooses and banishes\b/i, "opponent-chosen-banish"],
   [/\beach opponent chooses .{0,40}returns?\b/i, "opponent-chosen-return"],
@@ -89,7 +88,8 @@ const NEW_TYPE: [RegExp, string][] = [
   [/can'?t .{0,30}(exert to )?sing\b/i, "restrict-sing"],
   [/\bif they don'?t\b/i, "inverse-sequential"],
   [/\bif (he|she|it|they) doesn'?t\b/i, "inverse-sequential"],
-  [/discards? .{0,20}(at random|randomly)\b/i, "random-discard"],
+  // (random-discard removed: discard_from_hand chooser:"random" supported;
+  //  cards wired this batch.)
   [/\bgain.{0,10}classification\b/i, "grant-classification"],
   [/\blose.{0,10}(the )?[A-Z][a-z]+ (classification|ability)\b/i, "remove-ability"],
   [/\bprinted (strength|value|cost)\b/i, "stat-floor"],

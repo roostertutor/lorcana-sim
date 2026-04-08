@@ -6296,8 +6296,24 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "storyName": "WITCHING HOUR",
+        "rulesText": "When you play this character, each player draws 3 cards, then discards 3 cards at random. Choose an opposing character and deal 2 damage to them for each action card discarded this way.",
+        "trigger": { "on": "enters_play" },
+        "effects": [
+          { "type": "draw", "amount": 3, "target": { "type": "both" } },
+          {
+            "type": "discard_from_hand",
+            "amount": 3,
+            "target": { "type": "both" },
+            "chooser": "random"
+          }
+        ]
       }
     ],
+    "comment": "WITCHING HOUR: 'deal 2 damage per action card discarded' branch is approximated — no event-based count of just-discarded action cards yet.",
     "setId": "10",
     "number": 174,
     "rarity": "super_rare",

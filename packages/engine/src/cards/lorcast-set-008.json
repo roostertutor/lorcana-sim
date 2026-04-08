@@ -3073,7 +3073,38 @@
       "Hero",
       "Detective"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "INCAPACITATE",
+        "rulesText": "When you play this character, you may return chosen character to their player's hand.",
+        "trigger": { "on": "enters_play" },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": { "zone": "play", "cardType": ["character"] }
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "INTERFERE",
+        "rulesText": "Whenever this character quests, chosen opponent discards a card at random.",
+        "trigger": { "on": "quests" },
+        "effects": [
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": { "type": "opponent" },
+            "chooser": "random"
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 86,
     "rarity": "rare",

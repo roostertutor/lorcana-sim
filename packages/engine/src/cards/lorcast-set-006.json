@@ -562,7 +562,34 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "NUTS ABOUT PRANKS",
+        "rulesText": "When you play this character, you may put the top 3 cards of your deck into your discard to give chosen character -3 {S} until the start of your next turn.",
+        "trigger": { "on": "enters_play" },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              { "type": "mill", "amount": 3, "target": { "type": "self" } }
+            ],
+            "rewardEffects": [
+              {
+                "type": "gain_stats",
+                "strength": -3,
+                "duration": "until_caster_next_turn",
+                "target": {
+                  "type": "chosen",
+                  "filter": { "zone": "play", "cardType": ["character"] }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "6",
     "number": 18,
     "rarity": "uncommon",
@@ -2033,6 +2060,9 @@
       "Song"
     ],
     "abilities": [],
+    "actionEffects": [
+      { "type": "mill", "amount": 2, "target": { "type": "opponent" } }
+    ],
     "setId": "6",
     "number": 60,
     "rarity": "common",
@@ -2242,7 +2272,20 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "NO ROOM, NO ROOM",
+        "rulesText": "{E}, 1 {I} - Each opponent puts the top card of their deck into their discard.",
+        "costs": [
+          { "type": "exert" },
+          { "type": "pay_ink", "amount": 1 }
+        ],
+        "effects": [
+          { "type": "mill", "amount": 1, "target": { "type": "opponent" } }
+        ]
+      }
+    ],
     "setId": "6",
     "number": 66,
     "rarity": "common",

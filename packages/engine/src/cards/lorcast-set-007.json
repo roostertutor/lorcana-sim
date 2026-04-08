@@ -1825,7 +1825,38 @@
       "Storyborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "SEARCH THE SWAMP",
+        "rulesText": "Whenever this character quests, you may deal 2 damage to another chosen character of yours to put the top 3 cards of chosen player's deck into their discard.",
+        "trigger": { "on": "quests" },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "deal_damage",
+                "amount": 2,
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": ["character"],
+                    "owner": { "type": "self" },
+                    "excludeSelf": true
+                  }
+                }
+              }
+            ],
+            "rewardEffects": [
+              { "type": "mill", "amount": 3, "target": { "type": "opponent" } }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "7",
     "number": 53,
     "rarity": "uncommon",
@@ -2335,6 +2366,27 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "storyName": "BACK TO WORK",
+        "rulesText": "Whenever another character is banished in a challenge, return that card to its player's hand, then that player discards a card at random.",
+        "trigger": {
+          "on": "banished_in_challenge",
+          "filter": { "excludeSelf": true }
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": { "type": "triggering_card" }
+          },
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": { "type": "target_owner" },
+            "chooser": "random"
+          }
+        ]
       }
     ],
     "setId": "7",
@@ -3999,7 +4051,29 @@
       "Storyborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "THAT'S QUITE ENOUGH",
+        "rulesText": "{E} — Return chosen damaged character to their player's hand. Then, each opponent discards a card at random.",
+        "costs": [{ "type": "exert" }],
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "chosen",
+              "filter": { "zone": "play", "cardType": ["character"], "hasDamage": true }
+            }
+          },
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": { "type": "opponent" },
+            "chooser": "random"
+          }
+        ]
+      }
+    ],
     "setId": "7",
     "number": 115,
     "rarity": "legendary",

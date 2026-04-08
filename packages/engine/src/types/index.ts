@@ -173,7 +173,23 @@ export type Effect =
   | CreateFloatingTriggerEffect
   | GrantExtraInkPlayEffect
   | GrantChallengeReadyEffect
-  | RevealHandEffect;
+  | RevealHandEffect
+  | MillEffect;
+
+/**
+ * CRD: "Put the top N cards of <player>'s deck into their discard."
+ * Used by Dale Mischievous Ranger, A Very Merry Unbirthday, Mad Hatter's Teapot,
+ * Madame Medusa Diamond Lover. Distinct from `discard_from_hand` — pulls from
+ * the top of the deck and queues `cards_discarded` triggers per CRD 6.2.x.
+ *
+ * Decks may be shorter than `amount` — natural no-op (mill min(amount, deckSize)).
+ */
+export interface MillEffect {
+  type: "mill";
+  amount: DynamicAmount;
+  /** Whose deck to mill. "self" / "opponent" / "both" / "chosen". */
+  target: PlayerTarget;
+}
 
 /**
  * "Chosen opponent reveals their hand" / "chosen player reveals their hand"

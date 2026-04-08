@@ -156,9 +156,7 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   [/\bdiscards? until they have\b/i, "trim-hand"],
   // (draw-to-n removed: DrawEffect.untilHandSize implemented — matched as
   //  fits-grammar via the "draw..until" pattern below.)
-  // Mill — top N cards from deck to discard
-  [/\bputs? the top \d+ cards? .{0,30}into .{0,20}discard\b/i, "mill"],
-  [/\bputs? the top card .{0,30}into .{0,20}discard\b/i, "mill"],
+  // (mill removed: MillEffect implemented; matched as fits-grammar below.)
   // (put-on-bottom removed: put_on_bottom_of_deck Effect implemented; matched
   //  by FITS_GRAMMAR_PATTERNS below.)
   // Opponent-chosen banish ("each opponent chooses and banishes one of their characters")
@@ -180,8 +178,8 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   // "If they don't" — inverse sequential (no matching branch in SequentialEffect)
   [/\bif they don'?t\b/i, "inverse-sequential"],
   [/\bif (he|she|it|they) doesn'?t\b/i, "inverse-sequential"],
-  // Random discard
-  [/discards? .{0,20}(at random|randomly)\b/i, "random-discard"],
+  // (random-discard removed: discard_from_hand chooser:"random" already handles
+  //  this. Cards wired in this batch.)
   // "Gains the [Trait] classification" — trait granting
   [/\bgain.{0,10}classification\b/i, "grant-classification"],
   [/\blose.{0,10}(the )?[A-Z][a-z]+ (classification|ability)\b/i, "remove-ability"],
@@ -268,6 +266,7 @@ const CAPABILITIES = new Set<string>([
   "shuffle_into_deck", "move_to_inkwell", "grant_extra_ink_play",
   "put_on_bottom_of_deck", "pay_ink",
   "sequential", "create_floating_trigger_on_self",
+  "mill",
   "dynamic-amount",
   "reveal_hand", "draw_until_hand_size", "per_count_self_cost_reduction",
   // Static effects
@@ -329,6 +328,9 @@ const FITS_GRAMMAR_PATTERNS: [RegExp, string][] = [
   [/\blook at the top \d+/i, "look_at_top"],
   [/\blook at the top (card|of)\b/i, "look_at_top"],
   [/\blook at .{0,20}top card\b/i, "look_at_top"],
+  // mill: "puts the top N cards into discard"
+  [/\bputs? the top \d+ cards? .{0,30}into .{0,20}discard\b/i, "mill"],
+  [/\bputs? the top card .{0,30}into .{0,20}discard\b/i, "mill"],
   [/\bdiscard (a|one|chosen|\d+)/i, "discard_from_hand"],
   [/\bchoose and discard\b/i, "discard_from_hand"],
   [/\bchooses? and discards?\b/i, "discard_from_hand"],

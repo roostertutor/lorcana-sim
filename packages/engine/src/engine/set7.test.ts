@@ -61,6 +61,27 @@ describe("§8 Set 8 — Arthur Determined Squire (skip_draw_step_self)", () => {
   });
 });
 
+describe("§7 Set 7 — Mill (MillEffect)", () => {
+  it("Mad Hatter's Teapot — activate to mill 1 from each opponent", () => {
+    let state = startGame();
+    let teapot: string;
+    ({ state, instanceId: teapot } = injectCard(state, "player1", "mad-hatters-teapot", "play", { isDrying: false }));
+    // Give player1 ink for the activation cost.
+    state = { ...state, players: { ...state.players, player1: { ...state.players.player1, availableInk: 5 } } };
+    const deckBefore = getZone(state, "player2", "deck").length;
+    const discardBefore = getZone(state, "player2", "discard").length;
+    const r = applyAction(state, {
+      type: "ACTIVATE_ABILITY",
+      playerId: "player1",
+      instanceId: teapot,
+      abilityIndex: 0,
+    } as any, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getZone(r.newState, "player2", "deck").length).toBe(deckBefore - 1);
+    expect(getZone(r.newState, "player2", "discard").length).toBe(discardBefore + 1);
+  });
+});
+
 describe("§7 Set 7 — Baloo Ol' Iron Paws (damage_immunity_static source=all)", () => {
   it("a strong defender (≥7 STR) takes no challenge damage from an attacker", () => {
     // Baloo Ol' Iron Paws: "Your characters with 7 {S} or more can't be

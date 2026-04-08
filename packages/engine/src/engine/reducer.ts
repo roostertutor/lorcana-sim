@@ -1870,6 +1870,10 @@ export function applyEffect(
       if (effect.target.type === "triggering_card" && triggeringCardInstanceId) {
         const trigInst = state.cards[triggeringCardInstanceId];
         if (trigInst) {
+          // Set lastTargetOwnerId so a follow-up effect can target_owner the
+          // returned card's player (Yzma BACK TO WORK: "return that card... then
+          // that player discards a card at random").
+          state = { ...state, lastTargetOwnerId: trigInst.ownerId, lastTargetInstanceId: triggeringCardInstanceId };
           return zoneTransition(state, triggeringCardInstanceId, "hand", definitions, events, { reason: "returned" });
         }
       }
@@ -2685,6 +2689,31 @@ export function applyEffect(
       }
     }
 
+    case "mill": {
+      // CRD: "Put the top N cards of <player>'s deck into their discard."
+      // Each milled card fires `cards_discarded` triggers via the standard
+      // moveCard → zone transition path.
+      const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, undefined);
+      if (amount <= 0) return state;
+      const players: PlayerID[] = [];
+      if (effect.target.type === "self") players.push(controllingPlayerId);
+      else if (effect.target.type === "opponent") players.push(getOpponent(controllingPlayerId));
+      else if (effect.target.type === "both") players.push("player1", "player2");
+      else players.push(controllingPlayerId);
+      for (const pid of players) {
+        const deck = getZone(state, pid, "deck");
+        const millCount = Math.min(amount, deck.length);
+        if (millCount === 0) continue;
+        const topIds = deck.slice(0, millCount);
+        for (const id of topIds) {
+          state = moveCard(state, id, pid, "discard");
+        }
+        state = { ...state, lastEffectResult: millCount };
+        state = queueTriggersByEvent(state, "cards_discarded", pid, definitions, {});
+      }
+      return state;
+    }
+
     case "discard_from_hand": {
       const players: PlayerID[] = [];
       if (effect.target.type === "self") players.push(controllingPlayerId);
@@ -2733,7 +2762,7 @@ export function applyEffect(
           const picked: string[] = [];
           const pool = [...hand];
           for (let i = 0; i < discardCount && pool.length > 0; i++) {
-            const idx = Math.floor(Math.random() * pool.length);
+            const idx = rngNextInt(state.rng, pool.length);
             const id = pool[idx]!;
             picked.push(id);
             pool.splice(idx, 1);
