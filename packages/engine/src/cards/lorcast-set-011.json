@@ -1367,6 +1367,24 @@
         "rulesText": "You pay 2 {I} less for the next character you play this turn. Draw a card.",
         "raw": "You pay 2 {I} less for the next character you play this turn. Draw a card."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "grant_cost_reduction",
+        "amount": 2,
+        "filter": {
+          "cardType": [
+            "character"
+          ]
+        }
+      },
+      {
+        "type": "draw",
+        "amount": 1,
+        "target": {
+          "type": "self"
+        }
+      }
     ]
   },
   {
@@ -2077,7 +2095,35 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "When you play this character, for each opposing player, you may choose a character of theirs. They can't ready at the start of their next turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "cant_action",
+            "action": "ready",
+            "duration": "end_of_owner_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 45,
     "rarity": "rare",
@@ -2113,6 +2159,30 @@
       {
         "type": "keyword",
         "keyword": "evasive"
+      },
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "BOTTOMLESS PIT At the end of your turn, if this character is exerted, choose and discard a card.",
+        "trigger": {
+          "on": "turn_end",
+          "player": {
+            "type": "self"
+          }
+        },
+        "condition": {
+          "type": "this_is_exerted"
+        },
+        "effects": [
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "chooser": "target_player"
+          }
+        ]
       }
     ],
     "setId": "11",
@@ -2153,6 +2223,42 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "When you play this character, you may choose an opposing character and move 1 damage from each other character to them.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "move_damage",
+            "amount": 1,
+            "isMay": true,
+            "from": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "to": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "11",
@@ -2188,7 +2294,47 @@
       "Ally",
       "Fairy"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "",
+        "rulesText": "While you have 4 or more cards in your hand, this character gains Evasive.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "this"
+          },
+          "condition": {
+            "type": "cards_in_hand_gte",
+            "amount": 4,
+            "player": {
+              "type": "self"
+            }
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "",
+        "rulesText": "While you have 7 or more cards in your hand, this character gets +3 {L}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "amount": 3,
+          "target": {
+            "type": "this"
+          },
+          "condition": {
+            "type": "cards_in_hand_gte",
+            "amount": 7,
+            "player": {
+              "type": "self"
+            }
+          }
+        }
+      }
+    ],
     "setId": "11",
     "number": 48,
     "rarity": "legendary",
@@ -2415,7 +2561,35 @@
       "Dreamborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "Whenever this character quests, chosen opposing character can't ready at the start of their next turn.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "cant_action",
+            "action": "ready",
+            "duration": "end_of_owner_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 53,
     "rarity": "rare",
@@ -2538,7 +2712,49 @@
       "Villain",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "When you play this character, you may return another chosen character of yours to your hand. If you do, gain 1 lore.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "costEffects": [
+              {
+                "type": "return_to_hand",
+                "isMay": true,
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "excludeSelf": true
+                  }
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "gain_lore",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 57,
     "rarity": "rare",
@@ -2736,6 +2952,15 @@
         "rulesText": "Put all cards from under chosen character, item, or location on the bottom of their player's deck in a random order. Draw a card.",
         "raw": "Put all cards from under chosen character, item, or location on the bottom of their player's deck in a random order. Draw a card."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "draw",
+        "amount": 1,
+        "target": {
+          "type": "self"
+        }
+      }
     ]
   },
   {
@@ -2811,6 +3036,15 @@
         "rulesText": "Each player reveals the top card of their deck. Draw a card for each different ink type of cards revealed this way.",
         "raw": "Each player reveals the top card of their deck. Draw a card for each different ink type of cards revealed this way."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "draw",
+        "amount": 1,
+        "target": {
+          "type": "self"
+        }
+      }
     ]
   },
   {
@@ -2850,7 +3084,31 @@
     "cost": 3,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "When you play this item, play a character with cost 5 or less for free. They gain Rush. At the end of your turn, banish them.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "play_for_free",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "maxCost": 5
+            },
+            "grantKeywords": [
+              "rush"
+            ],
+            "banishAtEndOfTurn": true
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 66,
     "rarity": "rare",
@@ -2876,7 +3134,34 @@
     "cost": 1,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "I'M STUCK!",
+        "rulesText": "Banish this item — Chosen exerted character can't ready at the start of their next turn.",
+        "costs": [
+          {
+            "type": "banish_self"
+          }
+        ],
+        "effects": [
+          {
+            "type": "cant_action",
+            "action": "ready",
+            "duration": "end_of_owner_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 67,
     "rarity": "common",
@@ -2902,7 +3187,24 @@
     "cost": 3,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "When this location is banished, if there was an exerted character here, return this card from your discard to your hand.",
+        "trigger": {
+          "on": "is_banished"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 68,
     "rarity": "uncommon",
@@ -3177,7 +3479,32 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "When you play this character, chosen character gets +1 {S} this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": 1,
+            "duration": "this_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 75,
     "rarity": "rare",
@@ -3268,7 +3595,34 @@
       "Storyborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "When you play this character, you may shuffle chosen opposing character into their player's deck.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "shuffle_into_deck",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 77,
     "rarity": "super_rare",
@@ -3300,7 +3654,34 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "When you play this character, each opponent chooses one of their characters and deals 1 damage to them.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 1,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 78,
     "rarity": "common",
@@ -3557,6 +3938,24 @@
       {
         "type": "keyword",
         "keyword": "boost"
+      },
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "When this character is banished, each opponent chooses and discards a card.",
+        "trigger": {
+          "on": "is_banished"
+        },
+        "effects": [
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            },
+            "chooser": "target_player"
+          }
+        ]
       }
     ],
     "setId": "11",
@@ -4087,6 +4486,23 @@
         "rulesText": "Draw 2 cards, then choose and discard a card.",
         "raw": "Draw 2 cards, then choose and discard a card."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "draw",
+        "amount": 2,
+        "target": {
+          "type": "self"
+        }
+      },
+      {
+        "type": "discard_from_hand",
+        "amount": 1,
+        "target": {
+          "type": "self"
+        },
+        "chooser": "target_player"
+      }
     ]
   },
   {
@@ -4374,7 +4790,59 @@
     "cost": 4,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "Deal 1 damage to chosen damaged character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 1,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasDamage": true
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "activated",
+        "storyName": "",
+        "rulesText": "{E}, Banish this item — Banish chosen location.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "banish_self"
+          }
+        ],
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "location"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 101,
     "rarity": "rare",
@@ -4405,7 +4873,20 @@
     "cost": 3,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "",
+        "rulesText": "While there's a character with Evasive here, this location gains Evasive.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "11",
     "number": 102,
     "rarity": "common",
@@ -4710,7 +5191,25 @@
       "Storyborn",
       "Mentor"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "This character enters play with 2 damage.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 2,
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 110,
     "rarity": "common",
@@ -5049,6 +5548,21 @@
       {
         "type": "keyword",
         "keyword": "rush"
+      },
+      {
+        "type": "static",
+        "storyName": "",
+        "rulesText": "While at a location, this character takes no damage from challenges.",
+        "effect": {
+          "type": "damage_immunity_static",
+          "source": "challenge",
+          "target": {
+            "type": "this"
+          },
+          "condition": {
+            "type": "this_at_location"
+          }
+        }
       }
     ],
     "setId": "11",
@@ -5298,6 +5812,78 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "When you play this character, you may exert chosen character with 3 {S} or less.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "maxStrength": 3
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "Whenever you play a location, you may exert chosen character with 3 {S} or less.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "location"
+            ],
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "maxStrength": 3
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "static",
+        "storyName": "",
+        "rulesText": "While this character is at a location, she gets +3 {L}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "amount": 3,
+          "target": {
+            "type": "this"
+          },
+          "condition": {
+            "type": "this_at_location"
+          }
+        }
       }
     ],
     "setId": "11",
@@ -5610,6 +6196,18 @@
         "rulesText": "If a character was banished this turn, draw 2 cards.",
         "raw": "If a character was banished this turn, draw 2 cards."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "draw",
+        "amount": 2,
+        "target": {
+          "type": "self"
+        },
+        "condition": {
+          "type": "a_character_was_banished_in_challenge_this_turn"
+        }
+      }
     ]
   },
   {
@@ -5641,6 +6239,31 @@
         "storyName": "",
         "rulesText": "Look at the top 4 cards of your deck. You may reveal a location card and put it into your hand. Put the rest into your discard. You pay 3 {I} less for the next location you play this turn.",
         "raw": "Look at the top 4 cards of your deck. You may reveal a location card and put it into your hand. Put the rest into your discard. You pay 3 {I} less for the next location you play this turn."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "look_at_top",
+        "count": 4,
+        "action": "one_to_hand_rest_bottom",
+        "filter": {
+          "cardType": [
+            "location"
+          ]
+        },
+        "noMatchDestination": "discard",
+        "target": {
+          "type": "self"
+        }
+      },
+      {
+        "type": "grant_cost_reduction",
+        "amount": 3,
+        "filter": {
+          "cardType": [
+            "location"
+          ]
+        }
       }
     ]
   },
@@ -5702,7 +6325,48 @@
     "cost": 1,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "",
+        "rulesText": "{E}, Banish chosen character of yours — Put the top card of your deck facedown under one of your characters or locations with Boost.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "banish_chosen",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ],
+        "effects": [
+          {
+            "type": "put_top_of_deck_under",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "hasKeyword": "boost"
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 132,
     "rarity": "uncommon",
@@ -5898,7 +6562,25 @@
     "cost": 1,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "Whenever a character here challenges another character, gain 1 lore.",
+        "trigger": {
+          "on": "challenge_initiated"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 136,
     "rarity": "common",
@@ -6252,6 +6934,36 @@
       {
         "type": "keyword",
         "keyword": "boost"
+      },
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "Whenever you put a card under this character, you may put a card from your discard into your inkwell facedown and exerted.",
+        "trigger": {
+          "on": "card_put_under",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "move_to_inkwell",
+            "isMay": true,
+            "enterExerted": true,
+            "fromZone": "discard",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "discard"
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "11",
@@ -6290,6 +7002,35 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "SPECIAL RECIPE At the end of your turn, remove up to 2 damage from each of your characters.",
+        "trigger": {
+          "on": "turn_end",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effects": [
+          {
+            "type": "remove_damage",
+            "amount": 2,
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "11",
@@ -6535,6 +7276,50 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "When you play this character, put a card from the top of your deck facedown under each of your other characters. Those characters gain Ward until the start of your next turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "put_top_of_deck_under",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true
+              }
+            }
+          },
+          {
+            "type": "grant_keyword",
+            "keyword": "ward",
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "11",
@@ -6612,6 +7397,24 @@
       {
         "type": "keyword",
         "keyword": "boost"
+      },
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "Whenever this character quests, look at a card from the top of your deck. You may put it into your hand.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 1,
+            "action": "one_to_hand_rest_bottom",
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "11",
@@ -6784,7 +7587,35 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "Whenever one of your characters is banished, you may put that card from your discard into your inkwell facedown and exerted.",
+        "trigger": {
+          "on": "banished_other",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "effects": [
+          {
+            "type": "move_to_inkwell",
+            "isMay": true,
+            "enterExerted": true,
+            "fromZone": "discard",
+            "target": {
+              "type": "triggering_card"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 158,
     "rarity": "super_rare",
@@ -6980,6 +7811,22 @@
         "rulesText": "Put chosen character into their player’s inkwell facedown and exerted.",
         "raw": "Put chosen character into their player’s inkwell facedown and exerted."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "move_to_inkwell",
+        "enterExerted": true,
+        "fromZone": "play",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      }
     ]
   },
   {
@@ -7053,6 +7900,24 @@
         "storyName": "",
         "rulesText": "Put chosen character with Bodyguard or item into their player's inkwell facedown and exerted.",
         "raw": "Put chosen character with Bodyguard or item into their player's inkwell facedown and exerted."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "move_to_inkwell",
+        "enterExerted": true,
+        "fromZone": "play",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character",
+              "item"
+            ],
+            "hasKeyword": "bodyguard"
+          }
+        }
       }
     ]
   },
@@ -7168,7 +8033,55 @@
     "cost": 3,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "When you play this item, you may put the top card of your deck into your inkwell facedown and exerted.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "move_to_inkwell",
+            "isMay": true,
+            "enterExerted": true,
+            "fromZone": "deck",
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
+      {
+        "type": "activated",
+        "storyName": "",
+        "rulesText": "{E}, Banish this item — Remove up to 2 damage from chosen character.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "banish_self"
+          }
+        ],
+        "effects": [
+          {
+            "type": "remove_damage",
+            "amount": 2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 168,
     "rarity": "rare",
@@ -7531,7 +8444,33 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "When you play this character, draw a card, then choose and discard a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "chooser": "target_player"
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 177,
     "rarity": "common",
@@ -7741,7 +8680,28 @@
     "traits": [
       "Storyborn"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "When this character is banished, you may play a character with cost 2 or less for free.",
+        "trigger": {
+          "on": "is_banished"
+        },
+        "effects": [
+          {
+            "type": "play_for_free",
+            "isMay": true,
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "maxCost": 2
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 182,
     "rarity": "rare",
@@ -8018,6 +8978,33 @@
         "type": "keyword",
         "keyword": "challenger",
         "value": 2
+      },
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "During your turn, whenever an item is banished, this character gains Resist +1 until the start of your next turn.",
+        "trigger": {
+          "on": "banished_other",
+          "filter": {
+            "cardType": [
+              "item"
+            ]
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "resist",
+            "value": 1,
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
       }
     ],
     "setId": "11",
@@ -8186,6 +9173,38 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "During your turn, whenever an item is banished, you may deal 2 damage to chosen character.",
+        "trigger": {
+          "on": "banished_other",
+          "filter": {
+            "cardType": [
+              "item"
+            ]
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 2,
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "11",
@@ -8426,6 +9445,15 @@
         "rulesText": "Each player shuffles their deck and then reveals the top card. Each player who reveals a character card may play that character for free. Otherwise, put the revealed cards on the bottom of their player’s deck.",
         "raw": "Each player shuffles their deck and then reveals the top card. Each player who reveals a character card may play that character for free. Otherwise, put the revealed cards on the bottom of their player’s deck."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "draw",
+        "amount": 1,
+        "target": {
+          "type": "self"
+        }
+      }
     ]
   },
   {
@@ -8623,7 +9651,32 @@
     "cost": 2,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "When you play this item, choose a character. They can't challenge or quest while this item is in play.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "cant_action",
+            "action": "quest",
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 203,
     "rarity": "rare",
@@ -9392,6 +10445,36 @@
       {
         "type": "keyword",
         "keyword": "boost"
+      },
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "Whenever you put a card under this character, you may put a card from your discard into your inkwell facedown and exerted.",
+        "trigger": {
+          "on": "card_put_under",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "move_to_inkwell",
+            "isMay": true,
+            "enterExerted": true,
+            "fromZone": "discard",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "discard"
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "11",
@@ -9775,7 +10858,35 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "When you play this character, for each opposing player, you may choose a character of theirs. They can't ready at the start of their next turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "cant_action",
+            "action": "ready",
+            "duration": "end_of_owner_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 226,
     "rarity": "enchanted",
@@ -9850,6 +10961,15 @@
         "storyName": "",
         "rulesText": "Each player reveals the top card of their deck. Draw a card for each different ink symbol on cards revealed this way.",
         "raw": "Each player reveals the top card of their deck. Draw a card for each different ink symbol on cards revealed this way."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "draw",
+        "amount": 1,
+        "target": {
+          "type": "self"
+        }
       }
     ]
   },
@@ -10089,6 +11209,78 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "When you play this character, you may exert chosen character with 3 {S} or less.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "maxStrength": 3
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "Whenever you play a location, you may exert chosen character with 3 {S} or less.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "location"
+            ],
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "maxStrength": 3
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "static",
+        "storyName": "",
+        "rulesText": "While this character is at a location, she gets +3 {L}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "amount": 3,
+          "target": {
+            "type": "this"
+          },
+          "condition": {
+            "type": "this_at_location"
+          }
+        }
       }
     ],
     "setId": "11",
@@ -10139,6 +11331,31 @@
         "rulesText": "Look at the top 4 cards of your deck. You may reveal a location card and put it into your hand. Put the rest into your discard. You pay 3 {I} less for the next location you play this turn.",
         "raw": "Look at the top 4 cards of your deck. You may reveal a location card and put it into your hand. Put the rest into your discard. You pay 3 {I} less for the next location you play this turn."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "look_at_top",
+        "count": 4,
+        "action": "one_to_hand_rest_bottom",
+        "filter": {
+          "cardType": [
+            "location"
+          ]
+        },
+        "noMatchDestination": "discard",
+        "target": {
+          "type": "self"
+        }
+      },
+      {
+        "type": "grant_cost_reduction",
+        "amount": 3,
+        "filter": {
+          "cardType": [
+            "location"
+          ]
+        }
+      }
     ]
   },
   {
@@ -10160,6 +11377,50 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "When you play this character, put a card from the top of your deck facedown under each of your other characters. Those characters gain Ward until the start of your next turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "put_top_of_deck_under",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true
+              }
+            }
+          },
+          {
+            "type": "grant_keyword",
+            "keyword": "ward",
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "11",
@@ -10195,7 +11456,35 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "Whenever one of your characters is banished, you may put that card from your discard into your inkwell facedown and exerted.",
+        "trigger": {
+          "on": "banished_other",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "effects": [
+          {
+            "type": "move_to_inkwell",
+            "isMay": true,
+            "enterExerted": true,
+            "fromZone": "discard",
+            "target": {
+              "type": "triggering_card"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 236,
     "rarity": "enchanted",
@@ -10345,6 +11634,38 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "During your turn, whenever an item is banished, you may deal 2 damage to chosen character.",
+        "trigger": {
+          "on": "banished_other",
+          "filter": {
+            "cardType": [
+              "item"
+            ]
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 2,
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "11",
@@ -10394,6 +11715,15 @@
         "storyName": "",
         "rulesText": "Each player shuffles their deck and then reveals the top card. Each player who reveals a character card may play that character for free. Otherwise, put the revealed cards on the bottom of their player's deck.",
         "raw": "Each player shuffles their deck and then reveals the top card. Each player who reveals a character card may play that character for free. Otherwise, put the revealed cards on the bottom of their player's deck."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "draw",
+        "amount": 1,
+        "target": {
+          "type": "self"
+        }
       }
     ]
   },
