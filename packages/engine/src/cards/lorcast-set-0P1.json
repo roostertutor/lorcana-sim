@@ -2034,7 +2034,27 @@
       "Dreamborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "TREASURE FINDER",
+        "rulesText": "Whenever this character quests, you pay 1 {I} less for the next item you play this turn.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "grant_cost_reduction",
+            "amount": 1,
+            "filter": {
+              "cardType": [
+                "item"
+              ]
+            }
+          }
+        ]
+      }
+    ],
     "setId": "P1",
     "number": 39,
     "rarity": "common",

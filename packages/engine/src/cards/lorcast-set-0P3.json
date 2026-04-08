@@ -1719,7 +1719,25 @@
       "Storyborn",
       "Mentor"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "ANCESTORS' GIFT",
+        "rulesText": "For each card in your inkwell, you pay 1 {I} less to play this character.",
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": {
+            "type": "count",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "inkwell"
+            }
+          }
+        }
+      }
+    ],
     "setId": "P3",
     "number": 28,
     "rarity": "common",

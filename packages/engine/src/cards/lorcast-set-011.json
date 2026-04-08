@@ -92,7 +92,24 @@
       "Storyborn",
       "Deity"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "GOOD FRIEND",
+        "rulesText": "If you have a character named Lilo in play, you can play this character for free.",
+        "condition": {
+          "type": "has_character_named",
+          "name": "Lilo",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 2
+        }
+      }
+    ],
     "setId": "11",
     "number": 3,
     "rarity": "uncommon",
@@ -4111,6 +4128,22 @@
       {
         "type": "keyword",
         "keyword": "evasive"
+      },
+      {
+        "type": "static",
+        "storyName": "SHOWIN' UP",
+        "rulesText": "If you have a character named Tod in play, you pay 1 {I} less to play this character.",
+        "condition": {
+          "type": "has_character_named",
+          "name": "Tod",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 1
+        }
       }
     ],
     "setId": "11",
@@ -4281,7 +4314,52 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "LOOK AT THIS!",
+        "rulesText": "Whenever this character quests, choose one: Gain 1 lore. Chosen character of yours gains Evasive until the start of your next turn.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "choose",
+            "count": 1,
+            "options": [
+              [
+                {
+                  "type": "gain_lore",
+                  "amount": 1,
+                  "target": {
+                    "type": "self"
+                  }
+                }
+              ],
+              [
+                {
+                  "type": "grant_keyword",
+                  "keyword": "evasive",
+                  "duration": "until_caster_next_turn",
+                  "target": {
+                    "type": "chosen",
+                    "filter": {
+                      "owner": {
+                        "type": "self"
+                      },
+                      "zone": "play",
+                      "cardType": [
+                        "character"
+                      ]
+                    }
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 90,
     "rarity": "rare",
@@ -4718,6 +4796,65 @@
         "storyName": "",
         "rulesText": "* Banish chosen damaged character.",
         "raw": "* Banish chosen damaged character."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "choose",
+        "count": 1,
+        "options": [
+          [
+            {
+              "type": "draw",
+              "amount": 1,
+              "target": {
+                "type": "self"
+              }
+            },
+            {
+              "type": "gain_stats",
+              "lore": 1,
+              "duration": "until_caster_next_turn",
+              "target": {
+                "type": "chosen",
+                "filter": {
+                  "owner": {
+                    "type": "self"
+                  },
+                  "zone": "play",
+                  "cardType": [
+                    "character"
+                  ]
+                }
+              },
+              "followUpEffects": [
+                {
+                  "type": "grant_keyword",
+                  "keyword": "evasive",
+                  "duration": "until_caster_next_turn",
+                  "target": {
+                    "type": "this"
+                  }
+                }
+              ]
+            }
+          ],
+          [
+            {
+              "type": "banish",
+              "target": {
+                "type": "chosen",
+                "filter": {
+                  "zone": "play",
+                  "cardType": [
+                    "character"
+                  ],
+                  "hasDamage": true
+                }
+              }
+            }
+          ]
+        ]
       }
     ]
   },
@@ -7128,7 +7265,25 @@
       "Storyborn",
       "Mentor"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "ANCESTORS' GIFT",
+        "rulesText": "For each card in your inkwell, you pay 1 {I} less to play this character.",
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": {
+            "type": "count",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "inkwell"
+            }
+          }
+        }
+      }
+    ],
     "setId": "11",
     "number": 148,
     "rarity": "rare",
@@ -8269,7 +8424,78 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "ALMOST READY",
+        "rulesText": "This item enters play exerted.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      },
+      {
+        "type": "activated",
+        "storyName": "SNAP!",
+        "rulesText": "{E}, Banish this item — Choose one: Banish chosen item. Chosen opposing character gets -2 {S} this turn.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "banish_self"
+          }
+        ],
+        "effects": [
+          {
+            "type": "choose",
+            "count": 1,
+            "options": [
+              [
+                {
+                  "type": "banish",
+                  "target": {
+                    "type": "chosen",
+                    "filter": {
+                      "zone": "play",
+                      "cardType": [
+                        "item"
+                      ]
+                    }
+                  }
+                }
+              ],
+              [
+                {
+                  "type": "gain_stats",
+                  "strength": -2,
+                  "duration": "this_turn",
+                  "target": {
+                    "type": "chosen",
+                    "filter": {
+                      "owner": {
+                        "type": "opponent"
+                      },
+                      "zone": "play",
+                      "cardType": [
+                        "character"
+                      ]
+                    }
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 170,
     "rarity": "uncommon",

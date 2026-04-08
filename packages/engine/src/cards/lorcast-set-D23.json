@@ -225,6 +225,43 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 2
+      },
+      {
+        "type": "triggered",
+        "storyName": "I HEREBY DECREE",
+        "rulesText": "Whenever you play another Princess character, all opposing characters get -1 {S} until the start of your next turn.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Princess",
+            "owner": {
+              "type": "self"
+            },
+            "excludeSelf": true
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": -1,
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "D23",

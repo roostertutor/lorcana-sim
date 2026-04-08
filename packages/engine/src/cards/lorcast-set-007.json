@@ -5176,6 +5176,52 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "static",
+        "storyName": "YOU CAN BE WAY MORE (Evasive)",
+        "rulesText": "Your Floodborn characters that have a card under them gain Evasive.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Floodborn",
+              "hasCardUnder": true
+            }
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "YOU CAN BE WAY MORE (Ward)",
+        "rulesText": "Your Floodborn characters that have a card under them gain Ward.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "ward",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Floodborn",
+              "hasCardUnder": true
+            }
+          }
+        }
       }
     ],
     "setId": "7",
@@ -10508,7 +10554,24 @@
       "Dreamborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "HAVE A LITTLE FAITH",
+        "rulesText": "If you have an Ally character in play, you pay 2 {I} less to play this character.",
+        "condition": {
+          "type": "has_character_with_trait",
+          "trait": "Ally",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 2
+        }
+      }
+    ],
     "setId": "7",
     "number": 195,
     "rarity": "common",
@@ -11613,6 +11676,52 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "static",
+        "storyName": "YOU CAN BE WAY MORE (Evasive)",
+        "rulesText": "Your Floodborn characters that have a card under them gain Evasive.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Floodborn",
+              "hasCardUnder": true
+            }
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "YOU CAN BE WAY MORE (Ward)",
+        "rulesText": "Your Floodborn characters that have a card under them gain Ward.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "ward",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Floodborn",
+              "hasCardUnder": true
+            }
+          }
+        }
       }
     ],
     "setId": "7",

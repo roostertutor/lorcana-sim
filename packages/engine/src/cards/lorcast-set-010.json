@@ -698,6 +698,37 @@
         "type": "keyword",
         "keyword": "boost",
         "value": 1
+      },
+      {
+        "type": "triggered",
+        "storyName": "COMMAND PERFORMANCE",
+        "rulesText": "Once during your turn, whenever you play a song, if there's a card under this character, you may draw a card.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "action"
+            ],
+            "hasKeyword": "singer",
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "condition": {
+          "type": "this_has_cards_under"
+        },
+        "oncePerTurn": true,
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "10",
@@ -4351,6 +4382,41 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "triggered",
+        "storyName": "ROLL WITH IT",
+        "rulesText": "When you play this character, choose one: Each player draws a card. Each player chooses and discards a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "choose",
+            "count": 1,
+            "options": [
+              [
+                {
+                  "type": "draw",
+                  "amount": 1,
+                  "target": {
+                    "type": "both"
+                  }
+                }
+              ],
+              [
+                {
+                  "type": "discard_from_hand",
+                  "amount": 1,
+                  "target": {
+                    "type": "both"
+                  },
+                  "chooser": "target_player"
+                }
+              ]
+            ]
+          }
+        ]
       }
     ],
     "setId": "10",
@@ -4659,7 +4725,29 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "AHEAD OF THE PACK",
+        "rulesText": "1 {I} — This character gets +1 {S} this turn.",
+        "costs": [
+          {
+            "type": "ink",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": 1,
+            "duration": "this_turn",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 90,
     "rarity": "common",
@@ -10554,7 +10642,69 @@
     "cost": 3,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "SURPRISE PACKAGE",
+        "rulesText": "{E}, 2 {I}, Banish this item — Draw a card, then choose and discard a card.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "ink",
+            "amount": 2
+          },
+          {
+            "type": "banish_self"
+          }
+        ],
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "chooser": "target_player"
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "TIME GROWS SHORT",
+        "rulesText": "During your turn, when this item is banished, deal 3 damage to chosen character or location.",
+        "trigger": {
+          "on": "is_banished"
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 3,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character",
+                  "location"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 201,
     "rarity": "rare",
@@ -12195,6 +12345,41 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "triggered",
+        "storyName": "ROLL WITH IT",
+        "rulesText": "When you play this character, choose one: Each player draws a card. Each player chooses and discards a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "choose",
+            "count": 1,
+            "options": [
+              [
+                {
+                  "type": "draw",
+                  "amount": 1,
+                  "target": {
+                    "type": "both"
+                  }
+                }
+              ],
+              [
+                {
+                  "type": "discard_from_hand",
+                  "amount": 1,
+                  "target": {
+                    "type": "both"
+                  },
+                  "chooser": "target_player"
+                }
+              ]
+            ]
+          }
+        ]
       }
     ],
     "setId": "10",
@@ -12835,6 +13020,37 @@
         "type": "keyword",
         "keyword": "boost",
         "value": 1
+      },
+      {
+        "type": "triggered",
+        "storyName": "COMMAND PERFORMANCE",
+        "rulesText": "Once during your turn, whenever you play a song, if there's a card under this character, you may draw a card.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "action"
+            ],
+            "hasKeyword": "singer",
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "condition": {
+          "type": "this_has_cards_under"
+        },
+        "oncePerTurn": true,
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "10",

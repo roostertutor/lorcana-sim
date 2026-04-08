@@ -3168,6 +3168,46 @@
         "rulesText": "Exert chosen character. Then, you may choose and discard a card. If you do, the exerted character can't ready at the start of their next turn.",
         "raw": "Exert chosen character. Then, you may choose and discard a card. If you do, the exerted character can't ready at the start of their next turn."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "exert",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "followUpEffects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                },
+                "chooser": "target_player"
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "cant_action",
+                "action": "ready",
+                "duration": "end_of_owner_next_turn",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ]
+          }
+        ]
+      }
     ]
   },
   {
@@ -3446,7 +3486,58 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "BY ORDER OF THE PRINCESS",
+        "rulesText": "When you play this character, choose one: Exert chosen damaged character. Chosen opposing character gains Reckless during their next turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "choose",
+            "count": 1,
+            "options": [
+              [
+                {
+                  "type": "exert",
+                  "target": {
+                    "type": "chosen",
+                    "filter": {
+                      "zone": "play",
+                      "cardType": [
+                        "character"
+                      ],
+                      "hasDamage": true
+                    }
+                  }
+                }
+              ],
+              [
+                {
+                  "type": "grant_keyword",
+                  "keyword": "reckless",
+                  "duration": "end_of_owner_next_turn",
+                  "target": {
+                    "type": "chosen",
+                    "filter": {
+                      "owner": {
+                        "type": "opponent"
+                      },
+                      "zone": "play",
+                      "cardType": [
+                        "character"
+                      ]
+                    }
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "6",
     "number": 70,
     "rarity": "rare",
@@ -4854,7 +4945,74 @@
     "cost": 2,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "HAPPY FACE",
+        "rulesText": "This item enters play exerted.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      },
+      {
+        "type": "activated",
+        "storyName": "DESTROY!",
+        "rulesText": "{E}, Banish this item — Choose one: Banish chosen item. Banish chosen damaged character.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "banish_self"
+          }
+        ],
+        "effects": [
+          {
+            "type": "choose",
+            "count": 1,
+            "options": [
+              [
+                {
+                  "type": "banish",
+                  "target": {
+                    "type": "chosen",
+                    "filter": {
+                      "zone": "play",
+                      "cardType": [
+                        "item"
+                      ]
+                    }
+                  }
+                }
+              ],
+              [
+                {
+                  "type": "banish",
+                  "target": {
+                    "type": "chosen",
+                    "filter": {
+                      "zone": "play",
+                      "cardType": [
+                        "character"
+                      ],
+                      "hasDamage": true
+                    }
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "6",
     "number": 98,
     "rarity": "uncommon",
@@ -8013,7 +8171,52 @@
       "Hero",
       "Robot"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "FULLY CHARGED",
+        "rulesText": "If you have an Inventor character in play, you pay 1 {I} less to play this character.",
+        "condition": {
+          "type": "has_character_with_trait",
+          "trait": "Inventor",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 1
+        }
+      },
+      {
+        "type": "activated",
+        "storyName": "YOU SAID 'OW'",
+        "rulesText": "2 {I} — Remove up to 1 damage from another chosen character.",
+        "costs": [
+          {
+            "type": "ink",
+            "amount": 2
+          }
+        ],
+        "effects": [
+          {
+            "type": "remove_damage",
+            "amount": 1,
+            "isUpTo": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "6",
     "number": 156,
     "rarity": "rare",
@@ -11369,7 +11572,52 @@
       "Hero",
       "Robot"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "FULLY CHARGED",
+        "rulesText": "If you have an Inventor character in play, you pay 1 {I} less to play this character.",
+        "condition": {
+          "type": "has_character_with_trait",
+          "trait": "Inventor",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 1
+        }
+      },
+      {
+        "type": "activated",
+        "storyName": "YOU SAID 'OW'",
+        "rulesText": "2 {I} — Remove up to 1 damage from another chosen character.",
+        "costs": [
+          {
+            "type": "ink",
+            "amount": 2
+          }
+        ],
+        "effects": [
+          {
+            "type": "remove_damage",
+            "amount": 1,
+            "isUpTo": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "6",
     "number": 218,
     "rarity": "enchanted",

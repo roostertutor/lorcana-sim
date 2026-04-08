@@ -1263,6 +1263,52 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "static",
+        "storyName": "YOU CAN BE WAY MORE (Evasive)",
+        "rulesText": "Your Floodborn characters that have a card under them gain Evasive.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Floodborn",
+              "hasCardUnder": true
+            }
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "YOU CAN BE WAY MORE (Ward)",
+        "rulesText": "Your Floodborn characters that have a card under them gain Ward.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "ward",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Floodborn",
+              "hasCardUnder": true
+            }
+          }
+        }
       }
     ],
     "setId": "P2",
@@ -1304,6 +1350,52 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "static",
+        "storyName": "YOU CAN BE WAY MORE (Evasive)",
+        "rulesText": "Your Floodborn characters that have a card under them gain Evasive.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Floodborn",
+              "hasCardUnder": true
+            }
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "YOU CAN BE WAY MORE (Ward)",
+        "rulesText": "Your Floodborn characters that have a card under them gain Ward.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "ward",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Floodborn",
+              "hasCardUnder": true
+            }
+          }
+        }
       }
     ],
     "setId": "P2",
@@ -1678,6 +1770,33 @@
         "storyName": "",
         "rulesText": "- Each opponent chooses and discards a card.",
         "raw": "- Each opponent chooses and discards a card."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "choose",
+        "count": 1,
+        "options": [
+          [
+            {
+              "type": "draw",
+              "amount": 2,
+              "target": {
+                "type": "self"
+              }
+            }
+          ],
+          [
+            {
+              "type": "discard_from_hand",
+              "amount": 1,
+              "target": {
+                "type": "opponent"
+              },
+              "chooser": "target_player"
+            }
+          ]
+        ]
       }
     ]
   },
