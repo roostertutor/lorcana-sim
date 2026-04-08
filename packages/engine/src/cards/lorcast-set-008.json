@@ -2242,12 +2242,18 @@
         "type": "static",
         "storyName": "ENOUGH'S ENOUGH",
         "rulesText": "While this character is exerted, opposing characters with Rush enter play exerted.",
-        "condition": { "type": "this_is_exerted" },
+        "condition": {
+          "type": "this_is_exerted"
+        },
         "effect": {
           "type": "enter_play_exerted",
           "filter": {
-            "owner": { "type": "opponent" },
-            "cardType": ["character"],
+            "owner": {
+              "type": "opponent"
+            },
+            "cardType": [
+              "character"
+            ],
             "hasKeyword": "rush"
           }
         }
@@ -3092,14 +3098,21 @@
         "type": "triggered",
         "storyName": "INCAPACITATE",
         "rulesText": "When you play this character, you may return chosen character to their player's hand.",
-        "trigger": { "on": "enters_play" },
+        "trigger": {
+          "on": "enters_play"
+        },
         "effects": [
           {
             "type": "return_to_hand",
             "isMay": true,
             "target": {
               "type": "chosen",
-              "filter": { "zone": "play", "cardType": ["character"] }
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
             }
           }
         ]
@@ -3108,12 +3121,16 @@
         "type": "triggered",
         "storyName": "INTERFERE",
         "rulesText": "Whenever this character quests, chosen opponent discards a card at random.",
-        "trigger": { "on": "quests" },
+        "trigger": {
+          "on": "quests"
+        },
         "effects": [
           {
             "type": "discard_from_hand",
             "amount": 1,
-            "target": { "type": "opponent" },
+            "target": {
+              "type": "opponent"
+            },
             "chooser": "random"
           }
         ]
@@ -4473,7 +4490,74 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "WHAT A FEAST",
+        "rulesText": "During your turn, when this character is banished, if one of your characters was damaged this turn, gain 2 lore.",
+        "trigger": {
+          "on": "is_banished",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            {
+              "type": "is_your_turn"
+            },
+            {
+              "type": "your_character_was_damaged_this_turn"
+            }
+          ]
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "WHAT A FEAST",
+        "rulesText": "During your turn, when this character is banished, if one of your characters was damaged this turn, gain 2 lore.",
+        "trigger": {
+          "on": "is_banished",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            {
+              "type": "is_your_turn"
+            },
+            {
+              "type": "your_character_was_damaged_this_turn"
+            }
+          ]
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 125,
     "rarity": "common",
@@ -4484,13 +4568,7 @@
     "rulesText": "SPITEFUL During your turn, when this character is banished, if one of your characters was damaged this turn, gain 2 lore.",
     "flavorText": "He's identical to Nero in cruelty and classiness.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c58dd411430545cf8347b0993cd685f7.avif?1747509156",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "SPITEFUL",
-        "rulesText": "During your turn, when this character is banished, if one of your characters was damaged this turn, gain 2 lore.",
-        "raw": "SPITEFUL During your turn, when this character is banished, if one of your characters was damaged this turn, gain 2 lore."
-      }
-    ]
+    "_namedAbilityStubs": []
   },
   {
     "id": "brutus-fearsome-crocodile",
@@ -4506,7 +4584,74 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "WHAT A FEAST",
+        "rulesText": "During your turn, when this character is banished, if one of your characters was damaged this turn, gain 2 lore.",
+        "trigger": {
+          "on": "is_banished",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            {
+              "type": "is_your_turn"
+            },
+            {
+              "type": "your_character_was_damaged_this_turn"
+            }
+          ]
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "WHAT A FEAST",
+        "rulesText": "During your turn, when this character is banished, if one of your characters was damaged this turn, gain 2 lore.",
+        "trigger": {
+          "on": "is_banished",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            {
+              "type": "is_your_turn"
+            },
+            {
+              "type": "your_character_was_damaged_this_turn"
+            }
+          ]
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 125,
     "rarity": "common",
@@ -4517,13 +4662,7 @@
     "rulesText": "SPITEFUL During your turn, when this character is banished, if one of your characters was damaged this turn, gain 2 lore.",
     "flavorText": "He's identical to Nero in cruelty and classiness.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_413aa60d7950479282acb68e97eaafcd.avif?1751505378",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "SPITEFUL",
-        "rulesText": "During your turn, when this character is banished, if one of your characters was damaged this turn, gain 2 lore.",
-        "raw": "SPITEFUL During your turn, when this character is banished, if one of your characters was damaged this turn, gain 2 lore."
-      }
-    ]
+    "_namedAbilityStubs": []
   },
   {
     "id": "the-dodo-outlandish-storyteller",
@@ -4769,8 +4908,12 @@
         "effect": {
           "type": "enter_play_exerted",
           "filter": {
-            "owner": { "type": "opponent" },
-            "cardType": ["item"]
+            "owner": {
+              "type": "opponent"
+            },
+            "cardType": [
+              "item"
+            ]
           }
         }
       }
@@ -6950,7 +7093,58 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "OUT OF REACH",
+        "rulesText": "While you have another exerted character in play, this character can't be challenged.",
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "isExerted": true,
+            "excludeSelf": true
+          }
+        },
+        "effect": {
+          "type": "cant_be_challenged",
+          "target": {
+            "type": "this"
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "OUT OF REACH",
+        "rulesText": "While you have another exerted character in play, this character can't be challenged.",
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "isExerted": true,
+            "excludeSelf": true
+          }
+        },
+        "effect": {
+          "type": "cant_be_challenged",
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "8",
     "number": 195,
     "rarity": "rare",
@@ -6961,13 +7155,7 @@
     "rulesText": "SELF-PRESERVATION While you have another exerted character in play, this character can't be challenged.",
     "flavorText": "\"Nice try, chumps! Too bad I'm all the way up here!\"",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_14cf336ace334aa4bb012d3a932242bf.avif?1747509505",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "SELF-PRESERVATION",
-        "rulesText": "While you have another exerted character in play, this character can't be challenged.",
-        "raw": "SELF-PRESERVATION While you have another exerted character in play, this character can't be challenged."
-      }
-    ]
+    "_namedAbilityStubs": []
   },
   {
     "id": "nathaniel-flint-notorious-pirate",
@@ -6997,11 +7185,10 @@
     "rulesText": "PREDATORY INSTINCT You can't play this character unless an opposing character was damaged this turn.",
     "flavorText": "\"Flint's secret trove was never found, but stories have persisted that it remains hidden...\" —Narrator",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_06dcb232c2b84e47923c74acc1f755aa.avif?1747509509",
-    "_namedAbilityStubs": [
+    "_namedAbilityStubs": [],
+    "playRestrictions": [
       {
-        "storyName": "",
-        "rulesText": "PREDATORY INSTINCT You can't play this character unless an opposing character was damaged this turn.",
-        "raw": "PREDATORY INSTINCT You can't play this character unless an opposing character was damaged this turn."
+        "type": "opposing_character_was_damaged_this_turn"
       }
     ]
   },

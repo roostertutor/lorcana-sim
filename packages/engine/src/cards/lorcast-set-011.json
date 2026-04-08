@@ -6417,7 +6417,58 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "WHO'S NEXT?",
+        "rulesText": "When you play this character, if an opposing character was banished in a challenge this turn, draw a card.",
+        "trigger": {
+          "on": "enters_play",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "condition": {
+          "type": "opponent_character_was_banished_in_challenge_this_turn"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "WHO'S NEXT?",
+        "rulesText": "When you play this character, if an opposing character was banished in a challenge this turn, draw a card.",
+        "trigger": {
+          "on": "enters_play",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "condition": {
+          "type": "opponent_character_was_banished_in_challenge_this_turn"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 179,
     "rarity": "uncommon",
@@ -6428,13 +6479,7 @@
     "rulesText": "GOOD RIDDANCE {E} — If an opposing character was banished in a challenge this turn, draw a card.",
     "flavorText": "\"Sonny, you've got a lot of learnin' to do about a-sniffin' and a-smellin'.\"",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a26bf7d81173483589a2df5446ab1ec0.avif?1770260005",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "GOOD RIDDANCE",
-        "rulesText": "If an opposing character was banished in a challenge this turn, draw a card.",
-        "raw": "GOOD RIDDANCE {E} — If an opposing character was banished in a challenge this turn, draw a card."
-      }
-    ]
+    "_namedAbilityStubs": []
   },
   {
     "id": "amos-slade-tenacious-tracker",
@@ -7201,16 +7246,22 @@
     "rarity": "rare",
     "rulesText": "VIGILANTE JUSTICE All opposing characters gain the Villain classification.\nLAY OF THE LAND {E} — If a character was banished in a challenge this turn, gain 1 lore.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_997f90baa0e94ea6bf9babc7ded3bc8a.avif?1770260104",
-    "_namedAbilityStubs": [
+    "_namedAbilityStubs": [],
+    "actionEffects": [
       {
-        "storyName": "VIGILANTE JUSTICE",
-        "rulesText": "All opposing characters gain the Villain classification.",
-        "raw": "VIGILANTE JUSTICE All opposing characters gain the Villain classification."
-      },
-      {
-        "storyName": "LAY OF THE LAND",
-        "rulesText": "If a character was banished in a challenge this turn, gain 1 lore.",
-        "raw": "LAY OF THE LAND {E} — If a character was banished in a challenge this turn, gain 1 lore."
+        "type": "conditional_on_target",
+        "condition": {
+          "type": "a_character_was_banished_in_challenge_this_turn"
+        },
+        "thenEffects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ]
   },

@@ -760,6 +760,40 @@
       {
         "type": "keyword",
         "keyword": "bodyguard"
+      },
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
+      {
+        "type": "static",
+        "storyName": "Puppy Shift",
+        "rulesText": "Puppy Shift 3 (You may pay 3 {I} to play this on top of one of your Puppy characters.)",
+        "effect": {
+          "type": "classification_shift_self",
+          "trait": "Puppy"
+        },
+        "activeZones": [
+          "hand"
+        ]
+      },
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
+      {
+        "type": "static",
+        "storyName": "Puppy Shift",
+        "rulesText": "Puppy Shift 3 (You may pay 3 {I} to play this on top of one of your Puppy characters.)",
+        "effect": {
+          "type": "classification_shift_self",
+          "trait": "Puppy"
+        },
+        "activeZones": [
+          "hand"
+        ]
       }
     ],
     "setId": "7",
@@ -772,13 +806,7 @@
     "shiftCost": 3,
     "rulesText": "Puppy Shift 3 (You may pay 3 {I} to play this on top of one of your Puppy characters.)",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5a0a0d8b44824cf3b19fd61fc940df4a.avif?1740589191",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "Puppy Shift 3 (You may pay 3 {I} to play this on top of one of your Puppy characters.)",
-        "raw": "Puppy Shift 3 (You may pay 3 {I} to play this on top of one of your Puppy characters.)"
-      }
-    ]
+    "_namedAbilityStubs": []
   },
   {
     "id": "the-prince-vigilant-suitor",
@@ -1830,7 +1858,9 @@
         "type": "triggered",
         "storyName": "SEARCH THE SWAMP",
         "rulesText": "Whenever this character quests, you may deal 2 damage to another chosen character of yours to put the top 3 cards of chosen player's deck into their discard.",
-        "trigger": { "on": "quests" },
+        "trigger": {
+          "on": "quests"
+        },
         "effects": [
           {
             "type": "sequential",
@@ -1843,15 +1873,25 @@
                   "type": "chosen",
                   "filter": {
                     "zone": "play",
-                    "cardType": ["character"],
-                    "owner": { "type": "self" },
+                    "cardType": [
+                      "character"
+                    ],
+                    "owner": {
+                      "type": "self"
+                    },
                     "excludeSelf": true
                   }
                 }
               }
             ],
             "rewardEffects": [
-              { "type": "mill", "amount": 3, "target": { "type": "opponent" } }
+              {
+                "type": "mill",
+                "amount": 3,
+                "target": {
+                  "type": "opponent"
+                }
+              }
             ]
           }
         ]
@@ -2373,17 +2413,23 @@
         "rulesText": "Whenever another character is banished in a challenge, return that card to its player's hand, then that player discards a card at random.",
         "trigger": {
           "on": "banished_in_challenge",
-          "filter": { "excludeSelf": true }
+          "filter": {
+            "excludeSelf": true
+          }
         },
         "effects": [
           {
             "type": "return_to_hand",
-            "target": { "type": "triggering_card" }
+            "target": {
+              "type": "triggering_card"
+            }
           },
           {
             "type": "discard_from_hand",
             "amount": 1,
-            "target": { "type": "target_owner" },
+            "target": {
+              "type": "target_owner"
+            },
             "chooser": "random"
           }
         ]
@@ -3372,14 +3418,21 @@
         "rulesText": "Whenever another character is played, put a damage counter on them.",
         "trigger": {
           "on": "card_played",
-          "filter": { "cardType": ["character"], "excludeSelf": true }
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true
+          }
         },
         "effects": [
           {
             "type": "deal_damage",
             "amount": 1,
             "asDamageCounter": true,
-            "target": { "type": "triggering_card" }
+            "target": {
+              "type": "triggering_card"
+            }
           }
         ]
       }
@@ -4034,6 +4087,76 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "static",
+        "storyName": "INTIMIDATING",
+        "rulesText": "While this character is exerted, opposing characters can't exert to sing songs.",
+        "condition": {
+          "type": "this_is_exerted"
+        },
+        "effect": {
+          "type": "action_restriction",
+          "restricts": "sing",
+          "affectedPlayer": {
+            "type": "opponent"
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "MARAUDING CREW",
+        "rulesText": "Your Pirate characters gain Resist +1.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "resist",
+          "value": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "hasTrait": "Pirate"
+            }
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "INTIMIDATING",
+        "rulesText": "While this character is exerted, opposing characters can't exert to sing songs.",
+        "condition": {
+          "type": "this_is_exerted"
+        },
+        "effect": {
+          "type": "action_restriction",
+          "restricts": "sing",
+          "affectedPlayer": {
+            "type": "opponent"
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "MARAUDING CREW",
+        "rulesText": "Your Pirate characters gain Resist +1.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "resist",
+          "value": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "hasTrait": "Pirate"
+            }
+          }
+        }
       }
     ],
     "setId": "7",
@@ -4046,13 +4169,7 @@
     "shiftCost": 4,
     "rulesText": "FRIGHTFUL SCHEME While this character is exerted, opposing characters can't exert to sing songs and your Pirate characters gain Resist +1. (Damage dealt to them is reduced by 1.)",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_874601077b644699b9e61662ec1c68a8.avif?1740589557",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "FRIGHTFUL SCHEME",
-        "rulesText": "While this character is exerted, opposing characters can't exert to sing songs and your Pirate characters gain Resist +1. (Damage dealt to them is reduced by 1.)",
-        "raw": "FRIGHTFUL SCHEME While this character is exerted, opposing characters can't exert to sing songs and your Pirate characters gain Resist +1. (Damage dealt to them is reduced by 1.)"
-      }
-    ]
+    "_namedAbilityStubs": []
   },
   {
     "id": "lady-tremaine-bitterly-jealous",
@@ -4073,19 +4190,31 @@
         "type": "activated",
         "storyName": "THAT'S QUITE ENOUGH",
         "rulesText": "{E} — Return chosen damaged character to their player's hand. Then, each opponent discards a card at random.",
-        "costs": [{ "type": "exert" }],
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "return_to_hand",
             "target": {
               "type": "chosen",
-              "filter": { "zone": "play", "cardType": ["character"], "hasDamage": true }
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasDamage": true
+              }
             }
           },
           {
             "type": "discard_from_hand",
             "amount": 1,
-            "target": { "type": "opponent" },
+            "target": {
+              "type": "opponent"
+            },
             "chooser": "random"
           }
         ]
@@ -5302,20 +5431,37 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "THE PRICE OF POWER",
+        "rulesText": "{E} — If one of your characters was damaged this turn, gain 1 lore.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "condition": {
+          "type": "your_character_was_damaged_this_turn"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "7",
     "number": 152,
     "rarity": "rare",
     "rulesText": "THE PRICE OF POWER {E} — If one of your characters was damaged this turn, gain 1 lore.",
     "flavorText": "\"Just look at it, filled with power for its owner.\"\n—Madame Medusa",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5aa0268561ff4690aa520763bc869ed1.avif?1740589708",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "THE PRICE OF POWER",
-        "rulesText": "If one of your characters was damaged this turn, gain 1 lore.",
-        "raw": "THE PRICE OF POWER {E} — If one of your characters was damaged this turn, gain 1 lore."
-      }
-    ]
+    "_namedAbilityStubs": []
   },
   {
     "id": "clarabelle-news-reporter",
@@ -6888,7 +7034,66 @@
       "Alien",
       "Captain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "STOP RIGHT THERE!",
+        "rulesText": "When you play this character, characters can't exert to sing songs until the start of your next turn.",
+        "trigger": {
+          "on": "enters_play",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "cant_action",
+            "action": "sing",
+            "target": {
+              "type": "all",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "until_caster_next_turn"
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "STOP RIGHT THERE!",
+        "rulesText": "When you play this character, characters can't exert to sing songs until the start of your next turn.",
+        "trigger": {
+          "on": "enters_play",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "cant_action",
+            "action": "sing",
+            "target": {
+              "type": "all",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "until_caster_next_turn"
+          }
+        ]
+      }
+    ],
     "setId": "7",
     "number": 199,
     "rarity": "super_rare",
@@ -6898,13 +7103,7 @@
     "lore": 1,
     "rulesText": "CLOSE ALL CHANNELS When you play this character, characters can't exert to sing songs until the start of your next turn.\nDON'T GET ANY IDEAS Each player pays 2 {I} more to play actions or items. (This doesn’t apply to singing songs.)",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9cc5e63998164343909390b767c6d3ae.avif?1740590264",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "CLOSE ALL CHANNELS",
-        "rulesText": "When you play this character, characters can't exert to sing songs until the start of your next turn.",
-        "raw": "CLOSE ALL CHANNELS When you play this character, characters can't exert to sing songs until the start of your next turn."
-      }
-    ]
+    "_namedAbilityStubs": []
   },
   {
     "id": "mickey-mouse-inspirational-warrior",
@@ -7602,19 +7801,36 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "THE PRICE OF POWER",
+        "rulesText": "{E} — If one of your characters was damaged this turn, gain 1 lore.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "condition": {
+          "type": "your_character_was_damaged_this_turn"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "7",
     "number": 218,
     "rarity": "enchanted",
     "rulesText": "THE PRICE OF POWER {E} — If one of your characters was damaged this turn, gain 1 lore.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_6a4c5fe1b3b74110acd16d725f8cc3f6.avif?1740590348",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "THE PRICE OF POWER",
-        "rulesText": "If one of your characters was damaged this turn, gain 1 lore.",
-        "raw": "THE PRICE OF POWER {E} — If one of your characters was damaged this turn, gain 1 lore."
-      }
-    ]
+    "_namedAbilityStubs": []
   },
   {
     "id": "tamatoa-happy-as-a-clam",

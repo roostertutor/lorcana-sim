@@ -923,7 +923,9 @@
             "type": "all",
             "filter": {
               "zone": "play",
-              "cardType": ["character"],
+              "cardType": [
+                "character"
+              ],
               "atLocation": "this"
             }
           }
@@ -937,9 +939,13 @@
           "type": "move_to_self_cost_reduction",
           "amount": "all",
           "filter": {
-            "owner": { "type": "self" },
+            "owner": {
+              "type": "self"
+            },
             "zone": "play",
-            "cardType": ["character"],
+            "cardType": [
+              "character"
+            ],
             "hasTrait": "Pirate"
           }
         }
@@ -1416,12 +1422,14 @@
     "lore": 2,
     "rulesText": "(This character counts as being named both Flotsam and Jetsam.)",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a7de9bb16f4540ec9e7bb9a870a9b289.avif?1728609660",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "(This character counts as being named both Flotsam and Jetsam.)",
-        "raw": "(This character counts as being named both Flotsam and Jetsam.)"
-      }
+    "_namedAbilityStubs": [],
+    "additionalNames": [
+      "Flotsam",
+      "Jetsam"
+    ],
+    "alternateNames": [
+      "Flotsam",
+      "Jetsam"
     ]
   }
 ]

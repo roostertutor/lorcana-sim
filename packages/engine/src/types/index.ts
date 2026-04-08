@@ -1285,7 +1285,9 @@ export type Condition =
    *  defaults to self if unset. */
   | { type: "you_control_matching"; filter: CardFilter }
   | { type: "your_character_was_damaged_this_turn" }
+  | { type: "opposing_character_was_damaged_this_turn" }
   | { type: "opponent_character_was_banished_in_challenge_this_turn" }
+  | { type: "a_character_was_banished_in_challenge_this_turn" }
   | { type: "not"; condition: Condition }
   | { type: "played_via_shift" }
   | { type: "triggering_card_played_via_shift" }

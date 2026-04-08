@@ -4683,16 +4683,23 @@
     "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)\nEach opponent chooses and banishes one of their characters.",
     "flavorText": "Respected, saluted",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e20ac0daac8445eb8c7d2a8a27f06745.avif?1755540982",
-    "_namedAbilityStubs": [
+    "_namedAbilityStubs": [],
+    "actionEffects": [
       {
-        "storyName": "",
-        "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)",
-        "raw": "(A character with cost 4 or more can {E} to sing this song for free.)"
-      },
-      {
-        "storyName": "",
-        "rulesText": "Each opponent chooses and banishes one of their characters.",
-        "raw": "Each opponent chooses and banishes one of their characters."
+        "type": "banish",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          },
+          "chooser": "target_player"
+        }
       }
     ]
   },
@@ -7476,16 +7483,23 @@
     "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)\nEach opponent chooses and banishes one of their characters.",
     "flavorText": "Respected, saluted",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d47a329c9f87420c8c2714ea6f7fffde.avif?1755541510",
-    "_namedAbilityStubs": [
+    "_namedAbilityStubs": [],
+    "actionEffects": [
       {
-        "storyName": "",
-        "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)",
-        "raw": "(A character with cost 4 or more can {E} to sing this song for free.)"
-      },
-      {
-        "storyName": "",
-        "rulesText": "Each opponent chooses and banishes one of their characters.",
-        "raw": "Each opponent chooses and banishes one of their characters."
+        "type": "banish",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          },
+          "chooser": "target_player"
+        }
       }
     ]
   },

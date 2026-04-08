@@ -2271,13 +2271,7 @@
     "lore": 2,
     "rulesText": "(This character counts as being named both Flotsam and Jetsam.)",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_2eb85540f12446e38d0eef16937315eb.avif?1716052430",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "(This character counts as being named both Flotsam and Jetsam.)",
-        "raw": "(This character counts as being named both Flotsam and Jetsam.)"
-      }
-    ],
+    "_namedAbilityStubs": [],
     "additionalNames": [
       "Flotsam",
       "Jetsam"
@@ -6644,24 +6638,12 @@
     "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)\nEach opponent chooses and banishes one of their characters.",
     "flavorText": "Respected, saluted",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_40dfc709e42242c8bf1a905735708345.avif?1716052430",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)",
-        "raw": "(A character with cost 4 or more can {E} to sing this song for free.)"
-      },
-      {
-        "storyName": "",
-        "rulesText": "Each opponent chooses and banishes one of their characters.",
-        "raw": "Each opponent chooses and banishes one of their characters."
-      }
-    ],
+    "_namedAbilityStubs": [],
     "actionEffects": [
       {
         "type": "banish",
         "target": {
           "type": "chosen",
-          "chooser": "target_player",
           "filter": {
             "owner": {
               "type": "self"
@@ -6670,7 +6652,8 @@
             "cardType": [
               "character"
             ]
-          }
+          },
+          "chooser": "target_player"
         }
       }
     ]

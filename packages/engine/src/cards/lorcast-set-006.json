@@ -567,13 +567,21 @@
         "type": "triggered",
         "storyName": "NUTS ABOUT PRANKS",
         "rulesText": "When you play this character, you may put the top 3 cards of your deck into your discard to give chosen character -3 {S} until the start of your next turn.",
-        "trigger": { "on": "enters_play" },
+        "trigger": {
+          "on": "enters_play"
+        },
         "effects": [
           {
             "type": "sequential",
             "isMay": true,
             "costEffects": [
-              { "type": "mill", "amount": 3, "target": { "type": "self" } }
+              {
+                "type": "mill",
+                "amount": 3,
+                "target": {
+                  "type": "self"
+                }
+              }
             ],
             "rewardEffects": [
               {
@@ -582,7 +590,12 @@
                 "duration": "until_caster_next_turn",
                 "target": {
                   "type": "chosen",
-                  "filter": { "zone": "play", "cardType": ["character"] }
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
                 }
               }
             ]
@@ -1015,16 +1028,25 @@
         "strengthDynamic": {
           "type": "count",
           "filter": {
-            "owner": { "type": "self" },
+            "owner": {
+              "type": "self"
+            },
             "zone": "play",
-            "cardType": ["character"]
+            "cardType": [
+              "character"
+            ]
           }
         },
         "strengthDynamicNegate": true,
         "duration": "until_caster_next_turn",
         "target": {
           "type": "chosen",
-          "filter": { "zone": "play", "cardType": ["character"] }
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
         }
       }
     ],
@@ -2080,7 +2102,13 @@
     ],
     "abilities": [],
     "actionEffects": [
-      { "type": "mill", "amount": 2, "target": { "type": "opponent" } }
+      {
+        "type": "mill",
+        "amount": 2,
+        "target": {
+          "type": "opponent"
+        }
+      }
     ],
     "setId": "6",
     "number": 60,
@@ -2297,11 +2325,22 @@
         "storyName": "NO ROOM, NO ROOM",
         "rulesText": "{E}, 1 {I} - Each opponent puts the top card of their deck into their discard.",
         "costs": [
-          { "type": "exert" },
-          { "type": "pay_ink", "amount": 1 }
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
         ],
         "effects": [
-          { "type": "mill", "amount": 1, "target": { "type": "opponent" } }
+          {
+            "type": "mill",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            }
+          }
         ]
       }
     ],
@@ -5114,6 +5153,52 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 1
+      },
+      {
+        "type": "static",
+        "storyName": "I KNOW EVERYBODY",
+        "rulesText": "While you have an item in play, this character can't be challenged.",
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "item"
+            ]
+          }
+        },
+        "effect": {
+          "type": "cant_be_challenged",
+          "target": {
+            "type": "this"
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "I KNOW EVERYBODY",
+        "rulesText": "While you have an item in play, this character can't be challenged.",
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "item"
+            ]
+          }
+        },
+        "effect": {
+          "type": "cant_be_challenged",
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "6",
@@ -5126,13 +5211,7 @@
     "shiftCost": 1,
     "rulesText": "CAN'T TOUCH ME While you have an item in play, this character can't be challenged.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_48304fa82c024098bf755ea123884358.avif?1730901319",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "CAN'T TOUCH ME",
-        "rulesText": "While you have an item in play, this character can't be challenged.",
-        "raw": "CAN'T TOUCH ME While you have an item in play, this character can't be challenged."
-      }
-    ]
+    "_namedAbilityStubs": []
   },
   {
     "id": "gadget-hackwrench-perceptive-mouse",
@@ -5873,8 +5952,12 @@
         "rulesText": "This character can't be challenged by characters with 2 {S} or more.",
         "effect": {
           "type": "cant_be_challenged",
-          "target": { "type": "this" },
-          "attackerFilter": { "strengthAtLeast": 2 }
+          "target": {
+            "type": "this"
+          },
+          "attackerFilter": {
+            "strengthAtLeast": 2
+          }
         }
       }
     ],
@@ -6518,8 +6601,12 @@
         "rulesText": "This character can't be challenged by Pirate characters.",
         "effect": {
           "type": "cant_be_challenged",
-          "target": { "type": "this" },
-          "attackerFilter": { "hasTrait": "Pirate" }
+          "target": {
+            "type": "this"
+          },
+          "attackerFilter": {
+            "hasTrait": "Pirate"
+          }
         }
       }
     ],
@@ -6990,7 +7077,64 @@
     "cost": 3,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "ORDER IN THE COURT",
+        "rulesText": "While you have an Alien or Robot character here, this location can't be challenged.",
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasAnyTrait": [
+              "Alien",
+              "Robot"
+            ],
+            "atLocation": "this"
+          }
+        },
+        "effect": {
+          "type": "cant_be_challenged",
+          "target": {
+            "type": "this"
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "ORDER IN THE COURT",
+        "rulesText": "While you have an Alien or Robot character here, this location can't be challenged.",
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasAnyTrait": [
+              "Alien",
+              "Robot"
+            ],
+            "atLocation": "this"
+          }
+        },
+        "effect": {
+          "type": "cant_be_challenged",
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "6",
     "number": 204,
     "rarity": "common",
@@ -6999,13 +7143,7 @@
     "lore": 1,
     "rulesText": "FEDERATION DECREE While you have an Alien or Robot character here, this location can’t be challenged.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_25d8f80f68574d38869b7853d737e8e2.avif?1730901319",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "FEDERATION DECREE",
-        "rulesText": "While you have an Alien or Robot character here, this location can’t be challenged.",
-        "raw": "FEDERATION DECREE While you have an Alien or Robot character here, this location can’t be challenged."
-      }
-    ]
+    "_namedAbilityStubs": []
   },
   {
     "id": "chip-n-dale-recovery-rangers",
@@ -7589,8 +7727,12 @@
         "rulesText": "This character can't be challenged by Pirate characters.",
         "effect": {
           "type": "cant_be_challenged",
-          "target": { "type": "this" },
-          "attackerFilter": { "hasTrait": "Pirate" }
+          "target": {
+            "type": "this"
+          },
+          "attackerFilter": {
+            "hasTrait": "Pirate"
+          }
         }
       }
     ],

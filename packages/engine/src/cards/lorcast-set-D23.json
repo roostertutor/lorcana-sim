@@ -323,7 +323,58 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "OUT OF REACH",
+        "rulesText": "While you have another exerted character in play, this character can't be challenged.",
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "isExerted": true,
+            "excludeSelf": true
+          }
+        },
+        "effect": {
+          "type": "cant_be_challenged",
+          "target": {
+            "type": "this"
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "OUT OF REACH",
+        "rulesText": "While you have another exerted character in play, this character can't be challenged.",
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "isExerted": true,
+            "excludeSelf": true
+          }
+        },
+        "effect": {
+          "type": "cant_be_challenged",
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "D23",
     "number": 8,
     "rarity": "common",
@@ -334,13 +385,7 @@
     "rulesText": "SELF-PRESERVATION While you have another exerted character in play, this character can't be challenged.",
     "flavorText": "\"Nice try, chumps! Too bad I'm all the way up here!\"",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a2a3f642e4704e159e4e65233aacc2fb.avif?1774402627",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "SELF-PRESERVATION",
-        "rulesText": "While you have another exerted character in play, this character can't be challenged.",
-        "raw": "SELF-PRESERVATION While you have another exerted character in play, this character can't be challenged."
-      }
-    ]
+    "_namedAbilityStubs": []
   },
   {
     "id": "mad-hatter-unruly-eccentric",

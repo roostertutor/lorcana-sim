@@ -140,7 +140,50 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "BROTHERLY LOVE",
+        "rulesText": "While this character is exerted, your characters named Koda can't be challenged.",
+        "condition": {
+          "type": "this_is_exerted"
+        },
+        "effect": {
+          "type": "cant_be_challenged",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "hasName": "Koda"
+            }
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "BROTHERLY LOVE",
+        "rulesText": "While this character is exerted, your characters named Koda can't be challenged.",
+        "condition": {
+          "type": "this_is_exerted"
+        },
+        "effect": {
+          "type": "cant_be_challenged",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "hasName": "Koda"
+            }
+          }
+        }
+      }
+    ],
     "setId": "5",
     "number": 5,
     "rarity": "common",
@@ -151,13 +194,7 @@
     "rulesText": "BROTHERS FOREVER While this character is exerted, your characters named Koda can't be challenged.",
     "flavorText": "\"You have to look after your little brother, no matter how big a pain he is.\"\n-Kenai",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_85a886f78a71416aa253879cbe81d8dd.avif?1723917209",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "BROTHERS FOREVER",
-        "rulesText": "While this character is exerted, your characters named Koda can't be challenged.",
-        "raw": "BROTHERS FOREVER While this character is exerted, your characters named Koda can't be challenged."
-      }
-    ]
+    "_namedAbilityStubs": []
   },
   {
     "id": "vanellope-von-schweetz-sugar-rush-champ",
@@ -448,7 +485,13 @@
     ],
     "abilities": [],
     "playRestrictions": [
-      { "type": "characters_in_play_gte", "amount": 5, "player": { "type": "self" } }
+      {
+        "type": "characters_in_play_gte",
+        "amount": 5,
+        "player": {
+          "type": "self"
+        }
+      }
     ],
     "setId": "5",
     "number": 14,
@@ -2483,7 +2526,26 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "SHHH!",
+        "rulesText": "This character can't {E} to sing songs.",
+        "effect": {
+          "type": "cant_action_self",
+          "action": "sing"
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "SHHH!",
+        "rulesText": "This character can't {E} to sing songs.",
+        "effect": {
+          "type": "cant_action_self",
+          "action": "sing"
+        }
+      }
+    ],
     "setId": "5",
     "number": 73,
     "rarity": "common",
@@ -2494,13 +2556,7 @@
     "rulesText": "SILENT PERFORMANCE This character can't {E} to sing songs.",
     "flavorText": "His performances are unspeakably good.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4b2b91b67cde4db99f61c51b388a338f.avif?1723917209",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "SILENT PERFORMANCE",
-        "rulesText": "This character can't {E} to sing songs.",
-        "raw": "SILENT PERFORMANCE This character can't {E} to sing songs."
-      }
-    ]
+    "_namedAbilityStubs": []
   },
   {
     "id": "ed-laughing-hyena",
@@ -3821,12 +3877,12 @@
     "lore": 1,
     "rulesText": "GAME JUMP This character also counts as being named King Candy for Shift.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c53a525669114b578666906f5adff421.avif?1723917209",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "GAME JUMP",
-        "rulesText": "This character also counts as being named King Candy for Shift.",
-        "raw": "GAME JUMP This character also counts as being named King Candy for Shift."
-      }
+    "_namedAbilityStubs": [],
+    "additionalNames": [
+      "King Candy"
+    ],
+    "alternateNames": [
+      "King Candy"
     ]
   },
   {

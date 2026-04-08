@@ -287,6 +287,11 @@ export function matchesFilter(
     if (instance.instanceId === filter.excludeInstanceId) return false;
   }
 
+  // CRD 6.1.6: "another" / "other" — exclude the source card itself
+  if (filter.excludeSelf && sourceInstanceId && instance.instanceId === sourceInstanceId) {
+    return false;
+  }
+
   if (filter.hasName) {
     const altNames = definition.alternateNames ?? [];
     if (definition.name !== filter.hasName && !altNames.includes(filter.hasName)) return false;
@@ -691,6 +696,16 @@ export function evaluateCondition(
     case "opponent_character_was_banished_in_challenge_this_turn": {
       // LeFou - Opportunistic Flunky: free play if an opposing character was banished in a challenge this turn.
       return !!state.players[opponent].aCharacterWasBanishedInChallengeThisTurn;
+    }
+    case "a_character_was_banished_in_challenge_this_turn": {
+      // The Thunderquack: "If a character was banished in a challenge this turn, gain 1 lore."
+      // Either player's character counts.
+      return !!state.players[controllingPlayerId].aCharacterWasBanishedInChallengeThisTurn
+        || !!state.players[opponent].aCharacterWasBanishedInChallengeThisTurn;
+    }
+    case "opposing_character_was_damaged_this_turn": {
+      // Nathaniel Flint - Notorious Pirate: "You can't play this character unless an opposing character was damaged this turn."
+      return !!state.players[opponent].aCharacterWasDamagedThisTurn;
     }
     case "not": {
       return !evaluateCondition(condition.condition, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId);
