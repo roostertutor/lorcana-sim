@@ -451,8 +451,8 @@ export interface MoveDamageEffect {
   source: { type: "chosen"; filter: CardFilter };
   /** Destination character. */
   destination: { type: "chosen"; filter: CardFilter };
-  /** Internal: stage-2 marker carrying the resolved source instanceId. */
-  _resolvedSourceInstanceId?: string;
+  /** Internal: stage-2 marker carrying the resolved source snapshot. */
+  _resolvedSource?: ResolvedRef;
 }
 
 /**
@@ -648,9 +648,10 @@ export interface MoveCharacterEffect {
   location: { type: "triggering_card" } | { type: "chosen"; filter: CardFilter };
   /** CRD 6.1.4 */
   isMay?: boolean;
-  /** Internal: set during stage 2 of a chosen+chosen flow to carry the chosen character ID
-   *  across the second pendingChoice. Not part of the JSON spec — set by the reducer only. */
-  _resolvedCharacterInstanceId?: string;
+  /** Internal: set during stage 2 of a chosen+chosen flow to carry the chosen
+   *  character snapshot across the second pendingChoice. Not part of the JSON
+   *  spec — set by the reducer only. */
+  _resolvedCharacter?: ResolvedRef;
 }
 
 /**

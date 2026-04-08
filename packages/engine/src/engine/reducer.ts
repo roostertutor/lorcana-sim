@@ -40,6 +40,7 @@ import {
   hasKeyword,
   isActionRestricted,
   isSong,
+  makeResolvedRef,
   matchesFilter,
   moveCard,
   updateInstance,
@@ -2407,7 +2408,7 @@ export function applyEffect(
             prompt: "Choose a location to move to.",
             validTargets: validLocations,
             // Stash the resolved character on a clone of the effect for stage 2.
-            pendingEffect: { ...effect, _resolvedCharacterInstanceId: characterId },
+            pendingEffect: { ...effect, _resolvedCharacter: makeResolvedRef(state, definitions, characterId) },
             optional: effect.isMay ?? false,
           },
         };
@@ -4289,8 +4290,8 @@ function applyEffectToTarget(
     }
     case "move_damage": {
       // Stage 2 path: source already resolved → targetInstanceId is the destination
-      if (effect._resolvedSourceInstanceId) {
-        const src = state.cards[effect._resolvedSourceInstanceId];
+      if (effect._resolvedSource) {
+        const src = state.cards[effect._resolvedSource.instanceId];
         const dst = state.cards[targetInstanceId];
         if (!src || !dst) return state;
         const moveAmt = Math.min(effect.amount, src.damage);
@@ -4310,14 +4311,14 @@ function applyEffectToTarget(
           choosingPlayerId: controllingPlayerId,
           prompt: "Choose a character to move damage to.",
           validTargets: validDests,
-          pendingEffect: { ...effect, _resolvedSourceInstanceId: targetInstanceId },
+          pendingEffect: { ...effect, _resolvedSource: makeResolvedRef(state, definitions, targetInstanceId) },
         },
       };
     }
     case "move_character": {
       // Stage 2 path: if a character was already resolved, the targetInstanceId is the LOCATION.
-      if (effect._resolvedCharacterInstanceId) {
-        return performMove(state, effect._resolvedCharacterInstanceId, targetInstanceId, definitions, events);
+      if (effect._resolvedCharacter) {
+        return performMove(state, effect._resolvedCharacter.instanceId, targetInstanceId, definitions, events);
       }
       // Stage 1: targetInstanceId is the chosen character. Resolve the location side.
       if (effect.location.type === "chosen") {
@@ -4336,7 +4337,7 @@ function applyEffectToTarget(
             choosingPlayerId: controllingPlayerId,
             prompt: "Choose a location to move to.",
             validTargets: validLocations,
-            pendingEffect: { ...effect, _resolvedCharacterInstanceId: targetInstanceId },
+            pendingEffect: { ...effect, _resolvedCharacter: makeResolvedRef(state, definitions, targetInstanceId) },
           },
         };
       }
