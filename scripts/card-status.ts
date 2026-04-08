@@ -109,6 +109,137 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // (pay-extra-cost-mid-effect removed: SequentialEffect with isMay + pay_ink
   //  cost effect already supports the "you may pay N {I} to <effect>" pattern.
   //  Matched by FITS_GRAMMAR_PATTERNS targeting `sequential` capability.)
+  // ── Compound false positives surfaced by cherry-pick pass ──
+  // Vanish keyword — "when an opponent chooses this character for an action, banish them"
+  // Needs a new "opponent-chose-for-action" trigger event.
+  [/\bvanish\b.{0,20}\(/i, "vanish-keyword"],
+  [/\bwhen an opponent chooses this character for an action, banish\b/i, "vanish-keyword"],
+  // "You don't discard" — discard replacement effect (Magica De Spell, Kronk)
+  [/\byou don'?t discard\b/i, "discard-replacement"],
+  // "If this is your first turn" — Underdog keyword condition (set 11)
+  [/\bif this is your first turn\b/i, "underdog-condition"],
+  [/\bif you'?re not the first player\b/i, "underdog-condition"],
+  // "Twice during your turn, whenever" — twice-per-turn trigger flag
+  [/\btwice during your turn, whenever\b/i, "twice-per-turn-trigger"],
+  // Bulk move cards from discard → inkwell (Perdita, Rolly-bulk variants)
+  [/\bput all .{0,40}cards? from your discard into your inkwell\b/i, "bulk-discard-to-inkwell"],
+  // "Whenever one or more of your characters sings a song" — batched sings trigger
+  [/\bwhenever one or more of your characters sings?\b/i, "batched-sings-trigger"],
+  // "If none of your characters challenged this turn" — event-tracking condition
+  [/\bnone of your characters challenged this turn\b/i, "no-challenges-this-turn-condition"],
+  // "If you've played a song this turn" — event-tracking condition
+  [/\bif you'?ve played a song this turn\b/i, "song-played-this-turn-condition"],
+  // "If you didn't put any cards into your inkwell this turn" — event-tracking condition
+  [/\bif you didn'?t put any cards into your inkwell this turn\b/i, "no-ink-put-this-turn-condition"],
+  // "If you've put a card under [this] this turn" — per-instance card-under event tracking
+  [/\bif you'?ve put a card under\b/i, "card-under-event-condition"],
+  // "Unless you put a card under [this] this turn" — same gap
+  [/\bunless you put a card under\b/i, "card-under-event-condition"],
+  // "For the rest of this turn, whenever" — floating player-scoped trigger
+  [/\bfor the rest of this turn, whenever\b/i, "player-floating-trigger"],
+  // "If you have a card named X in your discard" — discard-name condition
+  [/\bif you have a card named .{0,40}in your discard\b/i, "discard-name-condition"],
+  // "If an opponent has more cards in their hand than you" — hand-count compare condition
+  [/\b(an? )?opponent has more cards in their hand than you\b/i, "hand-count-compare-condition"],
+  // "Play X from [inkwell|there] for free" — Pongo: play from inkwell
+  [/\bplay a .{0,40}from there for free\b/i, "play-from-inkwell"],
+  [/\bplay .{0,30}character from .{0,20}inkwell\b/i, "play-from-inkwell"],
+  // "Put [self] facedown under one of your characters" — put-self-under effect (Roo)
+  [/\bput this character facedown under\b/i, "put-self-under-effect"],
+  // "Put any number of cards from under [your chars] into your inkwell" (Visiting Christmas Past)
+  [/\bcards? from under .{0,40}into your inkwell\b/i, "cards-under-to-inkwell"],
+  // "Play an action from your discard for free, then put that action card on the bottom"
+  [/\bplay an? .{0,30}from your discard for free,? then put\b/i, "play-from-discard-then-bottom"],
+  // "Cost up to N more than the banished character" — dynamic cost filter from banished name
+  [/\bcost up to \d+ more than the banished\b/i, "dynamic-cost-from-banished"],
+  // "Reveal cards from the top of your deck until you reveal a [X]" — reveal-until effect
+  [/\breveal cards? from the top of your deck until you reveal\b/i, "reveal-until-effect"],
+  // "Choose N cards from [opponent's] discard" — multi-card choose from opponent discard
+  [/\bchoose \d+ cards? from chosen opponent'?s discard\b/i, "choose-from-opponent-discard"],
+  // "Return all character cards with that name from your discard" — name-a-card + bulk return-from-discard
+  [/\breturn all character cards with that name from your discard\b/i, "name-then-bulk-return-from-discard"],
+  // "Whenever [card type] is returned to their hand from play" — return-to-hand trigger (opponent)
+  [/\bwhenever .{0,60}is returned to their hand from play\b/i, "trigger-opponent-returned-to-hand"],
+  // "Whenever you play a [second|third] [card type]" — Nth-card-played counter trigger
+  [/\bwhenever you play a (second|third|fourth) (action|character|item|song)\b/i, "nth-card-played-trigger"],
+  // "Whenever a character is challenged while here" — location challenged trigger
+  [/\bwhenever a character is challenged while here\b/i, "location-challenged-trigger"],
+  // "Whenever an opposing character is exerted" — opponent-exerts trigger
+  [/\bwhenever an opposing character is exerted\b/i, "opponent-exerts-trigger"],
+  // "Whenever an opposing character is damaged" — opponent-damaged trigger (distinct from "dealt damage")
+  [/\bwhenever an opposing character is damaged\b/i, "opponent-damaged-trigger"],
+  // "When this character is banished, choose one" — banished + modal choose sequential
+  [/\bwhen this character is banished, choose one\b/i, "banished-modal-choose"],
+  // "Whenever an opponent chooses this character for an action or ability" — chosen-by-opponent trigger
+  [/\bwhenever an opponent chooses this character for an action\b/i, "chosen-by-opponent-trigger"],
+  // Dinner Bell: "Draw cards equal to the damage on chosen character" — draw-with-dynamic-amount-from-target
+  [/\bdraw cards? equal to the damage on\b/i, "dynamic-draw-from-target-damage"],
+  // "When you put a card into your inkwell, if it's the [second|third|fourth] card" — inkwell-count trigger
+  [/\bif it'?s the (second|third|fourth|fifth) card you'?ve put into your inkwell\b/i, "inkwell-count-trigger"],
+  // "For each opposing character banished in a challenge this turn, you pay N less"
+  [/\bfor each opposing character banished in a challenge this turn, you pay\b/i, "event-tracking-cost-reduction"],
+  // Other-at-location static ("While one of your X characters is at a location, that character gains")
+  [/\bwhile one of your .{0,40}is at a location, that character\b/i, "other-at-location-static"],
+  // "If this card is in your discard, you may play her" — self play-from-discard trigger
+  [/\bif this card is in your discard, you may play\b/i, "self-play-from-discard"],
+  // Location "whenever a character is banished here" trigger
+  [/\bwhenever a character is banished here\b/i, "location-banished-here-trigger"],
+  // "Whenever a character is banished in a challenge while here"
+  [/\bwhenever a character is banished in a challenge while here\b/i, "location-banished-here-trigger"],
+  // Location "when you move a character here from another location"
+  [/\bwhen you move a character here from another location\b/i, "location-moves-here-trigger"],
+  // Lore transfer ("all opponents lose 1 lore and you gain lore equal to the lore lost")
+  [/\byou gain lore equal to the lore lost\b/i, "lore-transfer"],
+  // Grant activated ability to own chars this turn ("Your X characters gain \"{E}...\" this turn")
+  [/\byour .{0,30}characters gain ["\u201C]\{E\}/i, "grant-activated-to-own-timed"],
+  [/\byour other characters gain ["\u201C]\{E\}/i, "grant-activated-to-own-timed"],
+  // Exert one of your X to deal damage equal to their {S}
+  [/\{E\} one of your characters to deal damage equal to (their|its|his|her)\b/i, "exert-one-dynamic-damage"],
+  // "play characters using their Shift ability" — Shift-scoped cost reduction
+  [/\bplay characters using their shift ability\b/i, "shift-scoped-cost-reduction"],
+  // "Each player may reveal a character card from their hand and play it for free"
+  [/\beach player may reveal a .{0,30}from their hand and play\b/i, "symmetric-reveal-play"],
+  // "Banish chosen item of yours to play this character for free" — alternate play cost
+  [/\bbanish chosen item of yours to play this character for free\b/i, "alt-play-cost-banish-item"],
+  // Kida: "Put one into your ink supply, face down and exerted, and the other on top"
+  [/\bput one into your ink supply.{0,40}(and )?(the )?other\b/i, "look-top-split"],
+  // Goofy - Groundbreaking Chef: remove damage from each of your others + ready each one
+  [/\bremove up to \d+ damage from each of your other characters\. ready each character\b/i, "compound-remove-then-ready"],
+  // Singular "whenever one of your characters sings a song"
+  [/\bwhenever one of your characters sings a song\b/i, "other-sings-trigger"],
+  // Reveal-from-hand as cost ("reveal a X card in your hand to ...")
+  [/\breveal a .{0,30}card in your hand to\b/i, "reveal-from-hand-as-cost"],
+  // Banish-self OR return-another modal on ETB (Madam Mim - Rhino)
+  [/\bbanish (her|him|it|them|this character) or return another chosen character\b/i, "self-banish-or-return-modal"],
+  // "Give that character X and \"<quoted trigger>\" this turn" — grant floating trigger to target via "give"
+  [/\bgive that character .{0,60}["\u201C][^"\u201D]+["\u201D]\s*this turn\b/i, "grant-floating-trigger-to-target"],
+  // Jafar High Sultan: "If an Illusion character card is discarded this way, you may play that character"
+  [/\bif a[n]? .{0,30}is discarded this way, you may play\b/i, "play-from-discard-result"],
+  // "For each character that sang this song" — per-singer dynamic in Sing Together
+  [/\bfor each character that sang this song\b/i, "per-singer-dynamic"],
+  // "If you used Shift to play (them|her)" referencing the triggering played card (not self)
+  [/\bif you used shift to play (them|her|him)\b/i, "shift-condition-on-trigger-source"],
+  // Tinker Bell: exert the triggering card (not self)
+  [/\bwhenever you play a character .{0,40}you may exert them\b/i, "exert-triggering-card"],
+  // Geppetto-style: discard any number of [type] cards to gain N per discarded
+  [/\bchoose and discard any number of .{0,20}cards? to\b/i, "discard-any-number-dynamic"],
+  // Dusk to Dawn: fill-hand ("they draw until they have N")
+  [/\bthey draw until they have \d+\b/i, "fill-hand"],
+  // Reuben: per-damage-removed cost reduction
+  [/\bfor each \d+ damage removed this way, you pay\b/i, "dynamic-cost-reduction-from-effect"],
+  // "Draw X unless that character's player puts" — inverse unless branch
+  [/\bunless that character'?s player puts\b/i, "inverse-unless-opponent-choice"],
+  // Cruella: "When this character is challenged and banished" — combo trigger
+  [/\bwhen this character is challenged and banished\b/i, "challenged-and-banished-trigger"],
+  // Goliath "Stone by Day": "this character can't ready" gated by hand size — static cant_ready
+  [/\bif you have \d+ or more cards in your hand, this character can'?t ready\b/i, "conditional-cant-ready-static"],
+  // Mr. Litwak: ready self + "can't quest or challenge for the rest of this turn" compound
+  [/\bready this character\..{0,30}can'?t quest or challenge for the rest of this turn\b/i, "ready-then-cant-act-compound"],
+  // Darkwing Tower: ready-here compound with cant_quest_rest_of_turn
+  [/\bready a character here\..{0,40}can'?t quest\b/i, "ready-then-cant-act-compound"],
+  // Mulan: "character in play with damage" — damage-existence condition
+  [/\bif you have a character in play with damage\b/i, "has-damaged-character-condition"],
+  // Fantastical etc.: Sing Together dynamic-per-singer also caught above via per-singer-dynamic
 ];
 
 const NEW_TYPE_PATTERNS: [RegExp, string][] = [
