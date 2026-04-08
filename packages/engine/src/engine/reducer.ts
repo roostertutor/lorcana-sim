@@ -3040,6 +3040,9 @@ export function applyEffect(
           return state; // CRD 6.1.5.1: can't perform [A] → entire effect skipped
         }
       }
+      // Clear any stale cost-side snapshot from a previous sequential resolution
+      // so reward effects can tell "no cost resolved a target" from a leftover.
+      state = { ...state, lastResolvedSource: undefined };
       // Apply cost effects [A]
       for (const costEffect of effect.costEffects) {
         state = applyEffect(state, costEffect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
@@ -4008,6 +4011,10 @@ function applyEffectToTarget(
       // Store the target's damage in lastEffectResult before banishing (Dinner Bell pattern)
       const banishInst = getInstance(state, targetInstanceId);
       state = { ...state, lastEffectResult: banishInst.damage };
+      // Snapshot the banished card for cost-side reward steps (Hades Double Dealer:
+      // "play a character with the same name as the banished character").
+      const srcRef = makeResolvedRef(state, definitions, targetInstanceId);
+      if (srcRef) state = { ...state, lastResolvedSource: srcRef };
       return banishCard(state, targetInstanceId, definitions, events);
     }
     case "return_to_hand":
@@ -4128,8 +4135,13 @@ function applyEffectToTarget(
       }
       return state;
     }
-    case "exert":
+    case "exert": {
+      // Snapshot the exerted card for reward-side effects (Ambush: "deal damage
+      // equal to their {S}" reads last_resolved_source_strength).
+      const srcRef = makeResolvedRef(state, definitions, targetInstanceId);
+      if (srcRef) state = { ...state, lastResolvedSource: srcRef };
       return updateInstance(state, targetInstanceId, { isExerted: true });
+    }
     case "grant_keyword": {
       const timedEffect: TimedEffect = {
         type: "grant_keyword",

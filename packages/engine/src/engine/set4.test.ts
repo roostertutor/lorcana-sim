@@ -606,4 +606,33 @@ describe("§4 Set 4 — Noi Acrobatic Baby (damage_immunity_timed)", () => {
     state = passTurns(state, 1);
     expect(getInstance(state, noiId).timedEffects.some(te => te.type === "damage_immunity")).toBe(false);
   });
+
+  it("lastResolvedSource captures cost-side banished character (Hades Double Dealer pattern)", () => {
+    let state = startGame();
+    let srcId: string, sacId: string;
+    ({ state, instanceId: srcId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    ({ state, instanceId: sacId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+
+    // Sequential: [banish chosen own character] → [gain 1 lore]
+    state = applyEffect(
+      state,
+      {
+        type: "sequential",
+        costEffects: [{ type: "banish", target: { type: "chosen", filter: { controller: "self", cardType: "character" } } }],
+        rewardEffects: [{ type: "gain_lore", amount: 1, target: { type: "self" } }],
+      } as any,
+      srcId,
+      "player1",
+      LORCAST_CARD_DEFINITIONS,
+      []
+    );
+    // A choose_target should be pending for the banish cost
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    const r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [sacId] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // After cost resolves, lastResolvedSource should snapshot the banished card.
+    expect(state.lastResolvedSource?.instanceId).toBe(sacId);
+    expect(state.lastResolvedSource?.name).toBe(LORCAST_CARD_DEFINITIONS["mickey-mouse-true-friend"]!.name);
+  });
 });

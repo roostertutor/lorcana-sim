@@ -1689,6 +1689,13 @@ export interface GameState {
    *  for the old lastTargetOwnerId / lastTargetInstanceId pair. */
   lastResolvedTarget?: ResolvedRef;
 
+  /** Snapshot of the last card resolved as a cost-side target (banish/exert chosen
+   *  own character inside a sequential cost). Used by reward-side effects like
+   *  Hades Double Dealer ("play a character with the same name as the banished
+   *  character") and Ambush ("deal damage equal to their {S}"). Reset at the start
+   *  of each sequential effect resolution. */
+  lastResolvedSource?: ResolvedRef;
+
   winner: PlayerID | null;
   isGameOver: boolean;
 }
