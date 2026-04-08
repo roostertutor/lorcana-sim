@@ -258,6 +258,40 @@ const PATCHES: Record<string, CardPatch> = {
     c._namedAbilityStubs = [];
   },
 
+  // ---- mass-inkwell ---------------------------------------------------------
+  "mufasa-ruler-of-pride-rock": (c) => {
+    c.abilities = [
+      ...(c.abilities ?? []),
+      {
+        type: "triggered",
+        storyName: "GREAT KINGS OF THE PAST",
+        rulesText: "When you play this character, exert all cards in your inkwell, then return 2 cards at random from your inkwell to your hand.",
+        trigger: { on: "enters_play" },
+        effects: [
+          { type: "mass_inkwell", mode: "exert_all", target: { type: "self" } },
+          { type: "mass_inkwell", mode: "return_random_to_hand", target: { type: "self" }, amount: 2 },
+        ],
+      },
+      {
+        type: "triggered",
+        storyName: "EVERYTHING THE LIGHT TOUCHES",
+        rulesText: "Whenever this character quests, ready all cards in your inkwell.",
+        trigger: { on: "quests" },
+        effects: [
+          { type: "mass_inkwell", mode: "ready_all", target: { type: "self" } },
+        ],
+      },
+    ];
+    c._namedAbilityStubs = [];
+  },
+  "ink-geyser": (c) => {
+    c.actionEffects = [
+      { type: "mass_inkwell", mode: "exert_all", target: { type: "both" } },
+      { type: "mass_inkwell", mode: "return_random_until", target: { type: "both" }, untilCount: 3 },
+    ];
+    c._namedAbilityStubs = [];
+  },
+
   // ---- opponent-chosen-banish ----------------------------------------------
   "be-king-undisputed": (c) => {
     c.actionEffects = [

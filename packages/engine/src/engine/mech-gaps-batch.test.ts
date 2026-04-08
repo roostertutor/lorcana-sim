@@ -88,6 +88,44 @@ describe("Mechanic gaps batch — restrict-sing", () => {
   });
 });
 
+describe("Mechanic gaps batch — mass-inkwell", () => {
+  function fillInkwell(state: any, playerId: "player1" | "player2", n: number): any {
+    for (let i = 0; i < n; i++) {
+      ({ state } = injectCard(state, playerId, "minnie-mouse-beloved-princess", "inkwell"));
+    }
+    state = { ...state, players: { ...state.players, [playerId]: { ...state.players[playerId], availableInk: n } } };
+    return state;
+  }
+
+  it("Mufasa - Ruler of Pride Rock: enters_play exerts inkwell + returns 2 random ink to hand", () => {
+    let state = startGame();
+    state = fillInkwell(state, "player1", 8);
+    let mufasaId: string;
+    ({ state, instanceId: mufasaId } = injectCard(state, "player1", "mufasa-ruler-of-pride-rock", "hand"));
+    expect(state.players.player1.availableInk).toBe(8);
+    expect(getZone(state, "player1", "inkwell").length).toBe(8);
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: mufasaId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Mufasa cost 8 → all 8 ink exerted; trigger exerts (no-op) then returns 2 to hand.
+    expect(getZone(state, "player1", "inkwell").length).toBe(6);
+    expect(state.players.player1.availableInk).toBe(0);
+  });
+
+  it("Ink Geyser action: each player exerts inkwell, then returns random until 3 remain", () => {
+    let state = startGame();
+    state = fillInkwell(state, "player1", 6);
+    state = fillInkwell(state, "player2", 5);
+    let geyserId: string;
+    ({ state, instanceId: geyserId } = injectCard(state, "player1", "ink-geyser", "hand"));
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: geyserId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(getZone(state, "player1", "inkwell").length).toBe(3);
+    expect(getZone(state, "player2", "inkwell").length).toBe(3);
+  });
+});
+
 describe("Mechanic gaps batch — shift-variant", () => {
   it("Turbo - Royal Hack has King Candy as an additionalName so Shift can target King Candy", () => {
     const def = LORCAST_CARD_DEFINITIONS["turbo-royal-hack"]!;

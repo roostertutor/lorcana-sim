@@ -5199,6 +5199,29 @@
             "type": "this"
           }
         }
+      },
+      {
+        "type": "static",
+        "storyName": "I KNOW EVERYBODY",
+        "rulesText": "While you have an item in play, this character can't be challenged.",
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "item"
+            ]
+          }
+        },
+        "effect": {
+          "type": "cant_be_challenged",
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "6",
@@ -7078,6 +7101,34 @@
     "inkable": true,
     "traits": [],
     "abilities": [
+      {
+        "type": "static",
+        "storyName": "ORDER IN THE COURT",
+        "rulesText": "While you have an Alien or Robot character here, this location can't be challenged.",
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasAnyTrait": [
+              "Alien",
+              "Robot"
+            ],
+            "atLocation": "this"
+          }
+        },
+        "effect": {
+          "type": "cant_be_challenged",
+          "target": {
+            "type": "this"
+          }
+        }
+      },
       {
         "type": "static",
         "storyName": "ORDER IN THE COURT",

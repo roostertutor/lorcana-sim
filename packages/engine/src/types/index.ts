@@ -174,7 +174,41 @@ export type Effect =
   | GrantExtraInkPlayEffect
   | GrantChallengeReadyEffect
   | RevealHandEffect
-  | MillEffect;
+  | MillEffect
+  | MassInkwellEffect;
+
+/**
+ * Mass operations on the inkwell zone.
+ *
+ * Modes:
+ *  - "exert_all": exert every card in the target player's inkwell.
+ *      Mufasa - Ruler of Pride Rock (enters_play): "exert all cards in your inkwell"
+ *      Ink Geyser: target { type: "both" } — each player exerts their inkwell.
+ *  - "ready_all": ready every card in the target player's inkwell.
+ *      Mufasa - Ruler of Pride Rock (quests).
+ *  - "return_random_to_hand": move N random cards from inkwell to hand.
+ *      Mufasa: amount = 2 (always 2). Ink Geyser uses untilCount instead.
+ *  - "return_random_until": return random inkwell cards to hand until the
+ *      player has at most `untilCount` cards left in inkwell. Triggered only
+ *      if their inkwell is currently larger than `untilCount`.
+ *      Ink Geyser: untilCount = 3 with target { type: "both" }.
+ *
+ * The amount field is only used by "return_random_to_hand". The untilCount
+ * field is only used by "return_random_until".
+ *
+ * Note: removing cards from inkwell decrements availableInk if the removed
+ * card was unexerted (i.e. still providing ink) — see CRD 4.5 (ink reservoir).
+ */
+export interface MassInkwellEffect {
+  type: "mass_inkwell";
+  mode: "exert_all" | "ready_all" | "return_random_to_hand" | "return_random_until";
+  /** Whose inkwell. "self" / "opponent" / "both". */
+  target: PlayerTarget;
+  /** Only for "return_random_to_hand". Number of cards to return. */
+  amount?: number;
+  /** Only for "return_random_until". Final inkwell size threshold. */
+  untilCount?: number;
+}
 
 /**
  * CRD: "Put the top N cards of <player>'s deck into their discard."

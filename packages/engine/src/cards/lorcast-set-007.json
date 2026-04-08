@@ -794,6 +794,23 @@
         "activeZones": [
           "hand"
         ]
+      },
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
+      {
+        "type": "static",
+        "storyName": "Puppy Shift",
+        "rulesText": "Puppy Shift 3 (You may pay 3 {I} to play this on top of one of your Puppy characters.)",
+        "effect": {
+          "type": "classification_shift_self",
+          "trait": "Puppy"
+        },
+        "activeZones": [
+          "hand"
+        ]
       }
     ],
     "setId": "7",
@@ -4157,6 +4174,41 @@
             }
           }
         }
+      },
+      {
+        "type": "static",
+        "storyName": "INTIMIDATING",
+        "rulesText": "While this character is exerted, opposing characters can't exert to sing songs.",
+        "condition": {
+          "type": "this_is_exerted"
+        },
+        "effect": {
+          "type": "action_restriction",
+          "restricts": "sing",
+          "affectedPlayer": {
+            "type": "opponent"
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "MARAUDING CREW",
+        "rulesText": "Your Pirate characters gain Resist +1.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "resist",
+          "value": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "hasTrait": "Pirate"
+            }
+          }
+        }
       }
     ],
     "setId": "7",
@@ -4340,11 +4392,22 @@
     "rarity": "rare",
     "rulesText": "Each player exerts all the cards in their inkwell. Then each player with more than 3 cards in their inkwell returns cards at random from their inkwell to their hand until they have 3 cards in their inkwell.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_1043af1f4d454d8d83c4a85a75e1ad05.avif?1740589576",
-    "_namedAbilityStubs": [
+    "_namedAbilityStubs": [],
+    "actionEffects": [
       {
-        "storyName": "",
-        "rulesText": "Each player exerts all the cards in their inkwell. Then each player with more than 3 cards in their inkwell returns cards at random from their inkwell to their hand until they have 3 cards in their inkwell.",
-        "raw": "Each player exerts all the cards in their inkwell. Then each player with more than 3 cards in their inkwell returns cards at random from their inkwell to their hand until they have 3 cards in their inkwell."
+        "type": "mass_inkwell",
+        "mode": "exert_all",
+        "target": {
+          "type": "both"
+        }
+      },
+      {
+        "type": "mass_inkwell",
+        "mode": "return_random_until",
+        "target": {
+          "type": "both"
+        },
+        "untilCount": 3
       }
     ]
   },
@@ -7035,6 +7098,35 @@
       "Captain"
     ],
     "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "STOP RIGHT THERE!",
+        "rulesText": "When you play this character, characters can't exert to sing songs until the start of your next turn.",
+        "trigger": {
+          "on": "enters_play",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "cant_action",
+            "action": "sing",
+            "target": {
+              "type": "all",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "until_caster_next_turn"
+          }
+        ]
+      },
       {
         "type": "triggered",
         "storyName": "STOP RIGHT THERE!",

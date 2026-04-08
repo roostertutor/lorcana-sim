@@ -2737,6 +2737,58 @@ export function applyEffect(
       return state;
     }
 
+    case "mass_inkwell": {
+      // Mufasa - Ruler of Pride Rock + Ink Geyser. Operates over the inkwell zone.
+      // CRD 4.5: availableInk reflects the count of unexerted inkwell cards.
+      const players: PlayerID[] = [];
+      if (effect.target.type === "self") players.push(controllingPlayerId);
+      else if (effect.target.type === "opponent") players.push(getOpponent(controllingPlayerId));
+      else if (effect.target.type === "both") players.push("player1", "player2");
+      else players.push(controllingPlayerId);
+
+      for (const pid of players) {
+        const inkwellIds = getZone(state, pid, "inkwell");
+        if (effect.mode === "exert_all") {
+          for (const id of inkwellIds) {
+            state = updateInstance(state, id, { isExerted: true });
+          }
+          state = { ...state, players: { ...state.players, [pid]: { ...state.players[pid], availableInk: 0 } } };
+        } else if (effect.mode === "ready_all") {
+          for (const id of inkwellIds) {
+            state = updateInstance(state, id, { isExerted: false });
+          }
+          state = { ...state, players: { ...state.players, [pid]: { ...state.players[pid], availableInk: inkwellIds.length } } };
+        } else if (effect.mode === "return_random_to_hand") {
+          const n = Math.min(effect.amount ?? 0, inkwellIds.length);
+          const pool = [...inkwellIds];
+          for (let i = 0; i < n && pool.length > 0; i++) {
+            const idx = rngNextInt(state.rng, pool.length);
+            const id = pool[idx]!;
+            pool.splice(idx, 1);
+            state = moveCard(state, id, pid, "hand");
+          }
+          // Recount availableInk based on remaining unexerted inkwell cards.
+          const remaining = getZone(state, pid, "inkwell")
+            .filter((id) => !state.cards[id]?.isExerted).length;
+          state = { ...state, players: { ...state.players, [pid]: { ...state.players[pid], availableInk: remaining } } };
+        } else if (effect.mode === "return_random_until") {
+          const target = effect.untilCount ?? 0;
+          // Re-read inkwell because earlier sequential effects may have changed it.
+          let pool = getZone(state, pid, "inkwell").slice();
+          while (pool.length > target) {
+            const idx = rngNextInt(state.rng, pool.length);
+            const id = pool[idx]!;
+            pool.splice(idx, 1);
+            state = moveCard(state, id, pid, "hand");
+          }
+          const remaining = getZone(state, pid, "inkwell")
+            .filter((id) => !state.cards[id]?.isExerted).length;
+          state = { ...state, players: { ...state.players, [pid]: { ...state.players[pid], availableInk: remaining } } };
+        }
+      }
+      return state;
+    }
+
     case "discard_from_hand": {
       const players: PlayerID[] = [];
       if (effect.target.type === "self") players.push(controllingPlayerId);
