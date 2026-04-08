@@ -20,29 +20,10 @@ const CARDS_DIR = join(__dirname, "../packages/engine/src/cards");
 const NEW_MECHANIC: [RegExp, string][] = [
   [/\b\d+ lore to win\b/i, "win-threshold"],
   [/\bneed \d+ lore to win\b/i, "win-threshold"],
-  // Boost = Set 10+ keyword with face-DOWN cards as a resource. The keyword
-  // itself (pay N {I}, put top of deck facedown under this) is trivial; the
-  // complexity lives in the triggers, statics, and effects that read the
-  // "cards under" subzone. Decomposed into sub-capabilities so the gap report
-  // can show which sub-systems are needed for each card.
-  //
-  // A single boost card will often match multiple sub-capabilities — that's
-  // fine: the JSON output is per-stub and dedup happens at card level.
-  //
-  // boost-subzone — the cards-under subzone itself, granted by the keyword.
-  [/\bboost \d+ \{I\}/i, "boost-subzone"],
-  [/\bboost ability\b/i, "boost-subzone"],
-  // card-under-trigger — "whenever you put a card under X"
-  [/\bwhenever you put a card .{0,40}under\b/i, "card-under-trigger"],
-  // card-under-static — statics that read whether a card is under this/another
-  [/\bwhile (there'?s? a card|you have .{0,30}with a card) under\b/i, "card-under-static"],
-  [/\bwith a card under (this|them|him|her|one of)\b/i, "card-under-static"],
-  // put-facedown-under-effect — effects that put a card under (not via the keyword)
-  [/\bput .{0,30}facedown under\b/i, "put-facedown-under-effect"],
-  [/\bput the top card .{0,30}under\b/i, "put-facedown-under-effect"],
-  // cards-under-count — dynamic amounts from the cards-under subzone
-  [/\bfor each card under\b/i, "cards-under-count"],
-  [/\bnumber of cards under\b/i, "cards-under-count"],
+  // (boost-subzone, card-under-trigger, card-under-static, put-facedown-under-effect,
+  //  cards-under-count, cards-under-to-hand removed: boost primitives implemented
+  //  (CRD 8.4.2). All six capabilities are now matched as fits-grammar in
+  //  card-status.ts. Cards wired in commit 975d3f5.)
   [/\bwould be dealt damage.{0,80}instead\b/i, "replacement-effect"],
   [/\bwould take damage.{0,80}instead\b/i, "replacement-effect"],
   [/\bskip .{0,20}draw step\b/i, "turn-structure"],
@@ -132,7 +113,7 @@ const NEW_TYPE: [RegExp, string][] = [
   [/\bwhile .{0,30}exerted.{0,30}(if you have|you have)\b/i, "compound-condition"],
   [/\bplay it as if it were in your hand\b/i, "play-from-revealed"],
   [/\blose the .{0,30} ability\b/i, "remove-ability"],
-  [/\bput all cards from under\b/i, "cards-under-to-hand"],
+  // (cards-under-to-hand removed — see boost block above.)
   [/gets? \+\{S\} equal to\b/i, "dynamic-stat-gain"],
   [/character of yours can'?t be challenged\b/i, "timed-cant-be-challenged"],
   [/\bchosen character can'?t be challenged\b/i, "timed-cant-be-challenged"],

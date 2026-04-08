@@ -7505,7 +7505,24 @@
       "Ally",
       "Whisper"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "I'LL BE FINE",
+        "rulesText": "While there's a card under this character, she gets +1 {L}. (approximation: granted 'whenever challenged, opponents discard' trigger dropped)",
+        "condition": {
+          "type": "this_has_cards_under"
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "modifier": 1,
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "10",
     "number": 213,
     "rarity": "common",
@@ -7864,7 +7881,42 @@
       "Prince",
       "Whisper"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 2
+      },
+      {
+        "type": "triggered",
+        "storyName": "TIMELY ALLIANCE",
+        "rulesText": "Whenever you put a card under this character, you may reveal the top card of your deck. If it's a character card, you may play that character for free and they enter play exerted. Otherwise, put it on the bottom of your deck. (approximation: played-card does not enter exerted)",
+        "trigger": {
+          "on": "card_put_under",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "reveal_top_conditional",
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            },
+            "matchAction": "play_for_free",
+            "noMatchDestination": "bottom",
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 224,
     "rarity": "enchanted",
@@ -8468,7 +8520,13 @@
       "Princess",
       "Whisper"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 1
+      }
+    ],
     "setId": "10",
     "number": 241,
     "rarity": "common",

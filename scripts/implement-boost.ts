@@ -699,14 +699,16 @@ for (const setNum of ["010", "011"] as const) {
 
   for (const patch of PATCHES) {
     if (patch.set !== setNum) continue;
-    const card = cards.find((c: any) => c.id === patch.id);
-    if (!card) { console.warn("MISSING card id:", patch.id); continue; }
+    const matches = cards.filter((c: any) => c.id === patch.id);
+    if (matches.length === 0) { console.warn("MISSING card id:", patch.id); continue; }
 
-    // Replace abilities (drop old keyword-only entries so keywordValue fills cleanly).
+    // Replace abilities on EVERY duplicate (Enchanted / variant printings reuse
+    // the same id but are separate JSON entries — categorizer counts them all).
     if (patch.abilities) {
-      card.abilities = patch.abilities;
+      for (const card of matches) card.abilities = patch.abilities;
       dirty = true;
       totalPatched++;
+      const card = matches[0];
       // Roughly tally which capability this patch exercises for the report.
       for (const a of patch.abilities) {
         const txt = (a.rulesText ?? "").toLowerCase();

@@ -67,14 +67,14 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // Win threshold modification (Donald Duck)
   [/\b\d+ lore to win\b/i, "win-threshold"],
   [/\bneed \d+ lore to win\b/i, "win-threshold"],
-  // Boost mechanic — cards placed facedown under characters/locations
-  [/\bboost \d+/i, "boost"],
-  [/facedown under (this|a|your|them|him|her|one of your)\b/i, "boost"],
-  [/\bcard[s]? under (this|a|your|them|him|her|one of your)\b/i, "boost"],
-  [/\bif there'?s? (a )?card under\b/i, "boost"],
-  [/\bput .{0,30}facedown under\b/i, "boost"],
-  [/\bcards? (facedown )?under .{0,30}(character|location)\b/i, "boost"],
-  [/\bboost ability\b/i, "boost"],
+  // (boost-subzone, card-under-trigger, card-under-static, put-facedown-under-effect,
+  //  cards-under-count, cards-under-to-hand removed: boost primitives implemented
+  //  (CRD 8.4.2). card_put_under TriggerEvent, hasCardUnder CardFilter,
+  //  cards_under_count DynamicAmount, put_top_of_deck_under (this OR chosen),
+  //  put_cards_under_into_hand effect, you_control_matching condition all live.
+  //  Matched by FITS_GRAMMAR_PATTERNS targeting put_top_of_deck_under,
+  //  put_cards_under_into_hand, modify_stat_per_count, condition_this_has_cards_under
+  //  capabilities below.)
   // CRD 6.5 Replacement effects — "would ... instead"
   [/\bwould be dealt damage.{0,80}instead\b/i, "replacement-effect"],
   [/\bwould take damage.{0,80}instead\b/i, "replacement-effect"],
@@ -235,8 +235,8 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   [/\bplay it as if it were in your hand\b/i, "play-from-revealed"],
   // "lose the [ability name] ability" — ability removal static
   [/\blose the .{0,30} ability\b/i, "remove-ability"],
-  // Alice — "put all cards from under her into your hand" (boost related but also a specific effect)
-  [/\bput all cards from under\b/i, "cards-under-to-hand"],
+  // (cards-under-to-hand removed: put_cards_under_into_hand Effect implemented;
+  //  matched by FITS_GRAMMAR_PATTERNS below.)
   // "gets +{S} equal to the {S} of chosen character" — dynamic stat gain from another card
   [/gets? \+\{S\} equal to\b/i, "dynamic-stat-gain"],
   // "Chosen character of yours can't be challenged until" — timed cant-be-challenged
@@ -286,10 +286,13 @@ const CAPABILITIES = new Set<string>([
   "trigger_damage_removed_from", "trigger_readied",
   "trigger_returned_to_hand", "trigger_cards_discarded",
   "trigger_deals_damage_in_challenge",
+  "trigger_card_put_under",
   // Conditions
   "condition_is_your_turn", "condition_self_stat_gte",
   "condition_played_via_shift", "condition_cards_in_zone_gte",
   "condition_has_character_named",
+  "condition_this_has_cards_under", "condition_you_control_matching",
+  "modify_stat_per_count",
   // Locations / location-related
   "location_at_location_filter",
   // Misc grammars
@@ -395,6 +398,30 @@ const FITS_GRAMMAR_PATTERNS: [RegExp, string][] = [
   [/\blose[s]? lore equal to\b/i, "dynamic-amount"],
   [/equal to (their|this character'?s?|chosen|the number|the cost|her \{|his \{|its \{)\b/i, "dynamic-amount"],
   [/\bgain lore equal to (another|a|chosen|her|his)\b/i, "dynamic-amount"],
+  // Boost family — CRD 8.4.2 (post-c6aa811 + 975d3f5 wiring).
+  [/\bboost \d+ \{I\}/i, "put_top_of_deck_under"],
+  [/\bboost ability\b/i, "put_top_of_deck_under"],
+  // "Whenever you put a card under [this/them/one of your]" → card_put_under trigger
+  [/\bwhenever you put a card .{0,40}under\b/i, "trigger_card_put_under"],
+  // "While there's a card under [this/her/him]" → this_has_cards_under condition
+  [/\bwhile (there'?s? a card|.{0,30}has.{0,15}card) under\b/i, "condition_this_has_cards_under"],
+  // "with a card under (this/them/him/her/one of)" — hasCardUnder filter on chosen target
+  [/\bwith a card under (this|them|him|her|one of|a)\b/i, "condition_this_has_cards_under"],
+  // "While you have a character or location in play with a card under" → you_control_matching
+  [/\bwhile you have .{0,40}with a card under\b/i, "condition_you_control_matching"],
+  // "if you have a character or location in play with a card under" → you_control_matching
+  [/\bif you have .{0,40}with a card under\b/i, "condition_you_control_matching"],
+  // "put the top card of your deck (facedown )?under" → put_top_of_deck_under effect
+  [/\bput the top card .{0,30}under\b/i, "put_top_of_deck_under"],
+  [/\bput .{0,30}facedown under\b/i, "put_top_of_deck_under"],
+  // "for each card under" / "number of cards under" → cards_under_count dynamic amount
+  // Engine resolves via modify_stat_per_count.countCardsUnderSelf for statics, or
+  // cards_under_count DynamicAmount variant for effects.
+  [/\bfor each card under\b/i, "modify_stat_per_count"],
+  [/\bnumber of cards under\b/i, "modify_stat_per_count"],
+  // "Put all cards from under [this/her] into your hand" → put_cards_under_into_hand
+  [/\bput all cards from under\b/i, "put_cards_under_into_hand"],
+  [/\bcards from under .{0,20}into .{0,15}hand\b/i, "put_cards_under_into_hand"],
 ];
 
 function categorizeStub(rulesText: string, cardType: string): StubCategory {
