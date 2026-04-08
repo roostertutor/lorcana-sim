@@ -64,8 +64,8 @@ const NEW_TYPE: [RegExp, string][] = [
   [/can'?t be challenged until\b/i, "timed-cant-be-challenged"],
   [/chosen .{0,40}can'?t be challenged\b/i, "timed-cant-be-challenged"],
   [/while .{0,60}can'?t be challenged\b/i, "conditional-cant-be-challenged"],
-  [/\btakes? no damage from challenges\b/i, "damage-immunity"],
-  [/\bcan'?t be dealt damage\b/i, "damage-immunity"],
+  // (damage-immunity removed: implemented via damage_immunity_timed Effect +
+  //  damage_immunity_static StaticEffect.)
   [/\bprevent .{0,30}damage\b/i, "damage-prevention"],
   [/\bdamage counters can'?t be removed\b/i, "damage-removal-prevention"],
   [/\bdiscard.{0,20}until .{0,20}have \d+ cards?\b/i, "trim-hand"],

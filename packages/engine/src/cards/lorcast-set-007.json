@@ -4776,7 +4776,30 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "FIGHT LIKE A BEAR",
+        "rulesText": "Your characters with 7 {S} or more can't be dealt damage.",
+        "effect": {
+          "type": "damage_immunity_static",
+          "source": "all",
+          "target": {
+            "type": "all",
+            "filter": {
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "owner": {
+                "type": "self"
+              },
+              "strengthAtLeast": 7
+            }
+          }
+        }
+      }
+    ],
     "setId": "7",
     "number": 142,
     "rarity": "legendary",

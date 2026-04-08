@@ -5188,12 +5188,7 @@
     "traits": [
       "Song"
     ],
-    "abilities": [
-      {
-        "type": "keyword",
-        "keyword": "sing together"
-      }
-    ],
+    "abilities": [],
     "setId": "8",
     "number": 147,
     "rarity": "rare",
@@ -5211,7 +5206,58 @@
         "raw": "Ready all your characters. For the rest of this turn, they take no damage from challenges and can't quest."
       }
     ],
-    "singTogetherCost": 8
+    "singTogetherCost": 8,
+    "actionEffects": [
+      {
+        "type": "ready",
+        "target": {
+          "type": "all",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "owner": {
+              "type": "self"
+            }
+          }
+        }
+      },
+      {
+        "type": "damage_immunity_timed",
+        "target": {
+          "type": "all",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "source": "challenge",
+        "duration": "rest_of_turn"
+      },
+      {
+        "type": "cant_action",
+        "action": "quest",
+        "target": {
+          "type": "all",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "duration": "rest_of_turn"
+      }
+    ]
   },
   {
     "id": "get-out",

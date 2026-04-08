@@ -476,9 +476,51 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 3
+        "type": "triggered",
+        "storyName": "MARINER'S MIGHT",
+        "rulesText": "Whenever this character quests, chosen Pirate character gets +2 {S} and gains \"This character takes no damage from challenges\" this turn. (approximation: player is prompted twice — once for the stat buff and once for the immunity — rather than once for both.)",
+        "trigger": {
+          "on": "quests",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasAnyTrait": [
+                  "Pirate"
+                ]
+              }
+            },
+            "strength": 2,
+            "duration": "this_turn"
+          },
+          {
+            "type": "damage_immunity_timed",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasAnyTrait": [
+                  "Pirate"
+                ]
+              }
+            },
+            "source": "challenge",
+            "duration": "this_turn"
+          }
+        ]
       }
     ],
     "setId": "P3",

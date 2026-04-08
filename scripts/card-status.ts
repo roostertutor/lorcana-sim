@@ -146,9 +146,9 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   [/chosen .{0,40}can'?t be challenged\b/i, "timed-cant-be-challenged"],
   // Conditional "can't be challenged" with filter (Nick Wilde, Kenai, Iago)
   [/while .{0,60}can'?t be challenged\b/i, "conditional-cant-be-challenged"],
-  // Damage immunity / damage prevention (non-replacement: "takes no damage from challenges this turn")
-  [/\btakes? no damage from challenges\b/i, "damage-immunity"],
-  [/\bcan'?t be dealt damage\b/i, "damage-immunity"],
+  // (damage-immunity removed: damage_immunity_timed Effect +
+  //  damage_immunity_static StaticEffect implemented. Regex now lives in
+  //  FITS_GRAMMAR_PATTERNS and points at the `damage_immunity` capability.)
   [/\bprevent .{0,30}damage\b/i, "damage-prevention"],
   // Damage removal prevention (Vision Slab: "damage counters can't be removed")
   [/\bdamage counters can'?t be removed\b/i, "damage-removal-prevention"],
@@ -276,6 +276,7 @@ const CAPABILITIES = new Set<string>([
   // Static effects
   "stat_static", "cant_be_challenged_static", "cost_reduction_static",
   "action_restriction_static", "grant_activated_ability_static",
+  "damage_immunity",
   // Triggers (TriggerEvent.on)
   "trigger_enters_play", "trigger_leaves_play", "trigger_quests",
   "trigger_sings", "trigger_challenges", "trigger_is_challenged",
@@ -369,6 +370,9 @@ const FITS_GRAMMAR_PATTERNS: [RegExp, string][] = [
   [/\bchosen opposing character can'?t (quest|challenge)\b/i, "cant_action"],
   [/\bthis character can'?t (challenge|quest)\b/i, "action_restriction_static"],
   [/\btakes? no damage from the challenge\b/i, "stat_static"],
+  // damage-immunity family — damage_immunity_timed / damage_immunity_static.
+  [/\btakes? no damage from challenges\b/i, "damage_immunity"],
+  [/\bcan'?t be dealt damage\b/i, "damage_immunity"],
   [/\bcan'?t be challenged by .{0,30}characters\b/i, "cant_be_challenged_static"],
   [/\bwhile being challenged\b/i, "trigger_is_challenged"],
   [/during your turn.{0,40}(has|gains?) (evasive|rush|bodyguard|ward|reckless|resist|challenger|support)/i, "grant_keyword"],

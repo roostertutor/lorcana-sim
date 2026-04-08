@@ -4333,7 +4333,20 @@
       "Prince",
       "Deity"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "EVER VIGILANT",
+        "rulesText": "This character can't be dealt damage unless he's being challenged. (approximation: EVER VALIANT rider — while exerted, other Hero characters gain the same protection — is not wired)",
+        "effect": {
+          "type": "damage_immunity_static",
+          "source": "non_challenge",
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "10",
     "number": 118,
     "rarity": "legendary",
@@ -6544,7 +6557,23 @@
     "traits": [
       "Storyborn"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "MY JURISDICTION",
+        "rulesText": "During your turn, this character can't be dealt damage. (approximation: DEPUTIZE rider granting Detective classification is not wired)",
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effect": {
+          "type": "damage_immunity_static",
+          "source": "all",
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "10",
     "number": 185,
     "rarity": "rare",

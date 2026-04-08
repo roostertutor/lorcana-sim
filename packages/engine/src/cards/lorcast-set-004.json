@@ -6115,7 +6115,30 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "FANCY FOOTWORK",
+        "rulesText": "Whenever you play an action, this character takes no damage from challenges this turn.",
+        "trigger": {
+          "on": "card_played",
+          "player": {
+            "type": "self"
+          },
+          "cardType": "action"
+        },
+        "effects": [
+          {
+            "type": "damage_immunity_timed",
+            "target": {
+              "type": "this"
+            },
+            "source": "challenge",
+            "duration": "this_turn"
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 119,
     "rarity": "super_rare",
