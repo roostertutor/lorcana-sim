@@ -102,14 +102,16 @@ const NEW_TYPE: [RegExp, string][] = [
   [/can'?t play (actions|items|actions or items)\b/i, "restricted-play-by-type"],
   [/can'?t play this (character|card) unless\b/i, "play-restriction"],
   [/was damaged this turn\b/i, "event-tracking-condition"],
-  [/\breveal the top card.{0,60}(if it'?s?|put).{0,40}(into (your|their) hand|on the (top|bottom))/i, "reveal-top-conditional"],
+  // reveal-top-conditional landed: RevealTopConditionalEffect extended with
+  // noMatchDestination hand/discard + matchExtraEffects (commit ae1bcf6).
+  // Categorizer now matches "reveal the top card of your deck" as fits-grammar.
   [/can'?t be challenged by .{0,30}(character|pirate|[A-Z])/i, "filtered-cant-be-challenged"],
   [/\beach player (draws?|discards?) .{0,10}(card|\d+|their hand)\b/i, "both-players-effect"],
   [/\bput a damage counter on\b/i, "put-damage-counter"],
   [/cost equal to or less than .{0,30}\{S\}/i, "dynamic-filter"],
   [/character .{0,30}can'?t be challenged until\b/i, "timed-cant-be-challenged"],
   [/can'?t be challenged until the start\b/i, "timed-cant-be-challenged"],
-  [/\breveal the top card of your deck\b/i, "reveal-top-conditional"],
+  // (reveal-top-conditional removed — see note above.)
   [/\bwhile .{0,30}exerted.{0,30}(if you have|you have)\b/i, "compound-condition"],
   [/\bplay it as if it were in your hand\b/i, "play-from-revealed"],
   [/\blose the .{0,30} ability\b/i, "remove-ability"],

@@ -387,6 +387,9 @@ const FITS_GRAMMAR_PATTERNS: [RegExp, string][] = [
   [/while .{0,10}(you|they) have .{0,40}in (your|their) (play|hand|discard|inkwell)\b/i, "condition_cards_in_zone_gte"],
   [/can'?t (challenge|quest) during their next turn\b/i, "cant_action"],
   [/\bname a card\b/i, "name_a_card_then_reveal"],
+  // reveal-top-conditional family (sets 5-11): wired via RevealTopConditionalEffect
+  // with noMatchDestination top/bottom/hand/discard + optional matchExtraEffects.
+  [/\breveal the top card of your deck\b/i, "reveal_top_conditional"],
   [/^sing together \d/i, "sing_together_reminder"],
   // Put card on bottom of deck (no shuffle — different from shuffle_into_deck)
   [/\bput .{0,40}on the bottom of .{0,20}deck\b/i, "put_on_bottom_of_deck"],
