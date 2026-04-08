@@ -1126,6 +1126,13 @@ export type Condition =
   | { type: "this_at_location" }
   | { type: "this_location_has_character" }
   | { type: "this_has_cards_under" }
+  /** CRD 8.4.2: True if the controller has at least one card in play matching
+   *  `filter`. Used for "While you have a character or location in play with a
+   *  card under them…" (Webby Vanderquack Knowledge Seeker, Flintheart Glomgold,
+   *  Kanga Peaceful Gatherer, Lena Sabrewing, Hercules Spectral Demigod).
+   *  The filter is evaluated against the controller's play zone; `owner`
+   *  defaults to self if unset. */
+  | { type: "you_control_matching"; filter: CardFilter }
   | { type: "your_character_was_damaged_this_turn" }
   | { type: "opponent_character_was_banished_in_challenge_this_turn" }
   | { type: "not"; condition: Condition }

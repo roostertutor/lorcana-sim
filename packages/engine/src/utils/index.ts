@@ -640,6 +640,31 @@ export function evaluateCondition(
       const inst = state.cards[sourceInstanceId];
       return !!inst && inst.cardsUnder.length > 0;
     }
+    case "you_control_matching": {
+      // CRD 8.4.2: true if the controller has at least one in-play card matching
+      // the filter. Defaults filter.owner to self when unset.
+      const filter: CardFilter = condition.filter.owner
+        ? condition.filter
+        : { ...condition.filter, owner: { type: "self" } };
+      const zones: ZoneName[] = Array.isArray(filter.zone)
+        ? filter.zone
+        : filter.zone
+        ? [filter.zone]
+        : ["play"];
+      for (const zone of zones) {
+        const ids = getZone(state, controllingPlayerId, zone);
+        for (const id of ids) {
+          const inst = state.cards[id];
+          if (!inst) continue;
+          const def = definitions[inst.definitionId];
+          if (!def) continue;
+          if (matchesFilter(inst, def, filter, state, controllingPlayerId, sourceInstanceId)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
     case "your_character_was_damaged_this_turn": {
       // Devil's Eye Diamond / Brutus - Fearsome Crocodile.
       return !!state.players[controllingPlayerId].aCharacterWasDamagedThisTurn;

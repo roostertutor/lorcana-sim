@@ -216,4 +216,20 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     const actions = getAllLegalActions(state, "player1", LORCAST_CARD_DEFINITIONS);
     expect(actions.some(a => a.type === "BOOST_CARD" && a.instanceId === flynnId)).toBe(true);
   });
+
+  it("CRD 8.4.2: you_control_matching condition checks controller's play zone for hasCardUnder", async () => {
+    const { evaluateCondition } = await import("../utils/index.js");
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let flynnId: string;
+    ({ state, instanceId: flynnId } = injectCard(state, "player1", "flynn-rider-spectral-scoundrel", "play", { isDrying: false }));
+    const cond = { type: "you_control_matching" as const, filter: { hasCardUnder: true } };
+    // No cards under Flynn yet → false.
+    expect(evaluateCondition(cond, state, LORCAST_CARD_DEFINITIONS, "player1", flynnId)).toBe(false);
+    // Boost Flynn, now has a card under him → true for controller.
+    state = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, LORCAST_CARD_DEFINITIONS).newState;
+    expect(evaluateCondition(cond, state, LORCAST_CARD_DEFINITIONS, "player1", flynnId)).toBe(true);
+    // Opponent does not control a card with cards-under → false for opponent.
+    expect(evaluateCondition(cond, state, LORCAST_CARD_DEFINITIONS, "player2", flynnId)).toBe(false);
+  });
 });
