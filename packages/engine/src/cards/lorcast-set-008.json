@@ -2064,6 +2064,32 @@
         "rulesText": "Draw a card. Chosen character of yours gets +5 {S} this turn. At the end of your turn, banish them.",
         "raw": "Draw a card. Chosen character of yours gets +5 {S} this turn. At the end of your turn, banish them."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "draw",
+        "amount": 1,
+        "target": {
+          "type": "self"
+        }
+      },
+      {
+        "type": "gain_stats",
+        "strength": 5,
+        "duration": "this_turn",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      }
     ]
   },
   {
@@ -2195,7 +2221,34 @@
         "raw": "Return up to 3 character cards from your discard to your hand. You pay 2 {I} less for the next character you play this turn."
       }
     ],
-    "singTogetherCost": 9
+    "singTogetherCost": 9,
+    "actionEffects": [
+      {
+        "type": "return_to_hand",
+        "target": {
+          "type": "chosen",
+          "count": 3,
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "discard",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      },
+      {
+        "type": "grant_cost_reduction",
+        "amount": 2,
+        "filter": {
+          "cardType": [
+            "character"
+          ]
+        }
+      }
+    ]
   },
   {
     "id": "trials-and-tribulations",
@@ -2371,7 +2424,32 @@
       "Storyborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "DECEIVE",
+        "rulesText": "When you play this character, you may deal 2 damage to another chosen character of yours to return chosen character with cost 2 or less to their player's hand.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "maxCost": 2
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 47,
     "rarity": "uncommon",
@@ -2405,7 +2483,44 @@
       "Villain",
       "Deity"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "RUTHLESS",
+        "rulesText": "When you play this character, you may deal 2 damage to another chosen character of yours to draw 2 cards.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 2,
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "RUTHLESS",
+        "rulesText": "Whenever he quests, you may deal 2 damage to another chosen character of yours to draw 2 cards.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 2,
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 48,
     "rarity": "super_rare",
@@ -3432,6 +3547,41 @@
       {
         "type": "keyword",
         "keyword": "evasive"
+      },
+      {
+        "type": "triggered",
+        "storyName": "SHADOWSTEP",
+        "rulesText": "When you play this character, you may return one of your other characters to your hand to draw a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true
+              }
+            }
+          },
+          {
+            "type": "draw",
+            "amount": 1,
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "8",
@@ -3646,6 +3796,37 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "storyName": "MAGICAL MISSION",
+        "rulesText": "Whenever this character quests, if you have a character named Elsa in play, you may draw a card.",
+        "trigger": {
+          "on": "quests"
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "name": "Elsa"
+          }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "8",
@@ -3841,7 +4022,34 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "PEEK",
+        "rulesText": "Whenever you play another character, look at the top card of your deck. Put it on either the top or the bottom of your deck.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "owner": {
+              "type": "self"
+            },
+            "excludeSelf": true
+          }
+        },
+        "effects": [
+          {
+            "type": "scry",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 76,
     "rarity": "rare",
@@ -4392,7 +4600,48 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "PARTNER UP",
+        "rulesText": "When you play this character, if you have a character named Tipo in play, chosen opposing character gains Reckless during their next turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "name": "Tipo"
+          }
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "reckless",
+            "duration": "end_of_owner_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 88,
     "rarity": "common",
@@ -5766,7 +6015,23 @@
         "raw": "Return up to 2 chosen characters with 3 {S} or less each to their player's hand."
       }
     ],
-    "singTogetherCost": 8
+    "singTogetherCost": 8,
+    "actionEffects": [
+      {
+        "type": "return_to_hand",
+        "target": {
+          "type": "chosen",
+          "count": 2,
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "maxStrength": 3
+          }
+        }
+      }
+    ]
   },
   {
     "id": "wrong-lever",
@@ -6469,7 +6734,33 @@
       "Storyborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "SHOW OFF",
+        "rulesText": "When you play this character, you may banish one of your items to give chosen character +2 {S} this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": 2,
+            "duration": "this_turn",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 129,
     "rarity": "common",
@@ -6704,6 +6995,22 @@
         "rulesText": "Chosen character gets +3 this turn.",
         "raw": "YOU CAN DO IT! {E} — Chosen character gets +3 this turn."
       }
+    ],
+    "actionEffects": [
+      {
+        "type": "gain_stats",
+        "strength": 3,
+        "duration": "this_turn",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      }
     ]
   },
   {
@@ -6817,7 +7124,40 @@
       "Dreamborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "UPROAR",
+        "rulesText": "When you play this character, ready chosen character. They can't quest for the rest of this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "ready",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "followUpEffects": [
+              {
+                "type": "cant_action",
+                "action": "quest",
+                "duration": "this_turn",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 137,
     "rarity": "legendary",
@@ -7937,7 +8277,40 @@
       "Hero",
       "Queen"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "TRUSTY SISTER",
+        "rulesText": "When you play this character, if you have a character named Elsa in play, you may put the top card of your deck into your inkwell facedown and exerted.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "name": "Elsa"
+          }
+        },
+        "effects": [
+          {
+            "type": "reveal_top_conditional",
+            "filter": {},
+            "matchAction": "to_inkwell_exerted",
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 157,
     "rarity": "common",
@@ -8338,6 +8711,42 @@
         "storyName": "IT'S UP TO YOU, LILO",
         "rulesText": "Your characters named Lilo gain Support. (Whenever they quest, you may add their {S} to another chosen character's {S} this turn.)",
         "raw": "IT'S UP TO YOU, LILO Your characters named Lilo gain Support. (Whenever they quest, you may add their {S} to another chosen character's {S} this turn.)"
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "grant_keyword",
+        "keyword": "resist",
+        "keywordValue": 2,
+        "duration": "this_turn",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true
+          }
+        }
+      },
+      {
+        "type": "grant_keyword",
+        "keyword": "support",
+        "duration": "this_turn",
+        "target": {
+          "type": "all",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "name": "Lilo"
+          }
+        }
       }
     ]
   },
@@ -8823,7 +9232,40 @@
         "raw": "Remove up to 3 damage from any number of chosen characters. All opposing characters get -3 {S} this turn."
       }
     ],
-    "singTogetherCost": 6
+    "singTogetherCost": 6,
+    "actionEffects": [
+      {
+        "type": "remove_damage",
+        "amount": 3,
+        "isUpTo": true,
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      },
+      {
+        "type": "gain_stats",
+        "strength": -3,
+        "duration": "this_turn",
+        "target": {
+          "type": "all",
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      }
+    ]
   },
   {
     "id": "pouncing-practice",
@@ -10360,7 +10802,34 @@
         "raw": "Return up to 3 character cards from your discard to your hand. You pay 2 {I} less for the next character you play this turn."
       }
     ],
-    "singTogetherCost": 9
+    "singTogetherCost": 9,
+    "actionEffects": [
+      {
+        "type": "return_to_hand",
+        "target": {
+          "type": "chosen",
+          "count": 3,
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "discard",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      },
+      {
+        "type": "grant_cost_reduction",
+        "amount": 2,
+        "filter": {
+          "cardType": [
+            "character"
+          ]
+        }
+      }
+    ]
   },
   {
     "id": "bambi-little-prince",
@@ -10776,7 +11245,40 @@
       "Dreamborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "UPROAR",
+        "rulesText": "When you play this character, ready chosen character. They can't quest for the rest of this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "ready",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "followUpEffects": [
+              {
+                "type": "cant_action",
+                "action": "quest",
+                "duration": "this_turn",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 217,
     "rarity": "enchanted",
