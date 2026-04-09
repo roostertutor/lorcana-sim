@@ -6681,6 +6681,21 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "trigger": { "on": "enters_play" },
+        "storyName": "STRAIGHT SHOOTER",
+        "rulesText": "When you play this character, if you used Shift to play her, she gets +3 {S} this turn.",
+        "condition": { "type": "played_via_shift" },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": 3,
+            "duration": "this_turn",
+            "target": { "type": "this" }
+          }
+        ]
       }
     ],
     "setId": "9",

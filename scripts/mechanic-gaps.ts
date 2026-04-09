@@ -95,7 +95,7 @@ const NEW_MECHANIC: [RegExp, string][] = [
   [/\bgive that character .{0,60}["\u201C][^"\u201D]+["\u201D]\s*this turn\b/i, "grant-floating-trigger-to-target"],
   [/\bif a[n]? .{0,30}is discarded this way, you may play\b/i, "play-from-discard-result"],
   [/\bfor each character that sang this song\b/i, "per-singer-dynamic"],
-  [/\bif you used shift to play (them|her|him)\b/i, "shift-condition-on-trigger-source"],
+  // (shift-condition-on-trigger-source removed: played_via_shift conditions supported.)
   [/\bwhenever you play a character .{0,40}you may exert them\b/i, "exert-triggering-card"],
   [/\bchoose and discard any number of .{0,20}cards? to\b/i, "discard-any-number-dynamic"],
   [/\bthey draw until they have \d+\b/i, "fill-hand"],

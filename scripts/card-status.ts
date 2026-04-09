@@ -217,7 +217,8 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // "For each character that sang this song" — per-singer dynamic in Sing Together
   [/\bfor each character that sang this song\b/i, "per-singer-dynamic"],
   // "If you used Shift to play (them|her)" referencing the triggering played card (not self)
-  [/\bif you used shift to play (them|her|him)\b/i, "shift-condition-on-trigger-source"],
+  // (shift-condition-on-trigger-source removed: played_via_shift +
+  //  triggering_card_played_via_shift Conditions already supported.)
   // Tinker Bell: exert the triggering card (not self)
   [/\bwhenever you play a character .{0,40}you may exert them\b/i, "exert-triggering-card"],
   // Geppetto-style: discard any number of [type] cards to gain N per discarded
