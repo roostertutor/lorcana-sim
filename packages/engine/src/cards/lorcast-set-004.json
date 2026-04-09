@@ -9466,21 +9466,15 @@
         "type": "static",
         "storyName": "I LEARNED FROM THE BEST",
         "rulesText": "During your turn, you may play this character for free if an opposing character was banished in a challenge this turn.",
+        "activeZones": ["hand"],
         "condition": {
           "type": "compound_and",
           "conditions": [
-            {
-              "type": "is_your_turn"
-            },
-            {
-              "type": "opponent_character_was_banished_in_challenge_this_turn"
-            }
+            { "type": "is_your_turn" },
+            { "type": "opponent_character_was_banished_in_challenge_this_turn" }
           ]
         },
-        "effect": {
-          "type": "self_cost_reduction",
-          "amount": 99
-        }
+        "effect": { "type": "grant_play_for_free_self" }
       }
     ],
     "setId": "4",

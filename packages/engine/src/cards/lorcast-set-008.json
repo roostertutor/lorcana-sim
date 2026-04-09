@@ -8264,6 +8264,20 @@
     ],
     "abilities": [
       {
+        "type": "static",
+        "storyName": "STOMPIN' TIME!",
+        "rulesText": "During your turn, if you've played 3 or more actions this turn, you may play this character for free.",
+        "activeZones": ["hand"],
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            { "type": "is_your_turn" },
+            { "type": "actions_played_this_turn_gte", "amount": 3 }
+          ]
+        },
+        "effect": { "type": "grant_play_for_free_self" }
+      },
+      {
         "type": "triggered",
         "storyName": "UPROAR",
         "rulesText": "When you play this character, ready chosen character. They can't quest for the rest of this turn.",
@@ -12837,6 +12851,20 @@
       "Hero"
     ],
     "abilities": [
+      {
+        "type": "static",
+        "storyName": "STOMPIN' TIME!",
+        "rulesText": "During your turn, if you've played 3 or more actions this turn, you may play this character for free.",
+        "activeZones": ["hand"],
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            { "type": "is_your_turn" },
+            { "type": "actions_played_this_turn_gte", "amount": 3 }
+          ]
+        },
+        "effect": { "type": "grant_play_for_free_self" }
+      },
       {
         "type": "triggered",
         "storyName": "UPROAR",

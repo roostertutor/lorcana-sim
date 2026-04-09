@@ -33,6 +33,7 @@ interface CardJSON {
   setId: string;
   number: number;
   rarity: string;
+  cost: number;
   rulesText?: string;
   abilities: ({ type: string } & Record<string, unknown>)[];
   /** Some keywords are tracked as scalar fields rather than as keyword
@@ -79,10 +80,29 @@ interface Issue {
   number: number;
   fullName: string;
   id: string;
-  kind: "missing_keyword" | "missing_value" | "missing_scalar";
+  kind:
+    | "missing_keyword"
+    | "missing_value"
+    | "missing_scalar"
+    /** self_cost_reduction with amount === def.cost — likely should be
+     *  grant_play_for_free_self instead. The Pudge / Anna mistake we made
+     *  and corrected: a "you can play for free" wording is an alternative
+     *  play mode (opt-in), not a forced cost reduction. */
+    | "miswired_full_cost_reduction"
+    /** rulesText says "gains Shift N" but no grant_shift_self static is
+     *  present (and no printed shiftCost either). Anna - Soothing Sister
+     *  precedent. */
+    | "missing_grant_shift_self"
+    /** rulesText says "you can play" / "you may play" / "you can play this
+     *  character for free" but no grant_play_for_free_self static is
+     *  present. Pudge - Controls the Weather precedent. */
+    | "missing_grant_play_for_free_self";
   keyword: string;
   expectedValue?: number;
   actualValue?: number;
+  /** For miswired/missing structural checks — short snippet of the
+   *  triggering rules-text fragment to make the report self-explanatory. */
+  textHint?: string;
 }
 
 function loadCards(): CardJSON[] {
@@ -187,6 +207,87 @@ function audit(): Issue[] {
         });
       }
     }
+
+    // ----------------------------------------------------------------------
+    // Structural checks for static effect-type mismatches.
+    // These detect the architectural mistakes corrected during the audit:
+    //   - "you can play for free" should be grant_play_for_free_self, not
+    //     a self_cost_reduction whose amount equals the card's full cost.
+    //   - "this card gains Shift N" should be grant_shift_self, not a
+    //     self_cost_reduction.
+    // ----------------------------------------------------------------------
+    const statics = card.abilities.filter((a) => a.type === "static") as Array<
+      { type: "static"; effect?: { type: string; amount?: unknown; value?: unknown } }
+    >;
+
+    // Check 1: self_cost_reduction with amount === card.cost (full cost
+    // wiped). Likely should be grant_play_for_free_self if the rules text
+    // says "you can play" / "you may play" / "play this character for free".
+    for (const s of statics) {
+      const eff = s.effect;
+      if (!eff || eff.type !== "self_cost_reduction") continue;
+      if (typeof eff.amount !== "number") continue;
+      if (eff.amount < card.cost) continue; // partial reduction — fine
+      // Look for a "for free" / "may play" wording on the card to confirm
+      // the alt-play interpretation. LeFou-style "this character costs N
+      // less" wording is intentionally fine even when N === cost (rare).
+      const looksLikeAltPlay =
+        /\b(?:can|may) play\b.*\bfor free\b/i.test(text) ||
+        /\bplay this (?:character|card) for free\b/i.test(text) ||
+        /\bgains? Shift\b/i.test(text);
+      if (!looksLikeAltPlay) continue;
+      issues.push({
+        setId: card.setId, number: card.number, fullName: card.fullName, id: card.id,
+        kind: "miswired_full_cost_reduction",
+        keyword: "self_cost_reduction",
+        expectedValue: card.cost, actualValue: eff.amount,
+        textHint: text.slice(0, 80) + (text.length > 80 ? "…" : ""),
+      });
+    }
+
+    // Check 2: rulesText mentions "gains Shift N" but no grant_shift_self
+    // static is present (and the card has no printed shiftCost either).
+    const gainsShiftMatch = text.match(/gains? Shift (\d+)/i);
+    if (gainsShiftMatch) {
+      const expectedValue = parseInt(gainsShiftMatch[1]!, 10);
+      const hasGrantShift = statics.some((s) => s.effect?.type === "grant_shift_self");
+      if (!hasGrantShift && card.shiftCost === undefined) {
+        issues.push({
+          setId: card.setId, number: card.number, fullName: card.fullName, id: card.id,
+          kind: "missing_grant_shift_self",
+          keyword: "grant_shift_self",
+          expectedValue,
+          textHint: gainsShiftMatch[0],
+        });
+      }
+    }
+
+    // Check 3: rulesText mentions "play THIS character/card for free" —
+    // the subject of the free play must be THIS card (not a chosen other
+    // card). Catches Pudge / LeFou Opportunistic Flunky pattern. Skips
+    // effects that grant a free play of some OTHER card (e.g. "you may
+    // play a character with cost 5 or less for free", "play that song
+    // again from your discard for free").
+    const playForFreeMatch = text.match(
+      /(?:you (?:can|may) play this (?:character|card)[^.]{0,40}for free)/i
+    );
+    if (playForFreeMatch) {
+      const hasGrantFree = statics.some((s) => s.effect?.type === "grant_play_for_free_self");
+      // If the card already has a self_cost_reduction we'd flag it via
+      // check 1; this check fires only when no static at all matches the
+      // wording.
+      const hasFullReduction = statics.some(
+        (s) => s.effect?.type === "self_cost_reduction" && typeof s.effect.amount === "number" && s.effect.amount >= card.cost
+      );
+      if (!hasGrantFree && !hasFullReduction) {
+        issues.push({
+          setId: card.setId, number: card.number, fullName: card.fullName, id: card.id,
+          kind: "missing_grant_play_for_free_self",
+          keyword: "grant_play_for_free_self",
+          textHint: playForFreeMatch[0],
+        });
+      }
+    }
   }
   return issues;
 }
@@ -219,17 +320,23 @@ function main() {
     for (const i of group.slice(0, 8)) {
       const setLabel = `set-${i.setId.padStart(3, "0")}/${i.number}`.padEnd(14);
       const valHint =
-        i.kind === "missing_value"
+        i.kind === "missing_value" || i.kind === "miswired_full_cost_reduction"
           ? `expected ${i.expectedValue}${i.actualValue !== undefined ? `, got ${i.actualValue}` : ""}`
           : i.expectedValue !== undefined ? `value ${i.expectedValue}` : "";
-      console.log(`    ${setLabel} ${i.fullName}${valHint ? `   (${valHint})` : ""}`);
+      const tail = i.textHint ? `   "${i.textHint}"` : valHint ? `   (${valHint})` : "";
+      console.log(`    ${setLabel} ${i.fullName}${tail}`);
     }
     if (group.length > 8) console.log(`    ... and ${group.length - 8} more`);
   }
-  console.log(`\nReports any keyword mentioned in rulesText that is missing from abilities,`);
-  console.log(`or numeric keyword whose value field doesn't match the rules text.`);
-  console.log(`The importer's union-merge protects already-correct local data, but new`);
-  console.log(`imports of cards we don't have yet still depend on Lorcast being correct.`);
+  console.log(`\nReports cover three families of drift / mis-wiring:`);
+  console.log(`  1. Keyword reminder line in rulesText with no matching ability (Lorcast`);
+  console.log(`     API drift — see docs/LORCAST_DATA_ISSUES.md).`);
+  console.log(`  2. Numeric keyword whose value field doesn't match the rules text, OR`);
+  console.log(`     missing required scalar (singTogetherCost / shiftCost).`);
+  console.log(`  3. Static effect-type mismatches: self_cost_reduction wiping the full`);
+  console.log(`     cost on a "you can play for free" card (should be`);
+  console.log(`     grant_play_for_free_self), or "gains Shift N" wording without a`);
+  console.log(`     grant_shift_self static. See docs/CARD_WIRING_AUDIT.md rows 6 and 7.`);
 }
 
 main();

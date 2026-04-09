@@ -14,6 +14,16 @@ When revisiting, the question to ask each entry is: *"would full fidelity meanin
 | ~~6~~ | ~~Anna — Soothing Sister UNUSUAL TRANSFORMATION~~ | ~~11~~ | **RESOLVED**: new `GrantShiftSelfStatic` (`grant_shift_self { value: number }`). Conditional static with `activeZones: ["hand"]` that adds a granted Shift cost to the in-hand instance via `gameModifiers.grantedShiftSelf: Map<instanceId, number>`. The validator's PLAY_CARD shift branch now reads `def.shiftCost ?? mods.grantedShiftSelf.get(instanceId)` and the legal-action enumerator surfaces shift target variants alongside the normal play. The Shift mechanic itself (cards-under placement / inheritance) flows through the existing CRD 8.10.4 path. | — | — |
 | ~~7~~ | ~~Pudge — Controls the Weather GOOD FRIEND~~ | ~~11~~ | **RESOLVED**: new `GrantPlayForFreeSelfStatic` (`grant_play_for_free_self`). Conditional static with `activeZones: ["hand"]` that flags the in-hand instance in `gameModifiers.playForFreeSelf: Set<instanceId>`. The legal-action enumerator surfaces a `PLAY_CARD` variant with `viaGrantedFreePlay: true` alongside the normal-cost play, so the player can choose either. The validator skips ink deduction for that variant; `applyPlayCard` logs the free play. Same shape family as Stone By Day's `cant_action_self` static — both are conditional statics with action-validation hooks, just opposite directions (restriction vs grant). | — | — |
 
+## Continuous detection
+
+The structural mistakes that closed rows #6 and #7 (Anna and Pudge wired as `self_cost_reduction` instead of `grant_shift_self` / `grant_play_for_free_self`) are now caught automatically by `scripts/audit-lorcast-data.ts`. Three pattern checks live there:
+
+1. **`miswired_full_cost_reduction:self_cost_reduction`** — flags any `self_cost_reduction` whose `amount` ≥ the card's full cost AND whose rules text contains "play [this/that] character/card for free" or "gains Shift". The Pudge / LeFou Opportunistic Flunky / Lilo Causing an Uproar mistakes were caught and fixed by this check after it landed.
+2. **`missing_grant_shift_self`** — flags any card whose rules text says "gains Shift N" but has no `grant_shift_self` static and no printed `shiftCost`.
+3. **`missing_grant_play_for_free_self`** — flags any card whose rules text says "you can/may play THIS character/card for free" but has no `grant_play_for_free_self` static AND no full-cost `self_cost_reduction`. Anchored to "play this" (not "play a chosen other card") to avoid false positives from effects that grant a free play of some other card.
+
+Run `pnpm audit-lorcast` after wiring new cards. The audit currently reports clean.
+
 ## Adding new entries
 
 Future card wirings that take a shortcut should be appended here in the same format. Don't bury approximations in commit messages alone — they get lost.

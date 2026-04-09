@@ -6,11 +6,15 @@ This file tracks known data drift in the Lorcast API (https://api.lorcast.com/v0
 2. Manually patch the local JSON when an upstream pull would silently regress us.
 3. File upstream issues with concrete examples.
 
-The importer's union-merge (`scripts/import-cards.ts`) defends against these issues — once a card has been corrected locally, a re-import will not blow the correction away. The audit script (`scripts/audit-lorcast-data.ts`) is the regression check: it scans every local card and verifies that any keyword reminder line in `rulesText` has a matching ability (or matching scalar field).
+The importer's union-merge (`scripts/import-cards.ts`) defends against these issues — once a card has been corrected locally, a re-import will not blow the correction away. The audit script (`scripts/audit-lorcast-data.ts`) is the regression check; it covers three families:
+
+1. **Upstream data drift** — keyword reminder lines in `rulesText` with no matching ability, or numeric keyword values missing from the API.
+2. **Missing required scalars** — `singTogetherCost` or `shiftCost` not populated when the rules text specifies a value.
+3. **Static effect-type mismatches** — `self_cost_reduction` wiping the full cost on a "you can play for free" card (should be `grant_play_for_free_self`), or "gains Shift N" wording without a `grant_shift_self` static. See `docs/CARD_WIRING_AUDIT.md` rows 6 and 7.
 
 ```bash
-pnpm tsx scripts/audit-lorcast-data.ts          # human-readable
-pnpm tsx scripts/audit-lorcast-data.ts --json   # machine-readable
+pnpm audit-lorcast          # human-readable
+pnpm audit-lorcast --json   # machine-readable
 ```
 
 The audit is currently **clean**. The findings below are the historical drift we've already corrected in local data.
