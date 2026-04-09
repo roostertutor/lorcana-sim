@@ -3850,12 +3850,15 @@ function processTriggerStack(
 
     // CRD 6.1.13: "Once per turn" — skip if already fired this turn for this instance.
     // Reset on end of turn (applyPassTurn) and when leaving play (zoneTransition).
-    if (trigger.ability.oncePerTurn) {
+    if (trigger.ability.oncePerTurn || trigger.ability.maxFiresPerTurn !== undefined) {
       const key = trigger.ability.storyName ?? trigger.ability.rulesText ?? "anon";
-      if (source.oncePerTurnTriggered?.[key]) continue;
+      const limit = trigger.ability.maxFiresPerTurn ?? 1;
+      const fires = (source.oncePerTurnTriggered as Record<string, number | boolean> | undefined)?.[key];
+      const currentCount = typeof fires === "number" ? fires : (fires ? 1 : 0);
+      if (currentCount >= limit) continue;
       // Mark as fired BEFORE applying effects so re-entrancy is blocked.
       state = updateInstance(state, trigger.sourceInstanceId, {
-        oncePerTurnTriggered: { ...(source.oncePerTurnTriggered ?? {}), [key]: true },
+        oncePerTurnTriggered: { ...(source.oncePerTurnTriggered ?? {}), [key]: (currentCount + 1) as any },
       });
     }
 

@@ -122,6 +122,10 @@ export interface TriggeredAbility {
   /** CRD 6.1.13: "Once per turn" — ability fires at most once per turn per instance.
    *  Reset at end of turn and when the card leaves play (CRD 7.1.6 — becomes a "new" card). */
   oncePerTurn?: boolean;
+  /** Multi-fire-per-turn limit (Tod Knows All the Tricks: "twice during your
+   *  turn"). When set, the ability fires at most this many times per turn per
+   *  instance. Mutually exclusive with oncePerTurn (which is the N=1 case). */
+  maxFiresPerTurn?: number;
   /** Which zones this triggered ability is active in. Defaults to ["play"].
    *  Use ["discard"] for cards that fire from discard (Lilo Escape Artist —
    *  "at the start of your turn, if this card is in your discard, you may play her"). */

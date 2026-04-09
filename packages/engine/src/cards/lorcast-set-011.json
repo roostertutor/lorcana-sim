@@ -4662,6 +4662,17 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "trigger": { "on": "chosen_by_opponent" },
+        "storyName": "IMPRESSIVE LEAPS",
+        "rulesText": "Twice during your turn, whenever this character is chosen for an action or an item's ability, you may ready him.",
+        "condition": { "type": "is_your_turn" },
+        "maxFiresPerTurn": 2,
+        "effects": [
+          { "type": "ready", "target": { "type": "this" }, "isMay": true }
+        ]
       }
     ],
     "setId": "11",
@@ -11760,6 +11771,17 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "trigger": { "on": "chosen_by_opponent" },
+        "storyName": "IMPRESSIVE LEAPS",
+        "rulesText": "Twice during your turn, whenever this character is chosen for an action or an item's ability, you may ready him.",
+        "condition": { "type": "is_your_turn" },
+        "maxFiresPerTurn": 2,
+        "effects": [
+          { "type": "ready", "target": { "type": "this" }, "isMay": true }
+        ]
       }
     ],
     "setId": "11",

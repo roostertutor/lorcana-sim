@@ -2024,7 +2024,30 @@
       "Mentor",
       "Madrigal"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "sings", "filter": { "owner": { "type": "self" }, "excludeSelf": true } },
+        "storyName": "THE MIRACLE IS YOU",
+        "rulesText": "Once during your turn, whenever one of your other characters sings a song, you may ready that character.",
+        "condition": { "type": "is_your_turn" },
+        "oncePerTurn": true,
+        "effects": [
+          { "type": "ready", "target": { "type": "triggering_card" }, "isMay": true }
+        ]
+      },
+      {
+        "type": "triggered",
+        "trigger": { "on": "sings" },
+        "storyName": "THE MIRACLE IS YOU (self)",
+        "rulesText": "Once during your turn, when this character sings a song, you may ready her.",
+        "condition": { "type": "is_your_turn" },
+        "oncePerTurn": true,
+        "effects": [
+          { "type": "ready", "target": { "type": "this" }, "isMay": true }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 34,
     "rarity": "uncommon",
