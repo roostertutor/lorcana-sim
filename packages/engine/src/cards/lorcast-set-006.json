@@ -2738,7 +2738,24 @@
       "Deity",
       "Dragon"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "quests" },
+        "storyName": "TRUST BUILDS TRUST",
+        "rulesText": "Whenever this character quests, reveal the top card of your deck. If it's a Dragon character card, put it into your hand and repeat this effect. Otherwise, put it on either the top or the bottom of your deck.",
+        "effects": [
+          {
+            "type": "reveal_top_conditional",
+            "filter": { "cardType": ["character"], "hasTrait": "Dragon" },
+            "matchAction": "to_hand",
+            "noMatchDestination": "top",
+            "repeatOnMatch": true,
+            "target": { "type": "self" }
+          }
+        ]
+      }
+    ],
     "setId": "6",
     "number": 54,
     "rarity": "super_rare",

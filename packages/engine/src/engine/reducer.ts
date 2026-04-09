@@ -2208,7 +2208,11 @@ export function applyEffect(
     case "reveal_top_conditional": {
       // Reveal top card of deck. If it matches the filter, apply matchAction.
       // Else, put it back on top (default) or bottom of deck.
+      // repeatOnMatch (Sisu Uniting Dragon): loop until a non-match.
       const targetPlayer = effect.target.type === "opponent" ? getOpponent(controllingPlayerId) : controllingPlayerId;
+      let safety = 60; // bound to deck size
+      // eslint-disable-next-line no-constant-condition
+      while (safety-- > 0) {
       const deck = getZone(state, targetPlayer, "deck");
       const topId = deck[0];
       if (!topId) return state;
@@ -2268,6 +2272,10 @@ export function applyEffect(
           state = zoneTransition(state, topId, "discard", definitions, events, { reason: "discarded" });
         }
         // else "top": stays where it is — already on top.
+        return state;
+      }
+      // repeatOnMatch: continue the loop with the new top card.
+      if (!effect.repeatOnMatch) return state;
       }
       return state;
     }

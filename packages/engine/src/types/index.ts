@@ -690,6 +690,10 @@ export interface RevealTopConditionalEffect {
    *  played card enters play exerted (Oswald Lucky Rabbit FAVORABLE CHANCE
    *  for items). */
   matchEnterExerted?: boolean;
+  /** Sisu Uniting Dragon: "If it's a Dragon character card, put it into your
+   *  hand and repeat this effect." After a successful match, run the same
+   *  reveal again with the new top card. Loops until a non-match. */
+  repeatOnMatch?: boolean;
   /** CRD 6.1.4: revealed-and-matched cards are optional (player may decline). */
   isMay?: boolean;
   /** Where to put the revealed card if it does NOT match. Default "top". */
