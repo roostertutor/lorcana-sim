@@ -11373,6 +11373,40 @@
     "inkable": false,
     "traits": [],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "conditional_on_player_state",
+        "condition": { "type": "cards_in_hand_eq", "amount": 0, "player": { "type": "self" } },
+        "thenEffects": [
+          {
+            "type": "draw",
+            "amount": 3,
+            "untilHandSize": 3,
+            "target": { "type": "self" }
+          }
+        ],
+        "elseEffects": [
+          {
+            "type": "sequential",
+            "costEffects": [
+              {
+                "type": "discard_from_hand",
+                "target": { "type": "self" },
+                "amount": "any",
+                "chooser": "target_player"
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": "cost_result",
+                "target": { "type": "self" }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 201,
     "rarity": "rare",
@@ -12696,6 +12730,40 @@
     "inkable": false,
     "traits": [],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "conditional_on_player_state",
+        "condition": { "type": "cards_in_hand_eq", "amount": 0, "player": { "type": "self" } },
+        "thenEffects": [
+          {
+            "type": "draw",
+            "amount": 3,
+            "untilHandSize": 3,
+            "target": { "type": "self" }
+          }
+        ],
+        "elseEffects": [
+          {
+            "type": "sequential",
+            "costEffects": [
+              {
+                "type": "discard_from_hand",
+                "target": { "type": "self" },
+                "amount": "any",
+                "chooser": "target_player"
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": "cost_result",
+                "target": { "type": "self" }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 222,
     "rarity": "enchanted",

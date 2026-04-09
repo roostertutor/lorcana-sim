@@ -222,7 +222,51 @@ export type Effect =
   | RestrictPlayEffect
   | EachOpponentMayDiscardThenRewardEffect
   | GrantActivatedAbilityTimedEffect
-  | FillHandToEffect;
+  | FillHandToEffect
+  | PlayerMayPlayFromHandEffect
+  | ConditionalOnPlayerStateEffect
+  | ChosenOpposingMayBottomOrRewardEffect;
+
+/**
+ * The Return of Hercules: "Each player may reveal a character card from their
+ * hand and play it for free." Each instance handles one player; the action
+ * uses two instances (one self, one opponent) to cover both players.
+ */
+export interface PlayerMayPlayFromHandEffect {
+  type: "player_may_play_from_hand";
+  /** Whose hand to draw from. "self" / "opponent". */
+  player: PlayerTarget;
+  /** Filter applied to the hand cards (e.g. cardType:character). */
+  filter: CardFilter;
+}
+
+/**
+ * Desperate Plan: "If you have no cards in your hand, draw until you have 3.
+ * Otherwise, choose and discard any number of cards, then draw that many."
+ * Branches on a player-state condition. The condition is evaluated against
+ * the controlling player at apply time.
+ */
+export interface ConditionalOnPlayerStateEffect {
+  type: "conditional_on_player_state";
+  condition: Condition;
+  thenEffects: Effect[];
+  elseEffects: Effect[];
+}
+
+/**
+ * Hades - Looking for a Deal: "Choose an opposing character. If you do, draw 2
+ * cards unless that character's player puts that card on the bottom of their
+ * deck." Caster picks a target; the target's player gets a may to "save" by
+ * putting their character on the bottom (deny the caster's reward); on
+ * decline, the caster gets the reward.
+ */
+export interface ChosenOpposingMayBottomOrRewardEffect {
+  type: "chosen_opposing_may_bottom_or_reward";
+  /** Filter applied at the caster's choose-target step (must be opposing). */
+  filter: CardFilter;
+  /** Effect the caster gets if the opponent declines to save. */
+  rewardEffect: Effect;
+}
 
 /**
  * Goliath - Clan Leader (Set 10): "At the end of each player's turn, if they

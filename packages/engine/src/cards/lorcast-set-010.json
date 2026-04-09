@@ -2911,7 +2911,25 @@
       "Villain",
       "Deity"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "enters_play" },
+        "storyName": "WHAT D'YA SAY?",
+        "rulesText": "When you play this character, you may choose an opposing character. If you do, draw 2 cards unless that character's player puts that card on the bottom of their deck.",
+        "effects": [
+          {
+            "type": "chosen_opposing_may_bottom_or_reward",
+            "filter": { "owner": { "type": "opponent" }, "zone": "play", "cardType": ["character"] },
+            "rewardEffect": {
+              "type": "draw",
+              "amount": 2,
+              "target": { "type": "self" }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 56,
     "rarity": "legendary",
@@ -13308,7 +13326,25 @@
       "Villain",
       "Deity"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "enters_play" },
+        "storyName": "WHAT D'YA SAY?",
+        "rulesText": "When you play this character, you may choose an opposing character. If you do, draw 2 cards unless that character's player puts that card on the bottom of their deck.",
+        "effects": [
+          {
+            "type": "chosen_opposing_may_bottom_or_reward",
+            "filter": { "owner": { "type": "opponent" }, "zone": "play", "cardType": ["character"] },
+            "rewardEffect": {
+              "type": "draw",
+              "amount": 2,
+              "target": { "type": "self" }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 242,
     "rarity": "common",

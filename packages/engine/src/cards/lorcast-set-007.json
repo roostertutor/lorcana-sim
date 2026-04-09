@@ -6533,6 +6533,18 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "player_may_play_from_hand",
+        "player": { "type": "self" },
+        "filter": { "cardType": ["character"] }
+      },
+      {
+        "type": "player_may_play_from_hand",
+        "player": { "type": "opponent" },
+        "filter": { "cardType": ["character"] }
+      }
+    ],
     "setId": "7",
     "number": 118,
     "rarity": "legendary",
@@ -11885,6 +11897,18 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "player_may_play_from_hand",
+        "player": { "type": "self" },
+        "filter": { "cardType": ["character"] }
+      },
+      {
+        "type": "player_may_play_from_hand",
+        "player": { "type": "opponent" },
+        "filter": { "cardType": ["character"] }
+      }
+    ],
     "setId": "7",
     "number": 215,
     "rarity": "enchanted",

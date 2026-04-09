@@ -1812,6 +1812,39 @@ function applyResolveChoice(
       }
       const srcId = pendingChoice.sourceInstanceId ?? "";
       const trigId = pendingChoice.triggeringCardInstanceId;
+
+      // Hades - Looking for a Deal: special inverse-may path. After the
+      // caster picks an opposing target, surface a may-prompt for the
+      // target's owner. Accept → put_on_bottom_of_deck on the chosen target
+      // (deny the caster's reward). Reject → caster fires rewardEffect.
+      if ((pendingEffect as any)?.type === "chosen_opposing_may_bottom_or_reward") {
+        const targetInst = state.cards[targetId];
+        if (!targetInst) continue;
+        const targetOwnerId = targetInst.ownerId;
+        const reject = (pendingEffect as any).rewardEffect as Effect;
+        // Synthesize a put-on-bottom-of-deck effect for the chosen target.
+        const acceptEffect = {
+          type: "put_on_bottom_of_deck" as const,
+          from: "play" as const,
+          target: { type: "this" as const },
+        };
+        state = {
+          ...state,
+          pendingChoice: {
+            type: "choose_may",
+            choosingPlayerId: targetOwnerId,
+            prompt: "Put your character on the bottom of your deck (to prevent the draw)?",
+            pendingEffect: acceptEffect,
+            optional: true,
+            sourceInstanceId: targetId,
+            triggeringCardInstanceId: trigId,
+            rejectEffect: reject,
+            rejectControllingPlayerId: playerId,
+          },
+        };
+        return state;
+      }
+
       state = applyEffectToTarget(state, pendingEffect!, targetId, playerId, definitions, events, srcId, trigId);
       // Apply follow-up effects to the same target
       if (pendingChoice.followUpEffects) {
@@ -3187,6 +3220,76 @@ export function applyEffect(
             ...state.players[controllingPlayerId],
             timedGrantedActivatedAbilities: [...existing, { filter: effect.filter, ability: effect.ability }],
           },
+        },
+      };
+    }
+
+    case "player_may_play_from_hand": {
+      // The Return of Hercules: surface a may → choose-from-hand by filter
+      // → play_for_free, for the specified player. The wiring uses two
+      // instances (self + opponent) for "each player".
+      const targetPlayer = effect.player.type === "opponent"
+        ? getOpponent(controllingPlayerId)
+        : controllingPlayerId;
+      const hand = getZone(state, targetPlayer, "hand");
+      const eligible = hand.filter((id) => {
+        const inst = state.cards[id];
+        const d = inst ? definitions[inst.definitionId] : undefined;
+        return inst && d && matchesFilter(inst, d, effect.filter, state, targetPlayer);
+      });
+      if (eligible.length === 0) return state;
+      return {
+        ...state,
+        pendingChoice: {
+          type: "choose_target",
+          choosingPlayerId: targetPlayer,
+          prompt: "Choose a card from your hand to reveal and play for free.",
+          validTargets: eligible,
+          pendingEffect: {
+            type: "play_for_free",
+            sourceZone: "hand",
+            target: { type: "triggering_card" },
+          } as Effect,
+          sourceInstanceId,
+          triggeringCardInstanceId,
+          optional: true,
+        },
+      };
+    }
+
+    case "conditional_on_player_state": {
+      // Desperate Plan: branch on a player-state condition.
+      const condMet = evaluateCondition(effect.condition, state, definitions, controllingPlayerId, sourceInstanceId);
+      const branch = condMet ? effect.thenEffects : effect.elseEffects;
+      for (const sub of branch) {
+        state = applyEffect(state, sub, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+        if (state.pendingChoice) return state;
+      }
+      return state;
+    }
+
+    case "chosen_opposing_may_bottom_or_reward": {
+      // Hades - Looking for a Deal. Caster picks an opposing character; the
+      // pendingChoice surfaces with the caster as chooser and a custom
+      // rejectEffect on the resolution path. After the choice, the chosen
+      // target's owner gets a may-prompt: accept = put_on_bottom (their card),
+      // reject = caster fires rewardEffect.
+      const validTargets = findValidTargets(state, effect.filter, controllingPlayerId, definitions, sourceInstanceId);
+      if (validTargets.length === 0) return state;
+      // Stash the rewardEffect on a custom pending shape: use sequential
+      // wrapping with put_on_bottom_of_deck as cost (may, controlled by the
+      // target's player) and the rewardEffect as the reject branch.
+      // We use a meta marker on the pendingChoice to flag this special path.
+      return {
+        ...state,
+        pendingChoice: {
+          type: "choose_target",
+          choosingPlayerId: controllingPlayerId,
+          prompt: "Choose an opposing character.",
+          validTargets,
+          pendingEffect: effect,
+          sourceInstanceId,
+          triggeringCardInstanceId,
         },
       };
     }
