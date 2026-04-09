@@ -1809,6 +1809,10 @@ function resolveDynamicAmount(
     const def = inst ? definitions[inst.definitionId] : undefined;
     return def?.lore ?? 0;
   }
+  if (amount === "triggering_card_damage") {
+    const inst = triggeringCardInstanceId ? state.cards[triggeringCardInstanceId] : undefined;
+    return inst?.damage ?? 0;
+  }
   if (amount === "last_resolved_target_delta") {
     return state.lastResolvedTarget?.delta ?? 0;
   }

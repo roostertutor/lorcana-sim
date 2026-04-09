@@ -6754,6 +6754,24 @@
             "target": { "type": "this" }
           }
         ]
+      },
+      {
+        "type": "triggered",
+        "trigger": { "on": "deals_damage_in_challenge" },
+        "storyName": "TRIPLE SHOT",
+        "rulesText": "During your turn, whenever this character deals damage to another character in a challenge, deal the same amount of damage to up to 2 other chosen characters.",
+        "condition": { "type": "is_your_turn" },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": "triggering_card_damage",
+            "target": {
+              "type": "chosen",
+              "filter": { "zone": "play", "cardType": ["character"], "excludeSelf": true },
+              "count": 2
+            }
+          }
+        ]
       }
     ],
     "setId": "9",

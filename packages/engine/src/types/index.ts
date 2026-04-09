@@ -381,6 +381,7 @@ export type DynamicAmount =
   | "cost_result"
   | "damage_on_target"
   | "triggering_card_lore"
+  | "triggering_card_damage"
   | "last_target_location_lore"
   /** Actual delta stored on `state.lastResolvedTarget` (remove_damage / move_damage
    *  actually-consumed count). Used by "Gain 1 lore for each 1 damage removed this
