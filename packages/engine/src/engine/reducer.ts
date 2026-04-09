@@ -673,6 +673,10 @@ function applyPlayInk(
     message: `${playerId} added ${def.fullName} to their inkwell.`,
     type: "ink_played",
   });
+  // CRD 6.2: ink_played triggered abilities (Chicha Dedicated Mother). Queue
+  // after the inkPlaysThisTurn counter has been bumped so condition checks see
+  // the post-play count.
+  state = queueTriggersByEvent(state, "ink_played", playerId, definitions, {});
   return state;
 }
 

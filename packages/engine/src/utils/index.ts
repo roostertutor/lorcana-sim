@@ -633,6 +633,9 @@ export function evaluateCondition(
       return getZone(state, opponent, "hand").length > getZone(state, controllingPlayerId, "hand").length;
     case "is_your_turn":
       return state.currentPlayer === controllingPlayerId;
+    case "ink_plays_this_turn_eq": {
+      return (state.players[controllingPlayerId].inkPlaysThisTurn ?? 0) === condition.amount;
+    }
     case "this_had_card_put_under_this_turn": {
       const inst = state.cards[sourceInstanceId];
       return !!inst && (inst.cardsPutUnderThisTurn ?? 0) > 0;

@@ -1502,7 +1502,10 @@ export type Condition =
   | { type: "no_challenges_this_turn" }
   /** Set 11 (Willie the Giant Ghost of Christmas Present): true when this
    *  source instance has had at least one card placed under it this turn. */
-  | { type: "this_had_card_put_under_this_turn" };
+  | { type: "this_had_card_put_under_this_turn" }
+  /** Chicha Dedicated Mother (Set 5): "if it's the Nth card you've put into
+   *  your inkwell this turn". True iff PlayerState.inkPlaysThisTurn equals N. */
+  | { type: "ink_plays_this_turn_eq"; amount: number };
 
 export type AbilityTiming = "your_turn_main" | "any_time" | "opponent_turn";
 

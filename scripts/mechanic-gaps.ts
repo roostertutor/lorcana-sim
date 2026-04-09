@@ -72,7 +72,7 @@ const NEW_MECHANIC: [RegExp, string][] = [
   [/\bwhen this character is banished, choose one\b/i, "banished-modal-choose"],
   [/\bwhenever an opponent chooses this character for an action\b/i, "chosen-by-opponent-trigger"],
   [/\bdraw cards? equal to the damage on\b/i, "dynamic-draw-from-target-damage"],
-  [/\bif it'?s the (second|third|fourth|fifth) card you'?ve put into your inkwell\b/i, "inkwell-count-trigger"],
+  // (inkwell-count-trigger removed: ink_played trigger + ink_plays_this_turn_eq Condition implemented.)
   [/\bfor each opposing character banished in a challenge this turn, you pay\b/i, "event-tracking-cost-reduction"],
   [/\bwhile one of your .{0,40}is at a location, that character\b/i, "other-at-location-static"],
   [/\bif this card is in your discard, you may play\b/i, "self-play-from-discard"],

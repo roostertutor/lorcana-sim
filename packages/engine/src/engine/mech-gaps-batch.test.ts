@@ -352,6 +352,30 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     expect(getZone(state, "player1", "hand").length).toBe(p1HandBefore - 1);
   });
 
+  it("Chicha Dedicated Mother: ONE ON THE WAY queues a may-draw on the second ink play of the turn (not the first)", () => {
+    let state = startGame();
+    let chichaId: string;
+    ({ state, instanceId: chichaId } = injectCard(state, "player1", "chicha-dedicated-mother", "play", { isDrying: false }));
+    // Two inkable cards in hand to ink.
+    let inkA: string, inkB: string;
+    ({ state, instanceId: inkA } = injectCard(state, "player1", "mickey-mouse-true-friend", "hand"));
+    ({ state, instanceId: inkB } = injectCard(state, "player1", "mickey-mouse-true-friend", "hand"));
+    // Override the extra ink plays so we can play TWO inks this turn.
+    state = { ...state, players: { ...state.players, player1: { ...state.players.player1, extraInkPlaysGranted: 1 } } };
+
+    // First ink — ONE ON THE WAY should NOT fire (count == 1).
+    let r = applyAction(state, { type: "PLAY_INK", playerId: "player1", instanceId: inkA }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(state.pendingChoice).toBeNull();
+
+    // Second ink — should queue a choose_may for the may-draw.
+    r = applyAction(state, { type: "PLAY_INK", playerId: "player1", instanceId: inkB }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(state.pendingChoice?.type).toBe("choose_may");
+  });
+
   it("Food Fight!: grants {E},1{I}—deal 1 damage activated ability to your characters this turn", () => {
     let state = startGame();
     state = giveInk(state, "player1", 5);
