@@ -995,9 +995,16 @@ export interface LookAtTopEffect {
     /** Fred Giant-Sized I LIKE WHERE THIS IS HEADING — reveal cards from top
      *  until first match against `filter`, that card to hand, shuffle the rest
      *  of the revealed cards back into the deck. count is implicitly "until_match". */
-    | "reveal_until_match_to_hand_shuffle_rest";
+    | "reveal_until_match_to_hand_shuffle_rest"
+    /** The Family Madrigal — look at top N, may take up to 1 card matching
+     *  `filter` AND up to 1 card matching `filter2`, the rest go to the top
+     *  of the deck in original order. */
+    | "up_to_one_each_of_two_filters_to_hand_rest_top";
   /** Optional filter — only matching cards can go to hand (for "may reveal matching" patterns) */
   filter?: CardFilter;
+  /** Second filter slot, used by `up_to_one_each_of_two_filters_to_hand_rest_top`
+   *  (The Family Madrigal: 1 Madrigal character + 1 song card). */
+  filter2?: CardFilter;
   /** For "up_to_n_to_hand_rest_bottom": max number of cards to put into hand (Look at This Family = 2, Dig a Little Deeper = 2). */
   maxToHand?: number;
   target: PlayerTarget;

@@ -2211,6 +2211,16 @@
       "Song"
     ],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "look_at_top",
+        "count": 5,
+        "action": "up_to_one_each_of_two_filters_to_hand_rest_top",
+        "filter": { "cardType": "character", "hasTrait": "Madrigal" },
+        "filter2": { "cardType": "action", "hasTrait": "Song" },
+        "target": { "type": "self" }
+      }
+    ],
     "setId": "7",
     "number": 40,
     "rarity": "rare",

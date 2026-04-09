@@ -3254,6 +3254,38 @@ export function applyEffect(
           state = reorderDeckTopToBottom(state, targetPlayer, rest, []);
           return state;
         }
+        case "up_to_one_each_of_two_filters_to_hand_rest_top": {
+          // The Family Madrigal: look at top N, may take 1 matching `filter`
+          // (Madrigal character) AND 1 matching `filter2` (song), rest stay
+          // on top in original order. Bot heuristic: take the first match of
+          // each filter.
+          const f1 = effect.filter;
+          const f2 = effect.filter2;
+          const picked: string[] = [];
+          let picked1 = false;
+          let picked2 = false;
+          for (const id of topCards) {
+            const inst = state.cards[id];
+            if (!inst) continue;
+            const def = definitions[inst.definitionId];
+            if (!def) continue;
+            if (!picked1 && f1 && matchesFilter(inst, def, f1, state, controllingPlayerId)) {
+              picked.push(id);
+              picked1 = true;
+              continue;
+            }
+            if (!picked2 && f2 && matchesFilter(inst, def, f2, state, controllingPlayerId)) {
+              picked.push(id);
+              picked2 = true;
+            }
+          }
+          for (const id of picked) {
+            state = moveCard(state, id, targetPlayer, "hand");
+          }
+          // Rest stays on top in their original order — no zone shuffle needed
+          // since picked cards have been removed from the deck via moveCard.
+          return state;
+        }
         case "may_play_for_free_else_discard": {
           // Kristoff's Lute MOMENT OF INSPIRATION: reveal top, may play it for
           // free, otherwise put it into discard. count is implicitly 1.
