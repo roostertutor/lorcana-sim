@@ -1060,7 +1060,37 @@
       "Ally",
       "Alien"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "LUNCH SPECIAL",
+        "rulesText": "{E} - Remove up to 2 damage from chosen character of yours. For each 1 damage removed this way, you pay 1 {I} less for the next character you play this turn.",
+        "costs": [{ "type": "exert" }],
+        "effects": [
+          {
+            "type": "sequential",
+            "costEffects": [
+              {
+                "type": "remove_damage",
+                "amount": 2,
+                "isUpTo": true,
+                "target": {
+                  "type": "chosen",
+                  "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"] }
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "cost_reduction",
+                "amount": "last_resolved_target_delta",
+                "filter": { "cardType": ["character"] }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 21,
     "rarity": "rare",

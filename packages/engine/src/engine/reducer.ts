@@ -2111,6 +2111,14 @@ export function applyEffect(
       if (effect.target.type === "this") {
         return applyGainStatsToInstance(state, sourceInstanceId, effect, controllingPlayerId, definitions);
       }
+      if (effect.target.type === "last_resolved_target") {
+        const id = state.lastResolvedTarget?.instanceId;
+        if (!id || !state.cards[id]) return state;
+        return applyGainStatsToInstance(state, id, effect, controllingPlayerId, definitions);
+      }
+      if (effect.target.type === "triggering_card" && triggeringCardInstanceId) {
+        return applyGainStatsToInstance(state, triggeringCardInstanceId, effect, controllingPlayerId, definitions);
+      }
       if (effect.target.type === "chosen") {
         const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state; // CRD 1.7.7
@@ -2638,6 +2646,14 @@ export function applyEffect(
       };
       if (effect.target.type === "this") {
         return addTimedEffect(state, sourceInstanceId, timedEffect);
+      }
+      if (effect.target.type === "last_resolved_target") {
+        const id = state.lastResolvedTarget?.instanceId;
+        if (!id || !state.cards[id]) return state;
+        return addTimedEffect(state, id, timedEffect);
+      }
+      if (effect.target.type === "triggering_card" && triggeringCardInstanceId) {
+        return addTimedEffect(state, triggeringCardInstanceId, timedEffect);
       }
       if (effect.target.type === "chosen") {
         const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
@@ -3427,9 +3443,14 @@ export function applyEffect(
       let resolvedAmount: number;
       if (typeof effect.amount === "object" && effect.amount.type === "count") {
         resolvedAmount = findMatchingInstances(state, definitions, effect.amount.filter, controllingPlayerId).length;
+      } else if (effect.amount === "last_resolved_target_delta") {
+        // Reuben Sandwich Expert: cost reduction = damage actually removed
+        // by the cost step (remove_damage records delta on lastResolvedTarget).
+        resolvedAmount = state.lastResolvedTarget?.delta ?? 0;
       } else {
         resolvedAmount = effect.amount as number;
       }
+      if (resolvedAmount <= 0) return state;
       return {
         ...state,
         players: {
@@ -3513,6 +3534,22 @@ export function applyEffect(
     // CRD 6.2.7.1: Create a floating triggered ability for rest of turn
     case "create_floating_trigger": {
       const existing = state.floatingTriggers ?? [];
+      // attachTo: "last_resolved_target" — Mother Gothel KWB pattern. The
+      // earlier cost step (deal_damage chosen) populated lastResolvedTarget;
+      // attach the floating trigger to that same chosen target.
+      if (effect.attachTo === "last_resolved_target") {
+        const id = state.lastResolvedTarget?.instanceId;
+        if (!id || !state.cards[id]) return state;
+        return {
+          ...state,
+          floatingTriggers: [...existing, {
+            trigger: effect.trigger,
+            effects: effect.effects,
+            controllingPlayerId,
+            attachedToInstanceId: id,
+          }],
+        };
+      }
       // attachTo: "chosen" — surface a choose_target so the controller picks
       // which character receives the floating trigger.
       if (effect.attachTo === "chosen") {

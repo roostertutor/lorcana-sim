@@ -985,7 +985,7 @@ export interface SequentialEffect {
  */
 export interface CostReductionEffect {
   type: "cost_reduction";
-  amount: number | { type: "count"; filter: CardFilter };
+  amount: number | { type: "count"; filter: CardFilter } | "last_resolved_target_delta";
   /** Filter for which cards get the discount */
   filter: CardFilter;
 }
@@ -1011,8 +1011,11 @@ export interface CreateFloatingTriggerEffect {
    * instance is stored on FloatingTrigger.attachedToInstanceId. Used by
    * "Chosen character gains '<floating trigger>' this turn" wording
    * (Bruno Madrigal Out of the Shadows, Medallion Weights).
+   * "last_resolved_target" attaches to state.lastResolvedTarget — used by
+   * Mother Gothel KWB where a damage cost selects the chosen, then the
+   * floating trigger attaches to that same chosen target.
    */
-  attachTo?: "self" | "chosen";
+  attachTo?: "self" | "chosen" | "last_resolved_target";
   targetFilter?: CardFilter;
 }
 
@@ -1430,7 +1433,13 @@ export type CardTarget =
   | { type: "chosen"; filter: CardFilter; count?: number; chooser?: "controller" | "target_player" }
   | { type: "all"; filter: CardFilter } // All matching cards
   | { type: "random"; filter: CardFilter } // Random matching card
-  | { type: "triggering_card" }; // The card that caused the trigger
+  | { type: "triggering_card" } // The card that caused the trigger
+  /** The most recently chosen target (state.lastResolvedTarget). Used by
+   *  reward effects in a SequentialEffect that need to apply to the same
+   *  chosen target the cost step picked — Mother Gothel KWB damages a chosen
+   *  character then grants Challenger to that same chosen, etc. Resolves at
+   *  effect-application time against state.lastResolvedTarget.instanceId. */
+  | { type: "last_resolved_target" };
 
 export interface CardFilter {
   owner?: PlayerTarget;

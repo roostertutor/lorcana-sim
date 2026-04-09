@@ -4101,7 +4101,47 @@
       "Villain",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "enters_play" },
+        "storyName": "LOOK WHAT YOU'VE DONE",
+        "rulesText": "When you play this character, you may deal 2 damage to another chosen character of yours to give that character Challenger +1 and \"When this character is banished in a challenge, return this card to your hand\" this turn.",
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "deal_damage",
+                "amount": 2,
+                "target": {
+                  "type": "chosen",
+                  "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "excludeSelf": true }
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "grant_keyword",
+                "keyword": "challenger",
+                "value": 1,
+                "duration": "this_turn",
+                "target": { "type": "last_resolved_target" }
+              },
+              {
+                "type": "create_floating_trigger",
+                "attachTo": "last_resolved_target",
+                "trigger": { "on": "banished_in_challenge" },
+                "effects": [
+                  { "type": "return_to_hand", "target": { "type": "this" } }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 70,
     "rarity": "rare",
@@ -11890,7 +11930,47 @@
       "Villain",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "enters_play" },
+        "storyName": "LOOK WHAT YOU'VE DONE",
+        "rulesText": "When you play this character, you may deal 2 damage to another chosen character of yours to give that character Challenger +1 and \"When this character is banished in a challenge, return this card to your hand\" this turn.",
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "deal_damage",
+                "amount": 2,
+                "target": {
+                  "type": "chosen",
+                  "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "excludeSelf": true }
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "grant_keyword",
+                "keyword": "challenger",
+                "value": 1,
+                "duration": "this_turn",
+                "target": { "type": "last_resolved_target" }
+              },
+              {
+                "type": "create_floating_trigger",
+                "attachTo": "last_resolved_target",
+                "trigger": { "on": "banished_in_challenge" },
+                "effects": [
+                  { "type": "return_to_hand", "target": { "type": "this" } }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 211,
     "rarity": "enchanted",
