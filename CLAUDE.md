@@ -16,7 +16,7 @@ to produce deck analytics and win rates. NOT a human-playable simulator.
 - ui:        done. 7 screens, React+Vite. Responsive (mobile/tablet/desktop). Full-screen game board (no header/nav in-game). See `docs/UI_PENDING_MECHANICS.md` for mechanics needing visualization.
 - testbench: done. Interactive game board with bot opponent. Replay mode + undo. Utility strip (deck tile, inkwell, discard tile). Card action popover anchored to clicked card (fixed-position, works on all breakpoints). Keyword badges, exerted rotation/grayscale, damage counter, summoning sickness overlay. Play zone reset on leave (CRD 1.9.3).
 - cards:     **2145/2145 named-ability cards wired + 507 vanillas = 2652/2652 (100%) complete.** Every card across sets 1–11 + promos (P1, P2, P3, cp, DIS, D23) is implemented. Promo sets auto-synced from main sets via `scripts/sync-promo-reprints.ts` (cross-set + within-set passes).
-- gaps:      **0 stubs.** A handful of cards use approximations of their full rules text (logged in the audit task) — see `docs/DEFERRED_MECHANICS.md` for details. The categorizer is honest end-to-end; `pnpm card-status` is the live tracker.
+- gaps:      **0 stubs.** A handful of cards use approximations of their full rules text — see `docs/CARD_WIRING_AUDIT.md` for the canonical list. The categorizer is honest end-to-end; `pnpm card-status` is the live tracker.
 
 ## Quick Reference
 
