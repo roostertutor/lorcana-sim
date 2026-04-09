@@ -684,6 +684,12 @@ export interface DamageImmunityStatic {
   type: "damage_immunity_static";
   source: "challenge" | "all" | "non_challenge";
   target: CardTarget;
+  /** Lilo Bundled Up: "during each opponent's turn, the first time this
+   *  character would take damage, she takes no damage instead." When set,
+   *  the immunity blocks at most N hits per turn (tracked per instance via
+   *  CardInstance.damageImmunityChargesUsedThisTurn). Combine with
+   *  ability.condition (e.g. not(is_your_turn)) to gate active windows. */
+  chargesPerTurn?: number;
 }
 
 /**
@@ -1857,6 +1863,10 @@ export interface CardInstance {
    *  Socialite, Willie the Giant Ghost of Christmas Present): per-turn count
    *  of cards placed under THIS instance. Reset on PASS_TURN. */
   cardsPutUnderThisTurn?: number;
+
+  /** Lilo Bundled Up: how many charge-based damage immunity blocks this
+   *  instance has consumed this turn. Reset on PASS_TURN. */
+  damageImmunityChargesUsedThisTurn?: number;
 
   /** CRD 6.1.13: per-turn flag tracking — extends to Boost ("once during your turn"). */
   boostedThisTurn?: boolean;

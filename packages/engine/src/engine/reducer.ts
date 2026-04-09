@@ -910,12 +910,27 @@ function applyChallenge(
       : inst.timedEffects.map((e, i) => (i === idx ? { ...e, charges: remaining } : e));
     state = updateInstance(state, id, { timedEffects: next });
   };
+  // Lilo Bundled Up: charge-based static immunity. Consume one charge per
+  // blocked challenge hit by bumping the per-turn used counter.
+  const consumeStaticCharge = (id: string): void => {
+    if (!modifiers.damageImmunityCharges.has(id)) return;
+    const inst = state.cards[id];
+    if (!inst) return;
+    const used = (inst.damageImmunityChargesUsedThisTurn ?? 0) + 1;
+    state = updateInstance(state, id, { damageImmunityChargesUsedThisTurn: used });
+  };
   if (hasStaticDamageImmunity(attacker, modifiers, true) || findTimedDamageImmunityIdx(attacker, true) >= 0) {
-    if (actualAttackerDamage > 0) consumeTimedCharge(attackerInstanceId);
+    if (actualAttackerDamage > 0) {
+      consumeStaticCharge(attackerInstanceId);
+      consumeTimedCharge(attackerInstanceId);
+    }
     actualAttackerDamage = 0;
   }
   if (hasStaticDamageImmunity(defender, modifiers, true) || findTimedDamageImmunityIdx(defender, true) >= 0) {
-    if (actualDefenderDamage > 0) consumeTimedCharge(defenderInstanceId);
+    if (actualDefenderDamage > 0) {
+      consumeStaticCharge(defenderInstanceId);
+      consumeTimedCharge(defenderInstanceId);
+    }
     actualDefenderDamage = 0;
   }
 
@@ -1373,7 +1388,8 @@ function applyPassTurn(
       instance.movedThisTurn ||
       instance.oncePerTurnTriggered ||
       instance.boostedThisTurn ||
-      (instance.cardsPutUnderThisTurn ?? 0) > 0
+      (instance.cardsPutUnderThisTurn ?? 0) > 0 ||
+      (instance.damageImmunityChargesUsedThisTurn ?? 0) > 0
     ) {
       state = updateInstance(state, id, {
         tempStrengthModifier: 0,
@@ -1386,6 +1402,7 @@ function applyPassTurn(
         oncePerTurnTriggered: undefined,
         boostedThisTurn: false,
         cardsPutUnderThisTurn: 0,
+        damageImmunityChargesUsedThisTurn: 0,
       });
     }
   }
@@ -4369,10 +4386,19 @@ function hasStaticDamageImmunity(
 ): boolean {
   const staticSources = modifiers.damageImmunity.get(instance.instanceId);
   if (!staticSources) return false;
-  if (staticSources.has("all")) return true;
-  if (inChallenge && staticSources.has("challenge")) return true;
-  if (!inChallenge && staticSources.has("non_challenge")) return true;
-  return false;
+  let matches = false;
+  if (staticSources.has("all")) matches = true;
+  else if (inChallenge && staticSources.has("challenge")) matches = true;
+  else if (!inChallenge && staticSources.has("non_challenge")) matches = true;
+  if (!matches) return false;
+  // Charge-based static immunity (Lilo Bundled Up): only blocks if the
+  // instance has any charges remaining this turn.
+  const maxCharges = modifiers.damageImmunityCharges.get(instance.instanceId);
+  if (maxCharges !== undefined) {
+    const used = instance.damageImmunityChargesUsedThisTurn ?? 0;
+    if (used >= maxCharges) return false;
+  }
+  return true;
 }
 
 /** Returns the index of the first matching damage_immunity timed effect, or -1
@@ -4413,6 +4439,12 @@ function dealDamageToCard(
   const immTarget = state.cards[instanceId];
   if (!asDamageCounter && immTarget) {
     if (hasStaticDamageImmunity(immTarget, modifiers, inChallenge)) {
+      // Charge-based static immunity (Lilo Bundled Up): consume one charge
+      // so subsequent hits this turn pass through.
+      if (modifiers.damageImmunityCharges.has(instanceId)) {
+        const used = (immTarget.damageImmunityChargesUsedThisTurn ?? 0) + 1;
+        state = updateInstance(state, instanceId, { damageImmunityChargesUsedThisTurn: used });
+      }
       return state;
     }
     const timedIdx = findTimedDamageImmunityIdx(immTarget, inChallenge);

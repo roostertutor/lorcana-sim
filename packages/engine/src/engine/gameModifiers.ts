@@ -75,6 +75,16 @@ export interface GameModifiers {
   damageImmunity: Map<string, Set<"challenge" | "all" | "non_challenge">>;
 
   /**
+   * Charge-based damage immunity (Lilo Bundled Up: "first time would take
+   * damage during each opponent's turn, takes no damage instead"). Parallel
+   * to damageImmunity but with a per-turn charge limit; consult
+   * CardInstance.damageImmunityChargesUsedThisTurn to know if any remain.
+   * Key = instanceId, value = max charges per turn (paired with the source
+   * tag set in the regular damageImmunity slot).
+   */
+  damageImmunityCharges: Map<string, number>;
+
+  /**
    * Activated abilities granted by static effects (Cogsworth - Talking Clock).
    * Key = instanceId, value = list of granted activated abilities.
    */
@@ -213,6 +223,7 @@ export function getGameModifiers(
     damageRedirects: new Map(),
     challengeDamageImmunity: new Map(),
     damageImmunity: new Map(),
+    damageImmunityCharges: new Map(),
     grantedActivatedAbilities: new Map(),
     selfActionRestrictions: new Map(),
     mimicryTargets: new Set(),
@@ -519,23 +530,28 @@ export function getGameModifiers(
         case "damage_immunity_static": {
           // Baloo Ol' Iron Paws ("your characters with 7 {S} or more can't be
           // dealt damage" — source "all"), Hercules Mighty Leader ("can't be
-          // dealt damage unless he's being challenged" — source "non_challenge").
+          // dealt damage unless he's being challenged" — source "non_challenge"),
+          // Lilo Bundled Up ("first time would take damage" — chargesPerTurn:1).
+          const eff = effect;
           const addImmunity = (id: string) => {
             let set = modifiers.damageImmunity.get(id);
             if (!set) {
               set = new Set();
               modifiers.damageImmunity.set(id, set);
             }
-            set.add(effect.source);
+            set.add(eff.source);
+            if (eff.chargesPerTurn !== undefined) {
+              modifiers.damageImmunityCharges.set(id, eff.chargesPerTurn);
+            }
           };
-          if (effect.target.type === "this") {
+          if (eff.target.type === "this") {
             addImmunity(instance.instanceId);
-          } else if (effect.target.type === "all") {
+          } else if (eff.target.type === "all") {
             for (const candidate of Object.values(state.cards)) {
               if (candidate.zone !== "play") continue;
               const candidateDef = definitions[candidate.definitionId];
               if (!candidateDef) continue;
-              if (matchesFilter(candidate, candidateDef, effect.target.filter, state, instance.ownerId, instance.instanceId)) {
+              if (matchesFilter(candidate, candidateDef, eff.target.filter, state, instance.ownerId, instance.instanceId)) {
                 addImmunity(candidate.instanceId);
               }
             }

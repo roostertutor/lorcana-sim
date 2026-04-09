@@ -10017,7 +10017,20 @@
       "Dreamborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "EXTRA LAYERS",
+        "rulesText": "During each opponent's turn, the first time this character would take damage, she takes no damage instead.",
+        "condition": { "type": "not", "condition": { "type": "is_your_turn" } },
+        "effect": {
+          "type": "damage_immunity_static",
+          "source": "all",
+          "chargesPerTurn": 1,
+          "target": { "type": "this" }
+        }
+      }
+    ],
     "setId": "11",
     "number": 195,
     "rarity": "super_rare",
