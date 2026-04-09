@@ -251,7 +251,7 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // "Reveal up to N X character cards and up to N Y" (Family Madrigal) — multi-filter search/look
   [/\breveal up to \d+ .{0,40}and up to \d+ .{0,30}cards?\b/i, "multi-filter-look-reveal"],
   // "Whenever you play a Floodborn character on this card" — shift-onto-self trigger
-  [/\bwhen you play a .{0,20}character on this card\b/i, "shift-onto-self-trigger"],
+  // (shift-onto-self-trigger removed: shifted_onto trigger event implemented.)
   // Desperate Plan: "choose and discard any number of cards, then draw that many"
   [/\bdiscard any number of cards,? then draw that many\b/i, "discard-any-number-dynamic"],
   // Akela / Baloo — stubbed modals ("— This character gets +1 {S} this turn.") are modal inner options

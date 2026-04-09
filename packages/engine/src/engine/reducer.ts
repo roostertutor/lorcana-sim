@@ -461,6 +461,15 @@ function applyPlayCard(
       playedViaShift: true,
       cardsUnder: [...inheritedUnder, shiftTargetInstanceId],
     });
+    // CRD 8.10.4: queue the shifted_onto trigger BEFORE the original card is
+    // moved into the "under" subzone, so cross-card scans (which only walk
+    // in-play cards) can find the watcher. Source = the new shifter (filter
+    // is matched against this card); triggeringCardInstanceId = the original
+    // (still in play). Go Go Tomago Mechanical Engineer fires from this hook.
+    state = queueTrigger(state, "shifted_onto", instanceId, definitions, {
+      triggeringPlayerId: playerId,
+      triggeringCardInstanceId: shiftTargetInstanceId,
+    });
     // CRD 8.10.4: the base card moves from play to "under". Reset its play-state fields
     // (it's no longer the active version of the card) and inherit-empty cardsUnder
     // (its under-pile has already been moved onto the new top card above).
@@ -3686,7 +3695,11 @@ function processTriggerStack(
     // (Lilo Escape Artist — fires from discard). Default is ["play"]; the
     // leaves-play family bypasses this check because the source has already
     // left play by the time the trigger resolves.
-    const leavesPlayFamily = ["is_banished", "leaves_play", "banished_in_challenge", "banished_other_in_challenge", "is_challenged", "challenges"].includes(trigger.ability.trigger.on);
+    // shifted_onto fires from the under-card after the shift completes — by
+    // the time the trigger stack is processed, the watcher has been moved to
+    // the "under" subzone. Treat it like a leaves-play family event so the
+    // requiresInPlay zone check doesn't filter it out.
+    const leavesPlayFamily = ["is_banished", "leaves_play", "banished_in_challenge", "banished_other_in_challenge", "is_challenged", "challenges", "shifted_onto"].includes(trigger.ability.trigger.on);
     if (!leavesPlayFamily) {
       const activeZones = trigger.ability.activeZones ?? ["play"];
       if (!activeZones.includes(source.zone)) continue;

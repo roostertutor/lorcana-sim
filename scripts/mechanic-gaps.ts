@@ -108,7 +108,7 @@ const NEW_MECHANIC: [RegExp, string][] = [
   [/\bdraw (a |\d+ )cards? for each .{0,40}you have in play\b/i, "dynamic-draw-from-count"],
   // (being-challenged-static removed: modify_stat_while_challenged + affects:attacker implemented.)
   [/\breveal up to \d+ .{0,40}and up to \d+ .{0,30}cards?\b/i, "multi-filter-look-reveal"],
-  [/\bwhen you play a .{0,20}character on this card\b/i, "shift-onto-self-trigger"],
+  // (shift-onto-self-trigger removed: shifted_onto trigger event implemented.)
   [/\bdiscard any number of cards,? then draw that many\b/i, "discard-any-number-dynamic"],
 ];
 

@@ -1482,7 +1482,12 @@ export type TriggerEvent =
    *  the card. The triggering context carries the carrier as the source and the
    *  under-card as triggeringCardInstanceId. "Whenever you put a card under
    *  one of your characters, draw a card." — Webby's Diary. */
-  | { on: "card_put_under"; filter?: CardFilter };
+  | { on: "card_put_under"; filter?: CardFilter }
+  /** CRD 8.10.4: fires on the previous version of a character that just had
+   *  another character shifted onto it. Source is the under card; the
+   *  triggering card is the new shifter. Used by Go Go Tomago Mechanical
+   *  Engineer ("when you play a Floodborn character on this card"). */
+  | { on: "shifted_onto"; filter?: CardFilter };
 
 // -----------------------------------------------------------------------------
 // CONDITIONS — Guards on triggered/activated abilities

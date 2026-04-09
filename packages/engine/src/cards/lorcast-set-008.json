@@ -8950,7 +8950,26 @@
       "Hero",
       "Inventor"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "shifted_onto",
+          "filter": { "cardType": ["character"], "hasTrait": "Floodborn" }
+        },
+        "storyName": "NEED THIS!",
+        "rulesText": "When you play a Floodborn character on this card, you may put the top card of your deck into your inkwell facedown and exerted.",
+        "effects": [
+          {
+            "type": "move_to_inkwell",
+            "fromZone": "deck",
+            "target": { "type": "this" },
+            "enterExerted": true,
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 159,
     "rarity": "common",
