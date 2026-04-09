@@ -7226,7 +7226,37 @@
     "cost": 2,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "turn_start", "player": { "type": "self" } },
+        "storyName": "TINY THIEVES",
+        "rulesText": "At the start of your turn, if you have a character here, all opponents lose 1 lore and you gain lore equal to the lore lost this way.",
+        "condition": {
+          "type": "you_control_matching",
+          "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "atLocation": "this" }
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "costEffects": [
+              {
+                "type": "lose_lore",
+                "amount": 1,
+                "target": { "type": "opponent" }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "gain_lore",
+                "amount": "cost_result",
+                "target": { "type": "self" }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "6",
     "number": 135,
     "rarity": "rare",

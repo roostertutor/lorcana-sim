@@ -9774,7 +9774,33 @@
       "Knight",
       "Seven Dwarfs"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "BOON OF RESILIENCE",
+        "rulesText": "While one of your Knight characters is at a location, that character gains Resist +2.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "resist",
+          "value": 2,
+          "target": {
+            "type": "all",
+            "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "hasTrait": "Knight", "atLocation": "any" }
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "BURST OF SPEED",
+        "rulesText": "During your turn, this character gains Evasive.",
+        "condition": { "type": "is_your_turn" },
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": { "type": "this" }
+        }
+      }
+    ],
     "setId": "5",
     "number": 186,
     "rarity": "super_rare",
