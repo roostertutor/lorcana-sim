@@ -1062,7 +1062,27 @@
       "King",
       "Racer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "is_banished",
+          "filter": { "owner": { "type": "self" }, "cardType": ["character"], "hasTrait": "Racer", "excludeSelf": true }
+        },
+        "storyName": "SWEET REVENGE",
+        "rulesText": "Whenever one of your other Racer characters is banished, each opponent chooses and banishes one of their characters.",
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"] },
+              "chooser": "target_player"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "7",
     "number": 20,
     "rarity": "super_rare",
