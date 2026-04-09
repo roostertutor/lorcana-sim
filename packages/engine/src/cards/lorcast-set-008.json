@@ -10933,7 +10933,20 @@
       "Villain",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "EXTREME FOCUS",
+        "rulesText": "This character gets +1 {S} for each card in your discard.",
+        "effect": {
+          "type": "modify_stat_per_count",
+          "stat": "strength",
+          "perCount": 1,
+          "target": { "type": "this" },
+          "countFilter": { "owner": { "type": "self" }, "zone": "discard" }
+        }
+      }
+    ],
     "setId": "8",
     "number": 198,
     "rarity": "legendary",

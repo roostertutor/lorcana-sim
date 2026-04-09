@@ -8437,7 +8437,33 @@
       "Dreamborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "GOOD ADVICE",
+        "rulesText": "Your other characters gain Support.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "support",
+          "target": {
+            "type": "all",
+            "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "excludeSelf": true }
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "WHAT DID I DO?",
+        "rulesText": "While this character has 10 {S} or more, she gets +4 {L}.",
+        "condition": { "type": "self_stat_gte", "stat": "strength", "amount": 10 },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "modifier": 4,
+          "target": { "type": "this" }
+        }
+      }
+    ],
     "setId": "9",
     "number": 160,
     "rarity": "super_rare",
