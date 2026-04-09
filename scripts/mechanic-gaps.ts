@@ -48,7 +48,7 @@ const NEW_MECHANIC: [RegExp, string][] = [
   [/\btwice during your turn, whenever\b/i, "twice-per-turn-trigger"],
   [/\bput all .{0,40}cards? from your discard into your inkwell\b/i, "bulk-discard-to-inkwell"],
   [/\bwhenever one or more of your characters sings?\b/i, "batched-sings-trigger"],
-  [/\bnone of your characters challenged this turn\b/i, "no-challenges-this-turn-condition"],
+  // (no-challenges-this-turn-condition removed: no_challenges_this_turn Condition implemented.)
   [/\bif you'?ve played a song this turn\b/i, "song-played-this-turn-condition"],
   [/\bif you didn'?t put any cards into your inkwell this turn\b/i, "no-ink-put-this-turn-condition"],
   [/\bif you'?ve put a card under\b/i, "card-under-event-condition"],

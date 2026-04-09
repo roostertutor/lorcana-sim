@@ -686,7 +686,28 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "turn_end", "player": { "type": "self" } },
+        "storyName": "FOLLOW THE TRACKS",
+        "rulesText": "At the end of your turn, if this character is exerted and none of your characters challenged this turn, gain 1 lore.",
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            { "type": "this_is_exerted" },
+            { "type": "no_challenges_this_turn" }
+          ]
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": { "type": "self" }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 15,
     "rarity": "uncommon",
@@ -3119,7 +3140,30 @@
     "cost": 2,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "turn_end", "player": { "type": "self" } },
+        "storyName": "PRECIOUS GIFT",
+        "rulesText": "At the end of your turn, if none of your characters challenged this turn, chosen character of yours gains Evasive until the start of your next turn.",
+        "condition": { "type": "no_challenges_this_turn" },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "evasive",
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": { "type": "self" },
+                "zone": "play",
+                "cardType": ["character"]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 65,
     "rarity": "uncommon",

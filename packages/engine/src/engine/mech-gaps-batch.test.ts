@@ -352,6 +352,33 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     expect(getZone(state, "player1", "hand").length).toBe(p1HandBefore - 1);
   });
 
+  it("no_challenges_this_turn: John Smith Snow Tracker gains 1 lore at end of turn iff exerted AND no challenges occurred", () => {
+    let state = startGame();
+    let johnId: string;
+    ({ state, instanceId: johnId } = injectCard(state, "player1", "john-smith-snow-tracker", "play", { isDrying: false, isExerted: true }));
+    const loreBefore = state.players.player1.lore;
+    // Pass turn — turn_end on player1 fires the trigger; condition holds (no challenges, exerted).
+    state = passTurns(state, 1);
+    expect(state.players.player1.lore).toBe(loreBefore + 1);
+  });
+
+  it("no_challenges_this_turn: John Smith does NOT gain lore if a challenge happened this turn", () => {
+    let state = startGame();
+    let johnId: string, attackerId: string, defenderId: string;
+    ({ state, instanceId: johnId } = injectCard(state, "player1", "john-smith-snow-tracker", "play", { isDrying: false, isExerted: true }));
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    ({ state, instanceId: defenderId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false, isExerted: true }));
+    // Player1 challenges with attacker.
+    const r = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: attackerId, defenderInstanceId: defenderId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(state.players.player1.aCharacterChallengedThisTurn).toBe(true);
+    const loreBefore = state.players.player1.lore;
+    state = passTurns(state, 1);
+    // Lore should NOT have changed from John Smith's trigger (the condition fails).
+    expect(state.players.player1.lore).toBe(loreBefore);
+  });
+
   it("Travelers: 'played another character this turn' is false when only the source was played, true once a second character is played", () => {
     let state = startGame();
     state = giveInk(state, "player1", 5);

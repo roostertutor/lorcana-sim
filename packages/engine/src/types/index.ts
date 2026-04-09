@@ -1481,7 +1481,11 @@ export type Condition =
   /** Travelers cycle (P3): "if you played another character this turn".
    *  True when the controller has at least one entry in
    *  charactersPlayedThisTurn whose id is NOT the source instanceId. */
-  | { type: "played_another_character_this_turn" };
+  | { type: "played_another_character_this_turn" }
+  /** Set 11 pacifist cycle (Mother's Necklace, John Smith Snow Tracker):
+   *  "if none of your characters challenged this turn". True iff the
+   *  controller's aCharacterChallengedThisTurn flag is unset/false. */
+  | { type: "no_challenges_this_turn" };
 
 export type AbilityTiming = "your_turn_main" | "any_time" | "opponent_turn";
 
@@ -1727,6 +1731,10 @@ export interface PlayerState {
   /** True if any of this player's characters was banished in a challenge this turn.
    *  Used by LeFou - Opportunistic Flunky (checks the opposing player's flag). Cleared at PASS_TURN. */
   aCharacterWasBanishedInChallengeThisTurn?: boolean;
+  /** True if any of this player's characters CHALLENGED this turn (Set 11
+   *  Pacifist cycle — Mother's Necklace, John Smith Snow Tracker). Cleared at
+   *  PASS_TURN for both players. */
+  aCharacterChallengedThisTurn?: boolean;
   /** Timed play restrictions affecting this player (Pete Games Referee, Keep the
    *  Ancient Ways). Each entry blocks plays of certain card types until the
    *  CASTER'S next turn begins. Multiple entries OR-combine. */

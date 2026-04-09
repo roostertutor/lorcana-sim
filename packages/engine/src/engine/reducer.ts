@@ -787,6 +787,16 @@ function applyChallenge(
   const defenderDef = getDefinition(state, defenderInstanceId, definitions);
   const modifiers = getGameModifiers(state, definitions);
 
+  // Set 11 pacifist cycle: track that the attacker's owner had a character
+  // challenge this turn. Used by no_challenges_this_turn condition.
+  state = {
+    ...state,
+    players: {
+      ...state.players,
+      [playerId]: { ...state.players[playerId], aCharacterChallengedThisTurn: true },
+    },
+  };
+
   const atkStaticStr = modifiers.statBonuses.get(attackerInstanceId)?.strength ?? 0;
   const defStaticStr = modifiers.statBonuses.get(defenderInstanceId)?.strength ?? 0;
   let attackerStr = getEffectiveStrength(attacker, attackerDef, atkStaticStr, modifiers);
@@ -1231,6 +1241,7 @@ function applyPassTurn(
         // Per-turn event flags reset on the new active player too (defensive)
         aCharacterWasDamagedThisTurn: false,
         aCharacterWasBanishedInChallengeThisTurn: false,
+        aCharacterChallengedThisTurn: false,
       },
       // CRD 3.4.1.2: clear the ending player's turn-scoped conditional challenge bonuses
       // and per-turn event flags (damaged-this-turn, banished-in-challenge-this-turn).
@@ -1241,6 +1252,7 @@ function applyPassTurn(
         charactersPlayedThisTurn: [],
         aCharacterWasDamagedThisTurn: false,
         aCharacterWasBanishedInChallengeThisTurn: false,
+        aCharacterChallengedThisTurn: false,
       },
     },
   };

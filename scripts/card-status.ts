@@ -125,7 +125,7 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // "Whenever one or more of your characters sings a song" — batched sings trigger
   [/\bwhenever one or more of your characters sings?\b/i, "batched-sings-trigger"],
   // "If none of your characters challenged this turn" — event-tracking condition
-  [/\bnone of your characters challenged this turn\b/i, "no-challenges-this-turn-condition"],
+  // (no-challenges-this-turn-condition removed: no_challenges_this_turn Condition implemented.)
   // "If you've played a song this turn" — event-tracking condition
   [/\bif you'?ve played a song this turn\b/i, "song-played-this-turn-condition"],
   // "If you didn't put any cards into your inkwell this turn" — event-tracking condition

@@ -633,6 +633,9 @@ export function evaluateCondition(
       return getZone(state, opponent, "hand").length > getZone(state, controllingPlayerId, "hand").length;
     case "is_your_turn":
       return state.currentPlayer === controllingPlayerId;
+    case "no_challenges_this_turn": {
+      return !state.players[controllingPlayerId].aCharacterChallengedThisTurn;
+    }
     case "played_another_character_this_turn": {
       // Travelers (P3): "if you played another character this turn". Check
       // for any tracked entry whose id is NOT the source instance.
