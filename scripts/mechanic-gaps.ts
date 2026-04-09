@@ -166,7 +166,7 @@ const NEW_TYPE: [RegExp, string][] = [
   // (random-discard removed: discard_from_hand chooser:"random" supported;
   //  cards wired this batch.)
   [/\bgain.{0,10}classification\b/i, "grant-classification"],
-  [/\blose.{0,10}(the )?[A-Z][a-z]+ (classification|ability)\b/i, "remove-ability"],
+  // (remove-ability removed: remove_named_ability StaticEffect implemented.)
   // (stat-floor removed: stat_floor_printed StaticEffect implemented — Elisa Maza.)
   // (prevent-lore-loss removed: prevent_lore_loss StaticEffect implemented.)
   // (virtual-cost-modifier removed: sing_cost_bonus_here StaticEffect implemented.)

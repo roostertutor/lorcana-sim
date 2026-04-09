@@ -1036,7 +1036,20 @@ export type StaticEffect =
   | StatFloorPrintedStatic
   | SingCostBonusHereStatic
   | InkwellEntersExertedStatic
-  | PreventLoreLossStatic;
+  | PreventLoreLossStatic
+  | RemoveNamedAbilityStatic;
+
+/**
+ * Angela - Night Warrior (Set 11): "Your Gargoyle characters lose the Stone
+ * by Day ability." Suppresses a named ability on all matching cards. The
+ * gameModifiers scanner does a pre-pass to collect suppressions, then skips
+ * abilities whose storyName is suppressed for that instance.
+ */
+export interface RemoveNamedAbilityStatic {
+  type: "remove_named_ability";
+  abilityName: string;
+  target: CardTarget;
+}
 
 /**
  * Koda - Talkative Cub (Set 5): "During opponents' turns, you can't lose lore."

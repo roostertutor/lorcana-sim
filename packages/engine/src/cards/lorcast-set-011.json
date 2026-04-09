@@ -9515,7 +9515,26 @@
       "Ally",
       "Gargoyle"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "ETERNAL NIGHT",
+        "rulesText": "Your Gargoyle characters lose the Stone by Day ability.",
+        "effect": {
+          "type": "remove_named_ability",
+          "abilityName": "STONE BY DAY",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": { "type": "self" },
+              "zone": "play",
+              "cardType": ["character"],
+              "hasTrait": "Gargoyle"
+            }
+          }
+        }
+      }
+    ],
     "setId": "11",
     "number": 187,
     "rarity": "super_rare",

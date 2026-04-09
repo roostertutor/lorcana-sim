@@ -214,6 +214,43 @@ export function getGameModifiers(
     preventLoreLoss: new Set(),
   };
 
+  // Pre-pass: collect remove_named_ability suppressions so the main pass can
+  // skip suppressed abilities. Angela Night Warrior ETERNAL NIGHT removes
+  // STONE BY DAY from all your Gargoyle characters.
+  const suppressedAbilities = new Map<string, Set<string>>();
+  for (const instance of Object.values(state.cards)) {
+    const def = definitions[instance.definitionId];
+    if (!def) continue;
+    for (const ability of def.abilities) {
+      if (ability.type !== "static") continue;
+      if (ability.effect.type !== "remove_named_ability") continue;
+      const activeZones = ability.activeZones ?? ["play"];
+      if (!activeZones.includes(instance.zone)) continue;
+      if (ability.condition && !evaluateCondition(ability.condition, state, definitions, instance.ownerId, instance.instanceId)) continue;
+      const eff = ability.effect;
+      const addSuppression = (id: string) => {
+        let set = suppressedAbilities.get(id);
+        if (!set) {
+          set = new Set();
+          suppressedAbilities.set(id, set);
+        }
+        set.add(eff.abilityName);
+      };
+      if (eff.target.type === "this") {
+        addSuppression(instance.instanceId);
+      } else if (eff.target.type === "all") {
+        for (const candidate of Object.values(state.cards)) {
+          if (candidate.zone !== "play") continue;
+          const candidateDef = definitions[candidate.definitionId];
+          if (!candidateDef) continue;
+          if (matchesFilter(candidate, candidateDef, eff.target.filter, state, instance.ownerId, instance.instanceId)) {
+            addSuppression(candidate.instanceId);
+          }
+        }
+      }
+    }
+  }
+
   for (const instance of Object.values(state.cards)) {
     const def = definitions[instance.definitionId];
     if (!def) continue;
@@ -224,6 +261,8 @@ export function getGameModifiers(
       // activeZones declares where this static is active; default is ["play"].
       const activeZones = ability.activeZones ?? ["play"];
       if (!activeZones.includes(instance.zone)) continue;
+      // Skip ability if it's been suppressed by a remove_named_ability static.
+      if (ability.storyName && suppressedAbilities.get(instance.instanceId)?.has(ability.storyName)) continue;
 
       // Check condition on static ability (e.g. "while you have a Captain in play")
       if (ability.condition) {
@@ -500,6 +539,11 @@ export function getGameModifiers(
             modifiers.enterPlayExerted.set(affectedPlayerId, arr);
           }
           arr.push(effect.filter);
+          break;
+        }
+
+        case "remove_named_ability": {
+          // Already handled in the pre-pass above; no-op here.
           break;
         }
 

@@ -329,7 +329,7 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   //  this. Cards wired in this batch.)
   // "Gains the [Trait] classification" — trait granting
   [/\bgain.{0,10}classification\b/i, "grant-classification"],
-  [/\blose.{0,10}(the )?[A-Z][a-z]+ (classification|ability)\b/i, "remove-ability"],
+  // (remove-ability removed: remove_named_ability StaticEffect implemented.)
   // (stat-floor removed: stat_floor_printed StaticEffect implemented — Elisa Maza
   //  Transformed Gargoyle. Matched as fits-grammar below.)
   // "Can't lose lore" (during opponents' turns)
