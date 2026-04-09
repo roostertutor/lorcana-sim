@@ -1472,6 +1472,16 @@
     "cost": 3,
     "inkable": false,
     "traits": [],
+    "actionEffects": [
+      {
+        "type": "each_opponent_may_discard_then_reward",
+        "rewardEffect": {
+          "type": "gain_lore",
+          "amount": 2,
+          "target": { "type": "self" }
+        }
+      }
+    ],
     "abilities": [],
     "setId": "4",
     "number": 30,
@@ -5017,6 +5027,16 @@
     "cost": 1,
     "inkable": false,
     "traits": [],
+    "actionEffects": [
+      {
+        "type": "each_opponent_may_discard_then_reward",
+        "rewardEffect": {
+          "type": "draw",
+          "amount": 1,
+          "target": { "type": "self" }
+        }
+      }
+    ],
     "abilities": [],
     "setId": "4",
     "number": 96,

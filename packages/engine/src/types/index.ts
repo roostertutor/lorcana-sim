@@ -207,7 +207,25 @@ export type Effect =
   | RevealHandEffect
   | MillEffect
   | MassInkwellEffect
-  | RestrictPlayEffect;
+  | RestrictPlayEffect
+  | EachOpponentMayDiscardThenRewardEffect;
+
+/**
+ * Sign the Scroll / Ursula's Trickery: "Each opponent may choose and discard a
+ * card. For each opponent who doesn't, you {gain 2 lore | draw a card}."
+ *
+ * 2P implementation: surface a choose_may to the single opponent. On accept,
+ * resolve the discard via choose_discard. On decline (or if their hand is
+ * empty — auto-decline), apply rewardEffect on behalf of the source's owner.
+ *
+ * Future 3+P generalization should chain per-opponent prompts and total the
+ * refusals; the rewardEffect would then run N times. The current 2P-only
+ * version covers Lorcana's existing card pool.
+ */
+export interface EachOpponentMayDiscardThenRewardEffect {
+  type: "each_opponent_may_discard_then_reward";
+  rewardEffect: Effect;
+}
 
 /**
  * Pete - Games Referee, Keep the Ancient Ways: "Opponents can't play actions
@@ -1838,6 +1856,13 @@ export interface PendingChoice {
   triggeringCardInstanceId?: string;
   /** Additional effects to apply to the same chosen target(s) after the primary effect resolves */
   followUpEffects?: Effect[] | undefined;
+  /** For choose_may (CRD 6.1.4 inverse may): an effect to apply ONLY when the
+   *  player declines. Used by Sign the Scroll / Ursula's Trickery: "Each
+   *  opponent may discard a card. For each opponent who doesn't, you gain 2 lore." */
+  rejectEffect?: Effect | undefined;
+  /** For rejectEffect: the player whose perspective controls the reject branch
+   *  (the source's owner — not the choosing player). */
+  rejectControllingPlayerId?: PlayerID | undefined;
 }
 
 export interface GameLogEntry {

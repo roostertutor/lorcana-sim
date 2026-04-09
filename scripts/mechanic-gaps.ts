@@ -30,8 +30,7 @@ const NEW_MECHANIC: [RegExp, string][] = [
   [/\bonly one character can challenge\b/i, "challenge-limiter"],
   [/\bmust choose this character for actions and abilities\b/i, "super-bodyguard"],
   [/\bcan'?t gain lore unless\b/i, "conditional-lore-lock"],
-  [/\bfor each opponent who (doesn'?t|does not)\b/i, "for-each-opponent-who-didnt"],
-  [/\beach opponent (may )?(choose and )?discards? .{0,40}\.\s*for each opponent\b/i, "for-each-opponent-who-didnt"],
+  // (for-each-opponent-who-didnt removed: each_opponent_may_discard_then_reward Effect implemented.)
   // (grant-floating-trigger-to-target removed: FloatingTrigger gained
   //  attachedToInstanceId; CreateFloatingTriggerEffect.attachTo "chosen"
   //  surfaces a choose_target. Bruno Madrigal + Medallion Weights wired.)

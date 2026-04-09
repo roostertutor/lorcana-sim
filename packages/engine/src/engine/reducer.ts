@@ -1485,6 +1485,12 @@ function applyResolveChoice(
       // Apply the effect — which may itself create a target choice (e.g. Support)
       const sourceId = pendingChoice.sourceInstanceId ?? "";
       state = applyEffect(state, pendingEffect!, sourceId, playerId, definitions, events, pendingChoice.triggeringCardInstanceId);
+    } else if (pendingChoice.rejectEffect) {
+      // CRD 6.1.4 inverse-may: Sign the Scroll / Ursula's Trickery. The reward
+      // is controlled by the source's owner, NOT the choosing player.
+      const sourceId = pendingChoice.sourceInstanceId ?? "";
+      const rewardController = pendingChoice.rejectControllingPlayerId ?? playerId;
+      state = applyEffect(state, pendingChoice.rejectEffect, sourceId, rewardController, definitions, events, pendingChoice.triggeringCardInstanceId);
     }
     // "decline" → skip; either path resumes any queued remaining effects from
     // the same trigger (Graveyard of Christmas Future ANOTHER CHANCE has a
@@ -2850,6 +2856,42 @@ export function applyEffect(
         }
       }
       return state;
+    }
+
+    case "each_opponent_may_discard_then_reward": {
+      // Sign the Scroll, Ursula's Trickery. 2P-only implementation: a single
+      // choose_may surfaced to the opponent. Decline (or empty hand) → reward.
+      const opponentId = getOpponent(controllingPlayerId);
+      const opponentHand = getZone(state, opponentId, "hand");
+      // Empty-hand auto-decline → fire reward immediately. CRD 6.1.4 "may":
+      // a player who can't perform the optional action is treated as having
+      // declined.
+      if (opponentHand.length === 0) {
+        return applyEffect(state, effect.rewardEffect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+      }
+      // When player2 (the opponent / choosing player) accepts the may, the
+      // applyEffect call uses playerId=player2 as the controllingPlayer; "self"
+      // resolves to player2's own hand, which is what we want.
+      const discardEffect = {
+        type: "discard_from_hand" as const,
+        target: { type: "self" as const },
+        amount: 1,
+        chooser: "target_player" as const,
+      };
+      return {
+        ...state,
+        pendingChoice: {
+          type: "choose_may",
+          choosingPlayerId: opponentId,
+          prompt: "Discard a card?",
+          pendingEffect: discardEffect,
+          optional: true,
+          sourceInstanceId,
+          triggeringCardInstanceId,
+          rejectEffect: effect.rewardEffect,
+          rejectControllingPlayerId: controllingPlayerId,
+        },
+      };
     }
 
     case "restrict_play": {

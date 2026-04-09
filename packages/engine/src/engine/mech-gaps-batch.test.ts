@@ -290,6 +290,68 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     expect(r2.newState.players.player2.availableInk).toBe(inkBefore2 + 1);
   });
 
+  it("Sign the Scroll: empty opposing hand → caster gains 2 lore (auto-decline reward)", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    // Empty player2's hand.
+    const oppHand = getZone(state, "player2", "hand").slice();
+    for (const id of oppHand) {
+      state = { ...state, cards: { ...state.cards, [id]: { ...state.cards[id], zone: "discard" as const } }, zones: { ...state.zones, player2: { ...state.zones.player2, hand: state.zones.player2.hand.filter(x => x !== id), discard: [...state.zones.player2.discard, id] } } };
+    }
+    let scrollId: string;
+    ({ state, instanceId: scrollId } = injectCard(state, "player1", "sign-the-scroll", "hand"));
+    const loreBefore = state.players.player1.lore;
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: scrollId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(r.newState.players.player1.lore).toBe(loreBefore + 2);
+    // No pending choice — auto-resolved.
+    expect(r.newState.pendingChoice).toBeNull();
+  });
+
+  it("Sign the Scroll: opponent declines → caster gains 2 lore", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let scrollId: string;
+    ({ state, instanceId: scrollId } = injectCard(state, "player1", "sign-the-scroll", "hand"));
+    const loreBefore = state.players.player1.lore;
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: scrollId }, LORCAST_CARD_DEFINITIONS);
+    if (!r.success) throw new Error(`PLAY_CARD failed: ${r.error}`);
+    state = r.newState;
+    expect(state.pendingChoice?.type).toBe("choose_may");
+    expect(state.pendingChoice?.choosingPlayerId).toBe("player2");
+    // Decline.
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player2", choice: "decline" }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(r.newState.players.player1.lore).toBe(loreBefore + 2);
+  });
+
+  it("Ursula's Trickery: opponent accepts → discards, no card drawn", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let trickeryId: string;
+    ({ state, instanceId: trickeryId } = injectCard(state, "player1", "ursula-s-trickery", "hand"));
+    const oppHandBefore = getZone(state, "player2", "hand").length;
+    const p1HandBefore = getZone(state, "player1", "hand").length;
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: trickeryId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(state.pendingChoice?.type).toBe("choose_may");
+    // Accept the may.
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player2", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // A discard choice should be pending now.
+    expect(state.pendingChoice?.type).toBe("choose_discard");
+    const oppHand = getZone(state, "player2", "hand");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player2", choice: [oppHand[0]!] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(getZone(state, "player2", "hand").length).toBe(oppHandBefore - 1);
+    // Caster did NOT draw because opponent accepted (Sign the Scroll = Trickery is "draw on decline").
+    // Note: p1 played the Trickery card itself so hand should be: original - 1 (the trickery played).
+    expect(getZone(state, "player1", "hand").length).toBe(p1HandBefore - 1);
+  });
+
   it("does not affect opposing characters (filter is owner: self)", () => {
     let state = startGame();
     ({ state } = injectCard(state, "player1", "elisa-maza-transformed-gargoyle", "play", { isDrying: false }));

@@ -87,9 +87,9 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // Conditional lore lock — "can't gain lore unless"
   [/\bcan'?t gain lore unless\b/i, "conditional-lore-lock"],
   // Phase B — gaps surfaced by Set 4 wiring (regex used to false-positive into fits-grammar):
-  // "For each opponent who doesn't" — per-opponent inverse-sequential branch
-  [/\bfor each opponent who (doesn'?t|does not)\b/i, "for-each-opponent-who-didnt"],
-  [/\beach opponent (may )?(choose and )?discards? .{0,40}\.\s*for each opponent\b/i, "for-each-opponent-who-didnt"],
+  // (for-each-opponent-who-didnt removed: each_opponent_may_discard_then_reward
+  //  Effect implemented — Sign the Scroll, Ursula's Trickery. 2P-only;
+  //  generalize when 3+P support lands. Matched as fits-grammar below.)
   // "Chosen character gains "<quoted floating triggered ability>" this turn"
   // create_floating_trigger applies to source, not chosen target (Bruno Madrigal).
   [/\bchosen .{0,30}gains? "[^"]+"\s*this turn\b/i, "grant-floating-trigger-to-target"],
@@ -427,7 +427,7 @@ const CAPABILITIES = new Set<string>([
   "stat_static", "cant_be_challenged_static", "cost_reduction_static",
   "action_restriction_static", "grant_activated_ability_static",
   "damage_immunity", "stat_floor_printed", "restrict_play", "sing_cost_bonus_here",
-  "inkwell_enters_exerted",
+  "inkwell_enters_exerted", "each_opponent_may_discard_then_reward",
   // Triggers (TriggerEvent.on)
   "trigger_enters_play", "trigger_leaves_play", "trigger_quests",
   "trigger_sings", "trigger_challenges", "trigger_is_challenged",
@@ -549,6 +549,8 @@ const FITS_GRAMMAR_PATTERNS: [RegExp, string][] = [
   [/\bcount as having .{0,10}cost .{0,30}while here\b/i, "sing_cost_bonus_here"],
   // inkwell-static — Daisy Duck Paranormal Investigator ("cards enter opponents' inkwells exerted").
   [/\benter.{0,10}opponents'.{0,20}inkwell.{0,20}exerted\b/i, "inkwell_enters_exerted"],
+  // for-each-opponent-who-didnt — Sign the Scroll, Ursula's Trickery (2P only for now).
+  [/\bfor each opponent who (doesn'?t|does not)\b/i, "each_opponent_may_discard_then_reward"],
   [/\bcan'?t be challenged by .{0,30}characters\b/i, "cant_be_challenged_static"],
   [/\bwhile being challenged\b/i, "trigger_is_challenged"],
   [/during your turn.{0,40}(has|gains?) (evasive|rush|bodyguard|ward|reckless|resist|challenger|support)/i, "grant_keyword"],
