@@ -352,6 +352,35 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     expect(getZone(state, "player1", "hand").length).toBe(p1HandBefore - 1);
   });
 
+  it("Travelers: 'played another character this turn' is false when only the source was played, true once a second character is played", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let cruellaId: string, otherId: string;
+    // Inject Cruella into play directly with playedThisTurn tracking already set.
+    ({ state, instanceId: cruellaId } = injectCard(state, "player1", "cruella-de-vil-judgmental-traveler", "play", { isDrying: false }));
+    // Manually mark Cruella as the only character played this turn.
+    state = { ...state, players: { ...state.players, player1: { ...state.players.player1, charactersPlayedThisTurn: [cruellaId] } } };
+    // A damaged opposing character to potentially banish.
+    let victimId: string;
+    ({ state, instanceId: victimId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false, damage: 1 }));
+
+    // Quest with Cruella — condition fails (only herself in the played list), so no banish prompt.
+    let r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: cruellaId }, LORCAST_CARD_DEFINITIONS);
+    if (!r.success) throw new Error(`QUEST failed: ${r.error}`);
+    expect(r.newState.pendingChoice).toBeNull();
+    expect(getInstance(r.newState, victimId).zone).toBe("play");
+
+    // Now play another character, then quest again — but Cruella already exerted.
+    // Easier: ready Cruella, push another id into the played list, requery.
+    state = { ...state, cards: { ...state.cards, [cruellaId]: { ...state.cards[cruellaId], isExerted: false } } };
+    ({ state, instanceId: otherId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: true }));
+    state = { ...state, players: { ...state.players, player1: { ...state.players.player1, charactersPlayedThisTurn: [cruellaId, otherId] } } };
+    r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: cruellaId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // Now there should be a may-prompt; first the yes/no, then on accept a choose_target.
+    expect(r.newState.pendingChoice?.type).toBe("choose_may");
+  });
+
   it("UNDERDOG: White Rabbit Late Again pays 1 less only on player2's first turn (turn 2)", () => {
     // Card cost is 2; with Underdog active it should cost 1.
     let state = startGame();

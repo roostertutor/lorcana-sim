@@ -240,7 +240,7 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   [/\bif you have a character in play with damage\b/i, "has-damaged-character-condition"],
   // Fantastical etc.: Sing Together dynamic-per-singer also caught above via per-singer-dynamic
   // "If you played another character this turn" — event-tracking condition (set P3 Travelers)
-  [/\bif you played another character this turn\b/i, "played-another-this-turn-condition"],
+  // (played-another-this-turn-condition removed: played_another_character_this_turn Condition implemented.)
   // "You may pay N {I} to choose one" on ETB — pay-then-modal sequential
   [/\byou may pay \d+ \{I\} to choose one\b/i, "pay-then-modal"],
   // "Draw a card for each character you have in play" — dynamic draw from count

@@ -106,7 +106,7 @@ const NEW_MECHANIC: [RegExp, string][] = [
   [/\bready this character\..{0,30}can'?t quest or challenge for the rest of this turn\b/i, "ready-then-cant-act-compound"],
   [/\bready a character here\..{0,40}can'?t quest\b/i, "ready-then-cant-act-compound"],
   [/\bif you have a character in play with damage\b/i, "has-damaged-character-condition"],
-  [/\bif you played another character this turn\b/i, "played-another-this-turn-condition"],
+  // (played-another-this-turn-condition removed: played_another_character_this_turn Condition implemented.)
   [/\byou may pay \d+ \{I\} to choose one\b/i, "pay-then-modal"],
   [/\bdraw (a |\d+ )cards? for each .{0,40}you have in play\b/i, "dynamic-draw-from-count"],
   [/\bwhile this character is being challenged\b/i, "being-challenged-static"],

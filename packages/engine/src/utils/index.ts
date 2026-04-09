@@ -633,6 +633,12 @@ export function evaluateCondition(
       return getZone(state, opponent, "hand").length > getZone(state, controllingPlayerId, "hand").length;
     case "is_your_turn":
       return state.currentPlayer === controllingPlayerId;
+    case "played_another_character_this_turn": {
+      // Travelers (P3): "if you played another character this turn". Check
+      // for any tracked entry whose id is NOT the source instance.
+      const list = state.players[controllingPlayerId].charactersPlayedThisTurn ?? [];
+      return list.some((id) => id !== sourceInstanceId);
+    }
     case "your_first_turn_as_underdog": {
       // CRD: UNDERDOG ("if this is your first turn and you're not the first
       // player"). 2P: it's the controller's first turn iff turnNumber equals

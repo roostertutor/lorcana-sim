@@ -1477,7 +1477,11 @@ export type Condition =
   /** UNDERDOG (Set 11): "If this is your first turn and you're not the first
    *  player, ...". True when the controlling player has not yet completed a
    *  turn AND they are NOT state.firstPlayerId. */
-  | { type: "your_first_turn_as_underdog" };
+  | { type: "your_first_turn_as_underdog" }
+  /** Travelers cycle (P3): "if you played another character this turn".
+   *  True when the controller has at least one entry in
+   *  charactersPlayedThisTurn whose id is NOT the source instanceId. */
+  | { type: "played_another_character_this_turn" };
 
 export type AbilityTiming = "your_turn_main" | "any_time" | "opponent_turn";
 
@@ -1705,6 +1709,9 @@ export interface PlayerState {
   actionsPlayedThisTurn?: number;
   /** Number of songs played this turn */
   songsPlayedThisTurn?: number;
+  /** Instance IDs of characters played this turn (Travelers cycle, P3 — "if you
+   *  played another character this turn"). Cleared on PASS_TURN. */
+  charactersPlayedThisTurn?: string[];
   /**
    * Conditional challenge strength bonuses active this turn (CRD 6.1.4 / 8.5.1-style).
    * Each entry adds `strength` to any of this player's characters when challenging

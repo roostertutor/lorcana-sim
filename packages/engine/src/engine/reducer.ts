@@ -496,6 +496,18 @@ function applyPlayCard(
       message: `${playerId} shifted ${def.fullName} onto ${definitions[shiftTarget.definitionId]?.fullName}.`,
       type: "card_played",
     });
+    // Track shifted-in characters for the Travelers "played another character
+    // this turn" condition.
+    {
+      const existing = state.players[playerId].charactersPlayedThisTurn ?? [];
+      state = {
+        ...state,
+        players: {
+          ...state.players,
+          [playerId]: { ...state.players[playerId], charactersPlayedThisTurn: [...existing, instanceId] },
+        },
+      };
+    }
   } else if (def.cardType === "action") {
     // CRD 4.3.3.2: Action enters play zone, effect resolves, then moves to discard
     state = zoneTransition(state, instanceId, "play", definitions, events, {
@@ -561,6 +573,20 @@ function applyPlayCard(
       message: `${playerId} played ${def.fullName}.`,
       type: "card_played",
     });
+    // Travelers cycle (P3): track characters played this turn for the
+    // "played another character this turn" condition. Track shift plays too —
+    // see the shift branch above which falls through to here only for non-
+    // shift plays; record from there as well via a separate update below.
+    if (def.cardType === "character") {
+      const existing = state.players[playerId].charactersPlayedThisTurn ?? [];
+      state = {
+        ...state,
+        players: {
+          ...state.players,
+          [playerId]: { ...state.players[playerId], charactersPlayedThisTurn: [...existing, instanceId] },
+        },
+      };
+    }
   }
 
   // EnterPlayExertedStatic — Jiminy Cricket Level-Headed and Wise (opposing
@@ -1201,6 +1227,7 @@ function applyPassTurn(
         extraInkPlaysGranted: 0, // Clear turn-scoped extra ink grants
         actionsPlayedThisTurn: 0,
         songsPlayedThisTurn: 0,
+        charactersPlayedThisTurn: [],
         // Per-turn event flags reset on the new active player too (defensive)
         aCharacterWasDamagedThisTurn: false,
         aCharacterWasBanishedInChallengeThisTurn: false,
@@ -1211,6 +1238,7 @@ function applyPassTurn(
       [playerId]: {
         ...state.players[playerId],
         turnChallengeBonuses: [],
+        charactersPlayedThisTurn: [],
         aCharacterWasDamagedThisTurn: false,
         aCharacterWasBanishedInChallengeThisTurn: false,
       },

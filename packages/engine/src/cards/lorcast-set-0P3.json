@@ -2670,7 +2670,37 @@
       "Villain",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "quests"
+        },
+        "storyName": "HEED MY WORDS",
+        "rulesText": "Whenever this character quests, if you played another character this turn, you may exert chosen opposing character.",
+        "condition": {
+          "type": "played_another_character_this_turn"
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "P3",
     "number": 44,
     "rarity": "common",
@@ -2703,7 +2733,35 @@
       "Dreamborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "quests"
+        },
+        "storyName": "YOU'RE OUT OF FASHION",
+        "rulesText": "Whenever this character quests, if you played another character this turn, you may banish chosen damaged character.",
+        "condition": {
+          "type": "played_another_character_this_turn"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasDamage": true
+              }
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "P3",
     "number": 45,
     "rarity": "common",
@@ -2737,7 +2795,35 @@
       "Villain",
       "Queen"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "quests"
+        },
+        "storyName": "ROYAL COMMAND",
+        "rulesText": "Whenever this character quests, if you played another character this turn, chosen character gains Rush this turn.",
+        "condition": {
+          "type": "played_another_character_this_turn"
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "rush",
+            "duration": "this_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "P3",
     "number": 46,
     "rarity": "common",
@@ -2771,7 +2857,30 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "quests"
+        },
+        "storyName": "THIS AND THAT",
+        "rulesText": "Whenever this character quests, if you played another character this turn, you may put the top card of your deck into your inkwell facedown and exerted.",
+        "condition": {
+          "type": "played_another_character_this_turn"
+        },
+        "effects": [
+          {
+            "type": "move_to_inkwell",
+            "fromZone": "deck",
+            "target": {
+              "type": "this"
+            },
+            "enterExerted": true,
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "P3",
     "number": 47,
     "rarity": "common",
@@ -2805,7 +2914,36 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "quests"
+        },
+        "storyName": "WANDERING SPIRIT",
+        "rulesText": "Whenever this character quests, if you played another character this turn, return a location card from your discard to your hand.",
+        "condition": {
+          "type": "played_another_character_this_turn"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "discard",
+                "cardType": [
+                  "location"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "P3",
     "number": 48,
     "rarity": "common",
