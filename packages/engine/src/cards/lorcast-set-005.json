@@ -18,8 +18,15 @@
         "type": "static",
         "storyName": "TELL EVERYBODY",
         "rulesText": "During opponents' turns, you can't lose lore.",
-        "condition": { "type": "not", "condition": { "type": "is_your_turn" } },
-        "effect": { "type": "prevent_lore_loss" }
+        "condition": {
+          "type": "not",
+          "condition": {
+            "type": "is_your_turn"
+          }
+        },
+        "effect": {
+          "type": "prevent_lore_loss"
+        }
       }
     ],
     "setId": "5",
@@ -1378,7 +1385,9 @@
     "actionEffects": [
       {
         "type": "name_a_card_then_reveal",
-        "target": { "type": "self" },
+        "target": {
+          "type": "self"
+        },
         "matchAction": "return_all_from_discard"
       }
     ],
@@ -2679,8 +2688,15 @@
         "type": "static",
         "storyName": "PLAYING WITH POWER",
         "rulesText": "During opponents' turns, if an effect would cause you to discard one or more cards from your hand, you don't discard.",
-        "condition": { "type": "not", "condition": { "type": "is_your_turn" } },
-        "effect": { "type": "prevent_discard_from_hand" }
+        "condition": {
+          "type": "not",
+          "condition": {
+            "type": "is_your_turn"
+          }
+        },
+        "effect": {
+          "type": "prevent_discard_from_hand"
+        }
       }
     ],
     "setId": "5",
@@ -3104,7 +3120,9 @@
             "target": {
               "type": "chosen",
               "filter": {
-                "owner": { "type": "self" },
+                "owner": {
+                  "type": "self"
+                },
                 "zone": "discard"
               }
             }
@@ -3115,8 +3133,12 @@
             "type": "look_at_top",
             "count": 1,
             "action": "one_to_play_for_free_else_to_hand",
-            "filter": { "nameFromLastResolvedTarget": true },
-            "target": { "type": "self" }
+            "filter": {
+              "nameFromLastResolvedTarget": true
+            },
+            "target": {
+              "type": "self"
+            }
           }
         ]
       }
@@ -4362,7 +4384,9 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "enters_play" },
+        "trigger": {
+          "on": "enters_play"
+        },
         "storyName": "ROYAL RESOLUTION",
         "rulesText": "When you play this character, you may pay 2 {I} to choose one: Each opponent chooses and discards a card. Chosen character gets +2 {S} this turn. Banish chosen damaged character.",
         "effects": [
@@ -4370,7 +4394,10 @@
             "type": "sequential",
             "isMay": true,
             "costEffects": [
-              { "type": "pay_ink", "amount": 2 }
+              {
+                "type": "pay_ink",
+                "amount": 2
+              }
             ],
             "rewardEffects": [
               {
@@ -4380,7 +4407,9 @@
                   [
                     {
                       "type": "discard_from_hand",
-                      "target": { "type": "opponent" },
+                      "target": {
+                        "type": "opponent"
+                      },
                       "amount": 1,
                       "chooser": "target_player"
                     }
@@ -4390,13 +4419,30 @@
                       "type": "gain_stats",
                       "strength": 2,
                       "duration": "this_turn",
-                      "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } }
+                      "target": {
+                        "type": "chosen",
+                        "filter": {
+                          "zone": "play",
+                          "cardType": [
+                            "character"
+                          ]
+                        }
+                      }
                     }
                   ],
                   [
                     {
                       "type": "banish",
-                      "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"], "hasDamage": true } }
+                      "target": {
+                        "type": "chosen",
+                        "filter": {
+                          "zone": "play",
+                          "cardType": [
+                            "character"
+                          ],
+                          "hasDamage": true
+                        }
+                      }
                     }
                   ]
                 ]
@@ -4846,7 +4892,9 @@
       },
       {
         "type": "triggered",
-        "trigger": { "on": "enters_play" },
+        "trigger": {
+          "on": "enters_play"
+        },
         "storyName": "THE WORLD IS DARK",
         "rulesText": "When you play this character, each opponent chooses one of their characters and returns that card to their hand.",
         "effects": [
@@ -4855,9 +4903,13 @@
             "target": {
               "type": "chosen",
               "filter": {
-                "owner": { "type": "self" },
+                "owner": {
+                  "type": "self"
+                },
                 "zone": "play",
-                "cardType": ["character"]
+                "cardType": [
+                  "character"
+                ]
               },
               "chooser": "target_player"
             }
@@ -5138,18 +5190,34 @@
         "type": "static",
         "storyName": "YOU LOOK REGAL",
         "rulesText": "If you have a character named Prince John in play, you pay 1 {I} less to play this item.",
-        "condition": { "type": "has_character_named", "name": "Prince John", "player": { "type": "self" } },
-        "effect": { "type": "self_cost_reduction", "amount": 1 }
+        "condition": {
+          "type": "has_character_named",
+          "name": "Prince John",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 1
+        }
       },
       {
         "type": "triggered",
-        "trigger": { "on": "turn_end", "player": { "type": "opponent" } },
+        "trigger": {
+          "on": "turn_end",
+          "player": {
+            "type": "opponent"
+          }
+        },
         "storyName": "A FEELING OF POWER",
         "rulesText": "At the end of each opponent's turn, if they have more than 3 cards in their hand, they discard until they have 3 cards in their hand.",
         "effects": [
           {
             "type": "fill_hand_to",
-            "target": { "type": "opponent" },
+            "target": {
+              "type": "opponent"
+            },
             "n": 3,
             "trimOnly": true
           }
@@ -5626,12 +5694,7 @@
       "Villain",
       "Racer"
     ],
-    "abilities": [
-      {
-        "type": "keyword",
-        "keyword": "rush"
-      }
-    ],
+    "abilities": [],
     "setId": "5",
     "number": 106,
     "rarity": "uncommon",
@@ -7706,21 +7769,33 @@
       },
       {
         "type": "triggered",
-        "trigger": { "on": "ink_played", "player": { "type": "self" } },
+        "trigger": {
+          "on": "ink_played",
+          "player": {
+            "type": "self"
+          }
+        },
         "storyName": "ONE ON THE WAY",
         "rulesText": "During your turn, when you put a card into your inkwell, if it's the second card you've put into your inkwell this turn, you may draw a card.",
         "condition": {
           "type": "compound_and",
           "conditions": [
-            { "type": "is_your_turn" },
-            { "type": "ink_plays_this_turn_eq", "amount": 2 }
+            {
+              "type": "is_your_turn"
+            },
+            {
+              "type": "ink_plays_this_turn_eq",
+              "amount": 2
+            }
           ]
         },
         "effects": [
           {
             "type": "draw",
             "amount": 1,
-            "target": { "type": "self" },
+            "target": {
+              "type": "self"
+            },
             "isMay": true
           }
         ]
@@ -8629,9 +8704,13 @@
         "target": {
           "type": "all",
           "filter": {
-            "owner": { "type": "self" },
+            "owner": {
+              "type": "self"
+            },
             "zone": "play",
-            "cardType": ["character"],
+            "cardType": [
+              "character"
+            ],
             "hasDamage": true
           }
         }
@@ -9828,7 +9907,17 @@
           "value": 2,
           "target": {
             "type": "all",
-            "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "hasTrait": "Knight", "atLocation": "any" }
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Knight",
+              "atLocation": "any"
+            }
           }
         }
       },
@@ -9836,11 +9925,15 @@
         "type": "static",
         "storyName": "BURST OF SPEED",
         "rulesText": "During your turn, this character gains Evasive.",
-        "condition": { "type": "is_your_turn" },
+        "condition": {
+          "type": "is_your_turn"
+        },
         "effect": {
           "type": "grant_keyword",
           "keyword": "evasive",
-          "target": { "type": "this" }
+          "target": {
+            "type": "this"
+          }
         }
       }
     ],
@@ -10310,14 +10403,20 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "enters_play" },
+        "trigger": {
+          "on": "enters_play"
+        },
         "storyName": "BLOW THE WHISTLE",
         "rulesText": "When you play this character, opponents can't play actions until the start of your next turn.",
         "effects": [
           {
             "type": "restrict_play",
-            "cardTypes": ["action"],
-            "affectedPlayer": { "type": "opponent" }
+            "cardTypes": [
+              "action"
+            ],
+            "affectedPlayer": {
+              "type": "opponent"
+            }
           }
         ]
       }
@@ -10513,20 +10612,41 @@
     "actionEffects": [
       {
         "type": "grant_activated_ability_timed",
-        "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"] },
+        "filter": {
+          "owner": {
+            "type": "self"
+          },
+          "zone": "play",
+          "cardType": [
+            "character"
+          ]
+        },
         "ability": {
           "type": "activated",
           "storyName": "FOOD FIGHT",
           "rulesText": "{E}, 1 {I} — Deal 1 damage to chosen character.",
           "costs": [
-            { "type": "exert" },
-            { "type": "pay_ink", "amount": 1 }
+            {
+              "type": "exert"
+            },
+            {
+              "type": "pay_ink",
+              "amount": 1
+            }
           ],
           "effects": [
             {
               "type": "deal_damage",
               "amount": 1,
-              "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } }
+              "target": {
+                "type": "chosen",
+                "filter": {
+                  "zone": "play",
+                  "cardType": [
+                    "character"
+                  ]
+                }
+              }
             }
           ]
         }
@@ -10719,15 +10839,19 @@
       {
         "type": "static",
         "storyName": "THERE'S NO ONE I'D RATHER BE THAN ME",
-        "rulesText": "Villain characters gain \"{E}, 3 {I} \u2014 Play a character with the same name as this character for free\" while here.",
+        "rulesText": "Villain characters gain \"{E}, 3 {I} — Play a character with the same name as this character for free\" while here.",
         "effect": {
           "type": "grant_activated_ability",
           "target": {
             "type": "all",
             "filter": {
-              "owner": { "type": "self" },
+              "owner": {
+                "type": "self"
+              },
               "zone": "play",
-              "cardType": ["character"],
+              "cardType": [
+                "character"
+              ],
               "hasTrait": "Villain",
               "atLocation": "this"
             }
@@ -10735,8 +10859,13 @@
           "ability": {
             "type": "activated",
             "costs": [
-              { "type": "exert" },
-              { "type": "ink", "amount": 3 }
+              {
+                "type": "exert"
+              },
+              {
+                "type": "ink",
+                "amount": 3
+              }
             ],
             "effects": [
               {
@@ -11843,15 +11972,19 @@
       {
         "type": "static",
         "storyName": "THERE'S NO ONE I'D RATHER BE THAN ME",
-        "rulesText": "Villain characters gain \"{E}, 3 {I} \u2014 Play a character with the same name as this character for free\" while here.",
+        "rulesText": "Villain characters gain \"{E}, 3 {I} — Play a character with the same name as this character for free\" while here.",
         "effect": {
           "type": "grant_activated_ability",
           "target": {
             "type": "all",
             "filter": {
-              "owner": { "type": "self" },
+              "owner": {
+                "type": "self"
+              },
               "zone": "play",
-              "cardType": ["character"],
+              "cardType": [
+                "character"
+              ],
               "hasTrait": "Villain",
               "atLocation": "this"
             }
@@ -11859,8 +11992,13 @@
           "ability": {
             "type": "activated",
             "costs": [
-              { "type": "exert" },
-              { "type": "ink", "amount": 3 }
+              {
+                "type": "exert"
+              },
+              {
+                "type": "ink",
+                "amount": 3
+              }
             ],
             "effects": [
               {

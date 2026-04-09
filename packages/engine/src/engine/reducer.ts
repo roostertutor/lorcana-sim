@@ -5648,23 +5648,50 @@ function applyEffectToTarget(
       };
     }
     case "move_character": {
-      // Moana Kakamora Leader path: character "all" + location chosen.
-      // targetInstanceId is the resolved location. Iterate every matching
-      // own character and performMove to that location, recording the count
-      // on lastEffectResult so the follow-up gain_lore can pay per move.
+      // Two-stage flow for character "all" + location "chosen" (Moana
+      // Kakamora Leader "any number", Voyage "up to 2"):
+      //   Stage 1 (the FIRST applyEffect): surfaces the location chooser.
+      //   Stage 2 (this branch, _resolvedLocation NOT yet set): the player
+      //     just resolved the location → surface a multi-select character
+      //     chooser bounded by maxCount (or unbounded for "any number").
+      //   Stage 3 (this branch, _resolvedLocation set): per-pick performMove,
+      //     incrementing lastEffectResult so a follow-up gain_lore (Moana)
+      //     can pay per moved character.
       if (effect.character.type === "all") {
-        const candidates = findValidTargets(state, effect.character.filter, controllingPlayerId, definitions, sourceInstanceId)
-          .filter((id) => id !== targetInstanceId);
-        let moved = 0;
-        for (const charId of candidates) {
-          const charInst = state.cards[charId];
-          if (!charInst) continue;
-          // Skip if already at the target location (no-op move).
-          if (charInst.atLocationInstanceId === targetInstanceId) continue;
-          state = performMove(state, charId, targetInstanceId, definitions, events);
-          moved++;
+        if (effect._resolvedLocation) {
+          // Stage 3: targetInstanceId is one of the picked characters.
+          // The choice resolver loops through the picked array and calls us
+          // once per character, threading state through each call.
+          state = performMove(state, targetInstanceId, effect._resolvedLocation.instanceId, definitions, events);
+          return { ...state, lastEffectResult: (state.lastEffectResult ?? 0) + 1 };
         }
-        return { ...state, lastEffectResult: moved };
+        // Stage 2: targetInstanceId is the just-resolved LOCATION. Surface
+        // the multi-select character chooser. Excludes the location itself
+        // and any character already at that location (no-op move per CRD).
+        const candidates = findValidTargets(state, effect.character.filter, controllingPlayerId, definitions, sourceInstanceId)
+          .filter((id) => id !== targetInstanceId)
+          .filter((id) => state.cards[id]?.atLocationInstanceId !== targetInstanceId);
+        if (candidates.length === 0) return { ...state, lastEffectResult: 0 };
+        const cap = effect.character.maxCount ?? candidates.length;
+        return {
+          // Reset lastEffectResult to 0 so per-pick increments accumulate
+          // cleanly from a known baseline (Moana's gain_lore reward).
+          ...state,
+          lastEffectResult: 0,
+          pendingChoice: {
+            type: "choose_target",
+            choosingPlayerId: controllingPlayerId,
+            prompt: effect.character.maxCount !== undefined
+              ? `Choose up to ${cap} characters to move.`
+              : "Choose any number of characters to move.",
+            validTargets: candidates,
+            pendingEffect: { ...effect, _resolvedLocation: makeResolvedRef(state, definitions, targetInstanceId) },
+            sourceInstanceId,
+            triggeringCardInstanceId,
+            optional: true,
+            count: cap,
+          },
+        };
       }
       // Stage 2 path: if a character was already resolved, the targetInstanceId is the LOCATION.
       if (effect._resolvedCharacter) {

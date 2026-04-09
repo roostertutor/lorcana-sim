@@ -6800,10 +6800,32 @@
     ],
     "actionEffects": [
       {
-        "type": "gain_lore",
-        "amount": 0,
-        "target": {
-          "type": "self"
+        "type": "move_character",
+        "isMay": true,
+        "character": {
+          "type": "all",
+          "maxCount": 2,
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "location": {
+          "type": "chosen",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "location"
+            ]
+          }
         }
       }
     ]

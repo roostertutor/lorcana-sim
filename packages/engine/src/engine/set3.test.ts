@@ -681,6 +681,49 @@ describe("§7 Set 3 — Locations", () => {
     expect(getInstance(state, mickeyId).movedThisTurn).toBe(true);
   });
 
+  it("Voyage: action moves up to 2 of your characters to the same location for free", () => {
+    // CRD 4.7 + multi-select "all" with maxCount=2. Two-stage chooser:
+    // (1) location, (2) multi-select character pick capped at 2.
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let c1: string, c2: string, c3: string, locId: string, voyageId: string;
+    ({ state, instanceId: c1 } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    ({ state, instanceId: c2 } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    ({ state, instanceId: c3 } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    ({ state, instanceId: locId } = injectCard(state, "player1", "never-land-mermaid-lagoon", "play", { isDrying: false }));
+    ({ state, instanceId: voyageId } = injectCard(state, "player1", "voyage", "hand"));
+
+    // Stage 0: play Voyage.
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: voyageId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Stage 1: location chooser.
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    expect(state.pendingChoice?.validTargets).toContain(locId);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [locId] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Stage 2: multi-select character chooser, capped at 2, optional.
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    expect(state.pendingChoice?.count).toBe(2);
+    expect(state.pendingChoice?.optional).toBe(true);
+    expect(state.pendingChoice?.validTargets).toEqual(expect.arrayContaining([c1, c2, c3]));
+
+    // Picking 3 must be rejected by the validator (CRD "up to 2").
+    const overpick = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [c1, c2, c3] }, LORCAST_CARD_DEFINITIONS);
+    expect(overpick.success).toBe(false);
+
+    // Picking exactly 2 succeeds; both move, the third stays put.
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [c1, c2] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(getInstance(state, c1).atLocationInstanceId).toBe(locId);
+    expect(getInstance(state, c2).atLocationInstanceId).toBe(locId);
+    expect(getInstance(state, c3).atLocationInstanceId).toBeUndefined();
+  });
+
   it("Maui - Whale: THIS MISSION IS CURSED keeps him exerted across the ready step", () => {
     // Inject Maui exerted in player1's play, end the turn, come back, and verify he's still exerted.
     let state = startGame();

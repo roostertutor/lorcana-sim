@@ -57,17 +57,27 @@
         "value": 5
       },
       {
-        "type": "static",
-        "storyName": "BRAVE HEART",
+        "type": "triggered",
+        "storyName": "THE SINGING SWORD",
         "rulesText": "Whenever you play a song, this character may challenge ready characters this turn.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "willpower",
-          "modifier": 0,
-          "target": {
-            "type": "this"
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "hasTrait": "Song"
           }
-        }
+        },
+        "effects": [
+          {
+            "type": "grant_challenge_ready",
+            "target": {
+              "type": "this"
+            },
+            "duration": "this_turn"
+          }
+        ]
       }
     ],
     "setId": "D23",

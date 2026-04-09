@@ -520,4 +520,57 @@ describe("§5 three-mechanic batch", () => {
     r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: kristoffId }, LORCAST_CARD_DEFINITIONS);
     expect(r.success).toBe(true);
   });
+
+  it("Mirabel Madrigal NOT WITHOUT MY FAMILY: playRestriction blocks play below 5 characters", () => {
+    // CRD play-restriction: "You can't play this character unless you have
+    // 5 or more characters in play." Wired via CardDefinition.playRestrictions
+    // with the existing characters_in_play_gte condition.
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let mirabelId: string;
+    ({ state, instanceId: mirabelId } = injectCard(state, "player1", "mirabel-madrigal-family-gatherer", "hand"));
+
+    // 0 characters in play — restriction should block.
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: mirabelId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(false);
+
+    // Inject 4 characters — still below the threshold.
+    for (let i = 0; i < 4; i++) {
+      ({ state } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    }
+    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: mirabelId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(false);
+
+    // 5th character — restriction satisfied.
+    ({ state } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: mirabelId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+  });
+
+  it("Nathaniel Flint PREDATORY INSTINCT: playRestriction blocks play unless an opposing character was damaged this turn", () => {
+    // Same play-restriction infrastructure as Mirabel, different condition
+    // (opposing_character_was_damaged_this_turn). Lives in set 5 test file
+    // alongside the other play-restriction case for pattern co-location;
+    // the card itself is set 8.
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let flintId: string, oppCharId: string, attackerId: string;
+    ({ state, instanceId: flintId } = injectCard(state, "player1", "nathaniel-flint-notorious-pirate", "hand"));
+    ({ state, instanceId: oppCharId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, isExerted: false }));
+
+    // No opposing character damaged this turn — restriction blocks.
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: flintId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(false);
+
+    // Challenge the opposing character to deal damage to it (must be exerted to be challenged).
+    state = { ...state, cards: { ...state.cards, [oppCharId]: { ...state.cards[oppCharId]!, isExerted: true } } };
+    r = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: attackerId, defenderInstanceId: oppCharId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Now an opposing character was damaged this turn — restriction satisfied.
+    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: flintId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+  });
 });

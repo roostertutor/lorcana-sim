@@ -1,0 +1,877 @@
+#!/usr/bin/env node
+// =============================================================================
+// CARD DECOMPILER + ORACLE-TEXT DIFF
+// -----------------------------------------------------------------------------
+// Walks every card in packages/engine/src/cards/lorcast-set-*.json, renders
+// its ability JSON back into English using a deterministic .toString()-style
+// pass, normalizes both sides, and scores similarity against the printed
+// `rulesText` (Lorcast oracle text). Sorts by worst match so a human reviewer
+// can sweep the tail for wiring bugs / missed assumptions / synonymous-but-
+// technically-incorrect implementations.
+//
+// This is intentionally NOT an LLM rewrite — it's a fixed renderer so the
+// diff is reproducible and re-runnable in CI. Unknown effect types render
+// as `[unknown:foo]` markers; those automatically show up as mismatches and
+// guide future extensions of the renderer.
+//
+// Run:
+//   pnpm decompile-cards                       # top 50 worst matches, text
+//   pnpm decompile-cards --top 200             # show more
+//   pnpm decompile-cards --all                 # show every card
+//   pnpm decompile-cards --html report.html    # side-by-side HTML report
+//   pnpm decompile-cards --json                # machine-readable
+//   pnpm decompile-cards --set 003             # restrict to one set
+//   pnpm decompile-cards --min 0.6             # only cards below this score
+//   pnpm decompile-cards --card "Ariel"        # filter by name substring
+// =============================================================================
+
+import { readdirSync, readFileSync, writeFileSync } from "fs";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const CARDS_DIR = join(__dirname, "../packages/engine/src/cards");
+
+// -----------------------------------------------------------------------------
+// Defensive local types — the renderer treats unknown shapes as opaque rather
+// than crashing, so it stays robust to JSON drift.
+// -----------------------------------------------------------------------------
+type Json = Record<string, any>;
+
+interface CardJSON {
+  id: string;
+  fullName: string;
+  setId: string;
+  number: number;
+  cardType: string;
+  cost: number;
+  rulesText?: string;
+  abilities?: Json[];
+  actionEffects?: Json[];
+  shiftCost?: number;
+  singTogetherCost?: number;
+}
+
+// =============================================================================
+// PER-CARD OVERRIDES
+// -----------------------------------------------------------------------------
+// If the generic renderer can't reasonably express a card's wording (rare —
+// most cards decompose into the standard primitives), drop a hand-written
+// description here keyed by card id. Currently empty: the explore pass
+// confirmed no per-card verbose describers exist anywhere in the repo, so
+// we're starting from a clean slate. Add entries only as a last resort —
+// prefer extending the generic renderer.
+// =============================================================================
+const CARD_OVERRIDES: Record<string, string> = {};
+
+// =============================================================================
+// RENDERER
+// =============================================================================
+
+function renderCard(card: CardJSON): string {
+  if (CARD_OVERRIDES[card.id]) return CARD_OVERRIDES[card.id]!;
+
+  const parts: string[] = [];
+
+  // Scalar keywords that live as fields rather than ability entries.
+  if (card.shiftCost !== undefined) {
+    parts.push(`Shift ${card.shiftCost}`);
+  }
+  if (card.singTogetherCost !== undefined) {
+    parts.push(`Sing Together ${card.singTogetherCost}`);
+  }
+
+  for (const ab of card.abilities ?? []) {
+    // Skip keyword:shift / keyword:singTogether — already emitted as scalars.
+    if (ab.type === "keyword" && ab.keyword === "shift" && card.shiftCost !== undefined) continue;
+    if (ab.type === "keyword" && ab.keyword === "sing together" && card.singTogetherCost !== undefined) continue;
+    parts.push(renderAbility(ab));
+  }
+  // Action / song bodies live on actionEffects.
+  for (const eff of card.actionEffects ?? []) {
+    parts.push(renderEffect(eff));
+  }
+
+  return parts.filter(Boolean).join(". ") + (parts.length ? "." : "");
+}
+
+function renderAbility(ab: Json): string {
+  switch (ab.type) {
+    case "keyword":
+      return ab.value !== undefined ? `${cap(ab.keyword)} +${ab.value}` : cap(ab.keyword);
+    case "triggered":
+      return renderTriggered(ab);
+    case "activated":
+      return renderActivated(ab);
+    case "static":
+      return renderStatic(ab);
+    case "replacement":
+      return `[replacement] ${renderEffect(ab.effect ?? {})}`;
+    default:
+      return `[unknown-ability:${ab.type ?? "?"}]`;
+  }
+}
+
+// =============================================================================
+// PATTERN TABLES
+// -----------------------------------------------------------------------------
+// Modeled after the audit-lorcast-data.ts pattern tables (FLAG_KEYWORDS /
+// NUMERIC_KEYWORDS). Each table maps a JSON discriminator (`type` / `on`)
+// to a render function that emits oracle-shaped English. The table itself
+// is the coverage checklist — anything not present renders as `[unknown:X]`
+// and surfaces in the diff as a renderer gap.
+// =============================================================================
+
+type Renderer = (e: Json) => string;
+
+// -----------------------------------------------------------------------------
+// Triggers — careful word distinctions per CLAUDE.md (when vs. whenever vs.
+// start vs. end). Filter-aware: "your"-owned filters become "one of your
+// characters" instead of "this character".
+// -----------------------------------------------------------------------------
+const TRIGGER_RENDERERS: Record<string, Renderer> = {
+  enters_play:                   ()  => "When you play this character",
+  leaves_play:                   ()  => "When this character leaves play",
+  is_banished:                   ()  => "When this character is banished",
+  banished_in_challenge:         ()  => "When this character is banished in a challenge",
+  banished_other_in_challenge:   ()  => "Whenever this character banishes another character in a challenge",
+  banishes_in_challenge:         ()  => "Whenever this character banishes another character in a challenge",
+  // Legacy spelling alias.
+  banished_other:                ()  => "Whenever this character banishes another character in a challenge",
+  is_challenged:                 ()  => "Whenever this character is challenged",
+  challenges:                    (t) => filterMentionsYour(t.filter)
+                                          ? "Whenever one of your characters challenges another character"
+                                          : "Whenever this character challenges another character",
+  // Legacy spelling alias for `challenges`.
+  challenge_initiated:           (t) => filterMentionsYour(t.filter)
+                                          ? "Whenever one of your characters challenges another character"
+                                          : "Whenever this character challenges another character",
+  quests:                        (t) => filterMentionsYour(t.filter)
+                                          ? "Whenever one of your characters quests"
+                                          : "Whenever this character quests",
+  sings:                         ()  => "Whenever this character sings a song",
+  turn_start:                    (t) => t.player?.type === "opponent"
+                                          ? "At the start of an opponent's turn"
+                                          : "At the start of your turn",
+  turn_end:                      (t) => t.player?.type === "opponent"
+                                          ? "At the end of an opponent's turn"
+                                          : "At the end of your turn",
+  card_drawn:                    ()  => "Whenever you draw a card",
+  card_played:                   (t) => t.filter ? `Whenever you play ${renderFilter(t.filter)}` : "Whenever you play a card",
+  item_played:                   ()  => "Whenever you play an item",
+  ink_played:                    ()  => "Whenever you put a card into your inkwell",
+  moves_to_location:             ()  => "Whenever this character moves to a location",
+  damage_dealt_to:               ()  => "Whenever damage is dealt to this character",
+  damage_removed_from:           ()  => "Whenever damage is removed from this character",
+  readied:                       ()  => "Whenever this character is readied",
+  returned_to_hand:              ()  => "Whenever this character is returned to your hand",
+  cards_discarded:               ()  => "Whenever a card is discarded",
+  deals_damage_in_challenge:     ()  => "Whenever this character deals damage in a challenge",
+  card_put_under:                ()  => "Whenever a card is put underneath this",
+  shifted_onto:                  ()  => "Whenever a character is shifted onto this character",
+  chosen_by_opponent:            ()  => "Whenever this character is chosen by an opponent",
+  character_exerted:             ()  => "Whenever a character is exerted",
+  chosen_for_support:            ()  => "Whenever this character is chosen for support",
+};
+
+function renderTrigger(t: Json): string {
+  const ev = t.on ?? t.event ?? "";
+  const fn = TRIGGER_RENDERERS[ev];
+  return fn ? fn(t) : `[unknown-trigger:${ev}]`;
+}
+
+function filterMentionsYour(f: Json | undefined): boolean {
+  return !!(f && f.owner?.type === "self");
+}
+
+// -----------------------------------------------------------------------------
+// Conditions — gating for triggered + static abilities. Includes the negated
+// `not` wrapper used by "can't quest unless ..." patterns.
+// -----------------------------------------------------------------------------
+const CONDITION_RENDERERS: Record<string, Renderer> = {
+  is_your_turn:               ()  => "during your turn",
+  this_is_exerted:            ()  => "if this character is exerted",
+  has_character_named:        (c) => `if you have a character named ${c.name} in play`,
+  has_character_with_trait:   (c) => `if you have ${c.excludeSelf ? "another" : "a"} ${c.trait} character in play`,
+  controls_location:          ()  => "if you have a location in play",
+  // `not` wraps a sub-condition. Renders as "unless ..." so it slots into
+  // "this character can't quest UNLESS you have another Seven Dwarfs in play".
+  not:                        (c) => "unless " + stripIfPrefix(renderCondition(c.condition ?? {})),
+
+  // ---- Compound logic ------------------------------------------------------
+  compound_and:               (c) => "if " + (c.conditions ?? []).map((sub: Json) => stripIfPrefix(renderCondition(sub))).join(" and "),
+  compound_or:                (c) => "if " + (c.conditions ?? []).map((sub: Json) => stripIfPrefix(renderCondition(sub))).join(" or "),
+  compound_not:               (c) => "unless " + stripIfPrefix(renderCondition(c.inner ?? {})),
+
+  // ---- Player-state checks --------------------------------------------------
+  // "If you have a [filter] in play" — supersedes the legacy single-trait /
+  // single-name forms when the filter is more general.
+  you_control_matching:       (c) => `if you have ${c.filter ? renderFilter(c.filter) : "a character"} in play`,
+  cards_in_hand_gte:          (c) => `if you have ${c.amount ?? 0} or more cards in your hand`,
+  cards_in_hand_eq:           (c) => `if you have exactly ${c.amount ?? 0} cards in your hand`,
+  cards_in_zone_gte:          (c) => `if you have ${c.amount ?? 0} or more cards in your ${c.zone ?? "zone"}`,
+  characters_in_play_gte:     (c) => {
+    const adj = c.excludeSelf ? "other " : "";
+    return `if you have ${c.amount ?? 0} or more ${adj}characters in play`;
+  },
+  opponent_has_more_cards_in_hand:  () => "if an opponent has more cards in their hand than you",
+  self_has_more_than_each_opponent: (c) => `if you have more ${c.metric ?? "cards"} than each opponent`,
+  played_another_character_this_turn: () => "if you've played another character this turn",
+  your_first_turn_as_underdog: () => "during your first turn as the underdog",
+
+  // ---- This-card-state checks ----------------------------------------------
+  this_has_no_damage:         () => "if this character has no damage",
+  this_has_cards_under:       () => "if this character has cards under it",
+  this_at_location:           () => "while this character is at a location",
+  this_location_has_character: () => "if this location has a character at it",
+  played_via_shift:           () => "if this character was played via Shift",
+  triggering_card_played_via_shift: () => "if the triggering character was played via Shift",
+};
+
+function stripIfPrefix(s: string): string {
+  return s.replace(/^if\s+/, "");
+}
+
+function renderCondition(c: Json): string {
+  if (!c || !c.type) return "";
+  const fn = CONDITION_RENDERERS[c.type];
+  return fn ? fn(c) : `[cond:${c.type}]`;
+}
+
+// -----------------------------------------------------------------------------
+// Costs — for activated abilities.
+// -----------------------------------------------------------------------------
+const COST_RENDERERS: Record<string, Renderer> = {
+  exert:              ()  => "{E}",
+  ink:                (c) => `${c.amount ?? "?"} {I}`,
+  pay_ink:            (c) => `${c.amount ?? "?"} {I}`,
+  banish_chosen:      (c) => `Banish ${renderTarget(c.target ?? {})}`,
+  banish_self:        ()  => "Banish this character",
+  discard:            ()  => "Discard a card",
+  discard_from_hand:  ()  => "Discard a card",
+};
+
+function renderCost(c: Json): string {
+  const fn = COST_RENDERERS[c.type];
+  return fn ? fn(c) : `[cost:${c.type}]`;
+}
+
+// -----------------------------------------------------------------------------
+// Effects — the big table. Each renderer emits oracle-shaped phrasing,
+// agreeing in person/number with the target ("you gain" vs "each opponent
+// gains"). Adding a new effect type = adding a row here.
+// -----------------------------------------------------------------------------
+const EFFECT_RENDERERS: Record<string, Renderer> = {
+  draw: (e) => {
+    // `untilHandSize` is a runtime-computed draw count; the literal `amount`
+    // field is a 0 placeholder in that case (Clarabelle / Yzma / Remember Who
+    // You Are pattern). Render the runtime form so it doesn't false-positive
+    // as a "draws 0 cards" stub.
+    if (e.untilHandSize === "match_opponent_hand") {
+      return `${maybe(e)}draw cards until you have the same number as chosen opponent`;
+    }
+    if (typeof e.untilHandSize === "number") {
+      return `${maybe(e)}draw cards until you have ${e.untilHandSize} cards in your hand`;
+    }
+    return `${maybe(e)}draw ${e.amount ?? 1} card${plural(e.amount ?? 1)}`;
+  },
+  discard:            (e) => `${maybe(e)}discard ${e.amount ?? 1} card${plural(e.amount ?? 1)}`,
+  discard_from_hand:  (e) => `${maybe(e)}discard ${e.amount ?? 1} card${plural(e.amount ?? 1)}`,
+
+  gain_lore: (e) => {
+    const tgt = renderTarget(e.target ?? { type: "self" });
+    const n = e.amount ?? 1;
+    if (n < 0) return `${tgt} ${verbS(tgt, "lose", "loses")} ${-n} lore`;
+    return `${tgt} ${verbS(tgt, "gain", "gains")} ${n} lore`;
+  },
+  lose_lore: (e) => {
+    const tgt = renderTarget(e.target ?? { type: "self" });
+    return `${tgt} ${verbS(tgt, "lose", "loses")} ${e.amount ?? 1} lore`;
+  },
+  prevent_lore_gain: (e) => {
+    const tgt = renderTarget(e.target ?? {});
+    return `${tgt} can't gain lore${dur(e)}`;
+  },
+
+  deal_damage:    (e) => `deal ${up(e)}${e.amount ?? 1} damage to ${renderTarget(e.target ?? {})}`,
+  remove_damage:  (e) => `remove ${up(e)}${e.amount ?? 1} damage from ${renderTarget(e.target ?? {})}`,
+  move_damage:    (e) => `move ${up(e)}${e.amount ?? 1} damage from ${renderTarget(e.from ?? {})} to ${renderTarget(e.to ?? {})}`,
+
+  banish:         (e) => `${maybe(e)}banish ${renderTarget(e.target ?? {})}`,
+  banish_chosen:  (e) => `${maybe(e)}banish ${renderTarget(e.target ?? {})}`,
+  return_to_hand: (e) => `${maybe(e)}return ${renderTarget(e.target ?? {})} to their player's hand`,
+  ready:          (e) => `${maybe(e)}ready ${renderTarget(e.target ?? {})}`,
+  exert:          (e) => `exert ${renderTarget(e.target ?? {})}`,
+
+  gain_stats: (e) => renderStatChange(e),
+  modify_stat: (e) => renderStatChange(e),
+
+  grant_keyword: (e) => {
+    const tgt = renderTarget(e.target ?? {});
+    const v = e.value !== undefined ? " +" + e.value : "";
+    return `${tgt} ${verbS(tgt, "gain", "gains")} ${cap(e.keyword)}${v}${dur(e)}`;
+  },
+
+  cant_action: (e) => {
+    const tgt = renderTarget(e.target ?? {});
+    return `${tgt} can't ${e.action ?? "act"}${dur(e)}`;
+  },
+  // Self-restriction variant — same shape as cant_action but always targets
+  // this character. Used by Maui - Whale "this character can't ready..."
+  cant_action_self: (e) => `this character can't ${e.action ?? "act"}${dur(e)}`,
+
+  // pay_ink as an effect (e.g. Ursula's Shell Necklace nested cost-as-effect).
+  // The cost-side renderer in COST_RENDERERS handles the activated-cost form;
+  // this entry covers the rare effect-side usage.
+  pay_ink: (e) => `pay ${e.amount ?? 1} {I}`,
+
+  self_cost_reduction:        (e) => `this character costs ${e.amount ?? "?"} {I} less to play`,
+  grant_play_for_free_self:   ()  => "you may play this character for free",
+  grant_shift_self:           (e) => `this character gains Shift ${e.value ?? e.amount ?? "?"}`,
+  grant_cost_reduction:       (e) => `${renderTarget(e.target ?? {})} costs ${e.amount ?? "?"} {I} less to play`,
+
+  play_for_free: (e) => `${maybe(e)}play ${e.filter ? renderFilter(e.filter) : "a card"} for free`,
+
+  look_at_top:            (e) => `look at the top ${e.count ?? "?"} cards of your deck`,
+  reveal_top_conditional: ()  => `reveal the top card of your deck`,
+  search:                 (e) => `search your deck for ${e.filter ? renderFilter(e.filter) : "a card"}`,
+  shuffle_into_deck:      (e) => `shuffle ${renderTarget(e.target ?? {})} into your deck`,
+  move_to_inkwell:        (e) => `put ${renderTarget(e.target ?? {})} into your inkwell`,
+  put_top_of_deck_under:  (e) => `put the top card of your deck facedown under ${renderTarget(e.target ?? {})}`,
+
+  // Move a character to a location. The `character` selector reuses target
+  // shapes ("this" / "chosen" / "all" with maxCount / "triggering_card" /
+  // "last_resolved_target"); the `location` is its own selector. Renders
+  // oracle-shaped phrasing for each combination.
+  move_character: (e) => {
+    const may = e.isMay ? "you may " : "";
+    let who = "this character";
+    if (e.character) {
+      switch (e.character.type) {
+        case "this": who = "this character"; break;
+        case "triggering_card": who = "the triggering character"; break;
+        case "last_resolved_target": who = "that character"; break;
+        case "chosen":
+          who = `chosen ${e.character.filter ? renderFilter(e.character.filter) : "character"}`;
+          break;
+        case "all":
+          if (typeof e.character.maxCount === "number") {
+            who = `up to ${e.character.maxCount} ${e.character.filter ? renderFilter(e.character.filter) : "characters"}`;
+          } else {
+            who = `any number of ${e.character.filter ? renderFilter(e.character.filter) : "characters"}`;
+          }
+          break;
+      }
+    }
+    let where = "a location";
+    if (e.location) {
+      switch (e.location.type) {
+        case "triggering_card": where = "that location"; break;
+        case "last_resolved_target": where = "the same location"; break;
+        case "chosen":
+          where = `chosen ${e.location.filter ? renderFilter(e.location.filter) : "location"}`;
+          break;
+      }
+    }
+    return `${may}move ${who} to ${where} for free`;
+  },
+
+  sequential: (e) => {
+    const ce = (e.costEffects ?? []).map(renderEffect).join(" and ");
+    const re = (e.rewardEffects ?? []).map(renderEffect).join(" and ");
+    return `${ce} to ${re}`;
+  },
+  choose:     (e) => `choose: ${(e.options ?? []).map((o: Json) => (o.effects ?? []).map(renderEffect).join(" and ")).join(" OR ")}`,
+  choose_may: (e) => `choose: ${(e.options ?? []).map((o: Json) => (o.effects ?? []).map(renderEffect).join(" and ")).join(" OR ")}`,
+
+  damage_immunity:           (e) => `${renderTarget(e.target ?? {})} can't be damaged${dur(e)}`,
+  opponent_chooses_yes_or_no: () => `each opponent may choose to respond`,
+
+  // ---- NEW: shapes added in the second pass --------------------------------
+
+  // "This character can't sing songs" / "characters with cost N or less can't
+  // challenge your characters" — self-restriction or filtered opponent
+  // restriction. `restricts` is the verb; `filter` (when present) describes
+  // WHO is restricted, not the target of the restriction.
+  action_restriction: (e) => {
+    const verb = e.restricts === "sing" ? "sing songs" : e.restricts ?? "act";
+    if (e.filter) {
+      const who = renderFilter(e.filter);
+      const targetSide = e.affectedPlayer?.type === "opponent" ? " your characters" : "";
+      return `characters ${who} can't ${verb}${targetSide}`;
+    }
+    return `this character can't ${verb}`;
+  },
+
+  // "+1 {S}/{L} for each other Villain character you have in play"
+  modify_stat_per_count: (e) => {
+    const tgt = renderTarget(e.target ?? { type: "this" });
+    const stat = e.stat === "lore" ? "{L}" : e.stat === "willpower" ? "{W}" : "{S}";
+    const per = e.perCount ?? 1;
+    const filt = e.countFilter ? renderFilter(e.countFilter) : "characters";
+    return `${tgt} ${verbS(tgt, "get", "gets")} +${per} ${stat} for each ${filt} you have in play`;
+  },
+
+  // "You pay N {I} less to play [filter]"
+  cost_reduction: (e) => {
+    const filt = e.filter ? renderFilter(e.filter) + "s" : "the next card you play this turn";
+    return `you pay ${e.amount ?? 1} {I} less to play ${filt}`;
+  },
+
+  // "Characters with cost N or less can't challenge this character"
+  cant_be_challenged: (e) => {
+    const tgt = renderTarget(e.target ?? { type: "this" });
+    if (e.attackerFilter) {
+      return `characters ${renderFilter(e.attackerFilter)} can't challenge ${tgt}`;
+    }
+    return `${tgt} can't be challenged`;
+  },
+
+  // "Chosen X gets +2. If a Villain is chosen, they get +3 instead."
+  conditional_on_target: (e) => {
+    const tgt = renderTarget(e.target ?? {});
+    const def = (e.defaultEffects ?? []).map(renderEffect).join(" and ");
+    const cond = e.conditionFilter ? renderFilter(e.conditionFilter) : "matching";
+    const alt = (e.ifMatchEffects ?? []).map(renderEffect).join(" and ");
+    return `${tgt}: ${def}. If a ${cond} is chosen, ${alt} instead`;
+  },
+
+  // "This character takes no damage from the challenge" — optionally
+  // gated by a filter on the opposing character (e.g. "a damaged character").
+  challenge_damage_immunity: (e) => {
+    if (e.targetFilter) {
+      return `whenever this character challenges ${renderFilter(e.targetFilter)}, this character takes no damage from the challenge`;
+    }
+    return "this character takes no damage from the challenge";
+  },
+
+  // "While being challenged, the challenging character gets -1 {S}" — `affects`
+  // is "attacker" or "self" depending on which side of the challenge gets the
+  // modifier.
+  modify_stat_while_challenged: (e) => {
+    const stat = e.stat === "lore" ? "{L}" : e.stat === "willpower" ? "{W}" : "{S}";
+    const who = e.affects === "attacker" ? "the challenging character" : "this character";
+    return `while this character is being challenged, ${who} gets ${signed(e.modifier ?? 0)} ${stat}`;
+  },
+
+  // "+1 {L} for each 1 damage on him"
+  modify_stat_per_damage: (e) => {
+    const tgt = renderTarget(e.target ?? { type: "this" });
+    const stat = e.stat === "lore" ? "{L}" : e.stat === "willpower" ? "{W}" : "{S}";
+    const per = e.perDamage ?? 1;
+    return `${tgt} ${verbS(tgt, "get", "gets")} +${per} ${stat} for each ${per} damage on this character`;
+  },
+
+  // 'Your X characters gain "{E} — Gain 1 lore"' — wraps another ability.
+  grant_activated_ability: (e) => {
+    const tgt = renderTarget(e.target ?? {});
+    const inner = e.ability ? renderAbility(e.ability) : "[no-ability]";
+    return `${tgt} ${verbS(tgt, "gain", "gains")} "${inner}"`;
+  },
+
+  // "Whenever one of your other characters would be dealt damage, put that
+  // many damage counters on this character instead."
+  damage_redirect: (e) => {
+    const from = e.from ? renderTarget(e.from) : "another character";
+    return `whenever ${from} would be dealt damage, put that damage on this character instead`;
+  },
+
+  // "This character can challenge ready characters."
+  can_challenge_ready: (e) => {
+    const tgt = renderTarget(e.target ?? { type: "this" });
+    return `${tgt} can challenge ready characters`;
+  },
+
+  // "Chosen character can challenge ready characters this turn."
+  grant_challenge_ready: (e) => {
+    const tgt = renderTarget(e.target ?? {});
+    return `${tgt} can challenge ready characters${dur(e)}`;
+  },
+
+  // "You may play any character with Shift on this character as if this
+  // character had any name." — Morph / Zurg pattern. Self-only, no fields.
+  mimicry_target_self: () =>
+    "you may play any character with Shift on this character as if this character had any name",
+
+  // Action cards installing a one-turn trigger ("Whenever ... this turn, ...")
+  create_floating_trigger: (e) => {
+    const head = renderTrigger(e.trigger ?? {});
+    const body = (e.effects ?? []).map(renderEffect).join(", and ");
+    // The "this turn" suffix is implicit in the floating-trigger semantics.
+    return `${head} this turn, ${body}`;
+  },
+};
+
+function renderEffect(e: Json): string {
+  if (!e || !e.type) return "[empty-effect]";
+  const fn = EFFECT_RENDERERS[e.type];
+  return fn ? fn(e) : `[unknown:${e.type}]`;
+}
+
+// -----------------------------------------------------------------------------
+// Effect helpers (verb agreement + adverb prefixes).
+// -----------------------------------------------------------------------------
+function maybe(e: Json): string { return e.isMay ? "you may " : ""; }
+function up(e: Json): string { return e.isUpTo ? "up to " : ""; }
+function dur(e: Json): string { return e.duration ? " " + renderDuration(e.duration) : ""; }
+function plural(n: number): string { return n === 1 ? "" : "s"; }
+
+/** Verb agreement: "you" takes base form, everything else takes -s.
+ *  ("you gain" / "each opponent gains" / "this character gains"). */
+function verbS(target: string, base: string, third: string): string {
+  return target === "you" ? base : third;
+}
+
+function renderStatChange(e: Json): string {
+  const tgt = renderTarget(e.target ?? {});
+  const bits: string[] = [];
+  if (e.strength !== undefined) bits.push(`${signed(e.strength)} {S}`);
+  if (e.willpower !== undefined) bits.push(`${signed(e.willpower)} {W}`);
+  if (e.lore !== undefined) bits.push(`${signed(e.lore)} {L}`);
+  return `${tgt} ${verbS(tgt, "get", "gets")} ${bits.join(" and ")}${dur(e)}`;
+}
+
+// -----------------------------------------------------------------------------
+// Triggered / activated / static wrappers — small dispatchers around the
+// pattern tables above.
+// -----------------------------------------------------------------------------
+function renderTriggered(ab: Json): string {
+  const head = renderTrigger(ab.trigger ?? {});
+  const cond = ab.condition ? renderCondition(ab.condition) : "";
+  const body = (ab.effects ?? []).map(renderEffect).join(", and ");
+  if (cond.startsWith("during ")) return `${cap(cond)}, ${head}, ${body}`;
+  if (cond) return `${head}, ${cond}, ${body}`;
+  return `${head}, ${body}`;
+}
+
+function renderActivated(ab: Json): string {
+  const costs = (ab.costs ?? []).map(renderCost).join(", ");
+  const effects = (ab.effects ?? []).map(renderEffect).join(", and ");
+  return `${costs} — ${effects}`;
+}
+
+function renderStatic(ab: Json): string {
+  const cond = ab.condition ? renderCondition(ab.condition) : "";
+  const body = renderEffect(ab.effect ?? {});
+  if (cond) return `${cap(cond)}, ${body}`;
+  return body;
+}
+
+function renderDuration(d: string): string {
+  switch (d) {
+    case "this_turn":
+    case "end_of_turn":
+    case "rest_of_turn":
+      return "this turn";
+    case "until_caster_next_turn":
+      return "until the start of your next turn";
+    case "end_of_owner_next_turn":
+      return "during their next turn";
+    case "permanent":
+      return "";
+    default:
+      return `[dur:${d}]`;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Targets and filters.
+// -----------------------------------------------------------------------------
+function renderTarget(t: Json): string {
+  if (!t || !t.type) return "[no-target]";
+  switch (t.type) {
+    case "self":
+      return "you";
+    case "opponent":
+      return "each opponent";
+    case "this":
+      return "this character";
+    case "triggering_card":
+      return "the triggering character";
+    case "last_resolved_target":
+      return "that character";
+    case "from_last_discarded":
+      return "that discarded card";
+    case "chosen": {
+      const f = t.filter ? renderFilter(t.filter) : "character";
+      const count = t.count && t.count > 1 ? `${t.count} ` : "";
+      return `chosen ${count}${f}`;
+    }
+    case "all": {
+      const f = t.filter ? renderFilter(t.filter) : "characters";
+      return `all ${f}`;
+    }
+    case "random": {
+      const f = t.filter ? renderFilter(t.filter) : "character";
+      return `a random ${f}`;
+    }
+    default:
+      return `[target:${t.type}]`;
+  }
+}
+
+function renderFilter(f: Json): string {
+  const bits: string[] = [];
+  // Owner
+  if (f.owner?.type === "self") bits.push("your");
+  else if (f.owner?.type === "opponent") bits.push("opposing");
+  if (f.excludeSelf) bits.push("other");
+  // Stats / cost / keyword adjectives go BEFORE the noun
+  if (f.isExerted) bits.push("exerted");
+  if (f.hasKeyword) bits.push(`${cap(f.hasKeyword)}`);
+  if (f.hasTrait) bits.push(f.hasTrait);
+  // Noun
+  let noun = "character";
+  const rawTypes = f.cardType;
+  const types: string[] = Array.isArray(rawTypes) ? rawTypes : rawTypes ? [rawTypes] : [];
+  if (types.length === 1) noun = types[0]!;
+  if (types.length > 1) noun = types.join("/");
+  // Pluralize for "all"-ish contexts isn't tracked here; rely on caller.
+  bits.push(noun);
+  // Trailing qualifiers
+  if (f.hasName) bits.push(`named ${f.hasName}`);
+  if (f.costAtMost !== undefined || f.maxCost !== undefined) {
+    bits.push(`with cost ${f.costAtMost ?? f.maxCost} or less`);
+  }
+  if (f.costAtLeast !== undefined || f.minCost !== undefined) {
+    bits.push(`with cost ${f.costAtLeast ?? f.minCost} or more`);
+  }
+  if (f.strengthAtMost !== undefined) bits.push(`with ${f.strengthAtMost} {S} or less`);
+  if (f.strengthAtLeast !== undefined) bits.push(`with ${f.strengthAtLeast} {S} or more`);
+  if (f.hasDamage) bits.push("with damage");
+  if (f.challengedThisTurn) bits.push("that challenged this turn");
+  return bits.join(" ");
+}
+
+// =============================================================================
+// NORMALIZATION + SCORING
+// =============================================================================
+
+const SYNONYMS: Array<[RegExp, string]> = [
+  [/\{e\}/g, "exert"],
+  [/\{i\}/g, "ink"],
+  [/\{s\}/g, "strength"],
+  [/\{w\}/g, "willpower"],
+  [/\{l\}/g, "lore"],
+  [/\bchosen\b/g, "target"],
+  [/\bgains?\b/g, "gets"],
+  [/\bopposing\b/g, "opponents"],
+  [/\beach opponent\b/g, "opponent"],
+  [/\bcards?\b/g, "card"],
+  [/\bcharacters?\b/g, "character"],
+  [/\bsongs?\b/g, "song"],
+  [/\bitems?\b/g, "item"],
+  [/\blocations?\b/g, "location"],
+  [/\bturns?\b/g, "turn"],
+  [/\b(an?|the|of|to|from|into|in|on|at|for|with|that|their|its|his|her|player's|player)\b/g, " "],
+];
+
+function normalize(s: string): string {
+  let out = s.toLowerCase();
+  // Strip parenthetical reminder text — keyword reminders, sing-cost reminders.
+  out = out.replace(/\([^)]*\)/g, " ");
+  // Strip story-name leading caps (rare in rulesText).
+  for (const [re, repl] of SYNONYMS) out = out.replace(re, repl);
+  // Strip punctuation.
+  out = out.replace(/[.,;:!?\-—'"`]/g, " ");
+  // Collapse whitespace.
+  out = out.replace(/\s+/g, " ").trim();
+  return out;
+}
+
+function tokens(s: string): string[] {
+  return normalize(s).split(" ").filter((t) => t.length > 1);
+}
+
+/** Token F1 — symmetric, handles word reordering, ignores frequency.
+ *  Returns 1.0 for a perfect set match, 0.0 for disjoint vocabularies. */
+function similarity(a: string, b: string): number {
+  const A = new Set(tokens(a));
+  const B = new Set(tokens(b));
+  if (A.size === 0 && B.size === 0) return 1;
+  if (A.size === 0 || B.size === 0) return 0;
+  let inter = 0;
+  for (const t of A) if (B.has(t)) inter++;
+  const p = inter / A.size;
+  const r = inter / B.size;
+  if (p + r === 0) return 0;
+  return (2 * p * r) / (p + r);
+}
+
+// =============================================================================
+// MAIN
+// =============================================================================
+
+interface Row {
+  setId: string;
+  number: number;
+  fullName: string;
+  id: string;
+  cardType: string;
+  oracle: string;
+  rendered: string;
+  score: number;
+}
+
+function loadCards(setFilter?: string): CardJSON[] {
+  // Dedupe by id, preferring reprints with more implemented abilities — same
+  // policy as packages/engine/src/cards/lorcastCards.ts:28-51. Without this,
+  // a card reprinted across 5 set files appears 5 times in the report.
+  const byId = new Map<string, CardJSON>();
+  const files = readdirSync(CARDS_DIR)
+    .filter((f) => f.startsWith("lorcast-set-") && f.endsWith(".json"));
+  for (const f of files) {
+    const cards = JSON.parse(readFileSync(join(CARDS_DIR, f), "utf-8")) as CardJSON[];
+    for (const c of cards) {
+      if (setFilter && !c.setId.includes(setFilter)) continue;
+      const existing = byId.get(c.id);
+      if (!existing) { byId.set(c.id, c); continue; }
+      const score = (x: CardJSON) =>
+        (x.abilities?.length ?? 0) + (x.actionEffects?.length ?? 0);
+      if (score(c) > score(existing)) byId.set(c.id, c);
+    }
+  }
+  return [...byId.values()];
+}
+
+function arg(name: string): string | undefined {
+  const i = process.argv.indexOf(`--${name}`);
+  if (i === -1) return undefined;
+  return process.argv[i + 1];
+}
+function flag(name: string): boolean {
+  return process.argv.includes(`--${name}`);
+}
+
+function main() {
+  const setFilter = arg("set");
+  const cardFilter = arg("card")?.toLowerCase();
+  const top = parseInt(arg("top") ?? "50", 10);
+  const minScore = parseFloat(arg("min") ?? "1.01"); // default: include all
+  const showAll = flag("all");
+  const isJson = flag("json");
+  const htmlPath = arg("html");
+
+  const cards = loadCards(setFilter);
+  const rows: Row[] = [];
+
+  for (const card of cards) {
+    if (cardFilter && !card.fullName.toLowerCase().includes(cardFilter)) continue;
+    // Vanillas have no rules text — skip; nothing to compare.
+    const oracle = (card.rulesText ?? "").trim();
+    const hasAbilities =
+      (card.abilities && card.abilities.length > 0) ||
+      (card.actionEffects && card.actionEffects.length > 0) ||
+      card.shiftCost !== undefined ||
+      card.singTogetherCost !== undefined;
+    if (!oracle && !hasAbilities) continue;
+    // If oracle is empty, the comparison is meaningless — Lorcast omits
+    // reminder text for vanilla-keyword cards. Skip rather than score 0.0.
+    if (!oracle) continue;
+
+    const rendered = renderCard(card);
+    const score = similarity(oracle, rendered);
+    rows.push({
+      setId: card.setId,
+      number: card.number,
+      fullName: card.fullName,
+      id: card.id,
+      cardType: card.cardType,
+      oracle,
+      rendered,
+      score,
+    });
+  }
+
+  rows.sort((a, b) => a.score - b.score);
+
+  const filtered = showAll ? rows : rows.filter((r) => r.score < minScore).slice(0, top);
+
+  if (isJson) {
+    console.log(JSON.stringify(filtered, null, 2));
+    return;
+  }
+
+  if (htmlPath) {
+    writeHtml(htmlPath, filtered, rows);
+    console.log(`Wrote HTML report: ${htmlPath} (${filtered.length} rows)`);
+    return;
+  }
+
+  // Text report.
+  const total = rows.length;
+  const avg = total ? rows.reduce((s, r) => s + r.score, 0) / total : 0;
+  const buckets = { lt30: 0, lt50: 0, lt70: 0, lt90: 0, ge90: 0 };
+  for (const r of rows) {
+    if (r.score < 0.3) buckets.lt30++;
+    else if (r.score < 0.5) buckets.lt50++;
+    else if (r.score < 0.7) buckets.lt70++;
+    else if (r.score < 0.9) buckets.lt90++;
+    else buckets.ge90++;
+  }
+  console.log(`Decompiler diff — ${total} cards scored (avg similarity ${avg.toFixed(2)})`);
+  console.log(`  <0.3: ${buckets.lt30}   <0.5: ${buckets.lt50}   <0.7: ${buckets.lt70}   <0.9: ${buckets.lt90}   ≥0.9: ${buckets.ge90}\n`);
+  console.log(`Worst ${filtered.length} match${filtered.length === 1 ? "" : "es"}:\n`);
+  for (const r of filtered) {
+    const tag = `[${r.score.toFixed(2)}] set-${r.setId.padStart(3, "0")}/${r.number}  ${r.fullName}`;
+    console.log(tag);
+    console.log(`  oracle:   ${oneLine(r.oracle)}`);
+    console.log(`  rendered: ${oneLine(r.rendered)}`);
+    console.log();
+  }
+}
+
+function oneLine(s: string): string {
+  return s.replace(/\s+/g, " ").trim();
+}
+
+function writeHtml(path: string, filtered: Row[], all: Row[]) {
+  const esc = (s: string) =>
+    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const total = all.length;
+  const avg = total ? all.reduce((s, r) => s + r.score, 0) / total : 0;
+  const rowsHtml = filtered
+    .map((r) => {
+      const color = r.score < 0.3 ? "#fdd" : r.score < 0.5 ? "#fed" : r.score < 0.7 ? "#ffd" : r.score < 0.9 ? "#efe" : "#dfd";
+      return `<tr style="background:${color}">
+  <td>${r.score.toFixed(2)}</td>
+  <td><b>${esc(r.fullName)}</b><br><small>set ${esc(r.setId)} #${r.number}</small></td>
+  <td>${esc(r.oracle)}</td>
+  <td>${esc(r.rendered)}</td>
+</tr>`;
+    })
+    .join("\n");
+  const html = `<!doctype html><meta charset="utf-8"><title>Decompiler diff</title>
+<style>
+  body{font:13px/1.4 -apple-system,sans-serif;margin:1em}
+  table{border-collapse:collapse;width:100%}
+  th,td{border:1px solid #ccc;padding:6px;vertical-align:top}
+  th{background:#eee;text-align:left}
+  td:nth-child(1){font-family:monospace;width:50px;text-align:center}
+  td:nth-child(2){width:160px}
+  td:nth-child(3),td:nth-child(4){width:40%}
+  small{color:#666}
+</style>
+<h1>Card decompiler vs. oracle text</h1>
+<p>${total} cards scored, average similarity ${avg.toFixed(2)}. Showing ${filtered.length} worst matches.</p>
+<table>
+<thead><tr><th>Score</th><th>Card</th><th>Oracle (Lorcast)</th><th>Rendered (decompiler)</th></tr></thead>
+<tbody>
+${rowsHtml}
+</tbody>
+</table>`;
+  writeFileSync(path, html);
+}
+
+// =============================================================================
+// utils
+// =============================================================================
+function cap(s: string): string {
+  if (!s) return "";
+  return s[0]!.toUpperCase() + s.slice(1);
+}
+function signed(n: number): string {
+  return n >= 0 ? `+${n}` : `${n}`;
+}
+
+main();

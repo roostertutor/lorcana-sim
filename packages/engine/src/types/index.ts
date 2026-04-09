@@ -924,11 +924,13 @@ export interface MoveCharacterEffect {
     | { type: "triggering_card" }
     | { type: "chosen"; filter: CardFilter }
     | { type: "last_resolved_target" }
-    /** "Any number of your characters" — moves every matching character to
-     *  the resolved location. Used by Moana Kakamora Leader (pairs with a
-     *  follow-up gain_lore reading state.lastEffectResult for "Gain 1 lore
-     *  for each character you moved"). */
-    | { type: "all"; filter: CardFilter };
+    /** "Any number of your characters" — surfaces a two-stage chooser: first
+     *  the location, then a multi-select of which characters to move. Used by
+     *  Moana Kakamora Leader ("any number") and Voyage ("up to 2", via
+     *  `maxCount`). The follow-up gain_lore reads state.lastEffectResult to
+     *  pay per moved character ("Gain 1 lore for each character you moved").
+     *  Optional: `maxCount` caps the multi-select; absence = unbounded. */
+    | { type: "all"; filter: CardFilter; maxCount?: number };
   /** The location being moved to. `last_resolved_target` reads
    *  state.lastResolvedTarget — used when a previous step in the same
    *  sequential picked the location and a follow-up move should reuse it
@@ -941,6 +943,10 @@ export interface MoveCharacterEffect {
    *  character snapshot across the second pendingChoice. Not part of the JSON
    *  spec — set by the reducer only. */
   _resolvedCharacter?: ResolvedRef;
+  /** Internal: set during stage 2 of an "all"+chosen flow to carry the
+   *  resolved location across the multi-select character chooser. Not part
+   *  of the JSON spec — set by the reducer only. */
+  _resolvedLocation?: ResolvedRef;
 }
 
 /**
