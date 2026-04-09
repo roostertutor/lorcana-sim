@@ -2716,7 +2716,38 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "FAMILIAR GROUND",
+        "rulesText": "Whenever this character quests, if you played another character this turn, chosen opposing character can't challenge during their next turn.",
+        "trigger": {
+          "on": "quests"
+        },
+        "condition": {
+          "type": "played_another_character_this_turn"
+        },
+        "effects": [
+          {
+            "type": "cant_action",
+            "action": "challenge",
+            "duration": "end_of_owner_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "P3",
     "number": 43,
     "rarity": "common",
@@ -2724,16 +2755,9 @@
     "strength": 3,
     "willpower": 3,
     "lore": 2,
-    "rulesText": "FAMILIAR GROUND Whenever this character quests, if you played another character this turn, chosen opposing character can't challenge and must quest during their next turn if able.",
+    "rulesText": "FAMILIAR GROUND Whenever this character quests, if you played another character this turn, chosen opposing character can't challenge during their next turn.",
     "flavorText": "\"Isn't it wonderful? See if there's anything that catches your eye.\"",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4a3d97e5bcff49c2883e5764be3fd43b.avif?1773508943",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "FAMILIAR GROUND",
-        "rulesText": "Whenever this character quests, if you played another character this turn, chosen opposing character can't challenge and must quest during their next turn if able.",
-        "raw": "FAMILIAR GROUND Whenever this character quests, if you played another character this turn, chosen opposing character can't challenge and must quest during their next turn if able."
-      }
-    ]
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4a3d97e5bcff49c2883e5764be3fd43b.avif?1773508943"
   },
   {
     "id": "maleficent-imperious-traveler",
