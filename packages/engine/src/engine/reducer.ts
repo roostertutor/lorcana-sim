@@ -2853,6 +2853,26 @@ export function applyEffect(
     }
 
     case "move_character": {
+      // Special path: character "all" + location "chosen" — surface a single
+      // choose_target for the LOCATION, then move every matching character to
+      // it on resolution. Records the moved count on lastEffectResult so a
+      // follow-up gain_lore can pay per-character (Moana Kakamora Leader).
+      if (effect.character.type === "all") {
+        if (effect.location.type !== "chosen") return state;
+        const validLocations = findValidTargets(state, effect.location.filter, controllingPlayerId, definitions, sourceInstanceId);
+        if (validLocations.length === 0) return state;
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_target",
+            choosingPlayerId: controllingPlayerId,
+            prompt: "Choose a location to move your characters to.",
+            validTargets: validLocations,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
+            optional: effect.isMay ?? false,
+          },
+        };
+      }
       // Resolve the character side first.
       let characterId: string | undefined;
       if (effect.character.type === "this") {
@@ -5556,6 +5576,24 @@ function applyEffectToTarget(
       };
     }
     case "move_character": {
+      // Moana Kakamora Leader path: character "all" + location chosen.
+      // targetInstanceId is the resolved location. Iterate every matching
+      // own character and performMove to that location, recording the count
+      // on lastEffectResult so the follow-up gain_lore can pay per move.
+      if (effect.character.type === "all") {
+        const candidates = findValidTargets(state, effect.character.filter, controllingPlayerId, definitions, sourceInstanceId)
+          .filter((id) => id !== targetInstanceId);
+        let moved = 0;
+        for (const charId of candidates) {
+          const charInst = state.cards[charId];
+          if (!charInst) continue;
+          // Skip if already at the target location (no-op move).
+          if (charInst.atLocationInstanceId === targetInstanceId) continue;
+          state = performMove(state, charId, targetInstanceId, definitions, events);
+          moved++;
+        }
+        return { ...state, lastEffectResult: moved };
+      }
       // Stage 2 path: if a character was already resolved, the targetInstanceId is the LOCATION.
       if (effect._resolvedCharacter) {
         return performMove(state, effect._resolvedCharacter.instanceId, targetInstanceId, definitions, events);

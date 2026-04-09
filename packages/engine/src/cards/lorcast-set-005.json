@@ -8627,12 +8627,12 @@
         "amount": 2,
         "isUpTo": true,
         "target": {
-          "type": "chosen",
+          "type": "all",
           "filter": {
+            "owner": { "type": "self" },
             "zone": "play",
-            "cardType": [
-              "character"
-            ]
+            "cardType": ["character"],
+            "hasDamage": true
           }
         }
       }

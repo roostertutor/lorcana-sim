@@ -918,7 +918,16 @@ export interface NameACardThenRevealEffect {
 export interface MoveCharacterEffect {
   type: "move_character";
   /** The character being moved. */
-  character: { type: "this" } | { type: "triggering_card" } | { type: "chosen"; filter: CardFilter } | { type: "last_resolved_target" };
+  character:
+    | { type: "this" }
+    | { type: "triggering_card" }
+    | { type: "chosen"; filter: CardFilter }
+    | { type: "last_resolved_target" }
+    /** "Any number of your characters" — moves every matching character to
+     *  the resolved location. Used by Moana Kakamora Leader (pairs with a
+     *  follow-up gain_lore reading state.lastEffectResult for "Gain 1 lore
+     *  for each character you moved"). */
+    | { type: "all"; filter: CardFilter };
   /** The location being moved to. `last_resolved_target` reads
    *  state.lastResolvedTarget — used when a previous step in the same
    *  sequential picked the location and a follow-up move should reuse it
