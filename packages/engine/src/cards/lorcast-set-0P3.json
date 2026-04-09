@@ -1802,6 +1802,18 @@
       {
         "type": "keyword",
         "keyword": "evasive"
+      },
+      {
+        "type": "static",
+        "storyName": "UNDERDOG",
+        "rulesText": "If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
+        "condition": {
+          "type": "your_first_turn_as_underdog"
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 1
+        }
       }
     ],
     "setId": "P3",

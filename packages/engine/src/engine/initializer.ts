@@ -162,6 +162,7 @@ export function createGame(
   let state: GameState = {
     turnNumber: 1,
     currentPlayer: "player1",
+    firstPlayerId: "player1",
     phase: "beginning",
     players: {
       player1: { id: "player1", lore: 0, availableInk: 0, hasPlayedInkThisTurn: false },

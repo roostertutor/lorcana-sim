@@ -117,8 +117,7 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // "You don't discard" — discard replacement effect (Magica De Spell, Kronk)
   [/\byou don'?t discard\b/i, "discard-replacement"],
   // "If this is your first turn" — Underdog keyword condition (set 11)
-  [/\bif this is your first turn\b/i, "underdog-condition"],
-  [/\bif you'?re not the first player\b/i, "underdog-condition"],
+  // (underdog-condition removed: your_first_turn_as_underdog Condition implemented.)
   // "Twice during your turn, whenever" — twice-per-turn trigger flag
   [/\btwice during your turn, whenever\b/i, "twice-per-turn-trigger"],
   // Bulk move cards from discard → inkwell (Perdita, Rolly-bulk variants)
@@ -445,6 +444,7 @@ const CAPABILITIES = new Set<string>([
   "condition_has_character_named",
   "condition_this_has_cards_under", "condition_you_control_matching",
   "condition_characters_here_gte",
+  "condition_your_first_turn_as_underdog",
   "modify_stat_per_count",
   // Locations / location-related
   "location_at_location_filter",

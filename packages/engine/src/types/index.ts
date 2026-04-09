@@ -1473,7 +1473,11 @@ export type Condition =
    *  Used by Flynn Rider Frenemy ("more strength than each opposing"), Ariel Treasure Collector
    *  ("more items than each opp" → metric="items_in_play"), HeiHei Bumbling Rooster
    *  (metric="cards_in_inkwell"; inverse — opponent has more → use `not`). */
-  | { type: "self_has_more_than_each_opponent"; metric: "strength_in_play" | "items_in_play" | "cards_in_inkwell" };
+  | { type: "self_has_more_than_each_opponent"; metric: "strength_in_play" | "items_in_play" | "cards_in_inkwell" }
+  /** UNDERDOG (Set 11): "If this is your first turn and you're not the first
+   *  player, ...". True when the controlling player has not yet completed a
+   *  turn AND they are NOT state.firstPlayerId. */
+  | { type: "your_first_turn_as_underdog" };
 
 export type AbilityTiming = "your_turn_main" | "any_time" | "opponent_turn";
 
@@ -1746,6 +1750,9 @@ export interface GameState {
   /** Monotonically increasing counter, used for ordering events */
   turnNumber: number;
   currentPlayer: PlayerID;
+  /** CRD 2.x: which player took turn 1. Used by Underdog ("you're not the first
+   *  player") and any future first-player-relative check. Set in initializer. */
+  firstPlayerId?: PlayerID;
   phase: GamePhase;
   players: Record<PlayerID, PlayerState>;
   /** All card instances in the game, keyed by instanceId */

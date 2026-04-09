@@ -1208,6 +1208,18 @@
         "type": "keyword",
         "keyword": "singer",
         "value": 3
+      },
+      {
+        "type": "static",
+        "storyName": "UNDERDOG",
+        "rulesText": "If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
+        "condition": {
+          "type": "your_first_turn_as_underdog"
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 1
+        }
       }
     ],
     "setId": "11",
@@ -2684,7 +2696,20 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "UNDERDOG",
+        "rulesText": "If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
+        "condition": {
+          "type": "your_first_turn_as_underdog"
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 1
+        }
+      }
+    ],
     "setId": "11",
     "number": 55,
     "rarity": "uncommon",
@@ -4300,6 +4325,18 @@
       {
         "type": "keyword",
         "keyword": "evasive"
+      },
+      {
+        "type": "static",
+        "storyName": "UNDERDOG",
+        "rulesText": "If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
+        "condition": {
+          "type": "your_first_turn_as_underdog"
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 1
+        }
       }
     ],
     "setId": "11",
@@ -5466,6 +5503,18 @@
       {
         "type": "keyword",
         "keyword": "reckless"
+      },
+      {
+        "type": "static",
+        "storyName": "UNDERDOG",
+        "rulesText": "If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
+        "condition": {
+          "type": "your_first_turn_as_underdog"
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 1
+        }
       }
     ],
     "setId": "11",
@@ -5512,9 +5561,13 @@
           "target": {
             "type": "all",
             "filter": {
-              "owner": { "type": "self" },
+              "owner": {
+                "type": "self"
+              },
               "zone": "play",
-              "cardType": ["character"]
+              "cardType": [
+                "character"
+              ]
             }
           }
         }
@@ -7614,6 +7667,18 @@
       {
         "type": "keyword",
         "keyword": "ward"
+      },
+      {
+        "type": "static",
+        "storyName": "UNDERDOG",
+        "rulesText": "If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
+        "condition": {
+          "type": "your_first_turn_as_underdog"
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 1
+        }
       }
     ],
     "setId": "11",
@@ -9667,6 +9732,18 @@
         "type": "keyword",
         "keyword": "resist",
         "value": 1
+      },
+      {
+        "type": "static",
+        "storyName": "UNDERDOG",
+        "rulesText": "If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
+        "condition": {
+          "type": "your_first_turn_as_underdog"
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 1
+        }
       }
     ],
     "setId": "11",
@@ -9736,8 +9813,13 @@
     "actionEffects": [
       {
         "type": "restrict_play",
-        "cardTypes": ["action", "item"],
-        "affectedPlayer": { "type": "opponent" }
+        "cardTypes": [
+          "action",
+          "item"
+        ],
+        "affectedPlayer": {
+          "type": "opponent"
+        }
       }
     ],
     "setId": "11",
@@ -11019,6 +11101,18 @@
         "type": "keyword",
         "keyword": "resist",
         "value": 1
+      },
+      {
+        "type": "static",
+        "storyName": "UNDERDOG",
+        "rulesText": "If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
+        "condition": {
+          "type": "your_first_turn_as_underdog"
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 1
+        }
       }
     ],
     "setId": "11",

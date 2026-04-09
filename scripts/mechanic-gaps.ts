@@ -44,8 +44,7 @@ const NEW_MECHANIC: [RegExp, string][] = [
   [/\bvanish\b.{0,20}\(/i, "vanish-keyword"],
   [/\bwhen an opponent chooses this character for an action, banish\b/i, "vanish-keyword"],
   [/\byou don'?t discard\b/i, "discard-replacement"],
-  [/\bif this is your first turn\b/i, "underdog-condition"],
-  [/\bif you'?re not the first player\b/i, "underdog-condition"],
+  // (underdog-condition removed: your_first_turn_as_underdog Condition implemented.)
   [/\btwice during your turn, whenever\b/i, "twice-per-turn-trigger"],
   [/\bput all .{0,40}cards? from your discard into your inkwell\b/i, "bulk-discard-to-inkwell"],
   [/\bwhenever one or more of your characters sings?\b/i, "batched-sings-trigger"],

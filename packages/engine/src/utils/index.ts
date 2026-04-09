@@ -633,6 +633,17 @@ export function evaluateCondition(
       return getZone(state, opponent, "hand").length > getZone(state, controllingPlayerId, "hand").length;
     case "is_your_turn":
       return state.currentPlayer === controllingPlayerId;
+    case "your_first_turn_as_underdog": {
+      // CRD: UNDERDOG ("if this is your first turn and you're not the first
+      // player"). 2P: it's the controller's first turn iff turnNumber equals
+      // the index at which they first take a turn. Player1 = turn 1, player2 =
+      // turn 2 (when player1 went first). Use firstPlayerId so this stays
+      // honest if randomization lands later.
+      const firstPlayer = state.firstPlayerId ?? "player1";
+      if (controllingPlayerId === firstPlayer) return false;
+      // The non-first player's first turn is turn 2 in 2P.
+      return state.turnNumber === 2 && state.currentPlayer === controllingPlayerId;
+    }
     case "this_is_exerted": {
       const sourceInst = state.cards[sourceInstanceId];
       return sourceInst ? sourceInst.isExerted : false;

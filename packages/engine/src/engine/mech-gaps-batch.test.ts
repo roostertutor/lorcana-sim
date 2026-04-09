@@ -352,6 +352,45 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     expect(getZone(state, "player1", "hand").length).toBe(p1HandBefore - 1);
   });
 
+  it("UNDERDOG: White Rabbit Late Again pays 1 less only on player2's first turn (turn 2)", () => {
+    // Card cost is 2; with Underdog active it should cost 1.
+    let state = startGame();
+    // Move to player2's first turn (turn 2).
+    state = passTurns(state, 1);
+    expect(state.currentPlayer).toBe("player2");
+    expect(state.turnNumber).toBe(2);
+    state = giveInk(state, "player2", 1); // exactly 1 ink to test the discount.
+    let rabbitId: string;
+    ({ state, instanceId: rabbitId } = injectCard(state, "player2", "white-rabbit-late-again", "hand"));
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player2", instanceId: rabbitId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // After paying 1 ink, available ink should be 0.
+    expect(r.newState.players.player2.availableInk).toBe(0);
+  });
+
+  it("UNDERDOG: does NOT discount on player1 (the first player)", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 1);
+    let rabbitId: string;
+    ({ state, instanceId: rabbitId } = injectCard(state, "player1", "white-rabbit-late-again", "hand"));
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: rabbitId }, LORCAST_CARD_DEFINITIONS);
+    // Card costs 2, player1 has 1 → should fail (no underdog discount for first player).
+    expect(r.success).toBe(false);
+  });
+
+  it("UNDERDOG: does NOT discount on player2's later turns", () => {
+    let state = startGame();
+    // Pass through turns 1, 2, 3 → now turn 4, player2's second turn.
+    state = passTurns(state, 3);
+    expect(state.currentPlayer).toBe("player2");
+    expect(state.turnNumber).toBe(4);
+    state = giveInk(state, "player2", 1);
+    let rabbitId: string;
+    ({ state, instanceId: rabbitId } = injectCard(state, "player2", "white-rabbit-late-again", "hand"));
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player2", instanceId: rabbitId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(false);
+  });
+
   it("does not affect opposing characters (filter is owner: self)", () => {
     let state = startGame();
     ({ state } = injectCard(state, "player1", "elisa-maza-transformed-gargoyle", "play", { isDrying: false }));
