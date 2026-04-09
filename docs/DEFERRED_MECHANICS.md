@@ -2,57 +2,40 @@
 
 Mechanics not yet implemented in the engine. Run `pnpm tsx scripts/mechanic-gaps.ts` for the live list with affected cards. Run `pnpm card-status` for set-by-set totals.
 
-## Status as of 2026-04-07 (end of ResolvedRef refactor)
+## Status as of 2026-04-09 (closing batch)
 
-- **1988/2652 implemented (75%)** + **506 vanilla** = **2494/2652 (94%) effectively complete**
-- **9 fits-grammar** cards remain (compound-mechanic floor: Kakamora Pirate Chief, Everybody's Got a Weakness, Namaari, Goofy Set for Adventure ×3, Powerline ×2, Alice Growing Girl)
-- **29 needs-new-type** + **119 needs-new-mechanic** = ~148 cards across the gap report
-- Engine tests: **368 passing**
+- **2145/2145 named-ability cards wired (100%)** + **507 vanillas** = **2652/2652 (100%) effective coverage**
+- **0 stubs across every set and promo printing** (sets 1–11, P1, P2, P3, cp, DIS, D23)
+- Engine tests: **390 passing**
 
-The categorizer is honest end-to-end. `ResolvedRef` snapshot type unifies fragmented carriers (`_resolvedSource`, `lastResolvedTarget`, `lastResolvedSource`) and supports `name`/`strength`/`cost`/`delta` capture. Hades Double Dealer, Ambush, and Baymax Armored Companion now wired without approximations.
+This file no longer tracks unimplemented mechanics — there are none. It remains as a record of (a) the wiring approximations that need a follow-up audit, and (b) the engine subsystems still worth tightening for full CRD fidelity.
+
+## Approximation audit (follow-up)
+
+A handful of cards are wired with simplifications because the strict CRD interpretation would require infrastructure not justified by analytics needs. Each is logged in its commit message; this list is the canonical reference.
+
+| Card | Set | Approximation | Why |
+|---|---|---|---|
+| Moana — Kakamora Leader | 6 | "any number of your characters" → 1 character moved | Predates this batch. Engine has no multi-target choose-N flow for move_character. |
+| Kristoff's Lute — MOMENT OF INSPIRATION | 11 | "play it as if it were in your hand" (normal cost) → free play; bot heuristic always plays | Would need a play-with-cost-payment branch through play_for_free or a reveal-then-prompt path. |
+| Ariel — Curious Traveler | P3 | Drops the "must quest if able" clause; only `cant_action: challenge` is wired | Matches the Gaston Frightful Bully (set 10) and Rapunzel Ethereal Protector (set 11) precedent. Adding "must quest" needs a per-target action requirement enforced by the validator. |
+| Jafar — High Sultan of Lorcana | 8 / P2 | "play THAT discarded character" → "play any matching Illusion character from discard" | Would need play_for_free.target to support a "specific instance from a specific zone" form. The current implementation widens the filter; in practice the just-discarded card is the only or most recent match. |
+| Tuk Tuk — Lively Partner | 4 | "him AND another to the SAME location" → two independent location choices | Would need pendingChoice chaining to share a chosen location across two move_character resolutions. |
+| Anna — Soothing Sister UNUSUAL TRANSFORMATION | 11 | "this card gains Shift 0" → self_cost_reduction amount 5 from hand, gated on `card_left_discard_this_turn` AND `has_character_named:Anna self` | Equivalent free-play cost in practice; the engine's Shift path reads `def.shiftCost` directly, so granting Shift via a static would require new validator + applyPlayCard plumbing. The cost-reduction approximation does not perform the cards-under transfer that real Shift would, but for analytics deck win-rate this matches the cost. |
+
+The audit task is tracked separately. When revisiting, the question to ask each entry is: "would full fidelity meaningfully change deck simulation outcomes?" If yes, lift the approximation; if no, leave it documented and move on.
 
 ## How the gap report is structured
 
-`scripts/mechanic-gaps.ts` outputs JSON with each label, count, sets, and example cards. Top of the live list:
+`scripts/mechanic-gaps.ts` outputs JSON with each label, count, sets, and example cards. With 0 stubs, the report is empty — the script remains as a regression check: any future card import that adds an unwired stub will surface here.
 
-1. **Single-card mechanics** (most labels) — 1-3 cards each, niche
-2. **Compound primitives** (~10 labels, 2-5 cards each) — sequential effects with cost-then-effect requiring deferred subsystems
-3. **Architectural additions** — replacement-effect, multi-player choice queue, virtual-cost-modifier
+## Engine subsystems still worth tightening (not blocking)
 
-## High-impact remaining mechanics
+These are quality-of-implementation items, not stubs. They don't affect the gap count but would improve CRD fidelity if revisited:
 
-These are the largest unique gaps. See `mechanic-gaps.ts` output for affected card lists.
+- **Replacement-effect layer** (CRD 6.5) — currently per-effect short-circuits (damage immunity, prevent_lore_loss, prevent_lore_gain, etc.). A unified replacement layer would let new cards declare replacements declaratively without touching every write-path.
+- **Multi-pick choose_target** — many "choose N cards" effects currently auto-pick the first N (Queen Jealous Beauty, Dig a Little Deeper, Family Madrigal). For interactive UI sessions a true multi-select would help; for headless analytics the heuristic is fine.
+- **Granted Shift / granted activated abilities from hand** — the gameModifiers `grantedActivatedAbilities` map handles in-play grants. Hand-zone grants (Anna's Shift 0) currently use the cost-reduction approximation above. A real implementation would need validator integration for the granted Shift path.
+- **Forced-target taunt resolution interaction** — John Smith's `forced_target_priority` narrows `findValidTargets` results. This affects every chosen-target enumerator transparently, but doesn't yet interact with effects that surface non-`findValidTargets` choices (e.g. some `chosen` resolution paths in applyEffectToTarget that re-enumerate independently).
 
-- **`replacement-effect`** (Rapunzel Ready for Adventure, Lilo Bundled Up) — CRD 6.5 layer
-- **`virtual-cost-modifier`** (Atlantica Concert Hall ×2) — location-aware sing cost
-- **`stat-floor`** (Elisa Maza ×2) — clamp `getEffectiveStrength` to printed
-- **`for-each-opponent-who-didnt`** (Sign the Scroll, Ursula's Trickery) — multi-player refusal-counting pendingChoice
-- **`inkwell-static`** (Daisy Duck Paranormal Investigator ×3) — pre-inkwell-add replacement
-- **`restricted-play-by-type`** (Pete Games Referee, Keep the Ancient Ways) — player-scoped TimedEffect
-- **`stat-threshold-condition`** (Next Stop Olympus ×2) — "if you have a character with N {S}"
-- **`ink-from-discard`** (Moana Curious Explorer ×2) — alternate ink source
-- **`shift-variant`** (Anna Soothing Sister ×2) — Shift 0 conditional + event tracking compound
-- **`bad-anon-recursive`** (Bad-Anon Villain Support Center ×2) — location grants activated ability that plays same-named character (combines location-grant-ability + recursion)
-- **`multi-source-move`** (Everybody's Got a Weakness) — move 1 damage from EACH damaged char to chosen, draw N for total moved (multi-source loop, not single-target)
-
-## Categorizer-detected compound false positives
-
-The categorizer-tightening pass added ~68 NEW_MECHANIC patterns to detect compound cards. Each new label maps to a distinct missing primitive — see `scripts/card-status.ts` `NEW_MECHANIC_PATTERNS` for the full list. Notable groups:
-
-**Trigger/event gaps**: `vanish-keyword`, `twice-per-turn-trigger`, `batched-sings-trigger`, `other-sings-trigger`, `opponent-exerts-trigger`, `opponent-damaged-trigger`, `chosen-by-opponent-trigger`, `nth-card-played-trigger`, `location-challenged-trigger`, `inkwell-count-trigger`, `shift-onto-self-trigger`, `exert-triggering-card`.
-
-**Condition gaps**: `discard-replacement`, `underdog-condition`, `no-challenges-this-turn-condition`, `song-played-this-turn-condition`, `no-ink-put-this-turn-condition`, `card-under-event-condition`, `played-another-this-turn-condition`, `has-damaged-character-condition`.
-
-**Effect gaps**: `bulk-discard-to-inkwell`, `play-from-inkwell`, `put-self-under-effect`, `cards-under-to-inkwell`, `play-from-discard-then-bottom`, `name-then-bulk-return-from-discard`, `dynamic-draw-from-target-damage`, `lore-transfer`, `grant-activated-to-own-timed`, `per-singer-dynamic`, `discard-any-number-dynamic`, `fill-hand`.
-
-## How to make progress on these
-
-Each gap is now small enough that a single focused session can knock out 5-10 mechanics. The pattern is:
-
-1. Pick a label from `mechanic-gaps.ts` output
-2. Read the affected cards' rules text
-3. Add type + handler + test for the missing primitive
-4. Wire the cards
-5. Move the regex from `NEW_MECHANIC` (in `mechanic-gaps.ts` and `card-status.ts`) into `FITS_GRAMMAR_PATTERNS` with a fresh capability_id
-
-The session memory `project_phase_a_cleanup.md` documents the workflow and gotchas in detail.
+None of these block any current card.

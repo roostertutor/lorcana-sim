@@ -9,14 +9,14 @@ to produce deck analytics and win rates. NOT a human-playable simulator.
 
 ## Status
 
-- engine:    done (368 passing). Phase A.x cleanup landed ~25 new primitives (boost subzone, damage immunity, dynamic-amount variants, ResolvedRef carriers, etc.). Tests split: reducer.test.ts (CRD), set1-set11 + dynamic-amount + resolved-ref. ResolvedRef snapshot type unifies fragmented `_resolved*` carriers and supports name/strength/cost/delta capture.
+- engine:    done (390 passing). Phase A.x cleanup + finishing batch landed ~50 primitives total (boost subzone, damage immunity, ResolvedRef carriers, last_resolved_target/source filters and dynamic amounts, opponent_chooses_yes_or_no, conditional_on_last_discarded, prevent_lore_gain, forced_target_priority taunt, song_singer_count, opposing_chars_banished_in_challenge counter, costAtMostFromLastResolvedSourcePlus, generalized matchesFilter source-name resolution, etc.). Tests split: reducer.test.ts (CRD), set1-set11 + mech-gaps batch.
 - simulator: done (46 passing). Layer 3 invariants passing. RL bot implemented (Actor-Critic + GAE). Pre-existing flake on rl.test.ts unrelated to engine work.
 - analytics: done (15 passing).
 - cli:       done. analyze, compare, query, learn.
 - ui:        done. 7 screens, React+Vite. Responsive (mobile/tablet/desktop). Full-screen game board (no header/nav in-game). See `docs/UI_PENDING_MECHANICS.md` for mechanics needing visualization.
 - testbench: done. Interactive game board with bot opponent. Replay mode + undo. Utility strip (deck tile, inkwell, discard tile). Card action popover anchored to clicked card (fixed-position, works on all breakpoints). Keyword badges, exerted rotation/grayscale, damage counter, summoning sickness overlay. Play zone reset on leave (CRD 1.9.3).
-- cards:     1989/2652 (75%) wired + 506 vanilla = 2495/2652 (94%) effectively complete. Sets 1-3: complete. Sets 4-11: 90%+ complete each (vanillas + wired). Promo sets (P1-P3, cp, DIS, D23) auto-synced from main sets via `scripts/sync-promo-reprints.ts`.
-- gaps:      9 fits-grammar (compound-mechanic floor) + 29 needs-new-type + 121 needs-new-mechanic = ~159 cards across 89 distinct labels. Categorizer is honest end-to-end. See `docs/DEFERRED_MECHANICS.md` for the TODO list and `pnpm tsx scripts/mechanic-gaps.ts` for the live report.
+- cards:     **2145/2145 named-ability cards wired + 507 vanillas = 2652/2652 (100%) complete.** Every card across sets 1–11 + promos (P1, P2, P3, cp, DIS, D23) is implemented. Promo sets auto-synced from main sets via `scripts/sync-promo-reprints.ts` (cross-set + within-set passes).
+- gaps:      **0 stubs.** A handful of cards use approximations of their full rules text (logged in the audit task) — see `docs/DEFERRED_MECHANICS.md` for details. The categorizer is honest end-to-end; `pnpm card-status` is the live tracker.
 
 ## Quick Reference
 
