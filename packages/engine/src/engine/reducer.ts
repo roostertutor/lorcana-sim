@@ -171,11 +171,21 @@ export function getAllLegalActions(
   const myPlay = getZone(state, playerId, "play");
   const opponentPlay = getZone(state, opponentId, "play");
 
-  // PLAY_INK — one per turn, any inkable card in hand
+  // PLAY_INK — one per turn, any inkable card in hand (or discard if Moana
+  // Curious Explorer is in play).
   for (const instanceId of hand) {
     const action: GameAction = { type: "PLAY_INK", playerId, instanceId };
     if (validateAction(state, action, definitions).valid) {
       actions.push(action);
+    }
+  }
+  const inkMods = getGameModifiers(state, definitions);
+  if (inkMods.inkFromDiscard.has(playerId)) {
+    for (const instanceId of getZone(state, playerId, "discard")) {
+      const action: GameAction = { type: "PLAY_INK", playerId, instanceId };
+      if (validateAction(state, action, definitions).valid) {
+        actions.push(action);
+      }
     }
   }
 

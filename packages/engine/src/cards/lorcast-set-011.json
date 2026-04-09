@@ -7983,7 +7983,14 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "ANCESTRAL LEGACY",
+        "rulesText": "You can ink cards from your discard.",
+        "effect": { "type": "ink_from_discard" }
+      }
+    ],
     "setId": "11",
     "number": 155,
     "rarity": "legendary",
@@ -12514,7 +12521,14 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "ANCESTRAL LEGACY",
+        "rulesText": "You can ink cards from your discard.",
+        "effect": { "type": "ink_from_discard" }
+      }
+    ],
     "setId": "11",
     "number": 242,
     "rarity": "common",

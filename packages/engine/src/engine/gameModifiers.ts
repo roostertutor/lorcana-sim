@@ -166,6 +166,10 @@ export interface GameModifiers {
    *  if either player's aCharacterChallengedThisTurn flag is set. */
   oneChallengePerTurnGlobal: boolean;
 
+  /** Moana Curious Explorer: "you can ink cards from your discard". Players
+   *  in this set may also use PLAY_INK on cards in their discard pile. */
+  inkFromDiscard: Set<import("../types/index.js").PlayerID>;
+
   /**
    * Players whose newly-inked cards enter the inkwell exerted (Daisy Duck
    * Paranormal Investigator). availableInk is NOT incremented for these adds.
@@ -226,6 +230,7 @@ export function getGameModifiers(
     preventLoreLoss: new Set(),
     preventDiscardFromHand: new Set(),
     oneChallengePerTurnGlobal: false,
+    inkFromDiscard: new Set(),
   };
 
   // Pre-pass: collect remove_named_ability suppressions so the main pass can
@@ -576,6 +581,12 @@ export function getGameModifiers(
         case "one_challenge_per_turn_global": {
           // Prince Charming Protector of the Realm.
           modifiers.oneChallengePerTurnGlobal = true;
+          break;
+        }
+
+        case "ink_from_discard": {
+          // Moana Curious Explorer.
+          modifiers.inkFromDiscard.add(instance.ownerId);
           break;
         }
 

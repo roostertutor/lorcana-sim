@@ -338,7 +338,14 @@ function validatePlayInk(
 
   const instance = getInstance(state, instanceId);
   if (instance.ownerId !== playerId) return fail("You don't own this card.");
-  if (instance.zone !== "hand") return fail("Card is not in your hand.");
+  if (instance.zone !== "hand") {
+    // Moana Curious Explorer: also allow inking from discard.
+    if (instance.zone === "discard" && modifiers.inkFromDiscard.has(playerId)) {
+      // ok
+    } else {
+      return fail("Card is not in your hand.");
+    }
+  }
 
   const def = getDefinition(state, instanceId, definitions);
   if (!def.inkable) return fail("This card cannot be used as ink.");

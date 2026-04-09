@@ -1060,7 +1060,17 @@ export type StaticEffect =
   | PreventLoreLossStatic
   | RemoveNamedAbilityStatic
   | PreventDiscardFromHandStatic
-  | OneChallengePerTurnGlobalStatic;
+  | OneChallengePerTurnGlobalStatic
+  | InkFromDiscardStatic;
+
+/**
+ * Moana - Curious Explorer (Set 11): "ANCESTRAL LEGACY You can ink cards from
+ * your discard." Adds the controller's discard zone as a valid source for the
+ * PLAY_INK action. Inkable check still applies (CRD 4.2.1).
+ */
+export interface InkFromDiscardStatic {
+  type: "ink_from_discard";
+}
 
 /**
  * Prince Charming - Protector of the Realm (Set 10): "Each turn, only one
