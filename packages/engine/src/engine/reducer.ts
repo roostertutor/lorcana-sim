@@ -212,6 +212,27 @@ export function getAllLegalActions(
         }
       }
     }
+
+    // Belle Apprentice Inventor: alternative play cost (banish item).
+    // Enumerate one PLAY_CARD action per banishable item that satisfies the
+    // card's altPlayCost filter.
+    if (cardDef?.altPlayCost?.type === "banish_item") {
+      for (const itemId of myPlay) {
+        const itemInst = state.cards[itemId];
+        const itemDef = itemInst ? definitions[itemInst.definitionId] : undefined;
+        if (!itemInst || !itemDef) continue;
+        if (!matchesFilter(itemInst, itemDef, cardDef.altPlayCost.filter, state, playerId)) continue;
+        const altPlay: GameAction = {
+          type: "PLAY_CARD",
+          playerId,
+          instanceId,
+          altCostBanishInstanceId: itemId,
+        };
+        if (validateAction(state, altPlay, definitions).valid) {
+          actions.push(altPlay);
+        }
+      }
+    }
   }
 
   // SING — each song in hand × each eligible singer in play (CRD 5.4.4.2)
@@ -321,7 +342,7 @@ function applyActionInner(
 ): GameState {
   switch (action.type) {
     case "PLAY_CARD":
-      return applyPlayCard(state, action.playerId, action.instanceId, definitions, events, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds);
+      return applyPlayCard(state, action.playerId, action.instanceId, definitions, events, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds, action.altCostBanishInstanceId);
     case "PLAY_INK":
       return applyPlayInk(state, action.playerId, action.instanceId, definitions, events);
     case "QUEST":
@@ -353,7 +374,8 @@ function applyPlayCard(
   events: GameEvent[],
   shiftTargetInstanceId?: string,
   singerInstanceId?: string,
-  singerInstanceIds?: string[]
+  singerInstanceIds?: string[],
+  altCostBanishInstanceId?: string,
 ): GameState {
   const def = getDefinition(state, instanceId, definitions);
 
@@ -397,6 +419,9 @@ function applyPlayCard(
       triggeringPlayerId: playerId,
       triggeringCardInstanceId: instanceId,
     });
+  } else if (altCostBanishInstanceId && def.altPlayCost?.type === "banish_item") {
+    // Belle Apprentice Inventor: alt cost — banish chosen item, no ink paid.
+    state = banishCard(state, altCostBanishInstanceId, definitions, events);
   } else {
     const baseCost = shiftTargetInstanceId ? (def.shiftCost ?? def.cost) : def.cost;
     // Apply cost reductions

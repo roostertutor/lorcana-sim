@@ -1789,6 +1789,18 @@ export interface CardDefinition {
    *  this turn"). */
   playRestrictions?: Condition[];
 
+  /** Alternative play cost (Belle Apprentice Inventor: "you may banish chosen
+   *  item of yours to play this character for free"). When set, the player
+   *  may choose this path instead of paying ink. */
+  altPlayCost?: {
+    type: "banish_item";
+    /** Filter for which items can be banished as the alt cost. */
+    filter: CardFilter;
+    /** Optional condition gating when the alt cost is allowed (e.g.
+     *  Belle's "during your turn"). */
+    condition?: Condition;
+  };
+
   /** CRD 5.4.3: Actions have effects, not abilities. Resolved inline, not through trigger stack. */
   actionEffects?: Effect[];
 
@@ -2178,6 +2190,10 @@ export interface PlayCardAction {
   /** CRD 8.12: For Sing Together — multiple characters whose combined effective cost
    *  must be ≥ the song's singTogetherCost. Mutually exclusive with singerInstanceId. */
   singerInstanceIds?: string[];
+  /** Belle Apprentice Inventor: the instanceId of the item to banish as the
+   *  alternative cost (instead of paying ink). Only valid when the played
+   *  card declares an `altPlayCost` that matches. */
+  altCostBanishInstanceId?: string;
 }
 
 export interface PlayInkAction {

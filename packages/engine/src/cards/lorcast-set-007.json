@@ -8706,6 +8706,11 @@
       "Inventor"
     ],
     "abilities": [],
+    "altPlayCost": {
+      "type": "banish_item",
+      "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["item"] },
+      "condition": { "type": "is_your_turn" }
+    },
     "setId": "7",
     "number": 159,
     "rarity": "common",

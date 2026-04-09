@@ -25,7 +25,8 @@ for (const s of MAIN_SETS) {
     const hasAltNames = c.alternateNames && c.alternateNames.length > 0;
     const hasPlayRestrictions = c.playRestrictions && c.playRestrictions.length > 0;
     const hasSelfCost = c.selfCostReduction !== undefined;
-    if (hasAbilities || hasAction || hasAltNames || hasPlayRestrictions || hasSelfCost) {
+    const hasAltPlayCost = c.altPlayCost !== undefined;
+    if (hasAbilities || hasAction || hasAltNames || hasPlayRestrictions || hasSelfCost || hasAltPlayCost) {
       // Match case-insensitively to tolerate Lorcast capitalization drift
       // (e.g. "Miserable as Usual" vs "Miserable As Usual" between sets).
       const key = c.fullName.toLowerCase();
@@ -57,6 +58,7 @@ for (const s of PROMO_SETS) {
     if (src.alternateNames) c.alternateNames = [...src.alternateNames];
     if (src.playRestrictions) c.playRestrictions = JSON.parse(JSON.stringify(src.playRestrictions));
     if (src.selfCostReduction) c.selfCostReduction = JSON.parse(JSON.stringify(src.selfCostReduction));
+    if (src.altPlayCost) c.altPlayCost = JSON.parse(JSON.stringify(src.altPlayCost));
     setSynced++;
     synced++;
   }

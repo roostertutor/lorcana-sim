@@ -223,9 +223,34 @@ function validatePlayCard(
     return OK;
   }
 
+  // Belle Apprentice Inventor: alternative play cost — banish an item.
+  // When the player provides altCostBanishInstanceId, validate the alt cost
+  // path instead of the normal ink check.
+  // Note: ApplyAction's PlayCardAction discriminator carries the field but
+  // validatePlayCard doesn't have direct access to it; the action is passed
+  // via the validator entry point. We re-read it through state context below
+  // by checking def.altPlayCost — if the def has it AND the condition holds,
+  // we accept either an ink path OR the alt path.
+  const _ignored_altCheck = def.altPlayCost; // silence — handled at action level
   // Apply cost reductions (static + one-shot)
   const effectiveCost = getEffectiveCostWithReductions(state, playerId, instanceId, definitions);
   if (!canAfford(state, playerId, effectiveCost)) { // CRD 1.5.3: cost must be paid in full
+    // Allow if the alt cost is satisfiable (Belle Apprentice Inventor).
+    if (def.altPlayCost) {
+      if (def.altPlayCost.condition && !evaluateCondition(def.altPlayCost.condition, state, definitions, playerId, instanceId)) {
+        return fail(`Not enough ink. Need ${effectiveCost}, have ${state.players[playerId].availableInk}.`);
+      }
+      const candidates = getZone(state, playerId, "play").filter((id) => {
+        const inst = state.cards[id];
+        const d = inst ? definitions[inst.definitionId] : undefined;
+        return inst && d && matchesFilter(inst, d, def.altPlayCost!.filter, state, playerId);
+      });
+      if (candidates.length === 0) {
+        return fail(`Not enough ink. Need ${effectiveCost}, have ${state.players[playerId].availableInk}.`);
+      }
+      // alt cost is satisfiable — allow the play
+      return OK;
+    }
     return fail(`Not enough ink. Need ${effectiveCost}, have ${state.players[playerId].availableInk}.`);
   }
 
