@@ -83,7 +83,7 @@ export function validateAction(
 
   switch (action.type) {
     case "PLAY_CARD":
-      return validatePlayCard(state, action.playerId, action.instanceId, definitions, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds);
+      return validatePlayCard(state, action.playerId, action.instanceId, definitions, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds, action.viaGrantedFreePlay);
     case "PLAY_INK":
       return validatePlayInk(state, action.playerId, action.instanceId, definitions);
     case "QUEST":
@@ -117,7 +117,8 @@ function validatePlayCard(
   definitions: Record<string, CardDefinition>,
   shiftTargetInstanceId?: string,
   singerInstanceId?: string,
-  singerInstanceIds?: string[]
+  singerInstanceIds?: string[],
+  viaGrantedFreePlay?: boolean,
 ): ValidationResult {
   if (!isMainPhase(state, playerId)) return fail("Not your main phase.");
 
@@ -135,19 +136,24 @@ function validatePlayCard(
 
   const def = getDefinition(state, instanceId, definitions);
 
-  // CRD 8.10.1: Shift — alternate cost onto same-named character in play
+  // CRD 8.10.1: Shift — alternate cost onto same-named character in play.
+  // Shift cost can come from def.shiftCost (printed) or mods.grantedShiftSelf
+  // (Anna - Soothing Sister "this card gains Shift 0").
   if (shiftTargetInstanceId) {
-    if (!def.shiftCost) return fail("This card doesn't have Shift.");
+    const shiftModifiers = getGameModifiers(state, definitions);
+    const grantedShift = shiftModifiers.grantedShiftSelf.get(instanceId);
+    const printedShift = def.shiftCost;
+    const baseShiftCost = printedShift ?? grantedShift;
+    if (baseShiftCost === undefined) return fail("This card doesn't have Shift.");
     const shiftTarget = getInstance(state, shiftTargetInstanceId);
     if (shiftTarget.zone !== "play") return fail("Shift target is not in play.");
     if (shiftTarget.ownerId !== playerId) return fail("You don't own the shift target.");
     const shiftTargetDef = getDefinition(state, shiftTargetInstanceId, definitions);
-    const shiftModifiers = getGameModifiers(state, definitions);
     if (!canShiftOnto(instanceId, def, shiftTargetInstanceId, shiftTargetDef, shiftModifiers)) {
       return fail("Shift target must share this character's name.");
     }
     // CRD 1.5.3: cost reductions (e.g. Lantern) apply to shift cost too
-    const effectiveShiftCost = getEffectiveCostWithReductions(state, playerId, instanceId, definitions, def.shiftCost);
+    const effectiveShiftCost = getEffectiveCostWithReductions(state, playerId, instanceId, definitions, baseShiftCost);
     if (!canAfford(state, playerId, effectiveShiftCost)) {
       return fail(`Not enough ink. Need ${effectiveShiftCost} (shift), have ${state.players[playerId].availableInk}.`);
     }
@@ -232,8 +238,16 @@ function validatePlayCard(
   // by checking def.altPlayCost — if the def has it AND the condition holds,
   // we accept either an ink path OR the alt path.
   const _ignored_altCheck = def.altPlayCost; // silence — handled at action level
+  // Granted free-play (Pudge): when the in-hand instance is flagged in
+  // mods.playForFreeSelf the player has the OPTION to play it for 0 ink.
+  // The action's viaGrantedFreePlay flag opts in; without it the normal
+  // cost is paid (LeFou-style cost reductions still apply on top).
+  const grantedFreePlayMods = getGameModifiers(state, definitions);
+  if (viaGrantedFreePlay && !grantedFreePlayMods.playForFreeSelf.has(instanceId)) {
+    return fail("This card cannot be played for free right now.");
+  }
   // Apply cost reductions (static + one-shot)
-  const effectiveCost = getEffectiveCostWithReductions(state, playerId, instanceId, definitions);
+  const effectiveCost = viaGrantedFreePlay ? 0 : getEffectiveCostWithReductions(state, playerId, instanceId, definitions);
   if (!canAfford(state, playerId, effectiveCost)) { // CRD 1.5.3: cost must be paid in full
     // Allow if the alt cost is satisfiable (Belle Apprentice Inventor).
     if (def.altPlayCost) {

@@ -1271,6 +1271,8 @@ export type StaticEffect =
   | DamageImmunityStatic
   | GrantActivatedAbilityStatic
   | CantActionSelfStatic
+  | GrantPlayForFreeSelfStatic
+  | GrantShiftSelfStatic
   | MimicryTargetSelfStatic
   | UniversalShiftSelfStatic
   | ClassificationShiftSelfStatic
@@ -1518,6 +1520,35 @@ export interface PlayableFromZoneSelfStatic {
 export interface CantActionSelfStatic {
   type: "cant_action_self";
   action: RestrictedAction;
+}
+
+/**
+ * Pudge - Controls the Weather (Set 11) GOOD FRIEND: "If you have a character
+ * named Lilo in play, you can play this character for free." A conditional
+ * static with `activeZones: ["hand"]`. When the condition holds, the in-hand
+ * source instance gains an alternative play mode at cost 0. Surfaced as a
+ * separate PLAY_CARD legal action variant alongside the normal-cost play —
+ * the player can choose either. Distinct from `self_cost_reduction`, which
+ * is the LeFou Bumbler / Lantern / Grandmother Willow pattern (a MANDATORY
+ * flat reduction with no alternative path).
+ */
+export interface GrantPlayForFreeSelfStatic {
+  type: "grant_play_for_free_self";
+}
+
+/**
+ * Anna - Soothing Sister (Set 11) UNUSUAL TRANSFORMATION: "this card gains
+ * Shift N {I}." A conditional static with `activeZones: ["hand"]` that adds
+ * a granted Shift cost on the in-hand instance. The validator's PLAY_CARD
+ * shift branch reads `def.shiftCost ?? mods.grantedShiftSelf.get(instanceId)`
+ * and the legal-action enumerator surfaces shift target variants the same
+ * way it does for cards with a printed Shift cost. Distinct from
+ * `grant_play_for_free_self` (different validator path — Shift goes through
+ * the cards-under placement / inheritance flow per CRD 8.10.4).
+ */
+export interface GrantShiftSelfStatic {
+  type: "grant_shift_self";
+  value: number;
 }
 
 /** This character can challenge ready (non-exerted) characters. */
@@ -2490,6 +2521,12 @@ export interface PlayCardAction {
    *  alternative cost (instead of paying ink). Only valid when the played
    *  card declares an `altPlayCost` that matches. */
   altCostBanishInstanceId?: string;
+  /** Pudge - Controls the Weather: alternative free-play mode granted by a
+   *  conditional `grant_play_for_free_self` static. When true, the validator
+   *  forces cost to 0 (gated on the modifier being active) and the apply
+   *  path skips ink deduction. The legal-action enumerator surfaces this
+   *  variant alongside the normal-cost play, so the player can pick either. */
+  viaGrantedFreePlay?: boolean;
 }
 
 export interface PlayInkAction {

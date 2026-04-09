@@ -97,6 +97,25 @@ export interface GameModifiers {
   selfActionRestrictions: Map<string, Set<import("../types/index.js").RestrictedAction>>;
 
   /**
+   * In-hand instances that may be played for free as an alternative play
+   * mode (Pudge - Controls the Weather "you can play this character for
+   * free"). Populated from `grant_play_for_free_self` static effects whose
+   * activeZones include "hand" and whose condition is currently true.
+   * The legal-action enumerator surfaces an extra PLAY_CARD variant with
+   * the cost forced to 0 for these instances.
+   */
+  playForFreeSelf: Set<string>;
+
+  /**
+   * In-hand instances with a granted Shift cost (Anna - Soothing Sister
+   * "this card gains Shift 0"). Key = instanceId, value = the granted
+   * shift cost. validatePlayCard's shift branch reads
+   * `def.shiftCost ?? mods.grantedShiftSelf.get(instanceId)` and the
+   * legal-action enumerator surfaces shift target variants.
+   */
+  grantedShiftSelf: Map<string, number>;
+
+  /**
    * MIMICRY targets (Morph - Space Goo): in-play instances that any shifter may
    * shift onto regardless of name.
    */
@@ -244,6 +263,8 @@ export function getGameModifiers(
     damageImmunityCharges: new Map(),
     grantedActivatedAbilities: new Map(),
     selfActionRestrictions: new Map(),
+    playForFreeSelf: new Set(),
+    grantedShiftSelf: new Map(),
     mimicryTargets: new Set(),
     universalShifters: new Set(),
     classificationShifters: new Map(),
@@ -532,6 +553,23 @@ export function getGameModifiers(
             modifiers.selfActionRestrictions.set(instance.instanceId, set);
           }
           set.add(effect.action);
+          break;
+        }
+
+        case "grant_play_for_free_self": {
+          // Pudge - Controls the Weather: "If you have Lilo in play, you can
+          // play this character for free." The static lives in HAND
+          // (activeZones: ["hand"]); when its condition resolves true the
+          // in-hand instance is flagged as playable for free.
+          modifiers.playForFreeSelf.add(instance.instanceId);
+          break;
+        }
+
+        case "grant_shift_self": {
+          // Anna - Soothing Sister: "this card gains Shift N {I}." Adds a
+          // granted Shift cost to the in-hand instance. The validator and
+          // legal-action enumerator read this in addition to def.shiftCost.
+          modifiers.grantedShiftSelf.set(instance.instanceId, effect.value);
           break;
         }
 

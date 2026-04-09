@@ -97,17 +97,13 @@
         "type": "static",
         "storyName": "GOOD FRIEND",
         "rulesText": "If you have a character named Lilo in play, you can play this character for free.",
+        "activeZones": ["hand"],
         "condition": {
           "type": "has_character_named",
           "name": "Lilo",
-          "player": {
-            "type": "self"
-          }
+          "player": { "type": "self" }
         },
-        "effect": {
-          "type": "self_cost_reduction",
-          "amount": 2
-        }
+        "effect": { "type": "grant_play_for_free_self" }
       }
     ],
     "setId": "11",
@@ -2665,8 +2661,8 @@
           ]
         },
         "effect": {
-          "type": "self_cost_reduction",
-          "amount": 5
+          "type": "grant_shift_self",
+          "value": 0
         }
       },
       {
@@ -12148,8 +12144,8 @@
           ]
         },
         "effect": {
-          "type": "self_cost_reduction",
-          "amount": 5
+          "type": "grant_shift_self",
+          "value": 0
         }
       },
       {

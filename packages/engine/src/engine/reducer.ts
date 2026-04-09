@@ -191,16 +191,31 @@ export function getAllLegalActions(
   }
 
   // PLAY_CARD — normal play and shift (checked independently)
+  const playMods = getGameModifiers(state, definitions);
   for (const instanceId of hand) {
     const normalPlay: GameAction = { type: "PLAY_CARD", playerId, instanceId };
     if (validateAction(state, normalPlay, definitions).valid) {
       actions.push(normalPlay);
     }
 
-    // Shift: check independent of normal play affordability
+    // Pudge - Controls the Weather: granted free-play option. The legal-action
+    // enumerator surfaces this variant alongside the normal-cost play so the
+    // player can pick either (CRD 6.4.4 / "may"/"can" wording — the granted
+    // ability is OPT-IN, not a forced cost reduction).
+    if (playMods.playForFreeSelf.has(instanceId)) {
+      const freePlay: GameAction = { type: "PLAY_CARD", playerId, instanceId, viaGrantedFreePlay: true };
+      if (validateAction(state, freePlay, definitions).valid) {
+        actions.push(freePlay);
+      }
+    }
+
+    // Shift: check independent of normal play affordability. The shift cost
+    // can come from def.shiftCost (printed) or mods.grantedShiftSelf
+    // (Anna - Soothing Sister "this card gains Shift 0").
     const cardInst = state.cards[instanceId];
     const cardDef = cardInst ? definitions[cardInst.definitionId] : undefined;
-    if (cardDef?.shiftCost !== undefined) {
+    const hasShift = cardDef?.shiftCost !== undefined || playMods.grantedShiftSelf.has(instanceId);
+    if (hasShift) {
       for (const targetId of myPlay) {
         const shiftPlay: GameAction = {
           type: "PLAY_CARD",
@@ -343,7 +358,7 @@ function applyActionInner(
 ): GameState {
   switch (action.type) {
     case "PLAY_CARD":
-      return applyPlayCard(state, action.playerId, action.instanceId, definitions, events, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds, action.altCostBanishInstanceId);
+      return applyPlayCard(state, action.playerId, action.instanceId, definitions, events, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds, action.altCostBanishInstanceId, action.viaGrantedFreePlay);
     case "PLAY_INK":
       return applyPlayInk(state, action.playerId, action.instanceId, definitions, events);
     case "QUEST":
@@ -377,6 +392,7 @@ function applyPlayCard(
   singerInstanceId?: string,
   singerInstanceIds?: string[],
   altCostBanishInstanceId?: string,
+  viaGrantedFreePlay?: boolean,
 ): GameState {
   const def = getDefinition(state, instanceId, definitions);
 
@@ -425,14 +441,30 @@ function applyPlayCard(
   } else if (altCostBanishInstanceId && def.altPlayCost?.type === "banish_item") {
     // Belle Apprentice Inventor: alt cost — banish chosen item, no ink paid.
     state = banishCard(state, altCostBanishInstanceId, definitions, events);
+  } else if (viaGrantedFreePlay) {
+    // Pudge - Controls the Weather: granted free-play. No ink paid, no cost
+    // reductions consumed. The validator already verified the modifier is
+    // active for this instance.
+    state = appendLog(state, {
+      turn: state.turnNumber,
+      playerId,
+      message: `${playerId} played ${def.fullName} for free.`,
+      type: "card_played",
+    });
   } else {
-    const baseCost = shiftTargetInstanceId ? (def.shiftCost ?? def.cost) : def.cost;
+    // Static modifiers — also consulted for granted Shift cost (Anna).
+    const modifiers = getGameModifiers(state, definitions);
+    const grantedShift = modifiers.grantedShiftSelf.get(instanceId);
+    const printedShift = def.shiftCost;
+    const shiftBase = printedShift ?? grantedShift;
+    const baseCost = shiftTargetInstanceId
+      ? (shiftBase ?? def.cost)
+      : def.cost;
     // Apply cost reductions
     const instance = getInstance(state, instanceId);
     let cost = baseCost;
 
     // Static cost reductions (e.g. Mickey: Broom chars cost 1 less)
-    const modifiers = getGameModifiers(state, definitions);
     const staticReductions = modifiers.costReductions.get(playerId) ?? [];
     for (const red of staticReductions) {
       if (matchesFilter(instance, def, red.filter, state, playerId)) {
