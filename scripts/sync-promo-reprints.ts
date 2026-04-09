@@ -66,3 +66,58 @@ for (const s of PROMO_SETS) {
   console.log(`  ${s}: synced ${setSynced} reprints`);
 }
 console.log(`\nTotal: ${synced} reprints synced from main sets to promo sets.`);
+
+// Within-set pass: copy from a wired variant to its sibling reprints sharing `id`.
+let withinSynced = 0;
+for (const s of [...MAIN_SETS, ...PROMO_SETS]) {
+  const fp = join(CARDS_DIR, `lorcast-set-${s}.json`);
+  const cards = JSON.parse(readFileSync(fp, "utf-8"));
+  const byId: Record<string, any[]> = {};
+  for (const c of cards) {
+    if (!c.id) continue;
+    (byId[c.id] ||= []).push(c);
+  }
+  let setSynced = 0;
+  for (const group of Object.values(byId)) {
+    if (group.length < 2) continue;
+    const src = group.find((c) => {
+      const hasAb = (c.abilities || []).some((a: any) =>
+        ["triggered", "activated", "static"].includes(a.type)
+      );
+      return (
+        hasAb ||
+        (c.actionEffects && c.actionEffects.length > 0) ||
+        (c.alternateNames && c.alternateNames.length > 0) ||
+        (c.playRestrictions && c.playRestrictions.length > 0) ||
+        c.altPlayCost !== undefined ||
+        c.selfCostReduction !== undefined
+      );
+    });
+    if (!src) continue;
+    for (const c of group) {
+      if (c === src) continue;
+      const alreadyWired =
+        (c.abilities || []).some((a: any) =>
+          ["triggered", "activated", "static"].includes(a.type)
+        ) || (c.actionEffects && c.actionEffects.length > 0);
+      if (alreadyWired) continue;
+      if (src.abilities) {
+        const existingKeywords = (c.abilities || []).filter((a: any) => a.type === "keyword");
+        const srcNonKw = src.abilities.filter((a: any) => a.type !== "keyword");
+        c.abilities = [...existingKeywords, ...srcNonKw];
+      }
+      if (src.actionEffects) c.actionEffects = JSON.parse(JSON.stringify(src.actionEffects));
+      if (src.alternateNames) c.alternateNames = [...src.alternateNames];
+      if (src.playRestrictions) c.playRestrictions = JSON.parse(JSON.stringify(src.playRestrictions));
+      if (src.selfCostReduction) c.selfCostReduction = JSON.parse(JSON.stringify(src.selfCostReduction));
+      if (src.altPlayCost) c.altPlayCost = JSON.parse(JSON.stringify(src.altPlayCost));
+      setSynced++;
+      withinSynced++;
+    }
+  }
+  if (setSynced > 0) {
+    writeFileSync(fp, JSON.stringify(cards, null, 2) + "\n", "utf-8");
+    console.log(`  ${s}: within-set synced ${setSynced} variants`);
+  }
+}
+console.log(`Total: ${withinSynced} within-set variants synced.`);

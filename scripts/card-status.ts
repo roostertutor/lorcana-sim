@@ -652,7 +652,8 @@ function isImplemented(card: any): boolean {
   // (e.g. Flotsam & Jetsam Entangling Eels — CRD §10.6 reminder text).
   const hasAlternateNames = Array.isArray(card.alternateNames) && card.alternateNames.length > 0;
   const hasPlayRestrictions = Array.isArray(card.playRestrictions) && card.playRestrictions.length > 0;
-  return hasNamedAbility || hasActionEffects || hasAlternateNames || hasPlayRestrictions;
+  const hasAltPlayCost = card.altPlayCost !== undefined;
+  return hasNamedAbility || hasActionEffects || hasAlternateNames || hasPlayRestrictions || hasAltPlayCost;
 }
 
 function hasNamedStubs(card: any): boolean {

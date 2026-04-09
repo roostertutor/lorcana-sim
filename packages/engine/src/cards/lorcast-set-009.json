@@ -3933,10 +3933,14 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "moves_to_location" },
+        "trigger": {
+          "on": "moves_to_location"
+        },
         "storyName": "FAMILY VACATION",
         "rulesText": "Once during your turn, whenever this character moves to a location, you may move one of your other characters to that location for free. If you do, draw a card.",
-        "condition": { "type": "is_your_turn" },
+        "condition": {
+          "type": "is_your_turn"
+        },
         "oncePerTurn": true,
         "effects": [
           {
@@ -3945,12 +3949,32 @@
             "costEffects": [
               {
                 "type": "move_character",
-                "character": { "type": "chosen", "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "excludeSelf": true } },
-                "location": { "type": "triggering_card" }
+                "character": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "excludeSelf": true
+                  }
+                },
+                "location": {
+                  "type": "triggering_card"
+                }
               }
             ],
             "rewardEffects": [
-              { "type": "draw", "amount": 1, "target": { "type": "self" } }
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
             ]
           }
         ]
@@ -5945,18 +5969,30 @@
       },
       {
         "type": "triggered",
-        "trigger": { "on": "sings" },
+        "trigger": {
+          "on": "sings"
+        },
         "storyName": "MASH-UP",
         "rulesText": "Once during your turn, whenever this character sings a song, look at the top 4 cards of your deck. You may reveal a song card with cost 9 or less and play it for free. Put the rest on the bottom of your deck in any order.",
-        "condition": { "type": "is_your_turn" },
+        "condition": {
+          "type": "is_your_turn"
+        },
         "oncePerTurn": true,
         "effects": [
           {
             "type": "look_at_top",
             "count": 4,
             "action": "one_to_play_for_free_rest_bottom",
-            "filter": { "cardType": ["action"], "hasTrait": "Song", "costAtMost": 9 },
-            "target": { "type": "self" }
+            "filter": {
+              "cardType": [
+                "action"
+              ],
+              "hasTrait": "Song",
+              "costAtMost": 9
+            },
+            "target": {
+              "type": "self"
+            }
           }
         ]
       }
@@ -6284,16 +6320,23 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "enters_play" },
+        "trigger": {
+          "on": "enters_play"
+        },
         "storyName": "ELECTRIC MOVE",
         "rulesText": "If you've played a song this turn, this character gains Rush this turn.",
-        "condition": { "type": "songs_played_this_turn_gte", "amount": 1 },
+        "condition": {
+          "type": "songs_played_this_turn_gte",
+          "amount": 1
+        },
         "effects": [
           {
             "type": "grant_keyword",
             "keyword": "rush",
             "duration": "this_turn",
-            "target": { "type": "this" }
+            "target": {
+              "type": "this"
+            }
           }
         ]
       }
@@ -6742,32 +6785,48 @@
       },
       {
         "type": "triggered",
-        "trigger": { "on": "enters_play" },
+        "trigger": {
+          "on": "enters_play"
+        },
         "storyName": "STRAIGHT SHOOTER",
         "rulesText": "When you play this character, if you used Shift to play her, she gets +3 {S} this turn.",
-        "condition": { "type": "played_via_shift" },
+        "condition": {
+          "type": "played_via_shift"
+        },
         "effects": [
           {
             "type": "gain_stats",
             "strength": 3,
             "duration": "this_turn",
-            "target": { "type": "this" }
+            "target": {
+              "type": "this"
+            }
           }
         ]
       },
       {
         "type": "triggered",
-        "trigger": { "on": "deals_damage_in_challenge" },
+        "trigger": {
+          "on": "deals_damage_in_challenge"
+        },
         "storyName": "TRIPLE SHOT",
         "rulesText": "During your turn, whenever this character deals damage to another character in a challenge, deal the same amount of damage to up to 2 other chosen characters.",
-        "condition": { "type": "is_your_turn" },
+        "condition": {
+          "type": "is_your_turn"
+        },
         "effects": [
           {
             "type": "deal_damage",
             "amount": "triggering_card_damage",
             "target": {
               "type": "chosen",
-              "filter": { "zone": "play", "cardType": ["character"], "excludeSelf": true },
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true
+              },
               "count": 2
             }
           }
@@ -7217,20 +7276,43 @@
         "storyName": "YOU KNOW WHAT HAPPENS",
         "rulesText": "{E}, 2 {I} — Draw cards equal to the damage on chosen character of yours, then banish them.",
         "costs": [
-          { "type": "exert" },
-          { "type": "pay_ink", "amount": 2 }
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 2
+          }
         ],
         "effects": [
           {
             "type": "conditional_on_target",
             "target": {
               "type": "chosen",
-              "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"] }
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
             },
             "conditionFilter": {},
             "ifMatchEffects": [
-              { "type": "draw", "amount": { "type": "target_damage" }, "target": { "type": "self" } },
-              { "type": "banish" }
+              {
+                "type": "draw",
+                "amount": {
+                  "type": "target_damage"
+                },
+                "target": {
+                  "type": "self"
+                }
+              },
+              {
+                "type": "banish"
+              }
             ],
             "defaultEffects": []
           }
@@ -8532,7 +8614,16 @@
           "keyword": "support",
           "target": {
             "type": "all",
-            "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "excludeSelf": true }
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "excludeSelf": true
+            }
           }
         }
       },
@@ -8540,12 +8631,18 @@
         "type": "static",
         "storyName": "WHAT DID I DO?",
         "rulesText": "While this character has 10 {S} or more, she gets +4 {L}.",
-        "condition": { "type": "self_stat_gte", "stat": "strength", "amount": 10 },
+        "condition": {
+          "type": "self_stat_gte",
+          "stat": "strength",
+          "amount": 10
+        },
         "effect": {
           "type": "modify_stat",
           "stat": "lore",
           "modifier": 4,
-          "target": { "type": "this" }
+          "target": {
+            "type": "this"
+          }
         }
       }
     ],
@@ -11258,10 +11355,14 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "moves_to_location" },
+        "trigger": {
+          "on": "moves_to_location"
+        },
         "storyName": "FAMILY VACATION",
         "rulesText": "Once during your turn, whenever this character moves to a location, you may move one of your other characters to that location for free. If you do, draw a card.",
-        "condition": { "type": "is_your_turn" },
+        "condition": {
+          "type": "is_your_turn"
+        },
         "oncePerTurn": true,
         "effects": [
           {
@@ -11270,12 +11371,32 @@
             "costEffects": [
               {
                 "type": "move_character",
-                "character": { "type": "chosen", "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "excludeSelf": true } },
-                "location": { "type": "triggering_card" }
+                "character": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "excludeSelf": true
+                  }
+                },
+                "location": {
+                  "type": "triggering_card"
+                }
               }
             ],
             "rewardEffects": [
-              { "type": "draw", "amount": 1, "target": { "type": "self" } }
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
             ]
           }
         ]
@@ -11453,16 +11574,23 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "enters_play" },
+        "trigger": {
+          "on": "enters_play"
+        },
         "storyName": "ELECTRIC MOVE",
         "rulesText": "If you've played a song this turn, this character gains Rush this turn.",
-        "condition": { "type": "songs_played_this_turn_gte", "amount": 1 },
+        "condition": {
+          "type": "songs_played_this_turn_gte",
+          "amount": 1
+        },
         "effects": [
           {
             "type": "grant_keyword",
             "keyword": "rush",
             "duration": "this_turn",
-            "target": { "type": "this" }
+            "target": {
+              "type": "this"
+            }
           }
         ]
       }
@@ -12470,7 +12598,37 @@
     "traits": [
       "Floodborn"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "sings"
+        },
+        "storyName": "MASH-UP",
+        "rulesText": "Once during your turn, whenever this character sings a song, look at the top 4 cards of your deck. You may reveal a song card with cost 9 or less and play it for free. Put the rest on the bottom of your deck in any order.",
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "oncePerTurn": true,
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 4,
+            "action": "one_to_play_for_free_rest_bottom",
+            "filter": {
+              "cardType": [
+                "action"
+              ],
+              "hasTrait": "Song",
+              "costAtMost": 9
+            },
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "9",
     "number": 233,
     "rarity": "enchanted",
