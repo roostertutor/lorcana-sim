@@ -4239,7 +4239,17 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "chosen_by_opponent" },
+        "storyName": "MORE TO LEARN",
+        "rulesText": "Whenever an opponent chooses this character for an action or ability, you may draw a card.",
+        "effects": [
+          { "type": "draw", "amount": 1, "target": { "type": "self" }, "isMay": true }
+        ]
+      }
+    ],
     "setId": "7",
     "number": 76,
     "rarity": "uncommon",

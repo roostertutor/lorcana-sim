@@ -1519,7 +1519,13 @@ export type TriggerEvent =
    *  another character shifted onto it. Source is the under card; the
    *  triggering card is the new shifter. Used by Go Go Tomago Mechanical
    *  Engineer ("when you play a Floodborn character on this card"). */
-  | { on: "shifted_onto"; filter?: CardFilter };
+  | { on: "shifted_onto"; filter?: CardFilter }
+  /** Fires when a card is selected as the target of a chosen-target effect by
+   *  an opposing player. Source is the chosen target; triggering card is the
+   *  source of the effect doing the choosing. Used by Archimedes Exceptional
+   *  Owl ("Whenever an opponent chooses this character for an action or
+   *  ability, you may draw a card") and the Vanish keyword. */
+  | { on: "chosen_by_opponent"; filter?: CardFilter };
 
 // -----------------------------------------------------------------------------
 // CONDITIONS — Guards on triggered/activated abilities

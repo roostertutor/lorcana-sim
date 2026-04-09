@@ -1735,13 +1735,19 @@ function applyResolveChoice(
           state = applyEffectToTarget(state, followUp, targetId, playerId, definitions, events, srcId, trigId);
         }
       }
-      // Vanish keyword (Set 8 — Iago Giant Spectral Parrot, Rajah Ghostly
-      // Tiger): "When an opponent chooses this character for an action,
-      // banish them." Trigger after the effect resolves so any "deal damage to
-      // chosen" still goes through normally before the banishment.
+      // Vanish keyword + chosen_by_opponent triggered abilities. Both fire
+      // when the chosen target is opposing — Vanish is a hardcoded banish,
+      // chosen_by_opponent is a free-form triggered ability (Archimedes
+      // Exceptional Owl: "may draw a card"). Both fire AFTER the effect
+      // resolves so any damage/etc. still goes through.
       const targetInst = state.cards[targetId];
       const targetDef = targetInst ? definitions[targetInst.definitionId] : undefined;
       if (targetInst && targetDef && targetInst.zone === "play" && targetInst.ownerId !== playerId) {
+        // Queue chosen_by_opponent self-triggers so cards like Archimedes can react.
+        state = queueTrigger(state, "chosen_by_opponent", targetId, definitions, {
+          triggeringPlayerId: targetInst.ownerId,
+          triggeringCardInstanceId: srcId,
+        });
         const vanishMods = getGameModifiers(state, definitions);
         if (hasKeyword(targetInst, targetDef, "vanish", vanishMods.grantedKeywords.get(targetId))) {
           state = zoneTransition(state, targetId, "discard", definitions, events, { reason: "banished", triggeringPlayerId: targetInst.ownerId });
