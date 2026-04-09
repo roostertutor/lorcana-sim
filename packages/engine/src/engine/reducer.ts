@@ -1632,7 +1632,8 @@ function applyResolveChoice(
     if (choice === "accept") {
       // Apply the effect — which may itself create a target choice (e.g. Support)
       const sourceId = pendingChoice.sourceInstanceId ?? "";
-      state = applyEffect(state, pendingEffect!, sourceId, playerId, definitions, events, pendingChoice.triggeringCardInstanceId);
+      const acceptController = pendingChoice.acceptControllingPlayerId ?? playerId;
+      state = applyEffect(state, pendingEffect!, sourceId, acceptController, definitions, events, pendingChoice.triggeringCardInstanceId);
     } else if (pendingChoice.rejectEffect) {
       // CRD 6.1.4 inverse-may: Sign the Scroll / Ursula's Trickery. The reward
       // is controlled by the source's owner, NOT the choosing player.
@@ -3519,6 +3520,30 @@ export function applyEffect(
           pendingEffect: effect,
           sourceInstanceId,
           triggeringCardInstanceId,
+        },
+      };
+    }
+
+    case "opponent_chooses_yes_or_no": {
+      // Do You Want to Build A Snowman? Surface a binary may-prompt on the
+      // opponent. Accept (YES) → yesEffect with caster as controlling player.
+      // Reject (NO) → noEffect with opponent as controlling player.
+      const opponentId = getOpponent(controllingPlayerId);
+      return {
+        ...state,
+        pendingChoice: {
+          type: "choose_may",
+          choosingPlayerId: opponentId,
+          prompt: "YES!  or  NO!",
+          pendingEffect: effect.yesEffect,
+          optional: true,
+          sourceInstanceId,
+          triggeringCardInstanceId,
+          // YES (accept) → yesEffect runs with caster as controlling player.
+          acceptControllingPlayerId: controllingPlayerId,
+          // NO (reject) → noEffect runs with opponent as controlling player.
+          rejectEffect: effect.noEffect,
+          rejectControllingPlayerId: opponentId,
         },
       };
     }

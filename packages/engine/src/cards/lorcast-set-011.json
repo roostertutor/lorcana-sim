@@ -3124,6 +3124,20 @@
       "Song"
     ],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "opponent_chooses_yes_or_no",
+        "yesEffect": { "type": "gain_lore", "target": { "type": "self" }, "amount": 3 },
+        "noEffect": {
+          "type": "put_on_bottom_of_deck",
+          "from": "play",
+          "target": {
+            "type": "chosen",
+            "filter": { "cardType": "character", "owner": { "type": "self" }, "zone": "play" }
+          }
+        }
+      }
+    ],
     "setId": "11",
     "number": 61,
     "rarity": "rare",

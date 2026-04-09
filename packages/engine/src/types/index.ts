@@ -194,6 +194,7 @@ export type Effect =
   | MoveCardsUnderToInkwellEffect
   | MoveAllMatchingToInkwellEffect
   | ConditionalOnLastDiscardedEffect
+  | OpponentChoosesYesOrNoEffect
   | PutSelfUnderTargetEffect
   | ReturnAllToBottomInOrderEffect
   | PutTopOfDeckUnderEffect
@@ -701,6 +702,20 @@ export interface MoveCardsUnderToInkwellEffect {
   target: PlayerTarget;
   /** CRD 6.1.4: player may choose not to apply. */
   isMay?: boolean;
+}
+
+/**
+ * CRD 6.1.3 / 6.1.4: "Chosen opponent chooses YES! or NO!" — surfaces a binary
+ * may-prompt on the opposing player. Accept = `yesEffect` runs with the caster
+ * as the controlling player (so "you gain N lore" lands on the caster). Reject
+ * = `noEffect` runs with the opposing player as the controlling player (so
+ * "they choose a character of theirs" picks from the opponent's own characters).
+ * Used by Do You Want to Build A Snowman?.
+ */
+export interface OpponentChoosesYesOrNoEffect {
+  type: "opponent_chooses_yes_or_no";
+  yesEffect: Effect;
+  noEffect: Effect;
 }
 
 /**
@@ -2245,6 +2260,11 @@ export interface PendingChoice {
   /** For rejectEffect: the player whose perspective controls the reject branch
    *  (the source's owner — not the choosing player). */
   rejectControllingPlayerId?: PlayerID | undefined;
+  /** For choose_may where the accept-branch effect should run from a different
+   *  perspective than the choosing player. Used by opponent_chooses_yes_or_no
+   *  (Snowman): the opponent picks YES, but the YES effect "you gain 3 lore"
+   *  must run with the caster as controllingPlayer. */
+  acceptControllingPlayerId?: PlayerID | undefined;
 }
 
 export interface GameLogEntry {
