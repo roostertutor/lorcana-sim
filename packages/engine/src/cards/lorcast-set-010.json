@@ -6578,7 +6578,28 @@
       "Villain",
       "Whisper"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "boost"
+      },
+      {
+        "type": "triggered",
+        "trigger": { "on": "quests" },
+        "storyName": "EXPEDIENT SCHEMES",
+        "rulesText": "Whenever this character quests, if you've put a card under her this turn, you may play an action with cost 5 or less from your discard for free, then put that action card on the bottom of your deck instead of into your discard.",
+        "condition": { "type": "this_had_card_put_under_this_turn" },
+        "effects": [
+          {
+            "type": "play_for_free",
+            "sourceZone": "discard",
+            "filter": { "owner": { "type": "self" }, "cardType": ["action"], "costAtMost": 5 },
+            "isMay": true,
+            "thenPutOnBottomOfDeck": true
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 124,
     "rarity": "super_rare",
@@ -12679,7 +12700,28 @@
       "Villain",
       "Whisper"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "boost"
+      },
+      {
+        "type": "triggered",
+        "trigger": { "on": "quests" },
+        "storyName": "EXPEDIENT SCHEMES",
+        "rulesText": "Whenever this character quests, if you've put a card under her this turn, you may play an action with cost 5 or less from your discard for free, then put that action card on the bottom of your deck instead of into your discard.",
+        "condition": { "type": "this_had_card_put_under_this_turn" },
+        "effects": [
+          {
+            "type": "play_for_free",
+            "sourceZone": "discard",
+            "filter": { "owner": { "type": "self" }, "cardType": ["action"], "costAtMost": 5 },
+            "isMay": true,
+            "thenPutOnBottomOfDeck": true
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 233,
     "rarity": "enchanted",
