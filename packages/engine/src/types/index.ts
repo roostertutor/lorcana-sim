@@ -444,6 +444,10 @@ export type DynamicAmount =
    *  sing, N for Sing Together. Read by Fantastical and Magical: "draw a card
    *  and gain 1 lore for each character that sang this song". */
   | "song_singer_count"
+  /** Lore stat snapshotted on state.lastResolvedTarget at choose_target accept
+   *  time. Used by Anna Soothing Sister WARM HEART: "may gain lore equal to
+   *  the {L} of a character card in your discard". */
+  | "last_resolved_target_lore"
   /** Per-turn counter on the controlling player: number of opposing characters
    *  banished in a challenge initiated by this player this turn. Used by
    *  Namaari Resolute Daughter ("For each opposing character banished in a
@@ -1025,7 +1029,10 @@ export interface LookAtTopEffect {
     /** Fred Giant-Sized I LIKE WHERE THIS IS HEADING — reveal cards from top
      *  until first match against `filter`, that card to hand, shuffle the rest
      *  of the revealed cards back into the deck. count is implicitly "until_match". */
-    | "reveal_until_match_to_hand_shuffle_rest";
+    | "reveal_until_match_to_hand_shuffle_rest"
+    /** We Know the Way — look at top 1, if it matches `filter` may play for
+     *  free, otherwise put it into the controller's hand. */
+    | "one_to_play_for_free_else_to_hand";
   /** Optional filter — only matching cards can go to hand (for "may reveal matching" patterns) */
   filter?: CardFilter;
   /** When set, applies to `up_to_n_to_hand_rest_bottom` and means "take up to
@@ -1713,6 +1720,9 @@ export interface CardFilter {
    *  Hades Double Dealer ("play a character with the same name as the banished
    *  character"). Resolved at match time against the live state. */
   nameFromLastResolvedSource?: boolean;
+  /** Match cards whose name equals `state.lastResolvedTarget.name`. Used by
+   *  We Know the Way ("if it has the same name as the chosen card"). */
+  nameFromLastResolvedTarget?: boolean;
   /** Match cards whose name equals the source instance's name. Used by
    *  Bad-Anon Villain Support Center grant — Villain characters there can
    *  play a character with the same name as themselves. Resolved against the
@@ -1876,6 +1886,9 @@ export type Condition =
    *  "if none of your characters challenged this turn". True iff the
    *  controller's aCharacterChallengedThisTurn flag is unset/false. */
   | { type: "no_challenges_this_turn" }
+  /** Anna Soothing Sister UNUSUAL TRANSFORMATION: "If a card left a player's
+   *  discard this turn". True iff state.cardsLeftDiscardThisTurn is set. */
+  | { type: "card_left_discard_this_turn" }
   /** Peter Pan Never Land Prankster: "unless one of their characters has
    *  challenged this turn". True iff the OPPONENT'S
    *  aCharacterChallengedThisTurn flag is unset/false. */
@@ -2265,6 +2278,12 @@ export interface GameState {
    *  card was discarded, deal 3 damage instead of 1") via the
    *  conditional_on_last_discarded effect. Reset on each new discard. */
   lastDiscarded?: ResolvedRef[];
+
+  /** Per-turn flag: any card moved out of any player's discard this turn.
+   *  Used by Anna Soothing Sister UNUSUAL TRANSFORMATION ("If a card left a
+   *  player's discard this turn, this card gains Shift 0"). Set in moveCard
+   *  whenever fromZone === "discard". Cleared on PASS_TURN. */
+  cardsLeftDiscardThisTurn?: boolean;
 
   /** Number of characters that sang the most recently played song. Set by
    *  applyPlayCard's sing path (1 for solo sing, N for Sing Together). Read

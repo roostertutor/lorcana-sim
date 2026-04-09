@@ -1378,6 +1378,7 @@ function applyPassTurn(
         timedGrantedActivatedAbilities: [],
       },
     },
+    cardsLeftDiscardThisTurn: false,
   };
 
   // Ready all of opponent's cards in play and inkwell (CRD 3.2.1.1)
@@ -1979,6 +1980,9 @@ function resolveDynamicAmount(
   if (amount === "song_singer_count") {
     return state.lastSongSingerCount ?? 0;
   }
+  if (amount === "last_resolved_target_lore") {
+    return state.lastResolvedTarget?.lore ?? 0;
+  }
   if (amount === "last_target_location_lore") {
     const lastTargetId = state.lastResolvedTarget?.instanceId;
     const lastTargetInst = lastTargetId ? state.cards[lastTargetId] : undefined;
@@ -2518,6 +2522,23 @@ export function applyEffect(
           const def = inst ? definitions[inst.definitionId] : undefined;
           return inst && def ? matchesFilter(inst, def, effect.filter!, state, targetPlayer) : false;
         });
+      }
+      // Surface a choose_target when target.type === "chosen" so a follow-up
+      // step can read the picked card via state.lastResolvedTarget. Used by
+      // Anna Soothing Sister WARM HEART (gain lore equal to chosen discard
+      // char's L, then bottom-deck it).
+      if (effect.target && effect.target.type === "chosen" && pool.length > 0) {
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_target",
+            choosingPlayerId: controllingPlayerId,
+            prompt: "Choose a card to put on the bottom of its deck.",
+            validTargets: pool,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
+            optional: effect.isMay ?? false,
+          },
+        };
       }
       if (pool.length === 0) return state; // CRD 1.7.7
       const moveCount = Math.min(amount, pool.length);
@@ -3316,6 +3337,36 @@ export function applyEffect(
           // reorder is needed.
           if ((effect.restPlacement ?? "bottom") === "bottom") {
             state = reorderDeckTopToBottom(state, targetPlayer, rest, []);
+          }
+          return state;
+        }
+        case "one_to_play_for_free_else_to_hand": {
+          // We Know the Way: look at top 1, if it matches filter may play for
+          // free, otherwise put it into the controller's hand.
+          if (topCards.length === 0) return state;
+          const topId = topCards[0]!;
+          const topInst = state.cards[topId];
+          const topDef = topInst ? definitions[topInst.definitionId] : undefined;
+          if (!topInst || !topDef) return state;
+          const matches = effect.filter
+            ? matchesFilter(topInst, topDef, effect.filter, state, controllingPlayerId)
+            : true;
+          if (matches) {
+            // Play it for free.
+            state = zoneTransition(state, topId, "play", definitions, events, {
+              reason: "played", triggeringPlayerId: targetPlayer,
+            });
+            if (topDef.cardType === "character") {
+              state = updateInstance(state, topId, { isDrying: true });
+            }
+            if (topDef.cardType === "action" && topDef.actionEffects) {
+              for (const ae of topDef.actionEffects) {
+                state = applyEffect(state, ae, topId, targetPlayer, definitions, events);
+              }
+              state = zoneTransition(state, topId, "discard", definitions, events, { reason: "discarded" });
+            }
+          } else {
+            state = moveCard(state, topId, targetPlayer, "hand");
           }
           return state;
         }

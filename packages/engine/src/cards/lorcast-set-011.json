@@ -2636,7 +2636,59 @@
       "Hero",
       "Queen"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "UNUSUAL TRANSFORMATION",
+        "rulesText": "If a card left a player's discard this turn, this card gains Shift 0 {I}. (You may pay 0 {I} to play this on top of one of your characters named Anna.)",
+        "activeZones": ["hand"],
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            { "type": "card_left_discard_this_turn" },
+            { "type": "has_character_named", "name": "Anna", "player": { "type": "self" } }
+          ]
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 5
+        }
+      },
+      {
+        "type": "triggered",
+        "name": "WARM HEART",
+        "trigger": { "event": "quests", "filter": { "type": "this" } },
+        "isMay": true,
+        "effects": [
+          {
+            "type": "sequential",
+            "costEffects": [
+              {
+                "type": "put_on_bottom_of_deck",
+                "from": "discard",
+                "ownerScope": "self",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": { "type": "self" },
+                    "zone": "discard",
+                    "cardType": ["character"]
+                  }
+                },
+                "filter": { "cardType": "character" }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "gain_lore",
+                "target": { "type": "self" },
+                "amount": "last_resolved_target_lore"
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 50,
     "rarity": "legendary",
@@ -11935,7 +11987,59 @@
       "Hero",
       "Queen"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "UNUSUAL TRANSFORMATION",
+        "rulesText": "If a card left a player's discard this turn, this card gains Shift 0 {I}. (You may pay 0 {I} to play this on top of one of your characters named Anna.)",
+        "activeZones": ["hand"],
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            { "type": "card_left_discard_this_turn" },
+            { "type": "has_character_named", "name": "Anna", "player": { "type": "self" } }
+          ]
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 5
+        }
+      },
+      {
+        "type": "triggered",
+        "name": "WARM HEART",
+        "trigger": { "event": "quests", "filter": { "type": "this" } },
+        "isMay": true,
+        "effects": [
+          {
+            "type": "sequential",
+            "costEffects": [
+              {
+                "type": "put_on_bottom_of_deck",
+                "from": "discard",
+                "ownerScope": "self",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": { "type": "self" },
+                    "zone": "discard",
+                    "cardType": ["character"]
+                  }
+                },
+                "filter": { "cardType": "character" }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "gain_lore",
+                "target": { "type": "self" },
+                "amount": "last_resolved_target_lore"
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 227,
     "rarity": "enchanted",

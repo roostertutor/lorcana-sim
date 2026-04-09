@@ -3095,6 +3095,32 @@
       "Song"
     ],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "sequential",
+        "costEffects": [
+          {
+            "type": "shuffle_into_deck",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": { "type": "self" },
+                "zone": "discard"
+              }
+            }
+          }
+        ],
+        "rewardEffects": [
+          {
+            "type": "look_at_top",
+            "count": 1,
+            "action": "one_to_play_for_free_else_to_hand",
+            "filter": { "nameFromLastResolvedTarget": true },
+            "target": { "type": "self" }
+          }
+        ]
+      }
+    ],
     "setId": "5",
     "number": 61,
     "rarity": "rare",

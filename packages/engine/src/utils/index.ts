@@ -387,6 +387,12 @@ export function matchesFilter(
     const altNames = definition.alternateNames ?? [];
     if (definition.name !== srcName && !altNames.includes(srcName)) return false;
   }
+  if (filter.nameFromLastResolvedTarget) {
+    const tgtName = state.lastResolvedTarget?.name;
+    if (!tgtName) return false;
+    const altNames = definition.alternateNames ?? [];
+    if (definition.name !== tgtName && !altNames.includes(tgtName)) return false;
+  }
   if (filter.hasDamage !== undefined) {
     if (filter.hasDamage && instance.damage <= 0) return false;
     if (!filter.hasDamage && instance.damage > 0) return false;
@@ -526,6 +532,11 @@ export function moveCard(
           },
         };
 
+  // Per-turn flag for "if a card left a player's discard this turn" (Anna
+  // Soothing Sister UNUSUAL TRANSFORMATION). Set whenever any card leaves any
+  // player's discard. Cleared on PASS_TURN.
+  const cardsLeftDiscardThisTurn =
+    sourceZone === "discard" ? true : state.cardsLeftDiscardThisTurn;
   return {
     ...state,
     cards: {
@@ -540,6 +551,7 @@ export function moveCard(
       ...state.zones,
       ...updatedPlayerZones,
     },
+    cardsLeftDiscardThisTurn,
   };
 }
 
@@ -667,6 +679,9 @@ export function evaluateCondition(
     }
     case "no_challenges_this_turn": {
       return !state.players[controllingPlayerId].aCharacterChallengedThisTurn;
+    }
+    case "card_left_discard_this_turn": {
+      return !!state.cardsLeftDiscardThisTurn;
     }
     case "opponent_no_challenges_this_turn": {
       const opp: PlayerID = controllingPlayerId === "player1" ? "player2" : "player1";
