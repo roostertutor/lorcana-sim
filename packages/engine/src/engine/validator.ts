@@ -712,6 +712,22 @@ function validatePassTurn(
     }
   }
 
+  // Per-character timed obligation: must_quest_if_able. Used by Ariel
+  // Curious Traveler / Gaston Frightful Bully / Rapunzel Ethereal Protector.
+  // Mirrors the Reckless check above but instance-scoped via TimedEffect.
+  for (const id of myPlay) {
+    const inst = getInstance(state, id);
+    if (inst.isExerted) continue;
+    const def = definitions[inst.definitionId];
+    if (!def || def.cardType !== "character") continue;
+    const obligated = (inst.timedEffects ?? []).some((te) => te.type === "must_quest_if_able");
+    if (!obligated) continue;
+    const questResult = validateQuest(state, playerId, id, definitions);
+    if (questResult.valid) {
+      return fail(`${def.fullName} must quest if able before passing.`);
+    }
+  }
+
   return OK;
 }
 

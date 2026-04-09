@@ -2726,7 +2726,7 @@
       {
         "type": "triggered",
         "storyName": "FAMILIAR GROUND",
-        "rulesText": "Whenever this character quests, if you played another character this turn, chosen opposing character can't challenge during their next turn.",
+        "rulesText": "Whenever this character quests, if you played another character this turn, chosen opposing character can't challenge and must quest during their next turn if able.",
         "trigger": {
           "on": "quests"
         },
@@ -2749,6 +2749,13 @@
                   "character"
                 ]
               }
+            }
+          },
+          {
+            "type": "must_quest_if_able",
+            "duration": "end_of_owner_next_turn",
+            "target": {
+              "type": "last_resolved_target"
             }
           }
         ]

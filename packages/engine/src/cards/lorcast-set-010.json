@@ -50,14 +50,10 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "INTIMIDATION",
-        "rulesText": "Whenever this character quests, if there's a card under him, chosen opposing character can't challenge during their next turn.",
-        "trigger": {
-          "on": "quests"
-        },
-        "condition": {
-          "type": "this_has_cards_under"
-        },
+        "storyName": "TOP THAT!",
+        "rulesText": "Whenever this character quests, if there's a card under him, chosen opposing character can't challenge and must quest if able during their next turn.",
+        "trigger": { "on": "quests" },
+        "condition": { "type": "this_has_cards_under" },
         "effects": [
           {
             "type": "cant_action",
@@ -66,15 +62,16 @@
             "target": {
               "type": "chosen",
               "filter": {
-                "owner": {
-                  "type": "opponent"
-                },
+                "owner": { "type": "opponent" },
                 "zone": "play",
-                "cardType": [
-                  "character"
-                ]
+                "cardType": ["character"]
               }
             }
+          },
+          {
+            "type": "must_quest_if_able",
+            "duration": "end_of_owner_next_turn",
+            "target": { "type": "last_resolved_target" }
           }
         ]
       }

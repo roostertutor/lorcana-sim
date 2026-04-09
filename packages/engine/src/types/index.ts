@@ -209,6 +209,7 @@ export type Effect =
   | GrantKeywordEffect
   | ReadyEffect
   | CantActionEffect
+  | MustQuestIfAbleEffect
   | LookAtTopEffect
   | DiscardEffect
   | MoveToInkwellEffect
@@ -1014,6 +1015,20 @@ export interface ReadyEffect {
 export interface CantActionEffect {
   type: "cant_action";
   action: RestrictedAction;
+  target: CardTarget;
+  duration: EffectDuration;
+}
+
+/**
+ * Per-character timed obligation: "must quest if able during their next turn".
+ * Used by Ariel Curious Traveler / Gaston Frightful Bully / Rapunzel Ethereal
+ * Protector. Validator's pass-turn step iterates own ready characters with
+ * this timed effect and refuses the pass while any of them has a valid quest.
+ * Parallel to Reckless's inherent "must challenge if able" check, but
+ * instance-scoped and time-limited rather than keyword-driven.
+ */
+export interface MustQuestIfAbleEffect {
+  type: "must_quest_if_able";
   target: CardTarget;
   duration: EffectDuration;
 }
@@ -1954,7 +1969,14 @@ export type EffectDuration =
 export interface TimedEffect {
   type: "grant_keyword" | "modify_strength" | "modify_willpower" | "modify_lore"
     | "cant_action" | "can_challenge_ready" | "cant_be_challenged"
-    | "damage_immunity";
+    | "damage_immunity"
+    /** Per-character timed obligation: "must quest if able during their next
+     *  turn". Used by Ariel Curious Traveler / Gaston Frightful Bully /
+     *  Rapunzel Ethereal Protector. Parallel to the inherent Reckless "must
+     *  challenge if able" check — the validator's pass-turn step iterates
+     *  ready own characters with this timed effect and fails the pass when
+     *  any of them has a valid quest target. */
+    | "must_quest_if_able";
   keyword?: Keyword | undefined;
   value?: number | undefined;       // for keyword values (e.g. Challenger +N)
   amount?: number | undefined;      // for modify_* effects

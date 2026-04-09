@@ -3112,6 +3112,46 @@ export function applyEffect(
       return state;
     }
 
+    case "must_quest_if_able": {
+      const timedEffect: TimedEffect = {
+        type: "must_quest_if_able",
+        amount: 0,
+        expiresAt: effect.duration,
+        appliedOnTurn: state.turnNumber,
+        casterPlayerId: controllingPlayerId,
+      };
+      if (effect.target.type === "this") {
+        return addTimedEffect(state, sourceInstanceId, timedEffect);
+      }
+      if (effect.target.type === "last_resolved_target") {
+        const id = state.lastResolvedTarget?.instanceId;
+        if (!id || !state.cards[id]) return state;
+        return addTimedEffect(state, id, timedEffect);
+      }
+      if (effect.target.type === "chosen") {
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        if (validTargets.length === 0) return state;
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_target",
+            choosingPlayerId: controllingPlayerId,
+            prompt: `Choose a character that must quest if able.`,
+            validTargets,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
+          },
+        };
+      }
+      if (effect.target.type === "all") {
+        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        for (const targetId of targets) {
+          state = addTimedEffect(state, targetId, timedEffect);
+        }
+        return state;
+      }
+      return state;
+    }
+
     case "cant_action": {
       const timedEffect: TimedEffect = {
         type: "cant_action",
