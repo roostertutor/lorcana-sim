@@ -206,7 +206,24 @@ export type Effect =
   | GrantChallengeReadyEffect
   | RevealHandEffect
   | MillEffect
-  | MassInkwellEffect;
+  | MassInkwellEffect
+  | RestrictPlayEffect;
+
+/**
+ * Pete - Games Referee, Keep the Ancient Ways: "Opponents can't play actions
+ * [or items] until the start of your next turn." A timed, player-scoped
+ * play restriction filtered by card type. Distinct from action_restriction
+ * static (lives in play and persists) and from CantActionEffect (instance-
+ * scoped). Cleanup happens at the start of the caster's next turn.
+ */
+export interface RestrictPlayEffect {
+  type: "restrict_play";
+  /** Which card types are blocked, e.g. ["action"] or ["action","item"]. */
+  cardTypes: CardType[];
+  /** Whose plays are blocked, from the caster's perspective. Currently only
+   *  "opponent" and "self" are used; the resolver expands per-player entries. */
+  affectedPlayer: PlayerTarget;
+}
 
 /**
  * Mass operations on the inkwell zone.
@@ -1654,6 +1671,16 @@ export interface PlayerState {
   /** True if any of this player's characters was banished in a challenge this turn.
    *  Used by LeFou - Opportunistic Flunky (checks the opposing player's flag). Cleared at PASS_TURN. */
   aCharacterWasBanishedInChallengeThisTurn?: boolean;
+  /** Timed play restrictions affecting this player (Pete Games Referee, Keep the
+   *  Ancient Ways). Each entry blocks plays of certain card types until the
+   *  CASTER'S next turn begins. Multiple entries OR-combine. */
+  playRestrictions?: PlayRestrictionEntry[];
+}
+
+export interface PlayRestrictionEntry {
+  cardTypes: CardType[];
+  casterPlayerId: PlayerID;
+  appliedOnTurn: number;
 }
 
 export interface TurnChallengeBonus {

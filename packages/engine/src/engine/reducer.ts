@@ -1314,6 +1314,27 @@ function applyPassTurn(
     }
   }
 
+  // Expire timed play restrictions whose caster's next turn is starting now.
+  // After applyPassTurn updates the active player to `opponent`, that player IS
+  // the new turn-taker. If they equal an entry's casterPlayerId, the caster's
+  // next turn has begun → drop the entry.
+  for (const pid of ["player1", "player2"] as const) {
+    const list = state.players[pid].playRestrictions;
+    if (!list || list.length === 0) continue;
+    const kept = list.filter(
+      (e) => !(e.appliedOnTurn < newTurnNumber && e.casterPlayerId === opponent),
+    );
+    if (kept.length !== list.length) {
+      state = {
+        ...state,
+        players: {
+          ...state.players,
+          [pid]: { ...state.players[pid], playRestrictions: kept.length > 0 ? kept : undefined },
+        },
+      };
+    }
+  }
+
   // CRD 3.2.1.4: "At the start of your turn" triggered abilities
   state = queueTriggersByEvent(state, "turn_start", opponent, definitions, {});
   state = processTriggerStack(state, definitions, events);
@@ -2822,6 +2843,32 @@ export function applyEffect(
         }
       }
       return state;
+    }
+
+    case "restrict_play": {
+      // Pete - Games Referee, Keep the Ancient Ways: timed per-player play
+      // restriction. Cleanup happens at the start of the caster's next turn
+      // (PASS_TURN handles it via casterPlayerId).
+      const affected: PlayerID[] = [];
+      if (effect.affectedPlayer.type === "self") affected.push(controllingPlayerId);
+      else if (effect.affectedPlayer.type === "opponent") affected.push(getOpponent(controllingPlayerId));
+      else if (effect.affectedPlayer.type === "both") affected.push("player1", "player2");
+      else affected.push(getOpponent(controllingPlayerId));
+
+      const entry = {
+        cardTypes: effect.cardTypes,
+        casterPlayerId: controllingPlayerId,
+        appliedOnTurn: state.turnNumber,
+      };
+      const playersUpdate: Record<string, import("../types/index.js").PlayerState> = {};
+      for (const pid of affected) {
+        const existing = state.players[pid].playRestrictions ?? [];
+        playersUpdate[pid] = {
+          ...state.players[pid],
+          playRestrictions: [...existing, entry],
+        };
+      }
+      return { ...state, players: { ...state.players, ...playersUpdate } };
     }
 
     case "discard_from_hand": {

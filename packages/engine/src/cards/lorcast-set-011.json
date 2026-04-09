@@ -9733,23 +9733,18 @@
       "Song"
     ],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "restrict_play",
+        "cardTypes": ["action", "item"],
+        "affectedPlayer": { "type": "opponent" }
+      }
+    ],
     "setId": "11",
     "number": 196,
     "rarity": "uncommon",
     "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)\nOpponents can't play actions or items until the start of your next turn.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_491b1cb4aadf4bf999230048abf2cf0b.avif?1770260077",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)",
-        "raw": "(A character with cost 2 or more can {E} to sing this song for free.)"
-      },
-      {
-        "storyName": "",
-        "rulesText": "Opponents can't play actions or items until the start of your next turn.",
-        "raw": "Opponents can't play actions or items until the start of your next turn."
-      }
-    ]
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_491b1cb4aadf4bf999230048abf2cf0b.avif?1770260077"
   },
   {
     "id": "the-terror-that-flaps-in-the-night",

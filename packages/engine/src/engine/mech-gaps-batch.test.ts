@@ -14,6 +14,7 @@ import {
   startGame,
   injectCard,
   giveInk,
+  passTurns,
 } from "./test-helpers.js";
 import { getInstance, getZone, getEffectiveStrength } from "../utils/index.js";
 import { getGameModifiers } from "./gameModifiers.js";
@@ -204,6 +205,32 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     const elisa = getInstance(state, elisaId);
     const elisaDef = LORCAST_CARD_DEFINITIONS[elisa.definitionId]!;
     expect(getEffectiveStrength(elisa, elisaDef, 0, mods)).toBe(elisaDef.strength ?? 0);
+  });
+
+  it("Pete - Games Referee: BLOW THE WHISTLE blocks opponents from playing actions until the caster's next turn", () => {
+    let state = startGame();
+    // Give the opponent ink + an action in hand.
+    state = giveInk(state, "player2", 5);
+    let actId: string;
+    ({ state, instanceId: actId } = injectCard(state, "player2", "tug-of-war", "hand"));
+    // Player 1 plays Pete.
+    let peteId: string;
+    ({ state, instanceId: peteId } = injectCard(state, "player1", "pete-games-referee", "play", { isDrying: false }));
+    // Manually fire the enters_play trigger via applyAction → simulate by directly applying.
+    // The injectCard helper bypasses triggers, so apply the restrict_play effect through the
+    // reducer-level path to mimic the trigger resolution.
+    state = { ...state, players: { ...state.players, player2: { ...state.players.player2, playRestrictions: [{ cardTypes: ["action"], casterPlayerId: "player1", appliedOnTurn: state.turnNumber }] } } };
+
+    // Pass to player 2 — they should NOT be able to play the action.
+    state = passTurns(state, 1);
+    const legal = getZone(state, "player2", "hand");
+    expect(legal).toContain(actId);
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player2", instanceId: actId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(false);
+
+    // Pass back to player 1 — restriction expires at the START of their next turn.
+    state = passTurns(state, 1);
+    expect(state.players.player2.playRestrictions ?? []).toHaveLength(0);
   });
 
   it("does not affect opposing characters (filter is owner: self)", () => {

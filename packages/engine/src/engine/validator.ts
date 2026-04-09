@@ -235,6 +235,14 @@ function validatePlayCard(
       }
     }
   }
+  // Pete Games Referee / Keep the Ancient Ways: timed per-player play restriction
+  // by card type. Each entry blocks plays until the caster's next turn.
+  const timedPlayBlocks = state.players[playerId].playRestrictions ?? [];
+  for (const entry of timedPlayBlocks) {
+    if (entry.cardTypes.includes(def.cardType)) {
+      return fail(`You can't play ${def.cardType}s right now.`);
+    }
+  }
 
   return OK;
 }

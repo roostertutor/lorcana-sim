@@ -10113,7 +10113,21 @@
       "Dreamborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "enters_play" },
+        "storyName": "BLOW THE WHISTLE",
+        "rulesText": "When you play this character, opponents can't play actions until the start of your next turn.",
+        "effects": [
+          {
+            "type": "restrict_play",
+            "cardTypes": ["action"],
+            "affectedPlayer": { "type": "opponent" }
+          }
+        ]
+      }
+    ],
     "setId": "5",
     "number": 195,
     "rarity": "uncommon",
@@ -10123,14 +10137,7 @@
     "lore": 1,
     "rulesText": "BLOW THE WHISTLE When you play this character, opponents can't play actions until the start of your next turn.",
     "flavorText": "\"It ain't cheatin' if you're the one makin' the rules.\"",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d82108b67c434df495ba7ce11b811e79.avif?1723917209",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "BLOW THE WHISTLE",
-        "rulesText": "When you play this character, opponents can't play actions until the start of your next turn.",
-        "raw": "BLOW THE WHISTLE When you play this character, opponents can't play actions until the start of your next turn."
-      }
-    ]
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d82108b67c434df495ba7ce11b811e79.avif?1723917209"
   },
   {
     "id": "tug-of-war",

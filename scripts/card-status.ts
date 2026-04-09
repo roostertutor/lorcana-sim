@@ -352,7 +352,8 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   // (self-stat-condition removed: self_stat_gte exists.)
   // (new-trigger-sings removed: sings trigger event implemented in Phase A.1.)
   // "Can't play actions/items" scoped to card type (Pete, Keep the Ancient Ways)
-  [/can'?t play (actions|items|actions or items)\b/i, "restricted-play-by-type"],
+  // (restricted-play-by-type removed: restrict_play Effect implemented — Pete Games
+  //  Referee, Keep the Ancient Ways. Matched as fits-grammar below.)
   // "Can't play this character unless" — play restriction condition
   // (play-restriction removed: CardDefinition.playRestrictions implemented +
   //  consulted by validatePlayCard. Mirabel x2 wired; Nathaniel Flint deferred
@@ -423,7 +424,7 @@ const CAPABILITIES = new Set<string>([
   // Static effects
   "stat_static", "cant_be_challenged_static", "cost_reduction_static",
   "action_restriction_static", "grant_activated_ability_static",
-  "damage_immunity", "stat_floor_printed",
+  "damage_immunity", "stat_floor_printed", "restrict_play",
   // Triggers (TriggerEvent.on)
   "trigger_enters_play", "trigger_leaves_play", "trigger_quests",
   "trigger_sings", "trigger_challenges", "trigger_is_challenged",
@@ -539,6 +540,8 @@ const FITS_GRAMMAR_PATTERNS: [RegExp, string][] = [
   [/\bcan'?t be dealt damage\b/i, "damage_immunity"],
   // stat-floor — Elisa Maza Transformed Gargoyle "can't be reduced below their printed value".
   [/\bcan'?t be reduced below .{0,20}printed\b/i, "stat_floor_printed"],
+  // restricted-play-by-type — Pete Games Referee, Keep the Ancient Ways.
+  [/\bcan'?t play (actions|items|actions or items)\b/i, "restrict_play"],
   [/\bcan'?t be challenged by .{0,30}characters\b/i, "cant_be_challenged_static"],
   [/\bwhile being challenged\b/i, "trigger_is_challenged"],
   [/during your turn.{0,40}(has|gains?) (evasive|rush|bodyguard|ward|reckless|resist|challenger|support)/i, "grant_keyword"],
