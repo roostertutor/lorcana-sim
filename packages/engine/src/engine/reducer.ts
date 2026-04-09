@@ -3373,13 +3373,24 @@ export function applyEffect(
         case "may_play_for_free_else_discard": {
           // Kristoff's Lute MOMENT OF INSPIRATION: reveal top, may play it for
           // free, otherwise put it into discard. count is implicitly 1.
+          //
+          // Per CRD: "play it as if it were in your hand" — the controller pays
+          // the card's normal ink cost. Bot heuristic: pay if you can afford it
+          // (and the card type is playable from this path), otherwise discard.
           if (topCards.length === 0) return state;
           const topId = topCards[0]!;
           const topInst = state.cards[topId];
           const topDef = topInst ? definitions[topInst.definitionId] : undefined;
           if (!topInst || !topDef) return state;
-          // Bot heuristic: play if it's an action or low-cost playable; else discard.
-          // Cheap heuristic — always try to play; if play handler can't, fall through.
+          const cardCost = topDef.cost ?? 0;
+          const canAfford = state.players[targetPlayer].availableInk >= cardCost;
+          if (!canAfford) {
+            // Decline -> discard the revealed card.
+            state = moveCard(state, topId, targetPlayer, "discard");
+            return state;
+          }
+          // Pay normal cost and play.
+          state = updatePlayerInk(state, targetPlayer, -cardCost);
           state = zoneTransition(state, topId, "play", definitions, events, {
             reason: "played", triggeringPlayerId: targetPlayer,
           });
