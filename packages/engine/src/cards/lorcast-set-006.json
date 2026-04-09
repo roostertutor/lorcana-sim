@@ -5368,7 +5368,25 @@
     "cost": 3,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "is_challenged",
+          "filter": { "cardType": ["character"], "atLocation": "this" }
+        },
+        "storyName": "LOST IN THE WAVES",
+        "rulesText": "Whenever a character is challenged while here, each opponent chooses and discards a card.",
+        "effects": [
+          {
+            "type": "discard_from_hand",
+            "target": { "type": "opponent" },
+            "amount": 1,
+            "chooser": "target_player"
+          }
+        ]
+      }
+    ],
     "setId": "6",
     "number": 101,
     "rarity": "common",
