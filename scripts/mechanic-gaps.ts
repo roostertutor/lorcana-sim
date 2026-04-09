@@ -49,7 +49,7 @@ const NEW_MECHANIC: [RegExp, string][] = [
   [/\bput all .{0,40}cards? from your discard into your inkwell\b/i, "bulk-discard-to-inkwell"],
   [/\bwhenever one or more of your characters sings?\b/i, "batched-sings-trigger"],
   // (no-challenges-this-turn-condition removed: no_challenges_this_turn Condition implemented.)
-  [/\bif you'?ve played a song this turn\b/i, "song-played-this-turn-condition"],
+  // (song-played-this-turn-condition removed: songs_played_this_turn_gte already supported.)
   [/\bif you didn'?t put any cards into your inkwell this turn\b/i, "no-ink-put-this-turn-condition"],
   [/\bif you'?ve put a card under\b/i, "card-under-event-condition"],
   [/\bunless you put a card under\b/i, "card-under-event-condition"],

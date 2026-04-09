@@ -127,7 +127,7 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // "If none of your characters challenged this turn" — event-tracking condition
   // (no-challenges-this-turn-condition removed: no_challenges_this_turn Condition implemented.)
   // "If you've played a song this turn" — event-tracking condition
-  [/\bif you'?ve played a song this turn\b/i, "song-played-this-turn-condition"],
+  // (song-played-this-turn-condition removed: songs_played_this_turn_gte already supported.)
   // "If you didn't put any cards into your inkwell this turn" — event-tracking condition
   [/\bif you didn'?t put any cards into your inkwell this turn\b/i, "no-ink-put-this-turn-condition"],
   // "If you've put a card under [this] this turn" — per-instance card-under event tracking
