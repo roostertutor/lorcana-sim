@@ -2681,6 +2681,24 @@ export function applyEffect(
       return state;
     }
 
+    case "move_all_matching_to_inkwell": {
+      // CRD 8.10.5: Perdita - Determined Mother — "Put all Puppy character
+      // cards from your discard into your inkwell facedown and exerted."
+      // Mass move every matching card from controller's discard to inkwell
+      // exerted. Bypasses inkable check (cards enter facedown).
+      const discard = getZone(state, controllingPlayerId, "discard");
+      for (const cid of [...discard]) {
+        const inst = state.cards[cid];
+        if (!inst) continue;
+        const def = definitions[inst.definitionId];
+        if (!def) continue;
+        if (!matchesFilter(inst, def, effect.filter, state, controllingPlayerId, sourceInstanceId)) continue;
+        state = zoneTransition(state, cid, "inkwell", definitions, events, { reason: "inked" });
+        state = updateInstance(state, cid, { isExerted: true });
+      }
+      return state;
+    }
+
     case "put_self_under_target": {
       // CRD 8.4.2: Roo - Little Helper HOPPING IN ("Put this character facedown
       // under one of your characters or locations with Boost"). Surfaces a

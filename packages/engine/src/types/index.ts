@@ -192,6 +192,7 @@ export type Effect =
   | DamageImmunityTimedEffect
   | PutCardsUnderIntoHandEffect
   | MoveCardsUnderToInkwellEffect
+  | MoveAllMatchingToInkwellEffect
   | PutSelfUnderTargetEffect
   | ReturnAllToBottomInOrderEffect
   | PutTopOfDeckUnderEffect
@@ -693,6 +694,20 @@ export interface MoveCardsUnderToInkwellEffect {
   type: "move_cards_under_to_inkwell";
   target: PlayerTarget;
   /** CRD 6.1.4: player may choose not to apply. */
+  isMay?: boolean;
+}
+
+/**
+ * CRD 8.10.5: "Put all <X> cards from your discard into your inkwell facedown
+ * and exerted" (Perdita - Determined Mother). Mass move of every card matching
+ * `filter` from controller's discard to controller's inkwell, exerted. Bypasses
+ * the inkable check (the cards enter facedown).
+ */
+export interface MoveAllMatchingToInkwellEffect {
+  type: "move_all_matching_to_inkwell";
+  /** Filter is applied against the controller's discard zone. */
+  filter: CardFilter;
+  /** CRD 6.1.4: optional may. */
   isMay?: boolean;
 }
 

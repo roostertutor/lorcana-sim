@@ -262,7 +262,12 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "turn_end", "player": { "type": "self" } },
+        "trigger": {
+          "on": "turn_end",
+          "player": {
+            "type": "self"
+          }
+        },
         "storyName": "PLENTY TO GO AROUND",
         "rulesText": "At the end of your turn, you may remove up to 1 damage from each of your other characters. Ready each character you removed damage from this way.",
         "effects": [
@@ -271,7 +276,17 @@
             "isMay": true,
             "target": {
               "type": "all",
-              "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "excludeSelf": true, "hasDamage": true }
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true,
+                "hasDamage": true
+              }
             }
           },
           {
@@ -279,7 +294,17 @@
             "amount": 1,
             "target": {
               "type": "all",
-              "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "excludeSelf": true, "hasDamage": true }
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true,
+                "hasDamage": true
+              }
             }
           }
         ]
@@ -322,16 +347,32 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "sings", "filter": { "owner": { "type": "self" } } },
+        "trigger": {
+          "on": "sings",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
         "storyName": "OF COURSE THEY CAN COME",
         "rulesText": "Once during your turn, whenever one of your characters sings a song, you may search your deck for a character card with cost 3 or less and reveal that card to all players. Put that card into your hand and shuffle your deck.",
-        "condition": { "type": "is_your_turn" },
+        "condition": {
+          "type": "is_your_turn"
+        },
         "oncePerTurn": true,
         "effects": [
           {
             "type": "search",
-            "filter": { "cardType": ["character"], "costAtMost": 3 },
-            "target": { "type": "self" },
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "costAtMost": 3
+            },
+            "target": {
+              "type": "self"
+            },
             "zone": "deck",
             "putInto": "hand"
           }
@@ -1045,22 +1086,38 @@
         "trigger": {
           "on": "is_banished",
           "filter": {
-            "owner": { "type": "self" },
-            "cardType": ["character"],
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ],
             "hasKeyword": "bodyguard"
           }
         },
         "storyName": "SENDING BACKUP",
         "rulesText": "During an opponent's turn, whenever one of your characters with Bodyguard is banished, you may reveal the top card of your deck. If it's a character card with cost 5 or less, you may play that character for free. Otherwise, put it on the top of your deck.",
-        "condition": { "type": "not", "condition": { "type": "is_your_turn" } },
+        "condition": {
+          "type": "not",
+          "condition": {
+            "type": "is_your_turn"
+          }
+        },
         "effects": [
           {
             "type": "reveal_top_conditional",
-            "filter": { "cardType": ["character"], "costAtMost": 5 },
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "costAtMost": 5
+            },
             "matchAction": "play_for_free",
             "isMay": true,
             "noMatchDestination": "top",
-            "target": { "type": "self" }
+            "target": {
+              "type": "self"
+            }
           }
         ]
       }
@@ -1162,7 +1219,14 @@
       },
       {
         "type": "triggered",
-        "trigger": { "on": "sings", "filter": { "owner": { "type": "self" } } },
+        "trigger": {
+          "on": "sings",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
         "storyName": "BRIGHT FUTURE",
         "rulesText": "Whenever this character sings a song, you may draw a card for each character you have in play.",
         "effects": [
@@ -1170,9 +1234,19 @@
             "type": "draw",
             "amount": {
               "type": "count",
-              "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"] }
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
             },
-            "target": { "type": "self" },
+            "target": {
+              "type": "self"
+            },
             "isMay": true
           }
         ]
@@ -1659,6 +1733,27 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "name": "QUICK, EVERYONE HIDE",
+        "trigger": {
+          "event": "enters_play",
+          "filter": {
+            "type": "this"
+          }
+        },
+        "effects": [
+          {
+            "type": "move_all_matching_to_inkwell",
+            "filter": {
+              "cardType": "character",
+              "hasTrait": "Puppy",
+              "zone": "discard"
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "8",
@@ -2052,24 +2147,50 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "sings", "filter": { "owner": { "type": "self" }, "excludeSelf": true } },
+        "trigger": {
+          "on": "sings",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "excludeSelf": true
+          }
+        },
         "storyName": "THE MIRACLE IS YOU",
         "rulesText": "Once during your turn, whenever one of your other characters sings a song, you may ready that character.",
-        "condition": { "type": "is_your_turn" },
+        "condition": {
+          "type": "is_your_turn"
+        },
         "oncePerTurn": true,
         "effects": [
-          { "type": "ready", "target": { "type": "triggering_card" }, "isMay": true }
+          {
+            "type": "ready",
+            "target": {
+              "type": "triggering_card"
+            },
+            "isMay": true
+          }
         ]
       },
       {
         "type": "triggered",
-        "trigger": { "on": "sings" },
+        "trigger": {
+          "on": "sings"
+        },
         "storyName": "THE MIRACLE IS YOU (self)",
         "rulesText": "Once during your turn, when this character sings a song, you may ready her.",
-        "condition": { "type": "is_your_turn" },
+        "condition": {
+          "type": "is_your_turn"
+        },
         "oncePerTurn": true,
         "effects": [
-          { "type": "ready", "target": { "type": "this" }, "isMay": true }
+          {
+            "type": "ready",
+            "target": {
+              "type": "this"
+            },
+            "isMay": true
+          }
         ]
       }
     ],
@@ -4022,18 +4143,30 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "enters_play" },
+        "trigger": {
+          "on": "enters_play"
+        },
         "storyName": "WHY DO WE EVEN HAVE THAT LEVER?",
         "rulesText": "When you play this character, if you have a card named Pull the Lever! in your discard, you may search your deck for a card named Wrong Lever! and reveal that card to all players. Put that card into your hand and shuffle your deck.",
         "condition": {
           "type": "you_control_matching",
-          "filter": { "owner": { "type": "self" }, "zone": "discard", "hasName": "Pull the Lever!" }
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "discard",
+            "hasName": "Pull the Lever!"
+          }
         },
         "effects": [
           {
             "type": "search",
-            "filter": { "hasName": "Wrong Lever!" },
-            "target": { "type": "self" },
+            "filter": {
+              "hasName": "Wrong Lever!"
+            },
+            "target": {
+              "type": "self"
+            },
             "zone": "deck",
             "putInto": "hand"
           }
@@ -4152,7 +4285,9 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "enters_play" },
+        "trigger": {
+          "on": "enters_play"
+        },
         "storyName": "LOOK WHAT YOU'VE DONE",
         "rulesText": "When you play this character, you may deal 2 damage to another chosen character of yours to give that character Challenger +1 and \"When this character is banished in a challenge, return this card to your hand\" this turn.",
         "effects": [
@@ -4165,7 +4300,16 @@
                 "amount": 2,
                 "target": {
                   "type": "chosen",
-                  "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "excludeSelf": true }
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "excludeSelf": true
+                  }
                 }
               }
             ],
@@ -4175,14 +4319,23 @@
                 "keyword": "challenger",
                 "value": 1,
                 "duration": "this_turn",
-                "target": { "type": "last_resolved_target" }
+                "target": {
+                  "type": "last_resolved_target"
+                }
               },
               {
                 "type": "create_floating_trigger",
                 "attachTo": "last_resolved_target",
-                "trigger": { "on": "banished_in_challenge" },
+                "trigger": {
+                  "on": "banished_in_challenge"
+                },
                 "effects": [
-                  { "type": "return_to_hand", "target": { "type": "this" } }
+                  {
+                    "type": "return_to_hand",
+                    "target": {
+                      "type": "this"
+                    }
+                  }
                 ]
               }
             ]
@@ -5624,12 +5777,23 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "enters_play" },
+        "trigger": {
+          "on": "enters_play"
+        },
         "storyName": "GOLLY!",
         "rulesText": "When you play this character, if an opponent has more cards in their hand than you, you may draw a card.",
-        "condition": { "type": "opponent_has_more_cards_in_hand" },
+        "condition": {
+          "type": "opponent_has_more_cards_in_hand"
+        },
         "effects": [
-          { "type": "draw", "amount": 1, "target": { "type": "self" }, "isMay": true }
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
         ]
       }
     ],
@@ -5803,7 +5967,9 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "is_challenged" },
+        "trigger": {
+          "on": "is_challenged"
+        },
         "storyName": "THIS IS A VERY BIG DAY",
         "rulesText": "Whenever this character is challenged, the challenging player may choose and discard a card. If they don't, you gain 2 lore.",
         "effects": [
@@ -5812,7 +5978,9 @@
             "rewardEffect": {
               "type": "gain_lore",
               "amount": 2,
-              "target": { "type": "self" }
+              "target": {
+                "type": "self"
+              }
             }
           }
         ]
@@ -6347,7 +6515,9 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "is_banished" },
+        "trigger": {
+          "on": "is_banished"
+        },
         "storyName": "I'M NOT FINISHED YET",
         "rulesText": "When this character is banished, choose one: Put 2 damage counters on all opposing characters. Banish all opposing items. Banish all opposing locations.",
         "effects": [
@@ -6360,19 +6530,52 @@
                   "type": "deal_damage",
                   "amount": 2,
                   "asDamageCounter": true,
-                  "target": { "type": "all", "filter": { "owner": { "type": "opponent" }, "zone": "play", "cardType": ["character"] } }
+                  "target": {
+                    "type": "all",
+                    "filter": {
+                      "owner": {
+                        "type": "opponent"
+                      },
+                      "zone": "play",
+                      "cardType": [
+                        "character"
+                      ]
+                    }
+                  }
                 }
               ],
               [
                 {
                   "type": "banish",
-                  "target": { "type": "all", "filter": { "owner": { "type": "opponent" }, "zone": "play", "cardType": ["item"] } }
+                  "target": {
+                    "type": "all",
+                    "filter": {
+                      "owner": {
+                        "type": "opponent"
+                      },
+                      "zone": "play",
+                      "cardType": [
+                        "item"
+                      ]
+                    }
+                  }
                 }
               ],
               [
                 {
                   "type": "banish",
-                  "target": { "type": "all", "filter": { "owner": { "type": "opponent" }, "zone": "play", "cardType": ["location"] } }
+                  "target": {
+                    "type": "all",
+                    "filter": {
+                      "owner": {
+                        "type": "opponent"
+                      },
+                      "zone": "play",
+                      "cardType": [
+                        "location"
+                      ]
+                    }
+                  }
                 }
               ]
             ]
@@ -7861,8 +8064,12 @@
         "trigger": {
           "on": "card_played",
           "filter": {
-            "owner": { "type": "self" },
-            "cardType": ["character"],
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ],
             "strengthAtLeast": 5
           }
         },
@@ -7873,10 +8080,21 @@
             "type": "sequential",
             "isMay": true,
             "costEffects": [
-              { "type": "exert", "target": { "type": "triggering_card" } }
+              {
+                "type": "exert",
+                "target": {
+                  "type": "triggering_card"
+                }
+              }
             ],
             "rewardEffects": [
-              { "type": "gain_lore", "amount": 2, "target": { "type": "self" } }
+              {
+                "type": "gain_lore",
+                "amount": 2,
+                "target": {
+                  "type": "self"
+                }
+              }
             ]
           }
         ]
@@ -9211,7 +9429,12 @@
         "type": "triggered",
         "trigger": {
           "on": "shifted_onto",
-          "filter": { "cardType": ["character"], "hasTrait": "Floodborn" }
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Floodborn"
+          }
         },
         "storyName": "NEED THIS!",
         "rulesText": "When you play a Floodborn character on this card, you may put the top card of your deck into your inkwell facedown and exerted.",
@@ -9219,7 +9442,9 @@
           {
             "type": "move_to_inkwell",
             "fromZone": "deck",
-            "target": { "type": "this" },
+            "target": {
+              "type": "this"
+            },
             "enterExerted": true,
             "isMay": true
           }
@@ -9674,12 +9899,25 @@
       },
       {
         "type": "triggered",
-        "trigger": { "on": "turn_end", "player": { "type": "self" } },
+        "trigger": {
+          "on": "turn_end",
+          "player": {
+            "type": "self"
+          }
+        },
         "storyName": "TIME RUNS OUT",
         "rulesText": "At the end of your turn, if you didn't put any cards into your inkwell this turn, banish this character.",
-        "condition": { "type": "ink_plays_this_turn_eq", "amount": 0 },
+        "condition": {
+          "type": "ink_plays_this_turn_eq",
+          "amount": 0
+        },
         "effects": [
-          { "type": "banish", "target": { "type": "this" } }
+          {
+            "type": "banish",
+            "target": {
+              "type": "this"
+            }
+          }
         ]
       }
     ],
@@ -11208,8 +11446,15 @@
           "type": "modify_stat_per_count",
           "stat": "strength",
           "perCount": 1,
-          "target": { "type": "this" },
-          "countFilter": { "owner": { "type": "self" }, "zone": "discard" }
+          "target": {
+            "type": "this"
+          },
+          "countFilter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "discard"
+          }
         }
       }
     ],
@@ -11376,13 +11621,21 @@
     "actionEffects": [
       {
         "type": "conditional_on_player_state",
-        "condition": { "type": "cards_in_hand_eq", "amount": 0, "player": { "type": "self" } },
+        "condition": {
+          "type": "cards_in_hand_eq",
+          "amount": 0,
+          "player": {
+            "type": "self"
+          }
+        },
         "thenEffects": [
           {
             "type": "draw",
             "amount": 3,
             "untilHandSize": 3,
-            "target": { "type": "self" }
+            "target": {
+              "type": "self"
+            }
           }
         ],
         "elseEffects": [
@@ -11391,7 +11644,9 @@
             "costEffects": [
               {
                 "type": "discard_from_hand",
-                "target": { "type": "self" },
+                "target": {
+                  "type": "self"
+                },
                 "amount": "any",
                 "chooser": "target_player"
               }
@@ -11400,7 +11655,9 @@
               {
                 "type": "draw",
                 "amount": "cost_result",
-                "target": { "type": "self" }
+                "target": {
+                  "type": "self"
+                }
               }
             ]
           }
@@ -11758,7 +12015,29 @@
       "Floodborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "name": "QUICK, EVERYONE HIDE",
+        "trigger": {
+          "event": "enters_play",
+          "filter": {
+            "type": "this"
+          }
+        },
+        "effects": [
+          {
+            "type": "move_all_matching_to_inkwell",
+            "filter": {
+              "cardType": "character",
+              "hasTrait": "Puppy",
+              "zone": "discard"
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 207,
     "rarity": "enchanted",
@@ -12015,7 +12294,9 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "enters_play" },
+        "trigger": {
+          "on": "enters_play"
+        },
         "storyName": "LOOK WHAT YOU'VE DONE",
         "rulesText": "When you play this character, you may deal 2 damage to another chosen character of yours to give that character Challenger +1 and \"When this character is banished in a challenge, return this card to your hand\" this turn.",
         "effects": [
@@ -12028,7 +12309,16 @@
                 "amount": 2,
                 "target": {
                   "type": "chosen",
-                  "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "excludeSelf": true }
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "excludeSelf": true
+                  }
                 }
               }
             ],
@@ -12038,14 +12328,23 @@
                 "keyword": "challenger",
                 "value": 1,
                 "duration": "this_turn",
-                "target": { "type": "last_resolved_target" }
+                "target": {
+                  "type": "last_resolved_target"
+                }
               },
               {
                 "type": "create_floating_trigger",
                 "attachTo": "last_resolved_target",
-                "trigger": { "on": "banished_in_challenge" },
+                "trigger": {
+                  "on": "banished_in_challenge"
+                },
                 "effects": [
-                  { "type": "return_to_hand", "target": { "type": "this" } }
+                  {
+                    "type": "return_to_hand",
+                    "target": {
+                      "type": "this"
+                    }
+                  }
                 ]
               }
             ]
@@ -12733,13 +13032,21 @@
     "actionEffects": [
       {
         "type": "conditional_on_player_state",
-        "condition": { "type": "cards_in_hand_eq", "amount": 0, "player": { "type": "self" } },
+        "condition": {
+          "type": "cards_in_hand_eq",
+          "amount": 0,
+          "player": {
+            "type": "self"
+          }
+        },
         "thenEffects": [
           {
             "type": "draw",
             "amount": 3,
             "untilHandSize": 3,
-            "target": { "type": "self" }
+            "target": {
+              "type": "self"
+            }
           }
         ],
         "elseEffects": [
@@ -12748,7 +13055,9 @@
             "costEffects": [
               {
                 "type": "discard_from_hand",
-                "target": { "type": "self" },
+                "target": {
+                  "type": "self"
+                },
                 "amount": "any",
                 "chooser": "target_player"
               }
@@ -12757,7 +13066,9 @@
               {
                 "type": "draw",
                 "amount": "cost_result",
-                "target": { "type": "self" }
+                "target": {
+                  "type": "self"
+                }
               }
             ]
           }
