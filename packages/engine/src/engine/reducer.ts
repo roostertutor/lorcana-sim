@@ -382,6 +382,7 @@ function applyPlayCard(
 
   // CRD 8.12: Sing Together — multiple characters all exert; sings trigger fires per singer
   if (singerInstanceIds && singerInstanceIds.length > 0) {
+    state = { ...state, lastSongSingerCount: singerInstanceIds.length };
     for (const sId of singerInstanceIds) {
       state = exertInstance(state, sId, definitions);
     }
@@ -403,6 +404,7 @@ function applyPlayCard(
     }
   } else if (singerInstanceId) {
     // Don't deduct ink — singing is the alternate cost (CRD 1.5.5.1)
+    state = { ...state, lastSongSingerCount: 1 };
     state = exertInstance(state, singerInstanceId, definitions);
     const singerDef = getDefinition(state, singerInstanceId, definitions);
     state = appendLog(state, {
@@ -1956,6 +1958,9 @@ function resolveDynamicAmount(
   }
   if (amount === "last_resolved_source_strength") {
     return state.lastResolvedSource?.strength ?? 0;
+  }
+  if (amount === "song_singer_count") {
+    return state.lastSongSingerCount ?? 0;
   }
   if (amount === "last_target_location_lore") {
     const lastTargetId = state.lastResolvedTarget?.instanceId;

@@ -440,6 +440,10 @@ export type DynamicAmount =
   /** Effective strength snapshot of `state.lastResolvedSource` (cost-side exerted
    *  character). Used by Ambush ("deal damage equal to their {S}"). */
   | "last_resolved_source_strength"
+  /** Number of characters that sang the most recently played song. 1 for solo
+   *  sing, N for Sing Together. Read by Fantastical and Magical: "draw a card
+   *  and gain 1 lore for each character that sang this song". */
+  | "song_singer_count"
   | { type: "count"; filter: CardFilter; max?: number }
   | { type: "target_lore"; max?: number }
   | { type: "target_damage"; max?: number }
@@ -2213,6 +2217,12 @@ export interface GameState {
    *  card was discarded, deal 3 damage instead of 1") via the
    *  conditional_on_last_discarded effect. Reset on each new discard. */
   lastDiscarded?: ResolvedRef[];
+
+  /** Number of characters that sang the most recently played song. Set by
+   *  applyPlayCard's sing path (1 for solo sing, N for Sing Together). Read
+   *  by the `song_singer_count` DynamicAmount (Fantastical and Magical:
+   *  "draw a card and gain 1 lore for each character that sang this song"). */
+  lastSongSingerCount?: number;
 
   winner: PlayerID | null;
   isGameOver: boolean;

@@ -4560,24 +4560,48 @@
       {
         "type": "triggered",
         "name": "DARK POWER",
-        "trigger": { "event": "quests", "filter": { "type": "this" } },
+        "trigger": {
+          "event": "quests",
+          "filter": {
+            "type": "this"
+          }
+        },
         "isMay": true,
         "effects": [
-          { "type": "draw", "target": { "type": "self" }, "amount": 1 },
+          {
+            "type": "draw",
+            "target": {
+              "type": "self"
+            },
+            "amount": 1
+          },
           {
             "type": "sequential",
             "costEffects": [
-              { "type": "discard_from_hand", "target": { "type": "self" }, "amount": 1, "chooser": "target_player" }
+              {
+                "type": "discard_from_hand",
+                "target": {
+                  "type": "self"
+                },
+                "amount": 1,
+                "chooser": "target_player"
+              }
             ],
             "rewardEffects": [
               {
                 "type": "conditional_on_last_discarded",
-                "filter": { "cardType": "character", "hasTrait": "Illusion" },
+                "filter": {
+                  "cardType": "character",
+                  "hasTrait": "Illusion"
+                },
                 "then": [
                   {
                     "type": "play_for_free",
                     "sourceZone": "discard",
-                    "filter": { "cardType": "character", "hasTrait": "Illusion" },
+                    "filter": {
+                      "cardType": "character",
+                      "hasTrait": "Illusion"
+                    },
                     "isMay": true
                   }
                 ]
@@ -4830,6 +4854,23 @@
         "keyword": "sing together"
       }
     ],
+    "actionEffects": [
+      {
+        "type": "draw",
+        "amount": "song_singer_count",
+        "target": {
+          "type": "self"
+        }
+      },
+      {
+        "type": "gain_lore",
+        "amount": "song_singer_count",
+        "target": {
+          "type": "self"
+        }
+      }
+    ],
+    "singTogetherCost": 9,
     "setId": "8",
     "number": 79,
     "rarity": "rare",
@@ -4846,8 +4887,7 @@
         "rulesText": "For each character that sang this song, draw a card and gain 1 lore.",
         "raw": "For each character that sang this song, draw a card and gain 1 lore."
       }
-    ],
-    "singTogetherCost": 9
+    ]
   },
   {
     "id": "pull-the-lever",
@@ -4983,16 +5023,34 @@
             "amount": 1,
             "source": {
               "type": "all_damaged",
-              "filter": { "cardType": "character", "owner": { "type": "self" }, "zone": "play" }
+              "filter": {
+                "cardType": "character",
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play"
+              }
             },
             "destination": {
               "type": "chosen",
-              "filter": { "cardType": "character", "owner": { "type": "opponent" }, "zone": "play" }
+              "filter": {
+                "cardType": "character",
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play"
+              }
             }
           }
         ],
         "rewardEffects": [
-          { "type": "draw", "amount": "cost_result", "target": { "type": "self" } }
+          {
+            "type": "draw",
+            "amount": "cost_result",
+            "target": {
+              "type": "self"
+            }
+          }
         ]
       }
     ],
@@ -5795,14 +5853,24 @@
       {
         "type": "triggered",
         "name": "I LIKE WHERE THIS IS HEADING",
-        "trigger": { "event": "quests", "filter": { "type": "this" } },
+        "trigger": {
+          "event": "quests",
+          "filter": {
+            "type": "this"
+          }
+        },
         "effects": [
           {
             "type": "look_at_top",
             "count": 1,
             "action": "reveal_until_match_to_hand_shuffle_rest",
-            "filter": { "cardType": "character", "hasTrait": "Floodborn" },
-            "target": { "type": "self" }
+            "filter": {
+              "cardType": "character",
+              "hasTrait": "Floodborn"
+            },
+            "target": {
+              "type": "self"
+            }
           }
         ]
       }
@@ -12471,7 +12539,23 @@
         "raw": "For each character that sang this song, draw a card and gain 1 lore."
       }
     ],
-    "singTogetherCost": 9
+    "singTogetherCost": 9,
+    "actionEffects": [
+      {
+        "type": "draw",
+        "amount": "song_singer_count",
+        "target": {
+          "type": "self"
+        }
+      },
+      {
+        "type": "gain_lore",
+        "amount": "song_singer_count",
+        "target": {
+          "type": "self"
+        }
+      }
+    ]
   },
   {
     "id": "into-the-unknown",
