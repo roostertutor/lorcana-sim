@@ -78,7 +78,24 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "turn_start", "player": { "type": "self" } },
+        "activeZones": ["discard"],
+        "storyName": "NO PLACE I'D RATHER BE",
+        "rulesText": "At the start of your turn, if this card is in your discard, you may play her and she enters play exerted.",
+        "effects": [
+          {
+            "type": "play_for_free",
+            "target": { "type": "this" },
+            "sourceZone": "discard",
+            "enterExerted": true,
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "6",
     "number": 2,
     "rarity": "super_rare",
@@ -3357,7 +3374,23 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "returned_to_hand",
+          "filter": {
+            "owner": { "type": "opponent" },
+            "cardType": ["character", "item", "location"]
+          }
+        },
+        "storyName": "BACK, FOOLS!",
+        "rulesText": "Whenever one of your opponents' characters, items, or locations is returned to their hand from play, gain 1 lore.",
+        "effects": [
+          { "type": "gain_lore", "amount": 1, "target": { "type": "self" } }
+        ]
+      }
+    ],
     "setId": "6",
     "number": 65,
     "rarity": "rare",
@@ -11342,7 +11375,23 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "returned_to_hand",
+          "filter": {
+            "owner": { "type": "opponent" },
+            "cardType": ["character", "item", "location"]
+          }
+        },
+        "storyName": "BACK, FOOLS!",
+        "rulesText": "Whenever one of your opponents' characters, items, or locations is returned to their hand from play, gain 1 lore.",
+        "effects": [
+          { "type": "gain_lore", "amount": 1, "target": { "type": "self" } }
+        ]
+      }
+    ],
     "setId": "6",
     "number": 210,
     "rarity": "enchanted",

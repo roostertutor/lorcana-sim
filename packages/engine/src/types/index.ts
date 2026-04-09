@@ -118,6 +118,10 @@ export interface TriggeredAbility {
   /** CRD 6.1.13: "Once per turn" — ability fires at most once per turn per instance.
    *  Reset at end of turn and when the card leaves play (CRD 7.1.6 — becomes a "new" card). */
   oncePerTurn?: boolean;
+  /** Which zones this triggered ability is active in. Defaults to ["play"].
+   *  Use ["discard"] for cards that fire from discard (Lilo Escape Artist —
+   *  "at the start of your turn, if this card is in your discard, you may play her"). */
+  activeZones?: ZoneName[];
 }
 
 export interface ActivatedAbility {
@@ -890,6 +894,9 @@ export interface PlayForFreeEffect {
    * The Black Cauldron RISE AND JOIN ME! (paid play from the item's cards-under pile).
    */
   cost?: "free" | "normal";
+  /** If true, the played card enters play exerted (Lilo Escape Artist —
+   *  "she enters play exerted"). */
+  enterExerted?: boolean;
   /**
    * Per-instance subzone source. Only meaningful when `sourceZone === "under"`. The
    * source instance's `cardsUnder` array becomes the candidate pool. "self" resolves

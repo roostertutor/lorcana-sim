@@ -158,7 +158,7 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // "Return all character cards with that name from your discard" — name-a-card + bulk return-from-discard
   [/\breturn all character cards with that name from your discard\b/i, "name-then-bulk-return-from-discard"],
   // "Whenever [card type] is returned to their hand from play" — return-to-hand trigger (opponent)
-  [/\bwhenever .{0,60}is returned to their hand from play\b/i, "trigger-opponent-returned-to-hand"],
+  // (trigger-opponent-returned-to-hand removed: returned_to_hand + owner:opponent already supported.)
   // "Whenever you play a [second|third] [card type]" — Nth-card-played counter trigger
   [/\bwhenever you play a (second|third|fourth) (action|character|item|song)\b/i, "nth-card-played-trigger"],
   // "Whenever a character is challenged while here" — location challenged trigger
@@ -180,7 +180,7 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // Other-at-location static ("While one of your X characters is at a location, that character gains")
   [/\bwhile one of your .{0,40}is at a location, that character\b/i, "other-at-location-static"],
   // "If this card is in your discard, you may play her" — self play-from-discard trigger
-  [/\bif this card is in your discard, you may play\b/i, "self-play-from-discard"],
+  // (self-play-from-discard removed: TriggeredAbility activeZones + play_for_free target:this implemented.)
   // Location "whenever a character is banished here" trigger
   // (location-banished-here-trigger removed: is_banished + atLocation:"this" filter already supported.)
   // "Whenever a character is banished in a challenge while here"

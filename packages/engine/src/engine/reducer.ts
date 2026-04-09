@@ -3187,6 +3187,10 @@ export function applyEffect(
         if (effect.target.type === "triggering_card" && triggeringCardInstanceId) {
           return applyEffectToTarget(state, effect, triggeringCardInstanceId, controllingPlayerId, definitions, events);
         }
+        // Lilo Escape Artist: { type: "this" } plays the source instance itself.
+        if (effect.target.type === "this") {
+          return applyEffectToTarget(state, effect, sourceInstanceId, controllingPlayerId, definitions, events);
+        }
         // Other direct target shapes can be added as cards demand them.
         return state;
       }
@@ -3581,13 +3585,16 @@ function queueTriggersByEvent(
   _context: object
 ): GameState {
   for (const [instanceId, instance] of Object.entries(state.cards)) {
-    if (instance.zone !== "play") continue;
     const def = definitions[instance.definitionId];
     if (!def) continue;
 
     for (const ability of def.abilities) {
       if (ability.type !== "triggered") continue;
       if (ability.trigger.on !== eventType) continue;
+      // CRD 6.3-ish: triggered abilities default to in-play. Cards in other
+      // zones must declare activeZones to fire (Lilo Escape Artist — discard).
+      const activeZones = ability.activeZones ?? ["play"];
+      if (!activeZones.includes(instance.zone)) continue;
 
       // For triggers with a "player" field, check the player matches
       if ("player" in ability.trigger && ability.trigger.player) {
@@ -3656,8 +3663,15 @@ function processTriggerStack(
     // CRD 1.6.1: these triggers fire because of the challenge/banishment event itself,
     // not because the source is still in play. banished_other_in_challenge included per
     // CRD 4.6.6.2 — simultaneous damage means attacker banished another even if also banished.
-    const requiresInPlay = !["is_banished", "leaves_play", "banished_in_challenge", "banished_other_in_challenge", "is_challenged", "challenges"].includes(trigger.ability.trigger.on);
-    if (requiresInPlay && source.zone !== "play") continue;
+    // Triggered abilities can declare activeZones to fire from non-play zones
+    // (Lilo Escape Artist — fires from discard). Default is ["play"]; the
+    // leaves-play family bypasses this check because the source has already
+    // left play by the time the trigger resolves.
+    const leavesPlayFamily = ["is_banished", "leaves_play", "banished_in_challenge", "banished_other_in_challenge", "is_challenged", "challenges"].includes(trigger.ability.trigger.on);
+    if (!leavesPlayFamily) {
+      const activeZones = trigger.ability.activeZones ?? ["play"];
+      if (!activeZones.includes(source.zone)) continue;
+    }
 
     // CRD 6.2.1: Check condition before resolving trigger effects
     if (trigger.ability.condition) {
@@ -4486,9 +4500,12 @@ function applyEffectToTarget(
       state = zoneTransition(state, targetInstanceId, "play", definitions, events, {
         reason: "played", triggeringPlayerId: controllingPlayerId,
       });
-      // Characters enter drying
+      // Characters enter drying. Lilo Escape Artist enters exerted via enterExerted.
       if (def.cardType === "character") {
-        state = updateInstance(state, targetInstanceId, { isDrying: true });
+        state = updateInstance(state, targetInstanceId, {
+          isDrying: true,
+          ...(effect.enterExerted ? { isExerted: true } : {}),
+        });
       }
       // Actions: resolve their effects and then move to discard (CRD 5.4.3).
       if (def.cardType === "action" && def.actionEffects) {

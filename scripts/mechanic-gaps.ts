@@ -64,7 +64,7 @@ const NEW_MECHANIC: [RegExp, string][] = [
   [/\breveal cards? from the top of your deck until you reveal\b/i, "reveal-until-effect"],
   [/\bchoose \d+ cards? from chosen opponent'?s discard\b/i, "choose-from-opponent-discard"],
   [/\breturn all character cards with that name from your discard\b/i, "name-then-bulk-return-from-discard"],
-  [/\bwhenever .{0,60}is returned to their hand from play\b/i, "trigger-opponent-returned-to-hand"],
+  // (trigger-opponent-returned-to-hand removed: returned_to_hand + owner:opponent already supported.)
   [/\bwhenever you play a (second|third|fourth) (action|character|item|song)\b/i, "nth-card-played-trigger"],
   [/\bwhenever a character is challenged while here\b/i, "location-challenged-trigger"],
   [/\bwhenever an opposing character is exerted\b/i, "opponent-exerts-trigger"],
@@ -75,7 +75,7 @@ const NEW_MECHANIC: [RegExp, string][] = [
   // (inkwell-count-trigger removed: ink_played trigger + ink_plays_this_turn_eq Condition implemented.)
   [/\bfor each opposing character banished in a challenge this turn, you pay\b/i, "event-tracking-cost-reduction"],
   [/\bwhile one of your .{0,40}is at a location, that character\b/i, "other-at-location-static"],
-  [/\bif this card is in your discard, you may play\b/i, "self-play-from-discard"],
+  // (self-play-from-discard removed: triggered activeZones + play_for_free target:this implemented.)
   // (location-banished-here-trigger removed: is_banished + atLocation:"this" filter already supported.)
   [/\bwhenever a character is banished in a challenge while here\b/i, "location-banished-here-trigger"],
   // (location-moves-here-trigger removed: moves_to_location + atLocation:"this" filter already supported.)
