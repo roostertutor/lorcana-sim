@@ -884,7 +884,7 @@ export interface NameACardThenRevealEffect {
 export interface MoveCharacterEffect {
   type: "move_character";
   /** The character being moved. */
-  character: { type: "this" } | { type: "triggering_card" } | { type: "chosen"; filter: CardFilter };
+  character: { type: "this" } | { type: "triggering_card" } | { type: "chosen"; filter: CardFilter } | { type: "last_resolved_target" };
   /** The location being moved to. */
   location: { type: "triggering_card" } | { type: "chosen"; filter: CardFilter };
   /** CRD 6.1.4 */

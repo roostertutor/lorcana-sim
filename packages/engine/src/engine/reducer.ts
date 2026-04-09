@@ -2816,6 +2816,10 @@ export function applyEffect(
         characterId = sourceInstanceId;
       } else if (effect.character.type === "triggering_card") {
         characterId = triggeringCardInstanceId;
+      } else if (effect.character.type === "last_resolved_target") {
+        // Tuk Tuk Lively Partner sequential reward: move the character that the
+        // previous step targeted (modify_stat sets state.lastResolvedTarget).
+        characterId = state.lastResolvedTarget?.instanceId;
       } else if (effect.character.type === "chosen") {
         // Stage 1: present a choice for the character. The chosen-character then drives
         // stage 2 via applyEffectToTarget(move_character).

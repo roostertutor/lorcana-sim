@@ -6667,6 +6667,52 @@
       {
         "type": "keyword",
         "keyword": "evasive"
+      },
+      {
+        "type": "triggered",
+        "name": "ON A ROLL",
+        "trigger": { "event": "enters_play", "filter": { "type": "this" } },
+        "isMay": true,
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": 2,
+            "duration": "this_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": { "type": "self" },
+                "zone": "play",
+                "cardType": ["character"],
+                "notId": "self"
+              }
+            }
+          },
+          {
+            "type": "move_character",
+            "character": { "type": "last_resolved_target" },
+            "location": {
+              "type": "chosen",
+              "filter": {
+                "owner": { "type": "self" },
+                "zone": "play",
+                "cardType": ["location"]
+              }
+            }
+          },
+          {
+            "type": "move_character",
+            "character": { "type": "this" },
+            "location": {
+              "type": "chosen",
+              "filter": {
+                "owner": { "type": "self" },
+                "zone": "play",
+                "cardType": ["location"]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "4",
