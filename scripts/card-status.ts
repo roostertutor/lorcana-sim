@@ -350,7 +350,7 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   //  works today; "Whenever this character sings a song" → sings trigger event implemented in
   //  Phase A.1.)
   // Condition based on character strength threshold ("if you have a character with 5 {S}")
-  [/if you have a character with \d+ \{S\}/i, "stat-threshold-condition"],
+  // (stat-threshold-condition removed: you_control_matching + strengthAtLeast filter already supported.)
   // (self-stat-condition removed: self_stat_gte exists.)
   // (new-trigger-sings removed: sings trigger event implemented in Phase A.1.)
   // "Can't play actions/items" scoped to card type (Pete, Keep the Ancient Ways)

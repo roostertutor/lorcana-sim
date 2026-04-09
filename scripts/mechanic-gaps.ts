@@ -179,7 +179,7 @@ const NEW_TYPE: [RegExp, string][] = [
   [/whenever this character exerts\b/i, "new-trigger-exerts"],
   [/whenever this character deals damage\b/i, "new-trigger-deals-damage"],
   [/whenever this character is dealt damage\b/i, "new-trigger-is-dealt-damage"],
-  [/if you have a character with \d+ \{S\}/i, "stat-threshold-condition"],
+  // (stat-threshold-condition removed: you_control_matching + strengthAtLeast already supported.)
   // (restricted-play-by-type removed: restrict_play Effect implemented.)
   // (play-restriction removed: CardDefinition.playRestrictions implemented.)
   // (event-tracking-condition (damaged) removed: your_character_was_damaged_this_turn
