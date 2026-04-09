@@ -595,6 +595,9 @@ export const LORCAST_CARDS: CardDefinition[] = cards;
   if (withStubs.length > 0) {
     console.log(`\n  ${withStubs.length} cards have named ability stubs — track in docs/CARD_ISSUES.md`);
   }
+
+  console.log(`\nNext: run \`pnpm tsx scripts/audit-lorcast-data.ts\` to scan for`);
+  console.log(`upstream keyword drift (see docs/LORCAST_DATA_ISSUES.md).`);
 }
 
 main().catch((err) => {

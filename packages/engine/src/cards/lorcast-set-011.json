@@ -10079,6 +10079,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "alert"
+      },
+      {
         "type": "static",
         "storyName": "",
         "rulesText": "While this character has no damage, she gets +2 {S}.",
