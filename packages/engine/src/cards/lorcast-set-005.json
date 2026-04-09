@@ -10679,7 +10679,43 @@
     "cost": 3,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "THERE'S NO ONE I'D RATHER BE THAN ME",
+        "rulesText": "Villain characters gain \"{E}, 3 {I} \u2014 Play a character with the same name as this character for free\" while here.",
+        "effect": {
+          "type": "grant_activated_ability",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": { "type": "self" },
+              "zone": "play",
+              "cardType": ["character"],
+              "hasTrait": "Villain",
+              "atLocation": "this"
+            }
+          },
+          "ability": {
+            "type": "activated",
+            "costs": [
+              { "type": "exert" },
+              { "type": "ink", "amount": 3 }
+            ],
+            "effects": [
+              {
+                "type": "play_for_free",
+                "sourceZone": "hand",
+                "filter": {
+                  "cardType": "character",
+                  "nameFromSource": true
+                }
+              }
+            ]
+          }
+        }
+      }
+    ],
     "setId": "5",
     "number": 203,
     "rarity": "rare",
@@ -11767,7 +11803,43 @@
     "cost": 3,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "THERE'S NO ONE I'D RATHER BE THAN ME",
+        "rulesText": "Villain characters gain \"{E}, 3 {I} \u2014 Play a character with the same name as this character for free\" while here.",
+        "effect": {
+          "type": "grant_activated_ability",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": { "type": "self" },
+              "zone": "play",
+              "cardType": ["character"],
+              "hasTrait": "Villain",
+              "atLocation": "this"
+            }
+          },
+          "ability": {
+            "type": "activated",
+            "costs": [
+              { "type": "exert" },
+              { "type": "ink", "amount": 3 }
+            ],
+            "effects": [
+              {
+                "type": "play_for_free",
+                "sourceZone": "hand",
+                "filter": {
+                  "cardType": "character",
+                  "nameFromSource": true
+                }
+              }
+            ]
+          }
+        }
+      }
+    ],
     "setId": "5",
     "number": 222,
     "rarity": "enchanted",
