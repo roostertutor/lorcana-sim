@@ -5468,7 +5468,28 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "NOBLE SPIRIT",
+        "rulesText": "If you have a character in play with damage, you pay 1 {I} less to play this character.",
+        "condition": {
+          "type": "you_control_matching",
+          "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "hasDamage": true }
+        },
+        "effect": { "type": "self_cost_reduction", "amount": 1 }
+      },
+      {
+        "type": "static",
+        "storyName": "FIGHTING SPIRIT",
+        "rulesText": "If you have a character in play with 5 {S} or more, you pay 1 {I} less to play this character.",
+        "condition": {
+          "type": "you_control_matching",
+          "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "strengthAtLeast": 5 }
+        },
+        "effect": { "type": "self_cost_reduction", "amount": 1 }
+      }
+    ],
     "setId": "11",
     "number": 108,
     "rarity": "uncommon",

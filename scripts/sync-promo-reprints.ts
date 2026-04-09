@@ -26,8 +26,10 @@ for (const s of MAIN_SETS) {
     const hasPlayRestrictions = c.playRestrictions && c.playRestrictions.length > 0;
     const hasSelfCost = c.selfCostReduction !== undefined;
     if (hasAbilities || hasAction || hasAltNames || hasPlayRestrictions || hasSelfCost) {
-      // First wired version wins.
-      if (!wired[c.fullName]) wired[c.fullName] = c;
+      // Match case-insensitively to tolerate Lorcast capitalization drift
+      // (e.g. "Miserable as Usual" vs "Miserable As Usual" between sets).
+      const key = c.fullName.toLowerCase();
+      if (!wired[key]) wired[key] = c;
     }
   }
 }
@@ -38,7 +40,7 @@ for (const s of PROMO_SETS) {
   const cards = JSON.parse(readFileSync(fp, "utf-8"));
   let setSynced = 0;
   for (const c of cards) {
-    const src = wired[c.fullName];
+    const src = wired[c.fullName.toLowerCase()];
     if (!src) continue;
     // Skip if already wired.
     const alreadyWired =

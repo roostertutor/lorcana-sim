@@ -7176,7 +7176,32 @@
     "cost": 4,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "YOU KNOW WHAT HAPPENS",
+        "rulesText": "{E}, 2 {I} — Draw cards equal to the damage on chosen character of yours, then banish them.",
+        "costs": [
+          { "type": "exert" },
+          { "type": "pay_ink", "amount": 2 }
+        ],
+        "effects": [
+          {
+            "type": "conditional_on_target",
+            "target": {
+              "type": "chosen",
+              "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"] }
+            },
+            "conditionFilter": {},
+            "ifMatchEffects": [
+              { "type": "draw", "amount": { "type": "target_damage" }, "target": { "type": "self" } },
+              { "type": "banish" }
+            ],
+            "defaultEffects": []
+          }
+        ]
+      }
+    ],
     "setId": "9",
     "number": 135,
     "rarity": "rare",

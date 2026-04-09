@@ -187,7 +187,31 @@
       "Storyborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "banished_in_challenge"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "isMay": true
+          }
+        ],
+        "storyName": "YOU'LL BE SORRY!",
+        "rulesText": "When this character is challenged and banished, you may return chosen character to their player's hand."
+      }
+    ],
     "setId": "P1",
     "number": 4,
     "rarity": "common",
