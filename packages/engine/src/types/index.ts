@@ -686,6 +686,10 @@ export interface RevealTopConditionalEffect {
   filter: CardFilter;
   /** What to do with the revealed card if it matches. */
   matchAction: "to_hand" | "play_for_free" | "to_inkwell_exerted";
+  /** Only meaningful when matchAction === "play_for_free". When true, the
+   *  played card enters play exerted (Oswald Lucky Rabbit FAVORABLE CHANCE
+   *  for items). */
+  matchEnterExerted?: boolean;
   /** CRD 6.1.4: revealed-and-matched cards are optional (player may decline). */
   isMay?: boolean;
   /** Where to put the revealed card if it does NOT match. Default "top". */

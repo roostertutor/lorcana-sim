@@ -2223,7 +2223,11 @@ export function applyEffect(
               reason: "played", triggeringPlayerId: targetPlayer,
             });
             if (topDef.cardType === "character") {
-              state = updateInstance(state, topId, { isDrying: true });
+              state = updateInstance(state, topId, { isDrying: true, ...(effect.matchEnterExerted ? { isExerted: true } : {}) });
+            } else if (effect.matchEnterExerted && (topDef.cardType === "item" || topDef.cardType === "location")) {
+              // Oswald Lucky Rabbit: items entering play exerted via the
+              // FAVORABLE CHANCE reveal-and-play path.
+              state = updateInstance(state, topId, { isExerted: true });
             }
             if (topDef.cardType === "action" && topDef.actionEffects) {
               for (const ae of topDef.actionEffects) {
@@ -4649,7 +4653,11 @@ function applyEffectToTarget(
           },
         };
       }
-      // location: triggering_card not supported in this path (no triggeringCardInstanceId here)
+      // Stage 1 + location: triggering_card path (Goofy Set for Adventure FAMILY VACATION:
+      // chosen own character moves to the location the source moved to).
+      if (effect.location.type === "triggering_card" && triggeringCardInstanceId) {
+        return performMove(state, targetInstanceId, triggeringCardInstanceId, definitions, events);
+      }
       return state;
     }
     case "grant_challenge_ready": {

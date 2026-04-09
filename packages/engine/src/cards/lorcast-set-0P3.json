@@ -2423,7 +2423,56 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "moves_to_location"
+        },
+        "storyName": "FAMILY VACATION",
+        "rulesText": "Once during your turn, whenever this character moves to a location, you may move one of your other characters to that location for free. If you do, draw a card.",
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "oncePerTurn": true,
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "move_character",
+                "character": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "excludeSelf": true
+                  }
+                },
+                "location": {
+                  "type": "triggering_card"
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "P3",
     "number": 39,
     "rarity": "common",

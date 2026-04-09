@@ -5478,7 +5478,18 @@
       "Ally",
       "Inventor"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "enters_play" },
+        "storyName": "GOLLY!",
+        "rulesText": "When you play this character, if an opponent has more cards in their hand than you, you may draw a card.",
+        "condition": { "type": "opponent_has_more_cards_in_hand" },
+        "effects": [
+          { "type": "draw", "amount": 1, "target": { "type": "self" }, "isMay": true }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 99,
     "rarity": "rare",
@@ -9457,6 +9468,16 @@
       {
         "type": "keyword",
         "keyword": "ward"
+      },
+      {
+        "type": "triggered",
+        "trigger": { "on": "turn_end", "player": { "type": "self" } },
+        "storyName": "TIME RUNS OUT",
+        "rulesText": "At the end of your turn, if you didn't put any cards into your inkwell this turn, banish this character.",
+        "condition": { "type": "ink_plays_this_turn_eq", "amount": 0 },
+        "effects": [
+          { "type": "banish", "target": { "type": "this" } }
+        ]
       }
     ],
     "setId": "8",

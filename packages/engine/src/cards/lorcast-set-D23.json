@@ -296,7 +296,39 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "ink_played",
+          "player": {
+            "type": "self"
+          }
+        },
+        "storyName": "FAVORABLE CHANCE",
+        "rulesText": "During your turn, whenever a card is put into your inkwell, you may reveal the top card of your deck. If it's an item card, you may play that item for free and it enters play exerted. Otherwise, put it on the bottom of your deck.",
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "reveal_top_conditional",
+            "filter": {
+              "cardType": [
+                "item"
+              ]
+            },
+            "matchAction": "play_for_free",
+            "matchEnterExerted": true,
+            "noMatchDestination": "bottom",
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "D23",
     "number": 6,
     "rarity": "common",
