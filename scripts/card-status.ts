@@ -221,7 +221,7 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // Tinker Bell: exert the triggering card (not self)
   [/\bwhenever you play a character .{0,40}you may exert them\b/i, "exert-triggering-card"],
   // Geppetto-style: discard any number of [type] cards to gain N per discarded
-  [/\bchoose and discard any number of .{0,20}cards? to\b/i, "discard-any-number-dynamic"],
+  // (discard-any-number-dynamic removed: discard_from_hand amount:"any" + sequential cost_result implemented.)
   // Dusk to Dawn: fill-hand ("they draw until they have N")
   // (fill-hand removed: fill_hand_to Effect implemented.)
   // Reuben: per-damage-removed cost reduction

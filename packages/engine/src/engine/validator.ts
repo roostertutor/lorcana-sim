@@ -700,9 +700,16 @@ function validateResolveChoice(
 
   // Discard choice validation
   if (state.pendingChoice.type === "choose_discard" && Array.isArray(choice)) {
-    const count = state.pendingChoice.count ?? 1;
-    if (choice.length !== count) {
-      return fail(`Must choose exactly ${count} card(s) to discard.`);
+    // "Any number" variant: allow 0..maxCount discards (Geppetto, Desperate Plan).
+    if (state.pendingChoice.maxCount !== undefined) {
+      if (choice.length > state.pendingChoice.maxCount) {
+        return fail(`Cannot discard more than ${state.pendingChoice.maxCount} card(s).`);
+      }
+    } else {
+      const count = state.pendingChoice.count ?? 1;
+      if (choice.length !== count) {
+        return fail(`Must choose exactly ${count} card(s) to discard.`);
+      }
     }
     for (const id of choice) {
       if (!state.pendingChoice.validTargets?.includes(id)) {

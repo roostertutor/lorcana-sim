@@ -827,7 +827,7 @@ export interface LookAtTopEffect {
  */
 export interface DiscardEffect {
   type: "discard_from_hand";
-  amount: number | "all";
+  amount: number | "all" | "any";
   target: PlayerTarget;
   /** Who picks what to discard — "target_player" = they choose, "controller" = you choose from their hand,
    *  "random" = engine picks uniformly at random from the eligible hand cards (Bruno reveal, Lady Tremaine, etc.) */
@@ -1907,6 +1907,10 @@ export interface PendingChoice {
   prompt: string;
   /** For choose_target: valid target instanceIds */
   validTargets?: string[];
+  /** For "any number" choose_discard (Geppetto, Desperate Plan): when set, the
+   *  validator allows 0..maxCount discards instead of strict equality on count.
+   *  The reducer feeds the actual chosen count into lastEffectResult. */
+  maxCount?: number;
   /** For choose_from_revealed: all revealed cards (validTargets is the selectable subset) */
   revealedCards?: string[];
   /** For choose_option: the effects to pick between */

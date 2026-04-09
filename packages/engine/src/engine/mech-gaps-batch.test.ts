@@ -352,6 +352,36 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     expect(getZone(state, "player1", "hand").length).toBe(p1HandBefore - 1);
   });
 
+  it("Geppetto Skilled Craftsman: SEEKING INSPIRATION discards any number of items, gains 1 lore each", () => {
+    let state = startGame();
+    let geppettoId: string;
+    ({ state, instanceId: geppettoId } = injectCard(state, "player1", "geppetto-skilled-craftsman", "play", { isDrying: false }));
+    // Two items in hand.
+    let item1: string, item2: string;
+    ({ state, instanceId: item1 } = injectCard(state, "player1", "dragon-gem", "hand"));
+    ({ state, instanceId: item2 } = injectCard(state, "player1", "dragon-gem", "hand"));
+
+    // Quest with Geppetto — should surface a may-prompt for the sequential.
+    let r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: geppettoId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(state.pendingChoice?.type).toBe("choose_may");
+
+    // Accept — choose_discard with maxCount surfaces.
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(state.pendingChoice?.type).toBe("choose_discard");
+    expect(state.pendingChoice?.maxCount).toBe(2);
+
+    // Discard both items.
+    const loreBefore = state.players.player1.lore;
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [item1, item2] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(state.players.player1.lore).toBe(loreBefore + 2);
+  });
+
   it("Goliath Clan Leader: DUSK TO DAWN draws up to 2 if hand is below 2 at end of turn", () => {
     let state = startGame();
     let goliathId: string;

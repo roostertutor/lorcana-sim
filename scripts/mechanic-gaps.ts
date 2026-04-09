@@ -95,7 +95,7 @@ const NEW_MECHANIC: [RegExp, string][] = [
   [/\bfor each character that sang this song\b/i, "per-singer-dynamic"],
   // (shift-condition-on-trigger-source removed: played_via_shift conditions supported.)
   [/\bwhenever you play a character .{0,40}you may exert them\b/i, "exert-triggering-card"],
-  [/\bchoose and discard any number of .{0,20}cards? to\b/i, "discard-any-number-dynamic"],
+  // (discard-any-number-dynamic removed: discard_from_hand amount:"any" + cost_result implemented.)
   // (fill-hand removed: fill_hand_to Effect implemented.)
   [/\bfor each \d+ damage removed this way, you pay\b/i, "dynamic-cost-reduction-from-effect"],
   [/\bunless that character'?s player puts\b/i, "inverse-unless-opponent-choice"],

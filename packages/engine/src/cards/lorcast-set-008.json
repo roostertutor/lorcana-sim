@@ -9543,7 +9543,36 @@
       "Ally",
       "Inventor"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "quests" },
+        "storyName": "SEEKING INSPIRATION",
+        "rulesText": "Whenever this character quests, you may choose and discard any number of item cards to gain 1 lore for each item card discarded this way.",
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "discard_from_hand",
+                "target": { "type": "self" },
+                "amount": "any",
+                "chooser": "target_player",
+                "filter": { "cardType": ["item"] }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "gain_lore",
+                "amount": "cost_result",
+                "target": { "type": "self" }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 174,
     "rarity": "rare",

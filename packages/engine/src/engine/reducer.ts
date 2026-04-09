@@ -1577,8 +1577,10 @@ function applyResolveChoice(
     // process the trigger stack inline. The triggering action (e.g. Sudden Chill being
     // sung) must finish its cleanup first so other triggers (e.g. Ursula DOA's "sings"
     // → "play that song from discard") see the action card in discard, not still in play.
+    // Always set lastEffectResult so downstream cost_result reads see 0 when
+    // no cards were discarded (Geppetto Skilled Craftsman "any number" path).
+    state = { ...state, lastEffectResult: discardCount };
     if (discardCount > 0 && discardingPlayerId) {
-      state = { ...state, lastEffectResult: discardCount };
       state = queueTriggersByEvent(state, "cards_discarded", discardingPlayerId, definitions, {});
     }
     state = resumePendingEffectQueue(state, definitions, events);
@@ -3055,6 +3057,24 @@ export function applyEffect(
           continue;
         }
 
+        // "any" — variable count, surface choose_discard with maxCount.
+        // (Geppetto Skilled Craftsman, Desperate Plan.)
+        if (effect.amount === "any") {
+          if (hand.length === 0) continue;
+          const choosingPlayer = effect.chooser === "target_player" ? pid : controllingPlayerId;
+          return {
+            ...state,
+            pendingChoice: {
+              type: "choose_discard",
+              choosingPlayerId: choosingPlayer,
+              prompt: `Choose any number of card(s) to discard.`,
+              validTargets: hand,
+              maxCount: hand.length,
+              pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
+            },
+          };
+        }
+
         const discardCount = Math.min(effect.amount, hand.length);
         if (discardCount === 0) continue;
 
@@ -3442,7 +3462,13 @@ function canPerformCostEffect(
     case "pay_ink":
       return state.players[controllingPlayerId].availableInk >= effect.amount;
     case "discard_from_hand":
-      return effect.amount === "all" ? true : getZone(state, controllingPlayerId, "hand").length >= effect.amount;
+      // "any" — performable if there's at least one card in hand (Geppetto).
+      // "all" — always performable. Numeric — need >= count.
+      return effect.amount === "all"
+        ? true
+        : effect.amount === "any"
+          ? getZone(state, controllingPlayerId, "hand").length > 0
+          : getZone(state, controllingPlayerId, "hand").length >= effect.amount;
     case "exert": {
       // CRD 6.1.5.1: exert cost on triggering_card — check not already exerted
       if (effect.target.type === "triggering_card" && triggeringCardInstanceId) {
