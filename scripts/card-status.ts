@@ -92,10 +92,12 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   //  generalize when 3+P support lands. Matched as fits-grammar below.)
   // "Chosen character gains "<quoted floating triggered ability>" this turn"
   // create_floating_trigger applies to source, not chosen target (Bruno Madrigal).
-  [/\bchosen .{0,30}gains? "[^"]+"\s*this turn\b/i, "grant-floating-trigger-to-target"],
-  [/\bcharacter gains? \u201C[^\u201D]+\u201D this turn\b/i, "grant-floating-trigger-to-target"],
+  // (grant-floating-trigger-to-target removed: create_floating_trigger_attached
+  //  primitive already supported (Bruno Madrigal). Compound cards using it remain
+  //  unwired pending sequential targeting plumbing — see Mother Gothel.)
+  // (above)
   // "Whenever they challenge another character this turn" — floating trigger attached to chosen target
-  [/\bwhenever they challenge\b/i, "grant-floating-trigger-to-target"],
+  // (above)
   // "if no other character has quested this turn" — historical event-count condition
   [/\bif no other character has quested this turn\b/i, "no-other-quested-condition"],
   // "your other characters can't quest for the rest of this turn"
@@ -210,7 +212,7 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // Banish-self OR return-another modal on ETB (Madam Mim - Rhino)
   [/\bbanish (her|him|it|them|this character) or return another chosen character\b/i, "self-banish-or-return-modal"],
   // "Give that character X and \"<quoted trigger>\" this turn" — grant floating trigger to target via "give"
-  [/\bgive that character .{0,60}["\u201C][^"\u201D]+["\u201D]\s*this turn\b/i, "grant-floating-trigger-to-target"],
+  // (above)
   // Jafar High Sultan: "If an Illusion character card is discarded this way, you may play that character"
   [/\bif a[n]? .{0,30}is discarded this way, you may play\b/i, "play-from-discard-result"],
   // "For each character that sang this song" — per-singer dynamic in Sing Together

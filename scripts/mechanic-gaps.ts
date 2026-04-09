@@ -90,7 +90,7 @@ const NEW_MECHANIC: [RegExp, string][] = [
   [/\bwhenever one of your characters sings a song\b/i, "other-sings-trigger"],
   [/\breveal a .{0,30}card in your hand to\b/i, "reveal-from-hand-as-cost"],
   [/\bbanish (her|him|it|them|this character) or return another chosen character\b/i, "self-banish-or-return-modal"],
-  [/\bgive that character .{0,60}["\u201C][^"\u201D]+["\u201D]\s*this turn\b/i, "grant-floating-trigger-to-target"],
+  // (grant-floating-trigger-to-target removed: primitive already supported.)
   [/\bif a[n]? .{0,30}is discarded this way, you may play\b/i, "play-from-discard-result"],
   [/\bfor each character that sang this song\b/i, "per-singer-dynamic"],
   // (shift-condition-on-trigger-source removed: played_via_shift conditions supported.)
