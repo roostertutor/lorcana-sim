@@ -335,7 +335,8 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   // "Can't lose lore" (during opponents' turns)
   [/\bcan'?t lose lore\b/i, "prevent-lore-loss"],
   // "Count as having +N cost" (virtual cost for singer threshold)
-  [/count as having .{0,10}cost\b/i, "virtual-cost-modifier"],
+  // (virtual-cost-modifier removed: sing_cost_bonus_here StaticEffect implemented —
+  //  Atlantica Concert Hall. Matched as fits-grammar below.)
   // "Plays X again from discard, put on bottom" — replay from discard
   [/\bplay .{0,40}again from your discard\b/i, "replay-from-discard"],
   // "All cards in your hand count as having [ink color]" — dual ink grant
@@ -424,7 +425,7 @@ const CAPABILITIES = new Set<string>([
   // Static effects
   "stat_static", "cant_be_challenged_static", "cost_reduction_static",
   "action_restriction_static", "grant_activated_ability_static",
-  "damage_immunity", "stat_floor_printed", "restrict_play",
+  "damage_immunity", "stat_floor_printed", "restrict_play", "sing_cost_bonus_here",
   // Triggers (TriggerEvent.on)
   "trigger_enters_play", "trigger_leaves_play", "trigger_quests",
   "trigger_sings", "trigger_challenges", "trigger_is_challenged",
@@ -542,6 +543,8 @@ const FITS_GRAMMAR_PATTERNS: [RegExp, string][] = [
   [/\bcan'?t be reduced below .{0,20}printed\b/i, "stat_floor_printed"],
   // restricted-play-by-type — Pete Games Referee, Keep the Ancient Ways.
   [/\bcan'?t play (actions|items|actions or items)\b/i, "restrict_play"],
+  // virtual-cost-modifier — Atlantica Concert Hall ("count as having +N cost ... while here").
+  [/\bcount as having .{0,10}cost .{0,30}while here\b/i, "sing_cost_bonus_here"],
   [/\bcan'?t be challenged by .{0,30}characters\b/i, "cant_be_challenged_static"],
   [/\bwhile being challenged\b/i, "trigger_is_challenged"],
   [/during your turn.{0,40}(has|gains?) (evasive|rush|bodyguard|ward|reckless|resist|challenger|support)/i, "grant_keyword"],

@@ -1624,21 +1624,24 @@
     "cost": 1,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "UNDERWATER ACOUSTICS",
+        "rulesText": "Characters count as having +2 cost to sing songs while here.",
+        "effect": {
+          "type": "sing_cost_bonus_here",
+          "amount": 2
+        }
+      }
+    ],
     "setId": "4",
     "number": 33,
     "rarity": "common",
     "subtitle": "Concert Hall",
     "willpower": 6,
     "rulesText": "UNDERWATER ACOUSTICS Characters count as having +2 cost to sing songs while here.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_eaceb59bf4e6464c98ac6c6c37fccfe3.avif?1716052430",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "UNDERWATER ACOUSTICS",
-        "rulesText": "Characters count as having +2 cost to sing songs while here.",
-        "raw": "UNDERWATER ACOUSTICS Characters count as having +2 cost to sing songs while here."
-      }
-    ]
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_eaceb59bf4e6464c98ac6c6c37fccfe3.avif?1716052430"
   },
   {
     "id": "the-underworld-river-styx",

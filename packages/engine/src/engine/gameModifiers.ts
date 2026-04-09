@@ -146,6 +146,14 @@ export interface GameModifiers {
   enterPlayExerted: Map<import("../types/index.js").PlayerID, import("../types/index.js").CardFilter[]>;
 
   /**
+   * Per-location virtual sing-cost bonus for characters at that location
+   * (Atlantica Concert Hall — "+2 to sing while here"). Key = location
+   * instanceId, value = the bonus added to a singer's effective cost when
+   * computing sing eligibility only.
+   */
+  singCostBonusHere: Map<string, number>;
+
+  /**
    * CRD-style stat floors at printed value (Elisa Maza Transformed Gargoyle —
    * "your characters' {S} can't be reduced below their printed value"). Key =
    * affected instanceId, value = set of stats that may not drop below printed.
@@ -186,6 +194,7 @@ export function getGameModifiers(
     moveToSelfCostReductions: new Map(),
     enterPlayExerted: new Map(),
     statFloorsPrinted: new Map(),
+    singCostBonusHere: new Map(),
   };
 
   for (const instance of Object.values(state.cards)) {
@@ -474,6 +483,14 @@ export function getGameModifiers(
             modifiers.enterPlayExerted.set(affectedPlayerId, arr);
           }
           arr.push(effect.filter);
+          break;
+        }
+
+        case "sing_cost_bonus_here": {
+          // Atlantica Concert Hall — characters at this location get +N to
+          // their effective cost for sing eligibility only.
+          const prev = modifiers.singCostBonusHere.get(instance.instanceId) ?? 0;
+          modifiers.singCostBonusHere.set(instance.instanceId, prev + effect.amount);
           break;
         }
 

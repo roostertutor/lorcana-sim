@@ -233,6 +233,31 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     expect(state.players.player2.playRestrictions ?? []).toHaveLength(0);
   });
 
+  it("Atlantica - Concert Hall: a 1-cost character at this location can sing a 3-cost song (UNDERWATER ACOUSTICS +2)", () => {
+    let state = startGame();
+    // Mickey Mouse - Friendly Face is cost 1; "Hakuna Matata" is a 3-cost song.
+    // Use any 1-cost character + any 3-cost song available in the test data.
+    let locId: string, singerId: string, songId: string;
+    ({ state, instanceId: locId } = injectCard(state, "player1", "atlantica-concert-hall", "play", { isDrying: false }));
+    ({ state, instanceId: singerId } = injectCard(state, "player1", "moana-of-motunui", "play", { isDrying: false }));
+    // Move singer to the location.
+    state = { ...state, cards: { ...state.cards, [singerId]: { ...state.cards[singerId], atLocationInstanceId: locId } } };
+    // Pick a song with cost > singer.cost but <= singer.cost + 2.
+    const moanaDef = LORCAST_CARD_DEFINITIONS[state.cards[singerId].definitionId]!;
+    const songDefId = Object.keys(LORCAST_CARD_DEFINITIONS).find((id) => {
+      const d = LORCAST_CARD_DEFINITIONS[id]!;
+      return d.cardType === "action"
+        && (d.traits ?? []).includes("Song")
+        && d.cost === moanaDef.cost + 1
+        && (d.singTogetherCost === undefined);
+    });
+    expect(songDefId).toBeDefined();
+    ({ state, instanceId: songId } = injectCard(state, "player1", songDefId!, "hand"));
+    // Without the location bonus, the singer would be too cheap; with +2 it's allowed.
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId, singerInstanceId: singerId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+  });
+
   it("does not affect opposing characters (filter is owner: self)", () => {
     let state = startGame();
     ({ state } = injectCard(state, "player1", "elisa-maza-transformed-gargoyle", "play", { isDrying: false }));

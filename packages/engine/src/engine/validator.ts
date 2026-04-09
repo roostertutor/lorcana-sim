@@ -172,7 +172,11 @@ function validatePlayCard(
       return fail("This character can't sing songs.");
     }
     const singerDef = getDefinition(state, singerInstanceId, definitions);
-    if (!canSingSong(singer, singerDef, def)) {
+    // Atlantica Concert Hall: virtual sing-cost bonus while at certain locations.
+    const singerLocBonus = singer.atLocationInstanceId
+      ? (modifiers.singCostBonusHere.get(singer.atLocationInstanceId) ?? 0)
+      : 0;
+    if (!canSingSong(singer, singerDef, def, singerLocBonus)) {
       return fail(`Singer's cost is too low to sing this song.`);
     }
     return OK; // No ink check — singing replaces ink cost entirely (CRD 1.5.5.1)
@@ -206,6 +210,10 @@ function validatePlayCard(
       let effectiveCost = sDef.cost;
       if (hasKeyword(s, sDef, "singer")) {
         effectiveCost = getKeywordValue(s, sDef, "singer");
+      }
+      // Atlantica Concert Hall: per-singer location bonus.
+      if (s.atLocationInstanceId) {
+        effectiveCost += stModifiers.singCostBonusHere.get(s.atLocationInstanceId) ?? 0;
       }
       totalCost += effectiveCost;
     }

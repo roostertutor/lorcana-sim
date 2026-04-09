@@ -970,7 +970,21 @@ export type StaticEffect =
   | TopOfDeckVisibleStatic
   | MoveToSelfCostReductionStatic
   | EnterPlayExertedStatic
-  | StatFloorPrintedStatic;
+  | StatFloorPrintedStatic
+  | SingCostBonusHereStatic;
+
+/**
+ * Atlantica - Concert Hall (Set 4): "UNDERWATER ACOUSTICS Characters count as
+ * having +N cost to sing songs while here." A virtual cost bonus that applies
+ * only to the sing-eligibility check (CRD 8.11.1) — does NOT change the
+ * character's printed cost or its other cost-dependent interactions. The
+ * bonus lives on the location and applies to any character whose
+ * atLocationInstanceId equals this location.
+ */
+export interface SingCostBonusHereStatic {
+  type: "sing_cost_bonus_here";
+  amount: number;
+}
 
 /**
  * Elisa Maza - Transformed Gargoyle (Set 11): "FOREVER STRONG Your characters'

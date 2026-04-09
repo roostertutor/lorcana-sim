@@ -1806,7 +1806,17 @@
     "cost": 1,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "UNDERWATER ACOUSTICS",
+        "rulesText": "Characters count as having +2 cost to sing songs while here.",
+        "effect": {
+          "type": "sing_cost_bonus_here",
+          "amount": 2
+        }
+      }
+    ],
     "setId": "9",
     "number": 34,
     "rarity": "common",
@@ -1814,14 +1824,7 @@
     "willpower": 6,
     "lore": 0,
     "rulesText": "UNDERWATER ACOUSTICS Characters count as having +2 cost to sing songs while here.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_74c2fa84872c4c68ac1eb0e2a7a8affc.avif?1755540294",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "UNDERWATER ACOUSTICS",
-        "rulesText": "Characters count as having +2 cost to sing songs while here.",
-        "raw": "UNDERWATER ACOUSTICS Characters count as having +2 cost to sing songs while here."
-      }
-    ]
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_74c2fa84872c4c68ac1eb0e2a7a8affc.avif?1755540294"
   },
   {
     "id": "the-queen-wicked-and-vain",

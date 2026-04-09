@@ -551,7 +551,8 @@ export function isSong(def: CardDefinition): boolean {
 export function canSingSong(
   singerInstance: CardInstance,
   singerDef: CardDefinition,
-  songDef: CardDefinition
+  songDef: CardDefinition,
+  virtualBonus = 0
 ): boolean {
   // CRD 5.4.4.2: Only characters can sing songs (items/actions cannot)
   if (singerDef.cardType !== "character") return false;
@@ -560,6 +561,8 @@ export function canSingSong(
   if (hasKeyword(singerInstance, singerDef, "singer")) {
     effectiveCost = getKeywordValue(singerInstance, singerDef, "singer");
   }
+  // Virtual bonus from "while at this location" effects (Atlantica Concert Hall).
+  effectiveCost += virtualBonus;
   return effectiveCost >= songDef.cost;
 }
 

@@ -175,7 +175,7 @@ const NEW_TYPE: [RegExp, string][] = [
   [/\blose.{0,10}(the )?[A-Z][a-z]+ (classification|ability)\b/i, "remove-ability"],
   // (stat-floor removed: stat_floor_printed StaticEffect implemented — Elisa Maza.)
   [/\bcan'?t lose lore\b/i, "prevent-lore-loss"],
-  [/count as having .{0,10}cost\b/i, "virtual-cost-modifier"],
+  // (virtual-cost-modifier removed: sing_cost_bonus_here StaticEffect implemented.)
   [/\bplay .{0,40}again from your discard\b/i, "replay-from-discard"],
   [/\bcount as having \{I/i, "virtual-ink-color"],
   [/whenever this character exerts\b/i, "new-trigger-exerts"],
