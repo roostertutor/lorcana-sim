@@ -9560,6 +9560,16 @@
         "type": "keyword",
         "keyword": "resist",
         "value": 3
+      },
+      {
+        "type": "static",
+        "storyName": "I DON'T HAVE ANY OTHER CHOICE",
+        "rulesText": "For each opposing character banished in a challenge this turn, you pay 2 {I} less to play this character.",
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": "opposing_chars_banished_in_challenge_this_turn",
+          "perMatch": 2
+        }
       }
     ],
     "setId": "5",

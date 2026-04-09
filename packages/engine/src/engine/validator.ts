@@ -336,6 +336,10 @@ function getEffectiveCostWithReductions(
       let n = findMatchingInstances(state, definitions, countAmt.filter, playerId, instanceId).length;
       if (typeof countAmt.max === "number") n = Math.min(n, countAmt.max);
       discount = n * (ability.effect.perMatch ?? 1);
+    } else if (rawAmount === "opposing_chars_banished_in_challenge_this_turn") {
+      // Namaari Resolute Daughter: per-turn event counter on the controller.
+      const n = state.players[playerId].opposingCharsBanishedInChallengeThisTurn ?? 0;
+      discount = n * (ability.effect.perMatch ?? 1);
     }
     cost -= discount;
   }

@@ -461,7 +461,22 @@ function applyPlayCard(
           continue;
         }
       }
-      cost -= ability.effect.amount;
+      // Mirror validator's resolution: literal number, count-based, or
+      // per-turn event count.
+      const rawAmount = ability.effect.amount;
+      let discount = 0;
+      if (typeof rawAmount === "number") {
+        discount = rawAmount;
+      } else if (typeof rawAmount === "object" && rawAmount !== null && (rawAmount as { type?: string }).type === "count") {
+        const countAmt = rawAmount as { type: "count"; filter: import("../types/index.js").CardFilter; max?: number };
+        let n = findMatchingInstances(state, definitions, countAmt.filter, playerId, instanceId).length;
+        if (typeof countAmt.max === "number") n = Math.min(n, countAmt.max);
+        discount = n * (ability.effect.perMatch ?? 1);
+      } else if (rawAmount === "opposing_chars_banished_in_challenge_this_turn") {
+        const n = state.players[playerId].opposingCharsBanishedInChallengeThisTurn ?? 0;
+        discount = n * (ability.effect.perMatch ?? 1);
+      }
+      cost -= discount;
     }
 
     cost = Math.max(0, cost);
@@ -1345,6 +1360,7 @@ function applyPassTurn(
         aCharacterWasDamagedThisTurn: false,
         aCharacterWasBanishedInChallengeThisTurn: false,
         aCharacterChallengedThisTurn: false,
+        opposingCharsBanishedInChallengeThisTurn: 0,
         timedGrantedActivatedAbilities: [],
       },
       // CRD 3.4.1.2: clear the ending player's turn-scoped conditional challenge bonuses
@@ -1358,6 +1374,7 @@ function applyPassTurn(
         aCharacterWasDamagedThisTurn: false,
         aCharacterWasBanishedInChallengeThisTurn: false,
         aCharacterChallengedThisTurn: false,
+        opposingCharsBanishedInChallengeThisTurn: 0,
         timedGrantedActivatedAbilities: [],
       },
     },
@@ -4665,6 +4682,24 @@ function zoneTransition(
               },
             },
           };
+          // Per-turn counter for the OPPOSING (attacker's) player. Used by
+          // Namaari Resolute Daughter ("For each opposing character banished
+          // in a challenge this turn, you pay 2 {I} less to play this character").
+          const attackerInst = state.cards[ctx.challengeOpponentId];
+          if (attackerInst) {
+            const attackerPid = attackerInst.ownerId;
+            const prev = state.players[attackerPid].opposingCharsBanishedInChallengeThisTurn ?? 0;
+            state = {
+              ...state,
+              players: {
+                ...state.players,
+                [attackerPid]: {
+                  ...state.players[attackerPid],
+                  opposingCharsBanishedInChallengeThisTurn: prev + 1,
+                },
+              },
+            };
+          }
           // CRD 6.2.7.1: Check floating triggers for banished_in_challenge (Fairy Godmother)
           if (state.floatingTriggers) {
             for (const ft of state.floatingTriggers) {

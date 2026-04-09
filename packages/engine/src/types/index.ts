@@ -444,6 +444,11 @@ export type DynamicAmount =
    *  sing, N for Sing Together. Read by Fantastical and Magical: "draw a card
    *  and gain 1 lore for each character that sang this song". */
   | "song_singer_count"
+  /** Per-turn counter on the controlling player: number of opposing characters
+   *  banished in a challenge initiated by this player this turn. Used by
+   *  Namaari Resolute Daughter ("For each opposing character banished in a
+   *  challenge this turn, you pay 2 {I} less to play this character"). */
+  | "opposing_chars_banished_in_challenge_this_turn"
   | { type: "count"; filter: CardFilter; max?: number }
   | { type: "target_lore"; max?: number }
   | { type: "target_damage"; max?: number }
@@ -2150,6 +2155,12 @@ export interface PlayerState {
    *  Pacifist cycle — Mother's Necklace, John Smith Snow Tracker). Cleared at
    *  PASS_TURN for both players. */
   aCharacterChallengedThisTurn?: boolean;
+  /** Number of OPPOSING characters banished in a challenge initiated by this
+   *  player this turn. Used by Namaari Resolute Daughter ("For each opposing
+   *  character banished in a challenge this turn, you pay 2 {I} less to play
+   *  this character"). Incremented in applyChallenge when a defender is
+   *  banished. Cleared at PASS_TURN. */
+  opposingCharsBanishedInChallengeThisTurn?: number;
   /** Timed play restrictions affecting this player (Pete Games Referee, Keep the
    *  Ancient Ways). Each entry blocks plays of certain card types until the
    *  CASTER'S next turn begins. Multiple entries OR-combine. */
