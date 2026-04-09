@@ -776,6 +776,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
+      {
         "type": "triggered",
         "storyName": "MARINER'S MIGHT",
         "rulesText": "Whenever this character quests, chosen Pirate character gets +2 {S} and gains \"This character takes no damage from challenges\" this turn. (approximation: player is prompted twice — once for the stat buff and once for the immunity — rather than once for both.)",
@@ -1224,6 +1229,7 @@
     "subtitle": "Abandoned Laboratory",
     "willpower": 3,
     "lore": 1,
+    "moveCost": 1,
     "rulesText": "STARTLING DISCOVERY Characters gain \" — Draw a card\" while here.",
     "flavorText": "Remember, we're looking for clues to who tore up the lorebook pages. —Elisa Maza",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_89f06111fbb14f8d9dc9e19168c30631.avif?1773508797",
@@ -2755,9 +2761,16 @@
     "strength": 3,
     "willpower": 3,
     "lore": 2,
-    "rulesText": "FAMILIAR GROUND Whenever this character quests, if you played another character this turn, chosen opposing character can't challenge during their next turn.",
+    "rulesText": "FAMILIAR GROUND Whenever this character quests, if you played another character this turn, chosen opposing character can't challenge and must quest during their next turn if able.",
     "flavorText": "\"Isn't it wonderful? See if there's anything that catches your eye.\"",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4a3d97e5bcff49c2883e5764be3fd43b.avif?1773508943"
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4a3d97e5bcff49c2883e5764be3fd43b.avif?1773508943",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "FAMILIAR GROUND",
+        "rulesText": "Whenever this character quests, if you played another character this turn, chosen opposing character can't challenge and must quest during their next turn if able.",
+        "raw": "FAMILIAR GROUND Whenever this character quests, if you played another character this turn, chosen opposing character can't challenge and must quest during their next turn if able."
+      }
+    ]
   },
   {
     "id": "maleficent-imperious-traveler",
