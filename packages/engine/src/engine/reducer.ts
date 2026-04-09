@@ -1775,7 +1775,21 @@ function applyResolveChoice(
   if (pendingChoice.type === "choose_card_name" && typeof choice === "string") {
     // The Sorcerer's Hat / Merlin Clever Clairvoyant: compare the named card
     // to the top of deck. matchAction defaults to "to_hand"; Merlin uses
-    // "to_inkwell_exerted".
+    // "to_inkwell_exerted". Blast from Your Past uses "return_all_from_discard"
+    // and skips the deck-top reveal entirely.
+    const matchActionPre = (pendingEffect as any)?.matchAction ?? "to_hand";
+    if (matchActionPre === "return_all_from_discard") {
+      const discard = getZone(state, playerId, "discard");
+      for (const cid of [...discard]) {
+        const inst = state.cards[cid];
+        if (!inst) continue;
+        const def = definitions[inst.definitionId];
+        if (def && def.cardType === "character" && def.name === choice) {
+          state = moveCard(state, cid, playerId, "hand");
+        }
+      }
+      return state;
+    }
     const deck = getZone(state, playerId, "deck");
     const topId = deck[0];
     if (topId) {

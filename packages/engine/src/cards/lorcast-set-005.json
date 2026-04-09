@@ -1375,6 +1375,13 @@
       "Song"
     ],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "name_a_card_then_reveal",
+        "target": { "type": "self" },
+        "matchAction": "return_all_from_discard"
+      }
+    ],
     "setId": "5",
     "number": 28,
     "rarity": "super_rare",
