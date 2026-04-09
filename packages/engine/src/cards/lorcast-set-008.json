@@ -5920,6 +5920,42 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "damage_dealt_to",
+          "filter": {
+            "owner": { "type": "opponent" },
+            "zone": "play",
+            "cardType": ["character"]
+          }
+        },
+        "storyName": "GIVE 'EM ALL YOU GOT!",
+        "rulesText": "Once during your turn, whenever an opposing character is damaged, your Pirate characters get +2 {S} and gain Resist +2 this turn.",
+        "condition": { "type": "is_your_turn" },
+        "oncePerTurn": true,
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": 2,
+            "duration": "this_turn",
+            "target": {
+              "type": "all",
+              "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "hasTrait": "Pirate" }
+            }
+          },
+          {
+            "type": "grant_keyword",
+            "keyword": "resist",
+            "value": 2,
+            "duration": "this_turn",
+            "target": {
+              "type": "all",
+              "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "hasTrait": "Pirate" }
+            }
+          }
+        ]
       }
     ],
     "setId": "8",
@@ -11589,6 +11625,42 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "damage_dealt_to",
+          "filter": {
+            "owner": { "type": "opponent" },
+            "zone": "play",
+            "cardType": ["character"]
+          }
+        },
+        "storyName": "GIVE 'EM ALL YOU GOT!",
+        "rulesText": "Once during your turn, whenever an opposing character is damaged, your Pirate characters get +2 {S} and gain Resist +2 this turn.",
+        "condition": { "type": "is_your_turn" },
+        "oncePerTurn": true,
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": 2,
+            "duration": "this_turn",
+            "target": {
+              "type": "all",
+              "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "hasTrait": "Pirate" }
+            }
+          },
+          {
+            "type": "grant_keyword",
+            "keyword": "resist",
+            "value": 2,
+            "duration": "this_turn",
+            "target": {
+              "type": "all",
+              "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "hasTrait": "Pirate" }
+            }
+          }
+        ]
       }
     ],
     "setId": "8",

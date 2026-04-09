@@ -68,7 +68,7 @@ const NEW_MECHANIC: [RegExp, string][] = [
   [/\bwhenever you play a (second|third|fourth) (action|character|item|song)\b/i, "nth-card-played-trigger"],
   [/\bwhenever a character is challenged while here\b/i, "location-challenged-trigger"],
   [/\bwhenever an opposing character is exerted\b/i, "opponent-exerts-trigger"],
-  [/\bwhenever an opposing character is damaged\b/i, "opponent-damaged-trigger"],
+  // (opponent-damaged-trigger removed: damage_dealt_to + owner:opponent already supported.)
   [/\bwhen this character is banished, choose one\b/i, "banished-modal-choose"],
   [/\bwhenever an opponent chooses this character for an action\b/i, "chosen-by-opponent-trigger"],
   [/\bdraw cards? equal to the damage on\b/i, "dynamic-draw-from-target-damage"],

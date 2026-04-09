@@ -166,7 +166,7 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // "Whenever an opposing character is exerted" — opponent-exerts trigger
   [/\bwhenever an opposing character is exerted\b/i, "opponent-exerts-trigger"],
   // "Whenever an opposing character is damaged" — opponent-damaged trigger (distinct from "dealt damage")
-  [/\bwhenever an opposing character is damaged\b/i, "opponent-damaged-trigger"],
+  // (opponent-damaged-trigger removed: damage_dealt_to with owner:opponent filter already supported.)
   // "When this character is banished, choose one" — banished + modal choose sequential
   [/\bwhen this character is banished, choose one\b/i, "banished-modal-choose"],
   // "Whenever an opponent chooses this character for an action or ability" — chosen-by-opponent trigger
