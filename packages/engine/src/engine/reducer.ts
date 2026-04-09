@@ -3949,6 +3949,15 @@ export function applyEffect(
         if (effect.target.type === "this") {
           return applyEffectToTarget(state, effect, sourceInstanceId, controllingPlayerId, definitions, events);
         }
+        // Jafar High Sultan of Lorcana: "play THAT character for free" — read
+        // the most recent lastDiscarded entry. Optional via isMay.
+        if (effect.target.type === "from_last_discarded") {
+          const ref = state.lastDiscarded?.[0];
+          if (!ref) return state;
+          const discardedInst = state.cards[ref.instanceId];
+          if (!discardedInst || discardedInst.zone !== "discard") return state;
+          return applyEffectToTarget(state, effect, ref.instanceId, controllingPlayerId, definitions, events);
+        }
         // Other direct target shapes can be added as cards demand them.
         return state;
       }

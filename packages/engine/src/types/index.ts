@@ -1691,7 +1691,13 @@ export type CardTarget =
    *  chosen target the cost step picked — Mother Gothel KWB damages a chosen
    *  character then grants Challenger to that same chosen, etc. Resolves at
    *  effect-application time against state.lastResolvedTarget.instanceId. */
-  | { type: "last_resolved_target" };
+  | { type: "last_resolved_target" }
+  /** The card most recently moved to discard by choose_discard /
+   *  discard_from_hand. Reads state.lastDiscarded[0]. Used by Jafar High
+   *  Sultan of Lorcana ("if an Illusion character card is discarded this way,
+   *  you may play that character for free") so the play targets the EXACT
+   *  discarded instance, not just any matching card in discard. */
+  | { type: "from_last_discarded" };
 
 export interface CardFilter {
   owner?: PlayerTarget;

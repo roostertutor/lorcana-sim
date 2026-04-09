@@ -4598,10 +4598,7 @@
                   {
                     "type": "play_for_free",
                     "sourceZone": "discard",
-                    "filter": {
-                      "cardType": "character",
-                      "hasTrait": "Illusion"
-                    },
+                    "target": { "type": "from_last_discarded" },
                     "isMay": true
                   }
                 ]
