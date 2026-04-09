@@ -2340,6 +2340,41 @@
       {
         "type": "keyword",
         "keyword": "evasive"
+      },
+      {
+        "type": "static",
+        "storyName": "LADIES FIRST",
+        "rulesText": "During your turn, if no other character has quested this turn, this character gets +3 {L}.",
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            { "type": "is_your_turn" },
+            { "type": "no_other_character_quested_this_turn" }
+          ]
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "modifier": 3,
+          "target": { "type": "this" }
+        }
+      },
+      {
+        "type": "triggered",
+        "trigger": { "on": "quests" },
+        "storyName": "LEAVE IT TO ME",
+        "rulesText": "Whenever this character quests, your other characters can't quest for the rest of this turn.",
+        "effects": [
+          {
+            "type": "cant_action",
+            "action": "quest",
+            "duration": "this_turn",
+            "target": {
+              "type": "all",
+              "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "excludeSelf": true }
+            }
+          }
+        ]
       }
     ],
     "setId": "4",

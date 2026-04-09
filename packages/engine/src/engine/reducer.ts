@@ -704,6 +704,17 @@ function applyQuest(
   const loreGained = getEffectiveLore(instance, def, staticBonus);
 
   state = exertInstance(state, instanceId, definitions);
+  // Track quest count for Isabela Madrigal Golden Child's condition.
+  state = {
+    ...state,
+    players: {
+      ...state.players,
+      [playerId]: {
+        ...state.players[playerId],
+        charactersQuestedThisTurn: (state.players[playerId].charactersQuestedThisTurn ?? 0) + 1,
+      },
+    },
+  };
   state = gainLore(state, playerId, loreGained, events);
 
   events.push({ type: "lore_gained", playerId, amount: loreGained });
@@ -1257,6 +1268,7 @@ function applyPassTurn(
         actionsPlayedThisTurn: 0,
         songsPlayedThisTurn: 0,
         charactersPlayedThisTurn: [],
+        charactersQuestedThisTurn: 0,
         // Per-turn event flags reset on the new active player too (defensive)
         aCharacterWasDamagedThisTurn: false,
         aCharacterWasBanishedInChallengeThisTurn: false,
@@ -1270,6 +1282,7 @@ function applyPassTurn(
         ...state.players[playerId],
         turnChallengeBonuses: [],
         charactersPlayedThisTurn: [],
+        charactersQuestedThisTurn: 0,
         aCharacterWasDamagedThisTurn: false,
         aCharacterWasBanishedInChallengeThisTurn: false,
         aCharacterChallengedThisTurn: false,

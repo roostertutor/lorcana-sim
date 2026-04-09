@@ -1619,7 +1619,11 @@ export type Condition =
   | { type: "this_had_card_put_under_this_turn" }
   /** Chicha Dedicated Mother (Set 5): "if it's the Nth card you've put into
    *  your inkwell this turn". True iff PlayerState.inkPlaysThisTurn equals N. */
-  | { type: "ink_plays_this_turn_eq"; amount: number };
+  | { type: "ink_plays_this_turn_eq"; amount: number }
+  /** Isabela Madrigal Golden Child: "if no other character has quested this
+   *  turn". True iff the controller's charactersQuestedThisTurn count is 0
+   *  OR the only quester is the source itself. */
+  | { type: "no_other_character_quested_this_turn" };
 
 export type AbilityTiming = "your_turn_main" | "any_time" | "opponent_turn";
 
@@ -1848,6 +1852,10 @@ export interface PlayerState {
   costReductions?: CostReductionEntry[];
   /** Extra ink plays granted by effects this turn (cleared on PASS_TURN) */
   extraInkPlaysGranted?: number;
+  /** Number of times any of this player's characters has quested this turn
+   *  (Isabela Madrigal Golden Child — "if no other character has quested this
+   *  turn"). Reset on PASS_TURN. */
+  charactersQuestedThisTurn?: number;
   /** Number of action cards played this turn */
   actionsPlayedThisTurn?: number;
   /** Number of songs played this turn */

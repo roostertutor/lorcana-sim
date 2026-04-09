@@ -636,6 +636,12 @@ export function evaluateCondition(
     case "ink_plays_this_turn_eq": {
       return (state.players[controllingPlayerId].inkPlaysThisTurn ?? 0) === condition.amount;
     }
+    case "no_other_character_quested_this_turn": {
+      // Isabela Madrigal Golden Child. The counter is bumped AFTER static lore
+      // computation in applyQuest, so at evaluate time it reflects only OTHER
+      // quests (the current questing source isn't yet counted).
+      return (state.players[controllingPlayerId].charactersQuestedThisTurn ?? 0) === 0;
+    }
     case "this_had_card_put_under_this_turn": {
       const inst = state.cards[sourceInstanceId];
       return !!inst && (inst.cardsPutUnderThisTurn ?? 0) > 0;
