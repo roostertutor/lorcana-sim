@@ -79,7 +79,7 @@ interface Issue {
   number: number;
   fullName: string;
   id: string;
-  kind: "missing_keyword" | "missing_value";
+  kind: "missing_keyword" | "missing_value" | "missing_scalar";
   keyword: string;
   expectedValue?: number;
   actualValue?: number;
@@ -133,15 +133,26 @@ function audit(): Issue[] {
       const m = text.match(regex);
       if (!m) continue;
       const expectedValue = parseInt(m[1]!, 10);
-      // Some keywords are tracked as scalar fields on the card definition
-      // rather than as a keyword ability. If the scalar field matches the
-      // expected value, the card is correctly wired even if the keyword
-      // ability is missing.
-      const scalarField =
-        kw === "sing together" ? card.singTogetherCost
-        : kw === "shift" ? card.shiftCost
-        : undefined;
-      if (scalarField === expectedValue) continue;
+      // Sing Together and Shift are tracked as REQUIRED scalar fields
+      // (singTogetherCost, shiftCost). The engine reads them directly. If
+      // the scalar is missing, the rule fizzles even if the keyword ability
+      // is present — flag as missing_scalar.
+      if (kw === "sing together" || kw === "shift") {
+        const scalarField = kw === "sing together" ? card.singTogetherCost : card.shiftCost;
+        if (scalarField === expectedValue) continue;
+        if (scalarField !== undefined && scalarField !== expectedValue) {
+          issues.push({
+            setId: card.setId, number: card.number, fullName: card.fullName, id: card.id,
+            kind: "missing_scalar", keyword: kw, expectedValue, actualValue: scalarField,
+          });
+          continue;
+        }
+        issues.push({
+          setId: card.setId, number: card.number, fullName: card.fullName, id: card.id,
+          kind: "missing_scalar", keyword: kw, expectedValue,
+        });
+        continue;
+      }
       const ability = keywords.get(kw);
       if (!ability) {
         issues.push({

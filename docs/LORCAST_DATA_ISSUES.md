@@ -38,13 +38,11 @@ Lorcast returns the keyword in `keywords[]` but doesn't supply a numeric value, 
 
 ## Pattern C — `singTogetherCost` scalar field missing
 
-A handful of song cards don't have `singTogetherCost` set in the JSON at all — the engine reads that field directly to validate Sing Together, so without it the action fizzles. Songs in this state at the original import:
+The audit script now flags this case as `missing_scalar:sing together`. The check covers Sing Together (singTogetherCost) and Shift (shiftCost), since the engine reads those scalar fields directly when validating those actions.
 
-- Second Star to the Right (sets 4 & 9 reprints — both have `Sing Together 10` text, neither has `singTogetherCost` field)
-- Under the Sea (set 4 & 9)
-- Nothing We Won't Do (set 8)
+The audit currently reports **0 missing scalars** — every Sing Together song and every Shift character in the local data has the correct scalar field. (Initially I expected ~6 missing songs based on a partial read of the JSON; verified after running the tightened audit that all songs were already populated.)
 
-These songs were not the focus of any prior wiring batch — they're vanilla draw/lose-lore songs that "happen to work" without the keyword wiring because nobody used them in tests. The audit no longer flags them because the regex is anchored to keyword reminder lines and the songs may also have a lower-cost normal sing path. To make them strictly correct, the JSON needs `singTogetherCost: N` added — a follow-up.
+A future divergence — e.g. Lorcana errata that decouples Sing Together cost from the song's normal cost — would surface here as soon as the new card is imported.
 
 ## How to file upstream
 
