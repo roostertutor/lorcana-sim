@@ -553,15 +553,33 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "enters_play" },
+        "trigger": {
+          "on": "enters_play"
+        },
         "storyName": "YOU ARE A WONDER",
         "rulesText": "When you play this character, you may reveal a song card in your hand to gain 1 lore.",
         "condition": {
           "type": "you_control_matching",
-          "filter": { "zone": "hand", "owner": { "type": "self" }, "cardType": ["action"], "hasTrait": "Song" }
+          "filter": {
+            "zone": "hand",
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "action"
+            ],
+            "hasTrait": "Song"
+          }
         },
         "effects": [
-          { "type": "gain_lore", "amount": 1, "target": { "type": "self" }, "isMay": true }
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
         ]
       }
     ],
@@ -2079,20 +2097,41 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "enters_play" },
+        "trigger": {
+          "on": "enters_play"
+        },
         "storyName": "MONEY EVERYWHERE",
         "rulesText": "When you play this character, your other characters gain \"{E} - Draw a card\" this turn.",
         "effects": [
           {
             "type": "grant_activated_ability_timed",
-            "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "excludeSelf": true },
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "excludeSelf": true
+            },
             "ability": {
               "type": "activated",
               "storyName": "MONEY EVERYWHERE (granted)",
               "rulesText": "{E} - Draw a card.",
-              "costs": [{ "type": "exert" }],
+              "costs": [
+                {
+                  "type": "exert"
+                }
+              ],
               "effects": [
-                { "type": "draw", "amount": 1, "target": { "type": "self" } }
+                {
+                  "type": "draw",
+                  "amount": 1,
+                  "target": {
+                    "type": "self"
+                  }
+                }
               ]
             }
           }
@@ -2809,6 +2848,10 @@
             "defaultEffects": []
           }
         ]
+      },
+      {
+        "type": "keyword",
+        "keyword": "vanish"
       }
     ],
     "setId": "8",
@@ -3905,7 +3948,9 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "enters_play" },
+        "trigger": {
+          "on": "enters_play"
+        },
         "storyName": "BOLD CHARGE",
         "rulesText": "When you play this character, banish her or return another chosen character of yours to your hand.",
         "effects": [
@@ -3913,7 +3958,12 @@
             "type": "choose",
             "options": [
               [
-                { "type": "banish", "target": { "type": "this" } }
+                {
+                  "type": "banish",
+                  "target": {
+                    "type": "this"
+                  }
+                }
               ],
               [
                 {
@@ -3921,9 +3971,13 @@
                   "target": {
                     "type": "chosen",
                     "filter": {
-                      "owner": { "type": "self" },
+                      "owner": {
+                        "type": "self"
+                      },
                       "zone": "play",
-                      "cardType": ["character"],
+                      "cardType": [
+                        "character"
+                      ],
                       "excludeSelf": true
                     }
                   }
@@ -5855,16 +5909,25 @@
       },
       {
         "type": "triggered",
-        "trigger": { "on": "enters_play" },
+        "trigger": {
+          "on": "enters_play"
+        },
         "storyName": "ZERO RESISTANCE",
         "rulesText": "When you play this character, if you used Shift to play her, you may put chosen character into their player's inkwell facedown and exerted.",
-        "condition": { "type": "played_via_shift" },
+        "condition": {
+          "type": "played_via_shift"
+        },
         "effects": [
           {
             "type": "move_to_inkwell",
             "target": {
               "type": "chosen",
-              "filter": { "zone": "play", "cardType": ["character"] }
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
             },
             "enterExerted": true,
             "isMay": true
@@ -5995,14 +6058,20 @@
         "trigger": {
           "on": "damage_dealt_to",
           "filter": {
-            "owner": { "type": "opponent" },
+            "owner": {
+              "type": "opponent"
+            },
             "zone": "play",
-            "cardType": ["character"]
+            "cardType": [
+              "character"
+            ]
           }
         },
         "storyName": "GIVE 'EM ALL YOU GOT!",
         "rulesText": "Once during your turn, whenever an opposing character is damaged, your Pirate characters get +2 {S} and gain Resist +2 this turn.",
-        "condition": { "type": "is_your_turn" },
+        "condition": {
+          "type": "is_your_turn"
+        },
         "oncePerTurn": true,
         "effects": [
           {
@@ -6011,7 +6080,16 @@
             "duration": "this_turn",
             "target": {
               "type": "all",
-              "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "hasTrait": "Pirate" }
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Pirate"
+              }
             }
           },
           {
@@ -6021,7 +6099,16 @@
             "duration": "this_turn",
             "target": {
               "type": "all",
-              "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "hasTrait": "Pirate" }
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Pirate"
+              }
             }
           }
         ]
@@ -6098,16 +6185,34 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "card_played", "filter": { "owner": { "type": "self" }, "cardType": ["character"], "hasTrait": "Floodborn" } },
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Floodborn"
+          }
+        },
         "storyName": "LET'S DO THIS!",
         "rulesText": "Whenever you play a Floodborn character, if you used Shift to play them, you may return chosen character to their player's hand.",
-        "condition": { "type": "triggering_card_played_via_shift" },
+        "condition": {
+          "type": "triggering_card_played_via_shift"
+        },
         "effects": [
           {
             "type": "return_to_hand",
             "target": {
               "type": "chosen",
-              "filter": { "zone": "play", "cardType": ["character"] }
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
             },
             "isMay": true
           }
@@ -6506,16 +6611,38 @@
     "actionEffects": [
       {
         "type": "grant_activated_ability_timed",
-        "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "hasTrait": "Pirate" },
+        "filter": {
+          "owner": {
+            "type": "self"
+          },
+          "zone": "play",
+          "cardType": [
+            "character"
+          ],
+          "hasTrait": "Pirate"
+        },
         "ability": {
           "type": "activated",
           "storyName": "WALK THE PLANK (granted)",
           "rulesText": "{E} - Banish chosen damaged character.",
-          "costs": [{ "type": "exert" }],
+          "costs": [
+            {
+              "type": "exert"
+            }
+          ],
           "effects": [
             {
               "type": "banish",
-              "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"], "hasDamage": true } }
+              "target": {
+                "type": "chosen",
+                "filter": {
+                  "zone": "play",
+                  "cardType": [
+                    "character"
+                  ],
+                  "hasDamage": true
+                }
+              }
             }
           ]
         }
@@ -6549,16 +6676,30 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "card_played", "filter": { "owner": { "type": "self" }, "cardType": ["character"] } },
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ]
+          }
+        },
         "storyName": "HERE'S THE BEST PART",
         "rulesText": "Whenever you play a character, if you used Shift to play them, they get +4 {S} this turn.",
-        "condition": { "type": "triggering_card_played_via_shift" },
+        "condition": {
+          "type": "triggering_card_played_via_shift"
+        },
         "effects": [
           {
             "type": "gain_stats",
             "strength": 4,
             "duration": "this_turn",
-            "target": { "type": "triggering_card" }
+            "target": {
+              "type": "triggering_card"
+            }
           }
         ]
       }
@@ -9615,7 +9756,9 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "quests" },
+        "trigger": {
+          "on": "quests"
+        },
         "storyName": "SEEKING INSPIRATION",
         "rulesText": "Whenever this character quests, you may choose and discard any number of item cards to gain 1 lore for each item card discarded this way.",
         "effects": [
@@ -9625,17 +9768,25 @@
             "costEffects": [
               {
                 "type": "discard_from_hand",
-                "target": { "type": "self" },
+                "target": {
+                  "type": "self"
+                },
                 "amount": "any",
                 "chooser": "target_player",
-                "filter": { "cardType": ["item"] }
+                "filter": {
+                  "cardType": [
+                    "item"
+                  ]
+                }
               }
             ],
             "rewardEffects": [
               {
                 "type": "gain_lore",
                 "amount": "cost_result",
-                "target": { "type": "self" }
+                "target": {
+                  "type": "self"
+                }
               }
             ]
           }
@@ -11729,14 +11880,20 @@
         "trigger": {
           "on": "damage_dealt_to",
           "filter": {
-            "owner": { "type": "opponent" },
+            "owner": {
+              "type": "opponent"
+            },
             "zone": "play",
-            "cardType": ["character"]
+            "cardType": [
+              "character"
+            ]
           }
         },
         "storyName": "GIVE 'EM ALL YOU GOT!",
         "rulesText": "Once during your turn, whenever an opposing character is damaged, your Pirate characters get +2 {S} and gain Resist +2 this turn.",
-        "condition": { "type": "is_your_turn" },
+        "condition": {
+          "type": "is_your_turn"
+        },
         "oncePerTurn": true,
         "effects": [
           {
@@ -11745,7 +11902,16 @@
             "duration": "this_turn",
             "target": {
               "type": "all",
-              "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "hasTrait": "Pirate" }
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Pirate"
+              }
             }
           },
           {
@@ -11755,7 +11921,16 @@
             "duration": "this_turn",
             "target": {
               "type": "all",
-              "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "hasTrait": "Pirate" }
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Pirate"
+              }
             }
           }
         ]

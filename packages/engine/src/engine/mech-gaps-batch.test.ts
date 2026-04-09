@@ -450,6 +450,26 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     expect(mods.grantedActivatedAbilities.get(mickeyId) ?? []).toEqual([]);
   });
 
+  it("Vanish keyword: Iago is banished when an opponent's effect chooses him for damage", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let iagoId: string;
+    ({ state, instanceId: iagoId } = injectCard(state, "player2", "iago-giant-spectral-parrot", "play", { isDrying: false }));
+    // Player 1 plays an action that deals 1 damage to a chosen character: use Smash.
+    let smashId: string;
+    ({ state, instanceId: smashId } = injectCard(state, "player1", "smash", "hand"));
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: smashId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Surface is choose_target — pick Iago.
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [iagoId] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Iago should now be in discard (Vanish triggered).
+    expect(getInstance(state, iagoId).zone).toBe("discard");
+  });
+
   it("Elisa Maza Transformed Gargoyle: STONE BY DAY blocks ready while hand size >= 3", () => {
     let state = startGame();
     let elisaId: string;

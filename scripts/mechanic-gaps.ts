@@ -41,8 +41,7 @@ const NEW_MECHANIC: [RegExp, string][] = [
   [/\bis chosen for support\b/i, "chosen-for-support-trigger"],
   // (pay-extra-cost-mid-effect removed: implemented via SequentialEffect+pay_ink.)
   // ── Compound false positives (categorizer tightening pass) ──
-  [/\bvanish\b.{0,20}\(/i, "vanish-keyword"],
-  [/\bwhen an opponent chooses this character for an action, banish\b/i, "vanish-keyword"],
+  // (vanish-keyword removed: implemented as a hardcoded check at choose_target resolve.)
   [/\byou don'?t discard\b/i, "discard-replacement"],
   // (underdog-condition removed: your_first_turn_as_underdog Condition implemented.)
   [/\btwice during your turn, whenever\b/i, "twice-per-turn-trigger"],

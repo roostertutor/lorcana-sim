@@ -78,7 +78,11 @@ export type Keyword =
   | "shift"
   | "resist"
   | "boost"
-  | "alert";
+  | "alert"
+  /** Vanish (Set 8): "When an opponent chooses this character for an action,
+   *  banish them." Implemented as a hardcoded check at choose_target resolve
+   *  time — no separate trigger event needed. */
+  | "vanish";
 
 // -----------------------------------------------------------------------------
 // CARD DEFINITIONS

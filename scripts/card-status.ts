@@ -114,8 +114,7 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // ── Compound false positives surfaced by cherry-pick pass ──
   // Vanish keyword — "when an opponent chooses this character for an action, banish them"
   // Needs a new "opponent-chose-for-action" trigger event.
-  [/\bvanish\b.{0,20}\(/i, "vanish-keyword"],
-  [/\bwhen an opponent chooses this character for an action, banish\b/i, "vanish-keyword"],
+  // (vanish-keyword removed: implemented as a hardcoded check at choose_target resolve.)
   // "You don't discard" — discard replacement effect (Magica De Spell, Kronk)
   [/\byou don'?t discard\b/i, "discard-replacement"],
   // "If this is your first turn" — Underdog keyword condition (set 11)

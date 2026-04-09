@@ -2666,6 +2666,10 @@
       {
         "type": "keyword",
         "keyword": "evasive"
+      },
+      {
+        "type": "keyword",
+        "keyword": "vanish"
       }
     ],
     "setId": "7",
@@ -3199,6 +3203,10 @@
             ]
           }
         ]
+      },
+      {
+        "type": "keyword",
+        "keyword": "vanish"
       }
     ],
     "setId": "7",
@@ -3400,7 +3408,12 @@
       "Ally",
       "Illusion"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "vanish"
+      }
+    ],
     "setId": "7",
     "number": 62,
     "rarity": "common",
@@ -5267,7 +5280,14 @@
           "type": "cost_reduction",
           "amount": 1,
           "appliesTo": "shift_only",
-          "filter": { "owner": { "type": "self" }, "cardType": ["character"] }
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ]
+          }
         }
       }
     ],

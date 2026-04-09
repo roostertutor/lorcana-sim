@@ -1718,6 +1718,18 @@ function applyResolveChoice(
           state = applyEffectToTarget(state, followUp, targetId, playerId, definitions, events, srcId, trigId);
         }
       }
+      // Vanish keyword (Set 8 — Iago Giant Spectral Parrot, Rajah Ghostly
+      // Tiger): "When an opponent chooses this character for an action,
+      // banish them." Trigger after the effect resolves so any "deal damage to
+      // chosen" still goes through normally before the banishment.
+      const targetInst = state.cards[targetId];
+      const targetDef = targetInst ? definitions[targetInst.definitionId] : undefined;
+      if (targetInst && targetDef && targetInst.zone === "play" && targetInst.ownerId !== playerId) {
+        const vanishMods = getGameModifiers(state, definitions);
+        if (hasKeyword(targetInst, targetDef, "vanish", vanishMods.grantedKeywords.get(targetId))) {
+          state = zoneTransition(state, targetId, "discard", definitions, events, { reason: "banished", triggeringPlayerId: targetInst.ownerId });
+        }
+      }
     }
   }
 
