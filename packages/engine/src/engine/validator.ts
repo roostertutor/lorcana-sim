@@ -83,7 +83,7 @@ export function validateAction(
 
   switch (action.type) {
     case "PLAY_CARD":
-      return validatePlayCard(state, action.playerId, action.instanceId, definitions, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds);
+      return validatePlayCard(state, action.playerId, action.instanceId, definitions, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds, action.skipOptionalReductions);
     case "PLAY_INK":
       return validatePlayInk(state, action.playerId, action.instanceId, definitions);
     case "QUEST":
@@ -117,7 +117,8 @@ function validatePlayCard(
   definitions: Record<string, CardDefinition>,
   shiftTargetInstanceId?: string,
   singerInstanceId?: string,
-  singerInstanceIds?: string[]
+  singerInstanceIds?: string[],
+  skipOptionalReductions?: boolean,
 ): ValidationResult {
   if (!isMainPhase(state, playerId)) return fail("Not your main phase.");
 
@@ -232,8 +233,10 @@ function validatePlayCard(
   // by checking def.altPlayCost — if the def has it AND the condition holds,
   // we accept either an ink path OR the alt path.
   const _ignored_altCheck = def.altPlayCost; // silence — handled at action level
-  // Apply cost reductions (static + one-shot)
-  const effectiveCost = getEffectiveCostWithReductions(state, playerId, instanceId, definitions);
+  // Apply cost reductions (static + one-shot). When skipOptionalReductions is
+  // set, optional self_cost_reduction statics (Pudge "play for free", Anna
+  // "may pay 0") are ignored so the player pays full cost.
+  const effectiveCost = getEffectiveCostWithReductions(state, playerId, instanceId, definitions, undefined, skipOptionalReductions);
   if (!canAfford(state, playerId, effectiveCost)) { // CRD 1.5.3: cost must be paid in full
     // Allow if the alt cost is satisfiable (Belle Apprentice Inventor).
     if (def.altPlayCost) {
@@ -287,7 +290,11 @@ export function getEffectiveCostWithReductions(
   playerId: PlayerID,
   instanceId: string,
   definitions: Record<string, CardDefinition>,
-  baseCost?: number
+  baseCost?: number,
+  /** When true, skip self_cost_reduction statics flagged `optional: true`.
+   *  Used by PLAY_CARD with skipOptionalReductions to compute the
+   *  full-cost variant for cards like Pudge - Controls the Weather. */
+  skipOptionalReductions: boolean = false,
 ): number {
   const def = getDefinition(state, instanceId, definitions);
   const instance = getInstance(state, instanceId);
@@ -325,6 +332,9 @@ export function getEffectiveCostWithReductions(
         continue;
       }
     }
+    // Optional reduction ("you can play for free", "you may pay 0") — skip
+    // when the player chose the full-cost variant.
+    if (skipOptionalReductions && ability.effect.optional) continue;
     // Resolve amount — literal number OR count-based DynamicAmount
     // (per-count-cost-reduction: "For each X, pay 1 {I} less").
     const rawAmount = ability.effect.amount;
