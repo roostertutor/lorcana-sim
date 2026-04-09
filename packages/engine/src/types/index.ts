@@ -195,6 +195,7 @@ export type Effect =
   | MoveAllMatchingToInkwellEffect
   | ConditionalOnLastDiscardedEffect
   | OpponentChoosesYesOrNoEffect
+  | ChooseNFromOpponentDiscardToBottomEffect
   | PutSelfUnderTargetEffect
   | ReturnAllToBottomInOrderEffect
   | PutTopOfDeckUnderEffect
@@ -702,6 +703,26 @@ export interface MoveCardsUnderToInkwellEffect {
   target: PlayerTarget;
   /** CRD 6.1.4: player may choose not to apply. */
   isMay?: boolean;
+}
+
+/**
+ * CRD 6.1.5.1: "[Cost] — Choose N cards from chosen opponent's discard and put
+ * them on the bottom of their deck to gain X lore. If any matching cards were
+ * moved this way, gain Y lore instead." (The Queen - Jealous Beauty.)
+ *
+ * Atomic cost→reward: if the opponent has fewer than `count` cards in their
+ * discard, the entire effect fizzles (CRD 1.7.7) and no lore is gained.
+ * Otherwise, exactly `count` cards are moved to the bottom of their deck and
+ * the lore amount is computed in the same step — `gainLoreBonus` if any moved
+ * card matches `bonusFilter`, else `gainLoreBase`. There is no post-resolution
+ * +1 bump; the conditional check happens during resolution.
+ */
+export interface ChooseNFromOpponentDiscardToBottomEffect {
+  type: "choose_n_from_opponent_discard_to_bottom";
+  count: number;
+  gainLoreBase: number;
+  gainLoreBonus: number;
+  bonusFilter: CardFilter;
 }
 
 /**

@@ -3571,6 +3571,45 @@ export function applyEffect(
       };
     }
 
+    case "choose_n_from_opponent_discard_to_bottom": {
+      // The Queen - Jealous Beauty NO ORDINARY APPLE.
+      // Atomic [A]→[B]: if the opponent has fewer than `count` cards in their
+      // discard, the whole effect fizzles (no move, no lore). Otherwise pick
+      // `count` cards (headless: first N), move them to the bottom of the
+      // opponent's deck, and gain lore — bonus amount if any moved card
+      // matches `bonusFilter`, else base. The conditional is evaluated DURING
+      // resolution from the actual moved set, never as a post-bump.
+      const opponentId = getOpponent(controllingPlayerId);
+      const oppDiscard = getZone(state, opponentId, "discard");
+      if (oppDiscard.length < effect.count) {
+        // CRD 1.7.7: cost cannot be performed → entire effect skipped.
+        return state;
+      }
+      // Headless heuristic: pick the first `count` cards from the opponent's
+      // discard. Bot does not get to optimize for the bonus filter.
+      const picked = oppDiscard.slice(0, effect.count);
+      let bonusTriggered = false;
+      for (const cid of picked) {
+        const inst = state.cards[cid];
+        if (!inst) continue;
+        const def = definitions[inst.definitionId];
+        if (def && matchesFilter(inst, def, effect.bonusFilter, state, controllingPlayerId, sourceInstanceId)) {
+          bonusTriggered = true;
+        }
+        // Move to bottom of opponent's deck (their card → their deck).
+        state = moveCard(state, cid, opponentId, "deck");
+      }
+      const loreAmount = bonusTriggered ? effect.gainLoreBonus : effect.gainLoreBase;
+      const player = state.players[controllingPlayerId];
+      return {
+        ...state,
+        players: {
+          ...state.players,
+          [controllingPlayerId]: { ...player, lore: player.lore + loreAmount },
+        },
+      };
+    }
+
     case "opponent_chooses_yes_or_no": {
       // Do You Want to Build A Snowman? Surface a binary may-prompt on the
       // opponent. Accept (YES) → yesEffect with caster as controlling player.

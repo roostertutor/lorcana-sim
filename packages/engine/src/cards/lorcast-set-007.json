@@ -4183,7 +4183,25 @@
       "Queen",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "NO ORDINARY APPLE",
+        "rulesText": "{E} \u2014 Choose 3 cards from chosen opponent's discard and put them on the bottom of their deck to gain 3 lore. If any Princess cards were moved this way, gain 4 lore instead.",
+        "costs": [
+          { "type": "exert" }
+        ],
+        "effects": [
+          {
+            "type": "choose_n_from_opponent_discard_to_bottom",
+            "count": 3,
+            "gainLoreBase": 3,
+            "gainLoreBonus": 4,
+            "bonusFilter": { "hasTrait": "Princess" }
+          }
+        ]
+      }
+    ],
     "setId": "7",
     "number": 74,
     "rarity": "legendary",
