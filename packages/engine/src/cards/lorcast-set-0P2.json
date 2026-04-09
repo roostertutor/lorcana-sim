@@ -1884,7 +1884,61 @@
       "King",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "name": "DARK POWER",
+        "trigger": {
+          "event": "quests",
+          "filter": {
+            "type": "this"
+          }
+        },
+        "isMay": true,
+        "effects": [
+          {
+            "type": "draw",
+            "target": {
+              "type": "self"
+            },
+            "amount": 1
+          },
+          {
+            "type": "sequential",
+            "costEffects": [
+              {
+                "type": "discard_from_hand",
+                "target": {
+                  "type": "self"
+                },
+                "amount": 1,
+                "chooser": "target_player"
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "conditional_on_last_discarded",
+                "filter": {
+                  "cardType": "character",
+                  "hasTrait": "Illusion"
+                },
+                "then": [
+                  {
+                    "type": "play_for_free",
+                    "sourceZone": "discard",
+                    "filter": {
+                      "cardType": "character",
+                      "hasTrait": "Illusion"
+                    },
+                    "isMay": true
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "P2",
     "number": 32,
     "rarity": "common",
@@ -1919,7 +1973,61 @@
       "King",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "name": "DARK POWER",
+        "trigger": {
+          "event": "quests",
+          "filter": {
+            "type": "this"
+          }
+        },
+        "isMay": true,
+        "effects": [
+          {
+            "type": "draw",
+            "target": {
+              "type": "self"
+            },
+            "amount": 1
+          },
+          {
+            "type": "sequential",
+            "costEffects": [
+              {
+                "type": "discard_from_hand",
+                "target": {
+                  "type": "self"
+                },
+                "amount": 1,
+                "chooser": "target_player"
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "conditional_on_last_discarded",
+                "filter": {
+                  "cardType": "character",
+                  "hasTrait": "Illusion"
+                },
+                "then": [
+                  {
+                    "type": "play_for_free",
+                    "sourceZone": "discard",
+                    "filter": {
+                      "cardType": "character",
+                      "hasTrait": "Illusion"
+                    },
+                    "isMay": true
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "P2",
     "number": 33,
     "rarity": "enchanted",
