@@ -5942,6 +5942,23 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "trigger": { "on": "sings" },
+        "storyName": "MASH-UP",
+        "rulesText": "Once during your turn, whenever this character sings a song, look at the top 4 cards of your deck. You may reveal a song card with cost 9 or less and play it for free. Put the rest on the bottom of your deck in any order.",
+        "condition": { "type": "is_your_turn" },
+        "oncePerTurn": true,
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 4,
+            "action": "one_to_play_for_free_rest_bottom",
+            "filter": { "cardType": ["action"], "hasTrait": "Song", "costAtMost": 9 },
+            "target": { "type": "self" }
+          }
+        ]
       }
     ],
     "setId": "9",

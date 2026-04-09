@@ -840,7 +840,7 @@ export interface LookAtTopEffect {
   /** Number of cards to look at. Accepts a literal or a DynamicAmount
    *  (e.g. `cards_under_count` for Bambi Ethereal Fawn). */
   count: number | DynamicAmount;
-  action: "one_to_hand_rest_bottom" | "top_or_bottom" | "reorder" | "up_to_n_to_hand_rest_bottom" | "one_to_inkwell_exerted_rest_top";
+  action: "one_to_hand_rest_bottom" | "top_or_bottom" | "reorder" | "up_to_n_to_hand_rest_bottom" | "one_to_inkwell_exerted_rest_top" | "one_to_play_for_free_rest_bottom";
   /** Optional filter — only matching cards can go to hand (for "may reveal matching" patterns) */
   filter?: CardFilter;
   /** For "up_to_n_to_hand_rest_bottom": max number of cards to put into hand (Look at This Family = 2, Dig a Little Deeper = 2). */

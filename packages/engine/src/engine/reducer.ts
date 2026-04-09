@@ -2897,6 +2897,44 @@ export function applyEffect(
           // Bot keeps default order — no change
           return state;
         }
+        case "one_to_play_for_free_rest_bottom": {
+          // Powerline World's Greatest Rock Star: look at top N, may reveal
+          // a matching card and play it for free, rest to bottom in any order.
+          // Headless heuristic: pick the first matching card and play it.
+          const matchIdx = effect.filter
+            ? topCards.findIndex((id) => {
+                const inst = state.cards[id];
+                if (!inst) return false;
+                const def = definitions[inst.definitionId];
+                if (!def) return false;
+                return matchesFilter(inst, def, effect.filter!, state, controllingPlayerId);
+              })
+            : -1;
+          if (matchIdx === -1) {
+            state = reorderDeckTopToBottom(state, targetPlayer, topCards, []);
+            return state;
+          }
+          const playId = topCards[matchIdx]!;
+          const rest = topCards.filter((_, i) => i !== matchIdx);
+          const playInst = state.cards[playId];
+          const playDef = playInst ? definitions[playInst.definitionId] : undefined;
+          if (playInst && playDef) {
+            state = zoneTransition(state, playId, "play", definitions, events, {
+              reason: "played", triggeringPlayerId: targetPlayer,
+            });
+            if (playDef.cardType === "character") {
+              state = updateInstance(state, playId, { isDrying: true });
+            }
+            if (playDef.cardType === "action" && playDef.actionEffects) {
+              for (const ae of playDef.actionEffects) {
+                state = applyEffect(state, ae, playId, targetPlayer, definitions, events);
+              }
+              state = zoneTransition(state, playId, "discard", definitions, events, { reason: "discarded" });
+            }
+          }
+          state = reorderDeckTopToBottom(state, targetPlayer, rest, []);
+          return state;
+        }
         case "one_to_inkwell_exerted_rest_top": {
           // Kida Creative Thinker: look at top 2, put 1 into inkwell facedown
           // exerted, the other on top. Headless heuristic: ink the FIRST card
