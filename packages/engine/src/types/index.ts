@@ -1485,7 +1485,10 @@ export type Condition =
   /** Set 11 pacifist cycle (Mother's Necklace, John Smith Snow Tracker):
    *  "if none of your characters challenged this turn". True iff the
    *  controller's aCharacterChallengedThisTurn flag is unset/false. */
-  | { type: "no_challenges_this_turn" };
+  | { type: "no_challenges_this_turn" }
+  /** Set 11 (Willie the Giant Ghost of Christmas Present): true when this
+   *  source instance has had at least one card placed under it this turn. */
+  | { type: "this_had_card_put_under_this_turn" };
 
 export type AbilityTiming = "your_turn_main" | "any_time" | "opponent_turn";
 
@@ -1662,6 +1665,11 @@ export interface CardInstance {
    * parent leaves play, all cards under it go to discard (CRD 8.10.5).
    */
   cardsUnder: string[];
+
+  /** Set 10/11 cards-under-this-turn condition (Lady Tremaine Sinister
+   *  Socialite, Willie the Giant Ghost of Christmas Present): per-turn count
+   *  of cards placed under THIS instance. Reset on PASS_TURN. */
+  cardsPutUnderThisTurn?: number;
 
   /** CRD 6.1.13: per-turn flag tracking — extends to Boost ("once during your turn"). */
   boostedThisTurn?: boolean;

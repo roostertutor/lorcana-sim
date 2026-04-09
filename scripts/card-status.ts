@@ -131,9 +131,9 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // "If you didn't put any cards into your inkwell this turn" — event-tracking condition
   [/\bif you didn'?t put any cards into your inkwell this turn\b/i, "no-ink-put-this-turn-condition"],
   // "If you've put a card under [this] this turn" — per-instance card-under event tracking
-  [/\bif you'?ve put a card under\b/i, "card-under-event-condition"],
+  // (card-under-event-condition removed: this_had_card_put_under_this_turn Condition implemented.)
   // "Unless you put a card under [this] this turn" — same gap
-  [/\bunless you put a card under\b/i, "card-under-event-condition"],
+  // (above)
   // "For the rest of this turn, whenever" — floating player-scoped trigger
   [/\bfor the rest of this turn, whenever\b/i, "player-floating-trigger"],
   // "If you have a card named X in your discard" — discard-name condition

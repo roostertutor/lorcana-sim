@@ -6368,6 +6368,20 @@
       {
         "type": "keyword",
         "keyword": "boost"
+      },
+      {
+        "type": "static",
+        "storyName": "THE FOOD OF GENEROSITY",
+        "rulesText": "This character can't quest unless you put a card under him this turn.",
+        "condition": { "type": "not", "condition": { "type": "this_had_card_put_under_this_turn" } },
+        "effect": { "type": "cant_action_self", "action": "quest" }
+      },
+      {
+        "type": "static",
+        "storyName": "THE FOOD OF GENEROSITY",
+        "rulesText": "This character can't challenge unless you put a card under him this turn.",
+        "condition": { "type": "not", "condition": { "type": "this_had_card_put_under_this_turn" } },
+        "effect": { "type": "cant_action_self", "action": "challenge" }
       }
     ],
     "setId": "11",

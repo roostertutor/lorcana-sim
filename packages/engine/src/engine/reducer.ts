@@ -1079,6 +1079,7 @@ function applyBoostCard(
       [instanceId]: {
         ...state.cards[instanceId]!,
         cardsUnder: [...state.cards[instanceId]!.cardsUnder, topId],
+        cardsPutUnderThisTurn: (state.cards[instanceId]!.cardsPutUnderThisTurn ?? 0) + 1,
         boostedThisTurn: true,
       },
     },
@@ -1309,7 +1310,8 @@ function applyPassTurn(
       instance.challengedThisTurn ||
       instance.movedThisTurn ||
       instance.oncePerTurnTriggered ||
-      instance.boostedThisTurn
+      instance.boostedThisTurn ||
+      (instance.cardsPutUnderThisTurn ?? 0) > 0
     ) {
       state = updateInstance(state, id, {
         tempStrengthModifier: 0,
@@ -1321,6 +1323,7 @@ function applyPassTurn(
         // CRD 6.1.13: once-per-turn flags reset at end of turn
         oncePerTurnTriggered: undefined,
         boostedThisTurn: false,
+        cardsPutUnderThisTurn: 0,
       });
     }
   }
@@ -2377,6 +2380,7 @@ export function applyEffect(
           [sourceInstanceId]: {
             ...sourceInst,
             cardsUnder: [...sourceInst.cardsUnder, topId],
+            cardsPutUnderThisTurn: (sourceInst.cardsPutUnderThisTurn ?? 0) + 1,
           },
         },
         zones: {

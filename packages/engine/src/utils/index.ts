@@ -633,6 +633,10 @@ export function evaluateCondition(
       return getZone(state, opponent, "hand").length > getZone(state, controllingPlayerId, "hand").length;
     case "is_your_turn":
       return state.currentPlayer === controllingPlayerId;
+    case "this_had_card_put_under_this_turn": {
+      const inst = state.cards[sourceInstanceId];
+      return !!inst && (inst.cardsPutUnderThisTurn ?? 0) > 0;
+    }
     case "no_challenges_this_turn": {
       return !state.players[controllingPlayerId].aCharacterChallengedThisTurn;
     }

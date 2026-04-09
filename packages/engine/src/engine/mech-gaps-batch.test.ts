@@ -8,7 +8,7 @@
 // =============================================================================
 
 import { describe, it, expect } from "vitest";
-import { applyAction } from "./reducer.js";
+import { applyAction, getAllLegalActions } from "./reducer.js";
 import {
   LORCAST_CARD_DEFINITIONS,
   startGame,
@@ -350,6 +350,19 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     // Caster did NOT draw because opponent accepted (Sign the Scroll = Trickery is "draw on decline").
     // Note: p1 played the Trickery card itself so hand should be: original - 1 (the trickery played).
     expect(getZone(state, "player1", "hand").length).toBe(p1HandBefore - 1);
+  });
+
+  it("Willie the Giant Ghost of Christmas Present: can't quest unless a card was put under him this turn", () => {
+    let state = startGame();
+    let willieId: string;
+    ({ state, instanceId: willieId } = injectCard(state, "player1", "willie-the-giant-ghost-of-christmas-present", "play", { isDrying: false }));
+    // Sanity: legal action list should NOT include questing Willie.
+    let legal = getAllLegalActions(state, "player1", LORCAST_CARD_DEFINITIONS);
+    expect(legal.some((a) => a.type === "QUEST" && a.instanceId === willieId)).toBe(false);
+    // Bump the cards-put-under counter directly, then quest should be legal.
+    state = { ...state, cards: { ...state.cards, [willieId]: { ...state.cards[willieId], cardsPutUnderThisTurn: 1 } } };
+    legal = getAllLegalActions(state, "player1", LORCAST_CARD_DEFINITIONS);
+    expect(legal.some((a) => a.type === "QUEST" && a.instanceId === willieId)).toBe(true);
   });
 
   it("Chem Purse: HERE'S THE BEST PART grants +4 STR only when triggering character was played via shift", () => {

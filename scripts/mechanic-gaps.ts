@@ -51,8 +51,7 @@ const NEW_MECHANIC: [RegExp, string][] = [
   // (no-challenges-this-turn-condition removed: no_challenges_this_turn Condition implemented.)
   // (song-played-this-turn-condition removed: songs_played_this_turn_gte already supported.)
   [/\bif you didn'?t put any cards into your inkwell this turn\b/i, "no-ink-put-this-turn-condition"],
-  [/\bif you'?ve put a card under\b/i, "card-under-event-condition"],
-  [/\bunless you put a card under\b/i, "card-under-event-condition"],
+  // (card-under-event-condition removed: this_had_card_put_under_this_turn Condition implemented.)
   [/\bfor the rest of this turn, whenever\b/i, "player-floating-trigger"],
   [/\bif you have a card named .{0,40}in your discard\b/i, "discard-name-condition"],
   [/\b(an? )?opponent has more cards in their hand than you\b/i, "hand-count-compare-condition"],
