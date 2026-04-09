@@ -100,12 +100,13 @@
         "condition": {
           "type": "has_character_named",
           "name": "Lilo",
-          "player": { "type": "self" }
+          "player": {
+            "type": "self"
+          }
         },
         "effect": {
           "type": "self_cost_reduction",
-          "amount": 2,
-          "optional": true
+          "amount": 2
         }
       }
     ],
@@ -2665,8 +2666,7 @@
         },
         "effect": {
           "type": "self_cost_reduction",
-          "amount": 5,
-          "optional": true
+          "amount": 5
         }
       },
       {
@@ -12149,8 +12149,7 @@
         },
         "effect": {
           "type": "self_cost_reduction",
-          "amount": 5,
-          "optional": true
+          "amount": 5
         }
       },
       {

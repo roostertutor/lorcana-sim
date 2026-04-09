@@ -197,28 +197,6 @@ export function getAllLegalActions(
       actions.push(normalPlay);
     }
 
-    // CRD 6.4.4 / "may"/"can" optional self_cost_reduction (Pudge, Anna):
-    // when the card has at least one optional reduction whose condition is
-    // currently true, ALSO surface the full-cost variant so the player can
-    // opt out of the free play.
-    {
-      const cardInst2 = state.cards[instanceId];
-      const cardDef2 = cardInst2 ? definitions[cardInst2.definitionId] : undefined;
-      const hasOptionalReduction = cardDef2?.abilities?.some((a) => {
-        if (a.type !== "static") return false;
-        if (a.effect.type !== "self_cost_reduction") return false;
-        if (!a.effect.optional) return false;
-        if (a.condition && !evaluateCondition(a.condition, state, definitions, playerId, instanceId)) return false;
-        return true;
-      });
-      if (hasOptionalReduction) {
-        const fullCostPlay: GameAction = { type: "PLAY_CARD", playerId, instanceId, skipOptionalReductions: true };
-        if (validateAction(state, fullCostPlay, definitions).valid) {
-          actions.push(fullCostPlay);
-        }
-      }
-    }
-
     // Shift: check independent of normal play affordability
     const cardInst = state.cards[instanceId];
     const cardDef = cardInst ? definitions[cardInst.definitionId] : undefined;
@@ -365,7 +343,7 @@ function applyActionInner(
 ): GameState {
   switch (action.type) {
     case "PLAY_CARD":
-      return applyPlayCard(state, action.playerId, action.instanceId, definitions, events, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds, action.altCostBanishInstanceId, action.skipOptionalReductions);
+      return applyPlayCard(state, action.playerId, action.instanceId, definitions, events, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds, action.altCostBanishInstanceId);
     case "PLAY_INK":
       return applyPlayInk(state, action.playerId, action.instanceId, definitions, events);
     case "QUEST":
@@ -399,7 +377,6 @@ function applyPlayCard(
   singerInstanceId?: string,
   singerInstanceIds?: string[],
   altCostBanishInstanceId?: string,
-  skipOptionalReductions?: boolean,
 ): GameState {
   const def = getDefinition(state, instanceId, definitions);
 
@@ -484,8 +461,6 @@ function applyPlayCard(
           continue;
         }
       }
-      // Optional reduction (Pudge, Anna): the player can opt out at play time.
-      if (skipOptionalReductions && ability.effect.optional) continue;
       // Mirror validator's resolution: literal number, count-based, or
       // per-turn event count.
       const rawAmount = ability.effect.amount;

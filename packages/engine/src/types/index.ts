@@ -1683,14 +1683,6 @@ export interface SelfCostReductionStatic {
   amount: DynamicAmount;
   /** Multiplier applied to a `count`-based DynamicAmount. Default 1. */
   perMatch?: number;
-  /** CRD 6.4.4 / "may"/"can" wording: when true, the player CHOOSES whether
-   *  to apply this reduction at play time. The legal-action enumerator
-   *  surfaces a PLAY_CARD with `skipOptionalReductions: true` so the player
-   *  can opt to pay full cost. Default false (mandatory reduction — LeFou
-   *  Bumbler "this character costs 1 less" wording). Set true for "you can
-   *  play this character for free" wording (Pudge - Controls the Weather,
-   *  Anna - Soothing Sister "may pay 0"). */
-  optional?: boolean;
 }
 
 // -----------------------------------------------------------------------------
@@ -2498,12 +2490,6 @@ export interface PlayCardAction {
    *  alternative cost (instead of paying ink). Only valid when the played
    *  card declares an `altPlayCost` that matches. */
   altCostBanishInstanceId?: string;
-  /** When true, skip self_cost_reduction statics marked `optional: true`.
-   *  Lets the player choose to pay full cost on a card whose conditional
-   *  static would otherwise grant a free play (e.g. Pudge - Controls the
-   *  Weather, Anna - Soothing Sister). The legal-action enumerator
-   *  surfaces both variants when an optional reduction is in scope. */
-  skipOptionalReductions?: boolean;
 }
 
 export interface PlayInkAction {
