@@ -1256,7 +1256,46 @@
     "traits": [
       "Storyborn"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "owner": { "type": "self" },
+            "cardType": ["character"],
+            "excludeSelf": true
+          }
+        },
+        "storyName": "THE GANG'S ALL HERE",
+        "rulesText": "Once during your turn, whenever you play another character, you may ready this character. He can't quest or challenge for the rest of this turn.",
+        "condition": { "type": "is_your_turn" },
+        "oncePerTurn": true,
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              { "type": "ready", "target": { "type": "this" } }
+            ],
+            "rewardEffects": [
+              {
+                "type": "cant_action",
+                "action": "quest",
+                "duration": "this_turn",
+                "target": { "type": "this" }
+              },
+              {
+                "type": "cant_action",
+                "action": "challenge",
+                "duration": "this_turn",
+                "target": { "type": "this" }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "6",
     "number": 24,
     "rarity": "common",

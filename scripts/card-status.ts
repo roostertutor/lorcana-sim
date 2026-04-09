@@ -233,7 +233,7 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // Goliath "Stone by Day": "this character can't ready" gated by hand size — static cant_ready
   [/\bif you have \d+ or more cards in your hand, this character can'?t ready\b/i, "conditional-cant-ready-static"],
   // Mr. Litwak: ready self + "can't quest or challenge for the rest of this turn" compound
-  [/\bready this character\..{0,30}can'?t quest or challenge for the rest of this turn\b/i, "ready-then-cant-act-compound"],
+  // (ready-then-cant-act-compound removed: ready + cant_action timed already supported.)
   // Darkwing Tower: ready-here compound with cant_quest_rest_of_turn
   [/\bready a character here\..{0,40}can'?t quest\b/i, "ready-then-cant-act-compound"],
   // Mulan: "character in play with damage" — damage-existence condition

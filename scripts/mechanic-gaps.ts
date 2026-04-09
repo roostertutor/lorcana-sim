@@ -101,7 +101,7 @@ const NEW_MECHANIC: [RegExp, string][] = [
   [/\bunless that character'?s player puts\b/i, "inverse-unless-opponent-choice"],
   [/\bwhen this character is challenged and banished\b/i, "challenged-and-banished-trigger"],
   [/\bif you have \d+ or more cards in your hand, this character can'?t ready\b/i, "conditional-cant-ready-static"],
-  [/\bready this character\..{0,30}can'?t quest or challenge for the rest of this turn\b/i, "ready-then-cant-act-compound"],
+  // (ready-then-cant-act-compound removed: ready + cant_action timed already supported.)
   [/\bready a character here\..{0,40}can'?t quest\b/i, "ready-then-cant-act-compound"],
   [/\bif you have a character in play with damage\b/i, "has-damaged-character-condition"],
   // (played-another-this-turn-condition removed: played_another_character_this_turn Condition implemented.)
