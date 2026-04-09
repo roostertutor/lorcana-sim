@@ -3228,62 +3228,73 @@ export function applyEffect(
           return state;
         }
         case "up_to_n_to_hand_rest_bottom": {
-          // Look at top N, put up to maxToHand matching (optional filter) into hand, rest to bottom.
-          // Headless/bot: greedy — take the first maxToHand matching cards.
+          // Look at top N, put up to maxToHand cards into hand, rest go to
+          // top|bottom (default bottom). Headless/bot: greedy — first match.
+          //
+          // Three filter modes:
+          //   1. effect.filters (array): pick at most one card matching each
+          //      filter in order. Used by The Family Madrigal (1 Madrigal char
+          //      + 1 Song).
+          //   2. effect.filter (single): pick first up to maxToHand matching.
+          //   3. neither: pick first maxToHand cards unconditionally
+          //      (Dig a Little Deeper).
           const maxToHand = effect.maxToHand ?? 1;
           const picked: string[] = [];
           const rest: string[] = [];
-          for (const id of topCards) {
-            if (picked.length >= maxToHand) {
-              rest.push(id);
-              continue;
-            }
-            if (effect.filter) {
-              const inst = state.cards[id];
-              const def = inst ? definitions[inst.definitionId] : undefined;
-              if (!inst || !def || !matchesFilter(inst, def, effect.filter, state, controllingPlayerId)) {
+          if (effect.filters && effect.filters.length > 0) {
+            const filtersConsumed = new Array(effect.filters.length).fill(false);
+            for (const id of topCards) {
+              if (picked.length >= maxToHand) {
                 rest.push(id);
                 continue;
               }
+              const inst = state.cards[id];
+              const def = inst ? definitions[inst.definitionId] : undefined;
+              if (!inst || !def) {
+                rest.push(id);
+                continue;
+              }
+              let matchedSlot = -1;
+              for (let i = 0; i < effect.filters.length; i++) {
+                if (filtersConsumed[i]) continue;
+                if (matchesFilter(inst, def, effect.filters[i]!, state, controllingPlayerId)) {
+                  matchedSlot = i;
+                  break;
+                }
+              }
+              if (matchedSlot >= 0) {
+                filtersConsumed[matchedSlot] = true;
+                picked.push(id);
+              } else {
+                rest.push(id);
+              }
             }
-            picked.push(id);
+          } else {
+            for (const id of topCards) {
+              if (picked.length >= maxToHand) {
+                rest.push(id);
+                continue;
+              }
+              if (effect.filter) {
+                const inst = state.cards[id];
+                const def = inst ? definitions[inst.definitionId] : undefined;
+                if (!inst || !def || !matchesFilter(inst, def, effect.filter, state, controllingPlayerId)) {
+                  rest.push(id);
+                  continue;
+                }
+              }
+              picked.push(id);
+            }
           }
           for (const id of picked) {
             state = moveCard(state, id, targetPlayer, "hand");
           }
-          state = reorderDeckTopToBottom(state, targetPlayer, rest, []);
-          return state;
-        }
-        case "up_to_one_each_of_two_filters_to_hand_rest_top": {
-          // The Family Madrigal: look at top N, may take 1 matching `filter`
-          // (Madrigal character) AND 1 matching `filter2` (song), rest stay
-          // on top in original order. Bot heuristic: take the first match of
-          // each filter.
-          const f1 = effect.filter;
-          const f2 = effect.filter2;
-          const picked: string[] = [];
-          let picked1 = false;
-          let picked2 = false;
-          for (const id of topCards) {
-            const inst = state.cards[id];
-            if (!inst) continue;
-            const def = definitions[inst.definitionId];
-            if (!def) continue;
-            if (!picked1 && f1 && matchesFilter(inst, def, f1, state, controllingPlayerId)) {
-              picked.push(id);
-              picked1 = true;
-              continue;
-            }
-            if (!picked2 && f2 && matchesFilter(inst, def, f2, state, controllingPlayerId)) {
-              picked.push(id);
-              picked2 = true;
-            }
+          // restPlacement default "bottom". For "top" the cards remain in
+          // place after the picked ones are removed via moveCard, so no
+          // reorder is needed.
+          if ((effect.restPlacement ?? "bottom") === "bottom") {
+            state = reorderDeckTopToBottom(state, targetPlayer, rest, []);
           }
-          for (const id of picked) {
-            state = moveCard(state, id, targetPlayer, "hand");
-          }
-          // Rest stays on top in their original order — no zone shuffle needed
-          // since picked cards have been removed from the deck via moveCard.
           return state;
         }
         case "may_play_for_free_else_discard": {

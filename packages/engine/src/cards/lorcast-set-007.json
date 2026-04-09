@@ -2215,9 +2215,13 @@
       {
         "type": "look_at_top",
         "count": 5,
-        "action": "up_to_one_each_of_two_filters_to_hand_rest_top",
-        "filter": { "cardType": "character", "hasTrait": "Madrigal" },
-        "filter2": { "cardType": "action", "hasTrait": "Song" },
+        "action": "up_to_n_to_hand_rest_bottom",
+        "maxToHand": 2,
+        "filters": [
+          { "cardType": "character", "hasTrait": "Madrigal" },
+          { "cardType": "action", "hasTrait": "Song" }
+        ],
+        "restPlacement": "top",
         "target": { "type": "self" }
       }
     ],
