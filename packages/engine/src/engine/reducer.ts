@@ -3889,7 +3889,7 @@ export function applyEffect(
         if (!inst) return false;
         const def = definitions[inst.definitionId];
         if (!def) return false;
-        return filter ? matchesFilter(inst, def, filter, state, controllingPlayerId) : true;
+        return filter ? matchesFilter(inst, def, filter, state, controllingPlayerId, sourceInstanceId, definitions) : true;
       });
       if (validCards.length === 0) return state;
       return {
@@ -5684,7 +5684,7 @@ function findValidTargets(
       if (!def) return false;
       // Pass sourceInstanceId so atLocation: "this" filters resolve correctly
       // (Sugar Rush Speedway "chosen character here" needs the location's instanceId).
-      return matchesFilter(instance, def, filter, state, controllingPlayerId, sourceInstanceId);
+      return matchesFilter(instance, def, filter, state, controllingPlayerId, sourceInstanceId, definitions);
     })
     .map((i) => i.instanceId);
 }

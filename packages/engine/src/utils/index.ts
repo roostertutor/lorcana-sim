@@ -289,8 +289,23 @@ export function matchesFilter(
   state: GameState,
   viewingPlayerId: PlayerID,
   /** CRD 5.6.4: source instanceId for "atLocation: this" — only set by gameModifiers static iteration */
-  sourceInstanceId?: string
+  sourceInstanceId?: string,
+  /** Definitions map — needed to resolve filters that reference the source
+   *  card's properties (e.g. `nameFromSource`). Optional for backwards
+   *  compatibility with call sites that don't yet pass it; in that case
+   *  source-name filters fall through (no match). */
+  definitions?: Record<string, CardDefinition>
 ): boolean {
+  // Generic source-aware filters (Bad-Anon Villain Support Center,
+  // future "discard a card with the same name as this character", etc.).
+  if (filter.nameFromSource) {
+    if (!sourceInstanceId || !definitions) return false;
+    const srcInst = state.cards[sourceInstanceId];
+    if (!srcInst) return false;
+    const srcDef = definitions[srcInst.definitionId];
+    if (!srcDef) return false;
+    if (definition.name !== srcDef.name) return false;
+  }
   if (filter.atLocation === "this") {
     if (!sourceInstanceId) return false;
     if (instance.atLocationInstanceId !== sourceInstanceId) return false;
@@ -367,10 +382,6 @@ export function matchesFilter(
     const altNames = definition.alternateNames ?? [];
     if (definition.name !== srcName && !altNames.includes(srcName)) return false;
   }
-  // nameFromSource skipped here — matchesFilter doesn't have access to the
-  // definitions map. Wired card paths that need it can pre-resolve the
-  // source's name and pass via filter.hasName at the call site.
-
   if (filter.hasDamage !== undefined) {
     if (filter.hasDamage && instance.damage <= 0) return false;
     if (!filter.hasDamage && instance.damage > 0) return false;
