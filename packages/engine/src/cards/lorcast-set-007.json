@@ -3652,7 +3652,21 @@
       "Mentor",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "quests" },
+        "storyName": "PRESTIDIGITONIUM",
+        "rulesText": "Whenever this character quests, name a card, then reveal the top card of your deck. If it's the named card, put it into your inkwell facedown and exerted. Otherwise, put it on the top of your deck.",
+        "effects": [
+          {
+            "type": "name_a_card_then_reveal",
+            "target": { "type": "self" },
+            "matchAction": "to_inkwell_exerted"
+          }
+        ]
+      }
+    ],
     "setId": "7",
     "number": 67,
     "rarity": "rare",

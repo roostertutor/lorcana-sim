@@ -711,6 +711,9 @@ export interface RevealTopConditionalEffect {
 export interface NameACardThenRevealEffect {
   type: "name_a_card_then_reveal";
   target: PlayerTarget;
+  /** What to do with the revealed card on a match. Default "to_hand"
+   *  (Sorcerer's Hat). Merlin Clever Clairvoyant uses "to_inkwell_exerted". */
+  matchAction?: "to_hand" | "to_inkwell_exerted";
 }
 
 /**

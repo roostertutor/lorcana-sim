@@ -996,7 +996,32 @@
     "traits": [
       "Storyborn"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "is_banished",
+          "filter": {
+            "owner": { "type": "self" },
+            "cardType": ["character"],
+            "hasKeyword": "bodyguard"
+          }
+        },
+        "storyName": "SENDING BACKUP",
+        "rulesText": "During an opponent's turn, whenever one of your characters with Bodyguard is banished, you may reveal the top card of your deck. If it's a character card with cost 5 or less, you may play that character for free. Otherwise, put it on the top of your deck.",
+        "condition": { "type": "not", "condition": { "type": "is_your_turn" } },
+        "effects": [
+          {
+            "type": "reveal_top_conditional",
+            "filter": { "cardType": ["character"], "costAtMost": 5 },
+            "matchAction": "play_for_free",
+            "isMay": true,
+            "noMatchDestination": "top",
+            "target": { "type": "self" }
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 18,
     "rarity": "legendary",
@@ -5621,7 +5646,24 @@
       "Hero",
       "Prince"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "is_challenged" },
+        "storyName": "THIS IS A VERY BIG DAY",
+        "rulesText": "Whenever this character is challenged, the challenging player may choose and discard a card. If they don't, you gain 2 lore.",
+        "effects": [
+          {
+            "type": "each_opponent_may_discard_then_reward",
+            "rewardEffect": {
+              "type": "gain_lore",
+              "amount": 2,
+              "target": { "type": "self" }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 102,
     "rarity": "super_rare",

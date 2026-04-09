@@ -4756,6 +4756,26 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "trigger": { "on": "enters_play" },
+        "storyName": "THE WORLD IS DARK",
+        "rulesText": "When you play this character, each opponent chooses one of their characters and returns that card to their hand.",
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": { "type": "self" },
+                "zone": "play",
+                "cardType": ["character"]
+              },
+              "chooser": "target_player"
+            }
+          }
+        ]
       }
     ],
     "setId": "5",

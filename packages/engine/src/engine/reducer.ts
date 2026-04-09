@@ -1689,14 +1689,22 @@ function applyResolveChoice(
   }
 
   if (pendingChoice.type === "choose_card_name" && typeof choice === "string") {
-    // The Sorcerer's Hat: compare the named card to the top of deck.
+    // The Sorcerer's Hat / Merlin Clever Clairvoyant: compare the named card
+    // to the top of deck. matchAction defaults to "to_hand"; Merlin uses
+    // "to_inkwell_exerted".
     const deck = getZone(state, playerId, "deck");
     const topId = deck[0];
     if (topId) {
       const topInst = state.cards[topId];
       const topDef = topInst ? definitions[topInst.definitionId] : undefined;
       if (topDef && topDef.name === choice) {
-        state = moveCard(state, topId, playerId, "hand");
+        const matchAction = (pendingEffect as any)?.matchAction ?? "to_hand";
+        if (matchAction === "to_inkwell_exerted") {
+          state = zoneTransition(state, topId, "inkwell", definitions, events, { reason: "inked" });
+          state = updateInstance(state, topId, { isExerted: true });
+        } else {
+          state = moveCard(state, topId, playerId, "hand");
+        }
       }
       // else: leave on top — no-op
     }
