@@ -5252,7 +5252,45 @@
     "cost": 3,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "TURN INTO DINOSAUR",
+        "rulesText": "{E}, 1 {I}, Banish chosen character of yours \u2014 Play a character with cost up to 2 more than the banished character for free.",
+        "costs": [
+          { "type": "exert" },
+          { "type": "ink", "amount": 1 }
+        ],
+        "effects": [
+          {
+            "type": "sequential",
+            "costEffects": [
+              {
+                "type": "banish",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": { "type": "self" },
+                    "zone": "play",
+                    "cardType": ["character"]
+                  }
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "play_for_free",
+                "sourceZone": "hand",
+                "filter": {
+                  "cardType": "character",
+                  "costAtMostFromLastResolvedSourcePlus": 2
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 100,
     "rarity": "rare",

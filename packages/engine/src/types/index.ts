@@ -1678,6 +1678,11 @@ export interface CardFilter {
   hasKeyword?: Keyword;
   isExerted?: boolean;
   costAtMost?: number;
+  /** Dynamic cost cap: `state.lastResolvedSource.cost + offset`. Used by Retro
+   *  Evolution Device: "play a character with cost up to 2 more than the
+   *  banished character for free" — the banish step sets lastResolvedSource,
+   *  the play step reads its cost. Resolved at match time. */
+  costAtMostFromLastResolvedSourcePlus?: number;
   costAtLeast?: number;
   /** Exclude a specific card instance (e.g. Support can't target itself) */
   excludeInstanceId?: string;

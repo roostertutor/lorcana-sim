@@ -357,6 +357,11 @@ export function matchesFilter(
   if (filter.costAtMost !== undefined) {
     if (definition.cost > filter.costAtMost) return false;
   }
+  if (filter.costAtMostFromLastResolvedSourcePlus !== undefined) {
+    const srcCost = state.lastResolvedSource?.cost;
+    if (srcCost === undefined) return false;
+    if (definition.cost > srcCost + filter.costAtMostFromLastResolvedSourcePlus) return false;
+  }
 
   if (filter.costAtLeast !== undefined) {
     if (definition.cost < filter.costAtLeast) return false;
