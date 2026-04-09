@@ -461,19 +461,39 @@ async function main() {
           preserved++;
         }
 
-        // 2. UNION keyword abilities: keep any keyword that was previously
-        //    present even if the new import doesn't include it. Avoids the
-        //    failure mode where Lorcast briefly omits a keyword and we lose it.
+        // 2. UNION keyword abilities. Two failure modes to guard against:
+        //    (a) Lorcast omits a keyword entirely (Cri-Kee Good Luck Charm
+        //        lost `alert` on a re-pull). Rescue by copying the missing
+        //        keyword from the previous data.
+        //    (b) Lorcast returns a keyword without its value field (Boost,
+        //        Resist, Singer, Shift, Sing Together, etc. have a numeric
+        //        value the importer parses from text — sometimes missed).
+        //        Rescue by backfilling the value from the previous data.
+        const prevKeywordByName = new Map(
+          prev.abilities
+            .filter((a) => a.type === "keyword")
+            .map((a) => [a.keyword.toLowerCase(), a as KeywordAbility])
+        );
         const newKeywords = new Set(
           card.abilities.filter((a) => a.type === "keyword").map((a) => a.keyword.toLowerCase())
         );
-        for (const ability of prev.abilities) {
-          if (ability.type !== "keyword") continue;
-          if (!newKeywords.has(ability.keyword.toLowerCase())) {
+        // (a) Add keywords that were previously present but are now missing.
+        for (const [kw, ability] of prevKeywordByName) {
+          if (!newKeywords.has(kw)) {
             card.abilities = [...card.abilities, ability];
             keywordsRescued++;
           }
         }
+        // (b) Backfill missing value fields on keywords that exist in both.
+        card.abilities = card.abilities.map((a) => {
+          if (a.type !== "keyword") return a;
+          const prevAb = prevKeywordByName.get(a.keyword.toLowerCase());
+          if (prevAb && prevAb.value !== undefined && a.value === undefined) {
+            keywordsRescued++;
+            return { ...a, value: prevAb.value };
+          }
+          return a;
+        });
 
         // 3. Preserve manually-added actionEffects.
         const prevAny = prev as CardDefinitionOut;

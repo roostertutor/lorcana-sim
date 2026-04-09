@@ -1633,6 +1633,20 @@
     "cost": 4,
     "inkable": false,
     "traits": [],
+    "abilities": [],
+    "setId": "11",
+    "number": 31,
+    "rarity": "uncommon",
+    "rulesText": "For the rest of this turn, whenever one of your characters quests, you may draw a card.",
+    "flavorText": "\"Ripples are so small at first, then look how they grow. But someone has to start them.\"\n—Grandmother Willow",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9efb436da763484ba54c2b75e1e0fcd9.avif?1770259339",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "For the rest of this turn, whenever one of your characters quests, you may draw a card.",
+        "raw": "For the rest of this turn, whenever one of your characters quests, you may draw a card."
+      }
+    ],
     "actionEffects": [
       {
         "type": "create_floating_trigger",
@@ -1654,20 +1668,6 @@
             "isMay": true
           }
         ]
-      }
-    ],
-    "abilities": [],
-    "setId": "11",
-    "number": 31,
-    "rarity": "uncommon",
-    "rulesText": "For the rest of this turn, whenever one of your characters quests, you may draw a card.",
-    "flavorText": "\"Ripples are so small at first, then look how they grow. But someone has to start them.\"\n—Grandmother Willow",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9efb436da763484ba54c2b75e1e0fcd9.avif?1770259339",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "For the rest of this turn, whenever one of your characters quests, you may draw a card.",
-        "raw": "For the rest of this turn, whenever one of your characters quests, you may draw a card."
       }
     ]
   },
@@ -1799,6 +1799,7 @@
     "subtitle": "Tundratown",
     "willpower": 5,
     "lore": 1,
+    "moveCost": 1,
     "flavorText": "\"Welcome to Tundratown. Please respect our hibernating inhabitants and keep noise to a minimum.\"\n-Zootopia Chamber of Commerce",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7a26dcac46ba4e0291bf8bedaec4923d.avif?1770259353"
   },
@@ -1879,6 +1880,10 @@
       "Whisper"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "boost"
+      },
       {
         "type": "triggered",
         "storyName": "MYSTICAL INSIGHT",
@@ -2641,12 +2646,22 @@
         "type": "static",
         "storyName": "UNUSUAL TRANSFORMATION",
         "rulesText": "If a card left a player's discard this turn, this card gains Shift 0 {I}. (You may pay 0 {I} to play this on top of one of your characters named Anna.)",
-        "activeZones": ["hand"],
+        "activeZones": [
+          "hand"
+        ],
         "condition": {
           "type": "compound_and",
           "conditions": [
-            { "type": "card_left_discard_this_turn" },
-            { "type": "has_character_named", "name": "Anna", "player": { "type": "self" } }
+            {
+              "type": "card_left_discard_this_turn"
+            },
+            {
+              "type": "has_character_named",
+              "name": "Anna",
+              "player": {
+                "type": "self"
+              }
+            }
           ]
         },
         "effect": {
@@ -2657,7 +2672,12 @@
       {
         "type": "triggered",
         "name": "WARM HEART",
-        "trigger": { "event": "quests", "filter": { "type": "this" } },
+        "trigger": {
+          "event": "quests",
+          "filter": {
+            "type": "this"
+          }
+        },
         "isMay": true,
         "effects": [
           {
@@ -2670,18 +2690,26 @@
                 "target": {
                   "type": "chosen",
                   "filter": {
-                    "owner": { "type": "self" },
+                    "owner": {
+                      "type": "self"
+                    },
                     "zone": "discard",
-                    "cardType": ["character"]
+                    "cardType": [
+                      "character"
+                    ]
                   }
                 },
-                "filter": { "cardType": "character" }
+                "filter": {
+                  "cardType": "character"
+                }
               }
             ],
             "rewardEffects": [
               {
                 "type": "gain_lore",
-                "target": { "type": "self" },
+                "target": {
+                  "type": "self"
+                },
                 "amount": "last_resolved_target_lore"
               }
             ]
@@ -3176,20 +3204,6 @@
       "Song"
     ],
     "abilities": [],
-    "actionEffects": [
-      {
-        "type": "opponent_chooses_yes_or_no",
-        "yesEffect": { "type": "gain_lore", "target": { "type": "self" }, "amount": 3 },
-        "noEffect": {
-          "type": "put_on_bottom_of_deck",
-          "from": "play",
-          "target": {
-            "type": "chosen",
-            "filter": { "cardType": "character", "owner": { "type": "self" }, "zone": "play" }
-          }
-        }
-      }
-    ],
     "setId": "11",
     "number": 61,
     "rarity": "rare",
@@ -3215,6 +3229,32 @@
         "storyName": "",
         "rulesText": "* NO! They choose a character of theirs and put that card on the bottom of their deck.",
         "raw": "* NO! They choose a character of theirs and put that card on the bottom of their deck."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "opponent_chooses_yes_or_no",
+        "yesEffect": {
+          "type": "gain_lore",
+          "target": {
+            "type": "self"
+          },
+          "amount": 3
+        },
+        "noEffect": {
+          "type": "put_on_bottom_of_deck",
+          "from": "play",
+          "target": {
+            "type": "chosen",
+            "filter": {
+              "cardType": "character",
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play"
+            }
+          }
+        }
       }
     ]
   },
@@ -3535,6 +3575,7 @@
     "subtitle": "Monstrous Plant",
     "willpower": 4,
     "lore": 2,
+    "moveCost": 1,
     "rulesText": "PERSISTENT PROBLEM When this location is banished, if there was an exerted character here, return this card from your discard to your hand.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_27d46247102c480c8b2ce98be8bb15f5.avif?1770259505",
     "_namedAbilityStubs": [
@@ -4511,6 +4552,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "ward"
+      },
+      {
         "type": "triggered",
         "storyName": "A MOTHER'S LOVE",
         "rulesText": "When you play this character, you may put the top card of your deck facedown under one of your characters or locations with Boost. If you do, draw a card.",
@@ -4846,11 +4891,6 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "boost",
-        "value": 1
-      },
-      {
         "type": "triggered",
         "storyName": "",
         "rulesText": "Whenever you use the Boost ability of a character, you may put the top card of your deck under them facedown.",
@@ -4912,6 +4952,11 @@
             }
           }
         ]
+      },
+      {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 1
       }
     ],
     "setId": "11",
@@ -5308,10 +5353,15 @@
       {
         "type": "activated",
         "storyName": "TURN INTO DINOSAUR",
-        "rulesText": "{E}, 1 {I}, Banish chosen character of yours \u2014 Play a character with cost up to 2 more than the banished character for free.",
+        "rulesText": "{E}, 1 {I}, Banish chosen character of yours — Play a character with cost up to 2 more than the banished character for free.",
         "costs": [
-          { "type": "exert" },
-          { "type": "ink", "amount": 1 }
+          {
+            "type": "exert"
+          },
+          {
+            "type": "ink",
+            "amount": 1
+          }
         ],
         "effects": [
           {
@@ -5322,9 +5372,13 @@
                 "target": {
                   "type": "chosen",
                   "filter": {
-                    "owner": { "type": "self" },
+                    "owner": {
+                      "type": "self"
+                    },
                     "zone": "play",
-                    "cardType": ["character"]
+                    "cardType": [
+                      "character"
+                    ]
                   }
                 }
               }
@@ -5471,6 +5525,7 @@
     "subtitle": "Protected Land",
     "willpower": 4,
     "lore": 2,
+    "moveCost": 1,
     "rulesText": "EASY TO MISS While there's a character with Evasive here, this location gains Evasive. (Only characters with Evasive can challenge it.)",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f25d2634d58b4a00ab2ac2f2753b8116.avif?1770259658",
     "_namedAbilityStubs": [
@@ -5555,6 +5610,10 @@
       "Ghost"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "boost"
+      },
       {
         "type": "static",
         "storyName": "COUNTING COINS",
@@ -6168,6 +6227,10 @@
       "Whisper"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "boost"
+      },
       {
         "type": "static",
         "storyName": "SUPERHUMAN STRENGTH",
@@ -7099,17 +7162,24 @@
       {
         "type": "activated",
         "storyName": "MOMENT OF INSPIRATION",
-        "rulesText": "{E}, 2 {I} \u2014 Reveal the top card of your deck. You may play it as if it were in your hand. Otherwise, put it in your discard.",
+        "rulesText": "{E}, 2 {I} — Reveal the top card of your deck. You may play it as if it were in your hand. Otherwise, put it in your discard.",
         "costs": [
-          { "type": "exert" },
-          { "type": "ink", "amount": 2 }
+          {
+            "type": "exert"
+          },
+          {
+            "type": "ink",
+            "amount": 2
+          }
         ],
         "effects": [
           {
             "type": "look_at_top",
             "count": 1,
             "action": "may_play_for_free_else_discard",
-            "target": { "type": "self" }
+            "target": {
+              "type": "self"
+            }
           }
         ]
       }
@@ -7141,11 +7211,6 @@
     "traits": [],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "boost",
-        "value": 2
-      },
-      {
         "type": "static",
         "storyName": "GOOD BUSINESS",
         "rulesText": "This location gets +1 {W} for each card under it.",
@@ -7171,6 +7236,11 @@
             "type": "this"
           }
         }
+      },
+      {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 2
       }
     ],
     "setId": "11",
@@ -7179,6 +7249,7 @@
     "subtitle": "Ebenezer's Office",
     "willpower": 4,
     "lore": 1,
+    "moveCost": 1,
     "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this location.)\nGood Business This location gets +1 {W} and +1 {L} for each card under it.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_889f6b26a5a746d6a6cbe4139412855a.avif?1770259803",
     "_namedAbilityStubs": [
@@ -7262,6 +7333,7 @@
     "subtitle": "Lonely Resting Place",
     "willpower": 8,
     "lore": 1,
+    "moveCost": 1,
     "rulesText": "NEW ARRIVAL Whenever you move a character here, put the top card of your deck under this location facedown.\nANOTHER CHANCE At the start of your turn, you may put all cards from under this location into your hand. If you do, banish this location.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_648f06059c3b4f8680bc932c085d6182.avif?1770259807",
     "_namedAbilityStubs": [
@@ -7308,6 +7380,7 @@
     "subtitle": "Winter Gardens",
     "willpower": 6,
     "lore": 0,
+    "moveCost": 1,
     "rulesText": "SNOWBALL STANDOFF Whenever a character here challenges another character, gain 1 lore.",
     "flavorText": "While the flowers slept, something else began to bloom.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5f6b06befa5143649062b5ac4414d7ba.avif?1770259812",
@@ -7397,6 +7470,10 @@
       "Whisper"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "boost"
+      },
       {
         "type": "static",
         "storyName": "EXTRA HELP",
@@ -8273,6 +8350,14 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "boost"
+      },
+      {
+        "type": "keyword",
+        "keyword": "ward"
+      },
+      {
         "type": "triggered",
         "storyName": "ANYTHING THAT GLITTERS",
         "rulesText": "Whenever you put a card under one of your characters or locations, this character gets +1 {L} this turn.",
@@ -8609,14 +8694,6 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
-    "actionEffects": [
-      {
-        "type": "move_cards_under_to_inkwell",
-        "target": {
-          "type": "self"
-        }
-      }
-    ],
     "setId": "11",
     "number": 162,
     "rarity": "rare",
@@ -8628,6 +8705,14 @@
         "storyName": "",
         "rulesText": "Put any number of cards from under your characters and locations into your inkwell facedown and exerted.",
         "raw": "Put any number of cards from under your characters and locations into your inkwell facedown and exerted."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "move_cards_under_to_inkwell",
+        "target": {
+          "type": "self"
+        }
       }
     ]
   },
@@ -9110,6 +9195,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "boost"
+      },
+      {
         "type": "triggered",
         "storyName": "CLONK!",
         "rulesText": "Whenever this character quests, if there's a card under her, chosen opposing character can't challenge until the start of your next turn.",
@@ -9518,7 +9607,13 @@
     "rulesText": "GOOD RIDDANCE {E} — If an opposing character was banished in a challenge this turn, draw a card.",
     "flavorText": "\"Sonny, you've got a lot of learnin' to do about a-sniffin' and a-smellin'.\"",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a26bf7d81173483589a2df5446ab1ec0.avif?1770260005",
-    "_namedAbilityStubs": []
+    "_namedAbilityStubs": [
+      {
+        "storyName": "GOOD RIDDANCE",
+        "rulesText": "If an opposing character was banished in a challenge this turn, draw a card.",
+        "raw": "GOOD RIDDANCE {E} — If an opposing character was banished in a challenge this turn, draw a card."
+      }
+    ]
   },
   {
     "id": "amos-slade-tenacious-tracker",
@@ -10197,7 +10292,9 @@
         "type": "static",
         "storyName": "DO YOUR WORST",
         "rulesText": "Opponents must choose this character for actions and abilities if able.",
-        "effect": { "type": "forced_target_priority" }
+        "effect": {
+          "type": "forced_target_priority"
+        }
       }
     ],
     "setId": "11",
@@ -10335,6 +10432,23 @@
       "Song"
     ],
     "abilities": [],
+    "setId": "11",
+    "number": 196,
+    "rarity": "uncommon",
+    "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)\nOpponents can't play actions or items until the start of your next turn.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_491b1cb4aadf4bf999230048abf2cf0b.avif?1770260077",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)",
+        "raw": "(A character with cost 2 or more can {E} to sing this song for free.)"
+      },
+      {
+        "storyName": "",
+        "rulesText": "Opponents can't play actions or items until the start of your next turn.",
+        "raw": "Opponents can't play actions or items until the start of your next turn."
+      }
+    ],
     "actionEffects": [
       {
         "type": "restrict_play",
@@ -10346,12 +10460,7 @@
           "type": "opponent"
         }
       }
-    ],
-    "setId": "11",
-    "number": 196,
-    "rarity": "uncommon",
-    "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)\nOpponents can't play actions or items until the start of your next turn.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_491b1cb4aadf4bf999230048abf2cf0b.avif?1770260077"
+    ]
   },
   {
     "id": "the-terror-that-flaps-in-the-night",
@@ -10603,7 +10712,18 @@
     "rarity": "rare",
     "rulesText": "VIGILANTE JUSTICE All opposing characters gain the Villain classification.\nLAY OF THE LAND {E} — If a character was banished in a challenge this turn, gain 1 lore.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_997f90baa0e94ea6bf9babc7ded3bc8a.avif?1770260104",
-    "_namedAbilityStubs": [],
+    "_namedAbilityStubs": [
+      {
+        "storyName": "VIGILANTE JUSTICE",
+        "rulesText": "All opposing characters gain the Villain classification.",
+        "raw": "VIGILANTE JUSTICE All opposing characters gain the Villain classification."
+      },
+      {
+        "storyName": "LAY OF THE LAND",
+        "rulesText": "If a character was banished in a challenge this turn, gain 1 lore.",
+        "raw": "LAY OF THE LAND {E} — If a character was banished in a challenge this turn, gain 1 lore."
+      }
+    ],
     "actionEffects": [
       {
         "type": "conditional_on_target",
@@ -10745,6 +10865,7 @@
     "subtitle": "Icy Headquarters",
     "willpower": 8,
     "lore": 1,
+    "moveCost": 1,
     "rulesText": "EVIL VANQUISHED During your turn, whenever an opposing Villain character is banished, you may ready a character here. If you do, they can't quest for the rest of this turn.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_22e1f1dc8f434e0a87d5335d7a6b2984.avif?1770260113",
     "_namedAbilityStubs": [
@@ -11195,6 +11316,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "ward"
+      },
+      {
         "type": "triggered",
         "storyName": "A MOTHER'S LOVE",
         "rulesText": "When you play this character, you may put the top card of your deck facedown under one of your characters or locations with Boost. If you do, draw a card.",
@@ -11272,6 +11397,10 @@
       "Whisper"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "boost"
+      },
       {
         "type": "static",
         "storyName": "SUPERHUMAN STRENGTH",
@@ -11730,6 +11859,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "boost"
+      },
+      {
         "type": "triggered",
         "storyName": "CLONK!",
         "rulesText": "Whenever this character quests, if there's a card under her, chosen opposing character can't challenge until the start of your next turn.",
@@ -11992,12 +12125,22 @@
         "type": "static",
         "storyName": "UNUSUAL TRANSFORMATION",
         "rulesText": "If a card left a player's discard this turn, this card gains Shift 0 {I}. (You may pay 0 {I} to play this on top of one of your characters named Anna.)",
-        "activeZones": ["hand"],
+        "activeZones": [
+          "hand"
+        ],
         "condition": {
           "type": "compound_and",
           "conditions": [
-            { "type": "card_left_discard_this_turn" },
-            { "type": "has_character_named", "name": "Anna", "player": { "type": "self" } }
+            {
+              "type": "card_left_discard_this_turn"
+            },
+            {
+              "type": "has_character_named",
+              "name": "Anna",
+              "player": {
+                "type": "self"
+              }
+            }
           ]
         },
         "effect": {
@@ -12008,7 +12151,12 @@
       {
         "type": "triggered",
         "name": "WARM HEART",
-        "trigger": { "event": "quests", "filter": { "type": "this" } },
+        "trigger": {
+          "event": "quests",
+          "filter": {
+            "type": "this"
+          }
+        },
         "isMay": true,
         "effects": [
           {
@@ -12021,18 +12169,26 @@
                 "target": {
                   "type": "chosen",
                   "filter": {
-                    "owner": { "type": "self" },
+                    "owner": {
+                      "type": "self"
+                    },
                     "zone": "discard",
-                    "cardType": ["character"]
+                    "cardType": [
+                      "character"
+                    ]
                   }
                 },
-                "filter": { "cardType": "character" }
+                "filter": {
+                  "cardType": "character"
+                }
               }
             ],
             "rewardEffects": [
               {
                 "type": "gain_lore",
-                "target": { "type": "self" },
+                "target": {
+                  "type": "self"
+                },
                 "amount": "last_resolved_target_lore"
               }
             ]
@@ -12659,6 +12815,14 @@
       "Whisper"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "boost"
+      },
+      {
+        "type": "keyword",
+        "keyword": "ward"
+      },
       {
         "type": "triggered",
         "storyName": "ANYTHING THAT GLITTERS",

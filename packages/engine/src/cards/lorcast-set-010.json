@@ -722,11 +722,6 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "boost",
-        "value": 1
-      },
-      {
         "type": "triggered",
         "storyName": "COMMAND PERFORMANCE",
         "rulesText": "Once during your turn, whenever you play a song, if there's a card under this character, you may draw a card.",
@@ -756,6 +751,11 @@
             }
           }
         ]
+      },
+      {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 1
       }
     ],
     "setId": "10",
@@ -795,6 +795,11 @@
       "Hero"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      },
       {
         "type": "triggered",
         "storyName": "SPECULATION",
@@ -929,11 +934,6 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "boost",
-        "value": 2
-      },
-      {
         "type": "triggered",
         "storyName": "TIMELY ALLIANCE",
         "rulesText": "Whenever you put a card under this character, you may reveal the top card of your deck. If it's a character card, you may play that character for free and they enter play exerted. Otherwise, put it on the bottom of your deck. (approximation: played-card does not enter exerted)",
@@ -961,6 +961,11 @@
             }
           }
         ]
+      },
+      {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 2
       }
     ],
     "setId": "10",
@@ -1785,6 +1790,7 @@
     "subtitle": "Funso's Funzone",
     "willpower": 6,
     "lore": 0,
+    "moveCost": 2,
     "rulesText": "WHERE FUN IS IN THE ZONE Whenever a character quests while here, you pay 2 less for the next character you play this turn.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_516d19ec66bf46689607d453ce6f267d.avif?1761752088",
     "_namedAbilityStubs": [
@@ -2382,6 +2388,10 @@
       "Ghost"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "rush"
+      },
       {
         "type": "triggered",
         "storyName": "FINAL ACT",
@@ -3672,6 +3682,7 @@
     "subtitle": "Abandoned Laboratory",
     "willpower": 3,
     "lore": 1,
+    "moveCost": 1,
     "rulesText": "STARTLING DISCOVERY Characters gain \" {E} — Draw a card\" while here.",
     "flavorText": "\"Remember, we're looking for clues to who tore up the lorebook pages.\" —Elisa Maza",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f0a21489090449a4af62aa6f09ad9552.avif?1761752279",
@@ -4235,11 +4246,6 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "boost",
-        "value": 2
-      },
-      {
         "type": "static",
         "storyName": "I'LL TAKE THAT",
         "rulesText": "As long as this character has at least one card under it, it gets +2 {S} and +1 {L}.",
@@ -4269,6 +4275,11 @@
             "type": "this"
           }
         }
+      },
+      {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 2
       }
     ],
     "setId": "10",
@@ -5498,6 +5509,7 @@
     "subtitle": "Golden Lagoon",
     "willpower": 7,
     "lore": 0,
+    "moveCost": 1,
     "rulesText": "PURE LIQUID GOLD This location gets +1 {L} for each character here.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4296f5bd9774451e920827cc374b8981.avif?1761773797",
     "_namedAbilityStubs": [
@@ -6637,10 +6649,6 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "boost"
-      },
-      {
         "type": "triggered",
         "trigger": {
           "on": "quests"
@@ -6667,6 +6675,10 @@
             "thenPutOnBottomOfDeck": true
           }
         ]
+      },
+      {
+        "type": "keyword",
+        "keyword": "boost"
       }
     ],
     "setId": "10",
@@ -6992,6 +7004,23 @@
         }
       }
     ],
+    "setId": "10",
+    "number": 129,
+    "rarity": "rare",
+    "rulesText": "ACTION If you have a character with 5 {S} or more in play, you pay 2 {I} less to play this action.\nReady chosen character. They can't quest for the rest of this turn. The next time they challenge another character this turn, gain 1 lore.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9072eca9a2d74193b9beb9527d6fec2d.avif?1761763767",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "ACTION If you have a character with 5 {S} or more in play, you pay 2 {I} less to play this action.",
+        "raw": "ACTION If you have a character with 5 {S} or more in play, you pay 2 {I} less to play this action."
+      },
+      {
+        "storyName": "",
+        "rulesText": "Ready chosen character. They can't quest for the rest of this turn. The next time they challenge another character this turn, gain 1 lore.",
+        "raw": "Ready chosen character. They can't quest for the rest of this turn. The next time they challenge another character this turn, gain 1 lore."
+      }
+    ],
     "actionEffects": [
       {
         "type": "sequential",
@@ -7035,23 +7064,6 @@
             ]
           }
         ]
-      }
-    ],
-    "setId": "10",
-    "number": 129,
-    "rarity": "rare",
-    "rulesText": "ACTION If you have a character with 5 {S} or more in play, you pay 2 {I} less to play this action.\nReady chosen character. They can't quest for the rest of this turn. The next time they challenge another character this turn, gain 1 lore.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9072eca9a2d74193b9beb9527d6fec2d.avif?1761763767",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "ACTION If you have a character with 5 {S} or more in play, you pay 2 {I} less to play this action.",
-        "raw": "ACTION If you have a character with 5 {S} or more in play, you pay 2 {I} less to play this action."
-      },
-      {
-        "storyName": "",
-        "rulesText": "Ready chosen character. They can't quest for the rest of this turn. The next time they challenge another character this turn, gain 1 lore.",
-        "raw": "Ready chosen character. They can't quest for the rest of this turn. The next time they challenge another character this turn, gain 1 lore."
       }
     ]
   },
@@ -7332,6 +7344,7 @@
     "subtitle": "Underground Forest",
     "willpower": 7,
     "lore": 1,
+    "moveCost": 2,
     "rulesText": "GATHER RESOURCES Once during your turn, whenever you move a character with 5 {S} or more here, you may draw a card.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d694639a68614bcc8d3a482c1f5c5da1.avif?1761763903",
     "_namedAbilityStubs": [
@@ -7406,6 +7419,7 @@
     "subtitle": "The Bridge",
     "willpower": 6,
     "lore": 0,
+    "moveCost": 1,
     "rulesText": "HEAD FOR THE BRIDGE! Whenever a character quests while here, you may banish this location to gain 2 lore and give them Evasive until the start of your next turn. (Only characters with Evasive can challenge them.)",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_98339be4f48249779fb2ae2de3e9b757.avif?1761773967",
     "_namedAbilityStubs": [
@@ -9178,6 +9192,7 @@
     "subtitle": "Bastion of Evil",
     "willpower": 5,
     "lore": 0,
+    "moveCost": 1,
     "rulesText": "INTO THE GLOOM Once during your turn, whenever a character quests while here, you may ready chosen item.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_da44468c05d647ad965adcaf8f568c8c.avif?1761764694",
     "_namedAbilityStubs": [
@@ -9443,7 +9458,6 @@
         ]
       }
     ],
-    "comment": "WITCHING HOUR: 'deal 2 damage per action card discarded' branch is approximated — no event-based count of just-discarded action cards yet.",
     "setId": "10",
     "number": 174,
     "rarity": "super_rare",
@@ -9818,10 +9832,6 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "alert"
-      },
-      {
         "type": "static",
         "storyName": "STONE BY DAY",
         "rulesText": "If you have 3 or more cards in your hand, this character can't ready.",
@@ -9836,6 +9846,10 @@
           "type": "cant_action_self",
           "action": "ready"
         }
+      },
+      {
+        "type": "keyword",
+        "keyword": "alert"
       }
     ],
     "setId": "10",
@@ -11026,6 +11040,7 @@
     "subtitle": "Linked Caverns",
     "willpower": 6,
     "lore": 1,
+    "moveCost": 1,
     "rulesText": "SUBTERRANEAN NETWORK While you have a character here, this location gets +1 {L} for each other location you have in play.\nLOCUS While you have a character here, you pay 1 {I} less to play locations.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f0d2c7f7fb9243bdb38b6c1e5eb522cd.avif?1761765029",
     "_namedAbilityStubs": [
@@ -11096,6 +11111,7 @@
     "subtitle": "Police Headquarters",
     "willpower": 4,
     "lore": 1,
+    "moveCost": 1,
     "rulesText": "NEW INFORMATION Once during your turn, whenever you move a character here, you may draw a card, then choose and discard a card.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e86d177fb9f24d4683e8f639595038d1.avif?1761765032",
     "_namedAbilityStubs": [
@@ -11163,6 +11179,7 @@
     "subtitle": "Above the Clouds",
     "willpower": 5,
     "lore": 1,
+    "moveCost": 1,
     "rulesText": "PROTECT THIS CASTLE Characters gain Challenger +1 and Resist +1 while here. (They get +1 {S} while challenging. Damage dealt to them is reduced by 1.)",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_8212061efed6498f87b6df190c10c4fa.avif?1761765037",
     "_namedAbilityStubs": [
@@ -12240,11 +12257,6 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "boost",
-        "value": 2
-      },
-      {
         "type": "triggered",
         "storyName": "TIMELY ALLIANCE",
         "rulesText": "Whenever you put a card under this character, you may reveal the top card of your deck. If it's a character card, you may play that character for free and they enter play exerted. Otherwise, put it on the bottom of your deck. (approximation: played-card does not enter exerted)",
@@ -12272,6 +12284,11 @@
             }
           }
         ]
+      },
+      {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 2
       }
     ],
     "setId": "10",
@@ -12844,10 +12861,6 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "boost"
-      },
-      {
         "type": "triggered",
         "trigger": {
           "on": "quests"
@@ -12874,6 +12887,10 @@
             "thenPutOnBottomOfDeck": true
           }
         ]
+      },
+      {
+        "type": "keyword",
+        "keyword": "boost"
       }
     ],
     "setId": "10",
@@ -13430,11 +13447,6 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "boost",
-        "value": 1
-      },
-      {
         "type": "triggered",
         "storyName": "COMMAND PERFORMANCE",
         "rulesText": "Once during your turn, whenever you play a song, if there's a card under this character, you may draw a card.",
@@ -13464,6 +13476,11 @@
             }
           }
         ]
+      },
+      {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 1
       }
     ],
     "setId": "10",
