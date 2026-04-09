@@ -186,7 +186,7 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // "Whenever a character is banished in a challenge while here"
   [/\bwhenever a character is banished in a challenge while here\b/i, "location-banished-here-trigger"],
   // Location "when you move a character here from another location"
-  [/\bwhen you move a character here from another location\b/i, "location-moves-here-trigger"],
+  // (location-moves-here-trigger removed: moves_to_location + atLocation:"this" filter already supported.)
   // Lore transfer ("all opponents lose 1 lore and you gain lore equal to the lore lost")
   [/\byou gain lore equal to the lore lost\b/i, "lore-transfer"],
   // Grant activated ability to own chars this turn ("Your X characters gain \"{E}...\" this turn")
@@ -246,7 +246,7 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // "Draw a card for each character you have in play" — dynamic draw from count
   [/\bdraw (a |\d+ )cards? for each .{0,40}you have in play\b/i, "dynamic-draw-from-count"],
   // "While this character is being challenged" — static effect gated by being-challenged state
-  [/\bwhile this character is being challenged\b/i, "being-challenged-static"],
+  // (being-challenged-static removed: modify_stat_while_challenged + affects:attacker implemented.)
   // "Reveal up to N X character cards and up to N Y" (Family Madrigal) — multi-filter search/look
   [/\breveal up to \d+ .{0,40}and up to \d+ .{0,30}cards?\b/i, "multi-filter-look-reveal"],
   // "Whenever you play a Floodborn character on this card" — shift-onto-self trigger

@@ -1267,6 +1267,10 @@ export interface ModifyStatWhileChallengedStatic {
   type: "modify_stat_while_challenged";
   stat: "strength" | "willpower";
   modifier: number;
+  /** Default "self" — modifies the defender (this card). "attacker" applies the
+   *  modifier to the challenging character instead (Louie One Cool Duck:
+   *  "the challenging character gets -1 {S}"). */
+  affects?: "self" | "attacker";
 }
 
 export interface CantBeChallengedException {

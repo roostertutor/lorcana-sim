@@ -806,11 +806,16 @@ function applyChallenge(
   let attackerStr = getEffectiveStrength(attacker, attackerDef, atkStaticStr, modifiers);
   let defenderStr = getEffectiveStrength(defender, defenderDef, defStaticStr, modifiers);
 
-  // Check for "while being challenged" stat bonuses on the defender
+  // Check for "while being challenged" stat bonuses on the defender. The
+  // modifier may target either the defender (self, default) or the attacker
+  // (Louie One Cool Duck: "the challenging character gets -1 {S}").
   for (const ability of defenderDef.abilities) {
     if (ability.type !== "static") continue;
     if (ability.effect.type !== "modify_stat_while_challenged") continue;
-    if (ability.effect.stat === "strength") {
+    if (ability.effect.stat !== "strength") continue;
+    if (ability.effect.affects === "attacker") {
+      attackerStr += ability.effect.modifier;
+    } else {
       defenderStr += ability.effect.modifier;
     }
   }

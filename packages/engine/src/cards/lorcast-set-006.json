@@ -1790,7 +1790,27 @@
     "cost": 2,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "moves_to_location", "filter": { "atLocation": "this" } },
+        "storyName": "BRING IT HOME, LITTLE ONE!",
+        "rulesText": "When you move a character here from another location, you may banish this location to gain 3 lore and draw 3 cards.",
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              { "type": "banish", "target": { "type": "this" } }
+            ],
+            "rewardEffects": [
+              { "type": "gain_lore", "amount": 3, "target": { "type": "self" } },
+              { "type": "draw", "amount": 3, "target": { "type": "self" } }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "6",
     "number": 35,
     "rarity": "super_rare",
@@ -11106,7 +11126,27 @@
     "cost": 2,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "moves_to_location", "filter": { "atLocation": "this" } },
+        "storyName": "BRING IT HOME, LITTLE ONE!",
+        "rulesText": "When you move a character here from another location, you may banish this location to gain 3 lore and draw 3 cards.",
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              { "type": "banish", "target": { "type": "this" } }
+            ],
+            "rewardEffects": [
+              { "type": "gain_lore", "amount": 3, "target": { "type": "self" } },
+              { "type": "draw", "amount": 3, "target": { "type": "self" } }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "6",
     "number": 207,
     "rarity": "enchanted",

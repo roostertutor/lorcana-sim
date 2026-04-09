@@ -13,7 +13,19 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "SPRING THE TRAP",
+        "rulesText": "While this character is being challenged, the challenging character gets -1 {S}.",
+        "effect": {
+          "type": "modify_stat_while_challenged",
+          "stat": "strength",
+          "modifier": -1,
+          "affects": "attacker"
+        }
+      }
+    ],
     "setId": "8",
     "number": 1,
     "rarity": "uncommon",
@@ -46,7 +58,19 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "SPRING THE TRAP",
+        "rulesText": "While this character is being challenged, the challenging character gets -1 {S}.",
+        "effect": {
+          "type": "modify_stat_while_challenged",
+          "stat": "strength",
+          "modifier": -1,
+          "affects": "attacker"
+        }
+      }
+    ],
     "setId": "8",
     "number": 1,
     "rarity": "uncommon",

@@ -78,7 +78,7 @@ const NEW_MECHANIC: [RegExp, string][] = [
   [/\bif this card is in your discard, you may play\b/i, "self-play-from-discard"],
   [/\bwhenever a character is banished here\b/i, "location-banished-here-trigger"],
   [/\bwhenever a character is banished in a challenge while here\b/i, "location-banished-here-trigger"],
-  [/\bwhen you move a character here from another location\b/i, "location-moves-here-trigger"],
+  // (location-moves-here-trigger removed: moves_to_location + atLocation:"this" filter already supported.)
   [/\byou gain lore equal to the lore lost\b/i, "lore-transfer"],
   // (grant-activated-to-own-timed removed: grant_activated_ability_timed Effect implemented.)
   [/\{E\} one of your characters to deal damage equal to (their|its|his|her)\b/i, "exert-one-dynamic-damage"],
@@ -107,7 +107,7 @@ const NEW_MECHANIC: [RegExp, string][] = [
   // (played-another-this-turn-condition removed: played_another_character_this_turn Condition implemented.)
   [/\byou may pay \d+ \{I\} to choose one\b/i, "pay-then-modal"],
   [/\bdraw (a |\d+ )cards? for each .{0,40}you have in play\b/i, "dynamic-draw-from-count"],
-  [/\bwhile this character is being challenged\b/i, "being-challenged-static"],
+  // (being-challenged-static removed: modify_stat_while_challenged + affects:attacker implemented.)
   [/\breveal up to \d+ .{0,40}and up to \d+ .{0,30}cards?\b/i, "multi-filter-look-reveal"],
   [/\bwhen you play a .{0,20}character on this card\b/i, "shift-onto-self-trigger"],
   [/\bdiscard any number of cards,? then draw that many\b/i, "discard-any-number-dynamic"],
