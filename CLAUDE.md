@@ -9,14 +9,14 @@ to produce deck analytics and win rates. NOT a human-playable simulator.
 
 ## Status
 
-- engine:    done (390 passing). Phase A.x cleanup + finishing batch landed ~50 primitives total (boost subzone, damage immunity, ResolvedRef carriers, last_resolved_target/source filters and dynamic amounts, opponent_chooses_yes_or_no, conditional_on_last_discarded, prevent_lore_gain, forced_target_priority taunt, song_singer_count, opposing_chars_banished_in_challenge counter, costAtMostFromLastResolvedSourcePlus, generalized matchesFilter source-name resolution, etc.). Tests split: reducer.test.ts (CRD), set1-set11 + mech-gaps batch.
+- engine:    done (393 passing). Phase A.x cleanup + finishing batch landed ~50 primitives total (boost subzone, damage immunity, ResolvedRef carriers, last_resolved_target/source filters and dynamic amounts, opponent_chooses_yes_or_no, conditional_on_last_discarded, prevent_lore_gain, forced_target_priority taunt, song_singer_count, opposing_chars_banished_in_challenge counter, costAtMostFromLastResolvedSourcePlus, generalized matchesFilter source-name resolution, move_character maxCount multi-select chooser, etc.). Tests split: reducer.test.ts (CRD), set1-set11 + mech-gaps batch.
 - simulator: done (46 passing). Layer 3 invariants passing. RL bot implemented (Actor-Critic + GAE). Pre-existing flake on rl.test.ts unrelated to engine work.
 - analytics: done (15 passing).
 - cli:       done. analyze, compare, query, learn.
 - ui:        done. 7 screens, React+Vite. Responsive (mobile/tablet/desktop). Full-screen game board (no header/nav in-game). See `docs/UI_PENDING_MECHANICS.md` for mechanics needing visualization.
 - testbench: done. Interactive game board with bot opponent. Replay mode + undo. Utility strip (deck tile, inkwell, discard tile). Card action popover anchored to clicked card (fixed-position, works on all breakpoints). Keyword badges, exerted rotation/grayscale, damage counter, summoning sickness overlay. Play zone reset on leave (CRD 1.9.3).
 - cards:     **2145/2145 named-ability cards wired + 507 vanillas = 2652/2652 (100%) complete.** Every card across sets 1–11 + promos (P1, P2, P3, cp, DIS, D23) is implemented. Promo sets auto-synced from main sets via `scripts/sync-promo-reprints.ts` (cross-set + within-set passes).
-- gaps:      **0 stubs, 0 known approximations, 0 structural mis-wirings.** All audit items in `docs/CARD_WIRING_AUDIT.md` are RESOLVED. `pnpm card-status` is the live stub tracker; `pnpm audit-lorcast` covers (a) Lorcast API drift, (b) missing scalar fields, and (c) static effect-type mismatches (`self_cost_reduction` vs `grant_play_for_free_self` / `grant_shift_self`). Both currently report clean across all 17 sets.
+- gaps:      **0 stubs (per `pnpm card-status`), 57 known approximations annotated in card rulesText, ~unknown structural mis-wirings.** The "0 known approximations" claim was wrong: a `grep -n approximation packages/engine/src/cards/lorcast-set-*.json` finds 57 cards whose rulesText contains a parenthetical `(approximation: ...)` annotation left by whoever wired them. Severity ranges from Tier 1 hard no-ops (Naveen's Ukulele "no-op; banishes item", Hercules / Chief Bogo / Megara / Madam Mim / Tadashi rider-not-wired) through Tier 2 wrong-amounts ("fixed 1 lore" instead of dynamic per-target counts — analytics-acceptable for some) to Tier 4 multiplayer bugs (Kristoff + Anna "targets opponent in 2P"). See `docs/CARD_WIRING_AUDIT.md` for the rolling triage. The decompiler sweep also surfaced 8 separate stub-as-no-op bugs that were NOT annotated (Voyage `gain_lore amount:0`, Cinderella - Stouthearted, Flash - Records Specialist, Mirabel ×2, Nathaniel Flint, Turbo phantom Rush) — fixed in commit 5e8ea72. `pnpm card-status` is the live stub tracker (only catches missing-ability cards, not stubbed-no-op cards). `pnpm audit-lorcast` covers (a) Lorcast API drift, (b) missing scalar fields, and (c) static effect-type mismatches; clean across all 17 sets but **does not detect approximation annotations or no-op stubs** — that's the decompiler-diff sweep's job.
 
 ## Quick Reference
 
@@ -142,6 +142,28 @@ to return `{0,0}`. Use a single container with responsive Tailwind classes inste
   {cards.map(id => <DraggableCard id={id} />)}
 </div>
 ```
+
+**No-op stubs and "approximation" annotations (data-quality failure mode):**
+A recurring pattern: cards get "wired" with a literal no-op effect (e.g.
+`modify_stat modifier:0`, `gain_lore amount:0`) or with an `(approximation: ...)`
+parenthetical comment in their rulesText, both of which slip past `pnpm card-status`
+(which only counts missing abilities, not zero-valued ones) and `pnpm audit-lorcast`
+(which only checks Lorcast API drift). They look "implemented" until someone
+diffs the rendered behavior against the oracle text.
+
+Rules to prevent regression:
+- NEVER write a no-op stub to make a card "complete." If you can't implement
+  the effect, leave `abilities: []` and add the card to `docs/CARD_WIRING_AUDIT.md`
+  with the reason — `pnpm card-status` will flag it and the gap stays visible.
+- NEVER add `(approximation: ...)` to rulesText. The annotation is invisible to
+  every audit script and creates a permanent stealth-debt entry. Either implement
+  the effect correctly OR leave the card unwired with a tracker entry.
+- The authoritative no-op stub detector is `pnpm decompile-cards` (the
+  decompiler-diff sweep) — it renders ability JSON back to English and scores
+  similarity vs oracle text. The bottom of the sorted output is the bug list.
+  Run it before claiming any "100% complete" status.
+- Grep `packages/engine/src/cards -e approximation` should always return zero
+  matches. If it doesn't, something slipped through review.
 
 **Sequential effect triggeringCardInstanceId (CRD 6.1.5.1):**
 When applying `sequential` costEffects/rewardEffects via `applyEffect`, always forward `triggeringCardInstanceId`.

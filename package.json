@@ -15,6 +15,7 @@
     "learn": "pnpm --filter cli learn",
     "import-cards": "tsx scripts/import-cards.ts",
     "audit-lorcast": "tsx scripts/audit-lorcast-data.ts",
+    "audit-approximations": "tsx scripts/audit-approximations.ts",
     "decompile-cards": "tsx scripts/decompile-cards.ts",
     "train-mirror": "tsx --tsconfig scripts/tsconfig.scripts.json scripts/train-mirror.ts",
     "card-status": "tsx --tsconfig scripts/tsconfig.scripts.json scripts/card-status.ts"

@@ -50,6 +50,14 @@ interface CardJSON {
   actionEffects?: Json[];
   shiftCost?: number;
   singTogetherCost?: number;
+  /** "You can't play this character unless ..." — checked at PLAY_CARD time
+   *  by the validator. Each entry is a Condition object with the same shape
+   *  used by triggered/static abilities. */
+  playRestrictions?: Json[];
+  /** Dual-name characters whose card "counts as being named X" for Shift /
+   *  name-matching effects. Stored as a scalar field rather than an ability
+   *  (Flotsam & Jetsam, Turbo - Royal Hack). */
+  additionalNames?: string[];
 }
 
 // =============================================================================
@@ -79,6 +87,20 @@ function renderCard(card: CardJSON): string {
   }
   if (card.singTogetherCost !== undefined) {
     parts.push(`Sing Together ${card.singTogetherCost}`);
+  }
+
+  // Dual-name characters: Flotsam & Jetsam, Turbo - Royal Hack. The card
+  // "counts as being named X" for Shift / name-matching purposes.
+  if (card.additionalNames && card.additionalNames.length > 0) {
+    const names = card.additionalNames.join(" and ");
+    parts.push(`This character counts as being named ${names}`);
+  }
+
+  // Play restrictions ("you can't play this character unless ...") are
+  // CardDefinition-level, not ability-level. Conditions render with an "if "
+  // prefix; we strip it and prepend "unless " for the natural reading.
+  for (const restriction of card.playRestrictions ?? []) {
+    parts.push(`You can't play this character unless ${stripIfPrefix(renderCondition(restriction))}`);
   }
 
   for (const ab of card.abilities ?? []) {
@@ -139,6 +161,8 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
   // Legacy spelling alias.
   banished_other:                ()  => "Whenever this character banishes another character in a challenge",
   is_challenged:                 ()  => "Whenever this character is challenged",
+  // Legacy spelling alias.
+  challenged:                    ()  => "Whenever this character is challenged",
   challenges:                    (t) => filterMentionsYour(t.filter)
                                           ? "Whenever one of your characters challenges another character"
                                           : "Whenever this character challenges another character",
@@ -226,6 +250,22 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
   this_location_has_character: () => "if this location has a character at it",
   played_via_shift:           () => "if this character was played via Shift",
   triggering_card_played_via_shift: () => "if the triggering character was played via Shift",
+
+  // ---- This-card-stat checks ------------------------------------------------
+  self_stat_gte:              (c) => `if this character's ${c.stat ?? "strength"} is ${c.amount ?? 0} or more`,
+  this_had_card_put_under_this_turn: () => "if a card was put under this character this turn",
+  this_location_has_exerted_character: () => "if this location has an exerted character at it",
+
+  // ---- Turn-history checks --------------------------------------------------
+  no_challenges_this_turn:    () => "if no characters have challenged this turn",
+  opponent_character_was_banished_in_challenge_this_turn:
+                              () => "if an opposing character was banished in a challenge this turn",
+  ink_plays_this_turn_eq:     (c) => `if you've played exactly ${c.amount ?? 0} cards into your inkwell this turn`,
+  songs_played_this_turn_gte: (c) => `if you've played ${c.amount ?? 0} or more songs this turn`,
+  actions_played_this_turn_gte: (c) => `if you've played ${c.amount ?? 0} or more actions this turn`,
+
+  // Pete Games Referee — "during your turn, opponents can't play actions"
+  opponent_no_challenges_this_turn: () => "if no opposing character has challenged this turn",
 };
 
 function stripIfPrefix(s: string): string {
@@ -385,7 +425,113 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   choose_may: (e) => `choose: ${(e.options ?? []).map((o: Json) => (o.effects ?? []).map(renderEffect).join(" and ")).join(" OR ")}`,
 
   damage_immunity:           (e) => `${renderTarget(e.target ?? {})} can't be damaged${dur(e)}`,
+  // Permanent variant — applies as a static (Baloo Ol' Iron Paws "your
+  // characters with 7+ {S} can't be damaged"). `source` distinguishes
+  // "all" damage vs only "challenge" damage.
+  damage_immunity_static: (e) => {
+    const tgt = renderTarget(e.target ?? {});
+    if (e.source === "challenge") return `${tgt} can't be damaged from challenges`;
+    return `${tgt} can't be damaged`;
+  },
+  // Turn-scoped variant (Noi Acrobatic Baby "this character can't be
+  // damaged from challenges this turn").
+  damage_immunity_timed: (e) => {
+    const tgt = renderTarget(e.target ?? {});
+    if (e.source === "challenge") return `${tgt} can't be damaged from challenges${dur(e)}`;
+    return `${tgt} can't be damaged${dur(e)}`;
+  },
+
   opponent_chooses_yes_or_no: () => `each opponent may choose to respond`,
+
+  // Timed variant of cant_be_challenged (Kanga Nurturing Mother "until your
+  // next turn"). Same shape as the static form but with a duration.
+  cant_be_challenged_timed: (e) => {
+    const tgt = renderTarget(e.target ?? { type: "this" });
+    if (e.attackerFilter) {
+      return `characters ${renderFilter(e.attackerFilter)} can't challenge ${tgt}${dur(e)}`;
+    }
+    return `${tgt} can't be challenged${dur(e)}`;
+  },
+
+  // "Put TARGET on the bottom of your deck" — `from` is the source zone
+  // (hand / play / discard). Used by King Candy Sweet Abomination.
+  put_on_bottom_of_deck: (e) => {
+    const where = e.from === "play" ? renderTarget(e.target ?? {}) : `a card from your ${e.from ?? "hand"}`;
+    return `put ${where} on the bottom of your deck`;
+  },
+
+  // "Mill N cards" — put top N of own deck into discard. Dale Mischievous
+  // Ranger pattern.
+  mill: (e) => `put the top ${e.amount ?? 1} card${plural(e.amount ?? 1)} of your deck into your discard`,
+
+  // Mass inkwell exertion / readying. Mufasa Ruler of Pride Rock "exert all
+  // cards in your inkwell". `mode` distinguishes the operation.
+  mass_inkwell: (e) => {
+    const tgt = renderTarget(e.target ?? { type: "self" });
+    if (e.mode === "exert_all") return `exert all cards in ${tgt === "you" ? "your" : tgt + "'s"} inkwell`;
+    if (e.mode === "ready_all") return `ready all cards in ${tgt === "you" ? "your" : tgt + "'s"} inkwell`;
+    return `affect all cards in ${tgt === "you" ? "your" : tgt + "'s"} inkwell`;
+  },
+
+  // "Reveal target's hand" — Dolores Madrigal Within Earshot.
+  reveal_hand: (e) => `reveal ${renderTarget(e.target ?? {}) === "you" ? "your" : "each opponent's"} hand`,
+
+  // "Name a card, then reveal the top of your deck" — The Sorcerer's Hat.
+  name_a_card_then_reveal: () => "name a card, then reveal the top card of your deck",
+
+  // "Each opponent may discard a card. For each opponent who doesn't, [reward]."
+  // Sign the Scroll, Ursula's Trickery.
+  each_opponent_may_discard_then_reward: (e) => {
+    const reward = e.rewardEffect ? renderEffect(e.rewardEffect) : "you gain a reward";
+    return `each opponent may discard a card; for each opponent who doesn't, ${reward}`;
+  },
+
+  // Grants an activated ability to a filtered set of characters until end
+  // of turn. Food Fight! pattern.
+  grant_activated_ability_timed: (e) => {
+    const filt = e.filter ? renderFilter(e.filter) : "characters";
+    const inner = e.ability ? renderAbility(e.ability) : "[no-ability]";
+    return `your ${filt} gain "${inner}" this turn`;
+  },
+
+  // Static "enters play exerted" — applies to a filtered set (e.g.
+  // Sapphire Chromicon "items enter play exerted"). Self-applied form
+  // is more commonly wired as a triggered enters_play → exert this.
+  enter_play_exerted: (e) => {
+    const filt = e.filter ? renderFilter(e.filter) : "characters";
+    return `${filt} enter play exerted`;
+  },
+
+  // "This character costs N less for each X you have" — Sherwood Forest
+  // Outlaw Hideaway pattern. `amount: "all"` means "by 1 per match".
+  move_to_self_cost_reduction: (e) => {
+    const filt = e.filter ? renderFilter(e.filter) : "matching characters";
+    return `this character costs 1 {I} less to play for each ${filt} you have`;
+  },
+
+  // CRD must-quest (Reckless-style restriction). Often timed.
+  must_quest_if_able: (e) => `${renderTarget(e.target ?? {})} must quest if able${dur(e)}`,
+
+  // "Draw cards until you have N in hand" — Prince John's Mirror.
+  // `trimOnly: true` means it only fires when the target's hand is below N.
+  fill_hand_to: (e) => {
+    const tgt = renderTarget(e.target ?? {});
+    return `${tgt === "you" ? "you draw" : tgt + " draws"} cards until ${tgt === "you" ? "you have" : "they have"} ${e.n ?? "?"} cards in hand`;
+  },
+
+  // Deck search ("tutor") — Minnie Mouse Drum Major.
+  tutor: (e) => `${maybe(e)}search your deck for ${e.filter ? renderFilter(e.filter) : "a card"}, reveal it, and put it into your hand`,
+
+  // "If the discarded card was X, do A; otherwise do B." Kakamora Pirate Chief.
+  conditional_on_last_discarded: (e) => {
+    const filt = e.filter ? renderFilter(e.filter) : "matching";
+    const a = (e.then ?? []).map(renderEffect).join(" and ");
+    const b = (e.otherwise ?? []).map(renderEffect).join(" and ");
+    return `if the discarded card was a ${filt}, ${a}; otherwise ${b}`;
+  },
+
+  // "Put all cards under this character into your hand" — Alice Well-Read Whisper.
+  put_cards_under_into_hand: (e) => `put all cards under ${renderTarget(e.target ?? { type: "this" })} into your hand`,
 
   // ---- NEW: shapes added in the second pass --------------------------------
 
@@ -668,8 +814,14 @@ const SYNONYMS: Array<[RegExp, string]> = [
 
 function normalize(s: string): string {
   let out = s.toLowerCase();
-  // Strip parenthetical reminder text — keyword reminders, sing-cost reminders.
-  out = out.replace(/\([^)]*\)/g, " ");
+  // Strip parenthetical reminder text (keyword reminders, sing-cost reminders)
+  // — but ONLY if there's substantive content outside the parens. Cards whose
+  // entire oracle text IS a parenthetical (Flotsam & Jetsam Entangling Eels:
+  // "(This character counts as being named both Flotsam and Jetsam.)") would
+  // otherwise normalize to empty string and force-fail the similarity score.
+  const stripped = out.replace(/\([^)]*\)/g, " ").trim();
+  if (stripped.length > 0) out = out.replace(/\([^)]*\)/g, " ");
+  else out = out.replace(/[()]/g, " ");
   // Strip story-name leading caps (rare in rulesText).
   for (const [re, repl] of SYNONYMS) out = out.replace(re, repl);
   // Strip punctuation.

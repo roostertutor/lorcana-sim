@@ -4,6 +4,10 @@ All 2652/2652 cards are wired (100%). This file tracks the small set of cards wh
 
 When revisiting, the question to ask each entry is: *"would full fidelity meaningfully change deck simulation outcomes?"* If yes, lift the approximation. If no, leave it documented and move on.
 
+> **⚠ Doc-vs-reality drift, 2026-04-09:** The numbered table below tracks 7 entries, all marked RESOLVED — but a `pnpm audit-approximations` sweep on 2026-04-09 found **53 additional cards** carrying undocumented `(approximation: ...)` annotations in their rulesText that were **never added to this doc**. They accumulated silently because no audit script grepped for them. None are pre-approved as analytics-acceptable; all are fair game to fix.
+>
+> The live tracker is now `pnpm audit-approximations`, which classifies the 53 by tier (Tier 1 hard no-op through Tier 5 other). Fix sweep in progress; this doc should be updated as each card is resolved — but preferably by deleting the annotation from the card JSON, which automatically drops the script's count. The decompiler-diff sweep (`pnpm decompile-cards`) is the complementary tool that catches *unannotated* no-op stubs (Voyage / Cinderella - Stouthearted / Flash - Records Specialist class — see commit 5e8ea72).
+
 | # | Card | Set | Approximation | Why | Audit notes |
 |---|---|---|---|---|---|
 | ~~1~~ | ~~Moana — Kakamora Leader~~ | ~~6~~ | **RESOLVED**: new `move_character.character: { type: "all"; filter }` variant. Bot heuristic moves every matching own character to the chosen location and records the count on `state.lastEffectResult`; the follow-up `gain_lore amount: cost_result` pays per move. Same audit pass also lifted the "Healing Glow" / set-8 healing-and-debuff song approximations (single-target → all own damaged chars via `target: "all"` + `hasDamage: true`). | — | — |
