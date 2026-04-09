@@ -4944,6 +4944,28 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "sequential",
+        "costEffects": [
+          {
+            "type": "move_damage",
+            "amount": 1,
+            "source": {
+              "type": "all_damaged",
+              "filter": { "cardType": "character", "owner": { "type": "self" }, "zone": "play" }
+            },
+            "destination": {
+              "type": "chosen",
+              "filter": { "cardType": "character", "owner": { "type": "opponent" }, "zone": "play" }
+            }
+          }
+        ],
+        "rewardEffects": [
+          { "type": "draw", "amount": "cost_result", "target": { "type": "self" } }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 82,
     "rarity": "rare",
@@ -5739,6 +5761,20 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "name": "I LIKE WHERE THIS IS HEADING",
+        "trigger": { "event": "quests", "filter": { "type": "this" } },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 1,
+            "action": "reveal_until_match_to_hand_shuffle_rest",
+            "filter": { "cardType": "character", "hasTrait": "Floodborn" },
+            "target": { "type": "self" }
+          }
+        ]
       }
     ],
     "setId": "8",

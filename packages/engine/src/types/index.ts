@@ -193,6 +193,7 @@ export type Effect =
   | PutCardsUnderIntoHandEffect
   | MoveCardsUnderToInkwellEffect
   | MoveAllMatchingToInkwellEffect
+  | ConditionalOnLastDiscardedEffect
   | PutSelfUnderTargetEffect
   | ReturnAllToBottomInOrderEffect
   | PutTopOfDeckUnderEffect
@@ -588,8 +589,13 @@ export interface MoveDamageEffect {
   amount: number;
   /** "up to N" — engine moves min(N, source.damage) */
   isUpTo?: boolean;
-  /** Source character (must have damage). */
-  source: { type: "chosen"; filter: CardFilter };
+  /** Source character (must have damage). For "all_damaged", loops over each
+   *  matching damaged card moving `amount` counters per source. The actual
+   *  total moved is recorded in `state.lastEffectResult` for cost_result reads
+   *  (Everybody's Got a Weakness: "draw a card for each damage counter moved"). */
+  source:
+    | { type: "chosen"; filter: CardFilter }
+    | { type: "all_damaged"; filter: CardFilter };
   /** Destination character. */
   destination: { type: "chosen"; filter: CardFilter };
   /** Internal: stage-2 marker carrying the resolved source snapshot. */
@@ -695,6 +701,20 @@ export interface MoveCardsUnderToInkwellEffect {
   target: PlayerTarget;
   /** CRD 6.1.4: player may choose not to apply. */
   isMay?: boolean;
+}
+
+/**
+ * CRD 6.1.5.1: "If <X> was discarded, [then-effects]." Reads `state.lastDiscarded`
+ * (populated by the most recent choose_discard / discard_from_hand resolution),
+ * checks whether any of those snapshots match `filter`, and applies `then` if
+ * so (else `otherwise`). Used by Kakamora - Pirate Chief ("if a Pirate character
+ * card was discarded, deal 3 damage instead of 1").
+ */
+export interface ConditionalOnLastDiscardedEffect {
+  type: "conditional_on_last_discarded";
+  filter: CardFilter;
+  then: Effect[];
+  otherwise?: Effect[];
 }
 
 /**
@@ -947,7 +967,20 @@ export interface LookAtTopEffect {
   /** Number of cards to look at. Accepts a literal or a DynamicAmount
    *  (e.g. `cards_under_count` for Bambi Ethereal Fawn). */
   count: number | DynamicAmount;
-  action: "one_to_hand_rest_bottom" | "top_or_bottom" | "reorder" | "up_to_n_to_hand_rest_bottom" | "one_to_inkwell_exerted_rest_top" | "one_to_play_for_free_rest_bottom";
+  action:
+    | "one_to_hand_rest_bottom"
+    | "top_or_bottom"
+    | "reorder"
+    | "up_to_n_to_hand_rest_bottom"
+    | "one_to_inkwell_exerted_rest_top"
+    | "one_to_play_for_free_rest_bottom"
+    /** Kristoff's Lute MOMENT OF INSPIRATION — reveal top, may play for free,
+     *  otherwise put it into discard. count is implicitly 1. */
+    | "may_play_for_free_else_discard"
+    /** Fred Giant-Sized I LIKE WHERE THIS IS HEADING — reveal cards from top
+     *  until first match against `filter`, that card to hand, shuffle the rest
+     *  of the revealed cards back into the deck. count is implicitly "until_match". */
+    | "reveal_until_match_to_hand_shuffle_rest";
   /** Optional filter — only matching cards can go to hand (for "may reveal matching" patterns) */
   filter?: CardFilter;
   /** For "up_to_n_to_hand_rest_bottom": max number of cards to put into hand (Look at This Family = 2, Dig a Little Deeper = 2). */
@@ -2131,6 +2164,12 @@ export interface GameState {
    *  character") and Ambush ("deal damage equal to their {S}"). Reset at the start
    *  of each sequential effect resolution. */
   lastResolvedSource?: ResolvedRef;
+
+  /** Snapshots of cards moved to discard by the most recent choose_discard /
+   *  discard_from_hand resolution. Used by Kakamora Pirate Chief ("if a Pirate
+   *  card was discarded, deal 3 damage instead of 1") via the
+   *  conditional_on_last_discarded effect. Reset on each new discard. */
+  lastDiscarded?: ResolvedRef[];
 
   winner: PlayerID | null;
   isGameOver: boolean;

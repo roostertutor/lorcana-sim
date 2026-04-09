@@ -21,6 +21,7 @@ import type {
   PendingTrigger,
   ZoneName,
   CardTarget,
+  ResolvedRef,
 } from "../types/index.js";
 import { getGameModifiers, type GameModifiers } from "./gameModifiers.js";
 import { validateAction, applyMoveCostReduction } from "./validator.js";
@@ -1664,6 +1665,15 @@ function applyResolveChoice(
     const discardCount = choice.length;
     // Determine who is discarding (the owner of the first card chosen)
     let discardingPlayerId: PlayerID | undefined;
+    // Snapshot the discarded cards BEFORE moving so the ResolvedRef captures
+    // their hand-state identity. Used by conditional_on_last_discarded
+    // (Kakamora Pirate Chief: "if a Pirate card was discarded...").
+    const discardedRefs: ResolvedRef[] = [];
+    for (const cardId of choice) {
+      const ref = makeResolvedRef(state, definitions, cardId);
+      if (ref) discardedRefs.push(ref);
+    }
+    state = { ...state, lastDiscarded: discardedRefs };
     for (const cardId of choice) {
       const inst = state.cards[cardId];
       if (inst && inst.zone === "hand") {
@@ -2542,6 +2552,41 @@ export function applyEffect(
 
     case "move_damage": {
       // CRD 1.9.1.4: two-stage chosen flow (source → destination).
+      // "all_damaged" branch (Everybody's Got a Weakness): loop over each
+      // matching damaged source moving `amount` counters to the chosen
+      // destination, then surface a single choose_target for the destination.
+      if (effect.source.type === "all_damaged") {
+        const damagedFilter = { ...effect.source.filter, hasDamage: true };
+        const sources = findValidTargets(state, damagedFilter, controllingPlayerId, definitions, sourceInstanceId);
+        if (sources.length === 0) {
+          state = { ...state, lastEffectResult: 0 };
+          // Still surface the destination prompt — the wording moves any
+          // available damage; if there is none, the reward (draw cost_result)
+          // resolves to 0 and the effect fizzles cleanly.
+        }
+        const validDestinations = findValidTargets(state, effect.destination.filter, controllingPlayerId, definitions, sourceInstanceId);
+        if (validDestinations.length === 0) {
+          state = { ...state, lastEffectResult: 0 };
+          return state;
+        }
+        // Stash the resolved-source list on the cloned effect so the destination
+        // resolution path can drain damage from each source.
+        const resolvedSources = sources
+          .map((id) => makeResolvedRef(state, definitions, id))
+          .filter((r): r is ResolvedRef => !!r);
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_target",
+            choosingPlayerId: controllingPlayerId,
+            prompt: "Choose a character to move damage to.",
+            validTargets: validDestinations,
+            pendingEffect: { ...effect, _resolvedSources: resolvedSources } as any,
+            sourceInstanceId,
+            triggeringCardInstanceId,
+          },
+        };
+      }
       // Stage 1: pick source character (must currently have damage; isUpTo
       // doesn't apply at filter time — we let any matching char be picked).
       const sourceFilter = { ...effect.source.filter, hasDamage: true };
@@ -2677,6 +2722,28 @@ export function applyEffect(
           };
         }
         state = updateInstance(state, parentId, { cardsUnder: [] });
+      }
+      return state;
+    }
+
+    case "conditional_on_last_discarded": {
+      // CRD 6.1.5.1: Apply `then` if any card in state.lastDiscarded matches
+      // the filter, else `otherwise`. Used by Kakamora Pirate Chief.
+      const refs = state.lastDiscarded ?? [];
+      let matched = false;
+      for (const ref of refs) {
+        const inst = state.cards[ref.instanceId];
+        const def = inst ? definitions[inst.definitionId] : undefined;
+        if (!inst || !def) continue;
+        if (matchesFilter(inst, def, effect.filter, state, controllingPlayerId, sourceInstanceId)) {
+          matched = true;
+          break;
+        }
+      }
+      const branch = matched ? effect.then : (effect.otherwise ?? []);
+      for (const sub of branch) {
+        state = applyEffect(state, sub, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+        if (state.pendingChoice) return state;
       }
       return state;
     }
@@ -3181,6 +3248,82 @@ export function applyEffect(
           }
           state = reorderDeckTopToBottom(state, targetPlayer, rest, []);
           return state;
+        }
+        case "may_play_for_free_else_discard": {
+          // Kristoff's Lute MOMENT OF INSPIRATION: reveal top, may play it for
+          // free, otherwise put it into discard. count is implicitly 1.
+          if (topCards.length === 0) return state;
+          const topId = topCards[0]!;
+          const topInst = state.cards[topId];
+          const topDef = topInst ? definitions[topInst.definitionId] : undefined;
+          if (!topInst || !topDef) return state;
+          // Bot heuristic: play if it's an action or low-cost playable; else discard.
+          // Cheap heuristic — always try to play; if play handler can't, fall through.
+          state = zoneTransition(state, topId, "play", definitions, events, {
+            reason: "played", triggeringPlayerId: targetPlayer,
+          });
+          if (topDef.cardType === "character") {
+            state = updateInstance(state, topId, { isDrying: true });
+          }
+          if (topDef.cardType === "action" && topDef.actionEffects) {
+            for (const ae of topDef.actionEffects) {
+              state = applyEffect(state, ae, topId, targetPlayer, definitions, events);
+            }
+            state = zoneTransition(state, topId, "discard", definitions, events, { reason: "discarded" });
+          }
+          return state;
+        }
+        case "reveal_until_match_to_hand_shuffle_rest": {
+          // Fred Giant-Sized I LIKE WHERE THIS IS HEADING: reveal cards from
+          // the top of the deck until you reveal a matching card. Put that
+          // card into hand and shuffle the rest of the revealed (non-matching)
+          // cards back into the deck.
+          if (!effect.filter) return state;
+          const fullDeck = getZone(state, targetPlayer, "deck");
+          let matchIdx = -1;
+          for (let i = 0; i < fullDeck.length; i++) {
+            const id = fullDeck[i]!;
+            const inst = state.cards[id];
+            if (!inst) continue;
+            const def = definitions[inst.definitionId];
+            if (!def) continue;
+            if (matchesFilter(inst, def, effect.filter, state, controllingPlayerId)) {
+              matchIdx = i;
+              break;
+            }
+          }
+          if (matchIdx === -1) {
+            // No match — entire deck was revealed; shuffle deck (no card to hand).
+            const shuffled = [...fullDeck];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+              const r = rngNextInt(state, i + 1);
+              const tmp = shuffled[i]!; shuffled[i] = shuffled[r]!; shuffled[r] = tmp;
+            }
+            return {
+              ...state,
+              zones: {
+                ...state.zones,
+                [targetPlayer]: { ...state.zones[targetPlayer], deck: shuffled },
+              },
+            };
+          }
+          const matchId = fullDeck[matchIdx]!;
+          const revealedNonMatch = fullDeck.slice(0, matchIdx);
+          const remaining = fullDeck.slice(matchIdx + 1);
+          state = moveCard(state, matchId, targetPlayer, "hand");
+          // Shuffle revealedNonMatch back into the remaining deck.
+          const merged = [...remaining, ...revealedNonMatch];
+          for (let i = merged.length - 1; i > 0; i--) {
+            const r = rngNextInt(state, i + 1);
+            const tmp = merged[i]!; merged[i] = merged[r]!; merged[r] = tmp;
+          }
+          return {
+            ...state,
+            zones: {
+              ...state.zones,
+              [targetPlayer]: { ...state.zones[targetPlayer], deck: merged },
+            },
+          };
         }
         default:
           return state;
@@ -5124,6 +5267,29 @@ function applyEffectToTarget(
       return state;
     }
     case "move_damage": {
+      // "all_damaged" stage-2: drain 1 (or `amount`) damage from each resolved
+      // source into the chosen destination. Records total moved on lastEffectResult.
+      const allSources = (effect as any)._resolvedSources as ResolvedRef[] | undefined;
+      if (allSources) {
+        const dst0 = state.cards[targetInstanceId];
+        if (!dst0) return state;
+        let totalMoved = 0;
+        for (const ref of allSources) {
+          const src = state.cards[ref.instanceId];
+          if (!src || src.damage <= 0) continue;
+          const moveAmt = Math.min(effect.amount, src.damage);
+          if (moveAmt <= 0) continue;
+          state = updateInstance(state, src.instanceId, { damage: src.damage - moveAmt });
+          const dstNow = state.cards[targetInstanceId];
+          if (!dstNow) continue;
+          state = updateInstance(state, targetInstanceId, { damage: dstNow.damage + moveAmt });
+          totalMoved += moveAmt;
+        }
+        state = { ...state, lastEffectResult: totalMoved };
+        const deltaRef = makeResolvedRef(state, definitions, targetInstanceId, { delta: totalMoved });
+        if (deltaRef) state = { ...state, lastResolvedTarget: deltaRef };
+        return state;
+      }
       // Stage 2 path: source already resolved → targetInstanceId is the destination
       if (effect._resolvedSource) {
         const src = state.cards[effect._resolvedSource.instanceId];

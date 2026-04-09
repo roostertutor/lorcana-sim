@@ -6991,7 +6991,25 @@
     "cost": 3,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "MOMENT OF INSPIRATION",
+        "rulesText": "{E}, 2 {I} \u2014 Reveal the top card of your deck. You may play it as if it were in your hand. Otherwise, put it in your discard.",
+        "costs": [
+          { "type": "exert" },
+          { "type": "ink", "amount": 2 }
+        ],
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 1,
+            "action": "may_play_for_free_else_discard",
+            "target": { "type": "self" }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 133,
     "rarity": "rare",
