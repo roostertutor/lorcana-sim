@@ -294,7 +294,25 @@
       "Ally",
       "Madrigal"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "sings", "filter": { "owner": { "type": "self" } } },
+        "storyName": "OF COURSE THEY CAN COME",
+        "rulesText": "Once during your turn, whenever one of your characters sings a song, you may search your deck for a character card with cost 3 or less and reveal that card to all players. Put that card into your hand and shuffle your deck.",
+        "condition": { "type": "is_your_turn" },
+        "oncePerTurn": true,
+        "effects": [
+          {
+            "type": "search",
+            "filter": { "cardType": ["character"], "costAtMost": 3 },
+            "target": { "type": "self" },
+            "zone": "deck",
+            "putInto": "hand"
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 5,
     "rarity": "rare",
@@ -1116,6 +1134,23 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "trigger": { "on": "sings", "filter": { "owner": { "type": "self" } } },
+        "storyName": "BRIGHT FUTURE",
+        "rulesText": "Whenever this character sings a song, you may draw a card for each character you have in play.",
+        "effects": [
+          {
+            "type": "draw",
+            "amount": {
+              "type": "count",
+              "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"] }
+            },
+            "target": { "type": "self" },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "8",
@@ -6201,7 +6236,42 @@
       "Hero",
       "Deity"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "is_banished" },
+        "storyName": "I'M NOT FINISHED YET",
+        "rulesText": "When this character is banished, choose one: Put 2 damage counters on all opposing characters. Banish all opposing items. Banish all opposing locations.",
+        "effects": [
+          {
+            "type": "choose",
+            "count": 1,
+            "options": [
+              [
+                {
+                  "type": "deal_damage",
+                  "amount": 2,
+                  "asDamageCounter": true,
+                  "target": { "type": "all", "filter": { "owner": { "type": "opponent" }, "zone": "play", "cardType": ["character"] } }
+                }
+              ],
+              [
+                {
+                  "type": "banish",
+                  "target": { "type": "all", "filter": { "owner": { "type": "opponent" }, "zone": "play", "cardType": ["item"] } }
+                }
+              ],
+              [
+                {
+                  "type": "banish",
+                  "target": { "type": "all", "filter": { "owner": { "type": "opponent" }, "zone": "play", "cardType": ["location"] } }
+                }
+              ]
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 110,
     "rarity": "super_rare",

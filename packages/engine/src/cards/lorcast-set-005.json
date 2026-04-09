@@ -4318,7 +4318,53 @@
       "Hero",
       "Queen"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "enters_play" },
+        "storyName": "ROYAL RESOLUTION",
+        "rulesText": "When you play this character, you may pay 2 {I} to choose one: Each opponent chooses and discards a card. Chosen character gets +2 {S} this turn. Banish chosen damaged character.",
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              { "type": "pay_ink", "amount": 2 }
+            ],
+            "rewardEffects": [
+              {
+                "type": "choose",
+                "count": 1,
+                "options": [
+                  [
+                    {
+                      "type": "discard_from_hand",
+                      "target": { "type": "opponent" },
+                      "amount": 1,
+                      "chooser": "target_player"
+                    }
+                  ],
+                  [
+                    {
+                      "type": "gain_stats",
+                      "strength": 2,
+                      "duration": "this_turn",
+                      "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } }
+                    }
+                  ],
+                  [
+                    {
+                      "type": "banish",
+                      "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"], "hasDamage": true } }
+                    }
+                  ]
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "5",
     "number": 85,
     "rarity": "legendary",
