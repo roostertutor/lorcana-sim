@@ -3024,6 +3024,19 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 7
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "character_exerted",
+          "filter": { "owner": { "type": "opponent" }, "cardType": ["character"] }
+        },
+        "storyName": "ANCIENT RAGE",
+        "rulesText": "During your turn, whenever an opposing character is exerted, banish them.",
+        "condition": { "type": "is_your_turn" },
+        "effects": [
+          { "type": "banish", "target": { "type": "triggering_card" } }
+        ]
       }
     ],
     "setId": "7",

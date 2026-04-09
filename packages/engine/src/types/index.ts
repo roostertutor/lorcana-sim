@@ -833,7 +833,9 @@ export interface CantActionEffect {
  */
 export interface LookAtTopEffect {
   type: "look_at_top";
-  count: number;
+  /** Number of cards to look at. Accepts a literal or a DynamicAmount
+   *  (e.g. `cards_under_count` for Bambi Ethereal Fawn). */
+  count: number | DynamicAmount;
   action: "one_to_hand_rest_bottom" | "top_or_bottom" | "reorder" | "up_to_n_to_hand_rest_bottom" | "one_to_inkwell_exerted_rest_top";
   /** Optional filter — only matching cards can go to hand (for "may reveal matching" patterns) */
   filter?: CardFilter;
@@ -1529,7 +1531,14 @@ export type TriggerEvent =
    *  source of the effect doing the choosing. Used by Archimedes Exceptional
    *  Owl ("Whenever an opponent chooses this character for an action or
    *  ability, you may draw a card") and the Vanish keyword. */
-  | { on: "chosen_by_opponent"; filter?: CardFilter };
+  | { on: "chosen_by_opponent"; filter?: CardFilter }
+  /** Fires when a character transitions from unexerted to exerted (via quest,
+   *  challenge, sing, activated-ability cost, or `exert` effect). Does NOT
+   *  fire for cards entering play exerted, since they're not transitioning.
+   *  Source is the exerted character. Used by Te Kā Elemental Terror
+   *  ("Whenever an opposing character is exerted, banish them") and Bambi
+   *  Ethereal Fawn. */
+  | { on: "character_exerted"; filter?: CardFilter };
 
 // -----------------------------------------------------------------------------
 // CONDITIONS — Guards on triggered/activated abilities

@@ -350,7 +350,7 @@ function applyPlayCard(
   // CRD 8.12: Sing Together — multiple characters all exert; sings trigger fires per singer
   if (singerInstanceIds && singerInstanceIds.length > 0) {
     for (const sId of singerInstanceIds) {
-      state = updateInstance(state, sId, { isExerted: true });
+      state = exertInstance(state, sId, definitions);
     }
     const singerNames = singerInstanceIds
       .map(id => getDefinition(state, id, definitions).fullName)
@@ -370,7 +370,7 @@ function applyPlayCard(
     }
   } else if (singerInstanceId) {
     // Don't deduct ink — singing is the alternate cost (CRD 1.5.5.1)
-    state = updateInstance(state, singerInstanceId, { isExerted: true });
+    state = exertInstance(state, singerInstanceId, definitions);
     const singerDef = getDefinition(state, singerInstanceId, definitions);
     state = appendLog(state, {
       turn: state.turnNumber,
@@ -703,7 +703,7 @@ function applyQuest(
   const staticBonus = modifiers.statBonuses.get(instanceId)?.lore ?? 0;
   const loreGained = getEffectiveLore(instance, def, staticBonus);
 
-  state = updateInstance(state, instanceId, { isExerted: true });
+  state = exertInstance(state, instanceId, definitions);
   state = gainLore(state, playerId, loreGained, events);
 
   events.push({ type: "lore_gained", playerId, amount: loreGained });
@@ -847,7 +847,7 @@ function applyChallenge(
     }
   }
 
-  state = updateInstance(state, attackerInstanceId, { isExerted: true });
+  state = exertInstance(state, attackerInstanceId, definitions);
   // Mark defender as challenged this turn (for Last Stand and similar cards)
   // CRD 4.6.8: Locations don't track challengedThisTurn (no character-state).
   if (defenderDef.cardType === "character") {
@@ -2581,12 +2581,12 @@ export function applyEffect(
 
     case "exert": {
       if (effect.target.type === "this") {
-        return updateInstance(state, sourceInstanceId, { isExerted: true });
+        return exertInstance(state, sourceInstanceId, definitions);
       }
       if (effect.target.type === "triggering_card" && triggeringCardInstanceId) {
         const inst = state.cards[triggeringCardInstanceId];
         if (inst && !inst.isExerted) {
-          return updateInstance(state, triggeringCardInstanceId, { isExerted: true });
+          return exertInstance(state, triggeringCardInstanceId, definitions);
         }
         return state;
       }
@@ -2612,7 +2612,7 @@ export function applyEffect(
       if (effect.target.type === "all") {
         const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         for (const targetId of targets) {
-          state = updateInstance(state, targetId, { isExerted: true });
+          state = exertInstance(state, targetId, definitions);
           if (effect.followUpEffects) {
             for (const followUp of effect.followUpEffects) {
               state = applyEffectToTarget(state, followUp, targetId, controllingPlayerId, definitions, events);
@@ -2771,7 +2771,10 @@ export function applyEffect(
       const targetPlayer = effect.target.type === "opponent"
         ? getOpponent(controllingPlayerId) : controllingPlayerId;
       const deck = getZone(state, targetPlayer, "deck");
-      const lookCount = Math.min(effect.count, deck.length);
+      const rawCount = typeof effect.count === "number"
+        ? effect.count
+        : resolveDynamicAmount(effect.count, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, undefined);
+      const lookCount = Math.min(rawCount, deck.length);
       if (lookCount === 0) return state;
 
       const topCards = deck.slice(0, lookCount);
@@ -3540,6 +3543,29 @@ export function applyEffect(
     default:
       return state; // Unimplemented effect type — no-op for now
   }
+}
+
+/**
+ * Centralized exert: sets isExerted=true and queues a `character_exerted`
+ * trigger if (and only if) the character was previously unexerted. Used by
+ * quest, challenge, sing, activated-ability cost, and the `exert` Effect so
+ * Te Kā Elemental Terror's "whenever an opposing character is exerted" can
+ * fire from any of those paths. Cards entering play exerted bypass this
+ * helper since they're not transitioning.
+ */
+function exertInstance(
+  state: GameState,
+  instanceId: string,
+  definitions: Record<string, CardDefinition>
+): GameState {
+  const inst = state.cards[instanceId];
+  if (!inst) return state;
+  if (inst.isExerted) return updateInstance(state, instanceId, { isExerted: true });
+  state = updateInstance(state, instanceId, { isExerted: true });
+  state = queueTrigger(state, "character_exerted", instanceId, definitions, {
+    triggeringPlayerId: inst.ownerId,
+  });
+  return state;
 }
 
 /** CRD 6.1.5.1: Check if a cost effect can be performed before committing to it. */
@@ -4883,7 +4909,7 @@ function payCosts(
 ): GameState {
   for (const cost of costs) {
     if (cost.type === "exert") {
-      state = updateInstance(state, instanceId, { isExerted: true });
+      state = exertInstance(state, instanceId, definitions);
     }
     if (cost.type === "pay_ink") {
       state = updatePlayerInk(state, playerId, -cost.amount);

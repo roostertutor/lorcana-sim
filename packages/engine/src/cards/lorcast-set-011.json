@@ -1201,6 +1201,23 @@
       {
         "type": "keyword",
         "keyword": "boost"
+      },
+      {
+        "type": "triggered",
+        "trigger": { "on": "character_exerted" },
+        "storyName": "COME SEE!",
+        "rulesText": "During your turn, whenever this character exerts, reveal a number of cards from the top of your deck equal to the number of cards under him. Put all revealed character cards into your hand. Put the rest on the bottom of your deck in any order.",
+        "condition": { "type": "is_your_turn" },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": "cards_under_count",
+            "action": "up_to_n_to_hand_rest_bottom",
+            "maxToHand": 99,
+            "filter": { "cardType": ["character"] },
+            "target": { "type": "self" }
+          }
+        ]
       }
     ],
     "setId": "11",
