@@ -2038,7 +2038,29 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "enters_play" },
+        "storyName": "MONEY EVERYWHERE",
+        "rulesText": "When you play this character, your other characters gain \"{E} - Draw a card\" this turn.",
+        "effects": [
+          {
+            "type": "grant_activated_ability_timed",
+            "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "excludeSelf": true },
+            "ability": {
+              "type": "activated",
+              "storyName": "MONEY EVERYWHERE (granted)",
+              "rulesText": "{E} - Draw a card.",
+              "costs": [{ "type": "exert" }],
+              "effects": [
+                { "type": "draw", "amount": 1, "target": { "type": "self" } }
+              ]
+            }
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 37,
     "rarity": "super_rare",
@@ -6376,6 +6398,24 @@
     "inkable": false,
     "traits": [],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "grant_activated_ability_timed",
+        "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "hasTrait": "Pirate" },
+        "ability": {
+          "type": "activated",
+          "storyName": "WALK THE PLANK (granted)",
+          "rulesText": "{E} - Banish chosen damaged character.",
+          "costs": [{ "type": "exert" }],
+          "effects": [
+            {
+              "type": "banish",
+              "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"], "hasDamage": true } }
+            }
+          ]
+        }
+      }
+    ],
     "setId": "8",
     "number": 118,
     "rarity": "uncommon",

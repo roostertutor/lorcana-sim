@@ -562,6 +562,27 @@ export function getGameModifiers(
     }
   }
 
+  // Turn-scoped granted activated abilities (Food Fight!, Donald Duck Coin
+  // Collector, Walk the Plank!): merge per-player timed grants into the same
+  // grantedActivatedAbilities map. Each entry's filter is matched against
+  // that player's in-play cards.
+  for (const playerId of ["player1", "player2"] as PlayerID[]) {
+    const grants = state.players[playerId].timedGrantedActivatedAbilities ?? [];
+    if (grants.length === 0) continue;
+    for (const candidate of Object.values(state.cards)) {
+      if (candidate.zone !== "play" || candidate.ownerId !== playerId) continue;
+      const candidateDef = definitions[candidate.definitionId];
+      if (!candidateDef) continue;
+      for (const grant of grants) {
+        if (matchesFilter(candidate, candidateDef, grant.filter, state, playerId)) {
+          const existing = modifiers.grantedActivatedAbilities.get(candidate.instanceId) ?? [];
+          existing.push(grant.ability);
+          modifiers.grantedActivatedAbilities.set(candidate.instanceId, existing);
+        }
+      }
+    }
+  }
+
   return modifiers;
 }
 

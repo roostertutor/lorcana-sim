@@ -208,7 +208,21 @@ export type Effect =
   | MillEffect
   | MassInkwellEffect
   | RestrictPlayEffect
-  | EachOpponentMayDiscardThenRewardEffect;
+  | EachOpponentMayDiscardThenRewardEffect
+  | GrantActivatedAbilityTimedEffect;
+
+/**
+ * Food Fight!, Donald Duck Coin Collector, Walk the Plank!: "Your [matching]
+ * characters gain '<activated ability>' this turn." Pushes a turn-scoped
+ * grant onto the controller's PlayerState.timedGrantedActivatedAbilities.
+ * Consumed by getGameModifiers which merges these into grantedActivatedAbilities
+ * for matching in-play cards. Cleared on PASS_TURN.
+ */
+export interface GrantActivatedAbilityTimedEffect {
+  type: "grant_activated_ability_timed";
+  filter: CardFilter;
+  ability: ActivatedAbility;
+}
 
 /**
  * Sign the Scroll / Ursula's Trickery: "Each opponent may choose and discard a
@@ -1747,6 +1761,11 @@ export interface PlayerState {
    *  Ancient Ways). Each entry blocks plays of certain card types until the
    *  CASTER'S next turn begins. Multiple entries OR-combine. */
   playRestrictions?: PlayRestrictionEntry[];
+
+  /** Turn-scoped granted activated abilities (Food Fight!, Donald Duck Coin
+   *  Collector, Walk the Plank!): each entry grants `ability` to all of this
+   *  player's in-play cards matching `filter`. Cleared on PASS_TURN. */
+  timedGrantedActivatedAbilities?: { filter: CardFilter; ability: ActivatedAbility }[];
 }
 
 export interface PlayRestrictionEntry {

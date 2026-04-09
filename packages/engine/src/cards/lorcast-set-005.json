@@ -10316,6 +10316,28 @@
     "inkable": false,
     "traits": [],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "grant_activated_ability_timed",
+        "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"] },
+        "ability": {
+          "type": "activated",
+          "storyName": "FOOD FIGHT",
+          "rulesText": "{E}, 1 {I} — Deal 1 damage to chosen character.",
+          "costs": [
+            { "type": "exert" },
+            { "type": "pay_ink", "amount": 1 }
+          ],
+          "effects": [
+            {
+              "type": "deal_damage",
+              "amount": 1,
+              "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } }
+            }
+          ]
+        }
+      }
+    ],
     "setId": "5",
     "number": 199,
     "rarity": "uncommon",

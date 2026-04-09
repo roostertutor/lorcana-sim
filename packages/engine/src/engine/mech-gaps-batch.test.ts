@@ -352,6 +352,33 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     expect(getZone(state, "player1", "hand").length).toBe(p1HandBefore - 1);
   });
 
+  it("Food Fight!: grants {E},1{I}—deal 1 damage activated ability to your characters this turn", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let foodId: string, mickeyId: string;
+    ({ state, instanceId: foodId } = injectCard(state, "player1", "food-fight", "hand"));
+    ({ state, instanceId: mickeyId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+
+    // Before Food Fight is played, Mickey has no granted activated abilities.
+    let mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    expect(mods.grantedActivatedAbilities.get(mickeyId) ?? []).toEqual([]);
+
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: foodId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Now Mickey should have the granted ability.
+    mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    const granted = mods.grantedActivatedAbilities.get(mickeyId) ?? [];
+    expect(granted.length).toBeGreaterThan(0);
+    expect(granted[0]?.storyName).toBe("FOOD FIGHT");
+
+    // After passing the turn, the grant should expire.
+    state = passTurns(state, 2);
+    mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    expect(mods.grantedActivatedAbilities.get(mickeyId) ?? []).toEqual([]);
+  });
+
   it("Willie the Giant Ghost of Christmas Present: can't quest unless a card was put under him this turn", () => {
     let state = startGame();
     let willieId: string;

@@ -190,8 +190,7 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // Lore transfer ("all opponents lose 1 lore and you gain lore equal to the lore lost")
   [/\byou gain lore equal to the lore lost\b/i, "lore-transfer"],
   // Grant activated ability to own chars this turn ("Your X characters gain \"{E}...\" this turn")
-  [/\byour .{0,30}characters gain ["\u201C]\{E\}/i, "grant-activated-to-own-timed"],
-  [/\byour other characters gain ["\u201C]\{E\}/i, "grant-activated-to-own-timed"],
+  // (grant-activated-to-own-timed removed: grant_activated_ability_timed Effect implemented.)
   // Exert one of your X to deal damage equal to their {S}
   [/\{E\} one of your characters to deal damage equal to (their|its|his|her)\b/i, "exert-one-dynamic-damage"],
   // "play characters using their Shift ability" — Shift-scoped cost reduction

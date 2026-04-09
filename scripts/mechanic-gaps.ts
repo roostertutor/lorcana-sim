@@ -80,8 +80,7 @@ const NEW_MECHANIC: [RegExp, string][] = [
   [/\bwhenever a character is banished in a challenge while here\b/i, "location-banished-here-trigger"],
   [/\bwhen you move a character here from another location\b/i, "location-moves-here-trigger"],
   [/\byou gain lore equal to the lore lost\b/i, "lore-transfer"],
-  [/\byour .{0,30}characters gain ["\u201C]\{E\}/i, "grant-activated-to-own-timed"],
-  [/\byour other characters gain ["\u201C]\{E\}/i, "grant-activated-to-own-timed"],
+  // (grant-activated-to-own-timed removed: grant_activated_ability_timed Effect implemented.)
   [/\{E\} one of your characters to deal damage equal to (their|its|his|her)\b/i, "exert-one-dynamic-damage"],
   [/\bplay characters using their shift ability\b/i, "shift-scoped-cost-reduction"],
   [/\beach player may reveal a .{0,30}from their hand and play\b/i, "symmetric-reveal-play"],

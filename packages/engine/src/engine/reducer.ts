@@ -1243,6 +1243,7 @@ function applyPassTurn(
         aCharacterWasDamagedThisTurn: false,
         aCharacterWasBanishedInChallengeThisTurn: false,
         aCharacterChallengedThisTurn: false,
+        timedGrantedActivatedAbilities: [],
       },
       // CRD 3.4.1.2: clear the ending player's turn-scoped conditional challenge bonuses
       // and per-turn event flags (damaged-this-turn, banished-in-challenge-this-turn).
@@ -1254,6 +1255,7 @@ function applyPassTurn(
         aCharacterWasDamagedThisTurn: false,
         aCharacterWasBanishedInChallengeThisTurn: false,
         aCharacterChallengedThisTurn: false,
+        timedGrantedActivatedAbilities: [],
       },
     },
   };
@@ -2900,6 +2902,21 @@ export function applyEffect(
         }
       }
       return state;
+    }
+
+    case "grant_activated_ability_timed": {
+      // Food Fight! et al — push a turn-scoped grant onto the controller.
+      const existing = state.players[controllingPlayerId].timedGrantedActivatedAbilities ?? [];
+      return {
+        ...state,
+        players: {
+          ...state.players,
+          [controllingPlayerId]: {
+            ...state.players[controllingPlayerId],
+            timedGrantedActivatedAbilities: [...existing, { filter: effect.filter, ability: effect.ability }],
+          },
+        },
+      };
     }
 
     case "each_opponent_may_discard_then_reward": {
