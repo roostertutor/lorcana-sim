@@ -2667,7 +2667,15 @@
       "Villain",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "PLAYING WITH POWER",
+        "rulesText": "During opponents' turns, if an effect would cause you to discard one or more cards from your hand, you don't discard.",
+        "condition": { "type": "not", "condition": { "type": "is_your_turn" } },
+        "effect": { "type": "prevent_discard_from_hand" }
+      }
+    ],
     "setId": "5",
     "number": 53,
     "rarity": "rare",

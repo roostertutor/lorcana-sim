@@ -1044,7 +1044,19 @@ export type StaticEffect =
   | SingCostBonusHereStatic
   | InkwellEntersExertedStatic
   | PreventLoreLossStatic
-  | RemoveNamedAbilityStatic;
+  | RemoveNamedAbilityStatic
+  | PreventDiscardFromHandStatic;
+
+/**
+ * Magica De Spell - Cruel Sorceress, Kronk - Laid Back: "If an effect would
+ * cause you to discard one or more cards from your hand, you don't discard."
+ * Gated by ability.condition (typically not(is_your_turn)). When active, the
+ * controller's hand is shielded from `discard_from_hand` effects with
+ * `chooser: "target_player"`.
+ */
+export interface PreventDiscardFromHandStatic {
+  type: "prevent_discard_from_hand";
+}
 
 /**
  * Angela - Night Warrior (Set 11): "Your Gargoyle characters lose the Stone

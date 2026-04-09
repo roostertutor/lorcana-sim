@@ -3971,7 +3971,27 @@
       "Villain",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "enters_play" },
+        "storyName": "WHY DO WE EVEN HAVE THAT LEVER?",
+        "rulesText": "When you play this character, if you have a card named Pull the Lever! in your discard, you may search your deck for a card named Wrong Lever! and reveal that card to all players. Put that card into your hand and shuffle your deck.",
+        "condition": {
+          "type": "you_control_matching",
+          "filter": { "owner": { "type": "self" }, "zone": "discard", "hasName": "Pull the Lever!" }
+        },
+        "effects": [
+          {
+            "type": "search",
+            "filter": { "hasName": "Wrong Lever!" },
+            "target": { "type": "self" },
+            "zone": "deck",
+            "putInto": "hand"
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 68,
     "rarity": "super_rare",
@@ -7747,6 +7767,31 @@
       {
         "type": "keyword",
         "keyword": "evasive"
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "owner": { "type": "self" },
+            "cardType": ["character"],
+            "strengthAtLeast": 5
+          }
+        },
+        "storyName": "PAY ATTENTION",
+        "rulesText": "Whenever you play a character with 5 {S} or more, you may exert them to gain 2 lore.",
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              { "type": "exert", "target": { "type": "triggering_card" } }
+            ],
+            "rewardEffects": [
+              { "type": "gain_lore", "amount": 2, "target": { "type": "self" } }
+            ]
+          }
+        ]
       }
     ],
     "setId": "8",

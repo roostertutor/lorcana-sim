@@ -155,6 +155,13 @@ export interface GameModifiers {
   preventLoreLoss: Set<import("../types/index.js").PlayerID>;
 
   /**
+   * Players whose hand can't be discarded right now (Magica De Spell Cruel
+   * Sorceress, Kronk Laid Back). The discard_from_hand handler consults this
+   * and short-circuits for affected players when the chooser is them.
+   */
+  preventDiscardFromHand: Set<import("../types/index.js").PlayerID>;
+
+  /**
    * Players whose newly-inked cards enter the inkwell exerted (Daisy Duck
    * Paranormal Investigator). availableInk is NOT incremented for these adds.
    */
@@ -212,6 +219,7 @@ export function getGameModifiers(
     singCostBonusHere: new Map(),
     inkwellEntersExerted: new Set(),
     preventLoreLoss: new Set(),
+    preventDiscardFromHand: new Set(),
   };
 
   // Pre-pass: collect remove_named_ability suppressions so the main pass can
@@ -550,6 +558,12 @@ export function getGameModifiers(
         case "prevent_lore_loss": {
           // Koda - Talkative Cub. The static lives on the source's owner.
           modifiers.preventLoreLoss.add(instance.ownerId);
+          break;
+        }
+
+        case "prevent_discard_from_hand": {
+          // Magica De Spell Cruel Sorceress, Kronk Laid Back.
+          modifiers.preventDiscardFromHand.add(instance.ownerId);
           break;
         }
 

@@ -2701,6 +2701,18 @@ export function applyEffect(
         }
         return state;
       }
+      // Alma Madrigal Accepting Grandmother: ready the singing character (the
+      // triggering card on a sings trigger).
+      if (effect.target.type === "triggering_card" && triggeringCardInstanceId) {
+        const inst = state.cards[triggeringCardInstanceId];
+        if (!inst) return state;
+        const wasExerted = inst.isExerted;
+        state = updateInstance(state, triggeringCardInstanceId, { isExerted: false });
+        if (wasExerted) {
+          state = queueTrigger(state, "readied", triggeringCardInstanceId, definitions, {});
+        }
+        return state;
+      }
       return state;
     }
 
@@ -3062,7 +3074,12 @@ export function applyEffect(
       else if (effect.target.type === "opponent") players.push(getOpponent(controllingPlayerId));
       else if (effect.target.type === "both") players.push("player1", "player2");
 
+      const discardMods = getGameModifiers(state, definitions);
       for (const pid of players) {
+        // Magica De Spell Cruel Sorceress, Kronk Laid Back: shielded players
+        // skip the discard entirely. CRD: "if an effect would cause you to
+        // discard ... you don't discard."
+        if (discardMods.preventDiscardFromHand.has(pid)) continue;
         let hand = getZone(state, pid, "hand");
 
         // CRD 1.7.7: if a filter is set, narrow the eligible hand cards.

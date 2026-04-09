@@ -3447,7 +3447,14 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "I'M LOVIN' THIS",
+        "rulesText": "If an effect would cause you to discard one or more cards, you don't discard.",
+        "effect": { "type": "prevent_discard_from_hand" }
+      }
+    ],
     "setId": "7",
     "number": 63,
     "rarity": "rare",
