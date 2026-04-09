@@ -258,6 +258,38 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     expect(r.success).toBe(true);
   });
 
+  it("Daisy Duck - Paranormal Investigator: while exerted, opponents' newly-inked cards enter exerted and don't add ink", () => {
+    let state = startGame();
+    let daisyId: string;
+    ({ state, instanceId: daisyId } = injectCard(state, "player1", "daisy-duck-paranormal-investigator", "play", { isDrying: false }));
+    // Daisy must be exerted for STRANGE HAPPENINGS to apply.
+    state = { ...state, cards: { ...state.cards, [daisyId]: { ...state.cards[daisyId], isExerted: true } } };
+
+    // Pass to player2.
+    state = passTurns(state, 1);
+    // Player2 inks a card from hand.
+    const handCardId = getZone(state, "player2", "hand")[0]!;
+    const inkBefore = state.players.player2.availableInk;
+    const r = applyAction(state, { type: "PLAY_INK", playerId: "player2", instanceId: handCardId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // The new inkwell card should be exerted, and availableInk should NOT have grown.
+    expect(getInstance(state, handCardId).isExerted).toBe(true);
+    expect(state.players.player2.availableInk).toBe(inkBefore);
+
+    // Sanity: when Daisy is readied, the next ink behaves normally.
+    state = { ...state, cards: { ...state.cards, [daisyId]: { ...state.cards[daisyId], isExerted: false } } };
+    // Player2 still hasPlayedInkThisTurn from above; pass back twice to reset.
+    state = passTurns(state, 2);
+    const handCardId2 = getZone(state, "player2", "hand")[0]!;
+    const inkBefore2 = state.players.player2.availableInk;
+    const r2 = applyAction(state, { type: "PLAY_INK", playerId: "player2", instanceId: handCardId2 }, LORCAST_CARD_DEFINITIONS);
+    expect(r2.success).toBe(true);
+    expect(getInstance(r2.newState, handCardId2).isExerted).toBe(false);
+    expect(r2.newState.players.player2.availableInk).toBe(inkBefore2 + 1);
+  });
+
   it("does not affect opposing characters (filter is owner: self)", () => {
     let state = startGame();
     ({ state } = injectCard(state, "player1", "elisa-maza-transformed-gargoyle", "play", { isDrying: false }));

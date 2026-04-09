@@ -275,7 +275,8 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   [/\ball (the )?cards? in .{0,30}inkwell/i, "mass-inkwell"],
   [/\buntil (you|they|each player) have \d+ cards? in .{0,20}inkwell/i, "trim-inkwell"],
   // Inkwell static that affects entering
-  [/\benter.{0,10}opponents'.{0,20}inkwell.{0,20}exerted\b/i, "inkwell-static"],
+  // (inkwell-static removed: inkwell_enters_exerted StaticEffect implemented —
+  //  Daisy Duck Paranormal Investigator. Matched as fits-grammar below.)
   // Ink from discard / play from non-hand zone (Moana, Black Cauldron)
   // (play-from-discard removed: play_for_free has `sourceZone` since set 3 — matches
   //  via FITS_GRAMMAR_PATTERNS below. The two remaining patterns are genuinely new.)
@@ -426,6 +427,7 @@ const CAPABILITIES = new Set<string>([
   "stat_static", "cant_be_challenged_static", "cost_reduction_static",
   "action_restriction_static", "grant_activated_ability_static",
   "damage_immunity", "stat_floor_printed", "restrict_play", "sing_cost_bonus_here",
+  "inkwell_enters_exerted",
   // Triggers (TriggerEvent.on)
   "trigger_enters_play", "trigger_leaves_play", "trigger_quests",
   "trigger_sings", "trigger_challenges", "trigger_is_challenged",
@@ -545,6 +547,8 @@ const FITS_GRAMMAR_PATTERNS: [RegExp, string][] = [
   [/\bcan'?t play (actions|items|actions or items)\b/i, "restrict_play"],
   // virtual-cost-modifier — Atlantica Concert Hall ("count as having +N cost ... while here").
   [/\bcount as having .{0,10}cost .{0,30}while here\b/i, "sing_cost_bonus_here"],
+  // inkwell-static — Daisy Duck Paranormal Investigator ("cards enter opponents' inkwells exerted").
+  [/\benter.{0,10}opponents'.{0,20}inkwell.{0,20}exerted\b/i, "inkwell_enters_exerted"],
   [/\bcan'?t be challenged by .{0,30}characters\b/i, "cant_be_challenged_static"],
   [/\bwhile being challenged\b/i, "trigger_is_challenged"],
   [/during your turn.{0,40}(has|gains?) (evasive|rush|bodyguard|ward|reckless|resist|challenger|support)/i, "grant_keyword"],

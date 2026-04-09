@@ -8056,6 +8056,16 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "static",
+        "storyName": "STRANGE HAPPENINGS",
+        "rulesText": "While this character is exerted, cards enter opponents' inkwells exerted.",
+        "condition": { "type": "this_is_exerted" },
+        "effect": {
+          "type": "inkwell_enters_exerted",
+          "affectedPlayer": { "type": "opponent" }
+        }
       }
     ],
     "setId": "10",

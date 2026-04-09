@@ -128,7 +128,7 @@ const NEW_TYPE: [RegExp, string][] = [
   //  exert_all / ready_all / return_random_to_hand / return_random_until.
   //  Mufasa Ruler of Pride Rock + Ink Geyser wired.)
   [/\buntil (you|they|each player) have \d+ cards? in .{0,20}inkwell/i, "trim-inkwell"],
-  [/\benter.{0,10}opponents'.{0,20}inkwell.{0,20}exerted\b/i, "inkwell-static"],
+  // (inkwell-static removed: inkwell_enters_exerted StaticEffect implemented.)
   // (play-from-discard removed: play_for_free supports sourceZone="discard"
   //  since Ursula Deceiver of All (set 3). Wired for Pride Lands Jungle Oasis
   //  and Circle of Life; remaining gap cards (Black Cauldron, Chernabog,

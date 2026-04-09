@@ -146,6 +146,12 @@ export interface GameModifiers {
   enterPlayExerted: Map<import("../types/index.js").PlayerID, import("../types/index.js").CardFilter[]>;
 
   /**
+   * Players whose newly-inked cards enter the inkwell exerted (Daisy Duck
+   * Paranormal Investigator). availableInk is NOT incremented for these adds.
+   */
+  inkwellEntersExerted: Set<import("../types/index.js").PlayerID>;
+
+  /**
    * Per-location virtual sing-cost bonus for characters at that location
    * (Atlantica Concert Hall — "+2 to sing while here"). Key = location
    * instanceId, value = the bonus added to a singer's effective cost when
@@ -195,6 +201,7 @@ export function getGameModifiers(
     enterPlayExerted: new Map(),
     statFloorsPrinted: new Map(),
     singCostBonusHere: new Map(),
+    inkwellEntersExerted: new Set(),
   };
 
   for (const instance of Object.values(state.cards)) {
@@ -483,6 +490,20 @@ export function getGameModifiers(
             modifiers.enterPlayExerted.set(affectedPlayerId, arr);
           }
           arr.push(effect.filter);
+          break;
+        }
+
+        case "inkwell_enters_exerted": {
+          // Daisy Duck Paranormal Investigator — affected players' newly-inked
+          // cards enter exerted. Resolve PlayerTarget against the source's owner.
+          if (effect.affectedPlayer.type === "self") {
+            modifiers.inkwellEntersExerted.add(instance.ownerId);
+          } else if (effect.affectedPlayer.type === "opponent") {
+            modifiers.inkwellEntersExerted.add(instance.ownerId === "player1" ? "player2" : "player1");
+          } else if (effect.affectedPlayer.type === "both") {
+            modifiers.inkwellEntersExerted.add("player1");
+            modifiers.inkwellEntersExerted.add("player2");
+          }
           break;
         }
 

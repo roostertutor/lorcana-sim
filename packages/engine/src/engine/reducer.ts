@@ -618,9 +618,16 @@ function applyPlayInk(
   events: GameEvent[]
 ): GameState {
   const def = getDefinition(state, instanceId, definitions);
+  // Daisy Duck Paranormal Investigator: affected players' newly-inked cards
+  // enter exerted and DO NOT increment availableInk.
+  const inkMods = getGameModifiers(state, definitions);
+  const entersExerted = inkMods.inkwellEntersExerted.has(playerId);
   state = zoneTransition(state, instanceId, "inkwell", definitions, events, {
     reason: "inked", triggeringPlayerId: playerId,
   });
+  if (entersExerted) {
+    state = updateInstance(state, instanceId, { isExerted: true });
+  }
   const currentInkPlays = state.players[playerId].inkPlaysThisTurn ?? 0;
   state = {
     ...state,
@@ -630,7 +637,7 @@ function applyPlayInk(
         ...state.players[playerId],
         hasPlayedInkThisTurn: true,
         inkPlaysThisTurn: currentInkPlays + 1,
-        availableInk: state.players[playerId].availableInk + 1,
+        availableInk: state.players[playerId].availableInk + (entersExerted ? 0 : 1),
       },
     },
   };

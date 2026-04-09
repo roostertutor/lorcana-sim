@@ -971,7 +971,20 @@ export type StaticEffect =
   | MoveToSelfCostReductionStatic
   | EnterPlayExertedStatic
   | StatFloorPrintedStatic
-  | SingCostBonusHereStatic;
+  | SingCostBonusHereStatic
+  | InkwellEntersExertedStatic;
+
+/**
+ * Daisy Duck - Paranormal Investigator (Set 10): "STRANGE HAPPENINGS While
+ * this character is exerted, cards enter opponents' inkwells exerted." A
+ * static (gated by ability.condition: this_is_exerted) that flips the
+ * affected players' inkwell-add path: newly-inked cards enter exerted and
+ * do NOT increment availableInk for that turn.
+ */
+export interface InkwellEntersExertedStatic {
+  type: "inkwell_enters_exerted";
+  affectedPlayer: PlayerTarget;
+}
 
 /**
  * Atlantica - Concert Hall (Set 4): "UNDERWATER ACOUSTICS Characters count as
