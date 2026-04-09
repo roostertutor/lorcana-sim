@@ -6703,14 +6703,7 @@
           {
             "type": "move_character",
             "character": { "type": "this" },
-            "location": {
-              "type": "chosen",
-              "filter": {
-                "owner": { "type": "self" },
-                "zone": "play",
-                "cardType": ["location"]
-              }
-            }
+            "location": { "type": "last_resolved_target" }
           }
         ]
       }

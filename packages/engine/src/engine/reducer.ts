@@ -2887,6 +2887,15 @@ export function applyEffect(
         if (!triggeringCardInstanceId) return state;
         return performMove(state, characterId, triggeringCardInstanceId, definitions, events);
       }
+      if (effect.location.type === "last_resolved_target") {
+        // Tuk Tuk Lively Partner: a previous step in the same sequential
+        // already chose the location (move_character chosen+chosen sets
+        // lastResolvedTarget to the location at stage-2 resolution). Reuse
+        // it so the second move lands on the SAME location.
+        const locId = state.lastResolvedTarget?.instanceId;
+        if (!locId) return state;
+        return performMove(state, characterId, locId, definitions, events);
+      }
       if (effect.location.type === "chosen") {
         // Edge case: character is "this"/"triggering_card" but location is "chosen".
         const validLocations = findValidTargets(state, effect.location.filter, controllingPlayerId, definitions, sourceInstanceId);

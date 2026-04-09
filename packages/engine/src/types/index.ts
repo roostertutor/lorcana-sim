@@ -919,8 +919,12 @@ export interface MoveCharacterEffect {
   type: "move_character";
   /** The character being moved. */
   character: { type: "this" } | { type: "triggering_card" } | { type: "chosen"; filter: CardFilter } | { type: "last_resolved_target" };
-  /** The location being moved to. */
-  location: { type: "triggering_card" } | { type: "chosen"; filter: CardFilter };
+  /** The location being moved to. `last_resolved_target` reads
+   *  state.lastResolvedTarget — used when a previous step in the same
+   *  sequential picked the location and a follow-up move should reuse it
+   *  (Tuk Tuk Lively Partner moves himself AND a chosen other character to
+   *  the SAME location). */
+  location: { type: "triggering_card" } | { type: "chosen"; filter: CardFilter } | { type: "last_resolved_target" };
   /** CRD 6.1.4 */
   isMay?: boolean;
   /** Internal: set during stage 2 of a chosen+chosen flow to carry the chosen
