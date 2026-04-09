@@ -120,7 +120,14 @@
         "type": "triggered",
         "trigger": {
           "on": "chosen_for_support",
-          "filter": { "owner": { "type": "self" }, "cardType": ["character"] }
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ]
+          }
         },
         "storyName": "ACT OF KINDNESS",
         "rulesText": "Whenever one of your characters is chosen for Support, until the start of your next turn, the next time they would be dealt damage they take no damage instead.",
@@ -130,7 +137,9 @@
             "source": "all",
             "duration": "until_caster_next_turn",
             "charges": 1,
-            "target": { "type": "triggering_card" }
+            "target": {
+              "type": "triggering_card"
+            }
           }
         ]
       }
@@ -2914,17 +2923,29 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "enters_play" },
+        "trigger": {
+          "on": "enters_play"
+        },
         "storyName": "WHAT D'YA SAY?",
         "rulesText": "When you play this character, you may choose an opposing character. If you do, draw 2 cards unless that character's player puts that card on the bottom of their deck.",
         "effects": [
           {
             "type": "chosen_opposing_may_bottom_or_reward",
-            "filter": { "owner": { "type": "opponent" }, "zone": "play", "cardType": ["character"] },
+            "filter": {
+              "owner": {
+                "type": "opponent"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ]
+            },
             "rewardEffect": {
               "type": "draw",
               "amount": 2,
-              "target": { "type": "self" }
+              "target": {
+                "type": "self"
+              }
             }
           }
         ]
@@ -6621,15 +6642,27 @@
       },
       {
         "type": "triggered",
-        "trigger": { "on": "quests" },
+        "trigger": {
+          "on": "quests"
+        },
         "storyName": "EXPEDIENT SCHEMES",
         "rulesText": "Whenever this character quests, if you've put a card under her this turn, you may play an action with cost 5 or less from your discard for free, then put that action card on the bottom of your deck instead of into your discard.",
-        "condition": { "type": "this_had_card_put_under_this_turn" },
+        "condition": {
+          "type": "this_had_card_put_under_this_turn"
+        },
         "effects": [
           {
             "type": "play_for_free",
             "sourceZone": "discard",
-            "filter": { "owner": { "type": "self" }, "cardType": ["action"], "costAtMost": 5 },
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "cardType": [
+                "action"
+              ],
+              "costAtMost": 5
+            },
             "isMay": true,
             "thenPutOnBottomOfDeck": true
           }
@@ -6938,7 +6971,72 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "",
+        "rulesText": "If you have a character with 5 {S} or more in play, you pay 2 {I} less to play this action.",
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 2
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "strengthAtLeast": 5
+          }
+        }
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "sequential",
+        "costEffects": [
+          {
+            "type": "ready",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ],
+        "rewardEffects": [
+          {
+            "type": "cant_action",
+            "action": "quest",
+            "target": {
+              "type": "last_resolved_target"
+            },
+            "duration": "this_turn"
+          },
+          {
+            "type": "create_floating_trigger",
+            "attachTo": "last_resolved_target",
+            "trigger": {
+              "on": "challenges"
+            },
+            "effects": [
+              {
+                "type": "gain_lore",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 129,
     "rarity": "rare",
@@ -10075,7 +10173,9 @@
         "type": "static",
         "storyName": "PROTECTIVE PRESENCE",
         "rulesText": "Each turn, only one character can challenge.",
-        "effect": { "type": "one_challenge_per_turn_global" }
+        "effect": {
+          "type": "one_challenge_per_turn_global"
+        }
       }
     ],
     "setId": "10",
@@ -12749,15 +12849,27 @@
       },
       {
         "type": "triggered",
-        "trigger": { "on": "quests" },
+        "trigger": {
+          "on": "quests"
+        },
         "storyName": "EXPEDIENT SCHEMES",
         "rulesText": "Whenever this character quests, if you've put a card under her this turn, you may play an action with cost 5 or less from your discard for free, then put that action card on the bottom of your deck instead of into your discard.",
-        "condition": { "type": "this_had_card_put_under_this_turn" },
+        "condition": {
+          "type": "this_had_card_put_under_this_turn"
+        },
         "effects": [
           {
             "type": "play_for_free",
             "sourceZone": "discard",
-            "filter": { "owner": { "type": "self" }, "cardType": ["action"], "costAtMost": 5 },
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "cardType": [
+                "action"
+              ],
+              "costAtMost": 5
+            },
             "isMay": true,
             "thenPutOnBottomOfDeck": true
           }
@@ -12792,7 +12904,27 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "",
+        "rulesText": "If you have a character with 5 {S} or more in play, you pay 2 {I} less to play this action.",
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 2
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "strengthAtLeast": 5
+          }
+        }
+      }
+    ],
     "setId": "10",
     "number": 234,
     "rarity": "enchanted",
@@ -12808,6 +12940,51 @@
         "storyName": "",
         "rulesText": "Ready chosen character. They can't quest for the rest of this turn. The next time they challenge a character this turn, gain 1 lore.",
         "raw": "Ready chosen character. They can't quest for the rest of this turn. The next time they challenge a character this turn, gain 1 lore."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "sequential",
+        "costEffects": [
+          {
+            "type": "ready",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ],
+        "rewardEffects": [
+          {
+            "type": "cant_action",
+            "action": "quest",
+            "target": {
+              "type": "last_resolved_target"
+            },
+            "duration": "this_turn"
+          },
+          {
+            "type": "create_floating_trigger",
+            "attachTo": "last_resolved_target",
+            "trigger": {
+              "on": "challenges"
+            },
+            "effects": [
+              {
+                "type": "gain_lore",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
       }
     ]
   },
@@ -13329,17 +13506,29 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "enters_play" },
+        "trigger": {
+          "on": "enters_play"
+        },
         "storyName": "WHAT D'YA SAY?",
         "rulesText": "When you play this character, you may choose an opposing character. If you do, draw 2 cards unless that character's player puts that card on the bottom of their deck.",
         "effects": [
           {
             "type": "chosen_opposing_may_bottom_or_reward",
-            "filter": { "owner": { "type": "opponent" }, "zone": "play", "cardType": ["character"] },
+            "filter": {
+              "owner": {
+                "type": "opponent"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ]
+            },
             "rewardEffect": {
               "type": "draw",
               "amount": 2,
-              "target": { "type": "self" }
+              "target": {
+                "type": "self"
+              }
             }
           }
         ]

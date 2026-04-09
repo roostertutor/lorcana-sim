@@ -5414,7 +5414,37 @@
     "cost": 3,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "LOTS TO LEARN",
+        "rulesText": "Whenever you play a second action in a turn, gain 3 lore.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "action"
+            ]
+          }
+        },
+        "condition": {
+          "type": "actions_played_this_turn_eq",
+          "amount": 2
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 3,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "6",
     "number": 102,
     "rarity": "rare",

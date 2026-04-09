@@ -733,6 +733,12 @@ export function evaluateCondition(
     case "actions_played_this_turn_gte": {
       return (state.players[controllingPlayerId].actionsPlayedThisTurn ?? 0) >= condition.amount;
     }
+    case "actions_played_this_turn_eq": {
+      // CRD 6.2.4: Owl - Island Secluded Entrance ("Whenever you play a second
+      // action in a turn, gain 3 lore"). Counter is incremented BEFORE trigger
+      // resolves, so "second action" = counter == 2 at evaluation time.
+      return (state.players[controllingPlayerId].actionsPlayedThisTurn ?? 0) === condition.amount;
+    }
     case "this_has_no_damage": {
       const inst = state.cards[sourceInstanceId];
       return inst ? inst.damage === 0 : false;

@@ -1065,7 +1065,11 @@
         "type": "activated",
         "storyName": "LUNCH SPECIAL",
         "rulesText": "{E} - Remove up to 2 damage from chosen character of yours. For each 1 damage removed this way, you pay 1 {I} less for the next character you play this turn.",
-        "costs": [{ "type": "exert" }],
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "sequential",
@@ -1076,7 +1080,15 @@
                 "isUpTo": true,
                 "target": {
                   "type": "chosen",
-                  "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"] }
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
                 }
               }
             ],
@@ -1084,7 +1096,11 @@
               {
                 "type": "cost_reduction",
                 "amount": "last_resolved_target_delta",
-                "filter": { "cardType": ["character"] }
+                "filter": {
+                  "cardType": [
+                    "character"
+                  ]
+                }
               }
             ]
           }
@@ -1129,6 +1145,41 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "triggered",
+        "storyName": "CALMING WORDS",
+        "rulesText": "When you play this character, if you used Shift to play her and none of your characters challenged this turn, characters can't challenge until the start of your next turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            {
+              "type": "played_via_shift"
+            },
+            {
+              "type": "no_challenges_this_turn"
+            }
+          ]
+        },
+        "effects": [
+          {
+            "type": "cant_action",
+            "action": "challenge",
+            "target": {
+              "type": "all",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "until_caster_next_turn"
+          }
+        ]
       }
     ],
     "setId": "11",
@@ -1234,18 +1285,28 @@
       },
       {
         "type": "triggered",
-        "trigger": { "on": "character_exerted" },
+        "trigger": {
+          "on": "character_exerted"
+        },
         "storyName": "COME SEE!",
         "rulesText": "During your turn, whenever this character exerts, reveal a number of cards from the top of your deck equal to the number of cards under him. Put all revealed character cards into your hand. Put the rest on the bottom of your deck in any order.",
-        "condition": { "type": "is_your_turn" },
+        "condition": {
+          "type": "is_your_turn"
+        },
         "effects": [
           {
             "type": "look_at_top",
             "count": "cards_under_count",
             "action": "up_to_n_to_hand_rest_bottom",
             "maxToHand": 99,
-            "filter": { "cardType": ["character"] },
-            "target": { "type": "self" }
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            },
+            "target": {
+              "type": "self"
+            }
           }
         ]
       }
@@ -4665,13 +4726,23 @@
       },
       {
         "type": "triggered",
-        "trigger": { "on": "chosen_by_opponent" },
+        "trigger": {
+          "on": "chosen_by_opponent"
+        },
         "storyName": "IMPRESSIVE LEAPS",
         "rulesText": "Twice during your turn, whenever this character is chosen for an action or an item's ability, you may ready him.",
-        "condition": { "type": "is_your_turn" },
+        "condition": {
+          "type": "is_your_turn"
+        },
         "maxFiresPerTurn": 2,
         "effects": [
-          { "type": "ready", "target": { "type": "this" }, "isMay": true }
+          {
+            "type": "ready",
+            "target": {
+              "type": "this"
+            },
+            "isMay": true
+          }
         ]
       }
     ],
@@ -5533,9 +5604,21 @@
         "rulesText": "If you have a character in play with damage, you pay 1 {I} less to play this character.",
         "condition": {
           "type": "you_control_matching",
-          "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "hasDamage": true }
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasDamage": true
+          }
         },
-        "effect": { "type": "self_cost_reduction", "amount": 1 }
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 1
+        }
       },
       {
         "type": "static",
@@ -5543,9 +5626,21 @@
         "rulesText": "If you have a character in play with 5 {S} or more, you pay 1 {I} less to play this character.",
         "condition": {
           "type": "you_control_matching",
-          "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "strengthAtLeast": 5 }
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "strengthAtLeast": 5
+          }
         },
-        "effect": { "type": "self_cost_reduction", "amount": 1 }
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 1
+        }
       }
     ],
     "setId": "11",
@@ -7117,7 +7212,35 @@
       "Ally",
       "Whisper"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "HOPPING IN",
+        "rulesText": "{E} — Put this character facedown under one of your characters or locations with Boost.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "put_self_under_target",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character",
+                "location"
+              ],
+              "hasKeyword": "boost",
+              "excludeSelf": true
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 137,
     "rarity": "uncommon",
@@ -7988,7 +8111,9 @@
         "type": "static",
         "storyName": "ANCESTRAL LEGACY",
         "rulesText": "You can ink cards from your discard.",
-        "effect": { "type": "ink_from_discard" }
+        "effect": {
+          "type": "ink_from_discard"
+        }
       }
     ],
     "setId": "11",
@@ -8362,6 +8487,14 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "move_cards_under_to_inkwell",
+        "target": {
+          "type": "self"
+        }
+      }
+    ],
     "setId": "11",
     "number": 162,
     "rarity": "rare",
@@ -9612,9 +9745,13 @@
           "target": {
             "type": "all",
             "filter": {
-              "owner": { "type": "self" },
+              "owner": {
+                "type": "self"
+              },
               "zone": "play",
-              "cardType": ["character"],
+              "cardType": [
+                "character"
+              ],
               "hasTrait": "Gargoyle"
             }
           }
@@ -10022,12 +10159,19 @@
         "type": "static",
         "storyName": "EXTRA LAYERS",
         "rulesText": "During each opponent's turn, the first time this character would take damage, she takes no damage instead.",
-        "condition": { "type": "not", "condition": { "type": "is_your_turn" } },
+        "condition": {
+          "type": "not",
+          "condition": {
+            "type": "is_your_turn"
+          }
+        },
         "effect": {
           "type": "damage_immunity_static",
           "source": "all",
           "chargesPerTurn": 1,
-          "target": { "type": "this" }
+          "target": {
+            "type": "this"
+          }
         }
       }
     ],
@@ -10411,7 +10555,62 @@
     "cost": 4,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "EVIL VANQUISHED",
+        "rulesText": "During your turn, whenever an opposing Villain character is banished, you may ready a character here. If you do, they can't quest for the rest of this turn.",
+        "trigger": {
+          "on": "banished_other_in_challenge",
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            },
+            "hasTrait": "Villain",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "ready",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "atLocation": "this"
+                  }
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "cant_action",
+                "action": "quest",
+                "target": {
+                  "type": "last_resolved_target"
+                },
+                "duration": "this_turn"
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 204,
     "rarity": "uncommon",
@@ -11794,13 +11993,23 @@
       },
       {
         "type": "triggered",
-        "trigger": { "on": "chosen_by_opponent" },
+        "trigger": {
+          "on": "chosen_by_opponent"
+        },
         "storyName": "IMPRESSIVE LEAPS",
         "rulesText": "Twice during your turn, whenever this character is chosen for an action or an item's ability, you may ready him.",
-        "condition": { "type": "is_your_turn" },
+        "condition": {
+          "type": "is_your_turn"
+        },
         "maxFiresPerTurn": 2,
         "effects": [
-          { "type": "ready", "target": { "type": "this" }, "isMay": true }
+          {
+            "type": "ready",
+            "target": {
+              "type": "this"
+            },
+            "isMay": true
+          }
         ]
       }
     ],
@@ -12499,6 +12708,41 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "triggered",
+        "storyName": "CALMING WORDS",
+        "rulesText": "When you play this character, if you used Shift to play her and none of your characters challenged this turn, characters can't challenge until the start of your next turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            {
+              "type": "played_via_shift"
+            },
+            {
+              "type": "no_challenges_this_turn"
+            }
+          ]
+        },
+        "effects": [
+          {
+            "type": "cant_action",
+            "action": "challenge",
+            "target": {
+              "type": "all",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "until_caster_next_turn"
+          }
+        ]
       }
     ],
     "setId": "11",
@@ -12539,7 +12783,9 @@
         "type": "static",
         "storyName": "ANCESTRAL LEGACY",
         "rulesText": "You can ink cards from your discard.",
-        "effect": { "type": "ink_from_discard" }
+        "effect": {
+          "type": "ink_from_discard"
+        }
       }
     ],
     "setId": "11",

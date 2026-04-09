@@ -1851,7 +1851,53 @@
     "traits": [
       "Location"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "SLIPPERY HALLS",
+        "rulesText": "Whenever a character is banished in a challenge while here, you may return them to your hand.",
+        "trigger": {
+          "on": "banished_in_challenge",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "atLocation": "this"
+          }
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "isMay": true,
+            "target": {
+              "type": "triggering_card"
+            }
+          }
+        ]
+      },
+      {
+        "type": "static",
+        "storyName": "SEAT OF POWER",
+        "rulesText": "Characters named Ursula get +1 {L} while here.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "modifier": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasName": "Ursula",
+              "atLocation": "this"
+            }
+          }
+        }
+      }
+    ],
     "setId": "P1",
     "number": 35,
     "rarity": "common",

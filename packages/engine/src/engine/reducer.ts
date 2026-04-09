@@ -2633,6 +2633,60 @@ export function applyEffect(
       return state;
     }
 
+    case "move_cards_under_to_inkwell": {
+      // CRD 8.4.2 / 8.10.5: Visiting Christmas Past — "Put any number of cards
+      // from under your characters and locations into your inkwell facedown
+      // and exerted." Headless bot takes all (maximal choice). For each card
+      // in the controller's in-play zone, move its entire cardsUnder pile to
+      // the controller's inkwell exerted; clear each parent's cardsUnder.
+      const play = getZone(state, controllingPlayerId, "play");
+      for (const parentId of [...play]) {
+        const parent = state.cards[parentId];
+        if (!parent || parent.cardsUnder.length === 0) continue;
+        const undersToMove = [...parent.cardsUnder];
+        for (const id of undersToMove) {
+          const u = state.cards[id];
+          if (!u) continue;
+          state = {
+            ...state,
+            cards: {
+              ...state.cards,
+              [id]: { ...u, zone: "inkwell", isExerted: true },
+            },
+            zones: {
+              ...state.zones,
+              [controllingPlayerId]: {
+                ...state.zones[controllingPlayerId],
+                inkwell: [...state.zones[controllingPlayerId].inkwell, id],
+              },
+            },
+          };
+        }
+        state = updateInstance(state, parentId, { cardsUnder: [] });
+      }
+      return state;
+    }
+
+    case "put_self_under_target": {
+      // CRD 8.4.2: Roo - Little Helper HOPPING IN ("Put this character facedown
+      // under one of your characters or locations with Boost"). Surfaces a
+      // choose_target on controller's in-play matching cards; resolution path
+      // removes the source from play and appends it to the target's cardsUnder.
+      const validTargets = findValidTargets(state, effect.filter, controllingPlayerId, definitions, sourceInstanceId);
+      if (validTargets.length === 0) return state;
+      return {
+        ...state,
+        pendingChoice: {
+          type: "choose_target",
+          choosingPlayerId: controllingPlayerId,
+          prompt: "Choose a card to put this character under.",
+          validTargets,
+          pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
+          optional: effect.isMay ?? false,
+        },
+      };
+    }
+
     case "name_a_card_then_reveal": {
       // The Sorcerer's Hat / ABRACADABRA: name a card, reveal top of deck, put it
       // in hand on a match (else leave on top — no-op).
@@ -4758,6 +4812,50 @@ function applyEffectToTarget(
       state = queueTrigger(state, "card_put_under", targetInstanceId, definitions, {
         triggeringPlayerId: controllingPlayerId,
         triggeringCardInstanceId: topId,
+      });
+      return state;
+    }
+    case "put_self_under_target": {
+      // CRD 8.4.2: Resolution path for Roo HOPPING IN. Remove the source
+      // (the acting character) from play and append it to the chosen
+      // carrier's cardsUnder pile. Reset play-state fields so it's inert.
+      const src = state.cards[sourceInstanceId];
+      const target = state.cards[targetInstanceId];
+      if (!src || !target) return state;
+      const srcOwner = src.ownerId;
+      state = {
+        ...state,
+        cards: {
+          ...state.cards,
+          [sourceInstanceId]: {
+            ...src,
+            zone: "under",
+            damage: 0,
+            isExerted: false,
+            isDrying: false,
+            tempStrengthModifier: 0,
+            tempWillpowerModifier: 0,
+            tempLoreModifier: 0,
+            grantedKeywords: [],
+            timedEffects: [],
+            cardsUnder: [],
+          },
+          [targetInstanceId]: {
+            ...target,
+            cardsUnder: [...target.cardsUnder, sourceInstanceId],
+          },
+        },
+        zones: {
+          ...state.zones,
+          [srcOwner]: {
+            ...state.zones[srcOwner],
+            play: state.zones[srcOwner].play.filter(id => id !== sourceInstanceId),
+          },
+        },
+      };
+      state = queueTrigger(state, "card_put_under", targetInstanceId, definitions, {
+        triggeringPlayerId: controllingPlayerId,
+        triggeringCardInstanceId: sourceInstanceId,
       });
       return state;
     }

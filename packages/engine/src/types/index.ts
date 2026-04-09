@@ -191,6 +191,8 @@ export type Effect =
   | CantBeChallengedTimedEffect
   | DamageImmunityTimedEffect
   | PutCardsUnderIntoHandEffect
+  | MoveCardsUnderToInkwellEffect
+  | PutSelfUnderTargetEffect
   | ReturnAllToBottomInOrderEffect
   | PutTopOfDeckUnderEffect
   | PutOnBottomOfDeckEffect
@@ -677,6 +679,33 @@ export interface PutCardsUnderIntoHandEffect {
    *  triggered ability with multiple effects (Graveyard of Christmas Future:
    *  "may put all cards... If you do, banish this location") the may gates the
    *  whole sequence — declining skips both this and any subsequent effects. */
+  isMay?: boolean;
+}
+
+/**
+ * CRD 8.4.2 / 8.10.5: "Put any number of cards from under your characters and
+ * locations into your inkwell facedown and exerted" (Visiting Christmas Past).
+ * Drains every matching in-play card's `cardsUnder` pile into the controller's
+ * inkwell, exerted. The under-cards are the controller's, not the parents'.
+ * Headless bot takes all — "any number" collapses to the maximal choice.
+ */
+export interface MoveCardsUnderToInkwellEffect {
+  type: "move_cards_under_to_inkwell";
+  target: PlayerTarget;
+  /** CRD 6.1.4: player may choose not to apply. */
+  isMay?: boolean;
+}
+
+/**
+ * CRD 8.4.2: "Put this character facedown under one of your characters or
+ * locations with Boost" (Roo - Little Helper). Source leaves play and becomes
+ * a facedown card under the chosen carrier. Surfaces a choose_target on
+ * controller's in-play cards matching `filter`.
+ */
+export interface PutSelfUnderTargetEffect {
+  type: "put_self_under_target";
+  filter: CardFilter;
+  /** CRD 6.1.4: optional may. */
   isMay?: boolean;
 }
 
@@ -1670,6 +1699,7 @@ export type Condition =
   | { type: "compound_or"; conditions: Condition[] }
   | { type: "songs_played_this_turn_gte"; amount: number }
   | { type: "actions_played_this_turn_gte"; amount: number }
+  | { type: "actions_played_this_turn_eq"; amount: number }
   | { type: "this_has_no_damage" }
   | { type: "this_at_location" }
   | { type: "this_location_has_character" }
