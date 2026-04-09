@@ -9146,7 +9146,21 @@
       "Hero",
       "Gargoyle"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "turn_end", "player": { "type": "both" } },
+        "storyName": "DUSK TO DAWN",
+        "rulesText": "At the end of each player's turn, if they have more than 2 cards in their hand, they choose and discard cards until they have 2. If they have fewer than 2 cards in their hand, they draw until they have 2.",
+        "effects": [
+          {
+            "type": "fill_hand_to",
+            "target": { "type": "both" },
+            "n": 2
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 173,
     "rarity": "legendary",
@@ -12835,7 +12849,21 @@
       "Hero",
       "Gargoyle"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "turn_end", "player": { "type": "both" } },
+        "storyName": "DUSK TO DAWN",
+        "rulesText": "At the end of each player's turn, if they have more than 2 cards in their hand, they choose and discard cards until they have 2. If they have fewer than 2 cards in their hand, they draw until they have 2.",
+        "effects": [
+          {
+            "type": "fill_hand_to",
+            "target": { "type": "both" },
+            "n": 2
+          }
+        ]
+      }
+    ],
     "setId": "10",
     "number": 238,
     "rarity": "enchanted",

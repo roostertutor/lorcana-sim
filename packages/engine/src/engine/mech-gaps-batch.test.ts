@@ -352,6 +352,23 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     expect(getZone(state, "player1", "hand").length).toBe(p1HandBefore - 1);
   });
 
+  it("Goliath Clan Leader: DUSK TO DAWN draws up to 2 if hand is below 2 at end of turn", () => {
+    let state = startGame();
+    let goliathId: string;
+    ({ state, instanceId: goliathId } = injectCard(state, "player1", "goliath-clan-leader", "play", { isDrying: false }));
+    // Empty player1's hand entirely.
+    const hand = getZone(state, "player1", "hand").slice();
+    state = {
+      ...state,
+      cards: { ...state.cards, ...Object.fromEntries(hand.map((id) => [id, { ...state.cards[id], zone: "discard" as const }])) },
+      zones: { ...state.zones, player1: { ...state.zones.player1, hand: [], discard: [...state.zones.player1.discard, ...hand] } },
+    };
+    expect(getZone(state, "player1", "hand").length).toBe(0);
+    // Pass — at end of player1's turn, DUSK TO DAWN should draw player1 up to 2.
+    state = passTurns(state, 1);
+    expect(getZone(state, "player1", "hand").length).toBe(2);
+  });
+
   it("Chicha Dedicated Mother: ONE ON THE WAY queues a may-draw on the second ink play of the turn (not the first)", () => {
     let state = startGame();
     let chichaId: string;

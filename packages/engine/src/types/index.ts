@@ -209,7 +209,23 @@ export type Effect =
   | MassInkwellEffect
   | RestrictPlayEffect
   | EachOpponentMayDiscardThenRewardEffect
-  | GrantActivatedAbilityTimedEffect;
+  | GrantActivatedAbilityTimedEffect
+  | FillHandToEffect;
+
+/**
+ * Goliath - Clan Leader (Set 10): "At the end of each player's turn, if they
+ * have more than N cards in their hand, they choose and discard cards until
+ * they have N. If they have fewer than N cards in their hand, they draw until
+ * they have N." Single effect that applies to each affected player and goes
+ * either direction based on current hand size.
+ */
+export interface FillHandToEffect {
+  type: "fill_hand_to";
+  /** Whose hand to normalize. "self" / "opponent" / "both". */
+  target: PlayerTarget;
+  /** Target hand size after normalization. */
+  n: number;
+}
 
 /**
  * Food Fight!, Donald Duck Coin Collector, Walk the Plank!: "Your [matching]

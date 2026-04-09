@@ -2908,6 +2908,37 @@ export function applyEffect(
       return state;
     }
 
+    case "fill_hand_to": {
+      // Goliath - Clan Leader: normalize each affected player's hand to `n`.
+      // Discard down or draw up depending on current hand size.
+      const affected: PlayerID[] = [];
+      if (effect.target.type === "self") affected.push(controllingPlayerId);
+      else if (effect.target.type === "opponent") affected.push(getOpponent(controllingPlayerId));
+      else if (effect.target.type === "both") affected.push("player1", "player2");
+      else affected.push(controllingPlayerId);
+
+      for (const pid of affected) {
+        const handSize = getZone(state, pid, "hand").length;
+        if (handSize > effect.n) {
+          const discardCount = handSize - effect.n;
+          state = applyEffect(
+            state,
+            { type: "discard_from_hand", target: { type: "self" }, amount: discardCount, chooser: "target_player" } as Effect,
+            sourceInstanceId,
+            pid,
+            definitions,
+            events,
+            triggeringCardInstanceId,
+          );
+          if (state.pendingChoice) return state;
+        } else if (handSize < effect.n) {
+          const drawCount = effect.n - handSize;
+          state = applyDraw(state, pid, drawCount, events, definitions);
+        }
+      }
+      return state;
+    }
+
     case "grant_activated_ability_timed": {
       // Food Fight! et al — push a turn-scoped grant onto the controller.
       const existing = state.players[controllingPlayerId].timedGrantedActivatedAbilities ?? [];

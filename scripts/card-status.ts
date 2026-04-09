@@ -223,7 +223,7 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // Geppetto-style: discard any number of [type] cards to gain N per discarded
   [/\bchoose and discard any number of .{0,20}cards? to\b/i, "discard-any-number-dynamic"],
   // Dusk to Dawn: fill-hand ("they draw until they have N")
-  [/\bthey draw until they have \d+\b/i, "fill-hand"],
+  // (fill-hand removed: fill_hand_to Effect implemented.)
   // Reuben: per-damage-removed cost reduction
   [/\bfor each \d+ damage removed this way, you pay\b/i, "dynamic-cost-reduction-from-effect"],
   // "Draw X unless that character's player puts" — inverse unless branch
