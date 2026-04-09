@@ -663,6 +663,10 @@ export function evaluateCondition(
     case "no_challenges_this_turn": {
       return !state.players[controllingPlayerId].aCharacterChallengedThisTurn;
     }
+    case "opponent_no_challenges_this_turn": {
+      const opp: PlayerID = controllingPlayerId === "player1" ? "player2" : "player1";
+      return !state.players[opp].aCharacterChallengedThisTurn;
+    }
     case "played_another_character_this_turn": {
       // Travelers (P3): "if you played another character this turn". Check
       // for any tracked entry whose id is NOT the source instance.

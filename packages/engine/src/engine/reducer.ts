@@ -753,7 +753,7 @@ function applyQuest(
       },
     },
   };
-  state = gainLore(state, playerId, loreGained, events);
+  state = gainLore(state, playerId, loreGained, events, definitions);
 
   events.push({ type: "lore_gained", playerId, amount: loreGained });
   state = appendLog(state, {
@@ -1395,7 +1395,7 @@ function applyPassTurn(
     if (!def || def.cardType !== "location") continue;
     const locLore = getEffectiveLore(inst, def);
     if (locLore > 0) {
-      state = gainLore(state, opponent, locLore, events);
+      state = gainLore(state, opponent, locLore, events, definitions);
     }
   }
 
@@ -2100,8 +2100,8 @@ export function applyEffect(
       const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, state.lastResolvedTarget?.instanceId);
       // "Each player gains N lore" — apply to both (I2I). CRD: target { type: "both" }.
       if (effect.target.type === "both") {
-        state = gainLore(state, controllingPlayerId, amount, events);
-        state = gainLore(state, getOpponent(controllingPlayerId), amount, events);
+        state = gainLore(state, controllingPlayerId, amount, events, definitions);
+        state = gainLore(state, getOpponent(controllingPlayerId), amount, events, definitions);
         return state;
       }
       const targetPlayer =
@@ -2110,7 +2110,7 @@ export function applyEffect(
           : effect.target.type === "target_owner"
             ? (state.lastResolvedTarget?.ownerId ?? controllingPlayerId)
             : controllingPlayerId;
-      return gainLore(state, targetPlayer, amount, events);
+      return gainLore(state, targetPlayer, amount, events, definitions);
     }
 
     case "deal_damage": {
@@ -3605,14 +3605,7 @@ export function applyEffect(
         state = moveCard(state, cid, opponentId, "deck");
       }
       const loreAmount = bonusTriggered ? effect.gainLoreBonus : effect.gainLoreBase;
-      const player = state.players[controllingPlayerId];
-      return {
-        ...state,
-        players: {
-          ...state.players,
-          [controllingPlayerId]: { ...player, lore: player.lore + loreAmount },
-        },
-      };
+      return gainLore(state, controllingPlayerId, loreAmount, events, definitions);
     }
 
     case "opponent_chooses_yes_or_no": {
@@ -4589,8 +4582,18 @@ function gainLore(
   state: GameState,
   playerId: PlayerID,
   amount: number,
-  events: GameEvent[]
+  events: GameEvent[],
+  definitions?: Record<string, CardDefinition>
 ): GameState {
+  // Peter Pan Never Land Prankster: prevent_lore_gain modifier short-circuits
+  // any lore-gain attempt for affected players (covers gain_lore effects, quest
+  // lore, and any other write path that funnels through gainLore).
+  if (definitions) {
+    const mods = getGameModifiers(state, definitions);
+    if (mods.preventLoreGain.has(playerId) && amount > 0) {
+      return state;
+    }
+  }
   // CRD 1.11.1: Lore can't go below 0
   const newLore = Math.max(0, state.players[playerId].lore + amount);
   events.push({ type: "lore_gained", playerId, amount });
@@ -5021,7 +5024,7 @@ function applyEffectToTarget(
       const targetPlayer = effect.target.type === "opponent"
         ? getOpponent(controllingPlayerId)
         : controllingPlayerId;
-      return gainLore(state, targetPlayer, amount, events);
+      return gainLore(state, targetPlayer, amount, events, definitions);
     }
     case "lose_lore": {
       const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, targetInstanceId);

@@ -1244,6 +1244,7 @@ export type StaticEffect =
   | SingCostBonusHereStatic
   | InkwellEntersExertedStatic
   | PreventLoreLossStatic
+  | PreventLoreGainStatic
   | RemoveNamedAbilityStatic
   | PreventDiscardFromHandStatic
   | OneChallengePerTurnGlobalStatic
@@ -1298,6 +1299,19 @@ export interface RemoveNamedAbilityStatic {
  */
 export interface PreventLoreLossStatic {
   type: "prevent_lore_loss";
+}
+
+/**
+ * Peter Pan - Never Land Prankster (Set 6): "While this character is exerted,
+ * each opposing player can't gain lore unless one of their characters has
+ * challenged this turn." A static (gated by
+ * compound_and(this_is_exerted, opponent_no_challenges_this_turn)) that
+ * shields the affected player from `gain_lore` effects.
+ */
+export interface PreventLoreGainStatic {
+  type: "prevent_lore_gain";
+  /** Whose lore gain is prevented. Resolved relative to the source's owner. */
+  affectedPlayer: PlayerTarget;
 }
 
 /**
@@ -1838,6 +1852,10 @@ export type Condition =
    *  "if none of your characters challenged this turn". True iff the
    *  controller's aCharacterChallengedThisTurn flag is unset/false. */
   | { type: "no_challenges_this_turn" }
+  /** Peter Pan Never Land Prankster: "unless one of their characters has
+   *  challenged this turn". True iff the OPPONENT'S
+   *  aCharacterChallengedThisTurn flag is unset/false. */
+  | { type: "opponent_no_challenges_this_turn" }
   /** Set 11 (Willie the Giant Ghost of Christmas Present): true when this
    *  source instance has had at least one card placed under it this turn. */
   | { type: "this_had_card_put_under_this_turn" }

@@ -4476,7 +4476,32 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "name": "LOOK INNOCENT",
+        "trigger": { "event": "enters_play", "filter": { "type": "this" } },
+        "effects": [
+          { "type": "exert", "target": { "type": "this" } }
+        ]
+      },
+      {
+        "type": "static",
+        "storyName": "CAN'T TAKE A JOKE?",
+        "rulesText": "While this character is exerted, each opposing player can't gain lore unless one of their characters has challenged this turn.",
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            { "type": "this_is_exerted" },
+            { "type": "opponent_no_challenges_this_turn" }
+          ]
+        },
+        "effect": {
+          "type": "prevent_lore_gain",
+          "affectedPlayer": { "type": "opponent" }
+        }
+      }
+    ],
     "setId": "6",
     "number": 85,
     "rarity": "super_rare",

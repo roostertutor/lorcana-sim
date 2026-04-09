@@ -165,6 +165,15 @@ export interface GameModifiers {
   preventLoreLoss: Set<import("../types/index.js").PlayerID>;
 
   /**
+   * Players whose lore can't be gained right now (Peter Pan Never Land
+   * Prankster — "while this character is exerted, each opposing player can't
+   * gain lore unless one of their characters has challenged this turn"). The
+   * gain_lore handler consults this and short-circuits to a no-op for
+   * affected players.
+   */
+  preventLoreGain: Set<import("../types/index.js").PlayerID>;
+
+  /**
    * Players whose hand can't be discarded right now (Magica De Spell Cruel
    * Sorceress, Kronk Laid Back). The discard_from_hand handler consults this
    * and short-circuits for affected players when the chooser is them.
@@ -239,6 +248,7 @@ export function getGameModifiers(
     singCostBonusHere: new Map(),
     inkwellEntersExerted: new Set(),
     preventLoreLoss: new Set(),
+    preventLoreGain: new Set(),
     preventDiscardFromHand: new Set(),
     oneChallengePerTurnGlobal: false,
     inkFromDiscard: new Set(),
@@ -585,6 +595,20 @@ export function getGameModifiers(
         case "prevent_lore_loss": {
           // Koda - Talkative Cub. The static lives on the source's owner.
           modifiers.preventLoreLoss.add(instance.ownerId);
+          break;
+        }
+
+        case "prevent_lore_gain": {
+          // Peter Pan Never Land Prankster. Resolve affectedPlayer relative
+          // to the source's owner.
+          const ap = effect.affectedPlayer;
+          if (ap.type === "self") modifiers.preventLoreGain.add(instance.ownerId);
+          else if (ap.type === "opponent") {
+            modifiers.preventLoreGain.add(instance.ownerId === "player1" ? "player2" : "player1");
+          } else if (ap.type === "both") {
+            modifiers.preventLoreGain.add("player1");
+            modifiers.preventLoreGain.add("player2");
+          }
           break;
         }
 
