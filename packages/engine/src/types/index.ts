@@ -502,6 +502,11 @@ export interface GainStatsEffect {
   /** +S equal to the SOURCE instance's effective strength (Olaf Carrot Enthusiast).
    *  Resolved at apply time per target. */
   strengthEqualsSourceStrength?: boolean;
+  /** Internal flag set by the Support trigger synthesis. When true, the
+   *  choose_target resolver fires a `chosen_for_support` trigger on the
+   *  picked character (Prince Phillip Gallant Defender, Rapunzel Ready for
+   *  Adventure). Not part of the JSON spec. */
+  _supportRecipientHook?: boolean;
   /**
    * Dynamic strength modifier resolved via DynamicAmount (count-based, etc.).
    * When set, overrides the literal `strength` field. The sign convention is:
@@ -661,6 +666,11 @@ export interface DamageImmunityTimedEffect {
   duration: EffectDuration;
   /** CRD 6.1.4: player may choose not to apply this effect */
   isMay?: boolean;
+  /** Limited charges (Rapunzel Ready for Adventure: "next time they would
+   *  be dealt damage they take no damage instead" = 1 charge). When set,
+   *  the dealDamageToCard handler consumes a charge per blocked hit and the
+   *  effect expires when charges hit 0. */
+  charges?: number;
 }
 
 /**
@@ -1578,7 +1588,13 @@ export type TriggerEvent =
    *  Source is the exerted character. Used by Te Kā Elemental Terror
    *  ("Whenever an opposing character is exerted, banish them") and Bambi
    *  Ethereal Fawn. */
-  | { on: "character_exerted"; filter?: CardFilter };
+  | { on: "character_exerted"; filter?: CardFilter }
+  /** CRD 8.13: Support — fires on the character chosen to receive a Support
+   *  boost. Source is the chosen target; triggering card is the quester whose
+   *  Support trigger surfaced the choice. Used by Prince Phillip Gallant
+   *  Defender and Rapunzel Ready for Adventure ("Whenever one of your
+   *  characters is chosen for Support, ..."). */
+  | { on: "chosen_for_support"; filter?: CardFilter };
 
 // -----------------------------------------------------------------------------
 // CONDITIONS — Guards on triggered/activated abilities
@@ -1704,6 +1720,11 @@ export interface TimedEffect {
   /** For until_caster_next_turn: the player who applied this effect (the "you"
    *  in "until your next turn"). Required when expiresAt === "until_caster_next_turn". */
   casterPlayerId?: PlayerID;
+  /** For damage_immunity: limited charges (Rapunzel Ready for Adventure
+   *  "next time they would be dealt damage they take no damage instead").
+   *  Decremented per blocked hit; the timed effect is dropped when charges
+   *  reach 0. Undefined = unlimited (default). */
+  charges?: number;
 }
 
 // -----------------------------------------------------------------------------

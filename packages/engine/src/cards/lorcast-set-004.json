@@ -7978,6 +7978,24 @@
       {
         "type": "keyword",
         "keyword": "support"
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "chosen_for_support",
+          "filter": { "owner": { "type": "self" }, "cardType": ["character"] }
+        },
+        "storyName": "BEST DEFENSE",
+        "rulesText": "Whenever one of your characters is chosen for Support, they gain Resist +1 this turn.",
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "resist",
+            "value": 1,
+            "duration": "this_turn",
+            "target": { "type": "triggering_card" }
+          }
+        ]
       }
     ],
     "setId": "4",

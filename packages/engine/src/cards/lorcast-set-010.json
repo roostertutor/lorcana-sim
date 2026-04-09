@@ -115,6 +115,24 @@
       {
         "type": "keyword",
         "keyword": "support"
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "chosen_for_support",
+          "filter": { "owner": { "type": "self" }, "cardType": ["character"] }
+        },
+        "storyName": "ACT OF KINDNESS",
+        "rulesText": "Whenever one of your characters is chosen for Support, until the start of your next turn, the next time they would be dealt damage they take no damage instead.",
+        "effects": [
+          {
+            "type": "damage_immunity_timed",
+            "source": "all",
+            "duration": "until_caster_next_turn",
+            "charges": 1,
+            "target": { "type": "triggering_card" }
+          }
+        ]
       }
     ],
     "setId": "10",

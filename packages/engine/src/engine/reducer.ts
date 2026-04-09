@@ -793,6 +793,7 @@ function applyQuest(
               },
               duration: "this_turn",
               isMay: true, // CRD 6.1.4
+              _supportRecipientHook: true,
             }],
           },
           sourceInstanceId: instanceId,
@@ -893,10 +894,28 @@ function applyChallenge(
   // Mickey timed; Baloo all-source static). Applies separately to attacker and
   // defender since either combatant may be immune. Hercules' "non_challenge"
   // source does NOT apply here (it still takes challenge damage).
-  if (hasDamageImmunity(attacker, modifiers, true)) {
+  // Charges-based immunity (Rapunzel) is consumed via dealDamageToCard's
+  // hook below, not here — challenge damage path writes via direct updates,
+  // so consume timed charges manually if applicable.
+  const consumeTimedCharge = (id: string): void => {
+    const inst = state.cards[id];
+    if (!inst) return;
+    const idx = findTimedDamageImmunityIdx(inst, true);
+    if (idx < 0) return;
+    const te = inst.timedEffects[idx]!;
+    if (te.charges === undefined) return;
+    const remaining = te.charges - 1;
+    const next = remaining <= 0
+      ? inst.timedEffects.filter((_, i) => i !== idx)
+      : inst.timedEffects.map((e, i) => (i === idx ? { ...e, charges: remaining } : e));
+    state = updateInstance(state, id, { timedEffects: next });
+  };
+  if (hasStaticDamageImmunity(attacker, modifiers, true) || findTimedDamageImmunityIdx(attacker, true) >= 0) {
+    if (actualAttackerDamage > 0) consumeTimedCharge(attackerInstanceId);
     actualAttackerDamage = 0;
   }
-  if (hasDamageImmunity(defender, modifiers, true)) {
+  if (hasStaticDamageImmunity(defender, modifiers, true) || findTimedDamageImmunityIdx(defender, true) >= 0) {
+    if (actualDefenderDamage > 0) consumeTimedCharge(defenderInstanceId);
     actualDefenderDamage = 0;
   }
 
@@ -1758,6 +1777,15 @@ function applyResolveChoice(
           state = applyEffectToTarget(state, followUp, targetId, playerId, definitions, events, srcId, trigId);
         }
       }
+      // CRD 8.13: chosen_for_support — Prince Phillip Gallant Defender,
+      // Rapunzel Ready for Adventure. Fire on the picked recipient when the
+      // synthesized Support gain_stats has the marker flag.
+      if ((pendingEffect as any)?._supportRecipientHook) {
+        state = queueTrigger(state, "chosen_for_support", targetId, definitions, {
+          triggeringPlayerId: playerId,
+          triggeringCardInstanceId: srcId,
+        });
+      }
       // Vanish keyword + chosen_by_opponent triggered abilities. Both fire
       // when the chosen target is opposing — Vanish is a hardcoded banish,
       // chosen_by_opponent is a free-form triggered ability (Archimedes
@@ -2172,16 +2200,22 @@ export function applyEffect(
     case "damage_immunity_timed": {
       // Noi Acrobatic Baby (self), Pirate Mickey (chosen Pirate),
       // Nothing We Won't Do (all your chars). Applies a source-tagged
-      // damage_immunity TimedEffect for the requested duration.
+      // damage_immunity TimedEffect for the requested duration. If `charges`
+      // is set, the immunity expires after that many blocked hits
+      // (Rapunzel Ready for Adventure).
       const timed: TimedEffect = {
         type: "damage_immunity",
         damageSource: effect.source,
         expiresAt: effect.duration,
         appliedOnTurn: state.turnNumber,
         casterPlayerId: controllingPlayerId,
+        ...(effect.charges !== undefined ? { charges: effect.charges } : {}),
       };
       if (effect.target.type === "this") {
         return addTimedEffect(state, sourceInstanceId, timed);
+      }
+      if (effect.target.type === "triggering_card" && triggeringCardInstanceId) {
+        return addTimedEffect(state, triggeringCardInstanceId, timed);
       }
       if (effect.target.type === "chosen") {
         const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
@@ -4328,24 +4362,33 @@ function findDamageRedirect(
  * "all" immunity blocks every source; "challenge" blocks only inChallenge; the
  * "non_challenge" tag blocks everything EXCEPT challenge damage (Hercules wording).
  */
-function hasDamageImmunity(
+function hasStaticDamageImmunity(
   instance: CardInstance,
   modifiers: GameModifiers,
   inChallenge: boolean
 ): boolean {
   const staticSources = modifiers.damageImmunity.get(instance.instanceId);
-  if (staticSources) {
-    if (staticSources.has("all")) return true;
-    if (inChallenge && staticSources.has("challenge")) return true;
-    if (!inChallenge && staticSources.has("non_challenge")) return true;
-  }
-  for (const te of instance.timedEffects) {
-    if (te.type !== "damage_immunity") continue;
-    if (te.damageSource === "all") return true;
-    if (inChallenge && te.damageSource === "challenge") return true;
-    if (!inChallenge && te.damageSource === "non_challenge") return true;
-  }
+  if (!staticSources) return false;
+  if (staticSources.has("all")) return true;
+  if (inChallenge && staticSources.has("challenge")) return true;
+  if (!inChallenge && staticSources.has("non_challenge")) return true;
   return false;
+}
+
+/** Returns the index of the first matching damage_immunity timed effect, or -1
+ *  if none. Caller is responsible for consuming the charge / dropping the effect. */
+function findTimedDamageImmunityIdx(
+  instance: CardInstance,
+  inChallenge: boolean
+): number {
+  for (let i = 0; i < instance.timedEffects.length; i++) {
+    const te = instance.timedEffects[i]!;
+    if (te.type !== "damage_immunity") continue;
+    if (te.damageSource === "all") return i;
+    if (inChallenge && te.damageSource === "challenge") return i;
+    if (!inChallenge && te.damageSource === "non_challenge") return i;
+  }
+  return -1;
 }
 
 function dealDamageToCard(
@@ -4368,8 +4411,27 @@ function dealDamageToCard(
   // before it's written. No events emitted so damage_dealt_to triggers don't fire.
   // "Put a damage counter on" bypasses immunity (CRD: counters are not "dealt").
   const immTarget = state.cards[instanceId];
-  if (!asDamageCounter && immTarget && hasDamageImmunity(immTarget, modifiers, inChallenge)) {
-    return state;
+  if (!asDamageCounter && immTarget) {
+    if (hasStaticDamageImmunity(immTarget, modifiers, inChallenge)) {
+      return state;
+    }
+    const timedIdx = findTimedDamageImmunityIdx(immTarget, inChallenge);
+    if (timedIdx >= 0) {
+      const te = immTarget.timedEffects[timedIdx]!;
+      // Charges semantics (Rapunzel Ready for Adventure): consume one charge.
+      // If charges hit 0, drop the timed effect entry. Otherwise leave it.
+      if (te.charges !== undefined) {
+        const remaining = te.charges - 1;
+        let nextEffects: typeof immTarget.timedEffects;
+        if (remaining <= 0) {
+          nextEffects = immTarget.timedEffects.filter((_, i) => i !== timedIdx);
+        } else {
+          nextEffects = immTarget.timedEffects.map((e, i) => (i === timedIdx ? { ...e, charges: remaining } : e));
+        }
+        state = updateInstance(state, instanceId, { timedEffects: nextEffects });
+      }
+      return state;
+    }
   }
 
   // CRD 6.5: Check for damage redirect (e.g. Beast - Selfless Protector)
@@ -4653,6 +4715,7 @@ function applyEffectToTarget(
         expiresAt: effect.duration,
         appliedOnTurn: state.turnNumber,
         casterPlayerId: controllingPlayerId,
+        ...(effect.charges !== undefined ? { charges: effect.charges } : {}),
       });
     }
     case "move_to_inkwell": {
