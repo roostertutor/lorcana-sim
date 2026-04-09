@@ -259,7 +259,32 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "turn_end", "player": { "type": "self" } },
+        "storyName": "PLENTY TO GO AROUND",
+        "rulesText": "At the end of your turn, you may remove up to 1 damage from each of your other characters. Ready each character you removed damage from this way.",
+        "effects": [
+          {
+            "type": "ready",
+            "isMay": true,
+            "target": {
+              "type": "all",
+              "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "excludeSelf": true, "hasDamage": true }
+            }
+          },
+          {
+            "type": "remove_damage",
+            "amount": 1,
+            "target": {
+              "type": "all",
+              "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "excludeSelf": true, "hasDamage": true }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 4,
     "rarity": "legendary",

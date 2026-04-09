@@ -1467,6 +1467,11 @@ export interface CardFilter {
    *  Hades Double Dealer ("play a character with the same name as the banished
    *  character"). Resolved at match time against the live state. */
   nameFromLastResolvedSource?: boolean;
+  /** Match cards whose name equals the source instance's name. Used by
+   *  Bad-Anon Villain Support Center grant — Villain characters there can
+   *  play a character with the same name as themselves. Resolved against the
+   *  source instance ID passed into matchesFilter. */
+  nameFromSource?: boolean;
   /** Match characters with damage > 0 */
   hasDamage?: boolean;
   /** Match characters with effective strength ≤ N */

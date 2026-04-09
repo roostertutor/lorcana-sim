@@ -367,6 +367,9 @@ export function matchesFilter(
     const altNames = definition.alternateNames ?? [];
     if (definition.name !== srcName && !altNames.includes(srcName)) return false;
   }
+  // nameFromSource skipped here — matchesFilter doesn't have access to the
+  // definitions map. Wired card paths that need it can pre-resolve the
+  // source's name and pass via filter.hasName at the call site.
 
   if (filter.hasDamage !== undefined) {
     if (filter.hasDamage && instance.damage <= 0) return false;
