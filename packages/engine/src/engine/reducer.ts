@@ -2865,6 +2865,17 @@ export function applyEffect(
           // Bot keeps default order — no change
           return state;
         }
+        case "one_to_inkwell_exerted_rest_top": {
+          // Kida Creative Thinker: look at top 2, put 1 into inkwell facedown
+          // exerted, the other on top. Headless heuristic: ink the FIRST card
+          // and leave the rest on top in their original order.
+          if (topCards.length === 0) return state;
+          const inkId = topCards[0]!;
+          state = zoneTransition(state, inkId, "inkwell", definitions, events, { reason: "inked" });
+          state = updateInstance(state, inkId, { isExerted: true });
+          // Other cards stay where they are (still on top of deck after the inked one is removed).
+          return state;
+        }
         case "up_to_n_to_hand_rest_bottom": {
           // Look at top N, put up to maxToHand matching (optional filter) into hand, rest to bottom.
           // Headless/bot: greedy — take the first maxToHand matching cards.

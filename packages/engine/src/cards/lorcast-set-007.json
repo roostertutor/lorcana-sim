@@ -8971,7 +8971,22 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "KEY TO THE PUZZLE",
+        "rulesText": "{E} - Look at the top 2 cards of your deck. Put one into your ink supply, face down and exerted, and the other on top of your deck.",
+        "costs": [{ "type": "exert" }],
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 2,
+            "action": "one_to_inkwell_exerted_rest_top",
+            "target": { "type": "self" }
+          }
+        ]
+      }
+    ],
     "setId": "7",
     "number": 164,
     "rarity": "rare",

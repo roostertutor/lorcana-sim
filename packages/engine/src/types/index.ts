@@ -834,7 +834,7 @@ export interface CantActionEffect {
 export interface LookAtTopEffect {
   type: "look_at_top";
   count: number;
-  action: "one_to_hand_rest_bottom" | "top_or_bottom" | "reorder" | "up_to_n_to_hand_rest_bottom";
+  action: "one_to_hand_rest_bottom" | "top_or_bottom" | "reorder" | "up_to_n_to_hand_rest_bottom" | "one_to_inkwell_exerted_rest_top";
   /** Optional filter — only matching cards can go to hand (for "may reveal matching" patterns) */
   filter?: CardFilter;
   /** For "up_to_n_to_hand_rest_bottom": max number of cards to put into hand (Look at This Family = 2, Dig a Little Deeper = 2). */
