@@ -148,6 +148,13 @@ export interface GameModifiers {
   enterPlayExerted: Map<import("../types/index.js").PlayerID, import("../types/index.js").CardFilter[]>;
 
   /**
+   * Players whose lore can't be reduced right now (Koda Talkative Cub —
+   * "during opponents' turns, you can't lose lore"). The lose_lore handler
+   * consults this and short-circuits to a no-op for affected players.
+   */
+  preventLoreLoss: Set<import("../types/index.js").PlayerID>;
+
+  /**
    * Players whose newly-inked cards enter the inkwell exerted (Daisy Duck
    * Paranormal Investigator). availableInk is NOT incremented for these adds.
    */
@@ -204,6 +211,7 @@ export function getGameModifiers(
     statFloorsPrinted: new Map(),
     singCostBonusHere: new Map(),
     inkwellEntersExerted: new Set(),
+    preventLoreLoss: new Set(),
   };
 
   for (const instance of Object.values(state.cards)) {
@@ -492,6 +500,12 @@ export function getGameModifiers(
             modifiers.enterPlayExerted.set(affectedPlayerId, arr);
           }
           arr.push(effect.filter);
+          break;
+        }
+
+        case "prevent_lore_loss": {
+          // Koda - Talkative Cub. The static lives on the source's owner.
+          modifiers.preventLoreLoss.add(instance.ownerId);
           break;
         }
 

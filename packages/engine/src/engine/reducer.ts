@@ -3373,6 +3373,13 @@ export function applyEffect(
         ? getOpponent(controllingPlayerId)
         : controllingPlayerId;
       const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, state.lastResolvedTarget?.instanceId);
+      // Koda Talkative Cub: "during opponents' turns, you can't lose lore."
+      // Static is gated by not(is_your_turn) — if active, the lose is a no-op.
+      const lossModifiers = getGameModifiers(state, definitions);
+      if (lossModifiers.preventLoreLoss.has(targetPlayer)) {
+        state = { ...state, lastEffectResult: 0 };
+        return state;
+      }
       const loreBefore = state.players[targetPlayer].lore;
       state = gainLore(state, targetPlayer, -amount, events);
       const loreAfter = state.players[targetPlayer].lore;

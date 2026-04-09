@@ -1514,6 +1514,20 @@
     "cost": 4,
     "inkable": false,
     "traits": [],
+    "actionEffects": [
+      {
+        "type": "create_floating_trigger",
+        "trigger": { "on": "quests", "filter": { "owner": { "type": "self" } } },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": { "type": "self" },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "abilities": [],
     "setId": "11",
     "number": 31,

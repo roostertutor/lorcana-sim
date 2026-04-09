@@ -13,7 +13,15 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "TELL EVERYBODY",
+        "rulesText": "During opponents' turns, you can't lose lore.",
+        "condition": { "type": "not", "condition": { "type": "is_your_turn" } },
+        "effect": { "type": "prevent_lore_loss" }
+      }
+    ],
     "setId": "5",
     "number": 1,
     "rarity": "rare",

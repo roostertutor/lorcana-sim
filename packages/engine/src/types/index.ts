@@ -1031,7 +1031,17 @@ export type StaticEffect =
   | EnterPlayExertedStatic
   | StatFloorPrintedStatic
   | SingCostBonusHereStatic
-  | InkwellEntersExertedStatic;
+  | InkwellEntersExertedStatic
+  | PreventLoreLossStatic;
+
+/**
+ * Koda - Talkative Cub (Set 5): "During opponents' turns, you can't lose lore."
+ * Gated by ability.condition (e.g. not(is_your_turn)). When active, the
+ * controller's lore is shielded from `lose_lore` effects.
+ */
+export interface PreventLoreLossStatic {
+  type: "prevent_lore_loss";
+}
 
 /**
  * Daisy Duck - Paranormal Investigator (Set 10): "STRANGE HAPPENINGS While

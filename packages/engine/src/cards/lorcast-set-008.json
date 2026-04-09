@@ -550,7 +550,21 @@
       "Hero",
       "Madrigal"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "enters_play" },
+        "storyName": "YOU ARE A WONDER",
+        "rulesText": "When you play this character, you may reveal a song card in your hand to gain 1 lore.",
+        "condition": {
+          "type": "you_control_matching",
+          "filter": { "zone": "hand", "owner": { "type": "self" }, "cardType": ["action"], "hasTrait": "Song" }
+        },
+        "effects": [
+          { "type": "gain_lore", "amount": 1, "target": { "type": "self" }, "isMay": true }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 10,
     "rarity": "common",
@@ -3888,7 +3902,38 @@
       "Villain",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": { "on": "enters_play" },
+        "storyName": "BOLD CHARGE",
+        "rulesText": "When you play this character, banish her or return another chosen character of yours to your hand.",
+        "effects": [
+          {
+            "type": "choose",
+            "options": [
+              [
+                { "type": "banish", "target": { "type": "this" } }
+              ],
+              [
+                {
+                  "type": "return_to_hand",
+                  "target": {
+                    "type": "chosen",
+                    "filter": {
+                      "owner": { "type": "self" },
+                      "zone": "play",
+                      "cardType": ["character"],
+                      "excludeSelf": true
+                    }
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 69,
     "rarity": "uncommon",

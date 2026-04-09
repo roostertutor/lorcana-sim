@@ -52,7 +52,7 @@ const NEW_MECHANIC: [RegExp, string][] = [
   // (song-played-this-turn-condition removed: songs_played_this_turn_gte already supported.)
   [/\bif you didn'?t put any cards into your inkwell this turn\b/i, "no-ink-put-this-turn-condition"],
   // (card-under-event-condition removed: this_had_card_put_under_this_turn Condition implemented.)
-  [/\bfor the rest of this turn, whenever\b/i, "player-floating-trigger"],
+  // (player-floating-trigger removed: create_floating_trigger Effect already supported.)
   [/\bif you have a card named .{0,40}in your discard\b/i, "discard-name-condition"],
   [/\b(an? )?opponent has more cards in their hand than you\b/i, "hand-count-compare-condition"],
   [/\bplay a .{0,40}from there for free\b/i, "play-from-inkwell"],
@@ -88,8 +88,8 @@ const NEW_MECHANIC: [RegExp, string][] = [
   [/\bput one into your ink supply.{0,40}(and )?(the )?other\b/i, "look-top-split"],
   [/\bremove up to \d+ damage from each of your other characters\. ready each character\b/i, "compound-remove-then-ready"],
   [/\bwhenever one of your characters sings a song\b/i, "other-sings-trigger"],
-  [/\breveal a .{0,30}card in your hand to\b/i, "reveal-from-hand-as-cost"],
-  [/\bbanish (her|him|it|them|this character) or return another chosen character\b/i, "self-banish-or-return-modal"],
+  // (reveal-from-hand-as-cost removed.)
+  // (self-banish-or-return-modal removed.)
   // (grant-floating-trigger-to-target removed: primitive already supported.)
   [/\bif a[n]? .{0,30}is discarded this way, you may play\b/i, "play-from-discard-result"],
   [/\bfor each character that sang this song\b/i, "per-singer-dynamic"],
@@ -169,7 +169,7 @@ const NEW_TYPE: [RegExp, string][] = [
   [/\bgain.{0,10}classification\b/i, "grant-classification"],
   [/\blose.{0,10}(the )?[A-Z][a-z]+ (classification|ability)\b/i, "remove-ability"],
   // (stat-floor removed: stat_floor_printed StaticEffect implemented — Elisa Maza.)
-  [/\bcan'?t lose lore\b/i, "prevent-lore-loss"],
+  // (prevent-lore-loss removed: prevent_lore_loss StaticEffect implemented.)
   // (virtual-cost-modifier removed: sing_cost_bonus_here StaticEffect implemented.)
   [/\bplay .{0,40}again from your discard\b/i, "replay-from-discard"],
   [/\bcount as having \{I/i, "virtual-ink-color"],

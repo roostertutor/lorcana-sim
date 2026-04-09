@@ -137,7 +137,7 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // "Unless you put a card under [this] this turn" — same gap
   // (above)
   // "For the rest of this turn, whenever" — floating player-scoped trigger
-  [/\bfor the rest of this turn, whenever\b/i, "player-floating-trigger"],
+  // (player-floating-trigger removed: create_floating_trigger Effect already supported.)
   // "If you have a card named X in your discard" — discard-name condition
   [/\bif you have a card named .{0,40}in your discard\b/i, "discard-name-condition"],
   // "If an opponent has more cards in their hand than you" — hand-count compare condition
@@ -208,9 +208,9 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // Singular "whenever one of your characters sings a song"
   [/\bwhenever one of your characters sings a song\b/i, "other-sings-trigger"],
   // Reveal-from-hand as cost ("reveal a X card in your hand to ...")
-  [/\breveal a .{0,30}card in your hand to\b/i, "reveal-from-hand-as-cost"],
+  // (reveal-from-hand-as-cost removed: model as triggered may + you_control_matching condition on hand.)
   // Banish-self OR return-another modal on ETB (Madam Mim - Rhino)
-  [/\bbanish (her|him|it|them|this character) or return another chosen character\b/i, "self-banish-or-return-modal"],
+  // (self-banish-or-return-modal removed: ChooseEffect with options already supported.)
   // "Give that character X and \"<quoted trigger>\" this turn" — grant floating trigger to target via "give"
   // (above)
   // Jafar High Sultan: "If an Illusion character card is discarded this way, you may play that character"
@@ -334,7 +334,7 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   // (stat-floor removed: stat_floor_printed StaticEffect implemented — Elisa Maza
   //  Transformed Gargoyle. Matched as fits-grammar below.)
   // "Can't lose lore" (during opponents' turns)
-  [/\bcan'?t lose lore\b/i, "prevent-lore-loss"],
+  // (prevent-lore-loss removed: prevent_lore_loss StaticEffect implemented.)
   // "Count as having +N cost" (virtual cost for singer threshold)
   // (virtual-cost-modifier removed: sing_cost_bonus_here StaticEffect implemented —
   //  Atlantica Concert Hall. Matched as fits-grammar below.)
