@@ -2938,7 +2938,7 @@ export function applyEffect(
             triggeringCardInstanceId,
           );
           if (state.pendingChoice) return state;
-        } else if (handSize < effect.n) {
+        } else if (handSize < effect.n && !effect.trimOnly) {
           const drawCount = effect.n - handSize;
           state = applyDraw(state, pid, drawCount, events, definitions);
         }

@@ -82,7 +82,7 @@ const NEW_MECHANIC: [RegExp, string][] = [
   [/\byou gain lore equal to the lore lost\b/i, "lore-transfer"],
   // (grant-activated-to-own-timed removed: grant_activated_ability_timed Effect implemented.)
   [/\{E\} one of your characters to deal damage equal to (their|its|his|her)\b/i, "exert-one-dynamic-damage"],
-  [/\bplay characters using their shift ability\b/i, "shift-scoped-cost-reduction"],
+  // (shift-scoped-cost-reduction removed: cost_reduction.appliesTo:"shift_only" implemented.)
   [/\beach player may reveal a .{0,30}from their hand and play\b/i, "symmetric-reveal-play"],
   [/\bbanish chosen item of yours to play this character for free\b/i, "alt-play-cost-banish-item"],
   [/\bput one into your ink supply.{0,40}(and )?(the )?other\b/i, "look-top-split"],
@@ -144,8 +144,7 @@ const NEW_TYPE: [RegExp, string][] = [
   //  damage_immunity_static StaticEffect.)
   [/\bprevent .{0,30}damage\b/i, "damage-prevention"],
   [/\bdamage counters can'?t be removed\b/i, "damage-removal-prevention"],
-  [/\bdiscard.{0,20}until .{0,20}have \d+ cards?\b/i, "trim-hand"],
-  [/\bdiscards? until they have\b/i, "trim-hand"],
+  // (trim-hand removed: fill_hand_to.trimOnly implemented.)
   // (draw-to-n removed — DrawEffect.untilHandSize implemented.)
   // (mill removed: MillEffect implemented; cards wired this batch.)
   // (put-on-bottom removed: put_on_bottom_of_deck Effect implemented.)

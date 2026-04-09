@@ -5258,7 +5258,19 @@
       "Villain",
       "Inventor"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "INNOVATE",
+        "rulesText": "You pay 1 {I} less to play characters using their Shift ability.",
+        "effect": {
+          "type": "cost_reduction",
+          "amount": 1,
+          "appliesTo": "shift_only",
+          "filter": { "owner": { "type": "self" }, "cardType": ["character"] }
+        }
+      }
+    ],
     "setId": "7",
     "number": 97,
     "rarity": "uncommon",

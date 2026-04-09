@@ -35,8 +35,10 @@ export interface GameModifiers {
   /** Keywords granted by conditional static abilities (e.g. Pascal gains Evasive, Cogsworth grants Resist +1). */
   grantedKeywords: Map<string, { keyword: import("../types/index.js").Keyword; value?: number }[]>;
 
-  /** Static cost reductions (e.g. Mickey: Broom chars cost 1 less). Key = playerId. */
-  costReductions: Map<import("../types/index.js").PlayerID, { amount: number; filter: import("../types/index.js").CardFilter }[]>;
+  /** Static cost reductions (e.g. Mickey: Broom chars cost 1 less). Key = playerId.
+   *  appliesTo limits the scope: "all" = both normal and shift (default),
+   *  "shift_only" = only when paying Shift cost (Yokai). */
+  costReductions: Map<import("../types/index.js").PlayerID, { amount: number; filter: import("../types/index.js").CardFilter; appliesTo: "all" | "shift_only" }[]>;
 
   /** Action restrictions (quest/challenge/play/sing/ready) from static abilities. */
   actionRestrictions: {
@@ -320,7 +322,7 @@ export function getGameModifiers(
 
         case "cost_reduction": {
           const existing = modifiers.costReductions.get(instance.ownerId) ?? [];
-          existing.push({ amount: effect.amount, filter: effect.filter });
+          existing.push({ amount: effect.amount, filter: effect.filter, appliesTo: effect.appliesTo ?? "all" });
           modifiers.costReductions.set(instance.ownerId, existing);
           break;
         }

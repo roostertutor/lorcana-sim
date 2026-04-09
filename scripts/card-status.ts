@@ -196,7 +196,7 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // Exert one of your X to deal damage equal to their {S}
   [/\{E\} one of your characters to deal damage equal to (their|its|his|her)\b/i, "exert-one-dynamic-damage"],
   // "play characters using their Shift ability" — Shift-scoped cost reduction
-  [/\bplay characters using their shift ability\b/i, "shift-scoped-cost-reduction"],
+  // (shift-scoped-cost-reduction removed: cost_reduction.appliesTo:"shift_only" implemented.)
   // "Each player may reveal a character card from their hand and play it for free"
   [/\beach player may reveal a .{0,30}from their hand and play\b/i, "symmetric-reveal-play"],
   // "Banish chosen item of yours to play this character for free" — alternate play cost
@@ -301,8 +301,7 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   // Damage removal prevention (Vision Slab: "damage counters can't be removed")
   [/\bdamage counters can'?t be removed\b/i, "damage-removal-prevention"],
   // "Discard until they have N" / "draw until you have N" — trim hand
-  [/\bdiscard.{0,20}until .{0,20}have \d+ cards?\b/i, "trim-hand"],
-  [/\bdiscards? until they have\b/i, "trim-hand"],
+  // (trim-hand removed: fill_hand_to.trimOnly implemented.)
   // (draw-to-n removed: DrawEffect.untilHandSize implemented — matched as
   //  fits-grammar via the "draw..until" pattern below.)
   // (mill removed: MillEffect implemented; matched as fits-grammar below.)

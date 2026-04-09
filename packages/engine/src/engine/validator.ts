@@ -267,11 +267,16 @@ function getEffectiveCostWithReductions(
   const def = getDefinition(state, instanceId, definitions);
   const instance = getInstance(state, instanceId);
   let cost = baseCost ?? def.cost;
+  // True iff this call is computing the Shift cost path (validatePlayCard
+  // passes baseCost === def.shiftCost). Used to gate shift_only reductions.
+  const isShiftPath = baseCost !== undefined && baseCost === def.shiftCost;
 
   // Static cost reductions (e.g. Mickey: Broom chars cost 1 less)
   const modifiers = getGameModifiers(state, definitions);
   const staticReductions = modifiers.costReductions.get(playerId) ?? [];
   for (const red of staticReductions) {
+    // appliesTo gating: shift_only reductions only apply when computing Shift cost.
+    if (red.appliesTo === "shift_only" && !isShiftPath) continue;
     if (matchesFilter(instance, def, red.filter, state, playerId)) {
       cost -= red.amount;
     }

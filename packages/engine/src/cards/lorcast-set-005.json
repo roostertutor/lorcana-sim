@@ -5018,7 +5018,29 @@
     "cost": 3,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "YOU LOOK REGAL",
+        "rulesText": "If you have a character named Prince John in play, you pay 1 {I} less to play this item.",
+        "condition": { "type": "has_character_named", "name": "Prince John", "player": { "type": "self" } },
+        "effect": { "type": "self_cost_reduction", "amount": 1 }
+      },
+      {
+        "type": "triggered",
+        "trigger": { "on": "turn_end", "player": { "type": "opponent" } },
+        "storyName": "A FEELING OF POWER",
+        "rulesText": "At the end of each opponent's turn, if they have more than 3 cards in their hand, they discard until they have 3 cards in their hand.",
+        "effects": [
+          {
+            "type": "fill_hand_to",
+            "target": { "type": "opponent" },
+            "n": 3,
+            "trimOnly": true
+          }
+        ]
+      }
+    ],
     "setId": "5",
     "number": 98,
     "rarity": "rare",

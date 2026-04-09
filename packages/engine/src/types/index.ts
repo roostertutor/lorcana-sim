@@ -229,6 +229,10 @@ export interface FillHandToEffect {
   target: PlayerTarget;
   /** Target hand size after normalization. */
   n: number;
+  /** Only trim down (Prince John's Mirror — "if they have more than N, they
+   *  discard until they have N"). When true, no draw-up happens for hands
+   *  smaller than n. Default false (bidirectional). */
+  trimOnly?: boolean;
 }
 
 /**
@@ -1294,6 +1298,10 @@ export interface CostReductionStatic {
   amount: number;
   /** Filter for which cards get the discount */
   filter: CardFilter;
+  /** Scope of the discount. Default "all" — both normal play and Shift cost.
+   *  "shift_only" — only when paying Shift cost (Yokai Intellectual Schemer
+   *  "you pay 1 less to play characters using their Shift ability"). */
+  appliesTo?: "all" | "shift_only";
 }
 
 /**
