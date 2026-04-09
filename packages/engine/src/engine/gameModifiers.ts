@@ -174,6 +174,15 @@ export interface GameModifiers {
   preventLoreGain: Set<import("../types/index.js").PlayerID>;
 
   /**
+   * Forced-target taunt: when the keyed player enumerates valid targets, if
+   * any of the listed instanceIds are in the raw valid set, the choice is
+   * narrowed to just those. Used by John Smith Undaunted Protector ("DO YOUR
+   * WORST Opponents must choose this character for actions and abilities if
+   * able"). Key = the affected player (the OPPONENT of the taunting source).
+   */
+  forcedTargets: Map<import("../types/index.js").PlayerID, Set<string>>;
+
+  /**
    * Players whose hand can't be discarded right now (Magica De Spell Cruel
    * Sorceress, Kronk Laid Back). The discard_from_hand handler consults this
    * and short-circuits for affected players when the chooser is them.
@@ -249,6 +258,7 @@ export function getGameModifiers(
     inkwellEntersExerted: new Set(),
     preventLoreLoss: new Set(),
     preventLoreGain: new Set(),
+    forcedTargets: new Map(),
     preventDiscardFromHand: new Set(),
     oneChallengePerTurnGlobal: false,
     inkFromDiscard: new Set(),
@@ -595,6 +605,16 @@ export function getGameModifiers(
         case "prevent_lore_loss": {
           // Koda - Talkative Cub. The static lives on the source's owner.
           modifiers.preventLoreLoss.add(instance.ownerId);
+          break;
+        }
+
+        case "forced_target_priority": {
+          // John Smith Undaunted Protector. Adds the source instance to the
+          // OPPONENT's forced-target set.
+          const opp: PlayerID = instance.ownerId === "player1" ? "player2" : "player1";
+          const existing = modifiers.forcedTargets.get(opp) ?? new Set<string>();
+          existing.add(instance.instanceId);
+          modifiers.forcedTargets.set(opp, existing);
           break;
         }
 

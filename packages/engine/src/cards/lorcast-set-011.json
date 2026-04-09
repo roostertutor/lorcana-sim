@@ -10140,6 +10140,12 @@
       {
         "type": "keyword",
         "keyword": "bodyguard"
+      },
+      {
+        "type": "static",
+        "storyName": "DO YOUR WORST",
+        "rulesText": "Opponents must choose this character for actions and abilities if able.",
+        "effect": { "type": "forced_target_priority" }
       }
     ],
     "setId": "11",

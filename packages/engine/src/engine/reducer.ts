@@ -5719,7 +5719,7 @@ function findValidTargets(
   definitions: Record<string, CardDefinition>,
   sourceInstanceId?: string
 ): string[] {
-  return Object.values(state.cards)
+  const raw = Object.values(state.cards)
     .filter((instance) => {
       // CRD 6.1.6: "other" — exclude the source card
       if (filter.excludeSelf && sourceInstanceId && instance.instanceId === sourceInstanceId) return false;
@@ -5730,6 +5730,18 @@ function findValidTargets(
       return matchesFilter(instance, def, filter, state, controllingPlayerId, sourceInstanceId, definitions);
     })
     .map((i) => i.instanceId);
+
+  // John Smith Undaunted Protector ("DO YOUR WORST Opponents must choose this
+  // character for actions and abilities if able"): if any forced-target is in
+  // the raw valid set, the chooser MUST pick from that subset. "If able"
+  // means we don't apply the restriction when no forced target is targetable.
+  const mods = getGameModifiers(state, definitions);
+  const forced = mods.forcedTargets.get(controllingPlayerId);
+  if (forced && forced.size > 0) {
+    const intersection = raw.filter((id) => forced.has(id));
+    if (intersection.length > 0) return intersection;
+  }
+  return raw;
 }
 
 /** CRD 1.8: Game state check — uses getLoreThreshold, never hardcodes 20.

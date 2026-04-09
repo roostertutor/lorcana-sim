@@ -1250,6 +1250,7 @@ export type StaticEffect =
   | InkwellEntersExertedStatic
   | PreventLoreLossStatic
   | PreventLoreGainStatic
+  | ForcedTargetPriorityStatic
   | RemoveNamedAbilityStatic
   | PreventDiscardFromHandStatic
   | OneChallengePerTurnGlobalStatic
@@ -1313,6 +1314,19 @@ export interface PreventLoreLossStatic {
  * compound_and(this_is_exerted, opponent_no_challenges_this_turn)) that
  * shields the affected player from `gain_lore` effects.
  */
+/**
+ * John Smith - Undaunted Protector (Set 11): "DO YOUR WORST Opponents must
+ * choose this character for actions and abilities if able." A taunt: when an
+ * opponent enumerates valid targets for an effect, if the source instance is
+ * in the raw valid set, the choice is narrowed to just the source (and any
+ * other taunting characters of the source's owner). "If able" — the
+ * restriction only applies when the source is a legal target for that effect;
+ * otherwise the opponent is free to pick anyone in the raw set.
+ */
+export interface ForcedTargetPriorityStatic {
+  type: "forced_target_priority";
+}
+
 export interface PreventLoreGainStatic {
   type: "prevent_lore_gain";
   /** Whose lore gain is prevented. Resolved relative to the source's owner. */
