@@ -1801,7 +1801,21 @@
     "cost": 1,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "is_banished",
+          "filter": { "cardType": ["character"], "atLocation": "this" }
+        },
+        "storyName": "FRIENDS FOREVER",
+        "rulesText": "During an opponent's turn, whenever a character is banished here, gain 1 lore.",
+        "condition": { "type": "not", "condition": { "type": "is_your_turn" } },
+        "effects": [
+          { "type": "gain_lore", "amount": 1, "target": { "type": "self" } }
+        ]
+      }
+    ],
     "setId": "6",
     "number": 34,
     "rarity": "common",

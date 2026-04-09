@@ -182,7 +182,7 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // "If this card is in your discard, you may play her" — self play-from-discard trigger
   [/\bif this card is in your discard, you may play\b/i, "self-play-from-discard"],
   // Location "whenever a character is banished here" trigger
-  [/\bwhenever a character is banished here\b/i, "location-banished-here-trigger"],
+  // (location-banished-here-trigger removed: is_banished + atLocation:"this" filter already supported.)
   // "Whenever a character is banished in a challenge while here"
   [/\bwhenever a character is banished in a challenge while here\b/i, "location-banished-here-trigger"],
   // Location "when you move a character here from another location"

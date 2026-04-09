@@ -76,7 +76,7 @@ const NEW_MECHANIC: [RegExp, string][] = [
   [/\bfor each opposing character banished in a challenge this turn, you pay\b/i, "event-tracking-cost-reduction"],
   [/\bwhile one of your .{0,40}is at a location, that character\b/i, "other-at-location-static"],
   [/\bif this card is in your discard, you may play\b/i, "self-play-from-discard"],
-  [/\bwhenever a character is banished here\b/i, "location-banished-here-trigger"],
+  // (location-banished-here-trigger removed: is_banished + atLocation:"this" filter already supported.)
   [/\bwhenever a character is banished in a challenge while here\b/i, "location-banished-here-trigger"],
   // (location-moves-here-trigger removed: moves_to_location + atLocation:"this" filter already supported.)
   [/\byou gain lore equal to the lore lost\b/i, "lore-transfer"],
