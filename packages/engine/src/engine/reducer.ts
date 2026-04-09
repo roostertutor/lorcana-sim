@@ -24,7 +24,7 @@ import type {
   ResolvedRef,
 } from "../types/index.js";
 import { getGameModifiers, type GameModifiers } from "./gameModifiers.js";
-import { validateAction, applyMoveCostReduction } from "./validator.js";
+import { validateAction, applyMoveCostReduction, getEffectiveCostWithReductions } from "./validator.js";
 import {
   appendLog,
   canSingSong,
@@ -3382,7 +3382,10 @@ export function applyEffect(
           const topInst = state.cards[topId];
           const topDef = topInst ? definitions[topInst.definitionId] : undefined;
           if (!topInst || !topDef) return state;
-          const cardCost = topDef.cost ?? 0;
+          // Use the same effective-cost helper as the standard play action so
+          // static + one-shot cost reductions (Mickey Broom, Grandmother Willow,
+          // Olaf Snowman of Action, etc.) apply to the revealed-card play.
+          const cardCost = getEffectiveCostWithReductions(state, targetPlayer, topId, definitions);
           const canAfford = state.players[targetPlayer].availableInk >= cardCost;
           if (!canAfford) {
             // Decline -> discard the revealed card.
@@ -5410,13 +5413,12 @@ function applyEffectToTarget(
           break;
         }
       }
-      // Paid-play branch: deduct the card's effective cost from the controller's ink
-      // (mirrors applyPlayCard's deduction step — cost reductions intentionally NOT
-      // applied here; sources gating play-from-zone already act as a permission, and
-      // adding reductions can be revisited per-card if a real example surfaces).
+      // Paid-play branch: deduct the card's effective cost (including all
+      // applicable cost reductions — static reductions like Mickey Broom or
+      // Grandmother Willow, plus one-shot reductions). Mirrors applyPlayCard.
       if (effect.cost === "normal") {
         const player = state.players[controllingPlayerId];
-        const cardCost = def.cost ?? 0;
+        const cardCost = getEffectiveCostWithReductions(state, controllingPlayerId, targetInstanceId, definitions);
         if (player.availableInk < cardCost) return state;
         state = updatePlayerInk(state, controllingPlayerId, -cardCost);
       }

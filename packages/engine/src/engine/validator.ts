@@ -282,7 +282,7 @@ function validatePlayCard(
 
 /** Calculate effective cost after applying all cost reductions.
  *  Pass baseCost to override def.cost (e.g. for shift: use def.shiftCost). */
-function getEffectiveCostWithReductions(
+export function getEffectiveCostWithReductions(
   state: GameState,
   playerId: PlayerID,
   instanceId: string,
