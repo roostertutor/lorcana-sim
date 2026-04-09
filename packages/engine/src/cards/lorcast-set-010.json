@@ -2047,16 +2047,16 @@
         "type": "static",
         "storyName": "STONE BY DAY",
         "rulesText": "If you have 3 or more cards in your hand, this character can't ready.",
+        "condition": {
+          "type": "cards_in_hand_gte",
+          "amount": 3,
+          "player": {
+            "type": "self"
+          }
+        },
         "effect": {
           "type": "cant_action_self",
-          "action": "ready",
-          "condition": {
-            "type": "cards_in_hand_gte",
-            "amount": 3,
-            "player": {
-              "type": "self"
-            }
-          }
+          "action": "ready"
         }
       }
     ],
@@ -2843,6 +2843,22 @@
             }
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "STONE BY DAY",
+        "rulesText": "If you have 3 or more cards in your hand, this character can't ready.",
+        "condition": {
+          "type": "cards_in_hand_gte",
+          "amount": 3,
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "cant_action_self",
+          "action": "ready"
+        }
       }
     ],
     "setId": "10",
@@ -5876,16 +5892,16 @@
         "type": "static",
         "storyName": "STONE BY DAY",
         "rulesText": "If you have 3 or more cards in your hand, this character can't ready.",
+        "condition": {
+          "type": "cards_in_hand_gte",
+          "amount": 3,
+          "player": {
+            "type": "self"
+          }
+        },
         "effect": {
           "type": "cant_action_self",
-          "action": "ready",
-          "condition": {
-            "type": "cards_in_hand_gte",
-            "amount": 3,
-            "player": {
-              "type": "self"
-            }
-          }
+          "action": "ready"
         }
       }
     ],
@@ -6259,6 +6275,22 @@
             }
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "STONE BY DAY",
+        "rulesText": "If you have 3 or more cards in your hand, this character can't ready.",
+        "condition": {
+          "type": "cards_in_hand_gte",
+          "amount": 3,
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "cant_action_self",
+          "action": "ready"
+        }
       }
     ],
     "setId": "10",
@@ -6302,16 +6334,16 @@
         "type": "static",
         "storyName": "STONE BY DAY",
         "rulesText": "If you have 3 or more cards in your hand, this character can't ready.",
+        "condition": {
+          "type": "cards_in_hand_gte",
+          "amount": 3,
+          "player": {
+            "type": "self"
+          }
+        },
         "effect": {
           "type": "cant_action_self",
-          "action": "ready",
-          "condition": {
-            "type": "cards_in_hand_gte",
-            "amount": 3,
-            "player": {
-              "type": "self"
-            }
-          }
+          "action": "ready"
         }
       }
     ],
@@ -8061,10 +8093,14 @@
         "type": "static",
         "storyName": "STRANGE HAPPENINGS",
         "rulesText": "While this character is exerted, cards enter opponents' inkwells exerted.",
-        "condition": { "type": "this_is_exerted" },
+        "condition": {
+          "type": "this_is_exerted"
+        },
         "effect": {
           "type": "inkwell_enters_exerted",
-          "affectedPlayer": { "type": "opponent" }
+          "affectedPlayer": {
+            "type": "opponent"
+          }
         }
       }
     ],
@@ -9149,16 +9185,39 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "turn_end", "player": { "type": "both" } },
+        "trigger": {
+          "on": "turn_end",
+          "player": {
+            "type": "both"
+          }
+        },
         "storyName": "DUSK TO DAWN",
         "rulesText": "At the end of each player's turn, if they have more than 2 cards in their hand, they choose and discard cards until they have 2. If they have fewer than 2 cards in their hand, they draw until they have 2.",
         "effects": [
           {
             "type": "fill_hand_to",
-            "target": { "type": "both" },
+            "target": {
+              "type": "both"
+            },
             "n": 2
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "STONE BY DAY",
+        "rulesText": "If you have 3 or more cards in your hand, this character can't ready.",
+        "condition": {
+          "type": "cards_in_hand_gte",
+          "amount": 3,
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "cant_action_self",
+          "action": "ready"
+        }
       }
     ],
     "setId": "10",
@@ -9467,6 +9526,22 @@
             "chooser": "target_player"
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "STONE BY DAY",
+        "rulesText": "If you have 3 or more cards in your hand, this character can't ready.",
+        "condition": {
+          "type": "cards_in_hand_gte",
+          "amount": 3,
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "cant_action_self",
+          "action": "ready"
+        }
       }
     ],
     "setId": "10",
@@ -9595,16 +9670,16 @@
         "type": "static",
         "storyName": "STONE BY DAY",
         "rulesText": "If you have 3 or more cards in your hand, this character can't ready.",
+        "condition": {
+          "type": "cards_in_hand_gte",
+          "amount": 3,
+          "player": {
+            "type": "self"
+          }
+        },
         "effect": {
           "type": "cant_action_self",
-          "action": "ready",
-          "condition": {
-            "type": "cards_in_hand_gte",
-            "amount": 3,
-            "player": {
-              "type": "self"
-            }
-          }
+          "action": "ready"
         }
       }
     ],
@@ -9981,16 +10056,16 @@
         "type": "static",
         "storyName": "STONE BY DAY",
         "rulesText": "If you have 3 or more cards in your hand, this character can't ready.",
+        "condition": {
+          "type": "cards_in_hand_gte",
+          "amount": 3,
+          "player": {
+            "type": "self"
+          }
+        },
         "effect": {
           "type": "cant_action_self",
-          "action": "ready",
-          "condition": {
-            "type": "cards_in_hand_gte",
-            "amount": 3,
-            "player": {
-              "type": "self"
-            }
-          }
+          "action": "ready"
         }
       }
     ],
@@ -12229,6 +12304,22 @@
             }
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "STONE BY DAY",
+        "rulesText": "If you have 3 or more cards in your hand, this character can't ready.",
+        "condition": {
+          "type": "cards_in_hand_gte",
+          "amount": 3,
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "cant_action_self",
+          "action": "ready"
+        }
       }
     ],
     "setId": "10",
@@ -12852,16 +12943,39 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "turn_end", "player": { "type": "both" } },
+        "trigger": {
+          "on": "turn_end",
+          "player": {
+            "type": "both"
+          }
+        },
         "storyName": "DUSK TO DAWN",
         "rulesText": "At the end of each player's turn, if they have more than 2 cards in their hand, they choose and discard cards until they have 2. If they have fewer than 2 cards in their hand, they draw until they have 2.",
         "effects": [
           {
             "type": "fill_hand_to",
-            "target": { "type": "both" },
+            "target": {
+              "type": "both"
+            },
             "n": 2
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "STONE BY DAY",
+        "rulesText": "If you have 3 or more cards in your hand, this character can't ready.",
+        "condition": {
+          "type": "cards_in_hand_gte",
+          "amount": 3,
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "cant_action_self",
+          "action": "ready"
+        }
       }
     ],
     "setId": "10",

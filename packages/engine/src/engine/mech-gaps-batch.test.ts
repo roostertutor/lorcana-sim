@@ -450,6 +450,35 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     expect(mods.grantedActivatedAbilities.get(mickeyId) ?? []).toEqual([]);
   });
 
+  it("Elisa Maza Transformed Gargoyle: STONE BY DAY blocks ready while hand size >= 3", () => {
+    let state = startGame();
+    let elisaId: string;
+    ({ state, instanceId: elisaId } = injectCard(state, "player1", "elisa-maza-transformed-gargoyle", "play", { isDrying: false, isExerted: true }));
+    // Empty player1's hand to clear the condition.
+    const hand = getZone(state, "player1", "hand").slice();
+    state = {
+      ...state,
+      cards: { ...state.cards, ...Object.fromEntries(hand.map((id) => [id, { ...state.cards[id], zone: "discard" as const }])) },
+      zones: { ...state.zones, player1: { ...state.zones.player1, hand: [], discard: [...state.zones.player1.discard, ...hand] } },
+    };
+    // Pass to opponent then back — Elisa should ready (hand is empty).
+    state = passTurns(state, 2);
+    expect(getInstance(state, elisaId).isExerted).toBe(false);
+    // Now stuff hand to 3 cards via injectCard, exert Elisa, pass, expect she STAYS exerted.
+    state = { ...state, cards: { ...state.cards, [elisaId]: { ...state.cards[elisaId], isExerted: true } } };
+    for (let i = 0; i < 3; i++) injectCard(state, "player1", "mickey-mouse-true-friend", "hand");
+    let s = state;
+    for (let i = 0; i < 3; i++) {
+      const inj = injectCard(s, "player1", "mickey-mouse-true-friend", "hand");
+      s = inj.state;
+    }
+    state = s;
+    expect(getZone(state, "player1", "hand").length).toBeGreaterThanOrEqual(3);
+    state = passTurns(state, 2);
+    // Hand still has 3+; Elisa should NOT have readied at start-of-turn.
+    expect(getInstance(state, elisaId).isExerted).toBe(true);
+  });
+
   it("Willie the Giant Ghost of Christmas Present: can't quest unless a card was put under him this turn", () => {
     let state = startGame();
     let willieId: string;

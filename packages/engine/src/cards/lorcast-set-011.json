@@ -689,21 +689,32 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "turn_end", "player": { "type": "self" } },
+        "trigger": {
+          "on": "turn_end",
+          "player": {
+            "type": "self"
+          }
+        },
         "storyName": "FOLLOW THE TRACKS",
         "rulesText": "At the end of your turn, if this character is exerted and none of your characters challenged this turn, gain 1 lore.",
         "condition": {
           "type": "compound_and",
           "conditions": [
-            { "type": "this_is_exerted" },
-            { "type": "no_challenges_this_turn" }
+            {
+              "type": "this_is_exerted"
+            },
+            {
+              "type": "no_challenges_this_turn"
+            }
           ]
         },
         "effects": [
           {
             "type": "gain_lore",
             "amount": 1,
-            "target": { "type": "self" }
+            "target": {
+              "type": "self"
+            }
           }
         ]
       }
@@ -1517,12 +1528,21 @@
     "actionEffects": [
       {
         "type": "create_floating_trigger",
-        "trigger": { "on": "quests", "filter": { "owner": { "type": "self" } } },
+        "trigger": {
+          "on": "quests",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
         "effects": [
           {
             "type": "draw",
             "amount": 1,
-            "target": { "type": "self" },
+            "target": {
+              "type": "self"
+            },
             "isMay": true
           }
         ]
@@ -3157,10 +3177,17 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "turn_end", "player": { "type": "self" } },
+        "trigger": {
+          "on": "turn_end",
+          "player": {
+            "type": "self"
+          }
+        },
         "storyName": "PRECIOUS GIFT",
         "rulesText": "At the end of your turn, if none of your characters challenged this turn, chosen character of yours gains Evasive until the start of your next turn.",
-        "condition": { "type": "no_challenges_this_turn" },
+        "condition": {
+          "type": "no_challenges_this_turn"
+        },
         "effects": [
           {
             "type": "grant_keyword",
@@ -3169,9 +3196,13 @@
             "target": {
               "type": "chosen",
               "filter": {
-                "owner": { "type": "self" },
+                "owner": {
+                  "type": "self"
+                },
                 "zone": "play",
-                "cardType": ["character"]
+                "cardType": [
+                  "character"
+                ]
               }
             }
           }
@@ -5629,6 +5660,22 @@
             }
           }
         }
+      },
+      {
+        "type": "static",
+        "storyName": "STONE BY DAY",
+        "rulesText": "If you have 3 or more cards in your hand, this character can't ready.",
+        "condition": {
+          "type": "cards_in_hand_gte",
+          "amount": 3,
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "cant_action_self",
+          "action": "ready"
+        }
       }
     ],
     "setId": "11",
@@ -6387,15 +6434,31 @@
         "type": "static",
         "storyName": "THE FOOD OF GENEROSITY",
         "rulesText": "This character can't quest unless you put a card under him this turn.",
-        "condition": { "type": "not", "condition": { "type": "this_had_card_put_under_this_turn" } },
-        "effect": { "type": "cant_action_self", "action": "quest" }
+        "condition": {
+          "type": "not",
+          "condition": {
+            "type": "this_had_card_put_under_this_turn"
+          }
+        },
+        "effect": {
+          "type": "cant_action_self",
+          "action": "quest"
+        }
       },
       {
         "type": "static",
         "storyName": "THE FOOD OF GENEROSITY",
         "rulesText": "This character can't challenge unless you put a card under him this turn.",
-        "condition": { "type": "not", "condition": { "type": "this_had_card_put_under_this_turn" } },
-        "effect": { "type": "cant_action_self", "action": "challenge" }
+        "condition": {
+          "type": "not",
+          "condition": {
+            "type": "this_had_card_put_under_this_turn"
+          }
+        },
+        "effect": {
+          "type": "cant_action_self",
+          "action": "challenge"
+        }
       }
     ],
     "setId": "11",
