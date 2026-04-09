@@ -410,6 +410,16 @@ function validateChallenge(
   if (isActionRestricted(attacker, attackerDef, "challenge", playerId, state, modifiers)) {
     return fail("This character can't challenge.");
   }
+  // Prince Charming Protector of the Realm: "each turn, only one character
+  // can challenge". Global limit; check both players' per-turn flags.
+  if (modifiers.oneChallengePerTurnGlobal) {
+    const anyoneChallenged =
+      !!state.players.player1.aCharacterChallengedThisTurn ||
+      !!state.players.player2.aCharacterChallengedThisTurn;
+    if (anyoneChallenged) {
+      return fail("Only one character can challenge per turn while Prince Charming is in play.");
+    }
+  }
 
   const defenderDefEarly = getDefinition(state, defenderInstanceId, definitions);
 

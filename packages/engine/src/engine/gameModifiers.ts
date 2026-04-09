@@ -161,6 +161,11 @@ export interface GameModifiers {
    */
   preventDiscardFromHand: Set<import("../types/index.js").PlayerID>;
 
+  /** Prince Charming Protector of the Realm: "each turn, only one character
+   *  can challenge". Boolean — when true, the validator blocks any challenge
+   *  if either player's aCharacterChallengedThisTurn flag is set. */
+  oneChallengePerTurnGlobal: boolean;
+
   /**
    * Players whose newly-inked cards enter the inkwell exerted (Daisy Duck
    * Paranormal Investigator). availableInk is NOT incremented for these adds.
@@ -220,6 +225,7 @@ export function getGameModifiers(
     inkwellEntersExerted: new Set(),
     preventLoreLoss: new Set(),
     preventDiscardFromHand: new Set(),
+    oneChallengePerTurnGlobal: false,
   };
 
   // Pre-pass: collect remove_named_ability suppressions so the main pass can
@@ -564,6 +570,12 @@ export function getGameModifiers(
         case "prevent_discard_from_hand": {
           // Magica De Spell Cruel Sorceress, Kronk Laid Back.
           modifiers.preventDiscardFromHand.add(instance.ownerId);
+          break;
+        }
+
+        case "one_challenge_per_turn_global": {
+          // Prince Charming Protector of the Realm.
+          modifiers.oneChallengePerTurnGlobal = true;
           break;
         }
 

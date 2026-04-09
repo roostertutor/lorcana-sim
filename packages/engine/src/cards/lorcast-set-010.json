@@ -10034,6 +10034,12 @@
       {
         "type": "keyword",
         "keyword": "bodyguard"
+      },
+      {
+        "type": "static",
+        "storyName": "PROTECTIVE PRESENCE",
+        "rulesText": "Each turn, only one character can challenge.",
+        "effect": { "type": "one_challenge_per_turn_global" }
       }
     ],
     "setId": "10",

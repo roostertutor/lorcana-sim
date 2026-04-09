@@ -1059,7 +1059,18 @@ export type StaticEffect =
   | InkwellEntersExertedStatic
   | PreventLoreLossStatic
   | RemoveNamedAbilityStatic
-  | PreventDiscardFromHandStatic;
+  | PreventDiscardFromHandStatic
+  | OneChallengePerTurnGlobalStatic;
+
+/**
+ * Prince Charming - Protector of the Realm (Set 10): "Each turn, only one
+ * character can challenge." Global limit — applies across both players.
+ * Validator gates on: static is active AND any player has already
+ * challenged this turn → block.
+ */
+export interface OneChallengePerTurnGlobalStatic {
+  type: "one_challenge_per_turn_global";
+}
 
 /**
  * Magica De Spell - Cruel Sorceress, Kronk - Laid Back: "If an effect would
