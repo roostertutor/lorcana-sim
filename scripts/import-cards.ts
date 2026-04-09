@@ -13,7 +13,7 @@
 // Rate limit: 100ms between requests per Lorcast docs.
 // =============================================================================
 
-import { writeFileSync, readFileSync, existsSync, mkdirSync } from "fs";
+import { writeFileSync, readFileSync, existsSync, mkdirSync, readdirSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
@@ -440,36 +440,73 @@ async function main() {
   for (const [setCode, setCards] of cardsBySet) {
     const outPath = setJsonPath(setCode);
 
-    // Merge: preserve manually-implemented abilities from existing JSON.
-    // The importer only generates keyword abilities from Lorcast data.
-    // Non-keyword abilities (triggered, activated, static) are manually added
-    // after import and must not be overwritten.
+    // Merge: preserve manually-implemented abilities AND any keywords/fields
+    // the upstream API might have dropped. The importer should be additive,
+    // not destructive — Lorcast occasionally drops keywords (e.g. Cri-Kee
+    // losing `alert`) or omits other fields between fetches.
     if (existsSync(outPath)) {
       const existing: CardDefinitionOut[] = JSON.parse(readFileSync(outPath, "utf-8"));
       const existingById = new Map(existing.map((c) => [c.id, c]));
       let preserved = 0;
+      let keywordsRescued = 0;
 
       for (const card of setCards) {
         const prev = existingById.get(card.id);
         if (!prev) continue;
 
-        // Find manually-added abilities (non-keyword) from existing data
+        // 1. Preserve manually-added abilities (non-keyword: triggered, activated, static).
         const manualAbilities = prev.abilities.filter((a) => a.type !== "keyword");
         if (manualAbilities.length > 0) {
           card.abilities = [...card.abilities, ...manualAbilities] as KeywordAbility[];
           preserved++;
         }
 
-        // Preserve manually-added actionEffects
+        // 2. UNION keyword abilities: keep any keyword that was previously
+        //    present even if the new import doesn't include it. Avoids the
+        //    failure mode where Lorcast briefly omits a keyword and we lose it.
+        const newKeywords = new Set(
+          card.abilities.filter((a) => a.type === "keyword").map((a) => a.keyword.toLowerCase())
+        );
+        for (const ability of prev.abilities) {
+          if (ability.type !== "keyword") continue;
+          if (!newKeywords.has(ability.keyword.toLowerCase())) {
+            card.abilities = [...card.abilities, ability];
+            keywordsRescued++;
+          }
+        }
+
+        // 3. Preserve manually-added actionEffects.
         const prevAny = prev as CardDefinitionOut;
         if (prevAny.actionEffects && prevAny.actionEffects.length > 0) {
           card.actionEffects = prevAny.actionEffects;
           preserved++;
         }
+
+        // 4. Preserve scalar fields the importer doesn't always populate
+        //    (alternate names, play restrictions, alt play cost, self cost
+        //    reduction, shift cost, move cost). These are manually authored
+        //    or derived from text; the importer should not blow them away.
+        const passthroughFields: (keyof CardDefinitionOut)[] = [
+          "alternateNames" as keyof CardDefinitionOut,
+          "playRestrictions" as keyof CardDefinitionOut,
+          "altPlayCost" as keyof CardDefinitionOut,
+          "selfCostReduction" as keyof CardDefinitionOut,
+          "shiftCost" as keyof CardDefinitionOut,
+          "moveCost" as keyof CardDefinitionOut,
+          "singTogetherCost" as keyof CardDefinitionOut,
+        ];
+        for (const field of passthroughFields) {
+          const prevVal = (prev as Record<string, unknown>)[field as string];
+          const newVal = (card as Record<string, unknown>)[field as string];
+          if (newVal === undefined && prevVal !== undefined) {
+            (card as Record<string, unknown>)[field as string] = prevVal;
+          }
+        }
       }
 
-      if (preserved > 0) {
-        console.log(`  Preserved manual abilities on ${preserved} card(s) in set ${setCode}.`);
+      if (preserved > 0 || keywordsRescued > 0) {
+        console.log(`  Preserved manual abilities on ${preserved} card(s) in set ${setCode}` +
+          (keywordsRescued > 0 ? `; rescued ${keywordsRescued} dropped keyword(s).` : "."));
       }
     }
 
@@ -478,16 +515,18 @@ async function main() {
     console.log(`\nWrote ${setCards.length} cards → ${outPath}`);
   }
 
-  // Update lorcastCards.ts with imports for all sets
-  const setImports = [...cardsBySet.keys()]
-    .sort()
-    .map((code) => {
-      const padded = code.padStart(3, "0");
-      return `import set${padded} from "./lorcast-set-${padded}.json" assert { type: "json" };`;
-    });
-  const setSpread = [...cardsBySet.keys()]
-    .sort()
-    .map((code) => `  ...loadSet(set${code.padStart(3, "0")}),`);
+  // Update lorcastCards.ts with imports for ALL sets present on disk, not
+  // just the ones we re-imported in this run. Scanning the directory keeps
+  // partial re-imports (e.g. `pnpm import-cards --sets P3`) from silently
+  // dropping every other set from the merged module.
+  const allSetCodes = readdirSync(OUT_DIR)
+    .filter((f) => f.startsWith("lorcast-set-") && f.endsWith(".json"))
+    .map((f) => f.replace(/^lorcast-set-/, "").replace(/\.json$/, ""))
+    .sort();
+  const setImports = allSetCodes.map((padded) => {
+    return `import set${padded} from "./lorcast-set-${padded}.json" assert { type: "json" };`;
+  });
+  const setSpread = allSetCodes.map((padded) => `  ...loadSet(set${padded}),`);
 
   const tsModule = `// =============================================================================
 // LORCAST CARD DEFINITIONS — loads per-set JSON files and merges them.
