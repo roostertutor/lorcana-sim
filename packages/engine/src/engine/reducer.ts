@@ -695,7 +695,7 @@ function applyQuest(
   const questingInstance = getInstance(state, instanceId);
   const questingDef = getDefinition(state, instanceId, definitions);
   if (hasKeyword(questingInstance, questingDef, "support")) {
-    const supportStrength = getEffectiveStrength(questingInstance, questingDef);
+    const supportStrength = getEffectiveStrength(questingInstance, questingDef, 0, getGameModifiers(state, definitions));
     if (supportStrength > 0) {
       // Check there is at least one other character in play to target
       const otherChars = getZone(state, playerId, "play").filter((id) => {
@@ -756,8 +756,8 @@ function applyChallenge(
 
   const atkStaticStr = modifiers.statBonuses.get(attackerInstanceId)?.strength ?? 0;
   const defStaticStr = modifiers.statBonuses.get(defenderInstanceId)?.strength ?? 0;
-  let attackerStr = getEffectiveStrength(attacker, attackerDef, atkStaticStr);
-  let defenderStr = getEffectiveStrength(defender, defenderDef, defStaticStr);
+  let attackerStr = getEffectiveStrength(attacker, attackerDef, atkStaticStr, modifiers);
+  let defenderStr = getEffectiveStrength(defender, defenderDef, defStaticStr, modifiers);
 
   // Check for "while being challenged" stat bonuses on the defender
   for (const ability of defenderDef.abilities) {
@@ -1705,7 +1705,7 @@ function resolveDynamicAmount(
     case "target_strength": {
       const inst = targetInstanceId ? state.cards[targetInstanceId] : undefined;
       const def = inst ? definitions[inst.definitionId] : undefined;
-      resolved = inst && def ? getEffectiveStrength(inst, def, 0) : 0;
+      resolved = inst && def ? getEffectiveStrength(inst, def, 0, getGameModifiers(state, definitions)) : 0;
       break;
     }
     case "source_lore": {
@@ -1717,7 +1717,7 @@ function resolveDynamicAmount(
     case "source_strength": {
       const inst = state.cards[sourceInstanceId];
       const def = inst ? definitions[inst.definitionId] : undefined;
-      resolved = inst && def ? getEffectiveStrength(inst, def, 0) : 0;
+      resolved = inst && def ? getEffectiveStrength(inst, def, 0, getGameModifiers(state, definitions)) : 0;
       break;
     }
     case "cards_under_count": {
@@ -4110,7 +4110,7 @@ function applyEffectToTarget(
         const instance = getInstance(state, targetInstanceId);
         const sourceInst = state.cards[sourceInstanceId];
         const sourceDef = sourceInst ? definitions[sourceInst.definitionId] : undefined;
-        const srcStrength = sourceInst && sourceDef ? getEffectiveStrength(sourceInst, sourceDef, 0) : 0;
+        const srcStrength = sourceInst && sourceDef ? getEffectiveStrength(sourceInst, sourceDef, 0, getGameModifiers(state, definitions)) : 0;
         return updateInstance(state, targetInstanceId, {
           tempStrengthModifier: instance.tempStrengthModifier + srcStrength,
           tempWillpowerModifier: instance.tempWillpowerModifier + (effect.willpower ?? 0),

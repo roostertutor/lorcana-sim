@@ -15,7 +15,8 @@ import {
   injectCard,
   giveInk,
 } from "./test-helpers.js";
-import { getInstance, getZone } from "../utils/index.js";
+import { getInstance, getZone, getEffectiveStrength } from "../utils/index.js";
+import { getGameModifiers } from "./gameModifiers.js";
 
 describe("Mechanic gaps batch — event-tracking-condition", () => {
   it("Devil's Eye Diamond: activated ability gains 1 lore only if a friendly char was damaged this turn", () => {
@@ -174,5 +175,49 @@ describe("Mechanic gaps batch — shift-variant", () => {
     const cs = def.abilities?.find((a: any) => a.type === "static" && a.effect?.type === "classification_shift_self") as any;
     expect(cs).toBeDefined();
     expect(cs.effect.trait).toBe("Puppy");
+  });
+});
+
+describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () => {
+  it("clamps a friendly character's effective strength to its printed value when a debuff would push it lower", () => {
+    let state = startGame();
+    let elisaId: string, allyId: string;
+    ({ state, instanceId: elisaId } = injectCard(state, "player1", "elisa-maza-transformed-gargoyle", "play", { isDrying: false }));
+    // Mickey Mouse - True Friend has printed strength 1.
+    ({ state, instanceId: allyId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+
+    const ally = getInstance(state, allyId);
+    const allyDef = LORCAST_CARD_DEFINITIONS[ally.definitionId]!;
+    const printed = allyDef.strength ?? 0;
+
+    // Apply a -5 strength debuff via tempStrengthModifier directly.
+    state = { ...state, cards: { ...state.cards, [allyId]: { ...ally, tempStrengthModifier: -5 } } };
+    const mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    const strWithFloor = getEffectiveStrength(getInstance(state, allyId), allyDef, 0, mods);
+    expect(strWithFloor).toBe(printed);
+
+    // Sanity: without the floor (no modifiers passed) the value would be Math.max(0, printed-5).
+    const strNoFloor = getEffectiveStrength(getInstance(state, allyId), allyDef, 0);
+    expect(strNoFloor).toBe(Math.max(0, printed - 5));
+
+    // And buffs are still additive on top of the floor.
+    const elisa = getInstance(state, elisaId);
+    const elisaDef = LORCAST_CARD_DEFINITIONS[elisa.definitionId]!;
+    expect(getEffectiveStrength(elisa, elisaDef, 0, mods)).toBe(elisaDef.strength ?? 0);
+  });
+
+  it("does not affect opposing characters (filter is owner: self)", () => {
+    let state = startGame();
+    ({ state } = injectCard(state, "player1", "elisa-maza-transformed-gargoyle", "play", { isDrying: false }));
+    let oppId: string;
+    ({ state, instanceId: oppId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
+
+    const opp = getInstance(state, oppId);
+    state = { ...state, cards: { ...state.cards, [oppId]: { ...opp, tempStrengthModifier: -5 } } };
+
+    const mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    const oppDef = LORCAST_CARD_DEFINITIONS[opp.definitionId]!;
+    // Opposing character is NOT covered by Elisa's static, so the debuff applies normally.
+    expect(getEffectiveStrength(getInstance(state, oppId), oppDef, 0, mods)).toBe(0);
   });
 });

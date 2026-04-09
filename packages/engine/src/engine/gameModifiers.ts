@@ -144,6 +144,14 @@ export interface GameModifiers {
    * source's perspective when populating this map.
    */
   enterPlayExerted: Map<import("../types/index.js").PlayerID, import("../types/index.js").CardFilter[]>;
+
+  /**
+   * CRD-style stat floors at printed value (Elisa Maza Transformed Gargoyle —
+   * "your characters' {S} can't be reduced below their printed value"). Key =
+   * affected instanceId, value = set of stats that may not drop below printed.
+   * Consulted by getEffectiveStrength/Willpower/Lore.
+   */
+  statFloorsPrinted: Map<string, Set<"strength" | "willpower" | "lore">>;
 }
 
 /**
@@ -177,6 +185,7 @@ export function getGameModifiers(
     topOfDeckVisible: new Set(),
     moveToSelfCostReductions: new Map(),
     enterPlayExerted: new Map(),
+    statFloorsPrinted: new Map(),
   };
 
   for (const instance of Object.values(state.cards)) {
@@ -465,6 +474,33 @@ export function getGameModifiers(
             modifiers.enterPlayExerted.set(affectedPlayerId, arr);
           }
           arr.push(effect.filter);
+          break;
+        }
+
+        case "stat_floor_printed": {
+          // Elisa Maza Transformed Gargoyle — "your characters' {S} can't be
+          // reduced below their printed value." Marks affected instances; the
+          // floor itself is applied inside getEffectiveStrength/etc.
+          const addFloor = (id: string) => {
+            let set = modifiers.statFloorsPrinted.get(id);
+            if (!set) {
+              set = new Set();
+              modifiers.statFloorsPrinted.set(id, set);
+            }
+            set.add(effect.stat);
+          };
+          if (effect.target.type === "this") {
+            addFloor(instance.instanceId);
+          } else if (effect.target.type === "all") {
+            for (const candidate of Object.values(state.cards)) {
+              if (candidate.zone !== "play") continue;
+              const candidateDef = definitions[candidate.definitionId];
+              if (!candidateDef) continue;
+              if (matchesFilter(candidate, candidateDef, effect.target.filter, state, instance.ownerId, instance.instanceId)) {
+                addFloor(candidate.instanceId);
+              }
+            }
+          }
           break;
         }
 

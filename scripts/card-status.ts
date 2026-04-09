@@ -330,8 +330,8 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   // "Gains the [Trait] classification" — trait granting
   [/\bgain.{0,10}classification\b/i, "grant-classification"],
   [/\blose.{0,10}(the )?[A-Z][a-z]+ (classification|ability)\b/i, "remove-ability"],
-  // Stat floor ("can't be reduced below printed value")
-  [/\bprinted (strength|value|cost)\b/i, "stat-floor"],
+  // (stat-floor removed: stat_floor_printed StaticEffect implemented — Elisa Maza
+  //  Transformed Gargoyle. Matched as fits-grammar below.)
   // "Can't lose lore" (during opponents' turns)
   [/\bcan'?t lose lore\b/i, "prevent-lore-loss"],
   // "Count as having +N cost" (virtual cost for singer threshold)
@@ -423,7 +423,7 @@ const CAPABILITIES = new Set<string>([
   // Static effects
   "stat_static", "cant_be_challenged_static", "cost_reduction_static",
   "action_restriction_static", "grant_activated_ability_static",
-  "damage_immunity",
+  "damage_immunity", "stat_floor_printed",
   // Triggers (TriggerEvent.on)
   "trigger_enters_play", "trigger_leaves_play", "trigger_quests",
   "trigger_sings", "trigger_challenges", "trigger_is_challenged",
@@ -537,6 +537,8 @@ const FITS_GRAMMAR_PATTERNS: [RegExp, string][] = [
   // damage-immunity family — damage_immunity_timed / damage_immunity_static.
   [/\btakes? no damage from challenges\b/i, "damage_immunity"],
   [/\bcan'?t be dealt damage\b/i, "damage_immunity"],
+  // stat-floor — Elisa Maza Transformed Gargoyle "can't be reduced below their printed value".
+  [/\bcan'?t be reduced below .{0,20}printed\b/i, "stat_floor_printed"],
   [/\bcan'?t be challenged by .{0,30}characters\b/i, "cant_be_challenged_static"],
   [/\bwhile being challenged\b/i, "trigger_is_challenged"],
   [/during your turn.{0,40}(has|gains?) (evasive|rush|bodyguard|ward|reckless|resist|challenger|support)/i, "grant_keyword"],

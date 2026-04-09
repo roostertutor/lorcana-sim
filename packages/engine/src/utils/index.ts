@@ -66,40 +66,66 @@ export function getTopOfDeck(state: GameState, playerId: PlayerID): CardInstance
 // Always use these instead of reading raw definition stats.
 // -----------------------------------------------------------------------------
 
+/**
+ * Optional shape for stat-floor lookups. We accept a plain object instead of
+ * the full GameModifiers type to avoid an import cycle (utils → engine).
+ */
+type StatFloorLookup = {
+  statFloorsPrinted?: Map<string, Set<"strength" | "willpower" | "lore">>;
+} | undefined;
+
+function hasPrintedFloor(
+  instance: CardInstance,
+  stat: "strength" | "willpower" | "lore",
+  modifiers: StatFloorLookup
+): boolean {
+  return !!modifiers?.statFloorsPrinted?.get(instance.instanceId)?.has(stat);
+}
+
 export function getEffectiveStrength(
   instance: CardInstance,
   definition: CardDefinition,
-  staticBonus = 0
+  staticBonus = 0,
+  modifiers?: StatFloorLookup
 ): number {
   const base = definition.strength ?? 0;
   const timedBonus = instance.timedEffects
     .filter((te) => te.type === "modify_strength")
     .reduce((sum, te) => sum + (te.amount ?? 0), 0);
-  return Math.max(0, base + instance.tempStrengthModifier + timedBonus + staticBonus);
+  const value = Math.max(0, base + instance.tempStrengthModifier + timedBonus + staticBonus);
+  // CRD: "can't be reduced below printed value" → clamp to printed strength.
+  if (hasPrintedFloor(instance, "strength", modifiers)) return Math.max(value, base);
+  return value;
 }
 
 export function getEffectiveWillpower(
   instance: CardInstance,
   definition: CardDefinition,
-  staticBonus = 0
+  staticBonus = 0,
+  modifiers?: StatFloorLookup
 ): number {
   const base = definition.willpower ?? 0;
   const timedBonus = instance.timedEffects
     .filter((te) => te.type === "modify_willpower")
     .reduce((sum, te) => sum + (te.amount ?? 0), 0);
-  return Math.max(0, base + instance.tempWillpowerModifier + timedBonus + staticBonus);
+  const value = Math.max(0, base + instance.tempWillpowerModifier + timedBonus + staticBonus);
+  if (hasPrintedFloor(instance, "willpower", modifiers)) return Math.max(value, base);
+  return value;
 }
 
 export function getEffectiveLore(
   instance: CardInstance,
   definition: CardDefinition,
-  staticBonus = 0
+  staticBonus = 0,
+  modifiers?: StatFloorLookup
 ): number {
   const base = definition.lore ?? 0;
   const timedBonus = instance.timedEffects
     .filter((te) => te.type === "modify_lore")
     .reduce((sum, te) => sum + (te.amount ?? 0), 0);
-  return Math.max(0, base + instance.tempLoreModifier + timedBonus + staticBonus);
+  const value = Math.max(0, base + instance.tempLoreModifier + timedBonus + staticBonus);
+  if (hasPrintedFloor(instance, "lore", modifiers)) return Math.max(value, base);
+  return value;
 }
 
 /** Check if a card has a "can't X" timed effect active */

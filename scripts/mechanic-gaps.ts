@@ -173,7 +173,7 @@ const NEW_TYPE: [RegExp, string][] = [
   //  cards wired this batch.)
   [/\bgain.{0,10}classification\b/i, "grant-classification"],
   [/\blose.{0,10}(the )?[A-Z][a-z]+ (classification|ability)\b/i, "remove-ability"],
-  [/\bprinted (strength|value|cost)\b/i, "stat-floor"],
+  // (stat-floor removed: stat_floor_printed StaticEffect implemented — Elisa Maza.)
   [/\bcan'?t lose lore\b/i, "prevent-lore-loss"],
   [/count as having .{0,10}cost\b/i, "virtual-cost-modifier"],
   [/\bplay .{0,40}again from your discard\b/i, "replay-from-discard"],

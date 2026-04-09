@@ -1809,7 +1809,29 @@
       "Gargoyle",
       "Detective"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "FOREVER STRONG",
+        "rulesText": "Your characters' {S} can't be reduced below their printed value.",
+        "effect": {
+          "type": "stat_floor_printed",
+          "stat": "strength",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ]
+            }
+          }
+        }
+      }
+    ],
     "setId": "P3",
     "number": 30,
     "rarity": "common",

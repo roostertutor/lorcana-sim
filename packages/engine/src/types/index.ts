@@ -952,7 +952,21 @@ export type StaticEffect =
   | SkipDrawStepSelfStatic
   | TopOfDeckVisibleStatic
   | MoveToSelfCostReductionStatic
-  | EnterPlayExertedStatic;
+  | EnterPlayExertedStatic
+  | StatFloorPrintedStatic;
+
+/**
+ * Elisa Maza - Transformed Gargoyle (Set 11): "FOREVER STRONG Your characters'
+ * {S} can't be reduced below their printed value." A floor on the effective
+ * stat: after all modifiers are summed, clamp the result to be at least the
+ * card's printed (definition) value. Only meaningful when net modifiers would
+ * push the stat *below* printed; positive buffs are unaffected.
+ */
+export interface StatFloorPrintedStatic {
+  type: "stat_floor_printed";
+  stat: "strength" | "willpower" | "lore";
+  target: CardTarget;
+}
 
 /**
  * "Opposing characters with Rush enter play exerted" (Jiminy Cricket
