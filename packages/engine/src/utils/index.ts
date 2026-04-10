@@ -902,6 +902,18 @@ export function evaluateCondition(
       }
       return false;
     }
+    case "this_location_has_damaged_character": {
+      // Any own character at this location with damage > 0 (Ratigan's
+      // Party Seedy Back Room MISFITS' REVELRY).
+      const sourceInst = state.cards[sourceInstanceId];
+      const ownerId = sourceInst?.ownerId;
+      for (const c of Object.values(state.cards)) {
+        if (c.atLocationInstanceId !== sourceInstanceId) continue;
+        if (c.ownerId !== ownerId) continue;
+        if (c.damage > 0) return true;
+      }
+      return false;
+    }
     case "self_has_more_than_each_opponent": {
       if (condition.metric === "strength_in_play") {
         // You control a character whose effective strength > every opposing character's strength.

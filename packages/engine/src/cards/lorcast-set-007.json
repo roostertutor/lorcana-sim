@@ -7009,7 +7009,7 @@
       {
         "type": "triggered",
         "storyName": "REPURPOSE",
-        "rulesText": "Whenever this character quests, you may put up to 3 item cards from your discard on the bottom of your deck to gain 1 lore for each item card moved this way. (approximation: flat +1 lore instead of per-card)",
+        "rulesText": "Whenever this character quests, you may put up to 3 item cards from your discard on the bottom of your deck to gain 1 lore for each item card moved this way.",
         "trigger": {
           "on": "quests"
         },
@@ -7017,7 +7017,7 @@
           {
             "type": "sequential",
             "isMay": true,
-            "effects": [
+            "costEffects": [
               {
                 "type": "put_on_bottom_of_deck",
                 "from": "discard",
@@ -7027,10 +7027,12 @@
                   ]
                 },
                 "amount": 3
-              },
+              }
+            ],
+            "rewardEffects": [
               {
                 "type": "gain_lore",
-                "amount": 1,
+                "amount": "cost_result",
                 "target": {
                   "type": "self"
                 }
@@ -12150,7 +12152,7 @@
       {
         "type": "triggered",
         "storyName": "REPURPOSE",
-        "rulesText": "Whenever this character quests, you may put up to 3 item cards from your discard on the bottom of your deck to gain 1 lore for each item card moved this way. (approximation: flat +1 lore instead of per-card)",
+        "rulesText": "Whenever this character quests, you may put up to 3 item cards from your discard on the bottom of your deck to gain 1 lore for each item card moved this way.",
         "trigger": {
           "on": "quests"
         },
@@ -12158,7 +12160,7 @@
           {
             "type": "sequential",
             "isMay": true,
-            "effects": [
+            "costEffects": [
               {
                 "type": "put_on_bottom_of_deck",
                 "from": "discard",
@@ -12168,10 +12170,12 @@
                   ]
                 },
                 "amount": 3
-              },
+              }
+            ],
+            "rewardEffects": [
               {
                 "type": "gain_lore",
-                "amount": 1,
+                "amount": "cost_result",
                 "target": {
                   "type": "self"
                 }

@@ -7418,7 +7418,7 @@
       {
         "type": "static",
         "storyName": "MISFITS' REVELRY",
-        "rulesText": "While you have a damaged character here, this location gets +2 {L}. (approximation: unconditional +2 L)",
+        "rulesText": "While you have a damaged character here, this location gets +2 {L}.",
         "effect": {
           "type": "modify_stat",
           "stat": "lore",
@@ -7426,6 +7426,9 @@
           "target": {
             "type": "this"
           }
+        },
+        "condition": {
+          "type": "this_location_has_damaged_character"
         }
       }
     ],
@@ -11789,7 +11792,7 @@
       {
         "type": "static",
         "storyName": "MISFITS' REVELRY",
-        "rulesText": "While you have a damaged character here, this location gets +2 {L}. (approximation: unconditional +2 L)",
+        "rulesText": "While you have a damaged character here, this location gets +2 {L}.",
         "effect": {
           "type": "modify_stat",
           "stat": "lore",
@@ -11797,6 +11800,9 @@
           "target": {
             "type": "this"
           }
+        },
+        "condition": {
+          "type": "this_location_has_damaged_character"
         }
       }
     ],

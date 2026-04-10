@@ -2014,6 +2014,10 @@ export type Condition =
   | { type: "triggering_card_played_via_shift" }
   /** True if an exerted character is currently at the source location (Ursula's Garden, The Wall). */
   | { type: "this_location_has_exerted_character" }
+  /** Any own character at this location with damage > 0. Used by Ratigan's
+   *  Party Seedy Back Room MISFITS' REVELRY ("while you have a damaged
+   *  character HERE, this location gets +2 {L}"). */
+  | { type: "this_location_has_damaged_character" }
   /** True if you control a character in play with strictly more `stat` than every opposing character.
    *  Used by Flynn Rider Frenemy ("more strength than each opposing"), Ariel Treasure Collector
    *  ("more items than each opp" → metric="items_in_play"), HeiHei Bumbling Rooster
