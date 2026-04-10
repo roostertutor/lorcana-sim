@@ -3346,7 +3346,12 @@ export function applyEffect(
           return state;
         }
         case "reorder": {
-          // Bot keeps default order — no change
+          // Merlin Turtle WHERE DID I PUT THAT?: "look at top N, put one on
+          // top of your deck and the other(s) on the bottom." Bot heuristic:
+          // keep top[0], put the rest on bottom. Cheap and analytics-friendly.
+          if (topCards.length <= 1) return state;
+          const toBottom = topCards.slice(1);
+          state = reorderDeckTopToBottom(state, targetPlayer, toBottom, []);
           return state;
         }
         case "one_to_play_for_free_rest_bottom": {

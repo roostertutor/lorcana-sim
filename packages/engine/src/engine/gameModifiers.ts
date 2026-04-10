@@ -471,9 +471,28 @@ export function getGameModifiers(
 
         case "grant_keyword": {
           // Conditional static keyword granting (e.g. Pascal gains Evasive, Cogsworth grants Resist +1)
+          // valueDynamic resolves at iteration time and overrides the literal value (Snow White
+          // Fair-Hearted: "Resist +1 for each other Knight character you have in play").
+          let resolvedValue = effect.value;
+          if (effect.valueDynamic !== undefined) {
+            const dyn = effect.valueDynamic;
+            if (typeof dyn === "object" && dyn !== null && (dyn as any).type === "count") {
+              const filt = (dyn as any).filter;
+              let n = 0;
+              for (const cand of Object.values(state.cards)) {
+                if (cand.zone !== "play") continue;
+                if (filt?.excludeSelf && cand.instanceId === instance.instanceId) continue;
+                const cdef = definitions[cand.definitionId];
+                if (!cdef) continue;
+                if (matchesFilter(cand, cdef, filt, state, instance.ownerId, instance.instanceId, definitions, modifiers)) n++;
+              }
+              const max = (dyn as any).max;
+              resolvedValue = typeof max === "number" ? Math.min(n, max) : n;
+            }
+          }
           if (effect.target.type === "this") {
             const existing = modifiers.grantedKeywords.get(instance.instanceId) ?? [];
-            existing.push({ keyword: effect.keyword, value: effect.value });
+            existing.push({ keyword: effect.keyword, value: resolvedValue });
             modifiers.grantedKeywords.set(instance.instanceId, existing);
           } else if (effect.target.type === "all") {
             for (const candidate of Object.values(state.cards)) {
@@ -487,7 +506,7 @@ export function getGameModifiers(
               // sees Bogo's deputized characters).
               if (matchesFilter(candidate, candidateDef, effect.target.filter, state, instance.ownerId, instance.instanceId, definitions, modifiers)) {
                 const existing = modifiers.grantedKeywords.get(candidate.instanceId) ?? [];
-                existing.push({ keyword: effect.keyword, value: effect.value });
+                existing.push({ keyword: effect.keyword, value: resolvedValue });
                 modifiers.grantedKeywords.set(candidate.instanceId, existing);
               }
             }

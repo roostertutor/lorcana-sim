@@ -1009,6 +1009,12 @@ export interface GrantKeywordEffect {
   type: "grant_keyword";
   keyword: Keyword;
   value?: number;
+  /** Dynamic value for keywords whose magnitude scales with game state
+   *  (Snow White Fair-Hearted: "Resist +1 for each other Knight character
+   *  you have in play"). When set, overrides the literal `value` field; the
+   *  static-effect collection in gameModifiers resolves this once per
+   *  collection pass and stores the result as the granted keyword's value. */
+  valueDynamic?: DynamicAmount;
   target: CardTarget;
   duration: EffectDuration;
   /** CRD 6.1.4: player may choose not to apply this effect */

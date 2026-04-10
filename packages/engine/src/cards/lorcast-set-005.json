@@ -1963,7 +1963,7 @@
       {
         "type": "triggered",
         "storyName": "WHERE DID I PUT THAT?",
-        "rulesText": "When you play this character and when he leaves play, look at the top 2 cards of your deck. Put one on the top of your deck and the other on the bottom. (approximation: free reorder)",
+        "rulesText": "When you play this character and when he leaves play, look at the top 2 cards of your deck. Put one on the top of your deck and the other on the bottom.",
         "trigger": {
           "on": "enters_play"
         },
@@ -1981,7 +1981,7 @@
       {
         "type": "triggered",
         "storyName": "WHERE DID I PUT THAT?",
-        "rulesText": "When you play this character and when he leaves play, look at the top 2 cards of your deck. Put one on the top of your deck and the other on the bottom. (approximation: free reorder)",
+        "rulesText": "When you play this character and when he leaves play, look at the top 2 cards of your deck. Put one on the top of your deck and the other on the bottom.",
         "trigger": {
           "on": "leaves_play"
         },
@@ -5675,33 +5675,66 @@
       {
         "type": "triggered",
         "storyName": "ROYALLY BIG REWARDS",
-        "rulesText": "At the end of your turn, if you have any characters in play with 5 {S} or more, gain 2 lore. If you have any in play with 10 {S} or more, gain 5 lore instead. (approximation: drops 10-strength upgrade)",
+        "rulesText": "At the end of your turn, if you have any characters in play with 5 {S} or more, gain 2 lore. If you have any in play with 10 {S} or more, gain 5 lore instead.",
         "trigger": {
           "on": "turn_end",
           "player": {
             "type": "self"
           }
         },
-        "condition": {
-          "type": "you_control_matching",
-          "filter": {
-            "owner": {
-              "type": "self"
-            },
-            "zone": "play",
-            "cardType": [
-              "character"
-            ],
-            "strengthAtLeast": 5
-          }
-        },
         "effects": [
           {
-            "type": "gain_lore",
-            "amount": 2,
-            "target": {
-              "type": "self"
-            }
+            "type": "conditional_on_player_state",
+            "condition": {
+              "type": "you_control_matching",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "strengthAtLeast": 10
+              }
+            },
+            "thenEffects": [
+              {
+                "type": "gain_lore",
+                "amount": 5,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ],
+            "elseEffects": [
+              {
+                "type": "conditional_on_player_state",
+                "condition": {
+                  "type": "you_control_matching",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "strengthAtLeast": 5
+                  }
+                },
+                "thenEffects": [
+                  {
+                    "type": "gain_lore",
+                    "amount": 2,
+                    "target": {
+                      "type": "self"
+                    }
+                  }
+                ],
+                "elseEffects": []
+              }
+            ]
           }
         ]
       }
@@ -9798,13 +9831,26 @@
       {
         "type": "static",
         "storyName": "NATURAL LEADER",
-        "rulesText": "This character gains Resist +1 for each other Knight character you have in play. (approximation: flat Resist +1)",
+        "rulesText": "This character gains Resist +1 for each other Knight character you have in play.",
         "effect": {
           "type": "grant_keyword",
           "keyword": "resist",
-          "value": 1,
           "target": {
             "type": "this"
+          },
+          "valueDynamic": {
+            "type": "count",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Knight",
+              "excludeSelf": true
+            }
           }
         }
       }
@@ -11934,13 +11980,26 @@
       {
         "type": "static",
         "storyName": "NATURAL LEADER",
-        "rulesText": "This character gains Resist +1 for each other Knight character you have in play. (approximation: flat Resist +1)",
+        "rulesText": "This character gains Resist +1 for each other Knight character you have in play.",
         "effect": {
           "type": "grant_keyword",
           "keyword": "resist",
-          "value": 1,
           "target": {
             "type": "this"
+          },
+          "valueDynamic": {
+            "type": "count",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Knight",
+              "excludeSelf": true
+            }
           }
         }
       }
