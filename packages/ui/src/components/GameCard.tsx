@@ -105,16 +105,27 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
     || (willpowerModified != null && willpowerModified !== (def.willpower ?? 0));
 
   // Keyword badges — check both printed abilities and dynamically granted keywords
-  const BADGE_KEYWORDS = ["bodyguard", "challenger", "evasive", "reckless", "resist", "rush", "singer", "support", "ward"] as const;
+  const BADGE_KEYWORDS = ["alert", "bodyguard", "challenger", "evasive", "reckless", "resist", "rush", "singer", "support", "ward"] as const;
   type BadgeKeyword = typeof BADGE_KEYWORDS[number];
   const keywordAbilities = def.abilities.filter((a): a is KeywordAbility => a.type === "keyword");
   const printedKeywords = new Set(keywordAbilities.map(a => a.keyword));
   const keywordValues = new Map(keywordAbilities.filter(a => a.value != null).map(a => [a.keyword, a.value!]));
-  const allKeywords = new Set([...printedKeywords, ...(instance.grantedKeywords ?? [])]);
+  // Merge: printed keywords + instance-granted (TimedEffect) + static-granted (gameModifiers)
+  const staticGranted = mods?.grantedKeywords.get(instanceId) ?? [];
+  const allKeywords = new Set([
+    ...printedKeywords,
+    ...(instance.grantedKeywords ?? []),
+    ...staticGranted.map(g => g.keyword),
+  ]);
+  // Also pick up static-granted keyword values (e.g. Resist +2 from Judy)
+  for (const g of staticGranted) {
+    if (g.value != null && !keywordValues.has(g.keyword)) keywordValues.set(g.keyword, g.value);
+  }
   const activeKeywordBadges = zone === "play"
     ? BADGE_KEYWORDS.filter(k => allKeywords.has(k))
     : [];
   const KEYWORD_STYLE: Record<BadgeKeyword, string> = {
+    alert:      "bg-lime-500/90",
     bodyguard:  "bg-blue-600/90",
     challenger: "bg-amber-500/90",
     evasive:    "bg-sky-500/90",
@@ -126,6 +137,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
     ward:       "bg-purple-600/90",
   };
   const KEYWORD_LABEL: Record<BadgeKeyword, string> = {
+    alert:      "AL",
     bodyguard:  "BG",
     challenger: "CH",
     evasive:    "EV",
@@ -137,6 +149,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
     ward:       "WD",
   };
   const KEYWORD_ICON: Record<BadgeKeyword, IconName> = {
+    alert:      "eye",
     bodyguard:  "shield-check",
     challenger: "bolt",
     evasive:    "arrow-up",

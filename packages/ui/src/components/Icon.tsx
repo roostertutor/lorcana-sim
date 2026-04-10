@@ -26,7 +26,9 @@ export type IconName =
   | "musical-note"
   | "user-plus"
   | "minus-circle"
-  | "magnifying-glass";
+  | "magnifying-glass"
+  // New indicators
+  | "eye";
 
 interface IconProps {
   name: IconName;
@@ -120,5 +122,9 @@ export default function Icon({ name, className = "w-4 h-4" }: IconProps) {
 
     case "magnifying-glass":
       return outline("m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z");
+
+    // Heroicons "eye" — Alert keyword (can challenge as if having Evasive)
+    case "eye":
+      return outline("M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178ZM15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z");
   }
 }
