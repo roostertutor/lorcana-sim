@@ -220,6 +220,15 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
           </div>
         )}
 
+        {/* Boost / cards-under stack indicator — bottom-left count badge */}
+        {zone === "play" && instance.cardsUnder.length > 0 && (
+          <div className="absolute bottom-0.5 left-0.5 z-10 pointer-events-none">
+            <span className="inline-flex items-center justify-center w-4 h-4 rounded text-[8px] font-black bg-violet-600/90 text-violet-100 shadow border border-violet-400/50">
+              {instance.cardsUnder.length}
+            </span>
+          </div>
+        )}
+
         {/* Summoning sickness overlay — blue-cyan wash, like MTGO */}
         {isDrying && (
           <div className="absolute inset-0 rounded-md sm:rounded-xl bg-cyan-400/25 pointer-events-none" />
