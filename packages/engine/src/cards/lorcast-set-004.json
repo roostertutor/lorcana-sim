@@ -2436,20 +2436,27 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
-        "storyName": "QUICK ESCAPE",
-        "rulesText": "When this character is banished in a challenge, return this card to your hand.",
-        "trigger": {
-          "on": "banished_in_challenge"
-        },
-        "effects": [
-          {
-            "type": "return_to_hand",
-            "target": {
-              "type": "this"
+        "type": "static",
+        "storyName": "OMINOUS PAIR",
+        "rulesText": "Your characters named Flotsam gain Challenger +2.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "challenger",
+          "value": 2,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasName": "Flotsam"
             }
           }
-        ]
+        }
       }
     ],
     "setId": "4",
