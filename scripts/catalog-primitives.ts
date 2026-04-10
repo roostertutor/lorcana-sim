@@ -33,6 +33,32 @@ const utils = readFileSync(UTILS_FILE, "utf-8");
 const typesLines = types.split("\n");
 const reducerLines = reducer.split("\n");
 
+// Pre-compute usage counts + first-example from card JSONs
+const CARDS_DIR = join(__dirname, "../packages/engine/src/cards");
+const usageCounts: Record<string, number> = {};
+const usageExamples: Record<string, string> = {};
+{
+  const skip = new Set(["keyword","triggered","activated","static","character","item","action",
+    "location","self","opponent","both","count","target_lore","target_damage","target_strength",
+    "source_lore","source_strength","cards_under_count","chosen","all","random","this",
+    "triggering_card","last_resolved_target","from_last_discarded","target_player"]);
+  function walk(node: any, card: any) {
+    if (!node || typeof node !== "object") return;
+    if (Array.isArray(node)) { node.forEach((x: any) => walk(x, card)); return; }
+    const t = node.type ?? node.on;
+    if (typeof t === "string" && t.length > 2 && !skip.has(t)) {
+      usageCounts[t] = (usageCounts[t] ?? 0) + 1;
+      if (!usageExamples[t]) usageExamples[t] = card.fullName;
+    }
+    for (const k of Object.keys(node)) walk(node[k], card);
+  }
+  const { readdirSync: readdir, readFileSync: readFile } = require("fs");
+  for (const f of readdir(CARDS_DIR).filter((f: string) => f.startsWith("lorcast-set-") && f.endsWith(".json"))) {
+    const cards = JSON.parse(readFile(join(CARDS_DIR, f), "utf-8"));
+    for (const c of cards) walk(c, c);
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -169,9 +195,13 @@ section("Effect Types");
           const disc = tm[1]!;
           const info = findInterfaceFields(types, disc);
           const reducerCases = findCaseLines(reducer, disc);
+          const count = usageCounts[disc] ?? 0;
+          const example = usageExamples[disc] ?? "—";
           rows.push([
             `\`${disc}\``,
             info ? info.fields.join(", ") : "",
+            String(count),
+            example,
             `types:${lineIdx + 1}`,
             reducerCases.length > 0 ? reducerCases.map(l => `reducer:${l}`).join(", ") : "—",
           ]);
@@ -179,7 +209,7 @@ section("Effect Types");
         }
       }
     }
-    table(["Discriminator", "Fields", "Type def", "Reducer case(s)"], rows);
+    table(["Discriminator", "Fields", "Uses", "Example card", "Type def", "Reducer case(s)"], rows);
   }
 }
 
@@ -202,9 +232,13 @@ section("Static Effect Types");
           const disc = tm[1]!;
           const info = findInterfaceFields(types, disc);
           const modCases = findCaseLines(gameMods, disc);
+          const count = usageCounts[disc] ?? 0;
+          const example = usageExamples[disc] ?? "—";
           rows.push([
             `\`${disc}\``,
             info ? info.fields.join(", ") : "",
+            String(count),
+            example,
             `types:${lineIdx + 1}`,
             modCases.length > 0 ? modCases.map(l => `gameMods:${l}`).join(", ") : "—",
           ]);
@@ -212,7 +246,7 @@ section("Static Effect Types");
         }
       }
     }
-    table(["Discriminator", "Fields", "Type def", "gameModifiers case"], rows);
+    table(["Discriminator", "Fields", "Uses", "Example card", "Type def", "gameModifiers case"], rows);
   }
 }
 
@@ -224,13 +258,16 @@ section("Trigger Events");
   for (const ev of events) {
     const fields = extractVariantFields(types, "TriggerEvent", ev, "on");
     const queueLines = findCaseLines(reducer, ev);
+    const count = usageCounts[ev] ?? 0;
+    const example = usageExamples[ev] ?? "—";
     rows.push([
       `\`${ev}\``,
       fields.length > 0 ? fields.join(", ") : "—",
-      queueLines.length > 0 ? queueLines.slice(0, 2).map(l => `reducer:${l}`).join(", ") : "—",
+      String(count),
+      example,
     ]);
   }
-  table(["Event", "Extra fields", "queueTrigger site(s)"], rows);
+  table(["Event", "Extra fields", "Uses", "Example card"], rows);
 }
 
 // 4. Conditions
@@ -241,13 +278,16 @@ section("Conditions");
   for (const t of conditions) {
     const fields = extractVariantFields(types, "Condition", t);
     const evalLine = findCaseLines(utils, t);
+    const count = usageCounts[t] ?? 0;
+    const example = usageExamples[t] ?? "—";
     rows.push([
       `\`${t}\``,
       fields.length > 0 ? fields.join(", ") : "—",
-      evalLine.length > 0 ? `utils:${evalLine[0]}` : "—",
+      String(count),
+      example,
     ]);
   }
-  table(["Condition", "Fields", "evaluateCondition line"], rows);
+  table(["Condition", "Fields", "Uses", "Example card"], rows);
 }
 
 // 5. DynamicAmount
