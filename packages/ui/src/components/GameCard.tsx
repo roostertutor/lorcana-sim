@@ -66,6 +66,15 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
     (def as any).playRestrictions.some((r: any) => !evaluateCondition(r, gameState, definitions, instance.ownerId, instanceId));
   const restrictionOpacity = hasFailedRestriction ? "opacity-50" : "";
 
+  // Self cost reduction indicator — green glow on hand cards that have an active
+  // cost reduction (the card is cheaper than printed). Reads the static ability
+  // directly since the effective cost isn't exposed on the instance.
+  const hasCostReduction = zone === "hand" && def.abilities.some((a: any) =>
+    a.type === "static" && a.effect?.type === "self_cost_reduction" &&
+    (!a.condition || evaluateCondition(a.condition, gameState, definitions, instance.ownerId, instanceId))
+  );
+  const costReductionGlow = hasCostReduction ? "ring-1 ring-emerald-500/50" : "";
+
   const handleKey = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); }
   };
@@ -175,7 +184,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
     : theme.border;
 
   const baseClass = `game-card relative border-2 rounded-md sm:rounded-xl ${mobileWidth} sm:w-[104px] lg:w-[120px] shrink-0 cursor-pointer
-    transition-all duration-200 ${ringClass} ${restrictionOpacity}
+    transition-all duration-200 ${ringClass} ${restrictionOpacity} ${costReductionGlow}
     ${isExerted && !skipRotation ? "rotate-90 opacity-80" : ""}
     hover:scale-105 hover:z-10 hover:shadow-lg hover:${theme.glow}`;
 

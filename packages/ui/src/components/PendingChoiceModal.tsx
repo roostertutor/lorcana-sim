@@ -100,6 +100,64 @@ export default function PendingChoiceModal({
   }
 
   function renderContent() {
+    // Cross-player perspective: when the choosingPlayer is the OPPONENT
+    // (Tiana opponent_may_pay_to_avoid, Ursula's Plan opponent-chosen targets),
+    // show a waiting indicator. In the headless analytics sim the bot auto-
+    // resolves; in the testbench the human controls both sides, so we still
+    // show the prompt but with a perspective label.
+    const chooser = (pendingChoice as any).choosingPlayerId;
+    if (chooser && chooser !== myId && pendingChoice.type !== "choose_mulligan") {
+      const isOpponentMay = pendingChoice.type === "choose_may";
+      return (
+        <div className="space-y-4">
+          <div className="text-orange-300 text-sm font-bold">
+            Opponent{isOpponentMay ? "'s Decision" : " is choosing..."}
+          </div>
+          <div className="text-gray-300 text-sm">{pendingChoice.prompt}</div>
+          {contextHints.length > 0 && (
+            <div className="text-[10px] text-gray-500">{contextHints.join(" · ")}</div>
+          )}
+          {isOpponentMay && (
+            <div className="flex gap-2">
+              <button
+                className="px-4 py-2 text-xs bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg font-medium transition-colors"
+                onClick={() => onResolveChoice("accept")}
+              >
+                Accept (as opponent)
+              </button>
+              <button
+                className="px-4 py-2 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg font-medium transition-colors"
+                onClick={() => onResolveChoice("decline")}
+              >
+                Decline (as opponent)
+              </button>
+            </div>
+          )}
+          {!isOpponentMay && pendingChoice.validTargets && (
+            <div className="grid grid-cols-4 gap-1.5 pb-1">
+              {(pendingChoice.validTargets ?? []).map((id: string) => (
+                <CardThumb
+                  key={id}
+                  id={id}
+                  isSelected={multiSelectTargets[0] === id}
+                  onClick={() => onMultiSelectChange(multiSelectTargets[0] === id ? [] : [id])}
+                />
+              ))}
+            </div>
+          )}
+          {!isOpponentMay && (
+            <button
+              className="px-4 py-2 text-xs bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg font-medium transition-colors"
+              disabled={!multiSelectTargets[0]}
+              onClick={() => multiSelectTargets[0] && onResolveChoice([multiSelectTargets[0]])}
+            >
+              Confirm (as opponent)
+            </button>
+          )}
+        </div>
+      );
+    }
+
     // CRD 2.2.2: Mulligan
     if (pendingChoice.type === "choose_mulligan") {
       const hand = pendingChoice.validTargets ?? [];

@@ -398,6 +398,14 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                 onClick: (e) => { e.stopPropagation(); cancelMode(); setSingCardId(action.instanceId); },
               });
             }
+          } else if ((action as any).viaGrantedFreePlay) {
+            // Free-play variant (Pudge/Belle/Scrooge) — label distinguishes from normal play
+            const hasAltCost = !!(action as any).altCostBanishInstanceId;
+            add(action.instanceId, {
+              label: hasAltCost ? "Play Free ⚡" : "Play Free",
+              color: "bg-teal-700 hover:bg-teal-600 text-teal-100",
+              onClick: (e) => { e.stopPropagation(); session.dispatch(action); },
+            });
           } else {
             add(action.instanceId, {
               label: "Play", color: "bg-emerald-700 hover:bg-emerald-600 text-emerald-100",
