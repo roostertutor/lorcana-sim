@@ -349,4 +349,32 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     expect(aliceAfter.cardsUnder.length).toBe(0);
     expect(getZone(state, "player1", "hand").length).toBe(handBefore + 2);
   });
+
+  it("Hercules - Mighty Leader EVER VALIANT: while exerted, other Hero characters share his damage immunity", () => {
+    // Tier-1 fix: was wired with EVER VIGILANT (self-protection) only and the
+    // EVER VALIANT rider dropped. Now uses a second static gated by
+    // condition this_is_exerted, granting damage_immunity_static (source
+    // non_challenge) to other own Hero characters.
+    let state = startGame();
+    let herculesId: string, otherHeroId: string;
+    ({ state, instanceId: herculesId } = injectCard(state, "player1", "hercules-mighty-leader", "play", { isDrying: false, isExerted: false }));
+    // Use a different Hero so its OWN abilities don't conflate with the EVER
+    // VALIANT grant under test. Taran - Pig Keeper has trait Hero with no
+    // damage-related abilities of its own.
+    ({ state, instanceId: otherHeroId } = injectCard(state, "player1", "taran-pig-keeper", "play", { isDrying: false }));
+
+    // While Hercules is READY, the other Hero is unprotected — apply damage
+    // via deal_damage (non-challenge source) and confirm it lands.
+    state = applyEffect(state, { type: "deal_damage", amount: 2, target: { type: "this" } } as any, otherHeroId, "player1", LORCAST_CARD_DEFINITIONS, []);
+    expect(getInstance(state, otherHeroId).damage).toBe(2);
+
+    // Heal, then exert Hercules and try again — the rider should kick in and
+    // block the non-challenge damage on the other Hero.
+    state = { ...state, cards: { ...state.cards,
+      [otherHeroId]: { ...state.cards[otherHeroId]!, damage: 0 },
+      [herculesId]:  { ...state.cards[herculesId]!,  isExerted: true },
+    } };
+    state = applyEffect(state, { type: "deal_damage", amount: 2, target: { type: "this" } } as any, otherHeroId, "player1", LORCAST_CARD_DEFINITIONS, []);
+    expect(getInstance(state, otherHeroId).damage).toBe(0);
+  });
 });

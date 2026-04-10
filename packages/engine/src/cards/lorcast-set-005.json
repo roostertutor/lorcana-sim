@@ -940,13 +940,13 @@
       {
         "type": "triggered",
         "storyName": "I'VE GOT THE COOLEST FRIEND",
-        "rulesText": "When you play this character, return a character card from your discard to your hand. If that card is a Princess character card, gain 2 lore. (approximation: lore conditional on Princess skipped)",
+        "rulesText": "When you play this character, return a character card from your discard to your hand. If that card is a Princess character card, gain 2 lore.",
         "trigger": {
           "on": "enters_play"
         },
         "effects": [
           {
-            "type": "return_to_hand",
+            "type": "conditional_on_target",
             "target": {
               "type": "chosen",
               "filter": {
@@ -958,7 +958,27 @@
                   "type": "self"
                 }
               }
-            }
+            },
+            "conditionFilter": {
+              "hasTrait": "Princess"
+            },
+            "defaultEffects": [
+              {
+                "type": "return_to_hand"
+              }
+            ],
+            "ifMatchEffects": [
+              {
+                "type": "return_to_hand"
+              },
+              {
+                "type": "gain_lore",
+                "amount": 2,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           }
         ]
       }
@@ -7027,7 +7047,7 @@
       {
         "type": "activated",
         "storyName": "VILE CONCOCTION",
-        "rulesText": "1 {I}, Banish this item — Chosen character gets +3 {S} this turn. (approximation: +4 Villain branch dropped)",
+        "rulesText": "1 {I}, Banish this item — Chosen character gets +3 {S} this turn.",
         "costs": [
           {
             "type": "pay_ink",
@@ -7039,9 +7059,7 @@
         ],
         "effects": [
           {
-            "type": "gain_stats",
-            "strength": 3,
-            "duration": "this_turn",
+            "type": "conditional_on_target",
             "target": {
               "type": "chosen",
               "filter": {
@@ -7050,7 +7068,30 @@
                   "character"
                 ]
               }
-            }
+            },
+            "conditionFilter": {
+              "hasTrait": "Villain"
+            },
+            "defaultEffects": [
+              {
+                "type": "gain_stats",
+                "strength": 3,
+                "duration": "this_turn",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ],
+            "ifMatchEffects": [
+              {
+                "type": "gain_stats",
+                "strength": 4,
+                "duration": "this_turn",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ]
           }
         ]
       }

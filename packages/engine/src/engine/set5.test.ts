@@ -547,6 +547,36 @@ describe("§5 three-mechanic batch", () => {
     expect(r.success).toBe(true);
   });
 
+  it("Wreck-It Ralph - Admiral Underpants: Princess branch returns AND gains 2 lore via mixed-branch conditional_on_target", () => {
+    // Tier-1 fix: was wired as a stub return_to_hand with the lore-on-Princess
+    // branch dropped. Now uses conditional_on_target with mixed branches:
+    // defaultEffects = [return_to_hand], ifMatchEffects = [return_to_hand,
+    // gain_lore +2]. Pattern coverage: confirms gain_lore is callable as a
+    // branch effect even though dispatch passes the chosen card's instanceId
+    // (gain_lore ignores it and routes via effect.target.type=self).
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let ralphId: string, princessId: string;
+    ({ state, instanceId: ralphId } = injectCard(state, "player1", "wreck-it-ralph-admiral-underpants", "hand"));
+    ({ state, instanceId: princessId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "discard"));
+
+    const loreBefore = state.players.player1.lore;
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: ralphId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Pick the Princess from discard.
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    expect(state.pendingChoice?.validTargets).toContain(princessId);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [princessId] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Princess returned to hand AND +2 lore from the matched branch.
+    expect(getInstance(state, princessId).zone).toBe("hand");
+    expect(state.players.player1.lore).toBe(loreBefore + 2);
+  });
+
   it("Nathaniel Flint PREDATORY INSTINCT: playRestriction blocks play unless an opposing character was damaged this turn", () => {
     // Same play-restriction infrastructure as Mirabel, different condition
     // (opposing_character_was_damaged_this_turn). Lives in set 5 test file

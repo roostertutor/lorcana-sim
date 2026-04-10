@@ -97,13 +97,19 @@
         "type": "static",
         "storyName": "GOOD FRIEND",
         "rulesText": "If you have a character named Lilo in play, you can play this character for free.",
-        "activeZones": ["hand"],
+        "activeZones": [
+          "hand"
+        ],
         "condition": {
           "type": "has_character_named",
           "name": "Lilo",
-          "player": { "type": "self" }
+          "player": {
+            "type": "self"
+          }
         },
-        "effect": { "type": "grant_play_for_free_self" }
+        "effect": {
+          "type": "grant_play_for_free_self"
+        }
       }
     ],
     "setId": "11",
@@ -8001,20 +8007,41 @@
       {
         "type": "triggered",
         "storyName": "MODERN MARVEL",
-        "rulesText": "Whenever this character quests, you may put an item card from your discard on the bottom of your deck. If you do, you may play an item with cost 5 or less from your discard for free. (approximation: play-from-discard reward dropped)",
+        "rulesText": "Whenever this character quests, you may put an item card from your discard on the bottom of your deck. If you do, you may play an item with cost 5 or less from your discard for free.",
         "trigger": {
           "on": "quests"
         },
         "effects": [
           {
-            "type": "put_on_bottom_of_deck",
-            "from": "discard",
-            "filter": {
-              "cardType": [
-                "item"
-              ]
-            },
-            "isMay": true
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "put_on_bottom_of_deck",
+                "from": "discard",
+                "filter": {
+                  "cardType": [
+                    "item"
+                  ],
+                  "owner": {
+                    "type": "self"
+                  }
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "play_for_free",
+                "isMay": true,
+                "sourceZone": "discard",
+                "filter": {
+                  "cardType": [
+                    "item"
+                  ],
+                  "maxCost": 5
+                }
+              }
+            ]
           }
         ]
       }

@@ -4550,7 +4550,7 @@
       {
         "type": "static",
         "storyName": "I'LL BE FINE",
-        "rulesText": "While there's a card under this character, she gets +1 {L}. (approximation: granted 'whenever challenged, opponents discard' trigger dropped)",
+        "rulesText": "While there's a card under this character, she gets +1 {L}.",
         "condition": {
           "type": "this_has_cards_under"
         },
@@ -4562,6 +4562,26 @@
             "type": "this"
           }
         }
+      },
+      {
+        "type": "triggered",
+        "storyName": "I'LL BE FINE",
+        "rulesText": "While there's a card under this character, whenever this character is challenged, each opponent chooses and discards a card.",
+        "trigger": {
+          "on": "is_challenged"
+        },
+        "condition": {
+          "type": "this_has_cards_under"
+        },
+        "effects": [
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            }
+          }
+        ]
       }
     ],
     "setId": "10",
@@ -6280,12 +6300,38 @@
       {
         "type": "static",
         "storyName": "EVER VIGILANT",
-        "rulesText": "This character can't be dealt damage unless he's being challenged. (approximation: EVER VALIANT rider — while exerted, other Hero characters gain the same protection — is not wired)",
+        "rulesText": "This character can't be dealt damage unless he's being challenged.",
         "effect": {
           "type": "damage_immunity_static",
           "source": "non_challenge",
           "target": {
             "type": "this"
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "EVER VALIANT",
+        "rulesText": "While this character is exerted, your other Hero characters can't be dealt damage unless they're being challenged.",
+        "condition": {
+          "type": "this_is_exerted"
+        },
+        "effect": {
+          "type": "damage_immunity_static",
+          "source": "non_challenge",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Hero",
+              "excludeSelf": true
+            }
           }
         }
       }
@@ -11642,7 +11688,7 @@
       {
         "type": "static",
         "storyName": "I'LL BE FINE",
-        "rulesText": "While there's a card under this character, she gets +1 {L}. (approximation: granted 'whenever challenged, opponents discard' trigger dropped)",
+        "rulesText": "While there's a card under this character, she gets +1 {L}.",
         "condition": {
           "type": "this_has_cards_under"
         },
@@ -11654,6 +11700,26 @@
             "type": "this"
           }
         }
+      },
+      {
+        "type": "triggered",
+        "storyName": "I'LL BE FINE",
+        "rulesText": "While there's a card under this character, whenever this character is challenged, each opponent chooses and discards a card.",
+        "trigger": {
+          "on": "is_challenged"
+        },
+        "condition": {
+          "type": "this_has_cards_under"
+        },
+        "effects": [
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            }
+          }
+        ]
       }
     ],
     "setId": "10",
