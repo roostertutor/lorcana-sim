@@ -2171,15 +2171,20 @@ export function applyEffect(
       return state;
     }
 
-    case "gain_lore": {
+    // Unified lore adjustment — gain_lore and lose_lore are aliases.
+    // gain_lore uses the literal signed amount; lose_lore negates it.
+    // Both track lastEffectResult = absolute delta for cost_result readers.
+    case "gain_lore":
+    case "lose_lore": {
       if (effect.target.type === "chosen") {
         return surfaceChoosePlayer(state, effect, controllingPlayerId, sourceInstanceId, definitions, events);
       }
-      const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, state.lastResolvedTarget?.instanceId);
+      const rawAmount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, state.lastResolvedTarget?.instanceId);
+      const signedAmount = effect.type === "lose_lore" ? -rawAmount : rawAmount;
       // "Each player gains N lore" — apply to both (I2I). CRD: target { type: "both" }.
       if (effect.target.type === "both") {
-        state = gainLore(state, controllingPlayerId, amount, events, definitions);
-        state = gainLore(state, getOpponent(controllingPlayerId), amount, events, definitions);
+        state = gainLore(state, controllingPlayerId, signedAmount, events, definitions);
+        state = gainLore(state, getOpponent(controllingPlayerId), signedAmount, events, definitions);
         return state;
       }
       const targetPlayer =
@@ -2188,7 +2193,11 @@ export function applyEffect(
           : effect.target.type === "target_owner"
             ? (state.lastResolvedTarget?.ownerId ?? controllingPlayerId)
             : controllingPlayerId;
-      return gainLore(state, targetPlayer, amount, events, definitions);
+      const loreBefore = state.players[targetPlayer].lore;
+      state = gainLore(state, targetPlayer, signedAmount, events, definitions);
+      const loreAfter = state.players[targetPlayer].lore;
+      state = { ...state, lastEffectResult: Math.abs(loreBefore - loreAfter) };
+      return state;
     }
 
     case "deal_damage": {
@@ -4411,26 +4420,9 @@ export function applyEffect(
       };
     }
 
-    // "Each opponent loses N lore" / "Chosen player loses N lore"
-    case "lose_lore": {
-      if (effect.target.type === "chosen") {
-        return surfaceChoosePlayer(state, effect, controllingPlayerId, sourceInstanceId, definitions, events);
-      }
-      const targetPlayer = effect.target.type === "opponent"
-        ? getOpponent(controllingPlayerId)
-        : controllingPlayerId;
-      const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, state.lastResolvedTarget?.instanceId);
-      // preventLoreLoss is now checked INSIDE gainLore() so all lore-loss
-      // paths are gated — including gain_lore with negative amount (Aladdin,
-      // Rapunzel, Tangle). No duplicate check needed here.
-      const loreBefore = state.players[targetPlayer].lore;
-      state = gainLore(state, targetPlayer, -amount, events);
-      const loreAfter = state.players[targetPlayer].lore;
-      const actualLost = loreBefore - loreAfter;
-      // CRD 6.1.5.1: Store result for "[A]. For each lore lost, [B]" patterns
-      state = { ...state, lastEffectResult: actualLost };
-      return state;
-    }
+    // lose_lore is now handled by the unified gain_lore/lose_lore case above.
+    // This empty case is left as a comment to explain why there's no separate
+    // lose_lore handler here — search for "case \"gain_lore\":" to find it.
 
     // Grant extra ink plays this turn (Sail the Azurite Sea)
     case "grant_extra_ink_play": {
@@ -5475,25 +5467,19 @@ function applyEffectToTarget(
       const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, targetInstanceId);
       return dealDamageToCard(state, targetInstanceId, amount, definitions, events, false, false, effect.asDamageCounter);
     }
-    case "gain_lore": {
-      // Support DynamicAmount variants that depend on the chosen target (target_lore etc.).
-      // Target player is controllingPlayerId by default; effect.target.type="self" etc. is
-      // honored only in the applyEffect path — here we assume "self" (the controller).
-      const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, targetInstanceId);
-      const targetPlayer = effect.target.type === "opponent"
-        ? getOpponent(controllingPlayerId)
-        : controllingPlayerId;
-      return gainLore(state, targetPlayer, amount, events, definitions);
-    }
+    case "gain_lore":
     case "lose_lore": {
-      const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, targetInstanceId);
-      const targetPlayer = effect.target.type === "opponent"
+      // Unified — same as the applyEffect case. Supports DynamicAmount
+      // variants that depend on the chosen target (target_lore, etc.).
+      const rawAmt = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, targetInstanceId);
+      const signedAmt = effect.type === "lose_lore" ? -rawAmt : rawAmt;
+      const tgtPlayer = effect.target.type === "opponent"
         ? getOpponent(controllingPlayerId)
         : controllingPlayerId;
-      const loreBefore = state.players[targetPlayer].lore;
-      state = gainLore(state, targetPlayer, -amount, events);
-      const loreAfter = state.players[targetPlayer].lore;
-      state = { ...state, lastEffectResult: loreBefore - loreAfter };
+      const loreBef = state.players[tgtPlayer].lore;
+      state = gainLore(state, tgtPlayer, signedAmt, events, definitions);
+      const loreAft = state.players[tgtPlayer].lore;
+      state = { ...state, lastEffectResult: Math.abs(loreBef - loreAft) };
       return state;
     }
     case "banish": {
