@@ -4293,26 +4293,6 @@ export function applyEffect(
       return moveCard(state, matchId, targetPlayer, effect.putInto);
     }
 
-    // Tutor — same shape as search but defaults differ. "Shuffle your deck and
-    // put that card on top of it" is the most common wording, so the default
-    // putInto is "deck" with position "top". Minnie Mouse Drum Major, Merlin
-    // Intellectual Visionary.
-    case "tutor": {
-      const deck = getZone(state, controllingPlayerId, "deck");
-      const matchId = deck.find((id) => {
-        const inst = state.cards[id];
-        const def = inst ? definitions[inst.definitionId] : undefined;
-        return inst && def ? matchesFilter(inst, def, effect.filter, state, controllingPlayerId, sourceInstanceId, definitions) : false;
-      });
-      if (!matchId) return state;
-      const dest = effect.putInto ?? "deck";
-      const pos = effect.position ?? "top";
-      if (dest === "deck") {
-        return moveCard(state, matchId, controllingPlayerId, "deck", pos);
-      }
-      return moveCard(state, matchId, controllingPlayerId, dest);
-    }
-
     // "You pay N less for the next X you play this turn"
     case "cost_reduction": {
       const existing = state.players[controllingPlayerId].costReductions ?? [];

@@ -615,8 +615,7 @@
         },
         "effects": [
           {
-            "type": "tutor",
-            "isMay": true,
+            "type": "search",
             "filter": {
               "cardType": [
                 "character"
@@ -625,6 +624,12 @@
               "owner": {
                 "type": "self"
               }
+            },
+            "zone": "deck",
+            "putInto": "deck",
+            "position": "top",
+            "target": {
+              "type": "self"
             }
           }
         ]
@@ -8665,13 +8670,18 @@
         },
         "effects": [
           {
-            "type": "tutor",
-            "isMay": true,
+            "type": "search",
             "filter": {
               "zone": "deck",
               "owner": {
                 "type": "self"
               }
+            },
+            "zone": "deck",
+            "putInto": "deck",
+            "position": "top",
+            "target": {
+              "type": "self"
             }
           }
         ]
