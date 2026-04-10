@@ -501,6 +501,8 @@ export interface DealDamageEffect {
    * dealt_damage triggers / damage_dealt events.
    */
   asDamageCounter?: boolean;
+  /** CRD 6.1.4 */
+  isMay?: boolean;
 }
 
 export interface RemoveDamageEffect {
@@ -509,6 +511,8 @@ export interface RemoveDamageEffect {
   target: CardTarget;
   /** CRD 6.1.3: "up to" — player may choose 0..amount. Engine resolves at max for now. */
   isUpTo?: boolean;
+  /** CRD 6.1.4 */
+  isMay?: boolean;
 }
 
 export interface BanishEffect {
@@ -1038,6 +1042,8 @@ export interface ChooseEffect {
   type: "choose";
   options: Effect[][];
   count: number;
+  /** CRD 6.1.4 */
+  isMay?: boolean;
 }
 
 export interface ExertEffect {
@@ -1140,6 +1146,8 @@ export interface LookAtTopEffect {
   restPlacement?: "top" | "bottom";
   target: PlayerTarget;
   /** CRD 6.1.4: player may choose not to apply this effect */
+  isMay?: boolean;
+  /** CRD 6.1.4 */
   isMay?: boolean;
 }
 
