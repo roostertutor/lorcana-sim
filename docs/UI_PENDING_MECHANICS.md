@@ -136,7 +136,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Floating granted abilities
+~~## Floating granted abilities~~ **RESOLVED (commit 9f56af2) — indigo pulsing border on target cards**
 
 **Engine**: `FloatingTrigger.attachedToInstanceId` — a triggered ability can be attached to a chosen target for a duration. The ability-collection step reads timed-granted abilities alongside printed ones.
 
@@ -304,7 +304,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Event-tracking conditions
+~~## Event-tracking conditions~~ **RESOLVED (commit 9f56af2) — turn-event indicators next to scoreboard**
 
 **Engine**: New Conditions `opposing_character_was_damaged_this_turn`, `a_character_was_banished_in_challenge_this_turn`. Read from per-turn event flags reset at turn start.
 
