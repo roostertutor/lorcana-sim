@@ -376,7 +376,11 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   reveal_top_conditional: ()  => `reveal the top card of your deck`,
   search:                 (e) => `search your deck for ${e.filter ? renderFilter(e.filter) : "a card"}`,
   shuffle_into_deck:      (e) => `shuffle ${renderTarget(e.target ?? {})} into your deck`,
-  move_to_inkwell:        (e) => `put ${renderTarget(e.target ?? {})} into your inkwell`,
+  move_to_inkwell: (e) => {
+    const from = e.fromZone ? ` from your ${e.fromZone}` : "";
+    const exerted = e.enterExerted ? " facedown and exerted" : "";
+    return `put ${renderTarget(e.target ?? {})}${from} into your inkwell${exerted}`;
+  },
   put_top_card_under:  (e) => `put the top card of your deck facedown under ${renderTarget(e.target ?? {})}`,
 
   // Move a character to a location. The `character` selector reuses target
@@ -421,8 +425,25 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     const re = (e.rewardEffects ?? []).map(renderEffect).join(" and ");
     return `${ce} to ${re}`;
   },
-  choose:     (e) => `choose: ${(e.options ?? []).map((o: Json) => (o.effects ?? []).map(renderEffect).join(" and ")).join(" OR ")}`,
-  choose_may: (e) => `choose: ${(e.options ?? []).map((o: Json) => (o.effects ?? []).map(renderEffect).join(" and ")).join(" OR ")}`,
+  choose: (e) => {
+    // Two shapes: `options: Effect[][]` (Maui Fish Hook) OR `choices: {name, effects}[]` (Prepare Your Bot)
+    const raw = e.options ?? e.choices ?? [];
+    const opts = raw.map((o: Json) => {
+      const effects = Array.isArray(o) ? o : (o.effects ?? [o]);
+      const label = o.name ? `${o.name}: ` : "";
+      return label + effects.map(renderEffect).filter(Boolean).join(" and ");
+    }).filter(Boolean);
+    return `choose one: ${opts.join(" OR ")}`;
+  },
+  choose_may: (e) => {
+    const raw = e.options ?? e.choices ?? [];
+    const opts = raw.map((o: Json) => {
+      const effects = Array.isArray(o) ? o : (o.effects ?? [o]);
+      const label = o.name ? `${o.name}: ` : "";
+      return label + effects.map(renderEffect).filter(Boolean).join(" and ");
+    }).filter(Boolean);
+    return `choose one: ${opts.join(" OR ")}`;
+  },
 
   damage_immunity:           (e) => `${renderTarget(e.target ?? {})} can't be damaged${dur(e)}`,
   // Permanent variant — applies as a static (Baloo Ol' Iron Paws "your
@@ -720,6 +741,11 @@ function verbS(target: string, base: string, third: string): string {
 function renderStatChange(e: Json): string {
   const tgt = renderTarget(e.target ?? {});
   const bits: string[] = [];
+  // gain_stats uses individual fields; modify_stat uses stat + modifier
+  if (e.stat && e.modifier !== undefined) {
+    const sym = e.stat === "lore" ? "{L}" : e.stat === "willpower" ? "{W}" : "{S}";
+    bits.push(`${signed(e.modifier)} ${sym}`);
+  }
   if (e.strength !== undefined) bits.push(`${signed(e.strength)} {S}`);
   if (e.willpower !== undefined) bits.push(`${signed(e.willpower)} {W}`);
   if (e.lore !== undefined) bits.push(`${signed(e.lore)} {L}`);
