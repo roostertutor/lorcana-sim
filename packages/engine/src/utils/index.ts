@@ -294,7 +294,13 @@ export function matchesFilter(
    *  card's properties (e.g. `nameFromSource`). Optional for backwards
    *  compatibility with call sites that don't yet pass it; in that case
    *  source-name filters fall through (no match). */
-  definitions?: Record<string, CardDefinition>
+  definitions?: Record<string, CardDefinition>,
+  /** Optional GameModifiers — when present, hasTrait/hasAnyTrait checks ALSO
+   *  consult `modifiers.grantedTraits` so that runtime trait grants like Chief
+   *  Bogo's DEPUTIZE are visible. Call sites that already have a computed
+   *  modifiers object should pass it; gameModifiers iteration itself MUST NOT
+   *  pass (to avoid recursive evaluation against an in-progress build). */
+  modifiers?: { grantedTraits: Map<string, Set<string>> }
 ): boolean {
   // Generic source-aware filters (Bad-Anon Villain Support Center,
   // future "discard a card with the same name as this character", etc.).
@@ -339,11 +345,17 @@ export function matchesFilter(
   }
 
   if (filter.hasTrait) {
-    if (!definition.traits.includes(filter.hasTrait)) return false;
+    const granted = modifiers?.grantedTraits.get(instance.instanceId);
+    const hasIt = definition.traits.includes(filter.hasTrait) || (granted?.has(filter.hasTrait) ?? false);
+    if (!hasIt) return false;
   }
 
   if (filter.hasAnyTrait) {
-    if (!filter.hasAnyTrait.some(t => definition.traits.includes(t))) return false;
+    const granted = modifiers?.grantedTraits.get(instance.instanceId);
+    const hasAny = filter.hasAnyTrait.some(t =>
+      definition.traits.includes(t) || (granted?.has(t) ?? false)
+    );
+    if (!hasAny) return false;
   }
 
   if (filter.hasKeyword) {
@@ -423,7 +435,7 @@ export function matchesFilter(
   // Compass YOUR PATH ("character with cost ≤3 OR named Pocahontas").
   if (filter.anyOf && filter.anyOf.length > 0) {
     const anyMatch = filter.anyOf.some(sub =>
-      matchesFilter(instance, definition, sub, state, viewingPlayerId, sourceInstanceId, definitions)
+      matchesFilter(instance, definition, sub, state, viewingPlayerId, sourceInstanceId, definitions, modifiers)
     );
     if (!anyMatch) return false;
   }

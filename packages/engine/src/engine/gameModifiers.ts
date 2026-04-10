@@ -238,6 +238,17 @@ export interface GameModifiers {
    * Consulted by getEffectiveStrength/Willpower/Lore.
    */
   statFloorsPrinted: Map<string, Set<"strength" | "willpower" | "lore">>;
+
+  /**
+   * Runtime trait grants — Chief Bogo "DEPUTIZE Your other characters gain the
+   * Detective classification". Key = affected instanceId, value = set of
+   * granted trait names. Populated in a PRE-PASS during getGameModifiers so
+   * that downstream statics filtering by hasTrait (e.g. Judy Hopps Lead
+   * Detective's Detective grants) see the deputized characters during the
+   * same iteration. Consulted by matchesFilter when an optional `modifiers`
+   * arg is passed; consulted by evaluateCondition's trait reads.
+   */
+  grantedTraits: Map<string, Set<string>>;
 }
 
 /**
@@ -283,9 +294,51 @@ export function getGameModifiers(
     preventDiscardFromHand: new Set(),
     oneChallengePerTurnGlobal: false,
     inkFromDiscard: new Set(),
+    grantedTraits: new Map(),
   };
 
-  // Pre-pass: collect remove_named_ability suppressions so the main pass can
+  // Pre-pass A: collect grant_trait_static so downstream filters in the main
+  // pass (e.g. Judy Hopps Lead Detective's `target.filter.hasTrait: "Detective"`
+  // statics) see the granted traits. Chief Bogo - Calling the Shots' DEPUTIZE
+  // is the precedent.
+  for (const instance of Object.values(state.cards)) {
+    const def = definitions[instance.definitionId];
+    if (!def) continue;
+    for (const ability of def.abilities) {
+      if (ability.type !== "static") continue;
+      if (ability.effect.type !== "grant_trait_static") continue;
+      const activeZones = ability.activeZones ?? ["play"];
+      if (!activeZones.includes(instance.zone)) continue;
+      if (ability.condition && !evaluateCondition(ability.condition, state, definitions, instance.ownerId, instance.instanceId)) continue;
+      const eff = ability.effect;
+      const grantTo = (id: string) => {
+        let set = modifiers.grantedTraits.get(id);
+        if (!set) {
+          set = new Set();
+          modifiers.grantedTraits.set(id, set);
+        }
+        set.add(eff.trait);
+      };
+      if (eff.target.type === "this") {
+        grantTo(instance.instanceId);
+      } else if (eff.target.type === "all") {
+        for (const candidate of Object.values(state.cards)) {
+          if (candidate.zone !== "play") continue;
+          if (eff.target.filter.excludeSelf && candidate.instanceId === instance.instanceId) continue;
+          const candidateDef = definitions[candidate.definitionId];
+          if (!candidateDef) continue;
+          // Pre-pass uses bare matchesFilter (no modifiers) — trait grants
+          // can't depend on OTHER trait grants in the same pass. That would
+          // require fixed-point iteration; YAGNI until a card needs it.
+          if (matchesFilter(candidate, candidateDef, eff.target.filter, state, instance.ownerId, instance.instanceId)) {
+            grantTo(candidate.instanceId);
+          }
+        }
+      }
+    }
+  }
+
+  // Pre-pass B: collect remove_named_ability suppressions so the main pass can
   // skip suppressed abilities. Angela Night Warrior ETERNAL NIGHT removes
   // STONE BY DAY from all your Gargoyle characters.
   const suppressedAbilities = new Map<string, Set<string>>();
@@ -428,7 +481,11 @@ export function getGameModifiers(
               if (effect.target.filter.excludeSelf && candidate.instanceId === instance.instanceId) continue;
               const candidateDef = definitions[candidate.definitionId];
               if (!candidateDef) continue;
-              if (matchesFilter(candidate, candidateDef, effect.target.filter, state, instance.ownerId, instance.instanceId)) {
+              // Pass the in-progress modifiers so the filter check sees
+              // grant_trait_static grants from the pre-pass (Bogo + Judy
+              // interaction: Judy's "your Detective characters get Alert"
+              // sees Bogo's deputized characters).
+              if (matchesFilter(candidate, candidateDef, effect.target.filter, state, instance.ownerId, instance.instanceId, definitions, modifiers)) {
                 const existing = modifiers.grantedKeywords.get(candidate.instanceId) ?? [];
                 existing.push({ keyword: effect.keyword, value: effect.value });
                 modifiers.grantedKeywords.set(candidate.instanceId, existing);

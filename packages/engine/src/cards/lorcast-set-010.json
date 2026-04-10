@@ -10020,7 +10020,7 @@
       {
         "type": "static",
         "storyName": "MY JURISDICTION",
-        "rulesText": "During your turn, this character can't be dealt damage. (approximation: DEPUTIZE rider granting Detective classification is not wired)",
+        "rulesText": "During your turn, this character can't be dealt damage.",
         "condition": {
           "type": "is_your_turn"
         },
@@ -10029,6 +10029,28 @@
           "source": "all",
           "target": {
             "type": "this"
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "DEPUTIZE",
+        "rulesText": "Your other characters gain the Detective classification.",
+        "effect": {
+          "type": "grant_trait_static",
+          "trait": "Detective",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "excludeSelf": true
+            }
           }
         }
       }

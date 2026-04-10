@@ -1297,6 +1297,7 @@ export type StaticEffect =
   | EnterPlayExertedStatic
   | StatFloorPrintedStatic
   | SingCostBonusHereStatic
+  | GrantTraitStatic
   | InkwellEntersExertedStatic
   | PreventLoreLossStatic
   | PreventLoreGainStatic
@@ -1406,6 +1407,25 @@ export interface InkwellEntersExertedStatic {
 export interface SingCostBonusHereStatic {
   type: "sing_cost_bonus_here";
   amount: number;
+}
+
+/**
+ * Chief Bogo - Calling the Shots (Set 10): "DEPUTIZE Your other characters
+ * gain the Detective classification." Static that grants a trait at runtime,
+ * making characters that don't intrinsically have the trait count as having
+ * it for hasTrait/hasAnyTrait filter checks. Populated in a PRE-PASS during
+ * gameModifiers collection so that downstream statics (e.g. Judy Hopps Lead
+ * Detective's grant_keyword target: hasTrait Detective) see the granted
+ * traits during the same iteration.
+ */
+export interface GrantTraitStatic {
+  type: "grant_trait_static";
+  /** The trait to grant (e.g. "Detective"). */
+  trait: string;
+  /** Which characters receive the trait — "this" or "all" with a filter. */
+  target:
+    | { type: "this" }
+    | { type: "all"; filter: CardFilter };
 }
 
 /**

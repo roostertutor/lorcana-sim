@@ -350,6 +350,36 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     expect(getZone(state, "player1", "hand").length).toBe(handBefore + 2);
   });
 
+  it("Chief Bogo DEPUTIZE + Judy Hopps Lead Detective: deputized characters get Alert from Judy via grantedTraits pre-pass", () => {
+    // Tier-1 fix: was wired with EVER VIGILANT (self-damage-immunity) only
+    // and the DEPUTIZE rider dropped. Now uses a new grant_trait_static
+    // effect populated in a gameModifiers PRE-PASS so downstream statics
+    // (Judy Hopps Lead Detective's `target.filter.hasTrait: "Detective"`
+    // grant_keyword) see the deputized characters during the same
+    // iteration. This test pins the pre-pass + cross-static interaction.
+    let state = startGame();
+    let bogoId: string, judyId: string, donaldId: string;
+    ({ state, instanceId: bogoId } = injectCard(state, "player1", "chief-bogo-calling-the-shots", "play", { isDrying: false }));
+    ({ state, instanceId: judyId } = injectCard(state, "player1", "judy-hopps-lead-detective", "play", { isDrying: false }));
+    // Donald Duck - True Friend has NO Detective trait — without DEPUTIZE he
+    // should NOT pick up Judy's Alert grant. With DEPUTIZE he should.
+    ({ state, instanceId: donaldId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+
+    const mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+
+    // Pre-pass: Bogo's DEPUTIZE granted Detective to the non-Detective Mickey.
+    expect(mods.grantedTraits.get(donaldId)?.has("Detective")).toBe(true);
+    // Bogo himself is excluded (excludeSelf: true) — he doesn't grant to himself.
+    expect(mods.grantedTraits.get(bogoId)?.has("Detective") ?? false).toBe(false);
+
+    // Main pass: Judy's DETECTIVE ALERT static (target: hasTrait Detective)
+    // sees the deputized Mickey via the in-progress modifiers passed to
+    // matchesFilter. So Mickey should have Alert in modifiers.grantedKeywords.
+    const mickeyKeywords = mods.grantedKeywords.get(donaldId) ?? [];
+    const hasAlert = mickeyKeywords.some(k => k.keyword === "alert");
+    expect(hasAlert).toBe(true);
+  });
+
   it("Hercules - Mighty Leader EVER VALIANT: while exerted, other Hero characters share his damage immunity", () => {
     // Tier-1 fix: was wired with EVER VIGILANT (self-protection) only and the
     // EVER VALIANT rider dropped. Now uses a second static gated by
