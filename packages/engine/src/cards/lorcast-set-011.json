@@ -6674,8 +6674,8 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "",
-        "rulesText": "Whenever this character quests, each opponent loses 1 lore.",
+        "storyName": "PAYMENT DUE",
+        "rulesText": "Whenever this character quests, each opponent loses 1 lore. Draw a card for each 1 lore lost this way.",
         "trigger": {
           "on": "quests"
         },
@@ -6685,6 +6685,40 @@
             "amount": 1,
             "target": {
               "type": "opponent"
+            }
+          },
+          {
+            "type": "draw",
+            "amount": "cost_result",
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "FORECLOSURE",
+        "rulesText": "At the end of your turn, if an opponent has 0 lore, you gain 1 lore.",
+        "trigger": {
+          "on": "turn_end",
+          "player": {
+            "type": "self"
+          }
+        },
+        "condition": {
+          "type": "not",
+          "condition": {
+            "type": "opponent_has_lore_gte",
+            "amount": 1
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
             }
           }
         ]

@@ -202,7 +202,6 @@ export type Effect =
   | PutCardOnBottomOfDeckEffect
   | MoveDamageEffect
   | GrantCostReductionEffect
-  | CreateCardEffect
   | SearchEffect
   | ChooseEffect
   | ExertEffect
@@ -1014,13 +1013,9 @@ export interface RememberChosenTargetEffect {
   filter: CardFilter;
 }
 
-export interface CreateCardEffect {
-  type: "create_card";
-  /** The cardDefinitionId of the token to create */
-  cardDefinitionId: string;
-  zone: ZoneName;
-  target: PlayerTarget;
-}
+// CreateCardEffect: DELETED — was scaffolded for token creation but never
+// implemented (no reducer case, 0 card consumers). Can be re-added if
+// Lorcana ever prints token-creating cards.
 
 export interface SearchEffect {
   type: "search";
