@@ -3676,13 +3676,12 @@
       {
         "type": "static",
         "storyName": "THIRSTY FOR POWER",
-        "rulesText": "While challenging a damaged character, this character gets +2 {S}. (approximation: Challenger +2)",
+        "rulesText": "While challenging a damaged character, this character gets +2 {S}.",
         "effect": {
-          "type": "grant_keyword",
-          "keyword": "challenger",
-          "value": 2,
-          "target": {
-            "type": "this"
+          "type": "conditional_challenger_self",
+          "strength": 2,
+          "defenderFilter": {
+            "hasDamage": true
           }
         }
       }

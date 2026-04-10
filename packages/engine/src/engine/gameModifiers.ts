@@ -254,6 +254,17 @@ export interface GameModifiers {
    * arg is passed; consulted by evaluateCondition's trait reads.
    */
   grantedTraits: Map<string, Set<string>>;
+
+  /**
+   * Per-instance conditional challenger bonuses — Shenzi Scar's Accomplice
+   * "while challenging a damaged character, this character gets +2 {S}".
+   * Differs from `turnChallengeBonuses` (which is per-player turn-scoped):
+   * this map is per-instance permanent (lives as long as the source static
+   * is active). Key = attacker instanceId, value = list of {strength,
+   * defenderFilter} entries. Read by performChallenge in addition to
+   * turnChallengeBonuses.
+   */
+  conditionalChallengerSelf: Map<string, Array<{ strength: number; defenderFilter: import("../types/index.js").CardFilter }>>;
 }
 
 /**
@@ -300,6 +311,7 @@ export function getGameModifiers(
     oneChallengePerTurnGlobal: false,
     inkFromDiscard: new Set(),
     grantedTraits: new Map(),
+    conditionalChallengerSelf: new Map(),
   };
 
   // Pre-pass A: collect grant_trait_static so downstream filters in the main
@@ -553,6 +565,17 @@ export function getGameModifiers(
             const filt = (effect as any).defenderFilter ?? null;
             modifiers.canChallengeReady.set(instance.instanceId, filt);
           }
+          break;
+        }
+
+        case "conditional_challenger_self": {
+          // Shenzi Scar's Accomplice EASY PICKINGS: "while challenging a
+          // damaged character, this character gets +2 {S}". Per-instance
+          // permanent challenger bonus gated by a defender filter.
+          const eff = effect as any;
+          const existing = modifiers.conditionalChallengerSelf.get(instance.instanceId) ?? [];
+          existing.push({ strength: eff.strength, defenderFilter: eff.defenderFilter });
+          modifiers.conditionalChallengerSelf.set(instance.instanceId, existing);
           break;
         }
 

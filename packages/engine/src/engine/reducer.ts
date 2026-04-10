@@ -943,6 +943,17 @@ function applyChallenge(
       }
     }
   }
+  // Per-instance conditional challenger bonuses (Shenzi Scar's Accomplice
+  // EASY PICKINGS: "while challenging a damaged character, this character
+  // gets +2 {S}"). Permanent (lives as long as the source static is active).
+  const selfBonuses = modifiers.conditionalChallengerSelf.get(attackerInstanceId);
+  if (selfBonuses && selfBonuses.length > 0) {
+    for (const bonus of selfBonuses) {
+      if (matchesFilter(defender, defenderDef, bonus.defenderFilter, state, playerId)) {
+        attackerStr += bonus.strength;
+      }
+    }
+  }
 
   state = exertInstance(state, attackerInstanceId, definitions);
   // Mark defender as challenged this turn (for Last Stand and similar cards)

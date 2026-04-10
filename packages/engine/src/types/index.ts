@@ -979,6 +979,19 @@ export interface GainConditionalChallengeBonusEffect {
   duration: "this_turn";
 }
 
+/**
+ * Per-instance permanent conditional challenger bonus — Shenzi Scar's
+ * Accomplice EASY PICKINGS: "while challenging a damaged character, this
+ * character gets +2 {S}". STATIC effect (lives in the StaticEffect union),
+ * applies to "this" instance only, persists as long as the source static is
+ * active. Read by performChallenge in addition to turnChallengeBonuses.
+ */
+export interface ConditionalChallengerSelfStatic {
+  type: "conditional_challenger_self";
+  strength: number;
+  defenderFilter: CardFilter;
+}
+
 export interface CreateCardEffect {
   type: "create_card";
   /** The cardDefinitionId of the token to create */
@@ -1322,6 +1335,7 @@ export type StaticEffect =
   | StatFloorPrintedStatic
   | SingCostBonusHereStatic
   | GrantTraitStatic
+  | ConditionalChallengerSelfStatic
   | InkwellEntersExertedStatic
   | PreventLoreLossStatic
   | PreventLoreGainStatic
