@@ -6005,7 +6005,7 @@
       {
         "type": "triggered",
         "storyName": "TRIPLE SHOT",
-        "rulesText": "During your turn, whenever this character deals damage to another character in a challenge, deal the same amount of damage to up to 2 other chosen characters. (approximation: deals 2 damage to 1 chosen character)",
+        "rulesText": "During your turn, whenever this character deals damage to another character in a challenge, deal the same amount of damage to up to 2 other chosen characters.",
         "trigger": {
           "on": "deals_damage_in_challenge"
         },
@@ -6015,7 +6015,23 @@
         "effects": [
           {
             "type": "deal_damage",
-            "amount": 2,
+            "amount": "last_damage_dealt",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true
+              }
+            }
+          },
+          {
+            "type": "deal_damage",
+            "amount": "last_damage_dealt",
+            "isMay": true,
             "target": {
               "type": "chosen",
               "filter": {
@@ -12005,7 +12021,7 @@
       {
         "type": "triggered",
         "storyName": "TRIPLE SHOT",
-        "rulesText": "During your turn, whenever this character deals damage to another character in a challenge, deal the same amount of damage to up to 2 other chosen characters. (approximation: deals 2 damage to 1 chosen character)",
+        "rulesText": "During your turn, whenever this character deals damage to another character in a challenge, deal the same amount of damage to up to 2 other chosen characters.",
         "trigger": {
           "on": "deals_damage_in_challenge"
         },
@@ -12015,7 +12031,23 @@
         "effects": [
           {
             "type": "deal_damage",
-            "amount": 2,
+            "amount": "last_damage_dealt",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true
+              }
+            }
+          },
+          {
+            "type": "deal_damage",
+            "amount": "last_damage_dealt",
+            "isMay": true,
             "target": {
               "type": "chosen",
               "filter": {
