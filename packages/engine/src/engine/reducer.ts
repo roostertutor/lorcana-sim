@@ -2324,16 +2324,10 @@ export function applyEffect(
     }
 
     case "gain_stats": {
-      if (effect.target.type === "this") {
-        return applyGainStatsToInstance(state, sourceInstanceId, effect, controllingPlayerId, definitions);
-      }
-      if (effect.target.type === "last_resolved_target") {
-        const id = state.lastResolvedTarget?.instanceId;
-        if (!id || !state.cards[id]) return state;
-        return applyGainStatsToInstance(state, id, effect, controllingPlayerId, definitions);
-      }
-      if (effect.target.type === "triggering_card" && triggeringCardInstanceId) {
-        return applyGainStatsToInstance(state, triggeringCardInstanceId, effect, controllingPlayerId, definitions);
+      // Direct targets (this / triggering_card / last_resolved_target)
+      const directGS = resolveDirectTarget(effect.target, state, sourceInstanceId, triggeringCardInstanceId);
+      if (directGS && state.cards[directGS]) {
+        return applyGainStatsToInstance(state, directGS, effect, controllingPlayerId, definitions);
       }
       if (effect.target.type === "chosen") {
         const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
@@ -2372,21 +2366,9 @@ export function applyEffect(
         casterPlayerId: controllingPlayerId,
         ...(effect.charges !== undefined ? { charges: effect.charges } : {}),
       };
-      if (effect.target.type === "this") {
-        return addTimedEffect(state, sourceInstanceId, timed);
-      }
-      if (effect.target.type === "triggering_card" && triggeringCardInstanceId) {
-        return addTimedEffect(state, triggeringCardInstanceId, timed);
-      }
-      // Read state.lastResolvedTarget — used by chained effects where a prior
-      // step picked the target (Mickey Mouse Pirate Captain: gain_stats picks
-      // a Pirate, damage_immunity_timed applies to the same Pirate without
-      // re-prompting). Generic primitive — any chained effect can reuse.
-      if (effect.target.type === "last_resolved_target") {
-        const ref = state.lastResolvedTarget;
-        if (!ref) return state;
-        return addTimedEffect(state, ref.instanceId, timed);
-      }
+      // Direct targets (this / triggering_card / last_resolved_target)
+      const directDI = resolveDirectTarget(effect.target, state, sourceInstanceId, triggeringCardInstanceId);
+      if (directDI) return addTimedEffect(state, directDI, timed);
       if (effect.target.type === "chosen") {
         const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state;
@@ -3051,17 +3033,8 @@ export function applyEffect(
         // Harmless to set unconditionally — only consulted when expiresAt matches.
         casterPlayerId: controllingPlayerId,
       };
-      if (effect.target.type === "this") {
-        return addTimedEffect(state, sourceInstanceId, timedEffect);
-      }
-      if (effect.target.type === "last_resolved_target") {
-        const id = state.lastResolvedTarget?.instanceId;
-        if (!id || !state.cards[id]) return state;
-        return addTimedEffect(state, id, timedEffect);
-      }
-      if (effect.target.type === "triggering_card" && triggeringCardInstanceId) {
-        return addTimedEffect(state, triggeringCardInstanceId, timedEffect);
-      }
+      const directGK = resolveDirectTarget(effect.target, state, sourceInstanceId, triggeringCardInstanceId);
+      if (directGK && state.cards[directGK]) return addTimedEffect(state, directGK, timedEffect);
       if (effect.target.type === "chosen") {
         const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state; // CRD 1.7.7
@@ -3161,14 +3134,8 @@ export function applyEffect(
         appliedOnTurn: state.turnNumber,
         casterPlayerId: controllingPlayerId,
       };
-      if (effect.target.type === "this") {
-        return addTimedEffect(state, sourceInstanceId, timedEffect);
-      }
-      if (effect.target.type === "last_resolved_target") {
-        const id = state.lastResolvedTarget?.instanceId;
-        if (!id || !state.cards[id]) return state;
-        return addTimedEffect(state, id, timedEffect);
-      }
+      const directMQ = resolveDirectTarget(effect.target, state, sourceInstanceId, triggeringCardInstanceId);
+      if (directMQ && state.cards[directMQ]) return addTimedEffect(state, directMQ, timedEffect);
       if (effect.target.type === "chosen") {
         const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state;
@@ -4113,32 +4080,17 @@ export function applyEffect(
           },
         };
       }
-      // last_resolved_target: read state.lastResolvedTarget (set by a prior
-      // effect like look_at_top to_hand or return_to_hand) and dispatch the
-      // conditional branches directly without surfacing a chooser. Used by
-      // Queen Diviner ("if that item costs 3 or less, may play for free")
-      // and Wreck-It Ralph - Admiral Underpants ("if that card is a Princess,
-      // gain 2 lore"). Generalized escalation primitive — works for any
-      // "if the just-resolved card matches X, do Y" pattern.
-      if (effect.target.type === "last_resolved_target") {
-        const ref = state.lastResolvedTarget;
-        if (!ref) return state;
-        return applyEffectToTarget(state, effect, ref.instanceId, controllingPlayerId, definitions, events, sourceInstanceId, triggeringCardInstanceId);
-      }
+      // Direct targets (last_resolved_target / this / triggering_card)
+      const directCOT = resolveDirectTarget(effect.target, state, sourceInstanceId, triggeringCardInstanceId);
+      if (directCOT) return applyEffectToTarget(state, effect, directCOT, controllingPlayerId, definitions, events, sourceInstanceId, triggeringCardInstanceId);
       return state;
     }
 
     case "play_for_free": {
-      // Direct-target form (e.g. Ursula - Deceiver of All replays the song that
-      // triggered the ability). Skip the choose-from-zone flow and apply directly.
+      // Direct-target form — skip the choose-from-zone flow and apply directly.
       if (effect.target) {
-        if (effect.target.type === "triggering_card" && triggeringCardInstanceId) {
-          return applyEffectToTarget(state, effect, triggeringCardInstanceId, controllingPlayerId, definitions, events);
-        }
-        // Lilo Escape Artist: { type: "this" } plays the source instance itself.
-        if (effect.target.type === "this") {
-          return applyEffectToTarget(state, effect, sourceInstanceId, controllingPlayerId, definitions, events);
-        }
+        const directPF = resolveDirectTarget(effect.target, state, sourceInstanceId, triggeringCardInstanceId);
+        if (directPF) return applyEffectToTarget(state, effect, directPF, controllingPlayerId, definitions, events);
         // Jafar High Sultan of Lorcana: "play THAT character for free" — read
         // the most recent lastDiscarded entry. Optional via isMay.
         if (effect.target.type === "from_last_discarded") {
@@ -4375,6 +4327,16 @@ export function applyEffect(
 
     // Grant "can challenge ready characters" for a duration
     case "grant_challenge_ready": {
+      const directCR = resolveDirectTarget(effect.target, state, sourceInstanceId, triggeringCardInstanceId);
+      if (directCR) {
+        const timedEffect: TimedEffect = {
+          type: "can_challenge_ready",
+          expiresAt: effect.duration,
+          appliedOnTurn: state.turnNumber,
+          casterPlayerId: controllingPlayerId,
+        };
+        return addTimedEffect(state, directCR, timedEffect);
+      }
       if (effect.target.type === "chosen") {
         const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state;
@@ -4389,35 +4351,11 @@ export function applyEffect(
           },
         };
       }
-      // Arthur King Victorious EXCALIBUR: chained on a target picked by an
-      // earlier effect in the same abilities[*].effects array. Reads
-      // state.lastResolvedTarget set by the prior chooser.
-      if (effect.target.type === "last_resolved_target") {
-        const ref = state.lastResolvedTarget;
-        if (!ref) return state;
-        const timedEffect: TimedEffect = {
-          type: "can_challenge_ready",
-          expiresAt: effect.duration,
-          appliedOnTurn: state.turnNumber,
-          casterPlayerId: controllingPlayerId,
-        };
-        return addTimedEffect(state, ref.instanceId, timedEffect);
-      }
-      if (effect.target.type === "this") {
-        const timedEffect: TimedEffect = {
-          type: "can_challenge_ready",
-          expiresAt: effect.duration,
-          appliedOnTurn: state.turnNumber,
-          casterPlayerId: controllingPlayerId,
-        };
-        return addTimedEffect(state, sourceInstanceId, timedEffect);
-      }
       return state;
     }
 
     // Naveen's Ukulele MAKE IT SING: chosen character counts as having +N
-    // cost to sing songs this turn. Mirrors grant_challenge_ready's two-stage
-    // dispatch — chooser path → applyEffectToTarget attaches the timed effect.
+    // cost to sing songs this turn.
     case "sing_cost_bonus_target": {
       if (effect.target.type === "chosen") {
         const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
@@ -4433,11 +4371,9 @@ export function applyEffect(
           },
         };
       }
-      // Self-target fallthrough (no current card uses this, but it parallels
-      // grant_challenge_ready's `this` branch and keeps the pattern uniform).
-      if (effect.target.type === "this") {
-        return applyEffectToTarget(state, effect, sourceInstanceId, controllingPlayerId, definitions, events, sourceInstanceId, triggeringCardInstanceId);
-      }
+      // Direct targets (this / triggering_card / last_resolved_target)
+      const directSCB = resolveDirectTarget(effect.target, state, sourceInstanceId, triggeringCardInstanceId);
+      if (directSCB) return applyEffectToTarget(state, effect, directSCB, controllingPlayerId, definitions, events, directSCB, triggeringCardInstanceId);
       return state;
     }
 
@@ -6115,6 +6051,30 @@ function updatePlayerInk(state: GameState, playerId: PlayerID, delta: number): G
       },
     },
   };
+}
+
+/**
+ * Resolve a CardTarget to a concrete instance id WITHOUT surfacing a chooser.
+ * Handles the "direct" target types: this, triggering_card, last_resolved_target,
+ * from_last_discarded. Returns undefined for target types that need a chooser
+ * (chosen, all, random) — those must be handled by the caller.
+ *
+ * Collapses the ~5-line boilerplate that was previously duplicated across 9+
+ * effect handlers in the reducer.
+ */
+function resolveDirectTarget(
+  target: { type: string },
+  state: GameState,
+  sourceInstanceId: string,
+  triggeringCardInstanceId?: string
+): string | undefined {
+  switch (target.type) {
+    case "this": return sourceInstanceId;
+    case "triggering_card": return triggeringCardInstanceId;
+    case "last_resolved_target": return state.lastResolvedTarget?.instanceId;
+    case "from_last_discarded": return state.lastDiscarded?.[0]?.instanceId;
+    default: return undefined;
+  }
 }
 
 function findValidTargets(
