@@ -2456,12 +2456,18 @@
         "keyword": "evasive"
       },
       {
-        "type": "triggered",
-        "storyName": "CELEBRATION",
-        "rulesText": "Draw a card and gain 1 lore.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "type": "activated",
+        "storyName": "BREAKING RECORDS",
+        "rulesText": "{E}, 1 {I} — Draw a card and gain 1 lore.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "ink",
+            "amount": 1
+          }
+        ],
         "effects": [
           {
             "type": "draw",
@@ -2478,6 +2484,56 @@
             }
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "MAKING HISTORY",
+        "rulesText": "Your other characters with Evasive gain \"{E}, 1 {I} — Draw a card and gain 1 lore.\"",
+        "effect": {
+          "type": "grant_activated_ability",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "excludeSelf": true,
+              "hasKeyword": "evasive"
+            }
+          },
+          "ability": {
+            "type": "activated",
+            "costs": [
+              {
+                "type": "exert"
+              },
+              {
+                "type": "ink",
+                "amount": 1
+              }
+            ],
+            "effects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              },
+              {
+                "type": "gain_lore",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        }
       }
     ],
     "setId": "9",
@@ -3443,6 +3499,25 @@
                   "character"
                 ]
               }
+            }
+          }
+        ]
+      },
+      {
+        "type": "activated",
+        "storyName": "GROUNDED",
+        "rulesText": "3 {I} — Return this item to your hand.",
+        "costs": [
+          {
+            "type": "ink",
+            "amount": 3
+          }
+        ],
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "this"
             }
           }
         ]
@@ -7701,6 +7776,34 @@
     ],
     "abilities": [
       {
+        "type": "triggered",
+        "storyName": "OUT OF SEASON",
+        "rulesText": "Once during your turn, whenever a character with cost 2 or less is banished, put the top card of your deck into your inkwell facedown and exerted.",
+        "trigger": {
+          "on": "is_banished",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "maxCost": 2
+          }
+        },
+        "oncePerTurn": true,
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "move_to_inkwell",
+            "fromZone": "deck",
+            "position": "top",
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
+      {
         "type": "static",
         "storyName": "STYLE ICON",
         "rulesText": "During your turn, each opposing character with cost 2 or less gets -1 {S}.",
@@ -9486,6 +9589,66 @@
             }
           }
         }
+      },
+      {
+        "type": "triggered",
+        "storyName": "STICK WITH ME",
+        "rulesText": "At the end of your turn, if this character is exerted, you may draw cards equal to the {S} of chosen Ally character of yours. If you do, choose and discard 2 cards and banish that character.",
+        "trigger": {
+          "on": "turn_end",
+          "player": {
+            "type": "self"
+          }
+        },
+        "condition": {
+          "type": "this_is_exerted"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "draw",
+                "amount": {
+                  "type": "target_strength"
+                },
+                "target": {
+                  "type": "self"
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 2,
+                "target": {
+                  "type": "self"
+                },
+                "chooser": "target_player"
+              },
+              {
+                "type": "banish",
+                "target": {
+                  "type": "remembered_target"
+                }
+              }
+            ],
+            "chooseTarget": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Ally"
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "9",
@@ -9700,6 +9863,28 @@
             "type": "is_your_turn"
           }
         }
+      },
+      {
+        "type": "activated",
+        "storyName": "NOW'S MY CHANCE",
+        "rulesText": "Choose and discard a card — This character gains Challenger +3 this turn.",
+        "costs": [
+          {
+            "type": "discard",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "challenger",
+            "value": 3,
+            "target": {
+              "type": "this"
+            },
+            "duration": "end_of_turn"
+          }
+        ]
       }
     ],
     "setId": "9",
@@ -12316,12 +12501,18 @@
         "keyword": "evasive"
       },
       {
-        "type": "triggered",
-        "storyName": "CELEBRATION",
-        "rulesText": "Draw a card and gain 1 lore.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "type": "activated",
+        "storyName": "BREAKING RECORDS",
+        "rulesText": "{E}, 1 {I} — Draw a card and gain 1 lore.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "ink",
+            "amount": 1
+          }
+        ],
         "effects": [
           {
             "type": "draw",
@@ -12338,6 +12529,56 @@
             }
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "MAKING HISTORY",
+        "rulesText": "Your other characters with Evasive gain \"{E}, 1 {I} — Draw a card and gain 1 lore.\"",
+        "effect": {
+          "type": "grant_activated_ability",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "excludeSelf": true,
+              "hasKeyword": "evasive"
+            }
+          },
+          "ability": {
+            "type": "activated",
+            "costs": [
+              {
+                "type": "exert"
+              },
+              {
+                "type": "ink",
+                "amount": 1
+              }
+            ],
+            "effects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              },
+              {
+                "type": "gain_lore",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        }
       }
     ],
     "setId": "9",
@@ -12790,6 +13031,34 @@
     ],
     "abilities": [
       {
+        "type": "triggered",
+        "storyName": "OUT OF SEASON",
+        "rulesText": "Once during your turn, whenever a character with cost 2 or less is banished, put the top card of your deck into your inkwell facedown and exerted.",
+        "trigger": {
+          "on": "is_banished",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "maxCost": 2
+          }
+        },
+        "oncePerTurn": true,
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "move_to_inkwell",
+            "fromZone": "deck",
+            "position": "top",
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
+      {
         "type": "static",
         "storyName": "STYLE ICON",
         "rulesText": "During your turn, each opposing character with cost 2 or less gets -1 {S}.",
@@ -13023,6 +13292,66 @@
             }
           }
         }
+      },
+      {
+        "type": "triggered",
+        "storyName": "STICK WITH ME",
+        "rulesText": "At the end of your turn, if this character is exerted, you may draw cards equal to the {S} of chosen Ally character of yours. If you do, choose and discard 2 cards and banish that character.",
+        "trigger": {
+          "on": "turn_end",
+          "player": {
+            "type": "self"
+          }
+        },
+        "condition": {
+          "type": "this_is_exerted"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "draw",
+                "amount": {
+                  "type": "target_strength"
+                },
+                "target": {
+                  "type": "self"
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 2,
+                "target": {
+                  "type": "self"
+                },
+                "chooser": "target_player"
+              },
+              {
+                "type": "banish",
+                "target": {
+                  "type": "remembered_target"
+                }
+              }
+            ],
+            "chooseTarget": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Ally"
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "9",
@@ -13072,6 +13401,28 @@
             "type": "is_your_turn"
           }
         }
+      },
+      {
+        "type": "activated",
+        "storyName": "NOW'S MY CHANCE",
+        "rulesText": "Choose and discard a card — This character gains Challenger +3 this turn.",
+        "costs": [
+          {
+            "type": "discard",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "challenger",
+            "value": 3,
+            "target": {
+              "type": "this"
+            },
+            "duration": "end_of_turn"
+          }
+        ]
       }
     ],
     "setId": "9",

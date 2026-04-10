@@ -1539,6 +1539,45 @@
     "traits": [],
     "abilities": [
       {
+        "type": "triggered",
+        "storyName": "SYMBOL OF NOBILITY",
+        "rulesText": "At the start of your turn, if you have a Princess or Queen character in play, gain 1 lore.",
+        "trigger": {
+          "on": "turn_start",
+          "player": {
+            "type": "self"
+          }
+        },
+        "condition": {
+          "type": "compound_or",
+          "conditions": [
+            {
+              "type": "has_character_with_trait",
+              "trait": "Princess",
+              "player": {
+                "type": "self"
+              }
+            },
+            {
+              "type": "has_character_with_trait",
+              "trait": "Queen",
+              "player": {
+                "type": "self"
+              }
+            }
+          ]
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
+      {
         "type": "activated",
         "storyName": "ROYAL SEARCH",
         "rulesText": "{E}, 2 {I} — Reveal the top card of your deck. If it's a Princess or Queen character card, you may put it into your hand. Otherwise, put it on the top of your deck.",
@@ -2381,6 +2420,40 @@
                 }
               ]
             ]
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "SNEAKY MOVE",
+        "rulesText": "At the start of your turn, you may move up to 2 damage counters from this character to chosen opposing character.",
+        "trigger": {
+          "on": "turn_start",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effects": [
+          {
+            "type": "move_damage",
+            "amount": 2,
+            "isUpTo": true,
+            "isMay": true,
+            "source": {
+              "type": "this"
+            },
+            "destination": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
           }
         ]
       }
@@ -5959,6 +6032,23 @@
             }
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "RAGING DUCK",
+        "rulesText": "While an opponent has 10 or more lore, this character gets +6 {S}.",
+        "condition": {
+          "type": "opponent_has_lore_gte",
+          "amount": 10
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "strength",
+          "modifier": 6,
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "5",
@@ -11789,6 +11879,23 @@
             }
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "RAGING DUCK",
+        "rulesText": "While an opponent has 10 or more lore, this character gets +6 {S}.",
+        "condition": {
+          "type": "opponent_has_lore_gte",
+          "amount": 10
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "strength",
+          "modifier": 6,
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "5",

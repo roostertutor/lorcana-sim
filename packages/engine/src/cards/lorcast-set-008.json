@@ -494,6 +494,24 @@
             }
           }
         ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "LASTING LEGACY",
+        "rulesText": "When this character is banished, you may put this card into your inkwell facedown and exerted.",
+        "trigger": {
+          "on": "is_banished"
+        },
+        "effects": [
+          {
+            "type": "move_to_inkwell",
+            "target": {
+              "type": "this"
+            },
+            "enterExerted": true,
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "8",
@@ -2081,7 +2099,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "DECISIVE",
+        "storyName": "PACK OF HER OWN",
         "rulesText": "Whenever you play a character, this character gets +1 {S} this turn.",
         "trigger": {
           "on": "card_played",
@@ -2104,6 +2122,24 @@
             }
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "TAKE THE LEAD",
+        "rulesText": "While this character has 3 {S} or more, she gets +2 {L}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "modifier": 2,
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "self_stat_gte",
+          "stat": "strength",
+          "amount": 3
+        }
       }
     ],
     "setId": "8",
@@ -2324,6 +2360,28 @@
       "Hero"
     ],
     "abilities": [
+      {
+        "type": "static",
+        "storyName": "HERE, PIGGY, PIGGY",
+        "rulesText": "For each item named The Nephews' Piggy Bank you have in play, you pay 2 {I} less to play this character.",
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": {
+            "type": "count",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "item"
+              ],
+              "hasName": "The Nephews' Piggy Bank"
+            }
+          },
+          "perMatch": 2
+        }
+      },
       {
         "type": "triggered",
         "trigger": {
@@ -2731,7 +2789,50 @@
     "cost": 2,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "INSIDE JOB",
+        "rulesText": "If you have a character named Donald Duck in play, you pay 1 {I} less to play this item.",
+        "condition": {
+          "type": "has_character_named",
+          "name": "Donald Duck",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 1
+        }
+      },
+      {
+        "type": "activated",
+        "storyName": "PAYOFF",
+        "rulesText": "{E} – Chosen character gets -1 {S} until the start of your next turn.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": -1,
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 44,
     "rarity": "uncommon",
@@ -2742,22 +2843,6 @@
         "storyName": "PAYOFF",
         "rulesText": "Chosen character gets -1 {S} until the start of your next turn.",
         "raw": "PAYOFF {E} – Chosen character gets -1 {S} until the start of your next turn."
-      }
-    ],
-    "actionEffects": [
-      {
-        "type": "gain_stats",
-        "strength": -1,
-        "duration": "until_caster_next_turn",
-        "target": {
-          "type": "chosen",
-          "filter": {
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
-          }
-        }
       }
     ]
   },
@@ -5717,7 +5802,23 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "WHEN YOU'RE HUMAN",
+        "storyName": "SENSITIVE SOUL",
+        "rulesText": "This character enters play exerted.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "FRIENDLIER THAN HE LOOKS",
         "rulesText": "When you play this character, chosen opposing character gains Reckless during their next turn.",
         "trigger": {
           "on": "enters_play"
@@ -8595,16 +8696,27 @@
       },
       {
         "type": "static",
-        "storyName": "CHARGING AHEAD",
+        "storyName": "BURST OF SPEED",
         "rulesText": "During your turn, this character gains Evasive.",
+        "condition": {
+          "type": "is_your_turn"
+        },
         "effect": {
           "type": "grant_keyword",
           "keyword": "evasive",
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "is_your_turn"
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "LONG RANGE",
+        "rulesText": "This character can challenge ready characters.",
+        "effect": {
+          "type": "can_challenge_ready",
+          "target": {
+            "type": "this"
           }
         }
       }
@@ -11334,16 +11446,32 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "DODGE",
+        "storyName": "BEST MATES",
+        "rulesText": "If you have a character named Monterey Jack in play, you pay 1 {I} less to play this character.",
+        "condition": {
+          "type": "has_character_named",
+          "name": "Monterey Jack",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 1
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "BURST OF SPEED",
         "rulesText": "During your turn, this character gains Evasive.",
+        "condition": {
+          "type": "is_your_turn"
+        },
         "effect": {
           "type": "grant_keyword",
           "keyword": "evasive",
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "is_your_turn"
           }
         }
       }
@@ -11618,6 +11746,59 @@
       "Princess"
     ],
     "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "STRATEGIC EDGE",
+        "rulesText": "When you play this character, you may draw a card, then choose and discard a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "STRATEGIC EDGE",
+        "rulesText": "At the start of your turn, you may draw a card, then choose and discard a card.",
+        "trigger": {
+          "on": "start_of_turn",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
       {
         "type": "static",
         "storyName": "EXTREME FOCUS",
@@ -12036,7 +12217,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "DECISIVE",
+        "storyName": "PACK OF HER OWN",
         "rulesText": "Whenever you play a character, this character gets +1 {S} this turn.",
         "trigger": {
           "on": "card_played",
@@ -12059,6 +12240,24 @@
             }
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "TAKE THE LEAD",
+        "rulesText": "While this character has 3 {S} or more, she gets +2 {L}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "modifier": 2,
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "self_stat_gte",
+          "stat": "strength",
+          "amount": 3
+        }
       }
     ],
     "setId": "8",

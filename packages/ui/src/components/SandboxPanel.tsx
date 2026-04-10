@@ -3,7 +3,7 @@
 // Card injector, ink/lore adjustments, selected-card state editor
 // =============================================================================
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import type { CardDefinition, CardInstance, GameState, PlayerID } from "@lorcana-sim/engine";
 import type { GameSession } from "../hooks/useGameSession.js";
 
@@ -44,6 +44,15 @@ export default function SandboxPanel({
   const [targetPlayer, setTargetPlayer] = useState<PlayerID>(myId);
   const [showDropdown, setShowDropdown] = useState(false);
   const [injectQty, setInjectQty] = useState(1);
+  const [toast, setToast] = useState<string | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function showToast(msg: string) {
+    setToast(msg);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 1500);
+  }
+  useEffect(() => () => { if (toastTimer.current) clearTimeout(toastTimer.current); }, []);
 
   const searchResults = useMemo(() => {
     if (!query.trim()) return [];
@@ -360,14 +369,14 @@ export default function SandboxPanel({
       <div className="flex gap-2">
         <button
           className="flex-1 py-1.5 bg-blue-900/60 hover:bg-blue-800/60 border border-blue-800/50 text-blue-400 hover:text-blue-300 rounded-lg text-xs font-bold transition-colors"
-          onClick={() => session.quickSave()}
+          onClick={() => { session.quickSave(); showToast("Saved"); }}
         >
           Quick Save
         </button>
         <button
           className="flex-1 py-1.5 bg-blue-900/60 hover:bg-blue-800/60 border border-blue-800/50 text-blue-400 hover:text-blue-300 rounded-lg text-xs font-bold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           disabled={!session.hasQuickSave}
-          onClick={() => session.quickLoad()}
+          onClick={() => { session.quickLoad(); showToast("Loaded"); }}
         >
           Quick Load
         </button>
@@ -378,6 +387,13 @@ export default function SandboxPanel({
       >
         Reset Board
       </button>
+
+      {/* Toast */}
+      {toast && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-bold shadow-lg animate-pulse">
+          {toast}
+        </div>
+      )}
     </div>
   );
 }

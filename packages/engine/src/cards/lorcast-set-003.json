@@ -132,8 +132,29 @@
     ],
     "abilities": [
       {
+        "type": "static",
+        "storyName": "THE POWER OF EVIL",
+        "rulesText": "For each character card in your discard, you pay 1 {I} less to play this character.",
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": {
+            "type": "count",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "discard",
+              "cardType": [
+                "character"
+              ]
+            }
+          }
+        },
+        "activeZones": ["hand"]
+      },
+      {
         "type": "triggered",
-        "storyName": "GATHER MY MINIONS",
+        "storyName": "SUMMON THE SPIRITS",
         "rulesText": "When you play this character, shuffle all character cards from your discard into your deck.",
         "trigger": {
           "on": "enters_play"
@@ -563,6 +584,40 @@
               "type": "self"
             },
             "isMay": true
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "PUPPY LOVE",
+        "rulesText": "Whenever this character quests, if you have 4 or more other characters in play, your other characters get +1 {L} this turn.",
+        "trigger": {
+          "on": "quests"
+        },
+        "condition": {
+          "type": "characters_in_play_gte",
+          "amount": 4,
+          "player": { "type": "self" },
+          "excludeSelf": true
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "lore": 1,
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true
+              }
+            },
+            "duration": "this_turn"
           }
         ]
       }
@@ -3638,6 +3693,25 @@
     "abilities": [
       {
         "type": "static",
+        "storyName": "BROOM CLOSET",
+        "rulesText": "Your characters named Magic Broom may move here for free.",
+        "effect": {
+          "type": "move_to_self_cost_reduction",
+          "amount": "all",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasName": "Magic Broom"
+          }
+        }
+      },
+      {
+        "type": "static",
         "storyName": "MAGICAL WORKSHOP",
         "rulesText": "Characters get +1 {L} while here.",
         "effect": {
@@ -4528,6 +4602,27 @@
         "condition": {
           "type": "this_at_location"
         }
+      },
+      {
+        "type": "triggered",
+        "storyName": "WHAT'S THE HURRY?",
+        "rulesText": "While this character is at a location, whenever she challenges another character, you may draw a card.",
+        "trigger": {
+          "on": "challenge_initiated"
+        },
+        "condition": {
+          "type": "this_at_location"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "3",
@@ -5212,6 +5307,35 @@
                 "action"
               ]
             }
+          }
+        ]
+      },
+      {
+        "type": "activated",
+        "storyName": "TRAP",
+        "rulesText": "2 {I}, Banish this item — Draw 2 cards, then choose and discard a card.",
+        "costs": [
+          {
+            "type": "pay_ink",
+            "amount": 2
+          },
+          {
+            "type": "banish_self"
+          }
+        ],
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": { "type": "self" },
+            "chooser": "target_player"
           }
         ]
       }
@@ -6877,6 +7001,63 @@
     "abilities": [
       {
         "type": "activated",
+        "storyName": "IT'S MAUI TIME!",
+        "rulesText": "If you have a character named Maui in play, you may use this item's Shapeshift ability for free.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "condition": {
+          "type": "has_character_named",
+          "name": "Maui",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effects": [
+          {
+            "type": "choose",
+            "count": 1,
+            "options": [
+              [
+                {
+                  "type": "grant_keyword",
+                  "keyword": "evasive",
+                  "target": {
+                    "type": "chosen",
+                    "filter": {
+                      "zone": "play",
+                      "cardType": [
+                        "character"
+                      ]
+                    }
+                  },
+                  "duration": "until_caster_next_turn"
+                }
+              ],
+              [
+                {
+                  "type": "gain_stats",
+                  "strength": 3,
+                  "target": {
+                    "type": "chosen",
+                    "filter": {
+                      "zone": "play",
+                      "cardType": [
+                        "character"
+                      ]
+                    }
+                  },
+                  "duration": "this_turn"
+                }
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "type": "activated",
         "storyName": "SHAPESHIFT",
         "rulesText": "{E}, 2 {I} — Choose one: Chosen character gains Evasive until the start of your next turn. OR Chosen character gets +3 {S} this turn.",
         "costs": [
@@ -7047,6 +7228,25 @@
             }
           }
         }
+      },
+      {
+        "type": "static",
+        "storyName": "ALL HANDS ON DECK!",
+        "rulesText": "Your Pirate characters may move here for free.",
+        "effect": {
+          "type": "move_to_self_cost_reduction",
+          "amount": "all",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Pirate"
+          }
+        }
       }
     ],
     "setId": "3",
@@ -7098,6 +7298,27 @@
               ],
               "atLocation": "this"
             }
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "HEAVE TOGETHER NOW",
+        "rulesText": "If you have a character here, you pay 2 {I} less to move a character of yours here.",
+        "condition": {
+          "type": "this_location_has_character"
+        },
+        "effect": {
+          "type": "move_to_self_cost_reduction",
+          "amount": 2,
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
           }
         }
       }
@@ -10576,8 +10797,29 @@
     ],
     "abilities": [
       {
+        "type": "static",
+        "storyName": "THE POWER OF EVIL",
+        "rulesText": "For each character card in your discard, you pay 1 {I} less to play this character.",
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": {
+            "type": "count",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "discard",
+              "cardType": [
+                "character"
+              ]
+            }
+          }
+        },
+        "activeZones": ["hand"]
+      },
+      {
         "type": "triggered",
-        "storyName": "GATHER MY MINIONS",
+        "storyName": "SUMMON THE SPIRITS",
         "rulesText": "When you play this character, shuffle all character cards from your discard into your deck.",
         "trigger": {
           "on": "enters_play"
@@ -11226,6 +11468,27 @@
               ],
               "atLocation": "this"
             }
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "HEAVE TOGETHER NOW",
+        "rulesText": "If you have a character here, you pay 2 {I} less to move a character of yours here.",
+        "condition": {
+          "type": "this_location_has_character"
+        },
+        "effect": {
+          "type": "move_to_self_cost_reduction",
+          "amount": 2,
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
           }
         }
       }

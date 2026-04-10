@@ -1620,7 +1620,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "DECISIVE",
+        "storyName": "PACK OF HER OWN",
         "rulesText": "Whenever you play a character, this character gets +1 {S} this turn.",
         "trigger": {
           "on": "card_played",
@@ -1643,6 +1643,24 @@
             }
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "TAKE THE LEAD",
+        "rulesText": "While this character has 3 {S} or more, she gets +2 {L}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "modifier": 2,
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "self_stat_gte",
+          "stat": "strength",
+          "amount": 3
+        }
       }
     ],
     "setId": "P2",

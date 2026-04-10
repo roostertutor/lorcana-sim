@@ -945,6 +945,24 @@
     ],
     "abilities": [
       {
+        "type": "static",
+        "storyName": "WELCOMING CROWD",
+        "rulesText": "For each character you have in play, you pay 1 {I} less to play this character.",
+        "effect": {
+          "type": "self_cost_reduction",
+          "perCount": 1,
+          "countFilter": {
+            "cardType": [
+              "character"
+            ],
+            "zone": "play",
+            "owner": {
+              "type": "self"
+            }
+          }
+        }
+      },
+      {
         "type": "triggered",
         "storyName": "",
         "rulesText": "Whenever this character quests, you may remove all damage from chosen character.",
@@ -1735,6 +1753,28 @@
     "abilities": [
       {
         "type": "triggered",
+        "storyName": "SPINNING ARROW",
+        "rulesText": "At the end of your turn, if a character of yours challenged this turn, banish this item.",
+        "trigger": {
+          "on": "turn_end",
+          "player": {
+            "type": "self"
+          }
+        },
+        "condition": {
+          "type": "challenged_this_turn"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
         "storyName": "YOUR PATH",
         "rulesText": "At the end of your turn, if none of your characters challenged this turn, reveal the top card of your deck. If it's a character card with cost 3 or less or named Pocahontas, you may put it into your hand. Otherwise, put it on the bottom of your deck.",
         "trigger": {
@@ -2322,6 +2362,22 @@
     ],
     "abilities": [
       {
+        "type": "static",
+        "storyName": "THANKS FOR NOTICIN' ME",
+        "rulesText": "For each exerted character in play, you pay 1 {I} less to play this character.",
+        "effect": {
+          "type": "self_cost_reduction",
+          "perCount": 1,
+          "countFilter": {
+            "cardType": [
+              "character"
+            ],
+            "zone": "play",
+            "isExerted": true
+          }
+        }
+      },
+      {
         "type": "triggered",
         "storyName": "",
         "rulesText": "When you play this character, for each opposing player, you may choose a character of theirs. They can't ready at the start of their next turn.",
@@ -2775,6 +2831,30 @@
             "from": "discard",
             "ownerScope": "target_player",
             "isMay": true
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "STROKE OF LUCK",
+        "rulesText": "Once during your turn, whenever a card leaves your discard, draw a card.",
+        "trigger": {
+          "on": "card_leaves_discard",
+          "player": {
+            "type": "self"
+          }
+        },
+        "oncePerTurn": true,
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
           }
         ]
       }
@@ -5310,6 +5390,31 @@
             }
           }
         }
+      },
+      {
+        "type": "static",
+        "storyName": "BARRICADE",
+        "rulesText": "During opponents' turns, your characters gain Resist +1.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "resist",
+          "value": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ]
+            }
+          },
+          "condition": {
+            "type": "is_opponents_turn"
+          }
+        }
       }
     ],
     "setId": "11",
@@ -5346,19 +5451,60 @@
         "type": "activated",
         "storyName": "READ THE OMENS",
         "rulesText": "Draw a card, then choose and discard a card.",
-        "costs": [{ "type": "exert" }, { "type": "ink", "amount": 1 }],
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "ink",
+            "amount": 1
+          }
+        ],
         "effects": [
-          { "type": "draw", "amount": 1, "target": { "type": "self" } },
-          { "type": "discard_from_hand", "amount": 1, "target": { "type": "self" }, "chooser": "controller" }
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "chooser": "controller"
+          }
         ]
       },
       {
         "type": "activated",
         "storyName": "BONK!",
         "rulesText": "Deal 1 damage to chosen character.",
-        "costs": [{ "type": "ink", "amount": 1 }, { "type": "banish_self" }],
+        "costs": [
+          {
+            "type": "ink",
+            "amount": 1
+          },
+          {
+            "type": "banish_self"
+          }
+        ],
         "effects": [
-          { "type": "deal_damage", "amount": 1, "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } } }
+          {
+            "type": "deal_damage",
+            "amount": 1,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
         ]
       }
     ],
@@ -5600,6 +5746,31 @@
             "type": "this"
           }
         }
+      },
+      {
+        "type": "triggered",
+        "storyName": "WHO'S COMIN' WITH ME?",
+        "rulesText": "When this character is banished, banish all characters with {S} equal to or less than the {S} he had in play.",
+        "trigger": {
+          "on": "is_banished"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "all",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "maxStrength": {
+                  "type": "source_strength"
+                }
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "11",
@@ -6522,6 +6693,24 @@
       "Ally"
     ],
     "abilities": [
+      {
+        "type": "static",
+        "storyName": "ABOUT TIME!",
+        "rulesText": "For each action card in your discard, you pay 1 {I} less to play this character.",
+        "effect": {
+          "type": "self_cost_reduction",
+          "perCount": 1,
+          "countFilter": {
+            "cardType": [
+              "action"
+            ],
+            "zone": "discard",
+            "owner": {
+              "type": "self"
+            }
+          }
+        }
+      },
       {
         "type": "triggered",
         "storyName": "",
@@ -8499,6 +8688,32 @@
     ],
     "abilities": [
       {
+        "type": "triggered",
+        "storyName": "HOLIDAY SPIRIT",
+        "rulesText": "Once during your turn, whenever you put a card under one of your other characters, put the top card of your deck facedown under this character.",
+        "trigger": {
+          "on": "card_put_under",
+          "player": {
+            "type": "self"
+          },
+          "filter": {
+            "excludeSelf": true,
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "oncePerTurn": true,
+        "effects": [
+          {
+            "type": "put_top_card_under",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      },
+      {
         "type": "static",
         "storyName": "HOLIDAY CHEER",
         "rulesText": "This character gets +1 {L} for each card under him.",
@@ -8610,7 +8825,7 @@
       {
         "type": "triggered",
         "storyName": "HARD WORK",
-        "rulesText": "Whenever this character quests, put the top card of your deck facedown under him. (A GIVING HEART banish-in-challenge transfer not wired)",
+        "rulesText": "Whenever this character quests, put the top card of your deck facedown under him.",
         "trigger": {
           "on": "quests"
         },
@@ -8619,6 +8834,34 @@
             "type": "put_top_card_under",
             "target": {
               "type": "this"
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "A GIVING HEART",
+        "rulesText": "When this character is banished in a challenge, you may put all cards that were under him under another chosen character or location of yours.",
+        "trigger": {
+          "on": "is_banished_in_challenge"
+        },
+        "effects": [
+          {
+            "type": "move_cards_under_to_target",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character",
+                  "location"
+                ],
+                "excludeSelf": true
+              }
             }
           }
         ]
@@ -8953,6 +9196,24 @@
     "inkable": false,
     "traits": [],
     "abilities": [
+      {
+        "type": "static",
+        "storyName": "THEATRICAL ENTRANCE",
+        "rulesText": "If you have a character named Darkwing Duck in play, you pay 1 {I} less to play this item.",
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 1,
+          "condition": {
+            "type": "you_control_matching",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "hasName": "Darkwing Duck"
+            }
+          }
+        }
+      },
       {
         "type": "activated",
         "storyName": "",
@@ -9977,6 +10238,25 @@
     ],
     "abilities": [
       {
+        "type": "static",
+        "storyName": "CONTROLLED VARIABLES",
+        "rulesText": "For each Alien character card in your discard, you pay 1 {I} less to play this character.",
+        "effect": {
+          "type": "self_cost_reduction",
+          "perCount": 1,
+          "countFilter": {
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Alien",
+            "zone": "discard",
+            "owner": {
+              "type": "self"
+            }
+          }
+        }
+      },
+      {
         "type": "triggered",
         "storyName": "",
         "rulesText": "When you play this character, chosen opposing character can't challenge during their next turn.",
@@ -10041,21 +10321,33 @@
         "type": "triggered",
         "storyName": "SHADOW POWER",
         "rulesText": "When you play this character, you may give chosen character Challenger +2 and Resist +2 until the start of your next turn.",
-        "trigger": { "on": "enters_play" },
+        "trigger": {
+          "on": "enters_play"
+        },
         "effects": [
           {
             "type": "gets_stat_while_challenging",
             "strength": 2,
             "isMay": true,
             "duration": "until_caster_next_turn",
-            "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } }
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
           },
           {
             "type": "grant_keyword",
             "keyword": "resist",
             "value": 2,
             "duration": "until_caster_next_turn",
-            "target": { "type": "last_resolved_target" }
+            "target": {
+              "type": "last_resolved_target"
+            }
           }
         ]
       },
@@ -10303,7 +10595,9 @@
               "type": "chosen",
               "filter": {
                 "zone": "play",
-                "cardType": ["character"]
+                "cardType": [
+                  "character"
+                ]
               }
             }
           }
@@ -10380,6 +10674,20 @@
             }
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "EVILDOERS BEWARE!",
+        "rulesText": "This character can challenge ready Villain characters.",
+        "effect": {
+          "type": "can_challenge_ready",
+          "target": {
+            "type": "this"
+          },
+          "defenderFilter": {
+            "hasTrait": "Villain"
+          }
+        }
       }
     ],
     "setId": "11",
@@ -10816,6 +11124,32 @@
             "chooser": "target_player"
           }
         ]
+      },
+      {
+        "type": "activated",
+        "storyName": "FOLLOW THE CLUES",
+        "rulesText": "Banish this item – Chosen character gains Alert this turn.",
+        "costs": [
+          {
+            "type": "banish_self"
+          }
+        ],
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "alert",
+            "duration": "this_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "11",
@@ -10854,8 +11188,12 @@
             "type": "all",
             "filter": {
               "zone": "play",
-              "cardType": ["character"],
-              "owner": { "type": "opponent" }
+              "cardType": [
+                "character"
+              ],
+              "owner": {
+                "type": "opponent"
+              }
             }
           }
         }
@@ -10864,13 +11202,21 @@
         "type": "activated",
         "storyName": "LAY OF THE LAND",
         "rulesText": "If a character was banished in a challenge this turn, gain 1 lore.",
-        "costs": [{ "type": "exert" }],
-        "condition": { "type": "a_character_was_banished_in_challenge_this_turn" },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "condition": {
+          "type": "a_character_was_banished_in_challenge_this_turn"
+        },
         "effects": [
           {
             "type": "gain_lore",
             "amount": 1,
-            "target": { "type": "self" }
+            "target": {
+              "type": "self"
+            }
           }
         ]
       }
@@ -10924,7 +11270,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "",
+        "storyName": "GOT YOU NOW",
         "rulesText": "When you play this item, choose a character. They can't challenge or quest while this item is in play.",
         "trigger": {
           "on": "enters_play"
@@ -10932,8 +11278,8 @@
         "effects": [
           {
             "type": "cant_action",
-            "action": "quest",
-            "duration": "until_caster_next_turn",
+            "action": "challenge",
+            "duration": "while_source_in_play",
             "target": {
               "type": "chosen",
               "filter": {
@@ -10943,6 +11289,50 @@
                 ]
               }
             }
+          },
+          {
+            "type": "cant_action",
+            "action": "quest",
+            "duration": "while_source_in_play",
+            "target": {
+              "type": "last_resolved_target"
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "POWER SUPPLY",
+        "rulesText": "At the start of your turn, choose and discard a card or banish this item.",
+        "trigger": {
+          "on": "turn_start",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effects": [
+          {
+            "type": "choose",
+            "options": [
+              [
+                {
+                  "type": "discard_from_hand",
+                  "amount": 1,
+                  "target": {
+                    "type": "self"
+                  },
+                  "chooser": "target_player"
+                }
+              ],
+              [
+                {
+                  "type": "banish",
+                  "target": {
+                    "type": "this"
+                  }
+                }
+              ]
+            ]
           }
         ]
       }
@@ -11862,7 +12252,7 @@
       {
         "type": "triggered",
         "storyName": "HARD WORK",
-        "rulesText": "Whenever this character quests, put the top card of your deck facedown under him. (A GIVING HEART banish-in-challenge transfer not wired)",
+        "rulesText": "Whenever this character quests, put the top card of your deck facedown under him.",
         "trigger": {
           "on": "quests"
         },
@@ -11871,6 +12261,34 @@
             "type": "put_top_card_under",
             "target": {
               "type": "this"
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "A GIVING HEART",
+        "rulesText": "When this character is banished in a challenge, you may put all cards that were under him under another chosen character or location of yours.",
+        "trigger": {
+          "on": "is_banished_in_challenge"
+        },
+        "effects": [
+          {
+            "type": "move_cards_under_to_target",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character",
+                  "location"
+                ],
+                "excludeSelf": true
+              }
             }
           }
         ]
@@ -12225,6 +12643,22 @@
       "Ally"
     ],
     "abilities": [
+      {
+        "type": "static",
+        "storyName": "THANKS FOR NOTICIN' ME",
+        "rulesText": "For each exerted character in play, you pay 1 {I} less to play this character.",
+        "effect": {
+          "type": "self_cost_reduction",
+          "perCount": 1,
+          "countFilter": {
+            "cardType": [
+              "character"
+            ],
+            "zone": "play",
+            "isExerted": true
+          }
+        }
+      },
       {
         "type": "triggered",
         "storyName": "",
@@ -13084,7 +13518,9 @@
               "type": "chosen",
               "filter": {
                 "zone": "play",
-                "cardType": ["character"]
+                "cardType": [
+                  "character"
+                ]
               }
             }
           }
@@ -13161,6 +13597,20 @@
             }
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "EVILDOERS BEWARE!",
+        "rulesText": "This character can challenge ready Villain characters.",
+        "effect": {
+          "type": "can_challenge_ready",
+          "target": {
+            "type": "this"
+          },
+          "defenderFilter": {
+            "hasTrait": "Villain"
+          }
+        }
       }
     ],
     "setId": "11",

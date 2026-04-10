@@ -598,12 +598,12 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     const charDef = LORCAST_CARD_DEFINITIONS["hades-lord-of-the-underworld"]!;
     const charCost = charDef.cost;
 
-    // Activate Cauldron's RISE AND JOIN ME! (only ability after wiring → index 0).
+    // Activate Cauldron's RISE AND JOIN ME! (index 1; index 0 is THE CAULDRON CALLS).
     let r = applyAction(state, {
       type: "ACTIVATE_ABILITY",
       playerId: "player1",
       instanceId: cauldronId,
-      abilityIndex: 0,
+      abilityIndex: 1,
     }, LORCAST_CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;

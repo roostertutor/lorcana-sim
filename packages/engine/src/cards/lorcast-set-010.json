@@ -1161,6 +1161,30 @@
             }
           }
         }
+      },
+      {
+        "type": "static",
+        "storyName": "FRIENDLY CHORUS",
+        "rulesText": "While you have 2 or more other Amber characters in play, this character gains Singer 8.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "singer",
+          "keywordValue": 8,
+          "target": {
+            "type": "this"
+          },
+          "condition": {
+            "type": "you_control_matching",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "inkColor": "amber",
+              "excludeSelf": true
+            },
+            "minCount": 2
+          }
+        }
       }
     ],
     "setId": "10",
@@ -1570,6 +1594,39 @@
             }
           }
         ]
+      },
+      {
+        "type": "activated",
+        "storyName": "WHISPERED POWER",
+        "rulesText": "1 {I}, Banish this item — Put the top card of your deck facedown under one of your characters or locations with Boost.",
+        "costs": [
+          {
+            "type": "ink",
+            "amount": 1
+          },
+          {
+            "type": "banish_self"
+          }
+        ],
+        "effects": [
+          {
+            "type": "put_top_card_under",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character",
+                  "location"
+                ],
+                "owner": {
+                  "type": "self"
+                },
+                "hasKeyword": "boost"
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "10",
@@ -1660,6 +1717,35 @@
     "abilities": [
       {
         "type": "activated",
+        "storyName": "THE CAULDRON CALLS",
+        "rulesText": "{E}, 1 {I} — Put a character card from your discard under this item faceup.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "ink",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "search",
+            "zone": "discard",
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            },
+            "putInto": "under_self",
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
+      {
+        "type": "activated",
         "storyName": "RISE AND JOIN ME!",
         "rulesText": "{E}, 1 {I} — This turn, you may play characters from under this item.",
         "costs": [
@@ -1716,7 +1802,51 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "WHAT A JUICY APPLE",
+        "rulesText": "{E} — Remove up to 2 damage from chosen character.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "remove_damage",
+            "amount": 2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "static",
+        "storyName": "COME ON OUT",
+        "rulesText": "You pay 1 {I} less to play characters named Gurgi.",
+        "effect": {
+          "type": "cost_reduction",
+          "amount": 1,
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "hasName": "Gurgi"
+          },
+          "target": {
+            "type": "self"
+          }
+        }
+      }
+    ],
     "setId": "10",
     "number": 33,
     "rarity": "common",
@@ -4649,6 +4779,50 @@
             }
           }
         ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "STRIKE GOLD",
+        "rulesText": "Whenever this character quests, you may put a location card from chosen player's discard on the bottom of their deck to gain 1 lore.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "put_card_on_bottom_of_deck",
+                "from": "discard",
+                "ownerScope": "target_player",
+                "filter": {
+                  "cardType": [
+                    "location"
+                  ]
+                },
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "discard",
+                    "cardType": [
+                      "location"
+                    ]
+                  }
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "gain_lore",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
       }
     ],
     "setId": "10",
@@ -5306,7 +5480,15 @@
         "type": "activated",
         "storyName": "SUPPRESSED ANGER",
         "rulesText": "Put 1 damage counter on chosen character.",
-        "costs": [{ "type": "exert" }, { "type": "ink", "amount": 1 }],
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "ink",
+            "amount": 1
+          }
+        ],
         "effects": [
           {
             "type": "deal_damage",
@@ -5328,7 +5510,14 @@
         "type": "activated",
         "storyName": "MINDLESS RAGE",
         "rulesText": "Each opposing damaged character gains Reckless until the start of your next turn.",
-        "costs": [{ "type": "exert" }, { "type": "banish_self" }],
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "banish_self"
+          }
+        ],
         "effects": [
           {
             "type": "grant_keyword",
@@ -5504,6 +5693,34 @@
               }
             },
             "isMay": true
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "BATTLE ANTHEM",
+        "rulesText": "Whenever one of your characters or locations with a card under them is challenged, gain 1 lore.",
+        "trigger": {
+          "on": "is_challenged",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character",
+              "location"
+            ],
+            "hasCardsUnder": true
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
           }
         ]
       }
@@ -6557,6 +6774,30 @@
             }
           }
         }
+      },
+      {
+        "type": "static",
+        "storyName": "POWERFUL REWARD",
+        "rulesText": "Your other Ruby characters with 7 {S} or more get +1 {L}.",
+        "effect": {
+          "type": "gain_stats",
+          "lore": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "excludeSelf": true,
+              "inkColor": "ruby",
+              "minStrength": 7
+            }
+          }
+        }
       }
     ],
     "setId": "10",
@@ -7350,6 +7591,36 @@
         "trigger": {
           "on": "enters_play"
         },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "rush",
+            "duration": "this_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "activated",
+        "storyName": "HITCH A RIDE",
+        "rulesText": "2 {I}, Banish this item — Chosen character gains Rush this turn.",
+        "costs": [
+          {
+            "type": "ink",
+            "amount": 2
+          },
+          {
+            "type": "banish_self"
+          }
+        ],
         "effects": [
           {
             "type": "grant_keyword",
@@ -11187,6 +11458,26 @@
             "type": "this"
           }
         }
+      },
+      {
+        "type": "static",
+        "storyName": "LOCUS",
+        "rulesText": "While you have a character here, you pay 1 {I} less to play locations.",
+        "effect": {
+          "type": "cost_reduction",
+          "amount": 1,
+          "filter": {
+            "cardType": [
+              "location"
+            ]
+          },
+          "target": {
+            "type": "self"
+          },
+          "condition": {
+            "type": "has_character_here"
+          }
+        }
       }
     ],
     "setId": "10",
@@ -12496,6 +12787,35 @@
     "inkable": false,
     "traits": [],
     "abilities": [
+      {
+        "type": "activated",
+        "storyName": "THE CAULDRON CALLS",
+        "rulesText": "{E}, 1 {I} — Put a character card from your discard under this item faceup.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "ink",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "search",
+            "zone": "discard",
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            },
+            "putInto": "under_self",
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
       {
         "type": "activated",
         "storyName": "RISE AND JOIN ME!",

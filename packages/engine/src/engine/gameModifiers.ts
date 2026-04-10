@@ -561,15 +561,23 @@ export function getGameModifiers(
         }
 
         case "action_restriction": {
-          const affectedPlayerId = effect.affectedPlayer.type === "opponent"
-            ? (instance.ownerId === "player1" ? "player2" : "player1")
-            : instance.ownerId;
-          const entry: typeof modifiers.actionRestrictions[number] = {
-            restricts: effect.restricts,
-            affectedPlayerId,
+          const pushRestriction = (pid: import("../types/index.js").PlayerID) => {
+            const entry: typeof modifiers.actionRestrictions[number] = {
+              restricts: effect.restricts,
+              affectedPlayerId: pid,
+            };
+            if (effect.filter) entry.filter = effect.filter;
+            modifiers.actionRestrictions.push(entry);
           };
-          if (effect.filter) entry.filter = effect.filter;
-          modifiers.actionRestrictions.push(entry);
+          if (effect.affectedPlayer.type === "both") {
+            pushRestriction("player1");
+            pushRestriction("player2");
+          } else {
+            const affectedPlayerId = effect.affectedPlayer.type === "opponent"
+              ? (instance.ownerId === "player1" ? "player2" : "player1")
+              : instance.ownerId;
+            pushRestriction(affectedPlayerId);
+          }
           break;
         }
 

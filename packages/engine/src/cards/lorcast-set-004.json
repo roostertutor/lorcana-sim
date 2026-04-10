@@ -2995,7 +2995,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "YOU'LL LISTEN TO ME!",
+        "storyName": "NOW I AM THE RULER!",
         "rulesText": "Whenever this character quests, exert chosen character.",
         "trigger": {
           "on": "quests"
@@ -3014,6 +3014,21 @@
             }
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "YOU'LL LISTEN TO ME!",
+        "rulesText": "Other characters can't exert to sing songs.",
+        "effect": {
+          "type": "action_restriction",
+          "restricts": "sing",
+          "affectedPlayer": {
+            "type": "both"
+          },
+          "filter": {
+            "excludeSelf": true
+          }
+        }
       }
     ],
     "setId": "4",
@@ -3752,7 +3767,9 @@
         "effects": [
           {
             "type": "reveal_hand",
-            "target": { "type": "opponent" },
+            "target": {
+              "type": "opponent"
+            },
             "isMay": true
           }
         ]
@@ -4759,7 +4776,9 @@
             "type": "look_at_top",
             "count": 1,
             "action": "reorder",
-            "target": { "type": "opponent" }
+            "target": {
+              "type": "opponent"
+            }
           }
         ]
       }
@@ -8608,6 +8627,32 @@
             "type": "this"
           }
         }
+      },
+      {
+        "type": "triggered",
+        "storyName": "KEEPER OF ATLANTICA",
+        "rulesText": "Whenever one of your locations is banished, you may put that card into your inkwell facedown and exerted.",
+        "trigger": {
+          "on": "is_banished",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "location"
+            ]
+          }
+        },
+        "effects": [
+          {
+            "type": "move_to_inkwell",
+            "target": {
+              "type": "triggering_card"
+            },
+            "enterExerted": true,
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -8944,6 +8989,34 @@
             "target": {
               "type": "this"
             }
+          }
+        ]
+      },
+      {
+        "type": "activated",
+        "storyName": "AWAKEN",
+        "rulesText": "{E} — Put a character card from your discard into your inkwell facedown and exerted.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "move_to_inkwell",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "discard",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "enterExerted": true
           }
         ]
       }
@@ -10591,6 +10664,39 @@
             }
           }
         ]
+      },
+      {
+        "type": "activated",
+        "storyName": "EXTRACT OF STEEL",
+        "rulesText": "1 {I}, Banish this item — Chosen character of yours gains Bodyguard until the start of your next turn.",
+        "costs": [
+          {
+            "type": "pay_ink",
+            "amount": 1
+          },
+          {
+            "type": "banish_self"
+          }
+        ],
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "bodyguard",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "self"
+                }
+              }
+            },
+            "duration": "until_caster_next_turn"
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -11037,7 +11143,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "YOU'LL LISTEN TO ME!",
+        "storyName": "NOW I AM THE RULER!",
         "rulesText": "Whenever this character quests, exert chosen character.",
         "trigger": {
           "on": "quests"
@@ -11056,6 +11162,21 @@
             }
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "YOU'LL LISTEN TO ME!",
+        "rulesText": "Other characters can't exert to sing songs.",
+        "effect": {
+          "type": "action_restriction",
+          "restricts": "sing",
+          "affectedPlayer": {
+            "type": "both"
+          },
+          "filter": {
+            "excludeSelf": true
+          }
+        }
       }
     ],
     "setId": "4",

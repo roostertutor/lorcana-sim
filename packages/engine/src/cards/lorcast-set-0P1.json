@@ -2051,7 +2051,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "YOU'LL LISTEN TO ME!",
+        "storyName": "NOW I AM THE RULER!",
         "rulesText": "Whenever this character quests, exert chosen character.",
         "trigger": {
           "on": "quests"
@@ -2070,6 +2070,21 @@
             }
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "YOU'LL LISTEN TO ME!",
+        "rulesText": "Other characters can't exert to sing songs.",
+        "effect": {
+          "type": "action_restriction",
+          "restricts": "sing",
+          "affectedPlayer": {
+            "type": "both"
+          },
+          "filter": {
+            "excludeSelf": true
+          }
+        }
       }
     ],
     "setId": "P1",

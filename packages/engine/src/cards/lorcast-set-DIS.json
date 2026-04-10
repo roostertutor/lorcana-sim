@@ -93,6 +93,23 @@
             }
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "RAGING DUCK",
+        "rulesText": "While an opponent has 10 or more lore, this character gets +6 {S}.",
+        "condition": {
+          "type": "opponent_has_lore_gte",
+          "amount": 10
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "strength",
+          "modifier": 6,
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "DIS",

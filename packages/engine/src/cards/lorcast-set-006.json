@@ -3241,6 +3241,24 @@
             }
           }
         ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "FORBIDDEN TREASURE",
+        "rulesText": "At the end of your turn, put all the cards in your hand on the bottom of your deck in any order.",
+        "trigger": {
+          "on": "turn_end",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effects": [
+          {
+            "type": "put_card_on_bottom_of_deck",
+            "from": "hand",
+            "amount": 99
+          }
+        ]
       }
     ],
     "setId": "6",
@@ -8478,6 +8496,27 @@
             }
           }
         }
+      },
+      {
+        "type": "activated",
+        "storyName": "SHAPE THE FUTURE",
+        "rulesText": "2 {I} — Look at the top card of your deck. Put it on either the top or the bottom of your deck.",
+        "costs": [
+          {
+            "type": "pay_ink",
+            "amount": 2
+          }
+        ],
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 1,
+            "action": "top_or_bottom",
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "6",
@@ -8838,6 +8877,19 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 6
+      },
+      {
+        "type": "static",
+        "storyName": "NEUROTRANSMITTER",
+        "rulesText": "You may play items named Microbots for free.",
+        "effect": {
+          "type": "cost_reduction",
+          "amount": 99,
+          "filter": {
+            "cardType": ["item"],
+            "hasName": "Microbots"
+          }
+        }
       },
       {
         "type": "triggered",
@@ -9463,6 +9515,26 @@
     "inkable": true,
     "traits": [],
     "abilities": [
+      {
+        "type": "static",
+        "storyName": "WELCOME TO THE LAB",
+        "rulesText": "Inventor characters get +1 {W} while here.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "modifier": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Inventor",
+              "atLocation": "this"
+            }
+          }
+        }
+      },
       {
         "type": "triggered",
         "storyName": "PUSH THE BOUNDARIES",

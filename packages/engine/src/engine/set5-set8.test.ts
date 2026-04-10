@@ -37,7 +37,7 @@ describe("§5 Set 5 — reveal_top_conditional", () => {
       type: "ACTIVATE_ABILITY",
       playerId: "player1",
       instanceId: coreId,
-      abilityIndex: 0,
+      abilityIndex: 1,
     }, LORCAST_CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
@@ -282,7 +282,7 @@ describe("§5 Set 5 — reveal_top_conditional", () => {
       type: "ACTIVATE_ABILITY",
       playerId: "player1",
       instanceId: coreId,
-      abilityIndex: 0,
+      abilityIndex: 1,
     }, LORCAST_CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;

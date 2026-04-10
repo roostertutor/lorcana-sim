@@ -530,8 +530,28 @@
     ],
     "abilities": [
       {
+        "type": "static",
+        "storyName": "NOW IT'S A PARTY",
+        "rulesText": "For each character you have in play, you pay 1 {I} less to play this character.",
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": {
+            "type": "count",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ]
+            }
+          }
+        }
+      },
+      {
         "type": "triggered",
-        "storyName": "STREET SMART",
+        "storyName": "HOW'S PICKINGS?",
         "rulesText": "When you play this character, you may draw a card for each other character you have in play, then choose and discard that many cards.",
         "trigger": {
           "on": "enters_play"
@@ -1768,7 +1788,33 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "ONCE UPON A TIME",
+        "storyName": "GATHER AROUND",
+        "rulesText": "Whenever you play a character, this character gets +1 {L} this turn.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "lore": 1,
+            "duration": "this_turn",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "JUST ONE MORE",
         "rulesText": "Whenever this character quests, chosen opposing character loses {S} equal to this character's {L} until the start of your next turn.",
         "trigger": {
           "on": "quests"
@@ -6148,8 +6194,20 @@
         "value": 1
       },
       {
+        "type": "static",
+        "storyName": "DRAWN TO A FIGHT",
+        "rulesText": "If an opposing character was damaged this turn, you pay 2 {I} less to play this character.",
+        "condition": {
+          "type": "opposing_character_was_damaged_this_turn"
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 2
+        }
+      },
+      {
         "type": "triggered",
-        "storyName": "RUN A BLADE ACROSS YA",
+        "storyName": "I AIN'T GONE SOFT!",
         "rulesText": "Whenever you play an action that isn't a song, you may deal 1 damage to chosen character.",
         "trigger": {
           "on": "card_played",
@@ -6213,8 +6271,24 @@
     ],
     "abilities": [
       {
+        "type": "static",
+        "storyName": "HEY, PIDGE",
+        "rulesText": "If you have a character named Lady in play, you pay 1 {I} less to play this character.",
+        "condition": {
+          "type": "has_character_named",
+          "name": "Lady",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 1
+        }
+      },
+      {
         "type": "triggered",
-        "storyName": "PUT UP YOUR DUKES",
+        "storyName": "NO TIME FOR WISECRACKS",
         "rulesText": "When you play this character, chosen character of yours gets +1 {S} this turn for each other character you have in play.",
         "trigger": {
           "on": "enters_play"
@@ -7018,6 +7092,26 @@
       "Inventor"
     ],
     "abilities": [
+      {
+        "type": "static",
+        "storyName": "SALVAGE",
+        "rulesText": "For each item card in your discard, you pay 1 {I} less to play this character using her Shift ability.",
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": {
+            "type": "count",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "discard",
+              "cardType": [
+                "item"
+              ]
+            }
+          }
+        }
+      },
       {
         "type": "triggered",
         "storyName": "REPURPOSE",
@@ -11836,8 +11930,24 @@
     ],
     "abilities": [
       {
+        "type": "static",
+        "storyName": "HEY, PIDGE",
+        "rulesText": "If you have a character named Lady in play, you pay 1 {I} less to play this character.",
+        "condition": {
+          "type": "has_character_named",
+          "name": "Lady",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 1
+        }
+      },
+      {
         "type": "triggered",
-        "storyName": "PUT UP YOUR DUKES",
+        "storyName": "NO TIME FOR WISECRACKS",
         "rulesText": "When you play this character, chosen character of yours gets +1 {S} this turn for each other character you have in play.",
         "trigger": {
           "on": "enters_play"
@@ -12165,6 +12275,26 @@
       "Inventor"
     ],
     "abilities": [
+      {
+        "type": "static",
+        "storyName": "SALVAGE",
+        "rulesText": "For each item card in your discard, you pay 1 {I} less to play this character using her Shift ability.",
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": {
+            "type": "count",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "discard",
+              "cardType": [
+                "item"
+              ]
+            }
+          }
+        }
+      },
       {
         "type": "triggered",
         "storyName": "REPURPOSE",

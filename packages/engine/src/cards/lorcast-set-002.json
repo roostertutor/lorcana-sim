@@ -4579,6 +4579,24 @@
             "duration": "this_turn"
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "WHO'S NEXT?",
+        "rulesText": "While this character has 7 {S} or more, he gets +2 {L}.",
+        "condition": {
+          "type": "self_stat_gte",
+          "stat": "strength",
+          "amount": 7
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "modifier": 2,
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "2",
@@ -6917,6 +6935,24 @@
             }
           }
         }
+      },
+      {
+        "type": "static",
+        "storyName": "WHAT DID I DO?",
+        "rulesText": "While this character has 10 {S} or more, she gets +4 {L}.",
+        "condition": {
+          "type": "self_stat_gte",
+          "stat": "strength",
+          "amount": 10
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "modifier": 4,
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "2",
@@ -8601,6 +8637,33 @@
               "type": "self"
             },
             "isMay": true
+          }
+        ]
+      },
+      {
+        "type": "activated",
+        "storyName": "THAT'S REDWOOD",
+        "rulesText": "Banish this item — Remove up to 2 damage from chosen character.",
+        "costs": [
+          {
+            "type": "banish_self"
+          }
+        ],
+        "effects": [
+          {
+            "type": "remove_damage",
+            "amount": 2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasDamage": true
+              }
+            },
+            "isUpTo": true
           }
         ]
       }
@@ -10630,6 +10693,24 @@
             "duration": "this_turn"
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "WHO'S NEXT?",
+        "rulesText": "While this character has 7 {S} or more, he gets +2 {L}.",
+        "condition": {
+          "type": "self_stat_gte",
+          "stat": "strength",
+          "amount": 7
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "modifier": 2,
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "2",
@@ -10859,6 +10940,24 @@
               ],
               "excludeSelf": true
             }
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "WHAT DID I DO?",
+        "rulesText": "While this character has 10 {S} or more, she gets +4 {L}.",
+        "condition": {
+          "type": "self_stat_gte",
+          "stat": "strength",
+          "amount": 10
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "modifier": 4,
+          "target": {
+            "type": "this"
           }
         }
       }

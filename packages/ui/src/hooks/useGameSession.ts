@@ -398,22 +398,29 @@ export function useGameSession(): GameSession {
   }, []);
 
   // ---------------------------------------------------------------------------
-  // quickSave / quickLoad — snapshot the full GameState into a ref
+  // quickSave / quickLoad — snapshot the full GameState to sessionStorage
   // ---------------------------------------------------------------------------
+  const QUICKSAVE_KEY = "lorcana-quicksave";
+
   const quickSave = useCallback(() => {
     if (!gameStateRef.current) return;
-    quickSaveRef.current = structuredClone(gameStateRef.current);
+    try { sessionStorage.setItem(QUICKSAVE_KEY, JSON.stringify(gameStateRef.current)); } catch { /* ignore */ }
+    quickSaveRef.current = gameStateRef.current; // keep ref for hasQuickSave reactivity
   }, []);
 
   const quickLoad = useCallback(() => {
-    const saved = quickSaveRef.current;
-    if (!saved) return;
-    gameStateRef.current = saved;
-    setGameState(saved);
-    setError(null);
+    try {
+      const raw = sessionStorage.getItem(QUICKSAVE_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw) as GameState;
+      gameStateRef.current = saved;
+      quickSaveRef.current = saved;
+      setGameState(saved);
+      setError(null);
+    } catch { /* ignore */ }
   }, []);
 
-  const hasQuickSave = quickSaveRef.current !== null;
+  const hasQuickSave = quickSaveRef.current !== null || (() => { try { return !!sessionStorage.getItem(QUICKSAVE_KEY); } catch { return false; } })();
 
   // ---------------------------------------------------------------------------
   // restoreFromSnapshot — rebuild game state from sessionStorage (HMR survival)
