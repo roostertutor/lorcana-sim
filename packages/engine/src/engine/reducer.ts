@@ -4420,13 +4420,9 @@ export function applyEffect(
         ? getOpponent(controllingPlayerId)
         : controllingPlayerId;
       const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, state.lastResolvedTarget?.instanceId);
-      // Koda Talkative Cub: "during opponents' turns, you can't lose lore."
-      // Static is gated by not(is_your_turn) — if active, the lose is a no-op.
-      const lossModifiers = getGameModifiers(state, definitions);
-      if (lossModifiers.preventLoreLoss.has(targetPlayer)) {
-        state = { ...state, lastEffectResult: 0 };
-        return state;
-      }
+      // preventLoreLoss is now checked INSIDE gainLore() so all lore-loss
+      // paths are gated — including gain_lore with negative amount (Aladdin,
+      // Rapunzel, Tangle). No duplicate check needed here.
       const loreBefore = state.players[targetPlayer].lore;
       state = gainLore(state, targetPlayer, -amount, events);
       const loreAfter = state.players[targetPlayer].lore;
@@ -5022,12 +5018,20 @@ function gainLore(
   events: GameEvent[],
   definitions?: Record<string, CardDefinition>
 ): GameState {
-  // Peter Pan Never Land Prankster: prevent_lore_gain modifier short-circuits
-  // any lore-gain attempt for affected players (covers gain_lore effects, quest
-  // lore, and any other write path that funnels through gainLore).
   if (definitions) {
     const mods = getGameModifiers(state, definitions);
+    // Peter Pan Never Land Prankster: prevent_lore_gain modifier
+    // short-circuits any lore-gain attempt for affected players.
     if (mods.preventLoreGain.has(playerId) && amount > 0) {
+      return state;
+    }
+    // Koda Talkative Cub: prevent_lore_loss modifier short-circuits any
+    // lore-loss attempt (negative amount through gainLore). Previously this
+    // check lived ONLY in the lose_lore reducer case — 3 cards with literal
+    // gain_lore amount: -1 (Aladdin Street Rat, Rapunzel Letting Down Her
+    // Hair, Tangle) bypassed it because they use gain_lore not lose_lore.
+    // Moving the check here ensures ALL lore-loss paths are gated.
+    if (mods.preventLoreLoss.has(playerId) && amount < 0) {
       return state;
     }
   }

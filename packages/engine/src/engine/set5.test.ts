@@ -577,6 +577,27 @@ describe("§5 three-mechanic batch", () => {
     expect(state.players.player1.lore).toBe(loreBefore + 2);
   });
 
+  it("Koda Talkative Cub: preventLoreLoss blocks gain_lore with negative amount (Aladdin/Tangle bypass fix)", () => {
+    // Regression: 3 cards use gain_lore with literal amount: -1 (Aladdin
+    // Street Rat, Rapunzel Letting Down Her Hair, Tangle) instead of
+    // lose_lore. The preventLoreLoss check previously lived ONLY in the
+    // lose_lore reducer case, so these bypassed Koda's protection. The fix
+    // moved the check into the gainLore() helper where all paths converge.
+    let state = startGame();
+    let kodaId: string;
+    ({ state, instanceId: kodaId } = injectCard(state, "player1", "koda-talkative-cub", "play", { isDrying: false }));
+    // Set it to opponent's turn so Koda's condition (not is_your_turn) holds
+    state = { ...state, currentPlayer: "player2" as any };
+    // Give player1 some lore to lose
+    state = { ...state, players: { ...state.players, player1: { ...state.players.player1, lore: 5 } } };
+
+    // Apply gain_lore with negative amount (the bypass path)
+    state = applyEffect(state, { type: "gain_lore", amount: -1, target: { type: "self" } } as any, kodaId, "player1", LORCAST_CARD_DEFINITIONS, []);
+
+    // Koda's protection should block the loss — lore stays at 5
+    expect(state.players.player1.lore).toBe(5);
+  });
+
   it("Nathaniel Flint PREDATORY INSTINCT: playRestriction blocks play unless an opposing character was damaged this turn", () => {
     // Same play-restriction infrastructure as Mirabel, different condition
     // (opposing_character_was_damaged_this_turn). Lives in set 5 test file
