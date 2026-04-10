@@ -4,7 +4,7 @@
 
 import React, { useMemo } from "react";
 import type { CardDefinition, GameState, GameModifiers, KeywordAbility } from "@lorcana-sim/engine";
-import { getGameModifiers, getEffectiveStrength, getEffectiveWillpower } from "@lorcana-sim/engine";
+import { getGameModifiers, getEffectiveStrength, getEffectiveWillpower, evaluateCondition } from "@lorcana-sim/engine";
 import Icon from "./Icon.js";
 import type { IconName } from "./Icon.js";
 
@@ -60,6 +60,11 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
     : zone === "play"
     ? "w-[52px]"
     : "w-[88px]";
+
+  // Play restriction check — grey out hand cards whose playRestrictions fail
+  const hasFailedRestriction = zone === "hand" && (def as any).playRestrictions?.length > 0 &&
+    (def as any).playRestrictions.some((r: any) => !evaluateCondition(r, gameState, definitions, instance.ownerId, instanceId));
+  const restrictionOpacity = hasFailedRestriction ? "opacity-50" : "";
 
   const handleKey = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); }
@@ -170,7 +175,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
     : theme.border;
 
   const baseClass = `game-card relative border-2 rounded-md sm:rounded-xl ${mobileWidth} sm:w-[104px] lg:w-[120px] shrink-0 cursor-pointer
-    transition-all duration-200 ${ringClass}
+    transition-all duration-200 ${ringClass} ${restrictionOpacity}
     ${isExerted && !skipRotation ? "rotate-90 opacity-80" : ""}
     hover:scale-105 hover:z-10 hover:shadow-lg hover:${theme.glow}`;
 

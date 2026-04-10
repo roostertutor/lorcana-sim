@@ -50,6 +50,7 @@ export {
   generateId,
   isSong,
   canSingSong,
+  evaluateCondition,
 } from "./utils/index.js";
 
 // Game modifiers (static-effect state computed per frame)
