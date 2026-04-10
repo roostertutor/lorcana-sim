@@ -1,5 +1,6 @@
 import React from "react";
 import type { PendingChoice, PlayerID, GameState, CardDefinition } from "@lorcana-sim/engine";
+import { getEffectiveStrength } from "@lorcana-sim/engine";
 import { buildLabelMap } from "../utils/buildLabelMap.js";
 import GameCard from "./GameCard.js";
 
@@ -29,6 +30,42 @@ export default function PendingChoiceModal({
     const def = definitions[instance.definitionId];
     return def?.fullName ?? instance.definitionId;
   }
+
+  // Build context-aware hints from game state for richer prompts.
+  // Shows resolved values, card names from lastResolvedTarget/Source, etc.
+  function getContextHints(): string[] {
+    const hints: string[] = [];
+    // Last resolved target info (Hades: "Choose a Mickey Mouse to play",
+    // isUpTo: show actual consumed amount, cost-side strength snapshot)
+    const lrt = (gameState as any).lastResolvedTarget;
+    if (lrt?.name) {
+      hints.push(`Target: ${lrt.fullName ?? lrt.name}${lrt.strength != null ? ` (${lrt.strength} STR)` : ""}${lrt.lore != null ? ` (${lrt.lore} lore)` : ""}`);
+      if (lrt.delta != null) hints.push(`Amount: ${lrt.delta}`);
+    }
+    // Last resolved source (cost-side: "exerted character's strength")
+    const lrs = (gameState as any).lastResolvedSource;
+    if (lrs?.name && lrs.name !== lrt?.name) {
+      hints.push(`Source: ${lrs.fullName ?? lrs.name}${lrs.strength != null ? ` (${lrs.strength} STR)` : ""}`);
+    }
+    // Last damage dealt (Mulan/Namaari: "deal the same amount of damage")
+    const ldd = (gameState as any).lastDamageDealtAmount;
+    if (typeof ldd === "number" && ldd > 0) {
+      hints.push(`Damage dealt: ${ldd}`);
+    }
+    // Draw to hand size
+    if (pendingChoice.type === "choose_may") {
+      const pe = (pendingChoice as any).pendingEffect;
+      if (pe?.type === "draw" && pe.untilHandSize != null) {
+        const target = typeof pe.untilHandSize === "number"
+          ? `${pe.untilHandSize} cards`
+          : "opponent's hand size";
+        hints.push(`Draw until: ${target}`);
+      }
+    }
+    return hints;
+  }
+
+  const contextHints = getContextHints();
 
   // Renders a card image + name label. Wraps in a scaled container for modal size.
   function CardThumb({
@@ -209,7 +246,12 @@ export default function PendingChoiceModal({
     if (pendingChoice.type === "choose_may") {
       return (
         <div className="space-y-4">
-          <div className="text-gray-200 text-sm">{pendingChoice.prompt}</div>
+          <div>
+            <div className="text-gray-200 text-sm">{pendingChoice.prompt}</div>
+            {contextHints.length > 0 && (
+              <div className="text-[10px] text-gray-500 mt-0.5">{contextHints.join(" · ")}</div>
+            )}
+          </div>
           <div className="flex gap-2">
             <button
               className="px-4 py-2 text-xs bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg font-medium transition-colors"
@@ -270,7 +312,12 @@ export default function PendingChoiceModal({
     if (pendingChoice.type === "choose_option" && pendingChoice.options) {
       return (
         <div className="space-y-3">
-          <div className="text-yellow-300 text-sm font-medium">{pendingChoice.prompt}</div>
+          <div>
+            <div className="text-yellow-300 text-sm font-medium">{pendingChoice.prompt}</div>
+            {contextHints.length > 0 && (
+              <div className="text-[10px] text-gray-500 mt-0.5">{contextHints.join(" · ")}</div>
+            )}
+          </div>
           <div className="flex flex-wrap gap-2">
             {pendingChoice.options.map((_, i) => (
               <button
@@ -293,7 +340,12 @@ export default function PendingChoiceModal({
     const selected = multiSelectTargets[0] ?? null;
     return (
       <div className="space-y-3">
-        <div className="text-yellow-300 text-sm font-medium">{pendingChoice.prompt}</div>
+        <div>
+          <div className="text-yellow-300 text-sm font-medium">{pendingChoice.prompt}</div>
+          {contextHints.length > 0 && (
+            <div className="text-[10px] text-gray-500 mt-0.5">{contextHints.join(" · ")}</div>
+          )}
+        </div>
         <div className="grid grid-cols-4 gap-1.5 pb-1">
           {displayCards.map((id) => {
             const selectable = validSet.has(id);
