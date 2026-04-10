@@ -2940,17 +2940,32 @@
         "rulesText": "When you play this character, you may choose an opposing character. If you do, draw 2 cards unless that character's player puts that card on the bottom of their deck.",
         "effects": [
           {
-            "type": "chosen_opposing_may_bottom_or_reward",
-            "filter": {
-              "owner": {
-                "type": "opponent"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ]
+            "type": "gain_stats",
+            "strength": 0,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
             },
-            "rewardEffect": {
+            "duration": "this_turn"
+          },
+          {
+            "type": "opponent_may_pay_to_avoid",
+            "acceptEffect": {
+              "type": "put_on_bottom_of_deck",
+              "from": "play",
+              "target": {
+                "type": "last_resolved_target"
+              }
+            },
+            "rejectEffect": {
               "type": "draw",
               "amount": 2,
               "target": {
@@ -13667,17 +13682,32 @@
         "rulesText": "When you play this character, you may choose an opposing character. If you do, draw 2 cards unless that character's player puts that card on the bottom of their deck.",
         "effects": [
           {
-            "type": "chosen_opposing_may_bottom_or_reward",
-            "filter": {
-              "owner": {
-                "type": "opponent"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ]
+            "type": "gain_stats",
+            "strength": 0,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
             },
-            "rewardEffect": {
+            "duration": "this_turn"
+          },
+          {
+            "type": "opponent_may_pay_to_avoid",
+            "acceptEffect": {
+              "type": "put_on_bottom_of_deck",
+              "from": "play",
+              "target": {
+                "type": "last_resolved_target"
+              }
+            },
+            "rejectEffect": {
               "type": "draw",
               "amount": 2,
               "target": {

@@ -1909,37 +1909,10 @@ function applyResolveChoice(
       const srcId = pendingChoice.sourceInstanceId ?? "";
       const trigId = pendingChoice.triggeringCardInstanceId;
 
-      // Hades - Looking for a Deal: special inverse-may path. After the
-      // caster picks an opposing target, surface a may-prompt for the
-      // target's owner. Accept → put_on_bottom_of_deck on the chosen target
-      // (deny the caster's reward). Reject → caster fires rewardEffect.
-      if ((pendingEffect as any)?.type === "chosen_opposing_may_bottom_or_reward") {
-        const targetInst = state.cards[targetId];
-        if (!targetInst) continue;
-        const targetOwnerId = targetInst.ownerId;
-        const reject = (pendingEffect as any).rewardEffect as Effect;
-        // Synthesize a put-on-bottom-of-deck effect for the chosen target.
-        const acceptEffect = {
-          type: "put_on_bottom_of_deck" as const,
-          from: "play" as const,
-          target: { type: "this" as const },
-        };
-        state = {
-          ...state,
-          pendingChoice: {
-            type: "choose_may",
-            choosingPlayerId: targetOwnerId,
-            prompt: "Put your character on the bottom of your deck (to prevent the draw)?",
-            pendingEffect: acceptEffect,
-            optional: true,
-            sourceInstanceId: targetId,
-            triggeringCardInstanceId: trigId,
-            rejectEffect: reject,
-            rejectControllingPlayerId: playerId,
-          },
-        };
-        return state;
-      }
+      // Hades - Looking for a Deal was previously handled as a special case
+      // here. Migrated to the generic opponent_may_pay_to_avoid effect type
+      // (same pattern as Tiana Restaurant Owner) in commit series. The
+      // card JSON now uses a no-op chooser → opponent_may_pay_to_avoid chain.
 
       state = applyEffectToTarget(state, pendingEffect!, targetId, playerId, definitions, events, srcId, trigId);
       // Apply follow-up effects to the same target
@@ -3829,10 +3802,14 @@ export function applyEffect(
     // Mirrors the Hades Looking for a Deal cross-player chooser machinery
     // but is generic — accept and reject are both arbitrary effects.
     case "opponent_may_pay_to_avoid": {
-      if (!triggeringCardInstanceId) return state;
-      const triggeringInst = state.cards[triggeringCardInstanceId];
-      if (!triggeringInst) return state;
-      const opposingPlayerId = triggeringInst.ownerId;
+      // Identify the opposing player from context. Two paths:
+      //   1. Trigger context (Tiana): triggeringCardInstanceId is the attacker
+      //   2. Chooser context (Hades): lastResolvedTarget is the chosen character
+      const contextId = triggeringCardInstanceId ?? state.lastResolvedTarget?.instanceId;
+      if (!contextId) return state;
+      const contextInst = state.cards[contextId];
+      if (!contextInst) return state;
+      const opposingPlayerId = contextInst.ownerId;
       // Pre-check affordability: if the opposing player can't perform the
       // accept cost, skip the choose_may and fire the reject effect directly.
       // This ensures the rule "unless their player pays N" applies the
@@ -3860,31 +3837,8 @@ export function applyEffect(
       };
     }
 
-    case "chosen_opposing_may_bottom_or_reward": {
-      // Hades - Looking for a Deal. Caster picks an opposing character; the
-      // pendingChoice surfaces with the caster as chooser and a custom
-      // rejectEffect on the resolution path. After the choice, the chosen
-      // target's owner gets a may-prompt: accept = put_on_bottom (their card),
-      // reject = caster fires rewardEffect.
-      const validTargets = findValidTargets(state, effect.filter, controllingPlayerId, definitions, sourceInstanceId);
-      if (validTargets.length === 0) return state;
-      // Stash the rewardEffect on a custom pending shape: use sequential
-      // wrapping with put_on_bottom_of_deck as cost (may, controlled by the
-      // target's player) and the rewardEffect as the reject branch.
-      // We use a meta marker on the pendingChoice to flag this special path.
-      return {
-        ...state,
-        pendingChoice: {
-          type: "choose_target",
-          choosingPlayerId: controllingPlayerId,
-          prompt: "Choose an opposing character.",
-          validTargets,
-          pendingEffect: effect,
-          sourceInstanceId,
-          triggeringCardInstanceId,
-        },
-      };
-    }
+    // chosen_opposing_may_bottom_or_reward: DELETED — migrated to
+    // opponent_may_pay_to_avoid. Hades now uses the generic pattern.
 
     case "choose_n_from_opponent_discard_to_bottom": {
       // The Queen - Jealous Beauty NO ORDINARY APPLE.

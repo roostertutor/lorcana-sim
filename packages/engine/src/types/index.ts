@@ -232,7 +232,6 @@ export type Effect =
   | FillHandToEffect
   | PlayerMayPlayFromHandEffect
   | ConditionalOnPlayerStateEffect
-  | ChosenOpposingMayBottomOrRewardEffect
   | OpponentMayPayToAvoidEffect
   | RememberChosenTargetEffect
   | SingCostBonusTargetEffect;
@@ -263,20 +262,9 @@ export interface ConditionalOnPlayerStateEffect {
   elseEffects: Effect[];
 }
 
-/**
- * Hades - Looking for a Deal: "Choose an opposing character. If you do, draw 2
- * cards unless that character's player puts that card on the bottom of their
- * deck." Caster picks a target; the target's player gets a may to "save" by
- * putting their character on the bottom (deny the caster's reward); on
- * decline, the caster gets the reward.
- */
-export interface ChosenOpposingMayBottomOrRewardEffect {
-  type: "chosen_opposing_may_bottom_or_reward";
-  /** Filter applied at the caster's choose-target step (must be opposing). */
-  filter: CardFilter;
-  /** Effect the caster gets if the opponent declines to save. */
-  rewardEffect: Effect;
-}
+// ChosenOpposingMayBottomOrRewardEffect: DELETED — migrated to the generic
+// OpponentMayPayToAvoidEffect. Hades now uses a no-op chooser (sets
+// lastResolvedTarget) → opponent_may_pay_to_avoid chain. See commit history.
 
 /**
  * Goliath - Clan Leader (Set 10): "At the end of each player's turn, if they
