@@ -28,6 +28,12 @@ The structural mistakes that closed rows #6 and #7 (Anna and Pudge wired as `sel
 
 Run `pnpm audit-lorcast` after wiring new cards. The audit currently reports clean.
 
+## Architectural debt — single-customer hardcoded escalations
+
+Cards with hardcoded escalation/bonus fields baked into a one-off effect type, where a generalized primitive would be cleaner but currently has only one consumer. Functionally correct today; refactor candidates if a second customer of the same shape appears.
+
+- **The Queen - Jealous Beauty** (set 7/#74) — `choose_n_from_opponent_discard_to_bottom` hardcodes `gainLoreBase` / `gainLoreBonus` / `bonusFilter` instead of using a generalized "if any picked card matches X, reward Y" primitive. The single-card analog is the existing `last_resolved_target` chain (Queen Diviner / Wreck-It Ralph - Admiral Underpants — see commit 59a55f7); the plural form would need a `lastResolvedTargets` (plural) state field + a `target.type === "last_resolved_targets_any"` branch on `conditional_on_target` that returns true if any of the recent picks matches the filter. **Don't refactor until a second customer surfaces** — YAGNI.
+
 ## Adding new entries
 
 Future card wirings that take a shortcut should be appended here in the same format. Don't bury approximations in commit messages alone — they get lost.
