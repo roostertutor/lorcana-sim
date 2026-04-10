@@ -1901,7 +1901,13 @@ export type TriggerEvent =
   | { on: "leaves_play"; filter?: CardFilter }
   | { on: "quests"; filter?: CardFilter }
   | { on: "sings"; filter?: CardFilter }
-  | { on: "challenges"; filter?: CardFilter }
+  /** `filter` matches the source (attacker). `defenderFilter` (optional) also
+   *  matches the challenged character — fires only if BOTH are satisfied.
+   *  Used by Shenzi Head Hyena, Scar Vengeful Lion, Shenzi Scar's Accomplice,
+   *  Prince Phillip Swordsman ("whenever this character challenges a damaged
+   *  character"). The defender is passed as triggeringCardInstanceId by the
+   *  challenge resolver. */
+  | { on: "challenges"; filter?: CardFilter; defenderFilter?: CardFilter }
   | { on: "is_challenged"; filter?: CardFilter }
   | { on: "is_banished"; filter?: CardFilter }
   | { on: "banished_in_challenge"; filter?: CardFilter }

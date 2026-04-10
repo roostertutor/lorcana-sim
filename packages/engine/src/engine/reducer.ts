@@ -4570,6 +4570,17 @@ function queueTrigger(
       if (a.type !== "triggered" || a.trigger.on !== eventType) return false;
       const triggerFilter = "filter" in a.trigger ? a.trigger.filter : undefined;
       if (triggerFilter && !matchesFilter(instance, def, triggerFilter, state, instance.ownerId)) return false;
+      // For `challenges` triggers, defenderFilter (optional) matches the
+      // challenged character. The defender lives on context.triggeringCardInstanceId.
+      // Used by Shenzi Head Hyena ("challenges a damaged character") etc.
+      if (a.trigger.on === "challenges" && "defenderFilter" in a.trigger && a.trigger.defenderFilter) {
+        const defId = context?.triggeringCardInstanceId;
+        if (!defId) return false;
+        const defInst = state.cards[defId];
+        const defDef = defInst ? definitions[defInst.definitionId] : undefined;
+        if (!defInst || !defDef) return false;
+        if (!matchesFilter(defInst, defDef, a.trigger.defenderFilter, state, instance.ownerId)) return false;
+      }
       return true;
     })
     .map((ability) => ({
@@ -4600,6 +4611,17 @@ function queueTrigger(
       // instanceId so atLocation: "this" filters resolve relative to the watcher
       // (e.g. Graveyard of Christmas Future "Whenever you move a character HERE").
       if (!matchesFilter(instance, def, triggerFilter, state, watcher.ownerId, watcher.instanceId)) continue;
+      // defenderFilter check for `challenges` triggers — see selfTriggers above.
+      // Cross-card precedent: Scar Vengeful Lion watches "whenever ONE OF YOUR
+      // characters challenges a damaged character".
+      if (ability.trigger.on === "challenges" && "defenderFilter" in ability.trigger && ability.trigger.defenderFilter) {
+        const defId = context?.triggeringCardInstanceId;
+        if (!defId) continue;
+        const defInst = state.cards[defId];
+        const defDef = defInst ? definitions[defInst.definitionId] : undefined;
+        if (!defInst || !defDef) continue;
+        if (!matchesFilter(defInst, defDef, ability.trigger.defenderFilter, state, watcher.ownerId)) continue;
+      }
 
       state = {
         ...state,

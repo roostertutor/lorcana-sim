@@ -4321,9 +4321,28 @@
       {
         "type": "triggered",
         "storyName": "PRESSING THE ADVANTAGE",
-        "rulesText": "Whenever he challenges a damaged character, ready this character after the challenge. (approximation: always ready after challenge)",
+        "rulesText": "Whenever he challenges a damaged character, ready this character after the challenge.",
         "trigger": {
           "on": "challenges"
+        },
+        "effects": [
+          {
+            "type": "ready",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "PRESSING THE ADVANTAGE",
+        "rulesText": "Whenever he challenges a damaged character, ready this character after the challenge.",
+        "trigger": {
+          "on": "challenges",
+          "defenderFilter": {
+            "hasDamage": true
+          }
         },
         "effects": [
           {
@@ -4873,7 +4892,7 @@
       {
         "type": "triggered",
         "storyName": "WHAT HAVE WE GOT HERE?",
-        "rulesText": "Whenever one of your Hyena characters challenges a damaged character, gain 2 lore. (approximation: fires on any Hyena challenge)",
+        "rulesText": "Whenever one of your Hyena characters challenges a damaged character, gain 2 lore.",
         "trigger": {
           "on": "challenges",
           "filter": {
@@ -4885,6 +4904,9 @@
               "character"
             ],
             "hasTrait": "Hyena"
+          },
+          "defenderFilter": {
+            "hasDamage": true
           }
         },
         "effects": [
@@ -5007,7 +5029,7 @@
       {
         "type": "triggered",
         "storyName": "KINGS DON'T NEED ADVICE",
-        "rulesText": "Whenever one of your characters challenges a damaged character, you may draw a card. (approximation: any own challenge)",
+        "rulesText": "Whenever one of your characters challenges a damaged character, you may draw a card.",
         "trigger": {
           "on": "challenges",
           "filter": {
@@ -5018,6 +5040,9 @@
             "cardType": [
               "character"
             ]
+          },
+          "defenderFilter": {
+            "hasDamage": true
           }
         },
         "effects": [
@@ -11517,7 +11542,7 @@
       {
         "type": "triggered",
         "storyName": "KINGS DON'T NEED ADVICE",
-        "rulesText": "Whenever one of your characters challenges a damaged character, you may draw a card. (approximation: any own challenge)",
+        "rulesText": "Whenever one of your characters challenges a damaged character, you may draw a card.",
         "trigger": {
           "on": "challenges",
           "filter": {
@@ -11528,6 +11553,9 @@
             "cardType": [
               "character"
             ]
+          },
+          "defenderFilter": {
+            "hasDamage": true
           }
         },
         "effects": [
