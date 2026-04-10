@@ -6711,9 +6711,22 @@
       {
         "type": "triggered",
         "storyName": "DANCE-OFF",
-        "rulesText": "Whenever this character or one of your characters named Mickey Mouse challenges another character, gain 1 lore. (approximation: only fires on self)",
+        "rulesText": "Whenever this character or one of your characters named Mickey Mouse challenges another character, gain 1 lore.",
         "trigger": {
-          "on": "challenges"
+          "on": "challenges",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "anyOf": [
+              {
+                "hasName": "Minnie Mouse"
+              },
+              {
+                "hasName": "Mickey Mouse"
+              }
+            ]
+          }
         },
         "effects": [
           {
