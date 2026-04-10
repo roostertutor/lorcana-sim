@@ -1606,6 +1606,19 @@
             "duration": "until_caster_next_turn"
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "HIT PARADE",
+        "rulesText": "Your characters named Stitch count as having +1 cost to sing songs.",
+        "effect": {
+          "type": "sing_cost_bonus_characters",
+          "amount": 1,
+          "target": {
+            "type": "all",
+            "filter": { "zone": "play", "cardType": ["character"], "hasName": "Stitch", "owner": { "type": "self" } }
+          }
+        }
       }
     ],
     "setId": "4",

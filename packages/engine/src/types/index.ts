@@ -1370,6 +1370,7 @@ export type StaticEffect =
   | EnterPlayExertedStatic
   | StatFloorPrintedStatic
   | SingCostBonusHereStatic
+  | SingCostBonusCharactersStatic
   | GrantTraitStatic
   | ConditionalChallengerSelfStatic
   | InkwellEntersExertedStatic
@@ -1377,9 +1378,13 @@ export type StaticEffect =
   | PreventLoreGainStatic
   | ForcedTargetPriorityStatic
   | RemoveNamedAbilityStatic
+  | RemoveKeywordStatic
   | PreventDiscardFromHandStatic
   | OneChallengePerTurnGlobalStatic
-  | InkFromDiscardStatic;
+  | InkFromDiscardStatic
+  | RemoveKeywordStatic
+  | GrantTriggeredAbilityStatic
+  | SingCostBonusCharactersStatic;
 
 /**
  * Moana - Curious Explorer (Set 11): "ANCESTRAL LEGACY You can ink cards from
@@ -1388,6 +1393,45 @@ export type StaticEffect =
  */
 export interface InkFromDiscardStatic {
   type: "ink_from_discard";
+}
+
+/**
+ * Captain Hook - Master Swordsman (Set 3): "Characters named Peter Pan lose
+ * Evasive and can't gain Evasive." Suppresses a keyword on all matching
+ * characters. The gameModifiers scanner collects these into suppressedKeywords;
+ * hasKeyword / getKeywordValue consult the map and return false / 0 when
+ * suppressed.
+ */
+export interface RemoveKeywordStatic {
+  type: "remove_keyword";
+  keyword: Keyword;
+  target: CardTarget;
+}
+
+/**
+ * Flotsam - Ursula's Baby (Set 4): "Your characters named Jetsam gain
+ * 'When this character is banished in a challenge, return this card to your
+ * hand.'" Grants a triggered ability to matching characters via static effect.
+ * The trigger scanner checks grantedTriggeredAbilities in addition to the
+ * card's own definition abilities.
+ */
+export interface GrantTriggeredAbilityStatic {
+  type: "grant_triggered_ability";
+  target: CardTarget;
+  ability: TriggeredAbility;
+}
+
+/**
+ * Record Player (Set 4): "Your characters named Stitch count as having +1
+ * cost to sing songs." A permanent static bonus to sing eligibility for
+ * characters matching the filter. Unlike SingCostBonusHereStatic (location-
+ * scoped) or SingCostBonusTargetEffect (timed, per-character), this applies
+ * to all matching in-play characters continuously.
+ */
+export interface SingCostBonusCharactersStatic {
+  type: "sing_cost_bonus_characters";
+  amount: number;
+  filter: CardFilter;
 }
 
 /**
@@ -1420,6 +1464,15 @@ export interface PreventDiscardFromHandStatic {
 export interface RemoveNamedAbilityStatic {
   type: "remove_named_ability";
   abilityName: string;
+  target: CardTarget;
+}
+
+/** Captain Hook - Master Swordsman (Set 3): "Characters named Peter Pan lose
+ *  Evasive and can't gain Evasive." Strips a keyword from matching characters.
+ *  Collected in gameModifiers.suppressedKeywords Map. Consulted by hasKeyword(). */
+export interface RemoveKeywordStatic {
+  type: "remove_keyword";
+  keyword: Keyword;
   target: CardTarget;
 }
 
@@ -1481,6 +1534,16 @@ export interface InkwellEntersExertedStatic {
 export interface SingCostBonusHereStatic {
   type: "sing_cost_bonus_here";
   amount: number;
+}
+
+/** Record Player HIT PARADE (Set 4): "Your characters named Stitch count as
+ *  having +1 cost to sing songs." Per-character static sing cost bonus applied
+ *  to matching characters. Consulted in the validator alongside location bonuses
+ *  and timed bonuses. */
+export interface SingCostBonusCharactersStatic {
+  type: "sing_cost_bonus_characters";
+  amount: number;
+  target: CardTarget;
 }
 
 /**
@@ -1807,16 +1870,22 @@ export interface CantBeChallengedException {
 }
 
 
-/** Static cost reduction (Mickey Wayward Sorcerer: Broom chars cost 1 less). */
+/** Static cost reduction (Mickey Wayward Sorcerer: Broom chars cost 1 less).
+ *  Owl Island: dynamic amount { type: "count", filter: chars at this location }. */
 export interface CostReductionStatic {
   type: "cost_reduction";
-  amount: number;
+  amount: number | { type: "count"; filter: CardFilter };
   /** Filter for which cards get the discount */
   filter: CardFilter;
   /** Scope of the discount. Default "all" — both normal play and Shift cost.
    *  "shift_only" — only when paying Shift cost (Yokai Intellectual Schemer
    *  "you pay 1 less to play characters using their Shift ability"). */
   appliesTo?: "all" | "shift_only";
+  /** Whose cards are affected. Default "self" — the source's owner.
+   *  "opponent" — only the opponent's cards. "both" — all players.
+   *  Gantu Experienced Enforcer: "Each player pays 2 {I} more" uses "both"
+   *  with a negative amount. */
+  affectedPlayer?: PlayerTarget;
 }
 
 /**

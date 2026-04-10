@@ -5631,6 +5631,19 @@
             ]
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "MAN-TO-MAN",
+        "rulesText": "Characters named Peter Pan lose Evasive and can't gain Evasive.",
+        "effect": {
+          "type": "remove_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "all",
+            "filter": { "zone": "play", "cardType": ["character"], "hasName": "Peter Pan" }
+          }
+        }
       }
     ],
     "setId": "3",
@@ -11372,6 +11385,19 @@
             ]
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "MAN-TO-MAN",
+        "rulesText": "Characters named Peter Pan lose Evasive and can't gain Evasive.",
+        "effect": {
+          "type": "remove_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "all",
+            "filter": { "zone": "play", "cardType": ["character"], "hasName": "Peter Pan" }
+          }
+        }
       }
     ],
     "setId": "3",

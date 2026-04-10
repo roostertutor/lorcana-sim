@@ -226,8 +226,14 @@ export function getEffectiveCost(
 export function hasKeyword(
   instance: CardInstance,
   definition: CardDefinition,
-  keyword: Keyword
+  keyword: Keyword,
+  /** Optional gameModifiers — when provided, checks suppressedKeywords
+   *  (Captain Hook MAN-TO-MAN: "Peter Pan loses Evasive"). */
+  modifiers?: { suppressedKeywords: Map<string, Set<Keyword>> },
 ): boolean {
+  // Check if this keyword is suppressed by a static (remove_keyword)
+  if (modifiers?.suppressedKeywords.get(instance.instanceId)?.has(keyword)) return false;
+
   // Check granted keywords first (from effects)
   if (instance.grantedKeywords.includes(keyword)) return true;
 

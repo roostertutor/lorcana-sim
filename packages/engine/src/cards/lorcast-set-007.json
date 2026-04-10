@@ -11202,6 +11202,17 @@
             "duration": "until_caster_next_turn"
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "DON'T GET ANY IDEAS",
+        "rulesText": "Each player pays 2 {I} more to play actions or items.",
+        "effect": {
+          "type": "cost_reduction",
+          "amount": -2,
+          "filter": { "cardType": ["action", "item"] },
+          "affectedPlayer": { "type": "both" }
+        }
       }
     ],
     "setId": "7",

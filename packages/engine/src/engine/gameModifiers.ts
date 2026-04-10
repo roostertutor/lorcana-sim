@@ -241,6 +241,11 @@ export interface GameModifiers {
    */
   singCostBonusHere: Map<string, number>;
 
+  /** Record Player HIT PARADE: "Your characters named Stitch count as having
+   *  +1 cost to sing songs." Per-character sing cost bonus from statics.
+   *  Key = character instanceId, value = bonus amount. */
+  singCostBonusCharacters: Map<string, number>;
+
   /**
    * CRD-style stat floors at printed value (Elisa Maza Transformed Gargoyle —
    * "your characters' {S} can't be reduced below their printed value"). Key =
@@ -270,6 +275,29 @@ export interface GameModifiers {
    * turnChallengeBonuses.
    */
   conditionalChallengerSelf: Map<string, Array<{ strength: number; defenderFilter: import("../types/index.js").CardFilter }>>;
+
+  /**
+   * Keywords suppressed by remove_keyword statics (Captain Hook Master Swordsman:
+   * "Peter Pan loses Evasive"). Key = instanceId, value = set of suppressed keywords.
+   * Consulted by hasKeyword / getKeywordValue.
+   */
+  suppressedKeywords: Map<string, Set<import("../types/index.js").Keyword>>;
+
+  /**
+   * Triggered abilities granted by static effects (Flotsam Ursula's Baby:
+   * "Your Jetsam characters gain 'banished_in_challenge → return to hand'").
+   * Key = instanceId, value = list of granted triggered abilities.
+   * The trigger scanner checks these in addition to the card definition's own.
+   */
+  grantedTriggeredAbilities: Map<string, import("../types/index.js").TriggeredAbility[]>;
+
+  /**
+   * Per-character sing-cost bonus from static effects (Record Player:
+   * "Your Stitch characters count as having +1 cost to sing songs").
+   * Key = instanceId, value = total sing bonus. Consumed by validator's
+   * sing-eligibility check alongside singCostBonusHere and timed bonuses.
+   */
+  singCostBonusCharacters: Map<string, number>;
 }
 
 /**
@@ -308,6 +336,7 @@ export function getGameModifiers(
     enterPlayExerted: new Map(),
     statFloorsPrinted: new Map(),
     singCostBonusHere: new Map(),
+    singCostBonusCharacters: new Map(),
     inkwellEntersExerted: new Set(),
     preventLoreLoss: new Set(),
     preventLoreGain: new Set(),
@@ -317,6 +346,9 @@ export function getGameModifiers(
     inkFromDiscard: new Set(),
     grantedTraits: new Map(),
     conditionalChallengerSelf: new Map(),
+    suppressedKeywords: new Map(),
+    grantedTriggeredAbilities: new Map(),
+    singCostBonusCharacters: new Map(),
   };
 
   // Pre-pass A: collect grant_trait_static so downstream filters in the main
@@ -391,6 +423,41 @@ export function getGameModifiers(
           if (!candidateDef) continue;
           if (matchesFilter(candidate, candidateDef, eff.target.filter, state, instance.ownerId, instance.instanceId)) {
             addSuppression(candidate.instanceId);
+          }
+        }
+      }
+    }
+  }
+
+  // Pre-pass C: collect remove_keyword suppressions. Captain Hook Master
+  // Swordsman MAN-TO-MAN: "Characters named Peter Pan lose Evasive."
+  for (const instance of Object.values(state.cards)) {
+    const def = definitions[instance.definitionId];
+    if (!def) continue;
+    for (const ability of def.abilities) {
+      if (ability.type !== "static") continue;
+      if (ability.effect.type !== "remove_keyword") continue;
+      const activeZones = ability.activeZones ?? ["play"];
+      if (!activeZones.includes(instance.zone)) continue;
+      if (ability.condition && !evaluateCondition(ability.condition, state, definitions, instance.ownerId, instance.instanceId)) continue;
+      const eff = ability.effect;
+      const addKeywordSuppression = (id: string) => {
+        let set = modifiers.suppressedKeywords.get(id);
+        if (!set) {
+          set = new Set();
+          modifiers.suppressedKeywords.set(id, set);
+        }
+        set.add(eff.keyword);
+      };
+      if (eff.target.type === "this") {
+        addKeywordSuppression(instance.instanceId);
+      } else if (eff.target.type === "all") {
+        for (const candidate of Object.values(state.cards)) {
+          if (candidate.zone !== "play") continue;
+          const candidateDef = definitions[candidate.definitionId];
+          if (!candidateDef) continue;
+          if (matchesFilter(candidate, candidateDef, eff.target.filter, state, instance.ownerId, instance.instanceId)) {
+            addKeywordSuppression(candidate.instanceId);
           }
         }
       }
@@ -545,18 +612,59 @@ export function getGameModifiers(
         }
 
         case "cost_reduction": {
-          const existing = modifiers.costReductions.get(instance.ownerId) ?? [];
-          existing.push({
-            amount: effect.amount,
+          // Resolve dynamic amount (Owl Island: count of chars at this location)
+          let resolvedAmount: number;
+          if (typeof effect.amount === "number") {
+            resolvedAmount = effect.amount;
+          } else if (effect.amount.type === "count") {
+            // Count matching instances inline (can't import findMatchingInstances from reducer)
+            const countFilter = effect.amount.filter;
+            let cnt = 0;
+            const countZones = countFilter.zone ? (Array.isArray(countFilter.zone) ? countFilter.zone : [countFilter.zone]) : ["play"];
+            const ownerType = countFilter.owner?.type ?? "self";
+            const countPlayers = ownerType === "both" ? ["player1", "player2"] as PlayerID[]
+              : ownerType === "opponent" ? [instance.ownerId === "player1" ? "player2" : "player1"] as PlayerID[]
+              : [instance.ownerId] as PlayerID[];
+            for (const pid of countPlayers) {
+              for (const z of countZones) {
+                for (const id of getZone(state, pid, z as any)) {
+                  const inst = state.cards[id];
+                  if (!inst) continue;
+                  const d = definitions[inst.definitionId];
+                  if (!d) continue;
+                  if (matchesFilter(inst, d, countFilter, state, instance.ownerId, instance.instanceId)) cnt++;
+                }
+              }
+            }
+            resolvedAmount = cnt;
+          } else {
+            resolvedAmount = 0;
+          }
+          const entry = {
+            amount: resolvedAmount,
             filter: effect.filter,
-            appliesTo: effect.appliesTo ?? "all",
+            appliesTo: effect.appliesTo ?? "all" as const,
             // Track source for once-per-turn consumption (Grandmother Willow).
             ...(ability.oncePerTurn ? {
               sourceInstanceId: instance.instanceId,
               oncePerTurnKey: ability.storyName ?? ability.rulesText ?? "anon",
             } : {}),
-          });
-          modifiers.costReductions.set(instance.ownerId, existing);
+          };
+          // Determine affected players (Gantu: "each player" = both, negative amount = cost increase)
+          const ap = effect.affectedPlayer ?? { type: "self" as const };
+          const addForPlayer = (pid: import("../types/index.js").PlayerID) => {
+            const existing = modifiers.costReductions.get(pid) ?? [];
+            existing.push(entry);
+            modifiers.costReductions.set(pid, existing);
+          };
+          if (ap.type === "both") {
+            addForPlayer("player1");
+            addForPlayer("player2");
+          } else if (ap.type === "opponent") {
+            addForPlayer(instance.ownerId === "player1" ? "player2" : "player1");
+          } else {
+            addForPlayer(instance.ownerId);
+          }
           break;
         }
 
@@ -868,6 +976,22 @@ export function getGameModifiers(
           // their effective cost for sing eligibility only.
           const prev = modifiers.singCostBonusHere.get(instance.instanceId) ?? 0;
           modifiers.singCostBonusHere.set(instance.instanceId, prev + effect.amount);
+          break;
+        }
+
+        case "sing_cost_bonus_characters": {
+          // Record Player HIT PARADE — matching characters get +N cost for singing.
+          if (effect.target.type === "all") {
+            for (const candidate of Object.values(state.cards)) {
+              if (candidate.zone !== "play") continue;
+              const cDef = definitions[candidate.definitionId];
+              if (!cDef) continue;
+              if (matchesFilter(candidate, cDef, effect.target.filter, state, instance.ownerId, instance.instanceId)) {
+                const prev2 = modifiers.singCostBonusCharacters.get(candidate.instanceId) ?? 0;
+                modifiers.singCostBonusCharacters.set(candidate.instanceId, prev2 + effect.amount);
+              }
+            }
+          }
           break;
         }
 

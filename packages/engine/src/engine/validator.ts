@@ -186,7 +186,9 @@ function validatePlayCard(
     const singerTimedBonus = (singer.timedEffects ?? [])
       .filter(t => t.type === "sing_cost_bonus")
       .reduce((s, t) => s + (t.amount ?? 0), 0);
-    if (!canSingSong(singer, singerDef, def, singerLocBonus + singerTimedBonus)) {
+    // Record Player HIT PARADE: per-character static sing-cost bonus.
+    const singerCharBonus = modifiers.singCostBonusCharacters.get(singerInstanceId) ?? 0;
+    if (!canSingSong(singer, singerDef, def, singerLocBonus + singerTimedBonus + singerCharBonus)) {
       return fail(`Singer's cost is too low to sing this song.`);
     }
     return OK; // No ink check — singing replaces ink cost entirely (CRD 1.5.5.1)
@@ -229,6 +231,8 @@ function validatePlayCard(
       effectiveCost += (s.timedEffects ?? [])
         .filter(t => t.type === "sing_cost_bonus")
         .reduce((sum, t) => sum + (t.amount ?? 0), 0);
+      // Record Player HIT PARADE: per-singer static sing_cost_bonus.
+      effectiveCost += stModifiers.singCostBonusCharacters.get(sId) ?? 0;
       totalCost += effectiveCost;
     }
     if (totalCost < def.singTogetherCost) {

@@ -5578,6 +5578,16 @@
             }
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "TEAMWORK",
+        "rulesText": "For each character you have here, you pay 1 {I} less for the first action you play each turn.",
+        "effect": {
+          "type": "cost_reduction",
+          "amount": { "type": "count", "filter": { "cardType": ["character"], "atLocation": "this", "owner": { "type": "self" } } },
+          "filter": { "cardType": ["action"] }
+        }
       }
     ],
     "setId": "6",
