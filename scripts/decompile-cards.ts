@@ -462,7 +462,7 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
 
   // "Mill N cards" — put top N of own deck into discard. Dale Mischievous
   // Ranger pattern.
-  mill: (e) => `put the top ${e.amount ?? 1} card${plural(e.amount ?? 1)} of your deck into your discard`,
+  mill: (e) => `${maybe(e)}put the top ${e.amount ?? 1} card${plural(e.amount ?? 1)} of your deck into your discard`,
 
   // Mass inkwell exertion / readying. Mufasa Ruler of Pride Rock "exert all
   // cards in your inkwell". `mode` distinguishes the operation.
