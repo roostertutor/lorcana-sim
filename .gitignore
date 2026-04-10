@@ -46,3 +46,4 @@ results/
 .cache
 tmp
 docs/ENGINE_PRIMITIVES.md
+packages/engine/src/cards/.effect-counts.json
