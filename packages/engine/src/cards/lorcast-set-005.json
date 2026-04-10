@@ -666,7 +666,7 @@
       {
         "type": "triggered",
         "storyName": "BIG PRIZE",
-        "rulesText": "Whenever this character quests, each opponent reveals the top card of their deck. If it's a character card, they may put it into their hand. Otherwise, they put it on the bottom of their deck. (approximation: opponent always keeps on hit)",
+        "rulesText": "Whenever this character quests, each opponent reveals the top card of their deck. If it's a character card, they may put it into their hand. Otherwise, they put it on the bottom of their deck.",
         "trigger": {
           "on": "quests"
         },
@@ -2244,16 +2244,42 @@
       {
         "type": "triggered",
         "storyName": "A LITTLE GAME",
-        "rulesText": "When you play this character, banish her or return another chosen character of yours to your hand. (approximation: always banish self)",
+        "rulesText": "When you play this character, banish her or return another chosen character of yours to your hand.",
         "trigger": {
           "on": "enters_play"
         },
         "effects": [
           {
-            "type": "banish",
-            "target": {
-              "type": "this"
-            }
+            "type": "choose",
+            "count": 1,
+            "options": [
+              [
+                {
+                  "type": "return_to_hand",
+                  "target": {
+                    "type": "chosen",
+                    "filter": {
+                      "owner": {
+                        "type": "self"
+                      },
+                      "zone": "play",
+                      "cardType": [
+                        "character"
+                      ],
+                      "excludeSelf": true
+                    }
+                  }
+                }
+              ],
+              [
+                {
+                  "type": "banish",
+                  "target": {
+                    "type": "this"
+                  }
+                }
+              ]
+            ]
           }
         ]
       }
@@ -7123,7 +7149,7 @@
       {
         "type": "triggered",
         "storyName": "POWER APPOINTED",
-        "rulesText": "At the start of your turn, if you have a character in play with more {S} than each opposing character in play, each opponent loses 1 lore and you gain lore equal to the lore lost. (approximation: literal 1 lore)",
+        "rulesText": "At the start of your turn, if you have a character in play with more {S} than each opposing character in play, each opponent loses 1 lore and you gain lore equal to the lore lost.",
         "trigger": {
           "on": "turn_start",
           "player": {
@@ -7144,7 +7170,7 @@
           },
           {
             "type": "gain_lore",
-            "amount": 1,
+            "amount": "cost_result",
             "target": {
               "type": "self"
             }

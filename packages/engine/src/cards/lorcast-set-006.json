@@ -9308,14 +9308,13 @@
       {
         "type": "triggered",
         "storyName": "INSPIRED TECH",
-        "rulesText": "When you play this item, chosen character gets -1 {S} this turn for each item named Microbots you have in play. (approximation: fixed -1 str)",
+        "rulesText": "When you play this item, chosen character gets -1 {S} this turn for each item named Microbots you have in play.",
         "trigger": {
           "on": "enters_play"
         },
         "effects": [
           {
             "type": "gain_stats",
-            "strength": -1,
             "target": {
               "type": "chosen",
               "filter": {
@@ -9324,7 +9323,19 @@
                   "character"
                 ]
               }
-            }
+            },
+            "strengthDynamic": {
+              "type": "count",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "hasName": "Microbots"
+              }
+            },
+            "strengthDynamicNegate": true,
+            "duration": "this_turn"
           }
         ]
       }
