@@ -1049,6 +1049,9 @@ function applyChallenge(
     events.push({ type: "damage_dealt", instanceId: defTarget, amount: actualDefenderDamage });
     // Fire damage_dealt_to trigger for challenge damage
     state = queueTrigger(state, "damage_dealt_to", defTarget, definitions, {});
+    // Stash the damage amount for `last_damage_dealt` DynamicAmount readers
+    // (Mulan Elite Archer TRIPLE SHOT, Namaari Heir of Fang TWO-WEAPON FIGHTING).
+    state = { ...state, lastDamageDealtAmount: actualDefenderDamage };
     // CRD 4.3.6: attacker dealt damage to defender
     state = queueTrigger(state, "deals_damage_in_challenge", attackerInstanceId, definitions, {
       triggeringCardInstanceId: defTarget,
@@ -2010,6 +2013,9 @@ function resolveDynamicAmount(
   }
   if (amount === "last_resolved_target_delta") {
     return state.lastResolvedTarget?.delta ?? 0;
+  }
+  if (amount === "last_damage_dealt") {
+    return state.lastDamageDealtAmount ?? 0;
   }
   if (amount === "last_resolved_source_strength") {
     return state.lastResolvedSource?.strength ?? 0;

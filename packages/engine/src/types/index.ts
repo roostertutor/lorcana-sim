@@ -450,6 +450,10 @@ export type DynamicAmount =
    *  time. Used by Anna Soothing Sister WARM HEART: "may gain lore equal to
    *  the {L} of a character card in your discard". */
   | "last_resolved_target_lore"
+  /** Amount of damage just dealt by the most recent challenge resolution.
+   *  Read from `state.lastDamageDealtAmount`. Used by Mulan Elite Archer
+   *  TRIPLE SHOT and Namaari Heir of Fang TWO-WEAPON FIGHTING. */
+  | "last_damage_dealt"
   /** Per-turn counter on the controlling player: number of opposing characters
    *  banished in a challenge initiated by this player this turn. Used by
    *  Namaari Resolute Daughter ("For each opposing character banished in a
@@ -2425,6 +2429,13 @@ export interface GameState {
    *  {L}" (I've Got a Dream: last_target_location_lore), etc. Unified replacement
    *  for the old lastTargetOwnerId / lastTargetInstanceId pair. */
   lastResolvedTarget?: ResolvedRef;
+
+  /** Amount of damage just dealt by the most recent challenge resolution. Set
+   *  by performChallenge before queueing the deals_damage_in_challenge trigger,
+   *  read by the `last_damage_dealt` DynamicAmount. Used by Mulan Elite Archer
+   *  TRIPLE SHOT and Namaari Heir of Fang TWO-WEAPON FIGHTING ("deal the same
+   *  amount of damage to another chosen character"). */
+  lastDamageDealtAmount?: number;
 
   /** Snapshot of the last card resolved as a cost-side target (banish/exert chosen
    *  own character inside a sequential cost). Used by reward-side effects like

@@ -6182,7 +6182,7 @@
       {
         "type": "triggered",
         "storyName": "TWO-WEAPON FIGHTING",
-        "rulesText": "During your turn, whenever this character deals damage to another character in a challenge, you may deal the same amount of damage to another chosen character. (approximation: deals 3 damage)",
+        "rulesText": "During your turn, whenever this character deals damage to another character in a challenge, you may deal the same amount of damage to another chosen character.",
         "trigger": {
           "on": "deals_damage_in_challenge"
         },
@@ -6192,7 +6192,7 @@
         "effects": [
           {
             "type": "deal_damage",
-            "amount": 3,
+            "amount": "last_damage_dealt",
             "target": {
               "type": "chosen",
               "filter": {
@@ -6202,7 +6202,8 @@
                 ],
                 "excludeSelf": true
               }
-            }
+            },
+            "isMay": true
           }
         ]
       }
