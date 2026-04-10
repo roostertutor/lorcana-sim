@@ -983,12 +983,6 @@
         "storyName": "I AM SO SORRY",
         "rulesText": "2 {I} - Chosen character gets -1 {S} until the start of your next turn.",
         "costs": [],
-        "costEffects": [
-          {
-            "type": "pay_ink",
-            "amount": 2
-          }
-        ],
         "effects": [
           {
             "type": "gain_stats",
@@ -1444,12 +1438,6 @@
         "storyName": "NEED A HAND?",
         "rulesText": "1 {I} - This character gets +1 {S} this turn.",
         "costs": [],
-        "costEffects": [
-          {
-            "type": "pay_ink",
-            "amount": 1
-          }
-        ],
         "effects": [
           {
             "type": "gain_stats",
@@ -1744,12 +1732,6 @@
         "costs": [
           {
             "type": "exert"
-          }
-        ],
-        "costEffects": [
-          {
-            "type": "pay_ink",
-            "amount": 3
           }
         ],
         "effects": [
@@ -2888,19 +2870,6 @@
             "type": "exert"
           }
         ],
-        "costEffects": [
-          {
-            "type": "pay_ink",
-            "amount": 2
-          },
-          {
-            "type": "discard_from_hand",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            }
-          }
-        ],
         "effects": [
           {
             "type": "gain_lore",
@@ -3592,12 +3561,6 @@
         "costs": [
           {
             "type": "exert"
-          }
-        ],
-        "costEffects": [
-          {
-            "type": "pay_ink",
-            "amount": 2
           }
         ],
         "effects": [
@@ -4667,12 +4630,6 @@
         "storyName": "STRONG LIKE HIS DAD",
         "rulesText": "3 {I} - Deal 1 damage to chosen damaged character.",
         "costs": [],
-        "costEffects": [
-          {
-            "type": "pay_ink",
-            "amount": 3
-          }
-        ],
         "effects": [
           {
             "type": "deal_damage",
@@ -5400,18 +5357,6 @@
         "storyName": "RESOURCE ALLOCATION",
         "rulesText": "1 {I}, Banish this item - Return chosen character with 2 {S} or less to their player's hand.",
         "costs": [],
-        "costEffects": [
-          {
-            "type": "pay_ink",
-            "amount": 1
-          },
-          {
-            "type": "banish",
-            "target": {
-              "type": "this"
-            }
-          }
-        ],
         "effects": [
           {
             "type": "return_to_hand",
@@ -6835,27 +6780,6 @@
             "type": "exert"
           }
         ],
-        "costEffects": [
-          {
-            "type": "pay_ink",
-            "amount": 3
-          },
-          {
-            "type": "banish",
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ]
-              }
-            }
-          }
-        ],
         "effects": [
           {
             "type": "banish",
@@ -7233,12 +7157,6 @@
         "storyName": "TAKE IT FOR A SPIN",
         "rulesText": "2 {I} – Chosen character of yours gains Evasive until the start of your next turn.",
         "costs": [],
-        "costEffects": [
-          {
-            "type": "pay_ink",
-            "amount": 2
-          }
-        ],
         "effects": [
           {
             "type": "grant_keyword",
@@ -7292,18 +7210,6 @@
         "costs": [
           {
             "type": "exert"
-          }
-        ],
-        "costEffects": [
-          {
-            "type": "pay_ink",
-            "amount": 1
-          },
-          {
-            "type": "banish",
-            "target": {
-              "type": "this"
-            }
           }
         ],
         "effects": [
@@ -9427,14 +9333,6 @@
         "storyName": "HERE YOU GO",
         "rulesText": "Banish this item – Remove up to 2 damage from each of your characters. Draw a card.",
         "costs": [],
-        "costEffects": [
-          {
-            "type": "banish",
-            "target": {
-              "type": "this"
-            }
-          }
-        ],
         "effects": [
           {
             "type": "remove_damage",
@@ -10516,12 +10414,6 @@
         "storyName": "THINK ABOUT WHAT'S BEST",
         "rulesText": "2 {I} - Draw a card, then choose and discard a card.",
         "costs": [],
-        "costEffects": [
-          {
-            "type": "pay_ink",
-            "amount": 2
-          }
-        ],
         "effects": [
           {
             "type": "draw",

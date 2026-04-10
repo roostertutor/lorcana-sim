@@ -3525,20 +3525,17 @@
         "type": "activated",
         "storyName": "ICE OVER",
         "rulesText": "1 {I}, Choose and discard a card — Exert chosen opposing character.",
-        "costEffects": [
+        "costs": [
           {
             "type": "pay_ink",
             "amount": 1
           },
           {
-            "type": "discard_from_hand",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            }
+            "type": "discard",
+            "amount": 1
           }
         ],
-        "rewardEffects": [
+        "effects": [
           {
             "type": "exert",
             "target": {
@@ -3793,16 +3790,13 @@
         "type": "activated",
         "storyName": "FULL BREACH",
         "rulesText": "Choose and discard a card — Ready this character. He can't quest for the rest of this turn.",
-        "costEffects": [
+        "costs": [
           {
-            "type": "discard_from_hand",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            }
+            "type": "discard",
+            "amount": 1
           }
         ],
-        "rewardEffects": [
+        "effects": [
           {
             "type": "ready",
             "target": {
@@ -3858,15 +3852,12 @@
         "type": "activated",
         "storyName": "SPLASH",
         "rulesText": "Move 1 damage counter from this character to chosen opposing character.",
-        "costEffects": [
+        "costs": [
           {
-            "type": "exert",
-            "target": {
-              "type": "this"
-            }
+            "type": "exert"
           }
         ],
-        "rewardEffects": [
+        "effects": [
           {
             "type": "move_damage",
             "amount": 1,
@@ -3926,15 +3917,12 @@
         "type": "activated",
         "storyName": "SPLASH",
         "rulesText": "Move 1 damage counter from this character to chosen opposing character.",
-        "costEffects": [
+        "costs": [
           {
-            "type": "exert",
-            "target": {
-              "type": "this"
-            }
+            "type": "exert"
           }
         ],
-        "rewardEffects": [
+        "effects": [
           {
             "type": "move_damage",
             "amount": 1,
@@ -5082,19 +5070,16 @@
         "type": "activated",
         "storyName": "SCARAB POWER",
         "rulesText": "{E} 2 {I} — Return an Illusion character card from your discard to your hand.",
-        "costEffects": [
+        "costs": [
           {
-            "type": "exert",
-            "target": {
-              "type": "this"
-            }
+            "type": "exert"
           },
           {
             "type": "pay_ink",
             "amount": 2
           }
         ],
-        "rewardEffects": [
+        "effects": [
           {
             "type": "return_to_hand",
             "target": {
@@ -8363,43 +8348,48 @@
         "type": "activated",
         "storyName": "SNEAK SNACK",
         "rulesText": "{E}, Banish one of your items — Chosen opponent loses 1 lore and you gain 1 lore.",
-        "costEffects": [
+        "costs": [
           {
-            "type": "exert",
-            "target": {
-              "type": "this"
-            }
-          },
-          {
-            "type": "banish",
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "play",
-                "cardType": [
-                  "item"
-                ]
-              }
-            }
+            "type": "exert"
           }
         ],
-        "rewardEffects": [
+        "effects": [
           {
-            "type": "lose_lore",
-            "amount": 1,
-            "target": {
-              "type": "opponent"
-            }
-          },
-          {
-            "type": "gain_lore",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            }
+            "type": "sequential",
+            "isMay": false,
+            "costEffects": [
+              {
+                "type": "banish",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "item"
+                    ]
+                  }
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "lose_lore",
+                "amount": 1,
+                "target": {
+                  "type": "opponent"
+                }
+              },
+              {
+                "type": "gain_lore",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           }
         ]
       }
@@ -9644,19 +9634,13 @@
         "type": "activated",
         "storyName": "OPEN WARDROBE",
         "rulesText": "{E}, Choose and discard an item card — Draw 2 cards.",
-        "costEffects": [
+        "costs": [
           {
-            "type": "exert",
-            "target": {
-              "type": "this"
-            }
+            "type": "exert"
           },
           {
-            "type": "discard_from_hand",
+            "type": "discard",
             "amount": 1,
-            "target": {
-              "type": "self"
-            },
             "filter": {
               "cardType": [
                 "item"
@@ -9664,7 +9648,7 @@
             }
           }
         ],
-        "rewardEffects": [
+        "effects": [
           {
             "type": "draw",
             "amount": 2,
@@ -9712,36 +9696,41 @@
         "type": "activated",
         "storyName": "BREAK IT DOWN",
         "rulesText": "{E}, Banish one of your items — Draw a card.",
-        "costEffects": [
+        "costs": [
           {
-            "type": "exert",
-            "target": {
-              "type": "this"
-            }
-          },
-          {
-            "type": "banish",
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "play",
-                "cardType": [
-                  "item"
-                ]
-              }
-            }
+            "type": "exert"
           }
         ],
-        "rewardEffects": [
+        "effects": [
           {
-            "type": "draw",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            }
+            "type": "sequential",
+            "isMay": false,
+            "costEffects": [
+              {
+                "type": "banish",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "item"
+                    ]
+                  }
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           }
         ]
       }
@@ -10741,38 +10730,43 @@
         "type": "activated",
         "storyName": "READ",
         "rulesText": "{E}, Banish one of your other items — Put the top card of your deck into your inkwell facedown and exerted.",
-        "costEffects": [
+        "costs": [
           {
-            "type": "exert",
-            "target": {
-              "type": "this"
-            }
-          },
-          {
-            "type": "banish",
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "play",
-                "cardType": [
-                  "item"
-                ],
-                "excludeSelf": true
-              }
-            }
+            "type": "exert"
           }
         ],
-        "rewardEffects": [
+        "effects": [
           {
-            "type": "reveal_top_conditional",
-            "filter": {},
-            "matchAction": "to_inkwell_exerted",
-            "target": {
-              "type": "self"
-            }
+            "type": "sequential",
+            "isMay": false,
+            "costEffects": [
+              {
+                "type": "banish",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "item"
+                    ],
+                    "excludeSelf": true
+                  }
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "reveal_top_conditional",
+                "filter": {},
+                "matchAction": "to_inkwell_exerted",
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           }
         ]
       }

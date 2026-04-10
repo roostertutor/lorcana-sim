@@ -7576,42 +7576,6 @@
             "type": "exert"
           }
         ],
-        "costEffects": [
-          {
-            "type": "pay_ink",
-            "amount": 2
-          },
-          {
-            "type": "banish",
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "play",
-                "cardType": [
-                  "item"
-                ]
-              }
-            }
-          },
-          {
-            "type": "banish",
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "play",
-                "cardType": [
-                  "item"
-                ]
-              }
-            }
-          }
-        ],
         "effects": [
           {
             "type": "deal_damage",
