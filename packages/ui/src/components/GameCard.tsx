@@ -259,6 +259,13 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
           if (cantSing) {
             leftIcons.push({ icon: "musical-note", color: "bg-red-700/90", label: "Can't sing" });
           }
+          // Remembered target restriction (Elsa Ice Palace: "can't ready")
+          const cantReady = mods?.selfActionRestrictions.get(instanceId)?.has("ready" as any);
+          if (cantReady && !instance.timedEffects.some(te => te.type === "cant_action" && te.action === "ready")) {
+            // Only show if the restriction comes from selfActionRestrictions (static/remembered),
+            // not from a timed effect (which would be a different mechanic like "can't ready next turn")
+            leftIcons.push({ icon: "lock-closed", color: "bg-cyan-700/90", label: "Can't ready" });
+          }
           if (leftIcons.length === 0) return null;
           return (
             <div className="absolute left-1 top-1/2 -translate-y-1/2 flex flex-col gap-0.5 pointer-events-none">
