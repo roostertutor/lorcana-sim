@@ -1994,7 +1994,7 @@ export type Condition =
   | { type: "cards_in_hand_gte"; amount: number; player: PlayerTarget }
   | { type: "card_has_trait"; trait: string }
   | { type: "card_is_type"; cardType: CardType }
-  | { type: "characters_in_play_gte"; amount: number; player: PlayerTarget; excludeSelf?: boolean }
+  | { type: "characters_in_play_gte"; amount: number; player: PlayerTarget; excludeSelf?: boolean; hasName?: string }
   | { type: "cards_in_hand_eq"; amount: number; player: PlayerTarget }
   | { type: "has_character_named"; name: string; player: PlayerTarget }
   | { type: "has_character_with_trait"; trait: string; player: PlayerTarget; excludeSelf?: boolean }

@@ -1778,7 +1778,7 @@
       {
         "type": "triggered",
         "storyName": "DARK KNOWLEDGE",
-        "rulesText": "When you play this character, for each of your characters named Maleficent in play, return a chosen opposing character, item, or location with cost 3 or less to their player's hand. (approximation: single bounce)",
+        "rulesText": "When you play this character, for each of your characters named Maleficent in play, return a chosen opposing character, item, or location with cost 3 or less to their player's hand.",
         "trigger": {
           "on": "enters_play"
         },
@@ -1794,12 +1794,108 @@
                   "item",
                   "location"
                 ],
-                "costAtMost": 3,
                 "owner": {
                   "type": "opponent"
-                }
+                },
+                "costAtMost": 3
               }
             }
+          },
+          {
+            "type": "conditional_on_player_state",
+            "condition": {
+              "type": "characters_in_play_gte",
+              "amount": 2,
+              "player": {
+                "type": "self"
+              },
+              "hasName": "Maleficent"
+            },
+            "thenEffects": [
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character",
+                      "item",
+                      "location"
+                    ],
+                    "owner": {
+                      "type": "opponent"
+                    },
+                    "costAtMost": 3
+                  }
+                }
+              }
+            ],
+            "elseEffects": []
+          },
+          {
+            "type": "conditional_on_player_state",
+            "condition": {
+              "type": "characters_in_play_gte",
+              "amount": 3,
+              "player": {
+                "type": "self"
+              },
+              "hasName": "Maleficent"
+            },
+            "thenEffects": [
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character",
+                      "item",
+                      "location"
+                    ],
+                    "owner": {
+                      "type": "opponent"
+                    },
+                    "costAtMost": 3
+                  }
+                }
+              }
+            ],
+            "elseEffects": []
+          },
+          {
+            "type": "conditional_on_player_state",
+            "condition": {
+              "type": "characters_in_play_gte",
+              "amount": 4,
+              "player": {
+                "type": "self"
+              },
+              "hasName": "Maleficent"
+            },
+            "thenEffects": [
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character",
+                      "item",
+                      "location"
+                    ],
+                    "owner": {
+                      "type": "opponent"
+                    },
+                    "costAtMost": 3
+                  }
+                }
+              }
+            ],
+            "elseEffects": []
           }
         ]
       }

@@ -659,7 +659,11 @@ export function evaluateCondition(
         const inst = state.cards[id];
         if (!inst) return false;
         const def = definitions[inst.definitionId];
-        return def?.cardType === "character";
+        if (def?.cardType !== "character") return false;
+        // Optional name filter — Maleficent Formidable Queen "for each of
+        // your characters named Maleficent in play".
+        if (condition.hasName && def.name !== condition.hasName) return false;
+        return true;
       });
       return charsInPlay.length >= condition.amount;
     }
