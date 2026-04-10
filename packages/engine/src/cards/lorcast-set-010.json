@@ -829,7 +829,7 @@
         },
         "effects": [
           {
-            "type": "put_top_of_deck_under",
+            "type": "put_top_card_under",
             "target": {
               "type": "triggering_card"
             },
@@ -2404,7 +2404,7 @@
         },
         "effects": [
           {
-            "type": "put_top_of_deck_under",
+            "type": "put_top_card_under",
             "target": {
               "type": "chosen",
               "filter": {
@@ -2959,7 +2959,7 @@
           {
             "type": "opponent_may_pay_to_avoid",
             "acceptEffect": {
-              "type": "put_on_bottom_of_deck",
+              "type": "put_card_on_bottom_of_deck",
               "from": "play",
               "target": {
                 "type": "last_resolved_target"
@@ -4205,7 +4205,7 @@
         },
         "effects": [
           {
-            "type": "put_top_of_deck_under",
+            "type": "put_top_card_under",
             "target": {
               "type": "chosen",
               "filter": {
@@ -5464,7 +5464,7 @@
         },
         "effects": [
           {
-            "type": "put_top_of_deck_under",
+            "type": "put_top_card_under",
             "target": {
               "type": "chosen",
               "filter": {
@@ -13701,7 +13701,7 @@
           {
             "type": "opponent_may_pay_to_avoid",
             "acceptEffect": {
-              "type": "put_on_bottom_of_deck",
+              "type": "put_card_on_bottom_of_deck",
               "from": "play",
               "target": {
                 "type": "last_resolved_target"

@@ -184,7 +184,7 @@ export type Effect =
   | ReturnToHandEffect
   | GainLoreEffect
   | GainStatsEffect
-  | GainConditionalChallengeBonusEffect
+  | GetsStatWhileChallengingEffect
   | MoveCharacterEffect
   | NameACardThenRevealEffect
   | RevealTopConditionalEffect
@@ -198,8 +198,8 @@ export type Effect =
   | ChooseNFromOpponentDiscardToBottomEffect
   | PutSelfUnderTargetEffect
   | ReturnAllToBottomInOrderEffect
-  | PutTopOfDeckUnderEffect
-  | PutOnBottomOfDeckEffect
+  | PutTopCardUnderEffect
+  | PutCardOnBottomOfDeckEffect
   | MoveDamageEffect
   | GrantCostReductionEffect
   | CreateCardEffect
@@ -623,8 +623,8 @@ export interface MoveDamageEffect {
  * ("Whenever you move a character here, put the top card of your deck
  * under this location facedown.").
  */
-export interface PutTopOfDeckUnderEffect {
-  type: "put_top_of_deck_under";
+export interface PutTopCardUnderEffect {
+  type: "put_top_card_under";
   /** Which card receives the new under-card.
    *  - "this" = the source instance.
    *  - "chosen" = player picks one of their in-play cards matching the filter
@@ -657,8 +657,8 @@ export interface PutTopOfDeckUnderEffect {
  * `moveCard(..., "bottom")` — exactly the same path the look_at_top
  * "rest_to_bottom" pattern uses.
  */
-export interface PutOnBottomOfDeckEffect {
-  type: "put_on_bottom_of_deck";
+export interface PutCardOnBottomOfDeckEffect {
+  type: "put_card_on_bottom_of_deck";
   /** Source zone of the card(s) being moved. */
   from: "hand" | "discard" | "play";
   /** Whose zone the source comes from. Defaults to "self".
@@ -961,8 +961,8 @@ export interface MoveCharacterEffect {
  * (only on attack, only against matching defender) but cannot reuse the keyword
  * because Challenger by rule (CRD 4.6.8) does not apply against locations.
  */
-export interface GainConditionalChallengeBonusEffect {
-  type: "gain_conditional_challenge_bonus";
+export interface GetsStatWhileChallengingEffect {
+  type: "gets_stat_while_challenging";
   strength: number;
   defenderFilter: CardFilter;
   duration: "this_turn";
@@ -1331,7 +1331,7 @@ export type StaticEffect =
   | ModifyStatStatic
   | ModifyStatPerCountStatic
   | ModifyStatPerDamageStatic
-  | ModifyStatWhileChallengedStatic
+  | GetsStatWhileBeingChallengedStatic
   | CantBeChallengedException
   | CostReductionStatic
   | ActionRestrictionStatic
@@ -1762,8 +1762,8 @@ export interface ModifyStatPerDamageStatic {
  * "While being challenged, this character gets +N {stat}."
  * Only applies during challenge damage calculation — not an always-on modifier.
  */
-export interface ModifyStatWhileChallengedStatic {
-  type: "modify_stat_while_challenged";
+export interface GetsStatWhileBeingChallengedStatic {
+  type: "gets_stat_while_being_challenged";
   stat: "strength" | "willpower";
   modifier: number;
   /** Default "self" — modifies the defender (this card). "attacker" applies the

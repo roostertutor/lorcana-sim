@@ -640,7 +640,7 @@ describe("§6 Set 2 Card Coverage", () => {
 
   // ===== ACCURACY FIXES =====
 
-  // modify_stat_while_challenged: bonus only applies during challenge damage calc
+  // gets_stat_while_being_challenged: bonus only applies during challenge damage calc
   it("Enchantress: +2 STR only during challenge, not permanently", () => {
     let state = startGame(["enchantress-unexpected-judge"]);
     let enchantressId: string;

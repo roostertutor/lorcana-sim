@@ -10112,7 +10112,7 @@
     ],
     "actionEffects": [
       {
-        "type": "gain_conditional_challenge_bonus",
+        "type": "gets_stat_while_challenging",
         "strength": 3,
         "defenderFilter": {
           "cardType": [

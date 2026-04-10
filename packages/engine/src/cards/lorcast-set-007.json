@@ -7019,7 +7019,7 @@
             "isMay": true,
             "costEffects": [
               {
-                "type": "put_on_bottom_of_deck",
+                "type": "put_card_on_bottom_of_deck",
                 "from": "discard",
                 "filter": {
                   "cardType": [
@@ -12162,7 +12162,7 @@
             "isMay": true,
             "costEffects": [
               {
-                "type": "put_on_bottom_of_deck",
+                "type": "put_card_on_bottom_of_deck",
                 "from": "discard",
                 "filter": {
                   "cardType": [

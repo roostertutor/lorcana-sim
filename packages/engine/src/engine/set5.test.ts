@@ -304,7 +304,7 @@ describe("§5 Set 5 — put_on_bottom_of_deck Effect", () => {
 
     state = applyEffect(
       state,
-      { type: "put_on_bottom_of_deck", from: "hand" },
+      { type: "put_card_on_bottom_of_deck", from: "hand" },
       "src",
       "player1",
       LORCAST_CARD_DEFINITIONS,
@@ -333,7 +333,7 @@ describe("§5 Set 5 — put_on_bottom_of_deck Effect", () => {
     state = applyEffect(
       state,
       {
-        type: "put_on_bottom_of_deck",
+        type: "put_card_on_bottom_of_deck",
         from: "discard",
         filter: { cardType: ["item"] },
         amount: 3,

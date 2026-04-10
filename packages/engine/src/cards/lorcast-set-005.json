@@ -3976,7 +3976,7 @@
         "storyName": "FIDDLE FADDLE",
         "rulesText": "While being challenged, this character gets +2 {S}.",
         "effect": {
-          "type": "modify_stat_while_challenged",
+          "type": "gets_stat_while_being_challenged",
           "stat": "strength",
           "modifier": 2
         }
@@ -8501,7 +8501,7 @@
                 }
               },
               {
-                "type": "put_on_bottom_of_deck",
+                "type": "put_card_on_bottom_of_deck",
                 "from": "hand"
               }
             ]
@@ -12028,7 +12028,7 @@
                 }
               },
               {
-                "type": "put_on_bottom_of_deck",
+                "type": "put_card_on_bottom_of_deck",
                 "from": "hand"
               }
             ]

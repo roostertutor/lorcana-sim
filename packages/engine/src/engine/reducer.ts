@@ -917,7 +917,7 @@ function applyChallenge(
   // (Louie One Cool Duck: "the challenging character gets -1 {S}").
   for (const ability of defenderDef.abilities) {
     if (ability.type !== "static") continue;
-    if (ability.effect.type !== "modify_stat_while_challenged") continue;
+    if (ability.effect.type !== "gets_stat_while_being_challenged") continue;
     if (ability.effect.stat !== "strength") continue;
     if (ability.effect.affects === "attacker") {
       attackerStr += ability.effect.modifier;
@@ -2519,9 +2519,9 @@ export function applyEffect(
       return state;
     }
 
-    case "put_on_bottom_of_deck": {
+    case "put_card_on_bottom_of_deck": {
       // CRD: place card(s) on the bottom of a deck without shuffling.
-      // See PutOnBottomOfDeckEffect docs for variants.
+      // See PutCardOnBottomOfDeckEffect docs for variants.
       const amount = effect.amount ?? 1;
       const ownerScope = effect.ownerScope ?? "self";
       const targetPlayer =
@@ -2692,7 +2692,7 @@ export function applyEffect(
       };
     }
 
-    case "put_top_of_deck_under": {
+    case "put_top_card_under": {
       // CRD 8.4.2: Move the top card of the controller's deck under a target.
       // target: "this" → the source instance. "chosen" → player picks an
       // eligible in-play card (typically "one of your characters or locations
@@ -2977,7 +2977,7 @@ export function applyEffect(
       return state;
     }
 
-    case "gain_conditional_challenge_bonus": {
+    case "gets_stat_while_challenging": {
       // CRD 6.1.4 / 8.5.1-style: add a turn-scoped conditional challenge bonus
       // for the controlling player. Applied in performChallenge against matching defenders.
       const player = state.players[controllingPlayerId];
@@ -5456,7 +5456,7 @@ function applyEffectToTarget(
         ],
       };
     }
-    case "put_on_bottom_of_deck": {
+    case "put_card_on_bottom_of_deck": {
       // Resolution path for chosen-from-play targets. The chosen instance moves
       // to the bottom of its OWNER'S deck (Wrong Lever!, Do You Want to Build
       // A Snowman?, opponent-chosen variants).
@@ -5464,7 +5464,7 @@ function applyEffectToTarget(
       if (!inst) return state;
       return moveCard(state, targetInstanceId, inst.ownerId, "deck", "bottom");
     }
-    case "put_top_of_deck_under": {
+    case "put_top_card_under": {
       // CRD 8.4.2: Resolution path for chosen-target variant. Top card of the
       // controller's deck goes facedown under the chosen carrier, and the
       // card_put_under trigger fires with the carrier as the source.

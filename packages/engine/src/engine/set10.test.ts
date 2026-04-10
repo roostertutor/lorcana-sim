@@ -260,8 +260,8 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     expect(mods.statBonuses.get(mortyId)?.lore ?? 0).toBe(0);
     // Apply put_top_of_deck_under effect directly (Boost keyword value may not
     // be set on this card; we exercise the underlying counting path).
-    state = applyEffect(state, { type: "put_top_of_deck_under", target: { type: "this" } } as any, mortyId, "player1", LORCAST_CARD_DEFINITIONS, []);
-    state = applyEffect(state, { type: "put_top_of_deck_under", target: { type: "this" } } as any, mortyId, "player1", LORCAST_CARD_DEFINITIONS, []);
+    state = applyEffect(state, { type: "put_top_card_under", target: { type: "this" } } as any, mortyId, "player1", LORCAST_CARD_DEFINITIONS, []);
+    state = applyEffect(state, { type: "put_top_card_under", target: { type: "this" } } as any, mortyId, "player1", LORCAST_CARD_DEFINITIONS, []);
     mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
     expect(mods.statBonuses.get(mortyId)?.lore).toBe(2);
   });
@@ -336,8 +336,8 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     let aliceId: string;
     ({ state, instanceId: aliceId } = injectCard(state, "player1", "alice-well-read-whisper", "play", { isDrying: false }));
     // Seed two under-cards via the direct effect.
-    state = applyEffect(state, { type: "put_top_of_deck_under", target: { type: "this" } } as any, aliceId, "player1", LORCAST_CARD_DEFINITIONS, []);
-    state = applyEffect(state, { type: "put_top_of_deck_under", target: { type: "this" } } as any, aliceId, "player1", LORCAST_CARD_DEFINITIONS, []);
+    state = applyEffect(state, { type: "put_top_card_under", target: { type: "this" } } as any, aliceId, "player1", LORCAST_CARD_DEFINITIONS, []);
+    state = applyEffect(state, { type: "put_top_card_under", target: { type: "this" } } as any, aliceId, "player1", LORCAST_CARD_DEFINITIONS, []);
     const aliceBefore = getInstance(state, aliceId);
     expect(aliceBefore.cardsUnder.length).toBe(2);
     const handBefore = getZone(state, "player1", "hand").length;

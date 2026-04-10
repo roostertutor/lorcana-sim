@@ -19,7 +19,7 @@
         "storyName": "SPRING THE TRAP",
         "rulesText": "While this character is being challenged, the challenging character gets -1 {S}.",
         "effect": {
-          "type": "modify_stat_while_challenged",
+          "type": "gets_stat_while_being_challenged",
           "stat": "strength",
           "modifier": -1,
           "affects": "attacker"
@@ -64,7 +64,7 @@
         "storyName": "SPRING THE TRAP",
         "rulesText": "While this character is being challenged, the challenging character gets -1 {S}.",
         "effect": {
-          "type": "modify_stat_while_challenged",
+          "type": "gets_stat_while_being_challenged",
           "stat": "strength",
           "modifier": -1,
           "affects": "attacker"
@@ -4079,7 +4079,7 @@
         },
         "effects": [
           {
-            "type": "put_on_bottom_of_deck",
+            "type": "put_card_on_bottom_of_deck",
             "from": "play",
             "target": {
               "type": "chosen",
@@ -7099,7 +7099,7 @@
     ],
     "actionEffects": [
       {
-        "type": "put_on_bottom_of_deck",
+        "type": "put_card_on_bottom_of_deck",
         "from": "play",
         "target": {
           "type": "chosen",
@@ -12390,7 +12390,7 @@
         },
         "effects": [
           {
-            "type": "put_on_bottom_of_deck",
+            "type": "put_card_on_bottom_of_deck",
             "from": "play",
             "target": {
               "type": "chosen",
@@ -12837,7 +12837,7 @@
     ],
     "actionEffects": [
       {
-        "type": "put_on_bottom_of_deck",
+        "type": "put_card_on_bottom_of_deck",
         "from": "play",
         "target": {
           "type": "chosen",

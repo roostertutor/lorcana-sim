@@ -377,7 +377,7 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   search:                 (e) => `search your deck for ${e.filter ? renderFilter(e.filter) : "a card"}`,
   shuffle_into_deck:      (e) => `shuffle ${renderTarget(e.target ?? {})} into your deck`,
   move_to_inkwell:        (e) => `put ${renderTarget(e.target ?? {})} into your inkwell`,
-  put_top_of_deck_under:  (e) => `put the top card of your deck facedown under ${renderTarget(e.target ?? {})}`,
+  put_top_card_under:  (e) => `put the top card of your deck facedown under ${renderTarget(e.target ?? {})}`,
 
   // Move a character to a location. The `character` selector reuses target
   // shapes ("this" / "chosen" / "all" with maxCount / "triggering_card" /
@@ -455,7 +455,7 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
 
   // "Put TARGET on the bottom of your deck" — `from` is the source zone
   // (hand / play / discard). Used by King Candy Sweet Abomination.
-  put_on_bottom_of_deck: (e) => {
+  put_card_on_bottom_of_deck: (e) => {
     const where = e.from === "play" ? renderTarget(e.target ?? {}) : `a card from your ${e.from ?? "hand"}`;
     return `put ${where} on the bottom of your deck`;
   },
@@ -594,7 +594,7 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   // "While being challenged, the challenging character gets -1 {S}" — `affects`
   // is "attacker" or "self" depending on which side of the challenge gets the
   // modifier.
-  modify_stat_while_challenged: (e) => {
+  gets_stat_while_being_challenged: (e) => {
     const stat = e.stat === "lore" ? "{L}" : e.stat === "willpower" ? "{W}" : "{S}";
     const who = e.affects === "attacker" ? "the challenging character" : "this character";
     return `while this character is being challenged, ${who} gets ${signed(e.modifier ?? 0)} ${stat}`;

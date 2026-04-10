@@ -2696,7 +2696,7 @@
             "type": "sequential",
             "costEffects": [
               {
-                "type": "put_on_bottom_of_deck",
+                "type": "put_card_on_bottom_of_deck",
                 "from": "discard",
                 "ownerScope": "self",
                 "target": {
@@ -2774,7 +2774,7 @@
         },
         "effects": [
           {
-            "type": "put_on_bottom_of_deck",
+            "type": "put_card_on_bottom_of_deck",
             "from": "discard",
             "ownerScope": "target_player",
             "isMay": true
@@ -2824,7 +2824,7 @@
         },
         "effects": [
           {
-            "type": "put_on_bottom_of_deck",
+            "type": "put_card_on_bottom_of_deck",
             "from": "discard",
             "ownerScope": "target_player",
             "isMay": true
@@ -3254,7 +3254,7 @@
           "amount": 3
         },
         "noEffect": {
-          "type": "put_on_bottom_of_deck",
+          "type": "put_card_on_bottom_of_deck",
           "from": "play",
           "target": {
             "type": "chosen",
@@ -4106,7 +4106,7 @@
             "isMay": true,
             "effects": [
               {
-                "type": "put_on_bottom_of_deck",
+                "type": "put_card_on_bottom_of_deck",
                 "from": "discard",
                 "filter": {
                   "cardType": [
@@ -4580,7 +4580,7 @@
             "isMay": true,
             "costEffects": [
               {
-                "type": "put_top_of_deck_under",
+                "type": "put_top_card_under",
                 "target": {
                   "type": "chosen",
                   "filter": {
@@ -4916,7 +4916,7 @@
         },
         "effects": [
           {
-            "type": "put_top_of_deck_under",
+            "type": "put_top_card_under",
             "isMay": true,
             "target": {
               "type": "chosen",
@@ -7130,7 +7130,7 @@
         ],
         "effects": [
           {
-            "type": "put_top_of_deck_under",
+            "type": "put_top_card_under",
             "target": {
               "type": "chosen",
               "filter": {
@@ -7305,7 +7305,7 @@
         },
         "effects": [
           {
-            "type": "put_top_of_deck_under",
+            "type": "put_top_card_under",
             "target": {
               "type": "this"
             }
@@ -8027,7 +8027,7 @@
             "isMay": true,
             "costEffects": [
               {
-                "type": "put_on_bottom_of_deck",
+                "type": "put_card_on_bottom_of_deck",
                 "from": "discard",
                 "filter": {
                   "cardType": [
@@ -8163,7 +8163,7 @@
         },
         "effects": [
           {
-            "type": "put_top_of_deck_under",
+            "type": "put_top_card_under",
             "target": {
               "type": "chosen",
               "filter": {
@@ -8564,7 +8564,7 @@
         },
         "effects": [
           {
-            "type": "put_top_of_deck_under",
+            "type": "put_top_card_under",
             "target": {
               "type": "this"
             }
@@ -11141,7 +11141,7 @@
         },
         "effects": [
           {
-            "type": "put_on_bottom_of_deck",
+            "type": "put_card_on_bottom_of_deck",
             "from": "discard",
             "ownerScope": "target_player",
             "isMay": true
@@ -11369,7 +11369,7 @@
             "isMay": true,
             "costEffects": [
               {
-                "type": "put_top_of_deck_under",
+                "type": "put_top_card_under",
                 "target": {
                   "type": "chosen",
                   "filter": {
@@ -11740,7 +11740,7 @@
         },
         "effects": [
           {
-            "type": "put_top_of_deck_under",
+            "type": "put_top_card_under",
             "target": {
               "type": "this"
             }
@@ -12200,7 +12200,7 @@
             "type": "sequential",
             "costEffects": [
               {
-                "type": "put_on_bottom_of_deck",
+                "type": "put_card_on_bottom_of_deck",
                 "from": "discard",
                 "ownerScope": "self",
                 "target": {
@@ -12721,7 +12721,7 @@
         },
         "effects": [
           {
-            "type": "put_top_of_deck_under",
+            "type": "put_top_card_under",
             "target": {
               "type": "chosen",
               "filter": {

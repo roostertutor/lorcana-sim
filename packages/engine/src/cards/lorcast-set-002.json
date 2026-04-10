@@ -4146,7 +4146,7 @@
         "storyName": "TEST OF CHARACTER",
         "rulesText": "While being challenged, this character gets +2 {S}.",
         "effect": {
-          "type": "modify_stat_while_challenged",
+          "type": "gets_stat_while_being_challenged",
           "stat": "strength",
           "modifier": 2
         }

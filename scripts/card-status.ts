@@ -70,9 +70,9 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // (boost-subzone, card-under-trigger, card-under-static, put-facedown-under-effect,
   //  cards-under-count, cards-under-to-hand removed: boost primitives implemented
   //  (CRD 8.4.2). card_put_under TriggerEvent, hasCardUnder CardFilter,
-  //  cards_under_count DynamicAmount, put_top_of_deck_under (this OR chosen),
+  //  cards_under_count DynamicAmount, put_top_card_under (this OR chosen),
   //  put_cards_under_into_hand effect, you_control_matching condition all live.
-  //  Matched by FITS_GRAMMAR_PATTERNS targeting put_top_of_deck_under,
+  //  Matched by FITS_GRAMMAR_PATTERNS targeting put_top_card_under,
   //  put_cards_under_into_hand, modify_stat_per_count, condition_this_has_cards_under
   //  capabilities below.)
   // CRD 6.5 Replacement effects — "would ... instead"
@@ -247,7 +247,7 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // "Draw a card for each character you have in play" — dynamic draw from count
   [/\bdraw (a |\d+ )cards? for each .{0,40}you have in play\b/i, "dynamic-draw-from-count"],
   // "While this character is being challenged" — static effect gated by being-challenged state
-  // (being-challenged-static removed: modify_stat_while_challenged + affects:attacker implemented.)
+  // (being-challenged-static removed: gets_stat_while_being_challenged + affects:attacker implemented.)
   // "Reveal up to N X character cards and up to N Y" (Family Madrigal) — multi-filter search/look
   [/\breveal up to \d+ .{0,40}and up to \d+ .{0,30}cards?\b/i, "multi-filter-look-reveal"],
   // "Whenever you play a Floodborn character on this card" — shift-onto-self trigger
@@ -304,7 +304,7 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   // (draw-to-n removed: DrawEffect.untilHandSize implemented — matched as
   //  fits-grammar via the "draw..until" pattern below.)
   // (mill removed: MillEffect implemented; matched as fits-grammar below.)
-  // (put-on-bottom removed: put_on_bottom_of_deck Effect implemented; matched
+  // (put-on-bottom removed: put_card_on_bottom_of_deck Effect implemented; matched
   //  by FITS_GRAMMAR_PATTERNS below.)
   // Opponent-chosen banish ("each opponent chooses and banishes one of their characters")
   [/\beach opponent chooses and banishes\b/i, "opponent-chosen-banish"],
@@ -408,14 +408,14 @@ const CAPABILITIES = new Set<string>([
   // Effects (Effect union)
   "draw", "deal_damage", "remove_damage", "banish", "return_to_hand",
   "gain_lore", "lose_lore", "gain_stats", "grant_cost_reduction",
-  "move_damage", "put_top_of_deck_under", "return_all_to_bottom_in_order",
+  "move_damage", "put_top_card_under", "return_all_to_bottom_in_order",
   "put_cards_under_into_hand", "cant_be_challenged_timed",
   "reveal_top_conditional", "name_a_card_then_reveal", "move_character",
-  "gain_conditional_challenge_bonus", "create_card", "search", "choose",
+  "gets_stat_while_challenging", "create_card", "search", "choose",
   "exert", "ready", "grant_keyword", "cant_action", "look_at_top",
   "discard_from_hand", "conditional_on_target", "play_for_free", "play-from-under",
   "shuffle_into_deck", "move_to_inkwell", "grant_extra_ink_play",
-  "put_on_bottom_of_deck", "pay_ink",
+  "put_card_on_bottom_of_deck", "pay_ink",
   "sequential", "create_floating_trigger_on_self",
   "mill",
   "mass_inkwell",
@@ -574,7 +574,7 @@ const FITS_GRAMMAR_PATTERNS: [RegExp, string][] = [
   [/\breveal the top card of your deck\b/i, "reveal_top_conditional"],
   [/^sing together \d/i, "sing_together_reminder"],
   // Put card on bottom of deck (no shuffle — different from shuffle_into_deck)
-  [/\bput .{0,40}on the bottom of .{0,20}deck\b/i, "put_on_bottom_of_deck"],
+  [/\bput .{0,40}on the bottom of .{0,20}deck\b/i, "put_card_on_bottom_of_deck"],
   // "you may pay N {I} to <effect>" — sequential w/ isMay + pay_ink cost effect.
   [/\bmay pay \d+ \{I\} to\b/i, "sequential"],
   // Dynamic amount: damage/lore/draw/lose-lore tied to a stat, count, or cost.
@@ -584,8 +584,8 @@ const FITS_GRAMMAR_PATTERNS: [RegExp, string][] = [
   [/equal to (their|this character'?s?|chosen|the number|the cost|her \{|his \{|its \{)\b/i, "dynamic-amount"],
   [/\bgain lore equal to (another|a|chosen|her|his)\b/i, "dynamic-amount"],
   // Boost family — CRD 8.4.2 (post-c6aa811 + 975d3f5 wiring).
-  [/\bboost \d+ \{I\}/i, "put_top_of_deck_under"],
-  [/\bboost ability\b/i, "put_top_of_deck_under"],
+  [/\bboost \d+ \{I\}/i, "put_top_card_under"],
+  [/\bboost ability\b/i, "put_top_card_under"],
   // "Whenever you put a card under [this/them/one of your]" → card_put_under trigger
   [/\bwhenever you put a card .{0,40}under\b/i, "trigger_card_put_under"],
   // "While there's a card under [this/her/him]" → this_has_cards_under condition
@@ -596,9 +596,9 @@ const FITS_GRAMMAR_PATTERNS: [RegExp, string][] = [
   [/\bwhile you have .{0,40}with a card under\b/i, "condition_you_control_matching"],
   // "if you have a character or location in play with a card under" → you_control_matching
   [/\bif you have .{0,40}with a card under\b/i, "condition_you_control_matching"],
-  // "put the top card of your deck (facedown )?under" → put_top_of_deck_under effect
-  [/\bput the top card .{0,30}under\b/i, "put_top_of_deck_under"],
-  [/\bput .{0,30}facedown under\b/i, "put_top_of_deck_under"],
+  // "put the top card of your deck (facedown )?under" → put_top_card_under effect
+  [/\bput the top card .{0,30}under\b/i, "put_top_card_under"],
+  [/\bput .{0,30}facedown under\b/i, "put_top_card_under"],
   // "for each card under" / "number of cards under" → cards_under_count dynamic amount
   // Engine resolves via modify_stat_per_count.countCardsUnderSelf for statics, or
   // cards_under_count DynamicAmount variant for effects.
