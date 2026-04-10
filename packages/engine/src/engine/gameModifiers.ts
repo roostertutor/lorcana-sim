@@ -568,6 +568,28 @@ export function getGameModifiers(
           break;
         }
 
+        case "restrict_remembered_target_action": {
+          // Elsa's Ice Palace ETERNAL WINTER: for each instance id in
+          // source.rememberedTargetIds, add the action to that instance's
+          // selfActionRestrictions. The location's enters_play trigger seeded
+          // rememberedTargetIds via the remember_chosen_target effect; this
+          // static reapplies the restriction every gameModifiers call as long
+          // as the source is in play.
+          const eff = effect as any;
+          const remembered = instance.rememberedTargetIds ?? [];
+          for (const id of remembered) {
+            // Skip if the target instance has left play.
+            if (!state.cards[id] || state.cards[id]!.zone !== "play") continue;
+            let set = modifiers.selfActionRestrictions.get(id);
+            if (!set) {
+              set = new Set();
+              modifiers.selfActionRestrictions.set(id, set);
+            }
+            set.add(eff.action);
+          }
+          break;
+        }
+
         case "conditional_challenger_self": {
           // Shenzi Scar's Accomplice EASY PICKINGS: "while challenging a
           // damaged character, this character gets +2 {S}". Per-instance

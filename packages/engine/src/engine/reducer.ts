@@ -3807,6 +3807,28 @@ export function applyEffect(
       return state;
     }
 
+    // Elsa's Ice Palace ETERNAL WINTER: surface a chooser, then write the
+    // chosen instance id onto the SOURCE's rememberedTargetIds field. The
+    // location's static effect (restrict_remembered_target_action) consults
+    // this field on each gameModifiers iteration, so the restriction lasts
+    // exactly as long as the location is in play.
+    case "remember_chosen_target": {
+      const validTargets = findValidTargets(state, effect.filter, controllingPlayerId, definitions, sourceInstanceId);
+      if (validTargets.length === 0) return state;
+      return {
+        ...state,
+        pendingChoice: {
+          type: "choose_target",
+          choosingPlayerId: controllingPlayerId,
+          prompt: "Choose a character to remember.",
+          validTargets,
+          pendingEffect: effect,
+          sourceInstanceId,
+          triggeringCardInstanceId,
+        },
+      };
+    }
+
     // Tiana Restaurant Owner SPECIAL RESERVATION generalization. The
     // controller's trigger fires; the OPPOSING player (owner of the
     // triggering card) gets a may-prompt to accept the cost (e.g. pay 3 ink)
@@ -5482,6 +5504,17 @@ function applyEffectToTarget(
     }
     case "return_to_hand":
       return zoneTransition(state, targetInstanceId, "hand", definitions, events, { reason: "returned" });
+    case "remember_chosen_target": {
+      // Resolution path: write the chosen target id to the SOURCE's
+      // rememberedTargetIds field. Persists until the source leaves play
+      // (gameModifiers iteration just stops seeing it). Elsa's Ice Palace.
+      const sourceInst = state.cards[sourceInstanceId];
+      if (!sourceInst) return state;
+      const existing = sourceInst.rememberedTargetIds ?? [];
+      return updateInstance(state, sourceInstanceId, {
+        rememberedTargetIds: [...existing, targetInstanceId],
+      });
+    }
     case "create_floating_trigger": {
       // Resolution path for `attachTo: "chosen"` — store the floating trigger
       // scoped to the chosen instance. Bruno Madrigal, Medallion Weights.

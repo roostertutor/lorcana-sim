@@ -234,6 +234,7 @@ export type Effect =
   | ConditionalOnPlayerStateEffect
   | ChosenOpposingMayBottomOrRewardEffect
   | OpponentMayPayToAvoidEffect
+  | RememberChosenTargetEffect
   | SingCostBonusTargetEffect;
 
 /**
@@ -1013,6 +1014,19 @@ export interface OpponentMayPayToAvoidEffect {
   rejectEffect: Effect;
 }
 
+/**
+ * Capture a chosen target instance id onto the SOURCE's `rememberedTargetIds`
+ * field for later reference by static effects. Used by Elsa's Ice Palace
+ * ETERNAL WINTER ("When you play this location, CHOOSE AN EXERTED CHARACTER.
+ * While this location is in play, that character can't ready..."). The
+ * remembered id persists on the source instance and is consulted by the
+ * RestrictRememberedTargetActionStatic each gameModifiers iteration.
+ */
+export interface RememberChosenTargetEffect {
+  type: "remember_chosen_target";
+  filter: CardFilter;
+}
+
 export interface CreateCardEffect {
   type: "create_card";
   /** The cardDefinitionId of the token to create */
@@ -1342,6 +1356,7 @@ export type StaticEffect =
   | DamageImmunityStatic
   | GrantActivatedAbilityStatic
   | CantActionSelfStatic
+  | RestrictRememberedTargetActionStatic
   | GrantPlayForFreeSelfStatic
   | GrantShiftSelfStatic
   | MimicryTargetSelfStatic
@@ -1626,6 +1641,19 @@ export interface PlayableFromZoneSelfStatic {
  */
 export interface CantActionSelfStatic {
   type: "cant_action_self";
+  action: RestrictedAction;
+}
+
+/**
+ * Static restriction applied to whichever instances the SOURCE has marked as
+ * remembered (via remember_chosen_target on enters_play). Used by Elsa's Ice
+ * Palace ETERNAL WINTER: when the source location is in play AND has a
+ * remembered target, that target gets `cant_action ready`. The static is
+ * iterated by gameModifiers each call, so when the source leaves play the
+ * restriction stops applying automatically.
+ */
+export interface RestrictRememberedTargetActionStatic {
+  type: "restrict_remembered_target_action";
   action: RestrictedAction;
 }
 
@@ -2304,6 +2332,17 @@ export interface CardInstance {
    * parent leaves play, all cards under it go to discard (CRD 8.10.5).
    */
   cardsUnder: string[];
+
+  /** Persistent "remembered" target instance ids set by an effect on this card.
+   *  Used by Elsa's Ice Palace ETERNAL WINTER ("When you play this location,
+   *  choose an exerted character. While this location is in play, that
+   *  character can't ready at the start of their turn.") — the location
+   *  remembers the chosen character so a static ability can apply the
+   *  cant-ready restriction every gameModifiers iteration. The remembered ids
+   *  are NOT timed effects on the targets — they live on the source's instance.
+   *  When the source leaves play, gameModifiers no longer iterates its statics,
+   *  so the restriction stops applying automatically. */
+  rememberedTargetIds?: string[];
 
   /** Set 10/11 cards-under-this-turn condition (Lady Tremaine Sinister
    *  Socialite, Willie the Giant Ghost of Christmas Present): per-turn count

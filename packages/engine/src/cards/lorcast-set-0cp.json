@@ -55,27 +55,31 @@
       {
         "type": "triggered",
         "storyName": "ETERNAL WINTER",
-        "rulesText": "When you play this location, choose an exerted character. While this location is in play, that character can't ready at the start of their turn. (approximation: only locks through their next turn)",
+        "rulesText": "When you play this location, choose an exerted character.",
         "trigger": {
           "on": "enters_play"
         },
         "effects": [
           {
-            "type": "cant_action",
-            "action": "ready",
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ],
-                "isExerted": true
-              }
-            },
-            "duration": "end_of_owner_next_turn"
+            "type": "remember_chosen_target",
+            "filter": {
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "isExerted": true
+            }
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "ETERNAL WINTER",
+        "rulesText": "While this location is in play, that character can't ready at the start of their turn.",
+        "effect": {
+          "type": "restrict_remembered_target_action",
+          "action": "ready"
+        }
       }
     ],
     "setId": "cp",
