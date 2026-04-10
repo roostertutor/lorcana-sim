@@ -59,7 +59,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Universal Shift
+~~## Universal Shift~~ **RESOLVED (commit 0df64b2) — indigo U-Shift badge on hand cards**
 
 **Engine**: `universal_shift_self` static — the card can shift onto ANY own character, not just name-matched ones. `gameModifiers.universalShifters` Set tracks these.
 
@@ -399,7 +399,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Dual-name characters
+~~## Dual-name characters~~ **RESOLVED (commit 0df64b2) — gray dual-name badge at top-left**
 
 **Engine**: `CardDefinition.alternateNames: string[]`. `hasName` filter consults the alias list.
 
