@@ -376,6 +376,8 @@ export interface MillEffect {
   amount: DynamicAmount;
   /** Whose deck to mill. "self" / "opponent" / "both" / "chosen". */
   target: PlayerTarget;
+  /** CRD 6.1.4 */
+  isMay?: boolean;
 }
 
 /**
