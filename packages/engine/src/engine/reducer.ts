@@ -2698,8 +2698,10 @@ export function applyEffect(
       // CRD 8.4.2: Move the top card of the controller's deck under a target.
       // target: "this" → the source instance. "chosen" → player picks an
       // eligible in-play card (typically "one of your characters or locations
-      // with Boost"). The chosen path surfaces a choose_target pendingChoice
-      // and is resolved later in applyEffectToTarget.
+      // with Boost"). "triggering_card" → strict "under THEM" referring to
+      // the just-played card on a card_played trigger (Scrooge McDuck Cavern
+      // Prospector SPECULATION). The chosen path surfaces a choose_target
+      // pendingChoice and is resolved later in applyEffectToTarget.
       if (effect.target.type === "chosen") {
         const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state;
@@ -2714,6 +2716,11 @@ export function applyEffect(
             optional: effect.isMay ?? false,
           },
         };
+      }
+      if (effect.target.type === "triggering_card" && triggeringCardInstanceId) {
+        // Reroute through applyEffectToTarget so the existing "this"-style
+        // "put top under target" logic runs against the just-played card.
+        return applyEffectToTarget(state, { ...effect, target: { type: "this" } } as any, triggeringCardInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId, triggeringCardInstanceId);
       }
       // target: "this" — move the top card of the source's owner's deck under the source.
       // Same mutation as BOOST_CARD's pay-N path, just without the cost.
