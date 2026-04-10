@@ -44,7 +44,7 @@
       {
         "type": "triggered",
         "storyName": "TO THE TABLE",
-        "rulesText": "When you play this character, you may search your deck for a Madrigal character card and reveal that card to all players. Shuffle your deck and put that card on top of it. (approximation: put into hand instead of top of deck)",
+        "rulesText": "When you play this character, you may search your deck for a Madrigal character card and reveal that card to all players. Shuffle your deck and put that card on top of it.",
         "trigger": {
           "on": "enters_play"
         },
@@ -61,7 +61,8 @@
               "type": "self"
             },
             "zone": "deck",
-            "putInto": "hand"
+            "putInto": "deck",
+            "position": "top"
           }
         ]
       }

@@ -4269,6 +4269,50 @@ export function applyEffect(
       return state;
     }
 
+    // CRD: deck search ("search your deck for X, reveal it, ..."). Bot
+    // heuristic: pick the first matching card in the deck and move it to the
+    // requested destination. The deck is treated as shuffled-equivalent for
+    // analytics, so "shuffle your deck and put that card on top" reduces to
+    // "find the card and put it on top". Snow White Well Wisher, Dragon Gem,
+    // Hiro Hamada, ~12 other cards.
+    case "search": {
+      const targetPlayer = effect.target.type === "opponent"
+        ? getOpponent(controllingPlayerId) : controllingPlayerId;
+      const sourceCards = getZone(state, targetPlayer, effect.zone);
+      const matchId = sourceCards.find((id) => {
+        const inst = state.cards[id];
+        const def = inst ? definitions[inst.definitionId] : undefined;
+        return inst && def ? matchesFilter(inst, def, effect.filter, state, controllingPlayerId, sourceInstanceId, definitions) : false;
+      });
+      if (!matchId) return state;
+      if (effect.putInto === "deck" && effect.position === "top") {
+        // Move to top of deck — moveCard puts it at the END (bottom) of the
+        // target zone by default, so we need explicit position.
+        return moveCard(state, matchId, targetPlayer, "deck", "top");
+      }
+      return moveCard(state, matchId, targetPlayer, effect.putInto);
+    }
+
+    // Tutor — same shape as search but defaults differ. "Shuffle your deck and
+    // put that card on top of it" is the most common wording, so the default
+    // putInto is "deck" with position "top". Minnie Mouse Drum Major, Merlin
+    // Intellectual Visionary.
+    case "tutor": {
+      const deck = getZone(state, controllingPlayerId, "deck");
+      const matchId = deck.find((id) => {
+        const inst = state.cards[id];
+        const def = inst ? definitions[inst.definitionId] : undefined;
+        return inst && def ? matchesFilter(inst, def, effect.filter, state, controllingPlayerId, sourceInstanceId, definitions) : false;
+      });
+      if (!matchId) return state;
+      const dest = effect.putInto ?? "deck";
+      const pos = effect.position ?? "top";
+      if (dest === "deck") {
+        return moveCard(state, matchId, controllingPlayerId, "deck", pos);
+      }
+      return moveCard(state, matchId, controllingPlayerId, dest);
+    }
+
     // "You pay N less for the next X you play this turn"
     case "cost_reduction": {
       const existing = state.players[controllingPlayerId].costReductions ?? [];

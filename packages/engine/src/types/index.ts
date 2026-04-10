@@ -204,6 +204,7 @@ export type Effect =
   | GrantCostReductionEffect
   | CreateCardEffect
   | SearchEffect
+  | TutorEffect
   | ChooseEffect
   | ExertEffect
   | GrantKeywordEffect
@@ -985,6 +986,29 @@ export interface SearchEffect {
   target: PlayerTarget;
   zone: "deck" | "discard";
   putInto: ZoneName;
+  /** When putInto is "deck", controls whether the matched card goes on top
+   *  or bottom of the deck. Default: "bottom". Used by cards that say
+   *  "search your deck for X, reveal it, shuffle your deck and put that
+   *  card on top of it" (Hiro Hamada Robotics Prodigy, etc.). */
+  position?: "top" | "bottom";
+}
+
+/**
+ * Tutor — generic deck search. Bot heuristic: pick the first matching card
+ * (deck order is shuffled-equivalent for analytics purposes) and put it on
+ * top of the controller's deck (default behavior — most cards using `tutor`
+ * say "shuffle your deck and put that card on top of it"). Used by Minnie
+ * Mouse Drum Major, Merlin Intellectual Visionary.
+ */
+export interface TutorEffect {
+  type: "tutor";
+  filter: CardFilter;
+  /** CRD 6.1.4 */
+  isMay?: boolean;
+  /** Where to put the matched card. Default: "deck" (with position "top"). */
+  putInto?: ZoneName;
+  /** When putInto is "deck", top or bottom. Default "top". */
+  position?: "top" | "bottom";
 }
 
 /** A branching "choose one of" effect */

@@ -7996,16 +7996,14 @@
       {
         "type": "activated",
         "storyName": "SWEET TECH",
-        "rulesText": "2 {I}, {E} - Search your deck for an item card or a Robot character card and reveal it to all players. Shuffle your deck and put that card on top of it. (approximation: put into hand)",
+        "rulesText": "2 {I}, {E} - Search your deck for an item card or a Robot character card and reveal it to all players. Shuffle your deck and put that card on top of it.",
         "costs": [
-          {
-            "type": "exert"
-          }
-        ],
-        "costEffects": [
           {
             "type": "pay_ink",
             "amount": 2
+          },
+          {
+            "type": "exert"
           }
         ],
         "effects": [
@@ -8021,7 +8019,8 @@
               "type": "self"
             },
             "zone": "deck",
-            "putInto": "hand"
+            "putInto": "deck",
+            "position": "top"
           }
         ]
       }
