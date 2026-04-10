@@ -697,7 +697,7 @@ function applyPlayCard(
     state = zoneTransition(state, instanceId, "discard", definitions, events, { silent: true });
     return state;
   } else {
-    // Characters/items enter play — zoneTransition fires enters_play, card_played, item_played
+    // Characters/items enter play — zoneTransition fires enters_play, card_played
     state = zoneTransition(state, instanceId, "play", definitions, events, {
       reason: "played", triggeringPlayerId: playerId,
     });
@@ -5135,9 +5135,7 @@ function zoneTransition(
     if (targetZone === "play" && fromZone !== "play") {
       state = queueTrigger(state, "enters_play", instanceId, definitions, triggerCtx);
       state = queueTrigger(state, "card_played", instanceId, definitions, triggerCtx);
-      if (def?.cardType === "item") {
-        state = queueTrigger(state, "item_played", instanceId, definitions, triggerCtx);
-      }
+      // item_played: DELETED — collapsed to card_played with cardType filter.
     }
 
     // returned_to_hand trigger

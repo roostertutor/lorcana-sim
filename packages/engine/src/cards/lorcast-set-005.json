@@ -7677,7 +7677,12 @@
         "storyName": "TAXES NEVER FAIL ME",
         "rulesText": "Whenever you play an item, this character gets +2 {S} this turn.",
         "trigger": {
-          "on": "item_played"
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "item"
+            ]
+          }
         },
         "effects": [
           {

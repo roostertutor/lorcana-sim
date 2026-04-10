@@ -8529,9 +8529,12 @@
         "storyName": "INVENTIVE SPIRIT",
         "rulesText": "Whenever you play another item, you may pay 1 {I} to draw a card.",
         "trigger": {
-          "on": "item_played",
+          "on": "card_played",
           "filter": {
-            "excludeSelf": true
+            "excludeSelf": true,
+            "cardType": [
+              "item"
+            ]
           }
         },
         "effects": [

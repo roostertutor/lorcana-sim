@@ -1996,7 +1996,7 @@ export type TriggerEvent =
   | { on: "card_drawn"; player: PlayerTarget }
   | { on: "ink_played"; player: PlayerTarget }
   | { on: "card_played"; filter?: CardFilter }
-  | { on: "item_played"; filter?: CardFilter }
+  // item_played: DELETED — collapsed to card_played with filter cardType:["item"]
   | { on: "banished_other_in_challenge"; filter?: CardFilter }
   | { on: "damage_dealt_to"; filter?: CardFilter }
   | { on: "moves_to_location"; filter?: CardFilter }

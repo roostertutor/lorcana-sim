@@ -6427,11 +6427,14 @@
       {
         "type": "triggered",
         "trigger": {
-          "on": "item_played",
+          "on": "card_played",
           "filter": {
             "owner": {
               "type": "self"
-            }
+            },
+            "cardType": [
+              "item"
+            ]
           }
         },
         "effects": [
@@ -7146,11 +7149,14 @@
       {
         "type": "triggered",
         "trigger": {
-          "on": "item_played",
+          "on": "card_played",
           "filter": {
             "owner": {
               "type": "self"
-            }
+            },
+            "cardType": [
+              "item"
+            ]
           }
         },
         "effects": [
