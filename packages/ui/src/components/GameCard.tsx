@@ -245,6 +245,14 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
           if (mods?.cantBeChallenged.has(instanceId) || instance.timedEffects.some(te => te.type === "cant_be_challenged")) {
             leftIcons.push({ icon: "lock-closed", color: "bg-gray-500/90", label: "Can't challenge" });
           }
+          // Enter-play-exerted source (Jiminy Cricket: forces opponents' cards to enter exerted)
+          if (mods?.enterPlayExerted.has(instance.ownerId === "player1" ? "player2" : "player1" as any)) {
+            // Check if THIS card is the source of an enter_play_exerted static
+            const hasEPE = def.abilities.some((a: any) => a.type === "static" && a.effect?.type === "enter_play_exerted");
+            if (hasEPE) {
+              leftIcons.push({ icon: "bolt", color: "bg-yellow-600/90", label: "Enter exerted" });
+            }
+          }
           // Restrict sing (cant_action sing — timed or static)
           const cantSing = instance.timedEffects.some(te => te.type === "cant_action" && te.action === "sing")
             || mods?.selfActionRestrictions.get(instanceId)?.has("sing" as any);
