@@ -4111,17 +4111,21 @@ export function applyEffect(
         // Other direct target shapes can be added as cards demand them.
         return state;
       }
-      // Choose-from-zone form: filter the source zone (default hand) and present a choice.
-      const sourceZone = effect.sourceZone ?? "hand";
+      // Choose-from-zone form: filter the source zone(s) (default hand) and present a choice.
+      // sourceZone can be a single ZoneName or an array (Prince John Gold Lover
+      // BEAUTIFUL LOVELY TAXES — "from your hand or discard").
+      const sourceZoneRaw = effect.sourceZone ?? "hand";
+      const sourceZones: string[] = Array.isArray(sourceZoneRaw) ? sourceZoneRaw : [sourceZoneRaw];
       const filter = effect.filter;
-      let sourceCards: string[];
-      if (sourceZone === "under") {
-        // Per-instance subzone: read cardsUnder from the source instance (default "self").
-        // Currently only "self" is supported — other CardTarget shapes can be wired as needed.
-        const parentInst = state.cards[sourceInstanceId];
-        sourceCards = parentInst ? [...parentInst.cardsUnder] : [];
-      } else {
-        sourceCards = getZone(state, controllingPlayerId, sourceZone);
+      let sourceCards: string[] = [];
+      for (const sz of sourceZones) {
+        if (sz === "under") {
+          // Per-instance subzone: read cardsUnder from the source instance (default "self").
+          const parentInst = state.cards[sourceInstanceId];
+          if (parentInst) sourceCards.push(...parentInst.cardsUnder);
+        } else {
+          sourceCards.push(...getZone(state, controllingPlayerId, sz as any));
+        }
       }
       const validCards = sourceCards.filter((id) => {
         const inst = state.cards[id];
@@ -4341,6 +4345,20 @@ export function applyEffect(
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           },
         };
+      }
+      // Arthur King Victorious EXCALIBUR: chained on a target picked by an
+      // earlier effect in the same abilities[*].effects array. Reads
+      // state.lastResolvedTarget set by the prior chooser.
+      if (effect.target.type === "last_resolved_target") {
+        const ref = state.lastResolvedTarget;
+        if (!ref) return state;
+        const timedEffect: TimedEffect = {
+          type: "can_challenge_ready",
+          expiresAt: effect.duration,
+          appliedOnTurn: state.turnNumber,
+          casterPlayerId: controllingPlayerId,
+        };
+        return addTimedEffect(state, ref.instanceId, timedEffect);
       }
       if (effect.target.type === "this") {
         const timedEffect: TimedEffect = {
@@ -5581,8 +5599,14 @@ function applyEffectToTarget(
       // (Ursula - Deceiver of All), "under" (The Black Cauldron), or any other zone.
       // `cost: "normal"` deducts the card's effective ink cost (paid play); default is free.
       const inst = getInstance(state, targetInstanceId);
-      const expectedSource = effect.sourceZone ?? "hand";
-      if (inst.zone !== expectedSource) return state;
+      // sourceZone may be a single zone or an array (Prince John Gold Lover —
+      // "from your hand or discard"). Normalize to a Set for the membership
+      // check; downstream branches read `inst.zone` (the actual source zone of
+      // the chosen card) rather than the configured filter.
+      const expectedSourceRaw = effect.sourceZone ?? "hand";
+      const expectedSources: string[] = Array.isArray(expectedSourceRaw) ? expectedSourceRaw : [expectedSourceRaw];
+      if (!expectedSources.includes(inst.zone)) return state;
+      const expectedSource = inst.zone;
       const def = definitions[inst.definitionId];
       if (!def) return state;
       // CRD 8.10.5: when source is the cards-under subzone, detach from parent's pile.

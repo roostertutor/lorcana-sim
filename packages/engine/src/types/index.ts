@@ -1130,8 +1130,11 @@ export interface PlayForFreeEffect {
   /**
    * Where to look for the card. Default: "hand".
    * Use "discard" for "play that song again from your discard" (Ursula - Deceiver of All).
+   * Pass an array (e.g. ["hand", "discard"]) for "from your hand or discard" — the
+   * choose-from-zone chooser will offer cards from all listed zones (Prince John
+   * Gold Lover BEAUTIFUL LOVELY TAXES).
    */
-  sourceZone?: ZoneName;
+  sourceZone?: ZoneName | ZoneName[];
   /**
    * If set, skip the choose-from-zone flow and play this specific instance directly.
    * Use { type: "triggering_card" } to replay the card that triggered the ability

@@ -7877,7 +7877,7 @@
       {
         "type": "activated",
         "storyName": "BEAUTIFUL, LOVELY TAXES",
-        "rulesText": "{E} — Play an item from your hand or discard with cost 5 or less for free, exerted. (approximation: from hand, not exerted)",
+        "rulesText": "{E} — Play an item from your hand or discard with cost 5 or less for free, exerted.",
         "costs": [
           {
             "type": "exert"
@@ -7891,7 +7891,12 @@
                 "item"
               ],
               "costAtMost": 5
-            }
+            },
+            "sourceZone": [
+              "hand",
+              "discard"
+            ],
+            "enterExerted": true
           }
         ]
       }
@@ -10370,7 +10375,7 @@
       {
         "type": "triggered",
         "storyName": "EXCALIBUR",
-        "rulesText": "When you play this character, chosen character gains Challenger +2 and Resist +2 this turn. (approximation: drops can-challenge-ready branch)",
+        "rulesText": "When you play this character, chosen character gains Challenger +2 and Resist +2 this turn.",
         "trigger": {
           "on": "enters_play"
         },
@@ -10395,15 +10400,16 @@
             "keyword": "resist",
             "value": 2,
             "target": {
-              "type": "chosen",
-              "filter": {
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ]
-              }
+              "type": "last_resolved_target"
             },
             "duration": "end_of_turn"
+          },
+          {
+            "type": "grant_challenge_ready",
+            "target": {
+              "type": "last_resolved_target"
+            },
+            "duration": "this_turn"
           }
         ]
       }
@@ -11941,7 +11947,7 @@
       {
         "type": "triggered",
         "storyName": "EXCALIBUR",
-        "rulesText": "When you play this character, chosen character gains Challenger +2 and Resist +2 this turn. (approximation: drops can-challenge-ready branch)",
+        "rulesText": "When you play this character, chosen character gains Challenger +2 and Resist +2 this turn.",
         "trigger": {
           "on": "enters_play"
         },
@@ -11966,15 +11972,16 @@
             "keyword": "resist",
             "value": 2,
             "target": {
-              "type": "chosen",
-              "filter": {
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ]
-              }
+              "type": "last_resolved_target"
             },
             "duration": "end_of_turn"
+          },
+          {
+            "type": "grant_challenge_ready",
+            "target": {
+              "type": "last_resolved_target"
+            },
+            "duration": "this_turn"
           }
         ]
       }
