@@ -4872,19 +4872,32 @@
       {
         "type": "triggered",
         "storyName": "TARGET PRACTICE",
-        "rulesText": "Whenever this character challenges another character, he gets +{S} equal to the {S} of chosen character this turn. (approximation: +3 strength)",
+        "rulesText": "Whenever this character challenges another character, he gets +{S} equal to the {S} of chosen character this turn.",
         "trigger": {
           "on": "challenges"
         },
         "effects": [
           {
-            "type": "modify_stat",
-            "stat": "strength",
-            "modifier": 3,
+            "type": "gain_stats",
+            "strength": 0,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "this_turn"
+          },
+          {
+            "type": "gain_stats",
+            "strengthDynamic": "last_resolved_target_strength",
             "target": {
               "type": "this"
             },
-            "duration": "end_of_turn"
+            "duration": "this_turn"
           }
         ]
       }

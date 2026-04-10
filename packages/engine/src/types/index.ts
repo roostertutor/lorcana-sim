@@ -450,6 +450,10 @@ export type DynamicAmount =
    *  time. Used by Anna Soothing Sister WARM HEART: "may gain lore equal to
    *  the {L} of a character card in your discard". */
   | "last_resolved_target_lore"
+  /** Effective strength snapshot of state.lastResolvedTarget at resolve time.
+   *  Used by Zeus Mr. Lightning Bolts ("+S equal to the {S} of chosen
+   *  character"). Mirror of last_resolved_source_strength. */
+  | "last_resolved_target_strength"
   /** Amount of damage just dealt by the most recent challenge resolution.
    *  Read from `state.lastDamageDealtAmount`. Used by Mulan Elite Archer
    *  TRIPLE SHOT and Namaari Heir of Fang TWO-WEAPON FIGHTING. */

@@ -2026,6 +2026,9 @@ function resolveDynamicAmount(
   if (amount === "last_resolved_target_lore") {
     return state.lastResolvedTarget?.lore ?? 0;
   }
+  if (amount === "last_resolved_target_strength") {
+    return state.lastResolvedTarget?.strength ?? 0;
+  }
   if (amount === "last_target_location_lore") {
     const lastTargetId = state.lastResolvedTarget?.instanceId;
     const lastTargetInst = lastTargetId ? state.cards[lastTargetId] : undefined;
