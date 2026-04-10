@@ -71,7 +71,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## ResolvedRef carriers (engine refactor — UI implications)
+~~## ResolvedRef carriers (engine refactor — UI implications)~~ **RESOLVED (commit fccc311) — context hints use ResolvedRef snapshots for display**
 
 **Engine**: Unified `ResolvedRef` snapshot type replaces ad-hoc `_resolvedSourceInstanceId`/`_resolvedCharacterInstanceId`/`lastTargetOwnerId`/`lastTargetInstanceId` carriers. Holds `instanceId`, `name`, `cost`, `strength`, `willpower`, `lore`, `damage`, and an optional `delta` (how much was actually consumed by an `isUpTo` step). `state.lastResolvedSource` carries the cost-side resolved card; `state.lastResolvedTarget` carries the most recent resolved target.
 
@@ -79,7 +79,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Hades Double Dealer / play-same-name-as-banished
+~~## Hades Double Dealer / play-same-name-as-banished~~ **RESOLVED (commit fccc311) — context hint shows lastResolvedTarget name + stats**
 
 **Engine**: New `CardFilter.nameFromLastResolvedSource: boolean` flag. When true, the filter matches cards whose name (or any alternate name) equals `state.lastResolvedSource.name`. Used by Hades' "play a character with the same name as the banished character for free."
 
@@ -89,7 +89,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## isUpTo delta tracking
+~~## isUpTo delta tracking~~ **RESOLVED (commit fccc311) — context hint shows delta amount**
 
 **Engine**: `remove_damage` and `move_damage` with `isUpTo: true` now write `delta: <actually-consumed>` onto `state.lastResolvedTarget`. New `DynamicAmount` variant `{type: "last_resolved_target_delta"}` reads it. Used by "remove up to N. Gain X for each removed."
 
@@ -99,7 +99,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Cost-side strength snapshot
+~~## Cost-side strength snapshot~~ **RESOLVED (commit fccc311) — context hint shows lastResolvedSource strength**
 
 **Engine**: New `DynamicAmount` variant `{type: "last_resolved_source_strength"}` reads from `state.lastResolvedSource.strength` (snapshot taken at the moment the cost-side card resolved). Used by "exert one of your characters to deal damage equal to their strength."
 
@@ -198,7 +198,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Draw to hand size
+~~## Draw to hand size~~ **RESOLVED (commit fccc311) — context hint shows target hand size**
 
 **Engine**: `DrawEffect.untilHandSize: number | "match_opponent_hand"`. Bounded draw, computes delta.
 
@@ -351,7 +351,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Reveal-top-conditional
+~~## Reveal-top-conditional~~ **RESOLVED (commit fccc311) — context hints show resolved target info**
 
 **Engine**: `RevealTopConditionalEffect` with predicate filter, `matchAction` (to_hand / play_for_free), `noMatchDestination` (top / bottom / hand / discard), and optional `matchExtraEffects` chain.
 
@@ -364,7 +364,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Dynamic amount (target_lore / target_damage / target_strength / source_lore / source_strength + max cap)
+~~## Dynamic amount (target_lore / target_damage / target_strength / source_lore / source_strength + max cap)~~ **RESOLVED (commit fccc311) — context hints show resolved target stats**
 
 **Engine**: Shared `DynamicAmount` type extended with target-/source-relative variants and optional `max` cap.
 
