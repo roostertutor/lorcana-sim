@@ -278,6 +278,24 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
           );
         })()}
 
+        {/* Universal Shift badge (Baymax Giant Robot — can shift onto any character) */}
+        {zone === "hand" && mods?.universalShifters.has(instanceId) && (
+          <div className="absolute top-0.5 right-0.5 z-10 pointer-events-none">
+            <span className="text-[7px] font-black px-1 py-0.5 rounded bg-indigo-500/90 text-white shadow">
+              U-Shift
+            </span>
+          </div>
+        )}
+
+        {/* Dual-name badge — top-left (Flotsam & Jetsam: "Also: Flotsam, Jetsam") */}
+        {zone === "play" && (def as any).alternateNames?.length > 0 && (
+          <div className="absolute top-0.5 left-0.5 z-10 pointer-events-none">
+            <span className="text-[6px] font-bold px-1 py-0.5 rounded bg-gray-700/90 text-gray-200 shadow">
+              {(def as any).alternateNames.join(" / ")}
+            </span>
+          </div>
+        )}
+
         {/* Granted trait badge — top-left (Chief Bogo DEPUTIZE: "+Detective") */}
         {zone === "play" && mods?.grantedTraits.get(instanceId) && (mods.grantedTraits.get(instanceId)?.size ?? 0) > 0 && (
           <div className="absolute top-0.5 left-0.5 z-10 pointer-events-none">

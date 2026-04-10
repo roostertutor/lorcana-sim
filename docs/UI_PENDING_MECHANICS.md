@@ -21,7 +21,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Remembered targets (Elsa's Ice Palace pattern)
+~~## Remembered targets (Elsa's Ice Palace pattern)~~ **RESOLVED (commit 0483467) — cyan lock icon on remembered target**
 
 **Engine**: `CardInstance.rememberedTargetIds: string[]` persists a chosen target from an enters_play trigger. `RestrictRememberedTargetActionStatic` reads it each gameModifiers call to apply a permanent restriction while the source is in play.
 
@@ -34,7 +34,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Grant trait (grant_trait_static)
+~~## Grant trait (grant_trait_static)~~ **RESOLVED (commit 0655a3a) — fuchsia trait badge at top-left**
 
 **Engine**: Static that grants a trait classification to other characters at runtime. Populated in a PRE-PASS during gameModifiers so downstream statics see the granted traits.
 
@@ -268,7 +268,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Enter-play-exerted static
+~~## Enter-play-exerted static~~ **RESOLVED (commit 0741e02) — yellow bolt icon on source card**
 
 **Engine**: `EnterPlayExertedStatic` modifier. `applyPlayCard` checks per-player filters and forces `isExerted: true` before triggers fire.
 
