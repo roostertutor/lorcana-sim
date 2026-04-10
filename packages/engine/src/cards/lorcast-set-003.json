@@ -6844,20 +6844,55 @@
     "abilities": [
       {
         "type": "activated",
-        "storyName": "EPIC POWER",
-        "rulesText": "Choose one:",
+        "storyName": "SHAPESHIFT",
+        "rulesText": "{E}, 2 {I} — Choose one: Chosen character gains Evasive until the start of your next turn. OR Chosen character gets +3 {S} this turn.",
         "costs": [
           {
             "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 2
           }
         ],
         "effects": [
           {
-            "type": "gain_lore",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            }
+            "type": "choose",
+            "count": 1,
+            "options": [
+              [
+                {
+                  "type": "grant_keyword",
+                  "keyword": "evasive",
+                  "target": {
+                    "type": "chosen",
+                    "filter": {
+                      "zone": "play",
+                      "cardType": [
+                        "character"
+                      ]
+                    }
+                  },
+                  "duration": "until_caster_next_turn"
+                }
+              ],
+              [
+                {
+                  "type": "gain_stats",
+                  "strength": 3,
+                  "target": {
+                    "type": "chosen",
+                    "filter": {
+                      "zone": "play",
+                      "cardType": [
+                        "character"
+                      ]
+                    }
+                  },
+                  "duration": "this_turn"
+                }
+              ]
+            ]
           }
         ]
       }

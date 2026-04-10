@@ -554,7 +554,7 @@ export interface GainStatsEffect {
   lore?: number;
   target: CardTarget;
   /**
-   * "this_turn" = wears off at end of current turn (writes to tempStrengthModifier directly).
+   * "this_turn" = wears off at end of current turn (routes through TimedEffect).
    * "permanent" = stays for the rest of the game.
    * EffectDuration values ("end_of_turn", "end_of_owner_next_turn") use the
    * timedEffects mechanism so the bonus expires correctly across turn boundaries
@@ -2304,10 +2304,11 @@ export interface CardInstance {
    *  Rush bypasses this for challenges only (CRD 8.9.1). */
   isDrying: boolean;
 
-  // --- Temporary modifiers from effects (cleared at end of turn unless permanent) ---
-  tempStrengthModifier: number;
-  tempWillpowerModifier: number;
-  tempLoreModifier: number;
+  // tempStrengthModifier/tempWillpowerModifier/tempLoreModifier: REMOVED.
+  // "this_turn" stat buffs now route through TimedEffects (modify_strength,
+  // modify_willpower, modify_lore) which expire via the standard timed-effect
+  // cleanup. See refactor commit 00957c8.
+
   /** Keywords granted by effects this turn */
   grantedKeywords: Keyword[];
 

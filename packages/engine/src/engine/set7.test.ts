@@ -89,7 +89,7 @@ describe("§7 Set 7 — Baloo Ol' Iron Paws (damage_immunity_static source=all)"
     // printed STR ≥ 7). Opponent challenges with a ready attacker.
     let state = startGame();
     let baloo: string, attackerId: string;
-    // Baloo's printed STR is 5; bump via tempStrengthModifier to trip the
+    // Baloo's printed STR is 5; bump via TimedEffect to trip the
     // ≥7 filter on his own static, mimicking a temporary buff.
     ({ state, instanceId: baloo } = injectCard(state, "player1", "baloo-ol-iron-paws", "play", { isDrying: false, isExerted: true }));
     ({ state, instanceId: attackerId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
