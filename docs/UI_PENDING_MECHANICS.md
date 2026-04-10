@@ -109,7 +109,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Boost / cards-under subzone
+~~## Boost / cards-under subzone~~ **RESOLVED (commit 0aea681) — violet count badge at bottom-left**
 
 **Engine**: `CardInstance.cardsUnder: CardInstanceId[]`. Boost keyword puts the top of deck facedown under the character. Triggers (`card_put_under`), statics (`hasCardUnder` filter, `cards_under_count` dynamic amount), and effects (`put_top_of_deck_under`, `put_cards_under_into_hand`) all read/write this pile. When the base leaves play, the entire stack goes to the controller's discard.
 
@@ -123,7 +123,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Damage immunity (timed + static)
+~~## Damage immunity (timed + static)~~ **RESOLVED (commit ba8c634) — left-side shield icon (blue/amber/purple by source)**
 
 **Engine**: New TimedEffect kind `damage_immunity` with `source: "challenge" | "all" | "non_challenge"`. Static variant `damage_immunity_static` scanned into `gameModifiers.damageImmunity`. `dealDamageToCard` short-circuits to 0 and skips damage events when immunity matches.
 
@@ -221,7 +221,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Alert keyword
+~~## Alert keyword~~ **RESOLVED (commit b4ca1ee) — lime-green keyword badge on GameCard**
 
 **Engine**: New `Keyword: "alert"`. Validator OR's it into Evasive challenge eligibility on the attacker side only. Per CRD: "this character can challenge as if they had Evasive."
 
@@ -233,7 +233,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Timed cant-be-challenged
+~~## Timed cant-be-challenged~~ **RESOLVED (commit ba8c634) — left-side gray lock icon**
 
 **Engine**: Existing `cant_action` infrastructure with `action: "be_challenged"`. Floating restriction with `until_caster_next_turn` / `end_of_owner_next_turn` duration.
 
@@ -245,7 +245,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Conditional cant-be-challenged
+~~## Conditional cant-be-challenged~~ **RESOLVED (commit ba8c634) — same lock icon from gameModifiers**
 
 **Engine**: `cant_be_challenged` static with inline `condition: Condition` field; only active when condition holds.
 
@@ -257,7 +257,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Filtered cant-be-challenged
+~~## Filtered cant-be-challenged~~ **RESOLVED (commit ba8c634) — same lock icon from gameModifiers**
 
 **Engine**: `attackerFilter` field on `cant_be_challenged` static.
 
@@ -280,7 +280,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Restrict sing
+~~## Restrict sing~~ **RESOLVED (commit 0655a3a) — red musical-note icon in left-side column**
 
 **Engine**: Per-character `cant_action sing` static or timed effect.
 
@@ -292,7 +292,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Play restriction (per-card playRestrictions)
+~~## Play restriction (per-card playRestrictions)~~ **RESOLVED (commit b4b276c) — 50% opacity on hand cards with failed restrictions**
 
 **Engine**: `CardDefinition.playRestrictions: Condition[]`. Validator rejects if any condition fails.
 
@@ -327,7 +327,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Grant cost reduction (one-shot)
+~~## Grant cost reduction (one-shot)~~ **RESOLVED (commit 5e2f425) — emerald banner above hand**
 
 **Engine**: `GrantCostReductionEffect` adds a `CostReductionEntry` to PlayerState consumed by the next matching card played.
 
