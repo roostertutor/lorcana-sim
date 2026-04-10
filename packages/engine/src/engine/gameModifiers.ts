@@ -23,8 +23,13 @@ export interface GameModifiers {
   /**
    * Characters that may challenge ready (non-exerted) opponents.
    * Default rule: only exerted characters may be challenged.
+   * Value is an optional CardFilter restricting WHICH ready characters
+   * the attacker may challenge (Gizmoduck Suited Up: "this character can
+   * challenge READY DAMAGED characters" — restricted to defenders matching
+   * { hasDamage: true }). When null, the attacker may challenge any ready
+   * character (existing semantics).
    */
-  canChallengeReady: Set<string>;
+  canChallengeReady: Map<string, import("../types/index.js").CardFilter | null>;
 
   /**
    * Per-instance stat bonuses from static abilities (e.g. per-count bonuses).
@@ -262,7 +267,7 @@ export function getGameModifiers(
 ): GameModifiers {
   const modifiers: GameModifiers = {
     cantBeChallenged: new Map(),
-    canChallengeReady: new Set(),
+    canChallengeReady: new Map(),
     statBonuses: new Map(),
     grantedKeywords: new Map(),
     costReductions: new Map(),
@@ -542,7 +547,11 @@ export function getGameModifiers(
 
         case "can_challenge_ready": {
           if (effect.target.type === "this") {
-            modifiers.canChallengeReady.add(instance.instanceId);
+            // Optional defender filter — Gizmoduck Suited Up restricts to
+            // damaged defenders. Most cards (Captain Hook Newly Promoted, etc.)
+            // pass null = "any ready character".
+            const filt = (effect as any).defenderFilter ?? null;
+            modifiers.canChallengeReady.set(instance.instanceId, filt);
           }
           break;
         }

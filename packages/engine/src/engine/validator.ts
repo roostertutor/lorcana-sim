@@ -484,7 +484,19 @@ function validateChallenge(
   // CRD 4.6.4.2: defender must be exerted (unless modifier overrides)
   // CRD 4.6.8: locations are always valid challenge targets — they never exert
   const hasTimedChallengeReady = attacker.timedEffects.some(te => te.type === "can_challenge_ready");
-  if (defenderDefEarly.cardType !== "location" && !defender.isExerted && !modifiers.canChallengeReady.has(attackerInstanceId) && !hasTimedChallengeReady) {
+  // canChallengeReady may carry an optional defender filter (Gizmoduck Suited
+  // Up: only ready DAMAGED defenders). When the filter exists, the defender
+  // must satisfy it for the override to apply.
+  let canChallengeReadyHere = false;
+  if (modifiers.canChallengeReady.has(attackerInstanceId)) {
+    const filt = modifiers.canChallengeReady.get(attackerInstanceId);
+    if (filt === null || filt === undefined) {
+      canChallengeReadyHere = true;
+    } else {
+      canChallengeReadyHere = matchesFilter(defender, defenderDefEarly, filt, state, playerId);
+    }
+  }
+  if (defenderDefEarly.cardType !== "location" && !defender.isExerted && !canChallengeReadyHere && !hasTimedChallengeReady) {
     return fail("Can only challenge exerted characters.");
   }
 

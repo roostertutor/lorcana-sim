@@ -1067,7 +1067,16 @@
         "type": "triggered",
         "trigger": {
           "on": "is_banished",
-          "filter": { "owner": { "type": "self" }, "cardType": ["character"], "hasTrait": "Racer", "excludeSelf": true }
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Racer",
+            "excludeSelf": true
+          }
         },
         "storyName": "SWEET REVENGE",
         "rulesText": "Whenever one of your other Racer characters is banished, each opponent chooses and banishes one of their characters.",
@@ -1076,7 +1085,15 @@
             "type": "banish",
             "target": {
               "type": "chosen",
-              "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"] },
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              },
               "chooser": "target_player"
             }
           }
@@ -1615,14 +1632,27 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "turn_start", "player": { "type": "self" } },
+        "trigger": {
+          "on": "turn_start",
+          "player": {
+            "type": "self"
+          }
+        },
         "storyName": "FOUND YOU, YOU LITTLE RASCAL",
         "rulesText": "At the start of your turn, look at the cards in your inkwell. You may play a Puppy character from there for free.",
         "effects": [
           {
             "type": "play_for_free",
             "sourceZone": "inkwell",
-            "filter": { "owner": { "type": "self" }, "cardType": ["character"], "hasTrait": "Puppy" },
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Puppy"
+            },
             "isMay": true
           }
         ]
@@ -2218,11 +2248,19 @@
         "action": "up_to_n_to_hand_rest_bottom",
         "maxToHand": 2,
         "filters": [
-          { "cardType": "character", "hasTrait": "Madrigal" },
-          { "cardType": "action", "hasTrait": "Song" }
+          {
+            "cardType": "character",
+            "hasTrait": "Madrigal"
+          },
+          {
+            "cardType": "action",
+            "hasTrait": "Song"
+          }
         ],
         "restPlacement": "top",
-        "target": { "type": "self" }
+        "target": {
+          "type": "self"
+        }
       }
     ],
     "setId": "7",
@@ -3063,13 +3101,27 @@
         "type": "triggered",
         "trigger": {
           "on": "character_exerted",
-          "filter": { "owner": { "type": "opponent" }, "cardType": ["character"] }
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            },
+            "cardType": [
+              "character"
+            ]
+          }
         },
         "storyName": "ANCIENT RAGE",
         "rulesText": "During your turn, whenever an opposing character is exerted, banish them.",
-        "condition": { "type": "is_your_turn" },
+        "condition": {
+          "type": "is_your_turn"
+        },
         "effects": [
-          { "type": "banish", "target": { "type": "triggering_card" } }
+          {
+            "type": "banish",
+            "target": {
+              "type": "triggering_card"
+            }
+          }
         ]
       }
     ],
@@ -3514,7 +3566,9 @@
         "type": "static",
         "storyName": "I'M LOVIN' THIS",
         "rulesText": "If an effect would cause you to discard one or more cards, you don't discard.",
-        "effect": { "type": "prevent_discard_from_hand" }
+        "effect": {
+          "type": "prevent_discard_from_hand"
+        }
       }
     ],
     "setId": "7",
@@ -3724,13 +3778,17 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "quests" },
+        "trigger": {
+          "on": "quests"
+        },
         "storyName": "PRESTIDIGITONIUM",
         "rulesText": "Whenever this character quests, name a card, then reveal the top card of your deck. If it's the named card, put it into your inkwell facedown and exerted. Otherwise, put it on the top of your deck.",
         "effects": [
           {
             "type": "name_a_card_then_reveal",
-            "target": { "type": "self" },
+            "target": {
+              "type": "self"
+            },
             "matchAction": "to_inkwell_exerted"
           }
         ]
@@ -4187,9 +4245,11 @@
       {
         "type": "activated",
         "storyName": "NO ORDINARY APPLE",
-        "rulesText": "{E} \u2014 Choose 3 cards from chosen opponent's discard and put them on the bottom of their deck to gain 3 lore. If any Princess cards were moved this way, gain 4 lore instead.",
+        "rulesText": "{E} — Choose 3 cards from chosen opponent's discard and put them on the bottom of their deck to gain 3 lore. If any Princess cards were moved this way, gain 4 lore instead.",
         "costs": [
-          { "type": "exert" }
+          {
+            "type": "exert"
+          }
         ],
         "effects": [
           {
@@ -4197,7 +4257,9 @@
             "count": 3,
             "gainLoreBase": 3,
             "gainLoreBonus": 4,
-            "bonusFilter": { "hasTrait": "Princess" }
+            "bonusFilter": {
+              "hasTrait": "Princess"
+            }
           }
         ]
       }
@@ -4307,11 +4369,20 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "chosen_by_opponent" },
+        "trigger": {
+          "on": "chosen_by_opponent"
+        },
         "storyName": "MORE TO LEARN",
         "rulesText": "Whenever an opponent chooses this character for an action or ability, you may draw a card.",
         "effects": [
-          { "type": "draw", "amount": 1, "target": { "type": "self" }, "isMay": true }
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
         ]
       }
     ],
@@ -5814,11 +5885,14 @@
       {
         "type": "static",
         "storyName": "BLATHERING BLATHERSKITE",
-        "rulesText": "This character can challenge ready damaged characters. (approximation: any ready character)",
+        "rulesText": "This character can challenge ready damaged characters.",
         "effect": {
           "type": "can_challenge_ready",
           "target": {
             "type": "this"
+          },
+          "defenderFilter": {
+            "hasDamage": true
           }
         }
       }
@@ -6568,13 +6642,25 @@
     "actionEffects": [
       {
         "type": "player_may_play_from_hand",
-        "player": { "type": "self" },
-        "filter": { "cardType": ["character"] }
+        "player": {
+          "type": "self"
+        },
+        "filter": {
+          "cardType": [
+            "character"
+          ]
+        }
       },
       {
         "type": "player_may_play_from_hand",
-        "player": { "type": "opponent" },
-        "filter": { "cardType": ["character"] }
+        "player": {
+          "type": "opponent"
+        },
+        "filter": {
+          "cardType": [
+            "character"
+          ]
+        }
       }
     ],
     "setId": "7",
@@ -8752,8 +8838,18 @@
     "abilities": [],
     "altPlayCost": {
       "type": "banish_item",
-      "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["item"] },
-      "condition": { "type": "is_your_turn" }
+      "filter": {
+        "owner": {
+          "type": "self"
+        },
+        "zone": "play",
+        "cardType": [
+          "item"
+        ]
+      },
+      "condition": {
+        "type": "is_your_turn"
+      }
     },
     "setId": "7",
     "number": 159,
@@ -9058,13 +9154,19 @@
         "type": "activated",
         "storyName": "KEY TO THE PUZZLE",
         "rulesText": "{E} - Look at the top 2 cards of your deck. Put one into your ink supply, face down and exerted, and the other on top of your deck.",
-        "costs": [{ "type": "exert" }],
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "look_at_top",
             "count": 2,
             "action": "one_to_inkwell_exerted_rest_top",
-            "target": { "type": "self" }
+            "target": {
+              "type": "self"
+            }
           }
         ]
       }
@@ -11932,13 +12034,25 @@
     "actionEffects": [
       {
         "type": "player_may_play_from_hand",
-        "player": { "type": "self" },
-        "filter": { "cardType": ["character"] }
+        "player": {
+          "type": "self"
+        },
+        "filter": {
+          "cardType": [
+            "character"
+          ]
+        }
       },
       {
         "type": "player_may_play_from_hand",
-        "player": { "type": "opponent" },
-        "filter": { "cardType": ["character"] }
+        "player": {
+          "type": "opponent"
+        },
+        "filter": {
+          "cardType": [
+            "character"
+          ]
+        }
       }
     ],
     "setId": "7",
