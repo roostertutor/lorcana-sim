@@ -1739,7 +1739,7 @@
       {
         "type": "triggered",
         "storyName": "YOUR PATH",
-        "rulesText": "At the end of your turn, if none of your characters challenged this turn, reveal the top card of your deck. If it's a character card with cost 3 or less or named Pocahontas, you may put it into your hand. Otherwise, put it on the bottom of your deck. (approximation: fires every end-of-turn, does not check challenged-this-turn; filter approximated as cost ≤ 3 character only — named Pocahontas OR branch dropped)",
+        "rulesText": "At the end of your turn, if none of your characters challenged this turn, reveal the top card of your deck. If it's a character card with cost 3 or less or named Pocahontas, you may put it into your hand. Otherwise, put it on the bottom of your deck.",
         "trigger": {
           "on": "turn_end",
           "player": {
@@ -1753,7 +1753,14 @@
               "cardType": [
                 "character"
               ],
-              "costAtMost": 3
+              "anyOf": [
+                {
+                  "costAtMost": 3
+                },
+                {
+                  "hasName": "Pocahontas"
+                }
+              ]
             },
             "matchAction": "to_hand",
             "isMay": true,
@@ -1762,7 +1769,10 @@
               "type": "self"
             }
           }
-        ]
+        ],
+        "condition": {
+          "type": "no_challenges_this_turn"
+        }
       }
     ],
     "setId": "11",

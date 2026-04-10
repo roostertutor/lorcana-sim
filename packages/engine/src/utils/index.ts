@@ -416,6 +416,18 @@ export function matchesFilter(
     if (!filter.hasCardUnder && has) return false;
   }
 
+  // OR-of-subfilters at the filter-clause level. Top-level fields are AND'd
+  // (handled above); anyOf adds an OR group on top of that. The instance must
+  // match at least ONE entry. Each entry is a full CardFilter, evaluated
+  // recursively — so nested ANDs work inside each branch. Used by John Smith's
+  // Compass YOUR PATH ("character with cost ≤3 OR named Pocahontas").
+  if (filter.anyOf && filter.anyOf.length > 0) {
+    const anyMatch = filter.anyOf.some(sub =>
+      matchesFilter(instance, definition, sub, state, viewingPlayerId, sourceInstanceId, definitions)
+    );
+    if (!anyMatch) return false;
+  }
+
   return true;
 }
 

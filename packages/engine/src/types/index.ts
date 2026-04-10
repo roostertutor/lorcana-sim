@@ -1835,6 +1835,13 @@ export interface CardFilter {
   /** CRD 5.6.4: Match characters currently at the source location ("while here")
    *  or at any location ("while at a location"). */
   atLocation?: "this" | "any";
+  /** OR-of-subfilters at the filter-clause level. The instance matches if it
+   *  satisfies ALL of the top-level fields AND ALSO matches at least one of
+   *  the `anyOf` entries. Used by John Smith's Compass YOUR PATH ("a character
+   *  card with cost 3 or less or named Pocahontas") and any future card with
+   *  similar OR'd predicates. Each entry is a full CardFilter, evaluated
+   *  recursively — so nested ANDs work inside each anyOf branch. */
+  anyOf?: CardFilter[];
 }
 
 // -----------------------------------------------------------------------------

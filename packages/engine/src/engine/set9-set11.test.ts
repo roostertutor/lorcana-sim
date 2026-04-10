@@ -12,7 +12,7 @@ import {
   giveInk,
   passTurns,
 } from "./test-helpers.js";
-import { getInstance, getZone } from "../utils/index.js";
+import { getInstance, getZone, matchesFilter } from "../utils/index.js";
 
 describe("§9 Set 9 — Max Goof Rockin' Teen (cant_action_self move)", () => {
   it("I JUST WANNA STAY HOME: MOVE_CHARACTER is rejected for Max Goof", () => {
@@ -84,6 +84,58 @@ describe("§9 Set 9 — Max Goof Rockin' Teen (cant_action_self move)", () => {
     expect(r.success).toBe(true);
     state = r.newState;
     expect(getInstance(state, mickeyId).atLocationInstanceId).toBe(locId);
+  });
+});
+
+describe("§11 Set 11 — John Smith's Compass YOUR PATH (anyOf filter)", () => {
+  it("CardFilter.anyOf: matches a high-cost Pocahontas via the named branch (not the cost branch)", () => {
+    // Tier-1 fix: was wired with bare reveal_top_conditional, no
+    // no_challenges_this_turn gating, and the "or named Pocahontas" branch
+    // dropped (filter was just `costAtMost: 3`). Tests the new CardFilter.anyOf
+    // primitive directly via matchesFilter — Pocahontas - Peacekeeper has
+    // cost 5 (so the costAtMost: 3 branch fails) but the hasName: "Pocahontas"
+    // branch should still match. Pins the OR-of-subfilter semantics.
+    let state = startGame();
+    let pocahontasId: string;
+    ({ state, instanceId: pocahontasId } = injectCard(state, "player1", "pocahontas-peacekeeper", "deck"));
+    const inst = getInstance(state, pocahontasId);
+    const def = LORCAST_CARD_DEFINITIONS["pocahontas-peacekeeper"]!;
+
+    // cardType character + (cost ≤ 3 OR named Pocahontas).
+    // Cost-3-or-less branch FAILS (cost is 5). Pocahontas branch matches.
+    expect(matchesFilter(inst, def, {
+      cardType: ["character"],
+      anyOf: [
+        { costAtMost: 3 },
+        { hasName: "Pocahontas" },
+      ],
+    }, state, "player1")).toBe(true);
+
+    // Sanity: a non-Pocahontas character with cost > 3 should NOT match.
+    let muscleId: string;
+    ({ state, instanceId: muscleId } = injectCard(state, "player1", "hercules-mighty-leader", "deck"));
+    const muscleInst = getInstance(state, muscleId);
+    const muscleDef = LORCAST_CARD_DEFINITIONS["hercules-mighty-leader"]!;
+    expect(matchesFilter(muscleInst, muscleDef, {
+      cardType: ["character"],
+      anyOf: [
+        { costAtMost: 3 },
+        { hasName: "Pocahontas" },
+      ],
+    }, state, "player1")).toBe(false);
+
+    // Sanity: a cheap non-Pocahontas character SHOULD match (via cost branch).
+    let cheapId: string;
+    ({ state, instanceId: cheapId } = injectCard(state, "player1", "thomas-wide-eyed-recruit", "deck"));
+    const cheapInst = getInstance(state, cheapId);
+    const cheapDef = LORCAST_CARD_DEFINITIONS["thomas-wide-eyed-recruit"]!;
+    expect(matchesFilter(cheapInst, cheapDef, {
+      cardType: ["character"],
+      anyOf: [
+        { costAtMost: 3 },
+        { hasName: "Pocahontas" },
+      ],
+    }, state, "player1")).toBe(true);
   });
 });
 
