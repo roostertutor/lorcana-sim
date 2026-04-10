@@ -2788,61 +2788,45 @@ export function applyEffect(
       return state;
     }
 
-    case "put_cards_under_into_hand": {
-      // Drain the source's cardsUnder pile into hand. Each card moves from
-      // its current zone (logically "under") to its OWNER's hand.
-      const inst = state.cards[sourceInstanceId];
-      if (!inst || inst.cardsUnder.length === 0) return state;
-      const undersToMove = [...inst.cardsUnder];
-      for (const id of undersToMove) {
-        const u = state.cards[id];
-        if (!u) continue;
-        // Move directly: under cards aren't in any zone array, so just append to hand.
-        state = {
-          ...state,
-          cards: {
-            ...state.cards,
-            [id]: { ...u, zone: "hand" },
-          },
-          zones: {
-            ...state.zones,
-            [u.ownerId]: {
-              ...state.zones[u.ownerId],
-              hand: [...state.zones[u.ownerId].hand, id],
-            },
-          },
-        };
-      }
-      // Clear the parent's cardsUnder pile.
-      state = updateInstance(state, sourceInstanceId, { cardsUnder: [] });
-      return state;
-    }
-
+    // Unified handler for moving cards FROM the cardsUnder subzone TO a
+    // destination zone. Two legacy aliases route here:
+    //   put_cards_under_into_hand:    scope=this, destination=hand (Alice Well-Read Whisper)
+    //   move_cards_under_to_inkwell:  scope=all_own, destination=inkwell+exerted (Visiting Christmas Past)
+    case "put_cards_under_into_hand":
     case "move_cards_under_to_inkwell": {
-      // CRD 8.4.2 / 8.10.5: Visiting Christmas Past — "Put any number of cards
-      // from under your characters and locations into your inkwell facedown
-      // and exerted." Headless bot takes all (maximal choice). For each card
-      // in the controller's in-play zone, move its entire cardsUnder pile to
-      // the controller's inkwell exerted; clear each parent's cardsUnder.
-      const play = getZone(state, controllingPlayerId, "play");
-      for (const parentId of [...play]) {
+      const isInkwell = effect.type === "move_cards_under_to_inkwell";
+      const destZone: ZoneName = isInkwell ? "inkwell" : "hand";
+      // Scope: put_cards_under_into_hand drains ONE parent (the source);
+      // move_cards_under_to_inkwell drains ALL the controller's in-play cards.
+      const parentIds: string[] = isInkwell
+        ? getZone(state, controllingPlayerId, "play").filter(id => {
+            const p = state.cards[id];
+            return p && p.cardsUnder.length > 0;
+          })
+        : (state.cards[sourceInstanceId]?.cardsUnder.length ?? 0) > 0
+          ? [sourceInstanceId]
+          : [];
+      for (const parentId of parentIds) {
         const parent = state.cards[parentId];
         if (!parent || parent.cardsUnder.length === 0) continue;
-        const undersToMove = [...parent.cardsUnder];
-        for (const id of undersToMove) {
+        for (const id of [...parent.cardsUnder]) {
           const u = state.cards[id];
           if (!u) continue;
+          // Destination owner: hand goes to the CARD's owner (Alice returns
+          // cards to their original owners); inkwell goes to the CONTROLLER
+          // (Visiting Christmas Past inks into your own inkwell).
+          const destOwner = isInkwell ? controllingPlayerId : u.ownerId;
           state = {
             ...state,
             cards: {
               ...state.cards,
-              [id]: { ...u, zone: "inkwell", isExerted: true },
+              [id]: { ...u, zone: destZone, ...(isInkwell ? { isExerted: true } : {}) },
             },
             zones: {
               ...state.zones,
-              [controllingPlayerId]: {
-                ...state.zones[controllingPlayerId],
-                inkwell: [...state.zones[controllingPlayerId].inkwell, id],
+              [destOwner]: {
+                ...state.zones[destOwner],
+                [destZone]: [...state.zones[destOwner][destZone], id],
               },
             },
           };
