@@ -245,6 +245,12 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
           if (mods?.cantBeChallenged.has(instanceId) || instance.timedEffects.some(te => te.type === "cant_be_challenged")) {
             leftIcons.push({ icon: "lock-closed", color: "bg-gray-500/90", label: "Can't challenge" });
           }
+          // Restrict sing (cant_action sing — timed or static)
+          const cantSing = instance.timedEffects.some(te => te.type === "cant_action" && te.action === "sing")
+            || mods?.selfActionRestrictions.get(instanceId)?.has("sing" as any);
+          if (cantSing) {
+            leftIcons.push({ icon: "musical-note", color: "bg-red-700/90", label: "Can't sing" });
+          }
           if (leftIcons.length === 0) return null;
           return (
             <div className="absolute left-1 top-1/2 -translate-y-1/2 flex flex-col gap-0.5 pointer-events-none">
@@ -256,6 +262,15 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
             </div>
           );
         })()}
+
+        {/* Granted trait badge — top-left (Chief Bogo DEPUTIZE: "+Detective") */}
+        {zone === "play" && mods?.grantedTraits.get(instanceId) && (mods.grantedTraits.get(instanceId)?.size ?? 0) > 0 && (
+          <div className="absolute top-0.5 left-0.5 z-10 pointer-events-none">
+            <span className="text-[7px] font-black px-1 py-0.5 rounded bg-fuchsia-600/90 text-white shadow">
+              +{[...(mods.grantedTraits.get(instanceId) ?? [])].join(", ")}
+            </span>
+          </div>
+        )}
 
         {/* Boost / cards-under stack indicator — bottom-left count badge */}
         {zone === "play" && instance.cardsUnder.length > 0 && (
