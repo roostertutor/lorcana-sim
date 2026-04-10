@@ -3611,7 +3611,7 @@
       {
         "type": "static",
         "storyName": "TAG ME IN!",
-        "rulesText": "For each 1 damage on opposing characters, you pay 1 {I} less to play this character. (approximation: per damaged opposing character, not per damage point)",
+        "rulesText": "For each 1 damage on opposing characters, you pay 1 {I} less to play this character.",
         "effect": {
           "type": "self_cost_reduction",
           "amount": {

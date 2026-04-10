@@ -4969,7 +4969,7 @@
       {
         "type": "triggered",
         "storyName": "TWISTS AND TURNS",
-        "rulesText": "During your turn, whenever a card is put into your inkwell, you may pay 1 {I} to have chosen opponent choose and discard a card. (approximation: free discard)",
+        "rulesText": "During your turn, whenever a card is put into your inkwell, you may pay 1 {I} to have chosen opponent choose and discard a card.",
         "trigger": {
           "on": "ink_played",
           "player": {
@@ -4978,12 +4978,23 @@
         },
         "effects": [
           {
-            "type": "discard_from_hand",
-            "amount": 1,
+            "type": "sequential",
             "isMay": true,
-            "target": {
-              "type": "opponent"
-            }
+            "costEffects": [
+              {
+                "type": "pay_ink",
+                "amount": 1
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "opponent"
+                }
+              }
+            ]
           }
         ]
       }
@@ -9261,27 +9272,60 @@
       {
         "type": "activated",
         "storyName": "10,000 MEDICAL PROCEDURES",
-        "rulesText": "{E} - Choose one: Remove up to 1 damage from chosen character; or if you have a Robot character in play, remove up to 3 damage from chosen character. (approximation: always removes 1)",
+        "rulesText": "{E} - Choose one: Remove up to 1 damage from chosen character; or if you have a Robot character in play, remove up to 3 damage from chosen character.",
         "costs": [
           {
             "type": "exert"
           }
         ],
-        "costEffects": [],
         "effects": [
           {
-            "type": "remove_damage",
-            "amount": 1,
-            "isUpTo": true,
-            "target": {
-              "type": "chosen",
+            "type": "conditional_on_player_state",
+            "condition": {
+              "type": "you_control_matching",
               "filter": {
+                "owner": {
+                  "type": "self"
+                },
                 "zone": "play",
                 "cardType": [
                   "character"
-                ]
+                ],
+                "hasTrait": "Robot"
               }
-            }
+            },
+            "thenEffects": [
+              {
+                "type": "remove_damage",
+                "amount": 3,
+                "isUpTo": true,
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
+              }
+            ],
+            "elseEffects": [
+              {
+                "type": "remove_damage",
+                "amount": 1,
+                "isUpTo": true,
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
+              }
+            ]
           }
         ]
       }
@@ -11913,7 +11957,7 @@
       {
         "type": "triggered",
         "storyName": "TWISTS AND TURNS",
-        "rulesText": "During your turn, whenever a card is put into your inkwell, you may pay 1 {I} to have chosen opponent choose and discard a card. (approximation: free discard)",
+        "rulesText": "During your turn, whenever a card is put into your inkwell, you may pay 1 {I} to have chosen opponent choose and discard a card.",
         "trigger": {
           "on": "ink_played",
           "player": {
@@ -11922,12 +11966,23 @@
         },
         "effects": [
           {
-            "type": "discard_from_hand",
-            "amount": 1,
+            "type": "sequential",
             "isMay": true,
-            "target": {
-              "type": "opponent"
-            }
+            "costEffects": [
+              {
+                "type": "pay_ink",
+                "amount": 1
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "opponent"
+                }
+              }
+            ]
           }
         ]
       }
