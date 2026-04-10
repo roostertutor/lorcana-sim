@@ -514,6 +514,8 @@ export interface RemoveDamageEffect {
 export interface BanishEffect {
   type: "banish";
   target: CardTarget;
+  /** CRD 6.1.4 */
+  isMay?: boolean;
 }
 
 export interface ReturnToHandEffect {
