@@ -92,7 +92,7 @@ export function getEffectiveStrength(
   const timedBonus = instance.timedEffects
     .filter((te) => te.type === "modify_strength")
     .reduce((sum, te) => sum + (te.amount ?? 0), 0);
-  const value = Math.max(0, base + instance.tempStrengthModifier + timedBonus + staticBonus);
+  const value = Math.max(0, base + timedBonus + staticBonus);
   // CRD: "can't be reduced below printed value" → clamp to printed strength.
   if (hasPrintedFloor(instance, "strength", modifiers)) return Math.max(value, base);
   return value;
@@ -108,7 +108,7 @@ export function getEffectiveWillpower(
   const timedBonus = instance.timedEffects
     .filter((te) => te.type === "modify_willpower")
     .reduce((sum, te) => sum + (te.amount ?? 0), 0);
-  const value = Math.max(0, base + instance.tempWillpowerModifier + timedBonus + staticBonus);
+  const value = Math.max(0, base + timedBonus + staticBonus);
   if (hasPrintedFloor(instance, "willpower", modifiers)) return Math.max(value, base);
   return value;
 }
@@ -123,7 +123,7 @@ export function getEffectiveLore(
   const timedBonus = instance.timedEffects
     .filter((te) => te.type === "modify_lore")
     .reduce((sum, te) => sum + (te.amount ?? 0), 0);
-  const value = Math.max(0, base + instance.tempLoreModifier + timedBonus + staticBonus);
+  const value = Math.max(0, base + timedBonus + staticBonus);
   if (hasPrintedFloor(instance, "lore", modifiers)) return Math.max(value, base);
   return value;
 }

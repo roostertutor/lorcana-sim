@@ -116,7 +116,7 @@ describe("§6 Set 2 Card Coverage", () => {
 
     result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId] }, LORCAST_CARD_DEFINITIONS);
     expect(result.success).toBe(true);
-    expect(getInstance(result.newState, targetId).tempStrengthModifier).toBe(-2);
+    expect(getInstance(result.newState, targetId).timedEffects.filter((t: any)=>t.type==="modify_strength").reduce((s: number,t: any)=>s+(t.amount??0),0)).toBe(-2);
   });
 
   // Pattern: triggered card_played with trait filter (Floodborn)
@@ -354,7 +354,7 @@ describe("§6 Set 2 Card Coverage", () => {
       expect(result.success).toBe(true);
     }
     // Merlin should have +1 lore modifier from the trigger
-    expect(getInstance(result.newState, merlinId).tempLoreModifier).toBe(1);
+    expect(getInstance(result.newState, merlinId).timedEffects.filter((t: any)=>t.type==="modify_lore").reduce((s: number,t: any)=>s+(t.amount??0),0)).toBe(1);
   });
 
   // Pattern: turn_start trigger — Donald Duck Perfect Gentleman offers draw at start of your turn
@@ -386,7 +386,7 @@ describe("§6 Set 2 Card Coverage", () => {
     let state = startGame(["pain-underworld-imp"]);
     let painId: string;
     // Pain has 1 base STR, needs +4 to reach 5
-    ({ state, instanceId: painId } = injectCard(state, "player1", "pain-underworld-imp", "play", { tempStrengthModifier: 4 }));
+    ({ state, instanceId: painId } = injectCard(state, "player1", "pain-underworld-imp", "play", { timedEffects: [{ type: "modify_strength" as any, amount: 4, expiresAt: "end_of_turn" as any, appliedOnTurn: 0 }] }));
 
     const modifiers = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
     const bonus = modifiers.statBonuses.get(painId);
@@ -517,7 +517,7 @@ describe("§6 Set 2 Card Coverage", () => {
       expect(result.success).toBe(true);
     }
     // Minnie should have +2 lore modifier
-    expect(getInstance(result.newState, minnieId).tempLoreModifier).toBe(2);
+    expect(getInstance(result.newState, minnieId).timedEffects.filter((t: any)=>t.type==="modify_lore").reduce((s: number,t: any)=>s+(t.amount??0),0)).toBe(2);
   });
 
   // ===== DYNAMIC AMOUNTS =====
@@ -560,7 +560,7 @@ describe("§6 Set 2 Card Coverage", () => {
       expect(result.success).toBe(true);
     }
     // Character should get +3 STR (1 per damage)
-    expect(getInstance(result.newState, targetId).tempStrengthModifier).toBe(3);
+    expect(getInstance(result.newState, targetId).timedEffects.filter((t: any)=>t.type==="modify_strength").reduce((s: number,t: any)=>s+(t.amount??0),0)).toBe(3);
   });
 
   // ===== STATICS =====

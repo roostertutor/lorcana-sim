@@ -1472,9 +1472,6 @@ function applyPassTurn(
   for (const id of Object.keys(state.cards)) {
     const instance = getInstance(state, id);
     if (
-      instance.tempStrengthModifier !== 0 ||
-      instance.tempWillpowerModifier !== 0 ||
-      instance.tempLoreModifier !== 0 ||
       instance.grantedKeywords.length > 0 ||
       instance.challengedThisTurn ||
       instance.movedThisTurn ||
@@ -1483,10 +1480,10 @@ function applyPassTurn(
       (instance.cardsPutUnderThisTurn ?? 0) > 0 ||
       (instance.damageImmunityChargesUsedThisTurn ?? 0) > 0
     ) {
+      // tempStrengthModifier/tempWillpowerModifier/tempLoreModifier: no longer
+      // used — "this_turn" stat buffs now route through TimedEffects which are
+      // filtered out by the expiry check below this loop.
       state = updateInstance(state, id, {
-        tempStrengthModifier: 0,
-        tempWillpowerModifier: 0,
-        tempLoreModifier: 0,
         grantedKeywords: [],
         challengedThisTurn: false,
         movedThisTurn: false,
@@ -5547,36 +5544,25 @@ function applyEffectToTarget(
       return state;
     }
     case "gain_stats": {
-      // Sword in the Stone: +1 strength per damage on target
+      // Special strength-override variants compute the amount dynamically,
+      // then delegate to the standard applyGainStatsToInstance path (which
+      // now ALWAYS routes through TimedEffect, not tempModifiers).
       if (effect.strengthPerDamage) {
         const instance = getInstance(state, targetInstanceId);
-        return updateInstance(state, targetInstanceId, {
-          tempStrengthModifier: instance.tempStrengthModifier + instance.damage,
-          tempWillpowerModifier: instance.tempWillpowerModifier + (effect.willpower ?? 0),
-          tempLoreModifier: instance.tempLoreModifier + (effect.lore ?? 0),
-        });
+        const override = { ...effect, strength: instance.damage, strengthPerDamage: undefined };
+        return applyGainStatsToInstance(state, targetInstanceId, override as any, controllingPlayerId, definitions);
       }
-      // Triton's Trident SYMBOL OF POWER: +1 strength per card in controller's hand.
       if (effect.strengthPerCardInHand) {
-        const instance = getInstance(state, targetInstanceId);
         const handSize = getZone(state, controllingPlayerId, "hand").length;
-        return updateInstance(state, targetInstanceId, {
-          tempStrengthModifier: instance.tempStrengthModifier + handSize,
-          tempWillpowerModifier: instance.tempWillpowerModifier + (effect.willpower ?? 0),
-          tempLoreModifier: instance.tempLoreModifier + (effect.lore ?? 0),
-        });
+        const override = { ...effect, strength: handSize, strengthPerCardInHand: undefined };
+        return applyGainStatsToInstance(state, targetInstanceId, override as any, controllingPlayerId, definitions);
       }
-      // Olaf Carrot Enthusiast: +S equal to the source's effective strength.
       if (effect.strengthEqualsSourceStrength) {
-        const instance = getInstance(state, targetInstanceId);
         const sourceInst = state.cards[sourceInstanceId];
         const sourceDef = sourceInst ? definitions[sourceInst.definitionId] : undefined;
         const srcStrength = sourceInst && sourceDef ? getEffectiveStrength(sourceInst, sourceDef, 0, getGameModifiers(state, definitions)) : 0;
-        return updateInstance(state, targetInstanceId, {
-          tempStrengthModifier: instance.tempStrengthModifier + srcStrength,
-          tempWillpowerModifier: instance.tempWillpowerModifier + (effect.willpower ?? 0),
-          tempLoreModifier: instance.tempLoreModifier + (effect.lore ?? 0),
-        });
+        const override = { ...effect, strength: srcStrength, strengthEqualsSourceStrength: undefined };
+        return applyGainStatsToInstance(state, targetInstanceId, override as any, controllingPlayerId, definitions);
       }
       return applyGainStatsToInstance(state, targetInstanceId, effect, controllingPlayerId, definitions);
     }
@@ -6075,18 +6061,14 @@ function applyGainStatsToInstance(
   }
   const strengthAmount = resolvedStrength ?? effect.strength ?? 0;
 
-  const isTempThisTurn = effect.duration === "this_turn" || effect.duration === "permanent";
-  if (isTempThisTurn) {
-    // Existing path: write to tempStrengthModifier (cleared at end of turn).
-    // Note: "permanent" currently shares the temp path — pre-existing semantics.
-    return updateInstance(state, instanceId, {
-      tempStrengthModifier: instance.tempStrengthModifier + strengthAmount,
-      tempWillpowerModifier: instance.tempWillpowerModifier + (effect.willpower ?? 0),
-      tempLoreModifier: instance.tempLoreModifier + (effect.lore ?? 0),
-    });
-  }
-  // EffectDuration: append separate timedEffects so the duration logic expires them.
-  const expiresAt = effect.duration as import("../types/index.js").EffectDuration;
+  // ALL durations route through TimedEffect. CRD treats "this turn" stat
+  // buffs identically to "this turn" keyword grants — both are timed effects.
+  // Previously "this_turn" used a tempStrengthModifier fast path; collapsed
+  // for conceptual simplicity. "this_turn" maps to "end_of_turn" for expiry.
+  const expiresAt: import("../types/index.js").EffectDuration =
+    effect.duration === "this_turn" ? "end_of_turn"
+    : effect.duration === "permanent" ? "end_of_turn" // no cards use permanent; safe default
+    : effect.duration as import("../types/index.js").EffectDuration;
   const baseTimed = { expiresAt, appliedOnTurn: state.turnNumber, casterPlayerId };
   if (strengthAmount) {
     state = addTimedEffect(state, instanceId, { type: "modify_strength", amount: strengthAmount, ...baseTimed });

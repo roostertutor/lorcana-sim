@@ -191,8 +191,8 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     const allyDef = LORCAST_CARD_DEFINITIONS[ally.definitionId]!;
     const printed = allyDef.strength ?? 0;
 
-    // Apply a -5 strength debuff via tempStrengthModifier directly.
-    state = { ...state, cards: { ...state.cards, [allyId]: { ...ally, tempStrengthModifier: -5 } } };
+    // Apply a -5 strength debuff via TimedEffect (was tempStrengthModifier).
+    state = { ...state, cards: { ...state.cards, [allyId]: { ...ally, timedEffects: [...ally.timedEffects, { type: "modify_strength" as any, amount: -5, expiresAt: "end_of_turn" as any, appliedOnTurn: 0 }] } } };
     const mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
     const strWithFloor = getEffectiveStrength(getInstance(state, allyId), allyDef, 0, mods);
     expect(strWithFloor).toBe(printed);
@@ -633,7 +633,7 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     ({ state, instanceId: oppId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
 
     const opp = getInstance(state, oppId);
-    state = { ...state, cards: { ...state.cards, [oppId]: { ...opp, tempStrengthModifier: -5 } } };
+    state = { ...state, cards: { ...state.cards, [oppId]: { ...opp, timedEffects: [...opp.timedEffects, { type: "modify_strength" as any, amount: -5, expiresAt: "end_of_turn" as any, appliedOnTurn: 0 }] } } };
 
     const mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
     const oppDef = LORCAST_CARD_DEFINITIONS[opp.definitionId]!;

@@ -169,9 +169,11 @@ it("switches to opponent after passing turn", () => {
     let state = startGame();
     let instanceId: string;
     ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", {
-      tempStrengthModifier: 2,
-      tempWillpowerModifier: 1,
-      tempLoreModifier: 1,
+      timedEffects: [
+        { type: "modify_strength", amount: 2, expiresAt: "end_of_turn", appliedOnTurn: state.turnNumber } as any,
+        { type: "modify_willpower", amount: 1, expiresAt: "end_of_turn", appliedOnTurn: state.turnNumber } as any,
+        { type: "modify_lore", amount: 1, expiresAt: "end_of_turn", appliedOnTurn: state.turnNumber } as any,
+      ],
     }));
 
     // Pass P1's turn → modifiers should be cleared
@@ -179,9 +181,9 @@ it("switches to opponent after passing turn", () => {
 
     expect(result.success).toBe(true);
     const card = getInstance(result.newState, instanceId);
-    expect(card.tempStrengthModifier).toBe(0);
-    expect(card.tempWillpowerModifier).toBe(0);
-    expect(card.tempLoreModifier).toBe(0);
+    expect(card.timedEffects.filter((t: any)=>t.type==="modify_strength").reduce((s: number,t: any)=>s+(t.amount??0),0)).toBe(0);
+    expect(card.timedEffects.filter((t: any)=>t.type==="modify_willpower").reduce((s: number,t: any)=>s+(t.amount??0),0)).toBe(0);
+    expect(card.timedEffects.filter((t: any)=>t.type==="modify_lore").reduce((s: number,t: any)=>s+(t.amount??0),0)).toBe(0);
   });
 });
 
@@ -324,7 +326,7 @@ it("The Queen I SUMMON THEE: exerts her and draws a card (CRD 4.4.1)", () => {
     }, LORCAST_CARD_DEFINITIONS);
 
     expect(resolveResult.success).toBe(true);
-    expect(getInstance(resolveResult.newState, targetId).tempLoreModifier).toBe(1);
+    expect(getInstance(resolveResult.newState, targetId).timedEffects.filter((t: any)=>t.type==="modify_lore").reduce((s: number,t: any)=>s+(t.amount??0),0)).toBe(1);
   });
 
   // CRD 4.4.2: {E} ability requires character to not be exerted
@@ -740,7 +742,7 @@ describe("§5.4 Actions", () => {
       type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId],
     }, LORCAST_CARD_DEFINITIONS);
     expect(resolve.success).toBe(true);
-    expect(getInstance(resolve.newState, targetId).tempStrengthModifier).toBe(2);
+    expect(getInstance(resolve.newState, targetId).timedEffects.filter((t: any)=>t.type==="modify_strength").reduce((s: number,t: any)=>s+(t.amount??0),0)).toBe(2);
     expect(getInstance(resolve.newState, swordId).zone).toBe("discard");
   });
 
@@ -755,7 +757,7 @@ describe("§5.4 Actions", () => {
     const resolve = applyAction(result.newState, {
       type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId],
     }, LORCAST_CARD_DEFINITIONS);
-    expect(getInstance(resolve.newState, targetId).tempStrengthModifier).toBe(-2);
+    expect(getInstance(resolve.newState, targetId).timedEffects.filter((t: any)=>t.type==="modify_strength").reduce((s: number,t: any)=>s+(t.amount??0),0)).toBe(-2);
   });
 
   // --- deal_damage actions ---
@@ -1475,7 +1477,7 @@ it("Maximus enters play → chosen character gets -2 STR", () => {
     const resolve = applyAction(result.newState, {
       type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId],
     }, LORCAST_CARD_DEFINITIONS);
-    expect(getInstance(resolve.newState, targetId).tempStrengthModifier).toBe(-2);
+    expect(getInstance(resolve.newState, targetId).timedEffects.filter((t: any)=>t.type==="modify_strength").reduce((s: number,t: any)=>s+(t.amount??0),0)).toBe(-2);
   });
 
   it("Rapunzel Letting Down Her Hair enters play → opponent loses 1 lore", () => {
@@ -2559,7 +2561,7 @@ it("Magic Broom shuffles a card from discard into deck", () => {
       type: "RESOLVE_CHOICE", playerId: "player1", choice: [villainId],
     }, LORCAST_CARD_DEFINITIONS);
     expect(resolveResult.success).toBe(true);
-    expect(getInstance(resolveResult.newState, villainId).tempStrengthModifier).toBe(3);
+    expect(getInstance(resolveResult.newState, villainId).timedEffects.filter((t: any)=>t.type==="modify_strength").reduce((s: number,t: any)=>s+(t.amount??0),0)).toBe(3);
   });
 
   // Poisoned Apple: exert, or banish if Princess
@@ -3344,7 +3346,7 @@ describe("§8.13 Support", () => {
     }, LORCAST_CARD_DEFINITIONS);
     expect(resolveResult.success).toBe(true);
     // Philoctetes has STR 3, so target gets +3 strength this turn
-    expect(getInstance(resolveResult.newState, targetId).tempStrengthModifier).toBe(3);
+    expect(getInstance(resolveResult.newState, targetId).timedEffects.filter((t: any)=>t.type==="modify_strength").reduce((s: number,t: any)=>s+(t.amount??0),0)).toBe(3);
   });
 
   it("Support declined — no effect (CRD 6.1.4)", () => {
@@ -3362,7 +3364,7 @@ describe("§8.13 Support", () => {
     expect(declineResult.success).toBe(true);
     expect(declineResult.newState.pendingChoice).toBeNull();
     // Target should have no modifier
-    expect(getInstance(declineResult.newState, targetId).tempStrengthModifier).toBe(0);
+    expect(getInstance(declineResult.newState, targetId).timedEffects.filter((t: any)=>t.type==="modify_strength").reduce((s: number,t: any)=>s+(t.amount??0),0)).toBe(0);
   });
 
   it("Support skipped when alone — no may choice (CRD 8.13.1)", () => {
@@ -3387,12 +3389,12 @@ describe("§8.13 Support", () => {
     let result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: philId }, LORCAST_CARD_DEFINITIONS);
     result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
     result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId] }, LORCAST_CARD_DEFINITIONS);
-    expect(getInstance(result.newState, targetId).tempStrengthModifier).toBe(3);
+    expect(getInstance(result.newState, targetId).timedEffects.filter((t: any)=>t.type==="modify_strength").reduce((s: number,t: any)=>s+(t.amount??0),0)).toBe(3);
 
     // Pass turn — modifiers clear
     result = applyAction(result.newState, { type: "PASS_TURN", playerId: "player1" }, LORCAST_CARD_DEFINITIONS);
     expect(result.success).toBe(true);
-    expect(getInstance(result.newState, targetId).tempStrengthModifier).toBe(0);
+    expect(getInstance(result.newState, targetId).timedEffects.filter((t: any)=>t.type==="modify_strength").reduce((s: number,t: any)=>s+(t.amount??0),0)).toBe(0);
   });
 
   it("Support cannot target the questing character itself (CRD 8.13.1)", () => {

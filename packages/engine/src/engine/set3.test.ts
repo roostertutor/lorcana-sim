@@ -178,7 +178,7 @@ describe("§7 Set 3 — Locations", () => {
     }, LORCAST_CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     const c = getInstance(result.newState, cubbyId);
-    expect(c.tempStrengthModifier).toBe(3);
+    expect(c.timedEffects.filter((t: any)=>t.type==="modify_strength").reduce((s: number,t: any)=>s+(t.amount??0),0)).toBe(3);
   });
 
   it("findDamageRedirect does not redirect damage targeted at a location", () => {

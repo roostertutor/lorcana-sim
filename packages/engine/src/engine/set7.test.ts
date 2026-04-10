@@ -94,11 +94,10 @@ describe("§7 Set 7 — Baloo Ol' Iron Paws (damage_immunity_static source=all)"
     ({ state, instanceId: baloo } = injectCard(state, "player1", "baloo-ol-iron-paws", "play", { isDrying: false, isExerted: true }));
     ({ state, instanceId: attackerId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
     // Pass to player2's turn so they can challenge. Then bump Baloo to STR 7
-    // directly via tempStrengthModifier — after applyPassTurn clears temp
-    // modifiers on the turn boundary, we re-set it here.
+    // directly via TimedEffect — after turn boundary clears timed effects, re-apply.
     state = passTurns(state, 1);
     const balooInst = getInstance(state, baloo);
-    state = { ...state, cards: { ...state.cards, [baloo]: { ...balooInst, tempStrengthModifier: 2 } } };
+    state = { ...state, cards: { ...state.cards, [baloo]: { ...balooInst, timedEffects: [...balooInst.timedEffects, { type: "modify_strength" as any, amount: 2, expiresAt: "end_of_turn" as any, appliedOnTurn: state.turnNumber }] } } };
 
     const r = applyAction(state, {
       type: "CHALLENGE",
