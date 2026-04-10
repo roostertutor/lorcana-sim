@@ -254,25 +254,42 @@ function validatePlayCard(
   if (viaGrantedFreePlay && !grantedFreePlayMods.playForFreeSelf.has(instanceId)) {
     return fail("This card cannot be played for free right now.");
   }
+  // Validate playCosts are payable (Belle: banish item, Scrooge: exert 4 items).
+  // The specific target (which item to banish) is carried on the action's
+  // altCostBanishInstanceId field; we just check feasibility here.
+  if (viaGrantedFreePlay) {
+    const playCosts = grantedFreePlayMods.playForFreeSelf.get(instanceId);
+    if (playCosts) {
+      for (const pc of playCosts) {
+        if (pc.type === "banish_chosen") {
+          const candidates = getZone(state, playerId, "play").filter((id) => {
+            const inst = state.cards[id];
+            const d = inst ? definitions[inst.definitionId] : undefined;
+            return inst && d && matchesFilter(inst, d, pc.filter, state, playerId);
+          });
+          if (candidates.length === 0) return fail("No valid target to banish for the free play cost.");
+        }
+        if (pc.type === "exert_n_matching") {
+          const candidates = getZone(state, playerId, "play").filter((id) => {
+            const inst = state.cards[id];
+            if (!inst || inst.isExerted) return false;
+            const d = definitions[inst.definitionId];
+            return d ? matchesFilter(inst, d, pc.filter, state, playerId) : false;
+          });
+          if (candidates.length < pc.count) return fail(`Need ${pc.count} ready matching cards to exert.`);
+        }
+        if (pc.type === "discard") {
+          const hand = getZone(state, playerId, "hand").filter(id => id !== instanceId);
+          if (hand.length < pc.amount) return fail("Not enough cards in hand to discard.");
+        }
+      }
+    }
+  }
   // Apply cost reductions (static + one-shot)
   const effectiveCost = viaGrantedFreePlay ? 0 : getEffectiveCostWithReductions(state, playerId, instanceId, definitions);
   if (!canAfford(state, playerId, effectiveCost)) { // CRD 1.5.3: cost must be paid in full
-    // Allow if the alt cost is satisfiable (Belle Apprentice Inventor).
-    if (def.altPlayCost) {
-      if (def.altPlayCost.condition && !evaluateCondition(def.altPlayCost.condition, state, definitions, playerId, instanceId)) {
-        return fail(`Not enough ink. Need ${effectiveCost}, have ${state.players[playerId].availableInk}.`);
-      }
-      const candidates = getZone(state, playerId, "play").filter((id) => {
-        const inst = state.cards[id];
-        const d = inst ? definitions[inst.definitionId] : undefined;
-        return inst && d && matchesFilter(inst, d, def.altPlayCost!.filter, state, playerId);
-      });
-      if (candidates.length === 0) {
-        return fail(`Not enough ink. Need ${effectiveCost}, have ${state.players[playerId].availableInk}.`);
-      }
-      // alt cost is satisfiable — allow the play
-      return OK;
-    }
+    // altPlayCost: DELETED — Belle now uses grant_play_for_free_self with playCosts.
+    // The viaGrantedFreePlay path handles it above.
     return fail(`Not enough ink. Need ${effectiveCost}, have ${state.players[playerId].availableInk}.`);
   }
 

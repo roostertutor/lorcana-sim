@@ -109,7 +109,9 @@ export interface GameModifiers {
    * The legal-action enumerator surfaces an extra PLAY_CARD variant with
    * the cost forced to 0 for these instances.
    */
-  playForFreeSelf: Set<string>;
+  /** Per-instance free-play grants. Value is the playCosts array (null = no
+   *  extra costs, unconditional free play like Pudge). */
+  playForFreeSelf: Map<string, import("../types/index.js").PlayForFreeCost[] | null>;
 
   /**
    * In-hand instances with a granted Shift cost (Anna - Soothing Sister
@@ -290,7 +292,7 @@ export function getGameModifiers(
     damageImmunityCharges: new Map(),
     grantedActivatedAbilities: new Map(),
     selfActionRestrictions: new Map(),
-    playForFreeSelf: new Set(),
+    playForFreeSelf: new Map(),
     grantedShiftSelf: new Map(),
     mimicryTargets: new Set(),
     universalShifters: new Set(),
@@ -687,11 +689,12 @@ export function getGameModifiers(
         }
 
         case "grant_play_for_free_self": {
-          // Pudge - Controls the Weather: "If you have Lilo in play, you can
-          // play this character for free." The static lives in HAND
-          // (activeZones: ["hand"]); when its condition resolves true the
-          // in-hand instance is flagged as playable for free.
-          modifiers.playForFreeSelf.add(instance.instanceId);
+          // Pudge / LeFou / Lilo: condition-only free play (no costs).
+          // Belle / Scrooge: free play with costs (banish item / exert items).
+          // The static lives in HAND (activeZones: ["hand"]); when its
+          // condition resolves true the instance is flagged as free-playable
+          // with optional costs.
+          modifiers.playForFreeSelf.set(instance.instanceId, (effect as any).playCosts ?? null);
           break;
         }
 

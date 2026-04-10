@@ -8574,6 +8574,32 @@
     ],
     "abilities": [
       {
+        "type": "static",
+        "storyName": "PUT IT TO GOOD USE",
+        "rulesText": "You may exert 4 items of yours to play this character for free.",
+        "activeZones": [
+          "hand"
+        ],
+        "effect": {
+          "type": "grant_play_for_free_self",
+          "playCosts": [
+            {
+              "type": "exert_n_matching",
+              "count": 4,
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "item"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
         "type": "triggered",
         "storyName": "FORTUNE HUNTER",
         "rulesText": "When you play this character, look at the top 4 cards of your deck. You may reveal an item card and put it into your hand. Put the rest on the bottom of your deck in any order.",
@@ -8813,22 +8839,36 @@
       "Princess",
       "Inventor"
     ],
-    "abilities": [],
-    "altPlayCost": {
-      "type": "banish_item",
-      "filter": {
-        "owner": {
-          "type": "self"
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "WHAT A MESS",
+        "rulesText": "During your turn, you may banish chosen item of yours to play this character for free.",
+        "activeZones": [
+          "hand"
+        ],
+        "condition": {
+          "type": "is_your_turn"
         },
-        "zone": "play",
-        "cardType": [
-          "item"
-        ]
-      },
-      "condition": {
-        "type": "is_your_turn"
+        "effect": {
+          "type": "grant_play_for_free_self",
+          "playCosts": [
+            {
+              "type": "banish_chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "item"
+                ]
+              }
+            }
+          ]
+        }
       }
-    },
+    ],
     "setId": "7",
     "number": 159,
     "rarity": "common",

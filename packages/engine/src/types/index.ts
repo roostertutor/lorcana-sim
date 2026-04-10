@@ -1663,7 +1663,21 @@ export interface RestrictRememberedTargetActionStatic {
  */
 export interface GrantPlayForFreeSelfStatic {
   type: "grant_play_for_free_self";
+  /** Optional costs that must be paid to use the free-play mode. When absent,
+   *  the play is unconditionally free (Pudge, LeFou, Lilo Uproar — condition-
+   *  gated only). When present, the validator checks the costs are payable and
+   *  the legal-action enumerator surfaces one action per valid cost target.
+   *  Belle Apprentice Inventor: [{ type: "banish_chosen", filter: items }]
+   *  Scrooge Resourceful Miser: [{ type: "exert_n_matching", count: 4, filter: items }]
+   */
+  playCosts?: PlayForFreeCost[];
 }
+
+/** Cost that must be paid as part of a granted free-play mode. */
+export type PlayForFreeCost =
+  | { type: "banish_chosen"; filter: CardFilter }
+  | { type: "exert_n_matching"; count: number; filter: CardFilter }
+  | { type: "discard"; filter?: CardFilter; amount: number };
 
 /**
  * Anna - Soothing Sister (Set 11) UNUSUAL TRANSFORMATION: "this card gains
@@ -2244,17 +2258,8 @@ export interface CardDefinition {
    *  this turn"). */
   playRestrictions?: Condition[];
 
-  /** Alternative play cost (Belle Apprentice Inventor: "you may banish chosen
-   *  item of yours to play this character for free"). When set, the player
-   *  may choose this path instead of paying ink. */
-  altPlayCost?: {
-    type: "banish_item";
-    /** Filter for which items can be banished as the alt cost. */
-    filter: CardFilter;
-    /** Optional condition gating when the alt cost is allowed (e.g.
-     *  Belle's "during your turn"). */
-    condition?: Condition;
-  };
+  // altPlayCost: DELETED — migrated to grant_play_for_free_self with playCosts.
+  // Belle now uses a static with playCosts: [{ type: "banish_chosen", filter }].
 
   /** CRD 5.4.3: Actions have effects, not abilities. Resolved inline, not through trigger stack. */
   actionEffects?: Effect[];

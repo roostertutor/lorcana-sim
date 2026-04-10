@@ -203,9 +203,47 @@ export function getAllLegalActions(
     // player can pick either (CRD 6.4.4 / "may"/"can" wording — the granted
     // ability is OPT-IN, not a forced cost reduction).
     if (playMods.playForFreeSelf.has(instanceId)) {
-      const freePlay: GameAction = { type: "PLAY_CARD", playerId, instanceId, viaGrantedFreePlay: true };
-      if (validateAction(state, freePlay, definitions).valid) {
-        actions.push(freePlay);
+      const playCosts = playMods.playForFreeSelf.get(instanceId);
+      if (!playCosts) {
+        // No extra costs — unconditional free play (Pudge/LeFou/Lilo)
+        const freePlay: GameAction = { type: "PLAY_CARD", playerId, instanceId, viaGrantedFreePlay: true };
+        if (validateAction(state, freePlay, definitions).valid) {
+          actions.push(freePlay);
+        }
+      } else {
+        // Has playCosts — enumerate per valid cost target.
+        // Belle: one action per banishable item.
+        // Scrooge: one action if enough ready items exist.
+        let hasBanishChosen = false;
+        let hasOtherCosts = false;
+        for (const pc of playCosts) {
+          if (pc.type === "banish_chosen") {
+            hasBanishChosen = true;
+            for (const itemId of myPlay) {
+              const itemInst = state.cards[itemId];
+              const itemDef = itemInst ? definitions[itemInst.definitionId] : undefined;
+              if (!itemInst || !itemDef) continue;
+              if (!matchesFilter(itemInst, itemDef, pc.filter, state, playerId)) continue;
+              const altPlay: GameAction = {
+                type: "PLAY_CARD", playerId, instanceId,
+                viaGrantedFreePlay: true,
+                altCostBanishInstanceId: itemId,
+              };
+              if (validateAction(state, altPlay, definitions).valid) {
+                actions.push(altPlay);
+              }
+            }
+          } else {
+            hasOtherCosts = true;
+          }
+        }
+        // Non-banish costs (exert_n, discard): surface one action, validator checks feasibility
+        if (!hasBanishChosen || hasOtherCosts) {
+          const freePlay: GameAction = { type: "PLAY_CARD", playerId, instanceId, viaGrantedFreePlay: true };
+          if (validateAction(state, freePlay, definitions).valid) {
+            actions.push(freePlay);
+          }
+        }
       }
     }
 
@@ -229,26 +267,8 @@ export function getAllLegalActions(
       }
     }
 
-    // Belle Apprentice Inventor: alternative play cost (banish item).
-    // Enumerate one PLAY_CARD action per banishable item that satisfies the
-    // card's altPlayCost filter.
-    if (cardDef?.altPlayCost?.type === "banish_item") {
-      for (const itemId of myPlay) {
-        const itemInst = state.cards[itemId];
-        const itemDef = itemInst ? definitions[itemInst.definitionId] : undefined;
-        if (!itemInst || !itemDef) continue;
-        if (!matchesFilter(itemInst, itemDef, cardDef.altPlayCost.filter, state, playerId)) continue;
-        const altPlay: GameAction = {
-          type: "PLAY_CARD",
-          playerId,
-          instanceId,
-          altCostBanishInstanceId: itemId,
-        };
-        if (validateAction(state, altPlay, definitions).valid) {
-          actions.push(altPlay);
-        }
-      }
-    }
+    // altPlayCost: DELETED — migrated to grant_play_for_free_self with playCosts.
+    // Belle's banish-item enumeration now happens in the playForFreeSelf block above.
   }
 
   // SING — each song in hand × each eligible singer in play (CRD 5.4.4.2)
@@ -438,13 +458,37 @@ function applyPlayCard(
       triggeringPlayerId: playerId,
       triggeringCardInstanceId: instanceId,
     });
-  } else if (altCostBanishInstanceId && def.altPlayCost?.type === "banish_item") {
-    // Belle Apprentice Inventor: alt cost — banish chosen item, no ink paid.
-    state = banishCard(state, altCostBanishInstanceId, definitions, events);
   } else if (viaGrantedFreePlay) {
-    // Pudge - Controls the Weather: granted free-play. No ink paid, no cost
-    // reductions consumed. The validator already verified the modifier is
-    // active for this instance.
+    // Granted free-play: Pudge (no costs), Belle (banish item), Scrooge (exert items).
+    // Pay any playCosts first, then the card enters play for free.
+    const mods = getGameModifiers(state, definitions);
+    const playCosts = mods.playForFreeSelf.get(instanceId);
+    if (playCosts) {
+      for (const pc of playCosts) {
+        if (pc.type === "banish_chosen" && altCostBanishInstanceId) {
+          state = banishCard(state, altCostBanishInstanceId, definitions, events);
+        }
+        if (pc.type === "exert_n_matching") {
+          // Bot: exert the first N matching ready cards
+          const candidates = getZone(state, playerId, "play").filter((id) => {
+            const inst = state.cards[id];
+            if (!inst || inst.isExerted) return false;
+            const d = definitions[inst.definitionId];
+            return d ? matchesFilter(inst, d, pc.filter, state, playerId) : false;
+          });
+          for (let i = 0; i < Math.min(pc.count, candidates.length); i++) {
+            state = exertInstance(state, candidates[i]!, definitions);
+          }
+        }
+        if (pc.type === "discard") {
+          // Bot: discard first N eligible cards from hand
+          const hand = getZone(state, playerId, "hand").filter(id => id !== instanceId);
+          for (let i = 0; i < Math.min(pc.amount, hand.length); i++) {
+            state = moveCard(state, hand[i]!, playerId, "discard");
+          }
+        }
+      }
+    }
     state = appendLog(state, {
       turn: state.turnNumber,
       playerId,
