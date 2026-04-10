@@ -772,7 +772,7 @@
       {
         "type": "triggered",
         "storyName": "SPECIAL RESERVATION",
-        "rulesText": "Whenever a character of yours is challenged while this character is exerted, the challenging character gets -3 {S} this turn unless their player pays 3 {I}. (approximation: unconditional -3 str)",
+        "rulesText": "Whenever a character of yours is challenged while this character is exerted, the challenging character gets -3 {S} this turn unless their player pays 3 {I}.",
         "trigger": {
           "on": "is_challenged",
           "filter": {
@@ -790,10 +790,18 @@
         },
         "effects": [
           {
-            "type": "gain_stats",
-            "strength": -3,
-            "target": {
-              "type": "challenging_character"
+            "type": "opponent_may_pay_to_avoid",
+            "acceptEffect": {
+              "type": "pay_ink",
+              "amount": 3
+            },
+            "rejectEffect": {
+              "type": "gain_stats",
+              "strength": -3,
+              "target": {
+                "type": "triggering_card"
+              },
+              "duration": "this_turn"
             }
           }
         ]
@@ -11587,7 +11595,7 @@
       {
         "type": "triggered",
         "storyName": "SPECIAL RESERVATION",
-        "rulesText": "Whenever a character of yours is challenged while this character is exerted, the challenging character gets -3 {S} this turn unless their player pays 3 {I}. (approximation: unconditional -3 str)",
+        "rulesText": "Whenever a character of yours is challenged while this character is exerted, the challenging character gets -3 {S} this turn unless their player pays 3 {I}.",
         "trigger": {
           "on": "is_challenged",
           "filter": {
@@ -11605,10 +11613,18 @@
         },
         "effects": [
           {
-            "type": "gain_stats",
-            "strength": -3,
-            "target": {
-              "type": "challenging_character"
+            "type": "opponent_may_pay_to_avoid",
+            "acceptEffect": {
+              "type": "pay_ink",
+              "amount": 3
+            },
+            "rejectEffect": {
+              "type": "gain_stats",
+              "strength": -3,
+              "target": {
+                "type": "triggering_card"
+              },
+              "duration": "this_turn"
             }
           }
         ]

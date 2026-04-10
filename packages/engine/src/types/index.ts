@@ -233,6 +233,7 @@ export type Effect =
   | PlayerMayPlayFromHandEffect
   | ConditionalOnPlayerStateEffect
   | ChosenOpposingMayBottomOrRewardEffect
+  | OpponentMayPayToAvoidEffect
   | SingCostBonusTargetEffect;
 
 /**
@@ -990,6 +991,26 @@ export interface ConditionalChallengerSelfStatic {
   type: "conditional_challenger_self";
   strength: number;
   defenderFilter: CardFilter;
+}
+
+/**
+ * Cross-player optional payment — generalization of the Hades Looking for a
+ * Deal pattern. The triggering card's owner (the OPPOSING player from the
+ * controller's perspective) gets a may-prompt: accept to fire `acceptEffect`,
+ * decline to let `rejectEffect` fire (controlled by the trigger's caster).
+ * Used by Tiana Restaurant Owner SPECIAL RESERVATION ("...the challenging
+ * character gets -3 {S} this turn UNLESS their player pays 3 {I}"):
+ *   - acceptEffect = pay_ink amount: 3 (deducts from opponent's pool)
+ *   - rejectEffect = gain_stats strength: -3 target: triggering_card
+ * The choose_may surfaces with choosingPlayerId set to triggering_card's
+ * owner so the opposing bot makes the decision.
+ */
+export interface OpponentMayPayToAvoidEffect {
+  type: "opponent_may_pay_to_avoid";
+  /** What the opposing player does if they ACCEPT (typically a cost). */
+  acceptEffect: Effect;
+  /** What the controller (the trigger's caster) does if the opponent DECLINES. */
+  rejectEffect: Effect;
 }
 
 export interface CreateCardEffect {

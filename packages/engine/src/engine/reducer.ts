@@ -3807,6 +3807,44 @@ export function applyEffect(
       return state;
     }
 
+    // Tiana Restaurant Owner SPECIAL RESERVATION generalization. The
+    // controller's trigger fires; the OPPOSING player (owner of the
+    // triggering card) gets a may-prompt to accept the cost (e.g. pay 3 ink)
+    // or decline and let the controller's reject effect fire (e.g. -3 {S}).
+    // Mirrors the Hades Looking for a Deal cross-player chooser machinery
+    // but is generic — accept and reject are both arbitrary effects.
+    case "opponent_may_pay_to_avoid": {
+      if (!triggeringCardInstanceId) return state;
+      const triggeringInst = state.cards[triggeringCardInstanceId];
+      if (!triggeringInst) return state;
+      const opposingPlayerId = triggeringInst.ownerId;
+      // Pre-check affordability: if the opposing player can't perform the
+      // accept cost, skip the choose_may and fire the reject effect directly.
+      // This ensures the rule "unless their player pays N" applies the
+      // debuff when they CAN'T pay, not just when they choose not to.
+      if (!canPerformCostEffect(state, effect.acceptEffect, opposingPlayerId, triggeringCardInstanceId)) {
+        return applyEffect(state, effect.rejectEffect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+      }
+      // Surface a choose_may to the opposing player. accept fires the
+      // cost effect against the opposing player; reject fires the controller's
+      // debuff via rejectControllingPlayerId.
+      return {
+        ...state,
+        pendingChoice: {
+          type: "choose_may",
+          choosingPlayerId: opposingPlayerId,
+          prompt: "Pay to avoid the effect?",
+          pendingEffect: effect.acceptEffect,
+          rejectEffect: effect.rejectEffect,
+          acceptControllingPlayerId: opposingPlayerId,
+          rejectControllingPlayerId: controllingPlayerId,
+          sourceInstanceId,
+          triggeringCardInstanceId,
+          optional: true,
+        },
+      };
+    }
+
     case "chosen_opposing_may_bottom_or_reward": {
       // Hades - Looking for a Deal. Caster picks an opposing character; the
       // pendingChoice surfaces with the caster as chooser and a custom
@@ -4662,7 +4700,16 @@ function queueTrigger(
           {
             ability,
             sourceInstanceId: watcherId,
-            context: { ...context, triggeringCardInstanceId: sourceInstanceId },
+            // Preserve the existing triggeringCardInstanceId if the event context
+            // already set one (e.g. is_challenged → attacker, challenges → defender).
+            // Falling back to sourceInstanceId only when no specific "other card"
+            // is part of the event. Without this preservation, Tiana Restaurant
+            // Owner watching is_challenged would see the defender instead of the
+            // attacker, breaking opponent_may_pay_to_avoid's cross-player chooser.
+            context: {
+              ...context,
+              triggeringCardInstanceId: context.triggeringCardInstanceId ?? sourceInstanceId,
+            },
           },
         ],
       };
