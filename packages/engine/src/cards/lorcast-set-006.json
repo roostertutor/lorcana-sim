@@ -8889,14 +8889,25 @@
       {
         "type": "triggered",
         "storyName": "TECHNICAL GAIN",
-        "rulesText": "Whenever this character quests, draw a card for each opposing character with {S}. (approximation: draw one card)",
+        "rulesText": "Whenever this character quests, draw a card for each opposing character with {S}.",
         "trigger": {
           "on": "quests"
         },
         "effects": [
           {
             "type": "draw",
-            "amount": 1,
+            "amount": {
+              "type": "count",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
             "target": {
               "type": "self"
             }

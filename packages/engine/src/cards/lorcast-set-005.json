@@ -5599,14 +5599,14 @@
       {
         "type": "triggered",
         "storyName": "REFRESHING BREAK",
-        "rulesText": "Whenever you ready this character, gain 1 lore for each 1 damage on him. (approximation: gain 1 lore)",
+        "rulesText": "Whenever you ready this character, gain 1 lore for each 1 damage on him.",
         "trigger": {
           "on": "readied"
         },
         "effects": [
           {
             "type": "gain_lore",
-            "amount": 1,
+            "amount": "triggering_card_damage",
             "target": {
               "type": "self"
             }
