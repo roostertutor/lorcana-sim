@@ -81,14 +81,23 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "turn_start", "player": { "type": "self" } },
-        "activeZones": ["discard"],
+        "trigger": {
+          "on": "turn_start",
+          "player": {
+            "type": "self"
+          }
+        },
+        "activeZones": [
+          "discard"
+        ],
         "storyName": "NO PLACE I'D RATHER BE",
         "rulesText": "At the start of your turn, if this card is in your discard, you may play her and she enters play exerted.",
         "effects": [
           {
             "type": "play_for_free",
-            "target": { "type": "this" },
+            "target": {
+              "type": "this"
+            },
             "sourceZone": "discard",
             "enterExerted": true,
             "isMay": true
@@ -1279,34 +1288,49 @@
         "trigger": {
           "on": "card_played",
           "filter": {
-            "owner": { "type": "self" },
-            "cardType": ["character"],
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ],
             "excludeSelf": true
           }
         },
         "storyName": "THE GANG'S ALL HERE",
         "rulesText": "Once during your turn, whenever you play another character, you may ready this character. He can't quest or challenge for the rest of this turn.",
-        "condition": { "type": "is_your_turn" },
+        "condition": {
+          "type": "is_your_turn"
+        },
         "oncePerTurn": true,
         "effects": [
           {
             "type": "sequential",
             "isMay": true,
             "costEffects": [
-              { "type": "ready", "target": { "type": "this" } }
+              {
+                "type": "ready",
+                "target": {
+                  "type": "this"
+                }
+              }
             ],
             "rewardEffects": [
               {
                 "type": "cant_action",
                 "action": "quest",
                 "duration": "this_turn",
-                "target": { "type": "this" }
+                "target": {
+                  "type": "this"
+                }
               },
               {
                 "type": "cant_action",
                 "action": "challenge",
                 "duration": "this_turn",
-                "target": { "type": "this" }
+                "target": {
+                  "type": "this"
+                }
               }
             ]
           }
@@ -1651,21 +1675,32 @@
       {
         "type": "activated",
         "storyName": "MAKE IT SING",
-        "rulesText": "1 {I}, Banish this item - Chosen character counts as having +3 cost to sing songs this turn. (approximation: no-op; banishes item)",
-        "costs": [],
-        "costEffects": [
+        "rulesText": "1 {I}, Banish this item — Chosen character counts as having +3 cost to sing songs this turn.",
+        "costs": [
           {
             "type": "pay_ink",
             "amount": 1
           },
           {
-            "type": "banish",
-            "target": {
-              "type": "this"
-            }
+            "type": "banish_self"
           }
         ],
-        "effects": []
+        "effects": [
+          {
+            "type": "sing_cost_bonus_target",
+            "amount": 3,
+            "duration": "this_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "6",
@@ -1823,13 +1858,29 @@
         "type": "triggered",
         "trigger": {
           "on": "is_banished",
-          "filter": { "cardType": ["character"], "atLocation": "this" }
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "atLocation": "this"
+          }
         },
         "storyName": "FRIENDS FOREVER",
         "rulesText": "During an opponent's turn, whenever a character is banished here, gain 1 lore.",
-        "condition": { "type": "not", "condition": { "type": "is_your_turn" } },
+        "condition": {
+          "type": "not",
+          "condition": {
+            "type": "is_your_turn"
+          }
+        },
         "effects": [
-          { "type": "gain_lore", "amount": 1, "target": { "type": "self" } }
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
         ]
       }
     ],
@@ -1863,7 +1914,12 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "moves_to_location", "filter": { "atLocation": "this" } },
+        "trigger": {
+          "on": "moves_to_location",
+          "filter": {
+            "atLocation": "this"
+          }
+        },
         "storyName": "BRING IT HOME, LITTLE ONE!",
         "rulesText": "When you move a character here from another location, you may banish this location to gain 3 lore and draw 3 cards.",
         "effects": [
@@ -1871,11 +1927,28 @@
             "type": "sequential",
             "isMay": true,
             "costEffects": [
-              { "type": "banish", "target": { "type": "this" } }
+              {
+                "type": "banish",
+                "target": {
+                  "type": "this"
+                }
+              }
             ],
             "rewardEffects": [
-              { "type": "gain_lore", "amount": 3, "target": { "type": "self" } },
-              { "type": "draw", "amount": 3, "target": { "type": "self" } }
+              {
+                "type": "gain_lore",
+                "amount": 3,
+                "target": {
+                  "type": "self"
+                }
+              },
+              {
+                "type": "draw",
+                "amount": 3,
+                "target": {
+                  "type": "self"
+                }
+              }
             ]
           }
         ]
@@ -2741,17 +2814,26 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "quests" },
+        "trigger": {
+          "on": "quests"
+        },
         "storyName": "TRUST BUILDS TRUST",
         "rulesText": "Whenever this character quests, reveal the top card of your deck. If it's a Dragon character card, put it into your hand and repeat this effect. Otherwise, put it on either the top or the bottom of your deck.",
         "effects": [
           {
             "type": "reveal_top_conditional",
-            "filter": { "cardType": ["character"], "hasTrait": "Dragon" },
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Dragon"
+            },
             "matchAction": "to_hand",
             "noMatchDestination": "top",
             "repeatOnMatch": true,
-            "target": { "type": "self" }
+            "target": {
+              "type": "self"
+            }
           }
         ]
       }
@@ -3397,14 +3479,26 @@
         "trigger": {
           "on": "returned_to_hand",
           "filter": {
-            "owner": { "type": "opponent" },
-            "cardType": ["character", "item", "location"]
+            "owner": {
+              "type": "opponent"
+            },
+            "cardType": [
+              "character",
+              "item",
+              "location"
+            ]
           }
         },
         "storyName": "BACK, FOOLS!",
         "rulesText": "Whenever one of your opponents' characters, items, or locations is returned to their hand from play, gain 1 lore.",
         "effects": [
-          { "type": "gain_lore", "amount": 1, "target": { "type": "self" } }
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
         ]
       }
     ],
@@ -4480,9 +4574,19 @@
       {
         "type": "triggered",
         "name": "LOOK INNOCENT",
-        "trigger": { "event": "enters_play", "filter": { "type": "this" } },
+        "trigger": {
+          "event": "enters_play",
+          "filter": {
+            "type": "this"
+          }
+        },
         "effects": [
-          { "type": "exert", "target": { "type": "this" } }
+          {
+            "type": "exert",
+            "target": {
+              "type": "this"
+            }
+          }
         ]
       },
       {
@@ -4492,13 +4596,19 @@
         "condition": {
           "type": "compound_and",
           "conditions": [
-            { "type": "this_is_exerted" },
-            { "type": "opponent_no_challenges_this_turn" }
+            {
+              "type": "this_is_exerted"
+            },
+            {
+              "type": "opponent_no_challenges_this_turn"
+            }
           ]
         },
         "effect": {
           "type": "prevent_lore_gain",
-          "affectedPlayer": { "type": "opponent" }
+          "affectedPlayer": {
+            "type": "opponent"
+          }
         }
       }
     ],
@@ -5398,14 +5508,21 @@
         "type": "triggered",
         "trigger": {
           "on": "is_challenged",
-          "filter": { "cardType": ["character"], "atLocation": "this" }
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "atLocation": "this"
+          }
         },
         "storyName": "LOST IN THE WAVES",
         "rulesText": "Whenever a character is challenged while here, each opponent chooses and discards a card.",
         "effects": [
           {
             "type": "discard_from_hand",
-            "target": { "type": "opponent" },
+            "target": {
+              "type": "opponent"
+            },
             "amount": 1,
             "chooser": "target_player"
           }
@@ -6462,7 +6579,9 @@
         "type": "triggered",
         "storyName": "GATHERING FORCES",
         "rulesText": "When you play this character, you may move any number of your characters to the same location for free. Gain 1 lore for each character you moved.",
-        "trigger": { "on": "enters_play" },
+        "trigger": {
+          "on": "enters_play"
+        },
         "effects": [
           {
             "type": "sequential",
@@ -6473,17 +6592,25 @@
                 "character": {
                   "type": "all",
                   "filter": {
-                    "owner": { "type": "self" },
+                    "owner": {
+                      "type": "self"
+                    },
                     "zone": "play",
-                    "cardType": ["character"]
+                    "cardType": [
+                      "character"
+                    ]
                   }
                 },
                 "location": {
                   "type": "chosen",
                   "filter": {
-                    "owner": { "type": "self" },
+                    "owner": {
+                      "type": "self"
+                    },
                     "zone": "play",
-                    "cardType": ["location"]
+                    "cardType": [
+                      "location"
+                    ]
                   }
                 }
               }
@@ -6492,7 +6619,9 @@
               {
                 "type": "gain_lore",
                 "amount": "cost_result",
-                "target": { "type": "self" }
+                "target": {
+                  "type": "self"
+                }
               }
             ]
           }
@@ -7272,12 +7401,26 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "turn_start", "player": { "type": "self" } },
+        "trigger": {
+          "on": "turn_start",
+          "player": {
+            "type": "self"
+          }
+        },
         "storyName": "TINY THIEVES",
         "rulesText": "At the start of your turn, if you have a character here, all opponents lose 1 lore and you gain lore equal to the lore lost this way.",
         "condition": {
           "type": "you_control_matching",
-          "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "atLocation": "this" }
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "atLocation": "this"
+          }
         },
         "effects": [
           {
@@ -7286,14 +7429,18 @@
               {
                 "type": "lose_lore",
                 "amount": 1,
-                "target": { "type": "opponent" }
+                "target": {
+                  "type": "opponent"
+                }
               }
             ],
             "rewardEffects": [
               {
                 "type": "gain_lore",
                 "amount": "cost_result",
-                "target": { "type": "self" }
+                "target": {
+                  "type": "self"
+                }
               }
             ]
           }
@@ -7644,19 +7791,32 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "ink_played", "player": { "type": "self" } },
+        "trigger": {
+          "on": "ink_played",
+          "player": {
+            "type": "self"
+          }
+        },
         "storyName": "FAVORABLE CHANCE",
         "rulesText": "During your turn, whenever a card is put into your inkwell, you may reveal the top card of your deck. If it's an item card, you may play that item for free and it enters play exerted. Otherwise, put it on the bottom of your deck.",
-        "condition": { "type": "is_your_turn" },
+        "condition": {
+          "type": "is_your_turn"
+        },
         "effects": [
           {
             "type": "reveal_top_conditional",
-            "filter": { "cardType": ["item"] },
+            "filter": {
+              "cardType": [
+                "item"
+              ]
+            },
             "matchAction": "play_for_free",
             "matchEnterExerted": true,
             "noMatchDestination": "bottom",
             "isMay": true,
-            "target": { "type": "self" }
+            "target": {
+              "type": "self"
+            }
           }
         ]
       }
@@ -9449,30 +9609,67 @@
       {
         "type": "triggered",
         "name": "COCONUT LEADER",
-        "trigger": { "event": "quests", "filter": { "type": "this" } },
+        "trigger": {
+          "event": "quests",
+          "filter": {
+            "type": "this"
+          }
+        },
         "isMay": true,
         "effects": [
-          { "type": "draw", "target": { "type": "self" }, "amount": 1 },
+          {
+            "type": "draw",
+            "target": {
+              "type": "self"
+            },
+            "amount": 1
+          },
           {
             "type": "sequential",
             "costEffects": [
-              { "type": "discard_from_hand", "target": { "type": "self" }, "amount": 1, "chooser": "target_player" }
+              {
+                "type": "discard_from_hand",
+                "target": {
+                  "type": "self"
+                },
+                "amount": 1,
+                "chooser": "target_player"
+              }
             ],
             "rewardEffects": [
               {
                 "type": "conditional_on_last_discarded",
-                "filter": { "cardType": "character", "hasTrait": "Pirate" },
+                "filter": {
+                  "cardType": "character",
+                  "hasTrait": "Pirate"
+                },
                 "then": [
                   {
                     "type": "deal_damage",
-                    "target": { "type": "chosen", "filter": { "cardType": ["character", "location"] } },
+                    "target": {
+                      "type": "chosen",
+                      "filter": {
+                        "cardType": [
+                          "character",
+                          "location"
+                        ]
+                      }
+                    },
                     "amount": 3
                   }
                 ],
                 "otherwise": [
                   {
                     "type": "deal_damage",
-                    "target": { "type": "chosen", "filter": { "cardType": ["character", "location"] } },
+                    "target": {
+                      "type": "chosen",
+                      "filter": {
+                        "cardType": [
+                          "character",
+                          "location"
+                        ]
+                      }
+                    },
                     "amount": 1
                   }
                 ]
@@ -10879,9 +11076,13 @@
             "target": {
               "type": "chosen",
               "filter": {
-                "owner": { "type": "self" },
+                "owner": {
+                  "type": "self"
+                },
                 "zone": "play",
-                "cardType": ["character"],
+                "cardType": [
+                  "character"
+                ],
                 "isExerted": false
               }
             }
@@ -10893,7 +11094,11 @@
             "amount": "last_resolved_source_strength",
             "target": {
               "type": "chosen",
-              "filter": { "cardType": ["character"] }
+              "filter": {
+                "cardType": [
+                  "character"
+                ]
+              }
             }
           }
         ]
@@ -11378,7 +11583,12 @@
     "abilities": [
       {
         "type": "triggered",
-        "trigger": { "on": "moves_to_location", "filter": { "atLocation": "this" } },
+        "trigger": {
+          "on": "moves_to_location",
+          "filter": {
+            "atLocation": "this"
+          }
+        },
         "storyName": "BRING IT HOME, LITTLE ONE!",
         "rulesText": "When you move a character here from another location, you may banish this location to gain 3 lore and draw 3 cards.",
         "effects": [
@@ -11386,11 +11596,28 @@
             "type": "sequential",
             "isMay": true,
             "costEffects": [
-              { "type": "banish", "target": { "type": "this" } }
+              {
+                "type": "banish",
+                "target": {
+                  "type": "this"
+                }
+              }
             ],
             "rewardEffects": [
-              { "type": "gain_lore", "amount": 3, "target": { "type": "self" } },
-              { "type": "draw", "amount": 3, "target": { "type": "self" } }
+              {
+                "type": "gain_lore",
+                "amount": 3,
+                "target": {
+                  "type": "self"
+                }
+              },
+              {
+                "type": "draw",
+                "amount": 3,
+                "target": {
+                  "type": "self"
+                }
+              }
             ]
           }
         ]
@@ -11544,14 +11771,26 @@
         "trigger": {
           "on": "returned_to_hand",
           "filter": {
-            "owner": { "type": "opponent" },
-            "cardType": ["character", "item", "location"]
+            "owner": {
+              "type": "opponent"
+            },
+            "cardType": [
+              "character",
+              "item",
+              "location"
+            ]
           }
         },
         "storyName": "BACK, FOOLS!",
         "rulesText": "Whenever one of your opponents' characters, items, or locations is returned to their hand from play, gain 1 lore.",
         "effects": [
-          { "type": "gain_lore", "amount": 1, "target": { "type": "self" } }
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
         ]
       }
     ],

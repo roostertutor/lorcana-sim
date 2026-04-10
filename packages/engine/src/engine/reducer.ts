@@ -4338,6 +4338,32 @@ export function applyEffect(
       return state;
     }
 
+    // Naveen's Ukulele MAKE IT SING: chosen character counts as having +N
+    // cost to sing songs this turn. Mirrors grant_challenge_ready's two-stage
+    // dispatch — chooser path → applyEffectToTarget attaches the timed effect.
+    case "sing_cost_bonus_target": {
+      if (effect.target.type === "chosen") {
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        if (validTargets.length === 0) return state;
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_target",
+            choosingPlayerId: controllingPlayerId,
+            prompt: "Choose a character to bump sing cost",
+            validTargets,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
+          },
+        };
+      }
+      // Self-target fallthrough (no current card uses this, but it parallels
+      // grant_challenge_ready's `this` branch and keeps the pattern uniform).
+      if (effect.target.type === "this") {
+        return applyEffectToTarget(state, effect, sourceInstanceId, controllingPlayerId, definitions, events, sourceInstanceId, triggeringCardInstanceId);
+      }
+      return state;
+    }
+
     // CRD 6.2.7.1: Create a floating triggered ability for rest of turn
     case "create_floating_trigger": {
       const existing = state.floatingTriggers ?? [];
@@ -5766,6 +5792,16 @@ function applyEffectToTarget(
     case "grant_challenge_ready": {
       const timedEffect: TimedEffect = {
         type: "can_challenge_ready",
+        expiresAt: effect.duration,
+        appliedOnTurn: state.turnNumber,
+        casterPlayerId: controllingPlayerId,
+      };
+      return addTimedEffect(state, targetInstanceId, timedEffect);
+    }
+    case "sing_cost_bonus_target": {
+      const timedEffect: TimedEffect = {
+        type: "sing_cost_bonus",
+        amount: effect.amount,
         expiresAt: effect.duration,
         appliedOnTurn: state.turnNumber,
         casterPlayerId: controllingPlayerId,

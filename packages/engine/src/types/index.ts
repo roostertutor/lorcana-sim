@@ -232,7 +232,8 @@ export type Effect =
   | FillHandToEffect
   | PlayerMayPlayFromHandEffect
   | ConditionalOnPlayerStateEffect
-  | ChosenOpposingMayBottomOrRewardEffect;
+  | ChosenOpposingMayBottomOrRewardEffect
+  | SingCostBonusTargetEffect;
 
 /**
  * The Return of Hercules: "Each player may reveal a character card from their
@@ -1408,6 +1409,21 @@ export interface SingCostBonusHereStatic {
 }
 
 /**
+ * Naveen's Ukulele - MAKE IT SING (Set 6): "Chosen character counts as having
+ * +N cost to sing songs this turn." Targeted, turn-scoped variant of
+ * SingCostBonusHereStatic — applied as a TimedEffect (`type: "sing_cost_bonus"`)
+ * on the chosen character. The validator's sing-eligibility check sums these
+ * timed effects on the singer in addition to any location bonus from the
+ * singer's atLocation.
+ */
+export interface SingCostBonusTargetEffect {
+  type: "sing_cost_bonus_target";
+  target: CardTarget;
+  amount: number;
+  duration: EffectDuration;
+}
+
+/**
  * Elisa Maza - Transformed Gargoyle (Set 11): "FOREVER STRONG Your characters'
  * {S} can't be reduced below their printed value." A floor on the effective
  * stat: after all modifiers are summed, clamp the result to be at least the
@@ -2019,7 +2035,13 @@ export interface TimedEffect {
      *  challenge if able" check — the validator's pass-turn step iterates
      *  ready own characters with this timed effect and fails the pass when
      *  any of them has a valid quest target. */
-    | "must_quest_if_able";
+    | "must_quest_if_able"
+    /** Targeted, turn-scoped sing-cost bonus: "chosen character counts as
+     *  having +N cost to sing songs this turn" (Naveen's Ukulele). Mirrors
+     *  the location-bound `singCostBonusHere` but applies per-character via
+     *  TimedEffect. The validator's sing-eligibility checks sum these in
+     *  addition to any location bonus from the singer's atLocation. */
+    | "sing_cost_bonus";
   keyword?: Keyword | undefined;
   value?: number | undefined;       // for keyword values (e.g. Challenger +N)
   amount?: number | undefined;      // for modify_* effects

@@ -797,6 +797,43 @@ describe("§4 Set 4 — Noi Acrobatic Baby (damage_immunity_timed)", () => {
     expect(itemAfter.isExerted).toBe(true);
   });
 
+  it("Naveen's Ukulele MAKE IT SING: targeted +3 sing cost via sing_cost_bonus_target timed effect", () => {
+    // Tier-1 fix: Naveen's Ukulele was wired with effects:[] and a non-op
+    // costEffects ladder (also using a non-standard activated-ability shape).
+    // Now wired correctly with the new sing_cost_bonus_target effect, which
+    // applies a TimedEffect (type:"sing_cost_bonus") to the chosen character.
+    // The validator's sing-eligibility check sums these timed effects on the
+    // singer in addition to the location-bound singCostBonusHere bonus.
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let singerId: string, songId: string;
+    // Singer with effective sing-cost 3 (cost-3 character — A Whole New
+    // World is a 5-cost song so the singer is 2 short BEFORE the bonus,
+    // and 5 short AFTER. Either way, the bonus matters.)
+    ({ state, instanceId: singerId } = injectCard(state, "player1", "the-queen-diviner", "play", { isDrying: false }));
+    ({ state, instanceId: songId } = injectCard(state, "player1", "a-whole-new-world", "hand"));
+
+    // Apply +3 sing cost bonus to the singer via the new effect type.
+    state = applyEffect(state, {
+      type: "sing_cost_bonus_target",
+      amount: 3,
+      duration: "this_turn",
+      target: { type: "this" }
+    } as any, singerId, "player1", LORCAST_CARD_DEFINITIONS, []);
+
+    // Verify the timed effect landed on the singer.
+    const singerInst = getInstance(state, singerId);
+    const bonus = (singerInst.timedEffects ?? [])
+      .filter(t => t.type === "sing_cost_bonus")
+      .reduce((s, t) => s + (t.amount ?? 0), 0);
+    expect(bonus).toBe(3);
+
+    // Sing attempt: cost-3 singer + 3 bonus = effective 6, which is enough
+    // for a 5-cost song. Without the bonus the singer would FAIL to sing.
+    // (We don't actually exercise SING_SONG action here — we just pin the
+    // bonus accumulation, which is the bug class.)
+  });
+
   it("Bruno Madrigal Undetected Uncle: name_a_card_then_reveal grants 3 lore on hit (gainLoreOnHit)", () => {
     // Tier-1 fix: was wired with bare name_a_card_then_reveal and the lore
     // branch dropped. Engine now supports gainLoreOnHit on the effect type;

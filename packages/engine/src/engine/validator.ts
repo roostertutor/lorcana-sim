@@ -182,7 +182,11 @@ function validatePlayCard(
     const singerLocBonus = singer.atLocationInstanceId
       ? (modifiers.singCostBonusHere.get(singer.atLocationInstanceId) ?? 0)
       : 0;
-    if (!canSingSong(singer, singerDef, def, singerLocBonus)) {
+    // Naveen's Ukulele MAKE IT SING: per-character timed sing-cost bonus.
+    const singerTimedBonus = (singer.timedEffects ?? [])
+      .filter(t => t.type === "sing_cost_bonus")
+      .reduce((s, t) => s + (t.amount ?? 0), 0);
+    if (!canSingSong(singer, singerDef, def, singerLocBonus + singerTimedBonus)) {
       return fail(`Singer's cost is too low to sing this song.`);
     }
     return OK; // No ink check — singing replaces ink cost entirely (CRD 1.5.5.1)
@@ -221,6 +225,10 @@ function validatePlayCard(
       if (s.atLocationInstanceId) {
         effectiveCost += stModifiers.singCostBonusHere.get(s.atLocationInstanceId) ?? 0;
       }
+      // Naveen's Ukulele: per-singer timed sing_cost_bonus.
+      effectiveCost += (s.timedEffects ?? [])
+        .filter(t => t.type === "sing_cost_bonus")
+        .reduce((sum, t) => sum + (t.amount ?? 0), 0);
       totalCost += effectiveCost;
     }
     if (totalCost < def.singTogetherCost) {
