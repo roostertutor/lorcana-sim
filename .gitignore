@@ -45,3 +45,4 @@ results/
 # Misc
 .cache
 tmp
+docs/ENGINE_PRIMITIVES.md
