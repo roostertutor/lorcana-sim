@@ -52,6 +52,10 @@ export {
   canSingSong,
 } from "./utils/index.js";
 
+// Game modifiers (static-effect state computed per frame)
+export { getGameModifiers } from "./engine/gameModifiers.js";
+export type { GameModifiers } from "./engine/gameModifiers.js";
+
 // Seeded RNG
 export { createRng, cloneRng, rngNext, rngNextInt } from "./utils/seededRng.js";
 

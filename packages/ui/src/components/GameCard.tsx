@@ -2,8 +2,9 @@
 // GameCard — Visual card component for board zones and hand
 // =============================================================================
 
-import React from "react";
-import type { CardDefinition, GameState, KeywordAbility } from "@lorcana-sim/engine";
+import React, { useMemo } from "react";
+import type { CardDefinition, GameState, GameModifiers, KeywordAbility } from "@lorcana-sim/engine";
+import { getGameModifiers, getEffectiveStrength, getEffectiveWillpower } from "@lorcana-sim/engine";
 import Icon from "./Icon.js";
 import type { IconName } from "./Icon.js";
 
@@ -34,13 +35,19 @@ interface Props {
   isAttacker?: boolean;
   /** Suppress 90° rotation for inkwell fan display */
   skipRotation?: boolean;
+  /** Pre-computed game modifiers — if not passed, computed internally */
+  gameModifiers?: GameModifiers | null;
 }
 
-export default function GameCard({ instanceId, gameState, definitions, isSelected, onClick, zone, faceDown, isTarget, isAttacker, skipRotation }: Props) {
+export default function GameCard({ instanceId, gameState, definitions, isSelected, onClick, zone, faceDown, isTarget, isAttacker, skipRotation, gameModifiers: externalMods }: Props) {
   const instance = gameState.cards[instanceId];
   if (!instance) return null;
   const def = definitions[instance.definitionId];
   if (!def) return null;
+
+  // Compute modifiers once per state change (uses external if provided, else computes)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const mods = useMemo(() => externalMods ?? getGameModifiers(gameState, definitions), [externalMods, gameState, definitions]);
 
   // CRD 5.5.4: locations never exert and never dry
   const isLocation = def.cardType === "location";
@@ -85,15 +92,17 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   const isDrying = zone === "play" && !isLocation && instance.isDrying;
   const damage = zone === "play" ? instance.damage : 0;
 
+  // Use engine's effective-stat helpers (reads timedEffects, NOT the dead temp*Modifier fields)
+  const staticBonus = mods?.statBonuses.get(instanceId);
   const strength = def.strength != null
-    ? def.strength + (instance.tempStrengthModifier ?? 0)
+    ? getEffectiveStrength(instance, def, staticBonus?.strength ?? 0)
     : null;
-  // Stat strip shows base+modifier WP (not reduced by damage — damage counter handles that separately)
   const willpowerModified = def.willpower != null
-    ? (def.willpower ?? 0) + (instance.tempWillpowerModifier ?? 0)
+    ? getEffectiveWillpower(instance, def, staticBonus?.willpower ?? 0)
     : null;
 
-  const hasModifiedStats = (instance.tempStrengthModifier ?? 0) !== 0 || (instance.tempWillpowerModifier ?? 0) !== 0;
+  const hasModifiedStats = (strength != null && strength !== (def.strength ?? 0))
+    || (willpowerModified != null && willpowerModified !== (def.willpower ?? 0));
 
   // Keyword badges — check both printed abilities and dynamically granted keywords
   const BADGE_KEYWORDS = ["bodyguard", "challenger", "evasive", "reckless", "resist", "rush", "singer", "support", "ward"] as const;

@@ -4,8 +4,8 @@
 // =============================================================================
 
 import React, { useState, useMemo, useRef, useEffect, useCallback } from "react";
-import type { CardDefinition, DeckEntry, PlayerID, GameState } from "@lorcana-sim/engine";
-import { parseDecklist } from "@lorcana-sim/engine";
+import type { CardDefinition, DeckEntry, PlayerID, GameState, GameModifiers } from "@lorcana-sim/engine";
+import { parseDecklist, getGameModifiers } from "@lorcana-sim/engine";
 import {
   GreedyBot,
   RandomBot,
@@ -176,6 +176,7 @@ function InkwellZone({
                       instanceId={id}
                       gameState={gameState}
                       definitions={definitions}
+                      gameModifiers={gameModifiers}
                       isSelected={false}
                       onClick={() => {}}
                       zone="play"
@@ -250,6 +251,7 @@ function UtilityStrip({
                 instanceId={discardTopId}
                 gameState={gameState}
                 definitions={definitions}
+                gameModifiers={gameModifiers}
                 isSelected={false}
                 onClick={() => {}}
                 zone="play"
@@ -294,6 +296,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
 
   const p1Parse = useMemo(() => parseDecklist(p1DeckText, definitions), [p1DeckText, definitions]);
   const p2Parse = useMemo(() => parseDecklist(p2DeckText, definitions), [p2DeckText, definitions]);
+
+  // Compute static-effect state for UI indicators (damage immunity, cant-be-challenged,
+  // granted traits, etc.). Recomputes when gameState changes (i.e. after every action).
+  const gameModifiers = useMemo<GameModifiers | null>(
+    () => session.gameState ? getGameModifiers(session.gameState, definitions) : null,
+    [session.gameState, definitions]
+  );
 
 // Derived early — needed by hooks that must live above the early return
   const myId = multiplayerGame?.myPlayerId ?? "player1";
@@ -912,6 +921,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                 instanceId={id}
                 gameState={gameState}
                 definitions={definitions}
+                gameModifiers={gameModifiers}
                 isSelected={false}
                 isTarget={isChallTarget || isShiftTarget || isSingTarget || isMoveTarget}
                 isAttacker={isAttacker}
@@ -1324,6 +1334,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               instanceId={dnd.activeId}
               gameState={gameState}
               definitions={definitions}
+              gameModifiers={gameModifiers}
               isSelected={false}
               onClick={() => {}}
               zone={dnd.activeZone ?? "hand"}
