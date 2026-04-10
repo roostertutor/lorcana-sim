@@ -44,7 +44,7 @@ type StubCategory =
   | "needs-new-mechanic"
   | "unknown";
 
-type CardCategory = "implemented" | "vanilla" | StubCategory;
+type CardCategory = "implemented" | "partial" | "vanilla" | StubCategory;
 
 interface CardEntry {
   id: string;
@@ -656,6 +656,61 @@ function isImplemented(card: any): boolean {
   return hasNamedAbility || hasActionEffects || hasAlternateNames || hasPlayRestrictions || hasAltPlayCost;
 }
 
+/**
+ * Count STORY_NAME headers in the card's rulesText field. Story names appear as
+ * ALL-CAPS words at the start of a line or after \n, followed by the ability text.
+ * Examples: "SMOOTH THE WAY Once during your turn..." / "BONK! 1 {I}..."
+ * This catches abilities that the stub parser missed (e.g. Angel's GOOD AIM).
+ */
+function countRulesTextAbilities(card: any): number {
+  const text: string = card.rulesText ?? "";
+  if (!text) return 0;
+  // Split on \n to handle multi-ability cards
+  const lines = text.split("\n").map((l: string) => l.trim()).filter(Boolean);
+  let count = 0;
+  for (const line of lines) {
+    // A story-name header: starts with 1+ ALL-CAPS words (may include apostrophes,
+    // hyphens, commas, exclamation/question marks), followed by ability text.
+    // Exclude keyword reminder lines: "(Damage dealt to them is reduced by N.)"
+    // Exclude Sing Together cost lines: "(A character with cost N or more can...)"
+    if (line.startsWith("(")) continue;
+    // Match: STORY NAME followed by space and lowercase/mixed text, or
+    //        STORY NAME {E}/1{I} (activated ability cost prefix)
+    if (/^[A-Z][A-Z' ,!?-]+(?:\s|{|$)/.test(line)) {
+      count++;
+    }
+  }
+  return count;
+}
+
+/**
+ * Count wired non-keyword abilities (triggered, activated, static) plus
+ * actionEffects entries. This is what the card actually has implemented.
+ */
+function countWiredAbilities(card: any): number {
+  const namedAbilities = (card.abilities ?? []).filter((a: any) =>
+    ["triggered", "activated", "static"].includes(a.type)
+  ).length;
+  const actionEffects = card.actionEffects?.length ?? 0;
+  // playRestrictions count as a wired "ability" for cards whose only named
+  // ability is the restriction itself (Mirabel, Nathaniel Flint).
+  const playRestrictions = card.playRestrictions?.length ?? 0;
+  return namedAbilities + actionEffects + playRestrictions;
+}
+
+/**
+ * Detect partially wired cards: isImplemented() returns true (at least one
+ * ability wired), but the rulesText has more story-name headers than wired
+ * abilities — meaning one or more abilities are missing.
+ */
+function isPartiallyWired(card: any): boolean {
+  if (!isImplemented(card)) return false;
+  const expected = countRulesTextAbilities(card);
+  const actual = countWiredAbilities(card);
+  // Only flag if the rulesText clearly has MORE named abilities than what's wired
+  return expected > 0 && actual > 0 && expected > actual;
+}
+
 function hasNamedStubs(card: any): boolean {
   // Filter out stubs whose entire text is just keyword reminder text for a
   // keyword the card already has wired (e.g. Cri-Kee with only "Alert (...)").
@@ -692,7 +747,9 @@ for (const filename of SET_FILES) {
     let category: CardCategory;
     const categorizedStubs: CardEntry["stubs"] = [];
 
-    if (isImplemented(card)) {
+    if (isPartiallyWired(card)) {
+      category = "partial";
+    } else if (isImplemented(card)) {
       category = "implemented";
     } else if (card.cardType === "location") {
       // Unimplemented locations: vanilla locations have no stubs, otherwise stubs use existing categorization
@@ -743,6 +800,7 @@ for (const filename of SET_FILES) {
 
 const CATEGORY_ORDER: CardCategory[] = [
   "implemented",
+  "partial",
   "vanilla",
   "fits-grammar",
   "needs-new-type",
@@ -752,6 +810,7 @@ const CATEGORY_ORDER: CardCategory[] = [
 
 const CATEGORY_LABELS: Record<CardCategory, string> = {
   implemented: "done",
+  partial: "partial",
   vanilla: "vanilla",
   "fits-grammar": "fits-grammar",
   "needs-new-type": "needs-new-type",
@@ -779,9 +838,9 @@ if (!filterCategory) {
   const padr = (s: string | number, w: number) => String(s).padEnd(w);
 
   console.log("\n" + padr("SET", 5) + pad("TOTAL", 6) + pad("DONE", 6) +
-    pad("VANILLA", 8) + pad("FITS", 6) + pad("NEW-TYPE", 10) +
+    pad("PARTIAL", 8) + pad("VANILLA", 8) + pad("FITS", 6) + pad("NEW-TYPE", 10) +
     pad("NEW-MECH", 10) + pad("UNKNOWN", 9));
-  console.log("─".repeat(60));
+  console.log("─".repeat(68));
 
   const setIds = [...bySet.keys()].sort((a, b) =>
     a.replace(/\D/g, "").padStart(5, "0").localeCompare(b.replace(/\D/g, "").padStart(5, "0"))
@@ -793,6 +852,7 @@ if (!filterCategory) {
       padr("  " + setId, 5) +
         pad(cards.length, 6) +
         pad(count(cards, "implemented"), 6) +
+        pad(count(cards, "partial"), 8) +
         pad(count(cards, "vanilla"), 8) +
         pad(count(cards, "fits-grammar"), 6) +
         pad(count(cards, "needs-new-type"), 10) +
@@ -801,12 +861,13 @@ if (!filterCategory) {
     );
   }
 
-  console.log("─".repeat(60));
+  console.log("─".repeat(68));
   // Totals
   console.log(
     padr("  ALL", 5) +
       pad(allCards.length, 6) +
       pad(count(allCards, "implemented"), 6) +
+      pad(count(allCards, "partial"), 8) +
       pad(count(allCards, "vanilla"), 8) +
       pad(count(allCards, "fits-grammar"), 6) +
       pad(count(allCards, "needs-new-type"), 10) +
@@ -817,12 +878,15 @@ if (!filterCategory) {
   const stubs = allCards.filter((c) =>
     ["fits-grammar", "needs-new-type", "needs-new-mechanic", "unknown"].includes(c.category)
   );
-  const pct = stubs.length > 0
-    ? Math.round((count(allCards, "implemented") / stubs.length) * 100)
-    : 100;
-  console.log(`\n  ${count(allCards, "implemented")} implemented / ${stubs.length} stubs remaining (${pct}% of named-ability cards done)\n`);
-  console.log("  Run with --category <name> to list cards in a category.");
-  console.log("  Categories: implemented | vanilla | fits-grammar | needs-new-type | needs-new-mechanic | unknown\n");
+  const partialCount = count(allCards, "partial");
+  const implCount = count(allCards, "implemented");
+  console.log(`\n  ${implCount} implemented / ${partialCount} partial / ${stubs.length} stubs remaining`);
+  if (partialCount > 0) {
+    console.log(`  ⚠ ${partialCount} cards have missing abilities (rulesText has more named abilities than wired).`);
+    console.log(`    Run: pnpm card-status --category partial --verbose`);
+  }
+  console.log("\n  Run with --category <name> to list cards in a category.");
+  console.log("  Categories: implemented | partial | vanilla | fits-grammar | needs-new-type | needs-new-mechanic | unknown\n");
 }
 
 // --- Category detail listing -------------------------------------------------
@@ -830,6 +894,7 @@ if (!filterCategory) {
 if (filterCategory) {
   const catMap: Record<string, CardCategory> = {
     implemented: "implemented",
+    partial: "partial",
     vanilla: "vanilla",
     "fits-grammar": "fits-grammar",
     "needs-new-type": "needs-new-type",
@@ -848,10 +913,23 @@ if (filterCategory) {
   for (const card of matching) {
     const prefix = `  [set-${card.setId}/${card.cardType}]`;
     console.log(`${prefix} ${card.fullName}`);
-    if (verbose && card.stubs.length > 0) {
-      for (const stub of card.stubs) {
-        const tag = stub.category !== cat ? ` [${stub.category}]` : "";
-        console.log(`    → ${stub.rulesText}${tag}`);
+    if (verbose) {
+      if (cat === "partial") {
+        // For partial cards, show the rulesText and ability count mismatch
+        const rawCard = loadSetFile(
+          SET_FILES.find(f => f.includes(`set-${card.setId.padStart(3, "0")}`)) ?? SET_FILES.find(f => f.includes(`set-${card.setId}`)) ?? ""
+        ).find((c: any) => c.id === card.id);
+        if (rawCard) {
+          const expected = countRulesTextAbilities(rawCard);
+          const actual = countWiredAbilities(rawCard);
+          console.log(`    ⚠ ${actual} wired / ${expected} in rulesText`);
+          console.log(`    rulesText: ${rawCard.rulesText}`);
+        }
+      } else if (card.stubs.length > 0) {
+        for (const stub of card.stubs) {
+          const tag = stub.category !== cat ? ` [${stub.category}]` : "";
+          console.log(`    → ${stub.rulesText}${tag}`);
+        }
       }
     }
   }
