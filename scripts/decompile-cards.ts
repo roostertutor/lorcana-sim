@@ -44,6 +44,7 @@ interface CardJSON {
   setId: string;
   number: number;
   cardType: string;
+  traits?: string[];
   cost: number;
   rulesText?: string;
   abilities?: Json[];
@@ -80,6 +81,11 @@ function renderCard(card: CardJSON): string {
   if (CARD_OVERRIDES[card.id]) return CARD_OVERRIDES[card.id]!;
 
   const parts: string[] = [];
+  // Reminder text of songs.
+  if (card.traits.includes("Song")) {
+    parts.push(`(A character with cost ${card.cost} or more can {E} to sing this song for free.)`);
+  }
+
 
   // Scalar keywords that live as fields rather than ability entries.
   if (card.shiftCost !== undefined) {
@@ -316,7 +322,17 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     return `${maybe(e)}draw ${e.amount ?? 1} card${plural(e.amount ?? 1)}`;
   },
   discard:            (e) => `${maybe(e)}discard ${e.amount ?? 1} card${plural(e.amount ?? 1)}`,
-  discard_from_hand:  (e) => `${maybe(e)}discard ${e.amount ?? 1} card${plural(e.amount ?? 1)}`,
+  discard_from_hand:  (e) => {
+    const amt = e.amount === "all" ? "their hand" : `${e.amount ?? 1} card${plural(e.amount ?? 1)}`;
+    if (e.target?.type === "opponent") {
+      const chooser = e.chooser === "target_player" || e.chooser === "controller" ? "" : "chooses and ";
+      return `${maybe(e)}each opponent ${chooser}discards ${amt}`;
+    }
+    if (e.chooser === "target_player") {
+      return `${maybe(e)}choose and discard ${amt}`;
+    }
+    return `${maybe(e)}discard ${amt}`;
+  },
 
   gain_lore: (e) => {
     const tgt = renderTarget(e.target ?? { type: "self" });
@@ -340,8 +356,32 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   banish:         (e) => `${maybe(e)}banish ${renderTarget(e.target ?? {})}`,
   banish_chosen:  (e) => `${maybe(e)}banish ${renderTarget(e.target ?? {})}`,
   return_to_hand: (e) => `${maybe(e)}return ${renderTarget(e.target ?? {})} to their player's hand`,
-  ready:          (e) => `${maybe(e)}ready ${renderTarget(e.target ?? {})}`,
-  exert:          (e) => `exert ${renderTarget(e.target ?? {})}`,
+  ready: (e) => {
+    const base = `${maybe(e)}ready ${renderTarget(e.target ?? {})}`;
+    if (e.followUpEffects?.length) {
+      const followUp = e.followUpEffects.map((f: Json) => renderEffect(f)).join(". ");
+      return `${base}. ${followUp}`;
+    }
+    return base;
+  },
+  exert: (e) => {
+    const upTo = e.isUpTo ? "up to " : "";
+    const count = e.count && e.count > 1 ? `${e.count} ` : "";
+    const base = `exert ${upTo}${count}${renderTarget(e.target ?? {})}`;
+    if (e.followUpEffects?.length) {
+      const followUp = e.followUpEffects.map((f: Json) => renderEffect(f)).join(". ");
+      return `${base}. ${followUp}`;
+    }
+    return base;
+  },
+  exert_character: (e) => {
+    const base = `exert ${renderTarget(e.target ?? {})}`;
+    if (e.followUpEffects?.length) {
+      const followUp = e.followUpEffects.map((f: Json) => renderEffect(f)).join(". ");
+      return `${base}. ${followUp}`;
+    }
+    return base;
+  },
 
   gain_stats: (e) => renderStatChange(e),
   modify_stat: (e) => renderStatChange(e),
@@ -354,7 +394,15 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
 
   cant_action: (e) => {
     const tgt = renderTarget(e.target ?? {});
-    return `${tgt} can't ${e.action ?? "act"}${dur(e)}`;
+    const action = e.action === "be_challenged" ? "be challenged"
+      : e.action === "ready" ? "ready"
+      : e.action ?? "act";
+    const d = dur(e);
+    // "They can't ready at the start of their next turn" is more natural
+    if (e.action === "ready" && e.duration === "end_of_owner_next_turn") {
+      return `${tgt} can't ready at the start of their next turn`;
+    }
+    return `${tgt} can't ${action}${d}`;
   },
   // Self-restriction variant — same shape as cant_action but always targets
   // this character. Used by Maui - Whale "this character can't ready..."
@@ -372,8 +420,39 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
 
   play_for_free: (e) => `${maybe(e)}play ${e.filter ? renderFilter(e.filter) : "a card"} for free`,
 
-  look_at_top:            (e) => `look at the top ${e.count ?? "?"} cards of your deck`,
-  reveal_top_conditional: ()  => `reveal the top card of your deck`,
+  look_at_top: (e) => {
+    const count = e.count ?? "?";
+    const base = `look at the top ${count} card${plural(count)} of your deck`;
+    const filter = e.filter ? renderFilter(e.filter) : "a card";
+    switch (e.action) {
+      case "one_to_hand_rest_bottom":
+        return `${base}. You may reveal ${filter} and put it into your hand. Put the rest on the bottom of your deck in any order`;
+      case "up_to_n_to_hand_rest_bottom":
+        return `${base}. You may put each ${filter} into your hand. Put the rest on the bottom of your deck in any order`;
+      case "top_or_bottom":
+        return `${base}. Put it on either the top or the bottom of your deck`;
+      case "reorder":
+        return `${base}. Put them back in any order`;
+      case "one_to_inkwell_exerted_rest_top":
+        return `${base}. You may put one into your inkwell facedown and exerted`;
+      case "one_to_play_for_free_rest_bottom":
+        return `${base}. You may reveal ${filter} and play it for free. Put the rest on the bottom of your deck in any order`;
+      default:
+        return base;
+    }
+  },
+  reveal_top_conditional: (e) => {
+    const tgt = e.target?.type === "opponent" ? "opponent's" : "your";
+    const filter = e.filter ? renderFilter(e.filter) : "a card";
+    const match = e.matchAction === "to_hand" ? "put it into your hand"
+      : e.matchAction === "play_for_free" ? "play it for free"
+      : e.matchAction ?? "keep it";
+    const noMatch = e.noMatchDestination === "bottom" ? "put it on the bottom of your deck"
+      : e.noMatchDestination === "hand" ? "put it into your hand"
+      : e.noMatchDestination === "discard" ? "put it into your discard"
+      : "put it back";
+    return `reveal the top card of ${tgt} deck. If it's ${filter}, ${match}. Otherwise, ${noMatch}`;
+  },
   search:                 (e) => `search your deck for ${e.filter ? renderFilter(e.filter) : "a card"}`,
   shuffle_into_deck:      (e) => `shuffle ${renderTarget(e.target ?? {})} into your deck`,
   move_to_inkwell: (e) => {
@@ -841,12 +920,16 @@ function renderFilter(f: Json): string {
   if (f.isExerted) bits.push("exerted");
   if (f.hasKeyword) bits.push(`${cap(f.hasKeyword)}`);
   if (f.hasTrait) bits.push(f.hasTrait);
+  if (f.hasAnyTrait?.length) bits.push(f.hasAnyTrait.join(" or "));
   // Noun
-  let noun = "character";
+  let noun = "card";
   const rawTypes = f.cardType;
   const types: string[] = Array.isArray(rawTypes) ? rawTypes : rawTypes ? [rawTypes] : [];
   if (types.length === 1) noun = types[0]!;
-  if (types.length > 1) noun = types.join("/");
+  else if (types.length > 1) noun = types.join("/");
+  // No cardType filter → generic "card"
+  // Song actions should render as "song" not "Song action"
+  if (f.hasTrait === "Song" && noun === "action") noun = "song";
   // Pluralize for "all"-ish contexts isn't tracked here; rely on caller.
   bits.push(noun);
   // Trailing qualifiers
@@ -860,7 +943,14 @@ function renderFilter(f: Json): string {
   if (f.strengthAtMost !== undefined) bits.push(`with ${f.strengthAtMost} {S} or less`);
   if (f.strengthAtLeast !== undefined) bits.push(`with ${f.strengthAtLeast} {S} or more`);
   if (f.hasDamage) bits.push("with damage");
+  if (f.hasCardUnder) bits.push("with a card under them");
   if (f.challengedThisTurn) bits.push("that challenged this turn");
+  if (f.inkable) bits.push("with {IW}");
+  // Zone qualifier (for "card from your hand/discard")
+  const zone = Array.isArray(f.zone) ? f.zone[0] : f.zone;
+  if (zone && zone !== "play") bits.push(`from your ${zone}`);
+  // atLocation
+  if (f.atLocation === "this") bits.push("here");
   return bits.join(" ");
 }
 
@@ -948,9 +1038,9 @@ function loadCards(setFilter?: string): CardJSON[] {
   const files = readdirSync(CARDS_DIR)
     .filter((f) => f.startsWith("lorcast-set-") && f.endsWith(".json"));
   for (const f of files) {
+    if (setFilter && !f.includes(setFilter)) continue;
     const cards = JSON.parse(readFileSync(join(CARDS_DIR, f), "utf-8")) as CardJSON[];
     for (const c of cards) {
-      if (setFilter && !c.setId.includes(setFilter)) continue;
       const existing = byId.get(c.id);
       if (!existing) { byId.set(c.id, c); continue; }
       const score = (x: CardJSON) =>
