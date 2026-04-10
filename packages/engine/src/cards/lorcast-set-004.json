@@ -7570,8 +7570,25 @@
     ],
     "abilities": [
       {
+        "type": "static",
+        "storyName": "PRESERVER",
+        "rulesText": "Opponents can't choose your items for abilities or effects.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "ward",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": { "type": "self" },
+              "zone": "play",
+              "cardType": ["item"]
+            }
+          }
+        }
+      },
+      {
         "type": "activated",
-        "storyName": "GOOD ADVICE",
+        "storyName": "ROYAL INVENTORY",
         "rulesText": "{E} one of your items — Look at the top card of your deck. Put it on either the top or the bottom of your deck.",
         "costs": [],
         "effects": [
@@ -7580,13 +7597,9 @@
             "target": {
               "type": "chosen",
               "filter": {
-                "owner": {
-                  "type": "self"
-                },
+                "owner": { "type": "self" },
                 "zone": "play",
-                "cardType": [
-                  "item"
-                ]
+                "cardType": ["item"]
               }
             }
           },
@@ -7594,9 +7607,7 @@
             "type": "look_at_top",
             "count": 1,
             "action": "top_or_bottom",
-            "target": {
-              "type": "self"
-            }
+            "target": { "type": "self" }
           }
         ]
       }
