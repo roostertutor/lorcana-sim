@@ -220,6 +220,38 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
           </div>
         )}
 
+        {/* Left-side status icons — damage immunity shield, cant-be-challenged lock */}
+        {zone === "play" && (() => {
+          const leftIcons: { icon: string; color: string; label: string }[] = [];
+          // Damage immunity (static from gameModifiers OR timed on instance)
+          const staticImmunity = mods?.damageImmunity.get(instanceId);
+          const timedImmunity = instance.timedEffects.some(te => te.type === "damage_immunity");
+          if (staticImmunity || timedImmunity) {
+            const source = staticImmunity?.has("all") ? "all"
+              : staticImmunity?.has("challenge") ? "challenge"
+              : staticImmunity?.has("non_challenge") ? "non_challenge"
+              : instance.timedEffects.find(te => te.type === "damage_immunity")?.damageSource ?? "all";
+            const color = source === "all" ? "bg-blue-500/90"
+              : source === "challenge" ? "bg-amber-500/90"
+              : "bg-purple-500/90";
+            leftIcons.push({ icon: "shield-check", color, label: "Immune" });
+          }
+          // Can't be challenged (static from gameModifiers OR timed on instance)
+          if (mods?.cantBeChallenged.has(instanceId) || instance.timedEffects.some(te => te.type === "cant_be_challenged")) {
+            leftIcons.push({ icon: "lock-closed", color: "bg-gray-500/90", label: "Can't challenge" });
+          }
+          if (leftIcons.length === 0) return null;
+          return (
+            <div className="absolute left-1 top-1/2 -translate-y-1/2 flex flex-col gap-0.5 pointer-events-none">
+              {leftIcons.map((li, i) => (
+                <div key={i} className={`h-4 w-4 flex items-center justify-center rounded-full shadow ${li.color}`}>
+                  <Icon name={li.icon as any} className="w-2.5 h-2.5 text-white" />
+                </div>
+              ))}
+            </div>
+          );
+        })()}
+
         {/* Boost / cards-under stack indicator — bottom-left count badge */}
         {zone === "play" && instance.cardsUnder.length > 0 && (
           <div className="absolute bottom-0.5 left-0.5 z-10 pointer-events-none">
