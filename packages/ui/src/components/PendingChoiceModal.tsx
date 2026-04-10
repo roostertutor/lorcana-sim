@@ -17,6 +17,7 @@ interface Props {
 
 export default function PendingChoiceModal({
   pendingChoice,
+  myId,
   gameState,
   definitions,
   multiSelectTargets,

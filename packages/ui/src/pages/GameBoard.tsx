@@ -124,7 +124,7 @@ function InkDisplay({ available, total }: { available: number; total: number }) 
 
 function InkwellZone({
   inkwellIds, availableInk, inksUsed, canStillInk, isYourTurn,
-  isValidTarget, droppable = false, gameState, definitions,
+  isValidTarget, droppable = false, gameState, definitions, gameModifiers,
 }: {
   inkwellIds: string[];
   availableInk: number;
@@ -135,6 +135,7 @@ function InkwellZone({
   droppable?: boolean;
   gameState: GameState;
   definitions: Record<string, CardDefinition>;
+  gameModifiers: GameModifiers | null;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: droppable ? DROP_INKWELL : "inkwell-display-only" });
   const total = inkwellIds.length;
@@ -199,13 +200,14 @@ function UtilityStrip({
   deckCount, deckTopId, onDeckClick,
   inkwellIds, availableInk, inksUsed, canStillInk, isYourTurn, isValidInkwellTarget, droppable,
   discardCount, discardTopId, onDiscardClick,
-  gameState, definitions,
+  gameState, definitions, gameModifiers,
 }: {
   deckCount: number; deckTopId: string | undefined; onDeckClick?: () => void;
   inkwellIds: string[]; availableInk: number; inksUsed: number; canStillInk: boolean;
   isYourTurn: boolean; isValidInkwellTarget: boolean; droppable?: boolean;
   discardCount: number; discardTopId: string | undefined; onDiscardClick: () => void;
   gameState: GameState; definitions: Record<string, CardDefinition>;
+  gameModifiers: GameModifiers | null;
 }) {
   return (
     <div className="shrink-0 flex items-stretch gap-1 mt-1">
@@ -235,6 +237,7 @@ function UtilityStrip({
           droppable={droppable ?? false}
           gameState={gameState}
           definitions={definitions}
+          gameModifiers={gameModifiers}
         />
       </div>
 
@@ -304,7 +307,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   const [revealHandDismissed, setRevealHandDismissed] = useState(false);
   const lastRevealRef = useRef<string | null>(null);
   // Reset dismiss when a NEW reveal arrives (different card IDs)
-  const currentRevealKey = gameState?.lastRevealedHand?.cardIds.join(",") ?? null;
+  const currentRevealKey = session.gameState?.lastRevealedHand?.cardIds.join(",") ?? null;
   if (currentRevealKey && currentRevealKey !== lastRevealRef.current) {
     lastRevealRef.current = currentRevealKey;
     if (revealHandDismissed) setRevealHandDismissed(false);
@@ -1093,6 +1096,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             onDiscardClick={() => setDiscardViewerId("opponent")}
             gameState={gameState}
             definitions={definitions}
+            gameModifiers={gameModifiers}
           />
           {/* Opponent play zone */}
           {p2Zones.play.length === 0 ? (
@@ -1185,6 +1189,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             onDiscardClick={() => setDiscardViewerId("player")}
             gameState={gameState}
             definitions={definitions}
+            gameModifiers={gameModifiers}
           />
 
 
