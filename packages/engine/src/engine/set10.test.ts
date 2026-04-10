@@ -358,24 +358,24 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     // grant_keyword) see the deputized characters during the same
     // iteration. This test pins the pre-pass + cross-static interaction.
     let state = startGame();
-    let bogoId: string, judyId: string, donaldId: string;
+    let bogoId: string, judyId: string, mickeyId: string;
     ({ state, instanceId: bogoId } = injectCard(state, "player1", "chief-bogo-calling-the-shots", "play", { isDrying: false }));
     ({ state, instanceId: judyId } = injectCard(state, "player1", "judy-hopps-lead-detective", "play", { isDrying: false }));
-    // Donald Duck - True Friend has NO Detective trait — without DEPUTIZE he
+    // Mickey Mouse - True Friend has NO Detective trait — without DEPUTIZE he
     // should NOT pick up Judy's Alert grant. With DEPUTIZE he should.
-    ({ state, instanceId: donaldId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    ({ state, instanceId: mickeyId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
 
     const mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
 
     // Pre-pass: Bogo's DEPUTIZE granted Detective to the non-Detective Mickey.
-    expect(mods.grantedTraits.get(donaldId)?.has("Detective")).toBe(true);
+    expect(mods.grantedTraits.get(mickeyId)?.has("Detective")).toBe(true);
     // Bogo himself is excluded (excludeSelf: true) — he doesn't grant to himself.
     expect(mods.grantedTraits.get(bogoId)?.has("Detective") ?? false).toBe(false);
 
     // Main pass: Judy's DETECTIVE ALERT static (target: hasTrait Detective)
     // sees the deputized Mickey via the in-progress modifiers passed to
     // matchesFilter. So Mickey should have Alert in modifiers.grantedKeywords.
-    const mickeyKeywords = mods.grantedKeywords.get(donaldId) ?? [];
+    const mickeyKeywords = mods.grantedKeywords.get(mickeyId) ?? [];
     const hasAlert = mickeyKeywords.some(k => k.keyword === "alert");
     expect(hasAlert).toBe(true);
   });
