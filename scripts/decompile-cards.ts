@@ -519,9 +519,6 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     return `${tgt === "you" ? "you draw" : tgt + " draws"} cards until ${tgt === "you" ? "you have" : "they have"} ${e.n ?? "?"} cards in hand`;
   },
 
-  // Deck search ("tutor") — Minnie Mouse Drum Major.
-  tutor: (e) => `${maybe(e)}search your deck for ${e.filter ? renderFilter(e.filter) : "a card"}, reveal it, and put it into your hand`,
-
   // "If the discarded card was X, do A; otherwise do B." Kakamora Pirate Chief.
   conditional_on_last_discarded: (e) => {
     const filt = e.filter ? renderFilter(e.filter) : "matching";
@@ -532,6 +529,7 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
 
   // "Put all cards under this character into your hand" — Alice Well-Read Whisper.
   put_cards_under_into_hand: (e) => `put all cards under ${renderTarget(e.target ?? { type: "this" })} into your hand`,
+  move_cards_under_to_inkwell: () => `put cards from under your characters into your inkwell`,
 
   // ---- NEW: shapes added in the second pass --------------------------------
 
@@ -643,9 +641,60 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   create_floating_trigger: (e) => {
     const head = renderTrigger(e.trigger ?? {});
     const body = (e.effects ?? []).map(renderEffect).join(", and ");
-    // The "this turn" suffix is implicit in the floating-trigger semantics.
     return `${head} this turn, ${body}`;
   },
+
+  // ---- Batch additions from decompiler review (30 missing renderers) --------
+
+  conditional_on_player_state: (e) => {
+    const cond = renderCondition(e.condition ?? {});
+    const then = (e.thenEffects ?? []).map(renderEffect).join(" and ");
+    const els = (e.elseEffects ?? []).map(renderEffect).join(" and ");
+    if (els) return `${cond}, ${then}; otherwise ${els}`;
+    return `${cond}, ${then}`;
+  },
+  opponent_may_pay_to_avoid: (e) => {
+    const accept = renderEffect(e.acceptEffect ?? {});
+    const reject = renderEffect(e.rejectEffect ?? {});
+    return `${reject} unless opposing player ${accept}`;
+  },
+  player_may_play_from_hand: (e) => {
+    const filt = e.filter ? renderFilter(e.filter) : "a card";
+    return `each player may play ${filt} from their hand for free`;
+  },
+  prevent_discard_from_hand: () => "you can't discard cards from your hand",
+  inkwell_enters_exerted: () => "cards added to inkwell enter exerted",
+  move_all_matching_to_inkwell: (e) => {
+    const filt = e.filter ? renderFilter(e.filter) : "cards";
+    return `${maybe(e)}put all ${filt} into your inkwell`;
+  },
+  remember_chosen_target: (e) => `choose ${e.filter ? renderFilter(e.filter) : "a character"}`,
+  restrict_play: (e) => `${e.affectedPlayer?.type === "opponent" ? "opponents" : "you"} can't play ${(e.cardTypes ?? []).join("/")}s`,
+  return_all_to_bottom_in_order: (e) => `put all ${e.filter ? renderFilter(e.filter) : "characters"} on the bottom of their players' decks`,
+  modify_win_threshold: (e) => `${e.affectedPlayer?.type === "opponent" ? "opponents" : "you"} need ${e.newThreshold ?? "?"} lore to win`,
+  stat_floor_printed: (e) => `${renderTarget(e.target ?? {})} ${e.stat ?? "strength"} can't be reduced below printed value`,
+  ink_from_discard: () => "you may put cards from your discard into your inkwell",
+  restrict_remembered_target_action: (e) => `remembered target can't ${e.action ?? "act"}`,
+  banish_item: (e) => `${maybe(e)}banish ${renderTarget(e.target ?? {})}`,
+  sing_cost_bonus_here: (e) => `characters here count as having +${e.amount ?? 0} cost to sing songs`,
+  choose_n_from_opponent_discard_to_bottom: (e) => `choose ${e.count ?? "?"} cards from opponent's discard and put them on the bottom of their deck`,
+  gets_stat_while_challenging: (e) => `your characters get +${e.strength ?? 0} {S} while challenging ${e.defenderFilter ? renderFilter(e.defenderFilter) : "a character"}${dur(e)}`,
+  grant_extra_ink_play: (e) => `you may play ${e.amount ?? 1} additional ink this turn`,
+  put_self_under_target: (e) => `put this card under ${e.filter ? renderFilter(e.filter) : "a character"}`,
+  sing_cost_bonus_target: (e) => `${renderTarget(e.target ?? {})} counts as having +${e.amount ?? 0} cost to sing songs${dur(e)}`,
+  top_of_deck_visible: () => "the top card of your deck is played face up",
+  skip_draw_step_self: () => "you skip your draw step",
+  one_challenge_per_turn_global: () => "each player may only challenge once per turn",
+  prevent_lore_loss: () => "you can't lose lore",
+  forced_target_priority: () => "this character must be chosen as a target if able",
+  remove_named_ability: () => "remove a named ability from matching characters",
+  classification_shift_self: (e) => `this character gains Shift onto ${e.trait ?? "?"} characters`,
+  universal_shift_self: () => "this character gains Universal Shift",
+  grant_trait_static: (e) => `${renderTarget(e.target ?? {})} gains the ${e.trait ?? "?"} classification`,
+  conditional_challenger_self: (e) => `while challenging ${e.defenderFilter ? renderFilter(e.defenderFilter) : "a character"}, this character gets +${e.strength ?? 0} {S}`,
+  compound_and_static: (e) => `[compound static]`,
+  scry: (e) => `look at the top ${e.count ?? 1} card${plural(e.count ?? 1)} of your deck`,
+  extra_ink_play: (e) => `you may play ${e.amount ?? 1} additional ink this turn`,
 };
 
 function renderEffect(e: Json): string {
