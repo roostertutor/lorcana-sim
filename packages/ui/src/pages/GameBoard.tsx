@@ -1009,6 +1009,15 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               <LoreTracker lore={p2.lore} label={multiplayerGame ? "Opp" : "Bot"} color="red" />
             </div>
 
+            {/* Turn-event indicators — show what happened this turn (for event-tracking conditions) */}
+            {gameState && (
+              <div className="hidden md:flex md:flex-col md:gap-0.5 md:ml-2 md:text-[8px] md:text-gray-600">
+                {p1.aCharacterChallengedThisTurn && <span>⚔ Challenged</span>}
+                {p1.aCharacterWasDamagedThisTurn && <span>💥 Damaged</span>}
+                {p2.aCharacterWasDamagedThisTurn && <span>💥 Opp damaged</span>}
+              </div>
+            )}
+
             <div className="ml-auto shrink-0">
               <button
                 className="px-2 py-1 text-gray-600 hover:text-gray-400 rounded transition-colors"
