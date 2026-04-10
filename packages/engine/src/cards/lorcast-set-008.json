@@ -5125,11 +5125,37 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "HOLD STILL",
+        "rulesText": "When you play this item, exert chosen opposing character.",
+        "trigger": { "on": "enters_play" },
+        "effects": [{
+          "type": "exert_character",
+          "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"], "owner": { "type": "opponent" } } }
+        }]
+      },
+      {
+        "type": "activated",
+        "storyName": "IT’S STUCK",
+        "rulesText": "Exert chosen opposing item. It can’t ready at the start of its next turn.",
+        "costs": [{ "type": "exert" }, { "type": "ink", "amount": 1 }],
+        "effects": [{
+          "type": "exert_character",
+          "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["item"], "owner": { "type": "opponent" } } }
+        }, {
+          "type": "cant_action",
+          "action": "ready",
+          "duration": "end_of_owner_next_turn",
+          "target": { "type": "last_resolved_target" }
+        }]
+      }
+    ],
     "setId": "8",
     "number": 84,
     "rarity": "uncommon",
-    "rulesText": "HOLD STILL When you play this item, exert chosen opposing character.\nIT'S STUCK {E}, 1 {I} – Exert chosen opposing item. It can’t ready at the start of its next turn.",
+    "rulesText": "HOLD STILL When you play this item, exert chosen opposing character.\nIT’S STUCK {E}, 1 {I} – Exert chosen opposing item. It can’t ready at the start of its next turn.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f045d7f21ccd4cbe8ffb41e436759221.avif?1747508912",
     "_namedAbilityStubs": [
       {

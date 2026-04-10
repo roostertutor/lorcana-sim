@@ -837,6 +837,19 @@ export function evaluateCondition(
       }
       return false;
     }
+    case "this_location_has_character_with_trait": {
+      // True if the controller has a character with the given trait at this location.
+      // Used by Skull Rock Isolated Fortress SAFE HAVEN ("if you have a Pirate character here").
+      const sourceInst = state.cards[sourceInstanceId];
+      const ownerId = sourceInst?.ownerId;
+      for (const c of Object.values(state.cards)) {
+        if (c.atLocationInstanceId !== sourceInstanceId) continue;
+        if (c.ownerId !== ownerId) continue;
+        const def = definitions[c.definitionId];
+        if (def?.traits?.includes(condition.trait)) return true;
+      }
+      return false;
+    }
     case "this_has_cards_under": {
       // CRD 8.10.4 / 8.4.2: true if this card has at least one card under it
       // (from Shift base or Boost). Used by Flynn Rider Spectral Scoundrel etc.
@@ -844,8 +857,9 @@ export function evaluateCondition(
       return !!inst && inst.cardsUnder.length > 0;
     }
     case "you_control_matching": {
-      // CRD 8.4.2: true if the controller has at least one in-play card matching
-      // the filter. Defaults filter.owner to self when unset.
+      // CRD 8.4.2: true if the controller has at least `minimum` (default 1)
+      // in-play cards matching the filter. Defaults filter.owner to self.
+      const min = condition.minimum ?? 1;
       const filter: CardFilter = condition.filter.owner
         ? condition.filter
         : { ...condition.filter, owner: { type: "self" } };
@@ -854,6 +868,7 @@ export function evaluateCondition(
         : filter.zone
         ? [filter.zone]
         : ["play"];
+      let count = 0;
       for (const zone of zones) {
         const ids = getZone(state, controllingPlayerId, zone);
         for (const id of ids) {
@@ -862,7 +877,8 @@ export function evaluateCondition(
           const def = definitions[inst.definitionId];
           if (!def) continue;
           if (matchesFilter(inst, def, filter, state, controllingPlayerId, sourceInstanceId)) {
-            return true;
+            count++;
+            if (count >= min) return true;
           }
         }
       }

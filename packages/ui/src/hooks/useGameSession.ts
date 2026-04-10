@@ -72,6 +72,19 @@ export interface GameSession {
   /** Replay to N-1 actions. No-op in multiplayer or when canUndo is false. */
   undo: () => void;
   reset: () => void;
+  /** Restore a game from sessionStorage snapshot (HMR survival). Returns true if restored. */
+  restoreFromSnapshot: (definitions: Record<string, CardDefinition>, botStrategy: BotStrategy) => boolean;
+  quickSave: () => void;
+  quickLoad: () => void;
+  hasQuickSave: boolean;
+}
+
+/** Read the saved snapshot without consuming it (for checking if one exists). */
+export function getSavedSnapshot(): SessionSnapshot | null {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    return raw ? (JSON.parse(raw) as SessionSnapshot) : null;
+  } catch { return null; }
 }
 
 // -----------------------------------------------------------------------------
@@ -93,6 +106,30 @@ function reconstructState(
   return state;
 }
 
+// Session storage key for HMR / hot-reload persistence
+const SESSION_KEY = "lorcana-session-snapshot";
+
+interface SessionSnapshot {
+  seed: number;
+  p1Deck: DeckEntry[];
+  p2Deck: DeckEntry[];
+  actions: GameAction[];
+  botId: string;
+}
+
+function saveSnapshot(seed: number, config: GameSessionConfig, actions: GameAction[]) {
+  try {
+    const snap: SessionSnapshot = {
+      seed,
+      p1Deck: config.player1Deck,
+      p2Deck: config.player2Deck,
+      actions,
+      botId: "greedy", // default — config doesn't carry a serializable bot ID
+    };
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(snap));
+  } catch { /* quota exceeded or SSR — ignore */ }
+}
+
 export function useGameSession(): GameSession {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [selectedInstanceId, setSelectedInstanceId] = useState<string | null>(null);
@@ -112,6 +149,10 @@ export function useGameSession(): GameSession {
   const seedRef = useRef<number>(0);
   const initialStateRef = useRef<GameState | null>(null);
   const actionHistoryRef = useRef<GameAction[]>([]);
+  // Track whether we've already attempted HMR restore this mount
+  const hmrRestoredRef = useRef(false);
+  // Quick save slot
+  const quickSaveRef = useRef<GameState | null>(null);
 
   // ---------------------------------------------------------------------------
   // startGame
@@ -171,6 +212,8 @@ export function useGameSession(): GameSession {
     setActionCount((c) => c + 1);
     gameStateRef.current = result.newState;
     setGameState(result.newState);
+    // Persist for HMR survival
+    if (configRef.current) saveSnapshot(seedRef.current, configRef.current, actionHistoryRef.current);
     // Assemble completedGame when the game ends
     if (result.newState.isGameOver && configRef.current) {
       setCompletedGame({
@@ -351,6 +394,58 @@ export function useGameSession(): GameSession {
     seedRef.current = 0;
     initialStateRef.current = null;
     actionHistoryRef.current = [];
+    try { sessionStorage.removeItem(SESSION_KEY); } catch { /* ignore */ }
+  }, []);
+
+  // ---------------------------------------------------------------------------
+  // quickSave / quickLoad — snapshot the full GameState into a ref
+  // ---------------------------------------------------------------------------
+  const quickSave = useCallback(() => {
+    if (!gameStateRef.current) return;
+    quickSaveRef.current = structuredClone(gameStateRef.current);
+  }, []);
+
+  const quickLoad = useCallback(() => {
+    const saved = quickSaveRef.current;
+    if (!saved) return;
+    gameStateRef.current = saved;
+    setGameState(saved);
+    setError(null);
+  }, []);
+
+  const hasQuickSave = quickSaveRef.current !== null;
+
+  // ---------------------------------------------------------------------------
+  // restoreFromSnapshot — rebuild game state from sessionStorage (HMR survival)
+  // ---------------------------------------------------------------------------
+  const restoreFromSnapshot = useCallback((definitions: Record<string, CardDefinition>, botStrategy: BotStrategy): boolean => {
+    if (hmrRestoredRef.current) return false;
+    hmrRestoredRef.current = true;
+    const snap = getSavedSnapshot();
+    if (!snap) return false;
+    try {
+      const config: GameSessionConfig = {
+        player1Deck: snap.p1Deck,
+        player2Deck: snap.p2Deck,
+        definitions,
+        botStrategy,
+        player1IsHuman: true,
+        player2IsHuman: false,
+      };
+      configRef.current = config;
+      const initial = createGame(
+        { player1Deck: snap.p1Deck, player2Deck: snap.p2Deck, interactive: true, seed: snap.seed },
+        definitions,
+      );
+      initialStateRef.current = initial;
+      seedRef.current = snap.seed;
+      const state = reconstructState(initial, snap.actions, snap.actions.length, definitions);
+      actionHistoryRef.current = snap.actions;
+      setActionCount(snap.actions.length);
+      gameStateRef.current = state;
+      setGameState(state);
+      return true;
+    } catch { return false; }
   }, []);
 
   return {
@@ -371,5 +466,9 @@ export function useGameSession(): GameSession {
     patchState,
     undo,
     reset,
+    restoreFromSnapshot,
+    quickSave,
+    quickLoad,
+    hasQuickSave,
   };
 }

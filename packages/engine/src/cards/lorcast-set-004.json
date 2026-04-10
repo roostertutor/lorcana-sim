@@ -3745,11 +3745,17 @@
       {
         "type": "triggered",
         "storyName": "SCOUT AHEAD",
-        "rulesText": "When you play this character, you may look at each opponent's hand. (Info-only — engine state unchanged.)",
+        "rulesText": "When you play this character, you may look at each opponent's hand.",
         "trigger": {
           "on": "enters_play"
         },
-        "effects": []
+        "effects": [
+          {
+            "type": "reveal_hand",
+            "target": { "type": "opponent" },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "4",
@@ -4744,11 +4750,18 @@
       {
         "type": "triggered",
         "storyName": "ALL WILL BE SEEN",
-        "rulesText": "When you play this character, look at the top card of each opponent's deck. (Info-only — engine state unchanged.)",
+        "rulesText": "When you play this character, look at the top card of each opponent's deck.",
         "trigger": {
           "on": "enters_play"
         },
-        "effects": []
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 1,
+            "action": "reorder",
+            "target": { "type": "opponent" }
+          }
+        ]
       }
     ],
     "setId": "4",

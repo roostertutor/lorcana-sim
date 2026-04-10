@@ -170,6 +170,12 @@ export interface StaticAbility {
    * everything else.
    */
   activeZones?: ZoneName[];
+  /** CRD 6.1.13: "Once per turn" static — the effect applies at most once per
+   *  turn per instance. Grandmother Willow: "Once during your turn, you pay
+   *  1 {I} less for the next character." After the first character is played and
+   *  consumes the discount, the source's oncePerTurnTriggered flag is set so the
+   *  static stops contributing until next turn. Reset on PASS_TURN. */
+  oncePerTurn?: boolean;
 }
 
 // -----------------------------------------------------------------------------
@@ -2069,6 +2075,9 @@ export type Condition =
   | { type: "this_has_no_damage" }
   | { type: "this_at_location" }
   | { type: "this_location_has_character" }
+  /** True if any own character with the given trait is at this location.
+   *  Used by Skull Rock Isolated Fortress SAFE HAVEN ("if you have a Pirate character here"). */
+  | { type: "this_location_has_character_with_trait"; trait: string }
   /** True if the number of characters (of `player`, default any) at this source
    *  location is >= `amount`. Used by Pride Lands Jungle Oasis
    *  ("While you have 3 or more characters here, …"). */
@@ -2080,7 +2089,7 @@ export type Condition =
    *  Kanga Peaceful Gatherer, Lena Sabrewing, Hercules Spectral Demigod).
    *  The filter is evaluated against the controller's play zone; `owner`
    *  defaults to self if unset. */
-  | { type: "you_control_matching"; filter: CardFilter }
+  | { type: "you_control_matching"; filter: CardFilter; minimum?: number }
   | { type: "your_character_was_damaged_this_turn" }
   | { type: "opposing_character_was_damaged_this_turn" }
   | { type: "opponent_character_was_banished_in_challenge_this_turn" }

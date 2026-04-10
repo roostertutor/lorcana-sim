@@ -42,8 +42,11 @@ export interface GameModifiers {
 
   /** Static cost reductions (e.g. Mickey: Broom chars cost 1 less). Key = playerId.
    *  appliesTo limits the scope: "all" = both normal and shift (default),
-   *  "shift_only" = only when paying Shift cost (Yokai). */
-  costReductions: Map<import("../types/index.js").PlayerID, { amount: number; filter: import("../types/index.js").CardFilter; appliesTo: "all" | "shift_only" }[]>;
+   *  "shift_only" = only when paying Shift cost (Yokai).
+   *  sourceInstanceId + oncePerTurnKey: present on once-per-turn reductions
+   *  (Grandmother Willow). After consumption, the source's oncePerTurnTriggered
+   *  flag is set so gameModifiers skips it until next turn. */
+  costReductions: Map<import("../types/index.js").PlayerID, { amount: number; filter: import("../types/index.js").CardFilter; appliesTo: "all" | "shift_only"; sourceInstanceId?: string; oncePerTurnKey?: string }[]>;
 
   /** Action restrictions (quest/challenge/play/sing/ready) from static abilities. */
   actionRestrictions: {
@@ -414,6 +417,14 @@ export function getGameModifiers(
         }
       }
 
+      // CRD 6.1.13: "Once per turn" static — skip if already used this turn.
+      // Grandmother Willow: "Once during your turn, you pay 1 less for the
+      // next character." Each copy tracks independently via oncePerTurnTriggered.
+      if (ability.oncePerTurn) {
+        const key = ability.storyName ?? ability.rulesText ?? "anon";
+        if (instance.oncePerTurnTriggered?.[key]) continue;
+      }
+
       const { effect } = ability;
       switch (effect.type) {
         case "cant_be_challenged": {
@@ -535,7 +546,16 @@ export function getGameModifiers(
 
         case "cost_reduction": {
           const existing = modifiers.costReductions.get(instance.ownerId) ?? [];
-          existing.push({ amount: effect.amount, filter: effect.filter, appliesTo: effect.appliesTo ?? "all" });
+          existing.push({
+            amount: effect.amount,
+            filter: effect.filter,
+            appliesTo: effect.appliesTo ?? "all",
+            // Track source for once-per-turn consumption (Grandmother Willow).
+            ...(ability.oncePerTurn ? {
+              sourceInstanceId: instance.instanceId,
+              oncePerTurnKey: ability.storyName ?? ability.rulesText ?? "anon",
+            } : {}),
+          });
           modifiers.costReductions.set(instance.ownerId, existing);
           break;
         }

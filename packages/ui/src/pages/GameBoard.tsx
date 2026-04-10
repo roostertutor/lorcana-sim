@@ -23,7 +23,7 @@ import {
   useSensors,
   pointerWithin,
 } from "@dnd-kit/core";
-import { useGameSession } from "../hooks/useGameSession.js";
+import { useGameSession, getSavedSnapshot } from "../hooks/useGameSession.js";
 import type { ReplayData } from "../hooks/useGameSession.js";
 import { useReplaySession } from "../hooks/useReplaySession.js";
 import { useBoardDnd, DROP_PLAY_ZONE, DROP_INKWELL, dropCardId } from "../hooks/useBoardDnd.js";
@@ -120,6 +120,99 @@ function InkDisplay({ available, total }: { available: number; total: number }) 
       <span className="text-[10px] text-blue-300 font-mono">{available}/{total}</span>
     </div>
   );
+}
+
+// Collect board-wide continuous effects for the Active Effects pill/modal
+function getActiveEffects(
+  state: GameState,
+  mods: GameModifiers,
+  definitions: Record<string, CardDefinition>,
+  myId: PlayerID,
+): { label: string; source: string; color: string }[] {
+  const effects: { label: string; source: string; color: string }[] = [];
+  const oppId: PlayerID = myId === "player1" ? "player2" : "player1";
+
+  const cardName = (instanceId: string) => {
+    const inst = state.cards[instanceId];
+    if (!inst) return "Unknown";
+    return definitions[inst.definitionId]?.fullName ?? inst.definitionId;
+  };
+
+  // Cost reductions (static — from cards in play like Grandmother Willow, Mickey Broom)
+  for (const [pid, reds] of mods.costReductions) {
+    for (const r of reds) {
+      const who = pid === myId ? "Your" : "Opp";
+      const src = r.sourceInstanceId ? cardName(r.sourceInstanceId) : "?";
+      effects.push({ label: `${who} next card −${r.amount} ink`, source: src, color: "text-emerald-400" });
+    }
+  }
+  // One-shot cost reductions (player state — from resolved effects like Lantern)
+  for (const pid of [myId, oppId] as PlayerID[]) {
+    for (const r of (state.players[pid]?.costReductions ?? [])) {
+      const who = pid === myId ? "Your" : "Opp";
+      effects.push({ label: `${who} next card −${r.amount} ink`, source: "One-shot", color: "text-emerald-400" });
+    }
+  }
+  // Enter play exerted
+  for (const [pid] of mods.enterPlayExerted) {
+    const whose = pid === myId ? "Your" : "Opp";
+    effects.push({ label: `${whose} characters enter exerted`, source: "", color: "text-yellow-400" });
+  }
+  // Inkwell enters exerted
+  for (const pid of mods.inkwellEntersExerted) {
+    const whose = pid === myId ? "Your" : "Opp";
+    effects.push({ label: `${whose} ink enters exerted`, source: "", color: "text-yellow-400" });
+  }
+  // Prevent lore gain
+  for (const pid of mods.preventLoreGain) {
+    const whose = pid === myId ? "You" : "Opp";
+    effects.push({ label: `${whose} can't gain lore`, source: "", color: "text-red-400" });
+  }
+  // Prevent lore loss
+  for (const pid of mods.preventLoreLoss) {
+    const whose = pid === myId ? "You" : "Opp";
+    effects.push({ label: `${whose} can't lose lore`, source: "", color: "text-blue-400" });
+  }
+  // One challenge per turn
+  if (mods.oneChallengePerTurnGlobal) {
+    effects.push({ label: "One challenge per turn", source: "", color: "text-orange-400" });
+  }
+  // Prevent discard from hand
+  for (const pid of mods.preventDiscardFromHand) {
+    const whose = pid === myId ? "Your" : "Opp";
+    effects.push({ label: `${whose} hand can't be discarded`, source: "", color: "text-blue-400" });
+  }
+  // Lore threshold changes
+  for (const [pid, threshold] of mods.loreThresholds) {
+    const whose = pid === myId ? "Your" : "Opp";
+    effects.push({ label: `${whose} lore goal: ${threshold}`, source: "", color: "text-purple-400" });
+  }
+  // Skip draw step
+  for (const pid of mods.skipsDrawStep) {
+    const whose = pid === myId ? "You" : "Opp";
+    effects.push({ label: `${whose} skip draw step`, source: "", color: "text-red-400" });
+  }
+  // Top of deck visible
+  for (const pid of mods.topOfDeckVisible) {
+    const whose = pid === myId ? "Your" : "Opp";
+    effects.push({ label: `${whose} deck top visible`, source: "", color: "text-cyan-400" });
+  }
+  // Extra ink plays
+  for (const [pid, extra] of mods.extraInkPlays) {
+    const whose = pid === myId ? "You" : "Opp";
+    effects.push({ label: `${whose} +${extra} ink play${extra > 1 ? "s" : ""}`, source: "", color: "text-blue-400" });
+  }
+  // Ink from discard
+  for (const pid of mods.inkFromDiscard) {
+    const whose = pid === myId ? "You" : "Opp";
+    effects.push({ label: `${whose} can ink from discard`, source: "", color: "text-teal-400" });
+  }
+  // Board-wide action restrictions
+  for (const r of mods.actionRestrictions) {
+    const whose = r.affectedPlayerId === myId ? "Your" : "Opp";
+    effects.push({ label: `${whose} chars can't ${r.restricts}`, source: "", color: "text-red-400" });
+  }
+  return effects;
 }
 
 function InkwellZone({
@@ -297,6 +390,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   const [singCardId, setSingCardId] = useState<string | null>(null);
   const [moveCharId, setMoveCharId] = useState<string | null>(null);
   const [showAnalysis, setShowAnalysis] = useState(false);
+  const [showEffects, setShowEffects] = useState(false);
   const [showLog, setShowLog] = useState(false);
   const [discardViewerId, setDiscardViewerId] = useState<"player" | "opponent" | null>(null);
   const [deckViewerOpen, setDeckViewerOpen] = useState(false);
@@ -325,6 +419,19 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
 
 // Derived early — needed by hooks that must live above the early return
   const myId = multiplayerGame?.myPlayerId ?? "player1";
+
+  // Reset sandbox: clear session + start fresh
+  const handleResetBoard = useCallback(() => {
+    session.reset();
+    session.startGame({
+      player1Deck: [],
+      player2Deck: [],
+      definitions,
+      botStrategy: GreedyBot,
+      player1IsHuman: true,
+      player2IsHuman: false,
+    });
+  }, [session, definitions]);
 
   // Cancel any pending 2-step interaction mode
   const cancelMode = React.useCallback(() => {
@@ -557,9 +664,10 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // run once on mount
 
-  // Sandbox: auto-start with empty decks on mount
+  // Sandbox: restore from sessionStorage (HMR survival) or start fresh
   useEffect(() => {
     if (!sandboxMode) return;
+    if (session.restoreFromSnapshot(definitions, GreedyBot)) return;
     session.startGame({
       player1Deck: [],
       player2Deck: [],
@@ -789,6 +897,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   if (!gameState) return null;
 
   const opponentId = myId === "player1" ? "player2" : "player1";
+  const activeEffects = gameModifiers ? getActiveEffects(gameState, gameModifiers, definitions, myId) : [];
 
   const p1 = gameState.players[myId];
   const p2 = gameState.players[opponentId];
@@ -1036,13 +1145,23 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               <LoreTracker lore={p2.lore} label={multiplayerGame ? "Opp" : "Bot"} color="red" />
             </div>
 
-            {/* Turn-event indicators — show what happened this turn (for event-tracking conditions) */}
+            {/* Turn-event indicators */}
             {gameState && (
               <div className="hidden md:flex md:flex-col md:gap-0.5 md:ml-2 md:text-[8px] md:text-gray-600">
                 {p1.aCharacterChallengedThisTurn && <span>⚔ Challenged</span>}
                 {p1.aCharacterWasDamagedThisTurn && <span>💥 Damaged</span>}
                 {p2.aCharacterWasDamagedThisTurn && <span>💥 Opp damaged</span>}
               </div>
+            )}
+
+            {/* Active Effects pill */}
+            {activeEffects.length > 0 && (
+              <button
+                className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-amber-900/60 border border-amber-700/40 text-amber-300 hover:bg-amber-800/60 transition-colors"
+                onClick={() => setShowEffects(true)}
+              >
+                {activeEffects.length} effect{activeEffects.length !== 1 ? "s" : ""}
+              </button>
             )}
 
             <div className="ml-auto shrink-0">
@@ -1193,13 +1312,6 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           />
 
 
-          {/* Grant cost reduction banner */}
-          {gameState && (gameState.players[myId]?.costReductions ?? []).length > 0 && (
-            <div className="text-[10px] text-emerald-400 bg-emerald-900/30 border border-emerald-700/30 rounded px-2 py-0.5 text-center mx-1">
-              Next card costs {(gameState.players[myId]?.costReductions ?? [])[0]?.amount ?? "?"} {"{I}"} less
-            </div>
-          )}
-
           {/* Hand */}
           <div className="shrink-0 mt-1">
             <div className="h-20 overflow-hidden flex flex-nowrap items-start justify-center md:h-auto md:overflow-hidden md:flex-wrap md:max-h-[260px] lg:max-h-[355px] md:p-1 md:min-h-[80px]">
@@ -1238,6 +1350,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                 myId={myId}
                 autoPassP2={autoPassP2}
                 onAutoPassP2Change={setAutoPassP2}
+                onResetBoard={handleResetBoard}
               />
             </div>
             <div className="flex-1 min-h-0 flex flex-col rounded-xl bg-gray-900/60 border border-gray-800/50 p-3 gap-2">
@@ -1534,6 +1647,31 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           definitions={definitions}
           onClose={() => setDeckViewerOpen(false)}
         />
+      )}
+      {/* ======================= Active Effects Modal ======================= */}
+      {showEffects && activeEffects.length > 0 && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowEffects(false)}>
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div
+            className="relative bg-gray-950 border border-gray-800 rounded-2xl p-4 max-w-sm w-[90vw] shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">Active Effects</span>
+              <button className="text-gray-500 hover:text-gray-300" onClick={() => setShowEffects(false)}>
+                <Icon name="x-mark" className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="space-y-1.5 max-h-60 overflow-y-auto">
+              {activeEffects.map((e, i) => (
+                <div key={i} className="flex items-start gap-2 text-xs">
+                  <span className={`font-bold ${e.color}`}>{e.label}</span>
+                  {e.source && <span className="text-gray-600 text-[10px] ml-auto shrink-0">{e.source}</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
     </DndContext>
   );

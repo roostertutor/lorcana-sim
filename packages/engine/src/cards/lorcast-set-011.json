@@ -577,22 +577,19 @@
     ],
     "abilities": [
       {
-        "type": "activated",
+        "type": "static",
         "storyName": "SMOOTH THE WAY",
         "rulesText": "Once during your turn, you pay 1 {I} less for the next character you play this turn.",
-        "costs": [],
         "oncePerTurn": true,
-        "effects": [
-          {
-            "type": "grant_cost_reduction",
-            "amount": 1,
-            "filter": {
-              "cardType": [
-                "character"
-              ]
-            }
+        "effect": {
+          "type": "cost_reduction",
+          "amount": 1,
+          "filter": {
+            "cardType": [
+              "character"
+            ]
           }
-        ]
+        }
       }
     ],
     "setId": "11",
@@ -4094,6 +4091,26 @@
     ],
     "abilities": [
       {
+        "type": "static",
+        "storyName": "WAKE OF DESTRUCTION",
+        "rulesText": "For each item card in your discard, you pay 1 {I} less to play this character.",
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": {
+            "type": "count",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "discard",
+              "cardType": [
+                "item"
+              ]
+            }
+          }
+        }
+      },
+      {
         "type": "triggered",
         "storyName": "COLLATERAL DAMAGE",
         "rulesText": "When you play this character, you may put 3 item cards from your discard on the bottom of your deck in any order. If you do, deal 3 damage to chosen character.",
@@ -4143,6 +4160,11 @@
     "rulesText": "WAKE OF DESTRUCTION For each item card in your discard, you pay 1 {I} less to play this character.\nCOLLATERAL DAMAGE When you play this character, you may put 3 item cards from your discard on the bottom of your deck in any order. If you do, deal 3 damage to chosen character.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5864156730e6408181fd43e5a59dbe05.avif?1770259554",
     "_namedAbilityStubs": [
+      {
+        "storyName": "WAKE OF DESTRUCTION",
+        "rulesText": "For each item card in your discard, you pay 1 {I} less to play this character.",
+        "raw": "WAKE OF DESTRUCTION For each item card in your discard, you pay 1 {I} less to play this character."
+      },
       {
         "storyName": "COLLATERAL DAMAGE",
         "rulesText": "When you play this character, you may put 3 item cards from your discard on the bottom of your deck in any order. If you do, deal 3 damage to chosen character.",
@@ -5319,36 +5341,32 @@
     "cost": 2,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "READ THE OMENS",
+        "rulesText": "Draw a card, then choose and discard a card.",
+        "costs": [{ "type": "exert" }, { "type": "ink", "amount": 1 }],
+        "effects": [
+          { "type": "draw", "amount": 1, "target": { "type": "self" } },
+          { "type": "discard_from_hand", "amount": 1, "target": { "type": "self" }, "chooser": "controller" }
+        ]
+      },
+      {
+        "type": "activated",
+        "storyName": "BONK!",
+        "rulesText": "Deal 1 damage to chosen character.",
+        "costs": [{ "type": "ink", "amount": 1 }, { "type": "banish_self" }],
+        "effects": [
+          { "type": "deal_damage", "amount": 1, "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } } }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 99,
     "rarity": "uncommon",
     "rulesText": "READ THE OMENS {E}, 1 {I} — Draw a card, then choose and discard a card.\nBONK! 1 {I} , Banish this item — Deal 1 damage to chosen character.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b33671b3938940708ac2a4f7d00d942b.avif?1770259645",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "READ THE OMENS",
-        "rulesText": "Draw a card, then choose and discard a card.",
-        "raw": "READ THE OMENS {E}, 1 {I} — Draw a card, then choose and discard a card."
-      }
-    ],
-    "actionEffects": [
-      {
-        "type": "draw",
-        "amount": 1,
-        "target": {
-          "type": "self"
-        }
-      },
-      {
-        "type": "discard_from_hand",
-        "amount": 1,
-        "target": {
-          "type": "self"
-        },
-        "chooser": "target_player"
-      }
-    ]
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b33671b3938940708ac2a4f7d00d942b.avif?1770259645"
   },
   {
     "id": "retro-evolution-device",
@@ -10020,6 +10038,28 @@
     ],
     "abilities": [
       {
+        "type": "triggered",
+        "storyName": "SHADOW POWER",
+        "rulesText": "When you play this character, you may give chosen character Challenger +2 and Resist +2 until the start of your next turn.",
+        "trigger": { "on": "enters_play" },
+        "effects": [
+          {
+            "type": "gets_stat_while_challenging",
+            "strength": 2,
+            "isMay": true,
+            "duration": "until_caster_next_turn",
+            "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"] } }
+          },
+          {
+            "type": "grant_keyword",
+            "keyword": "resist",
+            "value": 2,
+            "duration": "until_caster_next_turn",
+            "target": { "type": "last_resolved_target" }
+          }
+        ]
+      },
+      {
         "type": "static",
         "storyName": "ETERNAL NIGHT",
         "rulesText": "Your Gargoyle characters lose the Stone by Day ability.",
@@ -10243,6 +10283,31 @@
             }
           }
         }
+      },
+      {
+        "type": "activated",
+        "storyName": "GOOD AIM",
+        "rulesText": "Once during your turn, you may choose and discard a card to deal 2 damage to chosen character.",
+        "oncePerTurn": true,
+        "costs": [
+          {
+            "type": "discard_cost",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": ["character"]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "11",
@@ -10777,7 +10842,39 @@
     "cost": 3,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "VIGILANTE JUSTICE",
+        "rulesText": "All opposing characters gain the Villain classification.",
+        "effect": {
+          "type": "grant_trait_static",
+          "trait": "Villain",
+          "target": {
+            "type": "all",
+            "filter": {
+              "zone": "play",
+              "cardType": ["character"],
+              "owner": { "type": "opponent" }
+            }
+          }
+        }
+      },
+      {
+        "type": "activated",
+        "storyName": "LAY OF THE LAND",
+        "rulesText": "If a character was banished in a challenge this turn, gain 1 lore.",
+        "costs": [{ "type": "exert" }],
+        "condition": { "type": "a_character_was_banished_in_challenge_this_turn" },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": { "type": "self" }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 202,
     "rarity": "rare",
@@ -10994,22 +11091,19 @@
     ],
     "abilities": [
       {
-        "type": "activated",
+        "type": "static",
         "storyName": "SMOOTH THE WAY",
         "rulesText": "Once during your turn, you pay 1 {I} less for the next character you play this turn.",
-        "costs": [],
         "oncePerTurn": true,
-        "effects": [
-          {
-            "type": "grant_cost_reduction",
-            "amount": 1,
-            "filter": {
-              "cardType": [
-                "character"
-              ]
-            }
+        "effect": {
+          "type": "cost_reduction",
+          "amount": 1,
+          "filter": {
+            "cardType": [
+              "character"
+            ]
           }
-        ]
+        }
       }
     ],
     "setId": "11",
@@ -12970,6 +13064,31 @@
             }
           }
         }
+      },
+      {
+        "type": "activated",
+        "storyName": "GOOD AIM",
+        "rulesText": "Once during your turn, you may choose and discard a card to deal 2 damage to chosen character.",
+        "oncePerTurn": true,
+        "costs": [
+          {
+            "type": "discard_cost",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": ["character"]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "11",

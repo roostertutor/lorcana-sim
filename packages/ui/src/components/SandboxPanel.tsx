@@ -14,6 +14,7 @@ interface Props {
   myId: PlayerID;
   autoPassP2: boolean;
   onAutoPassP2Change: (v: boolean) => void;
+  onResetBoard: () => void;
 }
 
 type ZoneName = "hand" | "play" | "inkwell" | "deck" | "discard";
@@ -32,6 +33,7 @@ export default function SandboxPanel({
   myId,
   autoPassP2,
   onAutoPassP2Change,
+  onResetBoard,
 }: Props) {
   const opponentId: PlayerID = myId === "player1" ? "player2" : "player1";
 
@@ -41,6 +43,7 @@ export default function SandboxPanel({
   const [targetZone, setTargetZone] = useState<ZoneName>("hand");
   const [targetPlayer, setTargetPlayer] = useState<PlayerID>(myId);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [injectQty, setInjectQty] = useState(1);
 
   const searchResults = useMemo(() => {
     if (!query.trim()) return [];
@@ -52,32 +55,40 @@ export default function SandboxPanel({
 
   function handleInject() {
     if (!selectedDef) return;
-    const instanceId = `sb-${selectedDef.id}-${Date.now().toString(36)}`;
-    const instance: CardInstance = {
-      instanceId,
-      definitionId: selectedDef.id,
-      ownerId: targetPlayer,
-      zone: targetZone,
-      isExerted: false,
-      damage: 0,
-      isDrying: targetZone === "play",
-      tempStrengthModifier: 0,
-      tempWillpowerModifier: 0,
-      tempLoreModifier: 0,
-      grantedKeywords: [],
-      timedEffects: [],
-    };
-    session.patchState((prev) => ({
-      ...prev,
-      cards: { ...prev.cards, [instanceId]: instance },
-      zones: {
-        ...prev.zones,
-        [targetPlayer]: {
-          ...prev.zones[targetPlayer],
-          [targetZone]: [...(prev.zones[targetPlayer][targetZone as keyof typeof prev.zones.player1] as string[]), instanceId],
-        },
-      },
-    }));
+    const count = injectQty;
+    session.patchState((prev) => {
+      let next = prev;
+      for (let n = 0; n < count; n++) {
+        const instanceId = `sb-${selectedDef.id}-${Date.now().toString(36)}-${n}`;
+        const instance: CardInstance = {
+          instanceId,
+          definitionId: selectedDef.id,
+          ownerId: targetPlayer,
+          zone: targetZone,
+          isExerted: false,
+          damage: 0,
+          isDrying: targetZone === "play",
+          tempStrengthModifier: 0,
+          tempWillpowerModifier: 0,
+          tempLoreModifier: 0,
+          grantedKeywords: [],
+          timedEffects: [],
+          cardsUnder: [],
+        };
+        next = {
+          ...next,
+          cards: { ...next.cards, [instanceId]: instance },
+          zones: {
+            ...next.zones,
+            [targetPlayer]: {
+              ...next.zones[targetPlayer],
+              [targetZone]: [...(next.zones[targetPlayer][targetZone as keyof typeof next.zones.player1] as string[]), instanceId],
+            },
+          },
+        };
+      }
+      return next;
+    });
     setQuery("");
     setSelectedDef(null);
   }
@@ -240,6 +251,15 @@ export default function SandboxPanel({
             <option value={myId}>You (P{myId === "player1" ? "1" : "2"})</option>
             <option value={opponentId}>Opp (P{opponentId === "player1" ? "1" : "2"})</option>
           </select>
+          <select
+            className="w-12 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-300 focus:outline-none"
+            value={injectQty}
+            onChange={(e) => setInjectQty(Number(e.target.value))}
+          >
+            {[1, 2, 3, 4].map((n) => (
+              <option key={n} value={n}>{n}</option>
+            ))}
+          </select>
         </div>
 
         <button
@@ -248,7 +268,7 @@ export default function SandboxPanel({
           disabled={!selectedDef}
           onClick={handleInject}
         >
-          {selectedDef ? `Inject ${selectedDef.fullName}` : "Select a card first"}
+          {selectedDef ? `Inject ${selectedDef.fullName}${injectQty > 1 ? ` x${injectQty}` : ""}` : "Select a card first"}
         </button>
       </div>
 
@@ -335,6 +355,29 @@ export default function SandboxPanel({
         />
         Auto-pass opponent turns
       </label>
+
+      {/* ── Quick Save / Load / Reset ── */}
+      <div className="flex gap-2">
+        <button
+          className="flex-1 py-1.5 bg-blue-900/60 hover:bg-blue-800/60 border border-blue-800/50 text-blue-400 hover:text-blue-300 rounded-lg text-xs font-bold transition-colors"
+          onClick={() => session.quickSave()}
+        >
+          Quick Save
+        </button>
+        <button
+          className="flex-1 py-1.5 bg-blue-900/60 hover:bg-blue-800/60 border border-blue-800/50 text-blue-400 hover:text-blue-300 rounded-lg text-xs font-bold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          disabled={!session.hasQuickSave}
+          onClick={() => session.quickLoad()}
+        >
+          Quick Load
+        </button>
+      </div>
+      <button
+        className="w-full py-1.5 bg-red-900/60 hover:bg-red-800/60 border border-red-800/50 text-red-400 hover:text-red-300 rounded-lg text-xs font-bold transition-colors"
+        onClick={onResetBoard}
+      >
+        Reset Board
+      </button>
     </div>
   );
 }

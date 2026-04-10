@@ -8,6 +8,33 @@ Append to the top as new mechanics land.
 
 ---
 
+~~## Once-per-turn ability indicator~~ **RESOLVED — green/gray clock icon on left-side status column**
+
+**Engine**: `oncePerTurn: true` on triggered, activated, and static abilities. Tracked per-instance via `CardInstance.oncePerTurnTriggered` (Record<string, boolean>), reset at turn start.
+
+**UI needs**:
+- Show whether a once-per-turn ability is available or already used this turn
+- Visual indicator on the card in play
+
+**Cards**: HeiHei Accidental Explorer, Pongo Determined Father, Grandmother Willow, and many others across sets 3–11.
+
+---
+
+## Static once-per-turn cost reduction (Grandmother Willow)
+
+**Engine**: Static abilities with `oncePerTurn: true` on `cost_reduction` effects. Each copy of the card independently provides a -1 cost reduction for the next character played each turn. Tracked per-instance via `oncePerTurnTriggered` — consumed when a character is played, refreshes on turn pass. Available in `gameModifiers.costReductions` entries with `sourceInstanceId` + `oncePerTurnKey` fields.
+
+**UI needs**:
+- The existing cost reduction banner (emerald text near scoreboard) only reads `player.costReductions` (one-shot entries from Lantern/Gaston). It should ALSO check `gameModifiers.costReductions` for static once-per-turn entries — these have `sourceInstanceId` set.
+- Sum all available reductions (one-shot + static once-per-turn) into a single "Next character -N ink" display.
+- After consumption (a character is played), the static entries disappear from gameModifiers on next render since `oncePerTurnTriggered` is set.
+
+**Watch**: `gameModifiers.costReductions.get(myId)` — entries with `sourceInstanceId` are once-per-turn statics.
+
+**Cards**: Grandmother Willow - Ancient Advisor (Set 11, #13 / #206).
+
+---
+
 ~~## Cross-player chooser (opponent_may_pay_to_avoid)~~ **RESOLVED (commit 785021d) — opponent perspective label + controls**
 
 **Engine**: New `OpponentMayPayToAvoidEffect` surfaces a `choose_may` to the OPPOSING player (not the controller). Accept = opponent pays a cost; reject = controller's effect fires. Pre-checks affordability — if opponent can't pay, the reject fires automatically.

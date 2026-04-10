@@ -8803,18 +8803,33 @@
         "storyName": "IT'S BETTER THIS WAY",
         "rulesText": "At the start of your turn, if this character has no damage, draw a card. Otherwise, he gets +4 {S} this turn.",
         "trigger": {
-          "on": "turn_start",
-          "player": {
-            "type": "self"
-          }
+          "on": "start_of_turn",
+          "player": { "type": "self" }
         },
+        "condition": { "type": "this_has_no_damage" },
         "effects": [
           {
             "type": "draw",
             "amount": 1,
-            "target": {
-              "type": "self"
-            }
+            "target": { "type": "self" }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "IT'S BETTER THIS WAY",
+        "rulesText": "(Otherwise branch) he gets +4 {S} this turn.",
+        "trigger": {
+          "on": "start_of_turn",
+          "player": { "type": "self" }
+        },
+        "condition": { "type": "not", "condition": { "type": "this_has_no_damage" } },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": 4,
+            "duration": "this_turn",
+            "target": { "type": "this" }
           }
         ]
       }

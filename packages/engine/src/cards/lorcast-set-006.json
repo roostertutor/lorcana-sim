@@ -2867,7 +2867,18 @@
         "rulesText": "2 {I}, Choose and discard a card - Gain 1 lore.",
         "costs": [
           {
-            "type": "exert"
+            "type": "pay_ink",
+            "amount": 2
+          },
+          {
+            "type": "discard",
+            "amount": 1,
+            "filter": {
+              "zone": "hand",
+              "owner": {
+                "type": "self"
+              }
+            }
           }
         ],
         "effects": [
@@ -7409,6 +7420,18 @@
             }
           }
         }
+      },
+      {
+        "type": "triggered",
+        "storyName": "SAFE HAVEN",
+        "rulesText": "At the start of your turn, if you have a Pirate character here, gain 1 lore.",
+        "trigger": { "on": "start_of_turn", "player": { "type": "self" } },
+        "condition": { "type": "this_location_has_character_with_trait", "trait": "Pirate" },
+        "effects": [{
+          "type": "gain_lore",
+          "amount": 1,
+          "target": { "type": "self" }
+        }]
       }
     ],
     "setId": "6",
@@ -7418,14 +7441,7 @@
     "willpower": 6,
     "lore": 0,
     "rulesText": "FAMILIAR GROUND Characters get +1 {S} while here.\nSAFE HAVEN At the start of your turn, if you have a Pirate character here, gain 1 lore.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5c09e6638f7f4eccaa8ae9cf545702cc.avif?1730901319",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "FAMILIAR GROUND",
-        "rulesText": "Characters get +1 {S} while here.",
-        "raw": "FAMILIAR GROUND Characters get +1 {S} while here."
-      }
-    ]
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5c09e6638f7f4eccaa8ae9cf545702cc.avif?1730901319"
   },
   {
     "id": "b-e-n-eccentric-robot",
@@ -7599,10 +7615,17 @@
       },
       {
         "type": "static",
-        "storyName": "GREAT IDEAS",
+        "storyName": "MECHANICALLY SAVVY",
         "rulesText": "While you have 3 or more items in play, you pay 1 {I} less to play Inventor characters.",
+        "condition": {
+          "type": "you_control_matching",
+          "filter": { "cardType": ["item"], "zone": "play", "owner": { "type": "self" } },
+          "minimum": 3
+        },
         "effect": {
-          "type": "compound_and_static"
+          "type": "cost_reduction",
+          "amount": 1,
+          "filter": { "cardType": ["character"], "hasTrait": "Inventor" }
         }
       }
     ],
@@ -12161,10 +12184,17 @@
       },
       {
         "type": "static",
-        "storyName": "GREAT IDEAS",
+        "storyName": "MECHANICALLY SAVVY",
         "rulesText": "While you have 3 or more items in play, you pay 1 {I} less to play Inventor characters.",
+        "condition": {
+          "type": "you_control_matching",
+          "filter": { "cardType": ["item"], "zone": "play", "owner": { "type": "self" } },
+          "minimum": 3
+        },
         "effect": {
-          "type": "compound_and_static"
+          "type": "cost_reduction",
+          "amount": 1,
+          "filter": { "cardType": ["character"], "hasTrait": "Inventor" }
         }
       }
     ],

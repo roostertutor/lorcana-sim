@@ -5303,12 +5303,10 @@
     "traits": [],
     "abilities": [
       {
-        "type": "triggered",
-        "storyName": "MALICE",
+        "type": "activated",
+        "storyName": "SUPPRESSED ANGER",
         "rulesText": "Put 1 damage counter on chosen character.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [{ "type": "exert" }, { "type": "ink", "amount": 1 }],
         "effects": [
           {
             "type": "deal_damage",
@@ -5321,6 +5319,32 @@
                 "cardType": [
                   "character"
                 ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "activated",
+        "storyName": "MINDLESS RAGE",
+        "rulesText": "Each opposing damaged character gains Reckless until the start of your next turn.",
+        "costs": [{ "type": "exert" }, { "type": "banish_self" }],
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "reckless",
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "all",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "opponent"
+                },
+                "hasDamage": true
               }
             }
           }

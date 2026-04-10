@@ -1749,6 +1749,23 @@
             }
           }
         }
+      },
+      {
+        "type": "static",
+        "storyName": "LION HOME",
+        "rulesText": "If you have a Prince or King character here, you pay 1 {I} less to play characters.",
+        "condition": {
+          "type": "compound_or",
+          "conditions": [
+            { "type": "this_location_has_character_with_trait", "trait": "Prince" },
+            { "type": "this_location_has_character_with_trait", "trait": "King" }
+          ]
+        },
+        "effect": {
+          "type": "cost_reduction",
+          "amount": 1,
+          "filter": { "cardType": ["character"] }
+        }
       }
     ],
     "setId": "3",
@@ -2769,14 +2786,30 @@
       },
       {
         "type": "triggered",
+        "storyName": "DIVINATION",
         "rulesText": "During your turn, whenever you draw a card, you may move 1 damage counter from chosen character to chosen opposing character.",
         "trigger": {
-          "on": "quests"
+          "on": "card_drawn",
+          "player": { "type": "self" }
         },
         "condition": {
           "type": "is_your_turn"
         },
-        "effects": []
+        "effects": [
+          {
+            "type": "move_damage",
+            "amount": 1,
+            "isMay": true,
+            "from": {
+              "type": "chosen",
+              "filter": { "zone": "play", "cardType": ["character"], "hasDamage": true }
+            },
+            "to": {
+              "type": "chosen",
+              "filter": { "zone": "play", "cardType": ["character"], "owner": { "type": "opponent" } }
+            }
+          }
+        ]
       }
     ],
     "setId": "3",
@@ -8431,19 +8464,25 @@
     "traits": [],
     "abilities": [
       {
-        "type": "triggered",
-        "storyName": "FOR A RAINY DAY",
+        "type": "activated",
+        "storyName": "NUMBER ONE",
         "rulesText": "Choose a character of yours and gain lore equal to their {L}.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [{ "type": "exert" }, { "type": "ink", "amount": 2 }],
         "effects": [
           {
-            "type": "gain_lore",
-            "amount": 1,
+            "type": "conditional_on_target",
             "target": {
-              "type": "self"
-            }
+              "type": "chosen",
+              "filter": { "zone": "play", "cardType": ["character"], "owner": { "type": "self" } }
+            },
+            "conditionFilter": {},
+            "ifMatchEffects": [
+              {
+                "type": "gain_lore",
+                "amount": { "type": "target_lore" },
+                "target": { "type": "self" }
+              }
+            ]
           }
         ]
       }
@@ -10668,6 +10707,23 @@
             }
           }
         }
+      },
+      {
+        "type": "static",
+        "storyName": "LION HOME",
+        "rulesText": "If you have a Prince or King character here, you pay 1 {I} less to play characters.",
+        "condition": {
+          "type": "compound_or",
+          "conditions": [
+            { "type": "this_location_has_character_with_trait", "trait": "Prince" },
+            { "type": "this_location_has_character_with_trait", "trait": "King" }
+          ]
+        },
+        "effect": {
+          "type": "cost_reduction",
+          "amount": 1,
+          "filter": { "cardType": ["character"] }
+        }
       }
     ],
     "setId": "3",
@@ -10789,14 +10845,30 @@
       },
       {
         "type": "triggered",
+        "storyName": "DIVINATION",
         "rulesText": "During your turn, whenever you draw a card, you may move 1 damage counter from chosen character to chosen opposing character.",
         "trigger": {
-          "on": "quests"
+          "on": "card_drawn",
+          "player": { "type": "self" }
         },
         "condition": {
           "type": "is_your_turn"
         },
-        "effects": []
+        "effects": [
+          {
+            "type": "move_damage",
+            "amount": 1,
+            "isMay": true,
+            "from": {
+              "type": "chosen",
+              "filter": { "zone": "play", "cardType": ["character"], "hasDamage": true }
+            },
+            "to": {
+              "type": "chosen",
+              "filter": { "zone": "play", "cardType": ["character"], "owner": { "type": "opponent" } }
+            }
+          }
+        ]
       }
     ],
     "setId": "3",

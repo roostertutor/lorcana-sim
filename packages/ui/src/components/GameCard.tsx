@@ -268,6 +268,22 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
           if (cantSing) {
             leftIcons.push({ icon: "musical-note", color: "bg-red-700/90", label: "Can't sing" });
           }
+          // Once-per-turn ability tracker
+          const oncePerTurnAbilities = def.abilities.filter((a: any) =>
+            a.oncePerTurn && (a.type === "triggered" || a.type === "activated" || a.type === "static")
+          );
+          if (oncePerTurnAbilities.length > 0) {
+            const triggered = instance.oncePerTurnTriggered ?? {};
+            const allUsed = oncePerTurnAbilities.every((a: any) => {
+              const key = a.storyName ?? a.rulesText ?? "anon";
+              return !!triggered[key];
+            });
+            leftIcons.push({
+              icon: "clock",
+              color: allUsed ? "bg-gray-700/90" : "bg-green-600/90",
+              label: allUsed ? "Used this turn" : "Once per turn",
+            });
+          }
           // Remembered target restriction (Elsa Ice Palace: "can't ready")
           const cantReady = mods?.selfActionRestrictions.get(instanceId)?.has("ready" as any);
           if (cantReady && !instance.timedEffects.some(te => te.type === "cant_action" && te.action === "ready")) {
@@ -320,10 +336,10 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
         )}
 
         {/* Boost / cards-under stack indicator — bottom-left count badge */}
-        {zone === "play" && instance.cardsUnder.length > 0 && (
+        {zone === "play" && (instance.cardsUnder?.length ?? 0) > 0 && (
           <div className="absolute bottom-0.5 left-0.5 z-10 pointer-events-none">
             <span className="inline-flex items-center justify-center w-4 h-4 rounded text-[8px] font-black bg-violet-600/90 text-violet-100 shadow border border-violet-400/50">
-              {instance.cardsUnder.length}
+              {instance.cardsUnder?.length}
             </span>
           </div>
         )}

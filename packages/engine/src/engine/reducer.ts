@@ -513,14 +513,23 @@ function applyPlayCard(
     for (const red of staticReductions) {
       if (matchesFilter(instance, def, red.filter, state, playerId)) {
         cost -= red.amount;
+        // CRD 6.1.13: once-per-turn static reductions (Grandmother Willow) —
+        // mark the source instance so gameModifiers skips it next time.
+        if (red.sourceInstanceId && red.oncePerTurnKey) {
+          const src = getInstance(state, red.sourceInstanceId);
+          state = updateInstance(state, red.sourceInstanceId, {
+            oncePerTurnTriggered: { ...(src.oncePerTurnTriggered ?? {}), [red.oncePerTurnKey]: true },
+          });
+        }
       }
     }
 
-    // One-shot cost reductions — consume matching ones
+    // One-shot cost reductions — consume ALL matching ones (each one targets
+    // "the next character", so playing any character exhausts them all).
     const oneShot = state.players[playerId].costReductions ?? [];
     const remainingReductions: typeof oneShot = [];
     for (const red of oneShot) {
-      if (matchesFilter(instance, def, red.filter, state, playerId) && cost > 0) {
+      if (matchesFilter(instance, def, red.filter, state, playerId)) {
         cost -= red.amount;
         // consumed — don't add to remaining
       } else {
