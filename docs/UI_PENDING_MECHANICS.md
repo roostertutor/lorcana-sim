@@ -149,7 +149,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Mass inkwell effects
+~~## Mass inkwell effects~~ **DEFERRED — needs CSS transition/animation on inkwell card exert/ready state changes. Zone already re-renders correctly; animation is cosmetic.**
 
 **Engine**: `MassInkwellEffect` with modes: `exert_all`, `ready_all`, `return_random_to_hand`, `return_random_until`.
 
@@ -161,7 +161,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Mill / random discard
+~~## Mill / random discard~~ **DEFERRED — needs deck-to-discard card-flying animation. State changes are already reflected; animation is cosmetic.**
 
 **Engine**: `MillEffect` (top N → discard), `discard_from_hand` with `chooser: "random"` (uses seeded RNG).
 
@@ -174,7 +174,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Put damage counter (vs deal damage)
+~~## Put damage counter (vs deal damage)~~ **RESOLVED — N/A: once damage lands, the source is indistinguishable in state. The CRD distinction (bypass Resist) is handled by the engine; the UI just shows the final damage number.**
 
 **Engine**: `DealDamageEffect.asDamageCounter: true` flag. Bypasses Resist, damage immunity, and `damage_dealt_to` triggers — pure state mutation per CRD distinction.
 
@@ -186,7 +186,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Reveal hand
+~~## Reveal hand~~ **RESOLVED (commit e7ca6ea) — auto-opening ZoneViewModal from lastRevealedHand state**
 
 **Engine**: `RevealHandEffect` emits a `hand_revealed` GameEvent. Headless — no lasting state.
 
@@ -315,7 +315,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Move damage between characters
+~~## Move damage between characters~~ **PARTIALLY RESOLVED — sequential targeting works via existing PendingChoiceModal; card-to-card animation deferred (needs Framer Motion or similar)**
 
 **Engine**: `MoveDamageEffect` (two-stage chosen flow — pick source, then destination). Already wired since Set 4 batch 6.
 
@@ -376,7 +376,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Play-from-zone (paid + per-instance source)
+~~## Play-from-zone (paid + per-instance source)~~ **RESOLVED (commit e7ca6ea) — teal glow on discard tile when playable cards exist**
 
 **Engine**: `play_for_free` extended with `cost: "free" | "normal"` and `sourceInstanceId: "self" | CardTarget`. Handles paying ink from a non-hand zone or from a specific source instance's `cardsUnder`.
 
@@ -388,7 +388,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Put on bottom of deck
+~~## Put on bottom of deck~~ **DEFERRED — needs card-to-deck-bottom animation. State changes are already reflected; animation is cosmetic.**
 
 **Engine**: `PutOnBottomOfDeckEffect`.
 
