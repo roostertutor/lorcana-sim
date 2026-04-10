@@ -2181,7 +2181,9 @@ export function applyEffect(
         cardInstanceIds: handCardIds,
         sourceInstanceId,
       } as GameEvent);
-      return state;
+      // Store on state so the UI can read it for the reveal-hand modal.
+      // Reset on next action (the reveal is a one-shot snapshot).
+      return { ...state, lastRevealedHand: { playerId: targetPlayer, cardIds: handCardIds } };
     }
 
     // Unified lore adjustment — gain_lore and lose_lore are aliases.

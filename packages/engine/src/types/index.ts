@@ -2518,6 +2518,10 @@ export interface GameState {
    *  amount of damage to another chosen character"). */
   lastDamageDealtAmount?: number;
 
+  /** Snapshot of the most recently revealed hand — set by the reveal_hand
+   *  effect so the UI can show a modal without needing event listeners. */
+  lastRevealedHand?: { playerId: PlayerID; cardIds: string[] };
+
   /** Snapshot of the last card resolved as a cost-side target (banish/exert chosen
    *  own character inside a sequential cost). Used by reward-side effects like
    *  Hades Double Dealer ("play a character with the same name as the banished

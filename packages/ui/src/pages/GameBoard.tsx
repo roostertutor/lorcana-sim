@@ -238,11 +238,19 @@ function UtilityStrip({
         />
       </div>
 
-      {/* Discard tile */}
+      {/* Discard tile — glow when a card is playable from discard (Lilo Escape Artist, etc.) */}
       <button
         onClick={onDiscardClick}
         disabled={discardCount === 0}
-        className="relative w-7 h-10 sm:w-14 sm:h-[78px] lg:w-16 lg:h-[90px] shrink-0 rounded overflow-hidden disabled:cursor-default hover:enabled:brightness-110 transition-all border border-gray-800/40"
+        className={`relative w-7 h-10 sm:w-14 sm:h-[78px] lg:w-16 lg:h-[90px] shrink-0 rounded overflow-hidden disabled:cursor-default hover:enabled:brightness-110 transition-all border ${
+          // Check if any discard card has a playable_from_zone_self or play_for_free trigger active
+          discardCount > 0 && Object.values(gameState.cards).some(
+            (c: any) => c.zone === "discard" && c.ownerId === (gameState as any).currentPlayer &&
+              definitions[c.definitionId]?.abilities?.some((a: any) =>
+                a.activeZones?.includes("discard") && a.effects?.some((e: any) => e.type === "play_for_free")
+              )
+          ) ? "border-teal-500/60 ring-1 ring-teal-500/30" : "border-gray-800/40"
+        }`}
       >
         {discardTopId ? (
           <div className="absolute inset-0">
@@ -293,6 +301,14 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   const [inspectModalOpen, setInspectModalOpen] = useState(false);
   const [popoverPos, setPopoverPos] = useState<{ top: number; left: number } | null>(null);
   const [autoPassP2, setAutoPassP2] = useState(true);
+  const [revealHandDismissed, setRevealHandDismissed] = useState(false);
+  const lastRevealRef = useRef<string | null>(null);
+  // Reset dismiss when a NEW reveal arrives (different card IDs)
+  const currentRevealKey = gameState?.lastRevealedHand?.cardIds.join(",") ?? null;
+  if (currentRevealKey && currentRevealKey !== lastRevealRef.current) {
+    lastRevealRef.current = currentRevealKey;
+    if (revealHandDismissed) setRevealHandDismissed(false);
+  }
 
   const p1Parse = useMemo(() => parseDecklist(p1DeckText, definitions), [p1DeckText, definitions]);
   const p2Parse = useMemo(() => parseDecklist(p2DeckText, definitions), [p2DeckText, definitions]);
@@ -1489,6 +1505,17 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           gameState={gameState}
           definitions={definitions}
           onClose={() => setDiscardViewerId(null)}
+        />
+      )}
+
+      {/* ======================= Revealed Hand Viewer (auto-triggered by reveal_hand effect) ======================= */}
+      {gameState?.lastRevealedHand && gameState.lastRevealedHand.cardIds.length > 0 && !revealHandDismissed && (
+        <ZoneViewModal
+          title={`${gameState.lastRevealedHand.playerId === myId ? "Your" : "Opponent's"} Revealed Hand`}
+          cardIds={gameState.lastRevealedHand.cardIds}
+          gameState={gameState}
+          definitions={definitions}
+          onClose={() => setRevealHandDismissed(true)}
         />
       )}
 
