@@ -1080,6 +1080,7 @@ export interface LookAtTopEffect {
     | "up_to_n_to_hand_rest_bottom"
     | "one_to_inkwell_exerted_rest_top"
     | "one_to_play_for_free_rest_bottom"
+    | "one_to_play_for_free_rest_discard"
     /** Kristoff's Lute MOMENT OF INSPIRATION — reveal top, may play for free,
      *  otherwise put it into discard. count is implicitly 1. */
     | "may_play_for_free_else_discard"

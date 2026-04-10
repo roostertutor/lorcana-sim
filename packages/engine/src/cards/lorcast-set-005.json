@@ -6365,7 +6365,7 @@
       {
         "type": "triggered",
         "storyName": "NOTTINGHAM'S FINEST",
-        "rulesText": "Whenever this character quests, look at the top 4 cards of your deck. You may reveal an action card with cost 6 or less and play it for free. Put the rest in your discard. (approximation: action goes to hand; rest to bottom of deck)",
+        "rulesText": "Whenever this character quests, look at the top 4 cards of your deck. You may reveal an action card with cost 6 or less and play it for free. Put the rest in your discard.",
         "trigger": {
           "on": "quests",
           "filter": {
@@ -6382,7 +6382,7 @@
           {
             "type": "look_at_top",
             "count": 4,
-            "action": "one_to_hand_rest_bottom",
+            "action": "one_to_play_for_free_rest_discard",
             "filter": {
               "cardType": [
                 "action"
@@ -11728,7 +11728,7 @@
       {
         "type": "triggered",
         "storyName": "NOTTINGHAM'S FINEST",
-        "rulesText": "Whenever this character quests, look at the top 4 cards of your deck. You may reveal an action card with cost 6 or less and play it for free. Put the rest in your discard. (approximation: action goes to hand; rest to bottom of deck)",
+        "rulesText": "Whenever this character quests, look at the top 4 cards of your deck. You may reveal an action card with cost 6 or less and play it for free. Put the rest in your discard.",
         "trigger": {
           "on": "quests",
           "filter": {
@@ -11745,7 +11745,7 @@
           {
             "type": "look_at_top",
             "count": 4,
-            "action": "one_to_hand_rest_bottom",
+            "action": "one_to_play_for_free_rest_discard",
             "filter": {
               "cardType": [
                 "action"

@@ -3360,10 +3360,12 @@ export function applyEffect(
           state = reorderDeckTopToBottom(state, targetPlayer, toBottom, []);
           return state;
         }
-        case "one_to_play_for_free_rest_bottom": {
-          // Powerline World's Greatest Rock Star: look at top N, may reveal
-          // a matching card and play it for free, rest to bottom in any order.
-          // Headless heuristic: pick the first matching card and play it.
+        case "one_to_play_for_free_rest_bottom":
+        case "one_to_play_for_free_rest_discard": {
+          // Powerline World's Greatest Rock Star (rest_bottom): look at top N,
+          // may reveal a matching card and play it for free, rest to bottom.
+          // Robin Hood Sharpshooter (rest_discard): same but rest goes to
+          // discard instead. Headless heuristic: pick first matching card.
           const matchIdx = effect.filter
             ? topCards.findIndex((id) => {
                 const inst = state.cards[id];
@@ -3373,8 +3375,18 @@ export function applyEffect(
                 return matchesFilter(inst, def, effect.filter!, state, controllingPlayerId);
               })
             : -1;
+          const restToDiscard = effect.action === "one_to_play_for_free_rest_discard";
+          const moveRest = (ids: string[]) => {
+            if (restToDiscard) {
+              for (const id of ids) {
+                state = moveCard(state, id, targetPlayer, "discard");
+              }
+            } else {
+              state = reorderDeckTopToBottom(state, targetPlayer, ids, []);
+            }
+          };
           if (matchIdx === -1) {
-            state = reorderDeckTopToBottom(state, targetPlayer, topCards, []);
+            moveRest(topCards);
             return state;
           }
           const playId = topCards[matchIdx]!;
@@ -3395,7 +3407,7 @@ export function applyEffect(
               state = zoneTransition(state, playId, "discard", definitions, events, { reason: "discarded" });
             }
           }
-          state = reorderDeckTopToBottom(state, targetPlayer, rest, []);
+          moveRest(rest);
           return state;
         }
         case "one_to_inkwell_exerted_rest_top": {
