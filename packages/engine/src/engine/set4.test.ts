@@ -761,4 +761,28 @@ describe("§4 Set 4 — Noi Acrobatic Baby (damage_immunity_timed)", () => {
     expect(getInstance(state, allyId).damage).toBe(0);
     expect(state.players.player1.lore).toBe(loreBefore + 1);
   });
+
+  it("Bruno Madrigal Undetected Uncle: name_a_card_then_reveal grants 3 lore on hit (gainLoreOnHit)", () => {
+    // Tier-1 fix: was wired with bare name_a_card_then_reveal and the lore
+    // branch dropped. Engine now supports gainLoreOnHit on the effect type;
+    // both the bot path (clairvoyant always-hit) and the interactive
+    // resolution apply the lore gain after the matchAction. Pattern coverage:
+    // confirms the new field plumbs through both reducer paths.
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let brunoId: string;
+    ({ state, instanceId: brunoId } = injectCard(state, "player1", "bruno-madrigal-undetected-uncle", "play", { isDrying: false }));
+
+    const loreBefore = state.players.player1.lore;
+    const handBefore = getZone(state, "player1", "hand").length;
+
+    // Apply Bruno's effect directly (the activated cost is exhaust + ink which
+    // is orthogonal to the engine extension under test). Bot path: peeks the
+    // top card, "names" it correctly, applies matchAction → to_hand, then
+    // gainLoreOnHit fires.
+    state = applyEffect(state, { type: "name_a_card_then_reveal", target: { type: "self" }, gainLoreOnHit: 3 } as any, brunoId, "player1", LORCAST_CARD_DEFINITIONS, []);
+
+    expect(getZone(state, "player1", "hand").length).toBe(handBefore + 1);
+    expect(state.players.player1.lore).toBe(loreBefore + 3);
+  });
 });

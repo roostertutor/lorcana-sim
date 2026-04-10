@@ -1866,6 +1866,11 @@ function applyResolveChoice(
         } else {
           state = moveCard(state, topId, playerId, "hand");
         }
+        // Lore branch on match (Bruno Madrigal Undetected Uncle: "and gain 3 lore").
+        const loreOnHit = (pendingEffect as any)?.gainLoreOnHit;
+        if (typeof loreOnHit === "number" && loreOnHit > 0) {
+          state = gainLore(state, playerId, loreOnHit, events, definitions);
+        }
       }
       // else: leave on top — no-op
     }
@@ -2881,7 +2886,13 @@ export function applyEffect(
       const deckNonInt = getZone(state, controllingPlayerId, "deck");
       const topIdNonInt = deckNonInt[0];
       if (!topIdNonInt) return state;
-      return moveCard(state, topIdNonInt, controllingPlayerId, "hand");
+      state = moveCard(state, topIdNonInt, controllingPlayerId, "hand");
+      // Lore branch on match (Bruno Madrigal Undetected Uncle). Bot always
+      // hits, so the lore gain always fires when gainLoreOnHit is set.
+      if (typeof (effect as any).gainLoreOnHit === "number" && (effect as any).gainLoreOnHit > 0) {
+        state = gainLore(state, controllingPlayerId, (effect as any).gainLoreOnHit, events, definitions);
+      }
+      return state;
     }
 
     case "move_character": {

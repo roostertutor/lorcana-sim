@@ -903,6 +903,12 @@ export interface NameACardThenRevealEffect {
    *  deck-top reveal entirely and instead returns all character cards in the
    *  caster's discard whose name matches the named card (Blast from Your Past). */
   matchAction?: "to_hand" | "to_inkwell_exerted" | "return_all_from_discard";
+  /** Lore gained on a successful match (Bruno Madrigal Undetected Uncle:
+   *  "If it's the named card, put that card into your hand AND GAIN 3 LORE").
+   *  Applied AFTER the matchAction so the bot path and interactive path stay
+   *  symmetric. Absent for cards without a lore branch (Sorcerer's Hat, Merlin,
+   *  Blast from Your Past). */
+  gainLoreOnHit?: number;
 }
 
 /**

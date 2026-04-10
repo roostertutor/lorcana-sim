@@ -1478,7 +1478,9 @@
         "rewardEffect": {
           "type": "gain_lore",
           "amount": 2,
-          "target": { "type": "self" }
+          "target": {
+            "type": "self"
+          }
         }
       }
     ],
@@ -1975,7 +1977,7 @@
       {
         "type": "activated",
         "storyName": "YOU JUST HAVE TO SEE IT",
-        "rulesText": "{E} — Name a card, then reveal the top card of your deck. If it's the named card, put that card into your hand and gain 3 lore. Otherwise, put it on the top of your deck. (approximation: lore gain on hit skipped)",
+        "rulesText": "{E} — Name a card, then reveal the top card of your deck. If it's the named card, put that card into your hand and gain 3 lore. Otherwise, put it on the top of your deck.",
         "costs": [
           {
             "type": "exert"
@@ -1986,7 +1988,8 @@
             "type": "name_a_card_then_reveal",
             "target": {
               "type": "self"
-            }
+            },
+            "gainLoreOnHit": 3
           }
         ]
       }
@@ -2348,20 +2351,28 @@
         "condition": {
           "type": "compound_and",
           "conditions": [
-            { "type": "is_your_turn" },
-            { "type": "no_other_character_quested_this_turn" }
+            {
+              "type": "is_your_turn"
+            },
+            {
+              "type": "no_other_character_quested_this_turn"
+            }
           ]
         },
         "effect": {
           "type": "modify_stat",
           "stat": "lore",
           "modifier": 3,
-          "target": { "type": "this" }
+          "target": {
+            "type": "this"
+          }
         }
       },
       {
         "type": "triggered",
-        "trigger": { "on": "quests" },
+        "trigger": {
+          "on": "quests"
+        },
         "storyName": "LEAVE IT TO ME",
         "rulesText": "Whenever this character quests, your other characters can't quest for the rest of this turn.",
         "effects": [
@@ -2371,7 +2382,16 @@
             "duration": "this_turn",
             "target": {
               "type": "all",
-              "filter": { "owner": { "type": "self" }, "zone": "play", "cardType": ["character"], "excludeSelf": true }
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true
+              }
             }
           }
         ]
@@ -3843,9 +3863,11 @@
       {
         "type": "activated",
         "storyName": "HERE'S THE TRADE-OFF",
-        "rulesText": "{E}, Banish one of your other characters \u2014 Play a character with the same name as the banished character for free.",
+        "rulesText": "{E}, Banish one of your other characters — Play a character with the same name as the banished character for free.",
         "costs": [
-          { "type": "exert" }
+          {
+            "type": "exert"
+          }
         ],
         "effects": [
           {
@@ -3856,9 +3878,13 @@
                 "target": {
                   "type": "chosen",
                   "filter": {
-                    "owner": { "type": "self" },
+                    "owner": {
+                      "type": "self"
+                    },
                     "zone": "play",
-                    "cardType": ["character"],
+                    "cardType": [
+                      "character"
+                    ],
                     "excludeSelf": true
                   }
                 }
@@ -3869,7 +3895,9 @@
                 "type": "play_for_free",
                 "sourceZone": "hand",
                 "filter": {
-                  "cardType": ["character"],
+                  "cardType": [
+                    "character"
+                  ],
                   "nameFromLastResolvedSource": true
                 }
               }
@@ -5068,7 +5096,9 @@
         "rewardEffect": {
           "type": "draw",
           "amount": 1,
-          "target": { "type": "self" }
+          "target": {
+            "type": "self"
+          }
         }
       }
     ],
@@ -6671,7 +6701,12 @@
       {
         "type": "triggered",
         "name": "ON A ROLL",
-        "trigger": { "event": "enters_play", "filter": { "type": "this" } },
+        "trigger": {
+          "event": "enters_play",
+          "filter": {
+            "type": "this"
+          }
+        },
         "isMay": true,
         "effects": [
           {
@@ -6681,29 +6716,43 @@
             "target": {
               "type": "chosen",
               "filter": {
-                "owner": { "type": "self" },
+                "owner": {
+                  "type": "self"
+                },
                 "zone": "play",
-                "cardType": ["character"],
+                "cardType": [
+                  "character"
+                ],
                 "notId": "self"
               }
             }
           },
           {
             "type": "move_character",
-            "character": { "type": "last_resolved_target" },
+            "character": {
+              "type": "last_resolved_target"
+            },
             "location": {
               "type": "chosen",
               "filter": {
-                "owner": { "type": "self" },
+                "owner": {
+                  "type": "self"
+                },
                 "zone": "play",
-                "cardType": ["location"]
+                "cardType": [
+                  "location"
+                ]
               }
             }
           },
           {
             "type": "move_character",
-            "character": { "type": "this" },
-            "location": { "type": "last_resolved_target" }
+            "character": {
+              "type": "this"
+            },
+            "location": {
+              "type": "last_resolved_target"
+            }
           }
         ]
       }
@@ -8022,7 +8071,14 @@
         "type": "triggered",
         "trigger": {
           "on": "chosen_for_support",
-          "filter": { "owner": { "type": "self" }, "cardType": ["character"] }
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ]
+          }
         },
         "storyName": "BEST DEFENSE",
         "rulesText": "Whenever one of your characters is chosen for Support, they gain Resist +1 this turn.",
@@ -8032,7 +8088,9 @@
             "keyword": "resist",
             "value": 1,
             "duration": "this_turn",
-            "target": { "type": "triggering_card" }
+            "target": {
+              "type": "triggering_card"
+            }
           }
         ]
       }
@@ -9466,15 +9524,23 @@
         "type": "static",
         "storyName": "I LEARNED FROM THE BEST",
         "rulesText": "During your turn, you may play this character for free if an opposing character was banished in a challenge this turn.",
-        "activeZones": ["hand"],
+        "activeZones": [
+          "hand"
+        ],
         "condition": {
           "type": "compound_and",
           "conditions": [
-            { "type": "is_your_turn" },
-            { "type": "opponent_character_was_banished_in_challenge_this_turn" }
+            {
+              "type": "is_your_turn"
+            },
+            {
+              "type": "opponent_character_was_banished_in_challenge_this_turn"
+            }
           ]
         },
-        "effect": { "type": "grant_play_for_free_self" }
+        "effect": {
+          "type": "grant_play_for_free_self"
+        }
       }
     ],
     "setId": "4",
