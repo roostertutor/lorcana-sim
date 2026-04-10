@@ -2764,7 +2764,7 @@
       {
         "type": "triggered",
         "storyName": "HIDDEN DEPTHS",
-        "rulesText": "When you play this character, if you have a character named Anna in play, you may put a card from chosen player's discard on the bottom of their deck. (approximation: targets opponent in 2P)",
+        "rulesText": "When you play this character, if you have a character named Anna in play, you may put a card from chosen player's discard on the bottom of their deck.",
         "trigger": {
           "on": "enters_play"
         },
@@ -2776,7 +2776,7 @@
           {
             "type": "put_on_bottom_of_deck",
             "from": "discard",
-            "ownerScope": "opponent",
+            "ownerScope": "target_player",
             "isMay": true
           }
         ]
@@ -2818,7 +2818,7 @@
       {
         "type": "triggered",
         "storyName": "UNEXPECTED DISCOVERY",
-        "rulesText": "When you play this character, you may put a card from chosen player's discard on the bottom of their deck. (approximation: targets opponent in 2P)",
+        "rulesText": "When you play this character, you may put a card from chosen player's discard on the bottom of their deck.",
         "trigger": {
           "on": "enters_play"
         },
@@ -2826,7 +2826,7 @@
           {
             "type": "put_on_bottom_of_deck",
             "from": "discard",
-            "ownerScope": "opponent",
+            "ownerScope": "target_player",
             "isMay": true
           }
         ]
@@ -11135,7 +11135,7 @@
       {
         "type": "triggered",
         "storyName": "UNEXPECTED DISCOVERY",
-        "rulesText": "When you play this character, you may put a card from chosen player's discard on the bottom of their deck. (approximation: targets opponent in 2P)",
+        "rulesText": "When you play this character, you may put a card from chosen player's discard on the bottom of their deck.",
         "trigger": {
           "on": "enters_play"
         },
@@ -11143,7 +11143,7 @@
           {
             "type": "put_on_bottom_of_deck",
             "from": "discard",
-            "ownerScope": "opponent",
+            "ownerScope": "target_player",
             "isMay": true
           }
         ]
