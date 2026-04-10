@@ -8,6 +8,69 @@ Append to the top as new mechanics land.
 
 ---
 
+## Cross-player chooser (opponent_may_pay_to_avoid)
+
+**Engine**: New `OpponentMayPayToAvoidEffect` surfaces a `choose_may` to the OPPOSING player (not the controller). Accept = opponent pays a cost; reject = controller's effect fires. Pre-checks affordability — if opponent can't pay, the reject fires automatically.
+
+**UI needs**:
+- When this fires, the prompt must switch to the OPPOSING player's perspective
+- Show "Pay 3 ink to avoid -3 strength?" clearly attributed to the right player
+- In solo testbench, swap the decision prompt to the opponent side
+
+**Cards**: Tiana - Restaurant Owner.
+
+---
+
+## Remembered targets (Elsa's Ice Palace pattern)
+
+**Engine**: `CardInstance.rememberedTargetIds: string[]` persists a chosen target from an enters_play trigger. `RestrictRememberedTargetActionStatic` reads it each gameModifiers call to apply a permanent restriction while the source is in play.
+
+**UI needs**:
+- Show a visual link between the source (location) and the locked target (character)
+- Lock icon on the remembered character showing "can't ready (Elsa's Ice Palace)"
+- Clear the visual when the source leaves play
+
+**Cards**: Elsa's Ice Palace - Place of Solitude.
+
+---
+
+## Grant trait (grant_trait_static)
+
+**Engine**: Static that grants a trait classification to other characters at runtime. Populated in a PRE-PASS during gameModifiers so downstream statics see the granted traits.
+
+**UI needs**:
+- Show a trait badge on characters that have a granted (non-printed) trait
+- Distinguish from printed traits (different color or "granted by X" tooltip)
+
+**Cards**: Chief Bogo - Calling the Shots (grants Detective to all other own characters).
+
+---
+
+## Play-for-free with costs (playCosts)
+
+**Engine**: `grant_play_for_free_self` extended with optional `playCosts` — costs that must be paid as part of the free-play mode. The legal-action enumerator surfaces one action per valid cost target.
+
+**UI needs**:
+- Show the cost in the play affordance ("Play Belle for free — banish an item")
+- Enumerate valid cost targets in a chooser before the play resolves
+- For Scrooge (exert 4 items): show which items will be exerted
+
+**Cards**: Belle - Apprentice Inventor (banish item), Scrooge McDuck - Resourceful Miser (exert 4 items).
+
+---
+
+## Universal Shift
+
+**Engine**: `universal_shift_self` static — the card can shift onto ANY own character, not just name-matched ones. `gameModifiers.universalShifters` Set tracks these.
+
+**UI needs**:
+- When presenting shift targets, don't filter by name for universal shifters
+- Show "Universal Shift" badge on the card in hand
+
+**Cards**: Baymax - Giant Robot.
+
+---
+
 ## ResolvedRef carriers (engine refactor — UI implications)
 
 **Engine**: Unified `ResolvedRef` snapshot type replaces ad-hoc `_resolvedSourceInstanceId`/`_resolvedCharacterInstanceId`/`lastTargetOwnerId`/`lastTargetInstanceId` carriers. Holds `instanceId`, `name`, `cost`, `strength`, `willpower`, `lore`, `damage`, and an optional `delta` (how much was actually consumed by an `isUpTo` step). `state.lastResolvedSource` carries the cost-side resolved card; `state.lastResolvedTarget` carries the most recent resolved target.
