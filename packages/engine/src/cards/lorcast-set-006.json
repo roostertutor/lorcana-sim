@@ -8574,7 +8574,7 @@
       {
         "type": "triggered",
         "storyName": "SOMEONE HAS TO HELP",
-        "rulesText": "During an opponent's turn, when this character is banished, you may put the top card of your deck into your inkwell facedown. Then, put this card into your inkwell facedown. (approximation: ink top card only)",
+        "rulesText": "During an opponent's turn, when this character is banished, you may put the top card of your deck into your inkwell facedown. Then, put this card into your inkwell facedown.",
         "trigger": {
           "on": "is_banished"
         },
@@ -8593,6 +8593,12 @@
               "type": "self"
             },
             "isMay": true
+          },
+          {
+            "type": "move_to_inkwell",
+            "target": {
+              "type": "this"
+            }
           }
         ]
       }

@@ -2762,7 +2762,7 @@
       {
         "type": "triggered",
         "storyName": "IT LOOKS LIKE RAIN",
-        "rulesText": "When you play this character, you may exert chosen opposing character. That character can't ready at the start of their next turn unless they're at a location. (approximation: unconditional can't-ready)",
+        "rulesText": "When you play this character, you may exert chosen opposing character. That character can't ready at the start of their next turn unless they're at a location.",
         "trigger": {
           "on": "enters_play"
         },
@@ -2784,21 +2784,24 @@
             "isMay": true,
             "followUpEffects": [
               {
-                "type": "cant_action",
-                "action": "ready",
+                "type": "conditional_on_target",
                 "target": {
-                  "type": "chosen",
-                  "filter": {
-                    "owner": {
-                      "type": "opponent"
-                    },
-                    "zone": "play",
-                    "cardType": [
-                      "character"
-                    ]
-                  }
+                  "type": "last_resolved_target"
                 },
-                "duration": "end_of_owner_next_turn"
+                "conditionFilter": {
+                  "atLocation": "any"
+                },
+                "ifMatchEffects": [],
+                "defaultEffects": [
+                  {
+                    "type": "cant_action",
+                    "action": "ready",
+                    "target": {
+                      "type": "last_resolved_target"
+                    },
+                    "duration": "end_of_owner_next_turn"
+                  }
+                ]
               }
             ]
           }
@@ -3941,16 +3944,13 @@
       {
         "type": "triggered",
         "storyName": "FATTEN YOU UP",
-        "rulesText": "When you play this character, if an opponent has more cards in their inkwell than you, you may put the top card of your deck into your inkwell facedown and exerted. (approximation: triggers when not strictly ahead in inkwell)",
+        "rulesText": "When you play this character, if an opponent has more cards in their inkwell than you, you may put the top card of your deck into your inkwell facedown and exerted.",
         "trigger": {
           "on": "enters_play"
         },
         "condition": {
-          "type": "not",
-          "condition": {
-            "type": "self_has_more_than_each_opponent",
-            "metric": "cards_in_inkwell"
-          }
+          "type": "opponent_has_more_than_self",
+          "metric": "cards_in_inkwell"
         },
         "effects": [
           {

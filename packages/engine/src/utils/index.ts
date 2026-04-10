@@ -940,6 +940,47 @@ export function evaluateCondition(
       }
       return false;
     }
+    case "opponent_has_more_than_self": {
+      // Mirror of self_has_more_than_each_opponent — fires if any opponent
+      // STRICTLY exceeds the controller on the metric. Distinct from
+      // not(self_has_more_than_each_opponent) because the negation also
+      // fires on equal counts.
+      if (condition.metric === "strength_in_play") {
+        const myChars = getZone(state, controllingPlayerId, "play")
+          .map((id) => {
+            const inst = state.cards[id];
+            if (!inst) return -1;
+            const def = definitions[inst.definitionId];
+            if (!def || def.cardType !== "character") return -1;
+            return getEffectiveStrength(inst, def);
+          })
+          .filter((s) => s >= 0);
+        const maxMine = myChars.length === 0 ? -1 : Math.max(...myChars);
+        const oppChars = getZone(state, opponent, "play");
+        for (const id of oppChars) {
+          const inst = state.cards[id];
+          if (!inst) continue;
+          const def = definitions[inst.definitionId];
+          if (!def || def.cardType !== "character") continue;
+          if (getEffectiveStrength(inst, def) > maxMine) return true;
+        }
+        return false;
+      }
+      if (condition.metric === "items_in_play") {
+        const count = (pid: PlayerID) =>
+          getZone(state, pid, "play").filter((id) => {
+            const inst = state.cards[id];
+            if (!inst) return false;
+            const def = definitions[inst.definitionId];
+            return def?.cardType === "item";
+          }).length;
+        return count(opponent) > count(controllingPlayerId);
+      }
+      if (condition.metric === "cards_in_inkwell") {
+        return getZone(state, opponent, "inkwell").length > getZone(state, controllingPlayerId, "inkwell").length;
+      }
+      return false;
+    }
     default:
       return true;
   }

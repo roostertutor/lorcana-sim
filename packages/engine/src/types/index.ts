@@ -1997,6 +1997,12 @@ export type Condition =
    *  ("more items than each opp" → metric="items_in_play"), HeiHei Bumbling Rooster
    *  (metric="cards_in_inkwell"; inverse — opponent has more → use `not`). */
   | { type: "self_has_more_than_each_opponent"; metric: "strength_in_play" | "items_in_play" | "cards_in_inkwell" }
+  /** Mirror of self_has_more_than_each_opponent — fires if AT LEAST ONE opponent
+   *  strictly exceeds the controller on the given metric. Used by HeiHei
+   *  Bumbling Rooster ("if an opponent has more cards in their inkwell than you").
+   *  Distinct from `not(self_has_more_than_each_opponent ...)` because the
+   *  negation also fires on equal counts, which is wrong for "more than" wording. */
+  | { type: "opponent_has_more_than_self"; metric: "strength_in_play" | "items_in_play" | "cards_in_inkwell" }
   /** UNDERDOG (Set 11): "If this is your first turn and you're not the first
    *  player, ...". True when the controlling player has not yet completed a
    *  turn AND they are NOT state.firstPlayerId. */
