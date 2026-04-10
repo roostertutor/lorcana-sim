@@ -1155,6 +1155,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           />
 
 
+          {/* Grant cost reduction banner */}
+          {gameState && (gameState.players[myId]?.costReductions ?? []).length > 0 && (
+            <div className="text-[10px] text-emerald-400 bg-emerald-900/30 border border-emerald-700/30 rounded px-2 py-0.5 text-center mx-1">
+              Next card costs {(gameState.players[myId]?.costReductions ?? [])[0]?.amount ?? "?"} {"{I}"} less
+            </div>
+          )}
+
           {/* Hand */}
           <div className="shrink-0 mt-1">
             <div className="h-20 overflow-hidden flex flex-nowrap items-start justify-center md:h-auto md:overflow-hidden md:flex-wrap md:max-h-[260px] lg:max-h-[355px] md:p-1 md:min-h-[80px]">
