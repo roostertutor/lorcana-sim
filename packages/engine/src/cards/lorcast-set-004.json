@@ -8271,7 +8271,7 @@
       {
         "type": "activated",
         "storyName": "CONSULT THE SPELLBOOK",
-        "rulesText": "{E} — Look at the top 4 cards of your deck. You may reveal an item card and put it into your hand. (approximation: free-play escalation for cost ≤3 items is skipped)",
+        "rulesText": "{E} — Look at the top 4 cards of your deck. You may reveal an item card and put it into your hand.",
         "costs": [
           {
             "type": "exert"
@@ -8291,6 +8291,27 @@
             "target": {
               "type": "self"
             }
+          },
+          {
+            "type": "conditional_on_target",
+            "target": {
+              "type": "last_resolved_target"
+            },
+            "conditionFilter": {
+              "costAtMost": 3
+            },
+            "defaultEffects": [],
+            "ifMatchEffects": [
+              {
+                "type": "play_for_free",
+                "isMay": true,
+                "sourceZone": "hand",
+                "target": {
+                  "type": "this"
+                },
+                "enterExerted": true
+              }
+            ]
           }
         ]
       }
@@ -11561,7 +11582,7 @@
       {
         "type": "activated",
         "storyName": "CONSULT THE SPELLBOOK",
-        "rulesText": "{E} — Look at the top 4 cards of your deck. You may reveal an item card and put it into your hand. (approximation: free-play escalation for cost ≤3 items is skipped)",
+        "rulesText": "{E} — Look at the top 4 cards of your deck. You may reveal an item card and put it into your hand.",
         "costs": [
           {
             "type": "exert"
@@ -11581,6 +11602,27 @@
             "target": {
               "type": "self"
             }
+          },
+          {
+            "type": "conditional_on_target",
+            "target": {
+              "type": "last_resolved_target"
+            },
+            "conditionFilter": {
+              "costAtMost": 3
+            },
+            "defaultEffects": [],
+            "ifMatchEffects": [
+              {
+                "type": "play_for_free",
+                "isMay": true,
+                "sourceZone": "hand",
+                "target": {
+                  "type": "this"
+                },
+                "enterExerted": true
+              }
+            ]
           }
         ]
       }

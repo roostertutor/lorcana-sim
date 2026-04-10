@@ -946,7 +946,7 @@
         },
         "effects": [
           {
-            "type": "conditional_on_target",
+            "type": "return_to_hand",
             "target": {
               "type": "chosen",
               "filter": {
@@ -958,19 +958,18 @@
                   "type": "self"
                 }
               }
+            }
+          },
+          {
+            "type": "conditional_on_target",
+            "target": {
+              "type": "last_resolved_target"
             },
             "conditionFilter": {
               "hasTrait": "Princess"
             },
-            "defaultEffects": [
-              {
-                "type": "return_to_hand"
-              }
-            ],
+            "defaultEffects": [],
             "ifMatchEffects": [
-              {
-                "type": "return_to_hand"
-              },
               {
                 "type": "gain_lore",
                 "amount": 2,

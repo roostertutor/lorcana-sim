@@ -3450,6 +3450,16 @@ export function applyEffect(
           if ((effect.restPlacement ?? "bottom") === "bottom") {
             state = reorderDeckTopToBottom(state, targetPlayer, rest, []);
           }
+          // Set lastResolvedTarget to the picked card so a follow-up
+          // conditional_on_target with target.type=last_resolved_target can
+          // dispatch escalation effects (Queen Diviner: "If that item costs 3
+          // or less, you may play it for free instead"). Only meaningful when
+          // exactly one card is picked (maxToHand=1) — for multi-pick the
+          // semantics get ambiguous and conditional_on_target shouldn't chain.
+          if (picked.length === 1) {
+            const ref = makeResolvedRef(state, definitions, picked[0]!);
+            if (ref) state = { ...state, lastResolvedTarget: ref };
+          }
           return state;
         }
         case "one_to_play_for_free_else_to_hand": {
@@ -4046,6 +4056,18 @@ export function applyEffect(
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           },
         };
+      }
+      // last_resolved_target: read state.lastResolvedTarget (set by a prior
+      // effect like look_at_top to_hand or return_to_hand) and dispatch the
+      // conditional branches directly without surfacing a chooser. Used by
+      // Queen Diviner ("if that item costs 3 or less, may play for free")
+      // and Wreck-It Ralph - Admiral Underpants ("if that card is a Princess,
+      // gain 2 lore"). Generalized escalation primitive — works for any
+      // "if the just-resolved card matches X, do Y" pattern.
+      if (effect.target.type === "last_resolved_target") {
+        const ref = state.lastResolvedTarget;
+        if (!ref) return state;
+        return applyEffectToTarget(state, effect, ref.instanceId, controllingPlayerId, definitions, events, sourceInstanceId, triggeringCardInstanceId);
       }
       return state;
     }
@@ -5558,6 +5580,11 @@ function applyEffectToTarget(
           isDrying: true,
           ...(effect.enterExerted ? { isExerted: true } : {}),
         });
+      }
+      // Items + locations support enterExerted too — Queen Diviner CONSULT
+      // THE SPELLBOOK plays a cost-≤3 item for free entering exerted.
+      else if (effect.enterExerted && (def.cardType === "item" || def.cardType === "location")) {
+        state = updateInstance(state, targetInstanceId, { isExerted: true });
       }
       // Actions: resolve their effects and then move to discard (CRD 5.4.3).
       if (def.cardType === "action" && def.actionEffects) {

@@ -762,6 +762,41 @@ describe("§4 Set 4 — Noi Acrobatic Baby (damage_immunity_timed)", () => {
     expect(state.players.player1.lore).toBe(loreBefore + 1);
   });
 
+  it("The Queen - Diviner: look_at_top → conditional_on_target last_resolved_target plays cost-≤3 item for free entering exerted", () => {
+    // Tier-1 fix: was wired with bare look_at_top + the cost-≤3 free-play
+    // escalation dropped. The fix uses a NEW generalized escalation primitive:
+    // look_at_top now sets state.lastResolvedTarget when maxToHand=1, and
+    // conditional_on_target accepts target.type=last_resolved_target to read
+    // it. The chain: look_at_top picks an item to hand → conditional_on_target
+    // checks the picked item's cost ≤ 3 → ifMatchEffects play_for_free with
+    // target=this and enterExerted. This pattern is reusable for any future
+    // "if the just-revealed card matches X, do Y" wording.
+    let state = startGame();
+    let queenId: string;
+    ({ state, instanceId: queenId } = injectCard(state, "player1", "the-queen-diviner", "play", { isDrying: false }));
+
+    // Seed the top of player1's deck with a cost-2 item so the bot's greedy
+    // look_at_top hand-pick lands on it, then the conditional escalation
+    // should fire and play it for free entering exerted.
+    let cheapItemId: string;
+    ({ state, instanceId: cheapItemId } = injectCard(state, "player1", "magic-mirror", "deck"));
+    // Move the cheap item to the top of the deck.
+    state = { ...state, zones: { ...state.zones, player1: { ...state.zones.player1,
+      deck: [cheapItemId, ...state.zones.player1.deck.filter(id => id !== cheapItemId)] } } };
+
+    // Apply the activated ability's effects directly (the {E} cost is
+    // orthogonal to the engine extension under test).
+    const def = LORCAST_CARD_DEFINITIONS["the-queen-diviner"];
+    for (const e of def.abilities[0]!.effects!) {
+      state = applyEffect(state, e as any, queenId, "player1", LORCAST_CARD_DEFINITIONS, []);
+    }
+
+    // The cheap item should now be in play AND exerted (not in hand).
+    const itemAfter = getInstance(state, cheapItemId);
+    expect(itemAfter.zone).toBe("play");
+    expect(itemAfter.isExerted).toBe(true);
+  });
+
   it("Bruno Madrigal Undetected Uncle: name_a_card_then_reveal grants 3 lore on hit (gainLoreOnHit)", () => {
     // Tier-1 fix: was wired with bare name_a_card_then_reveal and the lore
     // branch dropped. Engine now supports gainLoreOnHit on the effect type;
