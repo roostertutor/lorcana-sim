@@ -10463,7 +10463,7 @@
       {
         "type": "triggered",
         "storyName": "STUNNING TRANSFORMATION",
-        "rulesText": "Whenever you put a card under this character, you may banish chosen opposing character. If you do, their player may reveal the top card of their deck. If that card is a character or item card, they may play it for free. Otherwise, they put it on the bottom of their deck. (approximation: opponent reveal-top rider dropped)",
+        "rulesText": "Whenever you put a card under this character, you may banish chosen opposing character. If you do, their player may reveal the top card of their deck. If that card is a character or item card, they may play it for free. Otherwise, they put it on the bottom of their deck.",
         "trigger": {
           "on": "card_put_under",
           "filter": {
@@ -10474,19 +10474,42 @@
         },
         "effects": [
           {
-            "type": "banish",
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ],
-                "owner": {
-                  "type": "opponent"
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "banish",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "owner": {
+                      "type": "opponent"
+                    }
+                  }
                 }
               }
-            }
+            ],
+            "rewardEffects": [
+              {
+                "type": "reveal_top_conditional",
+                "target": {
+                  "type": "opponent"
+                },
+                "filter": {
+                  "cardType": [
+                    "character",
+                    "item"
+                  ]
+                },
+                "matchAction": "play_for_free",
+                "noMatchDestination": "bottom",
+                "isMay": true
+              }
+            ]
           }
         ]
       }

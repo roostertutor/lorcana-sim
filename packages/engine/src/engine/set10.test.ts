@@ -350,6 +350,45 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     expect(getZone(state, "player1", "hand").length).toBe(handBefore + 2);
   });
 
+  it("Fairy Godmother STUNNING TRANSFORMATION: banish + reveal-rider plays opponent's revealed character for free", () => {
+    // Tier-1 fix: was wired with bare banish, no reveal rider. Now wired
+    // with sequential cost+reward — banish in costEffects, reveal_top_conditional
+    // (target: opponent, matchAction: play_for_free, noMatchDestination: bottom)
+    // in rewardEffects. The whole unit is isMay so the player can decline.
+    //
+    // This test pins the cross-player flow: caster's banish → opponent's
+    // top-of-deck reveal → if character/item, opponent plays it for free.
+    let state = startGame();
+    let fgId: string, oppCharId: string, oppTopId: string;
+    ({ state, instanceId: fgId } = injectCard(state, "player1", "fairy-godmother-magical-benefactor", "play", { isDrying: false }));
+    ({ state, instanceId: oppCharId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    // Seed the top of player2's deck with a known character so the bot's
+    // reveal-and-play branch fires deterministically.
+    ({ state, instanceId: oppTopId } = injectCard(state, "player2", "mickey-mouse-true-friend", "deck"));
+    state = { ...state, zones: { ...state.zones, player2: { ...state.zones.player2,
+      deck: [oppTopId, ...state.zones.player2.deck.filter(id => id !== oppTopId)] } } };
+
+    // Apply FG's effect chain directly. The sequential surfaces a banish
+    // chooser; resolve it picking the opposing character.
+    const def = LORCAST_CARD_DEFINITIONS["fairy-godmother-magical-benefactor"]!;
+    const stunningTrans = def.abilities.find((a: any) => a.storyName === "STUNNING TRANSFORMATION") as any;
+    state = applyEffect(state, stunningTrans.effects[0], fgId, "player1", LORCAST_CARD_DEFINITIONS, []);
+
+    // Stage 1: banish chooser surfaces.
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    let r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [oppCharId] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Banish landed: opposing in-play Mickey is now in discard.
+    expect(getInstance(state, oppCharId).zone).toBe("discard");
+
+    // Reveal-rider fired: opponent's top-of-deck Mickey was revealed and
+    // (since it's a character) played for free into opponent's play zone.
+    expect(getInstance(state, oppTopId).zone).toBe("play");
+    expect(getInstance(state, oppTopId).ownerId).toBe("player2");
+  });
+
   it("Chief Bogo DEPUTIZE + Judy Hopps Lead Detective: deputized characters get Alert from Judy via grantedTraits pre-pass", () => {
     // Tier-1 fix: was wired with EVER VIGILANT (self-damage-immunity) only
     // and the DEPUTIZE rider dropped. Now uses a new grant_trait_static
