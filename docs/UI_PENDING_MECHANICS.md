@@ -8,7 +8,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Cross-player chooser (opponent_may_pay_to_avoid)
+~~## Cross-player chooser (opponent_may_pay_to_avoid)~~ **RESOLVED (commit 785021d) — opponent perspective label + controls**
 
 **Engine**: New `OpponentMayPayToAvoidEffect` surfaces a `choose_may` to the OPPOSING player (not the controller). Accept = opponent pays a cost; reject = controller's effect fires. Pre-checks affordability — if opponent can't pay, the reject fires automatically.
 
@@ -46,7 +46,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Play-for-free with costs (playCosts)
+~~## Play-for-free with costs (playCosts)~~ **RESOLVED (commit 785021d) — teal Play Free button in action popover**
 
 **Engine**: `grant_play_for_free_self` extended with optional `playCosts` — costs that must be paid as part of the free-play mode. The legal-action enumerator surfaces one action per valid cost target.
 
@@ -210,7 +210,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Per-count self cost reduction
+~~## Per-count self cost reduction~~ **RESOLVED (commit 785021d) — emerald ring glow on hand cards**
 
 **Engine**: `SelfCostReductionStatic.amount` accepts `DynamicAmount` with optional `perMatch` multiplier. Resolves at play-time validation.
 
@@ -339,7 +339,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Opponent-chosen targets (chooser: "target_player")
+~~## Opponent-chosen targets (chooser: "target_player")~~ **RESOLVED (commit 785021d) — same cross-player perspective switch**
 
 **Engine**: `CardTarget.chosen.chooser = "target_player"` — pendingChoice surfaces with the OPPONENT as the choosing player.
 
