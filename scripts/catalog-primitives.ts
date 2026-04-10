@@ -37,29 +37,71 @@ const reducerLines = reducer.split("\n");
 // Helpers
 // ---------------------------------------------------------------------------
 
-/** Find all string literals in a union that look like discriminators */
-function extractUnionLiterals(source: string, unionName: string): string[] {
-  // Match: export type UnionName =\n  | "literal"\n  | "literal"\n...
-  const re = new RegExp(`(?:export )?type ${unionName}[\\s\\S]*?;`, "m");
-  const match = source.match(re);
-  if (!match) return [];
+/** Extract the full text of a `type X = ...;` union declaration, handling
+ *  multi-line unions with semicolons inside object variants. Reads from the
+ *  declaration start until the next `export` keyword or end of file. */
+function extractUnionBlock(source: string, unionName: string): string {
+  const lines = source.split("\n");
+  const startIdx = lines.findIndex(l => l.match(new RegExp(`(?:export )?type ${unionName}\\s*=`)));
+  if (startIdx === -1) return "";
+  const parts: string[] = [lines[startIdx]!];
+  for (let i = startIdx + 1; i < lines.length; i++) {
+    const l = lines[i]!;
+    // Stop at the next export/interface declaration (end of this union)
+    if (/^export\s|^\/\/\s*={5,}/.test(l)) break;
+    parts.push(l);
+  }
+  return parts.join("\n");
+}
+
+/** Find all string literals in a union that look like discriminators.
+ *  Handles both bare `| "literal"` and object `| { type: "literal" }` /
+ *  `| { on: "literal" }` shapes. */
+function extractUnionLiterals(source: string, unionName: string, field = "type"): string[] {
+  const block = extractUnionBlock(source, unionName);
+  if (!block) return [];
   const literals: string[] = [];
-  for (const m of match[0].matchAll(/"([a-z_]+)"/g)) {
+  // Object discriminators: { type: "X" } or { on: "X" }
+  for (const m of block.matchAll(new RegExp(`${field}:\\s*"([a-z_]+)"`, "g"))) {
+    literals.push(m[1]!);
+  }
+  // Bare string literals: | "X"
+  for (const m of block.matchAll(/\|\s*"([a-z_]+)"/g)) {
     literals.push(m[1]!);
   }
   return [...new Set(literals)];
 }
 
-/** Find case "X": lines in a file and return line numbers */
+/** Find case "X": or if (amount === "X") lines in a file */
 function findCaseLines(source: string, discriminator: string): number[] {
   const lines = source.split("\n");
   const results: number[] = [];
   for (let i = 0; i < lines.length; i++) {
-    if (lines[i]!.includes(`case "${discriminator}"`)) {
+    const line = lines[i]!;
+    if (line.includes(`case "${discriminator}"`) ||
+        line.includes(`=== "${discriminator}"`) ||
+        line.includes(`on: "${discriminator}"`) ||
+        line.includes(`on === "${discriminator}"`)) {
       results.push(i + 1);
     }
   }
   return results;
+}
+
+/** Extract extra fields from a union variant line like `{ on: "X"; filter?; defenderFilter? }` */
+function extractVariantFields(source: string, unionName: string, discriminator: string, field = "type"): string[] {
+  const block = extractUnionBlock(source, unionName);
+  if (!block) return [];
+  for (const line of block.split("\n")) {
+    if (line.includes(`${field}: "${discriminator}"`)) {
+      const fields: string[] = [];
+      for (const fm of line.matchAll(/(\w+)\??:/g)) {
+        if (fm[1] !== field) fields.push(fm[1]!);
+      }
+      return fields;
+    }
+  }
+  return [];
 }
 
 /** Find the interface that declares type: "X" and extract its field names */
@@ -177,33 +219,35 @@ section("Static Effect Types");
 // 3. Trigger events
 section("Trigger Events");
 {
-  const triggers = types.match(/export type TriggerEvent\s*=[\s\S]*?;/);
-  if (triggers) {
-    const rows: string[][] = [];
-    for (const m of triggers[0].matchAll(/on:\s*"([^"]+)"(?:;?\s*filter\?)?(?:.*?defenderFilter)?/g)) {
-      const ev = m[1]!;
-      const hasFilter = m[0].includes("filter");
-      const hasDefFilter = m[0].includes("defenderFilter");
-      const extras = [hasFilter ? "filter" : "", hasDefFilter ? "defenderFilter" : ""].filter(Boolean);
-      rows.push([`\`${ev}\``, extras.join(", ") || "—"]);
-    }
-    table(["Event", "Optional fields"], rows);
+  const events = extractUnionLiterals(types, "TriggerEvent", "on");
+  const rows: string[][] = [];
+  for (const ev of events) {
+    const fields = extractVariantFields(types, "TriggerEvent", ev, "on");
+    const queueLines = findCaseLines(reducer, ev);
+    rows.push([
+      `\`${ev}\``,
+      fields.length > 0 ? fields.join(", ") : "—",
+      queueLines.length > 0 ? queueLines.slice(0, 2).map(l => `reducer:${l}`).join(", ") : "—",
+    ]);
   }
+  table(["Event", "Extra fields", "queueTrigger site(s)"], rows);
 }
 
 // 4. Conditions
 section("Conditions");
 {
-  const condMatch = types.match(/export type Condition\s*=[\s\S]*?;/);
-  if (condMatch) {
-    const rows: string[][] = [];
-    for (const m of condMatch[0].matchAll(/type:\s*"([^"]+)"/g)) {
-      const t = m[1]!;
-      const evalLine = findCaseLines(utils, t);
-      rows.push([`\`${t}\``, evalLine.length > 0 ? `utils:${evalLine[0]}` : "—"]);
-    }
-    table(["Condition", "evaluateCondition line"], rows);
+  const conditions = extractUnionLiterals(types, "Condition");
+  const rows: string[][] = [];
+  for (const t of conditions) {
+    const fields = extractVariantFields(types, "Condition", t);
+    const evalLine = findCaseLines(utils, t);
+    rows.push([
+      `\`${t}\``,
+      fields.length > 0 ? fields.join(", ") : "—",
+      evalLine.length > 0 ? `utils:${evalLine[0]}` : "—",
+    ]);
   }
+  table(["Condition", "Fields", "evaluateCondition line"], rows);
 }
 
 // 5. DynamicAmount
@@ -214,54 +258,66 @@ section("DynamicAmount Variants");
     const rows: string[][] = [];
     // String literals
     for (const m of daMatch[0].matchAll(/\|\s*"([^"]+)"/g)) {
+      // findCaseLines now also matches `=== "X"` which is how resolveDynamicAmount reads these
       const resolverLine = findCaseLines(reducer, m[1]!);
-      rows.push([`\`"${m[1]}"\``, "string literal", resolverLine.length > 0 ? `reducer:${resolverLine[0]}` : "—"]);
+      rows.push([`\`"${m[1]}"\``, "string", resolverLine.length > 0 ? `reducer:${resolverLine[0]}` : "—"]);
     }
     // Object types
     for (const m of daMatch[0].matchAll(/\|\s*\{\s*type:\s*"([^"]+)"/g)) {
-      rows.push([`\`{ type: "${m[1]}" }\``, "object", "—"]);
+      const resolverLine = findCaseLines(reducer, m[1]!);
+      rows.push([`\`{ type: "${m[1]}" }\``, "object", resolverLine.length > 0 ? `reducer:${resolverLine[0]}` : "—"]);
     }
     table(["Variant", "Shape", "Resolver line"], rows);
   }
 }
 
+// 5b. EffectDuration
+section("EffectDuration Variants");
+{
+  const durations = extractUnionLiterals(types, "EffectDuration");
+  console.log("Values: " + durations.map(d => `\`${d}\``).join(" | "));
+}
+
 // 6. TimedEffect types
 section("TimedEffect Type Variants");
 {
+  // The TimedEffect.type field is a string union inline on the interface
   const teMatch = types.match(/export interface TimedEffect[\s\S]*?^\}/m);
   if (teMatch) {
-    const variants: string[] = [];
-    for (const m of teMatch[0].matchAll(/"([a-z_]+)"/g)) {
-      variants.push(m[1]!);
+    // Find the type: "X" | "Y" | ... line(s)
+    const typeLineMatch = teMatch[0].match(/type:\s*([\s\S]*?);/);
+    if (typeLineMatch) {
+      const variants: string[] = [];
+      for (const m of typeLineMatch[1]!.matchAll(/"([a-z_]+)"/g)) {
+        variants.push(m[1]!);
+      }
+      console.log("Union: " + [...new Set(variants)].map(v => `\`${v}\``).join(" | "));
     }
-    console.log("Union: " + [...new Set(variants)].map(v => `\`${v}\``).join(" | "));
   }
 }
 
 // 7. Costs
 section("Cost Types");
 {
-  const costMatch = types.match(/export type Cost\s*=[\s\S]*?;/);
-  if (costMatch) {
-    const rows: string[][] = [];
-    for (const m of costMatch[0].matchAll(/type:\s*"([^"]+)"/g)) {
-      rows.push([`\`${m[1]}\``]);
-    }
-    table(["Cost type"], rows);
+  const costs = extractUnionLiterals(types, "Cost");
+  const rows: string[][] = [];
+  for (const c of costs) {
+    const fields = extractVariantFields(types, "Cost", c);
+    rows.push([`\`${c}\``, fields.length > 0 ? fields.join(", ") : "—"]);
   }
+  table(["Cost type", "Fields"], rows);
 }
 
 // 8. CardTarget
 section("CardTarget Variants");
 {
-  const ctMatch = types.match(/export type CardTarget\s*=[\s\S]*?;/);
-  if (ctMatch) {
-    const rows: string[][] = [];
-    for (const m of ctMatch[0].matchAll(/type:\s*"([^"]+)"/g)) {
-      rows.push([`\`${m[1]}\``]);
-    }
-    table(["Target type"], rows);
+  const targets = extractUnionLiterals(types, "CardTarget");
+  const rows: string[][] = [];
+  for (const t of targets) {
+    const fields = extractVariantFields(types, "CardTarget", t);
+    rows.push([`\`${t}\``, fields.length > 0 ? fields.join(", ") : "—"]);
   }
+  table(["Target type", "Fields"], rows);
 }
 
 // 9. GameModifiers fields
