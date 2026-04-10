@@ -2380,6 +2380,15 @@ export function applyEffect(
       if (effect.target.type === "triggering_card" && triggeringCardInstanceId) {
         return addTimedEffect(state, triggeringCardInstanceId, timed);
       }
+      // Read state.lastResolvedTarget — used by chained effects where a prior
+      // step picked the target (Mickey Mouse Pirate Captain: gain_stats picks
+      // a Pirate, damage_immunity_timed applies to the same Pirate without
+      // re-prompting). Generic primitive — any chained effect can reuse.
+      if (effect.target.type === "last_resolved_target") {
+        const ref = state.lastResolvedTarget;
+        if (!ref) return state;
+        return addTimedEffect(state, ref.instanceId, timed);
+      }
       if (effect.target.type === "chosen") {
         const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state;
