@@ -1504,10 +1504,9 @@ function applyPassTurn(
     const instance = getInstance(state, id);
     if (instance.timedEffects.length === 0) continue;
     const remaining = instance.timedEffects.filter((te) => {
-      // "end_of_turn" expires at end of the turn it was applied
+      // "end_of_turn" expires at end of the turn it was applied.
+      // ("rest_of_turn" was a synonym — migrated to end_of_turn.)
       if (te.expiresAt === "end_of_turn") return false;
-      // "rest_of_turn" expires at end of the turn it was applied
-      if (te.expiresAt === "rest_of_turn") return false;
       // "end_of_owner_next_turn" — expires at end of the AFFECTED CARD'S OWNER's next turn.
       // (Elsa Spirit of Winter, Iago, etc — "during their next turn".)
       if (te.expiresAt === "end_of_owner_next_turn") {
@@ -1985,7 +1984,7 @@ function resolveDynamicAmount(
   if (typeof amount === "number") return amount;
   if (amount === "X") return 1;
   if (amount === "cost_result") return state.lastEffectResult ?? 0;
-  if (amount === "damage_on_target") return state.lastEffectResult ?? 0;
+  // "damage_on_target" was declared but never used by any card JSON. Deleted.
   if (amount === "triggering_card_lore") {
     const inst = triggeringCardInstanceId ? state.cards[triggeringCardInstanceId] : undefined;
     const def = inst ? definitions[inst.definitionId] : undefined;
@@ -6054,7 +6053,7 @@ function addTimedEffect(state: GameState, instanceId: string, effect: TimedEffec
 }
 
 /** Apply a gain_stats effect to a single instance. Routes to tempStatModifier
- *  (for "this_turn") or addTimedEffect (for end_of_turn / rest_of_turn /
+ *  (for "this_turn") or addTimedEffect (for end_of_turn /
  *  end_of_owner_next_turn / until_caster_next_turn — which need to survive
  *  across turn boundaries). For until_caster_next_turn, the casterPlayerId is
  *  recorded so cleanup can compare against the right player (CRD "your next turn"). */

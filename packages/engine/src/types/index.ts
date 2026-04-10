@@ -421,7 +421,6 @@ export type DynamicAmount =
   | number
   | "X"
   | "cost_result"
-  | "damage_on_target"
   | "triggering_card_lore"
   | "triggering_card_damage"
   | "last_target_location_lore"
@@ -550,7 +549,7 @@ export interface GainStatsEffect {
   /**
    * "this_turn" = wears off at end of current turn (writes to tempStrengthModifier directly).
    * "permanent" = stays for the rest of the game.
-   * EffectDuration values ("end_of_turn", "rest_of_turn", "end_of_owner_next_turn") use the
+   * EffectDuration values ("end_of_turn", "end_of_owner_next_turn") use the
    * timedEffects mechanism so the bonus expires correctly across turn boundaries
    * (Cogsworth Majordomo, Lost in the Woods).
    */
@@ -2123,7 +2122,6 @@ export type AbilityTiming = "your_turn_main" | "any_time" | "opponent_turn";
 
 export type EffectDuration =
   | "end_of_turn"
-  | "rest_of_turn"
   /**
    * Expires at the end of the AFFECTED CARD'S OWNER'S next turn (CRD wording
    * "during their next turn" / "at the start of their next turn").

@@ -1114,7 +1114,7 @@
                     ]
                   }
                 },
-                "duration": "rest_of_turn"
+                "duration": "end_of_turn"
               },
               {
                 "type": "cant_action",
@@ -1128,7 +1128,7 @@
                     ]
                   }
                 },
-                "duration": "rest_of_turn"
+                "duration": "end_of_turn"
               }
             ]
           }
@@ -1281,7 +1281,7 @@
                 ]
               }
             },
-            "duration": "rest_of_turn"
+            "duration": "end_of_turn"
           },
           {
             "type": "cant_action",
@@ -1295,7 +1295,7 @@
                 ]
               }
             },
-            "duration": "rest_of_turn"
+            "duration": "end_of_turn"
           }
         ]
       }
@@ -7052,7 +7052,7 @@
                 ]
               }
             },
-            "duration": "rest_of_turn"
+            "duration": "end_of_turn"
           }
         ]
       }
@@ -7121,7 +7121,7 @@
                 ]
               }
             },
-            "duration": "rest_of_turn"
+            "duration": "end_of_turn"
           }
         ]
       }

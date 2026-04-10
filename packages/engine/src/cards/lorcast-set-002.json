@@ -6033,7 +6033,7 @@
                 "target": {
                   "type": "this"
                 },
-                "duration": "rest_of_turn"
+                "duration": "end_of_turn"
               }
             ]
           }
@@ -6098,7 +6098,7 @@
                 "target": {
                   "type": "this"
                 },
-                "duration": "rest_of_turn"
+                "duration": "end_of_turn"
               }
             ]
           }
@@ -6239,7 +6239,7 @@
                 "target": {
                   "type": "this"
                 },
-                "duration": "rest_of_turn"
+                "duration": "end_of_turn"
               }
             ]
           }
@@ -6460,7 +6460,7 @@
             "target": {
               "type": "this"
             },
-            "duration": "rest_of_turn"
+            "duration": "end_of_turn"
           }
         ]
       },
