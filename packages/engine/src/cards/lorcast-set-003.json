@@ -10646,6 +10646,15 @@
             }
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "SHOW THE WAY",
+        "rulesText": "You pay 1 {I} less to move your characters to a location.",
+        "effect": {
+          "type": "global_move_cost_reduction",
+          "amount": 1
+        }
       }
     ],
     "setId": "3",

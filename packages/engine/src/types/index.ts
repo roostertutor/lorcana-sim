@@ -1384,7 +1384,11 @@ export type StaticEffect =
   | InkFromDiscardStatic
   | RemoveKeywordStatic
   | GrantTriggeredAbilityStatic
-  | SingCostBonusCharactersStatic;
+  | SingCostBonusCharactersStatic
+  | AllHandInkableStatic
+  | PreventDamageRemovalStatic
+  | GlobalMoveCostReductionStatic
+  | GrantKeywordWhileBeingChallengedStatic;
 
 /**
  * Moana - Curious Explorer (Set 11): "ANCESTRAL LEGACY You can ink cards from
@@ -1431,7 +1435,40 @@ export interface GrantTriggeredAbilityStatic {
 export interface SingCostBonusCharactersStatic {
   type: "sing_cost_bonus_characters";
   amount: number;
-  filter: CardFilter;
+  target: CardTarget;
+}
+
+/** Hidden Inkcaster (Set 4): "All cards in your hand count as having {IW}."
+ *  Makes all cards in the controller's hand inkable regardless of the card's
+ *  printed inkable flag. Validator consults allHandInkable Set<PlayerID>. */
+export interface AllHandInkableStatic {
+  type: "all_hand_inkable";
+}
+
+/** Vision Slab (Set 4): "Damage counters can't be removed." Global effect
+ *  that prevents all damage removal (remove_damage effects fizzle). */
+export interface PreventDamageRemovalStatic {
+  type: "prevent_damage_removal";
+}
+
+/** Map of Treasure Planet (Set 3): "You pay 1 {I} less to move your characters
+ *  to a location." Global move cost reduction from an item (not a location).
+ *  Unlike move_to_self_cost_reduction (location-keyed), this applies to ALL
+ *  move destinations. Reducer subtracts from move cost before deducting ink. */
+export interface GlobalMoveCostReductionStatic {
+  type: "global_move_cost_reduction";
+  amount: number;
+  filter?: CardFilter;
+}
+
+/** Captain Amelia (Set 6): "While being challenged, your other characters gain
+ *  Resist +1." Grants a keyword that only activates during challenge resolution
+ *  (defender taking damage). The challenge resolver checks this modifier. */
+export interface GrantKeywordWhileBeingChallengedStatic {
+  type: "grant_keyword_while_being_challenged";
+  keyword: Keyword;
+  value?: number;
+  target: CardTarget;
 }
 
 /**

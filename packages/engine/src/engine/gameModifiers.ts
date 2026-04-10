@@ -291,6 +291,15 @@ export interface GameModifiers {
    */
   grantedTriggeredAbilities: Map<string, import("../types/index.js").TriggeredAbility[]>;
 
+  /** Hidden Inkcaster: "All cards in your hand count as having {IW}." */
+  allHandInkable: Set<import("../types/index.js").PlayerID>;
+  /** Vision Slab: "Damage counters can't be removed." */
+  preventDamageRemoval: boolean;
+  /** Map of Treasure Planet: global move cost reduction from non-locations. */
+  globalMoveCostReduction: { amount: number; playerId: import("../types/index.js").PlayerID; filter?: import("../types/index.js").CardFilter }[];
+  /** Captain Amelia: keyword granted to other chars only while being challenged. */
+  grantKeywordWhileBeingChallenged: Map<string, { keyword: import("../types/index.js").Keyword; value?: number }[]>;
+
   /**
    * Per-character sing-cost bonus from static effects (Record Player:
    * "Your Stitch characters count as having +1 cost to sing songs").
@@ -349,6 +358,10 @@ export function getGameModifiers(
     suppressedKeywords: new Map(),
     grantedTriggeredAbilities: new Map(),
     singCostBonusCharacters: new Map(),
+    allHandInkable: new Set(),
+    preventDamageRemoval: false,
+    globalMoveCostReduction: [],
+    grantKeywordWhileBeingChallenged: new Map(),
   };
 
   // Pre-pass A: collect grant_trait_static so downstream filters in the main
@@ -989,6 +1002,63 @@ export function getGameModifiers(
               if (matchesFilter(candidate, cDef, effect.target.filter, state, instance.ownerId, instance.instanceId)) {
                 const prev2 = modifiers.singCostBonusCharacters.get(candidate.instanceId) ?? 0;
                 modifiers.singCostBonusCharacters.set(candidate.instanceId, prev2 + effect.amount);
+              }
+            }
+          }
+          break;
+        }
+
+        case "grant_triggered_ability": {
+          // Flotsam OMINOUS PAIR — grant a triggered ability to matching characters.
+          if (effect.target.type === "all") {
+            for (const candidate of Object.values(state.cards)) {
+              if (candidate.zone !== "play") continue;
+              const cDef = definitions[candidate.definitionId];
+              if (!cDef) continue;
+              if (matchesFilter(candidate, cDef, effect.target.filter, state, instance.ownerId, instance.instanceId)) {
+                const existing = modifiers.grantedTriggeredAbilities.get(candidate.instanceId) ?? [];
+                existing.push(effect.ability);
+                modifiers.grantedTriggeredAbilities.set(candidate.instanceId, existing);
+              }
+            }
+          }
+          break;
+        }
+
+        case "all_hand_inkable": {
+          // Hidden Inkcaster — all cards in owner's hand count as inkable.
+          modifiers.allHandInkable.add(instance.ownerId);
+          break;
+        }
+
+        case "prevent_damage_removal": {
+          // Vision Slab — damage counters can't be removed globally.
+          modifiers.preventDamageRemoval = true;
+          break;
+        }
+
+        case "global_move_cost_reduction": {
+          // Map of Treasure Planet — global move cost reduction.
+          modifiers.globalMoveCostReduction.push({
+            amount: effect.amount,
+            playerId: instance.ownerId,
+            filter: effect.filter,
+          });
+          break;
+        }
+
+        case "grant_keyword_while_being_challenged": {
+          // Captain Amelia — grant keyword to other own characters while being challenged.
+          if (effect.target.type === "all") {
+            for (const candidate of Object.values(state.cards)) {
+              if (candidate.zone !== "play") continue;
+              if (effect.target.filter.excludeSelf && candidate.instanceId === instance.instanceId) continue;
+              const cDef = definitions[candidate.definitionId];
+              if (!cDef) continue;
+              if (matchesFilter(candidate, cDef, effect.target.filter, state, instance.ownerId, instance.instanceId)) {
+                const existing = modifiers.grantKeywordWhileBeingChallenged.get(candidate.instanceId) ?? [];
+                existing.push({ keyword: effect.keyword, value: effect.value });
+                modifiers.grantKeywordWhileBeingChallenged.set(candidate.instanceId, existing);
               }
             }
           }

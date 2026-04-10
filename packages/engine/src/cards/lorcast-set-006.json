@@ -10740,9 +10740,22 @@
             "hasTrait": "Pirate"
           }
         }
+      },
+      {
+        "type": "static",
+        "storyName": "EVERYTHING SHIPSHAPE",
+        "rulesText": "While being challenged, your other characters gain Resist +1.",
+        "effect": {
+          "type": "grant_keyword_while_being_challenged",
+          "keyword": "resist",
+          "value": 1,
+          "target": {
+            "type": "all",
+            "filter": { "zone": "play", "cardType": ["character"], "owner": { "type": "self" }, "excludeSelf": true }
+          }
+        }
       }
     ],
-    "comment": "EVERYTHING SHIPSHAPE (Resist +1 to other own characters while being challenged) is approximated — no while_being_challenged static targeting other own characters yet.",
     "setId": "6",
     "number": 192,
     "rarity": "super_rare",
@@ -12536,9 +12549,22 @@
             "hasTrait": "Pirate"
           }
         }
+      },
+      {
+        "type": "static",
+        "storyName": "EVERYTHING SHIPSHAPE",
+        "rulesText": "While being challenged, your other characters gain Resist +1.",
+        "effect": {
+          "type": "grant_keyword_while_being_challenged",
+          "keyword": "resist",
+          "value": 1,
+          "target": {
+            "type": "all",
+            "filter": { "zone": "play", "cardType": ["character"], "owner": { "type": "self" }, "excludeSelf": true }
+          }
+        }
       }
     ],
-    "comment": "EVERYTHING SHIPSHAPE approximated — see set 6 #192 note.",
     "setId": "6",
     "number": 221,
     "rarity": "enchanted",

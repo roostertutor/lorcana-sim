@@ -1948,6 +1948,12 @@
             }
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "UNEXPECTED TREASURE",
+        "rulesText": "All cards in your hand count as having {IW}.",
+        "effect": { "type": "all_hand_inkable" }
       }
     ],
     "setId": "P1",

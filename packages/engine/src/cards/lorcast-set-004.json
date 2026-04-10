@@ -2273,6 +2273,23 @@
             }
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "OMINOUS PAIR",
+        "rulesText": "Your characters named Jetsam gain \"When this character is banished in a challenge, return this card to your hand.\"",
+        "effect": {
+          "type": "grant_triggered_ability",
+          "target": {
+            "type": "all",
+            "filter": { "zone": "play", "cardType": ["character"], "hasName": "Jetsam", "owner": { "type": "self" } }
+          },
+          "ability": {
+            "type": "triggered",
+            "trigger": { "on": "banished_in_challenge" },
+            "effects": [{ "type": "return_to_hand", "target": { "type": "this" } }]
+          }
+        }
       }
     ],
     "setId": "4",
@@ -5266,6 +5283,12 @@
             }
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "UNEXPECTED TREASURE",
+        "rulesText": "All cards in your hand count as having {IW}.",
+        "effect": { "type": "all_hand_inkable" }
       }
     ],
     "setId": "4",
@@ -5383,6 +5406,12 @@
             }
           }
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "TRAPPED!",
+        "rulesText": "Damage counters can't be removed.",
+        "effect": { "type": "prevent_damage_removal" }
       }
     ],
     "setId": "4",
