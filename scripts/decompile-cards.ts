@@ -1253,6 +1253,10 @@ function main() {
     if (!oracle) continue;
 
     const rendered = renderCard(card);
+    // Skip keyword-only cards (Vanish, Alert) whose rendered output is empty
+    // because we skip keyword abilities. The oracle IS the keyword reminder text
+    // but there's nothing to compare against — scoring 0.0 is misleading.
+    if (!rendered.replace(/\./g, "").trim() && card.abilities?.every((a: any) => a.type === "keyword")) continue;
     const score = similarity(oracle, rendered);
     rows.push({
       setId: card.setId,
