@@ -1558,7 +1558,7 @@
           {
             "type": "banish",
             "target": {
-              "type": "challenger"
+              "type": "triggering_card"
             }
           }
         ]

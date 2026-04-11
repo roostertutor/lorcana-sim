@@ -3768,7 +3768,7 @@
             "type": "banish",
             "isMay": true,
             "target": {
-              "type": "challenger"
+              "type": "triggering_card"
             }
           }
         ]
@@ -4434,14 +4434,9 @@
         "storyName": "UNEXPECTED JUDGE",
         "rulesText": "While being challenged, this character gets +2 {S}.",
         "effect": {
-          "type": "gain_stats",
-          "strength": 2,
-          "target": {
-            "type": "this"
-          },
-          "condition": {
-            "type": "this_being_challenged"
-          }
+          "type": "gets_stat_while_being_challenged",
+          "stat": "strength",
+          "modifier": 2
         }
       }
     ],

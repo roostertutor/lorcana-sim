@@ -197,6 +197,7 @@ export type Effect =
   | CantBeChallengedTimedEffect
   | DamageImmunityTimedEffect
   | PutCardsUnderIntoHandEffect
+  | MoveCardsUnderToTargetEffect
   | MoveCardsUnderToInkwellEffect
   | MoveAllMatchingToInkwellEffect
   | ConditionalOnLastDiscardedEffect
@@ -705,6 +706,15 @@ export interface ReturnAllToBottomInOrderEffect {
  * Moves every instanceId in the source's cardsUnder pile to its owner's hand
  * and clears cardsUnder. The source itself stays in play.
  */
+/** Mickey Mouse Bob Cratchit (Set 11): "put all cards that were under him
+ *  under another chosen character or location of yours." Moves the source's
+ *  cardsUnder pile to the chosen target's cardsUnder pile. */
+export interface MoveCardsUnderToTargetEffect {
+  type: "move_cards_under_to_target";
+  target: CardTarget;
+  isMay?: boolean;
+}
+
 export interface PutCardsUnderIntoHandEffect {
   type: "put_cards_under_into_hand";
   /** Which card's under-pile to drain. "this" = the source instance. */
@@ -2163,7 +2173,9 @@ export type TriggerEvent =
    *  Support trigger surfaced the choice. Used by Prince Phillip Gallant
    *  Defender and Rapunzel Ready for Adventure ("Whenever one of your
    *  characters is chosen for Support, ..."). */
-  | { on: "chosen_for_support"; filter?: CardFilter };
+  | { on: "chosen_for_support"; filter?: CardFilter }
+  /** Kristoff Icy Explorer (Set 11): "whenever a card leaves your discard". */
+  | { on: "card_leaves_discard"; player?: PlayerTarget };
 
 // -----------------------------------------------------------------------------
 // CONDITIONS — Guards on triggered/activated abilities
@@ -2288,7 +2300,12 @@ export type EffectDuration =
    * at end of caster's own turn = same as this_turn). until_caster_next_turn
    * is the only correct option for caster-anchored "your next turn" effects.
    */
-  | "until_caster_next_turn";
+  | "until_caster_next_turn"
+  /** Containment Unit (Set 11): "while this item is in play." The effect
+   *  persists as long as the source card stays in play. Cleanup: the leaving-
+   *  play handler removes timed effects with this duration when the source
+   *  instance leaves play. */
+  | "while_source_in_play";
 
 export interface TimedEffect {
   type: "grant_keyword" | "modify_strength" | "modify_willpower" | "modify_lore"
