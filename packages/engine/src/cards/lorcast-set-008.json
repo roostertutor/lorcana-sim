@@ -10225,7 +10225,7 @@
         "storyName": "STEALTH MODE",
         "rulesText": "At the start of your turn, if this card is in your discard, you may choose and discard a card with {IW} to play this character for free and he enters play exerted.",
         "trigger": {
-          "on": "start_of_turn",
+          "on": "turn_start",
           "player": {
             "type": "self"
           }
@@ -11923,7 +11923,7 @@
         "storyName": "STRATEGIC EDGE",
         "rulesText": "At the start of your turn, you may draw a card, then choose and discard a card.",
         "trigger": {
-          "on": "start_of_turn",
+          "on": "turn_start",
           "player": {
             "type": "self"
           }
@@ -13508,7 +13508,7 @@
         "storyName": "STEALTH MODE",
         "rulesText": "At the start of your turn, if this card is in your discard, you may choose and discard a card with {IW} to play this character for free and he enters play exerted.",
         "trigger": {
-          "on": "start_of_turn",
+          "on": "turn_start",
           "player": {
             "type": "self"
           }

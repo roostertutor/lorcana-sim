@@ -9018,7 +9018,7 @@
         "storyName": "IT'S BETTER THIS WAY",
         "rulesText": "At the start of your turn, if this character has no damage, draw a card. Otherwise, he gets +4 {S} this turn.",
         "trigger": {
-          "on": "start_of_turn",
+          "on": "turn_start",
           "player": {
             "type": "self"
           }
@@ -9041,7 +9041,7 @@
         "storyName": "IT'S BETTER THIS WAY",
         "rulesText": "(Otherwise branch) he gets +4 {S} this turn.",
         "trigger": {
-          "on": "start_of_turn",
+          "on": "turn_start",
           "player": {
             "type": "self"
           }

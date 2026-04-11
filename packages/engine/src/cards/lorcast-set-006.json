@@ -7499,7 +7499,7 @@
         "storyName": "SAFE HAVEN",
         "rulesText": "At the start of your turn, if you have a Pirate character here, gain 1 lore.",
         "trigger": {
-          "on": "start_of_turn",
+          "on": "turn_start",
           "player": {
             "type": "self"
           }
