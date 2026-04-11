@@ -124,8 +124,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a862524392a1444389f95109d49ddd31.avif?1770259210",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "GOOD FRIEND If you have a character named Lilo in play, you can play this character for free.",
+        "storyName": "GOOD FRIEND",
+        "rulesText": "If you have a character named Lilo in play, you can play this character for free.",
         "raw": "GOOD FRIEND If you have a character named Lilo in play, you can play this character for free."
       }
     ]
@@ -604,8 +604,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a3822d68287f451baa20438d5a31e307.avif?1770259256",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "SMOOTH THE WAY Once during your turn, you pay 1 {I} less for the next character you play this turn.",
+        "storyName": "SMOOTH THE WAY",
+        "rulesText": "Once during your turn, you pay 1 {I} less for the next character you play this turn.",
         "raw": "SMOOTH THE WAY Once during your turn, you pay 1 {I} less for the next character you play this turn."
       }
     ]
@@ -730,8 +730,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b1c578429eb547b3b5908a637c491c3e.avif?1770259265",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "FOLLOW THE TRACKS At the end of your turn, if this character is exerted and none of your characters challenged this turn, gain 1 lore.",
+        "storyName": "FOLLOW THE TRACKS",
+        "rulesText": "At the end of your turn, if this character is exerted and none of your characters challenged this turn, gain 1 lore.",
         "raw": "FOLLOW THE TRACKS At the end of your turn, if this character is exerted and none of your characters challenged this turn, gain 1 lore."
       }
     ]
@@ -997,6 +997,11 @@
     "rulesText": "WELCOMING CROWD For each character you have in play, you pay 1 {I} less to play this character.\nI AM HELPING Whenever this character quests, you may remove all damage from chosen character.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_aa9fd9e677e946f0ab5f0148b0874568.avif?1770259283",
     "_namedAbilityStubs": [
+      {
+        "storyName": "WELCOMING CROWD",
+        "rulesText": "For each character you have in play, you pay 1 {I} less to play this character.",
+        "raw": "WELCOMING CROWD For each character you have in play, you pay 1 {I} less to play this character."
+      },
       {
         "storyName": "I AM HELPING",
         "rulesText": "Whenever this character quests, you may remove all damage from chosen character.",
@@ -1390,8 +1395,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_ce082b2459af4c0a94a900a468bd9096.avif?1770259311",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "UNDERDOG If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
+        "storyName": "UNDERDOG",
+        "rulesText": "If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
         "raw": "UNDERDOG If this is your first turn and you're not the first player, you pay 1 {I} less to play this character."
       }
     ]
@@ -1819,13 +1824,13 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_09f9741601234011a2ea8ad45c845099.avif?1770259348",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "SPINNING ARROW At the end of your turn, if a character of yours challenged this turn, banish this item.",
+        "storyName": "SPINNING ARROW",
+        "rulesText": "At the end of your turn, if a character of yours challenged this turn, banish this item.",
         "raw": "SPINNING ARROW At the end of your turn, if a character of yours challenged this turn, banish this item."
       },
       {
-        "storyName": "",
-        "rulesText": "YOUR PATH At the end of your turn, if none of your characters challenged this turn, reveal the top card of your deck. If it's a character card with cost 3 or less or named Pocahontas, you may put it into your hand. Otherwise, put it on the bottom of your deck.",
+        "storyName": "YOUR PATH",
+        "rulesText": "At the end of your turn, if none of your characters challenged this turn, reveal the top card of your deck. If it's a character card with cost 3 or less or named Pocahontas, you may put it into your hand. Otherwise, put it on the bottom of your deck.",
         "raw": "YOUR PATH At the end of your turn, if none of your characters challenged this turn, reveal the top card of your deck. If it's a character card with cost 3 or less or named Pocahontas, you may put it into your hand. Otherwise, put it on the bottom of your deck."
       }
     ]
@@ -2416,6 +2421,11 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_2dd93d7bd66a4ce78cba02bbfdbcafef.avif?1770259403",
     "_namedAbilityStubs": [
       {
+        "storyName": "THANKS FOR NOTICIN' ME",
+        "rulesText": "For each exerted character in play, you pay 1 {I} less to play this character.",
+        "raw": "THANKS FOR NOTICIN' ME For each exerted character in play, you pay 1 {I} less to play this character."
+      },
+      {
         "storyName": "SORRY ABOUT THAT",
         "rulesText": "When you play this character, for each opposing player, you may choose a character of theirs. They can't ready at the start of their next turn.",
         "raw": "SORRY ABOUT THAT When you play this character, for each opposing player, you may choose a character of theirs. They can't ready at the start of their next turn."
@@ -2477,8 +2487,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5be7a45f5453485dbebcd37b436210d9.avif?1770259407",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "BOTTOMLESS PIT At the end of your turn, if this character is exerted, choose and discard a card or banish him.",
+        "storyName": "BOTTOMLESS PIT",
+        "rulesText": "At the end of your turn, if this character is exerted, choose and discard a card or banish him.",
         "raw": "BOTTOMLESS PIT At the end of your turn, if this character is exerted, choose and discard a card or banish him."
       }
     ]
@@ -2793,8 +2803,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_be89cf4d06b54426801f296b3cbf751d.avif?1770259425",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "UNUSUAL TRANSFORMATION If a card left a player's discard this turn, this card gains Shift 0 {I}. (You may pay 0 {I} to play this on top of one of your characters named Anna.) WARM HEART Whenever this character quests, you may gain lore equal to the {L} of a character card in your discard. If you do, put that card on the bottom of your deck.",
+        "storyName": "UNUSUAL TRANSFORMATION",
+        "rulesText": "If a card left a player's discard this turn, this card gains Shift 0 {I}. (You may pay 0 {I} to play this on top of one of your characters named Anna.) WARM HEART Whenever this character quests, you may gain lore equal to the {L} of a character card in your discard. If you do, put that card on the bottom of your deck.",
         "raw": "UNUSUAL TRANSFORMATION If a card left a player's discard this turn, this card gains Shift 0 {I}. (You may pay 0 {I} to play this on top of one of your characters named Anna.) WARM HEART Whenever this character quests, you may gain lore equal to the {L} of a character card in your discard. If you do, put that card on the bottom of your deck."
       }
     ]
@@ -2873,6 +2883,11 @@
         "storyName": "HIDDEN DEPTHS",
         "rulesText": "When you play this character, if you have a character named Anna in play, you may put a card from chosen player's discard on the bottom of their deck.",
         "raw": "HIDDEN DEPTHS When you play this character, if you have a character named Anna in play, you may put a card from chosen player's discard on the bottom of their deck."
+      },
+      {
+        "storyName": "STROKE OF LUCK",
+        "rulesText": "Once during your turn, whenever a card leaves your discard, draw a card.",
+        "raw": "STROKE OF LUCK Once during your turn, whenever a card leaves your discard, draw a card."
       }
     ]
   },
@@ -3054,8 +3069,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_6ef0db16a9b944d29c9a18fb37a8916d.avif?1770259447",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "UNDERDOG If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
+        "storyName": "UNDERDOG",
+        "rulesText": "If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
         "raw": "UNDERDOG If this is your first turn and you're not the first player, you pay 1 {I} less to play this character."
       }
     ]
@@ -3300,24 +3315,9 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_adb608b3667f4c769a3bab709840dad1.avif?1770259473",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)",
-        "raw": "(A character with cost 3 or more can {E} to sing this song for free.)"
-      },
-      {
-        "storyName": "",
-        "rulesText": "Chosen opponent chooses YES! or NO!:",
-        "raw": "Chosen opponent chooses YES! or NO!:"
-      },
-      {
-        "storyName": "",
-        "rulesText": "* YES! You gain 3 lore.",
+        "storyName": "* YES!",
+        "rulesText": "You gain 3 lore.",
         "raw": "* YES! You gain 3 lore."
-      },
-      {
-        "storyName": "",
-        "rulesText": "* NO! They choose a character of theirs and put that card on the bottom of their deck.",
-        "raw": "* NO! They choose a character of theirs and put that card on the bottom of their deck."
       }
     ],
     "actionEffects": [
@@ -3520,8 +3520,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f91b39cb2d4a47f984e9e5114216e75b.avif?1770259491",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "PRECIOUS GIFT At the end of your turn, if none of your characters challenged this turn, chosen character of yours gains Evasive until the start of your next turn. (Only characters with Evasive can challenge them.)",
+        "storyName": "PRECIOUS GIFT",
+        "rulesText": "At the end of your turn, if none of your characters challenged this turn, chosen character of yours gains Evasive until the start of your next turn. (Only characters with Evasive can challenge them.)",
         "raw": "PRECIOUS GIFT At the end of your turn, if none of your characters challenged this turn, chosen character of yours gains Evasive until the start of your next turn. (Only characters with Evasive can challenge them.)"
       }
     ]
@@ -3623,8 +3623,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9ab9a1951014457b824c8f11a3d0fdbc.avif?1770259500",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "I'M STUCK! Banish this item — Chosen exerted character can't ready at the start of their next turn.",
+        "storyName": "I'M STUCK!",
+        "rulesText": "Banish this item — Chosen exerted character can't ready at the start of their next turn.",
         "raw": "I'M STUCK! Banish this item — Chosen exerted character can't ready at the start of their next turn."
       }
     ]
@@ -4241,6 +4241,11 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5864156730e6408181fd43e5a59dbe05.avif?1770259554",
     "_namedAbilityStubs": [
       {
+        "storyName": "WAKE OF DESTRUCTION",
+        "rulesText": "For each item card in your discard, you pay 1 {I} less to play this character.",
+        "raw": "WAKE OF DESTRUCTION For each item card in your discard, you pay 1 {I} less to play this character."
+      },
+      {
         "storyName": "COLLATERAL DAMAGE",
         "rulesText": "When you play this character, you may put 3 item cards from your discard on the bottom of your deck in any order. If you do, deal 3 damage to chosen character.",
         "raw": "COLLATERAL DAMAGE When you play this character, you may put 3 item cards from your discard on the bottom of your deck in any order. If you do, deal 3 damage to chosen character."
@@ -4614,8 +4619,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_6edf9f351f6d4d8ea588fbbdbf8ed253.avif?1770259586",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "SHOWIN' UP If you have a character named Tod in play, you pay 1 {I} less to play this character.",
+        "storyName": "SHOWIN' UP",
+        "rulesText": "If you have a character named Tod in play, you pay 1 {I} less to play this character.",
         "raw": "SHOWIN' UP If you have a character named Tod in play, you pay 1 {I} less to play this character."
       }
     ]
@@ -4767,8 +4772,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a8878d5ac3ea4ff7bfacb512552943cc.avif?1770259599",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "UNDERDOG If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
+        "storyName": "UNDERDOG",
+        "rulesText": "If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
         "raw": "UNDERDOG If this is your first turn and you're not the first player, you pay 1 {I} less to play this character."
       }
     ]
@@ -5513,6 +5518,11 @@
         "storyName": "READ THE OMENS",
         "rulesText": "Draw a card, then choose and discard a card.",
         "raw": "READ THE OMENS {E}, 1 {I} — Draw a card, then choose and discard a card."
+      },
+      {
+        "storyName": "BONK! 1 {I} ,",
+        "rulesText": "Banish this item — Deal 1 damage to chosen character.",
+        "raw": "BONK! 1 {I} , Banish this item — Deal 1 damage to chosen character."
       }
     ]
   },
@@ -6020,13 +6030,13 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_96a789fd5e1943adbb12361ff791aec9.avif?1770259685",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "NOBLE SPIRIT If you have a character in play with damage, you pay 1 {I} less to play this character.",
+        "storyName": "NOBLE SPIRIT",
+        "rulesText": "If you have a character in play with damage, you pay 1 {I} less to play this character.",
         "raw": "NOBLE SPIRIT If you have a character in play with damage, you pay 1 {I} less to play this character."
       },
       {
-        "storyName": "",
-        "rulesText": "FIGHTING SPIRIT If you have a character in play with 5 or more, you pay 1 {I} less to play this character.",
+        "storyName": "FIGHTING SPIRIT",
+        "rulesText": "If you have a character in play with 5 or more, you pay 1 {I} less to play this character.",
         "raw": "FIGHTING SPIRIT If you have a character in play with 5 or more, you pay 1 {I} less to play this character."
       }
     ]
@@ -6157,8 +6167,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_109b0bfb7a374953b896f3d6d051c099.avif?1770259698",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "UNDERDOG If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
+        "storyName": "UNDERDOG",
+        "rulesText": "If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
         "raw": "UNDERDOG If this is your first turn and you're not the first player, you pay 1 {I} less to play this character."
       }
     ]
@@ -6233,6 +6243,11 @@
         "storyName": "FOREVER STRONG",
         "rulesText": "Your characters' {S} can't be reduced below their printed value.",
         "raw": "FOREVER STRONG Your characters' {S} can't be reduced below their printed value."
+      },
+      {
+        "storyName": "STONE BY DAY",
+        "rulesText": "If you have 3 or more cards in your hand, this character can’t ready.",
+        "raw": "STONE BY DAY If you have 3 or more cards in your hand, this character can’t ready."
       }
     ]
   },
@@ -6742,6 +6757,11 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_22e26220f81745b394485c0cb6ef2c2d.avif?1770259748",
     "_namedAbilityStubs": [
       {
+        "storyName": "ABOUT TIME!",
+        "rulesText": "For each action card in your discard, you pay 1 {I} less to play this character.",
+        "raw": "ABOUT TIME! For each action card in your discard, you pay 1 {I} less to play this character."
+      },
+      {
         "storyName": "CHAOTIC COLLISION",
         "rulesText": "When you play this character, each opponent loses 2 lore.",
         "raw": "CHAOTIC COLLISION When you play this character, each opponent loses 2 lore."
@@ -6947,6 +6967,11 @@
         "storyName": "PAYMENT DUE",
         "rulesText": "Whenever this character quests, each opponent loses 1 lore. Draw a card for each 1 lore lost this way.",
         "raw": "PAYMENT DUE Whenever this character quests, each opponent loses 1 lore. Draw a card for each 1 lore lost this way."
+      },
+      {
+        "storyName": "FORECLOSURE",
+        "rulesText": "At the end of your turn, if an opponent has 0 lore, you gain 1 lore.",
+        "raw": "FORECLOSURE At the end of your turn, if an opponent has 0 lore, you gain 1 lore."
       }
     ]
   },
@@ -7596,6 +7621,11 @@
         "storyName": "NEW ARRIVAL",
         "rulesText": "Whenever you move a character here, put the top card of your deck under this location facedown.",
         "raw": "NEW ARRIVAL Whenever you move a character here, put the top card of your deck under this location facedown."
+      },
+      {
+        "storyName": "ANOTHER CHANCE",
+        "rulesText": "At the start of your turn, you may put all cards from under this location into your hand. If you do, banish this location.",
+        "raw": "ANOTHER CHANCE At the start of your turn, you may put all cards from under this location into your hand. If you do, banish this location."
       }
     ]
   },
@@ -8126,8 +8156,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_be96288326484fd880acd268246cc300.avif?1770259862",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "SPECIAL RECIPE At the end of your turn, remove up to 2 damage from each of your characters.",
+        "storyName": "SPECIAL RECIPE",
+        "rulesText": "At the end of your turn, remove up to 2 damage from each of your characters.",
         "raw": "SPECIAL RECIPE At the end of your turn, remove up to 2 damage from each of your characters."
       }
     ]
@@ -8177,8 +8207,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_600ad28b57694ad2b078261118277ad2.avif?1770259867",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "ANCESTORS' GIFT For each card in your inkwell, you pay 1 {I} less to play this character.",
+        "storyName": "ANCESTORS' GIFT",
+        "rulesText": "For each card in your inkwell, you pay 1 {I} less to play this character.",
         "raw": "ANCESTORS' GIFT For each card in your inkwell, you pay 1 {I} less to play this character."
       }
     ]
@@ -8504,8 +8534,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_dd7610ea1502422199f68ea86fce5b19.avif?1770259890",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "UNDERDOG If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
+        "storyName": "UNDERDOG",
+        "rulesText": "If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
         "raw": "UNDERDOG If this is your first turn and you're not the first player, you pay 1 {I} less to play this character."
       }
     ]
@@ -8603,8 +8633,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d598d22b1dbf4566bede003c3af9e0a8.avif?1770259899",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "ANCESTRAL LEGACY You can ink cards from your discard.",
+        "storyName": "ANCESTRAL LEGACY",
+        "rulesText": "You can ink cards from your discard.",
         "raw": "ANCESTRAL LEGACY You can ink cards from your discard."
       }
     ]
@@ -8740,6 +8770,11 @@
     "rulesText": "HOLIDAY SPIRIT Once during your turn, whenever you put a card under one of your other characters, put the top card of your deck facedown under this character.\nHOLIDAY CHEER This character gets +1 {L} for each card under him.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5c9d96ae2b6248f19d3a431a93576adb.avif?1770259909",
     "_namedAbilityStubs": [
+      {
+        "storyName": "HOLIDAY SPIRIT",
+        "rulesText": "Once during your turn, whenever you put a card under one of your other characters, put the top card of your deck facedown under this character.",
+        "raw": "HOLIDAY SPIRIT Once during your turn, whenever you put a card under one of your other characters, put the top card of your deck facedown under this character."
+      },
       {
         "storyName": "HOLIDAY CHEER",
         "rulesText": "This character gets +1 {L} for each card under him.",
@@ -9006,8 +9041,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_1bd99dad44d341dda6d1f73ffb2bc529.avif?1770259927",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "AND THEN... Once during your turn, whenever a card is put into your inkwell, look at the top card of your deck. You may put it on either the top or the bottom of your deck.",
+        "storyName": "AND THEN...",
+        "rulesText": "Once during your turn, whenever a card is put into your inkwell, look at the top card of your deck. You may put it on either the top or the bottom of your deck.",
         "raw": "AND THEN... Once during your turn, whenever a card is put into your inkwell, look at the top card of your deck. You may put it on either the top or the bottom of your deck."
       }
     ]
@@ -9256,6 +9291,11 @@
     "rulesText": "THEATRICAL ENTRANCE If you have a character named Darkwing Duck in play, you pay 1 {I} less to play this item.\nCLOUD OF MYSTERY {E}, 1 {I}, Banish this item – Chosen character gains Ward until the start of your next turn. (Opponents can't choose them except to challenge.)",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9d937b1e551d47c18d97a54494378368.avif?1770259948",
     "_namedAbilityStubs": [
+      {
+        "storyName": "THEATRICAL ENTRANCE",
+        "rulesText": "If you have a character named Darkwing Duck in play, you pay 1 {I} less to play this item.",
+        "raw": "THEATRICAL ENTRANCE If you have a character named Darkwing Duck in play, you pay 1 {I} less to play this item."
+      },
       {
         "storyName": "CLOUD OF MYSTERY",
         "rulesText": "{E}, 1 {I}, Banish this item – Chosen character gains Ward until the start of your next turn. (Opponents can't choose them except to challenge.)",
@@ -10297,6 +10337,11 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_fa25fc0098884a649dc40a9e0551cff2.avif?1770260033",
     "_namedAbilityStubs": [
       {
+        "storyName": "CONTROLLED VARIABLES",
+        "rulesText": "For each Alien character card in your discard, you pay 1 {I} less to play this character.",
+        "raw": "CONTROLLED VARIABLES For each Alien character card in your discard, you pay 1 {I} less to play this character."
+      },
+      {
         "storyName": "AWESTRUCK",
         "rulesText": "When you play this character, chosen opposing character can’t challenge during their next turn.",
         "raw": "AWESTRUCK When you play this character, chosen opposing character can’t challenge during their next turn."
@@ -10620,6 +10665,11 @@
         "storyName": "UNTOUCHABLE",
         "rulesText": "While you have no cards in your hand, this character gains Resist +2. (Damage dealt to them is reduced by 2.)",
         "raw": "UNTOUCHABLE While you have no cards in your hand, this character gains Resist +2. (Damage dealt to them is reduced by 2.)"
+      },
+      {
+        "storyName": "GOOD AIM",
+        "rulesText": "Once during your turn, you may choose and discard a card to deal 2 damage to chosen character.",
+        "raw": "GOOD AIM Once during your turn, you may choose and discard a card to deal 2 damage to chosen character."
       }
     ]
   },
@@ -10805,8 +10855,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_bc75672185f940fc88f84192ceff4973.avif?1770260069",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "UNDERDOG If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
+        "storyName": "UNDERDOG",
+        "rulesText": "If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
         "raw": "UNDERDOG If this is your first turn and you're not the first player, you pay 1 {I} less to play this character."
       }
     ]
@@ -11164,6 +11214,11 @@
         "storyName": "DETECTING EVIDENCE",
         "rulesText": "When you play this item, draw a card, then choose and discard a card.",
         "raw": "DETECTING EVIDENCE When you play this item, draw a card, then choose and discard a card."
+      },
+      {
+        "storyName": "FOLLOW THE CLUES",
+        "rulesText": "Banish this item – Chosen character gains Alert this turn. (They can challenge as if they had Evasive.)",
+        "raw": "FOLLOW THE CLUES Banish this item – Chosen character gains Alert this turn. (They can challenge as if they had Evasive.)"
       }
     ]
   },
@@ -11349,6 +11404,11 @@
         "storyName": "GOT YOU NOW",
         "rulesText": "When you play this item, choose a character. They can't challenge or quest while this item is in play.",
         "raw": "GOT YOU NOW When you play this item, choose a character. They can't challenge or quest while this item is in play."
+      },
+      {
+        "storyName": "POWER SUPPLY",
+        "rulesText": "At the start of your turn, choose and discard a card or banish this item.",
+        "raw": "POWER SUPPLY At the start of your turn, choose and discard a card or banish this item."
       }
     ]
   },
@@ -11510,8 +11570,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d8dddac12b0749ba9c6510af447895bd.avif?1770260121",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "SMOOTH THE WAY Once during your turn, you pay 1 {I} less for the next character you play this turn.",
+        "storyName": "SMOOTH THE WAY",
+        "rulesText": "Once during your turn, you pay 1 {I} less for the next character you play this turn.",
         "raw": "SMOOTH THE WAY Once during your turn, you pay 1 {I} less for the next character you play this turn."
       }
     ]
@@ -12420,8 +12480,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b7a2a60eb9d34fd986cf0bd44e2a1f1a.avif?1770260202",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "UNDERDOG If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
+        "storyName": "UNDERDOG",
+        "rulesText": "If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
         "raw": "UNDERDOG If this is your first turn and you're not the first player, you pay 1 {I} less to play this character."
       }
     ]
@@ -12700,6 +12760,11 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_758bab20496f4673991e53ac59f1bcaa.avif?1770260226",
     "_namedAbilityStubs": [
       {
+        "storyName": "THANKS FOR NOTICIN' ME",
+        "rulesText": "For each exerted character in play, you pay 1 {I} less to play this character.",
+        "raw": "THANKS FOR NOTICIN' ME For each exerted character in play, you pay 1 {I} less to play this character."
+      },
+      {
         "storyName": "SORRY ABOUT THAT",
         "rulesText": "When you play this character, for each opposing player, you may choose a character of theirs. They can't ready at the start of their next turn.",
         "raw": "SORRY ABOUT THAT When you play this character, for each opposing player, you may choose a character of theirs. They can't ready at the start of their next turn."
@@ -12808,8 +12873,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_862f8b58a6e247cd865509856286449e.avif?1770260231",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "UNUSUAL TRANSFORMATION If a card left a player's discard this turn, this character gains Shift 0 {I}. WARM HEART Whenever this character quests, you may gain lore equal to the {L} of a character card in your discard. If you do, put that card on the bottom of your deck.",
+        "storyName": "UNUSUAL TRANSFORMATION",
+        "rulesText": "If a card left a player's discard this turn, this character gains Shift 0 {I}. WARM HEART Whenever this character quests, you may gain lore equal to the {L} of a character card in your discard. If you do, put that card on the bottom of your deck.",
         "raw": "UNUSUAL TRANSFORMATION If a card left a player's discard this turn, this character gains Shift 0 {I}. WARM HEART Whenever this character quests, you may gain lore equal to the {L} of a character card in your discard. If you do, put that card on the bottom of your deck."
       }
     ]
@@ -13543,6 +13608,11 @@
         "storyName": "UNTOUCHABLE",
         "rulesText": "While you have no cards in your hand, this character gains Resist +2.",
         "raw": "UNTOUCHABLE While you have no cards in your hand, this character gains Resist +2."
+      },
+      {
+        "storyName": "GOOD AIM",
+        "rulesText": "Once during your turn, you may choose and discard a card to deal 2 damage to chosen character.",
+        "raw": "GOOD AIM Once during your turn, you may choose and discard a card to deal 2 damage to chosen character."
       }
     ]
   },
@@ -13785,8 +13855,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b73d08030c9646ab8a227158b8e453d4.avif?1770260310",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "ANCESTRAL LEGACY You can ink cards from your discard.",
+        "storyName": "ANCESTRAL LEGACY",
+        "rulesText": "You can ink cards from your discard.",
         "raw": "ANCESTRAL LEGACY You can ink cards from your discard."
       }
     ]

@@ -507,8 +507,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9b5d0e7c5c15447d9f17ea4419b07e3f.avif?1740589133",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "NO THANKS NECESSARY Once during your turn, whenever a card is put into your inkwell, your other characters with Bodyguard get +1 {L} this turn.",
+        "storyName": "NO THANKS NECESSARY",
+        "rulesText": "Once during your turn, whenever a card is put into your inkwell, your other characters with Bodyguard get +1 {L} this turn.",
         "raw": "NO THANKS NECESSARY Once during your turn, whenever a card is put into your inkwell, your other characters with Bodyguard get +1 {L} this turn."
       }
     ]
@@ -597,6 +597,11 @@
     "rulesText": "NOW IT'S A PARTY For each character you have in play, you pay 1 {I} less to play this character.\nHOW'S PICKINGS? When you play this character, you may draw a card for each other character you have in play, then choose and discard that many cards.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_8d473335c16245e684e466b7a745ec89.avif?1740589137",
     "_namedAbilityStubs": [
+      {
+        "storyName": "NOW IT'S A PARTY",
+        "rulesText": "For each character you have in play, you pay 1 {I} less to play this character.",
+        "raw": "NOW IT'S A PARTY For each character you have in play, you pay 1 {I} less to play this character."
+      },
       {
         "storyName": "HOW'S PICKINGS?",
         "rulesText": "When you play this character, you may draw a card for each other character you have in play, then choose and discard that many cards.",
@@ -1681,8 +1686,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9fbbf95f7db645ad87d4e78d12a05a96.avif?1740589215",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "FOUND YOU, YOU LITTLE RASCAL At the start of your turn, look at the cards in your inkwell. You may play a Puppy character from there for free.",
+        "storyName": "FOUND YOU, YOU LITTLE RASCAL",
+        "rulesText": "At the start of your turn, look at the cards in your inkwell. You may play a Puppy character from there for free.",
         "raw": "FOUND YOU, YOU LITTLE RASCAL At the start of your turn, look at the cards in your inkwell. You may play a Puppy character from there for free."
       }
     ]
@@ -1756,8 +1761,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_11827c57989a4d9c961b1c5b08c42945.avif?1740589219",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "HE NEEDS ME At the end of your turn, if this character is exerted, you may ready another chosen character of yours and remove all damage from them.",
+        "storyName": "HE NEEDS ME",
+        "rulesText": "At the end of your turn, if this character is exerted, you may ready another chosen character of yours and remove all damage from them.",
         "raw": "HE NEEDS ME At the end of your turn, if this character is exerted, you may ready another chosen character of yours and remove all damage from them."
       }
     ]
@@ -2535,13 +2540,13 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_68e6c910a8e74691b4a10dd1d5560643.avif?1740589274",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "PERFECT PAIR You may only have 2 copies of The Glass Slipper in your deck.",
+        "storyName": "PERFECT PAIR",
+        "rulesText": "You may only have 2 copies of The Glass Slipper in your deck.",
         "raw": "PERFECT PAIR You may only have 2 copies of The Glass Slipper in your deck."
       },
       {
-        "storyName": "",
-        "rulesText": "SEARCH THE KINGDOM Banish this item, {E} one of your Prince characters – Search your deck for a Princess character card and reveal it to all players. Put that card into your hand and shuffle your deck.",
+        "storyName": "SEARCH THE KINGDOM",
+        "rulesText": "Banish this item, {E} one of your Prince characters – Search your deck for a Princess character card and reveal it to all players. Put that card into your hand and shuffle your deck.",
         "raw": "SEARCH THE KINGDOM Banish this item, {E} one of your Prince characters – Search your deck for a Princess character card and reveal it to all players. Put that card into your hand and shuffle your deck."
       }
     ]
@@ -2612,8 +2617,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_78e4e2811167449d9b2d7a3fa7c0908b.avif?1740589279",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "DON'T YOU SAY A WORD Once during your turn, whenever a card is put into your inkwell, you may return chosen character, item, or location with cost 2 or less to their player's hand, then that player draws a card.",
+        "storyName": "DON'T YOU SAY A WORD",
+        "rulesText": "Once during your turn, whenever a card is put into your inkwell, you may return chosen character, item, or location with cost 2 or less to their player's hand, then that player draws a card.",
         "raw": "DON'T YOU SAY A WORD Once during your turn, whenever a card is put into your inkwell, you may return chosen character, item, or location with cost 2 or less to their player's hand, then that player draws a card."
       }
     ]
@@ -3619,8 +3624,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_10a145c920e14c17b01173d348247d95.avif?1740589348",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "I'M LOVIN' THIS If an effect would cause you to discard one or more cards, you don't discard.",
+        "storyName": "I'M LOVIN' THIS",
+        "rulesText": "If an effect would cause you to discard one or more cards, you don't discard.",
         "raw": "I'M LOVIN' THIS If an effect would cause you to discard one or more cards, you don't discard."
       }
     ]
@@ -4132,19 +4137,9 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4b09d3e4c16c4e0d8b579d090a021dd5.avif?1740589380",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "WE CAN FIGURE THIS OUT At the start of your turn, choose one:",
+        "storyName": "WE CAN FIGURE THIS OUT",
+        "rulesText": "At the start of your turn, choose one:",
         "raw": "WE CAN FIGURE THIS OUT At the start of your turn, choose one:"
-      },
-      {
-        "storyName": "",
-        "rulesText": "• Each player draws a card.",
-        "raw": "• Each player draws a card."
-      },
-      {
-        "storyName": "",
-        "rulesText": "• Each player chooses and discards a card.",
-        "raw": "• Each player chooses and discards a card."
       }
     ]
   },
@@ -5522,8 +5517,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f9a3516262004948b7bd488cc55af5b9.avif?1740589487",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "INNOVATE You pay 1 {I} less to play characters using their Shift ability.",
+        "storyName": "INNOVATE",
+        "rulesText": "You pay 1 {I} less to play characters using their Shift ability.",
         "raw": "INNOVATE You pay 1 {I} less to play characters using their Shift ability."
       }
     ]
@@ -6154,8 +6149,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_ea132f418f484b7fa0514107132a8b54.avif?1740589533",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "FOWL PLAY Once during your turn, whenever a card is put into your inkwell, chosen opponent chooses one of their characters and returns that card to their hand.",
+        "storyName": "FOWL PLAY",
+        "rulesText": "Once during your turn, whenever a card is put into your inkwell, chosen opponent chooses one of their characters and returns that card to their hand.",
         "raw": "FOWL PLAY Once during your turn, whenever a card is put into your inkwell, chosen opponent chooses one of their characters and returns that card to their hand."
       }
     ]
@@ -6239,6 +6234,11 @@
     "rulesText": "DRAWN TO A FIGHT If an opposing character was damaged this turn, you pay 2 {I} less to play this character.\nI AIN'T GONE SOFT! Whenever you play an action that isn't a song, you may deal 1 damage to chosen character.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b6a644c09d674fe6ace0502427a05c6e.avif?1740589537",
     "_namedAbilityStubs": [
+      {
+        "storyName": "DRAWN TO A FIGHT",
+        "rulesText": "If an opposing character was damaged this turn, you pay 2 {I} less to play this character.",
+        "raw": "DRAWN TO A FIGHT If an opposing character was damaged this turn, you pay 2 {I} less to play this character."
+      },
       {
         "storyName": "I AIN'T GONE SOFT!",
         "rulesText": "Whenever you play an action that isn't a song, you may deal 1 damage to chosen character.",
@@ -6327,6 +6327,11 @@
     "rulesText": "HEY, PIDGE If you have a character named Lady in play, you pay 1 {I} less to play this character.\nNO TIME FOR WISECRACKS When you play this character, chosen character of yours gets +1 {S} this turn for each other character you have in play.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_82e7a76ecb914d5cace338ee4280e6d7.avif?1740589541",
     "_namedAbilityStubs": [
+      {
+        "storyName": "HEY, PIDGE",
+        "rulesText": "If you have a character named Lady in play, you pay 1 {I} less to play this character.",
+        "raw": "HEY, PIDGE If you have a character named Lady in play, you pay 1 {I} less to play this character."
+      },
       {
         "storyName": "NO TIME FOR WISECRACKS",
         "rulesText": "When you play this character, chosen character of yours gets +1 {S} this turn for each other character you have in play.",
@@ -7168,6 +7173,11 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_2b0915e50c1b41d1aea0dce6be43a6d9.avif?1740589605",
     "_namedAbilityStubs": [
       {
+        "storyName": "SALVAGE",
+        "rulesText": "For each item card in your discard, you pay 1 {I} less to play this character using her Shift ability.",
+        "raw": "SALVAGE For each item card in your discard, you pay 1 {I} less to play this character using her Shift ability."
+      },
+      {
         "storyName": "REPURPOSE",
         "rulesText": "Whenever this character quests, you may put up to 3 item cards from your discard on the bottom of your deck to gain 1 lore for each item card moved this way.",
         "raw": "REPURPOSE Whenever this character quests, you may put up to 3 item cards from your discard on the bottom of your deck to gain 1 lore for each item card moved this way."
@@ -8002,8 +8012,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4ba6dbe9f2674bb880ec26795a4663c6.avif?1740589661",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "EXPLOSIVE Once during your turn, whenever a card is put into your inkwell, deal 2 damage to each character in play.",
+        "storyName": "EXPLOSIVE",
+        "rulesText": "Once during your turn, whenever a card is put into your inkwell, deal 2 damage to each character in play.",
         "raw": "EXPLOSIVE Once during your turn, whenever a card is put into your inkwell, deal 2 damage to each character in play."
       }
     ]
@@ -8743,6 +8753,11 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_485779f8b4954059b78e81f46882d744.avif?1740589717",
     "_namedAbilityStubs": [
       {
+        "storyName": "PUT IT TO GOOD USE",
+        "rulesText": "You may exert 4 items of yours to play this character for free.",
+        "raw": "PUT IT TO GOOD USE You may exert 4 items of yours to play this character for free."
+      },
+      {
         "storyName": "FORTUNE HUNTER",
         "rulesText": "When you play this character, look at the top 4 cards of your deck. You may reveal an item card and put it into your hand. Put the rest on the bottom of your deck in any order.",
         "raw": "FORTUNE HUNTER When you play this character, look at the top 4 cards of your deck. You may reveal an item card and put it into your hand. Put the rest on the bottom of your deck in any order."
@@ -9104,8 +9119,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9fcd1bf3255d48ecb5f16b78512c01bb.avif?1740589744",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "BE SENSIBLE Once during your turn, whenever a card is put into your inkwell, look at the top card of your deck. You may put it on either the top or the bottom of your deck.",
+        "storyName": "BE SENSIBLE",
+        "rulesText": "Once during your turn, whenever a card is put into your inkwell, look at the top card of your deck. You may put it on either the top or the bottom of your deck.",
         "raw": "BE SENSIBLE Once during your turn, whenever a card is put into your inkwell, look at the top card of your deck. You may put it on either the top or the bottom of your deck."
       }
     ]
@@ -10991,8 +11006,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_977124ea617d440a9224e0eb1619ded6.avif?1740590248",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "HAVE A LITTLE FAITH If you have an Ally character in play, you pay 2 {I} less to play this character.",
+        "storyName": "HAVE A LITTLE FAITH",
+        "rulesText": "If you have an Ally character in play, you pay 2 {I} less to play this character.",
         "raw": "HAVE A LITTLE FAITH If you have an Ally character in play, you pay 2 {I} less to play this character."
       }
     ]
@@ -11254,6 +11269,11 @@
         "storyName": "CLOSE ALL CHANNELS",
         "rulesText": "When you play this character, characters can't exert to sing songs until the start of your next turn.",
         "raw": "CLOSE ALL CHANNELS When you play this character, characters can't exert to sing songs until the start of your next turn."
+      },
+      {
+        "storyName": "DON'T GET ANY IDEAS",
+        "rulesText": "Each player pays 2 {I} more to play actions or items. (This doesn’t apply to singing songs.)",
+        "raw": "DON'T GET ANY IDEAS Each player pays 2 {I} more to play actions or items. (This doesn’t apply to singing songs.)"
       }
     ]
   },
@@ -11797,13 +11817,13 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_aa7db27471b142cfa97cd5ca3409669d.avif?1740590302",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "PERFECT PAIR You may only have 2 copies of The Glass Slipper in your deck.",
+        "storyName": "PERFECT PAIR",
+        "rulesText": "You may only have 2 copies of The Glass Slipper in your deck.",
         "raw": "PERFECT PAIR You may only have 2 copies of The Glass Slipper in your deck."
       },
       {
-        "storyName": "",
-        "rulesText": "SEARCH THE KINGDOM Banish this item, {E} one of your Prince characters – Search your deck for a Princess character card and reveal it to all players. Put that card into your hand and shuffle your deck.",
+        "storyName": "SEARCH THE KINGDOM",
+        "rulesText": "Banish this item, {E} one of your Prince characters – Search your deck for a Princess character card and reveal it to all players. Put that card into your hand and shuffle your deck.",
         "raw": "SEARCH THE KINGDOM Banish this item, {E} one of your Prince characters – Search your deck for a Princess character card and reveal it to all players. Put that card into your hand and shuffle your deck."
       }
     ]
@@ -12037,6 +12057,11 @@
     "rulesText": "HEY, PIDGE If you have a character named Lady in play, you pay 1 {I} less to play this character.\nNO TIME FOR WISECRACKS When you play this character, chosen character of yours gets +1 {S} this turn for each other character you have in play.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_07d1ea2923ad44b9b2dddf78993e103b.avif?1740590321",
     "_namedAbilityStubs": [
+      {
+        "storyName": "HEY, PIDGE",
+        "rulesText": "If you have a character named Lady in play, you pay 1 {I} less to play this character.",
+        "raw": "HEY, PIDGE If you have a character named Lady in play, you pay 1 {I} less to play this character."
+      },
       {
         "storyName": "NO TIME FOR WISECRACKS",
         "rulesText": "When you play this character, chosen character of yours gets +1 {S} this turn for each other character you have in play.",
@@ -12383,6 +12408,11 @@
     "rulesText": "SALVAGE For each item card in your discard, you pay 1 {I} less to play this character using her Shift ability.\nREPURPOSE Whenever this character quests, you may put up to 3 item cards from your discard on the bottom of your deck to gain 1 lore for each item card moved this way.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_0d38ed42e8f14a299f6efefb250350d3.avif?1740590343",
     "_namedAbilityStubs": [
+      {
+        "storyName": "SALVAGE",
+        "rulesText": "For each item card in your discard, you pay 1 {I} less to play this character using her Shift ability.",
+        "raw": "SALVAGE For each item card in your discard, you pay 1 {I} less to play this character using her Shift ability."
+      },
       {
         "storyName": "REPURPOSE",
         "rulesText": "Whenever this character quests, you may put up to 3 item cards from your discard on the bottom of your deck to gain 1 lore for each item card moved this way.",

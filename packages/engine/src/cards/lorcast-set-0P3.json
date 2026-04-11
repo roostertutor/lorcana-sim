@@ -212,8 +212,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e1e04f6d898b4b4c9cbda6adf5c742b8.avif?1773508707",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "ROYAL SUMMONS At the start of your turn, you may choose and discard a Princess or Queen character card to return a character card from your discard to your hand.",
+        "storyName": "ROYAL SUMMONS",
+        "rulesText": "At the start of your turn, you may choose and discard a Princess or Queen character card to return a character card from your discard to your hand.",
         "raw": "ROYAL SUMMONS At the start of your turn, you may choose and discard a Princess or Queen character card to return a character card from your discard to your hand."
       }
     ]
@@ -1089,8 +1089,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_bbd9d2a6b1194759b18eb6e58a3c3d3e.avif?1773508786",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "LAND, HO! Once during your turn, whenever a card is put into your inkwell, you may return a location card from your discard to your hand.",
+        "storyName": "LAND, HO!",
+        "rulesText": "Once during your turn, whenever a card is put into your inkwell, you may return a location card from your discard to your hand.",
         "raw": "LAND, HO! Once during your turn, whenever a card is put into your inkwell, you may return a location card from your discard to your hand."
       }
     ]
@@ -1775,8 +1775,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4c1302eeb29742fe9d14fb23ad017fe9.avif?1773508848",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "ANCESTORS' GIFT For each card in your inkwell, you pay 1 {I} less to play this character.",
+        "storyName": "ANCESTORS' GIFT",
+        "rulesText": "For each card in your inkwell, you pay 1 {I} less to play this character.",
         "raw": "ANCESTORS' GIFT For each card in your inkwell, you pay 1 {I} less to play this character."
       }
     ]
@@ -1824,8 +1824,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d3f28891b837451c8ae29c450dc77b26.avif?1773508858",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "UNDERDOG If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
+        "storyName": "UNDERDOG",
+        "rulesText": "If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
         "raw": "UNDERDOG If this is your first turn and you're not the first player, you pay 1 {I} less to play this character."
       }
     ]
@@ -1900,6 +1900,11 @@
         "storyName": "FOREVER STRONG",
         "rulesText": "Your characters' {S} can't be reduced below their printed value.",
         "raw": "FOREVER STRONG Your characters' {S} can't be reduced below their printed value."
+      },
+      {
+        "storyName": "STONE BY DAY",
+        "rulesText": "If you have 3 or more cards in your hand, this character can't ready.",
+        "raw": "STONE BY DAY If you have 3 or more cards in your hand, this character can't ready."
       }
     ]
   },
@@ -2496,8 +2501,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_49df8641660c4963bc3262e345dee59d.avif?1773508919",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "FAMILY VACATION Once during your turn, whenever this character moves to a location, you may move one of your other characters to that location for free. If you do, draw a card.",
+        "storyName": "FAMILY VACATION",
+        "rulesText": "Once during your turn, whenever this character moves to a location, you may move one of your other characters to that location for free. If you do, draw a card.",
         "raw": "FAMILY VACATION Once during your turn, whenever this character moves to a location, you may move one of your other characters to that location for free. If you do, draw a card."
       }
     ]

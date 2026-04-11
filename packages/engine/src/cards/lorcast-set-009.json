@@ -118,8 +118,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_34b9804b3a084d46b134459658dc8bad.avif?1756518050",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "ROYAL SUMMONS At the start of your turn, you may choose and discard a Princess or Queen character card to return a character card from your discard to your hand.",
+        "storyName": "ROYAL SUMMONS",
+        "rulesText": "At the start of your turn, you may choose and discard a Princess or Queen character card to return a character card from your discard to your hand.",
         "raw": "ROYAL SUMMONS At the start of your turn, you may choose and discard a Princess or Queen character card to return a character card from your discard to your hand."
       }
     ]
@@ -179,8 +179,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5677adbd3274456285c9b05ae5f55fdc.avif?1755540090",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "TWILIGHT BARK Once during your turn, you may pay 2 {I} to reveal the top card of your deck. If it's a character card, put it into your hand. Otherwise, put it on the bottom of your deck.",
+        "storyName": "TWILIGHT BARK",
+        "rulesText": "Once during your turn, you may pay 2 {I} to reveal the top card of your deck. If it's a character card, put it into your hand. Otherwise, put it on the bottom of your deck.",
         "raw": "TWILIGHT BARK Once during your turn, you may pay 2 {I} to reveal the top card of your deck. If it's a character card, put it into your hand. Otherwise, put it on the bottom of your deck."
       }
     ]
@@ -791,8 +791,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d30e5a514aae4bd9b28d98cf45569a23.avif?1755540160",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "GUARD DOG At the start of your turn, remove up to 3 damage from this character.",
+        "storyName": "GUARD DOG",
+        "rulesText": "At the start of your turn, remove up to 3 damage from this character.",
         "raw": "GUARD DOG At the start of your turn, remove up to 3 damage from this character."
       }
     ]
@@ -2940,24 +2940,9 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b07f766507574745ae00ade904bd2558.avif?1755540425",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "MANY FORMS At the start of your turn, you may choose one:",
+        "storyName": "MANY FORMS",
+        "rulesText": "At the start of your turn, you may choose one:",
         "raw": "MANY FORMS At the start of your turn, you may choose one:"
-      },
-      {
-        "storyName": "",
-        "rulesText": "- This character gets +1 {L} this turn.",
-        "raw": "- This character gets +1 {L} this turn."
-      },
-      {
-        "storyName": "",
-        "rulesText": "- This character gains Challenger +2 this turn.",
-        "raw": "- This character gains Challenger +2 this turn."
-      },
-      {
-        "storyName": "",
-        "rulesText": "(While challenging, this character gets +2 {S}.)",
-        "raw": "(While challenging, this character gets +2 {S}.)"
       }
     ]
   },
@@ -3746,8 +3731,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3badd6eb64ca49b18e7ee2cefea06b46.avif?1755540536",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "OUR HOME At the start of your turn, if you have a character here, gain 1 lore.",
+        "storyName": "OUR HOME",
+        "rulesText": "At the start of your turn, if you have a character here, gain 1 lore.",
         "raw": "OUR HOME At the start of your turn, if you have a character here, gain 1 lore."
       }
     ]
@@ -4085,8 +4070,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3bb37ffc029f49ab8557f2eda4c13e58.avif?1755540581",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "FAMILY VACATION Once during your turn, whenever this character moves to a location, you may move one of your other characters to that location for free. If you do, draw a card.",
+        "storyName": "FAMILY VACATION",
+        "rulesText": "Once during your turn, whenever this character moves to a location, you may move one of your other characters to that location for free. If you do, draw a card.",
         "raw": "FAMILY VACATION Once during your turn, whenever this character moves to a location, you may move one of your other characters to that location for free. If you do, draw a card."
       }
     ]
@@ -4655,8 +4640,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_0fbd5245e47044bc842780f9340d4ddd.avif?1755823403",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "ALLOW ME At the start of your turn, each player may draw a card.",
+        "storyName": "ALLOW ME",
+        "rulesText": "At the start of your turn, each player may draw a card.",
         "raw": "ALLOW ME At the start of your turn, each player may draw a card."
       }
     ]
@@ -6109,8 +6094,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3a5f83e2f53f4bf0b0d621014cd8f6cf.avif?1755540821",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "MASH-UP Once during your turn, whenever this character sings a song, look at the top 4 cards of your deck. You may reveal a song card with cost 9 or less and play it for free. Put the rest on the bottom of your deck in any order.",
+        "storyName": "MASH-UP",
+        "rulesText": "Once during your turn, whenever this character sings a song, look at the top 4 cards of your deck. You may reveal a song card with cost 9 or less and play it for free. Put the rest on the bottom of your deck in any order.",
         "raw": "MASH-UP Once during your turn, whenever this character sings a song, look at the top 4 cards of your deck. You may reveal a song card with cost 9 or less and play it for free. Put the rest on the bottom of your deck in any order."
       }
     ]
@@ -6453,8 +6438,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5f1407a8b5fc45a2954e49b95832de67.avif?1755540856",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "ELECTRIC MOVE If you've played a song this turn, this character gains Rush this turn. (They can challenge the turn they're played.)",
+        "storyName": "ELECTRIC MOVE",
+        "rulesText": "If you've played a song this turn, this character gains Rush this turn. (They can challenge the turn they're played.)",
         "raw": "ELECTRIC MOVE If you've played a song this turn, this character gains Rush this turn. (They can challenge the turn they're played.)"
       }
     ]
@@ -7881,6 +7866,11 @@
     "rulesText": "OUT OF SEASON Once during your turn, whenever a character with cost 2 or less is banished, put the top card of your deck into your inkwell facedown and exerted.\nINSULTING REMARK During your turn, each opposing character with cost 2 or less gets -1 {S}.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_2f6ba76c24224b52ad93ee5abc882b80.avif?1755541044",
     "_namedAbilityStubs": [
+      {
+        "storyName": "OUT OF SEASON",
+        "rulesText": "Once during your turn, whenever a character with cost 2 or less is banished, put the top card of your deck into your inkwell facedown and exerted.",
+        "raw": "OUT OF SEASON Once during your turn, whenever a character with cost 2 or less is banished, put the top card of your deck into your inkwell facedown and exerted."
+      },
       {
         "storyName": "INSULTING REMARK",
         "rulesText": "During your turn, each opposing character with cost 2 or less gets -1 {S}.",
@@ -9708,6 +9698,11 @@
         "storyName": "BE GRATEFUL",
         "rulesText": "Your Ally characters get +1 {S}.",
         "raw": "BE GRATEFUL Your Ally characters get +1 {S}."
+      },
+      {
+        "storyName": "STICK WITH ME",
+        "rulesText": "At the end of your turn, if this character is exerted, you may draw cards equal to the {S} of chosen Ally character of yours. If you do, choose and discard 2 cards and banish that character.",
+        "raw": "STICK WITH ME At the end of your turn, if this character is exerted, you may draw cards equal to the {S} of chosen Ally character of yours. If you do, choose and discard 2 cards and banish that character."
       }
     ]
   },
@@ -9944,6 +9939,11 @@
         "storyName": "TAKE THE LEAP",
         "rulesText": "During your turn, this character gains Evasive. (They can challenge characters with Evasive.)",
         "raw": "TAKE THE LEAP During your turn, this character gains Evasive. (They can challenge characters with Evasive.)"
+      },
+      {
+        "storyName": "NOW'S MY CHANCE",
+        "rulesText": "Choose and discard a card — This character gains Challenger +3 this turn. (They get +3 {S} while challenging.)",
+        "raw": "NOW'S MY CHANCE Choose and discard a card — This character gains Challenger +3 this turn. (They get +3 {S} while challenging.)"
       }
     ]
   },
@@ -10644,8 +10644,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_8db5f81d06034612b857a11fc606c5d2.avif?1755541360",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "CHART YOUR OWN COURSE For each location you have in play, this character gains Resist +1 and gets +1 {L}. (Damage dealt to them is reduced by 1.)",
+        "storyName": "CHART YOUR OWN COURSE",
+        "rulesText": "For each location you have in play, this character gains Resist +1 and gets +1 {L}. (Damage dealt to them is reduced by 1.)",
         "raw": "CHART YOUR OWN COURSE For each location you have in play, this character gains Resist +1 and gets +1 {L}. (Damage dealt to them is reduced by 1.)"
       }
     ]
@@ -11303,8 +11303,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_61593ca4abb44723ae95ab9228e27aee.avif?1755541452",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "ROYAL SUMMONS At the start of your turn, you may choose and discard a Princess or Queen character card to return a character card from your discard to your hand.",
+        "storyName": "ROYAL SUMMONS",
+        "rulesText": "At the start of your turn, you may choose and discard a Princess or Queen character card to return a character card from your discard to your hand.",
         "raw": "ROYAL SUMMONS At the start of your turn, you may choose and discard a Princess or Queen character card to return a character card from your discard to your hand."
       }
     ]
@@ -11643,8 +11643,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_bc96b5e1045e45a38da57c302c634ba2.avif?1755541487",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "FAMILY VACATION Once during your turn, whenever this character moves to a location, you may move one of your other characters to that location for free. If you do, draw a card.",
+        "storyName": "FAMILY VACATION",
+        "rulesText": "Once during your turn, whenever this character moves to a location, you may move one of your other characters to that location for free. If you do, draw a card.",
         "raw": "FAMILY VACATION Once during your turn, whenever this character moves to a location, you may move one of your other characters to that location for free. If you do, draw a card."
       }
     ]
@@ -11837,8 +11837,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e234293cec8f422eb1d613594771e5ee.avif?1755541505",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "ELECTRIC MOVE If you've played a song this turn, this character gains Rush this turn. (They can challenge the turn they're played.)",
+        "storyName": "ELECTRIC MOVE",
+        "rulesText": "If you've played a song this turn, this character gains Rush this turn. (They can challenge the turn they're played.)",
         "raw": "ELECTRIC MOVE If you've played a song this turn, this character gains Rush this turn. (They can challenge the turn they're played.)"
       }
     ]
@@ -12318,8 +12318,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c233fd3627b24b02bd616aa62bbdc83a.avif?1755541543",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "TWILIGHT BARK Once during your turn, you may pay 2 {I} to reveal the top card of your deck. If it's a character card, put it into your hand. Otherwise, put it on the bottom of your deck.",
+        "storyName": "TWILIGHT BARK",
+        "rulesText": "Once during your turn, you may pay 2 {I} to reveal the top card of your deck. If it's a character card, put it into your hand. Otherwise, put it on the bottom of your deck.",
         "raw": "TWILIGHT BARK Once during your turn, you may pay 2 {I} to reveal the top card of your deck. If it's a character card, put it into your hand. Otherwise, put it on the bottom of your deck."
       }
     ]
@@ -12937,8 +12937,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_be9c85638bda44878c44cf4cc7e7cfb0.avif?1755541595",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "MASH-UP Once during your turn, whenever this character sings a song, look at the top 4 cards of your deck. You may reveal a song card with cost 9 or less and play it for free. Put the rest on the bottom of your deck in any order.",
+        "storyName": "MASH-UP",
+        "rulesText": "Once during your turn, whenever this character sings a song, look at the top 4 cards of your deck. You may reveal a song card with cost 9 or less and play it for free. Put the rest on the bottom of your deck in any order.",
         "raw": "MASH-UP Once during your turn, whenever this character sings a song, look at the top 4 cards of your deck. You may reveal a song card with cost 9 or less and play it for free. Put the rest on the bottom of your deck in any order."
       }
     ]
@@ -13149,6 +13149,11 @@
     "rulesText": "OUT OF SEASON Once during your turn, whenever a character with cost 2 or less is banished, put the top card of your deck into your inkwell facedown and exerted.\nINSULTING REMARK During your turn, each opposing character with cost 2 or less gets -1 {S}.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f5d62175b09243eda1bf9f34ea01d884.avif?1755541611",
     "_namedAbilityStubs": [
+      {
+        "storyName": "OUT OF SEASON",
+        "rulesText": "Once during your turn, whenever a character with cost 2 or less is banished, put the top card of your deck into your inkwell facedown and exerted.",
+        "raw": "OUT OF SEASON Once during your turn, whenever a character with cost 2 or less is banished, put the top card of your deck into your inkwell facedown and exerted."
+      },
       {
         "storyName": "INSULTING REMARK",
         "rulesText": "During your turn, each opposing character with cost 2 or less gets -1 {S}.",
@@ -13423,6 +13428,11 @@
         "storyName": "BE GRATEFUL",
         "rulesText": "Your Ally characters get +1 {S}.",
         "raw": "BE GRATEFUL Your Ally characters get +1 {S}."
+      },
+      {
+        "storyName": "STICK WITH ME",
+        "rulesText": "At the end of your turn, if this character is exerted, you may draw cards equal to the {S} of chosen Ally character of yours. If you do, choose and discard 2 cards and banish that character.",
+        "raw": "STICK WITH ME At the end of your turn, if this character is exerted, you may draw cards equal to the {S} of chosen Ally character of yours. If you do, choose and discard 2 cards and banish that character."
       }
     ]
   },
@@ -13494,6 +13504,11 @@
         "storyName": "TAKE THE LEAP",
         "rulesText": "During your turn, this character gains Evasive.",
         "raw": "TAKE THE LEAP During your turn, this character gains Evasive."
+      },
+      {
+        "storyName": "NOW'S MY CHANCE",
+        "rulesText": "Choose and discard a card — This character gains Challenger +3 this turn.",
+        "raw": "NOW'S MY CHANCE Choose and discard a card — This character gains Challenger +3 this turn."
       }
     ]
   },

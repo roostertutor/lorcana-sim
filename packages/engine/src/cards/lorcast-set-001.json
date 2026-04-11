@@ -445,8 +445,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5a1091c1a03c43d4854b66426d49aa10.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "LOYAL If you have a character named Gaston in play, you pay 1 {I} less to play this character.",
+        "storyName": "LOYAL",
+        "rulesText": "If you have a character named Gaston in play, you pay 1 {I} less to play this character.",
         "raw": "LOYAL If you have a character named Gaston in play, you pay 1 {I} less to play this character."
       }
     ]
@@ -2488,6 +2488,11 @@
     "flavorText": "He always goes for the clean sweep.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_fa380ef9482e4e808e11365588c7178e.avif?1709690747",
     "_namedAbilityStubs": [
+      {
+        "storyName": "ANIMATE BROOM",
+        "rulesText": "You pay 1 {I} less to play Broom characters.",
+        "raw": "ANIMATE BROOM You pay 1 {I} less to play Broom characters."
+      },
       {
         "storyName": "CEASELESS WORKER",
         "rulesText": "Whenever one of your Broom characters is banished in a challenge, you may return that card to your hand.",
@@ -6285,8 +6290,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3c0355d3cc2d409e9b10876744aa534a.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "TAKE A BITE... 1 {I}, Banish this item — Exert chosen character. If a Princess character is chosen, banish her instead.",
+        "storyName": "TAKE A BITE... 1 {I},",
+        "rulesText": "Banish this item — Exert chosen character. If a Princess character is chosen, banish her instead.",
         "raw": "TAKE A BITE... 1 {I}, Banish this item — Exert chosen character. If a Princess character is chosen, banish her instead."
       }
     ]
@@ -6402,8 +6407,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_19c135ff62f2427d93b3131114b4c10b.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "FINAL ENCHANTMENT Banish this item — Banish chosen Villain character.",
+        "storyName": "FINAL ENCHANTMENT",
+        "rulesText": "Banish this item — Banish chosen Villain character.",
         "raw": "FINAL ENCHANTMENT Banish this item — Banish chosen Villain character."
       }
     ]
@@ -8039,8 +8044,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_33a1cfa2557e48ba8b7aac42a10592f6.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "HEALING POLLEN Banish this item — Remove up to 3 damage from chosen character.",
+        "storyName": "HEALING POLLEN",
+        "rulesText": "Banish this item — Remove up to 3 damage from chosen character.",
         "raw": "HEALING POLLEN Banish this item — Remove up to 3 damage from chosen character."
       }
     ]
@@ -9599,8 +9604,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_aa294faf68c14f559c22e0e79a6c101e.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "CLANG! Banish this item — Chosen character can't challenge during their next turn.",
+        "storyName": "CLANG!",
+        "rulesText": "Banish this item — Chosen character can't challenge during their next turn.",
         "raw": "CLANG! Banish this item — Chosen character can't challenge during their next turn."
       }
     ]
@@ -9976,6 +9981,11 @@
     "rulesText": "ANIMATE BROOM You pay 1 {I} less to play Broom characters.\nCEASELESS WORKER Whenever one of your Broom characters is banished in a challenge, you may return that card to your hand.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5739e1f6076840cd901a1bc283ca6e96.avif?1709690747",
     "_namedAbilityStubs": [
+      {
+        "storyName": "ANIMATE BROOM",
+        "rulesText": "You pay 1 {I} less to play Broom characters.",
+        "raw": "ANIMATE BROOM You pay 1 {I} less to play Broom characters."
+      },
       {
         "storyName": "CEASELESS WORKER",
         "rulesText": "Whenever one of your Broom characters is banished in a challenge, you may return that card to your hand.",

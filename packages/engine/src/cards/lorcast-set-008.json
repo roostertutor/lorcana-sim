@@ -322,8 +322,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5271034abc194947b4c2b0e9c66b7f78.avif?1747703531",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "PLENTY TO GO AROUND At the end of your turn, you may remove up to 1 damage from each of your other characters. Ready each character you removed damage from this way.",
+        "storyName": "PLENTY TO GO AROUND",
+        "rulesText": "At the end of your turn, you may remove up to 1 damage from each of your other characters. Ready each character you removed damage from this way.",
         "raw": "PLENTY TO GO AROUND At the end of your turn, you may remove up to 1 damage from each of your other characters. Ready each character you removed damage from this way."
       }
     ]
@@ -390,8 +390,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_2564aee724494e5f99b9688aad48753f.avif?1747506672",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "OF COURSE THEY CAN COME Once during your turn, whenever one of your characters sings a song, you may search your deck for a character card with cost 3 or less and reveal that card to all players. Put that card into your hand and shuffle your deck.",
+        "storyName": "OF COURSE THEY CAN COME",
+        "rulesText": "Once during your turn, whenever one of your characters sings a song, you may search your deck for a character card with cost 3 or less and reveal that card to all players. Put that card into your hand and shuffle your deck.",
         "raw": "OF COURSE THEY CAN COME Once during your turn, whenever one of your characters sings a song, you may search your deck for a character card with cost 3 or less and reveal that card to all players. Put that card into your hand and shuffle your deck."
       }
     ]
@@ -2242,8 +2242,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_387766e68940442bb6c5b7e29d18626f.avif?1747507335",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "THE MIRACLE IS YOU Once during your turn, whenever one or more of your characters sings a song, you may ready those characters.",
+        "storyName": "THE MIRACLE IS YOU",
+        "rulesText": "Once during your turn, whenever one or more of your characters sings a song, you may ready those characters.",
         "raw": "THE MIRACLE IS YOU Once during your turn, whenever one or more of your characters sings a song, you may ready those characters."
       }
     ]
@@ -2436,6 +2436,11 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_fef2291c6e394415a529772dcda9e9b0.avif?1747507348",
     "_namedAbilityStubs": [
       {
+        "storyName": "HERE, PIGGY, PIGGY",
+        "rulesText": "For each item named The Nephews' Piggy Bank you have in play, you pay 2 {I} less to play this character.",
+        "raw": "HERE, PIGGY, PIGGY For each item named The Nephews' Piggy Bank you have in play, you pay 2 {I} less to play this character."
+      },
+      {
         "storyName": "MONEY EVERYWHERE",
         "rulesText": "When you play this character, your other characters gain \"{E} – Draw a card\" this turn.",
         "raw": "MONEY EVERYWHERE When you play this character, your other characters gain \"{E} – Draw a card\" this turn."
@@ -2469,8 +2474,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_61323fccb37c45d9b2fb428f60adcf05.avif?1747507352",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "WHERE DID THEY ALL COME FROM? You may have up to 99 copies of Dalmatian Puppy – Tail Wagger in your deck.",
+        "storyName": "WHERE DID THEY ALL COME FROM?",
+        "rulesText": "You may have up to 99 copies of Dalmatian Puppy – Tail Wagger in your deck.",
         "raw": "WHERE DID THEY ALL COME FROM? You may have up to 99 copies of Dalmatian Puppy – Tail Wagger in your deck."
       }
     ]
@@ -2839,6 +2844,11 @@
     "rulesText": "INSIDE JOB If you have a character named Donald Duck in play, you pay 1 {I} less to play this item.\nPAYOFF {E} – Chosen character gets -1 {S} until the start of your next turn.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_69db4cb0362b4673aeee6d9dea53f23f.avif?1747507377",
     "_namedAbilityStubs": [
+      {
+        "storyName": "INSIDE JOB",
+        "rulesText": "If you have a character named Donald Duck in play, you pay 1 {I} less to play this item.",
+        "raw": "INSIDE JOB If you have a character named Donald Duck in play, you pay 1 {I} less to play this item."
+      },
       {
         "storyName": "PAYOFF",
         "rulesText": "Chosen character gets -1 {S} until the start of your next turn.",
@@ -3651,8 +3661,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a6a007b0f7ae4fa19480721bacd2b0b6.avif?1747508548",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "ICE OVER 1 {I} , Choose and discard a card — Exert chosen opposing character.",
+        "storyName": "ICE OVER 1 {I} ,",
+        "rulesText": "Choose and discard a card — Exert chosen opposing character.",
         "raw": "ICE OVER 1 {I} , Choose and discard a card — Exert chosen opposing character."
       }
     ]
@@ -3710,8 +3720,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a0a931cb7b6248b3a56080e7f39b7e2b.avif?1747508668",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "GOT TO KEEP REAL QUIET Once during your turn, whenever you ready this character, you may draw a card.",
+        "storyName": "GOT TO KEEP REAL QUIET",
+        "rulesText": "Once during your turn, whenever you ready this character, you may draw a card.",
         "raw": "GOT TO KEEP REAL QUIET Once during your turn, whenever you ready this character, you may draw a card."
       }
     ]
@@ -3912,8 +3922,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_bb513d50f4fb44aab988cf4dca6c9fe5.avif?1747508711",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "FULL BREACH Choose and discard a card – Ready this character. He can't quest for the rest of this turn.",
+        "storyName": "FULL BREACH",
+        "rulesText": "Choose and discard a card – Ready this character. He can't quest for the rest of this turn.",
         "raw": "FULL BREACH Choose and discard a card – Ready this character. He can't quest for the rest of this turn."
       }
     ]
@@ -5793,8 +5803,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a48e0fd953434daa8315590258fe62a6.avif?1747508969",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "ARE YOU SURE THIS IS SAFE, CAPTAIN? If you have a character named Don Karnage in play, you pay 1 {I} less to play this character.",
+        "storyName": "ARE YOU SURE THIS IS SAFE, CAPTAIN?",
+        "rulesText": "If you have a character named Don Karnage in play, you pay 1 {I} less to play this character.",
         "raw": "ARE YOU SURE THIS IS SAFE, CAPTAIN? If you have a character named Don Karnage in play, you pay 1 {I} less to play this character."
       }
     ]
@@ -6774,8 +6784,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_70bf0783fba940a594f5f2cbac285f58.avif?1747509075",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "GIVE ’EM ALL YOU GOT! Once during your turn, whenever an opposing character is damaged, your Pirate characters get +2 {S} and gain Resist +2 this turn. (Damage dealt to them is reduced by 2.)",
+        "storyName": "GIVE ’EM ALL YOU GOT!",
+        "rulesText": "Once during your turn, whenever an opposing character is damaged, your Pirate characters get +2 {S} and gain Resist +2 this turn. (Damage dealt to them is reduced by 2.)",
         "raw": "GIVE ’EM ALL YOU GOT! Once during your turn, whenever an opposing character is damaged, your Pirate characters get +2 {S} and gain Resist +2 this turn. (Damage dealt to them is reduced by 2.)"
       }
     ]
@@ -10257,6 +10267,11 @@
         "storyName": "SO NAUGHTY",
         "rulesText": "When you play this character, each opponent puts the top card of their deck into their inkwell facedown and exerted.",
         "raw": "SO NAUGHTY When you play this character, each opponent puts the top card of their deck into their inkwell facedown and exerted."
+      },
+      {
+        "storyName": "STEALTH MODE",
+        "rulesText": "At the start of your turn, if this card is in your discard, you may choose and discard a card with {IW} to play this character for free and he enters play exerted.",
+        "raw": "STEALTH MODE At the start of your turn, if this card is in your discard, you may choose and discard a card with {IW} to play this character for free and he enters play exerted."
       }
     ]
   },
@@ -10314,8 +10329,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_6119229219f04cdaa2650c87645a1bf4.avif?1747509393",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "TIME RUNS OUT At the end of your turn, if you didn't put any cards into your inkwell this turn, banish this character.",
+        "storyName": "TIME RUNS OUT",
+        "rulesText": "At the end of your turn, if you didn't put any cards into your inkwell this turn, banish this character.",
         "raw": "TIME RUNS OUT At the end of your turn, if you didn't put any cards into your inkwell this turn, banish this character."
       }
     ]
@@ -11591,6 +11606,11 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7a1795d8ea814feb8b1c6bc53a692f78.avif?1747509494",
     "_namedAbilityStubs": [
       {
+        "storyName": "BEST MATES",
+        "rulesText": "If you have a character named Monterey Jack in play, you pay 1 {I} less to play this character.",
+        "raw": "BEST MATES If you have a character named Monterey Jack in play, you pay 1 {I} less to play this character."
+      },
+      {
         "storyName": "BURST OF SPEED",
         "rulesText": "During your turn, this character gains Evasive. (They can challenge characters with Evasive.)",
         "raw": "BURST OF SPEED During your turn, this character gains Evasive. (They can challenge characters with Evasive.)"
@@ -11777,8 +11797,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_06dcb232c2b84e47923c74acc1f755aa.avif?1747509509",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "PREDATORY INSTINCT You can't play this character unless an opposing character was damaged this turn.",
+        "storyName": "PREDATORY INSTINCT",
+        "rulesText": "You can't play this character unless an opposing character was damaged this turn.",
         "raw": "PREDATORY INSTINCT You can't play this character unless an opposing character was damaged this turn."
       }
     ],
@@ -13130,8 +13150,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_0a53330fb9424adcab9e92d04aa428a0.avif?1748996315",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "GIVE 'EM ALL YOU GOT! Once during your turn, whenever an opposing character is damaged, your Pirate characters get +2 {S} and gain Resist +2 this turn. (Damage dealt to them is reduced by 2.)",
+        "storyName": "GIVE 'EM ALL YOU GOT!",
+        "rulesText": "Once during your turn, whenever an opposing character is damaged, your Pirate characters get +2 {S} and gain Resist +2 this turn. (Damage dealt to them is reduced by 2.)",
         "raw": "GIVE 'EM ALL YOU GOT! Once during your turn, whenever an opposing character is damaged, your Pirate characters get +2 {S} and gain Resist +2 this turn. (Damage dealt to them is reduced by 2.)"
       }
     ]
@@ -13530,6 +13550,11 @@
         "storyName": "SO NAUGHTY",
         "rulesText": "When you play this character, each opponent puts the top card of their deck into their inkwell facedown and exerted.",
         "raw": "SO NAUGHTY When you play this character, each opponent puts the top card of their deck into their inkwell facedown and exerted."
+      },
+      {
+        "storyName": "STEALTH MODE",
+        "rulesText": "At the start of your turn, if this card is in your discard, you may choose and discard a card with {IW} to play this character for free and he enters play exerted.",
+        "raw": "STEALTH MODE At the start of your turn, if this card is in your discard, you may choose and discard a card with {IW} to play this character for free and he enters play exerted."
       }
     ]
   },

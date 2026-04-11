@@ -517,8 +517,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4047afdc24734dc081571f81815febd8.avif?1716052430",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "STOLEN AWAY At the end of your turn, if you didn't play a song this turn, banish this character.",
+        "storyName": "STOLEN AWAY",
+        "rulesText": "At the end of your turn, if you didn't play a song this turn, banish this character.",
         "raw": "STOLEN AWAY At the end of your turn, if you didn't play a song this turn, banish this character."
       }
     ]
@@ -693,8 +693,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9002164290424cb1911b9817cf1abf95.avif?1716052430",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "HERE BOY If you have a character named Prince Eric in play, you pay 1 {I} less to play this character.",
+        "storyName": "HERE BOY",
+        "rulesText": "If you have a character named Prince Eric in play, you pay 1 {I} less to play this character.",
         "raw": "HERE BOY If you have a character named Prince Eric in play, you pay 1 {I} less to play this character."
       }
     ]
@@ -1594,8 +1594,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f192e99706074455884cf28efb9ee03a.avif?1716052430",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "ABUELA'S GIFT Banish this item — If you have 3 or more characters in play, gain 2 lore and remove up to 2 damage from chosen location.",
+        "storyName": "ABUELA'S GIFT",
+        "rulesText": "Banish this item — If you have 3 or more characters in play, gain 2 lore and remove up to 2 damage from chosen location.",
         "raw": "ABUELA'S GIFT Banish this item — If you have 3 or more characters in play, gain 2 lore and remove up to 2 damage from chosen location."
       }
     ]
@@ -2161,19 +2161,9 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_dd2e51f86dbb42e59b5b378170b9c189.avif?1716052430",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "MANY FORMS At the start of your turn, you may choose one:",
+        "storyName": "MANY FORMS",
+        "rulesText": "At the start of your turn, you may choose one:",
         "raw": "MANY FORMS At the start of your turn, you may choose one:"
-      },
-      {
-        "storyName": "",
-        "rulesText": "• This character gets +1 {L} this turn.",
-        "raw": "• This character gets +1 {L} this turn."
-      },
-      {
-        "storyName": "",
-        "rulesText": "• This character gains Challenger +2 this turn. (While challenging, this character gets +2 {S}.)",
-        "raw": "• This character gains Challenger +2 this turn. (While challenging, this character gets +2 {S}.)"
       }
     ]
   },
@@ -3511,8 +3501,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_1f22214638bd46d089a6751e57dfd829.avif?1716052430",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "DISPEL THE ENTANGLEMENT Banish this item — Chosen character named Beast gets +2 {L} this turn. If you have a character named Belle in play, move up to 3 damage counters from chosen character to chosen opposing character.",
+        "storyName": "DISPEL THE ENTANGLEMENT",
+        "rulesText": "Banish this item — Chosen character named Beast gets +2 {L} this turn. If you have a character named Belle in play, move up to 3 damage counters from chosen character to chosen opposing character.",
         "raw": "DISPEL THE ENTANGLEMENT Banish this item — Chosen character named Beast gets +2 {L} this turn. If you have a character named Belle in play, move up to 3 damage counters from chosen character to chosen opposing character."
       }
     ]
@@ -3628,8 +3618,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_57067560f7f0499da43dd94731e85552.avif?1716052430",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "SYMBOL OF POWER Banish this item — Chosen character gets +1 {S} this turn for each card in your hand.",
+        "storyName": "SYMBOL OF POWER",
+        "rulesText": "Banish this item — Chosen character gets +1 {S} this turn for each card in your hand.",
         "raw": "SYMBOL OF POWER Banish this item — Chosen character gets +1 {S} this turn for each card in your hand."
       }
     ]
@@ -3680,8 +3670,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3d71ecca4c6c4ec8ba289a785f237535.avif?1716052430",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "OUR HOME At the start of your turn, if you have a character here gain 1 lore.",
+        "storyName": "OUR HOME",
+        "rulesText": "At the start of your turn, if you have a character here gain 1 lore.",
         "raw": "OUR HOME At the start of your turn, if you have a character here gain 1 lore."
       }
     ]
@@ -5578,14 +5568,9 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_58f8144b0f884b70a2a6b946ba8377cd.avif?1716052430",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "DANGER REVEALED At the start of your turn, if an opposing character has damage, gain 1 lore.",
+        "storyName": "DANGER REVEALED",
+        "rulesText": "At the start of your turn, if an opposing character has damage, gain 1 lore.",
         "raw": "DANGER REVEALED At the start of your turn, if an opposing character has damage, gain 1 lore."
-      },
-      {
-        "storyName": "",
-        "rulesText": "TRAPPED! Damage counters can't be removed.",
-        "raw": "TRAPPED! Damage counters can't be removed."
       }
     ]
   },
@@ -5931,8 +5916,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7cdbe543d7e447a6a84144d85870b3b9.avif?1716052430",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "NARROW ADVANTAGE At the start of your turn, if you have a character in play with more {S} than each opposing character, gain 3 lore.",
+        "storyName": "NARROW ADVANTAGE",
+        "rulesText": "At the start of your turn, if you have a character in play with more {S} than each opposing character, gain 3 lore.",
         "raw": "NARROW ADVANTAGE At the start of your turn, if you have a character in play with more {S} than each opposing character, gain 3 lore."
       }
     ]
@@ -7425,19 +7410,9 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_20286eaca8e44e0c8527a00bf07be1c7.avif?1716052430",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "WALK! 2 {I}, Banish this item – Choose one:",
+        "storyName": "WALK! 2 {I},",
+        "rulesText": "Banish this item – Choose one:",
         "raw": "WALK! 2 {I}, Banish this item – Choose one:"
-      },
-      {
-        "storyName": "",
-        "rulesText": "• Banish chosen Hero character.",
-        "raw": "• Banish chosen Hero character."
-      },
-      {
-        "storyName": "",
-        "rulesText": "• Ready chosen Villain character. They can't quest for the rest of this turn.",
-        "raw": "• Ready chosen Villain character. They can't quest for the rest of this turn."
       }
     ]
   },
@@ -7501,8 +7476,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_0377cc62eb6044bc808843bbcd39eb48.avif?1716052430",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "EXTRACT OF RUBY 1 {I}, Banish this item — Chosen character gains Rush and gets +2 {S} this turn. (They can challenge the turn they're played.)",
+        "storyName": "EXTRACT OF RUBY 1 {I},",
+        "rulesText": "Banish this item — Chosen character gains Rush and gets +2 {S} this turn. (They can challenge the turn they're played.)",
         "raw": "EXTRACT OF RUBY 1 {I}, Banish this item — Chosen character gains Rush and gets +2 {S} this turn. (They can challenge the turn they're played.)"
       }
     ]
@@ -7668,8 +7643,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_323c71c954624f77820944871a8100bd.avif?1716052430",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "I WAS BORN READY If you have another Hero character in play, this character gets +1 {L}.",
+        "storyName": "I WAS BORN READY",
+        "rulesText": "If you have another Hero character in play, this character gets +1 {L}.",
         "raw": "I WAS BORN READY If you have another Hero character in play, this character gets +1 {L}."
       }
     ]
@@ -8047,8 +8022,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e5268062a91d46d1b89bd272a3f8c043.avif?1716052430",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "I'M NOT A GUPPY If you have a character named Ariel in play, you pay 1 {I} less to play this character.",
+        "storyName": "I'M NOT A GUPPY",
+        "rulesText": "If you have a character named Ariel in play, you pay 1 {I} less to play this character.",
         "raw": "I'M NOT A GUPPY If you have a character named Ariel in play, you pay 1 {I} less to play this character."
       }
     ]
@@ -11017,6 +10992,11 @@
         "storyName": "RESOURCEFUL",
         "rulesText": "When you play this item, you may draw a card.",
         "raw": "RESOURCEFUL When you play this item, you may draw a card."
+      },
+      {
+        "storyName": "EXTRACT OF STEEL 1 {I},",
+        "rulesText": "Banish this item — Chosen character of yours gains Bodyguard until the start of your next turn. (An opposing character who challenges one of your characters must choose one with Bodyguard if able.)",
+        "raw": "EXTRACT OF STEEL 1 {I}, Banish this item — Chosen character of yours gains Bodyguard until the start of your next turn. (An opposing character who challenges one of your characters must choose one with Bodyguard if able.)"
       }
     ]
   },

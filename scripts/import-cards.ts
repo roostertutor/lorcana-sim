@@ -264,7 +264,7 @@ function detectNamedAbilities(text: string | null): AbilityStub[] {
 
     // Named abilities have an all-caps title (e.g. "I SUMMON THEE", "MIRROR, MIRROR").
     // Extract the title part before the first separator or trigger/static keyword.
-    const titlePart = line.split(/\s[–—-]\s|\s*\(|\s*\{E\}|\s+(?:When |Whenever |During |This |While |Your |Opposing |Characters |All )/)[0]!.trim();
+    const titlePart = line.split(/\s[–—-]\s|\s*\(|\s*\{E\}|\s+(?:When |Whenever |During |Once |This |While |Your |Opposing |Characters |All |Each |For |If |At |Put |Return |Draw |Deal |Banish |Ready |Exert |Look |Reveal |Search |Shuffle |Choose |Chosen |The |You )/)[0]!.trim();
     if (
       titlePart.length > 0 &&
       titlePart === titlePart.toUpperCase() &&

@@ -1516,8 +1516,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_1dfcefb9ec294a798aabd2a21300d88d.avif?1728609660",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "CHART YOUR OWN COURSE For each location you have in play, this character gains Resist +1 and gets +1 {L}. (Damage dealt to them is reduced by 1.)",
+        "storyName": "CHART YOUR OWN COURSE",
+        "rulesText": "For each location you have in play, this character gains Resist +1 and gets +1 {L}. (Damage dealt to them is reduced by 1.)",
         "raw": "CHART YOUR OWN COURSE For each location you have in play, this character gains Resist +1 and gets +1 {L}. (Damage dealt to them is reduced by 1.)"
       }
     ]

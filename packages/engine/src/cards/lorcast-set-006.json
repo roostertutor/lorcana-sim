@@ -117,8 +117,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f17c60d077554d25b50fd934061b2e32.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "NO PLACE I’D RATHER BE At the start of your turn, if this card is in your discard, you may play her and she enters play exerted.",
+        "storyName": "NO PLACE I’D RATHER BE",
+        "rulesText": "At the start of your turn, if this card is in your discard, you may play her and she enters play exerted.",
         "raw": "NO PLACE I’D RATHER BE At the start of your turn, if this card is in your discard, you may play her and she enters play exerted."
       }
     ]
@@ -747,8 +747,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_17a352bad7df43d2bfd36a9c2c475c6c.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "NEED SOME HELP? At the end of your turn, you may ready another chosen character of yours.",
+        "storyName": "NEED SOME HELP?",
+        "rulesText": "At the end of your turn, you may ready another chosen character of yours.",
         "raw": "NEED SOME HELP? At the end of your turn, you may ready another chosen character of yours."
       }
     ]
@@ -1085,8 +1085,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a94b5e02de4a43bdba60303fffe3d20f.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "UNDERSTAND THE BALANCE At the end of your turn, if this character is exerted, you may ready your other characters.",
+        "storyName": "UNDERSTAND THE BALANCE",
+        "rulesText": "At the end of your turn, if this character is exerted, you may ready your other characters.",
         "raw": "UNDERSTAND THE BALANCE At the end of your turn, if this character is exerted, you may ready your other characters."
       }
     ]
@@ -1351,8 +1351,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_19217586b3924276aa8996d318f83139.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "THE GANG'S ALL HERE Once during your turn, whenever you play another character, you may ready this character. He can’t quest or challenge for the rest of this turn.",
+        "storyName": "THE GANG'S ALL HERE",
+        "rulesText": "Once during your turn, whenever you play another character, you may ready this character. He can’t quest or challenge for the rest of this turn.",
         "raw": "THE GANG'S ALL HERE Once during your turn, whenever you play another character, you may ready this character. He can’t quest or challenge for the rest of this turn."
       }
     ]
@@ -1711,8 +1711,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d4d40d9e539442f592da01b640e440a7.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "MAKE IT SING 1 {I}, Banish this item - Chosen character counts as having +3 cost to sing songs this turn.",
+        "storyName": "MAKE IT SING 1 {I},",
+        "rulesText": "Banish this item - Chosen character counts as having +3 cost to sing songs this turn.",
         "raw": "MAKE IT SING 1 {I}, Banish this item - Chosen character counts as having +3 cost to sing songs this turn."
       }
     ]
@@ -2910,8 +2910,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_997d20bbd2204f4a8cd9670598d8405c.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "OH, BAT GIZZARDS 2 {I}, Choose and discard a card - Gain 1 lore.",
+        "storyName": "OH, BAT GIZZARDS 2 {I},",
+        "rulesText": "Choose and discard a card - Gain 1 lore.",
         "raw": "OH, BAT GIZZARDS 2 {I}, Choose and discard a card - Gain 1 lore."
       }
     ]
@@ -3282,6 +3282,11 @@
         "storyName": "YOUR REWARD AWAITS",
         "rulesText": "Whenever you play a card, draw a card.",
         "raw": "YOUR REWARD AWAITS Whenever you play a card, draw a card."
+      },
+      {
+        "storyName": "FORBIDDEN TREASURE",
+        "rulesText": "At the end of your turn, put all the cards in your hand on the bottom of your deck in any order.",
+        "raw": "FORBIDDEN TREASURE At the end of your turn, put all the cards in your hand on the bottom of your deck in any order."
       }
     ]
   },
@@ -3760,13 +3765,13 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9119b44cfe67444288a32f23009541e8.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "NOT BAD At the start of your turn, you may move 1 damage counter from chosen character here to chosen opposing character.",
+        "storyName": "NOT BAD",
+        "rulesText": "At the start of your turn, you may move 1 damage counter from chosen character here to chosen opposing character.",
         "raw": "NOT BAD At the start of your turn, you may move 1 damage counter from chosen character here to chosen opposing character."
       },
       {
-        "storyName": "",
-        "rulesText": "HARD-EARNED WISDOM At the start of your turn, if you have a character named Mama Odie here, gain 1 lore.",
+        "storyName": "HARD-EARNED WISDOM",
+        "rulesText": "At the start of your turn, if you have a character named Mama Odie here, gain 1 lore.",
         "raw": "HARD-EARNED WISDOM At the start of your turn, if you have a character named Mama Odie here, gain 1 lore."
       }
     ]
@@ -5423,8 +5428,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_6d0654972afb4eb581136a391d3f967b.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "RESOURCE ALLOCATION 1 {I}, Banish this item - Return chosen character with 2 {S} or less to their player's hand.",
+        "storyName": "RESOURCE ALLOCATION 1 {I},",
+        "rulesText": "Banish this item - Return chosen character with 2 {S} or less to their player's hand.",
         "raw": "RESOURCE ALLOCATION 1 {I}, Banish this item - Return chosen character with 2 {S} or less to their player's hand."
       }
     ]
@@ -5491,8 +5496,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9d508f285a934e1fbdd5182fc46734b9.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "GIVE 'EM A SHOW At the start of your turn, you may move a character of yours to a location for free.",
+        "storyName": "GIVE 'EM A SHOW",
+        "rulesText": "At the start of your turn, you may move a character of yours to a location for free.",
         "raw": "GIVE 'EM A SHOW At the start of your turn, you may move a character of yours to a location for free."
       }
     ]
@@ -5628,6 +5633,11 @@
     "rulesText": "TEAMWORK For each character you have here, you pay 1 {I} less for the first action you play each turn.\nLOTS TO LEARN Whenever you play a second action in a turn, gain 3 lore.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_2f052175c77d4035b1e261bf1675aee8.avif?1730901319",
     "_namedAbilityStubs": [
+      {
+        "storyName": "TEAMWORK",
+        "rulesText": "For each character you have here, you pay 1 {I} less for the first action you play each turn.",
+        "raw": "TEAMWORK For each character you have here, you pay 1 {I} less for the first action you play each turn."
+      },
       {
         "storyName": "LOTS TO LEARN",
         "rulesText": "Whenever you play a second action in a turn, gain 3 lore.",
@@ -5923,8 +5933,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_8ca524116c8e486f99597ca9a67b803b.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "COME ON, LET'S DO THIS Once during your turn, whenever a card is put into your inkwell, you may ready another chosen character of yours. They can't quest for the rest of this turn.",
+        "storyName": "COME ON, LET'S DO THIS",
+        "rulesText": "Once during your turn, whenever a card is put into your inkwell, you may ready another chosen character of yours. They can't quest for the rest of this turn.",
         "raw": "COME ON, LET'S DO THIS Once during your turn, whenever a card is put into your inkwell, you may ready another chosen character of yours. They can't quest for the rest of this turn."
       }
     ]
@@ -6142,8 +6152,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_cfd767c1ed88437486b41bb5670ccc1c.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "AS READY AS I'LL EVER BE At the start of your turn, if this character is at a location, draw a card and gain 1 lore.",
+        "storyName": "AS READY AS I'LL EVER BE",
+        "rulesText": "At the start of your turn, if this character is at a location, draw a card and gain 1 lore.",
         "raw": "AS READY AS I'LL EVER BE At the start of your turn, if this character is at a location, draw a card and gain 1 lore."
       }
     ]
@@ -6574,8 +6584,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_0e20ed4554c44df494fcf78ac9ce0239.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "LAND, HO! Once during your turn, whenever a card is put into your inkwell, you may return a location card from your discard to your hand.",
+        "storyName": "LAND, HO!",
+        "rulesText": "Once during your turn, whenever a card is put into your inkwell, you may return a location card from your discard to your hand.",
         "raw": "LAND, HO! Once during your turn, whenever a card is put into your inkwell, you may return a location card from your discard to your hand."
       }
     ]
@@ -7447,8 +7457,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5b57ee130c204b778df487c9826834c1.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "TINY THIEVES At the start of your turn, if you have a character here, all opponents lose 1 lore and you gain lore equal to the lore lost this way.",
+        "storyName": "TINY THIEVES",
+        "rulesText": "At the start of your turn, if you have a character here, all opponents lose 1 lore and you gain lore equal to the lore lost this way.",
         "raw": "TINY THIEVES At the start of your turn, if you have a character here, all opponents lose 1 lore and you gain lore equal to the lore lost this way."
       }
     ]
@@ -7523,6 +7533,11 @@
         "storyName": "FAMILIAR GROUND",
         "rulesText": "Characters get +1 {S} while here.",
         "raw": "FAMILIAR GROUND Characters get +1 {S} while here."
+      },
+      {
+        "storyName": "SAFE HAVEN",
+        "rulesText": "At the start of your turn, if you have a Pirate character here, gain 1 lore.",
+        "raw": "SAFE HAVEN At the start of your turn, if you have a Pirate character here, gain 1 lore."
       }
     ]
   },
@@ -8763,6 +8778,11 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b846145aa8e84e80a877721741b41f50.avif?1730901319",
     "_namedAbilityStubs": [
       {
+        "storyName": "FULLY CHARGED",
+        "rulesText": "If you have an Inventor character in play, you pay 1 {I} less to play this character.",
+        "raw": "FULLY CHARGED If you have an Inventor character in play, you pay 1 {I} less to play this character."
+      },
+      {
         "storyName": "YOU SAID 'OW' 2 {I}",
         "rulesText": "- Remove up to 1 damage from another chosen character.",
         "raw": "YOU SAID 'OW' 2 {I} - Remove up to 1 damage from another chosen character."
@@ -9017,6 +9037,11 @@
     "rulesText": "NEUROTRANSMITTER You may play items named Microbots for free.\nTECHNICAL GAIN Whenever this character quests, draw a card for each opposing character with {S}.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c2ee125c29104a138b2a26608d6849c1.avif?1730901319",
     "_namedAbilityStubs": [
+      {
+        "storyName": "NEUROTRANSMITTER",
+        "rulesText": "You may play items named Microbots for free.",
+        "raw": "NEUROTRANSMITTER You may play items named Microbots for free."
+      },
       {
         "storyName": "TECHNICAL GAIN",
         "rulesText": "Whenever this character quests, draw a card for each opposing character with {S}.",
@@ -9471,6 +9496,11 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_bb181c94e74a4e6e8983a33275b59f55.avif?1730901319",
     "_namedAbilityStubs": [
       {
+        "storyName": "LIMITLESS APPLICATIONS",
+        "rulesText": "You may have any number of cards named Microbots in your deck.",
+        "raw": "LIMITLESS APPLICATIONS You may have any number of cards named Microbots in your deck."
+      },
+      {
         "storyName": "INSPIRED TECH",
         "rulesText": "When you play this item, chosen character gets -1 {S} this turn for each item named Microbots you have in play.",
         "raw": "INSPIRED TECH When you play this item, chosen character gets -1 {S} this turn for each item named Microbots you have in play."
@@ -9529,8 +9559,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f19a04399d3d44a9b9e346a4ee4741a4.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "HERE YOU GO Banish this item – Remove up to 2 damage from each of your characters. Draw a card.",
+        "storyName": "HERE YOU GO",
+        "rulesText": "Banish this item – Remove up to 2 damage from each of your characters. Draw a card.",
         "raw": "HERE YOU GO Banish this item – Remove up to 2 damage from each of your characters. Draw a card."
       }
     ]
@@ -9584,8 +9614,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d6deefa8519c46a39b105b62d7b857f4.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "PLANNING SESSION At the start of your turn, if you have a character here, you may put the top card of your deck into your inkwell facedown and exerted.",
+        "storyName": "PLANNING SESSION",
+        "rulesText": "At the start of your turn, if you have a character here, you may put the top card of your deck into your inkwell facedown and exerted.",
         "raw": "PLANNING SESSION At the start of your turn, if you have a character here, you may put the top card of your deck into your inkwell facedown and exerted."
       }
     ]
@@ -9657,13 +9687,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b499c66fd5104b3a994c3a6bd51ba692.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "WELCOME TO THE LAB Inventor characters get +1 {W} while here.",
-        "raw": "WELCOME TO THE LAB Inventor characters get +1 {W} while here."
-      },
-      {
-        "storyName": "",
-        "rulesText": "PUSH THE BOUNDARIES At the start of your turn, if you have a character here, gain 1 lore.",
+        "storyName": "PUSH THE BOUNDARIES",
+        "rulesText": "At the start of your turn, if you have a character here, gain 1 lore.",
         "raw": "PUSH THE BOUNDARIES At the start of your turn, if you have a character here, gain 1 lore."
       }
     ]
@@ -11002,8 +11027,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_10eefc9e8b2943c0a29f6e19a1c114a0.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "DON'T JUST SIT THERE! At the start of your turn, deal 1 damage to each opposing ready character.",
+        "storyName": "DON'T JUST SIT THERE!",
+        "rulesText": "At the start of your turn, deal 1 damage to each opposing ready character.",
         "raw": "DON'T JUST SIT THERE! At the start of your turn, deal 1 damage to each opposing ready character."
       }
     ]
@@ -11554,8 +11579,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_dc9cd90360a14c2488e647a1934a17bb.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "SECRET WEAPON At the start of your turn, deal damage to chosen character or location equal to the number of characters here.",
+        "storyName": "SECRET WEAPON",
+        "rulesText": "At the start of your turn, deal damage to chosen character or location equal to the number of characters here.",
         "raw": "SECRET WEAPON At the start of your turn, deal damage to chosen character or location equal to the number of characters here."
       }
     ]
@@ -12239,8 +12264,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b1ea1c67fc224e968a4906149590585c.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "COME ON, LET'S DO THIS Once during your turn, whenever a card is put into your inkwell, you may ready another chosen character of yours. They can't quest for the rest of this turn.",
+        "storyName": "COME ON, LET'S DO THIS",
+        "rulesText": "Once during your turn, whenever a card is put into your inkwell, you may ready another chosen character of yours. They can't quest for the rest of this turn.",
         "raw": "COME ON, LET'S DO THIS Once during your turn, whenever a card is put into your inkwell, you may ready another chosen character of yours. They can't quest for the rest of this turn."
       }
     ]
@@ -12496,6 +12521,11 @@
     "rulesText": "FULLY CHARGED If you have an Inventor character in play, you pay 1 {I} less to play this character.\nYOU SAID 'OW' 2 {I} – Remove up to 1 damage from another chosen character.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7a1524eb2f994287ab6de2e677431724.avif?1730901319",
     "_namedAbilityStubs": [
+      {
+        "storyName": "FULLY CHARGED",
+        "rulesText": "If you have an Inventor character in play, you pay 1 {I} less to play this character.",
+        "raw": "FULLY CHARGED If you have an Inventor character in play, you pay 1 {I} less to play this character."
+      },
       {
         "storyName": "YOU SAID 'OW' 2 {I}",
         "rulesText": "– Remove up to 1 damage from another chosen character.",
@@ -12770,8 +12800,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c343d1fc29f3491f95bb460c90e081a7.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "SECRET WEAPON At the start of your turn, deal damage to chosen character or location equal to the number of characters here.",
+        "storyName": "SECRET WEAPON",
+        "rulesText": "At the start of your turn, deal damage to chosen character or location equal to the number of characters here.",
         "raw": "SECRET WEAPON At the start of your turn, deal damage to chosen character or location equal to the number of characters here."
       }
     ]

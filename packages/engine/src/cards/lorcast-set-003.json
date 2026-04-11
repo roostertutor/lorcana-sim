@@ -114,8 +114,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b00e336742ab4743850d9927c06c7c6e.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "I'LL CHECK IT OUT At the end of your turn, if this character is exerted, you may ready another chosen character of yours.",
+        "storyName": "I'LL CHECK IT OUT",
+        "rulesText": "At the end of your turn, if this character is exerted, you may ready another chosen character of yours.",
         "raw": "I'LL CHECK IT OUT At the end of your turn, if this character is exerted, you may ready another chosen character of yours."
       }
     ]
@@ -196,6 +196,11 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_58705a75ce1c4f19aabe741129079750.avif?1709690747",
     "_namedAbilityStubs": [
       {
+        "storyName": "THE POWER OF EVIL",
+        "rulesText": "For each character card in your discard, you pay 1 {I} less to play this character.",
+        "raw": "THE POWER OF EVIL For each character card in your discard, you pay 1 {I} less to play this character."
+      },
+      {
         "storyName": "SUMMON THE SPIRITS",
         "rulesText": "When you play this character, shuffle all character cards from your discard into your deck.",
         "raw": "SUMMON THE SPIRITS When you play this character, shuffle all character cards from your discard into your deck."
@@ -243,8 +248,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_97f8be5e176144378d58823c6f9c29c7.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "WHERE DID THEY ALL COME FROM? You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck.",
+        "storyName": "WHERE DID THEY ALL COME FROM?",
+        "rulesText": "You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck.",
         "raw": "WHERE DID THEY ALL COME FROM? You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck."
       }
     ]
@@ -290,8 +295,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_2ecfea1cd29e41618fda08362f460bdc.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "WHERE DID THEY ALL COME FROM? You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck.",
+        "storyName": "WHERE DID THEY ALL COME FROM?",
+        "rulesText": "You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck.",
         "raw": "WHERE DID THEY ALL COME FROM? You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck."
       }
     ]
@@ -337,8 +342,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_82e9ddd673ac49919082b20bcb77abbd.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "WHERE DID THEY ALL COME FROM? You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck.",
+        "storyName": "WHERE DID THEY ALL COME FROM?",
+        "rulesText": "You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck.",
         "raw": "WHERE DID THEY ALL COME FROM? You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck."
       }
     ]
@@ -384,8 +389,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_cb48f84437c6466281d05da11bcef9fc.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "WHERE DID THEY ALL COME FROM? You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck.",
+        "storyName": "WHERE DID THEY ALL COME FROM?",
+        "rulesText": "You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck.",
         "raw": "WHERE DID THEY ALL COME FROM? You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck."
       }
     ]
@@ -431,8 +436,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_69bb8a1a94dc429c91610c92a7108dbb.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "WHERE DID THEY ALL COME FROM? You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck.",
+        "storyName": "WHERE DID THEY ALL COME FROM?",
+        "rulesText": "You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck.",
         "raw": "WHERE DID THEY ALL COME FROM? You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck."
       }
     ]
@@ -1089,8 +1094,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_02f6ca615a304f47848ac36590cb7b94.avif?1715694252",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "GUARD DOG At the start of your turn, remove up to 3 damage from this character.",
+        "storyName": "GUARD DOG",
+        "rulesText": "At the start of your turn, remove up to 3 damage from this character.",
         "raw": "GUARD DOG At the start of your turn, remove up to 3 damage from this character."
       }
     ]
@@ -1203,8 +1208,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_fcdb51245c0a468896166eb745d1cf55.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "TWILIGHT BARK Once per turn, you may pay 2 {I} to reveal the top card of your deck. If it's a character card, put it into your hand. Otherwise, put it on the bottom of your deck.",
+        "storyName": "TWILIGHT BARK",
+        "rulesText": "Once per turn, you may pay 2 {I} to reveal the top card of your deck. If it's a character card, put it into your hand. Otherwise, put it on the bottom of your deck.",
         "raw": "TWILIGHT BARK Once per turn, you may pay 2 {I} to reveal the top card of your deck. If it's a character card, put it into your hand. Otherwise, put it on the bottom of your deck."
       }
     ]
@@ -1674,8 +1679,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_46df24a1b90a460d8572440c007f0af5.avif?1712966201",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "ANCIENT POWER Banish this item — Remove up to 2 damage from each of your characters.",
+        "storyName": "ANCIENT POWER",
+        "rulesText": "Banish this item — Remove up to 2 damage from each of your characters.",
         "raw": "ANCIENT POWER Banish this item — Remove up to 2 damage from each of your characters."
       }
     ]
@@ -1874,6 +1879,11 @@
         "storyName": "WE ARE ALL CONNECTED",
         "rulesText": "Characters get +2 {W} while here.",
         "raw": "WE ARE ALL CONNECTED Characters get +2 {W} while here."
+      },
+      {
+        "storyName": "LION HOME",
+        "rulesText": "If you have a Prince or King character here, you pay 1 {I} less to play characters.",
+        "raw": "LION HOME If you have a Prince or King character here, you pay 1 {I} less to play characters."
       }
     ]
   },
@@ -3623,8 +3633,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5008b128a011481396f80e0c9c5424bc.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "GOOD OR EVIL Banish this item — If you have a character named Jafar in play, draw 2 cards. If you have a character named Genie in play, return chosen character with cost 4 or less to their player's hand.",
+        "storyName": "GOOD OR EVIL",
+        "rulesText": "Banish this item — If you have a character named Jafar in play, draw 2 cards. If you have a character named Genie in play, return chosen character with cost 4 or less to their player's hand.",
         "raw": "GOOD OR EVIL Banish this item — If you have a character named Jafar in play, draw 2 cards. If you have a character named Genie in play, return chosen character with cost 4 or less to their player's hand."
       }
     ]
@@ -3757,8 +3767,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a4f0a9a928674b2a93d17f7c81eb09d7.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "USING THE MIRROR At the start of your turn, for each character you have here, you may draw a card.",
+        "storyName": "USING THE MIRROR",
+        "rulesText": "At the start of your turn, for each character you have here, you may draw a card.",
         "raw": "USING THE MIRROR At the start of your turn, for each character you have here, you may draw a card."
       }
     ]
@@ -4534,8 +4544,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_be70d689335140bdadcde5f5356e169d.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "MIMICRY You may play any character with Shift on this character as if this character had any name.",
+        "storyName": "MIMICRY",
+        "rulesText": "You may play any character with Shift on this character as if this character had any name.",
         "raw": "MIMICRY You may play any character with Shift on this character as if this character had any name."
       }
     ]
@@ -4586,8 +4596,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d4d29339b89f4a0aaeeb42f533e6fbbc.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "I CAME TO LISTEN TO THE STORIES Once per turn, when this character moves to a location, gain lore equal to that location's {L}.",
+        "storyName": "I CAME TO LISTEN TO THE STORIES",
+        "rulesText": "Once per turn, when this character moves to a location, gain lore equal to that location's {L}.",
         "raw": "I CAME TO LISTEN TO THE STORIES Once per turn, when this character moves to a location, gain lore equal to that location's {L}."
       }
     ]
@@ -5459,6 +5469,11 @@
         "storyName": "EFFICIENT ENERGY",
         "rulesText": "You pay 2 {I} less for the next action you play this turn.",
         "raw": "EFFICIENT ENERGY {E} — You pay 2 {I} less for the next action you play this turn."
+      },
+      {
+        "storyName": "TRAP 2 {I},",
+        "rulesText": "Banish this item — Draw 2 cards, then choose and discard a card.",
+        "raw": "TRAP 2 {I}, Banish this item — Draw 2 cards, then choose and discard a card."
       }
     ]
   },
@@ -5862,8 +5877,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_27a77344b85748bd9d7d45de2969c918.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "MINDLESS WANDERING Once per turn, when this character moves to a location, each opponent loses 1 lore.",
+        "storyName": "MINDLESS WANDERING",
+        "rulesText": "Once per turn, when this character moves to a location, each opponent loses 1 lore.",
         "raw": "MINDLESS WANDERING Once per turn, when this character moves to a location, each opponent loses 1 lore."
       }
     ]
@@ -6779,8 +6794,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3893e351132b4fc28df9093b721f4f28.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "THE FOX If you have a character named Peter Pan in play, you pay 1 {I} less to play this character.",
+        "storyName": "THE FOX",
+        "rulesText": "If you have a character named Peter Pan in play, you pay 1 {I} less to play this character.",
         "raw": "THE FOX If you have a character named Peter Pan in play, you pay 1 {I} less to play this character."
       }
     ]
@@ -7275,6 +7290,11 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_2ad6131751ce45c681919a185cbe640a.avif?1709690747",
     "_namedAbilityStubs": [
       {
+        "storyName": "IT'S MAUI TIME!",
+        "rulesText": "If you have a character named Maui in play, you may use this item's Shapeshift ability for free.",
+        "raw": "IT'S MAUI TIME! If you have a character named Maui in play, you may use this item's Shapeshift ability for free."
+      },
+      {
         "storyName": "SHAPESHIFT",
         "rulesText": "Choose one:",
         "raw": "SHAPESHIFT {E}, 2 {I} — Choose one:"
@@ -7494,6 +7514,11 @@
         "storyName": "THIS IS OUR SHIP",
         "rulesText": "Characters gain Evasive while here. (Only characters with Evasive can challenge them.)",
         "raw": "THIS IS OUR SHIP Characters gain Evasive while here. (Only characters with Evasive can challenge them.)"
+      },
+      {
+        "storyName": "HEAVE TOGETHER NOW",
+        "rulesText": "If you have a character here, you pay 2 {I} less to move a character of yours here.",
+        "raw": "HEAVE TOGETHER NOW If you have a character here, you pay 2 {I} less to move a character of yours here."
       }
     ]
   },
@@ -9071,8 +9096,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9f0ca76ac1444a1290ac0003ef15d292.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "LABORATORY If you have a character here, you pay 1 {I} less to play items.",
+        "storyName": "LABORATORY",
+        "rulesText": "If you have a character here, you pay 1 {I} less to play items.",
         "raw": "LABORATORY If you have a character here, you pay 1 {I} less to play items."
       }
     ]
@@ -9434,8 +9459,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4b26cd44ef39414fbcb762fef390a5f3.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "CHART YOUR OWN COURSE For each location you have in play, this character gains Resist +1 and gets +1 {L}. (Damage dealt to them is reduced by 1.)",
+        "storyName": "CHART YOUR OWN COURSE",
+        "rulesText": "For each location you have in play, this character gains Resist +1 and gets +1 {L}. (Damage dealt to them is reduced by 1.)",
         "raw": "CHART YOUR OWN COURSE For each location you have in play, this character gains Resist +1 and gets +1 {L}. (Damage dealt to them is reduced by 1.)"
       }
     ]
@@ -9901,8 +9926,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c608166f5ffb4bb195af64fb501902cb.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "OH DEAR, DEAR, DEAR At the end of your turn, if this character is exerted and you don't have a Captain character in play, deal 1 damage to this character.",
+        "storyName": "OH DEAR, DEAR, DEAR",
+        "rulesText": "At the end of your turn, if this character is exerted and you don't have a Captain character in play, deal 1 damage to this character.",
         "raw": "OH DEAR, DEAR, DEAR At the end of your turn, if this character is exerted and you don't have a Captain character in play, deal 1 damage to this character."
       }
     ]
@@ -10806,8 +10831,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4ffb52f1841e434f9263e1b8973f46a6.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "CYBERNETIC ARMOR Banish this item — Chosen character gains Resist +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)",
+        "storyName": "CYBERNETIC ARMOR",
+        "rulesText": "Banish this item — Chosen character gains Resist +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)",
         "raw": "CYBERNETIC ARMOR Banish this item — Chosen character gains Resist +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)"
       }
     ]
@@ -10864,6 +10889,11 @@
         "storyName": "KEY TO THE PORTAL",
         "rulesText": "You pay 1 {I} less for the next location you play this turn.",
         "raw": "KEY TO THE PORTAL {E} — You pay 1 {I} less for the next location you play this turn."
+      },
+      {
+        "storyName": "SHOW THE WAY",
+        "rulesText": "You pay 1 {I} less to move your characters to a location.",
+        "raw": "SHOW THE WAY You pay 1 {I} less to move your characters to a location."
       }
     ]
   },
@@ -11074,6 +11104,11 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7a288d030d1a471fbb818ccfdddc6052.avif?1709690747",
     "_namedAbilityStubs": [
       {
+        "storyName": "THE POWER OF EVIL",
+        "rulesText": "For each character card in your discard, you pay 1 {I} less to play this character.",
+        "raw": "THE POWER OF EVIL For each character card in your discard, you pay 1 {I} less to play this character."
+      },
+      {
         "storyName": "SUMMON THE SPIRITS",
         "rulesText": "When you play this character, shuffle all character cards from your discard into your deck.",
         "raw": "SUMMON THE SPIRITS When you play this character, shuffle all character cards from your discard into your deck."
@@ -11217,6 +11252,11 @@
         "storyName": "WE ARE ALL CONNECTED",
         "rulesText": "Characters get +2 {W} while here.",
         "raw": "WE ARE ALL CONNECTED Characters get +2 {W} while here."
+      },
+      {
+        "storyName": "LION HOME",
+        "rulesText": "If you have a Prince or King character here, you pay 1 {I} less to play characters.",
+        "raw": "LION HOME If you have a Prince or King character here, you pay 1 {I} less to play characters."
       }
     ]
   },
@@ -11479,8 +11519,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_2e1d43823fc642549ba92787523ce17f.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "MIMICRY You may play any character with Shift on this character as if this character had any name.",
+        "storyName": "MIMICRY",
+        "rulesText": "You may play any character with Shift on this character as if this character had any name.",
         "raw": "MIMICRY You may play any character with Shift on this character as if this character had any name."
       }
     ]
@@ -11795,6 +11835,11 @@
         "storyName": "THIS IS OUR SHIP",
         "rulesText": "Characters gain Evasive while here. (Only characters with Evasive can challenge them.)",
         "raw": "THIS IS OUR SHIP Characters gain Evasive while here. (Only characters with Evasive can challenge them.)"
+      },
+      {
+        "storyName": "HEAVE TOGETHER NOW",
+        "rulesText": "If you have a character here, you pay 2 {I} less to move a character of yours here.",
+        "raw": "HEAVE TOGETHER NOW If you have a character here, you pay 2 {I} less to move a character of yours here."
       }
     ]
   },
@@ -11972,8 +12017,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c9f08696c3cd44bf96e2a149bb3cfb12.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "LABORATORY If you have a character here, you pay 1 {I} less to play items.",
+        "storyName": "LABORATORY",
+        "rulesText": "If you have a character here, you pay 1 {I} less to play items.",
         "raw": "LABORATORY If you have a character here, you pay 1 {I} less to play items."
       }
     ]

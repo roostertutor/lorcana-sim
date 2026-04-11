@@ -540,8 +540,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_1ebd5b431d3c46b882e3c95712a9502a.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "SONG OF THE HERD For each song card in your discard, you pay 1 {I} less to play this character.",
+        "storyName": "SONG OF THE HERD",
+        "rulesText": "For each song card in your discard, you pay 1 {I} less to play this character.",
         "raw": "SONG OF THE HERD For each song card in your discard, you pay 1 {I} less to play this character."
       }
     ]
@@ -574,8 +574,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7c261f64006d414180bf53ea7ae2f467.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "NOT WITHOUT MY FAMILY You can't play this character unless you have 5 or more characters in play.",
+        "storyName": "NOT WITHOUT MY FAMILY",
+        "rulesText": "You can't play this character unless you have 5 or more characters in play.",
         "raw": "NOT WITHOUT MY FAMILY You can't play this character unless you have 5 or more characters in play."
       }
     ],
@@ -1625,6 +1625,11 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a3736e115d014a5e85d5913b9d100f9e.avif?1723917209",
     "_namedAbilityStubs": [
       {
+        "storyName": "SYMBOL OF NOBILITY",
+        "rulesText": "At the start of your turn, if you have a Princess or Queen character in play, gain 1 lore.",
+        "raw": "SYMBOL OF NOBILITY At the start of your turn, if you have a Princess or Queen character in play, gain 1 lore."
+      },
+      {
         "storyName": "ROYAL SEARCH",
         "rulesText": "Reveal the top card of your deck. If it's a Princess or Queen character card, you may put it into your hand. Otherwise, put it on the top of your deck.",
         "raw": "ROYAL SEARCH {E}, 2 {I} — Reveal the top card of your deck. If it's a Princess or Queen character card, you may put it into your hand. Otherwise, put it on the top of your deck."
@@ -2480,6 +2485,11 @@
         "storyName": "A LITTLE GAME",
         "rulesText": "When you play this character, banish her or return another chosen character of yours to your hand.",
         "raw": "A LITTLE GAME When you play this character, banish her or return another chosen character of yours to your hand."
+      },
+      {
+        "storyName": "SNEAKY MOVE",
+        "rulesText": "At the start of your turn, you may move up to 2 damage counters from this character to chosen opposing character.",
+        "raw": "SNEAKY MOVE At the start of your turn, you may move up to 2 damage counters from this character to chosen opposing character."
       }
     ]
   },
@@ -2794,8 +2804,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_bb8f3a2d154346dc8e21ef6fea46a1f0.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "CLEAR THE PATH For each exerted character opponents have in play, you pay 1 {I} less to play this character.",
+        "storyName": "CLEAR THE PATH",
+        "rulesText": "For each exerted character opponents have in play, you pay 1 {I} less to play this character.",
         "raw": "CLEAR THE PATH For each exerted character opponents have in play, you pay 1 {I} less to play this character."
       }
     ]
@@ -3521,8 +3531,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_0aa70773df3a4f87ab5b96825787497d.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "EXTRACT OF AMETHYST 2 {I}, Banish this item — Return chosen character, item, or location with cost 3 or less to their player's hand.",
+        "storyName": "EXTRACT OF AMETHYST 2 {I},",
+        "rulesText": "Banish this item — Return chosen character, item, or location with cost 3 or less to their player's hand.",
         "raw": "EXTRACT OF AMETHYST 2 {I}, Banish this item — Return chosen character, item, or location with cost 3 or less to their player's hand."
       }
     ]
@@ -3834,8 +3844,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e563c6bf2df446f5b77fbf41d3d3b30a.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "TAG ME IN! For each 1 damage on opposing characters, you pay 1 {I} less to play this character.",
+        "storyName": "TAG ME IN!",
+        "rulesText": "For each 1 damage on opposing characters, you pay 1 {I} less to play this character.",
         "raw": "TAG ME IN! For each 1 damage on opposing characters, you pay 1 {I} less to play this character."
       }
     ]
@@ -4630,8 +4640,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7e4aa6ffcba9401b916220a6f79c355c.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "KEEP IN STEP At the end of your turn, if chosen opponent has more cards in their hand than you, you may draw cards until you have the same number.",
+        "storyName": "KEEP IN STEP",
+        "rulesText": "At the end of your turn, if chosen opponent has more cards in their hand than you, you may draw cards until you have the same number.",
         "raw": "KEEP IN STEP At the end of your turn, if chosen opponent has more cards in their hand than you, you may draw cards until you have the same number."
       }
     ]
@@ -5507,13 +5517,13 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e37301dbd08d47fcbd95accf72aa2a3c.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "YOU LOOK REGAL If you have a character named Prince John in play, you pay 1 {I} less to play this item.",
+        "storyName": "YOU LOOK REGAL",
+        "rulesText": "If you have a character named Prince John in play, you pay 1 {I} less to play this item.",
         "raw": "YOU LOOK REGAL If you have a character named Prince John in play, you pay 1 {I} less to play this item."
       },
       {
-        "storyName": "",
-        "rulesText": "A FEELING OF POWER At the end of each opponent's turn, if they have more than 3 cards in their hand, they discard until they have 3 cards in their hand.",
+        "storyName": "A FEELING OF POWER",
+        "rulesText": "At the end of each opponent's turn, if they have more than 3 cards in their hand, they discard until they have 3 cards in their hand.",
         "raw": "A FEELING OF POWER At the end of each opponent's turn, if they have more than 3 cards in their hand, they discard until they have 3 cards in their hand."
       }
     ]
@@ -5571,8 +5581,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_20513d1b0b8947e7b18e967292e9fb23.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "EXTRACT OF EMERALD 2 {I}, Banish this item — Your characters gain Ward until the start of your next turn. (Opponents can't choose them except to challenge.)",
+        "storyName": "EXTRACT OF EMERALD 2 {I},",
+        "rulesText": "Banish this item — Your characters gain Ward until the start of your next turn. (Opponents can't choose them except to challenge.)",
         "raw": "EXTRACT OF EMERALD 2 {I}, Banish this item — Your characters gain Ward until the start of your next turn. (Opponents can't choose them except to challenge.)"
       }
     ]
@@ -5984,8 +5994,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a583e1fe8f2144a7bbc320e966734055.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "ROYALLY BIG REWARDS At the end of your turn, if you have any characters in play with 5 {S} or more, gain 2 lore. If you have any in play with 10 {S} or more, gain 5 lore instead.",
+        "storyName": "ROYALLY BIG REWARDS",
+        "rulesText": "At the end of your turn, if you have any characters in play with 5 {S} or more, gain 2 lore. If you have any in play with 10 {S} or more, gain 5 lore instead.",
         "raw": "ROYALLY BIG REWARDS At the end of your turn, if you have any characters in play with 5 {S} or more, gain 2 lore. If you have any in play with 10 {S} or more, gain 5 lore instead."
       }
     ]
@@ -6028,9 +6038,6 @@
       }
     ],
     "alternateNames": [
-      "King Candy"
-    ],
-    "additionalNames": [
       "King Candy"
     ]
   },
@@ -6572,8 +6579,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b486db00d41f4888984650e72cc36b00.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "NEW ROSTER Once per turn, when this character moves to a location, gain 2 lore.",
+        "storyName": "NEW ROSTER",
+        "rulesText": "Once per turn, when this character moves to a location, gain 2 lore.",
         "raw": "NEW ROSTER Once per turn, when this character moves to a location, gain 2 lore."
       }
     ]
@@ -6698,8 +6705,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_63f4432a95d84d9dab23728cf715f31f.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "A MAN AMONG MEN! For each damaged character you have in play, you pay 2 {I} less to play this character.",
+        "storyName": "A MAN AMONG MEN!",
+        "rulesText": "For each damaged character you have in play, you pay 2 {I} less to play this character.",
         "raw": "A MAN AMONG MEN! For each damaged character you have in play, you pay 2 {I} less to play this character."
       }
     ]
@@ -7439,8 +7446,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_96709c5ceb00448ab2b8e4b039319183.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "VILE CONCOCTION 1 {I}, Banish this item — Chosen character gets +3 {S} this turn. If a Villain character is chosen, they get +4 {S} instead.",
+        "storyName": "VILE CONCOCTION 1 {I},",
+        "rulesText": "Banish this item — Chosen character gets +3 {S} this turn. If a Villain character is chosen, they get +4 {S} instead.",
         "raw": "VILE CONCOCTION 1 {I}, Banish this item — Chosen character gets +3 {S} this turn. If a Villain character is chosen, they get +4 {S} instead."
       }
     ]
@@ -7496,8 +7503,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_22989be17783417ea635d11b83b71252.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "POWER APPOINTED At the start of your turn, if you have a character in play with more {S} than each opposing character in play, each opponent loses 1 lore and you gain lore equal to the lore lost.",
+        "storyName": "POWER APPOINTED",
+        "rulesText": "At the start of your turn, if you have a character in play with more {S} than each opposing character in play, each opponent loses 1 lore and you gain lore equal to the lore lost.",
         "raw": "POWER APPOINTED At the start of your turn, if you have a character in play with more {S} than each opposing character in play, each opponent loses 1 lore and you gain lore equal to the lore lost."
       }
     ]
@@ -7633,8 +7640,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_38b31e4f9b2043259a5d8909cb58b8d3.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "ON YOUR MARKS! Once per turn, you may {E} chosen character here and deal them 1 damage to move them to another location for free.",
+        "storyName": "ON YOUR MARKS!",
+        "rulesText": "Once per turn, you may {E} chosen character here and deal them 1 damage to move them to another location for free.",
         "raw": "ON YOUR MARKS! Once per turn, you may {E} chosen character here and deal them 1 damage to move them to another location for free."
       }
     ]
@@ -8001,13 +8008,13 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_761315af205f480fae3ecf8c5018db46.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "HELPFUL SUPPLIES At the start of your turn, if you have an item in play, gain 1 lore.",
+        "storyName": "HELPFUL SUPPLIES",
+        "rulesText": "At the start of your turn, if you have an item in play, gain 1 lore.",
         "raw": "HELPFUL SUPPLIES At the start of your turn, if you have an item in play, gain 1 lore."
       },
       {
-        "storyName": "",
-        "rulesText": "PERFECT DIRECTIONS At the start of your turn, if you have a location in play, gain 1 lore.",
+        "storyName": "PERFECT DIRECTIONS",
+        "rulesText": "At the start of your turn, if you have a location in play, gain 1 lore.",
         "raw": "PERFECT DIRECTIONS At the start of your turn, if you have a location in play, gain 1 lore."
       }
     ]
@@ -8075,8 +8082,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_cf5e4f99f9c44d91b44ba607d640173b.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "REFLECTIONS OF VANITY For each other character named The Queen you have in play, this character gets +1 {L}.",
+        "storyName": "REFLECTIONS OF VANITY",
+        "rulesText": "For each other character named The Queen you have in play, this character gets +1 {L}.",
         "raw": "REFLECTIONS OF VANITY For each other character named The Queen you have in play, this character gets +1 {L}."
       }
     ]
@@ -8133,8 +8140,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f13c7ff8caa0471c9cea95ac9d2177c2.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "EVERY LITTLE BIT HELPS For each item you have in play, you pay 1 {I} less to play this character.",
+        "storyName": "EVERY LITTLE BIT HELPS",
+        "rulesText": "For each item you have in play, you pay 1 {I} less to play this character.",
         "raw": "EVERY LITTLE BIT HELPS For each item you have in play, you pay 1 {I} less to play this character."
       }
     ]
@@ -9587,8 +9594,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_cc13be0e046742f4ae3e0aaffb5d3f9e.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "KNOWLEDGE IS POWER Each player plays with the top card of their deck face up.",
+        "storyName": "KNOWLEDGE IS POWER",
+        "rulesText": "Each player plays with the top card of their deck face up.",
         "raw": "KNOWLEDGE IS POWER Each player plays with the top card of their deck face up."
       }
     ]
@@ -10111,8 +10118,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7bc86960d8004c408340e121f634035b.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "I DON'T HAVE ANY OTHER CHOICE For each opposing character banished in a challenge this turn, you pay 2 {I} less to play this character.",
+        "storyName": "I DON'T HAVE ANY OTHER CHOICE",
+        "rulesText": "For each opposing character banished in a challenge this turn, you pay 2 {I} less to play this character.",
         "raw": "I DON'T HAVE ANY OTHER CHOICE For each opposing character banished in a challenge this turn, you pay 2 {I} less to play this character."
       }
     ]
@@ -11157,8 +11164,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c54910dbfc304bb5b4e71639858ceb82.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "DEFLECT Banish this item — Chosen character gains Resist +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)",
+        "storyName": "DEFLECT",
+        "rulesText": "Banish this item — Chosen character gains Resist +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)",
         "raw": "DEFLECT Banish this item — Chosen character gains Resist +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)"
       }
     ]
@@ -11705,8 +11712,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_19b1f802f23a4673aac60e04df0fb2ba.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "CLEAR THE PATH For each exerted character opponents have in play, you pay 1 {I} less to play this character.",
+        "storyName": "CLEAR THE PATH",
+        "rulesText": "For each exerted character opponents have in play, you pay 1 {I} less to play this character.",
         "raw": "CLEAR THE PATH For each exerted character opponents have in play, you pay 1 {I} less to play this character."
       }
     ]
@@ -11803,8 +11810,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_8dbe711cfb4541309eb32cf37fe48997.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "KEEP IN STEP At the end of your turn, if chosen opponent has more cards in their hand than you, you may draw cards until you have the same number.",
+        "storyName": "KEEP IN STEP",
+        "rulesText": "At the end of your turn, if chosen opponent has more cards in their hand than you, you may draw cards until you have the same number.",
         "raw": "KEEP IN STEP At the end of your turn, if chosen opponent has more cards in their hand than you, you may draw cards until you have the same number."
       }
     ]

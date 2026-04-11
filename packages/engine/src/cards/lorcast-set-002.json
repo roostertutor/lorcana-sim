@@ -1194,8 +1194,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a40dcfcf0f944762a1b3f31d9a322c9a.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "HOW DO YOU DO? You pay 1 {I} less to play Seven Dwarfs characters.",
+        "storyName": "HOW DO YOU DO?",
+        "rulesText": "You pay 1 {I} less to play Seven Dwarfs characters.",
         "raw": "HOW DO YOU DO? You pay 1 {I} less to play Seven Dwarfs characters."
       }
     ]
@@ -3505,8 +3505,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_2f8f2276cb254195b2abf5cffd2b8193.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "HURTLING HEDGEHOG Banish this item — Chosen character gains Rush this turn. (They can challenge the turn they're played.)",
+        "storyName": "HURTLING HEDGEHOG",
+        "rulesText": "Banish this item — Chosen character gains Rush this turn. (They can challenge the turn they're played.)",
         "raw": "HURTLING HEDGEHOG Banish this item — Chosen character gains Rush this turn. (They can challenge the turn they're played.)"
       }
     ]
@@ -3559,8 +3559,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_0d0630d4e335471e9a11643b9b82ffcd.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "TO WONDERLAND Banish this item — Return chosen character of yours to your hand.",
+        "storyName": "TO WONDERLAND",
+        "rulesText": "Banish this item — Return chosen character of yours to your hand.",
         "raw": "TO WONDERLAND Banish this item — Return chosen character of yours to your hand."
       }
     ]
@@ -4073,8 +4073,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c189dd421b024c29b83e86aea8bbc347.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "ALLOW ME At the start of your turn, each player may draw a card.",
+        "storyName": "ALLOW ME",
+        "rulesText": "At the start of your turn, each player may draw a card.",
         "raw": "ALLOW ME At the start of your turn, each player may draw a card."
       }
     ]
@@ -5352,8 +5352,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_99154bf3bafd47f6ae3736da4cd5424f.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "SNAP! BOOM! TWANG! Banish this item — Each opponent loses 2 lore.",
+        "storyName": "SNAP! BOOM! TWANG!",
+        "rulesText": "Banish this item — Each opponent loses 2 lore.",
         "raw": "SNAP! BOOM! TWANG! Banish this item — Each opponent loses 2 lore."
       }
     ]
@@ -7151,8 +7151,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_ebdef6b29bb74afaa3e5efea83fe89c7.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "THERE'S ALWAYS A CHANCE If you used Shift to play this character, you may draw 2 cards when he enters play.",
+        "storyName": "THERE'S ALWAYS A CHANCE",
+        "rulesText": "If you used Shift to play this character, you may draw 2 cards when he enters play.",
         "raw": "THERE'S ALWAYS A CHANCE If you used Shift to play this character, you may draw 2 cards when he enters play."
       }
     ]
@@ -8820,6 +8820,11 @@
         "storyName": "JUMBO POP",
         "rulesText": "When you play this item, you may draw a card.",
         "raw": "JUMBO POP When you play this item, you may draw a card."
+      },
+      {
+        "storyName": "THAT'S REDWOOD",
+        "rulesText": "Banish this item — Remove up to 2 damage from chosen character.",
+        "raw": "THAT'S REDWOOD Banish this item — Remove up to 2 damage from chosen character."
       }
     ]
   },
@@ -9072,8 +9077,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7ffeed1a4c364378ab7814dda3b99b73.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "IT'S BETTER THIS WAY At the start of your turn, if this character has no damage, draw a card. Otherwise, he gets +4 {S} this turn.",
+        "storyName": "IT'S BETTER THIS WAY",
+        "rulesText": "At the start of your turn, if this character has no damage, draw a card. Otherwise, he gets +4 {S} this turn.",
         "raw": "IT'S BETTER THIS WAY At the start of your turn, if this character has no damage, draw a card. Otherwise, he gets +4 {S} this turn."
       }
     ]
@@ -10494,8 +10499,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a776fb952998401394dcee6936d85b56.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "ARM YOURSELF 1 {I}, Banish this item — Chosen character gains Challenger +3 this turn. (They get +3 {S} while challenging.)",
+        "storyName": "ARM YOURSELF 1 {I},",
+        "rulesText": "Banish this item — Chosen character gains Challenger +3 this turn. (They get +3 {S} while challenging.)",
         "raw": "ARM YOURSELF 1 {I}, Banish this item — Chosen character gains Challenger +3 this turn. (They get +3 {S} while challenging.)"
       }
     ]

@@ -113,8 +113,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_6cba76453f834205a7edf1e8222907c7.avif?1745500329",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "SONG OF THE HERD For each song card in your discard, you pay 1 {I} less to play this character.",
+        "storyName": "SONG OF THE HERD",
+        "rulesText": "For each song card in your discard, you pay 1 {I} less to play this character.",
         "raw": "SONG OF THE HERD For each song card in your discard, you pay 1 {I} less to play this character."
       }
     ]
@@ -333,8 +333,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_79ca7c747dcb4e7189ed8bc3a6b14f8b.avif?1745500346",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "NOT WITHOUT MY FAMILY You can't play this character unless you have 5 or more characters in play.",
+        "storyName": "NOT WITHOUT MY FAMILY",
+        "rulesText": "You can't play this character unless you have 5 or more characters in play.",
         "raw": "NOT WITHOUT MY FAMILY You can't play this character unless you have 5 or more characters in play."
       }
     ],
@@ -661,8 +661,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_6e88d3615bd94a6fbf2dab003d75287f.avif?1745500365",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "LAND, HO! Once during your turn, whenever a card is put into your inkwell, you may return a location card from your discard to your hand.",
+        "storyName": "LAND, HO!",
+        "rulesText": "Once during your turn, whenever a card is put into your inkwell, you may return a location card from your discard to your hand.",
         "raw": "LAND, HO! Once during your turn, whenever a card is put into your inkwell, you may return a location card from your discard to your hand."
       }
     ]
@@ -905,8 +905,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_456c21b5683c4664b61f948401b48f31.avif?1745500407",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "I WAS BORN READY If you have another Hero character in play, this character gets +1 {}.",
+        "storyName": "I WAS BORN READY",
+        "rulesText": "If you have another Hero character in play, this character gets +1 {}.",
         "raw": "I WAS BORN READY If you have another Hero character in play, this character gets +1 {}."
       }
     ]
@@ -1515,8 +1515,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c3c64cb69ba049cca193eedb343d01b0.avif?1755564022",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "NO PLACE I'D RATHER BE At the start of your turn, if this card is in your discard, you may play her and she enters play exerted.",
+        "storyName": "NO PLACE I'D RATHER BE",
+        "rulesText": "At the start of your turn, if this card is in your discard, you may play her and she enters play exerted.",
         "raw": "NO PLACE I'D RATHER BE At the start of your turn, if this card is in your discard, you may play her and she enters play exerted."
       }
     ]
@@ -2252,8 +2252,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_332e095b11d44545865d7878ea27b58d.avif?1774403052",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "HOW DO YOU DO? You pay 1 {I} less to play Seven Dwarfs characters.",
+        "storyName": "HOW DO YOU DO?",
+        "rulesText": "You pay 1 {I} less to play Seven Dwarfs characters.",
         "raw": "HOW DO YOU DO? You pay 1 {I} less to play Seven Dwarfs characters."
       }
     ]

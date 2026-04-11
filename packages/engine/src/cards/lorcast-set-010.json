@@ -772,13 +772,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_43c967fc98154d6f86b8ac05b8953c10.avif?1761752005",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "Boost 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)",
-        "raw": "Boost 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)"
-      },
-      {
-        "storyName": "",
-        "rulesText": "COMMAND PERFORMANCE Once during your turn, whenever you play a song, if there's a card under this character, you may draw a card.",
+        "storyName": "COMMAND PERFORMANCE",
+        "rulesText": "Once during your turn, whenever you play a song, if there's a card under this character, you may draw a card.",
         "raw": "COMMAND PERFORMANCE Once during your turn, whenever you play a song, if there's a card under this character, you may draw a card."
       }
     ]
@@ -1632,6 +1627,11 @@
         "storyName": "WHAT IS TO COME",
         "rulesText": "When you play this item, look at the top 4 cards of your deck. You may reveal a character card and put it into your hand. Put the rest on the bottom of your deck in any order.",
         "raw": "WHAT IS TO COME When you play this item, look at the top 4 cards of your deck. You may reveal a character card and put it into your hand. Put the rest on the bottom of your deck in any order."
+      },
+      {
+        "storyName": "WHISPERED POWER 1 {I},",
+        "rulesText": "Banish this item — Put the top card of your deck facedown under one of your characters or locations with Boost.",
+        "raw": "WHISPERED POWER 1 {I}, Banish this item — Put the top card of your deck facedown under one of your characters or locations with Boost."
       }
     ]
   },
@@ -1850,6 +1850,11 @@
         "storyName": "WHAT A JUICY APPLE",
         "rulesText": "Remove up to 2 damage from chosen character.",
         "raw": "WHAT A JUICY APPLE {E} — Remove up to 2 damage from chosen character."
+      },
+      {
+        "storyName": "COME ON OUT",
+        "rulesText": "You pay 1 {I} less to play characters named Gurgi.",
+        "raw": "COME ON OUT You pay 1 {I} less to play characters named Gurgi."
       }
     ],
     "actionEffects": [
@@ -2227,8 +2232,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_35f7836ceed84e21ba7cfdde813d73bc.avif?1761752117",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "STONE BY DAY If you have 3 or more cards in your hand, this character can't ready.",
+        "storyName": "STONE BY DAY",
+        "rulesText": "If you have 3 or more cards in your hand, this character can't ready.",
         "raw": "STONE BY DAY If you have 3 or more cards in your hand, this character can't ready."
       }
     ]
@@ -3035,6 +3040,11 @@
         "storyName": "AD SAXUM COMMUTATE",
         "rulesText": "When you play this character, exert all opposing characters. Then, each player with fewer than 3 cards in their hand draws until they have 3.",
         "raw": "AD SAXUM COMMUTATE When you play this character, exert all opposing characters. Then, each player with fewer than 3 cards in their hand draws until they have 3."
+      },
+      {
+        "storyName": "STONE BY DAY",
+        "rulesText": "If you have 3 or more cards in your hand, this character can't ready.",
+        "raw": "STONE BY DAY If you have 3 or more cards in your hand, this character can't ready."
       }
     ]
   },
@@ -5939,8 +5949,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_2e40c49df1cd47a8ace3dfcb6bec1741.avif?1761763597",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "ON PATROL Once during your turn, you may pay 1 {I} less to move this character to a location.",
+        "storyName": "ON PATROL",
+        "rulesText": "Once during your turn, you may pay 1 {I} less to move this character to a location.",
         "raw": "ON PATROL Once during your turn, you may pay 1 {I} less to move this character to a location."
       }
     ]
@@ -6084,8 +6094,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3450ebee9acb4c258e0d161ca6c77010.avif?1761763610",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "SOMEBODY'S GOT TO USE IT If a character was banished this turn, this character gets +2 {S}.",
+        "storyName": "SOMEBODY'S GOT TO USE IT",
+        "rulesText": "If a character was banished this turn, this character gets +2 {S}.",
         "raw": "SOMEBODY'S GOT TO USE IT If a character was banished this turn, this character gets +2 {S}."
       }
     ]
@@ -6254,8 +6264,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_69fabb81a4894f389aea9207733a28c6.avif?1761763627",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "STONE BY DAY If you have 3 or more cards in your hand, this character can't ready.",
+        "storyName": "STONE BY DAY",
+        "rulesText": "If you have 3 or more cards in your hand, this character can't ready.",
         "raw": "STONE BY DAY If you have 3 or more cards in your hand, this character can't ready."
       }
     ]
@@ -6508,13 +6518,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c8a9d4fc3bd241468dc26f8415bea95a.avif?1761763640",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "JOSTLING FOR POWER King and Queen characters can't quest.",
-        "raw": "JOSTLING FOR POWER King and Queen characters can't quest."
-      },
-      {
-        "storyName": "",
-        "rulesText": "GROWING INFLUENCE At the start of your turn, if an opponent has 2 or more ready characters in play, gain 2 lore.",
+        "storyName": "GROWING INFLUENCE",
+        "rulesText": "At the start of your turn, if an opponent has 2 or more ready characters in play, gain 2 lore.",
         "raw": "GROWING INFLUENCE At the start of your turn, if an opponent has 2 or more ready characters in play, gain 2 lore."
       }
     ]
@@ -6671,6 +6676,11 @@
         "storyName": "BE CAREFUL, ALL OF YOU",
         "rulesText": "Whenever one of your Gargoyle characters challenges another character, gain 1 lore.",
         "raw": "BE CAREFUL, ALL OF YOU Whenever one of your Gargoyle characters challenges another character, gain 1 lore."
+      },
+      {
+        "storyName": "STONE BY DAY",
+        "rulesText": "If you have 3 or more cards in your hand, this character can't ready.",
+        "raw": "STONE BY DAY If you have 3 or more cards in your hand, this character can't ready."
       }
     ]
   },
@@ -6723,8 +6733,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_07d54e366c0548e6890cee09e3eaa032.avif?1761763652",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "STONE BY DAY If you have 3 or more cards in your hand, this character can't ready.",
+        "storyName": "STONE BY DAY",
+        "rulesText": "If you have 3 or more cards in your hand, this character can't ready.",
         "raw": "STONE BY DAY If you have 3 or more cards in your hand, this character can't ready."
       }
     ]
@@ -7285,8 +7295,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_024a30a70f624c58bc3219532ffdd37c.avif?1761763763",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "WILD RAGE 1 {I}, Deal 1 damage to this character — Ready this character. He can't quest for the rest of this turn.",
+        "storyName": "WILD RAGE 1 {I},",
+        "rulesText": "Deal 1 damage to this character — Ready this character. He can't quest for the rest of this turn.",
         "raw": "WILD RAGE 1 {I}, Deal 1 damage to this character — Ready this character. He can't quest for the rest of this turn."
       }
     ]
@@ -7330,14 +7340,9 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9072eca9a2d74193b9beb9527d6fec2d.avif?1761763767",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "ACTION If you have a character with 5 {S} or more in play, you pay 2 {I} less to play this action.",
+        "storyName": "ACTION",
+        "rulesText": "If you have a character with 5 {S} or more in play, you pay 2 {I} less to play this action.",
         "raw": "ACTION If you have a character with 5 {S} or more in play, you pay 2 {I} less to play this action."
-      },
-      {
-        "storyName": "",
-        "rulesText": "Ready chosen character. They can't quest for the rest of this turn. The next time they challenge another character this turn, gain 1 lore.",
-        "raw": "Ready chosen character. They can't quest for the rest of this turn. The next time they challenge another character this turn, gain 1 lore."
       }
     ],
     "actionEffects": [
@@ -7642,6 +7647,11 @@
         "storyName": "I NEED FIREPOWER",
         "rulesText": "When you play this item, chosen character gains Rush this turn. (They can challenge the turn they're played.)",
         "raw": "I NEED FIREPOWER When you play this item, chosen character gains Rush this turn. (They can challenge the turn they're played.)"
+      },
+      {
+        "storyName": "HITCH A RIDE 2 {I},",
+        "rulesText": "Banish this item — Chosen character gains Rush this turn.",
+        "raw": "HITCH A RIDE 2 {I}, Banish this item — Chosen character gains Rush this turn."
       }
     ]
   },
@@ -7698,8 +7708,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d694639a68614bcc8d3a482c1f5c5da1.avif?1761763903",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "GATHER RESOURCES Once during your turn, whenever you move a character with 5 {S} or more here, you may draw a card.",
+        "storyName": "GATHER RESOURCES",
+        "rulesText": "Once during your turn, whenever you move a character with 5 {S} or more here, you may draw a card.",
         "raw": "GATHER RESOURCES Once during your turn, whenever you move a character with 5 {S} or more here, you may draw a card."
       }
     ]
@@ -8699,8 +8709,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_31e94039c2494d31b8966443911b0fb2.avif?1761764547",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "WHATEVER YOU WISH FOR At the end of your turn, if you played a Princess character this turn, you may put a card from your hand into your inkwell facedown to draw a card.",
+        "storyName": "WHATEVER YOU WISH FOR",
+        "rulesText": "At the end of your turn, if you played a Princess character this turn, you may put a card from your hand into your inkwell facedown to draw a card.",
         "raw": "WHATEVER YOU WISH FOR At the end of your turn, if you played a Princess character this turn, you may put a card from your hand into your inkwell facedown to draw a card."
       }
     ]
@@ -9571,8 +9581,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_da44468c05d647ad965adcaf8f568c8c.avif?1761764694",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "INTO THE GLOOM Once during your turn, whenever a character quests while here, you may ready chosen item.",
+        "storyName": "INTO THE GLOOM",
+        "rulesText": "Once during your turn, whenever a character quests while here, you may ready chosen item.",
         "raw": "INTO THE GLOOM Once during your turn, whenever a character quests while here, you may ready chosen item."
       }
     ]
@@ -9775,13 +9785,13 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_daf2fde77da94e85898ad1cbd36059e6.avif?1761764707",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "DUSK TO DAWN At the end of each player's turn, if they have more than 2 cards in their hand, they choose and discard cards until they have 2. If they have fewer than 2 cards in their hand, they draw until they have 2.",
+        "storyName": "DUSK TO DAWN",
+        "rulesText": "At the end of each player's turn, if they have more than 2 cards in their hand, they choose and discard cards until they have 2. If they have fewer than 2 cards in their hand, they draw until they have 2.",
         "raw": "DUSK TO DAWN At the end of each player's turn, if they have more than 2 cards in their hand, they choose and discard cards until they have 2. If they have fewer than 2 cards in their hand, they draw until they have 2."
       },
       {
-        "storyName": "",
-        "rulesText": "STONE BY DAY If you have 3 or more cards in your hand, this character can't ready.",
+        "storyName": "STONE BY DAY",
+        "rulesText": "If you have 3 or more cards in your hand, this character can't ready.",
         "raw": "STONE BY DAY If you have 3 or more cards in your hand, this character can't ready."
       }
     ]
@@ -10101,6 +10111,11 @@
         "storyName": "FINDING ANSWERS",
         "rulesText": "When you play this character, you may draw a card, then choose and discard a card.",
         "raw": "FINDING ANSWERS When you play this character, you may draw a card, then choose and discard a card."
+      },
+      {
+        "storyName": "STONE BY DAY",
+        "rulesText": "If you have 3 or more cards in your hand, this character can't ready.",
+        "raw": "STONE BY DAY If you have 3 or more cards in your hand, this character can't ready."
       }
     ]
   },
@@ -10237,13 +10252,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_59040c22431844d18165c4f7e1c5ac2a.avif?1761764823",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "Alert (This character can challenge as if they had Evasive.)",
-        "raw": "Alert (This character can challenge as if they had Evasive.)"
-      },
-      {
-        "storyName": "",
-        "rulesText": "STONE BY DAY If you have 3 or more cards in your hand, this character can't ready.",
+        "storyName": "STONE BY DAY",
+        "rulesText": "If you have 3 or more cards in your hand, this character can't ready.",
         "raw": "STONE BY DAY If you have 3 or more cards in your hand, this character can't ready."
       }
     ]
@@ -10599,8 +10609,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_fafe3c3da4484cf6b0485a5f5a1c557a.avif?1761764872",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "PROTECTIVE PRESENCE Each turn, only one character can challenge.",
+        "storyName": "PROTECTIVE PRESENCE",
+        "rulesText": "Each turn, only one character can challenge.",
         "raw": "PROTECTIVE PRESENCE Each turn, only one character can challenge."
       }
     ]
@@ -10653,8 +10663,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_63132ee7ba1f4847a88e67273e1714fa.avif?1761764876",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "STONE BY DAY If you have 3 or more cards in your hand, this character can’t ready.",
+        "storyName": "STONE BY DAY",
+        "rulesText": "If you have 3 or more cards in your hand, this character can’t ready.",
         "raw": "STONE BY DAY If you have 3 or more cards in your hand, this character can’t ready."
       }
     ]
@@ -11555,8 +11565,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e86d177fb9f24d4683e8f639595038d1.avif?1761765032",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "NEW INFORMATION Once during your turn, whenever you move a character here, you may draw a card, then choose and discard a card.",
+        "storyName": "NEW INFORMATION",
+        "rulesText": "Once during your turn, whenever you move a character here, you may draw a card, then choose and discard a card.",
         "raw": "NEW INFORMATION Once during your turn, whenever you move a character here, you may draw a card, then choose and discard a card."
       }
     ]
@@ -13005,6 +13015,11 @@
         "storyName": "AD SAXUM COMMUTATE",
         "rulesText": "When you play this character, exert all opposing characters. Then, each player with fewer than 3 cards in their hand draws until they have 3.",
         "raw": "AD SAXUM COMMUTATE When you play this character, exert all opposing characters. Then, each player with fewer than 3 cards in their hand draws until they have 3."
+      },
+      {
+        "storyName": "STONE BY DAY",
+        "rulesText": "If you have 3 or more cards in your hand, this character can't ready.",
+        "raw": "STONE BY DAY If you have 3 or more cards in your hand, this character can't ready."
       }
     ]
   },
@@ -13644,8 +13659,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3c235410b79145c080fa8e3b000a2c60.avif?1761766772",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "WHATEVER YOU WISH FOR At the end of your turn, if you played a Princess character this turn, you may put a card from your hand into your inkwell facedown to draw a card.",
+        "storyName": "WHATEVER YOU WISH FOR",
+        "rulesText": "At the end of your turn, if you played a Princess character this turn, you may put a card from your hand into your inkwell facedown to draw a card.",
         "raw": "WHATEVER YOU WISH FOR At the end of your turn, if you played a Princess character this turn, you may put a card from your hand into your inkwell facedown to draw a card."
       }
     ]
@@ -13756,13 +13771,13 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_8941521977e54d6fa2baaae91d13fb6e.avif?1761766879",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "DUSK TO DAWN At the end of each player's turn, if they have more than 2 cards in their hand, they choose and discard cards until they have 2. If they have fewer than 2 cards in their hand, they draw until they have 2.",
+        "storyName": "DUSK TO DAWN",
+        "rulesText": "At the end of each player's turn, if they have more than 2 cards in their hand, they choose and discard cards until they have 2. If they have fewer than 2 cards in their hand, they draw until they have 2.",
         "raw": "DUSK TO DAWN At the end of each player's turn, if they have more than 2 cards in their hand, they choose and discard cards until they have 2. If they have fewer than 2 cards in their hand, they draw until they have 2."
       },
       {
-        "storyName": "",
-        "rulesText": "STONE BY DAY If you have 3 or more cards in your hand, this character can’t ready.",
+        "storyName": "STONE BY DAY",
+        "rulesText": "If you have 3 or more cards in your hand, this character can’t ready.",
         "raw": "STONE BY DAY If you have 3 or more cards in your hand, this character can’t ready."
       }
     ]
@@ -13983,13 +13998,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5b53a4c5b3854ab0ba71dd388aaa0d9f.avif?1761766937",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "Boost 1 {I}",
-        "raw": "Boost 1 {I}"
-      },
-      {
-        "storyName": "",
-        "rulesText": "COMMAND PERFORMANCE Once during your turn, whenever you play a song, if there's a card under this character, you may draw a card.",
+        "storyName": "COMMAND PERFORMANCE",
+        "rulesText": "Once during your turn, whenever you play a song, if there's a card under this character, you may draw a card.",
         "raw": "COMMAND PERFORMANCE Once during your turn, whenever you play a song, if there's a card under this character, you may draw a card."
       }
     ]
