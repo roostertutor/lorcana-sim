@@ -5222,22 +5222,26 @@
       },
       {
         "type": "triggered",
-        "storyName": "PROSPECT",
+        "storyName": "WORK SMARTER",
         "rulesText": "Whenever this character quests, if an opponent has more cards in their inkwell than you, you may put the top card of your deck into your inkwell facedown and exerted.",
         "trigger": {
           "on": "quests"
         },
         "effects": [
           {
-            "type": "reveal_top_conditional",
-            "filter": {},
-            "matchAction": "to_inkwell_exerted",
-            "isMay": true,
+            "type": "move_to_inkwell",
+            "fromZone": "deck",
+            "enterExerted": true,
             "target": {
               "type": "self"
-            }
+            },
+            "isMay": true
           }
-        ]
+        ],
+        "condition": {
+          "type": "opponent_has_more_than_self",
+          "metric": "cards_in_inkwell"
+        }
       }
     ],
     "setId": "10",
@@ -8268,9 +8272,9 @@
         },
         "effects": [
           {
-            "type": "reveal_top_conditional",
-            "filter": {},
-            "matchAction": "to_inkwell_exerted",
+            "type": "move_to_inkwell",
+            "fromZone": "deck",
+            "enterExerted": true,
             "target": {
               "type": "self"
             }
@@ -8978,9 +8982,9 @@
         },
         "effects": [
           {
-            "type": "reveal_top_conditional",
-            "filter": {},
-            "matchAction": "to_inkwell_exerted",
+            "type": "move_to_inkwell",
+            "fromZone": "deck",
+            "enterExerted": true,
             "target": {
               "type": "self"
             }
@@ -9030,13 +9034,13 @@
         },
         "effects": [
           {
-            "type": "reveal_top_conditional",
-            "filter": {},
-            "matchAction": "to_inkwell_exerted",
-            "isMay": true,
+            "type": "move_to_inkwell",
+            "fromZone": "deck",
+            "enterExerted": true,
             "target": {
               "type": "self"
-            }
+            },
+            "isMay": true
           }
         ]
       }
@@ -9359,13 +9363,13 @@
         },
         "effects": [
           {
-            "type": "reveal_top_conditional",
-            "filter": {},
-            "matchAction": "to_inkwell_exerted",
-            "isMay": true,
+            "type": "move_to_inkwell",
+            "fromZone": "deck",
+            "enterExerted": true,
             "target": {
               "type": "self"
-            }
+            },
+            "isMay": true
           }
         ]
       }
@@ -12349,9 +12353,9 @@
         },
         "effects": [
           {
-            "type": "reveal_top_conditional",
-            "filter": {},
-            "matchAction": "to_inkwell_exerted",
+            "type": "move_to_inkwell",
+            "fromZone": "deck",
+            "enterExerted": true,
             "target": {
               "type": "self"
             }
@@ -13094,22 +13098,26 @@
       },
       {
         "type": "triggered",
-        "storyName": "PROSPECT",
+        "storyName": "WORK SMARTER",
         "rulesText": "Whenever this character quests, if an opponent has more cards in their inkwell than you, you may put the top card of your deck into your inkwell facedown and exerted.",
         "trigger": {
           "on": "quests"
         },
         "effects": [
           {
-            "type": "reveal_top_conditional",
-            "filter": {},
-            "matchAction": "to_inkwell_exerted",
-            "isMay": true,
+            "type": "move_to_inkwell",
+            "fromZone": "deck",
+            "enterExerted": true,
             "target": {
               "type": "self"
-            }
+            },
+            "isMay": true
           }
-        ]
+        ],
+        "condition": {
+          "type": "opponent_has_more_than_self",
+          "metric": "cards_in_inkwell"
+        }
       }
     ],
     "setId": "10",

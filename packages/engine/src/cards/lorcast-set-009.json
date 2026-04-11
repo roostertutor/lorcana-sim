@@ -4665,13 +4665,13 @@
         },
         "effects": [
           {
-            "type": "reveal_top_conditional",
-            "filter": {},
-            "matchAction": "to_inkwell_exerted",
-            "isMay": true,
+            "type": "move_to_inkwell",
+            "fromZone": "deck",
+            "enterExerted": true,
             "target": {
               "type": "self"
-            }
+            },
+            "isMay": true
           }
         ]
       }
@@ -8308,13 +8308,13 @@
         },
         "effects": [
           {
-            "type": "reveal_top_conditional",
-            "filter": {},
-            "matchAction": "to_inkwell_exerted",
-            "isMay": true,
+            "type": "move_to_inkwell",
+            "fromZone": "deck",
+            "enterExerted": true,
             "target": {
               "type": "self"
-            }
+            },
+            "isMay": true
           }
         ]
       }
@@ -9020,9 +9020,9 @@
     ],
     "actionEffects": [
       {
-        "type": "reveal_top_conditional",
-        "filter": {},
-        "matchAction": "to_inkwell_exerted",
+        "type": "move_to_inkwell",
+        "fromZone": "deck",
+        "enterExerted": true,
         "target": {
           "type": "self"
         }
@@ -9154,9 +9154,9 @@
     ],
     "actionEffects": [
       {
-        "type": "reveal_top_conditional",
-        "filter": {},
-        "matchAction": "to_inkwell_exerted",
+        "type": "move_to_inkwell",
+        "fromZone": "deck",
+        "enterExerted": true,
         "target": {
           "type": "self"
         }
