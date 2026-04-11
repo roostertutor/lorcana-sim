@@ -5427,6 +5427,9 @@
           {
             "type": "pay_ink",
             "amount": 1
+          },
+          {
+            "type": "banish_self"
           }
         ],
         "effects": [
@@ -9578,7 +9581,11 @@
         "type": "activated",
         "storyName": "HERE YOU GO",
         "rulesText": "Banish this item – Remove up to 2 damage from each of your characters. Draw a card.",
-        "costs": [],
+        "costs": [
+          {
+            "type": "banish_self"
+          }
+        ],
         "effects": [
           {
             "type": "remove_damage",
