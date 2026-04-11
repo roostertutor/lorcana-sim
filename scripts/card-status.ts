@@ -25,6 +25,144 @@ import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CARDS_DIR = join(__dirname, "../packages/engine/src/cards");
+const TYPES_PATH = join(__dirname, "../packages/engine/src/types/index.ts");
+
+// =============================================================================
+// FIELD VALIDATION — Extract valid discriminator values from types/index.ts
+// =============================================================================
+
+function extractUnionBlock(source: string, unionName: string): string {
+  const lines = source.split("\n");
+  const startIdx = lines.findIndex(l => l.match(new RegExp(`(?:export )?type ${unionName}\\s*=`)));
+  if (startIdx === -1) return "";
+  const parts: string[] = [lines[startIdx]!];
+  for (let i = startIdx + 1; i < lines.length; i++) {
+    const l = lines[i]!;
+    if (/^export\s|^\/\/\s*={5,}/.test(l)) break;
+    parts.push(l);
+  }
+  return parts.join("\n");
+}
+
+/** Extract discriminator string literals from a types file.
+ *  Finds all `type: "something"` and `on: "something"` in interface bodies. */
+function extractAllDiscriminators(source: string, field: string): Set<string> {
+  const literals = new Set<string>();
+  for (const m of source.matchAll(new RegExp(`${field}:\\s*"([a-z_]+)"`, "g"))) {
+    literals.add(m[1]!);
+  }
+  return literals;
+}
+
+/** Extract bare string literal union members: | "foo" | "bar" */
+function extractStringUnion(source: string, unionName: string): Set<string> {
+  const block = extractUnionBlock(source, unionName);
+  if (!block) return new Set();
+  const literals = new Set<string>();
+  for (const m of block.matchAll(/\|\s*"([a-z_]+)"/g)) {
+    literals.add(m[1]!);
+  }
+  return literals;
+}
+
+const typesSource = readFileSync(TYPES_PATH, "utf-8");
+// Extract all `type: "xxx"` discriminators from every interface in the file
+const ALL_TYPE_DISCRIMINATORS = extractAllDiscriminators(typesSource, "type");
+// Extract all `on: "xxx"` trigger event names
+const ALL_ON_DISCRIMINATORS = extractAllDiscriminators(typesSource, "on");
+// EffectDuration is a bare string union
+const VALID_DURATIONS = extractStringUnion(typesSource, "EffectDuration");
+// Add common duration values not in the union but used in card JSON
+VALID_DURATIONS.add("this_turn");
+VALID_DURATIONS.add("permanent");
+// Target types are inline — add known values manually
+const VALID_TARGET_TYPES = new Set([
+  "self", "opponent", "both", "this", "triggering_card", "last_resolved_target",
+  "from_last_discarded", "chosen", "all", "random", "target_owner",
+]);
+
+interface FieldError {
+  path: string;
+  field: string;
+  value: string;
+  validValues: string;
+}
+
+function validateCardFields(card: any): FieldError[] {
+  const errors: FieldError[] = [];
+
+  function checkType(obj: any, path: string) {
+    const val = obj?.type;
+    if (val && typeof val === "string" && !ALL_TYPE_DISCRIMINATORS.has(val)
+        && val !== "keyword" && val !== "deck_rule") {
+      errors.push({ path, field: "type", value: val, validValues: "types/index.ts" });
+    }
+  }
+
+  function checkOn(obj: any, path: string) {
+    const val = obj?.on;
+    if (val && typeof val === "string" && !ALL_ON_DISCRIMINATORS.has(val)) {
+      errors.push({ path, field: "on", value: val, validValues: "TriggerEvent" });
+    }
+  }
+
+  function walkEffect(e: any, path: string) {
+    if (!e || typeof e !== "object") return;
+    checkType(e, path);
+    if (e.duration && typeof e.duration === "string" && !VALID_DURATIONS.has(e.duration)) {
+      errors.push({ path, field: "duration", value: e.duration, validValues: `[${[...VALID_DURATIONS].join(", ")}]` });
+    }
+    // Check targets
+    if (e.target) checkType(e.target, path + ".target");
+    if (e.from) checkType(e.from, path + ".from");
+    if (e.to) checkType(e.to, path + ".to");
+    // Recurse into nested effects
+    for (const key of ["effects", "costEffects", "rewardEffects", "ifMatchEffects", "defaultEffects",
+                        "matchExtraEffects", "followUpEffects", "then", "otherwise"]) {
+      if (Array.isArray(e[key])) {
+        e[key].forEach((sub: any, i: number) => walkEffect(sub, `${path}.${key}[${i}]`));
+      }
+    }
+    // Nested condition
+    if (e.condition) walkCondition(e.condition, path + ".condition");
+  }
+
+  function walkCondition(c: any, path: string) {
+    if (!c || typeof c !== "object") return;
+    checkType(c, path);
+    if (c.condition) walkCondition(c.condition, path + ".condition");
+    if (Array.isArray(c.conditions)) {
+      c.conditions.forEach((sub: any, i: number) => walkCondition(sub, `${path}.conditions[${i}]`));
+    }
+  }
+
+  function walkAbility(ab: any, path: string) {
+    if (!ab || typeof ab !== "object") return;
+    // Check trigger event name
+    if (ab.trigger?.on) {
+      checkOn(ab.trigger, path + ".trigger");
+    }
+    // Check condition on ability
+    if (ab.condition) walkCondition(ab.condition, path + ".condition");
+    // Check costs
+    if (Array.isArray(ab.costs)) {
+      ab.costs.forEach((c: any, i: number) => checkType(c, `${path}.costs[${i}]`));
+    }
+    // Check effects
+    if (Array.isArray(ab.effects)) {
+      ab.effects.forEach((e: any, i: number) => walkEffect(e, `${path}.effects[${i}]`));
+    }
+    // Static ability: check the effect field
+    if (ab.effect) walkEffect(ab.effect, path + ".effect");
+  }
+
+  // Walk all abilities
+  (card.abilities ?? []).forEach((ab: any, i: number) => walkAbility(ab, `abilities[${i}]`));
+  // Walk actionEffects
+  (card.actionEffects ?? []).forEach((e: any, i: number) => walkEffect(e, `actionEffects[${i}]`));
+
+  return errors;
+}
 
 // --- CLI args -----------------------------------------------------------------
 const args = process.argv.slice(2);
@@ -44,13 +182,14 @@ type StubCategory =
   | "needs-new-mechanic"
   | "unknown";
 
-type CardCategory = "implemented" | "partial" | "vanilla" | StubCategory;
+type CardCategory = "implemented" | "partial" | "invalid-field" | "vanilla" | StubCategory;
 
 interface CardEntry {
   id: string;
   fullName: string;
   cardType: string;
   setId: string;
+  fieldErrors?: FieldError[];
   category: CardCategory;
   stubs: { storyName: string; rulesText: string; category: StubCategory }[];
 }
@@ -746,8 +885,11 @@ for (const filename of SET_FILES) {
 
     let category: CardCategory;
     const categorizedStubs: CardEntry["stubs"] = [];
+    const fieldErrors = validateCardFields(card);
 
-    if (isPartiallyWired(card)) {
+    if (fieldErrors.length > 0) {
+      category = "invalid-field";
+    } else if (isPartiallyWired(card)) {
       category = "partial";
     } else if (isImplemented(card)) {
       category = "implemented";
@@ -792,6 +934,7 @@ for (const filename of SET_FILES) {
       setId: setNum ?? "?",
       category,
       stubs: categorizedStubs,
+      fieldErrors: fieldErrors.length > 0 ? fieldErrors : undefined,
     });
   }
 }
@@ -801,6 +944,7 @@ for (const filename of SET_FILES) {
 const CATEGORY_ORDER: CardCategory[] = [
   "implemented",
   "partial",
+  "invalid-field",
   "vanilla",
   "fits-grammar",
   "needs-new-type",
@@ -811,6 +955,7 @@ const CATEGORY_ORDER: CardCategory[] = [
 const CATEGORY_LABELS: Record<CardCategory, string> = {
   implemented: "done",
   partial: "partial",
+  "invalid-field": "invalid",
   vanilla: "vanilla",
   "fits-grammar": "fits-grammar",
   "needs-new-type": "needs-new-type",
@@ -838,9 +983,9 @@ if (!filterCategory) {
   const padr = (s: string | number, w: number) => String(s).padEnd(w);
 
   console.log("\n" + padr("SET", 5) + pad("TOTAL", 6) + pad("DONE", 6) +
-    pad("PARTIAL", 8) + pad("VANILLA", 8) + pad("FITS", 6) + pad("NEW-TYPE", 10) +
+    pad("PARTIAL", 8) + pad("INVALID", 8) + pad("VANILLA", 8) + pad("FITS", 6) + pad("NEW-TYPE", 10) +
     pad("NEW-MECH", 10) + pad("UNKNOWN", 9));
-  console.log("─".repeat(68));
+  console.log("─".repeat(76));
 
   const setIds = [...bySet.keys()].sort((a, b) =>
     a.replace(/\D/g, "").padStart(5, "0").localeCompare(b.replace(/\D/g, "").padStart(5, "0"))
@@ -853,6 +998,7 @@ if (!filterCategory) {
         pad(cards.length, 6) +
         pad(count(cards, "implemented"), 6) +
         pad(count(cards, "partial"), 8) +
+        pad(count(cards, "invalid-field"), 8) +
         pad(count(cards, "vanilla"), 8) +
         pad(count(cards, "fits-grammar"), 6) +
         pad(count(cards, "needs-new-type"), 10) +
@@ -861,13 +1007,14 @@ if (!filterCategory) {
     );
   }
 
-  console.log("─".repeat(68));
+  console.log("─".repeat(76));
   // Totals
   console.log(
     padr("  ALL", 5) +
       pad(allCards.length, 6) +
       pad(count(allCards, "implemented"), 6) +
       pad(count(allCards, "partial"), 8) +
+      pad(count(allCards, "invalid-field"), 8) +
       pad(count(allCards, "vanilla"), 8) +
       pad(count(allCards, "fits-grammar"), 6) +
       pad(count(allCards, "needs-new-type"), 10) +
@@ -879,14 +1026,19 @@ if (!filterCategory) {
     ["fits-grammar", "needs-new-type", "needs-new-mechanic", "unknown"].includes(c.category)
   );
   const partialCount = count(allCards, "partial");
+  const invalidCount = count(allCards, "invalid-field");
   const implCount = count(allCards, "implemented");
-  console.log(`\n  ${implCount} implemented / ${partialCount} partial / ${stubs.length} stubs remaining`);
+  console.log(`\n  ${implCount} implemented / ${partialCount} partial / ${invalidCount} invalid / ${stubs.length} stubs remaining`);
+  if (invalidCount > 0) {
+    console.log(`  ✗ ${invalidCount} cards have invalid JSON fields (wrong trigger/effect/condition/cost/duration names).`);
+    console.log(`    Run: pnpm card-status --category invalid-field --verbose`);
+  }
   if (partialCount > 0) {
     console.log(`  ⚠ ${partialCount} cards have missing abilities (rulesText has more named abilities than wired).`);
     console.log(`    Run: pnpm card-status --category partial --verbose`);
   }
   console.log("\n  Run with --category <name> to list cards in a category.");
-  console.log("  Categories: implemented | partial | vanilla | fits-grammar | needs-new-type | needs-new-mechanic | unknown\n");
+  console.log("  Categories: implemented | partial | invalid-field | vanilla | fits-grammar | needs-new-type | needs-new-mechanic | unknown\n");
 }
 
 // --- Category detail listing -------------------------------------------------
@@ -895,6 +1047,7 @@ if (filterCategory) {
   const catMap: Record<string, CardCategory> = {
     implemented: "implemented",
     partial: "partial",
+    "invalid-field": "invalid-field",
     vanilla: "vanilla",
     "fits-grammar": "fits-grammar",
     "needs-new-type": "needs-new-type",
@@ -914,7 +1067,11 @@ if (filterCategory) {
     const prefix = `  [set-${card.setId}/${card.cardType}]`;
     console.log(`${prefix} ${card.fullName}`);
     if (verbose) {
-      if (cat === "partial") {
+      if (cat === "invalid-field" && card.fieldErrors) {
+        for (const err of card.fieldErrors) {
+          console.log(`    ✗ ${err.path}.${err.field} = "${err.value}" — not in ${err.validValues}`);
+        }
+      } else if (cat === "partial") {
         // For partial cards, show the rulesText and ability count mismatch
         const rawCard = loadSetFile(
           SET_FILES.find(f => f.includes(`set-${card.setId.padStart(3, "0")}`)) ?? SET_FILES.find(f => f.includes(`set-${card.setId}`)) ?? ""
