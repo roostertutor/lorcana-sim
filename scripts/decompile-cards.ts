@@ -196,7 +196,7 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
   ink_played:                    ()  => "Whenever you put a card into your inkwell",
   moves_to_location:             ()  => "Whenever this character moves to a location",
   damage_dealt_to:               ()  => "Whenever damage is dealt to this character",
-  damage_removed_from:           ()  => "Whenever damage is removed from this character",
+  damage_removed_from:           (t) => t.filter?.owner?.type === "self" ? "Whenever you remove 1 or more damage from one of your characters" : "Whenever damage is removed from this character",
   readied:                       ()  => "Whenever this character is readied",
   returned_to_hand:              ()  => "Whenever this character is returned to your hand",
   cards_discarded:               ()  => "Whenever a card is discarded",
@@ -366,8 +366,14 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     return `${tgt} can't gain lore${dur(e)}`;
   },
 
-  deal_damage:    (e) => `${maybe(e)}deal ${up(e)}${e.amount ?? 1} damage to ${renderTarget(e.target ?? {})}`,
-  remove_damage:  (e) => `${maybe(e)}remove ${up(e)}${e.amount ?? 1} damage from ${renderTarget(e.target ?? {})}`,
+  deal_damage: (e) => {
+    const amt = e.amount ?? 1;
+    const amtStr = typeof amt === "number" ? `${up(e)}${amt}` : `damage equal to ${renderAmount(amt)}`;
+    return typeof amt === "number"
+      ? `${maybe(e)}deal ${amtStr} damage to ${renderTarget(e.target ?? {})}`
+      : `${maybe(e)}deal ${amtStr} to ${renderTarget(e.target ?? {})}`;
+  },
+  remove_damage:  (e) => `${maybe(e)}remove ${up(e)}${typeof e.amount === "number" ? e.amount : renderAmount(e.amount)} damage from ${renderTarget(e.target ?? {})}`,
   move_damage:    (e) => `${maybe(e)}move ${up(e)}${e.amount ?? 1} damage from ${renderTarget(e.from ?? {})} to ${renderTarget(e.to ?? {})}`,
 
   banish:         (e) => `${maybe(e)}banish ${renderTarget(e.target ?? {})}`,
@@ -480,7 +486,11 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
       : "put it back";
     return `reveal the top card of ${tgt} deck. If it's ${filter}, ${match}. Otherwise, ${noMatch}`;
   },
-  search:                 (e) => `search your deck for ${e.filter ? renderFilter(e.filter) : "a card"}`,
+  search: (e) => {
+    const filter = e.filter ? renderFilter(e.filter) : "a card";
+    if (e.zone === "discard") return `return ${filter} from your discard to your hand`;
+    return `search your deck for ${filter}`;
+  },
   shuffle_into_deck:      (e) => `shuffle ${renderTarget(e.target ?? {})} into your deck`,
   move_to_inkwell: (e) => {
     const exerted = e.enterExerted ? " facedown and exerted" : " facedown";

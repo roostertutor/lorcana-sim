@@ -876,7 +876,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "HEALING GLOW",
+        "storyName": "LET YOUR POWER SHINE",
         "rulesText": "Whenever you remove 1 or more damage from one of your characters, you may draw a card.",
         "trigger": {
           "on": "damage_removed_from",
@@ -1223,7 +1223,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "A WISHING WELL",
+        "storyName": "WISHES COME TRUE",
         "rulesText": "Whenever this character quests, you may return a character card from your discard to your hand.",
         "trigger": {
           "on": "quests"
@@ -1623,7 +1623,7 @@
     "abilities": [
       {
         "type": "activated",
-        "storyName": "REUNITING POWER",
+        "storyName": "BRING BACK TO LIFE",
         "rulesText": "Return a character card with Support from your discard to your hand.",
         "costs": [
           {
@@ -3422,14 +3422,29 @@
     "abilities": [
       {
         "type": "activated",
-        "storyName": "SIGNED IN BLOOD",
-        "rulesText": "Exert chosen character.",
+        "storyName": "FOR ALL ETERNITY",
+        "rulesText": "{E}, {E} one of your characters — Exert chosen character.",
         "costs": [
           {
             "type": "exert"
           }
         ],
         "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "self"
+                }
+              }
+            }
+          },
           {
             "type": "exert",
             "target": {
@@ -3919,12 +3934,14 @@
         "value": 5
       },
       {
-        "type": "triggered",
-        "storyName": "NOT ALL THERE",
-        "rulesText": "Banish chosen damaged character.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "type": "activated",
+        "storyName": "WICKED SMILE",
+        "rulesText": "{E} — Banish chosen damaged character.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "banish",
@@ -4908,8 +4925,8 @@
     "abilities": [
       {
         "type": "activated",
-        "storyName": "POISONED APPLE",
-        "rulesText": "Gain lore equal to the discarded character's {L}.",
+        "storyName": "A PERFECT DISGUISE",
+        "rulesText": "{E}, Choose and discard a character card — Gain lore equal to the discarded character's {L}.",
         "costs": [
           {
             "type": "exert"
@@ -6855,39 +6872,48 @@
     "abilities": [
       {
         "type": "activated",
-        "storyName": "COME AND GET IT!",
-        "rulesText": "Draw cards equal to the damage on chosen character of yours, then banish them.",
+        "storyName": "YOU KNOW WHAT HAPPENS",
+        "rulesText": "{E}, 2 {I} — Draw cards equal to the damage on chosen character of yours, then banish them.",
         "costs": [
           {
             "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 2
           }
         ],
         "effects": [
           {
-            "type": "sequential",
-            "costEffects": [],
-            "rewardEffects": [
+            "type": "conditional_on_target",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasDamage": true
+              }
+            },
+            "conditionFilter": {},
+            "ifMatchEffects": [
               {
-                "type": "banish",
+                "type": "draw",
+                "amount": {
+                  "type": "target_damage"
+                },
                 "target": {
-                  "type": "chosen",
-                  "filter": {
-                    "owner": {
-                      "type": "self"
-                    },
-                    "zone": "play",
-                    "cardType": [
-                      "character"
-                    ],
-                    "hasDamage": true
-                  }
+                  "type": "self"
                 }
               },
               {
-                "type": "draw",
-                "amount": "cost_result",
+                "type": "banish",
                 "target": {
-                  "type": "self"
+                  "type": "last_resolved_target"
                 }
               }
             ]
@@ -7596,7 +7622,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "ANCIENT KNOWLEDGE",
+        "storyName": "ANCIENT INSIGHT",
         "rulesText": "Whenever you remove 1 or more damage from one of your characters, gain 2 lore.",
         "trigger": {
           "on": "damage_removed_from",
@@ -10664,7 +10690,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "A WISHING WELL",
+        "storyName": "WISHES COME TRUE",
         "rulesText": "Whenever this character quests, you may return a character card from your discard to your hand.",
         "trigger": {
           "on": "quests"
