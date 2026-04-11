@@ -26,7 +26,20 @@ pnpm test:watch          # TDD (engine)
 pnpm typecheck           # known errors in cli (missing @types/node) only
 pnpm dev                 # UI at localhost:5173
 pnpm import-cards        # fetch cards from Lorcast API
+pnpm import-cards --cache # same + save raw API responses to .lorcast-raw/
 pnpm learn               # train RL policy (see --help)
+```
+
+### Audit workflow
+```bash
+# After card wiring changes (run every time):
+pnpm card-status                  # stubs, partial, invalid fields, field validation
+
+# After re-importing from Lorcast API:
+pnpm audit-lorcast                # keyword drift, dropped values from upstream
+
+# Periodic deep review (set by set):
+pnpm decompile-cards --set 001    # semantic diff: rendered JSON vs oracle text
 ```
 
 ## Docs (read on demand, not every session)
