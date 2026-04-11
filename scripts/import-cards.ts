@@ -532,8 +532,10 @@ async function main() {
           "altPlayCost" as keyof CardDefinitionOut,
           "selfCostReduction" as keyof CardDefinitionOut,
           "shiftCost" as keyof CardDefinitionOut,
+          "altShiftCost" as keyof CardDefinitionOut,
           "moveCost" as keyof CardDefinitionOut,
           "singTogetherCost" as keyof CardDefinitionOut,
+          "additionalNames" as keyof CardDefinitionOut,
         ];
         for (const field of passthroughFields) {
           const prevVal = (prev as Record<string, unknown>)[field as string];
