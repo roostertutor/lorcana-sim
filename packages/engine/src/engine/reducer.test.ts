@@ -5,7 +5,7 @@
 // =============================================================================
 
 import { describe, it, expect } from "vitest";
-import { applyAction, getAllLegalActions } from "../engine/reducer.js";
+import { applyAction, applyEffect, getAllLegalActions } from "../engine/reducer.js";
 import { createGame } from "../engine/initializer.js";
 import {
   LORCAST_CARD_DEFINITIONS,
@@ -3026,6 +3026,86 @@ describe("§8 Keywords", () => {
 
     expect(result.success).toBe(true);
     expect(getInstance(result.newState, shiftId).isDrying).toBe(true);
+  });
+
+  // ---------------------------------------------------------------------------
+  // §8.10.7 Card stack leaves play together
+  // ---------------------------------------------------------------------------
+
+  it("CRD 8.10.7: Let It Go — stack goes to inkwell together", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let baseId: string, shiftId: string;
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "hades-lord-of-the-underworld", "play"));
+    ({ state, instanceId: shiftId } = injectCard(state, "player1", "hades-king-of-olympus", "hand"));
+    state = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: shiftId, shiftTargetInstanceId: baseId }, LORCAST_CARD_DEFINITIONS).newState;
+    expect(getInstance(state, baseId).zone).toBe("under");
+
+    // Apply move_to_inkwell directly on the shifted stack
+    state = applyEffect(state, {
+      type: "move_to_inkwell",
+      target: { type: "this" },
+      enterExerted: true,
+    } as any, shiftId, "player1", LORCAST_CARD_DEFINITIONS, []);
+    // CRD 8.10.7: BOTH cards go to inkwell
+    expect(getInstance(state, shiftId).zone).toBe("inkwell");
+    expect(getInstance(state, baseId).zone).toBe("inkwell");
+  });
+
+  it("CRD 8.10.7: Mother Knows Best — stack goes to hand together", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let baseId: string, shiftId: string;
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "hades-lord-of-the-underworld", "play"));
+    ({ state, instanceId: shiftId } = injectCard(state, "player1", "hades-king-of-olympus", "hand"));
+    state = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: shiftId, shiftTargetInstanceId: baseId }, LORCAST_CARD_DEFINITIONS).newState;
+
+    // Apply return_to_hand directly on the shifted stack
+    state = applyEffect(state, {
+      type: "return_to_hand",
+      target: { type: "this" },
+    } as any, shiftId, "player1", LORCAST_CARD_DEFINITIONS, []);
+    // CRD 8.10.7: BOTH cards go to hand
+    expect(getInstance(state, shiftId).zone).toBe("hand");
+    expect(getInstance(state, baseId).zone).toBe("hand");
+  });
+
+  it("CRD 8.10.7: You're Welcome — stack gets shuffled into deck together", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let baseId: string, shiftId: string;
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "hades-lord-of-the-underworld", "play"));
+    ({ state, instanceId: shiftId } = injectCard(state, "player1", "hades-king-of-olympus", "hand"));
+    state = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: shiftId, shiftTargetInstanceId: baseId }, LORCAST_CARD_DEFINITIONS).newState;
+
+    // Apply shuffle_into_deck directly on the shifted stack
+    state = applyEffect(state, {
+      type: "shuffle_into_deck",
+      target: { type: "this" },
+    } as any, shiftId, "player1", LORCAST_CARD_DEFINITIONS, []);
+    // CRD 8.10.7: BOTH cards go to deck
+    expect(getInstance(state, shiftId).zone).toBe("deck");
+    expect(getInstance(state, baseId).zone).toBe("deck");
+  });
+
+  it("CRD 8.10.7: banished stack — only TOP card triggers, stack disbands in discard", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let baseId: string, shiftId: string;
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "hades-lord-of-the-underworld", "play"));
+    ({ state, instanceId: shiftId } = injectCard(state, "player1", "hades-king-of-olympus", "hand"));
+    state = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: shiftId, shiftTargetInstanceId: baseId }, LORCAST_CARD_DEFINITIONS).newState;
+
+    // Banish the stack directly
+    state = applyEffect(state, {
+      type: "banish",
+      target: { type: "this" },
+    } as any, shiftId, "player2", LORCAST_CARD_DEFINITIONS, []);
+    // Both cards end up in discard
+    expect(getInstance(state, shiftId).zone).toBe("discard");
+    expect(getInstance(state, baseId).zone).toBe("discard");
+    // Stack disbanded — cardsUnder cleared
+    expect(getInstance(state, shiftId).cardsUnder.length).toBe(0);
   });
 
   // ---------------------------------------------------------------------------

@@ -4442,6 +4442,12 @@ export function applyEffect(
     }
 
     case "shuffle_into_deck": {
+      if (effect.target.type === "this") {
+        // Shuffle the source card into its owner's deck (You're Welcome pattern)
+        state = zoneTransition(state, sourceInstanceId, "deck", definitions, events, { reason: "effect" });
+        state = shuffleDeck(state, getInstance(state, sourceInstanceId).ownerId);
+        return state;
+      }
       if (effect.target.type === "chosen") {
         // "any discard" = all discard piles
         const filter = effect.target.filter;
