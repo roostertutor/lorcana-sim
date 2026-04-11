@@ -1616,16 +1616,7 @@
           "amount": 1,
           "target": {
             "type": "all",
-            "filter": {
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasName": "Stitch",
-              "owner": {
-                "type": "self"
-              }
-            }
+            "filter": { "zone": "play", "cardType": ["character"], "hasName": "Stitch", "owner": { "type": "self" } }
           }
         }
       }
@@ -2291,30 +2282,12 @@
           "type": "grant_triggered_ability",
           "target": {
             "type": "all",
-            "filter": {
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasName": "Jetsam",
-              "owner": {
-                "type": "self"
-              }
-            }
+            "filter": { "zone": "play", "cardType": ["character"], "hasName": "Jetsam", "owner": { "type": "self" } }
           },
           "ability": {
             "type": "triggered",
-            "trigger": {
-              "on": "banished_in_challenge"
-            },
-            "effects": [
-              {
-                "type": "return_to_hand",
-                "target": {
-                  "type": "this"
-                }
-              }
-            ]
+            "trigger": { "on": "banished_in_challenge" },
+            "effects": [{ "type": "return_to_hand", "target": { "type": "this" } }]
           }
         }
       }
@@ -4042,13 +4015,13 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
-            "fromZone": "deck",
-            "enterExerted": true,
+            "type": "reveal_top_conditional",
+            "filter": {},
+            "matchAction": "to_inkwell_exerted",
+            "isMay": true,
             "target": {
               "type": "self"
-            },
-            "isMay": true
+            }
           }
         ]
       }
@@ -5315,9 +5288,7 @@
         "type": "static",
         "storyName": "UNEXPECTED TREASURE",
         "rulesText": "All cards in your hand count as having {IW}.",
-        "effect": {
-          "type": "all_hand_inkable"
-        }
+        "effect": { "type": "all_hand_inkable" }
       }
     ],
     "setId": "4",
@@ -5440,9 +5411,7 @@
         "type": "static",
         "storyName": "TRAPPED!",
         "rulesText": "Damage counters can't be removed.",
-        "effect": {
-          "type": "prevent_damage_removal"
-        }
+        "effect": { "type": "prevent_damage_removal" }
       }
     ],
     "setId": "4",
@@ -7652,13 +7621,9 @@
           "target": {
             "type": "all",
             "filter": {
-              "owner": {
-                "type": "self"
-              },
+              "owner": { "type": "self" },
               "zone": "play",
-              "cardType": [
-                "item"
-              ]
+              "cardType": ["item"]
             }
           }
         }
@@ -7674,13 +7639,9 @@
             "target": {
               "type": "chosen",
               "filter": {
-                "owner": {
-                  "type": "self"
-                },
+                "owner": { "type": "self" },
                 "zone": "play",
-                "cardType": [
-                  "item"
-                ]
+                "cardType": ["item"]
               }
             }
           },
@@ -7688,9 +7649,7 @@
             "type": "look_at_top",
             "count": 1,
             "action": "top_or_bottom",
-            "target": {
-              "type": "self"
-            }
+            "target": { "type": "self" }
           }
         ]
       }

@@ -4667,13 +4667,13 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
-            "fromZone": "deck",
-            "enterExerted": true,
+            "type": "reveal_top_conditional",
+            "filter": {},
+            "matchAction": "to_inkwell_exerted",
+            "isMay": true,
             "target": {
               "type": "self"
-            },
-            "isMay": true
+            }
           }
         ]
       }
@@ -8281,13 +8281,13 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
-            "fromZone": "deck",
-            "enterExerted": true,
+            "type": "reveal_top_conditional",
+            "filter": {},
+            "matchAction": "to_inkwell_exerted",
+            "isMay": true,
             "target": {
               "type": "self"
-            },
-            "isMay": true
+            }
           }
         ]
       }
@@ -8993,9 +8993,9 @@
     ],
     "actionEffects": [
       {
-        "type": "move_to_inkwell",
-        "fromZone": "deck",
-        "enterExerted": true,
+        "type": "reveal_top_conditional",
+        "filter": {},
+        "matchAction": "to_inkwell_exerted",
         "target": {
           "type": "self"
         }
@@ -9127,9 +9127,9 @@
     ],
     "actionEffects": [
       {
-        "type": "move_to_inkwell",
-        "fromZone": "deck",
-        "enterExerted": true,
+        "type": "reveal_top_conditional",
+        "filter": {},
+        "matchAction": "to_inkwell_exerted",
         "target": {
           "type": "self"
         }
@@ -9223,13 +9223,13 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
-            "fromZone": "deck",
-            "enterExerted": true,
+            "type": "reveal_top_conditional",
+            "filter": {},
+            "matchAction": "to_inkwell_exerted",
+            "isMay": true,
             "target": {
               "type": "self"
-            },
-            "isMay": true
+            }
           }
         ]
       }
