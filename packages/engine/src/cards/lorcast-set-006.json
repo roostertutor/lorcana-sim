@@ -514,7 +514,8 @@
               ],
               "hasName": "Gazelle"
             }
-          }
+          },
+          "value": 6
         }
       }
     ],
@@ -6856,11 +6857,15 @@
     "abilities": [
       {
         "type": "activated",
-        "storyName": "MY POWER",
+        "storyName": "WHAT ARE YOU GONNA DO?",
         "rulesText": "{E}, 3 {I}, Banish one of your characters – Banish chosen character.",
         "costs": [
           {
             "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 3
           }
         ],
         "effects": [
@@ -10165,7 +10170,8 @@
               ],
               "hasName": "Mr. Smee"
             }
-          }
+          },
+          "value": 1
         }
       }
     ],
@@ -10650,7 +10656,12 @@
         "type": "activated",
         "storyName": "THINK ABOUT WHAT'S BEST",
         "rulesText": "2 {I} - Draw a card, then choose and discard a card.",
-        "costs": [],
+        "costs": [
+          {
+            "type": "pay_ink",
+            "amount": 2
+          }
+        ],
         "effects": [
           {
             "type": "draw",

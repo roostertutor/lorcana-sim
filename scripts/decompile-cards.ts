@@ -275,6 +275,7 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
   ink_plays_this_turn_eq:     (c) => `if you've played exactly ${c.amount ?? 0} cards into your inkwell this turn`,
   songs_played_this_turn_gte: (c) => `if you've played ${c.amount ?? 0} or more songs this turn`,
   actions_played_this_turn_gte: (c) => `if you've played ${c.amount ?? 0} or more actions this turn`,
+  actions_played_this_turn_eq: (c) => `if you've played exactly ${c.amount ?? 0} actions this turn`,
 
   // Pete Games Referee — "during your turn, opponents can't play actions"
   opponent_no_challenges_this_turn: () => "if no opposing character has challenged this turn",
@@ -458,8 +459,15 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   },
   grant_play_for_free_self:   ()  => "you may play this character for free",
   grant_shift_self:           (e) => `this character gains Shift ${e.value ?? e.amount ?? "?"}`,
-  grant_cost_reduction:       (e) => `you pay ${e.amount ?? "?"} {I} less for the next ${e.filter ? renderFilter(e.filter) : "card"} you play this turn`,
-  cost_reduction:             (e) => `you pay ${e.amount ?? "?"} {I} less for the next ${e.filter ? renderFilter(e.filter) : "card"} you play this turn`,
+  grant_cost_reduction: (e) => {
+    const amt = typeof e.amount === "number" ? `${e.amount}` : typeof e.amount === "object" ? renderAmount(e.amount) : `${e.amount ?? "?"}`;
+    return `you pay ${amt} {I} less for the next ${e.filter ? renderFilter(e.filter) : "card"} you play this turn`;
+  },
+  cost_reduction: (e) => {
+    const amt = typeof e.amount === "number" ? `${e.amount}` : typeof e.amount === "object" ? renderAmount(e.amount) : `${e.amount ?? "?"}`;
+    const filt = e.filter ? pluralizeFilter(renderFilter(e.filter)) : "cards";
+    return `you pay ${amt} {I} less to play ${filt}`;
+  },
 
   play_for_free: (e) => `${maybe(e)}play ${e.filter ? renderFilter(e.filter) : "a card"} for free`,
 
