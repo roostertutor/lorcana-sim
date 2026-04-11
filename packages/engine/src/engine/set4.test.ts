@@ -3,7 +3,7 @@
 // =============================================================================
 
 import { describe, it, expect } from "vitest";
-import { applyAction, applyEffect } from "./reducer.js";
+import { applyAction, applyEffect, getAllLegalActions } from "./reducer.js";
 import { setLore } from "./test-helpers.js";
 import {
   LORCAST_CARD_DEFINITIONS,
@@ -856,5 +856,61 @@ describe("§4 Set 4 — Noi Acrobatic Baby (damage_immunity_timed)", () => {
 
     expect(getZone(state, "player1", "hand").length).toBe(handBefore + 1);
     expect(state.players.player1.lore).toBe(loreBefore + 3);
+  });
+});
+
+describe("§4 Set 4 — Diablo Devoted Herald (altShiftCost discard)", () => {
+  it("alt-shift: discard an action to shift onto base Diablo, 0 ink spent", () => {
+    let state = startGame();
+    // 0 ink — proves we're not paying ink
+    state = giveInk(state, "player1", 0);
+    let baseId: string, shiftId: string, actionId: string;
+    // Base Diablo in play
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "diablo-maleficents-spy", "play"));
+    // Devoted Herald in hand
+    ({ state, instanceId: shiftId } = injectCard(state, "player1", "diablo-devoted-herald", "hand"));
+    // An action card in hand to discard as cost
+    ({ state, instanceId: actionId } = injectCard(state, "player1", "be-prepared", "hand"));
+
+    // Legal actions should include the alt-shift variant
+    const actions = getAllLegalActions(state, "player1", LORCAST_CARD_DEFINITIONS);
+    const shiftAction = actions.find(a =>
+      a.type === "PLAY_CARD" &&
+      a.instanceId === shiftId &&
+      a.shiftTargetInstanceId === baseId &&
+      a.altShiftCostInstanceId === actionId
+    );
+    expect(shiftAction).toBeDefined();
+
+    // Apply it
+    const r = applyAction(state, shiftAction!, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Diablo Devoted Herald is in play, shifted onto the base
+    expect(getInstance(state, shiftId).zone).toBe("play");
+    expect(getInstance(state, shiftId).playedViaShift).toBe(true);
+    // Base Diablo is under
+    expect(getInstance(state, baseId).zone).toBe("under");
+    // Action card was discarded
+    expect(getInstance(state, actionId).zone).toBe("discard");
+    // No ink spent
+    expect(state.players.player1.availableInk).toBe(0);
+  });
+
+  it("alt-shift: blocked when no eligible action card in hand", () => {
+    let state = startGame();
+    let baseId: string, shiftId: string;
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "diablo-maleficents-spy", "play"));
+    ({ state, instanceId: shiftId } = injectCard(state, "player1", "diablo-devoted-herald", "hand"));
+    // No action card in hand — can't pay the cost
+
+    const actions = getAllLegalActions(state, "player1", LORCAST_CARD_DEFINITIONS);
+    const shiftAction = actions.find(a =>
+      a.type === "PLAY_CARD" &&
+      a.instanceId === shiftId &&
+      a.shiftTargetInstanceId === baseId
+    );
+    expect(shiftAction).toBeUndefined();
   });
 });

@@ -3882,7 +3882,16 @@
         "rulesText": "During each opponent's turn, whenever they draw a card while this character is exerted, you may draw a card.",
         "raw": "CIRCLE FAR AND WIDE During each opponent's turn, whenever they draw a card while this character is exerted, you may draw a card."
       }
-    ]
+    ],
+    "altShiftCost": {
+      "type": "discard",
+      "filter": {
+        "cardType": [
+          "action"
+        ]
+      },
+      "amount": 1
+    }
   },
   {
     "id": "diablo-maleficents-spy",
@@ -11712,7 +11721,16 @@
         "rulesText": "During each opponent's turn, whenever they draw a card while this character is exerted, you may draw a card.",
         "raw": "CIRCLE FAR AND WIDE During each opponent's turn, whenever they draw a card while this character is exerted, you may draw a card."
       }
-    ]
+    ],
+    "altShiftCost": {
+      "type": "discard",
+      "filter": {
+        "cardType": [
+          "action"
+        ]
+      },
+      "amount": 1
+    }
   },
   {
     "id": "jasmine-desert-warrior",

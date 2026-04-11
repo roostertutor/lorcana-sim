@@ -248,12 +248,15 @@ export function getAllLegalActions(
     }
 
     // Shift: check independent of normal play affordability. The shift cost
-    // can come from def.shiftCost (printed) or mods.grantedShiftSelf
-    // (Anna - Soothing Sister "this card gains Shift 0").
+    // can come from def.shiftCost (printed), mods.grantedShiftSelf
+    // (Anna - Soothing Sister "this card gains Shift 0"), or def.altShiftCost
+    // (Diablo - Devoted Herald "Shift — Discard an action card").
     const cardInst = state.cards[instanceId];
     const cardDef = cardInst ? definitions[cardInst.definitionId] : undefined;
-    const hasShift = cardDef?.shiftCost !== undefined || playMods.grantedShiftSelf.has(instanceId);
-    if (hasShift) {
+    const hasInkShift = cardDef?.shiftCost !== undefined || playMods.grantedShiftSelf.has(instanceId);
+    const hasAltShift = !!cardDef?.altShiftCost;
+    if (hasInkShift) {
+      // Standard ink-cost shift: one action per shift target
       for (const targetId of myPlay) {
         const shiftPlay: GameAction = {
           type: "PLAY_CARD",
@@ -263,6 +266,47 @@ export function getAllLegalActions(
         };
         if (validateAction(state, shiftPlay, definitions).valid) {
           actions.push(shiftPlay);
+        }
+      }
+    }
+    if (hasAltShift && cardDef?.altShiftCost) {
+      // Alt-cost shift: one action per (shift target × eligible cost target)
+      const altCost = cardDef.altShiftCost;
+      // Find eligible cost targets
+      let costCandidates: string[] = [];
+      if (altCost.type === "discard") {
+        // Discard from hand — eligible cards matching filter (excluding the card being played)
+        costCandidates = hand.filter(id => {
+          if (id === instanceId) return false;
+          const inst = state.cards[id];
+          if (!inst) return false;
+          const d = definitions[inst.definitionId];
+          if (!d) return false;
+          return !altCost.filter || matchesFilter(inst, d, altCost.filter, state, playerId);
+        });
+      } else if (altCost.type === "banish_chosen") {
+        // Banish from play — eligible cards matching filter
+        costCandidates = myPlay.filter(id => {
+          const inst = state.cards[id];
+          if (!inst) return false;
+          const d = definitions[inst.definitionId];
+          if (!d) return false;
+          return matchesFilter(inst, d, altCost.filter, state, playerId);
+        });
+      }
+      for (const targetId of myPlay) {
+        for (const costId of costCandidates) {
+          if (costId === targetId) continue; // can't banish the shift target
+          const shiftPlay: GameAction = {
+            type: "PLAY_CARD",
+            playerId,
+            instanceId,
+            shiftTargetInstanceId: targetId,
+            altShiftCostInstanceId: costId,
+          };
+          if (validateAction(state, shiftPlay, definitions).valid) {
+            actions.push(shiftPlay);
+          }
         }
       }
     }
@@ -378,7 +422,7 @@ function applyActionInner(
 ): GameState {
   switch (action.type) {
     case "PLAY_CARD":
-      return applyPlayCard(state, action.playerId, action.instanceId, definitions, events, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds, action.altCostBanishInstanceId, action.viaGrantedFreePlay);
+      return applyPlayCard(state, action.playerId, action.instanceId, definitions, events, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds, action.altCostBanishInstanceId, action.viaGrantedFreePlay, action.altShiftCostInstanceId);
     case "PLAY_INK":
       return applyPlayInk(state, action.playerId, action.instanceId, definitions, events);
     case "QUEST":
@@ -413,6 +457,7 @@ function applyPlayCard(
   singerInstanceIds?: string[],
   altCostBanishInstanceId?: string,
   viaGrantedFreePlay?: boolean,
+  altShiftCostInstanceId?: string,
 ): GameState {
   const def = getDefinition(state, instanceId, definitions);
 
@@ -495,6 +540,26 @@ function applyPlayCard(
       message: `${playerId} played ${def.fullName} for free.`,
       type: "card_played",
     });
+  } else if (altShiftCostInstanceId && shiftTargetInstanceId && def.altShiftCost) {
+    // Alternate-cost shift (Diablo etc.): pay a non-ink cost.
+    const altCost = def.altShiftCost;
+    const costDef = getDefinition(state, altShiftCostInstanceId, definitions);
+    if (altCost.type === "discard") {
+      state = moveCard(state, altShiftCostInstanceId, playerId, "discard");
+      events.push({ type: "card_discarded" as any, instanceId: altShiftCostInstanceId, playerId });
+      state = appendLog(state, {
+        turn: state.turnNumber, playerId,
+        message: `${playerId} discarded ${costDef.fullName} to shift ${def.fullName}.`,
+        type: "card_played",
+      });
+    } else if (altCost.type === "banish_chosen") {
+      state = banishCard(state, altShiftCostInstanceId, definitions, events);
+      state = appendLog(state, {
+        turn: state.turnNumber, playerId,
+        message: `${playerId} banished ${costDef.fullName} to shift ${def.fullName}.`,
+        type: "card_played",
+      });
+    }
   } else {
     // Static modifiers — also consulted for granted Shift cost (Anna).
     const modifiers = getGameModifiers(state, definitions);

@@ -83,7 +83,7 @@ export function validateAction(
 
   switch (action.type) {
     case "PLAY_CARD":
-      return validatePlayCard(state, action.playerId, action.instanceId, definitions, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds, action.viaGrantedFreePlay);
+      return validatePlayCard(state, action.playerId, action.instanceId, definitions, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds, action.viaGrantedFreePlay, action.altShiftCostInstanceId);
     case "PLAY_INK":
       return validatePlayInk(state, action.playerId, action.instanceId, definitions);
     case "QUEST":
@@ -119,6 +119,7 @@ function validatePlayCard(
   singerInstanceId?: string,
   singerInstanceIds?: string[],
   viaGrantedFreePlay?: boolean,
+  altShiftCostInstanceId?: string,
 ): ValidationResult {
   if (!isMainPhase(state, playerId)) return fail("Not your main phase.");
 
@@ -161,14 +162,16 @@ function validatePlayCard(
   }
 
   // CRD 8.10.1: Shift — alternate cost onto same-named character in play.
-  // Shift cost can come from def.shiftCost (printed) or mods.grantedShiftSelf
-  // (Anna - Soothing Sister "this card gains Shift 0").
+  // Two cost modes: ink-based (shiftCost / grantedShiftSelf) or discard-based (shiftDiscardCost).
   if (shiftTargetInstanceId) {
     const shiftModifiers = getGameModifiers(state, definitions);
     const grantedShift = shiftModifiers.grantedShiftSelf.get(instanceId);
     const printedShift = def.shiftCost;
     const baseShiftCost = printedShift ?? grantedShift;
-    if (baseShiftCost === undefined) return fail("This card doesn't have Shift.");
+    const hasInkShift = baseShiftCost !== undefined;
+    const hasAltShift = !!def.altShiftCost;
+    if (!hasInkShift && !hasAltShift) return fail("This card doesn't have Shift.");
+    // Common checks: target validity + name match
     const shiftTarget = getInstance(state, shiftTargetInstanceId);
     if (shiftTarget.zone !== "play") return fail("Shift target is not in play.");
     if (shiftTarget.ownerId !== playerId) return fail("You don't own the shift target.");
@@ -176,12 +179,37 @@ function validatePlayCard(
     if (!canShiftOnto(instanceId, def, shiftTargetInstanceId, shiftTargetDef, shiftModifiers)) {
       return fail("Shift target must share this character's name.");
     }
-    // CRD 1.5.3: cost reductions (e.g. Lantern) apply to shift cost too
-    const effectiveShiftCost = getEffectiveCostWithReductions(state, playerId, instanceId, definitions, baseShiftCost);
-    if (!canAfford(state, playerId, effectiveShiftCost)) {
-      return fail(`Not enough ink. Need ${effectiveShiftCost} (shift), have ${state.players[playerId].availableInk}.`);
+    // Alt-cost shift (Diablo etc.): pay a non-ink cost
+    if (hasAltShift && altShiftCostInstanceId) {
+      const costTarget = getInstance(state, altShiftCostInstanceId);
+      if (costTarget.ownerId !== playerId) return fail("You don't own the cost target.");
+      if (altShiftCostInstanceId === instanceId) return fail("Can't use the card you're playing as a cost.");
+      const costTargetDef = getDefinition(state, altShiftCostInstanceId, definitions);
+      const altCost = def.altShiftCost!;
+      // Validate the cost target matches the alt-cost spec
+      if (altCost.type === "discard") {
+        if (costTarget.zone !== "hand") return fail("Discard target is not in your hand.");
+        if (altCost.filter && !matchesFilter(costTarget, costTargetDef, altCost.filter, state, playerId)) {
+          return fail("Discard target doesn't match the shift cost filter.");
+        }
+      } else if (altCost.type === "banish_chosen") {
+        if (costTarget.zone !== "play") return fail("Banish target is not in play.");
+        if (!matchesFilter(costTarget, costTargetDef, altCost.filter, state, playerId)) {
+          return fail("Banish target doesn't match the shift cost filter.");
+        }
+      }
+      return OK; // No ink check — alt cost IS the cost
     }
-    return OK;
+    // Ink-based shift (standard)
+    if (hasInkShift) {
+      const effectiveShiftCost = getEffectiveCostWithReductions(state, playerId, instanceId, definitions, baseShiftCost!);
+      if (!canAfford(state, playerId, effectiveShiftCost)) {
+        return fail(`Not enough ink. Need ${effectiveShiftCost} (shift), have ${state.players[playerId].availableInk}.`);
+      }
+      return OK;
+    }
+    // Has alt shift but no cost target provided
+    return fail("Shift requires paying the alternate cost.");
   }
 
   // CRD 5.4.4.2: Singing — exert character to play song for free (alternate cost)

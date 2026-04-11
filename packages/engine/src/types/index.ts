@@ -2361,8 +2361,13 @@ export interface CardDefinition {
   lore?: number;
 
   // --- Shift ---
-  /** If this card has Shift, the ink cost to shift */
+  /** If this card has Shift, the ink cost to shift. Mutually exclusive with altShiftCost. */
   shiftCost?: number;
+  /** Alternate shift cost: pay a non-ink cost instead of ink to shift.
+   *  Diablo - Devoted Herald (Set 4): "Shift — Discard an action card."
+   *  Uses the same PlayForFreeCost union as grant_play_for_free_self.playCosts.
+   *  Mutually exclusive with shiftCost — these cards have NO ink-based shift path. */
+  altShiftCost?: PlayForFreeCost;
   /** Cards that count as having additional names for Shift purposes (Turbo, Flotsam & Jetsam).
    *  Stays on CardDefinition because it's a printed-name property, not an ability.
    *  All other shift variants (Universal, MIMICRY, Classification) are now zone-aware
@@ -2824,6 +2829,10 @@ export interface PlayCardAction {
   instanceId: string;
   /** For Shift: the instanceId of the character being shifted onto */
   shiftTargetInstanceId?: string;
+  /** For alternate-cost Shift (Diablo etc.): the instanceId of the card
+   *  paying the shift cost (discarded, banished, etc.). Only valid when the
+   *  card's definition has altShiftCost and shiftTargetInstanceId is set. */
+  altShiftCostInstanceId?: string;
   /** CRD 5.4.4.2: For singing — the character exerted to pay for this song */
   singerInstanceId?: string;
   /** CRD 8.12: For Sing Together — multiple characters whose combined effective cost
