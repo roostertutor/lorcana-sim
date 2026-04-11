@@ -23,7 +23,7 @@
 | Rule | Quote | Status |
 |------|-------|--------|
 | 1.2.1 | Card text supersedes game rules | ⚠️ Architecture exists (`gameModifiers.ts`) but not all override mechanisms built yet |
-| 1.2.2 | Preventing effects supersede allowing effects | ❌ Not implemented (e.g., Tiana vs Genie scenario) |
+| 1.2.2 | Preventing effects supersede allowing effects | ✅ `isActionRestricted` checked before grants in all validator paths. "Can't X" blocks even if a grant says "can X." |
 | 1.2.3 | Do as much as possible ("do as much as you can") | ✅ Engine behavior is correct: effects no-op when no valid targets, actions remain legal. Examples: Dragon Fire on empty board, Sudden Chill with one opposing character, The Queen's "each opponent" with one opponent. No formal tracking needed — silent no-op IS the correct behavior |
 
 ### 1.5 Costs
