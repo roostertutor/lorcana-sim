@@ -160,9 +160,9 @@ type Renderer = (e: Json) => string;
 const TRIGGER_RENDERERS: Record<string, Renderer> = {
   enters_play:                   ()  => "When you play this character",
   leaves_play:                   ()  => "When this character leaves play",
-  is_banished:                   ()  => "When this character is banished",
-  banished_in_challenge:         ()  => "When this character is banished in a challenge",
-  banished_other_in_challenge:   ()  => "Whenever this character banishes another character in a challenge",
+  is_banished:                   (t) => t.filter ? `Whenever one of your ${renderFilter(t.filter)} is banished` : "When this character is banished",
+  banished_in_challenge:         (t) => t.filter?.owner?.type === "self" ? "Whenever one of your other characters is banished in a challenge" : "When this character is banished in a challenge",
+  banished_other_in_challenge:   (t) => t.filter ? `Whenever this character banishes ${renderFilter(t.filter)} in a challenge` : "Whenever this character banishes another character in a challenge",
   banishes_in_challenge:         ()  => "Whenever this character banishes another character in a challenge",
   // Legacy spelling alias.
   banished_other:                ()  => "Whenever this character banishes another character in a challenge",
@@ -238,7 +238,7 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
   // single-name forms when the filter is more general.
   you_control_matching:       (c) => `if you have ${c.filter ? renderFilter(c.filter) : "a character"} in play`,
   cards_in_hand_gte:          (c) => `if you have ${c.amount ?? 0} or more cards in your hand`,
-  cards_in_hand_eq:           (c) => `if you have exactly ${c.amount ?? 0} cards in your hand`,
+  cards_in_hand_eq:           (c) => (c.amount ?? 0) === 0 ? "if you have no cards in your hand" : `if you have exactly ${c.amount} cards in your hand`,
   cards_in_zone_gte:          (c) => `if you have ${c.amount ?? 0} or more cards in your ${c.zone ?? "zone"}`,
   characters_in_play_gte:     (c) => {
     const adj = c.excludeSelf ? "other " : "";
@@ -638,12 +638,17 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   // restriction. `restricts` is the verb; `filter` (when present) describes
   // WHO is restricted, not the target of the restriction.
   action_restriction: (e) => {
-    const verb = e.restricts === "sing" ? "sing songs" : e.restricts ?? "act";
+    const verb = e.restricts === "sing" ? "exert to sing songs"
+      : e.restricts === "be_challenged" ? "be challenged"
+      : e.restricts ?? "act";
     if (e.filter) {
       const who = renderFilter(e.filter);
       const targetSide = e.affectedPlayer?.type === "opponent" ? " your characters" : "";
-      return `characters ${who} can't ${verb}${targetSide}`;
+      return `${who} can't ${verb}${targetSide}`;
     }
+    // No filter — check affectedPlayer for "opposing characters can't X"
+    if (e.affectedPlayer?.type === "opponent") return `opposing characters can't ${verb}`;
+    if (e.affectedPlayer?.type === "both") return `characters can't ${verb}`;
     return `this character can't ${verb}`;
   },
 
@@ -846,7 +851,9 @@ function renderTriggered(ab: Json): string {
 
 function renderActivated(ab: Json): string {
   const costs = (ab.costs ?? []).map(renderCost).join(", ");
+  const cond = ab.condition ? renderCondition(ab.condition) : "";
   const effects = (ab.effects ?? []).map(renderEffect).join(", and ");
+  if (cond) return `${costs} — ${cap(cond)}, ${effects}`;
   return `${costs} — ${effects}`;
 }
 
