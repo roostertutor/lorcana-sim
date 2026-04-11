@@ -366,6 +366,8 @@ const argv = process.argv.slice(2);
 const setsArg = argv.find((a) => a.startsWith("--sets"))?.split("=")[1]
   ?? argv[argv.indexOf("--sets") + 1];
 const isDry = argv.includes("--dry");
+const doCache = argv.includes("--cache");
+const RAW_CACHE_DIR = join(OUT_DIR, ".lorcast-raw");
 
 async function main() {
   console.log("Fetching sets from Lorcast API...");
@@ -391,10 +393,21 @@ async function main() {
   const allCards: CardDefinitionOut[] = [];
   let skipped = 0;
 
+  // Create cache directory if --cache flag is set
+  if (doCache) {
+    if (!existsSync(RAW_CACHE_DIR)) mkdirSync(RAW_CACHE_DIR, { recursive: true });
+  }
+
   for (const set of sets) {
     process.stdout.write(`  ${set.code.padEnd(6)} ${set.name.padEnd(35)} `);
     const results = await apiFetch<LorcastCard[]>(`/sets/${set.code}/cards`);
     await sleep(RATE_LIMIT_MS);
+
+    // Cache raw API response before transformation
+    if (doCache) {
+      const cachePath = join(RAW_CACHE_DIR, `set-${set.code.padStart(3, "0")}.json`);
+      writeFileSync(cachePath, JSON.stringify(results, null, 2), "utf-8");
+    }
 
     let setCount = 0;
     for (const card of results) {

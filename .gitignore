@@ -47,3 +47,7 @@ results/
 tmp
 docs/ENGINE_PRIMITIVES.md
 packages/engine/src/cards/.effect-counts.json
+
+# Raw Lorcast API response cache (pnpm import-cards --cache)
+.lorcast-raw/
+packages/engine/src/cards/.lorcast-raw/

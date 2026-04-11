@@ -15,8 +15,8 @@ to produce deck analytics and win rates. NOT a human-playable simulator.
 - cli:       done. analyze, compare, query, learn.
 - ui:        done. 7 screens, React+Vite. Responsive (mobile/tablet/desktop). Full-screen game board (no header/nav in-game). See `docs/UI_PENDING_MECHANICS.md` for mechanics needing visualization.
 - testbench: done. Interactive game board with bot opponent. Replay mode + undo. Utility strip (deck tile, inkwell, discard tile). Card action popover anchored to clicked card (fixed-position, works on all breakpoints). Keyword badges, exerted rotation/grayscale, damage counter, summoning sickness overlay. Play zone reset on leave (CRD 1.9.3).
-- cards:     **2145/2145 named-ability cards wired + 507 vanillas = 2652/2652 (100%) complete.** Every card across sets 1–11 + promos (P1, P2, P3, cp, DIS, D23) is implemented. Promo sets auto-synced from main sets via `scripts/sync-promo-reprints.ts` (cross-set + within-set passes).
-- gaps:      **0 stubs, 0 known approximations, 0 structural mis-wirings.** All 53 cards previously carrying `(approximation: ...)` annotations in their rulesText have been resolved (sweep completed 2026-04-09 across 38 commits ending at b6edc27; full session log in commits 5e8ea72 → b6edc27). The decompiler sweep that started this also caught and fixed 8 unannotated no-op stubs (Voyage `gain_lore amount:0`, Cinderella - Stouthearted, Flash - Records Specialist, Mirabel ×2, Nathaniel Flint, Turbo phantom Rush — commit 5e8ea72) plus 16 cards using the `tutor`/`search` effect types that had NO reducer cases at all (silently no-op until commit d1d9255 implemented them). **Three audit scripts** now triangulate the data-quality space: `pnpm card-status` (missing-ability stubs), `pnpm audit-lorcast` (Lorcast API drift, scalar fields, static effect-type mismatches), `pnpm audit-approximations` (parenthetical annotation tracker — the gap that hid the 53 from the prior two scripts), and `pnpm decompile-cards` (deterministic JSON-to-English diff against oracle text — the rendered-vs-oracle similarity tail surfaces unannotated semantic mis-wirings). All four currently report clean across all 17 sets. `docs/CARD_WIRING_AUDIT.md` is the historical triage log.
+- cards:     **2146/2146 named-ability cards wired + 506 vanillas = 2652/2652 (100%) complete.** Every card across sets 1–11 + promos (P1, P2, P3, cp, DIS, D23) is implemented. Promo sets auto-synced from main sets via `scripts/sync-promo-reprints.ts` (cross-set + within-set passes).
+- gaps:      **0 stubs, 0 partial, 0 invalid fields, 0 known approximations.** Four audit scripts triangulate data quality: `pnpm card-status` (stub progress + partial detection via rulesText header counting + **JSON field validation** against types/index.ts unions — catches wrong trigger/effect/condition/cost/duration names), `pnpm audit-lorcast` (Lorcast API drift, scalar fields, static effect-type mismatches), `pnpm audit-approximations` (parenthetical annotation tracker), and `pnpm decompile-cards` (deterministic JSON-to-English diff — the rendered-vs-oracle similarity tail surfaces semantic mis-wirings). All four report clean across all 17 sets. Raw Lorcast API responses can be cached via `pnpm import-cards --cache` for diffing against processed card JSONs.
 
 ## Quick Reference
 
@@ -161,6 +161,11 @@ Rules to prevent regression:
 - The authoritative no-op stub detector is `pnpm decompile-cards` (the
   decompiler-diff sweep) — it renders ability JSON back to English and scores
   similarity vs oracle text. The bottom of the sorted output is the bug list.
+- `pnpm card-status` now validates all JSON discriminator fields (trigger.on,
+  effect.type, condition.type, cost.type, duration) against the TypeScript
+  unions in types/index.ts. Cards with invalid field names show as
+  `invalid-field` category. Run after any card wiring to catch typos like
+  `start_of_turn` (should be `turn_start`) that silently no-op at runtime.
   Run it before claiming any "100% complete" status.
 - Grep `packages/engine/src/cards -e approximation` should always return zero
   matches. If it doesn't, something slipped through review.
