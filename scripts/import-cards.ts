@@ -188,7 +188,8 @@ function mapRarity(r: string): CardDefinitionOut["rarity"] {
 // Keywords whose text line starts with the keyword name (not all-caps ability name)
 const KEYWORD_LINE_PREFIXES = [
   "Singer", "Shift", "Challenger", "Bodyguard", "Rush", "Evasive",
-  "Ward", "Support", "Reckless", "Resist",
+  "Ward", "Support", "Reckless", "Resist", "Vanish", "Alert",
+  "Boost",
 ];
 
 function parseKeywordAbilities(
