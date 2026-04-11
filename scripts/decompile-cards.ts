@@ -161,7 +161,7 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
   enters_play:                   ()  => "When you play this character",
   leaves_play:                   ()  => "When this character leaves play",
   is_banished:                   (t) => t.filter ? `Whenever one of your ${renderFilter(t.filter)} is banished` : "When this character is banished",
-  banished_in_challenge:         (t) => t.filter?.owner?.type === "self" ? "Whenever one of your other characters is banished in a challenge" : "When this character is banished in a challenge",
+  banished_in_challenge:         (t) => t.filter?.owner?.type === "self" ? "Whenever one of your other characters is banished in a challenge" : "When this character is challenged and banished",
   banished_other_in_challenge:   (t) => t.filter ? `Whenever this character banishes ${renderFilter(t.filter)} in a challenge` : "Whenever this character banishes another character in a challenge",
   banishes_in_challenge:         ()  => "Whenever this character banishes another character in a challenge",
   // Legacy spelling alias.
@@ -241,8 +241,10 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
   cards_in_hand_eq:           (c) => (c.amount ?? 0) === 0 ? "if you have no cards in your hand" : `if you have exactly ${c.amount} cards in your hand`,
   cards_in_zone_gte:          (c) => `if you have ${c.amount ?? 0} or more cards in your ${c.zone ?? "zone"}`,
   characters_in_play_gte:     (c) => {
+    const n = c.amount ?? 0;
     const adj = c.excludeSelf ? "other " : "";
-    return `if you have ${c.amount ?? 0} or more ${adj}characters in play`;
+    if (n === 1 && c.excludeSelf) return "if you have another character in play";
+    return `if you have ${n} or more ${adj}characters in play`;
   },
   opponent_has_more_cards_in_hand:  () => "if an opponent has more cards in their hand than you",
   self_has_more_than_each_opponent: (c) => `if you have more ${c.metric ?? "cards"} than each opponent`,
@@ -324,8 +326,11 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   discard:            (e) => `${maybe(e)}discard ${e.amount ?? 1} card${plural(e.amount ?? 1)}`,
   discard_from_hand:  (e) => {
     const amt = e.amount === "all" ? "their hand" : `${e.amount ?? 1} card${plural(e.amount ?? 1)}`;
+    if (e.target?.type === "both") {
+      return `${maybe(e)}each player discards ${amt}`;
+    }
     if (e.target?.type === "opponent") {
-      const chooser = e.chooser === "target_player" || e.chooser === "controller" ? "" : "chooses and ";
+      const chooser = e.chooser === "target_player" ? "chooses and " : "";
       return `${maybe(e)}each opponent ${chooser}discards ${amt}`;
     }
     if (e.chooser === "target_player") {
@@ -416,7 +421,8 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   self_cost_reduction:        (e) => `this character costs ${e.amount ?? "?"} {I} less to play`,
   grant_play_for_free_self:   ()  => "you may play this character for free",
   grant_shift_self:           (e) => `this character gains Shift ${e.value ?? e.amount ?? "?"}`,
-  grant_cost_reduction:       (e) => `${renderTarget(e.target ?? {})} costs ${e.amount ?? "?"} {I} less to play`,
+  grant_cost_reduction:       (e) => `you pay ${e.amount ?? "?"} {I} less for the next ${e.filter ? renderFilter(e.filter) : "card"} you play this turn`,
+  cost_reduction:             (e) => `you pay ${e.amount ?? "?"} {I} less for the next ${e.filter ? renderFilter(e.filter) : "card"} you play this turn`,
 
   play_for_free: (e) => `${maybe(e)}play ${e.filter ? renderFilter(e.filter) : "a card"} for free`,
 
@@ -426,10 +432,14 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     const filter = e.filter ? renderFilter(e.filter) : "a card";
     switch (e.action) {
       case "one_to_hand_rest_bottom":
+        if (count === 2 && !e.filter) {
+          return `${base}. Put one into your hand and the other on the bottom of your deck`;
+        }
         return `${base}. You may reveal ${filter} and put it into your hand. Put the rest on the bottom of your deck in any order`;
       case "up_to_n_to_hand_rest_bottom":
         return `${base}. You may put each ${filter} into your hand. Put the rest on the bottom of your deck in any order`;
       case "top_or_bottom":
+        if (count === 2) return `${base}. Put one on the top of your deck and the other on the bottom`;
         return `${base}. Put it on either the top or the bottom of your deck`;
       case "reorder":
         return `${base}. Put them back in any order`;
@@ -456,8 +466,13 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   search:                 (e) => `search your deck for ${e.filter ? renderFilter(e.filter) : "a card"}`,
   shuffle_into_deck:      (e) => `shuffle ${renderTarget(e.target ?? {})} into your deck`,
   move_to_inkwell: (e) => {
+    const exerted = e.enterExerted ? " facedown and exerted" : " facedown";
+    // Fishbone Quill: "put any card from your hand into your inkwell"
+    if (e.target?.type === "chosen" && e.target.filter?.zone === "hand") {
+      const filt = e.target.filter.cardType ? renderFilter(e.target.filter) : "card from your hand";
+      return `put any ${filt} into your inkwell${exerted}`;
+    }
     const from = e.fromZone ? ` from your ${e.fromZone}` : "";
-    const exerted = e.enterExerted ? " facedown and exerted" : "";
     return `put ${renderTarget(e.target ?? {})}${from} into your inkwell${exerted}`;
   },
   put_top_card_under:  (e) => `put the top card of your deck facedown under ${renderTarget(e.target ?? {})}`,
@@ -661,11 +676,7 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     return `${tgt} ${verbS(tgt, "get", "gets")} +${per} ${stat} for each ${filt} you have in play`;
   },
 
-  // "You pay N {I} less to play [filter]"
-  cost_reduction: (e) => {
-    const filt = e.filter ? renderFilter(e.filter) + "s" : "the next card you play this turn";
-    return `you pay ${e.amount ?? 1} {I} less to play ${filt}`;
-  },
+  // cost_reduction: handled in main EFFECT_RENDERERS above (renders as "for the next X")
 
   // "Characters with cost N or less can't challenge this character"
   cant_be_challenged: (e) => {
