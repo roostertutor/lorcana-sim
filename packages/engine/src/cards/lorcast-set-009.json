@@ -3537,8 +3537,8 @@
         "raw": "NOW YOU CAN FLY! When you play this item, choose a character of yours. While this item is in play, that character gains Evasive. (Only characters with Evasive can challenge them.)"
       },
       {
-        "storyName": "GROUNDED 3 {I}",
-        "rulesText": "— Return this item to your hand.",
+        "storyName": "GROUNDED",
+        "rulesText": "3 {I} — Return this item to your hand.",
         "raw": "GROUNDED 3 {I} — Return this item to your hand."
       }
     ]
@@ -5872,8 +5872,8 @@
         "raw": "THIS MISSION IS CURSED This character can't ready at the start of your turn."
       },
       {
-        "storyName": "I GOT YOUR BACK 2 {I}",
-        "rulesText": "– Ready this character. He can't quest for the rest of this turn.",
+        "storyName": "I GOT YOUR BACK",
+        "rulesText": "2 {I} – Ready this character. He can't quest for the rest of this turn.",
         "raw": "I GOT YOUR BACK 2 {I} – Ready this character. He can't quest for the rest of this turn."
       }
     ]

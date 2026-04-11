@@ -3661,8 +3661,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a6a007b0f7ae4fa19480721bacd2b0b6.avif?1747508548",
     "_namedAbilityStubs": [
       {
-        "storyName": "ICE OVER 1 {I} ,",
-        "rulesText": "Choose and discard a card — Exert chosen opposing character.",
+        "storyName": "ICE OVER",
+        "rulesText": "1 {I} , Choose and discard a card — Exert chosen opposing character.",
         "raw": "ICE OVER 1 {I} , Choose and discard a card — Exert chosen opposing character."
       }
     ]
@@ -5984,8 +5984,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_51597c28f0b444a6a4cf319ff579c839.avif?1747508996",
     "_namedAbilityStubs": [
       {
-        "storyName": "I’LL HANDLE THIS",
-        "rulesText": "When you play this character, chosen opponent chooses and discards a card.",
+        "storyName": "",
+        "rulesText": "I’LL HANDLE THIS When you play this character, chosen opponent chooses and discards a card.",
         "raw": "I’LL HANDLE THIS When you play this character, chosen opponent chooses and discards a card."
       }
     ]
@@ -6784,8 +6784,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_70bf0783fba940a594f5f2cbac285f58.avif?1747509075",
     "_namedAbilityStubs": [
       {
-        "storyName": "GIVE ’EM ALL YOU GOT!",
-        "rulesText": "Once during your turn, whenever an opposing character is damaged, your Pirate characters get +2 {S} and gain Resist +2 this turn. (Damage dealt to them is reduced by 2.)",
+        "storyName": "",
+        "rulesText": "GIVE ’EM ALL YOU GOT! Once during your turn, whenever an opposing character is damaged, your Pirate characters get +2 {S} and gain Resist +2 this turn. (Damage dealt to them is reduced by 2.)",
         "raw": "GIVE ’EM ALL YOU GOT! Once during your turn, whenever an opposing character is damaged, your Pirate characters get +2 {S} and gain Resist +2 this turn. (Damage dealt to them is reduced by 2.)"
       }
     ]
@@ -8664,8 +8664,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_29af9e5b5190472eaa2fb7e637fa3050.avif?1747509235",
     "_namedAbilityStubs": [
       {
-        "storyName": "SACREBLEU!:",
-        "rulesText": "Whenever one of your items is banished, this character gets +1 {L} this turn.",
+        "storyName": "",
+        "rulesText": "SACREBLEU!: Whenever one of your items is banished, this character gets +1 {L} this turn.",
         "raw": "SACREBLEU!: Whenever one of your items is banished, this character gets +1 {L} this turn."
       }
     ]
@@ -10372,8 +10372,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c79a6e612467451ca809ce7ed1a9889f.avif?1747509397",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "NO MORE BOOKS Skip your turn's Draw step.",
+        "storyName": "NO MORE BOOKS",
+        "rulesText": "Skip your turn's Draw step.",
         "raw": "NO MORE BOOKS Skip your turn's Draw step."
       }
     ]

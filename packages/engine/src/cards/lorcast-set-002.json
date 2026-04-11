@@ -10499,8 +10499,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a776fb952998401394dcee6936d85b56.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "ARM YOURSELF 1 {I},",
-        "rulesText": "Banish this item — Chosen character gains Challenger +3 this turn. (They get +3 {S} while challenging.)",
+        "storyName": "ARM YOURSELF",
+        "rulesText": "1 {I}, Banish this item — Chosen character gains Challenger +3 this turn. (They get +3 {S} while challenging.)",
         "raw": "ARM YOURSELF 1 {I}, Banish this item — Chosen character gains Challenger +3 this turn. (They get +3 {S} while challenging.)"
       }
     ]

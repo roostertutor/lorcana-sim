@@ -4251,8 +4251,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a776c58f579148a7b4e6944fb3d9f12e.avif?1740589388",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "OBFUSCATE! Opponents need 25 lore to win the game.",
+        "storyName": "OBFUSCATE!",
+        "rulesText": "Opponents need 25 lore to win the game.",
         "raw": "OBFUSCATE! Opponents need 25 lore to win the game."
       }
     ]
@@ -6390,8 +6390,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f20054bb326b460c8ac1dc08f2723ce3.avif?1740589545",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "OBJECTIONABLE STATE Damaged characters can't challenge your characters.",
+        "storyName": "OBJECTIONABLE STATE",
+        "rulesText": "Damaged characters can't challenge your characters.",
         "raw": "OBJECTIONABLE STATE Damaged characters can't challenge your characters."
       }
     ]
@@ -11868,8 +11868,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_ac531a6c2f3046d3adcffbd1b1e5228e.avif?1740590306",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "OBFUSCATE! Opponents need 25 lore to win the game.",
+        "storyName": "OBFUSCATE!",
+        "rulesText": "Opponents need 25 lore to win the game.",
         "raw": "OBFUSCATE! Opponents need 25 lore to win the game."
       }
     ]

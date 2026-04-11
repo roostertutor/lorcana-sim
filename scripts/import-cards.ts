@@ -262,22 +262,21 @@ function detectNamedAbilities(text: string | null): AbilityStub[] {
     );
     if (isKeywordLine) continue;
 
-    // Named abilities have an all-caps title (e.g. "I SUMMON THEE", "MIRROR, MIRROR").
-    // Extract the title part before the first separator or trigger/static keyword.
-    const titlePart = line.split(/\s[–—-]\s|\s*\(|\s*\{E\}|\s+(?:When |Whenever |During |Once |This |While |Your |Opposing |Characters |All |Each |For |If |At |Put |Return |Draw |Deal |Banish |Ready |Exert |Look |Reveal |Search |Shuffle |Choose |Chosen |The |You )/)[0]!.trim();
-    if (
-      titlePart.length > 0 &&
-      titlePart === titlePart.toUpperCase() &&
-      /[A-Z]/.test(titlePart)
-    ) {
+    // Named abilities have an ALL-CAPS story name prefix followed by mixed-case
+    // rules text. Match the leading run of uppercase words (may include
+    // apostrophes, hyphens, commas, exclamation/question marks, periods).
+    // Examples: "GOOD AIM Once during...", "IT'S MAUI TIME! If you...",
+    //           "DON'T GET ANY IDEAS Each player..."
+    const storyMatch = line.match(/^([A-Z][A-Z0-9' ,!?.…-]+?)(?:\s*\{E\}|\s*\(|\s+[a-z0-9{(]|\s+[A-Z][a-z])/);
+    if (storyMatch) {
+      const storyName = storyMatch[1]!.trim();
       // Extract rulesText: everything after the story name
-      let rulesText = line.slice(titlePart.length).trim();
+      let rulesText = line.slice(storyName.length).trim();
       // Strip leading em-dash or cost prefix for activated abilities: "{E} —", "{E}, N {I} —"
       rulesText = rulesText.replace(/^\{E\}(?:,\s*\d+\s*\{I\})?\s*[–—-]\s*/, "").trim();
-      // For triggered/static: rulesText starts with "When", "This", etc. — already clean
 
       stubs.push({
-        storyName: titlePart,
+        storyName,
         rulesText: rulesText || line,
         raw: line,
       });

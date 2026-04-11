@@ -1629,8 +1629,8 @@
         "raw": "WHAT IS TO COME When you play this item, look at the top 4 cards of your deck. You may reveal a character card and put it into your hand. Put the rest on the bottom of your deck in any order."
       },
       {
-        "storyName": "WHISPERED POWER 1 {I},",
-        "rulesText": "Banish this item — Put the top card of your deck facedown under one of your characters or locations with Boost.",
+        "storyName": "WHISPERED POWER",
+        "rulesText": "1 {I}, Banish this item — Put the top card of your deck facedown under one of your characters or locations with Boost.",
         "raw": "WHISPERED POWER 1 {I}, Banish this item — Put the top card of your deck facedown under one of your characters or locations with Boost."
       }
     ]
@@ -4441,13 +4441,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e24a3ebbac57485091abad86f0e5064f.avif?1761752331",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck face down under this character.)",
-        "raw": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck face down under this character.)"
-      },
-      {
-        "storyName": "",
-        "rulesText": "I'LL TAKE THAT As long as this character has at least one card under it, it gets +2 {S} and +1 {L}.",
+        "storyName": "I'LL TAKE THAT",
+        "rulesText": "As long as this character has at least one card under it, it gets +2 {S} and +1 {L}.",
         "raw": "I'LL TAKE THAT As long as this character has at least one card under it, it gets +2 {S} and +1 {L}."
       }
     ]
@@ -5056,8 +5051,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_37c56a7dac1a492499e021595eda74a7.avif?1761752368",
     "_namedAbilityStubs": [
       {
-        "storyName": "AHEAD OF THE PACK 1 {I}",
-        "rulesText": "— This character gets +1 {S} this turn.",
+        "storyName": "AHEAD OF THE PACK",
+        "rulesText": "1 {I} — This character gets +1 {S} this turn.",
         "raw": "AHEAD OF THE PACK 1 {I} — This character gets +1 {S} this turn."
       }
     ]
@@ -6518,6 +6513,11 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c8a9d4fc3bd241468dc26f8415bea95a.avif?1761763640",
     "_namedAbilityStubs": [
       {
+        "storyName": "JOSTLING FOR POWER",
+        "rulesText": "King and Queen characters can't quest.",
+        "raw": "JOSTLING FOR POWER King and Queen characters can't quest."
+      },
+      {
         "storyName": "GROWING INFLUENCE",
         "rulesText": "At the start of your turn, if an opponent has 2 or more ready characters in play, gain 2 lore.",
         "raw": "GROWING INFLUENCE At the start of your turn, if an opponent has 2 or more ready characters in play, gain 2 lore."
@@ -7295,8 +7295,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_024a30a70f624c58bc3219532ffdd37c.avif?1761763763",
     "_namedAbilityStubs": [
       {
-        "storyName": "WILD RAGE 1 {I},",
-        "rulesText": "Deal 1 damage to this character — Ready this character. He can't quest for the rest of this turn.",
+        "storyName": "WILD RAGE",
+        "rulesText": "1 {I}, Deal 1 damage to this character — Ready this character. He can't quest for the rest of this turn.",
         "raw": "WILD RAGE 1 {I}, Deal 1 damage to this character — Ready this character. He can't quest for the rest of this turn."
       }
     ]
@@ -7649,8 +7649,8 @@
         "raw": "I NEED FIREPOWER When you play this item, chosen character gains Rush this turn. (They can challenge the turn they're played.)"
       },
       {
-        "storyName": "HITCH A RIDE 2 {I},",
-        "rulesText": "Banish this item — Chosen character gains Rush this turn.",
+        "storyName": "HITCH A RIDE",
+        "rulesText": "2 {I}, Banish this item — Chosen character gains Rush this turn.",
         "raw": "HITCH A RIDE 2 {I}, Banish this item — Chosen character gains Rush this turn."
       }
     ]
@@ -12126,8 +12126,13 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_78c11305e1674d348fe8839940f029a5.avif?1761765245",
     "_namedAbilityStubs": [
       {
-        "storyName": "I’LL BE FINE",
-        "rulesText": "While there’s a card under this character, she gets +1 {L} and gains \"Whenever this character is challenged, each opponent chooses and discards a card.\"",
+        "storyName": "",
+        "rulesText": "Boost 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)",
+        "raw": "Boost 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)"
+      },
+      {
+        "storyName": "",
+        "rulesText": "I’LL BE FINE While there’s a card under this character, she gets +1 {L} and gains \"Whenever this character is challenged, each opponent chooses and discards a card.\"",
         "raw": "I’LL BE FINE While there’s a card under this character, she gets +1 {L} and gains \"Whenever this character is challenged, each opponent chooses and discards a card.\""
       }
     ]

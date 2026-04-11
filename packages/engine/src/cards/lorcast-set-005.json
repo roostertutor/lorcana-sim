@@ -3531,8 +3531,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_0aa70773df3a4f87ab5b96825787497d.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "EXTRACT OF AMETHYST 2 {I},",
-        "rulesText": "Banish this item — Return chosen character, item, or location with cost 3 or less to their player's hand.",
+        "storyName": "EXTRACT OF AMETHYST",
+        "rulesText": "2 {I}, Banish this item — Return chosen character, item, or location with cost 3 or less to their player's hand.",
         "raw": "EXTRACT OF AMETHYST 2 {I}, Banish this item — Return chosen character, item, or location with cost 3 or less to their player's hand."
       }
     ]
@@ -4402,8 +4402,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f291329542f04339988b4051333a446e.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "ROWDY GUEST Damaged characters can't challenge this character.",
+        "storyName": "ROWDY GUEST",
+        "rulesText": "Damaged characters can't challenge this character.",
         "raw": "ROWDY GUEST Damaged characters can't challenge this character."
       }
     ]
@@ -5581,8 +5581,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_20513d1b0b8947e7b18e967292e9fb23.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "EXTRACT OF EMERALD 2 {I},",
-        "rulesText": "Banish this item — Your characters gain Ward until the start of your next turn. (Opponents can't choose them except to challenge.)",
+        "storyName": "EXTRACT OF EMERALD",
+        "rulesText": "2 {I}, Banish this item — Your characters gain Ward until the start of your next turn. (Opponents can't choose them except to challenge.)",
         "raw": "EXTRACT OF EMERALD 2 {I}, Banish this item — Your characters gain Ward until the start of your next turn. (Opponents can't choose them except to challenge.)"
       }
     ]
@@ -7446,8 +7446,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_96709c5ceb00448ab2b8e4b039319183.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "VILE CONCOCTION 1 {I},",
-        "rulesText": "Banish this item — Chosen character gets +3 {S} this turn. If a Villain character is chosen, they get +4 {S} instead.",
+        "storyName": "VILE CONCOCTION",
+        "rulesText": "1 {I}, Banish this item — Chosen character gets +3 {S} this turn. If a Villain character is chosen, they get +4 {S} instead.",
         "raw": "VILE CONCOCTION 1 {I}, Banish this item — Chosen character gets +3 {S} this turn. If a Villain character is chosen, they get +4 {S} instead."
       }
     ]
@@ -8431,8 +8431,8 @@
         "raw": "OUTPLACEMENT When you play this character, you may put chosen item or location into its player's inkwell facedown and exerted."
       },
       {
-        "storyName": "BY INVITE ONLY 4 {I}",
-        "rulesText": "— Your other characters gain Resist +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)",
+        "storyName": "BY INVITE ONLY",
+        "rulesText": "4 {I} — Your other characters gain Resist +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)",
         "raw": "BY INVITE ONLY 4 {I} — Your other characters gain Resist +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)"
       }
     ]
@@ -11343,8 +11343,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e66afeb046bd444e87889ec1866cc643.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "THERE'S NO ONE I'D RATHER BE THAN ME Villain characters gain “{E}, 3 {I} — Play a character with the same name as this character for free” while here.",
+        "storyName": "THERE'S NO ONE I'D RATHER BE THAN ME",
+        "rulesText": "Villain characters gain “{E}, 3 {I} — Play a character with the same name as this character for free” while here.",
         "raw": "THERE'S NO ONE I'D RATHER BE THAN ME Villain characters gain “{E}, 3 {I} — Play a character with the same name as this character for free” while here."
       }
     ]
@@ -12541,8 +12541,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c88d044f605440a29cbf41b7cdc7d340.avif?1723917209",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "THERE'S NO ONE I'D RATHER BE THAN ME Villain characters gain “{E}, 3 {I} — Play a character with the same name as this character for free” while here.",
+        "storyName": "THERE'S NO ONE I'D RATHER BE THAN ME",
+        "rulesText": "Villain characters gain “{E}, 3 {I} — Play a character with the same name as this character for free” while here.",
         "raw": "THERE'S NO ONE I'D RATHER BE THAN ME Villain characters gain “{E}, 3 {I} — Play a character with the same name as this character for free” while here."
       }
     ]

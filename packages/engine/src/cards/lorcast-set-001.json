@@ -6290,8 +6290,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3c0355d3cc2d409e9b10876744aa534a.avif?1709690747",
     "_namedAbilityStubs": [
       {
-        "storyName": "TAKE A BITE... 1 {I},",
-        "rulesText": "Banish this item — Exert chosen character. If a Princess character is chosen, banish her instead.",
+        "storyName": "TAKE A BITE...",
+        "rulesText": "1 {I}, Banish this item — Exert chosen character. If a Princess character is chosen, banish her instead.",
         "raw": "TAKE A BITE... 1 {I}, Banish this item — Exert chosen character. If a Princess character is chosen, banish her instead."
       }
     ]

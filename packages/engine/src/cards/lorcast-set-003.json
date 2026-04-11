@@ -5471,8 +5471,8 @@
         "raw": "EFFICIENT ENERGY {E} — You pay 2 {I} less for the next action you play this turn."
       },
       {
-        "storyName": "TRAP 2 {I},",
-        "rulesText": "Banish this item — Draw 2 cards, then choose and discard a card.",
+        "storyName": "TRAP",
+        "rulesText": "2 {I}, Banish this item — Draw 2 cards, then choose and discard a card.",
         "raw": "TRAP 2 {I}, Banish this item — Draw 2 cards, then choose and discard a card."
       }
     ]
@@ -6302,8 +6302,8 @@
         "raw": "THIS MISSION IS CURSED This character can't ready at the start of your turn."
       },
       {
-        "storyName": "I GOT YOUR BACK 2 {I}",
-        "rulesText": "— Ready this character. He can't quest for the rest of this turn.",
+        "storyName": "I GOT YOUR BACK",
+        "rulesText": "2 {I} — Ready this character. He can't quest for the rest of this turn.",
         "raw": "I GOT YOUR BACK 2 {I} — Ready this character. He can't quest for the rest of this turn."
       }
     ]

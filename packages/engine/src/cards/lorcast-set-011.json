@@ -855,8 +855,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_85108b76785246e98f3f0b462684ff0b.avif?1770259274",
     "_namedAbilityStubs": [
       {
-        "storyName": "I’LL COUNT YOU IN",
-        "rulesText": "Whenever this character quests, you may play a character with cost 2 or less from your discard for free.",
+        "storyName": "",
+        "rulesText": "I’LL COUNT YOU IN Whenever this character quests, you may play a character with cost 2 or less from your discard for free.",
         "raw": "I’LL COUNT YOU IN Whenever this character quests, you may play a character with cost 2 or less from your discard for free."
       }
     ]
@@ -3315,9 +3315,24 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_adb608b3667f4c769a3bab709840dad1.avif?1770259473",
     "_namedAbilityStubs": [
       {
-        "storyName": "* YES!",
-        "rulesText": "You gain 3 lore.",
+        "storyName": "",
+        "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)",
+        "raw": "(A character with cost 3 or more can {E} to sing this song for free.)"
+      },
+      {
+        "storyName": "",
+        "rulesText": "Chosen opponent chooses YES! or NO!:",
+        "raw": "Chosen opponent chooses YES! or NO!:"
+      },
+      {
+        "storyName": "",
+        "rulesText": "* YES! You gain 3 lore.",
         "raw": "* YES! You gain 3 lore."
+      },
+      {
+        "storyName": "",
+        "rulesText": "* NO! They choose a character of theirs and put that card on the bottom of their deck.",
+        "raw": "* NO! They choose a character of theirs and put that card on the bottom of their deck."
       }
     ],
     "actionEffects": [
@@ -3971,8 +3986,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_00eb4b66a7f945adaa15ca341179bbf7.avif?1770259536",
     "_namedAbilityStubs": [
       {
-        "storyName": "BUILDING MUSCLES 1 {I}",
-        "rulesText": "— Chosen character gets +1 {S} this turn.",
+        "storyName": "BUILDING MUSCLES",
+        "rulesText": "1 {I} — Chosen character gets +1 {S} this turn.",
         "raw": "BUILDING MUSCLES 1 {I} — Chosen character gets +1 {S} this turn."
       }
     ]
@@ -4983,8 +4998,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3d891c7945f04b6d9095dda6a9a81a4f.avif?1770259612",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "IMPRESSIVE LEAPS Twice during your turn, whenever this character is chosen for an action or an item’s ability, you may ready him.",
+        "storyName": "IMPRESSIVE LEAPS",
+        "rulesText": "Twice during your turn, whenever this character is chosen for an action or an item’s ability, you may ready him.",
         "raw": "IMPRESSIVE LEAPS Twice during your turn, whenever this character is chosen for an action or an item’s ability, you may ready him."
       }
     ]
@@ -5520,8 +5535,8 @@
         "raw": "READ THE OMENS {E}, 1 {I} — Draw a card, then choose and discard a card."
       },
       {
-        "storyName": "BONK! 1 {I} ,",
-        "rulesText": "Banish this item — Deal 1 damage to chosen character.",
+        "storyName": "BONK!",
+        "rulesText": "1 {I} , Banish this item — Deal 1 damage to chosen character.",
         "raw": "BONK! 1 {I} , Banish this item — Deal 1 damage to chosen character."
       }
     ]
@@ -10804,8 +10819,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_26b1e9d58acf429aa2d77f89f6534c16.avif?1770260064",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "DO YOUR WORST Opponents must choose this character for actions and abilities if able.",
+        "storyName": "DO YOUR WORST",
+        "rulesText": "Opponents must choose this character for actions and abilities if able.",
         "raw": "DO YOUR WORST Opponents must choose this character for actions and abilities if able."
       }
     ]
@@ -13027,8 +13042,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_2319774247e242a19dfa6a0fe584fff0.avif?1770260247",
     "_namedAbilityStubs": [
       {
-        "storyName": "",
-        "rulesText": "IMPRESSIVE LEAPS Twice during your turn, whenever this character is chosen for an action or an item’s ability, you may ready him.",
+        "storyName": "IMPRESSIVE LEAPS",
+        "rulesText": "Twice during your turn, whenever this character is chosen for an action or an item’s ability, you may ready him.",
         "raw": "IMPRESSIVE LEAPS Twice during your turn, whenever this character is chosen for an action or an item’s ability, you may ready him."
       }
     ]

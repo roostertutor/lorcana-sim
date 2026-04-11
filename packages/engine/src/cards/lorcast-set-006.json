@@ -117,8 +117,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f17c60d077554d25b50fd934061b2e32.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "NO PLACE I’D RATHER BE",
-        "rulesText": "At the start of your turn, if this card is in your discard, you may play her and she enters play exerted.",
+        "storyName": "",
+        "rulesText": "NO PLACE I’D RATHER BE At the start of your turn, if this card is in your discard, you may play her and she enters play exerted.",
         "raw": "NO PLACE I’D RATHER BE At the start of your turn, if this card is in your discard, you may play her and she enters play exerted."
       }
     ]
@@ -1012,8 +1012,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_43a7721fdfb145f8a5216c85da2c77ec.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "I AM SO SORRY 2 {I}",
-        "rulesText": "- Chosen character gets -1 {S} until the start of your next turn.",
+        "storyName": "I AM SO SORRY",
+        "rulesText": "2 {I} - Chosen character gets -1 {S} until the start of your next turn.",
         "raw": "I AM SO SORRY 2 {I} - Chosen character gets -1 {S} until the start of your next turn."
       }
     ]
@@ -1465,8 +1465,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_91292f4ca0684baf9ed9715bf7caa07a.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "NEED A HAND? 1 {I}",
-        "rulesText": "- This character gets +1 {S} this turn.",
+        "storyName": "NEED A HAND?",
+        "rulesText": "1 {I} - This character gets +1 {S} this turn.",
         "raw": "NEED A HAND? 1 {I} - This character gets +1 {S} this turn."
       }
     ]
@@ -1711,8 +1711,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d4d40d9e539442f592da01b640e440a7.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "MAKE IT SING 1 {I},",
-        "rulesText": "Banish this item - Chosen character counts as having +3 cost to sing songs this turn.",
+        "storyName": "MAKE IT SING",
+        "rulesText": "1 {I}, Banish this item - Chosen character counts as having +3 cost to sing songs this turn.",
         "raw": "MAKE IT SING 1 {I}, Banish this item - Chosen character counts as having +3 cost to sing songs this turn."
       }
     ]
@@ -2910,8 +2910,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_997d20bbd2204f4a8cd9670598d8405c.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "OH, BAT GIZZARDS 2 {I},",
-        "rulesText": "Choose and discard a card - Gain 1 lore.",
+        "storyName": "OH, BAT GIZZARDS",
+        "rulesText": "2 {I}, Choose and discard a card - Gain 1 lore.",
         "raw": "OH, BAT GIZZARDS 2 {I}, Choose and discard a card - Gain 1 lore."
       }
     ]
@@ -4705,8 +4705,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3463916fe4e54939a91ee57a62d50ba2.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "STRONG LIKE HIS DAD 3 {I}",
-        "rulesText": "- Deal 1 damage to chosen damaged character.",
+        "storyName": "STRONG LIKE HIS DAD",
+        "rulesText": "3 {I} - Deal 1 damage to chosen damaged character.",
         "raw": "STRONG LIKE HIS DAD 3 {I} - Deal 1 damage to chosen damaged character."
       }
     ]
@@ -5428,8 +5428,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_6d0654972afb4eb581136a391d3f967b.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "RESOURCE ALLOCATION 1 {I},",
-        "rulesText": "Banish this item - Return chosen character with 2 {S} or less to their player's hand.",
+        "storyName": "RESOURCE ALLOCATION",
+        "rulesText": "1 {I}, Banish this item - Return chosen character with 2 {S} or less to their player's hand.",
         "raw": "RESOURCE ALLOCATION 1 {I}, Banish this item - Return chosen character with 2 {S} or less to their player's hand."
       }
     ]
@@ -5718,8 +5718,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_2baa971c1cbf4f349f4d343cd97010d5.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "MARINER’S MIGHT",
-        "rulesText": "Whenever this character quests, chosen Pirate character gets +2 {S} and gains \"This character takes no damage from challenges\" this turn.",
+        "storyName": "",
+        "rulesText": "MARINER’S MIGHT Whenever this character quests, chosen Pirate character gets +2 {S} and gains \"This character takes no damage from challenges\" this turn.",
         "raw": "MARINER’S MIGHT Whenever this character quests, chosen Pirate character gets +2 {S} and gains \"This character takes no damage from challenges\" this turn."
       }
     ]
@@ -7268,8 +7268,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3f429b4816d0421cb951261fa3552a95.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "TAKE IT FOR A SPIN 2 {I}",
-        "rulesText": "– Chosen character of yours gains Evasive until the start of your next turn. (Only characters with Evasive can challenge them.)",
+        "storyName": "TAKE IT FOR A SPIN",
+        "rulesText": "2 {I} – Chosen character of yours gains Evasive until the start of your next turn. (Only characters with Evasive can challenge them.)",
         "raw": "TAKE IT FOR A SPIN 2 {I} – Chosen character of yours gains Evasive until the start of your next turn. (Only characters with Evasive can challenge them.)"
       }
     ]
@@ -8085,8 +8085,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4aa4ce170d6840e393a1ffd6c44d96ee.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "SWEET TECH {2}",
-        "rulesText": "Search your deck for an item card or a Robot character card and reveal it to all players. Shuffle your deck and put that card on top of it.",
+        "storyName": "SWEET TECH",
+        "rulesText": "{2} {E} - Search your deck for an item card or a Robot character card and reveal it to all players. Shuffle your deck and put that card on top of it.",
         "raw": "SWEET TECH {2} {E} - Search your deck for an item card or a Robot character card and reveal it to all players. Shuffle your deck and put that card on top of it."
       }
     ]
@@ -8634,8 +8634,8 @@
         "raw": "I NEED TO UPGRADE ALL OF YOU Your other Inventor characters gain Resist +1. (Damage dealt to them is reduced by 1.)"
       },
       {
-        "storyName": "SHAPE THE FUTURE 2 {I}",
-        "rulesText": "- Look at the top card of your deck. Put it on either the top or the bottom of your deck.",
+        "storyName": "SHAPE THE FUTURE",
+        "rulesText": "2 {I} - Look at the top card of your deck. Put it on either the top or the bottom of your deck.",
         "raw": "SHAPE THE FUTURE 2 {I} - Look at the top card of your deck. Put it on either the top or the bottom of your deck."
       }
     ]
@@ -8783,8 +8783,8 @@
         "raw": "FULLY CHARGED If you have an Inventor character in play, you pay 1 {I} less to play this character."
       },
       {
-        "storyName": "YOU SAID 'OW' 2 {I}",
-        "rulesText": "- Remove up to 1 damage from another chosen character.",
+        "storyName": "YOU SAID 'OW'",
+        "rulesText": "2 {I} - Remove up to 1 damage from another chosen character.",
         "raw": "YOU SAID 'OW' 2 {I} - Remove up to 1 damage from another chosen character."
       }
     ]
@@ -9436,9 +9436,19 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_edfd3ef020dd41d5b1733088bdf2c991.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "10,000 MEDICAL PROCEDURES",
-        "rulesText": "Choose one:",
+        "storyName": "",
+        "rulesText": "10,000 MEDICAL PROCEDURES {E} - Choose one:",
         "raw": "10,000 MEDICAL PROCEDURES {E} - Choose one:"
+      },
+      {
+        "storyName": "",
+        "rulesText": "* Remove up to 1 damage from chosen character.",
+        "raw": "* Remove up to 1 damage from chosen character."
+      },
+      {
+        "storyName": "",
+        "rulesText": "* If you have a Robot character in play, remove up to 3 damage from chosen character.",
+        "raw": "* If you have a Robot character in play, remove up to 3 damage from chosen character."
       }
     ]
   },
@@ -9686,6 +9696,11 @@
     "rulesText": "WELCOME TO THE LAB Inventor characters get +1 {W} while here.\nPUSH THE BOUNDARIES At the start of your turn, if you have a character here, gain 1 lore.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b499c66fd5104b3a994c3a6bd51ba692.avif?1730901319",
     "_namedAbilityStubs": [
+      {
+        "storyName": "WELCOME TO THE LAB",
+        "rulesText": "Inventor characters get +1 {W} while here.",
+        "raw": "WELCOME TO THE LAB Inventor characters get +1 {W} while here."
+      },
       {
         "storyName": "PUSH THE BOUNDARIES",
         "rulesText": "At the start of your turn, if you have a character here, gain 1 lore.",
@@ -10656,8 +10671,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_0e199ab83f22428784550f317e16fefd.avif?1730901319",
     "_namedAbilityStubs": [
       {
-        "storyName": "THINK ABOUT WHAT'S BEST 2 {I}",
-        "rulesText": "– Draw a card, then choose and discard a card.",
+        "storyName": "THINK ABOUT WHAT'S BEST",
+        "rulesText": "2 {I} – Draw a card, then choose and discard a card.",
         "raw": "THINK ABOUT WHAT'S BEST 2 {I} – Draw a card, then choose and discard a card."
       }
     ]
@@ -12527,8 +12542,8 @@
         "raw": "FULLY CHARGED If you have an Inventor character in play, you pay 1 {I} less to play this character."
       },
       {
-        "storyName": "YOU SAID 'OW' 2 {I}",
-        "rulesText": "– Remove up to 1 damage from another chosen character.",
+        "storyName": "YOU SAID 'OW'",
+        "rulesText": "2 {I} – Remove up to 1 damage from another chosen character.",
         "raw": "YOU SAID 'OW' 2 {I} – Remove up to 1 damage from another chosen character."
       }
     ]

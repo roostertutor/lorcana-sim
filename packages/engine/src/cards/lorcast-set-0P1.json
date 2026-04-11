@@ -2111,6 +2111,11 @@
         "storyName": "NOW I AM THE RULER!",
         "rulesText": "Whenever this character quests, exert chosen character.",
         "raw": "NOW I AM THE RULER! Whenever this character quests, exert chosen character."
+      },
+      {
+        "storyName": "YOU'LL LISTEN TO ME!",
+        "rulesText": "Other characters can't exert to sing songs.",
+        "raw": "YOU'LL LISTEN TO ME! Other characters can't exert to sing songs."
       }
     ]
   },

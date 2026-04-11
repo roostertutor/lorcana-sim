@@ -3172,6 +3172,11 @@
         "storyName": "NOW I AM THE RULER!",
         "rulesText": "Whenever this character quests, exert chosen character.",
         "raw": "NOW I AM THE RULER! Whenever this character quests, exert chosen character."
+      },
+      {
+        "storyName": "YOU'LL LISTEN TO ME!",
+        "rulesText": "Other characters can't exert to sing songs.",
+        "raw": "YOU'LL LISTEN TO ME! Other characters can't exert to sing songs."
       }
     ]
   },
@@ -5571,6 +5576,11 @@
         "storyName": "DANGER REVEALED",
         "rulesText": "At the start of your turn, if an opposing character has damage, gain 1 lore.",
         "raw": "DANGER REVEALED At the start of your turn, if an opposing character has damage, gain 1 lore."
+      },
+      {
+        "storyName": "TRAPPED!",
+        "rulesText": "Damage counters can't be removed.",
+        "raw": "TRAPPED! Damage counters can't be removed."
       }
     ]
   },
@@ -7410,8 +7420,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_20286eaca8e44e0c8527a00bf07be1c7.avif?1716052430",
     "_namedAbilityStubs": [
       {
-        "storyName": "WALK! 2 {I},",
-        "rulesText": "Banish this item – Choose one:",
+        "storyName": "WALK!",
+        "rulesText": "2 {I}, Banish this item – Choose one:",
         "raw": "WALK! 2 {I}, Banish this item – Choose one:"
       }
     ]
@@ -7476,8 +7486,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_0377cc62eb6044bc808843bbcd39eb48.avif?1716052430",
     "_namedAbilityStubs": [
       {
-        "storyName": "EXTRACT OF RUBY 1 {I},",
-        "rulesText": "Banish this item — Chosen character gains Rush and gets +2 {S} this turn. (They can challenge the turn they're played.)",
+        "storyName": "EXTRACT OF RUBY",
+        "rulesText": "1 {I}, Banish this item — Chosen character gains Rush and gets +2 {S} this turn. (They can challenge the turn they're played.)",
         "raw": "EXTRACT OF RUBY 1 {I}, Banish this item — Chosen character gains Rush and gets +2 {S} this turn. (They can challenge the turn they're played.)"
       }
     ]
@@ -7587,8 +7597,8 @@
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_ed931c16cb0142469bd6f7571576d61a.avif?1716052430",
     "_namedAbilityStubs": [
       {
-        "storyName": "STRENGTH OF MIND 1 {I}",
-        "rulesText": "— Chosen character here gets +1 {S} this turn.",
+        "storyName": "STRENGTH OF MIND",
+        "rulesText": "1 {I} — Chosen character here gets +1 {S} this turn.",
         "raw": "STRENGTH OF MIND 1 {I} — Chosen character here gets +1 {S} this turn."
       }
     ]
@@ -7854,6 +7864,11 @@
     "rulesText": "PRESERVER Opponents can't choose your items for abilities or effects.\nROYAL INVENTORY {E} one of your items — Look at the top card of your deck and put it on either the top or the bottom of your deck.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f6e236483db94d5cbd74ec3d0c69f685.avif?1716052430",
     "_namedAbilityStubs": [
+      {
+        "storyName": "PRESERVER",
+        "rulesText": "Opponents can't choose your items for abilities or effects.",
+        "raw": "PRESERVER Opponents can't choose your items for abilities or effects."
+      },
       {
         "storyName": "ROYAL INVENTORY",
         "rulesText": "{E} one of your items — Look at the top card of your deck and put it on either the top or the bottom of your deck.",
@@ -10994,8 +11009,8 @@
         "raw": "RESOURCEFUL When you play this item, you may draw a card."
       },
       {
-        "storyName": "EXTRACT OF STEEL 1 {I},",
-        "rulesText": "Banish this item — Chosen character of yours gains Bodyguard until the start of your next turn. (An opposing character who challenges one of your characters must choose one with Bodyguard if able.)",
+        "storyName": "EXTRACT OF STEEL",
+        "rulesText": "1 {I}, Banish this item — Chosen character of yours gains Bodyguard until the start of your next turn. (An opposing character who challenges one of your characters must choose one with Bodyguard if able.)",
         "raw": "EXTRACT OF STEEL 1 {I}, Banish this item — Chosen character of yours gains Bodyguard until the start of your next turn. (An opposing character who challenges one of your characters must choose one with Bodyguard if able.)"
       }
     ]
@@ -11498,6 +11513,11 @@
         "storyName": "NOW I AM THE RULER!",
         "rulesText": "Whenever this character quests, exert chosen character.",
         "raw": "NOW I AM THE RULER! Whenever this character quests, exert chosen character."
+      },
+      {
+        "storyName": "YOU'LL LISTEN TO ME!",
+        "rulesText": "Other characters can't exert to sing songs.",
+        "raw": "YOU'LL LISTEN TO ME! Other characters can't exert to sing songs."
       }
     ]
   },
