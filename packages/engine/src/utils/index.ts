@@ -812,6 +812,10 @@ export function evaluateCondition(
       const inst = state.cards[sourceInstanceId];
       return inst ? inst.damage === 0 : false;
     }
+    case "this_has_damage": {
+      const inst = state.cards[sourceInstanceId];
+      return inst ? inst.damage > 0 : false;
+    }
     case "this_at_location": {
       const inst = state.cards[sourceInstanceId];
       return inst ? !!inst.atLocationInstanceId : false;

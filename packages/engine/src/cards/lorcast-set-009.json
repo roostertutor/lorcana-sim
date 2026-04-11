@@ -1917,7 +1917,7 @@
         "storyName": "MYSTICAL SHIELD",
         "rulesText": "Whenever he challenges a Hyena character, this character takes no damage from the challenge.",
         "trigger": {
-          "on": "challenge_initiated",
+          "on": "challenges",
           "filter": {
             "zone": "play",
             "cardType": [
@@ -2476,7 +2476,7 @@
             "type": "exert"
           },
           {
-            "type": "ink",
+            "type": "pay_ink",
             "amount": 1
           }
         ],
@@ -2524,7 +2524,7 @@
                 "type": "exert"
               },
               {
-                "type": "ink",
+                "type": "pay_ink",
                 "amount": 1
               }
             ],
@@ -3238,7 +3238,7 @@
         },
         "effects": [
           {
-            "type": "scry",
+            "type": "look_at_top",
             "amount": 2,
             "target": {
               "type": "self"
@@ -3511,7 +3511,7 @@
         "rulesText": "3 {I} — Return this item to your hand.",
         "costs": [
           {
-            "type": "ink",
+            "type": "pay_ink",
             "amount": 3
           }
         ],
@@ -4725,7 +4725,7 @@
             "type": "this"
           },
           "condition": {
-            "type": "this_at_any_location"
+            "type": "this_at_location"
           }
         }
       },
@@ -4734,10 +4734,10 @@
         "storyName": "PACK HUNTER",
         "rulesText": "While this character is at a location, whenever she challenges another character, you may draw a card.",
         "trigger": {
-          "on": "challenge_initiated"
+          "on": "challenges"
         },
         "condition": {
-          "type": "this_at_any_location"
+          "type": "this_at_location"
         },
         "effects": [
           {
@@ -5466,7 +5466,7 @@
             "type": "exert"
           },
           {
-            "type": "ink",
+            "type": "pay_ink",
             "amount": 1
           },
           {
@@ -5734,7 +5734,7 @@
         "storyName": "MENACING",
         "rulesText": "Whenever one of your characters challenges another character, gain 1 lore.",
         "trigger": {
-          "on": "challenge_initiated",
+          "on": "challenges",
           "filter": {
             "owner": {
               "type": "self"
@@ -5831,7 +5831,7 @@
         "rulesText": "2 {I} – Ready this character. He can't quest for the rest of this turn.",
         "costs": [
           {
-            "type": "ink",
+            "type": "pay_ink",
             "amount": 2
           }
         ],
@@ -6138,7 +6138,7 @@
             "type": "this"
           },
           "condition": {
-            "type": "this_has_card_under"
+            "type": "this_has_cards_under"
           }
         }
       }
@@ -6589,7 +6589,7 @@
         "storyName": "SENSING WEAKNESS",
         "rulesText": "Whenever one of your characters challenges another character, you may draw a card.",
         "trigger": {
-          "on": "challenge_initiated",
+          "on": "challenges",
           "filter": {
             "owner": {
               "type": "self"
@@ -8130,7 +8130,7 @@
         },
         "effects": [
           {
-            "type": "scry",
+            "type": "look_at_top",
             "amount": 3,
             "isMay": true,
             "target": {
@@ -8178,7 +8178,7 @@
         "storyName": "WISE HEALER",
         "rulesText": "Whenever you remove 1 or more damage from one of your characters, gain 2 lore.",
         "trigger": {
-          "on": "damage_removed",
+          "on": "damage_removed_from",
           "filter": {
             "owner": {
               "type": "self"
@@ -9108,7 +9108,7 @@
         },
         "effects": [
           {
-            "type": "scry",
+            "type": "look_at_top",
             "amount": 1,
             "isMay": true,
             "target": {
@@ -9245,7 +9245,7 @@
         "storyName": "SACRED SHORES",
         "rulesText": "Whenever a character is banished while here, you may put that card into your inkwell facedown and exerted.",
         "trigger": {
-          "on": "banished_other",
+          "on": "banished_other_in_challenge",
           "filter": {
             "cardType": [
               "character"
@@ -9394,7 +9394,7 @@
         },
         "effects": [
           {
-            "type": "play_from_hand_for_free",
+            "type": "play_for_free",
             "target": {
               "type": "chosen",
               "filter": {
@@ -9663,7 +9663,7 @@
               {
                 "type": "banish",
                 "target": {
-                  "type": "remembered_target"
+                  "type": "last_resolved_target"
                 }
               }
             ],
@@ -12071,7 +12071,7 @@
         },
         "effects": [
           {
-            "type": "scry",
+            "type": "look_at_top",
             "amount": 3,
             "isMay": true,
             "target": {
@@ -12564,7 +12564,7 @@
             "type": "exert"
           },
           {
-            "type": "ink",
+            "type": "pay_ink",
             "amount": 1
           }
         ],
@@ -12612,7 +12612,7 @@
                 "type": "exert"
               },
               {
-                "type": "ink",
+                "type": "pay_ink",
                 "amount": 1
               }
             ],
@@ -13393,7 +13393,7 @@
               {
                 "type": "banish",
                 "target": {
-                  "type": "remembered_target"
+                  "type": "last_resolved_target"
                 }
               }
             ],
@@ -13632,7 +13632,7 @@
             "type": "this"
           },
           "condition": {
-            "type": "this_has_card_under"
+            "type": "this_has_cards_under"
           }
         }
       }

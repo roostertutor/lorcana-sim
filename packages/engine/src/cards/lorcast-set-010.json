@@ -1589,7 +1589,7 @@
         "rulesText": "1 {I}, Banish this item — Put the top card of your deck facedown under one of your characters or locations with Boost.",
         "costs": [
           {
-            "type": "ink",
+            "type": "pay_ink",
             "amount": 1
           },
           {
@@ -1717,7 +1717,7 @@
             "type": "exert"
           },
           {
-            "type": "ink",
+            "type": "pay_ink",
             "amount": 1
           }
         ],
@@ -3661,7 +3661,7 @@
             "type": "exert"
           },
           {
-            "type": "ink",
+            "type": "pay_ink",
             "amount": 1
           },
           {
@@ -3710,7 +3710,7 @@
         "storyName": "EXERT DRAIN",
         "rulesText": "During your turn, whenever an opposing character becomes exerted, gain 1 lore.",
         "trigger": {
-          "on": "challenge_initiated",
+          "on": "challenges",
           "filter": {
             "owner": {
               "type": "opponent"
@@ -5023,7 +5023,7 @@
         "rulesText": "1 {I} — This character gets +1 {S} this turn.",
         "costs": [
           {
-            "type": "ink",
+            "type": "pay_ink",
             "amount": 1
           }
         ],
@@ -5483,7 +5483,7 @@
             "type": "exert"
           },
           {
-            "type": "ink",
+            "type": "pay_ink",
             "amount": 1
           }
         ],
@@ -6171,7 +6171,7 @@
         "storyName": "RAGE",
         "rulesText": "Whenever he challenges another character, if there's a card under this character, each opponent loses 1 lore and you gain 1 lore.",
         "trigger": {
-          "on": "challenge_initiated"
+          "on": "challenges"
         },
         "condition": {
           "type": "this_has_cards_under"
@@ -6623,7 +6623,7 @@
         "storyName": "GUARD THE CLAN",
         "rulesText": "Whenever one of your Gargoyle characters challenges another character, gain 1 lore.",
         "trigger": {
-          "on": "challenge_initiated",
+          "on": "challenges",
           "filter": {
             "owner": {
               "type": "self"
@@ -7073,7 +7073,7 @@
         "storyName": "RIDE OF TERROR",
         "rulesText": "During your turn, whenever an opposing character is banished, each of your characters gets +1 {S} this turn.",
         "trigger": {
-          "on": "banished_other",
+          "on": "banished_other_in_challenge",
           "filter": {
             "owner": {
               "type": "opponent"
@@ -7195,7 +7195,7 @@
         "storyName": "BURLY",
         "rulesText": "Whenever this character challenges a character with 2 {S} or less, each opponent loses 1 lore.",
         "trigger": {
-          "on": "challenge_initiated",
+          "on": "challenges",
           "filter": {
             "zone": "play",
             "cardType": [
@@ -7259,7 +7259,7 @@
         "rulesText": "1 {I}, Deal 1 damage to this character — Ready this character. He can't quest for the rest of this turn.",
         "costs": [
           {
-            "type": "ink",
+            "type": "pay_ink",
             "amount": 1
           }
         ],
@@ -7612,7 +7612,7 @@
         "rulesText": "2 {I}, Banish this item — Chosen character gains Rush this turn.",
         "costs": [
           {
-            "type": "ink",
+            "type": "pay_ink",
             "amount": 2
           },
           {
@@ -9401,7 +9401,7 @@
         "storyName": "BIBBIDI WARD",
         "rulesText": "During your turn, whenever you put a card into your inkwell, chosen Princess character of yours gains Ward until the start of your next turn.",
         "trigger": {
-          "on": "card_put_in_inkwell",
+          "on": "ink_played",
           "filter": {
             "owner": {
               "type": "self"
@@ -11357,7 +11357,7 @@
             "type": "exert"
           },
           {
-            "type": "ink",
+            "type": "pay_ink",
             "amount": 2
           },
           {
@@ -11478,7 +11478,7 @@
             "type": "self"
           },
           "condition": {
-            "type": "has_character_here"
+            "type": "this_location_has_character"
           }
         }
       }
@@ -12804,7 +12804,7 @@
             "type": "exert"
           },
           {
-            "type": "ink",
+            "type": "pay_ink",
             "amount": 1
           }
         ],
@@ -13296,7 +13296,7 @@
         "storyName": "RIDE OF TERROR",
         "rulesText": "During your turn, whenever an opposing character is banished, each of your characters gets +1 {S} this turn.",
         "trigger": {
-          "on": "banished_other",
+          "on": "banished_other_in_challenge",
           "filter": {
             "owner": {
               "type": "opponent"

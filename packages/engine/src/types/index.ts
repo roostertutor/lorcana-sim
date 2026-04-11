@@ -2191,6 +2191,7 @@ export type Condition =
   | { type: "actions_played_this_turn_gte"; amount: number }
   | { type: "actions_played_this_turn_eq"; amount: number }
   | { type: "this_has_no_damage" }
+  | { type: "this_has_damage" }
   | { type: "this_at_location" }
   | { type: "this_location_has_character" }
   /** True if any own character with the given trait is at this location.

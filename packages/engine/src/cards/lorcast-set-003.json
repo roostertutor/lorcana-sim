@@ -4696,7 +4696,7 @@
         "storyName": "WHAT'S THE HURRY?",
         "rulesText": "While this character is at a location, whenever she challenges another character, you may draw a card.",
         "trigger": {
-          "on": "challenge_initiated"
+          "on": "challenges"
         },
         "condition": {
           "type": "this_at_location"
@@ -8868,7 +8868,7 @@
             "type": "exert"
           },
           {
-            "type": "ink",
+            "type": "pay_ink",
             "amount": 2
           }
         ],

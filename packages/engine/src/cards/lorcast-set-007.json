@@ -10065,7 +10065,7 @@
         "count": 4,
         "action": "reorder",
         "target": {
-          "type": "chosen_player"
+          "type": "opponent"
         }
       }
     ]

@@ -1767,7 +1767,7 @@
           }
         },
         "condition": {
-          "type": "challenged_this_turn"
+          "type": "a_character_was_banished_in_challenge_this_turn"
         },
         "effects": [
           {
@@ -3201,7 +3201,7 @@
         "storyName": "",
         "rulesText": "When this character is banished in a challenge, return this card from your discard to your hand.",
         "trigger": {
-          "on": "is_banished_in_challenge"
+          "on": "banished_in_challenge"
         },
         "effects": [
           {
@@ -5055,7 +5055,7 @@
         "storyName": "",
         "rulesText": "During opponents' turns, whenever one of your other characters is banished, you may draw a card.",
         "trigger": {
-          "on": "banished_other",
+          "on": "banished_other_in_challenge",
           "filter": {
             "owner": {
               "type": "self"
@@ -5427,7 +5427,7 @@
             }
           },
           "condition": {
-            "type": "is_opponents_turn"
+            "type": "not", "condition": { "type": "is_your_turn" }
           }
         }
       }
@@ -5471,7 +5471,7 @@
             "type": "exert"
           },
           {
-            "type": "ink",
+            "type": "pay_ink",
             "amount": 1
           }
         ],
@@ -5499,7 +5499,7 @@
         "rulesText": "Deal 1 damage to chosen character.",
         "costs": [
           {
-            "type": "ink",
+            "type": "pay_ink",
             "amount": 1
           },
           {
@@ -5562,7 +5562,7 @@
             "type": "exert"
           },
           {
-            "type": "ink",
+            "type": "pay_ink",
             "amount": 1
           }
         ],
@@ -6404,7 +6404,7 @@
         "storyName": "",
         "rulesText": "Whenever this character challenges another character, each opponent loses 1 lore and you gain 1 lore.",
         "trigger": {
-          "on": "challenge_initiated"
+          "on": "challenges"
         },
         "effects": [
           {
@@ -7463,7 +7463,7 @@
             "type": "exert"
           },
           {
-            "type": "ink",
+            "type": "pay_ink",
             "amount": 2
           }
         ],
@@ -7661,7 +7661,7 @@
         "storyName": "",
         "rulesText": "Whenever a character here challenges another character, gain 1 lore.",
         "trigger": {
-          "on": "challenge_initiated"
+          "on": "challenges"
         },
         "effects": [
           {
@@ -8818,7 +8818,7 @@
         "storyName": "",
         "rulesText": "Whenever one of your characters is banished, you may put that card from your discard into your inkwell facedown and exerted.",
         "trigger": {
-          "on": "banished_other",
+          "on": "banished_other_in_challenge",
           "filter": {
             "owner": {
               "type": "self"
@@ -8895,7 +8895,7 @@
         "storyName": "A GIVING HEART",
         "rulesText": "When this character is banished in a challenge, you may put all cards that were under him under another chosen character or location of yours.",
         "trigger": {
-          "on": "is_banished_in_challenge"
+          "on": "banished_in_challenge"
         },
         "effects": [
           {
@@ -9275,7 +9275,7 @@
             "type": "exert"
           },
           {
-            "type": "ink",
+            "type": "pay_ink",
             "amount": 1
           },
           {
@@ -10484,7 +10484,7 @@
         "storyName": "",
         "rulesText": "During your turn, whenever an item is banished, this character gains Resist +1 until the start of your next turn.",
         "trigger": {
-          "on": "banished_other",
+          "on": "banished_other_in_challenge",
           "filter": {
             "cardType": [
               "item"
@@ -10645,7 +10645,7 @@
         "oncePerTurn": true,
         "costs": [
           {
-            "type": "discard_cost",
+            "type": "discard",
             "amount": 1
           }
         ],
@@ -10715,7 +10715,7 @@
         "storyName": "",
         "rulesText": "During your turn, whenever an item is banished, you may deal 2 damage to chosen character.",
         "trigger": {
-          "on": "banished_other",
+          "on": "banished_other_in_challenge",
           "filter": {
             "cardType": [
               "item"
@@ -12347,7 +12347,7 @@
         "storyName": "A GIVING HEART",
         "rulesText": "When this character is banished in a challenge, you may put all cards that were under him under another chosen character or location of yours.",
         "trigger": {
-          "on": "is_banished_in_challenge"
+          "on": "banished_in_challenge"
         },
         "effects": [
           {
@@ -13128,7 +13128,7 @@
         "storyName": "",
         "rulesText": "Whenever this character challenges another character, each opponent loses 1 lore and you gain 1 lore.",
         "trigger": {
-          "on": "challenge_initiated"
+          "on": "challenges"
         },
         "effects": [
           {
@@ -13440,7 +13440,7 @@
         "storyName": "",
         "rulesText": "Whenever one of your characters is banished, you may put that card from your discard into your inkwell facedown and exerted.",
         "trigger": {
-          "on": "banished_other",
+          "on": "banished_other_in_challenge",
           "filter": {
             "owner": {
               "type": "self"
@@ -13588,7 +13588,7 @@
         "oncePerTurn": true,
         "costs": [
           {
-            "type": "discard_cost",
+            "type": "discard",
             "amount": 1
           }
         ],
@@ -13658,7 +13658,7 @@
         "storyName": "",
         "rulesText": "During your turn, whenever an item is banished, you may deal 2 damage to chosen character.",
         "trigger": {
-          "on": "banished_other",
+          "on": "banished_other_in_challenge",
           "filter": {
             "cardType": [
               "item"

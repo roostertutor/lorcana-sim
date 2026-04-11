@@ -313,7 +313,7 @@
           "on": "enters_play"
         },
         "condition": {
-          "type": "compound_not",
+          "type": "not",
           "inner": {
             "type": "you_control_matching",
             "filter": {
@@ -1987,7 +1987,7 @@
         "storyName": "WHO'S NEXT?",
         "rulesText": "Whenever one of your other characters is banished during the opponent's turn, gain 2 lore.",
         "trigger": {
-          "on": "banished_other",
+          "on": "banished_other_in_challenge",
           "filter": {
             "owner": {
               "type": "self"
@@ -2000,7 +2000,7 @@
           }
         },
         "condition": {
-          "type": "compound_not",
+          "type": "not",
           "inner": {
             "type": "is_your_turn"
           }
@@ -3141,7 +3141,7 @@
             "action": "up_to_n_to_discard_rest_top",
             "maxToHand": 0,
             "target": {
-              "type": "chosen_player"
+              "type": "opponent"
             }
           }
         ]
@@ -3907,7 +3907,7 @@
         "storyName": "FANCY A FIGHT?",
         "rulesText": "Whenever this character is challenged, draw a card.",
         "trigger": {
-          "on": "challenged"
+          "on": "is_challenged"
         },
         "effects": [
           {
@@ -4185,7 +4185,7 @@
         "storyName": "MASCOT MOMENT",
         "rulesText": "Whenever this character is challenged, gain 2 lore.",
         "trigger": {
-          "on": "challenged"
+          "on": "is_challenged"
         },
         "effects": [
           {
@@ -6397,7 +6397,7 @@
             "type": "this"
           },
           "condition": {
-            "type": "compound_not",
+            "type": "not",
             "inner": {
               "type": "you_control_matching",
               "filter": {
@@ -8664,7 +8664,7 @@
           "on": "is_banished"
         },
         "condition": {
-          "type": "compound_not",
+          "type": "not",
           "inner": {
             "type": "is_your_turn"
           }
@@ -8744,7 +8744,7 @@
         "rulesText": "2 {I} — Remove up to 1 damage from another chosen character.",
         "costs": [
           {
-            "type": "ink",
+            "type": "pay_ink",
             "amount": 2
           }
         ],
@@ -10541,7 +10541,7 @@
             "type": "this"
           },
           "condition": {
-            "type": "compound_not",
+            "type": "not",
             "inner": {
               "type": "this_has_damage"
             }
@@ -12512,7 +12512,7 @@
         "rulesText": "2 {I} — Remove up to 1 damage from another chosen character.",
         "costs": [
           {
-            "type": "ink",
+            "type": "pay_ink",
             "amount": 2
           }
         ],

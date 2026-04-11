@@ -1393,7 +1393,7 @@
         "storyName": "STREET SMART",
         "rulesText": "During an opponent's turn, whenever one of your characters is banished, you may draw a card.",
         "trigger": {
-          "on": "banished_other",
+          "on": "banished_other_in_challenge",
           "filter": {
             "owner": {
               "type": "self"
@@ -1405,7 +1405,7 @@
           }
         },
         "condition": {
-          "type": "compound_not",
+          "type": "not",
           "inner": {
             "type": "is_your_turn"
           }
@@ -4805,7 +4805,7 @@
         },
         "effects": [
           {
-            "type": "scry",
+            "type": "look_at_top",
             "amount": 1,
             "target": {
               "type": "self"
@@ -5241,7 +5241,7 @@
         },
         "effects": [
           {
-            "type": "exert_character",
+            "type": "exert",
             "target": {
               "type": "chosen",
               "filter": {
@@ -5266,13 +5266,13 @@
             "type": "exert"
           },
           {
-            "type": "ink",
+            "type": "pay_ink",
             "amount": 1
           }
         ],
         "effects": [
           {
-            "type": "exert_character",
+            "type": "exert",
             "target": {
               "type": "chosen",
               "filter": {
@@ -10946,7 +10946,7 @@
             "type": "exert"
           },
           {
-            "type": "ink",
+            "type": "pay_ink",
             "amount": 1
           }
         ],
@@ -11672,7 +11672,7 @@
         "storyName": "FOR THE FALLEN",
         "rulesText": "During an opponent's turn, whenever one of your other characters is banished, gain 1 lore.",
         "trigger": {
-          "on": "banished_other",
+          "on": "banished_other_in_challenge",
           "filter": {
             "owner": {
               "type": "self"
@@ -11685,7 +11685,7 @@
           }
         },
         "condition": {
-          "type": "compound_not",
+          "type": "not",
           "inner": {
             "type": "is_your_turn"
           }

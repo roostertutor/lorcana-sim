@@ -11314,7 +11314,7 @@
                 "type": "exert"
               },
               {
-                "type": "ink",
+                "type": "pay_ink",
                 "amount": 3
               }
             ],
@@ -12512,7 +12512,7 @@
                 "type": "exert"
               },
               {
-                "type": "ink",
+                "type": "pay_ink",
                 "amount": 3
               }
             ],
