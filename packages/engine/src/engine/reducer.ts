@@ -3978,6 +3978,13 @@ export function applyEffect(
       if (effect.target.type === "self") players.push(controllingPlayerId);
       else if (effect.target.type === "opponent") players.push(getOpponent(controllingPlayerId));
       else if (effect.target.type === "both") players.push("player1", "player2");
+      // "that player" — the owner of the last resolved target (We Don't Talk About Bruno:
+      // "return chosen character to their player's hand, then THAT PLAYER discards")
+      else if (effect.target.type === "target_owner") {
+        const ownerId = state.lastResolvedTarget?.ownerId;
+        if (ownerId) players.push(ownerId as PlayerID);
+        else players.push(getOpponent(controllingPlayerId)); // fallback
+      }
 
       const discardMods = getGameModifiers(state, definitions);
       for (const pid of players) {
