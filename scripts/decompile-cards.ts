@@ -87,11 +87,14 @@ function renderCard(card: CardJSON): string {
   }
 
 
-  // Scalar keywords that live as fields rather than ability entries.
-  if (card.shiftCost !== undefined) {
-    parts.push(`Shift ${card.shiftCost}`);
-  }
-  if (card.singTogetherCost !== undefined) {
+  // Scalar keywords (Shift, Sing Together) are NOT in the rules text box
+  // on the physical card — they're printed as separate icons/badges. Skip
+  // them to avoid noise in the diff. Exception: Sing Together cost IS
+  // included in the oracle rulesText as "(Any number of your characters
+  // with total cost N or more may...)" for some cards.
+  // Shift: always skip.
+  // Sing Together: only emit if the oracle text includes it.
+  if (card.singTogetherCost !== undefined && card.rulesText?.includes("Sing Together")) {
     parts.push(`Sing Together ${card.singTogetherCost}`);
   }
 
@@ -110,9 +113,10 @@ function renderCard(card: CardJSON): string {
   }
 
   for (const ab of card.abilities ?? []) {
-    // Skip keyword:shift / keyword:singTogether — already emitted as scalars.
-    if (ab.type === "keyword" && ab.keyword === "shift" && card.shiftCost !== undefined) continue;
-    if (ab.type === "keyword" && ab.keyword === "sing together" && card.singTogetherCost !== undefined) continue;
+    // Skip all bare keyword abilities — these are printed as icons/badges on
+    // the physical card, not in the rules text box. The oracle rulesText only
+    // contains named abilities (STORY_NAME ...) and their descriptions.
+    if (ab.type === "keyword") continue;
     parts.push(renderAbility(ab, { cardType: card.cardType }));
   }
   // Action / song bodies live on actionEffects.
@@ -325,7 +329,8 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     if (typeof amt !== "number") {
       return `${maybe(e)}draw cards equal to ${renderAmount(amt)}`;
     }
-    return `${maybe(e)}draw ${amt} card${plural(amt)}`;
+    if (amt === 1) return `${maybe(e)}draw a card`;
+    return `${maybe(e)}draw ${amt} cards`;
   },
   discard:            (e) => `${maybe(e)}discard ${e.amount ?? 1} card${plural(e.amount ?? 1)}`,
   discard_from_hand:  (e) => {
@@ -367,7 +372,12 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
 
   banish:         (e) => `${maybe(e)}banish ${renderTarget(e.target ?? {})}`,
   banish_chosen:  (e) => `${maybe(e)}banish ${renderTarget(e.target ?? {})}`,
-  return_to_hand: (e) => `${maybe(e)}return ${renderTarget(e.target ?? {})} to their player's hand`,
+  return_to_hand: (e) => {
+    const tgt = e.target?.type ?? "this";
+    if (tgt === "this") return `${maybe(e)}return this card to your hand`;
+    if (tgt === "triggering_card") return `${maybe(e)}return that card to its player's hand`;
+    return `${maybe(e)}return ${renderTarget(e.target ?? {})} to their player's hand`;
+  },
   ready: (e) => {
     const base = `${maybe(e)}ready ${renderTarget(e.target ?? {})}`;
     if (e.followUpEffects?.length) {
@@ -875,10 +885,16 @@ function renderAmount(a: any): string {
   return "?";
 }
 
-/** Verb agreement: "you" takes base form, everything else takes -s.
- *  ("you gain" / "each opponent gains" / "this character gains"). */
+/** Verb agreement: "you" and plural subjects take base form, singular takes -s.
+ *  ("you gain" / "your characters gain" / "this character gains"). */
 function verbS(target: string, base: string, third: string): string {
-  return target === "you" ? base : third;
+  if (target === "you") return base;
+  // Plural subjects: "all your characters", "opposing characters", "characters named X"
+  // But NOT "each opponent" (grammatically singular) or "this characters" (doesn't exist)
+  if (target.startsWith("all ")) return base;
+  if (target.startsWith("opposing ") && target.endsWith("s")) return base;
+  if (target.startsWith("your ") && target.endsWith("s")) return base;
+  return third;
 }
 
 function renderStatChange(e: Json): string {
@@ -963,7 +979,7 @@ function renderTarget(t: Json): string {
     case "from_last_discarded":
       return "that discarded card";
     case "chosen": {
-      const f = t.filter ? renderFilter(t.filter) : "character";
+      const f = t.filter ? renderFilter(t.filter, { suppressOwnerSelf: true }) : "character";
       const count = t.count && t.count > 1 ? `${t.count} ` : "";
       return `chosen ${count}${f}`;
     }
@@ -980,10 +996,10 @@ function renderTarget(t: Json): string {
   }
 }
 
-function renderFilter(f: Json): string {
+function renderFilter(f: Json, opts?: { suppressOwnerSelf?: boolean }): string {
   const bits: string[] = [];
-  // Owner
-  if (f.owner?.type === "self") bits.push("your");
+  // Owner — suppress "your" for chosen targets (oracle says "chosen character" not "chosen your character")
+  if (f.owner?.type === "self" && !opts?.suppressOwnerSelf) bits.push("your");
   else if (f.owner?.type === "opponent") bits.push("opposing");
   if (f.excludeSelf) bits.push("other");
   // Stats / cost / keyword adjectives go BEFORE the noun
