@@ -1092,6 +1092,10 @@
         "costs": [
           {
             "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 1
           }
         ],
         "effects": [

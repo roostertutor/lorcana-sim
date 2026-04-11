@@ -983,7 +983,12 @@
         "type": "activated",
         "storyName": "I AM SO SORRY",
         "rulesText": "2 {I} - Chosen character gets -1 {S} until the start of your next turn.",
-        "costs": [],
+        "costs": [
+          {
+            "type": "pay_ink",
+            "amount": 2
+          }
+        ],
         "effects": [
           {
             "type": "gain_stats",
@@ -1442,7 +1447,12 @@
         "type": "activated",
         "storyName": "NEED A HAND?",
         "rulesText": "1 {I} - This character gets +1 {S} this turn.",
-        "costs": [],
+        "costs": [
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
+        ],
         "effects": [
           {
             "type": "gain_stats",
@@ -1737,6 +1747,10 @@
         "costs": [
           {
             "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 3
           }
         ],
         "effects": [
@@ -4677,7 +4691,12 @@
         "type": "activated",
         "storyName": "STRONG LIKE HIS DAD",
         "rulesText": "3 {I} - Deal 1 damage to chosen damaged character.",
-        "costs": [],
+        "costs": [
+          {
+            "type": "pay_ink",
+            "amount": 3
+          }
+        ],
         "effects": [
           {
             "type": "deal_damage",
@@ -5404,7 +5423,12 @@
         "type": "activated",
         "storyName": "RESOURCE ALLOCATION",
         "rulesText": "1 {I}, Banish this item - Return chosen character with 2 {S} or less to their player's hand.",
-        "costs": [],
+        "costs": [
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
+        ],
         "effects": [
           {
             "type": "return_to_hand",
@@ -7245,7 +7269,12 @@
         "type": "activated",
         "storyName": "TAKE IT FOR A SPIN",
         "rulesText": "2 {I} – Chosen character of yours gains Evasive until the start of your next turn.",
-        "costs": [],
+        "costs": [
+          {
+            "type": "pay_ink",
+            "amount": 2
+          }
+        ],
         "effects": [
           {
             "type": "grant_keyword",

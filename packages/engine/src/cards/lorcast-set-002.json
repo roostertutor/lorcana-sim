@@ -1628,6 +1628,10 @@
         "costs": [
           {
             "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 3
           }
         ],
         "effects": [
