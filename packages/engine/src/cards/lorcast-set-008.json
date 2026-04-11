@@ -2897,16 +2897,8 @@
     "strength": 1,
     "willpower": 4,
     "lore": 1,
-    "rulesText": "Vanish (When an opponent chooses this character for an action, banish them.)",
     "flavorText": "\"All of the power of the normal guards, with none of the insolence.\" —Jafar",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d4c1ddfeea1142b192f7e289c5bb880d.avif?1747507381",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "Vanish (When an opponent chooses this character for an action, banish them.)",
-        "raw": "Vanish (When an opponent chooses this character for an action, banish them.)"
-      }
-    ]
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d4c1ddfeea1142b192f7e289c5bb880d.avif?1747507381"
   },
   {
     "id": "druun-ravenous-plague",
@@ -3200,7 +3192,7 @@
     "strength": 3,
     "willpower": 7,
     "lore": 1,
-    "rulesText": "Vanish (When an opponent chooses this character for an action, banish them.)\nGRASPING TRUNK Whenever this character quests, gain lore equal to the {L} of chosen opposing character.",
+    "rulesText": "GRASPING TRUNK Whenever this character quests, gain lore equal to the {L} of chosen opposing character.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_befc74dca10e458ba4a71a1f4ac05e7e.avif?1747507401",
     "_namedAbilityStubs": [
       {
@@ -4629,7 +4621,7 @@
     "strength": 5,
     "willpower": 5,
     "lore": 2,
-    "rulesText": "Vanish (When an opponent chooses this character for an action, banish them.)\nCOMMANDING PRESENCE Whenever one of your Illusion characters quests, exert chosen opposing character.",
+    "rulesText": "COMMANDING PRESENCE Whenever one of your Illusion characters quests, exert chosen opposing character.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_34f916796e6844d081bdebaa3f7df182.avif?1747508832",
     "_namedAbilityStubs": [
       {
@@ -11224,7 +11216,7 @@
     "strength": 2,
     "willpower": 4,
     "lore": 2,
-    "rulesText": "Vanish (When an opponent chooses this character for an action, banish them.)\nSPECTRAL FORCE Your other Illusion characters gain Challenger +1. (They get +1 {S} while challenging.)",
+    "rulesText": "SPECTRAL FORCE Your other Illusion characters gain Challenger +1. (They get +1 {S} while challenging.)",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_bbeb5ead52854a1d869e7e449dc6aee7.avif?1747509458",
     "_namedAbilityStubs": [
       {

@@ -1114,7 +1114,8 @@
     "abilities": [
       {
         "type": "keyword",
-        "keyword": "boost"
+        "keyword": "boost",
+        "value": 2
       },
       {
         "type": "static",
@@ -1155,7 +1156,7 @@
     "strength": 2,
     "willpower": 3,
     "lore": 2,
-    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nI NEED MORE THUNDERBOLTS! While there’s a card under this character, he gets +2 {S} and +2 {W}.",
+    "rulesText": "I NEED MORE THUNDERBOLTS! While there’s a card under this character, he gets +2 {S} and +2 {W}.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_0f0a7394cf61476f96019519408f113f.avif?1773508792",
     "_namedAbilityStubs": [
       {
@@ -1299,7 +1300,8 @@
     "abilities": [
       {
         "type": "keyword",
-        "keyword": "boost"
+        "keyword": "boost",
+        "value": 2
       },
       {
         "type": "triggered",
@@ -1341,7 +1343,7 @@
     "strength": 6,
     "willpower": 5,
     "lore": 2,
-    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nSURVIVAL OF THE FITTEST Whenever you put a card under this character, chosen opposing character gets -5 {S} this turn.",
+    "rulesText": "SURVIVAL OF THE FITTEST Whenever you put a card under this character, chosen opposing character gets -5 {S} this turn.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b01f04a5debe45f7b1796f0deeabd427.avif?1773508808",
     "_namedAbilityStubs": [
       {
@@ -1628,7 +1630,8 @@
     "abilities": [
       {
         "type": "keyword",
-        "keyword": "boost"
+        "keyword": "boost",
+        "value": 2
       },
       {
         "type": "triggered",
@@ -1668,7 +1671,7 @@
     "strength": 2,
     "willpower": 5,
     "lore": 2,
-    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nUPLIFTING AURA Whenever this character quests, if there’s a card under her, remove up to 3 damage from each of your characters.",
+    "rulesText": "UPLIFTING AURA Whenever this character quests, if there’s a card under her, remove up to 3 damage from each of your characters.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5aabca3fd6de4f3d9f7dcd53dd091739.avif?1773508836",
     "_namedAbilityStubs": [
       {

@@ -1309,7 +1309,8 @@
     "abilities": [
       {
         "type": "keyword",
-        "keyword": "boost"
+        "keyword": "boost",
+        "value": 2
       },
       {
         "type": "triggered",
@@ -1346,7 +1347,7 @@
     "strength": 3,
     "willpower": 5,
     "lore": 1,
-    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nCOME SEE! During your turn, whenever this character exerts, reveal a number of cards from the top of your deck equal to the number of cards under him. Put all revealed character cards into your hand. Put the rest on the bottom of your deck in any order.",
+    "rulesText": "COME SEE! During your turn, whenever this character exerts, reveal a number of cards from the top of your deck equal to the number of cards under him. Put all revealed character cards into your hand. Put the rest on the bottom of your deck in any order.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_33a165a8153e4ba587d52961bca86f79.avif?1770259306",
     "_namedAbilityStubs": [
       {
@@ -1942,7 +1943,8 @@
     "abilities": [
       {
         "type": "keyword",
-        "keyword": "boost"
+        "keyword": "boost",
+        "value": 2
       },
       {
         "type": "triggered",
@@ -1968,7 +1970,7 @@
     "strength": 4,
     "willpower": 4,
     "lore": 1,
-    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nMYSTICAL INSIGHT Whenever this character quests, put all cards from under her into your hand.",
+    "rulesText": "MYSTICAL INSIGHT Whenever this character quests, put all cards from under her into your hand.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4328715a70224a1fae6ee75034f305fa.avif?1770259362",
     "_namedAbilityStubs": [
       {
@@ -2697,15 +2699,7 @@
     "strength": 3,
     "willpower": 4,
     "lore": 1,
-    "rulesText": "Boost 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.) INCREASING WISDOM This character gets +1 {L} for each card under him.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_0f1e171e26c9423aa264732a2e38dd7f.avif?1770259420",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "Boost 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.) INCREASING WISDOM This character gets +1 {L} for each card under him.",
-        "raw": "Boost 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.) INCREASING WISDOM This character gets +1 {L} for each card under him."
-      }
-    ]
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_0f1e171e26c9423aa264732a2e38dd7f.avif?1770259420"
   },
   {
     "id": "anna-soothing-sister",
@@ -4439,7 +4433,8 @@
     "abilities": [
       {
         "type": "keyword",
-        "keyword": "boost"
+        "keyword": "boost",
+        "value": 2
       },
       {
         "type": "triggered",
@@ -4467,7 +4462,7 @@
     "strength": 4,
     "willpower": 4,
     "lore": 2,
-    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nGRAVE OUTCOME When this character is banished, each opponent chooses and discards a card for each card that was under him.",
+    "rulesText": "GRAVE OUTCOME When this character is banished, each opponent chooses and discards a card for each card that was under him.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_6a38f391cffc44ce8c818845eec37f01.avif?1770259573",
     "_namedAbilityStubs": [
       {
@@ -5820,7 +5815,7 @@
     "strength": 3,
     "willpower": 4,
     "lore": 3,
-    "rulesText": "Boost 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)\nPOWERED UP This character gets +1 {S} for each card under him.\nWHO'S COMIN' WITH ME? When this character is banished, banish all characters with {S} equal to or less than the {S} he had in play.",
+    "rulesText": "POWERED UP This character gets +1 {S} for each card under him.\nWHO'S COMIN' WITH ME? When this character is banished, banish all characters with {S} equal to or less than the {S} he had in play.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_cb5f4cea3a664d12952b12a0a30fbbf3.avif?1770259662",
     "_namedAbilityStubs": [
       {
@@ -5853,7 +5848,8 @@
     "abilities": [
       {
         "type": "keyword",
-        "keyword": "boost"
+        "keyword": "boost",
+        "value": 1
       },
       {
         "type": "static",
@@ -5890,7 +5886,7 @@
     "strength": 3,
     "willpower": 3,
     "lore": 1,
-    "rulesText": "Boost 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)\nCOUNTING COINS This character gets +1 {S} and +1 {W} for each card under him.",
+    "rulesText": "COUNTING COINS This character gets +1 {S} and +1 {W} for each card under him.",
     "flavorText": "This grim future is but one possibility.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4209198480ed495d9d5ed7608ece035f.avif?1770259667",
     "_namedAbilityStubs": [
@@ -6475,7 +6471,8 @@
     "abilities": [
       {
         "type": "keyword",
-        "keyword": "boost"
+        "keyword": "boost",
+        "value": 2
       },
       {
         "type": "static",
@@ -6501,7 +6498,7 @@
     "strength": 0,
     "willpower": 3,
     "lore": 1,
-    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nSUPERHUMAN STRENGTH While there’s a card under this character, he gets +3 {S}.",
+    "rulesText": "SUPERHUMAN STRENGTH While there’s a card under this character, he gets +3 {S}.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_993a0b8e1985452d8ea6f90459a6e294.avif?1770259726",
     "_namedAbilityStubs": [
       {
@@ -7077,7 +7074,8 @@
     "abilities": [
       {
         "type": "keyword",
-        "keyword": "boost"
+        "keyword": "boost",
+        "value": 3
       },
       {
         "type": "static",
@@ -7117,7 +7115,7 @@
     "strength": 7,
     "willpower": 7,
     "lore": 2,
-    "rulesText": "Boost 3 {I} (Once during your turn, you may pay 3 {I} to put the top card of your deck facedown under this character.)\nTHE FOOD OF GENEROSITY This character can’t quest or challenge unless you put a card under him this turn.",
+    "rulesText": "THE FOOD OF GENEROSITY This character can’t quest or challenge unless you put a card under him this turn.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f472ec7c6a294a6498f3788b189472c4.avif?1770259766",
     "_namedAbilityStubs": [
       {
@@ -7558,14 +7556,9 @@
     "willpower": 4,
     "lore": 1,
     "moveCost": 1,
-    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this location.)\nGood Business This location gets +1 {W} and +1 {L} for each card under it.",
+    "rulesText": "Good Business This location gets +1 {W} and +1 {L} for each card under it.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_889f6b26a5a746d6a6cbe4139412855a.avif?1770259803",
     "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this location.)",
-        "raw": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this location.)"
-      },
       {
         "storyName": "",
         "rulesText": "Good Business This location gets +1 {W} and +1 {L} for each card under it.",
@@ -7785,7 +7778,8 @@
     "abilities": [
       {
         "type": "keyword",
-        "keyword": "boost"
+        "keyword": "boost",
+        "value": 2
       },
       {
         "type": "static",
@@ -7811,7 +7805,7 @@
     "strength": 5,
     "willpower": 5,
     "lore": 2,
-    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nEXTRA HELP While there’s a card under this character, she gets +1 {L}.",
+    "rulesText": "EXTRA HELP While there’s a card under this character, she gets +1 {L}.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9f1b0784cd5e4536bad1c85dabbd1943.avif?1770259822",
     "_namedAbilityStubs": [
       {
@@ -7928,16 +7922,8 @@
     "strength": 2,
     "willpower": 1,
     "lore": 1,
-    "rulesText": "Alert (This character can challenge as if they had Evasive.)",
     "flavorText": "Sometimes, people just need to know there's someone watching over them.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_6f3a637fc61e4ad084fc878c55ff543c.avif?1770259839",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "Alert (This character can challenge as if they had Evasive.)",
-        "raw": "Alert (This character can challenge as if they had Evasive.)"
-      }
-    ]
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_6f3a637fc61e4ad084fc878c55ff543c.avif?1770259839"
   },
   {
     "id": "honker-muddlefoot-timid-genius",
@@ -8072,7 +8058,8 @@
     "abilities": [
       {
         "type": "keyword",
-        "keyword": "boost"
+        "keyword": "boost",
+        "value": 2
       },
       {
         "type": "triggered",
@@ -8112,7 +8099,7 @@
     "strength": 3,
     "willpower": 4,
     "lore": 1,
-    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nLOOK INTO YOUR PAST Whenever you put a card under this character, you may put a card from your discard into your inkwell facedown and exerted.",
+    "rulesText": "LOOK INTO YOUR PAST Whenever you put a card under this character, you may put a card from your discard into your inkwell facedown and exerted.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7d28f2a0002d4255a41bd0f03d6d8ea5.avif?1770259857",
     "_namedAbilityStubs": [
       {
@@ -8586,7 +8573,8 @@
     "abilities": [
       {
         "type": "keyword",
-        "keyword": "boost"
+        "keyword": "boost",
+        "value": 1
       },
       {
         "type": "triggered",
@@ -8614,7 +8602,7 @@
     "strength": 5,
     "willpower": 5,
     "lore": 1,
-    "rulesText": "Boost 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)\nFOREBODING GLANCE Whenever this character quests, look at a number of cards from the top of your deck equal to the number of cards under him. Put one into your hand and put the rest on the bottom of your deck in any order.",
+    "rulesText": "FOREBODING GLANCE Whenever this character quests, look at a number of cards from the top of your deck equal to the number of cards under him. Put one into your hand and put the rest on the bottom of your deck in any order.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_cc4685ee359648a9b100d7a20c00ee5f.avif?1770259895",
     "_namedAbilityStubs": [
       {
@@ -8685,7 +8673,8 @@
     "abilities": [
       {
         "type": "keyword",
-        "keyword": "boost"
+        "keyword": "boost",
+        "value": 2
       },
       {
         "type": "keyword",
@@ -8722,7 +8711,7 @@
     "strength": 6,
     "willpower": 6,
     "lore": 1,
-    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nANYTHING THAT GLITTERS Whenever you put a card under one of your characters or locations, this character gets +1 {L} this turn.",
+    "rulesText": "ANYTHING THAT GLITTERS Whenever you put a card under one of your characters or locations, this character gets +1 {L} this turn.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_1ec6bad52ccc4a4facc7bbe7e7aa6c53.avif?1770259904",
     "_namedAbilityStubs": [
       {
@@ -9612,7 +9601,8 @@
     "abilities": [
       {
         "type": "keyword",
-        "keyword": "boost"
+        "keyword": "boost",
+        "value": 2
       },
       {
         "type": "triggered",
@@ -9652,7 +9642,7 @@
     "strength": 3,
     "willpower": 3,
     "lore": 2,
-    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nCLONK! Whenever this character quests, if there’s a card under her, chosen opposing character can’t challenge until the start of your next turn.",
+    "rulesText": "CLONK! Whenever this character quests, if there’s a card under her, chosen opposing character can’t challenge until the start of your next turn.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_1416db548e594c8baff2fab420ae3c59.avif?1770259969",
     "_namedAbilityStubs": [
       {
@@ -10057,16 +10047,8 @@
     "strength": 6,
     "willpower": 4,
     "lore": 1,
-    "rulesText": "Alert (This character can challenge as if they had Evasive.)",
     "flavorText": "\"I heard two of them foxes skitterin' about. Shouldn't be long now...\"",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_da80d9da41e84566969a1c1585dfc75c.avif?1770260009",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "Alert (This character can challenge as if they had Evasive.)",
-        "raw": "Alert (This character can challenge as if they had Evasive.)"
-      }
-    ]
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_da80d9da41e84566969a1c1585dfc75c.avif?1770260009"
   },
   {
     "id": "mchorn-ice-cold-officer",
@@ -10580,7 +10562,7 @@
     "strength": 2,
     "willpower": 4,
     "lore": 1,
-    "rulesText": "Alert (This character can challenge as if they had Evasive.)\nSO PRETTY While this character has no damage, she gets +2 {S}.",
+    "rulesText": "SO PRETTY While this character has no damage, she gets +2 {S}.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a1e3f0b6249140fcbab13e33ef76fba8.avif?1770260046",
     "_namedAbilityStubs": [
       {
@@ -11818,7 +11800,7 @@
     "strength": 3,
     "willpower": 4,
     "lore": 1,
-    "rulesText": "Boost 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)\nINCREASING WISDOM This character gets +1 {L} for each card under him.",
+    "rulesText": "INCREASING WISDOM This character gets +1 {L} for each card under him.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_13f9925099454b7a8fd6225381d11061.avif?1770260144",
     "_namedAbilityStubs": [
       {
@@ -12044,7 +12026,8 @@
     "abilities": [
       {
         "type": "keyword",
-        "keyword": "boost"
+        "keyword": "boost",
+        "value": 2
       },
       {
         "type": "static",
@@ -12070,7 +12053,7 @@
     "strength": 0,
     "willpower": 3,
     "lore": 1,
-    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nSUPERHUMAN STRENGTH While there’s a card under this character, he gets +3 {S}.",
+    "rulesText": "SUPERHUMAN STRENGTH While there’s a card under this character, he gets +3 {S}.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_366f46e2c0bc4366832935158a49cdb4.avif?1770260174",
     "_namedAbilityStubs": [
       {
@@ -12274,7 +12257,8 @@
     "abilities": [
       {
         "type": "keyword",
-        "keyword": "boost"
+        "keyword": "boost",
+        "value": 2
       },
       {
         "type": "triggered",
@@ -12314,7 +12298,7 @@
     "strength": 3,
     "willpower": 4,
     "lore": 1,
-    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nLOOK INTO YOUR PAST Whenever you put a card under this character, you may put a card from your discard into your inkwell facedown and exerted.",
+    "rulesText": "LOOK INTO YOUR PAST Whenever you put a card under this character, you may put a card from your discard into your inkwell facedown and exerted.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_ea1ae83b3c414a2a838398390473ebc6.avif?1770260189",
     "_namedAbilityStubs": [
       {
@@ -12533,7 +12517,8 @@
     "abilities": [
       {
         "type": "keyword",
-        "keyword": "boost"
+        "keyword": "boost",
+        "value": 2
       },
       {
         "type": "triggered",
@@ -12573,7 +12558,7 @@
     "strength": 3,
     "willpower": 3,
     "lore": 2,
-    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nCLONK! Whenever this character quests, if there's a card under her, chosen opposing character can't challenge until the start of your next turn.",
+    "rulesText": "CLONK! Whenever this character quests, if there's a card under her, chosen opposing character can't challenge until the start of your next turn.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b3924beae9a04927adc0e542f5656aa0.avif?1770260206",
     "_namedAbilityStubs": [
       {
@@ -13511,7 +13496,8 @@
     "abilities": [
       {
         "type": "keyword",
-        "keyword": "boost"
+        "keyword": "boost",
+        "value": 2
       },
       {
         "type": "keyword",
@@ -13548,7 +13534,7 @@
     "strength": 6,
     "willpower": 6,
     "lore": 1,
-    "rulesText": "Boost 2 {I}\nANYTHING THAT GLITTERS Whenever you put a card under one of your characters or locations, this character gets +1 {L} this turn.",
+    "rulesText": "ANYTHING THAT GLITTERS Whenever you put a card under one of your characters or locations, this character gets +1 {L} this turn.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_82807328c2514c0d8f22366b4720a583.avif?1770260283",
     "_namedAbilityStubs": [
       {

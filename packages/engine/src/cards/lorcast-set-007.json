@@ -2827,15 +2827,7 @@
     "strength": 4,
     "willpower": 6,
     "lore": 1,
-    "rulesText": "Vanish (When an opponent chooses this character for an action, banish them.)",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9510a7439adc4dc5b1f444e37334a32e.avif?1740589294",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "Vanish (When an opponent chooses this character for an action, banish them.)",
-        "raw": "Vanish (When an opponent chooses this character for an action, banish them.)"
-      }
-    ]
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9510a7439adc4dc5b1f444e37334a32e.avif?1740589294"
   },
   {
     "id": "chernabog-creature-of-the-night",
@@ -3391,7 +3383,7 @@
     "strength": 4,
     "willpower": 4,
     "lore": 1,
-    "rulesText": "Vanish (When an opponent chooses this character for an action, banish them.)\nMYSTERIOUS ADVANTAGE When you play this character, you may choose and discard a card to gain 2 lore.",
+    "rulesText": "MYSTERIOUS ADVANTAGE When you play this character, you may choose and discard a card to gain 2 lore.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e83395def01e4f76b670fd014c79d440.avif?1740589325",
     "_namedAbilityStubs": [
       {
@@ -3596,16 +3588,8 @@
     "strength": 3,
     "willpower": 3,
     "lore": 1,
-    "rulesText": "Vanish (When an opponent chooses this character for an action, banish them.)",
     "flavorText": "He may be spectral, but the danger is very real.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_85bc31bc75a34ebcbcfc164e701ae6ef.avif?1740589344",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "Vanish (When an opponent chooses this character for an action, banish them.)",
-        "raw": "Vanish (When an opponent chooses this character for an action, banish them.)"
-      }
-    ]
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_85bc31bc75a34ebcbcfc164e701ae6ef.avif?1740589344"
   },
   {
     "id": "kronk-laid-back",

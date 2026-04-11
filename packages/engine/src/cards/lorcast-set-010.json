@@ -86,7 +86,7 @@
     "strength": 3,
     "willpower": 3,
     "lore": 1,
-    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nTOP THAT! Whenever this character quests, if there's a card under him, chosen opposing character can't challenge and must quest if able during their next turn.",
+    "rulesText": "TOP THAT! Whenever this character quests, if there's a card under him, chosen opposing character can't challenge and must quest if able during their next turn.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_429e35bda1a141a9870b8943f8847109.avif?1761751904",
     "_namedAbilityStubs": [
       {
@@ -768,7 +768,7 @@
     "strength": 3,
     "willpower": 4,
     "lore": 2,
-    "rulesText": "Boost 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)\nCOMMAND PERFORMANCE Once during your turn, whenever you play a song, if there's a card under this character, you may draw a card.",
+    "rulesText": "COMMAND PERFORMANCE Once during your turn, whenever you play a song, if there's a card under this character, you may draw a card.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_43c967fc98154d6f86b8ac05b8953c10.avif?1761752005",
     "_namedAbilityStubs": [
       {
@@ -963,7 +963,7 @@
     "strength": 5,
     "willpower": 5,
     "lore": 3,
-    "rulesText": "Boost 3 {I} (Once during your turn, you may pay 3 {I} to put the top card of your deck facedown under this character.)\nTIMELY ALLIANCE Whenever you put a card under this character, you may reveal the top card of your deck. If it's a character card, you may play that character for free and they enter play exerted. Otherwise, put it on the bottom of your deck.",
+    "rulesText": "TIMELY ALLIANCE Whenever you put a card under this character, you may reveal the top card of your deck. If it's a character card, you may play that character for free and they enter play exerted. Otherwise, put it on the bottom of your deck.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_01ba964bb84745b09a29da266cddccfd.avif?1761752019",
     "_namedAbilityStubs": [
       {
@@ -3233,7 +3233,7 @@
     "strength": 0,
     "willpower": 3,
     "lore": 2,
-    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nLEGACY OF LEARNING When this character is banished in a challenge, if he had a card under him, draw 2 cards.",
+    "rulesText": "LEGACY OF LEARNING When this character is banished in a challenge, if he had a card under him, draw 2 cards.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7e7bbc5fda91421c9950368d5fee65ad.avif?1761752198",
     "_namedAbilityStubs": [
       {
@@ -3298,7 +3298,7 @@
     "strength": 4,
     "willpower": 5,
     "lore": 2,
-    "rulesText": "Boost 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)\nSLIPPERY SPELL While there's a card under this character, she gets +1 {L} and gains Evasive. (Only characters with Evasive can challenge them.)",
+    "rulesText": "SLIPPERY SPELL While there's a card under this character, she gets +1 {L} and gains Evasive. (Only characters with Evasive can challenge them.)",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_340e919c6c0647b89636411cc834debc.avif?1761752203",
     "_namedAbilityStubs": [
       {
@@ -3373,7 +3373,7 @@
     "strength": 3,
     "willpower": 4,
     "lore": 1,
-    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nIT'S LOADS OF FUN Whenever you put a card under this character, you may move up to 2 damage counters from chosen character to chosen opposing character.",
+    "rulesText": "IT'S LOADS OF FUN Whenever you put a card under this character, you may move up to 2 damage counters from chosen character to chosen opposing character.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_19c39ba1fb674390bbb747f8cdcaa9c3.avif?1761752209",
     "_namedAbilityStubs": [
       {
@@ -4438,7 +4438,7 @@
     "strength": 1,
     "willpower": 2,
     "lore": 1,
-    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck face down under this character.)\nI'LL TAKE THAT As long as this character has at least one card under it, it gets +2 {S} and +1 {L}.",
+    "rulesText": "I'LL TAKE THAT As long as this character has at least one card under it, it gets +2 {S} and +1 {L}.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e24a3ebbac57485091abad86f0e5064f.avif?1761752331",
     "_namedAbilityStubs": [
       {
@@ -4725,7 +4725,7 @@
     "strength": 3,
     "willpower": 4,
     "lore": 1,
-    "rulesText": "Boost 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)\nI'LL BE FINE While there's a card under this character, she gets +1 {L} and gains \"Whenever this character is challenged, each opponent chooses and discards a card.\"",
+    "rulesText": "I'LL BE FINE While there's a card under this character, she gets +1 {L} and gains \"Whenever this character is challenged, each opponent chooses and discards a card.\"",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_fb78388845f54934a97c596a774bb98f.avif?1761752351",
     "_namedAbilityStubs": [
       {
@@ -5191,7 +5191,7 @@
     "strength": 4,
     "willpower": 5,
     "lore": 3,
-    "rulesText": "Boost 3 {I} (Once during your turn, you may pay 3 {I} to put the top card of your deck facedown under this character.)\nREADY TO RASSLE Whenever you put a card under this character, ready him.",
+    "rulesText": "READY TO RASSLE Whenever you put a card under this character, ready him.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b3668f2df08949359912fa775c750a52.avif?1761752377",
     "_namedAbilityStubs": [
       {
@@ -6214,7 +6214,7 @@
     "strength": 3,
     "willpower": 2,
     "lore": 1,
-    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nTHAT'S MINE Whenever he challenges another character, if there's a card under this character, each opponent loses 1 lore and you gain 1 lore.",
+    "rulesText": "THAT'S MINE Whenever he challenges another character, if there's a card under this character, each opponent loses 1 lore and you gain 1 lore.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4686c4ed63c846719806ece46f1cc106.avif?1761763622",
     "_namedAbilityStubs": [
       {
@@ -6964,7 +6964,7 @@
     "strength": 4,
     "willpower": 4,
     "lore": 0,
-    "rulesText": "Boost 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)\nONLY THE BOLD While there's a card under this character, your characters with Reckless gain \"{E} — Gain 1 lore.\"",
+    "rulesText": "ONLY THE BOLD While there's a card under this character, your characters with Reckless gain \"{E} — Gain 1 lore.\"",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_6c9828a835ab4902adfb20bd744bf3a6.avif?1761763664",
     "_namedAbilityStubs": [
       {
@@ -7030,7 +7030,7 @@
     "strength": 5,
     "willpower": 4,
     "lore": 2,
-    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nEXPEDIENT SCHEMES Whenever this character quests, if you've put a card under her this turn, you may play an action with cost 5 or less from your discard for free, then put that action card on the bottom of your deck instead of into your discard.",
+    "rulesText": "EXPEDIENT SCHEMES Whenever this character quests, if you've put a card under her this turn, you may play an action with cost 5 or less from your discard for free, then put that action card on the bottom of your deck instead of into your discard.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5e356ee21c484c87bcd2f4197dc637ac.avif?1761763668",
     "_namedAbilityStubs": [
       {
@@ -8041,16 +8041,8 @@
     "strength": 3,
     "willpower": 2,
     "lore": 1,
-    "rulesText": "Alert (This character can challenge as if they had Evasive.)",
     "flavorText": "\"Small glimmers may feel safe in the jungle around the Mysterious Ruins, where they can easily go unnoticed.\" —Hana's Herborium",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7b35f4aed143419a821f8426d17be7bf.avif?1761764372",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "Alert (This character can challenge as if they had Evasive.)",
-        "raw": "Alert (This character can challenge as if they had Evasive.)"
-      }
-    ]
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7b35f4aed143419a821f8426d17be7bf.avif?1761764372"
   },
   {
     "id": "rapunzel-creative-captor",
@@ -8363,7 +8355,7 @@
     "strength": 2,
     "willpower": 5,
     "lore": 2,
-    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nUPLIFTING AURA Whenever this character quests, if there’s a card under her, remove up to 3 damage from each of your characters.",
+    "rulesText": "UPLIFTING AURA Whenever this character quests, if there’s a card under her, remove up to 3 damage from each of your characters.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_19f087c81e534ceda53b510446d75965.avif?1761764480",
     "_namedAbilityStubs": [
       {
@@ -8600,7 +8592,7 @@
     "strength": 6,
     "willpower": 5,
     "lore": 2,
-    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nSURVIVAL OF THE FITTEST Whenever you put a card under this character, chosen opposing character gets -5 {S} this turn.",
+    "rulesText": "SURVIVAL OF THE FITTEST Whenever you put a card under this character, chosen opposing character gets -5 {S} this turn.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f2674e110de64c81ae9b07068364c22d.avif?1761764538",
     "_namedAbilityStubs": [
       {
@@ -9012,7 +9004,7 @@
     "strength": 2,
     "willpower": 3,
     "lore": 2,
-    "rulesText": "Boost 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)\nWORTH MINING Whenever this character quests, if there's a card under him, put the top card of your deck into your inkwell facedown and exerted.",
+    "rulesText": "WORTH MINING Whenever this character quests, if there's a card under him, put the top card of your deck into your inkwell facedown and exerted.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_6372a1b64e1644ab8824221d8bd0cb72.avif?1761764564",
     "_namedAbilityStubs": [
       {
@@ -9673,7 +9665,7 @@
     "strength": 2,
     "willpower": 4,
     "lore": 2,
-    "rulesText": "Boost 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)\nEXPERT SHOT Whenever this character quests, if there's a card under him, deal 1 damage to up to 2 chosen characters.",
+    "rulesText": "EXPERT SHOT Whenever this character quests, if there's a card under him, deal 1 damage to up to 2 chosen characters.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3881a0b53f854152ad578f5151143244.avif?1761764698",
     "_namedAbilityStubs": [
       {
@@ -10271,7 +10263,7 @@
     "strength": 4,
     "willpower": 4,
     "lore": 1,
-    "rulesText": "Alert (This character can challenge as if they had Evasive.)\nSTONE BY DAY If you have 3 or more cards in your hand, this character can't ready.",
+    "rulesText": "STONE BY DAY If you have 3 or more cards in your hand, this character can't ready.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_59040c22431844d18165c4f7e1c5ac2a.avif?1761764823",
     "_namedAbilityStubs": [
       {
@@ -10872,7 +10864,7 @@
     "strength": 3,
     "willpower": 5,
     "lore": 1,
-    "rulesText": "Boost 3 {I} (Once during your turn, you may pay 3 {I} to put the top card of your deck facedown under this character.)\nSTUNNING TRANSFORMATION Whenever you put a card under this character, you may banish chosen opposing character. If you do, their player may reveal the top card of their deck. If that card is a character or item card, they may play it for free. Otherwise, they put it on the bottom of their deck.",
+    "rulesText": "STUNNING TRANSFORMATION Whenever you put a card under this character, you may banish chosen opposing character. If you do, their player may reveal the top card of their deck. If that card is a character or item card, they may play it for free. Otherwise, they put it on the bottom of their deck.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_96d8b0484c8441f0a214eee856f60f35.avif?1761764884",
     "_namedAbilityStubs": [
       {
@@ -10938,7 +10930,7 @@
     "strength": 2,
     "willpower": 3,
     "lore": 2,
-    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nI NEED MORE THUNDERBOLTS! While there's a card under this character, he gets +2 {S} and +2 {W}.",
+    "rulesText": "I NEED MORE THUNDERBOLTS! While there's a card under this character, he gets +2 {S} and +2 {W}.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_0e33059eee7d4f39a4082bb9b1211660.avif?1761764889",
     "_namedAbilityStubs": [
       {
@@ -11780,7 +11772,7 @@
     "strength": 3,
     "willpower": 3,
     "lore": 1,
-    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nTOP THAT! Whenever this character quests, if there's a card under him, chosen opposing character can't challenge and must quest if able during their next turn.",
+    "rulesText": "TOP THAT! Whenever this character quests, if there's a card under him, chosen opposing character can't challenge and must quest if able during their next turn.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_22fb811c179742f6b17bead54e0d68f2.avif?1761765077",
     "_namedAbilityStubs": [
       {
@@ -11938,7 +11930,7 @@
     "strength": 0,
     "willpower": 3,
     "lore": 2,
-    "rulesText": "Boost 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nLEGACY OF LEARNING When this character is banished in a challenge, if he had a card under him, draw 2 cards.",
+    "rulesText": "LEGACY OF LEARNING When this character is banished in a challenge, if he had a card under him, draw 2 cards.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d51cdd2a1d904e03adb5e255a2b53a22.avif?1761765172",
     "_namedAbilityStubs": [
       {
@@ -12147,14 +12139,9 @@
     "strength": 3,
     "willpower": 4,
     "lore": 1,
-    "rulesText": "Boost 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)\nI’LL BE FINE While there’s a card under this character, she gets +1 {L} and gains \"Whenever this character is challenged, each opponent chooses and discards a card.\"",
+    "rulesText": "I’LL BE FINE While there’s a card under this character, she gets +1 {L} and gains \"Whenever this character is challenged, each opponent chooses and discards a card.\"",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_78c11305e1674d348fe8839940f029a5.avif?1761765245",
     "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "Boost 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)",
-        "raw": "Boost 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)"
-      },
       {
         "storyName": "",
         "rulesText": "I’LL BE FINE While there’s a card under this character, she gets +1 {L} and gains \"Whenever this character is challenged, each opponent chooses and discards a card.\"",
@@ -12305,7 +12292,7 @@
     "strength": 4,
     "willpower": 4,
     "lore": 0,
-    "rulesText": "Boost 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)\nONLY THE BOLD While there's a card under this character, your characters with Reckless gain \" {E} — Gain 1 lore.\"",
+    "rulesText": "ONLY THE BOLD While there's a card under this character, your characters with Reckless gain \" {E} — Gain 1 lore.\"",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_eca465c4f9f6483db912ae876f8011ce.avif?1761765376",
     "_namedAbilityStubs": [
       {
@@ -12391,15 +12378,7 @@
     "strength": 2,
     "willpower": 3,
     "lore": 2,
-    "rulesText": "Boost 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.) WORTH MINING Whenever this character quests, if there's a card under him, put the top card of your deck into your inkwell facedown and exerted.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c74126bc80ba4d52bc7c499ba67dce25.avif?1761765466",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "Boost 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.) WORTH MINING Whenever this character quests, if there's a card under him, put the top card of your deck into your inkwell facedown and exerted.",
-        "raw": "Boost 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.) WORTH MINING Whenever this character quests, if there's a card under him, put the top card of your deck into your inkwell facedown and exerted."
-      }
-    ]
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c74126bc80ba4d52bc7c499ba67dce25.avif?1761765466"
   },
   {
     "id": "sudden-scare",
@@ -12568,7 +12547,7 @@
     "strength": 2,
     "willpower": 4,
     "lore": 2,
-    "rulesText": "Boost 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)\nEXPERT SHOT Whenever this character quests, if there's a card under him, deal 1 damage to up to 2 chosen characters.",
+    "rulesText": "EXPERT SHOT Whenever this character quests, if there's a card under him, deal 1 damage to up to 2 chosen characters.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9a7e83a63b8444438f4bc7714df6faf9.avif?1761765525",
     "_namedAbilityStubs": [
       {
@@ -12798,7 +12777,7 @@
     "strength": 5,
     "willpower": 5,
     "lore": 3,
-    "rulesText": "Boost 3 {I}\nTIMELY ALLIANCE Whenever you put a card under this character, you may reveal the top card of your deck. If it's a character card, you may play that character for free and they enter play exerted. Otherwise, put it on the bottom of your deck.",
+    "rulesText": "TIMELY ALLIANCE Whenever you put a card under this character, you may reveal the top card of your deck. If it's a character card, you may play that character for free and they enter play exerted. Otherwise, put it on the bottom of your deck.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_54bfc0bd37f44871a4ef50193d58ca2c.avif?1761765611",
     "_namedAbilityStubs": [
       {
@@ -13438,7 +13417,7 @@
     "strength": 5,
     "willpower": 4,
     "lore": 2,
-    "rulesText": "Boost 2 {I}\nEXPEDIENT SCHEMES Whenever this character quests, if you've put a card under her this turn, you may play an action with cost 5 or less from your discard for free, then put that action card on the bottom of your deck instead of into your discard.",
+    "rulesText": "EXPEDIENT SCHEMES Whenever this character quests, if you've put a card under her this turn, you may play an action with cost 5 or less from your discard for free, then put that action card on the bottom of your deck instead of into your discard.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_ee5abfdfaa9d469e93dd20e1253ed1d0.avif?1761766696",
     "_namedAbilityStubs": [
       {
@@ -14029,7 +14008,7 @@
     "strength": 3,
     "willpower": 4,
     "lore": 2,
-    "rulesText": "Boost 1 {I}\nCOMMAND PERFORMANCE Once during your turn, whenever you play a song, if there's a card under this character, you may draw a card.",
+    "rulesText": "COMMAND PERFORMANCE Once during your turn, whenever you play a song, if there's a card under this character, you may draw a card.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5b53a4c5b3854ab0ba71dd388aaa0d9f.avif?1761766937",
     "_namedAbilityStubs": [
       {
