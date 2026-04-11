@@ -427,7 +427,6 @@ export interface GrantChallengeReadyEffect {
  */
 export type DynamicAmount =
   | number
-  | "X"
   | "cost_result"
   | "triggering_card_lore"
   | "triggering_card_damage"

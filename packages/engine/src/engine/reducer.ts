@@ -2112,7 +2112,6 @@ function resolveDynamicAmount(
 ): number {
   // Primitive variants
   if (typeof amount === "number") return amount;
-  if (amount === "X") return 1;
   if (amount === "cost_result") return state.lastEffectResult ?? 0;
   // "damage_on_target" was declared but never used by any card JSON. Deleted.
   if (amount === "triggering_card_lore") {
@@ -2315,7 +2314,7 @@ export function applyEffect(
       }
       if (effect.target.type === "chosen") {
         const choosingPlayerId = chosenChooserPlayerId(effect.target, controllingPlayerId);
-        const validTargets = findValidTargets(state, effect.target.filter, choosingPlayerId, definitions, sourceInstanceId);
+        const validTargets = findChosenTargets(state, effect.target.filter, choosingPlayerId, definitions, sourceInstanceId);
         // CRD 1.7.7: if no legal choices exist, the effect resolves with no effect
         if (validTargets.length === 0) return state;
         return {
@@ -2343,7 +2342,7 @@ export function applyEffect(
     case "banish": {
       if (effect.target.type === "chosen") {
         const choosingPlayerId = chosenChooserPlayerId(effect.target, controllingPlayerId);
-        const validTargets = findValidTargets(state, effect.target.filter, choosingPlayerId, definitions, sourceInstanceId);
+        const validTargets = findChosenTargets(state, effect.target.filter, choosingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state; // CRD 1.7.7
         return {
           ...state,
@@ -2383,7 +2382,7 @@ export function applyEffect(
     case "return_to_hand": {
       if (effect.target.type === "chosen") {
         const choosingPlayerId = chosenChooserPlayerId(effect.target, controllingPlayerId);
-        const validTargets = findValidTargets(state, effect.target.filter, choosingPlayerId, definitions, sourceInstanceId);
+        const validTargets = findChosenTargets(state, effect.target.filter, choosingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state; // CRD 1.7.7
         return {
           ...state,
@@ -2427,7 +2426,7 @@ export function applyEffect(
         return state;
       }
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        const validTargets = findChosenTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state; // CRD 1.7.7
         return {
           ...state,
@@ -2465,7 +2464,7 @@ export function applyEffect(
         return applyGainStatsToInstance(state, directGS, effect, controllingPlayerId, definitions);
       }
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        const validTargets = findChosenTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state; // CRD 1.7.7
         return {
           ...state,
@@ -2505,7 +2504,7 @@ export function applyEffect(
       const directDI = resolveDirectTarget(effect.target, state, sourceInstanceId, triggeringCardInstanceId);
       if (directDI) return addTimedEffect(state, directDI, timed);
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        const validTargets = findChosenTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state;
         return {
           ...state,
@@ -2539,7 +2538,7 @@ export function applyEffect(
         return addTimedEffect(state, sourceInstanceId, timed);
       }
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        const validTargets = findChosenTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state;
         return {
           ...state,
@@ -2656,7 +2655,7 @@ export function applyEffect(
           return moveCard(state, sourceInstanceId, inst.ownerId, "deck", "bottom");
         }
         if (target.type === "chosen") {
-          const validTargets = findValidTargets(state, target.filter, controllingPlayerId, definitions, sourceInstanceId);
+          const validTargets = findChosenTargets(state, target.filter, controllingPlayerId, definitions, sourceInstanceId);
           if (validTargets.length === 0) return state;
           return {
             ...state,
@@ -2769,7 +2768,7 @@ export function applyEffect(
           // available damage; if there is none, the reward (draw cost_result)
           // resolves to 0 and the effect fizzles cleanly.
         }
-        const validDestinations = findValidTargets(state, effect.destination.filter, controllingPlayerId, definitions, sourceInstanceId);
+        const validDestinations = findChosenTargets(state, effect.destination.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validDestinations.length === 0) {
           state = { ...state, lastEffectResult: 0 };
           return state;
@@ -2795,7 +2794,7 @@ export function applyEffect(
       // Stage 1: pick source character (must currently have damage; isUpTo
       // doesn't apply at filter time — we let any matching char be picked).
       const sourceFilter = { ...effect.source.filter, hasDamage: true };
-      const validSources = findValidTargets(state, sourceFilter, controllingPlayerId, definitions, sourceInstanceId);
+      const validSources = findChosenTargets(state, sourceFilter, controllingPlayerId, definitions, sourceInstanceId);
       if (validSources.length === 0) return state; // CRD 1.7.7
       return {
         ...state,
@@ -2818,7 +2817,7 @@ export function applyEffect(
       // Prospector SPECULATION). The chosen path surfaces a choose_target
       // pendingChoice and is resolved later in applyEffectToTarget.
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        const validTargets = findChosenTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state;
         return {
           ...state,
@@ -2967,7 +2966,7 @@ export function applyEffect(
       // under one of your characters or locations with Boost"). Surfaces a
       // choose_target on controller's in-play matching cards; resolution path
       // removes the source from play and appends it to the target's cardsUnder.
-      const validTargets = findValidTargets(state, effect.filter, controllingPlayerId, definitions, sourceInstanceId);
+      const validTargets = findChosenTargets(state, effect.filter, controllingPlayerId, definitions, sourceInstanceId);
       if (validTargets.length === 0) return state;
       return {
         ...state,
@@ -3017,7 +3016,7 @@ export function applyEffect(
       // follow-up gain_lore can pay per-character (Moana Kakamora Leader).
       if (effect.character.type === "all") {
         if (effect.location.type !== "chosen") return state;
-        const validLocations = findValidTargets(state, effect.location.filter, controllingPlayerId, definitions, sourceInstanceId);
+        const validLocations = findChosenTargets(state, effect.location.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validLocations.length === 0) return state;
         return {
           ...state,
@@ -3044,7 +3043,7 @@ export function applyEffect(
       } else if (effect.character.type === "chosen") {
         // Stage 1: present a choice for the character. The chosen-character then drives
         // stage 2 via applyEffectToTarget(move_character).
-        const validTargets = findValidTargets(state, effect.character.filter, controllingPlayerId, definitions, sourceInstanceId);
+        const validTargets = findChosenTargets(state, effect.character.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state; // CRD 1.7.7
         return {
           ...state,
@@ -3076,7 +3075,7 @@ export function applyEffect(
       }
       if (effect.location.type === "chosen") {
         // Edge case: character is "this"/"triggering_card" but location is "chosen".
-        const validLocations = findValidTargets(state, effect.location.filter, controllingPlayerId, definitions, sourceInstanceId);
+        const validLocations = findChosenTargets(state, effect.location.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validLocations.length === 0) return state;
         return {
           ...state,
@@ -3124,7 +3123,7 @@ export function applyEffect(
       }
       if (effect.target.type === "chosen") {
         const choosingPlayerId = chosenChooserPlayerId(effect.target, controllingPlayerId);
-        const validTargets = findValidTargets(state, effect.target.filter, choosingPlayerId, definitions, sourceInstanceId);
+        const validTargets = findChosenTargets(state, effect.target.filter, choosingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state; // CRD 1.7.7
         const count = effect.target.count ?? 1;
         return {
@@ -3171,7 +3170,7 @@ export function applyEffect(
       const directGK = resolveDirectTarget(effect.target, state, sourceInstanceId, triggeringCardInstanceId);
       if (directGK && state.cards[directGK]) return addTimedEffect(state, directGK, timedEffect);
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        const validTargets = findChosenTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state; // CRD 1.7.7
         return {
           ...state,
@@ -3216,7 +3215,7 @@ export function applyEffect(
         return state;
       }
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        const validTargets = findChosenTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state; // CRD 1.7.7
         return {
           ...state,
@@ -3272,7 +3271,7 @@ export function applyEffect(
       const directMQ = resolveDirectTarget(effect.target, state, sourceInstanceId, triggeringCardInstanceId);
       if (directMQ && state.cards[directMQ]) return addTimedEffect(state, directMQ, timedEffect);
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        const validTargets = findChosenTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state;
         return {
           ...state,
@@ -3308,7 +3307,7 @@ export function applyEffect(
         return addTimedEffect(state, sourceInstanceId, timedEffect);
       }
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        const validTargets = findChosenTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state; // CRD 1.7.7
         return {
           ...state,
@@ -3877,7 +3876,7 @@ export function applyEffect(
     // this field on each gameModifiers iteration, so the restriction lasts
     // exactly as long as the location is in play.
     case "remember_chosen_target": {
-      const validTargets = findValidTargets(state, effect.filter, controllingPlayerId, definitions, sourceInstanceId);
+      const validTargets = findChosenTargets(state, effect.filter, controllingPlayerId, definitions, sourceInstanceId);
       if (validTargets.length === 0) return state;
       return {
         ...state,
@@ -4193,7 +4192,7 @@ export function applyEffect(
       }
 
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        const validTargets = findChosenTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         return {
           ...state,
           pendingChoice: {
@@ -4210,7 +4209,7 @@ export function applyEffect(
 
     case "conditional_on_target": {
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        const validTargets = findChosenTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         return {
           ...state,
           pendingChoice: {
@@ -4381,7 +4380,7 @@ export function applyEffect(
       if (effect.target.type === "chosen") {
         // "any discard" = all discard piles
         const filter = effect.target.filter;
-        const validTargets = findValidTargets(state, filter, controllingPlayerId, definitions, sourceInstanceId);
+        const validTargets = findChosenTargets(state, filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state;
         return {
           ...state,
@@ -4480,7 +4479,7 @@ export function applyEffect(
         return addTimedEffect(state, directCR, timedEffect);
       }
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        const validTargets = findChosenTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state;
         return {
           ...state,
@@ -4500,7 +4499,7 @@ export function applyEffect(
     // cost to sing songs this turn.
     case "sing_cost_bonus_target": {
       if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        const validTargets = findChosenTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state;
         return {
           ...state,
@@ -4542,7 +4541,7 @@ export function applyEffect(
       // which character receives the floating trigger.
       if (effect.attachTo === "chosen") {
         const filter = effect.targetFilter ?? { owner: { type: "self" }, zone: "play", cardType: ["character"] };
-        const validTargets = findValidTargets(state, filter, controllingPlayerId, definitions, sourceInstanceId);
+        const validTargets = findChosenTargets(state, filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state;
         return {
           ...state,
@@ -5883,7 +5882,7 @@ function applyEffectToTarget(
         return state;
       }
       // Stage 1: targetInstanceId is the chosen SOURCE. Surface destination choice.
-      const validDests = findValidTargets(state, effect.destination.filter, controllingPlayerId, definitions, targetInstanceId)
+      const validDests = findChosenTargets(state, effect.destination.filter, controllingPlayerId, definitions, targetInstanceId)
         .filter(id => id !== targetInstanceId);
       if (validDests.length === 0) return state;
       return {
@@ -5918,7 +5917,7 @@ function applyEffectToTarget(
         // Stage 2: targetInstanceId is the just-resolved LOCATION. Surface
         // the multi-select character chooser. Excludes the location itself
         // and any character already at that location (no-op move per CRD).
-        const candidates = findValidTargets(state, effect.character.filter, controllingPlayerId, definitions, sourceInstanceId)
+        const candidates = findChosenTargets(state, effect.character.filter, controllingPlayerId, definitions, sourceInstanceId)
           .filter((id) => id !== targetInstanceId)
           .filter((id) => state.cards[id]?.atLocationInstanceId !== targetInstanceId);
         if (candidates.length === 0) return { ...state, lastEffectResult: 0 };
@@ -5949,7 +5948,7 @@ function applyEffectToTarget(
       }
       // Stage 1: targetInstanceId is the chosen character. Resolve the location side.
       if (effect.location.type === "chosen") {
-        let validLocations = findValidTargets(state, effect.location.filter, controllingPlayerId, definitions, targetInstanceId);
+        let validLocations = findChosenTargets(state, effect.location.filter, controllingPlayerId, definitions, targetInstanceId);
         // Sugar Rush Speedway "to ANOTHER location" — exclude the character's current location.
         const charInst = state.cards[targetInstanceId];
         const currentLoc = charInst?.atLocationInstanceId;
@@ -6241,6 +6240,35 @@ function findValidTargets(
     if (intersection.length > 0) return intersection;
   }
   return raw;
+}
+
+/** CRD 8.15.1: chosen-target enumeration. Same as findValidTargets but also
+ *  excludes opposing Ward characters — they can't be chosen by an opponent's
+ *  effect. Used wherever a `pendingChoice: { type: "choose_target" }` is
+ *  surfaced for a card target. NOT used for "all" / "each" sweeps, which
+ *  bypass Ward per CRD 8.15.2.
+ *
+ *  Without this, when the only candidate target is an opposing Ward
+ *  character, findValidTargets returns it as "valid", a PendingChoice gets
+ *  created, the validator rejects every choice, and bots loop forever
+ *  (the Let the Storm Rage On bug). With this, validTargets is empty and
+ *  the choose-target effect skips per CRD 1.7.7. */
+function findChosenTargets(
+  state: GameState,
+  filter: import("../types/index.js").CardFilter,
+  choosingPlayerId: PlayerID,
+  definitions: Record<string, CardDefinition>,
+  sourceInstanceId?: string
+): string[] {
+  return findValidTargets(state, filter, choosingPlayerId, definitions, sourceInstanceId)
+    .filter((id) => {
+      const inst = state.cards[id];
+      if (!inst) return false;
+      const def = definitions[inst.definitionId];
+      if (!def) return false;
+      if (inst.ownerId === choosingPlayerId) return true;
+      return !hasKeyword(inst, def, "ward");
+    });
 }
 
 /** CRD 1.8: Game state check — uses getLoreThreshold, never hardcodes 20.
