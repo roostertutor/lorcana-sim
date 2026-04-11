@@ -6533,10 +6533,10 @@
           "source": "challenge",
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "this_at_location"
           }
+        },
+        "condition": {
+          "type": "this_at_location"
         }
       }
     ],

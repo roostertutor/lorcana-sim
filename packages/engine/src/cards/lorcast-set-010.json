@@ -3514,7 +3514,8 @@
               "character"
             ],
             "isExerted": false
-          }
+          },
+          "chooser": "target_player"
         }
       }
     ]
@@ -7169,6 +7170,17 @@
           "target": {
             "type": "this"
           }
+        },
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            {
+              "type": "is_your_turn"
+            },
+            {
+              "type": "this_had_card_put_under_this_turn"
+            }
+          ]
         }
       }
     ],
@@ -12201,6 +12213,17 @@
           "target": {
             "type": "this"
           }
+        },
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            {
+              "type": "is_your_turn"
+            },
+            {
+              "type": "this_had_card_put_under_this_turn"
+            }
+          ]
         }
       }
     ],

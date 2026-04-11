@@ -11405,7 +11405,7 @@
         "type": "deal_damage",
         "amount": 4,
         "target": {
-          "type": "all",
+          "type": "chosen",
           "filter": {
             "owner": {
               "type": "opponent"
@@ -11414,7 +11414,8 @@
             "cardType": [
               "character"
             ]
-          }
+          },
+          "chooser": "target_player"
         }
       }
     ]

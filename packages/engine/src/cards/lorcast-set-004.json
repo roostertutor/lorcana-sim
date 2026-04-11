@@ -10975,16 +10975,16 @@
         "amount": 2,
         "target": {
           "type": "chosen",
-          "chooser": "target_player",
           "filter": {
             "owner": {
-              "type": "self"
+              "type": "opponent"
             },
             "zone": "play",
             "cardType": [
               "character"
             ]
-          }
+          },
+          "chooser": "target_player"
         }
       }
     ]

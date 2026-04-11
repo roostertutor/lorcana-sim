@@ -3479,6 +3479,20 @@
         "target": {
           "type": "self"
         }
+      },
+      {
+        "type": "shuffle_into_deck",
+        "target": {
+          "type": "chosen",
+          "count": 3,
+          "filter": {
+            "zone": "discard",
+            "owner": {
+              "type": "opponent"
+            }
+          }
+        },
+        "isMay": true
       }
     ]
   },

@@ -389,7 +389,10 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   remove_damage:  (e) => `${maybe(e)}remove ${up(e)}${typeof e.amount === "number" ? e.amount : renderAmount(e.amount)} damage from ${renderTarget(e.target ?? {})}`,
   move_damage:    (e) => `${maybe(e)}move ${up(e)}${e.amount ?? 1} damage from ${renderTarget(e.from ?? {})} to ${renderTarget(e.to ?? {})}`,
 
-  banish:         (e) => `${maybe(e)}banish ${renderTarget(e.target ?? {})}`,
+  banish: (e) => {
+    if (e.target?.chooser === "target_player") return `${maybe(e)}each opponent chooses and banishes ${renderTarget(e.target)}`;
+    return `${maybe(e)}banish ${renderTarget(e.target ?? {})}`;
+  },
   banish_chosen:  (e) => `${maybe(e)}banish ${renderTarget(e.target ?? {})}`,
   return_to_hand: (e) => {
     const tgt = e.target?.type ?? "this";
@@ -1060,6 +1063,10 @@ function renderTarget(t: Json): string {
     case "chosen": {
       const f = t.filter ? renderFilter(t.filter, { suppressOwnerSelf: true }) : "character";
       const count = t.count && t.count > 1 ? `${t.count} ` : "";
+      // "Each opponent chooses" pattern: chooser=target_player with owner=self
+      if (t.chooser === "target_player") {
+        return `one of their ${pluralizeFilter(f)}`;
+      }
       return `chosen ${count}${f}`;
     }
     case "all": {
