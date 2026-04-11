@@ -294,15 +294,28 @@ export function getAllLegalActions(
           return matchesFilter(inst, d, altCost.filter, state, playerId);
         });
       }
+      const requiredAmount = altCost.type === "discard" ? (altCost.amount ?? 1) : 1;
+      // Generate cost-target combos of the required size
+      const combos: string[][] = [];
+      if (requiredAmount === 1) {
+        for (const id of costCandidates) combos.push([id]);
+      } else if (requiredAmount === 2) {
+        for (let i = 0; i < costCandidates.length; i++) {
+          for (let j = i + 1; j < costCandidates.length; j++) {
+            combos.push([costCandidates[i]!, costCandidates[j]!]);
+          }
+        }
+      }
+      // For each shift target × cost combo
       for (const targetId of myPlay) {
-        for (const costId of costCandidates) {
-          if (costId === targetId) continue; // can't banish the shift target
+        for (const combo of combos) {
+          if (combo.includes(targetId)) continue;
           const shiftPlay: GameAction = {
             type: "PLAY_CARD",
             playerId,
             instanceId,
             shiftTargetInstanceId: targetId,
-            altShiftCostInstanceId: costId,
+            altShiftCostInstanceIds: combo,
           };
           if (validateAction(state, shiftPlay, definitions).valid) {
             actions.push(shiftPlay);
@@ -422,7 +435,7 @@ function applyActionInner(
 ): GameState {
   switch (action.type) {
     case "PLAY_CARD":
-      return applyPlayCard(state, action.playerId, action.instanceId, definitions, events, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds, action.altCostBanishInstanceId, action.viaGrantedFreePlay, action.altShiftCostInstanceId);
+      return applyPlayCard(state, action.playerId, action.instanceId, definitions, events, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds, action.altCostBanishInstanceId, action.viaGrantedFreePlay, action.altShiftCostInstanceIds);
     case "PLAY_INK":
       return applyPlayInk(state, action.playerId, action.instanceId, definitions, events);
     case "QUEST":
@@ -457,7 +470,7 @@ function applyPlayCard(
   singerInstanceIds?: string[],
   altCostBanishInstanceId?: string,
   viaGrantedFreePlay?: boolean,
-  altShiftCostInstanceId?: string,
+  altShiftCostInstanceIds?: string[],
 ): GameState {
   const def = getDefinition(state, instanceId, definitions);
 
@@ -540,23 +553,28 @@ function applyPlayCard(
       message: `${playerId} played ${def.fullName} for free.`,
       type: "card_played",
     });
-  } else if (altShiftCostInstanceId && shiftTargetInstanceId && def.altShiftCost) {
-    // Alternate-cost shift (Diablo etc.): pay a non-ink cost.
+  } else if (altShiftCostInstanceIds && altShiftCostInstanceIds.length > 0 && shiftTargetInstanceId && def.altShiftCost) {
+    // Alternate-cost shift (Diablo, Flotsam etc.): pay a non-ink cost.
     const altCost = def.altShiftCost;
-    const costDef = getDefinition(state, altShiftCostInstanceId, definitions);
     if (altCost.type === "discard") {
-      state = moveCard(state, altShiftCostInstanceId, playerId, "discard");
-      events.push({ type: "card_discarded" as any, instanceId: altShiftCostInstanceId, playerId });
+      const names: string[] = [];
+      for (const costId of altShiftCostInstanceIds) {
+        names.push(getDefinition(state, costId, definitions).fullName);
+        state = moveCard(state, costId, playerId, "discard");
+        events.push({ type: "card_discarded" as any, instanceId: costId, playerId });
+      }
       state = appendLog(state, {
         turn: state.turnNumber, playerId,
-        message: `${playerId} discarded ${costDef.fullName} to shift ${def.fullName}.`,
+        message: `${playerId} discarded ${names.join(" and ")} to shift ${def.fullName}.`,
         type: "card_played",
       });
     } else if (altCost.type === "banish_chosen") {
-      state = banishCard(state, altShiftCostInstanceId, definitions, events);
+      for (const costId of altShiftCostInstanceIds) {
+        state = banishCard(state, costId, definitions, events);
+      }
       state = appendLog(state, {
         turn: state.turnNumber, playerId,
-        message: `${playerId} banished ${costDef.fullName} to shift ${def.fullName}.`,
+        message: `${playerId} banished card(s) to shift ${def.fullName}.`,
         type: "card_played",
       });
     }

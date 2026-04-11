@@ -83,7 +83,7 @@ export function validateAction(
 
   switch (action.type) {
     case "PLAY_CARD":
-      return validatePlayCard(state, action.playerId, action.instanceId, definitions, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds, action.viaGrantedFreePlay, action.altShiftCostInstanceId);
+      return validatePlayCard(state, action.playerId, action.instanceId, definitions, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds, action.viaGrantedFreePlay, action.altShiftCostInstanceIds);
     case "PLAY_INK":
       return validatePlayInk(state, action.playerId, action.instanceId, definitions);
     case "QUEST":
@@ -119,7 +119,7 @@ function validatePlayCard(
   singerInstanceId?: string,
   singerInstanceIds?: string[],
   viaGrantedFreePlay?: boolean,
-  altShiftCostInstanceId?: string,
+  altShiftCostInstanceIds?: string,
 ): ValidationResult {
   if (!isMainPhase(state, playerId)) return fail("Not your main phase.");
 
@@ -179,23 +179,28 @@ function validatePlayCard(
     if (!canShiftOnto(instanceId, def, shiftTargetInstanceId, shiftTargetDef, shiftModifiers)) {
       return fail("Shift target must share this character's name.");
     }
-    // Alt-cost shift (Diablo etc.): pay a non-ink cost
-    if (hasAltShift && altShiftCostInstanceId) {
-      const costTarget = getInstance(state, altShiftCostInstanceId);
-      if (costTarget.ownerId !== playerId) return fail("You don't own the cost target.");
-      if (altShiftCostInstanceId === instanceId) return fail("Can't use the card you're playing as a cost.");
-      const costTargetDef = getDefinition(state, altShiftCostInstanceId, definitions);
+    // Alt-cost shift (Diablo, Flotsam etc.): pay a non-ink cost
+    if (hasAltShift && altShiftCostInstanceIds && altShiftCostInstanceIds.length > 0) {
       const altCost = def.altShiftCost!;
-      // Validate the cost target matches the alt-cost spec
-      if (altCost.type === "discard") {
-        if (costTarget.zone !== "hand") return fail("Discard target is not in your hand.");
-        if (altCost.filter && !matchesFilter(costTarget, costTargetDef, altCost.filter, state, playerId)) {
-          return fail("Discard target doesn't match the shift cost filter.");
-        }
-      } else if (altCost.type === "banish_chosen") {
-        if (costTarget.zone !== "play") return fail("Banish target is not in play.");
-        if (!matchesFilter(costTarget, costTargetDef, altCost.filter, state, playerId)) {
-          return fail("Banish target doesn't match the shift cost filter.");
+      const requiredAmount = altCost.type === "discard" ? (altCost.amount ?? 1) : 1;
+      if (altShiftCostInstanceIds.length !== requiredAmount) {
+        return fail(`Alt shift cost requires ${requiredAmount} card(s), got ${altShiftCostInstanceIds.length}.`);
+      }
+      for (const costId of altShiftCostInstanceIds) {
+        const costTarget = getInstance(state, costId);
+        if (costTarget.ownerId !== playerId) return fail("You don't own the cost target.");
+        if (costId === instanceId) return fail("Can't use the card you're playing as a cost.");
+        const costTargetDef = getDefinition(state, costId, definitions);
+        if (altCost.type === "discard") {
+          if (costTarget.zone !== "hand") return fail("Discard target is not in your hand.");
+          if (altCost.filter && !matchesFilter(costTarget, costTargetDef, altCost.filter, state, playerId)) {
+            return fail("Discard target doesn't match the shift cost filter.");
+          }
+        } else if (altCost.type === "banish_chosen") {
+          if (costTarget.zone !== "play") return fail("Banish target is not in play.");
+          if (!matchesFilter(costTarget, costTargetDef, altCost.filter, state, playerId)) {
+            return fail("Banish target doesn't match the shift cost filter.");
+          }
         }
       }
       return OK; // No ink check — alt cost IS the cost

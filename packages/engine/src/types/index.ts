@@ -2829,10 +2829,11 @@ export interface PlayCardAction {
   instanceId: string;
   /** For Shift: the instanceId of the character being shifted onto */
   shiftTargetInstanceId?: string;
-  /** For alternate-cost Shift (Diablo etc.): the instanceId of the card
-   *  paying the shift cost (discarded, banished, etc.). Only valid when the
-   *  card's definition has altShiftCost and shiftTargetInstanceId is set. */
-  altShiftCostInstanceId?: string;
+  /** For alternate-cost Shift (Diablo etc.): the instanceId(s) of the card(s)
+   *  paying the shift cost (discarded, banished, etc.). Array to support
+   *  multi-card costs (Flotsam & Jetsam: discard 2 cards). Only valid when
+   *  the card's definition has altShiftCost and shiftTargetInstanceId is set. */
+  altShiftCostInstanceIds?: string[];
   /** CRD 5.4.4.2: For singing — the character exerted to pay for this song */
   singerInstanceId?: string;
   /** CRD 8.12: For Sing Together — multiple characters whose combined effective cost

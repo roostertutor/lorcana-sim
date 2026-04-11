@@ -878,7 +878,7 @@ describe("§4 Set 4 — Diablo Devoted Herald (altShiftCost discard)", () => {
       a.type === "PLAY_CARD" &&
       a.instanceId === shiftId &&
       a.shiftTargetInstanceId === baseId &&
-      a.altShiftCostInstanceId === actionId
+      a.altShiftCostInstanceIds?.includes(actionId)
     );
     expect(shiftAction).toBeDefined();
 
