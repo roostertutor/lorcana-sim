@@ -5879,7 +5879,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "MULTI-HEADED MONSTER",
+        "storyName": "WATCH THE TEETH",
         "rulesText": "Whenever this character is dealt damage, deal that much damage to chosen opposing character.",
         "trigger": {
           "on": "damage_dealt_to",
@@ -5890,7 +5890,7 @@
         "effects": [
           {
             "type": "deal_damage",
-            "amount": "X",
+            "amount": "last_damage_dealt",
             "target": {
               "type": "chosen",
               "filter": {
