@@ -48,7 +48,7 @@
 ### 1.7 Game Actions, Timing, and Illegal Actions
 | Rule | Quote | Status |
 |------|-------|--------|
-| 1.7.2 | Effects must fully resolve before next can happen | ⚠️ Trigger stack enforces this for triggered abilities; simultaneous resolution not modeled |
+| 1.7.2 | Effects must fully resolve before next can happen | ✅ Each effect fully resolves (or surfaces pendingChoice) before next. Challenge damage is simultaneous per CRD 4.6.6.2. Trigger bag processes one at a time. |
 | 1.7.5 | **Drying**: characters can't quest/challenge/exert unless in play since beginning of their player's turn | ✅ `isDrying` boolean; Rush bypasses for challenges only |
 | 1.7.6 | Illegal action: undo all steps, payments reversed | ⚠️ We return `success: false` and don't mutate state, but don't log "undo". Open question: would undo help bot learning? See DECISIONS.md Open Questions |
 
@@ -123,7 +123,7 @@
 |------|-------|--------|
 | 3.2.2.1 | Active player's characters are no longer drying; can quest/challenge/{E} | ✅ `isDrying` cleared on turn start |
 | 3.2.2.2 | Active player gains lore from locations with {L} | ✅ Set step lore gain in `applyPassTurn` after readying. Tested in set3.test.ts. |
-| 3.2.2.3 | Resolve triggered abilities from Ready + Set steps | ❌ No start-of-turn trigger resolution |
+| 3.2.2.3 | Resolve triggered abilities from Ready + Set steps | ✅ processTriggerStack called after Ready+Set and before turn_start triggers |
 
 #### 3.2.3 Draw step
 | Rule | Quote | Status |
@@ -326,7 +326,7 @@
 | Rule | Quote | Status |
 |------|-------|--------|
 | 7.7 | Triggered abilities queue in bag; resolved in order | ✅ `triggerStack` in `GameState` |
-| 7.7.4 | Bag resolution order: active player resolves first, then passes to next player in turn order | ⚠️ `triggerStack` processes LIFO. CRD specifies active-player-first ordering (7.7.4.1–7.7.4.5). May not match for cross-player triggers. |
+| 7.7.4 | Bag resolution order: active player resolves first, then passes to next player in turn order | ✅ triggerStack sorted: active player's triggers first (stable sort preserves within-player order). Interactive mode surfaces choose_trigger for manual ordering. |
 
 ---
 

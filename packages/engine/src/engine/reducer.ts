@@ -1685,6 +1685,10 @@ function applyPassTurn(
     }
   }
 
+  // CRD 3.2.2.3: Resolve triggered abilities from Ready + Set steps
+  // (e.g. "readied" triggers from the Ready step) BEFORE turn_start triggers.
+  state = processTriggerStack(state, definitions, events);
+
   // CRD 3.2.1.4: "At the start of your turn" triggered abilities
   state = queueTriggersByEvent(state, "turn_start", opponent, definitions, {});
   state = processTriggerStack(state, definitions, events);
@@ -4860,8 +4864,23 @@ function processTriggerStack(
   while (state.triggerStack.length > 0 && !state.pendingChoice) {
     if (++safety > MAX_TRIGGER_CHAIN) throw new Error("Trigger loop detected");
 
-    // CRD 7.7.4: if interactive and a player has 2+ triggers simultaneously, let them choose order.
-    // Active player orders their triggers first, then non-active player.
+    // CRD 7.7.4: Active player resolves their triggers first, then non-active.
+    // Non-interactive: sort the bag so active player's triggers come first.
+    // Interactive: surface a choose_trigger choice for manual ordering.
+    if (state.triggerStack.length > 1) {
+      const activePlayerId = state.currentPlayer;
+      // Sort: active player's triggers first (stable sort preserves queue order within each player)
+      state = {
+        ...state,
+        triggerStack: [...state.triggerStack].sort((a, b) => {
+          const aOwner = state.cards[a.sourceInstanceId]?.ownerId;
+          const bOwner = state.cards[b.sourceInstanceId]?.ownerId;
+          if (aOwner === activePlayerId && bOwner !== activePlayerId) return -1;
+          if (bOwner === activePlayerId && aOwner !== activePlayerId) return 1;
+          return 0;
+        }),
+      };
+    }
     if (state.interactive && state.triggerStack.length > 1) {
       const activePlayerId = state.currentPlayer;
       const nonActivePlayerId = activePlayerId === "player1" ? "player2" : "player1";
