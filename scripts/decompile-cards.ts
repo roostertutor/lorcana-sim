@@ -276,6 +276,10 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
   songs_played_this_turn_gte: (c) => `if you've played ${c.amount ?? 0} or more songs this turn`,
   actions_played_this_turn_gte: (c) => `if you've played ${c.amount ?? 0} or more actions this turn`,
   actions_played_this_turn_eq: (c) => `if you've played exactly ${c.amount ?? 0} actions this turn`,
+  your_character_was_damaged_this_turn: () => "if one of your characters was damaged this turn",
+  no_other_character_quested_this_turn: () => "if no other character has quested this turn",
+  card_left_discard_this_turn: () => "if a card left a player's discard this turn",
+  this_had_card_put_under_this_turn: () => "if a card was put under this character this turn",
 
   // Pete Games Referee — "during your turn, opponents can't play actions"
   opponent_no_challenges_this_turn: () => "if no opposing character has challenged this turn",
@@ -1033,6 +1037,8 @@ function renderTarget(t: Json): string {
       return "you";
     case "opponent":
       return "each opponent";
+    case "both":
+      return "each player";
     case "this":
       return "this character";
     case "triggering_card":

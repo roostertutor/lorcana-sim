@@ -10268,7 +10268,8 @@
           },
           "condition": {
             "type": "this_has_no_damage"
-          }
+          },
+          "value": 2
         }
       }
     ],
