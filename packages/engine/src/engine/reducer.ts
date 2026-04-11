@@ -2921,6 +2921,30 @@ export function applyEffect(
       return state;
     }
 
+    case "move_cards_under_to_target": {
+      // Mickey Mouse Bob Cratchit: "put all cards that were under him under
+      // another chosen character or location of yours."
+      // Moves the source's cardsUnder pile to the chosen target's cardsUnder.
+      if (effect.target.type === "chosen") {
+        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        if (validTargets.length === 0) return state; // fizzle
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_target",
+            choosingPlayerId: controllingPlayerId,
+            prompt: "Choose a character or location to move cards under.",
+            validTargets,
+            optional: !!effect.isMay,
+            pendingEffect: effect,
+            sourceInstanceId,
+            triggeringCardInstanceId,
+          },
+        };
+      }
+      return state;
+    }
+
     case "conditional_on_last_discarded": {
       // CRD 6.1.5.1: Apply `then` if any card in state.lastDiscarded matches
       // the filter, else `otherwise`. Used by Kakamora Pirate Chief.
@@ -5992,6 +6016,24 @@ function applyEffectToTarget(
         casterPlayerId: controllingPlayerId,
       };
       return addTimedEffect(state, targetInstanceId, timedEffect);
+    }
+    case "move_cards_under_to_target": {
+      // Mickey Mouse Bob Cratchit: move all cards from source's cardsUnder
+      // to the chosen target's cardsUnder pile.
+      const sourceCard = state.cards[sourceInstanceId];
+      if (!sourceCard || sourceCard.cardsUnder.length === 0) return state;
+      const targetCard = state.cards[targetInstanceId];
+      if (!targetCard) return state;
+      const movedIds = [...sourceCard.cardsUnder];
+      state = {
+        ...state,
+        cards: {
+          ...state.cards,
+          [sourceInstanceId]: { ...sourceCard, cardsUnder: [] },
+          [targetInstanceId]: { ...targetCard, cardsUnder: [...targetCard.cardsUnder, ...movedIds] },
+        },
+      };
+      return state;
     }
     default:
       return state;

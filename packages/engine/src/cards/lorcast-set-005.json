@@ -7372,6 +7372,30 @@
             ]
           }
         }
+      },
+      {
+        "type": "create_floating_trigger",
+        "trigger": {
+          "on": "challenges",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ],
+            "hasKeyword": "reckless"
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ]
   },

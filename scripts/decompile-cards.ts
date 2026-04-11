@@ -191,7 +191,15 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
                                           ? "At the end of an opponent's turn"
                                           : "At the end of your turn",
   card_drawn:                    ()  => "Whenever you draw a card",
-  card_played:                   (t) => t.filter ? `Whenever you play ${renderFilter(t.filter)}` : "Whenever you play a card",
+  card_played: (t) => {
+    if (!t.filter) return "Whenever you play a card";
+    // No owner filter = ANY player ("whenever another character is played")
+    const hasOwnerFilter = t.filter.owner?.type;
+    const filt = renderFilter(t.filter);
+    if (!hasOwnerFilter && t.filter.excludeSelf) return `Whenever another ${filt} is played`;
+    if (!hasOwnerFilter) return `Whenever ${filt} is played`;
+    return `Whenever you play ${filt}`;
+  },
   // item_played: DELETED — collapsed to card_played with cardType filter
   ink_played:                    ()  => "Whenever you put a card into your inkwell",
   moves_to_location:             ()  => "Whenever this character moves to a location",

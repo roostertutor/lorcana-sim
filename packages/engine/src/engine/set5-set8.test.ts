@@ -729,3 +729,34 @@ describe("§7 Set 7 — Baloo Ol' Iron Paws (damage_immunity_static source=all)"
     expect(getInstance(r.newState, baloo).damage).toBe(0);
   });
 });
+
+describe("§7 Set 7 — Queen of Hearts Unpredictable Bully (cross-player card_played trigger)", () => {
+  it("puts a damage counter on opponent's character when they play one", () => {
+    let state = startGame();
+    let qohId: string;
+    ({ state, instanceId: qohId } = injectCard(state, "player1", "queen-of-hearts-unpredictable-bully", "play", { isDrying: false }));
+    // Pass to player2's turn
+    state = passTurns(state, 1);
+    state = giveInk(state, "player2", 5);
+    let oppCharId: string;
+    ({ state, instanceId: oppCharId } = injectCard(state, "player2", "mickey-mouse-true-friend", "hand"));
+    // Player2 plays Mickey — QoH should trigger and put 1 damage counter
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player2", instanceId: oppCharId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(getInstance(state, oppCharId).damage).toBe(1);
+  });
+
+  it("puts a damage counter on own character when controller plays one", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let qohId: string;
+    ({ state, instanceId: qohId } = injectCard(state, "player1", "queen-of-hearts-unpredictable-bully", "play", { isDrying: false }));
+    let ownCharId: string;
+    ({ state, instanceId: ownCharId } = injectCard(state, "player1", "mickey-mouse-true-friend", "hand"));
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: ownCharId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(getInstance(state, ownCharId).damage).toBe(1);
+  });
+});

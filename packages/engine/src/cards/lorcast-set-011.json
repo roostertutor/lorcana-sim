@@ -11340,9 +11340,7 @@
         },
         "effects": [
           {
-            "type": "cant_action",
-            "action": "challenge",
-            "duration": "while_source_in_play",
+            "type": "remember_chosen_target",
             "target": {
               "type": "chosen",
               "filter": {
@@ -11352,16 +11350,22 @@
                 ]
               }
             }
-          },
-          {
-            "type": "cant_action",
-            "action": "quest",
-            "duration": "while_source_in_play",
-            "target": {
-              "type": "last_resolved_target"
-            }
           }
         ]
+      },
+      {
+        "type": "static",
+        "effect": {
+          "type": "restrict_remembered_target_action",
+          "action": "challenge"
+        }
+      },
+      {
+        "type": "static",
+        "effect": {
+          "type": "restrict_remembered_target_action",
+          "action": "quest"
+        }
       },
       {
         "type": "triggered",
