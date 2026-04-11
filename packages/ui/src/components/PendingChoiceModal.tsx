@@ -439,6 +439,39 @@ export default function PendingChoiceModal({
     const validSet = new Set(pendingChoice.validTargets ?? []);
     const hasValidTargets = validSet.size > 0;
     const selected = multiSelectTargets[0] ?? null;
+
+    // Split into "mine" and "opponent's" groups. When grouping is meaningful
+    // (both sides represented), render them under labeled sections; otherwise
+    // render as a flat grid. choose_from_revealed is always single-zone
+    // (your deck) so skip grouping there.
+    const isRevealedFlow = !!pendingChoice.revealedCards;
+    const mineIds: string[] = [];
+    const oppIds: string[] = [];
+    for (const id of displayCards) {
+      const inst = gameState.cards[id];
+      if (!isRevealedFlow && inst?.ownerId === myId) mineIds.push(id);
+      else if (!isRevealedFlow && inst) oppIds.push(id);
+      else mineIds.push(id); // revealed flow: treat all as "yours"
+    }
+    const showGrouped = !isRevealedFlow && mineIds.length > 0 && oppIds.length > 0;
+
+    const renderCard = (id: string) => {
+      const selectable = validSet.has(id);
+      const isSelected = selected === id;
+      return (
+        <CardThumb
+          key={id}
+          id={id}
+          isSelected={isSelected}
+          isDimmed={!selectable}
+          onClick={() => {
+            if (!selectable) return;
+            onMultiSelectChange(isSelected ? [] : [id]);
+          }}
+        />
+      );
+    };
+
     return (
       <div className="space-y-3">
         <div>
@@ -447,24 +480,30 @@ export default function PendingChoiceModal({
             <div className="text-[10px] text-gray-500 mt-0.5">{contextHints.join(" · ")}</div>
           )}
         </div>
-        <div className="grid grid-cols-4 gap-1.5 pb-1">
-          {displayCards.map((id) => {
-            const selectable = validSet.has(id);
-            const isSelected = selected === id;
-            return (
-              <CardThumb
-                key={id}
-                id={id}
-                isSelected={isSelected}
-                isDimmed={!selectable}
-                onClick={() => {
-                  if (!selectable) return;
-                  onMultiSelectChange(isSelected ? [] : [id]);
-                }}
-              />
-            );
-          })}
-        </div>
+        {showGrouped ? (
+          <div className="space-y-2">
+            {mineIds.length > 0 && (
+              <div>
+                <div className="text-[10px] uppercase tracking-wider text-green-500 font-bold mb-1">Your characters</div>
+                <div className="grid grid-cols-4 gap-1.5 pb-1">
+                  {mineIds.map(renderCard)}
+                </div>
+              </div>
+            )}
+            {oppIds.length > 0 && (
+              <div>
+                <div className="text-[10px] uppercase tracking-wider text-red-500 font-bold mb-1">Opponent's characters</div>
+                <div className="grid grid-cols-4 gap-1.5 pb-1">
+                  {oppIds.map(renderCard)}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-4 gap-1.5 pb-1">
+            {displayCards.map(renderCard)}
+          </div>
+        )}
         <div className="flex gap-2 items-center">
           {hasValidTargets && (
             <button

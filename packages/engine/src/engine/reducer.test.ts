@@ -3049,12 +3049,17 @@ describe("§8 Keywords", () => {
     expect(result.success).toBe(true);
   });
 
-  // CRD 8.15.1: Ward blocks opponent's targeting
-  it("Ward: character cannot be chosen as the target of an opponent's effect (CRD 8.15.1)", () => {
+  // CRD 8.15.1: Ward blocks opponent's targeting. The opposing Ward character
+  // is excluded from validTargets at enumeration time (findChosenTargets), so
+  // when an opponent is the only candidate, no PendingChoice is surfaced and
+  // the validator's Ward rejection is the second line of defense (e.g. when
+  // a Ward character is mixed in with non-Ward candidates and the bot picks
+  // the wrong one).
+  it("Ward: opposing Ward character is excluded from chosen-target enumeration (CRD 8.15.1)", () => {
     let state = startGame();
-    let eyeId: string, aladdinId: string;
+    let eyeId: string;
     ({ state, instanceId: eyeId } = injectCard(state, "player1", "eye-of-the-fates", "play"));
-    ({ state, instanceId: aladdinId } = injectCard(state, "player2", "aladdin-prince-ali", "play")); // Ward
+    injectCard(state, "player2", "aladdin-prince-ali", "play"); // only valid candidate, has Ward
 
     const activateResult = applyAction(state, {
       type: "ACTIVATE_ABILITY",
@@ -3063,13 +3068,37 @@ describe("§8 Keywords", () => {
       abilityIndex: 0,
     }, LORCAST_CARD_DEFINITIONS);
     expect(activateResult.success).toBe(true);
+    // No PendingChoice — Ward filtered out the only candidate; CRD 1.7.7 skip.
+    expect(activateResult.newState.pendingChoice ?? undefined).toBeUndefined();
+  });
 
+  // Validator still rejects Ward at the resolve step when the choice has been
+  // surfaced (e.g. another non-Ward character is in play, but the chooser
+  // tries to pick the Ward one anyway).
+  it("Ward: validator rejects picking a Ward target when other choices exist (CRD 8.15.1)", () => {
+    let state = startGame();
+    let eyeId: string, aladdinId: string, mickeyId: string;
+    ({ state, instanceId: eyeId } = injectCard(state, "player1", "eye-of-the-fates", "play"));
+    ({ state, instanceId: aladdinId } = injectCard(state, "player2", "aladdin-prince-ali", "play")); // Ward
+    ({ state, instanceId: mickeyId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play")); // no Ward
+
+    const activateResult = applyAction(state, {
+      type: "ACTIVATE_ABILITY",
+      playerId: "player1",
+      instanceId: eyeId,
+      abilityIndex: 0,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(activateResult.success).toBe(true);
+    // PendingChoice surfaces with mickey only — aladdin filtered out by Ward.
+    expect(activateResult.newState.pendingChoice?.type).toBe("choose_target");
+    expect((activateResult.newState.pendingChoice as any).validTargets).toEqual([mickeyId]);
+
+    // Defense in depth: even if a caller forces the Ward target through, validator rejects.
     const resolveResult = applyAction(activateResult.newState, {
       type: "RESOLVE_CHOICE",
       playerId: "player1",
       choice: [aladdinId],
     }, LORCAST_CARD_DEFINITIONS);
-
     expect(resolveResult.success).toBe(false);
     expect(resolveResult.error).toMatch(/ward/i);
   });
@@ -3095,6 +3124,33 @@ describe("§8 Keywords", () => {
     }, LORCAST_CARD_DEFINITIONS);
 
     expect(resolveResult.success).toBe(true);
+  });
+
+  // CRD 1.7.7 + 8.15.1: when the only candidate is an opposing Ward character,
+  // findValidTargets must drop it so the choose-target effect skips entirely
+  // (no PendingChoice). Otherwise bots loop on a "valid" target the validator
+  // then rejects. Subsequent sequential effects (e.g. "Draw a card") still run.
+  it("Ward: choose-target effect skips when the only candidate is opposing Ward (CRD 1.7.7)", () => {
+    let state = startGame(["let-the-storm-rage-on"]);
+    let stormId: string;
+    ({ state, instanceId: stormId } = injectCard(state, "player1", "let-the-storm-rage-on", "hand"));
+    injectCard(state, "player2", "aladdin-prince-ali", "play"); // only thing in play, has Ward
+    state = giveInk(state, "player1", 5);
+    const handBefore = getZone(state, "player1", "hand").length;
+
+    const result = applyAction(state, {
+      type: "PLAY_CARD",
+      playerId: "player1",
+      instanceId: stormId,
+    }, LORCAST_CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    // No PendingChoice — the deal_damage effect found no targets and skipped.
+    expect(result.newState.pendingChoice ?? undefined).toBeUndefined();
+    // Draw a card still resolved.
+    expect(getZone(result.newState, "player1", "hand").length).toBe(handBefore - 1 + 1);
+    // The Storm Rage On itself moved to discard (action cleanup).
+    expect(getInstance(result.newState, stormId).zone).toBe("discard");
   });
 
   // CRD 8.15.2: "All" effects don't require choosing — Ward does not protect
