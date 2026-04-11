@@ -30,10 +30,10 @@
 | Rule | Quote | Status |
 |------|-------|--------|
 | 1.5.3 | Cost must be paid in full; can't play if unable | ✅ Validated in `validatePlayCard` / `validateActivateAbility` |
-| 1.5.5 | Alternate costs (Shift, Singer, Sing Together, "for free") | ✅ Shift and Singer implemented; ❌ Sing Together; ❌ "for free" |
+| 1.5.5 | Alternate costs (Shift, Singer, Sing Together, "for free") | ✅ Shift (ink + altShiftCost discard), Singer, Sing Together all implemented. ❌ "For free" (1.5.5.3) not fully modeled. |
 | 1.5.5.1 | Singing a song is an alternate cost | ✅ `singerInstanceId` skips ink deduction |
 | 1.5.5.2 | Shift is an alternate cost | ✅ |
-| 1.5.5.3 | "For free" means ignore all costs | ❌ |
+| 1.5.5.3 | "For free" means ignore all costs | ✅ `play_for_free` effect + `grant_play_for_free_self` static with optional `playCosts`. |
 
 ### 1.6 Abilities
 | Rule | Quote | Status |
@@ -55,7 +55,7 @@
 ### 1.8 Game State Check
 | Rule | Quote | Status |
 |------|-------|--------|
-| 1.8.1.1 | Player with 20+ lore wins | ✅ `checkWinConditions` / `getLoreThreshold`. ❌ Win threshold modification not implemented: some cards raise the threshold for opponents (e.g., Donald Duck - Flustered Sorcerer set-7: "Opponents need 25 lore to win"). Needs `modify_win_threshold` StaticEffect; `getLoreThreshold()` already takes state+definitions so the hook exists. |
+| 1.8.1.1 | Player with 20+ lore wins | ✅ `checkWinConditions` / `getLoreThreshold`. Win threshold modification implemented via `modify_win_threshold` StaticEffect (Donald Duck Flustered Sorcerer). |
 | 1.8.1.2 | Player who ends turn with empty deck loses | ✅ Checked in `applyPassTurn`; game ends immediately with opponent as winner |
 | 1.8.1.4 | Character/location with damage >= willpower is banished | ✅ `banishCard` called from damage resolution |
 | 1.8.2 | Triggered abilities from state check added to bag before resolving | ✅ `evaluateCondition()` checks `trigger.ability.condition` before resolving effects in `processTriggerStack()`. Supports `characters_in_play_gte`, `cards_in_hand_eq`, lore conditions. Tested with Stitch - Carefree Surfer, Beast's Mirror |
@@ -67,7 +67,7 @@
 | 1.9.1.1 | Deal/Dealt – placing damage counters during a challenge or from an effect that deals damage | ✅ `deal_damage` effect + challenge damage in reducer |
 | 1.9.1.2 | Put – placing damage counters from an effect that puts damage on a character/location | ❌ No distinction between "deal" and "put" damage (both use `deal_damage`) |
 | 1.9.1.3 | Remove/Removed – taking damage counters off as a result of an effect that removes damage | ✅ `remove_damage` effect (being renamed from "heal" to match CRD terminology) |
-| 1.9.1.4 | Move – taking damage counters off one character/location and placing on another | ❌ Needs `move_damage` effect type: `{ type: "move_damage"; amount: number; from: CardTarget; to: CardTarget }`. Appears in 20+ cards across sets 5–11. |
+| 1.9.1.4 | Move – taking damage counters off one character/location and placing on another | ✅ `move_damage` effect with `from`/`to` CardTargets. 29 uses across sets. |
 | 1.9.1.5 | Take – a character/location takes damage whenever damage is dealt to, put on, or moved to it | ⚠️ Implicit — any damage placement triggers "takes damage" but no explicit tracking |
 | 1.9.2 | "Is damaged" / "was damaged" / "is dealt damage" / "was dealt damage" all mean "takes damage" for printed text | ⚠️ `hasDamage` filter exists but "was damaged" / "is dealt damage" event tracking not distinct |
 | 1.9.3 | When a character/location with damage leaves play, all damage counters cease to exist | ✅ Damage cleared when card leaves play (`moveCard` resets card state) |
@@ -162,7 +162,7 @@
 |------|-------|--------|
 | 4.3.1 | Play card from hand, announce and pay cost | ✅ |
 | 4.3.2 | Can normally be played only from hand | ✅ Validated. Mufasa exception will use effect system |
-| 4.3.3.1 | Characters/items/locations enter Play zone; Shift goes on top of named card | ✅ Characters + items; ❌ Locations |
+| 4.3.3.1 | Characters/items/locations enter Play zone; Shift goes on top of named card | ✅ Characters, items, and locations all enter play zone. Shift implemented with cardsUnder stack. |
 | 4.3.3.2 | Actions enter Play zone, effect resolves immediately, then move to discard | ✅ `applyPlayCard` action branch; `pendingActionInstanceId` for deferred choices |
 | 4.3.4.1 | "When [Player] play(s) this" triggered conditions met as card enters play | ✅ `queueTrigger("enters_play", ...)` |
 | 4.3.5 | Payment modifiers (e.g., Singer) don't change the card's ink cost | ✅ Singer implemented; `singerInstanceId` path |
@@ -172,7 +172,7 @@
 |------|-------|--------|
 | 4.4.1 | Activated ability: cost → effect | ✅ |
 | 4.4.2 | {E} ability on a character requires character to be dry | ✅ `isDrying` check in `validateActivateAbility` (characters only; CRD 6.3.1.2 items exempt) |
-| 4.4.2 | Items and locations: activated ability can be used turn played | ✅ For items (Eye of Fates test). ❌ Locations not implemented |
+| 4.4.2 | Items and locations: activated ability can be used turn played | ✅ Items and locations can use activated abilities the turn they're played (no drying for non-characters). |
 
 ### 4.5 Quest
 | Rule | Quote | Status |
@@ -263,10 +263,10 @@
 |------|-------|--------|
 | 6.1.1 | Abilities apply when source is in play | ✅ |
 | 6.1.3 | Choices made as effect resolves | ✅ `pendingChoice` / `RESOLVE_CHOICE` |
-| 6.1.3a | Dynamic effect amounts (equal to a stat, count, or cost) | ❌ `DealDamageEffect` and `GainLoreEffect` only support fixed numbers or "X"/"cost_result". Needed: amounts like "equal to this character's {S}", "equal to number of characters in play", "equal to the cost of chosen item". Affects 50+ cards across sets 5–11. |
+| 6.1.3a | Dynamic effect amounts (equal to a stat, count, or cost) | ✅ `DynamicAmount` union supports target_lore, target_strength, target_damage, source_strength, count, last_damage_dealt, unique_ink_types_on_top_of_both_decks, and more. 13 variants in reducer. |
 | 6.1.4 | "May" = optional; choosing not to has no effect | ✅ `isMay` flag on effects; `choose_may` PendingChoice; accept/decline flow in processTriggerStack |
 | 6.1.5.1 | Sequential effects: [A] to [B] — cost must resolve before reward | ✅ `SequentialEffect` with `costEffects[]` → `rewardEffects[]`; `canPerformCostEffect()` pre-check. `triggeringCardInstanceId` must be forwarded through `applyEffect` and stored on `choose_may` PendingChoice — see CLAUDE.md critical bug patterns |
-| 6.1.7 | "For free" = ignore all costs | ❌ |
+| 6.1.7 | "For free" = ignore all costs | ✅ Same as 1.5.5.3. |
 | 6.1.8 | "For each" — defines single number used in subsequent effect | ✅ `lastEffectResult` on GameState; `amount: "cost_result"` on DrawEffect |
 | 6.1.12 | Some abilities apply outside play zone (from hand) | ✅ `SelfCostReductionStatic` checked at play time from hand |
 | 6.1.13 | Duration mechanics: "this turn", "end of turn", etc. | ✅ `timedEffects[]` with `expiresAt: end_of_turn / rest_of_turn / end_of_owner_next_turn`. Expiry in applyPassTurn. "Once per turn" supported via `oncePerTurn?: boolean` flag on TriggeredAbility + ActivatedAbility, tracked via `oncePerTurnTriggered` map on CardInstance. "Once during your turn" = `oncePerTurn` + `condition: { type: "is_your_turn" }`. |
@@ -320,7 +320,7 @@
 ### 7.4 Play
 | Rule | Quote | Status |
 |------|-------|--------|
-| 7.4.1 | Characters/items/locations can be in Play zone | ✅ Characters and items; ❌ Locations |
+| 7.4.1 | Characters/items/locations can be in Play zone | ✅ All three card types can be in play zone. |
 
 ### 7.7 Bag
 | Rule | Quote | Status |
@@ -340,7 +340,7 @@
 ### 8.2 Alert (first appears Set 10, affects ~20–30 cards across sets 10–11)
 | Rule | Quote | Status |
 |------|-------|--------|
-| 8.2.1 | Alert: this character can challenge as if they had Evasive (ignores Evasive restriction on defenders) | ❌ `alert` not in `Keyword` type. Add to `Keyword` union; update `validateChallenge` to allow Alert attackers to challenge Evasive defenders. Also appears as a timed grant: "chosen character gains Alert this turn." |
+| 8.2.1 | Alert: this character can challenge as if they had Evasive (ignores Evasive restriction on defenders) | ✅ `alert` in Keyword union. Validator allows Alert attackers to challenge Evasive defenders. Timed grant supported. |
 | 8.2.2 | Alert doesn't grant Evasive | N/A until Alert implemented |
 
 ### 8.3 Bodyguard
@@ -391,12 +391,12 @@
 | 8.10.1 | Shift: pay shift cost, put on top of same-named character | ✅ |
 | 8.10.2 | If shifted onto exerted character, enters exerted | ✅ Tested |
 | 8.10.4 | If shifted onto **dry** character, enters **dry** (can challenge); if drying, enters drying | ✅ `isDrying: shiftTarget.isDrying` inherits from base |
-| 8.10.5 | Shifted character inherits ability to sing if base was dry | ❌ Singing not implemented |
+| 8.10.5 | Shifted character inherits ability to sing if base was dry | ✅ Singing implemented. Shifted char inherits isDrying from base (CRD 8.10.4). |
 | 8.10.6 | **Shifted character retains damage from character it's on top of** | ✅ `damage: shiftTarget.damage` |
 | 8.10.7 | When shifted card leaves play, all cards in stack go to same zone | ✅ Under-cards follow top card to same destination zone (each to own owner's zone) |
-| 8.10.8 | Shift has two variants: [Classification] Shift and Universal Shift | ❌ Not implemented (no set 1 cards) |
-| 8.10.8.1 | [Classification] Shift — shift onto character matching classification, not just name | ❌ Not implemented |
-| 8.10.8.2 | Universal Shift — shift onto any character in play | ❌ Not implemented |
+| 8.10.8 | Shift has two variants: [Classification] Shift and Universal Shift | ✅ Both implemented as StaticEffects with activeZones: ["hand"]. |
+| 8.10.8.1 | [Classification] Shift — shift onto character matching classification, not just name | ✅ `classification_shift_self` static (Thunderbolt). |
+| 8.10.8.2 | Universal Shift — shift onto any character in play | ✅ `universal_shift_self` static (Baymax). |
 
 ### 8.11 Singer
 | Rule | Quote | Status |
@@ -407,7 +407,7 @@
 ### 8.12 Sing Together (first appears Set 4, ~26 song cards)
 | Rule | Quote | Status |
 |------|-------|--------|
-| 8.12.1 | Sing Together N: exert any number of your characters with combined cost ≥ N to play this song for free | ❌ Extends Singer alternate cost. Needs: new alternate cost path in `validatePlayCard`; `singerInstanceIds: string[]` (multiple) on `PlayCardAction` alongside existing `singerInstanceId`; sum of costs ≥ song's Sing Together value. Bot needs to know to combine cheap characters. |
+| 8.12.1 | Sing Together N: exert any number of your characters with combined cost ≥ N to play this song for free | ✅ `singerInstanceIds: string[]` on PlayCardAction. Validator sums effective costs (including location/timed sing bonuses). Legal action enumerator generates singer combinations. |
 
 ### 8.13 Support
 | Rule | Quote | Status |
@@ -448,15 +448,15 @@
 | Singer (exert to sing songs) | 8.11 | ✅ Implemented |
 | ~~Starting player skips first draw~~ | 3.2.3.1 | ✅ Was already implicit in code structure |
 | Actions card type | 5.4.1 | ✅ Implemented with actionEffects; 3 cards have data (Friends, Dragon Fire, Be Prepared) |
-| Locations card type | 5.6 | Full section missing |
-| Shift stack: all stack cards leave play together | 8.10.7 | |
+| ~~Locations card type~~ | 5.6 | ✅ Locations implemented: play, move characters, moveCost, willpower, lore gain at Set step, atLocationInstanceId tracking. |
+| ~~Shift stack: all stack cards leave play together~~ | 8.10.7 | ✅ Under-cards follow top card to same zone |
 | Replacement effects | 6.5 | Complex; needed for many later-set cards |
 | ~~Floating triggered abilities~~ | 6.2.7.1 | ✅ `floatingTriggers[]`, `CreateFloatingTriggerEffect` |
 | Delayed triggered abilities | 6.2.7.2 | Not implemented (split from floating) |
-| "For free" play | 1.5.5.3 | Needed for Mufasa, Pride Lands, etc. |
+| "For free" play | 1.5.5.3 | ✅ `play_for_free` effect + `grant_play_for_free_self` static. Mufasa, Pride Lands, Belle all wired. |
 | ~~Mulligan~~ | 2.2.2 | ✅ Implemented — Partial Paris via BotStrategy |
 | ~~Trigger condition evaluation~~ | 1.8.2 / 6.2.4 | ✅ `evaluateCondition()` in processTriggerStack + gameModifiers + validator |
-| Split applyPassTurn into end-of-turn / start-of-turn | 3.2 / 3.4 | Currently one monolithic function. Draw is a start-of-turn action (3.2.3) but lives in end-of-turn code. Matters for start-of-turn triggers (3.2.1.4, 3.2.2.3) |
+| ~~Split applyPassTurn into end-of-turn / start-of-turn~~ | 3.2 / 3.4 | ✅ Still one function but correctly ordered: end-of-turn triggers → transition → Ready step → Set step → resolve Ready+Set triggers (CRD 3.2.2.3) → turn_start triggers → Draw step. |
 | ~~Timed effects system~~ | 3.4.1.2 / 6.4 | ✅ `timedEffects[]` with 3 duration types, expiry in applyPassTurn |
 
 ---
@@ -471,7 +471,7 @@ can be implemented. Full details in CARD_ISSUES.md.
 ### Effect types to add
 | Effect | Cards unblocked (approx) | Notes |
 |--------|--------------------------|-------|
-| `move_damage` | 20+ | CRD 1.9.1.4 already ❌ |
+| ~~`move_damage`~~ | 29 | ✅ CRD 1.9.1.4 implemented |
 | `trim_inkwell` | ~2 | Ink Geyser + variants |
 | `trim_hand` | ~5 | "discard until you have N" |
 | `put_on_bottom` | 15+ | move card to bottom of deck, no shuffle |
