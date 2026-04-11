@@ -231,6 +231,13 @@ function parseKeywordAbilities(
         abilities.push({ type: "keyword", keyword: "resist", value: m ? parseInt(m[1]!) : 1 });
         break;
       }
+      case "vanish":    abilities.push({ type: "keyword", keyword: "vanish" }); break;
+      case "alert":     abilities.push({ type: "keyword", keyword: "alert" }); break;
+      case "boost": {
+        const m = text?.match(/Boost (\d+)/);
+        abilities.push({ type: "keyword", keyword: "boost", value: m ? parseInt(m[1]!) : 1 });
+        break;
+      }
       // Unknown keyword — record as-is for awareness
       default:
         abilities.push({ type: "keyword", keyword: k });
