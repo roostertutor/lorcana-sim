@@ -76,6 +76,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "bodyguard"
+      },
+      {
         "type": "static",
         "storyName": "SONG OF THE HERD",
         "rulesText": "For each song card in your discard, you pay 1 {I} less to play this character.",
@@ -318,15 +322,6 @@
       "Madrigal"
     ],
     "abilities": [],
-    "playRestrictions": [
-      {
-        "type": "characters_in_play_gte",
-        "amount": 5,
-        "player": {
-          "type": "self"
-        }
-      }
-    ],
     "setId": "P2",
     "number": 7,
     "rarity": "common",
@@ -341,6 +336,15 @@
         "storyName": "",
         "rulesText": "NOT WITHOUT MY FAMILY You can't play this character unless you have 5 or more characters in play.",
         "raw": "NOT WITHOUT MY FAMILY You can't play this character unless you have 5 or more characters in play."
+      }
+    ],
+    "playRestrictions": [
+      {
+        "type": "characters_in_play_gte",
+        "amount": 5,
+        "player": {
+          "type": "self"
+        }
       }
     ]
   },
@@ -492,6 +496,18 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
+    "setId": "P2",
+    "number": 10,
+    "rarity": "common",
+    "rulesText": "Count the number of characters you have in play. Chosen character loses {S} equal to that number until the start of your next turn.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_37ca8a8c91fa46e8aecbeb9f476e0a3a.avif?1745500357",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "Count the number of characters you have in play. Chosen character loses {S} equal to that number until the start of your next turn.",
+        "raw": "Count the number of characters you have in play. Chosen character loses {S} equal to that number until the start of your next turn."
+      }
+    ],
     "actionEffects": [
       {
         "type": "gain_stats",
@@ -518,18 +534,6 @@
             ]
           }
         }
-      }
-    ],
-    "setId": "P2",
-    "number": 10,
-    "rarity": "common",
-    "rulesText": "Count the number of characters you have in play. Chosen character loses {S} equal to that number until the start of your next turn.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_37ca8a8c91fa46e8aecbeb9f476e0a3a.avif?1745500357",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "Count the number of characters you have in play. Chosen character loses {S} equal to that number until the start of your next turn.",
-        "raw": "Count the number of characters you have in play. Chosen character loses {S} equal to that number until the start of your next turn."
       }
     ]
   },
@@ -758,7 +762,7 @@
       "ruby"
     ],
     "cost": 5,
-    "inkable": true,
+    "inkable": false,
     "traits": [
       "Storyborn",
       "Villain"
@@ -819,7 +823,7 @@
     "willpower": 2,
     "lore": 3,
     "rulesText": "TEETH AND AMBITIONS When you play this character, deal 2 damage to chosen character of yours to deal 2 damage to another chosen character.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_8f083e7044764c369fd81b4ab60c3054.avif?1745500372",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_8f083e7044764c369fd81b4ab60c3054.avif?1775865387",
     "_namedAbilityStubs": [
       {
         "storyName": "TEETH AND AMBITIONS",
@@ -850,7 +854,7 @@
     "strength": 3,
     "willpower": 3,
     "lore": 2,
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d90411afb17e4ed3b6788da7f15c9c4e.avif?1745500395"
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d90411afb17e4ed3b6788da7f15c9c4e.avif?1775865391"
   },
   {
     "id": "anna-braving-the-storm",
@@ -924,6 +928,11 @@
       "Captain"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
       {
         "type": "triggered",
         "storyName": "MARINER'S MIGHT",

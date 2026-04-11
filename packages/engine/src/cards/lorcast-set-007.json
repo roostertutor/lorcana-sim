@@ -1313,21 +1313,6 @@
         "keyword": "bodyguard"
       },
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 3
-      },
-      {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 3
-      },
-      {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 3
-      },
-      {
         "type": "static",
         "storyName": "Puppy Shift",
         "rulesText": "Puppy Shift 3 (You may pay 3 {I} to play this on top of one of your Puppy characters.)",
@@ -1350,7 +1335,13 @@
     "shiftCost": 3,
     "rulesText": "Puppy Shift 3 (You may pay 3 {I} to play this on top of one of your Puppy characters.)",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5a0a0d8b44824cf3b19fd61fc940df4a.avif?1740589191",
-    "_namedAbilityStubs": []
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "Puppy Shift 3 (You may pay 3 {I} to play this on top of one of your Puppy characters.)",
+        "raw": "Puppy Shift 3 (You may pay 3 {I} to play this on top of one of your Puppy characters.)"
+      }
+    ]
   },
   {
     "id": "the-prince-vigilant-suitor",
@@ -2287,6 +2278,23 @@
       "Song"
     ],
     "abilities": [],
+    "setId": "7",
+    "number": 40,
+    "rarity": "rare",
+    "rulesText": "(A character with cost 5 or more can {E} to sing this song for free.)\nLook at the top 5 cards of your deck. You may reveal up to 1 Madrigal character card and up to 1 song card and put them into your hand. Put the rest on the top of your deck in any order.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c6cad61cbf8445be93e29134eb073af6.avif?1740589259",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "(A character with cost 5 or more can {E} to sing this song for free.)",
+        "raw": "(A character with cost 5 or more can {E} to sing this song for free.)"
+      },
+      {
+        "storyName": "",
+        "rulesText": "Look at the top 5 cards of your deck. You may reveal up to 1 Madrigal character card and up to 1 song card and put them into your hand. Put the rest on the top of your deck in any order.",
+        "raw": "Look at the top 5 cards of your deck. You may reveal up to 1 Madrigal character card and up to 1 song card and put them into your hand. Put the rest on the top of your deck in any order."
+      }
+    ],
     "actionEffects": [
       {
         "type": "look_at_top",
@@ -2307,23 +2315,6 @@
         "target": {
           "type": "self"
         }
-      }
-    ],
-    "setId": "7",
-    "number": 40,
-    "rarity": "rare",
-    "rulesText": "(A character with cost 5 or more can {E} to sing this song for free.)\nLook at the top 5 cards of your deck. You may reveal up to 1 Madrigal character card and up to 1 song card and put them into your hand. Put the rest on the top of your deck in any order.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c6cad61cbf8445be93e29134eb073af6.avif?1740589259",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "(A character with cost 5 or more can {E} to sing this song for free.)",
-        "raw": "(A character with cost 5 or more can {E} to sing this song for free.)"
-      },
-      {
-        "storyName": "",
-        "rulesText": "Look at the top 5 cards of your deck. You may reveal up to 1 Madrigal character card and up to 1 song card and put them into your hand. Put the rest on the top of your deck in any order.",
-        "raw": "Look at the top 5 cards of your deck. You may reveal up to 1 Madrigal character card and up to 1 song card and put them into your hand. Put the rest on the top of your deck in any order."
       }
     ]
   },
@@ -6544,7 +6535,13 @@
     "shiftCost": 4,
     "rulesText": "FRIGHTFUL SCHEME While this character is exerted, opposing characters can't exert to sing songs and your Pirate characters gain Resist +1. (Damage dealt to them is reduced by 1.)",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_874601077b644699b9e61662ec1c68a8.avif?1740589557",
-    "_namedAbilityStubs": []
+    "_namedAbilityStubs": [
+      {
+        "storyName": "FRIGHTFUL SCHEME",
+        "rulesText": "While this character is exerted, opposing characters can't exert to sing songs and your Pirate characters gain Resist +1. (Damage dealt to them is reduced by 1.)",
+        "raw": "FRIGHTFUL SCHEME While this character is exerted, opposing characters can't exert to sing songs and your Pirate characters gain Resist +1. (Damage dealt to them is reduced by 1.)"
+      }
+    ]
   },
   {
     "id": "lady-tremaine-bitterly-jealous",
@@ -6725,6 +6722,19 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
+    "setId": "7",
+    "number": 118,
+    "rarity": "legendary",
+    "rulesText": "Each player may reveal a character card from their hand and play it for free.",
+    "flavorText": "\"Congratulations, Wonderboy. You'll make one heck of a god.\"\n—Megara",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f6df91ec4b8144ec99568e5979a90225.avif?1740589573",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "Each player may reveal a character card from their hand and play it for free.",
+        "raw": "Each player may reveal a character card from their hand and play it for free."
+      }
+    ],
     "actionEffects": [
       {
         "type": "player_may_play_from_hand",
@@ -6748,19 +6758,6 @@
           ]
         }
       }
-    ],
-    "setId": "7",
-    "number": 118,
-    "rarity": "legendary",
-    "rulesText": "Each player may reveal a character card from their hand and play it for free.",
-    "flavorText": "\"Congratulations, Wonderboy. You'll make one heck of a god.\"\n—Megara",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f6df91ec4b8144ec99568e5979a90225.avif?1740589573",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "Each player may reveal a character card from their hand and play it for free.",
-        "raw": "Each player may reveal a character card from their hand and play it for free."
-      }
     ]
   },
   {
@@ -6781,7 +6778,13 @@
     "rarity": "rare",
     "rulesText": "Each player exerts all the cards in their inkwell. Then each player with more than 3 cards in their inkwell returns cards at random from their inkwell to their hand until they have 3 cards in their inkwell.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_1043af1f4d454d8d83c4a85a75e1ad05.avif?1740589576",
-    "_namedAbilityStubs": [],
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "Each player exerts all the cards in their inkwell. Then each player with more than 3 cards in their inkwell returns cards at random from their inkwell to their hand until they have 3 cards in their inkwell.",
+        "raw": "Each player exerts all the cards in their inkwell. Then each player with more than 3 cards in their inkwell returns cards at random from their inkwell to their hand until they have 3 cards in their inkwell."
+      }
+    ],
     "actionEffects": [
       {
         "type": "mass_inkwell",
@@ -7092,6 +7095,11 @@
       "Inventor"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 7
+      },
       {
         "type": "static",
         "storyName": "SALVAGE",
@@ -8590,7 +8598,13 @@
     "rulesText": "THE PRICE OF POWER {E} — If one of your characters was damaged this turn, gain 1 lore.",
     "flavorText": "\"Just look at it, filled with power for its owner.\"\n—Madame Medusa",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5aa0268561ff4690aa520763bc869ed1.avif?1740589708",
-    "_namedAbilityStubs": []
+    "_namedAbilityStubs": [
+      {
+        "storyName": "THE PRICE OF POWER",
+        "rulesText": "If one of your characters was damaged this turn, gain 1 lore.",
+        "raw": "THE PRICE OF POWER {E} — If one of your characters was damaged this turn, gain 1 lore."
+      }
+    ]
   },
   {
     "id": "clarabelle-news-reporter",
@@ -9845,6 +9859,10 @@
       "Robot"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "support"
+      },
       {
         "type": "triggered",
         "storyName": "ADVANCED SCANNER",
@@ -11210,8 +11228,15 @@
         "effect": {
           "type": "cost_reduction",
           "amount": -2,
-          "filter": { "cardType": ["action", "item"] },
-          "affectedPlayer": { "type": "both" }
+          "filter": {
+            "cardType": [
+              "action",
+              "item"
+            ]
+          },
+          "affectedPlayer": {
+            "type": "both"
+          }
         }
       }
     ],
@@ -11224,7 +11249,13 @@
     "lore": 1,
     "rulesText": "CLOSE ALL CHANNELS When you play this character, characters can't exert to sing songs until the start of your next turn.\nDON'T GET ANY IDEAS Each player pays 2 {I} more to play actions or items. (This doesn’t apply to singing songs.)",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9cc5e63998164343909390b767c6d3ae.avif?1740590264",
-    "_namedAbilityStubs": []
+    "_namedAbilityStubs": [
+      {
+        "storyName": "CLOSE ALL CHANNELS",
+        "rulesText": "When you play this character, characters can't exert to sing songs until the start of your next turn.",
+        "raw": "CLOSE ALL CHANNELS When you play this character, characters can't exert to sing songs until the start of your next turn."
+      }
+    ]
   },
   {
     "id": "mickey-mouse-inspirational-warrior",
@@ -12170,6 +12201,18 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
+    "setId": "7",
+    "number": 215,
+    "rarity": "enchanted",
+    "rulesText": "Each player may reveal a character card from their hand and play it for free.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7896cd21215c42609fc262c908068d94.avif?1740590335",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "Each player may reveal a character card from their hand and play it for free.",
+        "raw": "Each player may reveal a character card from their hand and play it for free."
+      }
+    ],
     "actionEffects": [
       {
         "type": "player_may_play_from_hand",
@@ -12192,18 +12235,6 @@
             "character"
           ]
         }
-      }
-    ],
-    "setId": "7",
-    "number": 215,
-    "rarity": "enchanted",
-    "rulesText": "Each player may reveal a character card from their hand and play it for free.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7896cd21215c42609fc262c908068d94.avif?1740590335",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "Each player may reveal a character card from their hand and play it for free.",
-        "raw": "Each player may reveal a character card from their hand and play it for free."
       }
     ]
   },
@@ -12399,7 +12430,13 @@
     "rarity": "enchanted",
     "rulesText": "THE PRICE OF POWER {E} — If one of your characters was damaged this turn, gain 1 lore.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_6a4c5fe1b3b74110acd16d725f8cc3f6.avif?1740590348",
-    "_namedAbilityStubs": []
+    "_namedAbilityStubs": [
+      {
+        "storyName": "THE PRICE OF POWER",
+        "rulesText": "If one of your characters was damaged this turn, gain 1 lore.",
+        "raw": "THE PRICE OF POWER {E} — If one of your characters was damaged this turn, gain 1 lore."
+      }
+    ]
   },
   {
     "id": "tamatoa-happy-as-a-clam",

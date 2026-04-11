@@ -15,6 +15,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "bodyguard"
+      },
+      {
         "type": "triggered",
         "storyName": "GENTLEMAN OF LEISURE",
         "rulesText": "When this character is banished, gain 2 lore.",
@@ -150,7 +154,9 @@
             }
           }
         },
-        "activeZones": ["hand"]
+        "activeZones": [
+          "hand"
+        ]
       },
       {
         "type": "triggered",
@@ -504,6 +510,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
+      {
         "type": "triggered",
         "storyName": "ANCIENT POWER",
         "rulesText": "When you play this character, all characters get -3 {S} until the start of your next turn.",
@@ -597,7 +608,9 @@
         "condition": {
           "type": "characters_in_play_gte",
           "amount": 4,
-          "player": { "type": "self" },
+          "player": {
+            "type": "self"
+          },
           "excludeSelf": true
         },
         "effects": [
@@ -659,6 +672,11 @@
       "Hero"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "singer",
+        "value": 3
+      },
       {
         "type": "triggered",
         "storyName": "MUSICAL DEBUT",
@@ -1028,6 +1046,15 @@
       "Ally"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "bodyguard"
+      },
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 5
+      },
       {
         "type": "triggered",
         "storyName": "GUARD DOG",
@@ -1770,9 +1797,9 @@
     "subtitle": "Mermaid Lagoon",
     "willpower": 4,
     "lore": 1,
+    "moveCost": 1,
     "flavorText": "The mermaids told Peter they'd seen some items floating by several days earlier,\nbut they were more concerned that one of their sisters had gone missing.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b9ecaeeeee5a467ea41b58edda3b8f13.avif?1709690747",
-    "moveCost": 1
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b9ecaeeeee5a467ea41b58edda3b8f13.avif?1709690747"
   },
   {
     "id": "pride-lands-pride-rock",
@@ -1812,14 +1839,24 @@
         "condition": {
           "type": "compound_or",
           "conditions": [
-            { "type": "this_location_has_character_with_trait", "trait": "Prince" },
-            { "type": "this_location_has_character_with_trait", "trait": "King" }
+            {
+              "type": "this_location_has_character_with_trait",
+              "trait": "Prince"
+            },
+            {
+              "type": "this_location_has_character_with_trait",
+              "trait": "King"
+            }
           ]
         },
         "effect": {
           "type": "cost_reduction",
           "amount": 1,
-          "filter": { "cardType": ["character"] }
+          "filter": {
+            "cardType": [
+              "character"
+            ]
+          }
         }
       }
     ],
@@ -1829,6 +1866,7 @@
     "subtitle": "Pride Rock",
     "willpower": 7,
     "lore": 1,
+    "moveCost": 2,
     "rulesText": "WE ARE ALL CONNECTED Characters get +2 {W} while here.\nLION HOME If you have a Prince or King character here, you pay 1 {I} less to play characters.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c73b3306eee042a0a17938812b0a564a.avif?1709690747",
     "_namedAbilityStubs": [
@@ -1837,8 +1875,7 @@
         "rulesText": "Characters get +2 {W} while here.",
         "raw": "WE ARE ALL CONNECTED Characters get +2 {W} while here."
       }
-    ],
-    "moveCost": 2
+    ]
   },
   {
     "id": "tianas-palace-jazz-restaurant",
@@ -1876,6 +1913,7 @@
     "subtitle": "Jazz Restaurant",
     "willpower": 8,
     "lore": 1,
+    "moveCost": 2,
     "rulesText": "NIGHT OUT Characters can't be challenged while here.",
     "flavorText": "In New Orleans, dreams can come true.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_ed1ca708595f44a49f40680e20635ff5.avif?1709690747",
@@ -1885,8 +1923,7 @@
         "rulesText": "Characters can't be challenged while here.",
         "raw": "NIGHT OUT Characters can't be challenged while here."
       }
-    ],
-    "moveCost": 2
+    ]
   },
   {
     "id": "alice-tea-alchemist",
@@ -2293,6 +2330,15 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 5
+      },
+      {
         "type": "triggered",
         "storyName": "STAY BACK!",
         "rulesText": "During your turn, while this character is exerted, whenever you draw a card, gain 1 lore.",
@@ -2467,6 +2513,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "rush"
+      },
+      {
         "type": "triggered",
         "storyName": "TIDY UP",
         "rulesText": "When you play this character, you may shuffle all Broom cards from your discard into your deck.",
@@ -2574,6 +2624,10 @@
       "Ally"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
       {
         "type": "triggered",
         "storyName": "GLIDING RIDE",
@@ -2712,6 +2766,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 5
+      },
+      {
         "type": "triggered",
         "storyName": "GOLDEN TOUCH",
         "rulesText": "Whenever this character quests, gain lore equal to the cost of one of your items in play.",
@@ -2845,7 +2904,9 @@
         "rulesText": "During your turn, whenever you draw a card, you may move 1 damage counter from chosen character to chosen opposing character.",
         "trigger": {
           "on": "card_drawn",
-          "player": { "type": "self" }
+          "player": {
+            "type": "self"
+          }
         },
         "condition": {
           "type": "is_your_turn"
@@ -2857,11 +2918,25 @@
             "isMay": true,
             "from": {
               "type": "chosen",
-              "filter": { "zone": "play", "cardType": ["character"], "hasDamage": true }
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasDamage": true
+              }
             },
             "to": {
               "type": "chosen",
-              "filter": { "zone": "play", "cardType": ["character"], "owner": { "type": "opponent" } }
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
+              }
             }
           }
         ]
@@ -3025,6 +3100,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "challenger",
+        "value": 3
+      },
+      {
         "type": "static",
         "storyName": "ANCIENT INSIGHT",
         "rulesText": "Whenever he challenges a Hyena character, this character takes no damage from the challenge.",
@@ -3069,6 +3149,10 @@
       "Titan"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
       {
         "type": "triggered",
         "storyName": "WHIRLWIND ENTRANCE",
@@ -3612,9 +3696,9 @@
     "subtitle": "Maleficent's Castle",
     "willpower": 6,
     "lore": 1,
+    "moveCost": 1,
     "flavorText": "An eerie quiet surrounds the castle—but beware of the dangerous\noccupant within.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5ac4816ce7b240db942b5963a8db9909.avif?1709690747",
-    "moveCost": 1
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5ac4816ce7b240db942b5963a8db9909.avif?1709690747"
   },
   {
     "id": "the-queens-castle-mirror-chamber",
@@ -3667,6 +3751,7 @@
     "subtitle": "Mirror Chamber",
     "willpower": 7,
     "lore": 2,
+    "moveCost": 1,
     "rulesText": "USING THE MIRROR At the start of your turn, for each character you have here, you may draw a card.",
     "flavorText": "Those who visit the mirror can choose their question—but not the answer.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a4f0a9a928674b2a93d17f7c81eb09d7.avif?1709690747",
@@ -3676,8 +3761,7 @@
         "rulesText": "USING THE MIRROR At the start of your turn, for each character you have here, you may draw a card.",
         "raw": "USING THE MIRROR At the start of your turn, for each character you have here, you may draw a card."
       }
-    ],
-    "moveCost": 1
+    ]
   },
   {
     "id": "the-sorcerers-tower-wondrous-workspace",
@@ -3736,6 +3820,7 @@
     "subtitle": "Wondrous Workspace",
     "willpower": 7,
     "lore": 0,
+    "moveCost": 2,
     "rulesText": "BROOM CLOSET Your characters named Magic Broom may move here for free.\nMAGICAL POWER Characters get +1 {L} while here.",
     "flavorText": "Everything you need to make some magic.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d9a1c24b8bf4469f8535e75c38cf61f7.avif?1709690747",
@@ -3750,8 +3835,7 @@
         "rulesText": "Characters get +1 {L} while here.",
         "raw": "MAGICAL POWER Characters get +1 {L} while here."
       }
-    ],
-    "moveCost": 1
+    ]
   },
   {
     "id": "cubby-mighty-lost-boy",
@@ -4013,6 +4097,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
+      {
         "type": "triggered",
         "storyName": "I'M ON YOUR SIDE",
         "rulesText": "Whenever this character quests, you may deal 3 damage to chosen damaged character.",
@@ -4121,6 +4210,10 @@
       "Ally"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "ward"
+      },
       {
         "type": "static",
         "storyName": "WE STICK TOGETHER",
@@ -4354,6 +4447,11 @@
       "King"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      },
       {
         "type": "triggered",
         "storyName": "FOR ATLANTIS!",
@@ -4751,6 +4849,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
+      {
         "type": "static",
         "storyName": "STEALTH MODE",
         "rulesText": "While this character is at a location, he gains Ward.",
@@ -4911,6 +5013,10 @@
       "Ally"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
       {
         "type": "triggered",
         "storyName": "WRECK IT",
@@ -5334,7 +5440,9 @@
           {
             "type": "discard_from_hand",
             "amount": 1,
-            "target": { "type": "self" },
+            "target": {
+              "type": "self"
+            },
             "chooser": "target_player"
           }
         ]
@@ -5372,9 +5480,9 @@
     "subtitle": "Cruella's Estate",
     "willpower": 4,
     "lore": 1,
+    "moveCost": 1,
     "flavorText": "\"They say the ol' place is haunted, or bewitched, or some such fiddle-faddle.\"\n—Colonel",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7ddf29d6110e4ccf838fa1ae76bbe034.avif?1709690747",
-    "moveCost": 1
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7ddf29d6110e4ccf838fa1ae76bbe034.avif?1709690747"
   },
   {
     "id": "fang-river-city",
@@ -5430,6 +5538,7 @@
     "subtitle": "River City",
     "willpower": 6,
     "lore": 2,
+    "moveCost": 2,
     "rulesText": "SURROUNDED BY WATER Characters gain Ward and Evasive while here. (Opponents can't choose them except to challenge. Only characters with Evasive can challenge them.)",
     "flavorText": "A nation protected by fierce assassins and their even fiercer cats.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_6438731e38f642b38a24a0b566078fa3.avif?1709690747",
@@ -5439,8 +5548,7 @@
         "rulesText": "Characters gain Ward and Evasive while here. (Opponents can't choose them except to challenge. Only characters with Evasive can challenge them.)",
         "raw": "SURROUNDED BY WATER Characters gain Ward and Evasive while here. (Opponents can't choose them except to challenge. Only characters with Evasive can challenge them.)"
       }
-    ],
-    "moveCost": 2
+    ]
   },
   {
     "id": "kuzcos-palace-home-of-the-emperor",
@@ -5480,6 +5588,7 @@
     "subtitle": "Home of the Emperor",
     "willpower": 7,
     "lore": 1,
+    "moveCost": 3,
     "rulesText": "CITY WALLS Whenever a character is challenged and banished while here, banish the challenging character.",
     "flavorText": "\"Sure it's a little small, but also it DOESN'T HAVE A POOL!\" —Kuzco",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_872d8dd267f44d1ca4410036e7eed315.avif?1709690747",
@@ -5489,8 +5598,7 @@
         "rulesText": "Whenever a character is challenged and banished while here, banish the challenging character.",
         "raw": "CITY WALLS Whenever a character is challenged and banished while here, banish the challenging character."
       }
-    ],
-    "moveCost": 2
+    ]
   },
   {
     "id": "ariel-adventurous-collector",
@@ -5508,6 +5616,10 @@
       "Princess"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
       {
         "type": "triggered",
         "storyName": "PART OF YOUR WORLD",
@@ -5641,7 +5753,13 @@
           "keyword": "evasive",
           "target": {
             "type": "all",
-            "filter": { "zone": "play", "cardType": ["character"], "hasName": "Peter Pan" }
+            "filter": {
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasName": "Peter Pan"
+            }
           }
         }
       }
@@ -6049,6 +6167,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "reckless"
+      },
+      {
         "type": "triggered",
         "storyName": "MENEHUNE MISCHIEF",
         "rulesText": "Whenever a character of yours named HeiHei quests, this character gets +1 {L} and loses Reckless this turn.",
@@ -6239,6 +6361,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
+      {
         "type": "triggered",
         "storyName": "RALLY THE CREW",
         "rulesText": "Whenever this character quests while at a location, ready all other characters here. They can't quest for the rest of this turn.",
@@ -6369,6 +6496,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "rush"
+      },
+      {
         "type": "static",
         "storyName": "YOU CAN FLY!",
         "rulesText": "While you have a character named Tinker Bell in play, this character gets +2 {S}.",
@@ -6422,6 +6553,15 @@
       "Hero"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      },
       {
         "type": "static",
         "storyName": "YOU'RE NEXT!",
@@ -6606,6 +6746,10 @@
       "Ally"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
       {
         "type": "static",
         "storyName": "THE FOX",
@@ -7208,9 +7352,9 @@
     "subtitle": "Marketplace",
     "willpower": 5,
     "lore": 2,
+    "moveCost": 1,
     "flavorText": "\"Welcome to Agrabah, city of mystery, of enchantment, and the finest\nmerchandise this side of the river.\"\n—Merchant",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_993b13d7185d4c83a00718ee79e6ef00.avif?1709690747",
-    "moveCost": 1
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_993b13d7185d4c83a00718ee79e6ef00.avif?1709690747"
   },
   {
     "id": "jolly-roger-hooks-ship",
@@ -7268,6 +7412,7 @@
     "subtitle": "Hook's Ship",
     "willpower": 5,
     "lore": 0,
+    "moveCost": 2,
     "rulesText": "LOOK ALIVE, YOU SWABS! Characters gain Rush while here. (They can challenge the turn they're played.)\nALL HANDS ON DECK! Your Pirate characters may move here for free.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f74acb5e986f496092a1c5ef8bfa741a.avif?1709690747",
     "_namedAbilityStubs": [
@@ -7281,8 +7426,7 @@
         "rulesText": "Your Pirate characters may move here for free.",
         "raw": "ALL HANDS ON DECK! Your Pirate characters may move here for free."
       }
-    ],
-    "moveCost": 1
+    ]
   },
   {
     "id": "rls-legacy-solar-galleon",
@@ -7342,6 +7486,7 @@
     "subtitle": "Solar Galleon",
     "willpower": 8,
     "lore": 2,
+    "moveCost": 3,
     "rulesText": "THIS IS OUR SHIP Characters gain Evasive while here. (Only characters with Evasive can challenge them.)\nHEAVE TOGETHER NOW If you have a character here, you pay 2 {I} less to move a character of yours here.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9f8f3cf328fe451e9be15353026085ee.avif?1709690747",
     "_namedAbilityStubs": [
@@ -7350,8 +7495,7 @@
         "rulesText": "Characters gain Evasive while here. (Only characters with Evasive can challenge them.)",
         "raw": "THIS IS OUR SHIP Characters gain Evasive while here. (Only characters with Evasive can challenge them.)"
       }
-    ],
-    "moveCost": 1
+    ]
   },
   {
     "id": "audrey-ramirez-the-engineer",
@@ -7368,6 +7512,10 @@
       "Ally"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "ward"
+      },
       {
         "type": "triggered",
         "storyName": "TINKER",
@@ -7635,6 +7783,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 5
+      },
+      {
         "type": "triggered",
         "storyName": "ONE WITH THE OCEAN",
         "rulesText": "Whenever a card is put into your inkwell, gain 1 lore.",
@@ -7749,6 +7902,10 @@
       "Ally"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "support"
+      },
       {
         "type": "triggered",
         "storyName": "MY DUCKTALES",
@@ -8701,20 +8858,40 @@
         "type": "activated",
         "storyName": "NUMBER ONE",
         "rulesText": "Choose a character of yours and gain lore equal to their {L}.",
-        "costs": [{ "type": "exert" }, { "type": "ink", "amount": 2 }],
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "ink",
+            "amount": 2
+          }
+        ],
         "effects": [
           {
             "type": "conditional_on_target",
             "target": {
               "type": "chosen",
-              "filter": { "zone": "play", "cardType": ["character"], "owner": { "type": "self" } }
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "self"
+                }
+              }
             },
             "conditionFilter": {},
             "ifMatchEffects": [
               {
                 "type": "gain_lore",
-                "amount": { "type": "target_lore" },
-                "target": { "type": "self" }
+                "amount": {
+                  "type": "target_lore"
+                },
+                "target": {
+                  "type": "self"
+                }
               }
             ]
           }
@@ -8888,6 +9065,7 @@
     "subtitle": "Maurice's Workshop",
     "willpower": 6,
     "lore": 0,
+    "moveCost": 2,
     "rulesText": "LABORATORY If you have a character here, you pay 1 {I} less to play items.",
     "flavorText": "Some of the most important tools in Lorcana are crafted here.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9f0ca76ac1444a1290ac0003ef15d292.avif?1709690747",
@@ -8897,8 +9075,7 @@
         "rulesText": "LABORATORY If you have a character here, you pay 1 {I} less to play items.",
         "raw": "LABORATORY If you have a character here, you pay 1 {I} less to play items."
       }
-    ],
-    "moveCost": 1
+    ]
   },
   {
     "id": "mcduck-manor-scrooges-mansion",
@@ -8918,9 +9095,9 @@
     "subtitle": "Scrooge's Mansion",
     "willpower": 9,
     "lore": 2,
+    "moveCost": 1,
     "flavorText": "\"It's only the coolest home in Lorcana!\"\n—Webby Vanderquack",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c653c06c96ec4b699dde5bcec70e0693.avif?1709690747",
-    "moveCost": 1
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c653c06c96ec4b699dde5bcec70e0693.avif?1709690747"
   },
   {
     "id": "motunui-island-paradise",
@@ -8965,6 +9142,7 @@
     "subtitle": "Island Paradise",
     "willpower": 5,
     "lore": 1,
+    "moveCost": 1,
     "rulesText": "REINCARNATION Whenever a character is banished while here, you may put that card into your inkwell facedown and exerted.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e60ec9d70c4a46bd8b7e69b3092af826.avif?1709690747",
     "_namedAbilityStubs": [
@@ -8973,8 +9151,7 @@
         "rulesText": "Whenever a character is banished while here, you may put that card into your inkwell facedown and exerted.",
         "raw": "REINCARNATION Whenever a character is banished while here, you may put that card into your inkwell facedown and exerted."
       }
-    ],
-    "moveCost": 1
+    ]
   },
   {
     "id": "chief-tui-proud-of-motunui",
@@ -9310,6 +9487,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      },
+      {
         "type": "static",
         "storyName": "TOUGH AS NAILS",
         "rulesText": "While this character is exerted, your characters with Bodyguard gain Resist +1.",
@@ -9395,6 +9577,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "bodyguard"
+      },
+      {
         "type": "static",
         "storyName": "ALWAYS THERE",
         "rulesText": "During your turn, this character gains Evasive.",
@@ -9442,6 +9628,11 @@
       "Titan"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "resist",
+        "value": 2
+      },
       {
         "type": "triggered",
         "storyName": "ROCK SHIELD",
@@ -9918,6 +10109,11 @@
       "Hero"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
       {
         "type": "triggered",
         "storyName": "WHO'S NEXT?",
@@ -10709,6 +10905,7 @@
     "subtitle": "Hidden Island",
     "willpower": 5,
     "lore": 0,
+    "moveCost": 1,
     "rulesText": "ISOLATED Characters gain Resist +1 while here. (Damage dealt to them is reduced by 1.)",
     "flavorText": "Nothing but boulders and sand—easy to miss.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_50ae7c2bc4c94414be98bbe98e01944c.avif?1709690747",
@@ -10718,8 +10915,7 @@
         "rulesText": "Characters gain Resist +1 while here. (Damage dealt to them is reduced by 1.)",
         "raw": "ISOLATED Characters gain Resist +1 while here. (Damage dealt to them is reduced by 1.)"
       }
-    ],
-    "moveCost": 1
+    ]
   },
   {
     "id": "nottingham-prince-johns-castle",
@@ -10739,9 +10935,9 @@
     "subtitle": "Prince John's Castle",
     "willpower": 6,
     "lore": 1,
+    "moveCost": 1,
     "flavorText": "Sir Hiss: \"I say, sire, your mother's castle will be the perfect place to set up our scheme!\"\nPrince John: \"Mommy!\"",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_398194a72dfd4e41be4b6939e4e13ee3.avif?1709690747",
-    "moveCost": 1
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_398194a72dfd4e41be4b6939e4e13ee3.avif?1709690747"
   },
   {
     "id": "the-bayou-mysterious-swamp",
@@ -10791,6 +10987,7 @@
     "subtitle": "Mysterious Swamp",
     "willpower": 3,
     "lore": 1,
+    "moveCost": 1,
     "rulesText": "SHOW ME THE WAY Whenever a character quests while here, you may draw a card, then choose and discard a card.",
     "flavorText": "A place to find what you need, not just what you want.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_65119a74cb394cec89eab4175ad228bf.avif?1709690747",
@@ -10800,8 +10997,7 @@
         "rulesText": "Whenever a character quests while here, you may draw a card, then choose and discard a card.",
         "raw": "SHOW ME THE WAY Whenever a character quests while here, you may draw a card, then choose and discard a card."
       }
-    ],
-    "moveCost": 1
+    ]
   },
   {
     "id": "chernabog-evildoer",
@@ -10837,7 +11033,9 @@
             }
           }
         },
-        "activeZones": ["hand"]
+        "activeZones": [
+          "hand"
+        ]
       },
       {
         "type": "triggered",
@@ -10898,6 +11096,11 @@
       "Princess"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
       {
         "type": "triggered",
         "storyName": "ANCIENT POWER",
@@ -10979,14 +11182,24 @@
         "condition": {
           "type": "compound_or",
           "conditions": [
-            { "type": "this_location_has_character_with_trait", "trait": "Prince" },
-            { "type": "this_location_has_character_with_trait", "trait": "King" }
+            {
+              "type": "this_location_has_character_with_trait",
+              "trait": "Prince"
+            },
+            {
+              "type": "this_location_has_character_with_trait",
+              "trait": "King"
+            }
           ]
         },
         "effect": {
           "type": "cost_reduction",
           "amount": 1,
-          "filter": { "cardType": ["character"] }
+          "filter": {
+            "cardType": [
+              "character"
+            ]
+          }
         }
       }
     ],
@@ -10996,6 +11209,7 @@
     "subtitle": "Pride Rock",
     "willpower": 7,
     "lore": 1,
+    "moveCost": 2,
     "rulesText": "WE ARE ALL CONNECTED Characters get +2 {W} while here.\nLION HOME If you have a Prince or King character here, you pay 1 {I} less to play characters.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_bbb647e1cbe3487baa2ad65b27a999ba.avif?1709690747",
     "_namedAbilityStubs": [
@@ -11004,8 +11218,7 @@
         "rulesText": "Characters get +2 {W} while here.",
         "raw": "WE ARE ALL CONNECTED Characters get +2 {W} while here."
       }
-    ],
-    "moveCost": 2
+    ]
   },
   {
     "id": "jafar-striking-illusionist",
@@ -11023,6 +11236,15 @@
       "Sorcerer"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 5
+      },
       {
         "type": "triggered",
         "storyName": "STAY BACK!",
@@ -11113,7 +11335,9 @@
         "rulesText": "During your turn, whenever you draw a card, you may move 1 damage counter from chosen character to chosen opposing character.",
         "trigger": {
           "on": "card_drawn",
-          "player": { "type": "self" }
+          "player": {
+            "type": "self"
+          }
         },
         "condition": {
           "type": "is_your_turn"
@@ -11125,11 +11349,25 @@
             "isMay": true,
             "from": {
               "type": "chosen",
-              "filter": { "zone": "play", "cardType": ["character"], "hasDamage": true }
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasDamage": true
+              }
             },
             "to": {
               "type": "chosen",
-              "filter": { "zone": "play", "cardType": ["character"], "owner": { "type": "opponent" } }
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
+              }
             }
           }
         ]
@@ -11338,6 +11576,7 @@
     "subtitle": "Home of the Emperor",
     "willpower": 7,
     "lore": 1,
+    "moveCost": 3,
     "rulesText": "CITY WALLS Whenever a character is challenged and banished while here, banish the challenging character.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a1af7dad15b64d31a696f7bbb49bfe92.avif?1709690747",
     "_namedAbilityStubs": [
@@ -11346,8 +11585,7 @@
         "rulesText": "Whenever a character is challenged and banished while here, banish the challenging character.",
         "raw": "CITY WALLS Whenever a character is challenged and banished while here, banish the challenging character."
       }
-    ],
-    "moveCost": 2
+    ]
   },
   {
     "id": "captain-hook-master-swordsman",
@@ -11404,7 +11642,13 @@
           "keyword": "evasive",
           "target": {
             "type": "all",
-            "filter": { "zone": "play", "cardType": ["character"], "hasName": "Peter Pan" }
+            "filter": {
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasName": "Peter Pan"
+            }
           }
         }
       }
@@ -11446,6 +11690,15 @@
       "Hero"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      },
       {
         "type": "static",
         "storyName": "YOU'RE NEXT!",
@@ -11534,6 +11787,7 @@
     "subtitle": "Solar Galleon",
     "willpower": 8,
     "lore": 2,
+    "moveCost": 3,
     "rulesText": "THIS IS OUR SHIP Characters gain Evasive while here. (Only characters with Evasive can challenge them.)\nHEAVE TOGETHER NOW If you have a character here, you pay 2 {I} less to move a character of yours here.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7c421033c14c40e7a5be957ba42bb1b7.avif?1709690747",
     "_namedAbilityStubs": [
@@ -11542,8 +11796,7 @@
         "rulesText": "Characters gain Evasive while here. (Only characters with Evasive can challenge them.)",
         "raw": "THIS IS OUR SHIP Characters gain Evasive while here. (Only characters with Evasive can challenge them.)"
       }
-    ],
-    "moveCost": 1
+    ]
   },
   {
     "id": "gramma-tala-spirit-of-the-ocean",
@@ -11560,6 +11813,11 @@
       "Mentor"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 5
+      },
       {
         "type": "triggered",
         "storyName": "ONE WITH THE OCEAN",
@@ -11709,6 +11967,7 @@
     "subtitle": "Maurice's Workshop",
     "willpower": 6,
     "lore": 0,
+    "moveCost": 2,
     "rulesText": "LABORATORY If you have a character here, you pay 1 {I} less to play items.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c9f08696c3cd44bf96e2a149bb3cfb12.avif?1709690747",
     "_namedAbilityStubs": [
@@ -11717,8 +11976,7 @@
         "rulesText": "LABORATORY If you have a character here, you pay 1 {I} less to play items.",
         "raw": "LABORATORY If you have a character here, you pay 1 {I} less to play items."
       }
-    ],
-    "moveCost": 1
+    ]
   },
   {
     "id": "mickey-mouse-trumpeter",
@@ -11786,6 +12044,11 @@
       "Hero"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
       {
         "type": "triggered",
         "storyName": "WHO'S NEXT?",

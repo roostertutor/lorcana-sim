@@ -2701,7 +2701,6 @@
         "raw": "Return up to 3 character cards from your discard to your hand. You pay 2 {I} less for the next character you play this turn."
       }
     ],
-    "singTogetherCost": 9,
     "actionEffects": [
       {
         "type": "return_to_hand",
@@ -2728,7 +2727,8 @@
           ]
         }
       }
-    ]
+    ],
+    "singTogetherCost": 9
   },
   {
     "id": "trials-and-tribulations",
@@ -3126,6 +3126,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "vanish"
+      },
+      {
         "type": "triggered",
         "storyName": "MYSTICAL FIGURE",
         "rulesText": "Whenever this character quests, gain lore equal to the {L} of chosen opposing character.",
@@ -3162,10 +3166,6 @@
             "defaultEffects": []
           }
         ]
-      },
-      {
-        "type": "keyword",
-        "keyword": "vanish"
       }
     ],
     "setId": "8",
@@ -4926,23 +4926,6 @@
         "keyword": "sing together"
       }
     ],
-    "actionEffects": [
-      {
-        "type": "draw",
-        "amount": "song_singer_count",
-        "target": {
-          "type": "self"
-        }
-      },
-      {
-        "type": "gain_lore",
-        "amount": "song_singer_count",
-        "target": {
-          "type": "self"
-        }
-      }
-    ],
-    "singTogetherCost": 9,
     "setId": "8",
     "number": 79,
     "rarity": "rare",
@@ -4959,7 +4942,24 @@
         "rulesText": "For each character that sang this song, draw a card and gain 1 lore.",
         "raw": "For each character that sang this song, draw a card and gain 1 lore."
       }
-    ]
+    ],
+    "actionEffects": [
+      {
+        "type": "draw",
+        "amount": "song_singer_count",
+        "target": {
+          "type": "self"
+        }
+      },
+      {
+        "type": "gain_lore",
+        "amount": "song_singer_count",
+        "target": {
+          "type": "self"
+        }
+      }
+    ],
+    "singTogetherCost": 9
   },
   {
     "id": "pull-the-lever",
@@ -5086,6 +5086,18 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
+    "setId": "8",
+    "number": 82,
+    "rarity": "rare",
+    "rulesText": "Move 1 damage counter from each damaged character you have in play to chosen opposing character. Draw a card for each damage counter moved this way.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_af2675aaffe94ff2bf54e5635e2657d8.avif?1747508891",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "Move 1 damage counter from each damaged character you have in play to chosen opposing character. Draw a card for each damage counter moved this way.",
+        "raw": "Move 1 damage counter from each damaged character you have in play to chosen opposing character. Draw a card for each damage counter moved this way."
+      }
+    ],
     "actionEffects": [
       {
         "type": "sequential",
@@ -5124,18 +5136,6 @@
             }
           }
         ]
-      }
-    ],
-    "setId": "8",
-    "number": 82,
-    "rarity": "rare",
-    "rulesText": "Move 1 damage counter from each damaged character you have in play to chosen opposing character. Draw a card for each damage counter moved this way.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_af2675aaffe94ff2bf54e5635e2657d8.avif?1747508891",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "Move 1 damage counter from each damaged character you have in play to chosen opposing character. Draw a card for each damage counter moved this way.",
-        "raw": "Move 1 damage counter from each damaged character you have in play to chosen opposing character. Draw a card for each damage counter moved this way."
       }
     ]
   },
@@ -5215,32 +5215,71 @@
         "type": "triggered",
         "storyName": "HOLD STILL",
         "rulesText": "When you play this item, exert chosen opposing character.",
-        "trigger": { "on": "enters_play" },
-        "effects": [{
-          "type": "exert_character",
-          "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["character"], "owner": { "type": "opponent" } } }
-        }]
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "exert_character",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
+              }
+            }
+          }
+        ]
       },
       {
         "type": "activated",
         "storyName": "IT’S STUCK",
         "rulesText": "Exert chosen opposing item. It can’t ready at the start of its next turn.",
-        "costs": [{ "type": "exert" }, { "type": "ink", "amount": 1 }],
-        "effects": [{
-          "type": "exert_character",
-          "target": { "type": "chosen", "filter": { "zone": "play", "cardType": ["item"], "owner": { "type": "opponent" } } }
-        }, {
-          "type": "cant_action",
-          "action": "ready",
-          "duration": "end_of_owner_next_turn",
-          "target": { "type": "last_resolved_target" }
-        }]
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "ink",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "exert_character",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "item"
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
+              }
+            }
+          },
+          {
+            "type": "cant_action",
+            "action": "ready",
+            "duration": "end_of_owner_next_turn",
+            "target": {
+              "type": "last_resolved_target"
+            }
+          }
+        ]
       }
     ],
     "setId": "8",
     "number": 84,
     "rarity": "uncommon",
-    "rulesText": "HOLD STILL When you play this item, exert chosen opposing character.\nIT’S STUCK {E}, 1 {I} – Exert chosen opposing item. It can’t ready at the start of its next turn.",
+    "rulesText": "HOLD STILL When you play this item, exert chosen opposing character.\nIT'S STUCK {E}, 1 {I} – Exert chosen opposing item. It can’t ready at the start of its next turn.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f045d7f21ccd4cbe8ffb41e436759221.avif?1747508912",
     "_namedAbilityStubs": [
       {
@@ -7157,7 +7196,6 @@
         "raw": "Return up to 2 chosen characters with 3 {S} or less each to their player's hand."
       }
     ],
-    "singTogetherCost": 8,
     "actionEffects": [
       {
         "type": "return_to_hand",
@@ -7173,7 +7211,8 @@
           }
         }
       }
-    ]
+    ],
+    "singTogetherCost": 8
   },
   {
     "id": "wrong-lever",
@@ -7287,6 +7326,19 @@
     "inkable": false,
     "traits": [],
     "abilities": [],
+    "setId": "8",
+    "number": 118,
+    "rarity": "uncommon",
+    "rulesText": "Your Pirate characters gain \"{E} — Banish chosen damaged character\" this turn.",
+    "flavorText": "It was at this point that John decided he'd had quite enough adventure.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d5390ce678f1438eb716de9952cfd9d2.avif?1747509126",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "Your Pirate characters gain \"{E} — Banish chosen damaged character\" this turn.",
+        "raw": "Your Pirate characters gain \"{E} — Banish chosen damaged character\" this turn."
+      }
+    ],
     "actionEffects": [
       {
         "type": "grant_activated_ability_timed",
@@ -7325,19 +7377,6 @@
             }
           ]
         }
-      }
-    ],
-    "setId": "8",
-    "number": 118,
-    "rarity": "uncommon",
-    "rulesText": "Your Pirate characters gain \"{E} — Banish chosen damaged character\" this turn.",
-    "flavorText": "It was at this point that John decided he'd had quite enough adventure.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d5390ce678f1438eb716de9952cfd9d2.avif?1747509126",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "Your Pirate characters gain \"{E} — Banish chosen damaged character\" this turn.",
-        "raw": "Your Pirate characters gain \"{E} — Banish chosen damaged character\" this turn."
       }
     ]
   },
@@ -7693,7 +7732,13 @@
     "rulesText": "SPITEFUL During your turn, when this character is banished, if one of your characters was damaged this turn, gain 2 lore.",
     "flavorText": "He's identical to Nero in cruelty and classiness.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c58dd411430545cf8347b0993cd685f7.avif?1747509156",
-    "_namedAbilityStubs": []
+    "_namedAbilityStubs": [
+      {
+        "storyName": "SPITEFUL",
+        "rulesText": "During your turn, when this character is banished, if one of your characters was damaged this turn, gain 2 lore.",
+        "raw": "SPITEFUL During your turn, when this character is banished, if one of your characters was damaged this turn, gain 2 lore."
+      }
+    ]
   },
   {
     "id": "brutus-fearsome-crocodile",
@@ -7754,7 +7799,13 @@
     "rulesText": "SPITEFUL During your turn, when this character is banished, if one of your characters was damaged this turn, gain 2 lore.",
     "flavorText": "He's identical to Nero in cruelty and classiness.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_413aa60d7950479282acb68e97eaafcd.avif?1751505378",
-    "_namedAbilityStubs": []
+    "_namedAbilityStubs": [
+      {
+        "storyName": "SPITEFUL",
+        "rulesText": "During your turn, when this character is banished, if one of your characters was damaged this turn, gain 2 lore.",
+        "raw": "SPITEFUL During your turn, when this character is banished, if one of your characters was damaged this turn, gain 2 lore."
+      }
+    ]
   },
   {
     "id": "the-dodo-outlandish-storyteller",
@@ -9033,7 +9084,12 @@
     "traits": [
       "Song"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "sing together"
+      }
+    ],
     "setId": "8",
     "number": 147,
     "rarity": "rare",
@@ -9051,7 +9107,6 @@
         "raw": "Ready all your characters. For the rest of this turn, they take no damage from challenges and can't quest."
       }
     ],
-    "singTogetherCost": 8,
     "actionEffects": [
       {
         "type": "ready",
@@ -9102,7 +9157,8 @@
         },
         "duration": "end_of_turn"
       }
-    ]
+    ],
+    "singTogetherCost": 8
   },
   {
     "id": "get-out",
@@ -10149,9 +10205,13 @@
         "rulesText": "At the start of your turn, if this card is in your discard, you may choose and discard a card with {IW} to play this character for free and he enters play exerted.",
         "trigger": {
           "on": "start_of_turn",
-          "player": { "type": "self" }
+          "player": {
+            "type": "self"
+          }
         },
-        "activeZones": ["discard"],
+        "activeZones": [
+          "discard"
+        ],
         "effects": [
           {
             "type": "sequential",
@@ -10160,15 +10220,21 @@
               {
                 "type": "discard_from_hand",
                 "amount": 1,
-                "target": { "type": "self" },
+                "target": {
+                  "type": "self"
+                },
                 "chooser": "controller",
-                "filter": { "inkable": true }
+                "filter": {
+                  "inkable": true
+                }
               }
             ],
             "rewardEffects": [
               {
                 "type": "play_for_free",
-                "target": { "type": "this" },
+                "target": {
+                  "type": "this"
+                },
                 "sourceZone": "discard",
                 "enterExerted": true
               }
@@ -10449,6 +10515,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 2
+      },
+      {
         "type": "triggered",
         "storyName": "ALWAYS PLANNING",
         "rulesText": "Whenever this character quests, look at the top 3 cards of your deck. You may reveal an Ally character card and put it into your hand. Put the rest on the bottom of your deck in any order.",
@@ -10686,7 +10757,6 @@
         "raw": "Remove up to 3 damage from any number of chosen characters. All opposing characters get -3 {S} this turn."
       }
     ],
-    "singTogetherCost": 6,
     "actionEffects": [
       {
         "type": "remove_damage",
@@ -10723,7 +10793,8 @@
           }
         }
       }
-    ]
+    ],
+    "singTogetherCost": 6
   },
   {
     "id": "pouncing-practice",
@@ -11668,7 +11739,13 @@
     "rulesText": "SELF-PRESERVATION While you have another exerted character in play, this character can't be challenged.",
     "flavorText": "\"Nice try, chumps! Too bad I'm all the way up here!\"",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_14cf336ace334aa4bb012d3a932242bf.avif?1747509505",
-    "_namedAbilityStubs": []
+    "_namedAbilityStubs": [
+      {
+        "storyName": "SELF-PRESERVATION",
+        "rulesText": "While you have another exerted character in play, this character can't be challenged.",
+        "raw": "SELF-PRESERVATION While you have another exerted character in play, this character can't be challenged."
+      }
+    ]
   },
   {
     "id": "nathaniel-flint-notorious-pirate",
@@ -11698,7 +11775,13 @@
     "rulesText": "PREDATORY INSTINCT You can't play this character unless an opposing character was damaged this turn.",
     "flavorText": "\"Flint's secret trove was never found, but stories have persisted that it remains hidden...\" —Narrator",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_06dcb232c2b84e47923c74acc1f755aa.avif?1747509509",
-    "_namedAbilityStubs": [],
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "PREDATORY INSTINCT You can't play this character unless an opposing character was damaged this turn.",
+        "raw": "PREDATORY INSTINCT You can't play this character unless an opposing character was damaged this turn."
+      }
+    ],
     "playRestrictions": [
       {
         "type": "opposing_character_was_damaged_this_turn"
@@ -12012,6 +12095,19 @@
     "inkable": false,
     "traits": [],
     "abilities": [],
+    "setId": "8",
+    "number": 201,
+    "rarity": "rare",
+    "rulesText": "If you have no cards in your hand, draw until you have 3 cards in your hand. Otherwise, choose and discard any number of cards, then draw that many cards.",
+    "flavorText": "\"It's my decision. My choice. And you won't stop me.\" —Namaari",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c7ad283c2e514045abdd3680133717a3.avif?1747509528",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "If you have no cards in your hand, draw until you have 3 cards in your hand. Otherwise, choose and discard any number of cards, then draw that many cards.",
+        "raw": "If you have no cards in your hand, draw until you have 3 cards in your hand. Otherwise, choose and discard any number of cards, then draw that many cards."
+      }
+    ],
     "actionEffects": [
       {
         "type": "conditional_on_player_state",
@@ -12057,19 +12153,6 @@
           }
         ]
       }
-    ],
-    "setId": "8",
-    "number": 201,
-    "rarity": "rare",
-    "rulesText": "If you have no cards in your hand, draw until you have 3 cards in your hand. Otherwise, choose and discard any number of cards, then draw that many cards.",
-    "flavorText": "\"It's my decision. My choice. And you won't stop me.\" —Namaari",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c7ad283c2e514045abdd3680133717a3.avif?1747509528",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "If you have no cards in your hand, draw until you have 3 cards in your hand. Otherwise, choose and discard any number of cards, then draw that many cards.",
-        "raw": "If you have no cards in your hand, draw until you have 3 cards in your hand. Otherwise, choose and discard any number of cards, then draw that many cards."
-      }
     ]
   },
   {
@@ -12108,7 +12191,6 @@
         "raw": "Choose any number of players. They discard their hands and draw 3 cards each."
       }
     ],
-    "singTogetherCost": 7,
     "actionEffects": [
       {
         "type": "discard_from_hand",
@@ -12140,7 +12222,8 @@
           "type": "self"
         }
       }
-    ]
+    ],
+    "singTogetherCost": 7
   },
   {
     "id": "quick-shot",
@@ -12503,7 +12586,6 @@
         "raw": "Return up to 3 character cards from your discard to your hand. You pay 2 {I} less for the next character you play this turn."
       }
     ],
-    "singTogetherCost": 9,
     "actionEffects": [
       {
         "type": "return_to_hand",
@@ -12530,7 +12612,8 @@
           ]
         }
       }
-    ]
+    ],
+    "singTogetherCost": 9
   },
   {
     "id": "bambi-little-prince",
@@ -12817,7 +12900,6 @@
         "raw": "For each character that sang this song, draw a card and gain 1 lore."
       }
     ],
-    "singTogetherCost": 9,
     "actionEffects": [
       {
         "type": "draw",
@@ -12833,7 +12915,8 @@
           "type": "self"
         }
       }
-    ]
+    ],
+    "singTogetherCost": 9
   },
   {
     "id": "into-the-unknown",
@@ -13395,9 +13478,13 @@
         "rulesText": "At the start of your turn, if this card is in your discard, you may choose and discard a card with {IW} to play this character for free and he enters play exerted.",
         "trigger": {
           "on": "start_of_turn",
-          "player": { "type": "self" }
+          "player": {
+            "type": "self"
+          }
         },
-        "activeZones": ["discard"],
+        "activeZones": [
+          "discard"
+        ],
         "effects": [
           {
             "type": "sequential",
@@ -13406,15 +13493,21 @@
               {
                 "type": "discard_from_hand",
                 "amount": 1,
-                "target": { "type": "self" },
+                "target": {
+                  "type": "self"
+                },
                 "chooser": "controller",
-                "filter": { "inkable": true }
+                "filter": {
+                  "inkable": true
+                }
               }
             ],
             "rewardEffects": [
               {
                 "type": "play_for_free",
-                "target": { "type": "this" },
+                "target": {
+                  "type": "this"
+                },
                 "sourceZone": "discard",
                 "enterExerted": true
               }
@@ -13457,6 +13550,11 @@
       "Princess"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 2
+      },
       {
         "type": "triggered",
         "storyName": "ALWAYS PLANNING",
@@ -13513,6 +13611,18 @@
     "inkable": false,
     "traits": [],
     "abilities": [],
+    "setId": "8",
+    "number": 222,
+    "rarity": "enchanted",
+    "rulesText": "If you have no cards in your hand, draw until you have 3 cards in your hand. Otherwise, choose and discard any number of cards, then draw that many cards.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_cfbcf752b5064d1e8abfc2a2c6d3e98a.avif?1747509597",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "If you have no cards in your hand, draw until you have 3 cards in your hand. Otherwise, choose and discard any number of cards, then draw that many cards.",
+        "raw": "If you have no cards in your hand, draw until you have 3 cards in your hand. Otherwise, choose and discard any number of cards, then draw that many cards."
+      }
+    ],
     "actionEffects": [
       {
         "type": "conditional_on_player_state",
@@ -13557,18 +13667,6 @@
             ]
           }
         ]
-      }
-    ],
-    "setId": "8",
-    "number": 222,
-    "rarity": "enchanted",
-    "rulesText": "If you have no cards in your hand, draw until you have 3 cards in your hand. Otherwise, choose and discard any number of cards, then draw that many cards.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_cfbcf752b5064d1e8abfc2a2c6d3e98a.avif?1747509597",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "If you have no cards in your hand, draw until you have 3 cards in your hand. Otherwise, choose and discard any number of cards, then draw that many cards.",
-        "raw": "If you have no cards in your hand, draw until you have 3 cards in your hand. Otherwise, choose and discard any number of cards, then draw that many cards."
       }
     ]
   }

@@ -1375,6 +1375,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "bodyguard"
+      },
+      {
         "type": "triggered",
         "storyName": "HIRE A CREW",
         "rulesText": "When you play this character, look at the top 4 cards of your deck. You may reveal any number of Pirate character cards and put them into your hand. Put the rest on the bottom of your deck in any order.",
@@ -1571,6 +1575,18 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
+    "setId": "6",
+    "number": 29,
+    "rarity": "uncommon",
+    "rulesText": "Count the number of characters you have in play. Chosen character loses {S} equal to that number until the start of your next turn.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_be7a93b4b99b4a8b9da63fd956fa3c86.avif?1730901319",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "Count the number of characters you have in play. Chosen character loses {S} equal to that number until the start of your next turn.",
+        "raw": "Count the number of characters you have in play. Chosen character loses {S} equal to that number until the start of your next turn."
+      }
+    ],
     "actionEffects": [
       {
         "type": "gain_stats",
@@ -1597,18 +1613,6 @@
             ]
           }
         }
-      }
-    ],
-    "setId": "6",
-    "number": 29,
-    "rarity": "uncommon",
-    "rulesText": "Count the number of characters you have in play. Chosen character loses {S} equal to that number until the start of your next turn.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_be7a93b4b99b4a8b9da63fd956fa3c86.avif?1730901319",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "Count the number of characters you have in play. Chosen character loses {S} equal to that number until the start of your next turn.",
-        "raw": "Count the number of characters you have in play. Chosen character loses {S} equal to that number until the start of your next turn."
       }
     ]
   },
@@ -1880,6 +1884,7 @@
     "subtitle": "Pooh's Home",
     "willpower": 5,
     "lore": 0,
+    "moveCost": 1,
     "rulesText": "FRIENDS FOREVER During an opponent's turn, whenever a character is banished here, gain 1 lore.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_2fd6877d711c45f68ad61690d224306a.avif?1730901319",
     "_namedAbilityStubs": [
@@ -1950,6 +1955,7 @@
     "subtitle": "Finish Line",
     "willpower": 7,
     "lore": 0,
+    "moveCost": 6,
     "rulesText": "BRING IT HOME, LITTLE ONE! When you move a character here from another location, you may banish this location to gain 3 lore and draw 3 cards.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c9365d1b256c4d0fa0600686f72b6f3b.avif?1730901319",
     "_namedAbilityStubs": [
@@ -3172,15 +3178,6 @@
       "Song"
     ],
     "abilities": [],
-    "actionEffects": [
-      {
-        "type": "mill",
-        "amount": 2,
-        "target": {
-          "type": "opponent"
-        }
-      }
-    ],
     "setId": "6",
     "number": 60,
     "rarity": "common",
@@ -3197,6 +3194,15 @@
         "storyName": "",
         "rulesText": "Each opponent puts the top 2 cards of their deck into their discard.",
         "raw": "Each opponent puts the top 2 cards of their deck into their discard."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "mill",
+        "amount": 2,
+        "target": {
+          "type": "opponent"
+        }
       }
     ]
   },
@@ -3652,6 +3658,7 @@
     "subtitle": "Royal Vessel",
     "willpower": 4,
     "lore": 1,
+    "moveCost": 1,
     "flavorText": "Legends say that whenever something goes missing, it's been taken to build the fairy ships of the Azurite Sea.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_107f43772b78405f8a4fb587e8279d14.avif?1730901319"
   },
@@ -3748,6 +3755,7 @@
     "subtitle": "Mama Odie's Home",
     "willpower": 7,
     "lore": 0,
+    "moveCost": 1,
     "rulesText": "NOT BAD At the start of your turn, you may move 1 damage counter from chosen character here to chosen opposing character.\nHARD-EARNED WISDOM At the start of your turn, if you have a character named Mama Odie here, gain 1 lore.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9119b44cfe67444288a32f23009541e8.avif?1730901319",
     "_namedAbilityStubs": [
@@ -4015,6 +4023,10 @@
       "Inventor"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
       {
         "type": "triggered",
         "storyName": "NEED FOR SPEED",
@@ -5528,6 +5540,7 @@
     "subtitle": "Watery Labyrinth",
     "willpower": 8,
     "lore": 1,
+    "moveCost": 1,
     "rulesText": "LOST IN THE WAVES Whenever a character is challenged while here, each opponent chooses and discards a card.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_766de0c1ae8b4e5da1ecd7740eb5feb8.avif?1730901319",
     "_namedAbilityStubs": [
@@ -5585,8 +5598,23 @@
         "rulesText": "For each character you have here, you pay 1 {I} less for the first action you play each turn.",
         "effect": {
           "type": "cost_reduction",
-          "amount": { "type": "count", "filter": { "cardType": ["character"], "atLocation": "this", "owner": { "type": "self" } } },
-          "filter": { "cardType": ["action"] }
+          "amount": {
+            "type": "count",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "atLocation": "this",
+              "owner": {
+                "type": "self"
+              }
+            }
+          },
+          "filter": {
+            "cardType": [
+              "action"
+            ]
+          }
         }
       }
     ],
@@ -5596,6 +5624,7 @@
     "subtitle": "Secluded Entrance",
     "willpower": 6,
     "lore": 0,
+    "moveCost": 1,
     "rulesText": "TEAMWORK For each character you have here, you pay 1 {I} less for the first action you play each turn.\nLOTS TO LEARN Whenever you play a second action in a turn, gain 3 lore.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_2f052175c77d4035b1e261bf1675aee8.avif?1730901319",
     "_namedAbilityStubs": [
@@ -5623,6 +5652,11 @@
       "Captain"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
       {
         "type": "triggered",
         "storyName": "MARINER'S MIGHT",
@@ -7408,6 +7442,7 @@
     "subtitle": "Coconut Armada",
     "willpower": 6,
     "lore": 0,
+    "moveCost": 2,
     "rulesText": "TINY THIEVES At the start of your turn, if you have a character here, all opponents lose 1 lore and you gain lore equal to the lore lost this way.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5b57ee130c204b778df487c9826834c1.avif?1730901319",
     "_namedAbilityStubs": [
@@ -7453,13 +7488,25 @@
         "type": "triggered",
         "storyName": "SAFE HAVEN",
         "rulesText": "At the start of your turn, if you have a Pirate character here, gain 1 lore.",
-        "trigger": { "on": "start_of_turn", "player": { "type": "self" } },
-        "condition": { "type": "this_location_has_character_with_trait", "trait": "Pirate" },
-        "effects": [{
-          "type": "gain_lore",
-          "amount": 1,
-          "target": { "type": "self" }
-        }]
+        "trigger": {
+          "on": "start_of_turn",
+          "player": {
+            "type": "self"
+          }
+        },
+        "condition": {
+          "type": "this_location_has_character_with_trait",
+          "trait": "Pirate"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "6",
@@ -7468,8 +7515,16 @@
     "subtitle": "Isolated Fortress",
     "willpower": 6,
     "lore": 0,
+    "moveCost": 1,
     "rulesText": "FAMILIAR GROUND Characters get +1 {S} while here.\nSAFE HAVEN At the start of your turn, if you have a Pirate character here, gain 1 lore.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5c09e6638f7f4eccaa8ae9cf545702cc.avif?1730901319"
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5c09e6638f7f4eccaa8ae9cf545702cc.avif?1730901319",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "FAMILIAR GROUND",
+        "rulesText": "Characters get +1 {S} while here.",
+        "raw": "FAMILIAR GROUND Characters get +1 {S} while here."
+      }
+    ]
   },
   {
     "id": "b-e-n-eccentric-robot",
@@ -7647,13 +7702,26 @@
         "rulesText": "While you have 3 or more items in play, you pay 1 {I} less to play Inventor characters.",
         "condition": {
           "type": "you_control_matching",
-          "filter": { "cardType": ["item"], "zone": "play", "owner": { "type": "self" } },
+          "filter": {
+            "cardType": [
+              "item"
+            ],
+            "zone": "play",
+            "owner": {
+              "type": "self"
+            }
+          },
           "minimum": 3
         },
         "effect": {
           "type": "cost_reduction",
           "amount": 1,
-          "filter": { "cardType": ["character"], "hasTrait": "Inventor" }
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Inventor"
+          }
         }
       }
     ],
@@ -8356,7 +8424,13 @@
     "shiftCost": 1,
     "rulesText": "CAN'T TOUCH ME While you have an item in play, this character can't be challenged.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_48304fa82c024098bf755ea123884358.avif?1730901319",
-    "_namedAbilityStubs": []
+    "_namedAbilityStubs": [
+      {
+        "storyName": "CAN'T TOUCH ME",
+        "rulesText": "While you have an item in play, this character can't be challenged.",
+        "raw": "CAN'T TOUCH ME While you have an item in play, this character can't be challenged."
+      }
+    ]
   },
   {
     "id": "gadget-hackwrench-perceptive-mouse",
@@ -8896,7 +8970,9 @@
           "type": "cost_reduction",
           "amount": 99,
           "filter": {
-            "cardType": ["item"],
+            "cardType": [
+              "item"
+            ],
             "hasName": "Microbots"
           }
         }
@@ -9503,6 +9579,7 @@
     "subtitle": "Mobile Headquarters",
     "willpower": 8,
     "lore": 0,
+    "moveCost": 1,
     "rulesText": "PLANNING SESSION At the start of your turn, if you have a character here, you may put the top card of your deck into your inkwell facedown and exerted.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d6deefa8519c46a39b105b62d7b857f4.avif?1730901319",
     "_namedAbilityStubs": [
@@ -9575,6 +9652,7 @@
     "subtitle": "Prestigious University",
     "willpower": 5,
     "lore": 0,
+    "moveCost": 1,
     "rulesText": "WELCOME TO THE LAB Inventor characters get +1 {W} while here.\nPUSH THE BOUNDARIES At the start of your turn, if you have a character here, gain 1 lore.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b499c66fd5104b3a994c3a6bd51ba692.avif?1730901319",
     "_namedAbilityStubs": [
@@ -9938,6 +10016,11 @@
       "Captain"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      },
       {
         "type": "triggered",
         "storyName": "YOU'LL BE SORRY!",
@@ -10751,7 +10834,16 @@
           "value": 1,
           "target": {
             "type": "all",
-            "filter": { "zone": "play", "cardType": ["character"], "owner": { "type": "self" }, "excludeSelf": true }
+            "filter": {
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "owner": {
+                "type": "self"
+              },
+              "excludeSelf": true
+            }
           }
         }
       }
@@ -11457,6 +11549,7 @@
     "subtitle": "Azurite Sea Island",
     "willpower": 9,
     "lore": 2,
+    "moveCost": 2,
     "rulesText": "SECRET WEAPON At the start of your turn, deal damage to chosen character or location equal to the number of characters here.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_dc9cd90360a14c2488e647a1934a17bb.avif?1730901319",
     "_namedAbilityStubs": [
@@ -11514,9 +11607,16 @@
     "subtitle": "Courtroom",
     "willpower": 7,
     "lore": 1,
+    "moveCost": 1,
     "rulesText": "FEDERATION DECREE While you have an Alien or Robot character here, this location can’t be challenged.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_25d8f80f68574d38869b7853d737e8e2.avif?1730901319",
-    "_namedAbilityStubs": []
+    "_namedAbilityStubs": [
+      {
+        "storyName": "FEDERATION DECREE",
+        "rulesText": "While you have an Alien or Robot character here, this location can’t be challenged.",
+        "raw": "FEDERATION DECREE While you have an Alien or Robot character here, this location can’t be challenged."
+      }
+    ]
   },
   {
     "id": "chip-n-dale-recovery-rangers",
@@ -11717,6 +11817,7 @@
     "subtitle": "Finish Line",
     "willpower": 7,
     "lore": 0,
+    "moveCost": 6,
     "rulesText": "BRING IT HOME, LITTLE ONE! When you move a character here from another location, you may banish this location to gain 3 lore and draw 3 cards.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_60630688715e45079236d447087a9a83.avif?1730901319",
     "_namedAbilityStubs": [
@@ -12283,13 +12384,26 @@
         "rulesText": "While you have 3 or more items in play, you pay 1 {I} less to play Inventor characters.",
         "condition": {
           "type": "you_control_matching",
-          "filter": { "cardType": ["item"], "zone": "play", "owner": { "type": "self" } },
+          "filter": {
+            "cardType": [
+              "item"
+            ],
+            "zone": "play",
+            "owner": {
+              "type": "self"
+            }
+          },
           "minimum": 3
         },
         "effect": {
           "type": "cost_reduction",
           "amount": 1,
-          "filter": { "cardType": ["character"], "hasTrait": "Inventor" }
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Inventor"
+          }
         }
       }
     ],
@@ -12560,7 +12674,16 @@
           "value": 1,
           "target": {
             "type": "all",
-            "filter": { "zone": "play", "cardType": ["character"], "owner": { "type": "self" }, "excludeSelf": true }
+            "filter": {
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "owner": {
+                "type": "self"
+              },
+              "excludeSelf": true
+            }
           }
         }
       }
@@ -12642,6 +12765,7 @@
     "subtitle": "Azurite Sea Island",
     "willpower": 9,
     "lore": 2,
+    "moveCost": 2,
     "rulesText": "SECRET WEAPON At the start of your turn, deal damage to chosen character or location equal to the number of characters here.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c343d1fc29f3491f95bb460c90e081a7.avif?1730901319",
     "_namedAbilityStubs": [

@@ -16,6 +16,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
+      {
         "type": "activated",
         "storyName": "YOU JUST HAVE TO SEE IT",
         "rulesText": "{E} — Name a card, then reveal the top card of your deck. If it's the named card, put it into your hand and gain 3 lore. Otherwise, put it on the top of your deck.",
@@ -1375,7 +1379,6 @@
         "raw": "Look at the top 5 cards of your deck. You may reveal up to 2 character cards and put them into your hand. Put the rest on the bottom of your deck in any order."
       }
     ],
-    "singTogetherCost": 7,
     "actionEffects": [
       {
         "type": "look_at_top",
@@ -1391,7 +1394,8 @@
           "type": "self"
         }
       }
-    ]
+    ],
+    "singTogetherCost": 7
   },
   {
     "id": "circle-of-life",
@@ -1424,7 +1428,6 @@
         "raw": "Sing Together 8 (Any number of your or your teammates’ characters with total cost 8 or more may {E} to sing this song for free.) Play a character from your discard for free."
       }
     ],
-    "singTogetherCost": 8,
     "actionEffects": [
       {
         "type": "play_for_free",
@@ -1437,7 +1440,8 @@
         },
         "isMay": true
       }
-    ]
+    ],
+    "singTogetherCost": 8
   },
   {
     "id": "heal-what-has-been-hurt",
@@ -1824,8 +1828,16 @@
     "subtitle": "Concert Hall",
     "willpower": 6,
     "lore": 0,
+    "moveCost": 2,
     "rulesText": "UNDERWATER ACOUSTICS Characters count as having +2 cost to sing songs while here.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_74c2fa84872c4c68ac1eb0e2a7a8affc.avif?1755540294"
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_74c2fa84872c4c68ac1eb0e2a7a8affc.avif?1755540294",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "UNDERWATER ACOUSTICS",
+        "rulesText": "Characters count as having +2 cost to sing songs while here.",
+        "raw": "UNDERWATER ACOUSTICS Characters count as having +2 cost to sing songs while here."
+      }
+    ]
   },
   {
     "id": "the-queen-wicked-and-vain",
@@ -3281,14 +3293,10 @@
     "traits": [
       "Song"
     ],
-    "abilities": [],
-    "actionEffects": [
+    "abilities": [
       {
-        "type": "draw",
-        "amount": 5,
-        "target": {
-          "type": "chosen"
-        }
+        "type": "keyword",
+        "keyword": "sing together"
       }
     ],
     "setId": "9",
@@ -3307,6 +3315,15 @@
         "storyName": "",
         "rulesText": "Chosen player draws 5 cards.",
         "raw": "Chosen player draws 5 cards."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "draw",
+        "amount": 5,
+        "target": {
+          "type": "chosen"
+        }
       }
     ],
     "singTogetherCost": 10
@@ -3724,6 +3741,7 @@
     "subtitle": "Casita",
     "willpower": 6,
     "lore": 0,
+    "moveCost": 1,
     "rulesText": "OUR HOME At the start of your turn, if you have a character here, gain 1 lore.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3badd6eb64ca49b18e7ee2cefea06b46.avif?1755540536",
     "_namedAbilityStubs": [
@@ -5299,20 +5317,10 @@
     "traits": [
       "Song"
     ],
-    "abilities": [],
-    "actionEffects": [
+    "abilities": [
       {
-        "type": "return_all_to_bottom_in_order",
-        "filter": {
-          "owner": {
-            "type": "opponent"
-          },
-          "zone": "play",
-          "cardType": [
-            "character"
-          ],
-          "strengthAtMost": 2
-        }
+        "type": "keyword",
+        "keyword": "sing together"
       }
     ],
     "setId": "9",
@@ -5331,6 +5339,21 @@
         "storyName": "",
         "rulesText": "Put all opposing characters with 2 {S} or less on the bottom of their players’ decks in any order.",
         "raw": "Put all opposing characters with 2 {S} or less on the bottom of their players’ decks in any order."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "return_all_to_bottom_in_order",
+        "filter": {
+          "owner": {
+            "type": "opponent"
+          },
+          "zone": "play",
+          "cardType": [
+            "character"
+          ],
+          "strengthAtMost": 2
+        }
       }
     ],
     "singTogetherCost": 8
@@ -5628,6 +5651,7 @@
     "subtitle": "Tranquil Haven",
     "willpower": 6,
     "lore": 0,
+    "moveCost": 1,
     "rulesText": "REVITALIZING WATERS Characters get +1 {S} and +1 {W} while here.",
     "flavorText": "Flounder, this is perfect! I can't wait to explore it. —Ariel",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a7b30a7923bd4b3596c48ede7e6b438e.avif?1755540768",
@@ -7087,7 +7111,6 @@
         "raw": "Each player draws 2 cards and gains 2 lore. If 2 or more characters sang this song, ready them. They can’t quest for the rest of this turn."
       }
     ],
-    "singTogetherCost": 9,
     "actionEffects": [
       {
         "type": "draw",
@@ -7117,7 +7140,8 @@
           "type": "opponent"
         }
       }
-    ]
+    ],
+    "singTogetherCost": 9
   },
   {
     "id": "you-can-fly",
@@ -7204,7 +7228,6 @@
         "raw": "Each opponent loses 2 lore. You gain 2 lore."
       }
     ],
-    "singTogetherCost": 6,
     "actionEffects": [
       {
         "type": "lose_lore",
@@ -7220,7 +7243,8 @@
           "type": "self"
         }
       }
-    ]
+    ],
+    "singTogetherCost": 6
   },
   {
     "id": "be-king-undisputed",
@@ -7242,7 +7266,18 @@
     "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)\nEach opponent chooses and banishes one of their characters.",
     "flavorText": "Respected, saluted",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e20ac0daac8445eb8c7d2a8a27f06745.avif?1755540982",
-    "_namedAbilityStubs": [],
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)",
+        "raw": "(A character with cost 4 or more can {E} to sing this song for free.)"
+      },
+      {
+        "storyName": "",
+        "rulesText": "Each opponent chooses and banishes one of their characters.",
+        "raw": "Each opponent chooses and banishes one of their characters."
+      }
+    ],
     "actionEffects": [
       {
         "type": "banish",
@@ -7333,7 +7368,13 @@
     "rarity": "uncommon",
     "rulesText": "DISCIPLINE AND STRENGTH {E}, 2 {I} — Chosen character gets +2 {S} this turn. Whenever they challenge another character this turn, you may draw a card.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_568ccd26d0fa49ac94a67b49e599930d.avif?1755540987",
-    "_namedAbilityStubs": []
+    "_namedAbilityStubs": [
+      {
+        "storyName": "DISCIPLINE AND STRENGTH",
+        "rulesText": "Chosen character gets +2 {S} this turn. Whenever they challenge another character this turn, you may draw a card.",
+        "raw": "DISCIPLINE AND STRENGTH {E}, 2 {I} — Chosen character gets +2 {S} this turn. Whenever they challenge another character this turn, you may draw a card."
+      }
+    ]
   },
   {
     "id": "dinner-bell",
@@ -7427,6 +7468,7 @@
     "subtitle": "Marketplace",
     "willpower": 5,
     "lore": 2,
+    "moveCost": 1,
     "flavorText": "Welcome to Agrabah, city of mystery, of enchantment, and the finest merchandise this side of the river. —Merchant",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_6e330a06c76a4a15b2a62a2b5d25369f.avif?1755541005"
   },
@@ -9033,7 +9075,6 @@
         "raw": "Sing Together 8 (Any number of your or your teammates’ characters with total cost 8 or more may {E} to sing this song for free.) Look at the top 7 cards of your deck. Put 2 into your hand and the rest on the bottom of your deck in any order."
       }
     ],
-    "singTogetherCost": 8,
     "actionEffects": [
       {
         "type": "look_at_top",
@@ -9044,7 +9085,8 @@
           "type": "self"
         }
       }
-    ]
+    ],
+    "singTogetherCost": 8
   },
   {
     "id": "aurelian-gyrosensor",
@@ -9240,6 +9282,7 @@
     "subtitle": "Island Paradise",
     "willpower": 5,
     "lore": 1,
+    "moveCost": 1,
     "rulesText": "REINCARNATION Whenever a character is banished while here, you may put that card into your inkwell facedown and exerted.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_fc47f435832f4356ab419cf268febdb2.avif?1755541242",
     "_namedAbilityStubs": [
@@ -11085,7 +11128,6 @@
         "raw": "Deal 3 damage to up to 3 chosen characters and/or locations."
       }
     ],
-    "singTogetherCost": 10,
     "actionEffects": [
       {
         "type": "deal_damage",
@@ -11102,7 +11144,8 @@
           }
         }
       }
-    ]
+    ],
+    "singTogetherCost": 10
   },
   {
     "id": "beasts-mirror",
@@ -11186,6 +11229,7 @@
     "subtitle": "Hidden Island",
     "willpower": 5,
     "lore": 0,
+    "moveCost": 1,
     "rulesText": "ISOLATED Characters gain Resist +1 while here. (Damage dealt to them is reduced by 1.)",
     "flavorText": "Nothing but boulders and sand—easy to miss.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f2169b618849493a969102f760825622.avif?1755541451",
@@ -11819,7 +11863,18 @@
     "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)\nEach opponent chooses and banishes one of their characters.",
     "flavorText": "Respected, saluted",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d47a329c9f87420c8c2714ea6f7fffde.avif?1755541510",
-    "_namedAbilityStubs": [],
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)",
+        "raw": "(A character with cost 4 or more can {E} to sing this song for free.)"
+      },
+      {
+        "storyName": "",
+        "rulesText": "Each opponent chooses and banishes one of their characters.",
+        "raw": "Each opponent chooses and banishes one of their characters."
+      }
+    ],
     "actionEffects": [
       {
         "type": "banish",
@@ -12362,7 +12417,6 @@
         "raw": "Play a character from your discard for free."
       }
     ],
-    "singTogetherCost": 8,
     "actionEffects": [
       {
         "type": "play_for_free",
@@ -12375,7 +12429,8 @@
         },
         "isMay": true
       }
-    ]
+    ],
+    "singTogetherCost": 8
   },
   {
     "id": "belle-accomplished-mystic",
@@ -12924,7 +12979,6 @@
         "raw": "Each player draws 2 cards and gains 2 lore. If 2 or more characters sang this song, ready them. They can't quest for the rest of this turn."
       }
     ],
-    "singTogetherCost": 9,
     "actionEffects": [
       {
         "type": "draw",
@@ -12954,7 +13008,8 @@
           "type": "opponent"
         }
       }
-    ]
+    ],
+    "singTogetherCost": 9
   },
   {
     "id": "mulan-considerate-diplomat",

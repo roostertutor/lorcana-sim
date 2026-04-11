@@ -476,7 +476,7 @@
     "strength": 1,
     "willpower": 2,
     "lore": 1,
-    "flavorText": "\"Sometimes, our strengths lie beneath the surface. Far beneath, in some cases....\"\n-Moana",
+    "flavorText": "\"Sometimes, our strengths lie beneath the surface. Far beneath, in some cases....\"\n—Moana",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_34cb2d9dcb664dd590e7122735212e37.avif?1728609660"
   },
   {
@@ -1357,7 +1357,7 @@
       "ruby"
     ],
     "cost": 1,
-    "inkable": true,
+    "inkable": false,
     "traits": [],
     "abilities": [
       {
@@ -1403,9 +1403,9 @@
     "number": 27,
     "rarity": "common",
     "subtitle": "Hook's Ship",
-    "strength": 0,
     "willpower": 5,
     "lore": 0,
+    "moveCost": 2,
     "rulesText": "LOOK ALIVE, YOU SWABS! Characters gain Rush while here. (They can challenge the turn they're played.)\nALL HANDS ON DECK! Your Pirate characters may move here for free.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3fde5b7a72b24201b728abd6c7f1797a.avif?1728698220",
     "_namedAbilityStubs": [
@@ -1905,6 +1905,7 @@
     "strength": 0,
     "willpower": 6,
     "lore": 1,
+    "moveCost": 2,
     "rulesText": "SLIPPERY HALLS Whenever a character is banished in a challenge while here, you may return them to your hand.\nSEAT OF POWER Characters named Ursula get +1 {L} while here.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5fbd8a029bf344a6a3e42793c324f12c.avif?1728698310",
     "_namedAbilityStubs": [
@@ -1953,7 +1954,9 @@
         "type": "static",
         "storyName": "UNEXPECTED TREASURE",
         "rulesText": "All cards in your hand count as having {IW}.",
-        "effect": { "type": "all_hand_inkable" }
+        "effect": {
+          "type": "all_hand_inkable"
+        }
       }
     ],
     "setId": "P1",
@@ -2188,10 +2191,12 @@
     "lore": 2,
     "rulesText": "(This character counts as being named both Flotsam and Jetsam.)",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a7de9bb16f4540ec9e7bb9a870a9b289.avif?1728609660",
-    "_namedAbilityStubs": [],
-    "additionalNames": [
-      "Flotsam",
-      "Jetsam"
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "(This character counts as being named both Flotsam and Jetsam.)",
+        "raw": "(This character counts as being named both Flotsam and Jetsam.)"
+      }
     ],
     "alternateNames": [
       "Flotsam",

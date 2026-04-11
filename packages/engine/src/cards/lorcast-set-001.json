@@ -6560,7 +6560,9 @@
                 "type": "self"
               },
               "zone": "play",
-              "cardType": ["character"],
+              "cardType": [
+                "character"
+              ],
               "excludeSelf": true
             }
           }
@@ -10248,7 +10250,9 @@
                 "type": "self"
               },
               "zone": "play",
-              "cardType": ["character"],
+              "cardType": [
+                "character"
+              ],
               "excludeSelf": true
             }
           }

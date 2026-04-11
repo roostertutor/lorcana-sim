@@ -213,7 +213,13 @@
     "rulesText": "BROTHERS FOREVER While this character is exerted, your characters named Koda can't be challenged.",
     "flavorText": "\"You have to look after your little brother, no matter how big a pain he is.\"\n-Kenai",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_85a886f78a71416aa253879cbe81d8dd.avif?1723917209",
-    "_namedAbilityStubs": []
+    "_namedAbilityStubs": [
+      {
+        "storyName": "BROTHERS FOREVER",
+        "rulesText": "While this character is exerted, your characters named Koda can't be challenged.",
+        "raw": "BROTHERS FOREVER While this character is exerted, your characters named Koda can't be challenged."
+      }
+    ]
   },
   {
     "id": "vanellope-von-schweetz-sugar-rush-champ",
@@ -556,15 +562,6 @@
       "Madrigal"
     ],
     "abilities": [],
-    "playRestrictions": [
-      {
-        "type": "characters_in_play_gte",
-        "amount": 5,
-        "player": {
-          "type": "self"
-        }
-      }
-    ],
     "setId": "5",
     "number": 14,
     "rarity": "legendary",
@@ -580,6 +577,15 @@
         "storyName": "",
         "rulesText": "NOT WITHOUT MY FAMILY You can't play this character unless you have 5 or more characters in play.",
         "raw": "NOT WITHOUT MY FAMILY You can't play this character unless you have 5 or more characters in play."
+      }
+    ],
+    "playRestrictions": [
+      {
+        "type": "characters_in_play_gte",
+        "amount": 5,
+        "player": {
+          "type": "self"
+        }
       }
     ]
   },
@@ -1406,15 +1412,6 @@
       "Song"
     ],
     "abilities": [],
-    "actionEffects": [
-      {
-        "type": "name_a_card_then_reveal",
-        "target": {
-          "type": "self"
-        },
-        "matchAction": "return_all_from_discard"
-      }
-    ],
     "setId": "5",
     "number": 28,
     "rarity": "super_rare",
@@ -1430,6 +1427,15 @@
         "storyName": "",
         "rulesText": "Name a card. Return all character cards with that name from your discard to your hand.",
         "raw": "Name a card. Return all character cards with that name from your discard to your hand."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "name_a_card_then_reveal",
+        "target": {
+          "type": "self"
+        },
+        "matchAction": "return_all_from_discard"
       }
     ]
   },
@@ -1720,6 +1726,7 @@
     "subtitle": "Secluded Prison",
     "willpower": 8,
     "lore": 0,
+    "moveCost": 1,
     "rulesText": "SAFE AND SOUND Characters get +3 {W} while here.",
     "flavorText": "\"It's a scary world out there.\"\n–Mother Gothel",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f27b7d5ae80b49c4a1a6019138a14ace.avif?1723917209",
@@ -1782,6 +1789,7 @@
     "subtitle": "Jungle Oasis",
     "willpower": 8,
     "lore": 1,
+    "moveCost": 2,
     "rulesText": "OUR HUMBLE HOME While you have 3 or more characters here, you may banish this location to play a character from your discard for free.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_210e4fd42fff4273b7ed916683431def.avif?1723917209",
     "_namedAbilityStubs": [
@@ -2749,6 +2757,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
+      {
         "type": "static",
         "storyName": "CLEAR THE PATH",
         "rulesText": "For each exerted character opponents have in play, you pay 1 {I} less to play this character.",
@@ -3330,6 +3342,23 @@
       "Song"
     ],
     "abilities": [],
+    "setId": "5",
+    "number": 61,
+    "rarity": "rare",
+    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nShuffle chosen card from your discard into your deck. Reveal the top card of your deck. If it has the same name as the chosen card, you may play the revealed card for free. Otherwise, put it into your hand.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_74fab45eaa32470b9ca3c830ab920f93.avif?1723917209",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)",
+        "raw": "(A character with cost 3 or more can {E} to sing this song for free.)"
+      },
+      {
+        "storyName": "",
+        "rulesText": "Shuffle chosen card from your discard into your deck. Reveal the top card of your deck. If it has the same name as the chosen card, you may play the revealed card for free. Otherwise, put it into your hand.",
+        "raw": "Shuffle chosen card from your discard into your deck. Reveal the top card of your deck. If it has the same name as the chosen card, you may play the revealed card for free. Otherwise, put it into your hand."
+      }
+    ],
     "actionEffects": [
       {
         "type": "sequential",
@@ -3360,23 +3389,6 @@
             }
           }
         ]
-      }
-    ],
-    "setId": "5",
-    "number": 61,
-    "rarity": "rare",
-    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nShuffle chosen card from your discard into your deck. Reveal the top card of your deck. If it has the same name as the chosen card, you may play the revealed card for free. Otherwise, put it into your hand.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_74fab45eaa32470b9ca3c830ab920f93.avif?1723917209",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)",
-        "raw": "(A character with cost 3 or more can {E} to sing this song for free.)"
-      },
-      {
-        "storyName": "",
-        "rulesText": "Shuffle chosen card from your discard into your deck. Reveal the top card of your deck. If it has the same name as the chosen card, you may play the revealed card for free. Otherwise, put it into your hand.",
-        "raw": "Shuffle chosen card from your discard into your deck. Reveal the top card of your deck. If it has the same name as the chosen card, you may play the revealed card for free. Otherwise, put it into your hand."
       }
     ]
   },
@@ -3703,6 +3715,7 @@
     "subtitle": "Place of Solitude",
     "willpower": 4,
     "lore": 1,
+    "moveCost": 1,
     "rulesText": "ETERNAL WINTER When you play this location, choose an exerted character. While this location is in play, that character can't ready at the start of their turn.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_aaae8eab8f604635883282a61d3376ff.avif?1723917209",
     "_namedAbilityStubs": [
@@ -3757,6 +3770,7 @@
     "subtitle": "A Gift for Belle",
     "willpower": 8,
     "lore": 1,
+    "moveCost": 1,
     "rulesText": "LOST IN A BOOK Whenever a character is banished while here, you may draw a card.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_cbca0a75a1f9430baae6cf1528a421c4.avif?1723917209",
     "_namedAbilityStubs": [
@@ -3966,7 +3980,13 @@
     "rulesText": "SILENT PERFORMANCE This character can't {E} to sing songs.",
     "flavorText": "His performances are unspeakably good.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4b2b91b67cde4db99f61c51b388a338f.avif?1723917209",
-    "_namedAbilityStubs": []
+    "_namedAbilityStubs": [
+      {
+        "storyName": "SILENT PERFORMANCE",
+        "rulesText": "This character can't {E} to sing songs.",
+        "raw": "SILENT PERFORMANCE This character can't {E} to sing songs."
+      }
+    ]
   },
   {
     "id": "ed-laughing-hyena",
@@ -4396,6 +4416,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
+      {
         "type": "triggered",
         "storyName": "DO SAY HELLO TO MR. ARROW",
         "rulesText": "When you play this character, you may pay 3 {I} to banish chosen damaged character.",
@@ -4563,6 +4587,11 @@
       "Ally"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 5
+      },
       {
         "type": "triggered",
         "storyName": "KEEP IN STEP",
@@ -5717,6 +5746,7 @@
     "subtitle": "Outlaw Hideaway",
     "willpower": 7,
     "lore": 0,
+    "moveCost": 2,
     "rulesText": "FOREST HOME Your characters named Robin Hood may move here for free.\nFAMILIAR TERRAIN Characters gain Ward and “{E}, 1 {I} — Deal 2 damage to chosen damaged character” while here. (Opponents can't choose them except to challenge.)",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_846446f8cb0941d293de679be94fac73.avif?1723917209",
     "_namedAbilityStubs": [
@@ -5773,6 +5803,7 @@
     "subtitle": "Jaguar Lair",
     "willpower": 6,
     "lore": 1,
+    "moveCost": 1,
     "rulesText": "SNACK TIME Opposing damaged characters gain Reckless. (They can't quest and must challenge if able.)",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_85d29b6399cc45b696b6f1e9abe19910.avif?1723917209",
     "_namedAbilityStubs": [
@@ -5974,7 +6005,12 @@
       "Villain",
       "Racer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "rush"
+      }
+    ],
     "setId": "5",
     "number": 106,
     "rarity": "uncommon",
@@ -5984,11 +6020,17 @@
     "lore": 1,
     "rulesText": "GAME JUMP This character also counts as being named King Candy for Shift.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c53a525669114b578666906f5adff421.avif?1723917209",
-    "_namedAbilityStubs": [],
-    "additionalNames": [
-      "King Candy"
+    "_namedAbilityStubs": [
+      {
+        "storyName": "GAME JUMP",
+        "rulesText": "This character also counts as being named King Candy for Shift.",
+        "raw": "GAME JUMP This character also counts as being named King Candy for Shift."
+      }
     ],
     "alternateNames": [
+      "King Candy"
+    ],
+    "additionalNames": [
       "King Candy"
     ]
   },
@@ -6618,6 +6660,10 @@
       "Villain"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "rush"
+      },
       {
         "type": "static",
         "storyName": "A MAN AMONG MEN!",
@@ -7582,6 +7628,7 @@
     "subtitle": "Starting Line",
     "willpower": 5,
     "lore": 0,
+    "moveCost": 0,
     "rulesText": "ON YOUR MARKS! Once per turn, you may {E} chosen character here and deal them 1 damage to move them to another location for free.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_38b31e4f9b2043259a5d8909cb58b8d3.avif?1723917209",
     "_namedAbilityStubs": [
@@ -7627,6 +7674,7 @@
     "subtitle": "Seedy Back Room",
     "willpower": 7,
     "lore": 0,
+    "moveCost": 1,
     "rulesText": "MISFITS' REVELRY While you have a damaged character here, this location gets +2 {L}.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_2c1dd652a2ff4655a1e26419afe50b4e.avif?1723917209",
     "_namedAbilityStubs": [
@@ -8049,6 +8097,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "support"
+      },
+      {
         "type": "static",
         "storyName": "EVERY LITTLE BIT HELPS",
         "rulesText": "For each item you have in play, you pay 1 {I} less to play this character.",
@@ -8235,6 +8287,10 @@
       "Sorcerer"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "ward"
+      },
       {
         "type": "triggered",
         "storyName": "GATHERER OF THE WICKED",
@@ -8442,7 +8498,18 @@
     "lore": 4,
     "rulesText": "A DELICATE BALANCE When you play this character, exert all cards in your inkwell, then return 2 cards at random from your inkwell to your hand.\nEVERYTHING THE LIGHT TOUCHES Whenever this character quests, ready all cards in your inkwell.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c82e5a2740d24cf68ca04688f54a0b50.avif?1723917209",
-    "_namedAbilityStubs": []
+    "_namedAbilityStubs": [
+      {
+        "storyName": "A DELICATE BALANCE",
+        "rulesText": "When you play this character, exert all cards in your inkwell, then return 2 cards at random from your inkwell to your hand.",
+        "raw": "A DELICATE BALANCE When you play this character, exert all cards in your inkwell, then return 2 cards at random from your inkwell to your hand."
+      },
+      {
+        "storyName": "EVERYTHING THE LIGHT TOUCHES",
+        "rulesText": "Whenever this character quests, ready all cards in your inkwell.",
+        "raw": "EVERYTHING THE LIGHT TOUCHES Whenever this character quests, ready all cards in your inkwell."
+      }
+    ]
   },
   {
     "id": "ludwig-von-drake-self-proclaimed-genius",
@@ -8576,6 +8643,11 @@
       "Racer"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
       {
         "type": "triggered",
         "storyName": "CHANGING THE CODE",
@@ -9468,6 +9540,7 @@
     "subtitle": "Radiant Ballroom",
     "willpower": 9,
     "lore": 0,
+    "moveCost": 2,
     "rulesText": "WARM WELCOME Characters with Support get +1 {L} and +2 {W} while here.",
     "flavorText": "Every surface glows with the joy of celebration.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5b27a13096a24ba4af338df7a19a358f.avif?1723917209",
@@ -9509,6 +9582,7 @@
     "subtitle": "The Wizard's Home",
     "willpower": 7,
     "lore": 0,
+    "moveCost": 1,
     "rulesText": "KNOWLEDGE IS POWER Each player plays with the top card of their deck face up.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_cc13be0e046742f4ae3e0aaffb5d3f9e.avif?1723917209",
     "_namedAbilityStubs": [
@@ -10793,7 +10867,14 @@
     "lore": 1,
     "rulesText": "BLOW THE WHISTLE When you play this character, opponents can't play actions until the start of your next turn.",
     "flavorText": "\"It ain't cheatin' if you're the one makin' the rules.\"",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d82108b67c434df495ba7ce11b811e79.avif?1723917209"
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d82108b67c434df495ba7ce11b811e79.avif?1723917209",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "BLOW THE WHISTLE",
+        "rulesText": "When you play this character, opponents can't play actions until the start of your next turn.",
+        "raw": "BLOW THE WHISTLE When you play this character, opponents can't play actions until the start of your next turn."
+      }
+    ]
   },
   {
     "id": "tug-of-war",
@@ -10972,6 +11053,19 @@
     "inkable": false,
     "traits": [],
     "abilities": [],
+    "setId": "5",
+    "number": 199,
+    "rarity": "uncommon",
+    "rulesText": "Your characters gain “{E}, 1 {I} — Deal 1 damage to chosen character” this turn.",
+    "flavorText": "\"Gawrsh, who ordered the...upside-down CAA-AA-AKE?\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_301228de8de94aa382a1cface63a3422.avif?1723917209",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "Your characters gain “{E}, 1 {I} — Deal 1 damage to chosen character” this turn.",
+        "raw": "Your characters gain “{E}, 1 {I} — Deal 1 damage to chosen character” this turn."
+      }
+    ],
     "actionEffects": [
       {
         "type": "grant_activated_ability_timed",
@@ -11013,19 +11107,6 @@
             }
           ]
         }
-      }
-    ],
-    "setId": "5",
-    "number": 199,
-    "rarity": "uncommon",
-    "rulesText": "Your characters gain “{E}, 1 {I} — Deal 1 damage to chosen character” this turn.",
-    "flavorText": "\"Gawrsh, who ordered the...upside-down CAA-AA-AKE?\"",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_301228de8de94aa382a1cface63a3422.avif?1723917209",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "Your characters gain “{E}, 1 {I} — Deal 1 damage to chosen character” this turn.",
-        "raw": "Your characters gain “{E}, 1 {I} — Deal 1 damage to chosen character” this turn."
       }
     ]
   },
@@ -11250,6 +11331,7 @@
     "subtitle": "Villain Support Center",
     "willpower": 7,
     "lore": 1,
+    "moveCost": 2,
     "rulesText": "THERE'S NO ONE I'D RATHER BE THAN ME Villain characters gain “{E}, 3 {I} — Play a character with the same name as this character for free” while here.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e66afeb046bd444e87889ec1866cc643.avif?1723917209",
     "_namedAbilityStubs": [
@@ -11339,6 +11421,7 @@
     "subtitle": "Secure Fortress",
     "willpower": 6,
     "lore": 1,
+    "moveCost": 2,
     "rulesText": "MOUNTAIN DEFENSE During your turn, the first time you move a character here, you may deal 1 damage to chosen character. If the moved character is a Knight, deal 2 damage instead.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_30df26498319433588a4ee13b1397ea1.avif?1723917209",
     "_namedAbilityStubs": [
@@ -11585,6 +11668,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
+      {
         "type": "static",
         "storyName": "CLEAR THE PATH",
         "rulesText": "For each exerted character opponents have in play, you pay 1 {I} less to play this character.",
@@ -11673,6 +11760,11 @@
       "Ally"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 5
+      },
       {
         "type": "triggered",
         "storyName": "KEEP IN STEP",
@@ -12023,6 +12115,7 @@
     "subtitle": "Seedy Back Room",
     "willpower": 7,
     "lore": 0,
+    "moveCost": 1,
     "rulesText": "MISFITS' REVELRY While you have a damaged character here, this location gets +2 {L}.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4690391667a14f42a7df8ef76771703d.avif?1723917209",
     "_namedAbilityStubs": [
@@ -12101,7 +12194,18 @@
     "lore": 4,
     "rulesText": "A DELICATE BALANCE When you play this character, exert all cards in your inkwell, then return 2 cards at random from your inkwell to your hand.\nEVERYTHING THE LIGHT TOUCHES Whenever this character quests, ready all cards in your inkwell.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_ca78ff510359490a862b871b577a5fec.avif?1723917209",
-    "_namedAbilityStubs": []
+    "_namedAbilityStubs": [
+      {
+        "storyName": "A DELICATE BALANCE",
+        "rulesText": "When you play this character, exert all cards in your inkwell, then return 2 cards at random from your inkwell to your hand.",
+        "raw": "A DELICATE BALANCE When you play this character, exert all cards in your inkwell, then return 2 cards at random from your inkwell to your hand."
+      },
+      {
+        "storyName": "EVERYTHING THE LIGHT TOUCHES",
+        "rulesText": "Whenever this character quests, ready all cards in your inkwell.",
+        "raw": "EVERYTHING THE LIGHT TOUCHES Whenever this character quests, ready all cards in your inkwell."
+      }
+    ]
   },
   {
     "id": "king-candy-sweet-abomination",
@@ -12120,6 +12224,11 @@
       "Racer"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
       {
         "type": "triggered",
         "storyName": "CHANGING THE CODE",
@@ -12420,6 +12529,7 @@
     "subtitle": "Villain Support Center",
     "willpower": 7,
     "lore": 1,
+    "moveCost": 2,
     "rulesText": "THERE'S NO ONE I'D RATHER BE THAN ME Villain characters gain “{E}, 3 {I} — Play a character with the same name as this character for free” while here.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c88d044f605440a29cbf41b7cdc7d340.avif?1723917209",
     "_namedAbilityStubs": [

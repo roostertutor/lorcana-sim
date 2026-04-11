@@ -88,6 +88,7 @@
     "subtitle": "Place of Solitude",
     "willpower": 4,
     "lore": 1,
+    "moveCost": 1,
     "rulesText": "ETERNAL WINTER When you play this location, choose an exerted character. While this location is in play, that character can't ready at the start of their turn.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_30598adaf21345729b49247364480d30.avif?1755566828",
     "_namedAbilityStubs": [

@@ -717,6 +717,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 2
+      },
+      {
         "type": "triggered",
         "storyName": "REFLECTION",
         "rulesText": "Whenever this character quests, you may reveal the top card of your deck. If it's a song card, you may play it for free. Otherwise, put it on the top of your deck.",
@@ -864,6 +869,11 @@
       "Princess"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
       {
         "type": "triggered",
         "storyName": "HEALING GLOW",
@@ -1207,6 +1217,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      },
+      {
         "type": "triggered",
         "storyName": "A WISHING WELL",
         "rulesText": "Whenever this character quests, you may return a character card from your discard to your hand.",
@@ -1264,6 +1279,11 @@
       "Queen"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 2
+      },
       {
         "type": "triggered",
         "storyName": "MIRROR, MIRROR",
@@ -1784,6 +1804,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
+      {
         "type": "triggered",
         "storyName": "GIFTS OF VIRTUE",
         "rulesText": "Whenever you play a Floodborn character, you may draw a card.",
@@ -2157,6 +2181,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
+      {
         "type": "triggered",
         "storyName": "ALWAYS LET YOUR CONSCIENCE BE YOUR GUIDE",
         "rulesText": "When you play this character, if you have a character named Pinocchio in play, you may draw a card.",
@@ -2269,6 +2297,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "rush"
+      },
+      {
         "type": "triggered",
         "storyName": "FOXY TRICK",
         "rulesText": "When you play this character, banish her or return another chosen character of yours to your hand.",
@@ -2345,6 +2377,10 @@
       "Dragon"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
       {
         "type": "triggered",
         "storyName": "DRAGON TRICK",
@@ -2915,6 +2951,14 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
+      {
+        "type": "keyword",
+        "keyword": "rush"
+      },
+      {
         "type": "static",
         "storyName": "UNFETTERED",
         "rulesText": "Your other characters with Rush gain Evasive.",
@@ -2995,6 +3039,11 @@
       "Hero"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
       {
         "type": "triggered",
         "storyName": "I'M FREE!",
@@ -3142,6 +3191,11 @@
       "Sorcerer"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      },
       {
         "type": "triggered",
         "storyName": "PULL THE LEVER, KRONK!",
@@ -3607,14 +3661,11 @@
         "storyName": "UNBRIDLED FURY",
         "rulesText": "Whenever an opposing character is damaged, you may ready this character.",
         "trigger": {
-          "on": "damage_dealt_to",
+          "on": "is_challenged",
           "filter": {
             "owner": {
               "type": "opponent"
-            },
-            "cardType": [
-              "character"
-            ]
+            }
           }
         },
         "effects": [
@@ -3716,6 +3767,11 @@
       "Princess"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
       {
         "type": "triggered",
         "storyName": "HIDDEN TALENT",
@@ -3854,6 +3910,15 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 5
+      },
+      {
         "type": "triggered",
         "storyName": "NOT ALL THERE",
         "rulesText": "Banish chosen damaged character.",
@@ -3961,6 +4026,11 @@
       "Ally"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
       {
         "type": "triggered",
         "storyName": "ALLOW ME",
@@ -4081,6 +4151,10 @@
       "Sorcerer"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
       {
         "type": "triggered",
         "storyName": "I READ YOUR FUTURE",
@@ -4212,6 +4286,15 @@
       "Prince"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 2
+      },
       {
         "type": "static",
         "storyName": "WANTED",
@@ -4558,6 +4641,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "ward"
+      },
+      {
         "type": "triggered",
         "storyName": "BULLY",
         "rulesText": "Whenever you play an action, this character gets +2 {S} this turn.",
@@ -4637,6 +4724,10 @@
       "Prince"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "ward"
+      },
       {
         "type": "triggered",
         "storyName": "I SENTENCE YOU",
@@ -5358,6 +5449,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
+      {
         "type": "static",
         "storyName": "WHAT A DAY!",
         "rulesText": "This character gets +1 lore for each 1 damage on him.",
@@ -5521,6 +5616,11 @@
       "Queen"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      },
       {
         "type": "triggered",
         "storyName": "SINISTER AUTHORITY",
@@ -5687,6 +5787,15 @@
       "Hero"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 2
+      },
       {
         "type": "triggered",
         "storyName": "DEEP BREATH",
@@ -5949,6 +6058,11 @@
       "Queen"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 2
+      },
       {
         "type": "triggered",
         "storyName": "SHARP INSTINCTS",
@@ -6233,6 +6347,10 @@
       "Villain"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "rush"
+      },
       {
         "type": "triggered",
         "storyName": "LONG LIVE THE KING",
@@ -6994,6 +7112,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 5
+      },
+      {
         "type": "triggered",
         "storyName": "THERE'S ALWAYS A CHANCE",
         "rulesText": "If you used Shift to play this character, you may draw 2 cards when he enters play.",
@@ -7130,6 +7253,15 @@
       "Ally"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
+      {
+        "type": "keyword",
+        "keyword": "ward"
+      },
       {
         "type": "static",
         "storyName": "SET THE PACE",
@@ -7309,6 +7441,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
+      {
         "type": "triggered",
         "storyName": "CRUEL INTENTIONS",
         "rulesText": "Whenever this character quests, chosen opposing character gets -2 {S} this turn.",
@@ -7399,6 +7536,11 @@
       "Villain"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      },
       {
         "type": "triggered",
         "storyName": "ROUGHLY THE SIZE OF A BARGE",
@@ -8862,19 +9004,30 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
+      {
         "type": "triggered",
         "storyName": "IT'S BETTER THIS WAY",
         "rulesText": "At the start of your turn, if this character has no damage, draw a card. Otherwise, he gets +4 {S} this turn.",
         "trigger": {
           "on": "start_of_turn",
-          "player": { "type": "self" }
+          "player": {
+            "type": "self"
+          }
         },
-        "condition": { "type": "this_has_no_damage" },
+        "condition": {
+          "type": "this_has_no_damage"
+        },
         "effects": [
           {
             "type": "draw",
             "amount": 1,
-            "target": { "type": "self" }
+            "target": {
+              "type": "self"
+            }
           }
         ]
       },
@@ -8884,15 +9037,24 @@
         "rulesText": "(Otherwise branch) he gets +4 {S} this turn.",
         "trigger": {
           "on": "start_of_turn",
-          "player": { "type": "self" }
+          "player": {
+            "type": "self"
+          }
         },
-        "condition": { "type": "not", "condition": { "type": "this_has_no_damage" } },
+        "condition": {
+          "type": "not",
+          "condition": {
+            "type": "this_has_no_damage"
+          }
+        },
         "effects": [
           {
             "type": "gain_stats",
             "strength": 4,
             "duration": "this_turn",
-            "target": { "type": "this" }
+            "target": {
+              "type": "this"
+            }
           }
         ]
       }
@@ -9119,6 +9281,16 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "resist",
+        "value": 2
+      },
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 5
+      },
+      {
         "type": "triggered",
         "storyName": "THE SINGING SWORD",
         "rulesText": "Whenever you play a song, this character may challenge ready characters this turn.",
@@ -9318,6 +9490,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 2
+      },
+      {
         "type": "triggered",
         "storyName": "POWER SURGE",
         "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may draw a card.",
@@ -9422,6 +9599,11 @@
       "Ally"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "resist",
+        "value": 1
+      },
       {
         "type": "triggered",
         "storyName": "PULL THE LEVER!",
@@ -9653,6 +9835,10 @@
       "Princess"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "bodyguard"
+      },
       {
         "type": "static",
         "storyName": "WARRIOR INSTINCT",
@@ -9962,6 +10148,11 @@
       "Princess"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "resist",
+        "value": 2
+      },
       {
         "type": "static",
         "storyName": "CELEBRATION",
@@ -10462,6 +10653,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      },
+      {
         "type": "triggered",
         "storyName": "A WISHING WELL",
         "rulesText": "Whenever this character quests, you may return a character card from your discard to your hand.",
@@ -10596,6 +10792,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
+      {
         "type": "triggered",
         "storyName": "DRAGON TRICK",
         "rulesText": "When you play this character, banish her or return another 2 chosen characters of yours to your hand.",
@@ -10671,6 +10871,10 @@
       "Villain"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "ward"
+      },
       {
         "type": "triggered",
         "storyName": "BULLY",
@@ -10807,6 +11011,11 @@
       "Queen"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      },
       {
         "type": "triggered",
         "storyName": "SINISTER AUTHORITY",
@@ -11092,6 +11301,10 @@
       "Princess"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "bodyguard"
+      },
       {
         "type": "static",
         "storyName": "WARRIOR INSTINCT",

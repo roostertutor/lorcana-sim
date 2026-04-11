@@ -134,6 +134,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "singer",
+        "value": 9
+      },
+      {
         "type": "triggered",
         "storyName": "MUSICAL DEBUT",
         "rulesText": "Whenever this character sings a song, your other Princess characters get +1 {L} this turn.",
@@ -333,6 +338,10 @@
       "Musketeer"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "bodyguard"
+      },
       {
         "type": "triggered",
         "storyName": "ALL FOR ONE",
@@ -706,6 +715,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "support"
+      },
+      {
         "type": "triggered",
         "storyName": "STRIKE UP THE MUSIC",
         "rulesText": "When you play this character, chosen character gains Support this turn.",
@@ -764,6 +777,15 @@
       "Captain"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "bodyguard"
+      },
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 5
+      },
       {
         "type": "triggered",
         "storyName": "ALL FOR ONE",
@@ -833,6 +855,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "bodyguard"
+      },
+      {
         "type": "triggered",
         "storyName": "EN GARDE!",
         "rulesText": "When you play this character, banish chosen opposing character with 5 {S} or more.",
@@ -892,6 +918,10 @@
       "Madrigal"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "support"
+      },
       {
         "type": "triggered",
         "storyName": "GIFT OF THE FAMILY",
@@ -1078,6 +1108,11 @@
       "Prince"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      },
       {
         "type": "static",
         "storyName": "I'M A FAST LEARNER",
@@ -1392,7 +1427,6 @@
         "raw": "Look at the top 5 cards of your deck. You may reveal up to 2 character cards and put them into your hand. Put the rest on the bottom of your deck in any order."
       }
     ],
-    "singTogetherCost": 7,
     "actionEffects": [
       {
         "type": "look_at_top",
@@ -1408,7 +1442,8 @@
           "type": "self"
         }
       }
-    ]
+    ],
+    "singTogetherCost": 7
   },
   {
     "id": "lost-in-the-woods",
@@ -1424,6 +1459,24 @@
       "Song"
     ],
     "abilities": [],
+    "setId": "4",
+    "number": 29,
+    "rarity": "uncommon",
+    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)\nAll opposing characters get -2 {S} until the start of your next turn.",
+    "flavorText": "I'm left behind, wondering if I should follow",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_29586917a2974607a3961531ff425f4f.avif?1716052430",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)",
+        "raw": "(A character with cost 4 or more can {E} to sing this song for free.)"
+      },
+      {
+        "storyName": "",
+        "rulesText": "All opposing characters get -2 {S} until the start of your next turn.",
+        "raw": "All opposing characters get -2 {S} until the start of your next turn."
+      }
+    ],
     "actionEffects": [
       {
         "type": "gain_stats",
@@ -1442,24 +1495,6 @@
         },
         "duration": "until_caster_next_turn"
       }
-    ],
-    "setId": "4",
-    "number": 29,
-    "rarity": "uncommon",
-    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)\nAll opposing characters get -2 {S} until the start of your next turn.",
-    "flavorText": "I'm left behind, wondering if I should follow",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_29586917a2974607a3961531ff425f4f.avif?1716052430",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)",
-        "raw": "(A character with cost 4 or more can {E} to sing this song for free.)"
-      },
-      {
-        "storyName": "",
-        "rulesText": "All opposing characters get -2 {S} until the start of your next turn.",
-        "raw": "All opposing characters get -2 {S} until the start of your next turn."
-      }
     ]
   },
   {
@@ -1473,18 +1508,6 @@
     "cost": 3,
     "inkable": false,
     "traits": [],
-    "actionEffects": [
-      {
-        "type": "each_opponent_may_discard_then_reward",
-        "rewardEffect": {
-          "type": "gain_lore",
-          "amount": 2,
-          "target": {
-            "type": "self"
-          }
-        }
-      }
-    ],
     "abilities": [],
     "setId": "4",
     "number": 30,
@@ -1496,6 +1519,18 @@
         "storyName": "",
         "rulesText": "Each opponent may choose and discard a card. For each opponent who doesn't, you gain 2 lore.",
         "raw": "Each opponent may choose and discard a card. For each opponent who doesn't, you gain 2 lore."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "each_opponent_may_discard_then_reward",
+        "rewardEffect": {
+          "type": "gain_lore",
+          "amount": 2,
+          "target": {
+            "type": "self"
+          }
+        }
       }
     ]
   },
@@ -1616,7 +1651,16 @@
           "amount": 1,
           "target": {
             "type": "all",
-            "filter": { "zone": "play", "cardType": ["character"], "hasName": "Stitch", "owner": { "type": "self" } }
+            "filter": {
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasName": "Stitch",
+              "owner": {
+                "type": "self"
+              }
+            }
           }
         }
       }
@@ -1666,8 +1710,16 @@
     "rarity": "common",
     "subtitle": "Concert Hall",
     "willpower": 6,
+    "moveCost": 2,
     "rulesText": "UNDERWATER ACOUSTICS Characters count as having +2 cost to sing songs while here.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_eaceb59bf4e6464c98ac6c6c37fccfe3.avif?1716052430"
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_eaceb59bf4e6464c98ac6c6c37fccfe3.avif?1716052430",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "UNDERWATER ACOUSTICS",
+        "rulesText": "Characters count as having +2 cost to sing songs while here.",
+        "raw": "UNDERWATER ACOUSTICS Characters count as having +2 cost to sing songs while here."
+      }
+    ]
   },
   {
     "id": "the-underworld-river-styx",
@@ -1732,6 +1784,7 @@
     "subtitle": "River Styx",
     "willpower": 6,
     "lore": 1,
+    "moveCost": 2,
     "rulesText": "SAVE A SOUL Whenever a character quests while here, you may pay 3 {I} to return a character card from your discard to your hand.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_0c75f068ac98487f9544d1bce3858b39.avif?1716052430",
     "_namedAbilityStubs": [
@@ -1785,6 +1838,11 @@
       "Sorcerer"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
       {
         "type": "triggered",
         "storyName": "MENDING TOUCH",
@@ -1970,7 +2028,13 @@
     "lore": 1,
     "rulesText": "IT WAS YOUR VISION When you play this character, chosen character gains “When this character is banished in a challenge, you may return this card to your hand” this turn.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_140b4894a53d4884a4ec1e15dab9319a.avif?1716052430",
-    "_namedAbilityStubs": []
+    "_namedAbilityStubs": [
+      {
+        "storyName": "IT WAS YOUR VISION",
+        "rulesText": "When you play this character, chosen character gains “When this character is banished in a challenge, you may return this card to your hand” this turn.",
+        "raw": "IT WAS YOUR VISION When you play this character, chosen character gains “When this character is banished in a challenge, you may return this card to your hand” this turn."
+      }
+    ]
   },
   {
     "id": "bruno-madrigal-undetected-uncle",
@@ -1988,6 +2052,10 @@
       "Madrigal"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
       {
         "type": "activated",
         "storyName": "YOU JUST HAVE TO SEE IT",
@@ -2282,12 +2350,30 @@
           "type": "grant_triggered_ability",
           "target": {
             "type": "all",
-            "filter": { "zone": "play", "cardType": ["character"], "hasName": "Jetsam", "owner": { "type": "self" } }
+            "filter": {
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasName": "Jetsam",
+              "owner": {
+                "type": "self"
+              }
+            }
           },
           "ability": {
             "type": "triggered",
-            "trigger": { "on": "banished_in_challenge" },
-            "effects": [{ "type": "return_to_hand", "target": { "type": "this" } }]
+            "trigger": {
+              "on": "banished_in_challenge"
+            },
+            "effects": [
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ]
           }
         }
       }
@@ -2345,10 +2431,12 @@
     "lore": 2,
     "rulesText": "(This character counts as being named both Flotsam and Jetsam.)",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_2eb85540f12446e38d0eef16937315eb.avif?1716052430",
-    "_namedAbilityStubs": [],
-    "additionalNames": [
-      "Flotsam",
-      "Jetsam"
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "(This character counts as being named both Flotsam and Jetsam.)",
+        "raw": "(This character counts as being named both Flotsam and Jetsam.)"
+      }
     ],
     "alternateNames": [
       "Flotsam",
@@ -2465,6 +2553,11 @@
       "Ally"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "challenger",
+        "value": 2
+      },
       {
         "type": "static",
         "storyName": "OMINOUS PAIR",
@@ -2879,6 +2972,14 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
+      {
+        "type": "keyword",
+        "keyword": "rush"
+      },
+      {
         "type": "static",
         "storyName": "YOU'RE FLYING!",
         "rulesText": "Your other characters with Evasive gain Rush.",
@@ -3023,6 +3124,11 @@
       "Sorcerer"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 5
+      },
       {
         "type": "triggered",
         "storyName": "NOW I AM THE RULER!",
@@ -3227,14 +3333,10 @@
     "traits": [
       "Song"
     ],
-    "abilities": [],
-    "actionEffects": [
+    "abilities": [
       {
-        "type": "draw",
-        "amount": 5,
-        "target": {
-          "type": "chosen"
-        }
+        "type": "keyword",
+        "keyword": "sing together"
       }
     ],
     "setId": "4",
@@ -3253,6 +3355,15 @@
         "storyName": "",
         "rulesText": "Chosen player draws 5 cards.",
         "raw": "Chosen player draws 5 cards."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "draw",
+        "amount": 5,
+        "target": {
+          "type": "chosen"
+        }
       }
     ],
     "singTogetherCost": 10
@@ -3564,6 +3675,7 @@
     "rarity": "common",
     "subtitle": "Casita",
     "willpower": 6,
+    "moveCost": 1,
     "rulesText": "OUR HOME At the start of your turn, if you have a character here gain 1 lore.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3d71ecca4c6c4ec8ba289a785f237535.avif?1716052430",
     "_namedAbilityStubs": [
@@ -3638,6 +3750,7 @@
     "subtitle": "Eye of the Storm",
     "willpower": 6,
     "lore": 1,
+    "moveCost": 2,
     "rulesText": "SLIPPERY HALLS Whenever a character is banished in a challenge while here, you may return them to your hand.\nSEAT OF POWER Characters named Ursula get +1 {L} while here.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_70a2a01e064142b0a132d9ce3a86a293.avif?1716052430",
     "_namedAbilityStubs": [
@@ -3730,6 +3843,10 @@
       "Ally"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
       {
         "type": "triggered",
         "storyName": "CIRCLE FAR AND WIDE",
@@ -4060,6 +4177,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "ward"
+      },
+      {
         "type": "static",
         "storyName": "MY HERO",
         "rulesText": "Your characters named Zeus gain Ward.",
@@ -4340,6 +4461,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "ward"
+      },
+      {
         "type": "triggered",
         "storyName": "HEAD HELD HIGH",
         "rulesText": "Whenever you play a character named Hercules, you may ready this character.",
@@ -4493,6 +4618,15 @@
       "Ally"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
       {
         "type": "triggered",
         "storyName": "FLYING LESSONS",
@@ -4677,6 +4811,15 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 6
+      },
+      {
         "type": "triggered",
         "storyName": "DRAGON SLAYER",
         "rulesText": "When you play this character, banish all opposing damaged characters.",
@@ -4846,6 +4989,10 @@
       "Ally"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "ward"
+      },
       {
         "type": "triggered",
         "storyName": "FROM THE TOP",
@@ -5126,20 +5273,10 @@
     "traits": [
       "Song"
     ],
-    "abilities": [],
-    "actionEffects": [
+    "abilities": [
       {
-        "type": "return_all_to_bottom_in_order",
-        "filter": {
-          "owner": {
-            "type": "opponent"
-          },
-          "zone": "play",
-          "cardType": [
-            "character"
-          ],
-          "strengthAtMost": 2
-        }
+        "type": "keyword",
+        "keyword": "sing together"
       }
     ],
     "setId": "4",
@@ -5160,6 +5297,21 @@
         "raw": "Put all opposing characters with 2 {S} or less on the bottom of their players' decks in any order."
       }
     ],
+    "actionEffects": [
+      {
+        "type": "return_all_to_bottom_in_order",
+        "filter": {
+          "owner": {
+            "type": "opponent"
+          },
+          "zone": "play",
+          "cardType": [
+            "character"
+          ],
+          "strengthAtMost": 2
+        }
+      }
+    ],
     "singTogetherCost": 8
   },
   {
@@ -5173,18 +5325,6 @@
     "cost": 1,
     "inkable": false,
     "traits": [],
-    "actionEffects": [
-      {
-        "type": "each_opponent_may_discard_then_reward",
-        "rewardEffect": {
-          "type": "draw",
-          "amount": 1,
-          "target": {
-            "type": "self"
-          }
-        }
-      }
-    ],
     "abilities": [],
     "setId": "4",
     "number": 96,
@@ -5197,6 +5337,18 @@
         "storyName": "",
         "rulesText": "Each opponent may choose and discard a card. For each opponent who doesn't, you draw a card.",
         "raw": "Each opponent may choose and discard a card. For each opponent who doesn't, you draw a card."
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "each_opponent_may_discard_then_reward",
+        "rewardEffect": {
+          "type": "draw",
+          "amount": 1,
+          "target": {
+            "type": "self"
+          }
+        }
       }
     ]
   },
@@ -5288,7 +5440,9 @@
         "type": "static",
         "storyName": "UNEXPECTED TREASURE",
         "rulesText": "All cards in your hand count as having {IW}.",
-        "effect": { "type": "all_hand_inkable" }
+        "effect": {
+          "type": "all_hand_inkable"
+        }
       }
     ],
     "setId": "4",
@@ -5411,7 +5565,9 @@
         "type": "static",
         "storyName": "TRAPPED!",
         "rulesText": "Damage counters can't be removed.",
-        "effect": { "type": "prevent_damage_removal" }
+        "effect": {
+          "type": "prevent_damage_removal"
+        }
       }
     ],
     "setId": "4",
@@ -5491,6 +5647,7 @@
     "rarity": "common",
     "subtitle": "Tranquil Haven",
     "willpower": 6,
+    "moveCost": 1,
     "rulesText": "REVITALIZING WATERS Characters get +1 {S} and +1 {W} while here.",
     "flavorText": "\"Flounder, this is perfect! I can't wait to explore it.\"\n-Ariel",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_765e58c338aa4f4aa667d89198ec741b.avif?1716052430",
@@ -5546,6 +5703,7 @@
     "subtitle": "Full of the Unfortunate",
     "willpower": 7,
     "lore": 1,
+    "moveCost": 2,
     "rulesText": "ABANDON HOPE While you have an exerted character here, opposing characters get -1 {L}.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5b7970f5f54d4311882227c856ac28ac.avif?1716052430",
     "_namedAbilityStubs": [
@@ -5794,6 +5952,10 @@
       "Hero"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "rush"
+      },
       {
         "type": "triggered",
         "storyName": "SUPER PEANUT POWERS",
@@ -6074,6 +6236,11 @@
       "Princess"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 5
+      },
       {
         "type": "triggered",
         "storyName": "STRAIGHT SHOOTER",
@@ -6600,6 +6767,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
+      {
         "type": "triggered",
         "storyName": "WHO'S NEXT?",
         "rulesText": "When you play this character, banish chosen opposing character with 1 {S} or less.",
@@ -6716,6 +6887,11 @@
       "Dragon"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 6
+      },
       {
         "type": "triggered",
         "storyName": "WE'VE GOT WORK TO DO",
@@ -6923,7 +7099,6 @@
         "raw": "Each opponent loses 2 lore. You gain 2 lore."
       }
     ],
-    "singTogetherCost": 6,
     "actionEffects": [
       {
         "type": "lose_lore",
@@ -6939,7 +7114,8 @@
           "type": "self"
         }
       }
-    ]
+    ],
+    "singTogetherCost": 6
   },
   {
     "id": "be-king-undisputed",
@@ -6961,7 +7137,18 @@
     "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)\nEach opponent chooses and banishes one of their characters.",
     "flavorText": "Respected, saluted",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_40dfc709e42242c8bf1a905735708345.avif?1716052430",
-    "_namedAbilityStubs": [],
+    "_namedAbilityStubs": [
+      {
+        "storyName": "",
+        "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)",
+        "raw": "(A character with cost 4 or more can {E} to sing this song for free.)"
+      },
+      {
+        "storyName": "",
+        "rulesText": "Each opponent chooses and banishes one of their characters.",
+        "raw": "Each opponent chooses and banishes one of their characters."
+      }
+    ],
     "actionEffects": [
       {
         "type": "banish",
@@ -7148,7 +7335,13 @@
     "rarity": "uncommon",
     "rulesText": "DISCIPLINE AND STRENGTH {E}, 2 {I} — Chosen character gets +2 {S} this turn. Whenever they challenge another character this turn, you may draw a card.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_26599f04c2b242a194da9d9207b944b4.avif?1716052430",
-    "_namedAbilityStubs": []
+    "_namedAbilityStubs": [
+      {
+        "storyName": "DISCIPLINE AND STRENGTH",
+        "rulesText": "Chosen character gets +2 {S} this turn. Whenever they challenge another character this turn, you may draw a card.",
+        "raw": "DISCIPLINE AND STRENGTH {E}, 2 {I} — Chosen character gets +2 {S} this turn. Whenever they challenge another character this turn, you may draw a card."
+      }
+    ]
   },
   {
     "id": "the-plank",
@@ -7357,6 +7550,7 @@
     "rarity": "rare",
     "subtitle": "Disreputable Pub",
     "willpower": 9,
+    "moveCost": 2,
     "rulesText": "ROUTINE RUCKUS Whenever a character with 3 {S} or more challenges another character while here, gain 1 lore. If the challenging character has 6 {S} or more, gain 3 lore instead.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_af45f5f03d0944e79c47f0375cc9597a.avif?1716052430",
     "_namedAbilityStubs": [
@@ -7413,6 +7607,7 @@
     "rarity": "common",
     "subtitle": "Impossible Pillar",
     "willpower": 5,
+    "moveCost": 1,
     "rulesText": "STRENGTH OF MIND 1 {I} — Chosen character here gets +1 {S} this turn.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_ed931c16cb0142469bd6f7571576d61a.avif?1716052430",
     "_namedAbilityStubs": [
@@ -7561,6 +7756,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "ward"
+      },
+      {
         "type": "static",
         "storyName": "THE GIRL WHO HAS EVERYTHING",
         "rulesText": "While you have more items in play than each opponent, this character gets +2 {L}.",
@@ -7612,6 +7811,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 2
+      },
+      {
         "type": "static",
         "storyName": "PRESERVER",
         "rulesText": "Opponents can't choose your items for abilities or effects.",
@@ -7621,9 +7825,13 @@
           "target": {
             "type": "all",
             "filter": {
-              "owner": { "type": "self" },
+              "owner": {
+                "type": "self"
+              },
               "zone": "play",
-              "cardType": ["item"]
+              "cardType": [
+                "item"
+              ]
             }
           }
         }
@@ -7639,9 +7847,13 @@
             "target": {
               "type": "chosen",
               "filter": {
-                "owner": { "type": "self" },
+                "owner": {
+                  "type": "self"
+                },
                 "zone": "play",
-                "cardType": ["item"]
+                "cardType": [
+                  "item"
+                ]
               }
             }
           },
@@ -7649,7 +7861,9 @@
             "type": "look_at_top",
             "count": 1,
             "action": "top_or_bottom",
-            "target": { "type": "self" }
+            "target": {
+              "type": "self"
+            }
           }
         ]
       }
@@ -7800,6 +8014,10 @@
       "Ally"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "support"
+      },
       {
         "type": "static",
         "storyName": "BEST FRIENDS",
@@ -8530,6 +8748,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 6
+      },
+      {
         "type": "static",
         "storyName": "RULER OF THE SEAS",
         "rulesText": "Opposing characters get -1 {S} for each location you have in play.",
@@ -8663,11 +8886,6 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 4
-      },
-      {
         "type": "static",
         "rulesText": "During your turn, this character gains Evasive.",
         "condition": {
@@ -8706,6 +8924,11 @@
             "isMay": true
           }
         ]
+      },
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
       }
     ],
     "setId": "4",
@@ -8791,7 +9014,6 @@
         "raw": "Look at the top 7 cards of your deck. Put 2 into your hand. Put the rest on the bottom of your deck in any order."
       }
     ],
-    "singTogetherCost": 8,
     "actionEffects": [
       {
         "type": "look_at_top",
@@ -8802,7 +9024,8 @@
           "type": "self"
         }
       }
-    ]
+    ],
+    "singTogetherCost": 8
   },
   {
     "id": "glean",
@@ -9176,6 +9399,7 @@
     "rarity": "rare",
     "subtitle": "A Secret Place",
     "willpower": 7,
+    "moveCost": 2,
     "rulesText": "TREASURE TROVE While you have 3 or more items in play, this location gets +2 {L}.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e993888b82a845c698effa4248c9a980.avif?1716052430",
     "_namedAbilityStubs": [
@@ -9230,6 +9454,7 @@
     "subtitle": "Medical Tent",
     "willpower": 8,
     "lore": 1,
+    "moveCost": 1,
     "rulesText": "HELP THE WOUNDED Whenever a character quests while here, remove up to 2 damage from them. If they're a Hero character, remove up to 4 damage instead.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_0d7681a6ac944b5aa5606946cff8ebd5.avif?1716052430",
     "_namedAbilityStubs": [
@@ -9913,10 +10138,6 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "rush"
-      },
-      {
         "type": "static",
         "rulesText": "During your turn, this character gains Evasive.",
         "condition": {
@@ -9929,6 +10150,10 @@
             "type": "this"
           }
         }
+      },
+      {
+        "type": "keyword",
+        "keyword": "rush"
       }
     ],
     "setId": "4",
@@ -9964,6 +10189,11 @@
       "Broom"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "resist",
+        "value": 1
+      },
       {
         "type": "static",
         "storyName": "WORK TOGETHER",
@@ -10022,6 +10252,16 @@
       "Sorcerer"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "resist",
+        "value": 1
+      },
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
       {
         "type": "triggered",
         "storyName": "BROOMS EVERYWHERE",
@@ -10261,6 +10501,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "resist",
+        "value": 1
+      },
+      {
         "type": "static",
         "storyName": "SHOW OF COURAGE",
         "rulesText": "While you have no cards in your hand, this character can challenge ready characters.",
@@ -10367,6 +10612,16 @@
       "Princess"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "challenger",
+        "value": 2
+      },
+      {
+        "type": "keyword",
+        "keyword": "resist",
+        "value": 2
+      },
       {
         "type": "triggered",
         "storyName": "MY MOMENT",
@@ -10626,7 +10881,6 @@
         "raw": "Deal 3 damage to up to 3 chosen characters and/or locations."
       }
     ],
-    "singTogetherCost": 10,
     "actionEffects": [
       {
         "type": "deal_damage",
@@ -10641,7 +10895,8 @@
           }
         }
       }
-    ]
+    ],
+    "singTogetherCost": 10
   },
   {
     "id": "tritons-decree",
@@ -10935,6 +11190,7 @@
     "rarity": "rare",
     "subtitle": "Border Fortress",
     "willpower": 8,
+    "moveCost": 2,
     "rulesText": "PROTECT THE REALM While you have an exerted character here, your other locations can't be challenged.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a8ad84833e7f41d5bf65fe1787c65fe3.avif?1716052430",
     "_namedAbilityStubs": [
@@ -10990,6 +11246,7 @@
     "rarity": "common",
     "subtitle": "The Big Olive",
     "willpower": 7,
+    "moveCost": 1,
     "rulesText": "IF YOU CAN MAKE IT HERE... During your turn, whenever a character banishes another character in a challenge while here, gain 2 lore.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d30e4b994223457c8b38bc696aa91e06.avif?1716052430",
     "_namedAbilityStubs": [
@@ -11016,6 +11273,11 @@
       "Princess"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "singer",
+        "value": 9
+      },
       {
         "type": "triggered",
         "storyName": "MUSICAL DEBUT",
@@ -11079,6 +11341,10 @@
       "Musketeer"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "bodyguard"
+      },
       {
         "type": "triggered",
         "storyName": "EN GARDE!",
@@ -11159,7 +11425,6 @@
         "raw": "Look at the top 5 cards of your deck. You may reveal up to 2 character cards and put them into your hand. Put the rest on the bottom of your deck in any order."
       }
     ],
-    "singTogetherCost": 7,
     "actionEffects": [
       {
         "type": "look_at_top",
@@ -11175,7 +11440,8 @@
           "type": "self"
         }
       }
-    ]
+    ],
+    "singTogetherCost": 7
   },
   {
     "id": "ursula-sea-witch-queen",
@@ -11194,6 +11460,11 @@
       "Sorcerer"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 5
+      },
       {
         "type": "triggered",
         "storyName": "NOW I AM THE RULER!",
@@ -11348,14 +11619,10 @@
     "traits": [
       "Song"
     ],
-    "abilities": [],
-    "actionEffects": [
+    "abilities": [
       {
-        "type": "draw",
-        "amount": 5,
-        "target": {
-          "type": "chosen"
-        }
+        "type": "keyword",
+        "keyword": "sing together"
       }
     ],
     "setId": "4",
@@ -11375,6 +11642,15 @@
         "raw": "Chosen player draws 5 cards."
       }
     ],
+    "actionEffects": [
+      {
+        "type": "draw",
+        "amount": 5,
+        "target": {
+          "type": "chosen"
+        }
+      }
+    ],
     "singTogetherCost": 10
   },
   {
@@ -11392,6 +11668,10 @@
       "Ally"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
       {
         "type": "triggered",
         "storyName": "CIRCLE FAR AND WIDE",
@@ -11574,6 +11854,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "rush"
+      },
+      {
         "type": "triggered",
         "storyName": "SUPER PEANUT POWERS",
         "rulesText": "Whenever this character challenges another character, gain 2 lore.",
@@ -11625,6 +11909,11 @@
       "Dragon"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 6
+      },
       {
         "type": "triggered",
         "storyName": "WE'VE GOT WORK TO DO",
@@ -11713,6 +12002,7 @@
     "rarity": "enchanted",
     "subtitle": "Disreputable Pub",
     "willpower": 9,
+    "moveCost": 2,
     "rulesText": "ROUTINE RUCKUS Whenever a character with 3 {S} or more challenges another character while here, gain 1 lore. If the challenging character has 6 {S} or more, gain 3 lore instead.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_016db7e8b21348aca4b407fb6d2ce26d.avif?1716052430",
     "_namedAbilityStubs": [
@@ -11911,6 +12201,7 @@
     "rarity": "enchanted",
     "subtitle": "A Secret Place",
     "willpower": 7,
+    "moveCost": 2,
     "rulesText": "TREASURE TROVE While you have 3 or more items in play, this location gets +2 {L}.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_79195cfde0ae4948894c37bef02d9e6f.avif?1716052430",
     "_namedAbilityStubs": [
@@ -12015,6 +12306,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "resist",
+        "value": 1
+      },
+      {
         "type": "static",
         "storyName": "SHOW OF COURAGE",
         "rulesText": "While you have no cards in your hand, this character can challenge ready characters.",
@@ -12092,6 +12388,7 @@
     "rarity": "enchanted",
     "subtitle": "Border Fortress",
     "willpower": 8,
+    "moveCost": 2,
     "rulesText": "PROTECT THE REALM While you have an exerted character here, your other locations can't be challenged.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_ae2a969b746542268ff0bcfc735ea367.avif?1716052430",
     "_namedAbilityStubs": [
@@ -12204,6 +12501,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 5
+      },
+      {
         "type": "triggered",
         "storyName": "STRAIGHT SHOOTER",
         "rulesText": "When you play this character, if you used Shift to play her, she gets +3 {S} this turn.",
@@ -12308,6 +12610,16 @@
       "Sorcerer"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "resist",
+        "value": 1
+      },
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
       {
         "type": "triggered",
         "storyName": "BROOMS EVERYWHERE",
