@@ -113,7 +113,7 @@ function renderCard(card: CardJSON): string {
     // Skip keyword:shift / keyword:singTogether — already emitted as scalars.
     if (ab.type === "keyword" && ab.keyword === "shift" && card.shiftCost !== undefined) continue;
     if (ab.type === "keyword" && ab.keyword === "sing together" && card.singTogetherCost !== undefined) continue;
-    parts.push(renderAbility(ab));
+    parts.push(renderAbility(ab, { cardType: card.cardType }));
   }
   // Action / song bodies live on actionEffects.
   for (const eff of card.actionEffects ?? []) {
@@ -123,14 +123,14 @@ function renderCard(card: CardJSON): string {
   return parts.filter(Boolean).join(". ") + (parts.length ? "." : "");
 }
 
-function renderAbility(ab: Json): string {
+function renderAbility(ab: Json, ctx?: { cardType?: string }): string {
   switch (ab.type) {
     case "keyword":
       return ab.value !== undefined ? `${cap(ab.keyword)} +${ab.value}` : cap(ab.keyword);
     case "triggered":
       return renderTriggered(ab);
     case "activated":
-      return renderActivated(ab);
+      return renderActivated(ab, ctx);
     case "static":
       return renderStatic(ab);
     case "replacement":
@@ -150,7 +150,7 @@ function renderAbility(ab: Json): string {
 // and surfaces in the diff as a renderer gap.
 // =============================================================================
 
-type Renderer = (e: Json) => string;
+type Renderer = (e: Json, ctx?: { cardType?: string }) => string;
 
 // -----------------------------------------------------------------------------
 // Triggers — careful word distinctions per CLAUDE.md (when vs. whenever vs.
@@ -294,14 +294,14 @@ const COST_RENDERERS: Record<string, Renderer> = {
   ink:                (c) => `${c.amount ?? "?"} {I}`,
   pay_ink:            (c) => `${c.amount ?? "?"} {I}`,
   banish_chosen:      (c) => `Banish ${renderTarget(c.target ?? {})}`,
-  banish_self:        ()  => "Banish this character",
+  banish_self:        (_c, ctx) => `Banish this ${ctx?.cardType === "item" ? "item" : "character"}`,
   discard:            ()  => "Discard a card",
   discard_from_hand:  ()  => "Discard a card",
 };
 
-function renderCost(c: Json): string {
+function renderCost(c: Json, ctx?: { cardType?: string }): string {
   const fn = COST_RENDERERS[c.type];
-  return fn ? fn(c) : `[cost:${c.type}]`;
+  return fn ? fn(c, ctx) : `[cost:${c.type}]`;
 }
 
 // -----------------------------------------------------------------------------
@@ -321,7 +321,11 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     if (typeof e.untilHandSize === "number") {
       return `${maybe(e)}draw cards until you have ${e.untilHandSize} cards in your hand`;
     }
-    return `${maybe(e)}draw ${e.amount ?? 1} card${plural(e.amount ?? 1)}`;
+    const amt = e.amount ?? 1;
+    if (typeof amt !== "number") {
+      return `${maybe(e)}draw cards equal to ${renderAmount(amt)}`;
+    }
+    return `${maybe(e)}draw ${amt} card${plural(amt)}`;
   },
   discard:            (e) => `${maybe(e)}discard ${e.amount ?? 1} card${plural(e.amount ?? 1)}`,
   discard_from_hand:  (e) => {
@@ -342,8 +346,11 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   gain_lore: (e) => {
     const tgt = renderTarget(e.target ?? { type: "self" });
     const n = e.amount ?? 1;
-    if (n < 0) return `${tgt} ${verbS(tgt, "lose", "loses")} ${-n} lore`;
-    return `${tgt} ${verbS(tgt, "gain", "gains")} ${n} lore`;
+    if (typeof n === "number") {
+      if (n < 0) return `${tgt} ${verbS(tgt, "lose", "loses")} ${-n} lore`;
+      return `${tgt} ${verbS(tgt, "gain", "gains")} ${n} lore`;
+    }
+    return `${tgt} ${verbS(tgt, "gain", "gains")} lore equal to ${renderAmount(n)}`;
   },
   lose_lore: (e) => {
     const tgt = renderTarget(e.target ?? { type: "self" });
@@ -354,9 +361,9 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     return `${tgt} can't gain lore${dur(e)}`;
   },
 
-  deal_damage:    (e) => `deal ${up(e)}${e.amount ?? 1} damage to ${renderTarget(e.target ?? {})}`,
-  remove_damage:  (e) => `remove ${up(e)}${e.amount ?? 1} damage from ${renderTarget(e.target ?? {})}`,
-  move_damage:    (e) => `move ${up(e)}${e.amount ?? 1} damage from ${renderTarget(e.from ?? {})} to ${renderTarget(e.to ?? {})}`,
+  deal_damage:    (e) => `${maybe(e)}deal ${up(e)}${e.amount ?? 1} damage to ${renderTarget(e.target ?? {})}`,
+  remove_damage:  (e) => `${maybe(e)}remove ${up(e)}${e.amount ?? 1} damage from ${renderTarget(e.target ?? {})}`,
+  move_damage:    (e) => `${maybe(e)}move ${up(e)}${e.amount ?? 1} damage from ${renderTarget(e.from ?? {})} to ${renderTarget(e.to ?? {})}`,
 
   banish:         (e) => `${maybe(e)}banish ${renderTarget(e.target ?? {})}`,
   banish_chosen:  (e) => `${maybe(e)}banish ${renderTarget(e.target ?? {})}`,
@@ -471,6 +478,10 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     if (e.target?.type === "chosen" && e.target.filter?.zone === "hand") {
       const filt = e.target.filter.cardType ? renderFilter(e.target.filter) : "card from your hand";
       return `put any ${filt} into your inkwell${exerted}`;
+    }
+    // One Jump Ahead: "put the top card of your deck into your inkwell"
+    if (e.fromZone === "deck") {
+      return `put the top card of your deck into your inkwell${exerted}`;
     }
     const from = e.fromZone ? ` from your ${e.fromZone}` : "";
     return `put ${renderTarget(e.target ?? {})}${from} into your inkwell${exerted}`;
@@ -672,8 +683,13 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     const tgt = renderTarget(e.target ?? { type: "this" });
     const stat = e.stat === "lore" ? "{L}" : e.stat === "willpower" ? "{W}" : "{S}";
     const per = e.perCount ?? 1;
-    const filt = e.countFilter ? renderFilter(e.countFilter) : "characters";
-    return `${tgt} ${verbS(tgt, "get", "gets")} +${per} ${stat} for each ${filt} you have in play`;
+    const cf = e.countFilter;
+    let where = "you have in play";
+    if (cf?.zone === "hand") where = "in your hand";
+    else if (cf?.zone === "discard") where = "in your discard";
+    else if (cf?.zone === "inkwell") where = "in your inkwell";
+    const filt = cf ? renderFilter(cf) : "card";
+    return `${tgt} ${verbS(tgt, "get", "gets")} +${per} ${stat} for each ${filt} ${where}`;
   },
 
   // cost_reduction: handled in main EFFECT_RENDERERS above (renders as "for the next X")
@@ -682,7 +698,10 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   cant_be_challenged: (e) => {
     const tgt = renderTarget(e.target ?? { type: "this" });
     if (e.attackerFilter) {
-      return `characters ${renderFilter(e.attackerFilter)} can't challenge ${tgt}`;
+      const af = renderFilter(e.attackerFilter);
+      // "Characters with cost 3 or less" — use filter as qualifier, drop generic "card" noun
+      const qualifier = af.replace(/^card /, "").replace(/^cards /, "");
+      return `Characters ${qualifier} can't challenge ${tgt}`;
     }
     return `${tgt} can't be challenged`;
   },
@@ -825,7 +844,36 @@ function renderEffect(e: Json): string {
 function maybe(e: Json): string { return e.isMay ? "you may " : ""; }
 function up(e: Json): string { return e.isUpTo ? "up to " : ""; }
 function dur(e: Json): string { return e.duration ? " " + renderDuration(e.duration) : ""; }
-function plural(n: number): string { return n === 1 ? "" : "s"; }
+function plural(n: number | string): string { return n === 1 ? "" : "s"; }
+
+/** Render a DynamicAmount (number or object like {type:"count",filter} or string). */
+function renderAmount(a: any): string {
+  if (typeof a === "number") return String(a);
+  if (typeof a === "string") {
+    switch (a) {
+      case "target_lore": return "their {L}";
+      case "target_strength": return "their {S}";
+      case "target_damage": return "the amount of damage on them";
+      case "source_strength": return "this character's {S}";
+      case "last_effect_result": return "each 1 lost this way";
+      case "cost_result": return "each 1 affected this way";
+      case "last_resolved_target_delta": return "each 1 removed this way";
+      default: return a;
+    }
+  }
+  if (typeof a === "object" && a !== null) {
+    if (a.type === "count") return `the number of ${a.filter ? pluralizeFilter(renderFilter(a.filter)) : "matching cards"}`;
+    if (a.type === "target_lore") return "their {L}";
+    if (a.type === "target_strength") return "their {S}";
+    if (a.type === "target_damage") return "the amount of damage on them";
+    if (a.type === "source_strength") return "this character's {S}";
+    if (a.type === "last_effect_result") return "the number of cards affected";
+    if (a.type === "last_resolved_target_delta") return "the amount removed";
+    if (a.type === "cards_under_count") return "the number of cards under this character";
+    return `[amount:${a.type}]`;
+  }
+  return "?";
+}
 
 /** Verb agreement: "you" takes base form, everything else takes -s.
  *  ("you gain" / "each opponent gains" / "this character gains"). */
@@ -860,8 +908,8 @@ function renderTriggered(ab: Json): string {
   return `${head}, ${body}`;
 }
 
-function renderActivated(ab: Json): string {
-  const costs = (ab.costs ?? []).map(renderCost).join(", ");
+function renderActivated(ab: Json, ctx?: { cardType?: string }): string {
+  const costs = (ab.costs ?? []).map((c: Json) => renderCost(c, ctx)).join(", ");
   const cond = ab.condition ? renderCondition(ab.condition) : "";
   const effects = (ab.effects ?? []).map(renderEffect).join(", and ");
   if (cond) return `${costs} — ${cap(cond)}, ${effects}`;
@@ -869,7 +917,11 @@ function renderActivated(ab: Json): string {
 }
 
 function renderStatic(ab: Json): string {
-  const cond = ab.condition ? renderCondition(ab.condition) : "";
+  let cond = ab.condition ? renderCondition(ab.condition) : "";
+  // Statics use "While" not "If" for ongoing conditions
+  if (cond.startsWith("if ") || cond.startsWith("If ")) {
+    cond = "While " + cond.slice(3);
+  }
   const body = renderEffect(ab.effect ?? {});
   if (cond) return `${cap(cond)}, ${body}`;
   return body;
@@ -916,7 +968,7 @@ function renderTarget(t: Json): string {
       return `chosen ${count}${f}`;
     }
     case "all": {
-      const f = t.filter ? renderFilter(t.filter) : "characters";
+      const f = t.filter ? pluralizeFilter(renderFilter(t.filter)) : "characters";
       return `all ${f}`;
     }
     case "random": {
@@ -970,6 +1022,17 @@ function renderFilter(f: Json): string {
   // atLocation
   if (f.atLocation === "this") bits.push("here");
   return bits.join(" ");
+}
+
+/** Pluralize the noun in a rendered filter string. "character" → "characters", etc. */
+function pluralizeFilter(f: string): string {
+  return f
+    .replace(/\bcharacter\b(?!s)/, "characters")
+    .replace(/\bitem\b(?!s)/, "items")
+    .replace(/\blocation\b(?!s)/, "locations")
+    .replace(/\baction\b(?!s)/, "actions")
+    .replace(/\bsong\b(?!s)/, "songs")
+    .replace(/\bcard\b(?!s)/, "cards");
 }
 
 // =============================================================================
