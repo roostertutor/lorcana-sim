@@ -62,7 +62,6 @@ const FLAG_KEYWORDS: Record<string, RegExp> = {
   reckless: /(^|\n)Reckless(?:\s*\(|\s*$|\n)/,
   support: /(^|\n)Support(?:\s*\(|\s*$|\n)/,
   vanish: /(^|\n)Vanish(?:\s*\(|\s*$|\n)/,
-  voiceless: /(^|\n)Voiceless(?:\s*\(|\s*$|\n)/,
 };
 
 // Numeric keywords. Same anchoring; the regex captures the value.
