@@ -5248,24 +5248,26 @@ function zoneTransition(
         }
       }
     }
-    // CRD 8.10.5: when a card with cards under it leaves play, those cards go to discard.
+    // CRD 8.10.7: when a card with cards under it leaves play, ALL cards in
+    // the stack go to the SAME zone as the top card. Each under-card moves to
+    // its own owner's instance of the destination zone.
     const leavingInstSnapshot = state.cards[instanceId];
-    const underToDiscard = leavingInstSnapshot?.cardsUnder ?? [];
-    for (const underId of underToDiscard) {
+    const underCards = leavingInstSnapshot?.cardsUnder ?? [];
+    const underDestZone: ZoneName = targetZone;
+    for (const underId of underCards) {
       const underInst = state.cards[underId];
       if (!underInst) continue;
-      // Cards under don't live in any zone array — set zone to "discard" and append to discard.
       state = {
         ...state,
         cards: {
           ...state.cards,
-          [underId]: { ...underInst, zone: "discard" },
+          [underId]: { ...underInst, zone: underDestZone },
         },
         zones: {
           ...state.zones,
           [underInst.ownerId]: {
             ...state.zones[underInst.ownerId],
-            discard: [...state.zones[underInst.ownerId].discard, underId],
+            [underDestZone]: [...(state.zones[underInst.ownerId][underDestZone] ?? []), underId],
           },
         },
       };

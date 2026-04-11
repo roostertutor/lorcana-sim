@@ -213,7 +213,7 @@
 | 5.1.1.1 | Ready state | ✅ `isExerted = false` |
 | 5.1.1.2 | Exerted state; can still use non-{E} abilities | ✅ |
 | 5.1.1.3–4 | Damaged / undamaged | ✅ `damage > 0` |
-| 5.1.1.5–7 | Under / on top / in a stack (Shift stacks) | ⚠️ `shiftedOntoInstanceId` tracked but stack mechanics not fully modeled (see CRD 8.10) |
+| 5.1.1.5–7 | Under / on top / in a stack (Shift stacks) | ✅ `cardsUnder: string[]` models the stack. Top card is in play; under-cards have `zone: "under"`. CRD 8.10.7: stack leaves play together to same zone. |
 | 5.1.1.8 | In Play: faceup in Play zone with no cards on top | ✅ `zone === "play"` |
 | 5.1.1.11 | **Drying**: entered play this turn; can't quest/challenge/exert | ✅ `isDrying: true` on play; validator enforces restrictions |
 | 5.1.1.12 | **Dry**: been in play since start of their player's turn; can quest/challenge/exert | ✅ `isDrying: false` after turn start |
@@ -393,7 +393,7 @@
 | 8.10.4 | If shifted onto **dry** character, enters **dry** (can challenge); if drying, enters drying | ✅ `isDrying: shiftTarget.isDrying` inherits from base |
 | 8.10.5 | Shifted character inherits ability to sing if base was dry | ❌ Singing not implemented |
 | 8.10.6 | **Shifted character retains damage from character it's on top of** | ✅ `damage: shiftTarget.damage` |
-| 8.10.7 | When shifted card leaves play, all cards in stack go to same zone | ❌ Only top card moved to discard |
+| 8.10.7 | When shifted card leaves play, all cards in stack go to same zone | ✅ Under-cards follow top card to same destination zone (each to own owner's zone) |
 | 8.10.8 | Shift has two variants: [Classification] Shift and Universal Shift | ❌ Not implemented (no set 1 cards) |
 | 8.10.8.1 | [Classification] Shift — shift onto character matching classification, not just name | ❌ Not implemented |
 | 8.10.8.2 | Universal Shift — shift onto any character in play | ❌ Not implemented |
