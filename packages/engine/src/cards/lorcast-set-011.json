@@ -3485,7 +3485,7 @@
     "actionEffects": [
       {
         "type": "draw",
-        "amount": 1,
+        "amount": "unique_ink_types_on_top_of_both_decks",
         "target": {
           "type": "self"
         }
@@ -11056,10 +11056,17 @@
     ],
     "actionEffects": [
       {
-        "type": "draw",
-        "amount": 1,
+        "type": "reveal_top_conditional",
+        "filter": {
+          "cardType": [
+            "character"
+          ]
+        },
+        "matchAction": "play_for_free",
+        "noMatchDestination": "bottom",
+        "isMay": true,
         "target": {
-          "type": "self"
+          "type": "both"
         }
       }
     ]
@@ -12936,7 +12943,7 @@
     "actionEffects": [
       {
         "type": "draw",
-        "amount": 1,
+        "amount": "unique_ink_types_on_top_of_both_decks",
         "target": {
           "type": "self"
         }
@@ -13765,10 +13772,17 @@
     ],
     "actionEffects": [
       {
-        "type": "draw",
-        "amount": 1,
+        "type": "reveal_top_conditional",
+        "filter": {
+          "cardType": [
+            "character"
+          ]
+        },
+        "matchAction": "play_for_free",
+        "noMatchDestination": "bottom",
+        "isMay": true,
         "target": {
-          "type": "self"
+          "type": "both"
         }
       }
     ]

@@ -198,6 +198,7 @@ export type Effect =
   | DamageImmunityTimedEffect
   | PutCardsUnderIntoHandEffect
   | MoveCardsUnderToTargetEffect
+  | ReadySingersEffect
   | MoveCardsUnderToInkwellEffect
   | MoveAllMatchingToInkwellEffect
   | ConditionalOnLastDiscardedEffect
@@ -454,6 +455,9 @@ export type DynamicAmount =
    *  Read from `state.lastDamageDealtAmount`. Used by Mulan Elite Archer
    *  TRIPLE SHOT and Namaari Heir of Fang TWO-WEAPON FIGHTING. */
   | "last_damage_dealt"
+  /** Colors of the Wind: count unique ink types among the top cards of
+   *  both players' decks. Reveals both tops then draws that many. */
+  | "unique_ink_types_on_top_of_both_decks"
   /** Per-turn counter on the controlling player: number of opposing characters
    *  banished in a challenge initiated by this player this turn. Used by
    *  Namaari Resolute Daughter ("For each opposing character banished in a
@@ -708,6 +712,18 @@ export interface ReturnAllToBottomInOrderEffect {
 /** Mickey Mouse Bob Cratchit (Set 11): "put all cards that were under him
  *  under another chosen character or location of yours." Moves the source's
  *  cardsUnder pile to the chosen target's cardsUnder pile. */
+/** I2I (Set 9): "If 2 or more characters sang this song, ready them. They
+ *  can't quest for the rest of this turn." Targets the characters from
+ *  `state.lastSongSingerIds`. Reusable for any Sing Together card that
+ *  has conditional effects on the singers. */
+export interface ReadySingersEffect {
+  type: "ready_singers";
+  /** Minimum number of singers required for the effect to fire. */
+  minSingers?: number;
+  /** Effects to apply to each singer after readying (e.g. can't quest). */
+  followUpEffects?: Effect[];
+}
+
 export interface MoveCardsUnderToTargetEffect {
   type: "move_cards_under_to_target";
   target: CardTarget;
@@ -2696,6 +2712,9 @@ export interface GameState {
    *  by the `song_singer_count` DynamicAmount (Fantastical and Magical:
    *  "draw a card and gain 1 lore for each character that sang this song"). */
   lastSongSingerCount?: number;
+  /** Instance IDs of characters that sang the most recent song. Used by I2I
+   *  "ready them" to target the singers for post-resolution effects. */
+  lastSongSingerIds?: string[];
 
   winner: PlayerID | null;
   isGameOver: boolean;

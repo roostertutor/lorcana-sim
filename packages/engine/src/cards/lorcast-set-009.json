@@ -7131,6 +7131,20 @@
         "target": {
           "type": "opponent"
         }
+      },
+      {
+        "type": "ready_singers",
+        "minSingers": 2,
+        "followUpEffects": [
+          {
+            "type": "cant_action",
+            "action": "quest",
+            "target": {
+              "type": "this"
+            },
+            "duration": "end_of_turn"
+          }
+        ]
       }
     ],
     "singTogetherCost": 9
@@ -13031,6 +13045,20 @@
         "target": {
           "type": "opponent"
         }
+      },
+      {
+        "type": "ready_singers",
+        "minSingers": 2,
+        "followUpEffects": [
+          {
+            "type": "cant_action",
+            "action": "quest",
+            "target": {
+              "type": "this"
+            },
+            "duration": "end_of_turn"
+          }
+        ]
       }
     ],
     "singTogetherCost": 9

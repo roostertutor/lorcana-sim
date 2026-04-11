@@ -476,7 +476,7 @@ function applyPlayCard(
 
   // CRD 8.12: Sing Together — multiple characters all exert; sings trigger fires per singer
   if (singerInstanceIds && singerInstanceIds.length > 0) {
-    state = { ...state, lastSongSingerCount: singerInstanceIds.length };
+    state = { ...state, lastSongSingerCount: singerInstanceIds.length, lastSongSingerIds: [...singerInstanceIds] };
     for (const sId of singerInstanceIds) {
       state = exertInstance(state, sId, definitions);
     }
@@ -498,7 +498,7 @@ function applyPlayCard(
     }
   } else if (singerInstanceId) {
     // Don't deduct ink — singing is the alternate cost (CRD 1.5.5.1)
-    state = { ...state, lastSongSingerCount: 1 };
+    state = { ...state, lastSongSingerCount: 1, lastSongSingerIds: [singerInstanceId] };
     state = exertInstance(state, singerInstanceId, definitions);
     const singerDef = getDefinition(state, singerInstanceId, definitions);
     state = appendLog(state, {
@@ -2129,6 +2129,19 @@ function resolveDynamicAmount(
   if (amount === "last_damage_dealt") {
     return state.lastDamageDealtAmount ?? 0;
   }
+  if (amount === "unique_ink_types_on_top_of_both_decks") {
+    const inks = new Set<string>();
+    for (const pid of ["player1", "player2"] as PlayerID[]) {
+      const deck = getZone(state, pid, "deck");
+      const topId = deck[0];
+      if (topId) {
+        const inst = state.cards[topId];
+        const def = inst ? definitions[inst.definitionId] : undefined;
+        if (def?.inkColors) for (const ink of def.inkColors) inks.add(ink);
+      }
+    }
+    return inks.size;
+  }
   if (amount === "last_resolved_source_strength") {
     return state.lastResolvedSource?.strength ?? 0;
   }
@@ -2564,6 +2577,14 @@ export function applyEffect(
       // Reveal top card of deck. If it matches the filter, apply matchAction.
       // Else, put it back on top (default) or bottom of deck.
       // repeatOnMatch (Sisu Uniting Dragon): loop until a non-match.
+      // target "both": iterate over each player independently (Let's Get Dangerous).
+      if (effect.target.type === "both") {
+        for (const pid of ["player1", "player2"] as PlayerID[]) {
+          state = applyEffect(state, { ...effect, target: { type: "self" } }, sourceInstanceId, pid, definitions, events, triggeringCardInstanceId);
+          if (state.pendingChoice) return state;
+        }
+        return state;
+      }
       const targetPlayer = effect.target.type === "opponent" ? getOpponent(controllingPlayerId) : controllingPlayerId;
       let safety = 60; // bound to deck size
       // eslint-disable-next-line no-constant-condition
@@ -2917,6 +2938,26 @@ export function applyEffect(
           };
         }
         state = updateInstance(state, parentId, { cardsUnder: [] });
+      }
+      return state;
+    }
+
+    case "ready_singers": {
+      // I2I: "If 2 or more characters sang this song, ready them."
+      // Reads from state.lastSongSingerIds (set during song play resolution).
+      const singerIds = state.lastSongSingerIds ?? [];
+      const minSingers = effect.minSingers ?? 2;
+      if (singerIds.length < minSingers) return state;
+      for (const sid of singerIds) {
+        const singer = state.cards[sid];
+        if (!singer || singer.zone !== "play") continue;
+        state = updateInstance(state, sid, { isExerted: false });
+        // Apply follow-up effects (e.g. "can't quest for the rest of this turn")
+        if (effect.followUpEffects) {
+          for (const followUp of effect.followUpEffects) {
+            state = applyEffect(state, followUp, sid, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+          }
+        }
       }
       return state;
     }
