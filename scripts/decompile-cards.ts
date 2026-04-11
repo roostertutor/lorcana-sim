@@ -526,7 +526,10 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   search: (e) => {
     const filter = e.filter ? renderFilter(e.filter) : "a card";
     if (e.zone === "discard") return `return ${filter} from your discard to your hand`;
-    return `search your deck for ${filter}`;
+    const dest = e.putInto === "deck" && e.position === "top"
+      ? ". Shuffle your deck and put that card on top of it"
+      : e.putInto === "hand" ? " and put it into your hand" : "";
+    return `search your deck for ${filter}${dest}`;
   },
   shuffle_into_deck:      (e) => `shuffle ${renderTarget(e.target ?? {})} into your deck`,
   move_to_inkwell: (e) => {
@@ -632,7 +635,11 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     return `${tgt} can't be damaged${dur(e)}`;
   },
 
-  opponent_chooses_yes_or_no: () => `each opponent may choose to respond`,
+  opponent_chooses_yes_or_no: (e) => {
+    const yes = e.acceptEffect ? renderEffect(e.acceptEffect) : "accept";
+    const no = e.rejectEffect ? renderEffect(e.rejectEffect) : "decline";
+    return `chosen opponent chooses: YES! ${yes}. NO! ${no}`;
+  },
 
   // Timed variant of cant_be_challenged (Kanga Nurturing Mother "until your
   // next turn"). Same shape as the static form but with a duration.
@@ -730,6 +737,16 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   // WHO is restricted, not the target of the restriction.
   deck_rule: (e) => e.rule ?? "deck-building rule",
   prevent_damage_removal: () => "Damage counters can't be removed",
+  damage_immunity_static: (e) => {
+    const tgt = renderTarget(e.target ?? { type: "this" });
+    const src = e.source === "challenge" ? " from challenges" : e.source === "non_challenge" ? " except from challenges" : "";
+    const charges = e.chargesPerTurn ? "the first time " + tgt + " would take damage, " + tgt + " takes no damage instead" : tgt + " can't be damaged" + src;
+    return charges;
+  },
+  challenge_damage_immunity: (e) => {
+    const tgt = renderTarget(e.target ?? { type: "this" });
+    return `${tgt} can't be damaged from challenges`;
+  },
   all_hand_inkable: () => "All cards in your hand count as having {IW}",
   grant_triggered_ability: (e) => {
     const tgt = renderTarget(e.target ?? {});

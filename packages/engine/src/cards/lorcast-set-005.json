@@ -5317,6 +5317,11 @@
         "target": {
           "type": "self"
         }
+      },
+      {
+        "type": "put_card_on_bottom_of_deck",
+        "from": "hand",
+        "amount": 2
       }
     ]
   },

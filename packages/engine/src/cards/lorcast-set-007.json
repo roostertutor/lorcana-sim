@@ -10947,6 +10947,33 @@
               }
             ]
           }
+        },
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            {
+              "type": "is_your_turn"
+            },
+            {
+              "type": "compound_or",
+              "conditions": [
+                {
+                  "type": "has_character_named",
+                  "name": "Miss Bianca",
+                  "player": {
+                    "type": "self"
+                  }
+                },
+                {
+                  "type": "has_character_named",
+                  "name": "Bernard",
+                  "player": {
+                    "type": "self"
+                  }
+                }
+              ]
+            }
+          ]
         }
       }
     ],

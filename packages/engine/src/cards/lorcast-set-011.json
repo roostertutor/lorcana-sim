@@ -3385,6 +3385,21 @@
     ],
     "actionEffects": [
       {
+        "type": "put_cards_under_into_hand",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character",
+              "item",
+              "location"
+            ]
+          }
+        },
+        "destination": "bottom_of_deck"
+      },
+      {
         "type": "draw",
         "amount": 1,
         "target": {

@@ -8096,9 +8096,18 @@
           {
             "type": "search",
             "filter": {
-              "cardType": [
-                "item",
-                "character"
+              "anyOf": [
+                {
+                  "cardType": [
+                    "item"
+                  ]
+                },
+                {
+                  "cardType": [
+                    "character"
+                  ],
+                  "hasTrait": "Robot"
+                }
               ]
             },
             "target": {
