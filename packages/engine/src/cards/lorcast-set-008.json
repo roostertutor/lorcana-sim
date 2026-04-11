@@ -2461,7 +2461,17 @@
       "Storyborn",
       "Puppy"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "WHERE DID THEY ALL COME FROM?",
+        "rulesText": "You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck.",
+        "effect": {
+          "type": "deck_rule",
+          "rule": "You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck."
+        }
+      }
+    ],
     "setId": "8",
     "number": 38,
     "rarity": "common",

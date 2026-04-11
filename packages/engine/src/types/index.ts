@@ -1385,6 +1385,7 @@ export type StaticEffect =
   | RemoveKeywordStatic
   | GrantTriggeredAbilityStatic
   | SingCostBonusCharactersStatic
+  | DeckRuleStatic
   | AllHandInkableStatic
   | PreventDamageRemovalStatic
   | GlobalMoveCostReductionStatic
@@ -1449,6 +1450,17 @@ export interface AllHandInkableStatic {
  *  that prevents all damage removal (remove_damage effects fizzle). */
 export interface PreventDamageRemovalStatic {
   type: "prevent_damage_removal";
+}
+
+/** Deck-building rule with no in-game effect. Examples:
+ *  - Dalmatian Puppy: "You may have up to 99 copies in your deck."
+ *  - Glass Slipper: "You may only have 2 copies in your deck."
+ *  - Microbots: "You may have any number of cards named Microbots in your deck."
+ *  The engine doesn't enforce deck construction — this is a no-op marker that
+ *  documents the rule and stops audit scripts from flagging the card. */
+export interface DeckRuleStatic {
+  type: "deck_rule";
+  rule: string;
 }
 
 /** Map of Treasure Planet (Set 3): "You pay 1 {I} less to move your characters

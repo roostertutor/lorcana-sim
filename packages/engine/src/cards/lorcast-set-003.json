@@ -227,12 +227,8 @@
         "storyName": "WHERE DID THEY ALL COME FROM?",
         "rulesText": "You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck.",
         "effect": {
-          "type": "modify_stat",
-          "stat": "willpower",
-          "modifier": 0,
-          "target": {
-            "type": "this"
-          }
+          "type": "deck_rule",
+          "rule": "You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck."
         }
       }
     ],
@@ -274,12 +270,8 @@
         "storyName": "WHERE DID THEY ALL COME FROM?",
         "rulesText": "You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck.",
         "effect": {
-          "type": "modify_stat",
-          "stat": "willpower",
-          "modifier": 0,
-          "target": {
-            "type": "this"
-          }
+          "type": "deck_rule",
+          "rule": "You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck."
         }
       }
     ],
@@ -321,12 +313,8 @@
         "storyName": "WHERE DID THEY ALL COME FROM?",
         "rulesText": "You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck.",
         "effect": {
-          "type": "modify_stat",
-          "stat": "willpower",
-          "modifier": 0,
-          "target": {
-            "type": "this"
-          }
+          "type": "deck_rule",
+          "rule": "You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck."
         }
       }
     ],
@@ -368,12 +356,8 @@
         "storyName": "WHERE DID THEY ALL COME FROM?",
         "rulesText": "You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck.",
         "effect": {
-          "type": "modify_stat",
-          "stat": "willpower",
-          "modifier": 0,
-          "target": {
-            "type": "this"
-          }
+          "type": "deck_rule",
+          "rule": "You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck."
         }
       }
     ],
@@ -415,12 +399,8 @@
         "storyName": "WHERE DID THEY ALL COME FROM?",
         "rulesText": "You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck.",
         "effect": {
-          "type": "modify_stat",
-          "stat": "willpower",
-          "modifier": 0,
-          "target": {
-            "type": "this"
-          }
+          "type": "deck_rule",
+          "rule": "You may have up to 99 copies of Dalmatian Puppy - Tail Wagger in your deck."
         }
       }
     ],

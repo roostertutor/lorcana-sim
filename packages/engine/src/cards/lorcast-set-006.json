@@ -9465,6 +9465,15 @@
     "traits": [],
     "abilities": [
       {
+        "type": "static",
+        "storyName": "LIMITLESS APPLICATIONS",
+        "rulesText": "You may have any number of cards named Microbots in your deck.",
+        "effect": {
+          "type": "deck_rule",
+          "rule": "You may have any number of cards named Microbots in your deck."
+        }
+      },
+      {
         "type": "triggered",
         "storyName": "INSPIRED TECH",
         "rulesText": "When you play this item, chosen character gets -1 {S} this turn for each item named Microbots you have in play.",

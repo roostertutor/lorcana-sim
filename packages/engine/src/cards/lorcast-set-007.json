@@ -2491,6 +2491,15 @@
     "traits": [],
     "abilities": [
       {
+        "type": "static",
+        "storyName": "PERFECT PAIR",
+        "rulesText": "You may only have 2 copies of The Glass Slipper in your deck.",
+        "effect": {
+          "type": "deck_rule",
+          "rule": "You may only have 2 copies of The Glass Slipper in your deck."
+        }
+      },
+      {
         "type": "activated",
         "storyName": "SEARCH THE KINGDOM",
         "rulesText": "Banish this item, {E} one of your Prince characters – Search your deck for a Princess character card and reveal it to all players. Put that card into your hand and shuffle your deck.",
@@ -11767,6 +11776,15 @@
     "inkable": false,
     "traits": [],
     "abilities": [
+      {
+        "type": "static",
+        "storyName": "PERFECT PAIR",
+        "rulesText": "You may only have 2 copies of The Glass Slipper in your deck.",
+        "effect": {
+          "type": "deck_rule",
+          "rule": "You may only have 2 copies of The Glass Slipper in your deck."
+        }
+      },
       {
         "type": "activated",
         "storyName": "SEARCH THE KINGDOM",

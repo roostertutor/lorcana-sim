@@ -2332,7 +2332,36 @@
       "Princess",
       "Inventor"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "WHAT A MESS",
+        "rulesText": "During your turn, you may banish chosen item of yours to play this character for free.",
+        "activeZones": [
+          "hand"
+        ],
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effect": {
+          "type": "grant_play_for_free_self",
+          "playCosts": [
+            {
+              "type": "banish_chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "item"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
     "setId": "P3",
     "number": 37,
     "rarity": "common",
