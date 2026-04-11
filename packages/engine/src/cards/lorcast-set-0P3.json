@@ -2074,13 +2074,13 @@
           "amount": 3,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "cards_in_hand_gte",
-            "amount": 7,
-            "player": {
-              "type": "self"
-            }
+          }
+        },
+        "condition": {
+          "type": "cards_in_hand_gte",
+          "amount": 7,
+          "player": {
+            "type": "self"
           }
         }
       }
@@ -2152,13 +2152,13 @@
           "amount": 3,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "cards_in_hand_gte",
-            "amount": 7,
-            "player": {
-              "type": "self"
-            }
+          }
+        },
+        "condition": {
+          "type": "cards_in_hand_gte",
+          "amount": 7,
+          "player": {
+            "type": "self"
           }
         }
       }

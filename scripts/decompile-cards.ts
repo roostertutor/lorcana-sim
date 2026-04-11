@@ -967,11 +967,13 @@ function verbS(target: string, base: string, third: string): string {
 function renderStatChange(e: Json): string {
   const tgt = renderTarget(e.target ?? {});
   const bits: string[] = [];
-  // gain_stats uses individual fields; modify_stat uses stat + modifier
-  if (e.stat && e.modifier !== undefined) {
+  // modify_stat uses stat + modifier OR stat + amount
+  if (e.stat && (e.modifier !== undefined || e.amount !== undefined)) {
     const sym = e.stat === "lore" ? "{L}" : e.stat === "willpower" ? "{W}" : "{S}";
-    bits.push(`${signed(e.modifier)} ${sym}`);
+    const val = e.modifier ?? e.amount;
+    bits.push(`${signed(val)} ${sym}`);
   }
+  // gain_stats uses individual stat fields
   if (e.strength !== undefined) bits.push(`${signed(e.strength)} {S}`);
   if (e.willpower !== undefined) bits.push(`${signed(e.willpower)} {W}`);
   if (e.lore !== undefined) bits.push(`${signed(e.lore)} {L}`);

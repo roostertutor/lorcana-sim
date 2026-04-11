@@ -49,13 +49,13 @@
           "amount": 1,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "has_character_named",
-            "name": "Stitch",
-            "player": {
-              "type": "self"
-            }
+          }
+        },
+        "condition": {
+          "type": "has_character_named",
+          "name": "Stitch",
+          "player": {
+            "type": "self"
           }
         }
       }
@@ -1092,10 +1092,6 @@
         "costs": [
           {
             "type": "exert"
-          },
-          {
-            "type": "pay_ink",
-            "amount": 1
           }
         ],
         "effects": [
@@ -2623,13 +2619,13 @@
           "amount": 3,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "cards_in_hand_gte",
-            "amount": 7,
-            "player": {
-              "type": "self"
-            }
+          }
+        },
+        "condition": {
+          "type": "cards_in_hand_gte",
+          "amount": 7,
+          "player": {
+            "type": "self"
           }
         }
       }
@@ -6332,13 +6328,13 @@
           "amount": 2,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "has_character_with_trait",
-            "trait": "Queen",
-            "player": {
-              "type": "self"
-            }
+          }
+        },
+        "condition": {
+          "type": "has_character_with_trait",
+          "trait": "Queen",
+          "player": {
+            "type": "self"
           }
         }
       }
@@ -6881,10 +6877,10 @@
           "amount": 3,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "this_at_location"
           }
+        },
+        "condition": {
+          "type": "this_at_location"
         }
       }
     ],
@@ -10192,10 +10188,10 @@
           "amount": 1,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "this_has_no_damage"
           }
+        },
+        "condition": {
+          "type": "this_has_no_damage"
         }
       }
     ],
@@ -10544,10 +10540,10 @@
           "amount": 2,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "this_has_no_damage"
           }
+        },
+        "condition": {
+          "type": "this_has_no_damage"
         }
       },
       {
@@ -13252,10 +13248,10 @@
           "amount": 3,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "this_at_location"
           }
+        },
+        "condition": {
+          "type": "this_at_location"
         }
       }
     ],

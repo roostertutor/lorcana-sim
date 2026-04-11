@@ -562,8 +562,11 @@ export function getGameModifiers(
         }
 
         case "modify_stat": {
+          // Accept both `modifier` (canonical per types/index.ts) and `amount`
+          // (used by some agent-wired cards). CRD: both mean the same thing.
+          const mod = effect.modifier ?? effect.amount ?? 0;
           if (effect.target.type === "this") {
-            addStatBonus(modifiers, instance.instanceId, effect.stat, effect.modifier);
+            addStatBonus(modifiers, instance.instanceId, effect.stat, mod);
           } else if (effect.target.type === "all") {
             for (const candidate of Object.values(state.cards)) {
               if (candidate.zone !== "play") continue;
@@ -571,7 +574,7 @@ export function getGameModifiers(
               const candidateDef = definitions[candidate.definitionId];
               if (!candidateDef) continue;
               if (matchesFilter(candidate, candidateDef, effect.target.filter, state, instance.ownerId, instance.instanceId)) {
-                addStatBonus(modifiers, candidate.instanceId, effect.stat, effect.modifier);
+                addStatBonus(modifiers, candidate.instanceId, effect.stat, mod);
               }
             }
           }

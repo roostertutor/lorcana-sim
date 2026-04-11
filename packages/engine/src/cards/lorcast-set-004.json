@@ -426,18 +426,12 @@
     ],
     "abilities": [
       {
-        "type": "activated",
+        "type": "triggered",
         "storyName": "DUBIOUS RECRUITMENT",
         "rulesText": "When you play this character, you pay 2 {I} less for the next character you play this turn.",
-        "costs": [
-          {
-            "type": "exert"
-          },
-          {
-            "type": "pay_ink",
-            "amount": 2
-          }
-        ],
+        "trigger": {
+          "on": "enters_play"
+        },
         "effects": [
           {
             "type": "grant_cost_reduction",
@@ -1261,7 +1255,17 @@
         "rulesText": "Whenever this character quests, chosen opponent reveals their hand and discards a non-character card of your choice.",
         "raw": "VANESSA'S DESIGN Whenever this character quests, chosen opponent reveals their hand and discards a non-character card of your choice."
       }
-    ]
+    ],
+    "altShiftCost": {
+      "type": "discard",
+      "filter": {
+        "cardType": [
+          "action"
+        ],
+        "hasTrait": "Song"
+      },
+      "amount": 1
+    }
   },
   {
     "id": "ursula-vanessa",
@@ -2439,7 +2443,11 @@
     "alternateNames": [
       "Flotsam",
       "Jetsam"
-    ]
+    ],
+    "altShiftCost": {
+      "type": "discard",
+      "amount": 2
+    }
   },
   {
     "id": "isabela-madrigal-golden-child",
@@ -3894,7 +3902,16 @@
         "rulesText": "During each opponent's turn, whenever they draw a card while this character is exerted, you may draw a card.",
         "raw": "CIRCLE FAR AND WIDE During each opponent's turn, whenever they draw a card while this character is exerted, you may draw a card."
       }
-    ]
+    ],
+    "altShiftCost": {
+      "type": "discard",
+      "filter": {
+        "cardType": [
+          "action"
+        ]
+      },
+      "amount": 1
+    }
   },
   {
     "id": "diablo-maleficents-spy",
@@ -6168,7 +6185,16 @@
         "rulesText": "Your characters with 4 {S} or more get +1 {L}.",
         "raw": "LEAD THE CHARGE Your characters with 4 {S} or more get +1 {L}."
       }
-    ]
+    ],
+    "altShiftCost": {
+      "type": "discard",
+      "filter": {
+        "cardType": [
+          "character"
+        ]
+      },
+      "amount": 1
+    }
   },
   {
     "id": "lumiere-fiery-friend",
@@ -8306,7 +8332,16 @@
         "rulesText": "Whenever he quests, each of your other characters gets +{S} equal to this character's {S} this turn.",
         "raw": "CARROTS ALL AROUND! Whenever he quests, each of your other characters gets +{S} equal to this character's {S} this turn."
       }
-    ]
+    ],
+    "altShiftCost": {
+      "type": "discard",
+      "filter": {
+        "cardType": [
+          "item"
+        ]
+      },
+      "amount": 1
+    }
   },
   {
     "id": "olaf-trusting-companion",
@@ -9520,7 +9555,16 @@
         "rulesText": "Whenever this character quests, you may banish chosen item.",
         "raw": "CRASHING THROUGH Whenever this character quests, you may banish chosen item."
       }
-    ]
+    ],
+    "altShiftCost": {
+      "type": "discard",
+      "filter": {
+        "cardType": [
+          "location"
+        ]
+      },
+      "amount": 1
+    }
   },
   {
     "id": "aladdin-resolute-swordsman",
@@ -11728,7 +11772,16 @@
         "rulesText": "During each opponent's turn, whenever they draw a card while this character is exerted, you may draw a card.",
         "raw": "CIRCLE FAR AND WIDE During each opponent's turn, whenever they draw a card while this character is exerted, you may draw a card."
       }
-    ]
+    ],
+    "altShiftCost": {
+      "type": "discard",
+      "filter": {
+        "cardType": [
+          "action"
+        ]
+      },
+      "amount": 1
+    }
   },
   {
     "id": "jasmine-desert-warrior",
