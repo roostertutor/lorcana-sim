@@ -9309,12 +9309,18 @@
     "traits": [],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "FIND WHAT'S HIDDEN",
         "rulesText": "Look at the top 3 cards of your deck. You may reveal an item card and put it into your hand. Put the rest on the bottom of your deck in any order.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 2
+          }
+        ],
         "effects": [
           {
             "type": "look_at_top",

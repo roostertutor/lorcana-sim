@@ -426,12 +426,14 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "DUBIOUS RECRUITMENT",
         "rulesText": "When you play this character, you pay 2 {I} less for the next character you play this turn.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "grant_cost_reduction",
@@ -2258,12 +2260,14 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "TEMPEST",
         "rulesText": "Chosen character gains Challenger +2 and Rush this turn.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "grant_keyword",

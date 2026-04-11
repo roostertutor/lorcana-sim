@@ -498,12 +498,14 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "SUNSHINE",
         "rulesText": "Remove up to 2 damage from chosen character.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "remove_damage",
@@ -1011,12 +1013,14 @@
         "value": 5
       },
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "GENTLE",
         "rulesText": "Remove up to 3 damage from chosen Princess character.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "remove_damage",
@@ -1143,12 +1147,14 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "FRIENDLY",
         "rulesText": "You pay 1 {I} less for the next character you play this turn.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "grant_cost_reduction",
@@ -1856,12 +1862,14 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "WICKED",
         "rulesText": "Draw a card.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "draw",
@@ -2964,12 +2972,14 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "ICY GRIP",
         "rulesText": "Exert chosen opposing character.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "exert",
@@ -5006,12 +5016,14 @@
         "keyword": "evasive"
       },
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "MECHANIC",
         "rulesText": "Banish chosen item.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "banish",
@@ -9381,12 +9393,18 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "TRUMPET",
         "rulesText": "Play a character for free.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 2
+          }
+        ],
         "effects": [
           {
             "type": "play_for_free",
@@ -10148,12 +10166,14 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "FIGHT",
         "rulesText": "Deal 1 damage to chosen character.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "deal_damage",
@@ -10450,12 +10470,14 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "TINY TACTICS",
         "rulesText": "Draw a card, then choose and discard a card.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "draw",
@@ -11520,12 +11542,14 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "ICY GRIP",
         "rulesText": "Exert chosen opposing character.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "exert",
@@ -12110,12 +12134,14 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "FIGHT",
         "rulesText": "Deal 1 damage to chosen character.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "deal_damage",

@@ -5573,12 +5573,18 @@
     "traits": [],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "OBSCURE",
         "rulesText": "Chosen opposing character gets -1 {L} until the start of your next turn.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
+        ],
         "effects": [
           {
             "type": "gain_stats",
@@ -5627,12 +5633,14 @@
     "traits": [],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "INKCAST",
         "rulesText": "If you've played 2 or more cards this turn, gain 1 lore.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "gain_lore",
@@ -8819,12 +8827,14 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "CLUEFINDER",
         "rulesText": "If you have a Detective character in play, return an item card from your discard to your hand. Otherwise, put it on the top of your deck.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "return_to_hand",
@@ -9298,12 +9308,18 @@
     "traits": [],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "BADGE",
         "rulesText": "Chosen character gains Resist +1 and the Detective classification until the start of your next turn.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
+        ],
         "effects": [
           {
             "type": "grant_keyword",

@@ -220,12 +220,14 @@
         ]
       },
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "BANISH ILLUSION",
         "rulesText": "Banish chosen Illusion character.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "banish",
@@ -376,20 +378,14 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "PERFORMER",
         "rulesText": "If you have 3 or more other characters in play, draw a card.",
-        "trigger": {
-          "on": "enters_play"
-        },
-        "condition": {
-          "type": "characters_in_play_gte",
-          "amount": 3,
-          "player": {
-            "type": "self"
-          },
-          "excludeSelf": true
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "draw",
@@ -398,7 +394,15 @@
               "type": "self"
             }
           }
-        ]
+        ],
+        "condition": {
+          "type": "characters_in_play_gte",
+          "amount": 3,
+          "player": {
+            "type": "self"
+          },
+          "excludeSelf": true
+        }
       }
     ],
     "setId": "7",
@@ -2391,19 +2395,18 @@
     "traits": [],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "FAMILY MEAL",
         "rulesText": "If you have 2 or more characters in play, gain 1 lore.",
-        "trigger": {
-          "on": "enters_play"
-        },
-        "condition": {
-          "type": "characters_in_play_gte",
-          "amount": 2,
-          "player": {
-            "type": "self"
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 1
           }
-        },
+        ],
         "effects": [
           {
             "type": "gain_lore",
@@ -2412,7 +2415,14 @@
               "type": "self"
             }
           }
-        ]
+        ],
+        "condition": {
+          "type": "characters_in_play_gte",
+          "amount": 2,
+          "player": {
+            "type": "self"
+          }
+        }
       }
     ],
     "setId": "7",
@@ -11719,12 +11729,14 @@
         ]
       },
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "BANISH ILLUSION",
         "rulesText": "Banish chosen Illusion character.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "banish",

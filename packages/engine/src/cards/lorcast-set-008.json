@@ -2383,12 +2383,14 @@
         }
       },
       {
-        "type": "triggered",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "type": "activated",
         "storyName": "MONEY EVERYWHERE",
         "rulesText": "When you play this character, your other characters gain \"{E} - Draw a card\" this turn.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "grant_activated_ability_timed",
@@ -3088,12 +3090,14 @@
         "keyword": "evasive"
       },
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "BOLT",
         "rulesText": "Deal 1 damage to chosen character.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "deal_damage",
@@ -6510,12 +6514,14 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "READY UP",
         "rulesText": "Ready chosen Floodborn character.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "ready",

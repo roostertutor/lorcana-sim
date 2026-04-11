@@ -516,12 +516,14 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "",
         "rulesText": "Chosen opposing character gets -4 {S} until the start of your next turn.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "gain_stats",
@@ -3762,12 +3764,14 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "",
         "rulesText": "Chosen opposing character gains Reckless until the start of your next turn.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "grant_keyword",
@@ -5427,7 +5431,10 @@
             }
           },
           "condition": {
-            "type": "not", "condition": { "type": "is_your_turn" }
+            "type": "not",
+            "condition": {
+              "type": "is_your_turn"
+            }
           }
         }
       }
@@ -5627,12 +5634,14 @@
     "traits": [],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "",
         "rulesText": "Deal 1 damage to chosen damaged character.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "deal_damage",
