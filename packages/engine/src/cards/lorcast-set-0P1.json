@@ -2206,6 +2206,10 @@
     "alternateNames": [
       "Flotsam",
       "Jetsam"
-    ]
+    ],
+    "altShiftCost": {
+      "type": "discard",
+      "amount": 2
+    }
   }
 ]

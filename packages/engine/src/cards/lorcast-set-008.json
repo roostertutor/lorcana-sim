@@ -4357,7 +4357,8 @@
         "rulesText": "When you play this character, banish her or return another chosen character of yours to your hand.",
         "raw": "MAKE WAY, COMING THROUGH! When you play this character, banish her or return another chosen character of yours to your hand."
       }
-    ]
+    ],
+    "shiftCost": 2
   },
   {
     "id": "mother-gothel-knows-whats-best",
