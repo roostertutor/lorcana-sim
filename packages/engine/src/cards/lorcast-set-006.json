@@ -2076,7 +2076,8 @@
               ],
               "excludeSelf": true
             }
-          }
+          },
+          "value": 1
         }
       }
     ],
@@ -8598,7 +8599,8 @@
               "excludeSelf": true,
               "hasTrait": "Inventor"
             }
-          }
+          },
+          "value": 1
         }
       },
       {
@@ -10611,7 +10613,8 @@
               ],
               "hasName": "Pluto"
             }
-          }
+          },
+          "value": 1
         }
       }
     ],

@@ -1941,7 +1941,8 @@
           },
           "condition": {
             "type": "this_has_no_damage"
-          }
+          },
+          "value": 2
         }
       }
     ],
@@ -3425,7 +3426,8 @@
               ],
               "name": "Hades"
             }
-          }
+          },
+          "value": 2
         }
       }
     ],
@@ -11210,7 +11212,8 @@
               "excludeSelf": true,
               "hasTrait": "Illusion"
             }
-          }
+          },
+          "value": 1
         }
       }
     ],
@@ -11518,7 +11521,8 @@
           },
           "condition": {
             "type": "this_is_exerted"
-          }
+          },
+          "value": 1
         }
       }
     ],

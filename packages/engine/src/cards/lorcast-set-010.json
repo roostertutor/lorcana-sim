@@ -1171,7 +1171,8 @@
               "excludeSelf": true
             },
             "minCount": 2
-          }
+          },
+          "value": 8
         }
       }
     ],
@@ -8441,7 +8442,8 @@
           },
           "condition": {
             "type": "is_your_turn"
-          }
+          },
+          "value": 2
         }
       }
     ],
@@ -8908,7 +8910,8 @@
               "excludeSelf": true,
               "inkColor": "sapphire"
             }
-          }
+          },
+          "value": 1
         }
       },
       {
@@ -11619,7 +11622,8 @@
               ],
               "atLocation": "this"
             }
-          }
+          },
+          "value": 1
         }
       },
       {
@@ -11638,7 +11642,8 @@
               ],
               "atLocation": "this"
             }
-          }
+          },
+          "value": 1
         }
       }
     ],
@@ -13607,7 +13612,8 @@
           },
           "condition": {
             "type": "is_your_turn"
-          }
+          },
+          "value": 2
         }
       }
     ],

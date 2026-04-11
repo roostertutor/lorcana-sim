@@ -9325,7 +9325,8 @@
               ],
               "hasTrait": "Hero"
             }
-          }
+          },
+          "value": 1
         }
       },
       {
@@ -9484,7 +9485,8 @@
           },
           "condition": {
             "type": "this_has_no_damage"
-          }
+          },
+          "value": 1
         }
       }
     ],
@@ -11236,7 +11238,8 @@
               ],
               "atLocation": "this"
             }
-          }
+          },
+          "value": 1
         }
       }
     ],

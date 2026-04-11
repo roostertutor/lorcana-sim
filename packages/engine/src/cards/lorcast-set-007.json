@@ -10019,7 +10019,8 @@
               ],
               "hasName": "Lady Kluck"
             }
-          }
+          },
+          "value": 1
         }
       }
     ],
@@ -10827,7 +10828,8 @@
               "excludeSelf": true,
               "hasTrait": "Pirate"
             }
-          }
+          },
+          "value": 3
         }
       }
     ],
