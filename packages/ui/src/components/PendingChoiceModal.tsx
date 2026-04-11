@@ -266,37 +266,79 @@ export default function PendingChoiceModal({
 
     if (needsMultiSelect) {
       const requiredCount = pendingChoice.count ?? 1;
-      const ids = pendingChoice.validTargets ?? [];
+      const validIds = pendingChoice.validTargets ?? [];
+      const validSet = new Set(validIds);
+      // For choose_discard: if the hand was revealed AS PART OF THE SAME ability
+      // chain, show the full hand (non-targets dimmed). Must be fresh — every
+      // revealed cardId must still be in the owner's hand, otherwise we'd show
+      // a stale snapshot from an earlier card.
+      let displayIds: string[] = validIds;
+      if (pendingChoice.type === "choose_discard") {
+        const revealed = gameState.lastRevealedHand;
+        if (revealed) {
+          const currentHand = new Set(gameState.zones[revealed.playerId].hand);
+          const stillFresh = revealed.cardIds.every((id) => currentHand.has(id));
+          // Use the revealed hand if fresh AND either (a) we have a valid target
+          // in that same hand, or (b) there are no valid targets at all (stuck case)
+          const anyValidInRevealed = validIds.some((id) => {
+            const inst = gameState.cards[id];
+            return inst?.ownerId === revealed.playerId;
+          });
+          if (stillFresh && (anyValidInRevealed || validIds.length === 0)) {
+            displayIds = revealed.cardIds;
+          }
+        }
+      }
+      const noValidTargets = validIds.length === 0;
       return (
         <div className="space-y-3">
           <div>
             <div className="text-yellow-300 text-sm font-medium mb-0.5">{pendingChoice.prompt}</div>
-            <div className="text-[10px] text-gray-500 uppercase tracking-wider">Select {requiredCount} card(s)</div>
+            <div className="text-[10px] text-gray-500 uppercase tracking-wider">
+              {noValidTargets ? "No valid targets" : `Select ${requiredCount} card(s)`}
+            </div>
           </div>
-          <div className="grid grid-cols-4 gap-1.5 pb-1">
-            {ids.map((id) => {
-              const selected = multiSelectTargets.includes(id);
-              return (
-                <CardThumb
-                  key={id}
-                  id={id}
-                  isSelected={selected}
-                  onClick={() =>
-                    onMultiSelectChange((prev) =>
-                      selected ? prev.filter((t) => t !== id) : [...prev, id],
-                    )
-                  }
-                />
-              );
-            })}
+          {displayIds.length > 0 && (
+            <div className="grid grid-cols-4 gap-1.5 pb-1">
+              {displayIds.map((id) => {
+                const selectable = validSet.has(id);
+                const selected = multiSelectTargets.includes(id);
+                return (
+                  <CardThumb
+                    key={id}
+                    id={id}
+                    isSelected={selected}
+                    isDimmed={!selectable}
+                    onClick={() => {
+                      if (!selectable) return;
+                      onMultiSelectChange((prev) =>
+                        selected ? prev.filter((t) => t !== id) : [...prev, id],
+                      );
+                    }}
+                  />
+                );
+              })}
+            </div>
+          )}
+          <div className="flex gap-2">
+            {!noValidTargets && (
+              <button
+                className="px-4 py-2 text-xs bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg font-medium transition-colors"
+                disabled={multiSelectTargets.length !== requiredCount}
+                onClick={() => onResolveChoice(multiSelectTargets)}
+              >
+                Confirm ({multiSelectTargets.length}/{requiredCount})
+              </button>
+            )}
+            {noValidTargets && (
+              <button
+                className="px-4 py-2 text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg font-medium transition-colors"
+                onClick={() => onResolveChoice([])}
+              >
+                Skip
+              </button>
+            )}
           </div>
-          <button
-            className="px-4 py-2 text-xs bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg font-medium transition-colors"
-            disabled={multiSelectTargets.length !== requiredCount}
-            onClick={() => onResolveChoice(multiSelectTargets)}
-          >
-            Confirm ({multiSelectTargets.length}/{requiredCount})
-          </button>
         </div>
       );
     }

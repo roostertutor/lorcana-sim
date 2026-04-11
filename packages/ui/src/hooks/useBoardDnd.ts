@@ -12,8 +12,11 @@ export function useBoardDnd(params: {
   legalActions: GameAction[];
   dispatch: (action: GameAction) => void;
   isEnabled: boolean;
+  /** Optional: called when a drag-drop resolves to an alt-cost shift.
+   *  Instead of dispatching immediately, the caller enters a cost-picker mode. */
+  onAltShiftDrop?: (sourceInstanceId: string, targetInstanceId: string) => void;
 }) {
-  const { myId, gameState, legalActions, dispatch, isEnabled } = params;
+  const { myId, gameState, legalActions, dispatch, isEnabled, onAltShiftDrop } = params;
   const [activeId,   setActiveId]   = useState<string | null>(null);
   const [activeZone, setActiveZone] = useState<"hand" | "play" | null>(null);
 
@@ -55,7 +58,22 @@ export function useBoardDnd(params: {
       const shiftAction = legalActions.find(
         (a) => a.type === "PLAY_CARD" && a.instanceId === draggingId && a.shiftTargetInstanceId === targetId,
       );
-      if (shiftAction) { dispatch(shiftAction); return; }
+      if (shiftAction) {
+        // Alt-cost shift (Diablo - Devoted Herald, Flotsam & Jetsam): delegate
+        // to the cost-picker mode instead of auto-dispatching the first combo.
+        if ((shiftAction as { altShiftCostInstanceIds?: string[] }).altShiftCostInstanceIds && onAltShiftDrop) {
+          onAltShiftDrop(draggingId, targetId);
+          return;
+        }
+        dispatch(shiftAction);
+        return;
+      }
+
+      // Sing: drag song from hand onto own ready character that can sing it
+      const singAction = legalActions.find(
+        (a) => a.type === "PLAY_CARD" && a.instanceId === draggingId && a.singerInstanceId === targetId,
+      );
+      if (singAction) { dispatch(singAction); return; }
 
       // Challenge: drag own ready character onto exerted opponent character
       const challengeAction = legalActions.find(
@@ -90,6 +108,7 @@ export function useBoardDnd(params: {
     return legalActions.some(
       (a) =>
         (a.type === "PLAY_CARD" && a.instanceId === draggingId && a.shiftTargetInstanceId === targetId) ||
+        (a.type === "PLAY_CARD" && a.instanceId === draggingId && a.singerInstanceId === targetId) ||
         (a.type === "CHALLENGE" && a.attackerInstanceId === draggingId && a.defenderInstanceId === targetId) ||
         (a.type === "MOVE_CHARACTER" && a.characterInstanceId === draggingId && a.locationInstanceId === targetId),
     );
