@@ -3549,13 +3549,17 @@
         "costs": [
           {
             "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 2
           }
         ],
         "effects": [
           {
             "type": "move_damage",
             "amount": 1,
-            "source": {
+            "from": {
               "type": "chosen",
               "filter": {
                 "zone": "play",
@@ -3564,7 +3568,7 @@
                 ]
               }
             },
-            "destination": {
+            "to": {
               "type": "chosen",
               "filter": {
                 "owner": {

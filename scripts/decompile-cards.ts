@@ -684,6 +684,27 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   // restriction. `restricts` is the verb; `filter` (when present) describes
   // WHO is restricted, not the target of the restriction.
   deck_rule: (e) => e.rule ?? "deck-building rule",
+  prevent_damage_removal: () => "Damage counters can't be removed",
+  all_hand_inkable: () => "All cards in your hand count as having {IW}",
+  grant_triggered_ability: (e) => {
+    const tgt = renderTarget(e.target ?? {});
+    return `${tgt} gain a triggered ability`;
+  },
+  global_move_cost_reduction: (e) => `you pay ${e.amount ?? 1} {I} less to move your characters to a location`,
+  grant_keyword_while_being_challenged: (e) => {
+    const tgt = renderTarget(e.target ?? {});
+    const kw = e.keyword ?? "keyword";
+    const v = e.value ? ` +${e.value}` : "";
+    return `While being challenged, ${tgt} gain ${cap(kw)}${v}`;
+  },
+  remove_keyword: (e) => {
+    const tgt = renderTarget(e.target ?? {});
+    return `${tgt} lose ${cap(e.keyword ?? "keyword")} and can't gain ${cap(e.keyword ?? "keyword")}`;
+  },
+  sing_cost_bonus_characters: (e) => {
+    const tgt = renderTarget(e.target ?? {});
+    return `${tgt} count as having +${e.amount ?? 1} cost to sing songs`;
+  },
 
   action_restriction: (e) => {
     const verb = e.restricts === "sing" ? "exert to sing songs"
