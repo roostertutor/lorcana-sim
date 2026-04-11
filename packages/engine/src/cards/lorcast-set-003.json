@@ -559,12 +559,14 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "OOOOH, SHINY!",
         "rulesText": "Reveal the top 3 cards of your deck. You may put each character card with cost 2 or less into your hand. Put the rest on the bottom of your deck in any order.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "look_at_top",
@@ -837,12 +839,14 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "WHO ME?",
         "rulesText": "Chosen character gets -2 {S} until the start of your next turn.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "gain_stats",
@@ -1096,12 +1100,14 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "PLAYFUL PUP",
         "rulesText": "You pay 1 {I} less for the next character you play this turn.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "cost_reduction",
@@ -1678,12 +1684,14 @@
     "traits": [],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "POWER SOURCE",
         "rulesText": "You pay 2 {I} less for the next character you play this turn.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "cost_reduction",
@@ -1932,12 +1940,14 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "GROWING UP",
         "rulesText": "Exert chosen opposing character and all other opposing characters with the same name.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "exert",
@@ -2180,12 +2190,14 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "FREEZE",
         "rulesText": "Exert chosen character.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "exert",
@@ -2814,12 +2826,14 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "MAGIC THEFT",
         "rulesText": "Return chosen item with cost equal to or less than this character's {S} to its player's hand.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "return_to_hand",
@@ -3144,12 +3158,14 @@
         "keyword": "evasive"
       },
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "WHIRLWIND ENTRANCE",
         "rulesText": "Gain lore equal to the number of Titan characters you have in play.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "gain_lore",
@@ -5008,12 +5024,14 @@
         "keyword": "evasive"
       },
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "WRECK IT",
         "rulesText": "Banish chosen item.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "banish",
@@ -5388,12 +5406,14 @@
     "traits": [],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "SPARKLE",
         "rulesText": "You pay 2 {I} less for the next action you play this turn.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "cost_reduction",
@@ -7849,12 +7869,14 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "INVENTOR",
         "rulesText": "Put an item card from your discard on the top of your deck.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "shuffle_into_deck",
@@ -8815,12 +8837,18 @@
     "traits": [],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "GIFT OF LIFE",
         "rulesText": "Put the top card of your deck into your inkwell facedown and exerted.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 2
+          }
+        ],
         "effects": [
           {
             "type": "move_to_inkwell",
@@ -8930,12 +8958,14 @@
     "traits": [],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "CLASSY",
         "rulesText": "You pay 1 {I} less for the next item you play this turn.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "cost_reduction",
@@ -9311,12 +9341,14 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "ARISE, MY WARRIORS",
         "rulesText": "Ready your Titan characters.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "ready",
@@ -9639,12 +9671,14 @@
         "value": 2
       },
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "ROCK SHIELD",
         "rulesText": "Chosen character gains Resist +2 this turn.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "grant_keyword",
@@ -9754,12 +9788,18 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "TRUMPET CALL",
         "rulesText": "Play a character for free.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 2
+          }
+        ],
         "effects": [
           {
             "type": "play_for_free",
@@ -10830,12 +10870,14 @@
     "traits": [],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "DISCOVERY",
         "rulesText": "You pay 1 {I} less for the next location you play this turn.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "cost_reduction",
@@ -12019,12 +12061,18 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
+        "type": "activated",
         "storyName": "TRUMPET CALL",
         "rulesText": "Play a character for free.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 2
+          }
+        ],
         "effects": [
           {
             "type": "play_for_free",

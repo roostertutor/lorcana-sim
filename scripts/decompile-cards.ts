@@ -683,6 +683,8 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   // challenge your characters" — self-restriction or filtered opponent
   // restriction. `restricts` is the verb; `filter` (when present) describes
   // WHO is restricted, not the target of the restriction.
+  deck_rule: (e) => e.rule ?? "deck-building rule",
+
   action_restriction: (e) => {
     const verb = e.restricts === "sing" ? "exert to sing songs"
       : e.restricts === "be_challenged" ? "be challenged"
