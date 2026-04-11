@@ -249,6 +249,74 @@ describe("§11 Set 11 — Graveyard of Christmas Future", () => {
   });
 });
 
+describe("§11 Set 11 — Keep the Ancient Ways (restrict_play action+item)", () => {
+  it("KAW actionEffects actually creates playRestrictions via applyAction", () => {
+    let state = startGame();
+    // Pass to player2's turn
+    state = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, LORCAST_CARD_DEFINITIONS).newState;
+    state = giveInk(state, "player2", 5);
+    let songId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player2", "keep-the-ancient-ways", "hand"));
+
+    // Verify no restrictions before
+    expect(state.players.player1.playRestrictions?.length ?? 0).toBe(0);
+
+    // Player2 plays the song through applyAction (full trigger/effect path)
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player2", instanceId: songId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // THE KEY CHECK: did the actionEffects path actually write playRestrictions?
+    const restrictions = state.players.player1.playRestrictions ?? [];
+    expect(restrictions.length).toBeGreaterThan(0);
+    expect(restrictions[0]?.cardTypes).toContain("action");
+    expect(restrictions[0]?.cardTypes).toContain("item");
+    expect(restrictions[0]?.casterPlayerId).toBe("player2");
+  });
+
+  it("restriction survives PASS_TURN and blocks opponent's action play", () => {
+    let state = startGame();
+    state = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, LORCAST_CARD_DEFINITIONS).newState;
+    state = giveInk(state, "player2", 5);
+    let songId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player2", "keep-the-ancient-ways", "hand"));
+    state = applyAction(state, { type: "PLAY_CARD", playerId: "player2", instanceId: songId }, LORCAST_CARD_DEFINITIONS).newState;
+
+    // Player2 passes back to player1
+    let r = applyAction(state, { type: "PASS_TURN", playerId: "player2" }, LORCAST_CARD_DEFINITIONS);
+    state = r.newState;
+
+    // Restriction should still be active
+    expect((state.players.player1.playRestrictions ?? []).length).toBeGreaterThan(0);
+
+    // Player1 tries to play an action — should be blocked
+    state = giveInk(state, "player1", 10);
+    let actionId: string;
+    ({ state, instanceId: actionId } = injectCard(state, "player1", "be-prepared", "hand"));
+    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: actionId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(false);
+    expect(r.error).toMatch(/can't play/i);
+  });
+
+  it("Pete Games Referee enters_play trigger creates playRestrictions via applyAction", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let peteId: string;
+    ({ state, instanceId: peteId } = injectCard(state, "player1", "pete-games-referee", "hand"));
+
+    // Play Pete through applyAction
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: peteId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Player2 should have a play restriction on actions
+    const restrictions = state.players.player2.playRestrictions ?? [];
+    expect(restrictions.length).toBeGreaterThan(0);
+    expect(restrictions[0]?.cardTypes).toContain("action");
+    expect(restrictions[0]?.casterPlayerId).toBe("player1");
+  });
+});
+
 describe("§11 Set 11 — Grandmother Willow Ancient Advisor (static once-per-turn cost reduction)", () => {
   it("SMOOTH THE WAY: 3 Willows stacking, each independently provides one-shot per turn", () => {
     // Grandmother Willow costs 2. Each copy provides a once-per-turn static
