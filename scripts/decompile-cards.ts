@@ -416,7 +416,12 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
 
   grant_keyword: (e) => {
     const tgt = renderTarget(e.target ?? {});
-    const v = e.value !== undefined ? " +" + e.value : "";
+    let v = "";
+    if (e.valueDynamic) {
+      v = " +" + renderAmount(e.valueDynamic);
+    } else if (e.value !== undefined) {
+      v = " +" + e.value;
+    }
     return `${tgt} ${verbS(tgt, "gain", "gains")} ${cap(e.keyword)}${v}${dur(e)}`;
   },
 
@@ -441,7 +446,16 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   // this entry covers the rare effect-side usage.
   pay_ink: (e) => `pay ${e.amount ?? 1} {I}`,
 
-  self_cost_reduction:        (e) => `this character costs ${e.amount ?? "?"} {I} less to play`,
+  self_cost_reduction: (e) => {
+    const amt = e.amount;
+    if (typeof amt === "number") return `this character costs ${amt} {I} less to play`;
+    if (typeof amt === "string") return `this character costs ${amt} {I} less to play`;
+    if (typeof amt === "object" && amt?.type === "count") {
+      const filt = amt.filter ? renderFilter(amt.filter) : "matching card";
+      return `For each ${filt}, you pay ${e.perMatch ?? 1} {I} less to play this character`;
+    }
+    return `this character costs less to play`;
+  },
   grant_play_for_free_self:   ()  => "you may play this character for free",
   grant_shift_self:           (e) => `this character gains Shift ${e.value ?? e.amount ?? "?"}`,
   grant_cost_reduction:       (e) => `you pay ${e.amount ?? "?"} {I} less for the next ${e.filter ? renderFilter(e.filter) : "card"} you play this turn`,
@@ -546,9 +560,17 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   },
 
   sequential: (e) => {
-    const ce = (e.costEffects ?? []).map(renderEffect).join(" and ");
-    const re = (e.rewardEffects ?? []).map(renderEffect).join(" and ");
-    return `${ce} to ${re}`;
+    const may = e.isMay ? "you may " : "";
+    const ce = (e.costEffects ?? []).map(renderEffect).filter(Boolean).join(" and ");
+    const re = (e.rewardEffects ?? []).map(renderEffect).filter(Boolean).join(" and ");
+    // Some sequentials use flat `effects` instead of costEffects/rewardEffects
+    if (!ce && !re && e.effects) {
+      const flat = (e.effects ?? []).map(renderEffect).filter(Boolean).join(", then ");
+      return `${may}${flat}`;
+    }
+    if (!ce && re) return `${may}${re}`;
+    if (ce && !re) return `${may}${ce}`;
+    return `${may}${ce} to ${re}`;
   },
   choose: (e) => {
     // Two shapes: `options: Effect[][]` (Maui Fish Hook) OR `choices: {name, effects}[]` (Prepare Your Bot)
