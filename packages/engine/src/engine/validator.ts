@@ -136,6 +136,30 @@ function validatePlayCard(
 
   const def = getDefinition(state, instanceId, definitions);
 
+  // CRD 6.6.1 / 4.3.x: play restrictions — checked BEFORE alternate cost paths
+  // (shift, sing, sing-together) because "opponents can't play actions" applies
+  // regardless of HOW the card is played. Singing doesn't bypass play restrictions,
+  // only the ink cost. Pete Games Referee, Keep the Ancient Ways.
+  {
+    const playModifiers = getGameModifiers(state, definitions);
+    if (isActionRestricted(instance, def, "play", playerId, state, playModifiers)) {
+      return fail("You can't play this card right now.");
+    }
+    if (def.playRestrictions) {
+      for (const cond of def.playRestrictions) {
+        if (!evaluateCondition(cond, state, definitions, playerId, instanceId)) {
+          return fail("Play restriction not met.");
+        }
+      }
+    }
+    const timedPlayBlocks = state.players[playerId].playRestrictions ?? [];
+    for (const entry of timedPlayBlocks) {
+      if (entry.cardTypes.includes(def.cardType)) {
+        return fail(`You can't play ${def.cardType}s right now.`);
+      }
+    }
+  }
+
   // CRD 8.10.1: Shift — alternate cost onto same-named character in play.
   // Shift cost can come from def.shiftCost (printed) or mods.grantedShiftSelf
   // (Anna - Soothing Sister "this card gains Shift 0").
@@ -297,29 +321,7 @@ function validatePlayCard(
     return fail(`Not enough ink. Need ${effectiveCost}, have ${state.players[playerId].availableInk}.`);
   }
 
-  // CRD 6.6.1 / 4.3.x: play restrictions from static abilities
-  // (Pete Games Referee, Keep the Ancient Ways: "opponents can't play actions").
-  // Also CardDefinition.playRestrictions: e.g. Mirabel "unless 5 chars in play".
-  const playModifiers = getGameModifiers(state, definitions);
-  if (isActionRestricted(instance, def, "play", playerId, state, playModifiers)) {
-    return fail("You can't play this card right now.");
-  }
-  if (def.playRestrictions) {
-    for (const cond of def.playRestrictions) {
-      if (!evaluateCondition(cond, state, definitions, playerId, instanceId)) {
-        return fail("Play restriction not met.");
-      }
-    }
-  }
-  // Pete Games Referee / Keep the Ancient Ways: timed per-player play restriction
-  // by card type. Each entry blocks plays until the caster's next turn.
-  const timedPlayBlocks = state.players[playerId].playRestrictions ?? [];
-  for (const entry of timedPlayBlocks) {
-    if (entry.cardTypes.includes(def.cardType)) {
-      return fail(`You can't play ${def.cardType}s right now.`);
-    }
-  }
-
+  // Play restrictions already checked above (before alternate cost paths).
   return OK;
 }
 

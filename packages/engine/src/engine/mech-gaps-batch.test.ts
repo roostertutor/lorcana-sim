@@ -167,7 +167,7 @@ describe("Mechanic gaps batch — shift-variant", () => {
   it("Turbo - Royal Hack has King Candy as an additionalName so Shift can target King Candy", () => {
     const def = LORCAST_CARD_DEFINITIONS["turbo-royal-hack"]!;
     expect(def).toBeDefined();
-    expect(def.additionalNames).toContain("King Candy");
+    expect(def.alternateNames ?? def.additionalNames).toContain("King Candy");
   });
 
   it("Thunderbolt - Wonder Dog: Puppy Shift surfaces as a classification_shift_self static in hand", () => {

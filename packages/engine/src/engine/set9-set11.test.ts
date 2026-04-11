@@ -298,6 +298,31 @@ describe("§11 Set 11 — Keep the Ancient Ways (restrict_play action+item)", ()
     expect(r.error).toMatch(/can't play/i);
   });
 
+  it("restriction blocks SUNG actions too (not just normal-pay path)", () => {
+    let state = startGame();
+    state = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, LORCAST_CARD_DEFINITIONS).newState;
+    state = giveInk(state, "player2", 5);
+    let kawId: string;
+    ({ state, instanceId: kawId } = injectCard(state, "player2", "keep-the-ancient-ways", "hand"));
+    state = applyAction(state, { type: "PLAY_CARD", playerId: "player2", instanceId: kawId }, LORCAST_CARD_DEFINITIONS).newState;
+    // Pass back to player1
+    state = applyAction(state, { type: "PASS_TURN", playerId: "player2" }, LORCAST_CARD_DEFINITIONS).newState;
+
+    // Player1 tries to SING an action (Sudden Chill) — should be blocked
+    state = giveInk(state, "player1", 5);
+    let songId: string, singerId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "sudden-chill", "hand"));
+    ({ state, instanceId: singerId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    const r = applyAction(state, {
+      type: "PLAY_CARD",
+      playerId: "player1",
+      instanceId: songId,
+      singerInstanceId: singerId,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(false);
+    expect(r.error).toMatch(/can't play/i);
+  });
+
   it("Pete Games Referee enters_play trigger creates playRestrictions via applyAction", () => {
     let state = startGame();
     state = giveInk(state, "player1", 5);
