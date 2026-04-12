@@ -5,7 +5,7 @@
 
 import React, { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import type { CardDefinition, DeckEntry, PlayerID, GameState, GameModifiers } from "@lorcana-sim/engine";
-import { parseDecklist, getGameModifiers } from "@lorcana-sim/engine";
+import { parseDecklist, getGameModifiers, evaluateCondition } from "@lorcana-sim/engine";
 import {
   GreedyBot,
   RandomBot,
@@ -169,6 +169,7 @@ function getActiveEffects(
         if (ability.type !== "static") continue;
         const effectType = (ability as any).effect?.type;
         if (!effectType || !BOARD_WIDE_EFFECTS.has(effectType)) continue;
+        if (ability.condition && !evaluateCondition(ability.condition, state, definitions, pid, id)) continue;
         const text = ability.storyName
           ? `${ability.storyName} ${ability.rulesText ?? ""}`
           : (ability.rulesText ?? effectType);

@@ -434,11 +434,12 @@ export default function PendingChoiceModal({
       );
     }
 
-    // Single target (choose_target) / choose_from_revealed display
+    // Single or multi-target (choose_target) / choose_from_revealed display
     const displayCards = pendingChoice.revealedCards ?? pendingChoice.validTargets ?? [];
     const validSet = new Set(pendingChoice.validTargets ?? []);
     const hasValidTargets = validSet.size > 0;
-    const selected = multiSelectTargets[0] ?? null;
+    const targetCount = (pendingChoice as any).count ?? 1;
+    const isMultiTarget = targetCount > 1;
 
     // Split into "mine" and "opponent's" groups. When grouping is meaningful
     // (both sides represented), render them under labeled sections; otherwise
@@ -457,7 +458,7 @@ export default function PendingChoiceModal({
 
     const renderCard = (id: string) => {
       const selectable = validSet.has(id);
-      const isSelected = selected === id;
+      const isSelected = isMultiTarget ? multiSelectTargets.includes(id) : multiSelectTargets[0] === id;
       return (
         <CardThumb
           key={id}
@@ -466,7 +467,13 @@ export default function PendingChoiceModal({
           isDimmed={!selectable}
           onClick={() => {
             if (!selectable) return;
-            onMultiSelectChange(isSelected ? [] : [id]);
+            if (isMultiTarget) {
+              onMultiSelectChange((prev) =>
+                prev.includes(id) ? prev.filter((t) => t !== id) : prev.length < targetCount ? [...prev, id] : prev,
+              );
+            } else {
+              onMultiSelectChange(isSelected ? [] : [id]);
+            }
           }}
         />
       );
@@ -476,6 +483,11 @@ export default function PendingChoiceModal({
       <div className="space-y-3">
         <div>
           <div className="text-yellow-300 text-sm font-medium">{pendingChoice.prompt}</div>
+          {isMultiTarget && (
+            <div className="text-[10px] text-gray-500 uppercase tracking-wider">
+              Select up to {targetCount} ({multiSelectTargets.length}/{targetCount})
+            </div>
+          )}
           {contextHints.length > 0 && (
             <div className="text-[10px] text-gray-500 mt-0.5">{contextHints.join(" · ")}</div>
           )}
@@ -508,10 +520,10 @@ export default function PendingChoiceModal({
           {hasValidTargets && (
             <button
               className="px-4 py-2 text-xs bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg font-medium transition-colors"
-              disabled={!selected}
-              onClick={() => selected && onResolveChoice([selected])}
+              disabled={isMultiTarget ? multiSelectTargets.length === 0 : !multiSelectTargets[0]}
+              onClick={() => onResolveChoice(multiSelectTargets)}
             >
-              Confirm
+              {isMultiTarget ? `Confirm (${multiSelectTargets.length}/${targetCount})` : "Confirm"}
             </button>
           )}
           {pendingChoice.optional && (

@@ -13,9 +13,9 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 |-----|---------|------|-----|
 | [X] | Can't be dealt damage shield | Hercules - Mighty Leader | 10 |
 | [X] | Can't be challenged lock | Captain Hook - Thinking a Happy Thought | 1 |
-| [ ] | Can't ready lock | Elsa's Ice Palace - Place of Solitude | 5 |
-| [ ] | Can't sing note | Ariel - On Human Legs | 1 |
-| [ ] | Once-per-turn clock | HeiHei - Accidental Explorer | 3 |
+| [X] | Can't ready lock | Elsa's Ice Palace - Place of Solitude | 5 |
+| [X] | Can't sing note | Ariel - On Human Legs | 1 |
+| [X] | Once-per-turn clock | HeiHei - Accidental Explorer | 3 |
 | [X] | Delayed trigger clock | Candy Drift | 8 |
 
 ## Keyword Badges
