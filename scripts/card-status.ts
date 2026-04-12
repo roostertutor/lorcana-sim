@@ -161,12 +161,26 @@ function validateCardFields(card: any): FieldError[] {
   // Walk actionEffects
   (card.actionEffects ?? []).forEach((e: any, i: number) => walkEffect(e, `actionEffects[${i}]`));
 
-  // Check story names against Lorcast stubs — catch fabricated ability names
+  // Check for old-format fields (trigger.event instead of trigger.on, name instead of storyName)
+  (card.abilities ?? []).forEach((ab: any, i: number) => {
+    if (ab.trigger?.event) {
+      errors.push({ path: `abilities[${i}].trigger`, field: "event", value: ab.trigger.event, validValues: "use 'on' not 'event'" });
+    }
+    if (ab.name && !ab.storyName) {
+      errors.push({ path: `abilities[${i}]`, field: "name", value: ab.name, validValues: "use 'storyName' not 'name'" });
+    }
+  });
+
+  // Check story names against Lorcast stubs — catch fabricated ability names.
+  // Only flag when stub count covers all named abilities (Lorcast sometimes
+  // omits stubs for multi-ability cards like Anna Soothing Sister).
   const stubs: any[] = (card._namedAbilityStubs ?? []).filter((s: any) => s.storyName);
-  if (stubs.length > 0) {
+  const namedAbilities = (card.abilities ?? []).filter((ab: any) => ab.type !== "keyword" && ab.storyName && ab.storyName !== "");
+  if (stubs.length > 0 && stubs.length >= namedAbilities.length) {
     const validStoryNames = new Set(stubs.map((s: any) => s.storyName));
-    (card.abilities ?? []).forEach((ab: any, i: number) => {
-      if (ab.type === "keyword" || !ab.storyName || ab.storyName === "") return;
+    for (let i = 0; i < (card.abilities ?? []).length; i++) {
+      const ab = card.abilities[i];
+      if (ab.type === "keyword" || !ab.storyName || ab.storyName === "") continue;
       if (!validStoryNames.has(ab.storyName)) {
         errors.push({
           path: `abilities[${i}]`,
@@ -175,7 +189,7 @@ function validateCardFields(card: any): FieldError[] {
           validValues: [...validStoryNames].join(", "),
         });
       }
-    });
+    }
   }
 
   return errors;

@@ -7008,12 +7008,8 @@
       },
       {
         "type": "triggered",
-        "name": "ON A ROLL",
         "trigger": {
-          "event": "enters_play",
-          "filter": {
-            "type": "this"
-          }
+          "on": "enters_play"
         },
         "isMay": true,
         "effects": [
@@ -7062,7 +7058,8 @@
               "type": "last_resolved_target"
             }
           }
-        ]
+        ],
+        "storyName": "ON A ROLL"
       }
     ],
     "setId": "4",

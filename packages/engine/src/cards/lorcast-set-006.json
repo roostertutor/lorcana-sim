@@ -4585,22 +4585,12 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
-        "name": "LOOK INNOCENT",
-        "trigger": {
-          "event": "enters_play",
-          "filter": {
-            "type": "this"
-          }
-        },
-        "effects": [
-          {
-            "type": "exert",
-            "target": {
-              "type": "this"
-            }
-          }
-        ]
+        "type": "static",
+        "storyName": "LOOK INNOCENT",
+        "rulesText": "This character enters play exerted.",
+        "effect": {
+          "type": "enter_play_exerted_self"
+        }
       },
       {
         "type": "static",
@@ -9832,12 +9822,8 @@
     "abilities": [
       {
         "type": "triggered",
-        "name": "COCONUT LEADER",
         "trigger": {
-          "event": "quests",
-          "filter": {
-            "type": "this"
-          }
+          "on": "quests"
         },
         "isMay": true,
         "effects": [
@@ -9900,7 +9886,8 @@
               }
             ]
           }
-        ]
+        ],
+        "storyName": "COCONUT LEADER"
       }
     ],
     "setId": "6",

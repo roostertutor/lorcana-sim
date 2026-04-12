@@ -18,7 +18,7 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 | [X] | Once-per-turn clock | HeiHei - Accidental Explorer | 3 |
 | [X] | Delayed trigger clock | Candy Drift | 8 |
 
-## Keyword Badges (top-right, vertically stacked, icon + optional value)
+## Keyword Badges (middle-right, vertically stacked, icon + optional value)
 
 | OK  | Feature | Card                                | Set |
 |-----|---------|-------------------------------------|-----|
@@ -45,13 +45,13 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 
 ## Active Effects Pill (scoreboard)
 
-| OK | Feature | Card | Set |
-|----|---------|------|-----|
-| [ ] | Cost reduction static | Grandmother Willow - Ancient Advisor | 11 |
-| [ ] | Enter-play-exerted | Jiminy Cricket - Level-Headed and Wise | 4 |
-| [ ] | Inkwell enters exerted | Daisy Duck - Paranormal Investigator | 10 |
-| [ ] | Prevent lore loss | Koda - Talkative Cub | 5 |
-| [ ] | Prevent lore gain | Peter Pan - Never Land Prankster | 7 |
+| OK  | Feature | Card | Set |
+|-----|---------|------|-----|
+| [X] | Cost reduction static | Grandmother Willow - Ancient Advisor | 11 |
+| [X] | Enter-play-exerted | Jiminy Cricket - Level-Headed and Wise | 4 |
+| [X] | Inkwell enters exerted | Daisy Duck - Paranormal Investigator | 10 |
+| [X] | Prevent lore loss | Koda - Talkative Cub | 5 |
+| [X] | Prevent lore gain | Peter Pan - Never Land Prankster | 7 |
 | [ ] | One challenge per turn | Prince Charming - Protector of the Realm | 7 |
 | [ ] | Prevent discard from hand | Magica De Spell - Cruel Sorceress | 10 |
 | [ ] | Skip draw step | Arthur - Determined Squire | 8 |

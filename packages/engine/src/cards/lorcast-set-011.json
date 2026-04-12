@@ -2742,12 +2742,8 @@
       },
       {
         "type": "triggered",
-        "name": "WARM HEART",
         "trigger": {
-          "event": "quests",
-          "filter": {
-            "type": "this"
-          }
+          "on": "quests"
         },
         "isMay": true,
         "effects": [
@@ -2785,7 +2781,8 @@
               }
             ]
           }
-        ]
+        ],
+        "storyName": "WARM HEART"
       }
     ],
     "setId": "11",
@@ -12836,12 +12833,8 @@
       },
       {
         "type": "triggered",
-        "name": "WARM HEART",
         "trigger": {
-          "event": "quests",
-          "filter": {
-            "type": "this"
-          }
+          "on": "quests"
         },
         "isMay": true,
         "effects": [
@@ -12879,7 +12872,8 @@
               }
             ]
           }
-        ]
+        ],
+        "storyName": "WARM HEART"
       }
     ],
     "setId": "11",

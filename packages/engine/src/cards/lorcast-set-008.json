@@ -1754,12 +1754,8 @@
       },
       {
         "type": "triggered",
-        "name": "QUICK, EVERYONE HIDE",
         "trigger": {
-          "event": "enters_play",
-          "filter": {
-            "type": "this"
-          }
+          "on": "enters_play"
         },
         "effects": [
           {
@@ -1771,7 +1767,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "QUICK, EVERYONE HIDE"
       }
     ],
     "setId": "8",
@@ -4653,12 +4650,8 @@
     "abilities": [
       {
         "type": "triggered",
-        "name": "DARK POWER",
         "trigger": {
-          "event": "quests",
-          "filter": {
-            "type": "this"
-          }
+          "on": "quests"
         },
         "isMay": true,
         "effects": [
@@ -4701,7 +4694,8 @@
               }
             ]
           }
-        ]
+        ],
+        "storyName": "DARK POWER"
       }
     ],
     "setId": "8",
@@ -6015,12 +6009,8 @@
       },
       {
         "type": "triggered",
-        "name": "I LIKE WHERE THIS IS HEADING",
         "trigger": {
-          "event": "quests",
-          "filter": {
-            "type": "this"
-          }
+          "on": "quests"
         },
         "effects": [
           {
@@ -6035,7 +6025,8 @@
               "type": "self"
             }
           }
-        ]
+        ],
+        "storyName": "I LIKE WHERE THIS IS HEADING"
       }
     ],
     "setId": "8",
@@ -12540,12 +12531,8 @@
     "abilities": [
       {
         "type": "triggered",
-        "name": "QUICK, EVERYONE HIDE",
         "trigger": {
-          "event": "enters_play",
-          "filter": {
-            "type": "this"
-          }
+          "on": "enters_play"
         },
         "effects": [
           {
@@ -12557,7 +12544,8 @@
             },
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "QUICK, EVERYONE HIDE"
       }
     ],
     "setId": "8",

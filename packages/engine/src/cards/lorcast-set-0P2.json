@@ -1901,12 +1901,8 @@
     "abilities": [
       {
         "type": "triggered",
-        "name": "DARK POWER",
         "trigger": {
-          "event": "quests",
-          "filter": {
-            "type": "this"
-          }
+          "on": "quests"
         },
         "isMay": true,
         "effects": [
@@ -1950,7 +1946,8 @@
               }
             ]
           }
-        ]
+        ],
+        "storyName": "DARK POWER"
       }
     ],
     "setId": "P2",
@@ -1990,12 +1987,8 @@
     "abilities": [
       {
         "type": "triggered",
-        "name": "DARK POWER",
         "trigger": {
-          "event": "quests",
-          "filter": {
-            "type": "this"
-          }
+          "on": "quests"
         },
         "isMay": true,
         "effects": [
@@ -2039,7 +2032,8 @@
               }
             ]
           }
-        ]
+        ],
+        "storyName": "DARK POWER"
       }
     ],
     "setId": "P2",

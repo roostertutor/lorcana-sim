@@ -1267,25 +1267,23 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               </button>
             )}
 
-            <div className="ml-auto shrink-0">
-              <button
-                className="px-2 py-1 text-gray-600 hover:text-gray-400 rounded transition-colors"
-                onClick={() => {
-                  if (sandboxMode) {
-                    session.startGame({ player1Deck: [], player2Deck: [], definitions, botStrategy: GreedyBot, player1IsHuman: true, player2IsHuman: false });
-                  } else {
+            {!sandboxMode && (
+              <div className="ml-auto shrink-0">
+                <button
+                  className="px-2 py-1 text-gray-600 hover:text-gray-400 rounded transition-colors"
+                  onClick={() => {
                     session.reset();
                     onBack?.();
-                  }
-                }}
-                title={onBack ? "Back" : sandboxMode ? "Reset" : "Concede"}
-              >
-                <Icon name="arrow-left" className="w-4 h-4 md:hidden" />
-                <span className="hidden md:inline text-[10px] uppercase tracking-wider">
-                  {onBack ? "Back" : sandboxMode ? "Reset" : "Concede"}
-                </span>
-              </button>
-            </div>
+                  }}
+                  title={onBack ? "Back" : "Concede"}
+                >
+                  <Icon name="arrow-left" className="w-4 h-4 md:hidden" />
+                  <span className="hidden md:inline text-[10px] uppercase tracking-wider">
+                    {onBack ? "Back" : "Concede"}
+                  </span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

@@ -419,9 +419,9 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
         )}
       </div>
 
-      {/* Keyword badges — top-right column */}
+      {/* Keyword badges — middle-right column */}
       {activeKeywordBadges.length > 0 && (
-        <div className="absolute top-1 right-1 flex flex-col gap-0.5 items-end pointer-events-none">
+        <div className="absolute right-1 top-1/2 -translate-y-1/2 flex flex-col gap-0.5 items-end pointer-events-none">
           {activeKeywordBadges.map(k => {
             const val = keywordValues.get(k);
             return (
