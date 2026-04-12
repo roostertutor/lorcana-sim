@@ -18,11 +18,8 @@
       {
         "type": "static",
         "effect": {
-          "type": "action_restriction",
-          "restricts": "sing",
-          "affectedPlayer": {
-            "type": "self"
-          }
+          "type": "cant_action_self",
+          "action": "sing"
         },
         "storyName": "VOICELESS",
         "rulesText": "This character can't {E} to sing songs."
