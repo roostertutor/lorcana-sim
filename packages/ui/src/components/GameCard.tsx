@@ -35,11 +35,13 @@ interface Props {
   isAttacker?: boolean;
   /** Suppress 90° rotation for inkwell fan display */
   skipRotation?: boolean;
+  /** Callback when cards-under badge is clicked */
+  onCardsUnderClick?: (instanceId: string) => void;
   /** Pre-computed game modifiers — if not passed, computed internally */
   gameModifiers?: GameModifiers | null;
 }
 
-export default function GameCard({ instanceId, gameState, definitions, isSelected, onClick, zone, faceDown, isTarget, isAttacker, skipRotation, gameModifiers: externalMods }: Props) {
+export default function GameCard({ instanceId, gameState, definitions, isSelected, onClick, zone, faceDown, isTarget, isAttacker, skipRotation, onCardsUnderClick, gameModifiers: externalMods }: Props) {
   const instance = gameState.cards[instanceId];
   if (!instance) return null;
   const def = definitions[instance.definitionId];
@@ -294,37 +296,37 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
           <div className="absolute inset-0 rounded-md sm:rounded-xl border-2 border-indigo-400/60 animate-pulse pointer-events-none" />
         )}
 
-        {/* Universal Shift badge (Baymax Giant Robot — can shift onto any character) */}
-        {zone === "hand" && mods?.universalShifters.has(instanceId) && (
-          <div className="absolute top-0.5 right-0.5 z-10 pointer-events-none">
-            <span className="text-[7px] font-black px-1 py-0.5 rounded bg-indigo-500/90 text-white shadow">
-              U-Shift
-            </span>
-          </div>
-        )}
+        {/* Top-left badges — stacked vertically */}
+        {(() => {
+          const badges: { text: string; color: string }[] = [];
+          if (zone === "hand" && mods?.universalShifters.has(instanceId)) {
+            badges.push({ text: "U-Shift", color: "bg-indigo-500/90" });
+          }
+          if (zone === "play" && (def as any).alternateNames?.length > 0) {
+            badges.push({ text: (def as any).alternateNames.join(" / "), color: "bg-gray-700/90" });
+          }
+          if (zone === "play" && mods?.grantedTraits.get(instanceId)?.size) {
+            badges.push({ text: `+${[...(mods.grantedTraits.get(instanceId) ?? [])].join(", ")}`, color: "bg-fuchsia-600/90" });
+          }
+          if (badges.length === 0) return null;
+          return (
+            <div className="absolute top-0.5 left-0.5 z-10 flex flex-col gap-0.5 pointer-events-none">
+              {badges.map((b, i) => (
+                <span key={i} className={`text-[7px] font-black px-1 py-0.5 rounded text-white shadow leading-none ${b.color}`}>
+                  {b.text}
+                </span>
+              ))}
+            </div>
+          );
+        })()}
 
-        {/* Dual-name badge — top-left (Flotsam & Jetsam: "Also: Flotsam, Jetsam") */}
-        {zone === "play" && (def as any).alternateNames?.length > 0 && (
-          <div className="absolute top-0.5 left-0.5 z-10 pointer-events-none">
-            <span className="text-[6px] font-bold px-1 py-0.5 rounded bg-gray-700/90 text-gray-200 shadow">
-              {(def as any).alternateNames.join(" / ")}
-            </span>
-          </div>
-        )}
-
-        {/* Granted trait badge — top-left (Chief Bogo DEPUTIZE: "+Detective") */}
-        {zone === "play" && mods?.grantedTraits.get(instanceId) && (mods.grantedTraits.get(instanceId)?.size ?? 0) > 0 && (
-          <div className="absolute top-0.5 left-0.5 z-10 pointer-events-none">
-            <span className="text-[7px] font-black px-1 py-0.5 rounded bg-fuchsia-600/90 text-white shadow">
-              +{[...(mods.grantedTraits.get(instanceId) ?? [])].join(", ")}
-            </span>
-          </div>
-        )}
-
-        {/* Boost / cards-under stack indicator — bottom-left count badge */}
+        {/* Boost / cards-under stack indicator — bottom-left count badge (clickable) */}
         {zone === "play" && (instance.cardsUnder?.length ?? 0) > 0 && (
-          <div className="absolute bottom-0.5 left-0.5 z-10 pointer-events-none">
-            <span className="inline-flex items-center justify-center w-4 h-4 rounded text-[8px] font-black bg-violet-600/90 text-violet-100 shadow border border-violet-400/50">
+          <div
+            className="absolute bottom-0.5 left-0.5 z-10 cursor-pointer"
+            onClick={(e) => { e.stopPropagation(); onCardsUnderClick?.(instanceId); }}
+          >
+            <span className="inline-flex items-center justify-center w-4 h-4 rounded text-[8px] font-black bg-violet-600/90 text-violet-100 shadow border border-violet-400/50 hover:bg-violet-500/90">
               {instance.cardsUnder?.length}
             </span>
           </div>

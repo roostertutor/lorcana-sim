@@ -397,6 +397,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   const [rlPolicyName, setRlPolicyName] = useState<string | null>(null);
   const [multiSelectTargets, setMultiSelectTargets] = useState<string[]>([]);
   const [choiceModalHidden, setChoiceModalHidden] = useState(false);
+  const [cardsUnderViewerId, setCardsUnderViewerId] = useState<string | null>(null);
   const [challengeAttackerId, setChallengeAttackerId] = useState<string | null>(null);
   const [shiftCardId, setShiftCardId] = useState<string | null>(null);
   // Alt-cost shift: after picking the shift target, the user must pick which
@@ -611,6 +612,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               onClick: (e) => { e.stopPropagation(); cancelMode(); setMoveCharId(action.characterInstanceId); },
             });
           }
+          break;
+        }
+        case "BOOST_CARD": {
+          add(action.instanceId, {
+            label: "Boost", color: "bg-violet-700 hover:bg-violet-600 text-violet-100",
+            onClick: (e) => { e.stopPropagation(); session.dispatch(action); },
+          });
           break;
         }
         case "ACTIVATE_ABILITY": {
@@ -1158,6 +1166,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                 onClick={handleClick}
                 zone={zone}
                 faceDown={faceDown}
+                onCardsUnderClick={(cid) => setCardsUnderViewerId(cid)}
               />
               {disambigBadge && (
                 <span className="absolute top-1 right-1 text-[10px] font-black bg-white/90 text-gray-900 px-1.5 py-0.5 rounded shadow pointer-events-none">
@@ -1749,6 +1758,23 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           onClose={() => setDeckViewerOpen(false)}
         />
       )}
+      {/* ======================= Cards Under Viewer ======================= */}
+      {cardsUnderViewerId && gameState.cards[cardsUnderViewerId] && (() => {
+        const parentInst = gameState.cards[cardsUnderViewerId]!;
+        const parentDef = definitions[parentInst.definitionId];
+        const underIds = parentInst.cardsUnder ?? [];
+        const faceDownSet = new Set(underIds.filter(id => gameState.cards[id]?.isFaceDown));
+        return (
+          <ZoneViewModal
+            title={`Cards Under ${parentDef?.fullName ?? "?"}`}
+            cardIds={underIds}
+            gameState={gameState}
+            definitions={definitions}
+            onClose={() => setCardsUnderViewerId(null)}
+            faceDownIds={faceDownSet.size > 0 ? faceDownSet : undefined}
+          />
+        );
+      })()}
       {/* ======================= Active Effects Modal ======================= */}
       {showEffects && activeEffects.length > 0 && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowEffects(false)}>

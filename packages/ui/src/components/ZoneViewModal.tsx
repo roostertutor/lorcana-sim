@@ -9,10 +9,13 @@ interface ZoneViewModalProps {
   gameState: GameState;
   definitions: Record<string, CardDefinition>;
   onClose: () => void;
+  /** Uniform face-down for all cards (deck viewer). Overridden by perCardFaceDown. */
   faceDown?: boolean;
+  /** Per-card face-down set — cards in this set render face-down, others face-up. */
+  faceDownIds?: Set<string>;
 }
 
-export default function ZoneViewModal({ title, cardIds, gameState, definitions, onClose, faceDown }: ZoneViewModalProps) {
+export default function ZoneViewModal({ title, cardIds, gameState, definitions, onClose, faceDown, faceDownIds }: ZoneViewModalProps) {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
@@ -56,7 +59,7 @@ export default function ZoneViewModal({ title, cardIds, gameState, definitions, 
                         isSelected={false}
                         onClick={() => {}}
                         zone={zone}
-                        faceDown={faceDown}
+                        faceDown={faceDownIds ? faceDownIds.has(id) : faceDown}
                       />
                     </div>
                   </div>

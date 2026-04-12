@@ -7,7 +7,7 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 
 ---
 
-## Card Icons (left-side column)
+## Card Icons (left-side, vertically stacked)
 
 | OK  | Feature | Card | Set |
 |-----|---------|------|-----|
@@ -18,7 +18,7 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 | [X] | Once-per-turn clock | HeiHei - Accidental Explorer | 3 |
 | [X] | Delayed trigger clock | Candy Drift | 8 |
 
-## Keyword Badges
+## Keyword Badges (top-right, vertically stacked, icon + optional value)
 
 | OK  | Feature | Card                                | Set |
 |-----|---------|-------------------------------------|-----|
@@ -34,14 +34,14 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 | [X] | Boost | Bambi - Ethereal Fawn               | 10 |
 | [X] | Multiple keywords | Maui - Hero to All (Reckless, Rush) | 1 |
 
-## Other Badges
+## Other Badges (top-left vertically stacked; bottom-left for cards-under)
 
-| OK | Feature | Card | Set |
-|----|---------|------|-----|
-| [ ] | Dual-name | Flotsam & Jetsam - Entangling Eels | 4 |
-| [ ] | Granted trait | Chief Bogo - Calling the Shots | 5 |
-| [ ] | Universal shift | Baymax - Giant Robot | 7 |
-| [ ] | Cards-under count | Bambi - Ethereal Fawn | 10 |
+| OK  | Feature | Card | Set |
+|-----|---------|------|-----|
+| [X] | Dual-name (top-left) | Flotsam & Jetsam - Entangling Eels | 4 |
+| [X] | Granted trait (top-left) | Chief Bogo - Calling the Shots | 5 |
+| [X] | Universal shift (top-left) | Baymax - Giant Robot | 7 |
+| [X] | Cards-under count (bottom-left, clickable) | Bambi - Ethereal Fawn | 10 |
 
 ## Active Effects Pill (scoreboard)
 
@@ -86,23 +86,40 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 | [ ] | Multi-select discard | A Whole New World | 1 |
 | [ ] | "[A] or [B]" forced choice | Megara - Captivating Cynic | 4 |
 
-## Interaction Modes
+## Popover Actions (click card → action buttons)
 
 | OK | Feature | Card | Set |
 |----|---------|------|-----|
-| [ ] | Ink-cost shift | Hades - King of Olympus | 1 |
-| [ ] | Alt-cost shift (discard) | Diablo - Devoted Herald | 4 |
-| [ ] | Drag-to-sing | Sudden Chill + any 2-cost character | 1 |
-| [ ] | Challenge | Any two characters | any |
-| [ ] | Move to location | Any character + any location | 3+ |
+| [ ] | Play (normal) | Any hand card with enough ink | any |
+| [ ] | Ink | Any inkable hand card | any |
+| [ ] | Shift (ink-cost) | Hades - King of Olympus → click target | 1 |
+| [ ] | Shift (alt-cost discard) | Diablo - Devoted Herald → click target → click cost card | 4 |
+| [ ] | Sing | Any song → click singer | 1 |
+| [ ] | Challenge | Any ready character → click exerted opponent | any |
+| [ ] | Move | Any ready character → click location | 3+ |
+| [ ] | Quest | Any ready non-drying character | any |
+| [ ] | Boost | Bambi - Ethereal Fawn (pay ink, deck top → under) | 10 |
+| [ ] | Activate ability | Any card with activated ability | any |
+
+## Drag-and-Drop Targets
+
+| OK | Feature | Drag from → Drop on |
+|----|---------|---------------------|
+| [ ] | Play card | Hand card → play zone |
+| [ ] | Ink card | Hand card → inkwell |
+| [ ] | Shift (ink-cost) | Hand card → own character in play |
+| [ ] | Shift (alt-cost) | Hand card → own character → enters cost picker |
+| [ ] | Sing | Song from hand → ready character |
+| [ ] | Challenge | Own ready character → exerted opponent character |
+| [ ] | Move | Own ready character → own location |
 
 ## Visual Indicators
 
 | OK | Feature | Card | Set |
 |----|---------|------|-----|
-| [ ] | Summoning sickness | Any newly played character | any |
+| [ ] | Drying overlay (cyan wash) | Any newly played character | any |
 | [ ] | Exerted rotation | Any exerted character | any |
-| [ ] | Damage counter | Any damaged character | any |
+| [ ] | Damage counter (center) | Any damaged character | any |
 | [ ] | Cost reduction glow | LeFou - Bumbler (in hand) | 4 |
 | [ ] | Play restriction grey | Mirabel Madrigal - Family Gatherer | 5 |
 | [ ] | Play-from-discard glow | Pride Lands - Jungle Oasis | 6 |
