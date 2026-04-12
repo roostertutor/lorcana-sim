@@ -244,6 +244,42 @@ function parseKeywordAbilities(
     }
   }
 
+  // Fallback: scan text for keyword lines that Lorcast omitted from keywords[].
+  // Pattern A in LORCAST_DATA_ISSUES.md — keyword present in text but missing
+  // from keywords[]. The text has lines like "Boost 2 {I} (...)" that the API
+  // didn't include in the keywords array.
+  if (text) {
+    const alreadyParsed = new Set(abilities.map(a => a.keyword));
+    const textKeywordPatterns: [RegExp, (m: RegExpMatchArray) => KeywordAbility | null][] = [
+      [/^Boost (\d+)/m, (m) => ({ type: "keyword", keyword: "boost", value: parseInt(m[1]!) })],
+      [/^Challenger \+(\d+)/m, (m) => ({ type: "keyword", keyword: "challenger", value: parseInt(m[1]!) })],
+      [/^Resist \+(\d+)/m, (m) => ({ type: "keyword", keyword: "resist", value: parseInt(m[1]!) })],
+      [/^Singer (\d+)/m, (m) => ({ type: "keyword", keyword: "singer", value: parseInt(m[1]!) })],
+      [/^Shift (\d+)/m, (m) => {
+        const v = parseInt(m[1]!);
+        if (!shiftCost) shiftCost = v;
+        return { type: "keyword", keyword: "shift", value: v };
+      }],
+      [/^Rush\b/m, () => ({ type: "keyword", keyword: "rush" })],
+      [/^Evasive\b/m, () => ({ type: "keyword", keyword: "evasive" })],
+      [/^Bodyguard\b/m, () => ({ type: "keyword", keyword: "bodyguard" })],
+      [/^Ward\b/m, () => ({ type: "keyword", keyword: "ward" })],
+      [/^Reckless\b/m, () => ({ type: "keyword", keyword: "reckless" })],
+      [/^Support\b/m, () => ({ type: "keyword", keyword: "support" })],
+      [/^Vanish\b/m, () => ({ type: "keyword", keyword: "vanish" })],
+      [/^Alert\b/m, () => ({ type: "keyword", keyword: "alert" })],
+    ];
+    for (const [pattern, factory] of textKeywordPatterns) {
+      const m = text.match(pattern);
+      if (m) {
+        const kw = factory(m);
+        if (kw && !alreadyParsed.has(kw.keyword)) {
+          abilities.push(kw);
+        }
+      }
+    }
+  }
+
   return { abilities, shiftCost };
 }
 

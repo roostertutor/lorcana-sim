@@ -12587,11 +12587,6 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 4
-      },
-      {
         "type": "triggered",
         "storyName": "",
         "rulesText": "Whenever this character quests, you may play a character with cost 2 or less from your discard for free.",
@@ -12611,6 +12606,11 @@
             }
           }
         ]
+      },
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
       }
     ],
     "setId": "11",

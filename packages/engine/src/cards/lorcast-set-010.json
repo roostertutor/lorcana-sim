@@ -722,6 +722,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 1
+      },
+      {
         "type": "triggered",
         "storyName": "COMMAND PERFORMANCE",
         "rulesText": "Once during your turn, whenever you play a song, if there's a card under this character, you may draw a card.",
@@ -751,11 +756,6 @@
             }
           }
         ]
-      },
-      {
-        "type": "keyword",
-        "keyword": "boost",
-        "value": 1
       }
     ],
     "setId": "10",
@@ -918,6 +918,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 3
+      },
+      {
         "type": "triggered",
         "storyName": "TIMELY ALLIANCE",
         "rulesText": "Whenever you put a card under this character, you may reveal the top card of your deck. If it's a character card, you may play that character for free and they enter play exerted. Otherwise, put it on the bottom of your deck.",
@@ -946,11 +951,6 @@
             "matchEnterExerted": true
           }
         ]
-      },
-      {
-        "type": "keyword",
-        "keyword": "boost",
-        "value": 3
       }
     ],
     "setId": "10",
@@ -4428,6 +4428,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 2
+      },
+      {
         "type": "static",
         "storyName": "I'LL TAKE THAT",
         "rulesText": "As long as this character has at least one card under it, it gets +2 {S} and +1 {L}.",
@@ -4457,11 +4462,6 @@
             "type": "this"
           }
         }
-      },
-      {
-        "type": "keyword",
-        "keyword": "boost",
-        "value": 2
       }
     ],
     "setId": "10",
@@ -5263,6 +5263,10 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 2
+      },
+      {
+        "type": "keyword",
+        "keyword": "ward"
       },
       {
         "type": "triggered",
@@ -6956,12 +6960,12 @@
     "abilities": [
       {
         "type": "keyword",
-        "keyword": "boost",
-        "value": 1
+        "keyword": "reckless"
       },
       {
         "type": "keyword",
-        "keyword": "reckless"
+        "keyword": "boost",
+        "value": 1
       },
       {
         "type": "static",
@@ -7041,6 +7045,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 2
+      },
+      {
         "type": "triggered",
         "trigger": {
           "on": "quests"
@@ -7067,11 +7076,6 @@
             "thenPutOnBottomOfDeck": true
           }
         ]
-      },
-      {
-        "type": "keyword",
-        "keyword": "boost",
-        "value": 2
       }
     ],
     "setId": "10",
@@ -8693,6 +8697,10 @@
         "value": 4
       },
       {
+        "type": "keyword",
+        "keyword": "support"
+      },
+      {
         "type": "static",
         "storyName": "STRANGE HAPPENINGS",
         "rulesText": "While this character is exerted, cards enter opponents' inkwells exerted.",
@@ -9051,7 +9059,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "DIG DEEP",
+        "storyName": "WORTH MINING",
         "rulesText": "Whenever this character quests, if there's a card under him, put the top card of your deck into your inkwell facedown and exerted.",
         "trigger": {
           "on": "quests"
@@ -9969,7 +9977,13 @@
       "Ally",
       "Detective"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "challenger",
+        "value": 2
+      }
+    ],
     "setId": "10",
     "number": 175,
     "rarity": "common",
@@ -10315,6 +10329,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "alert"
+      },
+      {
         "type": "static",
         "storyName": "STONE BY DAY",
         "rulesText": "If you have 3 or more cards in your hand, this character can't ready.",
@@ -10329,10 +10347,6 @@
           "type": "cant_action_self",
           "action": "ready"
         }
-      },
-      {
-        "type": "keyword",
-        "keyword": "alert"
       }
     ],
     "setId": "10",
@@ -12351,12 +12365,12 @@
     "abilities": [
       {
         "type": "keyword",
-        "keyword": "boost",
-        "value": 1
+        "keyword": "reckless"
       },
       {
         "type": "keyword",
-        "keyword": "reckless"
+        "keyword": "boost",
+        "value": 1
       },
       {
         "type": "static",
@@ -12862,6 +12876,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 3
+      },
+      {
         "type": "triggered",
         "storyName": "TIMELY ALLIANCE",
         "rulesText": "Whenever you put a card under this character, you may reveal the top card of your deck. If it's a character card, you may play that character for free and they enter play exerted. Otherwise, put it on the bottom of your deck.",
@@ -12890,11 +12909,6 @@
             "matchEnterExerted": true
           }
         ]
-      },
-      {
-        "type": "keyword",
-        "keyword": "boost",
-        "value": 3
       }
     ],
     "setId": "10",
@@ -13224,6 +13238,10 @@
         "value": 2
       },
       {
+        "type": "keyword",
+        "keyword": "ward"
+      },
+      {
         "type": "triggered",
         "storyName": "WORK SMARTER",
         "rulesText": "Whenever this character quests, if an opponent has more cards in their inkwell than you, you may put the top card of your deck into your inkwell facedown and exerted.",
@@ -13505,6 +13523,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 2
+      },
+      {
         "type": "triggered",
         "trigger": {
           "on": "quests"
@@ -13531,11 +13554,6 @@
             "thenPutOnBottomOfDeck": true
           }
         ]
-      },
-      {
-        "type": "keyword",
-        "keyword": "boost",
-        "value": 2
       }
     ],
     "setId": "10",
@@ -14090,6 +14108,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 1
+      },
+      {
         "type": "triggered",
         "storyName": "COMMAND PERFORMANCE",
         "rulesText": "Once during your turn, whenever you play a song, if there's a card under this character, you may draw a card.",
@@ -14119,11 +14142,6 @@
             }
           }
         ]
-      },
-      {
-        "type": "keyword",
-        "keyword": "boost",
-        "value": 1
       }
     ],
     "setId": "10",
