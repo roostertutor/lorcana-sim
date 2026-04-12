@@ -229,8 +229,8 @@
 | Rule | Quote | Status |
 |------|-------|--------|
 | 5.2.5.1 | Some cards have more than one ink type; count as each ink type | ✅ `inkColors: InkColor[]` on CardDefinition; filter uses array intersection |
-| 5.2.6.1 | Some characters have two names (&); each name is searchable independently (Flotsam & Jetsam = "Flotsam", "Jetsam", "Flotsam & Jetsam") | ✅ `additionalNames: string[]` on CardDefinition. `matchesFilter` checks both `name` and `additionalNames`. |
-| 5.2.6.3 | Chip 'n' Dale treated as if it has ampersand | ⚠️ No special case for Chip 'n' Dale — would need `additionalNames: ["Chip", "Dale"]` on that card |
+| 5.2.6.1 | Some characters have two names (&); each name is searchable independently (Flotsam & Jetsam = "Flotsam", "Jetsam", "Flotsam & Jetsam") | ✅ `alternateNames: string[]` on CardDefinition. `matchesFilter` checks both `name` and `alternateNames`. |
+| 5.2.6.3 | Chip 'n' Dale treated as if it has ampersand | ⚠️ No special case for Chip 'n' Dale — would need `alternateNames: ["Chip", "Dale"]` on that card |
 | 5.2.8 | Rules Text — abilities, effects, and rules text in text box; story name used for referencing | ✅ `storyName` field on TriggeredAbility, ActivatedAbility, StaticAbility |
 
 ### 5.3 Characters

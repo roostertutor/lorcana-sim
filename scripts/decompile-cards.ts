@@ -58,7 +58,7 @@ interface CardJSON {
   /** Dual-name characters whose card "counts as being named X" for Shift /
    *  name-matching effects. Stored as a scalar field rather than an ability
    *  (Flotsam & Jetsam, Turbo - Royal Hack). */
-  additionalNames?: string[];
+  alternateNames?: string[];
 }
 
 // =============================================================================
@@ -100,8 +100,8 @@ function renderCard(card: CardJSON): string {
 
   // Dual-name characters: Flotsam & Jetsam, Turbo - Royal Hack. The card
   // "counts as being named X" for Shift / name-matching purposes.
-  if (card.additionalNames && card.additionalNames.length > 0) {
-    const names = card.additionalNames.join(" and ");
+  if (card.alternateNames && card.alternateNames.length > 0) {
+    const names = card.alternateNames.join(" and ");
     parts.push(`This character counts as being named ${names}`);
   }
 

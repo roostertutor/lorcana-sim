@@ -104,7 +104,7 @@ Will resume after Phase A is complete.
 fully implemented. `card_drawn` trigger and `oncePerTurn` ability flag wired this
 session. ~7 cards remain with approximations for engine features not yet built:
 
-- ~~**Morph - Space Goo**~~: resolved. New `canShiftOnto(shifting, target)` helper in validator.ts. CardDefinition gained `universalShift` (Baymax, Set 7+), `universalShiftTarget` (Morph MIMICRY), `classificationShift` (Thunderbolt Puppy Shift, Set 8), and `additionalNames` (Turbo, Flotsam & Jetsam). Morph wired with `universalShiftTarget: true`.
+- ~~**Morph - Space Goo**~~: resolved. New `canShiftOnto(shifting, target)` helper in validator.ts. CardDefinition gained `universalShift` (Baymax, Set 7+), `universalShiftTarget` (Morph MIMICRY), `classificationShift` (Thunderbolt Puppy Shift, Set 8), and `alternateNames` (Turbo, Flotsam & Jetsam). Morph wired with `universalShiftTarget: true`.
 - ~~**Ursula - Deceiver of All**~~: resolved. Generalized `play_for_free` (added `sourceZone`, optional direct `target`, `thenPutOnBottomOfDeck`, plus action-effect resolution for songs played for free) + new `sings` trigger event fired from the singer in `applyPlayCard` with the song as `triggeringCardInstanceId`. Ursula's WHAT A DEAL is now a `triggered` ability on `sings` whose effect is `play_for_free` with `sourceZone: "discard"`, `target: { type: "triggering_card" }`, `thenPutOnBottomOfDeck: true`, `isMay: true`. **Bonus:** Max Goof - Chart Topper (Set 9) wired in the same pass — same `play_for_free` shape but on `quests` trigger with a song-cost-≤-4 filter instead of direct target.
 - ~~**Maui - Whale**~~: resolved. New `cant_action_self` static effect + `selfActionRestrictions` modifier slot. `isActionRestricted` consults it as Source 3. Differs from `CantActionEffect` (one-shot timed debuff) — this is a permanent self-restriction tied to the source instance. Maui's THIS MISSION IS CURSED now wired as a `static` ability with `cant_action_self` / action `ready`.
 - ~~**Belle's House - Maurice's Workshop**~~: resolved. New `this_location_has_character` Condition. Belle's House LABORATORY now wired as static `cost_reduction` with that condition.
@@ -135,7 +135,7 @@ the scanner loop in `gameModifiers.ts` to respect it, then:
 - Move MIMICRY (Morph) back to a real `static` ability with `activeZones: ["play"]`
 - Wire Universal Shift / Classification Shift / Lilo as static abilities with the right zones
 - Drop `universalShift`, `universalShiftTarget`, `classificationShift` from `CardDefinition`
-  (keep `additionalNames` — that's a printed-name property, not an ability)
+  (keep `alternateNames` — that's a printed-name property, not an ability)
 
 The Morph definition flags added in Set 3 work but are a shortcut: they hide MIMICRY
 from `def.abilities` and can't be granted/conditional. Land the refactor before Set 6

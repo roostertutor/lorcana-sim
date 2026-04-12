@@ -2435,11 +2435,7 @@ export interface CardDefinition {
    *  Uses the same PlayForFreeCost union as grant_play_for_free_self.playCosts.
    *  Mutually exclusive with shiftCost — these cards have NO ink-based shift path. */
   altShiftCost?: PlayForFreeCost;
-  /** Cards that count as having additional names for Shift purposes (Turbo, Flotsam & Jetsam).
-   *  Stays on CardDefinition because it's a printed-name property, not an ability.
-   *  All other shift variants (Universal, MIMICRY, Classification) are now zone-aware
-   *  static abilities — see types/index.ts MimicryTargetSelfStatic et al. */
-  additionalNames?: string[];
+  // additionalNames removed — unified into alternateNames (CRD 5.2.6.1–3)
   /** CRD 8.12: Sing Together N — any number of your characters with total cost ≥ N
    *  may exert to sing this song for free. Stays on CardDefinition because it's a
    *  printed cost property, not an ability. Set 4+ songs only. */

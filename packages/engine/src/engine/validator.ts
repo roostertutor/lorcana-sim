@@ -39,14 +39,14 @@ const fail = (reason: string): ValidationResult => ({ valid: false, reason });
 /**
  * CRD 8.10.1 + variants: can `shifting` be played via Shift onto `target`?
  * Variants are zone-aware static abilities (see types/index.ts) — pass GameModifiers
- * for the lookups. additionalNames stays a printed-name property on CardDefinition.
+ * for the lookups. alternateNames stays a printed-name property on CardDefinition.
  *
  * Handles:
  *  - base Shift (same name)
  *  - Universal Shift (Baymax, Set 7+) — shifting card ignores name match (in-hand static)
  *  - MIMICRY (Morph - Space Goo, Set 3) — target ignores name match (in-play static)
  *  - Classification / Puppy Shift (Thunderbolt, Set 8) — target must have a trait (in-hand static)
- *  - additionalNames — either side may declare extra names (Turbo, Flotsam & Jetsam)
+ *  - alternateNames — either side may declare extra names (Turbo, Flotsam & Jetsam)
  */
 export function canShiftOnto(
   shiftingInstanceId: string,
@@ -64,10 +64,10 @@ export function canShiftOnto(
   if (requiredTrait) {
     return target.traits.includes(requiredTrait);
   }
-  // Base shift: name must match. Either side may carry additional names.
+  // Base shift: name must match. Either side may carry alternate names (CRD 5.2.6.1–3).
   if (shifting.name === target.name) return true;
-  if (shifting.additionalNames?.includes(target.name)) return true;
-  if (target.additionalNames?.includes(shifting.name)) return true;
+  if (shifting.alternateNames?.includes(target.name)) return true;
+  if (target.alternateNames?.includes(shifting.name)) return true;
   return false;
 }
 
