@@ -127,6 +127,14 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 | [X] | Damage counter (center) | Any damaged character               | any |
 | [X] | Cost reduction glow | LeFou - Bumbler (in hand)           | 4   |
 | [X] | Play restriction grey | Mirabel Madrigal - Family Gatherer  | 5   |
-| [ ] | Play-from-discard glow | Pride Lands - Jungle Oasis          | 6   |
-| [ ] | Floating ability pulse | Bruno Madrigal - Out of the Shadows | 8   |
-| [ ] | Reveal hand modal | Dolores Madrigal                    | 5   |
+| [X] | Play-from-discard glow | Pride Lands - Jungle Oasis          | 6   |
+| [X] | Reveal hand modal | Dolores Madrigal                    | 5   |
+
+---
+
+## TBD — Deferred GUI Decisions
+
+- **Generic timed effect icon** — small clock for timed effects without a dedicated left-side icon (sing cost bonus, challenge ready, must quest, etc.). Currently only in the pill.
+- **Hand card playability indicators** — highlight playable cards (green glow?) vs dim unplayable vs show inkable/non-inkable. Currently only play-restriction grey exists.
+- **Discard tile glow for ink-from-discard** — Moana Curious Explorer enables inking from discard but the tile doesn't glow (only play-from-discard like Lilo triggers glow).
+- **Floating ability pulse / animations** — removed indigo pulse border (too distracting without other animations). Revisit when adding animations generally (damage flying, card enter/exit, mill, etc.).

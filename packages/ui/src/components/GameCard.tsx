@@ -315,10 +315,6 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
           );
         })()}
 
-        {/* Floating granted ability indicator — glowing border when a floating trigger targets this card */}
-        {zone === "play" && (gameState as any).floatingTriggers?.some((ft: any) => ft.attachedToInstanceId === instanceId) && (
-          <div className="absolute inset-0 rounded-md sm:rounded-xl border-2 border-indigo-400/60 animate-pulse pointer-events-none" />
-        )}
 
         {/* Top-left badges — stacked vertically */}
         {(() => {
