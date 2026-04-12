@@ -50,7 +50,6 @@ pnpm decompile-cards --set 001    # semantic diff: rendered JSON vs oracle text
 | docs/DECISIONS.md | Why decisions were made | Before proposing architecture changes |
 | docs/CRD_TRACKER.md | CRD v2.0.1 rule-to-engine map | Implementing/fixing game rules |
 | docs/CARD_ISSUES.md | Card implementation gaps | Importing new sets / fixing card bugs |
-| docs/IMPLEMENTING_BY_MECHANIC.md | Mechanic-driven playbook for implementing cards across sets 4–11 | Starting a card-implementation session |
 | docs/RL.md | RL training architecture, policies, reward design | Touching the RL training pipeline |
 | docs/QUERY_SYSTEM.md | Query condition types, sim file format, CLI workflows | Writing or running queries |
 | docs/ANALYTICS_PHILOSOPHY.md | Why we ask certain questions, query design principles | Designing new question files |
@@ -166,8 +165,8 @@ diffs the rendered behavior against the oracle text.
 
 Rules to prevent regression:
 - NEVER write a no-op stub to make a card "complete." If you can't implement
-  the effect, leave `abilities: []` and add the card to `docs/CARD_WIRING_AUDIT.md`
-  with the reason — `pnpm card-status` will flag it and the gap stays visible.
+  the effect, leave `abilities: []` — `pnpm card-status` will flag it and
+  the gap stays visible.
 - NEVER add `(approximation: ...)` to rulesText. The annotation is invisible to
   every audit script and creates a permanent stealth-debt entry. Either implement
   the effect correctly OR leave the card unwired with a tracker entry.

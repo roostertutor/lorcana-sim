@@ -10,7 +10,7 @@ The importer's union-merge (`scripts/import-cards.ts`) defends against these iss
 
 1. **Upstream data drift** — keyword reminder lines in `rulesText` with no matching ability, or numeric keyword values missing from the API.
 2. **Missing required scalars** — `singTogetherCost` or `shiftCost` not populated when the rules text specifies a value.
-3. **Static effect-type mismatches** — `self_cost_reduction` wiping the full cost on a "you can play for free" card (should be `grant_play_for_free_self`), or "gains Shift N" wording without a `grant_shift_self` static. See `docs/CARD_WIRING_AUDIT.md` rows 6 and 7.
+3. **Static effect-type mismatches** — `self_cost_reduction` wiping the full cost on a "you can play for free" card (should be `grant_play_for_free_self`), or "gains Shift N" wording without a `grant_shift_self` static.
 
 ```bash
 pnpm audit-lorcast          # human-readable

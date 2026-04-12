@@ -12,7 +12,7 @@ Run `pnpm card-status --set <N>` to filter to one set.
 
 ## Implementation Strategy — two phases
 
-See `docs/IMPLEMENTING_BY_MECHANIC.md` for the full playbook. Short version:
+Implementation approach:
 
 **Phase A — Engine work, by mechanic, cross-set.** Each engine addition
 unlocks cards across many sets at once. Order by cards-unblocked count.

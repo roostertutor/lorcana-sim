@@ -335,7 +335,7 @@ function main() {
   console.log(`  3. Static effect-type mismatches: self_cost_reduction wiping the full`);
   console.log(`     cost on a "you can play for free" card (should be`);
   console.log(`     grant_play_for_free_self), or "gains Shift N" wording without a`);
-  console.log(`     grant_shift_self static. See docs/CARD_WIRING_AUDIT.md rows 6 and 7.`);
+  console.log(`     grant_shift_self static.`);
 }
 
 main();

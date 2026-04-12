@@ -60,13 +60,13 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 | [X] | Extra ink plays | Belle - Strange but Special              | 1 |
 | [X] | Ink from discard | Moana - Curious Explorer                 | 6 |
 | [X] | Action restrictions | Ursula - Sea Witch Queen                 | 1 |
-| [ ] | Forced targets | John Smith - Undaunted Protector         | 8 |
-| [ ] | One-shot cost reduction | Imperial Proclamation                    | 4 |
+| [X] | Forced targets | John Smith - Undaunted Protector         | 8 |
+| [X] | One-shot cost reduction | Imperial Proclamation                    | 4 |
 | [X] | Play restrictions | Keep the Ancient Ways                    | 11 |
 | [X] | Global timed effect | Restoring Atlantis                       | 7 |
 | [X] | Delayed trigger | Candy Drift                              | 8 |
 | [X] | Floating trigger (global) | Steal from the Rich                      | 1 |
-| [ ] | Floating trigger (attached) | Medallion Weights                        | 6 |
+| [X] | Floating trigger (attached) | Medallion Weights                        | 6 |
 | [ ] | Timed grant keyword | Cogsworth - Majordomo                    | 5 |
 | [ ] | Timed cant action | Elsa - Spirit of Winter                  | 2 |
 | [ ] | Timed damage immunity | Nothing We Won't Do                      | 8 |
@@ -78,9 +78,9 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 
 ## PendingChoiceModal
 
-| OK | Feature | Card | Set |
-|----|---------|------|-----|
-| [ ] | Both-side grouping | Fire the Cannons | 1 |
+| OK  | Feature | Card | Set |
+|-----|---------|------|-----|
+| [X] | Both-side grouping | Fire the Cannons | 1 |
 | [ ] | Revealed hand + discard | Ursula - Deceiver (Set 9 version) | 9 |
 | [ ] | Cross-player chooser | Tiana - Restaurant Owner | 5 |
 | [ ] | Multi-select discard | A Whole New World | 1 |
