@@ -819,6 +819,12 @@ function applyPlayCard(
     }
   }
 
+  // CRD 6.7.8: Self-entry modifier — card enters play already exerted.
+  // No intermediate un-exerted state, no trigger, per CRD 6.7.8 example.
+  if (def.entersPlayExerted) {
+    state = updateInstance(state, instanceId, { isExerted: true });
+  }
+
   // EnterPlayExertedStatic — Jiminy Cricket Level-Headed and Wise (opposing
   // chars with Rush enter exerted), Figaro Tuxedo Cat (opposing items enter
   // exerted). Force-exert here, before any enters_play triggers resolve.

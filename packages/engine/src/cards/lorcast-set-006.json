@@ -304,40 +304,7 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [
-      {
-        "type": "triggered",
-        "storyName": "CHIP'S PARTNER",
-        "rulesText": "This character enters play exerted unless you have a character named Chip in play.",
-        "trigger": {
-          "on": "enters_play"
-        },
-        "condition": {
-          "type": "not",
-          "inner": {
-            "type": "you_control_matching",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasName": "Chip"
-            }
-          }
-        },
-        "effects": [
-          {
-            "type": "exert",
-            "target": {
-              "type": "this"
-            }
-          }
-        ]
-      }
-    ],
+    "abilities": [],
     "setId": "6",
     "number": 7,
     "rarity": "common",
@@ -354,7 +321,8 @@
         "rulesText": "This character enters play exerted unless you have a character named Chip in play.",
         "raw": "CHIP'S PARTNER This character enters play exerted unless you have a character named Chip in play."
       }
-    ]
+    ],
+    "entersPlayExerted": true
   },
   {
     "id": "david-impressive-surfer",
@@ -5327,22 +5295,6 @@
     "traits": [],
     "abilities": [
       {
-        "type": "triggered",
-        "storyName": "HAPPY FACE",
-        "rulesText": "This item enters play exerted.",
-        "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "exert",
-            "target": {
-              "type": "this"
-            }
-          }
-        ]
-      },
-      {
         "type": "activated",
         "storyName": "DESTROY!",
         "rulesText": "{E}, Banish this item — Choose one: Banish chosen item. Banish chosen damaged character.",
@@ -5409,7 +5361,8 @@
         "rulesText": "{E}, Banish this item - Choose one:",
         "raw": "DESTROY! {E}, Banish this item - Choose one:"
       }
-    ]
+    ],
+    "entersPlayExerted": true
   },
   {
     "id": "galactic-communicator",

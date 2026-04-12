@@ -9276,22 +9276,6 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "ALL TIED UP",
-        "rulesText": "This character enters play exerted.",
-        "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "exert",
-            "target": {
-              "type": "this"
-            }
-          }
-        ]
-      },
-      {
-        "type": "triggered",
         "rulesText": "During your turn, whenever one of your other characters banishes another character in a challenge, you may ready this character.",
         "trigger": {
           "on": "banished_other_in_challenge",
@@ -9336,7 +9320,8 @@
         "rulesText": "During your turn, whenever one of your other characters banishes another character in a challenge, you may ready this character.",
         "raw": "BREAK FREE During your turn, whenever one of your other characters banishes another character in a challenge, you may ready this character."
       }
-    ]
+    ],
+    "entersPlayExerted": true
   },
   {
     "id": "hades-hotheaded-ruler",

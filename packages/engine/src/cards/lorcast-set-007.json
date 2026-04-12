@@ -4896,24 +4896,7 @@
       "Hero",
       "Robot"
     ],
-    "abilities": [
-      {
-        "type": "triggered",
-        "storyName": "SHHHHH",
-        "rulesText": "This character enters play exerted.",
-        "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "exert",
-            "target": {
-              "type": "this"
-            }
-          }
-        ]
-      }
-    ],
+    "abilities": [],
     "setId": "7",
     "number": 87,
     "rarity": "common",
@@ -4930,7 +4913,8 @@
         "rulesText": "This character enters play exerted.",
         "raw": "SHHHHH This character enters play exerted."
       }
-    ]
+    ],
+    "entersPlayExerted": true
   },
   {
     "id": "thomas-omalley-feline-charmer",

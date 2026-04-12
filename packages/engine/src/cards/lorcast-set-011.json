@@ -9498,22 +9498,6 @@
     "traits": [],
     "abilities": [
       {
-        "type": "triggered",
-        "storyName": "ALMOST READY",
-        "rulesText": "This item enters play exerted.",
-        "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "exert",
-            "target": {
-              "type": "this"
-            }
-          }
-        ]
-      },
-      {
         "type": "activated",
         "storyName": "SNAP!",
         "rulesText": "{E}, Banish this item — Choose one: Banish chosen item. Chosen opposing character gets -2 {S} this turn.",
@@ -9584,7 +9568,8 @@
         "rulesText": "{E}, Banish this item — Choose one:",
         "raw": "SNAP! {E}, Banish this item — Choose one:"
       }
-    ]
+    ],
+    "entersPlayExerted": true
   },
   {
     "id": "rapunzel-ethereal-protector",

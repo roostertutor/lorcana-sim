@@ -535,6 +535,7 @@ async function main() {
           "altShiftCost" as keyof CardDefinitionOut,
           "moveCost" as keyof CardDefinitionOut,
           "singTogetherCost" as keyof CardDefinitionOut,
+          "entersPlayExerted" as keyof CardDefinitionOut,
           "alternateNames" as keyof CardDefinitionOut,
         ];
         for (const field of passthroughFields) {

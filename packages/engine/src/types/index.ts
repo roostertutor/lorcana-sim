@@ -2444,6 +2444,10 @@ export interface CardDefinition {
   /** CRD 4.7: Locations — ink a character pays to move here */
   moveCost?: number;
 
+  /** CRD 6.7.8: This card enters play exerted (static entry modifier, not a trigger).
+   *  "There's no moment within the game in which [the card] enters play [un-exerted]." */
+  entersPlayExerted?: boolean;
+
   abilities: Ability[];
 
   /** CRD 4.3.x: Conditional play restrictions ("you can't play this character

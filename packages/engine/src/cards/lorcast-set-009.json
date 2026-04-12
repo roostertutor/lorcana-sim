@@ -5449,22 +5449,6 @@
     "traits": [],
     "abilities": [
       {
-        "type": "triggered",
-        "storyName": "WATCH CLOSELY",
-        "rulesText": "This item enters play exerted.",
-        "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "exert",
-            "target": {
-              "type": "this"
-            }
-          }
-        ]
-      },
-      {
         "type": "activated",
         "storyName": "THE PERFECT CAST",
         "rulesText": "{E}, 1 {I}, Banish this item – Return chosen exerted character of yours to your hand to gain 2 lore.",
@@ -5530,7 +5514,8 @@
         "rulesText": "{E}, 1 {I}, Banish this item – Return chosen exerted character of yours to your hand to gain 2 lore.",
         "raw": "THE PERFECT CAST {E}, 1 {I}, Banish this item – Return chosen exerted character of yours to your hand to gain 2 lore."
       }
-    ]
+    ],
+    "entersPlayExerted": true
   },
   {
     "id": "signed-contract",

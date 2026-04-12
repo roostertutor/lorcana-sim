@@ -1868,24 +1868,7 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [
-      {
-        "type": "triggered",
-        "storyName": "NONE OF YOUR POWERS ARE WORKING",
-        "rulesText": "This character enters play exerted.",
-        "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "exert",
-            "target": {
-              "type": "this"
-            }
-          }
-        ]
-      }
-    ],
+    "abilities": [],
     "setId": "8",
     "number": 29,
     "rarity": "rare",
@@ -1902,7 +1885,8 @@
         "rulesText": "This character enters play exerted.",
         "raw": "NONE OF YOUR POWERS ARE WORKING This character enters play exerted."
       }
-    ]
+    ],
+    "entersPlayExerted": true
   },
   {
     "id": "rhino-power-hamster",
@@ -5870,22 +5854,6 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "SENSITIVE SOUL",
-        "rulesText": "This character enters play exerted.",
-        "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "exert",
-            "target": {
-              "type": "this"
-            }
-          }
-        ]
-      },
-      {
-        "type": "triggered",
         "storyName": "FRIENDLIER THAN HE LOOKS",
         "rulesText": "When you play this character, chosen opposing character gains Reckless during their next turn.",
         "trigger": {
@@ -5932,7 +5900,8 @@
         "rulesText": "When you play this character, chosen opposing character gains Reckless during their next turn. (They can't quest and must challenge if able.)",
         "raw": "FRIENDLIER THAN HE LOOKS When you play this character, chosen opposing character gains Reckless during their next turn. (They can't quest and must challenge if able.)"
       }
-    ]
+    ],
+    "entersPlayExerted": true
   },
   {
     "id": "napoleon-clever-bloodhound",

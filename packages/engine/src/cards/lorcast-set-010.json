@@ -555,22 +555,6 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "HOLD... YOUR HORSES",
-        "rulesText": "This character enters play exerted.",
-        "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "exert",
-            "target": {
-              "type": "this"
-            }
-          }
-        ]
-      },
-      {
-        "type": "triggered",
         "storyName": "DEEP RESEARCH",
         "rulesText": "Whenever this character quests, you may give chosen Detective character +2 {S} this turn.",
         "trigger": {
@@ -616,7 +600,8 @@
         "rulesText": "Whenever this character quests, you may give chosen Detective character +2 {S} this turn.",
         "raw": "DEEP RESEARCH Whenever this character quests, you may give chosen Detective character +2 {S} this turn."
       }
-    ]
+    ],
+    "entersPlayExerted": true
   },
   {
     "id": "taran-pig-keeper",
