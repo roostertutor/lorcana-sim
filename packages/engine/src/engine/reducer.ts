@@ -4472,7 +4472,7 @@ export function applyEffect(
     case "choose": {
       // CRD 6.1.5.2: Filter infeasible options — "if [A] can't be chosen, [B] must be chosen"
       const feasibleOptions = effect.options.filter(option =>
-        option.length > 0 && option.every(subEff => canPerformChooseOption(state, subEff, controllingPlayerId, triggeringCardInstanceId))
+        option.length > 0 && option.every(subEff => canPerformChooseOption(state, subEff, controllingPlayerId, triggeringCardInstanceId, definitions, sourceInstanceId))
       );
       // If only one feasible option, auto-pick it (no choice to make)
       const optionsToPresent = feasibleOptions.length > 0 ? feasibleOptions : [effect.options[effect.options.length - 1]!];
@@ -4857,7 +4857,9 @@ function canPerformChooseOption(
   state: GameState,
   effect: Effect,
   controllingPlayerId: PlayerID,
-  triggeringCardInstanceId?: string
+  triggeringCardInstanceId?: string,
+  definitions?: Record<string, CardDefinition>,
+  sourceInstanceId?: string
 ): boolean {
   switch (effect.type) {
     case "discard_from_hand":
@@ -4866,8 +4868,15 @@ function canPerformChooseOption(
         : true;
     case "pay_ink":
       return state.players[controllingPlayerId].availableInk >= (typeof effect.amount === "number" ? effect.amount : 0);
-    default:
+    default: {
+      // CRD 6.1.5.2: If the effect targets "chosen" cards, check if any valid targets exist
+      const target = (effect as any).target;
+      if (target?.type === "chosen" && target.filter && definitions) {
+        const validTargets = findChosenTargets(state, target.filter, controllingPlayerId, definitions, sourceInstanceId ?? "");
+        return validTargets.length > 0;
+      }
       return true;
+    }
   }
 }
 
