@@ -49,20 +49,15 @@ describe("§7 Set 3 — Locations", () => {
     expect(c.movedThisTurn).toBe(true);
   });
 
-  it("MOVE_CHARACTER rejects drying/already-moved/insufficient ink", () => {
+  it("MOVE_CHARACTER: drying allowed, already-moved/insufficient ink rejected", () => {
     let state = startGame();
     let charId: string, locId: string;
     ({ state, instanceId: charId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: true }));
     ({ state, instanceId: locId } = injectCard(state, "player1", "never-land-mermaid-lagoon", "play"));
     state = giveInk(state, "player1", 5);
 
-    // drying
+    // CRD 4.7 + 1.7.5: drying does NOT prevent moving (only prevents quest/challenge/{E})
     let r = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: charId, locationInstanceId: locId }, LORCAST_CARD_DEFINITIONS);
-    expect(r.success).toBe(false);
-
-    // not drying — succeeds
-    state = { ...state, cards: { ...state.cards, [charId]: { ...state.cards[charId]!, isDrying: false } } };
-    r = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: charId, locationInstanceId: locId }, LORCAST_CARD_DEFINITIONS);
     expect(r.success).toBe(true);
 
     // moved twice — fails

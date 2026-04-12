@@ -686,7 +686,8 @@ function validateMoveCharacter(
   if (char.zone !== "play") return fail("Character is not in play.");
   const charDef = getDefinition(state, characterInstanceId, definitions);
   if (charDef.cardType !== "character") return fail("Only characters can move to locations.");
-  if (char.isDrying) return fail("Character is still drying and cannot move.");
+  // CRD 4.7: Moving requires paying ink, not exerting — drying does NOT prevent moving.
+  // CRD 1.7.5: Drying only prevents quest, challenge, and {E} to pay costs.
   if (char.isExerted) return fail("Exerted characters cannot move.");
   if (char.movedThisTurn) return fail("This character has already moved this turn.");
 
