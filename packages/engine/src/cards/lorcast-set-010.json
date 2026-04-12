@@ -49,6 +49,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 2
+      },
+      {
         "type": "triggered",
         "storyName": "TOP THAT!",
         "rulesText": "Whenever this character quests, if there's a card under him, chosen opposing character can't challenge during their next turn.",
@@ -945,7 +950,7 @@
       {
         "type": "keyword",
         "keyword": "boost",
-        "value": 2
+        "value": 3
       }
     ],
     "setId": "10",
@@ -3218,6 +3223,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 2
+      },
+      {
         "type": "triggered",
         "storyName": "LEGACY OF LEARNING",
         "rulesText": "When this character is banished in a challenge, if he had a card under him, draw 2 cards.",
@@ -3272,6 +3282,11 @@
       "Whisper"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 1
+      },
       {
         "type": "static",
         "storyName": "SLIPPERY SPELL",
@@ -3335,6 +3350,11 @@
       "Whisper"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 2
+      },
       {
         "type": "triggered",
         "storyName": "IT'S LOADS OF FUN",
@@ -4695,6 +4715,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 1
+      },
+      {
         "type": "static",
         "storyName": "I'LL BE FINE",
         "rulesText": "While there's a card under this character, she gets +1 {L}.",
@@ -5175,6 +5200,11 @@
       "Whisper"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 3
+      },
       {
         "type": "triggered",
         "storyName": "READY TO RASSLE",
@@ -6193,6 +6223,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 2
+      },
+      {
         "type": "triggered",
         "storyName": "THAT'S MINE",
         "rulesText": "Whenever he challenges another character, if there's a card under this character, each opponent loses 1 lore and you gain 1 lore.",
@@ -6921,6 +6956,11 @@
     "abilities": [
       {
         "type": "keyword",
+        "keyword": "boost",
+        "value": 1
+      },
+      {
+        "type": "keyword",
         "keyword": "reckless"
       },
       {
@@ -7031,7 +7071,7 @@
       {
         "type": "keyword",
         "keyword": "boost",
-        "value": 1
+        "value": 2
       }
     ],
     "setId": "10",
@@ -8340,6 +8380,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 2
+      },
+      {
         "type": "triggered",
         "storyName": "UPLIFTING AURA",
         "rulesText": "Whenever this character quests, if there's a card under her, remove up to 3 damage from each of your characters.",
@@ -8571,6 +8616,11 @@
       "Whisper"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 2
+      },
       {
         "type": "triggered",
         "storyName": "SURVIVAL OF THE FITTEST",
@@ -8995,8 +9045,13 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 1
+      },
+      {
         "type": "triggered",
-        "storyName": "WORTH MINING",
+        "storyName": "DIG DEEP",
         "rulesText": "Whenever this character quests, if there's a card under him, put the top card of your deck into your inkwell facedown and exerted.",
         "trigger": {
           "on": "quests"
@@ -9637,6 +9692,11 @@
       "Whisper"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 1
+      },
       {
         "type": "triggered",
         "storyName": "EXPERT SHOT",
@@ -10823,6 +10883,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 3
+      },
+      {
         "type": "triggered",
         "storyName": "STUNNING TRANSFORMATION",
         "rulesText": "Whenever you put a card under this character, you may banish chosen opposing character. If you do, their player may reveal the top card of their deck. If that card is a character or item card, they may play it for free. Otherwise, they put it on the bottom of their deck.",
@@ -10910,6 +10975,11 @@
       "Whisper"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 2
+      },
       {
         "type": "static",
         "storyName": "I NEED MORE THUNDERBOLTS!",
@@ -11324,7 +11394,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "HAND-TO-HAND",
+        "storyName": "MIGHTY HIT",
         "rulesText": "During your turn, whenever one of your characters banishes another character in a challenge, gain 1 lore.",
         "trigger": {
           "on": "banished_other_in_challenge",
@@ -11751,6 +11821,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 2
+      },
+      {
         "type": "triggered",
         "storyName": "TOP THAT!",
         "rulesText": "Whenever this character quests, if there's a card under him, chosen opposing character can't challenge during their next turn.",
@@ -11918,6 +11993,11 @@
       "Whisper"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 2
+      },
       {
         "type": "triggered",
         "storyName": "LEGACY OF LEARNING",
@@ -12112,6 +12192,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 1
+      },
+      {
         "type": "static",
         "storyName": "I'LL BE FINE",
         "rulesText": "While there's a card under this character, she gets +1 {L}.",
@@ -12266,6 +12351,11 @@
     "abilities": [
       {
         "type": "keyword",
+        "keyword": "boost",
+        "value": 1
+      },
+      {
+        "type": "keyword",
         "keyword": "reckless"
       },
       {
@@ -12376,6 +12466,11 @@
       "Whisper"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 1
+      },
       {
         "type": "triggered",
         "storyName": "DIG DEEP",
@@ -12527,6 +12622,11 @@
       "Whisper"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "boost",
+        "value": 1
+      },
       {
         "type": "triggered",
         "storyName": "EXPERT SHOT",
@@ -12794,7 +12894,7 @@
       {
         "type": "keyword",
         "keyword": "boost",
-        "value": 2
+        "value": 3
       }
     ],
     "setId": "10",
@@ -13435,7 +13535,7 @@
       {
         "type": "keyword",
         "keyword": "boost",
-        "value": 1
+        "value": 2
       }
     ],
     "setId": "10",
