@@ -5438,12 +5438,12 @@
                 "character"
               ]
             }
-          },
+          }
+        },
+        "condition": {
+          "type": "not",
           "condition": {
-            "type": "not",
-            "condition": {
-              "type": "is_your_turn"
-            }
+            "type": "is_your_turn"
           }
         }
       }
