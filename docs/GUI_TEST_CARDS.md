@@ -70,9 +70,9 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 | [X] | Timed grant keyword | Tinker Bell - Most Helpful               | 5 |
 | [X] | Timed cant action | Elsa - Spirit of Winter                  | 2 |
 | [X] | Timed damage immunity | Nothing We Won't Do                      | 8 |
-| [ ] | Timed cant be challenged | Isabela Madrigal - In the Moment         | 7 |
+| [X] | Timed cant be challenged | Isabela Madrigal - In the Moment         | 7 |
 | [X] | Timed stat buff | Good Job!                                | 1 |
-| [ ] | Timed must quest if able | Ariel - Curious Traveler                 | P3 |
+| [X] | Timed must quest if able | Ariel - Curious Traveler                 | P3 |
 | [X] | Timed sing cost bonus | Naveen's Ukulele                         | 6 |
 | [X] | Timed challenge ready | Cinderella - Stouthearted                | D23 |
 
