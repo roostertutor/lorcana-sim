@@ -1205,6 +1205,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "shift"
+      },
+      {
         "type": "triggered",
         "storyName": "VANESSA'S DESIGN",
         "rulesText": "Whenever this character quests, chosen opponent reveals their hand and discards a non-character card of your choice.",
@@ -3850,6 +3854,10 @@
     "abilities": [
       {
         "type": "keyword",
+        "keyword": "shift"
+      },
+      {
+        "type": "keyword",
         "keyword": "evasive"
       },
       {
@@ -6134,6 +6142,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "shift"
+      },
+      {
         "type": "static",
         "storyName": "LEAD THE CHARGE",
         "rulesText": "Your characters with 4 {S} or more get +1 {L}.",
@@ -8267,6 +8279,10 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "shift"
+      },
+      {
         "type": "triggered",
         "storyName": "CARROTS ALL AROUND!",
         "rulesText": "Whenever he quests, each of your other characters gets +{S} equal to this character's {S} this turn.",
@@ -8966,7 +8982,8 @@
         "rulesText": "Whenever one of your locations is banished, you may put that card into your inkwell facedown and exerted.",
         "raw": "KEEPER OF ATLANTICA Whenever one of your locations is banished, you may put that card into your inkwell facedown and exerted."
       }
-    ]
+    ],
+    "shiftCost": 4
   },
   {
     "id": "tuk-tuk-curious-partner",
@@ -9487,6 +9504,10 @@
       "Hero"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift"
+      },
       {
         "type": "triggered",
         "storyName": "CRASHING THROUGH",
@@ -11698,6 +11719,10 @@
       "Ally"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift"
+      },
       {
         "type": "keyword",
         "keyword": "evasive"

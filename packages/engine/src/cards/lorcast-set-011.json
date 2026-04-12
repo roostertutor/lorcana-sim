@@ -12587,6 +12587,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      },
+      {
         "type": "triggered",
         "storyName": "",
         "rulesText": "Whenever this character quests, you may play a character with cost 2 or less from your discard for free.",
@@ -12615,7 +12620,8 @@
     "strength": 3,
     "willpower": 5,
     "lore": 2,
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_41acb92e0c494214949c72c409593b50.avif?1770260210"
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_41acb92e0c494214949c72c409593b50.avif?1770260210",
+    "shiftCost": 4
   },
   {
     "id": "ohana-means-family",

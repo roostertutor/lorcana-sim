@@ -13178,6 +13178,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      },
+      {
         "type": "triggered",
         "trigger": {
           "on": "sings"
@@ -13222,7 +13227,8 @@
         "rulesText": "Once during your turn, whenever this character sings a song, look at the top 4 cards of your deck. You may reveal a song card with cost 9 or less and play it for free. Put the rest on the bottom of your deck in any order.",
         "raw": "MASH-UP Once during your turn, whenever this character sings a song, look at the top 4 cards of your deck. You may reveal a song card with cost 9 or less and play it for free. Put the rest on the bottom of your deck in any order."
       }
-    ]
+    ],
+    "shiftCost": 4
   },
   {
     "id": "i2i",
@@ -13909,6 +13915,10 @@
       "Prince"
     ],
     "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
       {
         "type": "keyword",
         "keyword": "shift",

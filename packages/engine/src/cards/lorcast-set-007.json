@@ -11695,6 +11695,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
+      {
         "type": "triggered",
         "storyName": "MARK OF POWER",
         "rulesText": "Whenever you ready this character, gain 1 lore for each other undamaged character you have in play.",
@@ -11775,7 +11780,8 @@
         "rulesText": "Banish chosen Illusion character.",
         "raw": "BOLT STARE {E} — Banish chosen Illusion character."
       }
-    ]
+    ],
+    "shiftCost": 3
   },
   {
     "id": "the-glass-slipper",
@@ -12371,6 +12377,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 7
+      },
+      {
         "type": "static",
         "storyName": "SALVAGE",
         "rulesText": "For each item card in your discard, you pay 1 {I} less to play this character using her Shift ability.",
@@ -12446,7 +12457,8 @@
         "rulesText": "Whenever this character quests, you may put up to 3 item cards from your discard on the bottom of your deck to gain 1 lore for each item card moved this way.",
         "raw": "REPURPOSE Whenever this character quests, you may put up to 3 item cards from your discard on the bottom of your deck to gain 1 lore for each item card moved this way."
       }
-    ]
+    ],
+    "shiftCost": 7
   },
   {
     "id": "devils-eye-diamond",

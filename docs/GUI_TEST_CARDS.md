@@ -83,7 +83,7 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 | [X] | Both-side grouping | Fire the Cannons | 1 |
 | [ ] | Revealed hand + discard | Ursula - Deceiver (any version) | 3/9 |
 | [ ] | Cross-player chooser | Tiana - Restaurant Owner | 5 |
-| [ ] | Multi-select discard | A Whole New World | 1 |
+| [ ] | Multi-select discard | You Have Forgotten Me | 1 |
 | [ ] | "[A] or [B]" forced choice | Megara - Captivating Cynic | 4 |
 
 ## Popover Actions (click card → action buttons)

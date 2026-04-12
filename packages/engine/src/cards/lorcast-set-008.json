@@ -12530,6 +12530,11 @@
     ],
     "abilities": [
       {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      },
+      {
         "type": "triggered",
         "trigger": {
           "on": "enters_play"
@@ -12563,7 +12568,8 @@
         "rulesText": "When you play this character, you may put all Puppy character cards from your discard into your inkwell facedown and exerted.",
         "raw": "QUICK, EVERYONE HIDE When you play this character, you may put all Puppy character cards from your discard into your inkwell facedown and exerted."
       }
-    ]
+    ],
+    "shiftCost": 4
   },
   {
     "id": "it-means-no-worries",

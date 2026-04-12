@@ -156,9 +156,10 @@ function validateCardFields(card: any): FieldError[] {
     }
     // Check condition on ability
     if (ab.condition) walkCondition(ab.condition, path + ".condition");
-    // Keywords that require a numeric value
+    // Keywords that require a numeric value (shift exempt when altShiftCost exists — alt-cost-only cards)
     if (ab.type === "keyword" && ["boost", "challenger", "resist", "singer", "shift"].includes(ab.keyword)) {
-      if (ab.value === undefined || ab.value === null) {
+      const isAltShiftOnly = ab.keyword === "shift" && card.altShiftCost && !card.shiftCost;
+      if (!isAltShiftOnly && (ab.value === undefined || ab.value === null)) {
         errors.push({ path, field: "value", value: "undefined", validValues: "numeric value required for " + ab.keyword });
       }
     }

@@ -2185,7 +2185,13 @@
       "Floodborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      }
+    ],
     "setId": "P1",
     "number": 40,
     "rarity": "common",
@@ -2205,6 +2211,10 @@
     "alternateNames": [
       "Flotsam",
       "Jetsam"
-    ]
+    ],
+    "altShiftCost": {
+      "type": "discard",
+      "amount": 2
+    }
   }
 ]
