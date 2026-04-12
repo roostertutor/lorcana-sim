@@ -701,7 +701,7 @@ describe("§7 Set 7 — Mill (MillEffect)", () => {
   });
 });
 
-describe("§7 Set 7 — Baloo Ol' Iron Paws (damage_immunity_static source=all)", () => {
+describe("§7 Set 7 — Baloo Ol' Iron Paws (damage_prevention_static source=all)", () => {
   it("a strong defender (≥7 STR) takes no challenge damage from an attacker", () => {
     // Baloo Ol' Iron Paws: "Your characters with 7 {S} or more can't be
     // dealt damage." Use Baloo himself as the 7+ STR character (verify his

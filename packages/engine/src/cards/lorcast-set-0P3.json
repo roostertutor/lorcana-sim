@@ -809,7 +809,7 @@
             "duration": "this_turn"
           },
           {
-            "type": "damage_immunity_timed",
+            "type": "damage_prevention_timed",
             "target": {
               "type": "last_resolved_target"
             },
@@ -1936,7 +1936,7 @@
         "storyName": "",
         "rulesText": "While at a location, this character takes no damage from challenges.",
         "effect": {
-          "type": "damage_immunity_static",
+          "type": "damage_prevention_static",
           "source": "challenge",
           "target": {
             "type": "this"

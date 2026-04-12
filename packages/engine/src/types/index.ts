@@ -195,7 +195,7 @@ export type Effect =
   | NameACardThenRevealEffect
   | RevealTopConditionalEffect
   | CantBeChallengedTimedEffect
-  | DamageImmunityTimedEffect
+  | DamagePreventionTimedEffect
   | PutCardsUnderIntoHandEffect
   | MoveCardsUnderToTargetEffect
   | ReadySingersEffect
@@ -860,8 +860,8 @@ export interface CantBeChallengedTimedEffect {
  *  - source: "non_challenge" → reserved for "can't be dealt damage unless being
  *                              challenged" wording applied via a timed effect.
  */
-export interface DamageImmunityTimedEffect {
-  type: "damage_immunity_timed";
+export interface DamagePreventionTimedEffect {
+  type: "damage_prevention_timed";
   target: CardTarget;
   source: "challenge" | "all" | "non_challenge";
   duration: EffectDuration;
@@ -881,14 +881,14 @@ export interface DamageImmunityTimedEffect {
  * "non_challenge"). Scanned in gameModifiers and consulted by the damage
  * write path in the reducer.
  */
-export interface DamageImmunityStatic {
-  type: "damage_immunity_static";
+export interface DamagePreventionStatic {
+  type: "damage_prevention_static";
   source: "challenge" | "all" | "non_challenge";
   target: CardTarget;
   /** Lilo Bundled Up: "during each opponent's turn, the first time this
    *  character would take damage, she takes no damage instead." When set,
    *  the immunity blocks at most N hits per turn (tracked per instance via
-   *  CardInstance.damageImmunityChargesUsedThisTurn). Combine with
+   *  CardInstance.damagePreventionChargesUsedThisTurn). Combine with
    *  ability.condition (e.g. not(is_your_turn)) to gate active windows. */
   chargesPerTurn?: number;
 }
@@ -1407,8 +1407,8 @@ export type StaticEffect =
   | SelfCostReductionStatic
   | CanChallengeReadyStatic
   | DamageRedirectStatic
-  | ChallengeDamageImmunityStatic
-  | DamageImmunityStatic
+  | ChallengeDamagePreventionStatic
+  | DamagePreventionStatic
   | GrantActivatedAbilityStatic
   | CantActionSelfStatic
   | RestrictRememberedTargetActionStatic
@@ -1889,8 +1889,8 @@ export interface DamageRedirectStatic {
  * she takes no damage from the challenge."
  * Checked in applyChallenge — if attacker has this and defender matches filter, skip attacker damage.
  */
-export interface ChallengeDamageImmunityStatic {
-  type: "challenge_damage_immunity";
+export interface ChallengeDamagePreventionStatic {
+  type: "challenge_damage_prevention";
   /** Only immune when challenging characters matching this filter */
   targetFilter?: CardFilter;
 }
@@ -2355,7 +2355,7 @@ export type EffectDuration =
 export interface TimedEffect {
   type: "grant_keyword" | "modify_strength" | "modify_willpower" | "modify_lore"
     | "cant_action" | "can_challenge_ready" | "cant_be_challenged"
-    | "damage_immunity"
+    | "damage_prevention"
     /** Per-character timed obligation: "must quest if able during their next
      *  turn". Used by Ariel Curious Traveler / Gaston Frightful Bully /
      *  Rapunzel Ethereal Protector. Parallel to the inherent Reckless "must
@@ -2374,10 +2374,10 @@ export interface TimedEffect {
   amount?: number | undefined;      // for modify_* effects
   /** For cant_action: which action is restricted */
   action?: RestrictedAction | undefined;
-  /** For damage_immunity: which damage sources the bearer is immune to.
+  /** For damage_prevention: which damage sources the bearer is prevented from.
    *  "challenge" — immune only to damage from challenges (Noi, Pirate Mickey).
-   *  "all" — immune to every damage source (Baloo static-equivalent, Nothing We Won't Do).
-   *  "non_challenge" — immune to ability/action damage, still takes challenge damage (Hercules). */
+   *  "all" — prevented from every damage source (Baloo static-equivalent, Nothing We Won't Do).
+   *  "non_challenge" — prevented from ability/action damage, still takes challenge damage (Hercules). */
   damageSource?: "challenge" | "all" | "non_challenge" | undefined;
   expiresAt: EffectDuration;
   /** Turn number when this effect was applied (for multi-turn expiry) */
@@ -2385,7 +2385,7 @@ export interface TimedEffect {
   /** For until_caster_next_turn: the player who applied this effect (the "you"
    *  in "until your next turn"). Required when expiresAt === "until_caster_next_turn". */
   casterPlayerId?: PlayerID;
-  /** For damage_immunity: limited charges (Rapunzel Ready for Adventure
+  /** For damage_prevention: limited charges (Rapunzel Ready for Adventure
    *  "next time they would be dealt damage they take no damage instead").
    *  Decremented per blocked hit; the timed effect is dropped when charges
    *  reach 0. Undefined = unlimited (default). */
@@ -2547,7 +2547,7 @@ export interface CardInstance {
 
   /** Lilo Bundled Up: how many charge-based damage immunity blocks this
    *  instance has consumed this turn. Reset on PASS_TURN. */
-  damageImmunityChargesUsedThisTurn?: number;
+  damagePreventionChargesUsedThisTurn?: number;
 
   /** CRD 6.1.13: per-turn flag tracking — extends to Boost ("once during your turn"). */
   boostedThisTurn?: boolean;

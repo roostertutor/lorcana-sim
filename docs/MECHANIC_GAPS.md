@@ -35,7 +35,7 @@ Source script: `scripts/mechanic-gaps.ts` (run via `pnpm tsx scripts/mechanic-ga
 | Capability | Cards | Sets | Priority | Complexity | Notes |
 |---|---:|---|---|---|---|
 | `reveal-top-conditional` | 14 | 5–9, 11, D23 | HIGH | SMALL | `reveal_top_conditional` Effect already exists. Regex sweep + per-card wiring. |
-| ~~`damage-immunity`~~ | ~~11~~ | ~~4, 6, 7, 8, 10, P2, P3~~ | DONE | - | Implemented via `damage_immunity_timed` Effect + `damage_immunity_static` StaticEffect. 8 cards wired (Noi, Pirate Mickey x3, Baloo, Nothing We Won't Do, Hercules, Chief Bogo). Mulan needs event-tracking-condition; Hercules EVER VALIANT + Chief Bogo DEPUTIZE riders skipped. |
+| ~~`damage-immunity`~~ | ~~11~~ | ~~4, 6, 7, 8, 10, P2, P3~~ | DONE | - | Implemented via `damage_prevention_timed` Effect + `damage_prevention_static` StaticEffect. 8 cards wired (Noi, Pirate Mickey x3, Baloo, Nothing We Won't Do, Hercules, Chief Bogo). Mulan needs event-tracking-condition; Hercules EVER VALIANT + Chief Bogo DEPUTIZE riders skipped. |
 | `alternate-source-zone` | 10 | 5, 9, 10, 11 | HIGH | LARGE | Play card from discard / from-under-character; touches play pipeline + zone validation |
 | `reveal-hand` | 10 | 7, 8, 9, 10, 11, D23, P3 | HIGH | SMALL | New `reveal_hand` Effect; UI surfacing optional |
 | `alert-keyword` | 10 | 10, 11 | HIGH | SMALL | Add `alert` to Keyword union + trigger on quest |

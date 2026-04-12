@@ -552,7 +552,7 @@ describe("§4 Set 4 — Sing Together", () => {
   });
 });
 
-describe("§4 Set 4 — Noi Acrobatic Baby (damage_immunity_timed)", () => {
+describe("§4 Set 4 — Noi Acrobatic Baby (damage_prevention_timed)", () => {
   it("after FANCY FOOTWORK fires, Noi takes no challenge damage; still deals damage back", () => {
     // Noi has STR 4 / WP 4. Give her the floating "takes no damage from
     // challenges this turn" TimedEffect directly via applyEffect, mirroring
@@ -567,14 +567,14 @@ describe("§4 Set 4 — Noi Acrobatic Baby (damage_immunity_timed)", () => {
 
     state = applyEffect(
       state,
-      { type: "damage_immunity_timed", target: { type: "this" }, source: "challenge", duration: "this_turn" },
+      { type: "damage_prevention_timed", target: { type: "this" }, source: "challenge", duration: "this_turn" },
       noiId,
       "player1",
       LORCAST_CARD_DEFINITIONS,
       []
     );
     // TimedEffect attached
-    expect(getInstance(state, noiId).timedEffects.some(te => te.type === "damage_immunity")).toBe(true);
+    expect(getInstance(state, noiId).timedEffects.some(te => te.type === "damage_prevention")).toBe(true);
 
     const r = applyAction(state, {
       type: "CHALLENGE",
@@ -589,22 +589,22 @@ describe("§4 Set 4 — Noi Acrobatic Baby (damage_immunity_timed)", () => {
     expect(getInstance(r.newState, defenderId).zone).toBe("discard");
   });
 
-  it("damage_immunity timed effect expires at end of turn", () => {
+  it("damage_prevention timed effect expires at end of turn", () => {
     let state = startGame();
     let noiId: string;
     ({ state, instanceId: noiId } = injectCard(state, "player1", "noi-acrobatic-baby", "play", { isDrying: false }));
     state = applyEffect(
       state,
-      { type: "damage_immunity_timed", target: { type: "this" }, source: "challenge", duration: "end_of_turn" },
+      { type: "damage_prevention_timed", target: { type: "this" }, source: "challenge", duration: "end_of_turn" },
       noiId,
       "player1",
       LORCAST_CARD_DEFINITIONS,
       []
     );
-    expect(getInstance(state, noiId).timedEffects.some(te => te.type === "damage_immunity")).toBe(true);
+    expect(getInstance(state, noiId).timedEffects.some(te => te.type === "damage_prevention")).toBe(true);
     // Pass player1's turn → effect should clear.
     state = passTurns(state, 1);
-    expect(getInstance(state, noiId).timedEffects.some(te => te.type === "damage_immunity")).toBe(false);
+    expect(getInstance(state, noiId).timedEffects.some(te => te.type === "damage_prevention")).toBe(false);
   });
 
   it("lastResolvedSource captures cost-side banished character (Hades Double Dealer pattern)", () => {

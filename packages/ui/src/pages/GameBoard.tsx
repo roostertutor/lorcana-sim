@@ -123,9 +123,18 @@ function InkDisplay({ available, total }: { available: number; total: number }) 
 }
 
 // Collect board-wide continuous effects for the Active Effects pill/modal
+// Board-wide effect types from static abilities that should surface in the pill
+const BOARD_WIDE_EFFECTS = new Set([
+  "cost_reduction", "enter_play_exerted", "inkwell_enters_exerted",
+  "prevent_lore_gain", "prevent_lore_loss", "one_challenge_per_turn",
+  "prevent_discard_from_hand", "modify_win_threshold", "skip_draw_step",
+  "top_of_deck_visible", "extra_ink_plays", "ink_from_discard",
+  "action_restriction", "damage_redirect", "forced_target",
+]);
+
 function getActiveEffects(
   state: GameState,
-  mods: GameModifiers,
+  _mods: GameModifiers,
   definitions: Record<string, CardDefinition>,
   myId: PlayerID,
 ): { label: string; source: string; color: string }[] {
@@ -138,80 +147,81 @@ function getActiveEffects(
     return definitions[inst.definitionId]?.fullName ?? inst.definitionId;
   };
 
-  // Cost reductions (static — from cards in play like Grandmother Willow, Mickey Broom)
-  for (const [pid, reds] of mods.costReductions) {
-    for (const r of reds) {
-      const who = pid === myId ? "Your" : "Opp";
-      const src = r.sourceInstanceId ? cardName(r.sourceInstanceId) : "?";
-      effects.push({ label: `${who} next card −${r.amount} ink`, source: src, color: "text-emerald-400" });
+  const sourceText = (sourceInstanceId: string | undefined): { name: string; text: string } | null => {
+    if (!sourceInstanceId) return null;
+    const inst = state.cards[sourceInstanceId];
+    if (!inst) return null;
+    const def = definitions[inst.definitionId];
+    if (!def) return null;
+    return { name: def.fullName, text: def.rulesText ?? "" };
+  };
+
+  // Scan in-play cards for board-wide static abilities — quote their text
+  for (const pid of [myId, oppId] as PlayerID[]) {
+    const play = state.zones[pid].play;
+    const side = pid === myId ? "You" : "Opp";
+    for (const id of play) {
+      const inst = state.cards[id];
+      if (!inst) continue;
+      const def = definitions[inst.definitionId];
+      if (!def) continue;
+      for (const ability of def.abilities) {
+        if (ability.type !== "static") continue;
+        const effectType = (ability as any).effect?.type;
+        if (!effectType || !BOARD_WIDE_EFFECTS.has(effectType)) continue;
+        const text = ability.storyName
+          ? `${ability.storyName} ${ability.rulesText ?? ""}`
+          : (ability.rulesText ?? effectType);
+        effects.push({ label: text.trim(), source: `${side}: ${def.fullName}`, color: "text-amber-300" });
+      }
     }
   }
-  // One-shot cost reductions (player state — from resolved effects like Lantern)
+
+  // One-shot cost reductions (player state — Lantern, Imperial Proclamation)
   for (const pid of [myId, oppId] as PlayerID[]) {
     for (const r of (state.players[pid]?.costReductions ?? [])) {
-      const who = pid === myId ? "Your" : "Opp";
-      effects.push({ label: `${who} next card −${r.amount} ink`, source: "One-shot", color: "text-emerald-400" });
+      const src = sourceText((r as any).sourceInstanceId);
+      const label = src ? src.text : `Next card costs ${r.amount} less`;
+      const source = src ? `${pid === myId ? "You" : "Opp"}: ${src.name}` : `${pid === myId ? "You" : "Opp"}: one-shot`;
+      effects.push({ label, source, color: "text-emerald-400" });
     }
   }
-  // Enter play exerted
-  for (const [pid] of mods.enterPlayExerted) {
-    const whose = pid === myId ? "Your" : "Opp";
-    effects.push({ label: `${whose} characters enter exerted`, source: "", color: "text-yellow-400" });
+
+  // Play restrictions (Pete Games Referee, Keep the Ancient Ways)
+  for (const pid of [myId, oppId] as PlayerID[]) {
+    for (const r of (state.players[pid]?.playRestrictions ?? [])) {
+      const src = sourceText((r as any).sourceInstanceId);
+      const label = src ? src.text : `Can't play ${r.cardTypes.join("/")}s`;
+      const source = src ? `${r.casterPlayerId === myId ? "You" : "Opp"}: ${src.name}` : `${r.casterPlayerId === myId ? "You" : "Opp"}`;
+      effects.push({ label, source, color: "text-red-400" });
+    }
   }
-  // Inkwell enters exerted
-  for (const pid of mods.inkwellEntersExerted) {
-    const whose = pid === myId ? "Your" : "Opp";
-    effects.push({ label: `${whose} ink enters exerted`, source: "", color: "text-yellow-400" });
+
+  // Global timed effects (Restoring Atlantis, etc.)
+  const globalEffects = (state as any).globalTimedEffects as { type: string; controllingPlayerId: string; expiresAt: string; sourceInstanceId?: string }[] | undefined;
+  if (globalEffects) {
+    for (const ge of globalEffects) {
+      const src = sourceText(ge.sourceInstanceId);
+      const who = ge.controllingPlayerId === myId ? "You" : "Opp";
+      const label = src ? src.text : `${ge.type.replace(/_/g, " ")}`;
+      const source = src ? `${who}: ${src.name}` : who;
+      effects.push({ label, source, color: "text-orange-400" });
+    }
   }
-  // Prevent lore gain
-  for (const pid of mods.preventLoreGain) {
-    const whose = pid === myId ? "You" : "Opp";
-    effects.push({ label: `${whose} can't gain lore`, source: "", color: "text-red-400" });
+
+  // Delayed triggers (Candy Drift: "at end of turn, banish them")
+  const delayedTriggers = (state as any).delayedTriggers as { targetInstanceId: string; firesAt: string; sourceInstanceId?: string; controllingPlayerId?: string }[] | undefined;
+  if (delayedTriggers?.length) {
+    for (const dt of delayedTriggers) {
+      const src = sourceText(dt.sourceInstanceId);
+      const target = cardName(dt.targetInstanceId);
+      const when = dt.firesAt === "end_of_turn" ? "end of turn" : "start of next turn";
+      const label = src ? `${src.text} (on ${target})` : `${target}: trigger at ${when}`;
+      const source = src ? src.name : "";
+      effects.push({ label, source, color: "text-orange-400" });
+    }
   }
-  // Prevent lore loss
-  for (const pid of mods.preventLoreLoss) {
-    const whose = pid === myId ? "You" : "Opp";
-    effects.push({ label: `${whose} can't lose lore`, source: "", color: "text-blue-400" });
-  }
-  // One challenge per turn
-  if (mods.oneChallengePerTurnGlobal) {
-    effects.push({ label: "One challenge per turn", source: "", color: "text-orange-400" });
-  }
-  // Prevent discard from hand
-  for (const pid of mods.preventDiscardFromHand) {
-    const whose = pid === myId ? "Your" : "Opp";
-    effects.push({ label: `${whose} hand can't be discarded`, source: "", color: "text-blue-400" });
-  }
-  // Lore threshold changes
-  for (const [pid, threshold] of mods.loreThresholds) {
-    const whose = pid === myId ? "Your" : "Opp";
-    effects.push({ label: `${whose} lore goal: ${threshold}`, source: "", color: "text-purple-400" });
-  }
-  // Skip draw step
-  for (const pid of mods.skipsDrawStep) {
-    const whose = pid === myId ? "You" : "Opp";
-    effects.push({ label: `${whose} skip draw step`, source: "", color: "text-red-400" });
-  }
-  // Top of deck visible
-  for (const pid of mods.topOfDeckVisible) {
-    const whose = pid === myId ? "Your" : "Opp";
-    effects.push({ label: `${whose} deck top visible`, source: "", color: "text-cyan-400" });
-  }
-  // Extra ink plays
-  for (const [pid, extra] of mods.extraInkPlays) {
-    const whose = pid === myId ? "You" : "Opp";
-    effects.push({ label: `${whose} +${extra} ink play${extra > 1 ? "s" : ""}`, source: "", color: "text-blue-400" });
-  }
-  // Ink from discard
-  for (const pid of mods.inkFromDiscard) {
-    const whose = pid === myId ? "You" : "Opp";
-    effects.push({ label: `${whose} can ink from discard`, source: "", color: "text-teal-400" });
-  }
-  // Board-wide action restrictions
-  for (const r of mods.actionRestrictions) {
-    const whose = r.affectedPlayerId === myId ? "Your" : "Opp";
-    effects.push({ label: `${whose} chars can't ${r.restricts}`, source: "", color: "text-red-400" });
-  }
+
   return effects;
 }
 

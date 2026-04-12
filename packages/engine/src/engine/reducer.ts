@@ -1102,7 +1102,7 @@ function applyChallenge(
   let actualDefenderDamage = Math.max(0, attackerStr - defenderResist);
 
   // Raya - Leader of Heart: challenge damage immunity when defender matches filter
-  const immuneFilter = modifiers.challengeDamageImmunity.get(attackerInstanceId);
+  const immuneFilter = modifiers.challengeDamagePrevention.get(attackerInstanceId);
   if (immuneFilter !== undefined) {
     if (!immuneFilter || matchesFilter(defender, defenderDef, immuneFilter, state, playerId)) {
       actualAttackerDamage = 0;
@@ -1119,7 +1119,7 @@ function applyChallenge(
   const consumeTimedCharge = (id: string): void => {
     const inst = state.cards[id];
     if (!inst) return;
-    const idx = findTimedDamageImmunityIdx(inst, true);
+    const idx = findTimedDamagePreventionIdx(inst, true);
     if (idx < 0) return;
     const te = inst.timedEffects[idx]!;
     if (te.charges === undefined) return;
@@ -1132,20 +1132,20 @@ function applyChallenge(
   // Lilo Bundled Up: charge-based static immunity. Consume one charge per
   // blocked challenge hit by bumping the per-turn used counter.
   const consumeStaticCharge = (id: string): void => {
-    if (!modifiers.damageImmunityCharges.has(id)) return;
+    if (!modifiers.damagePreventionCharges.has(id)) return;
     const inst = state.cards[id];
     if (!inst) return;
-    const used = (inst.damageImmunityChargesUsedThisTurn ?? 0) + 1;
-    state = updateInstance(state, id, { damageImmunityChargesUsedThisTurn: used });
+    const used = (inst.damagePreventionChargesUsedThisTurn ?? 0) + 1;
+    state = updateInstance(state, id, { damagePreventionChargesUsedThisTurn: used });
   };
-  if (hasStaticDamageImmunity(attacker, modifiers, true) || findTimedDamageImmunityIdx(attacker, true) >= 0) {
+  if (hasStaticDamagePrevention(attacker, modifiers, true) || findTimedDamagePreventionIdx(attacker, true) >= 0) {
     if (actualAttackerDamage > 0) {
       consumeStaticCharge(attackerInstanceId);
       consumeTimedCharge(attackerInstanceId);
     }
     actualAttackerDamage = 0;
   }
-  if (hasStaticDamageImmunity(defender, modifiers, true) || findTimedDamageImmunityIdx(defender, true) >= 0) {
+  if (hasStaticDamagePrevention(defender, modifiers, true) || findTimedDamagePreventionIdx(defender, true) >= 0) {
     if (actualDefenderDamage > 0) {
       consumeStaticCharge(defenderInstanceId);
       consumeTimedCharge(defenderInstanceId);
@@ -1626,7 +1626,7 @@ function applyPassTurn(
       instance.oncePerTurnTriggered ||
       instance.boostedThisTurn ||
       (instance.cardsPutUnderThisTurn ?? 0) > 0 ||
-      (instance.damageImmunityChargesUsedThisTurn ?? 0) > 0
+      (instance.damagePreventionChargesUsedThisTurn ?? 0) > 0
     ) {
       // tempStrengthModifier/tempWillpowerModifier/tempLoreModifier: no longer
       // used — "this_turn" stat buffs now route through TimedEffects which are
@@ -1639,7 +1639,7 @@ function applyPassTurn(
         oncePerTurnTriggered: undefined,
         boostedThisTurn: false,
         cardsPutUnderThisTurn: 0,
-        damageImmunityChargesUsedThisTurn: 0,
+        damagePreventionChargesUsedThisTurn: 0,
       });
     }
   }
@@ -2550,14 +2550,14 @@ export function applyEffect(
       return state;
     }
 
-    case "damage_immunity_timed": {
+    case "damage_prevention_timed": {
       // Noi Acrobatic Baby (self), Pirate Mickey (chosen Pirate),
       // Nothing We Won't Do (all your chars). Applies a source-tagged
-      // damage_immunity TimedEffect for the requested duration. If `charges`
+      // damage_prevention TimedEffect for the requested duration. If `charges`
       // is set, the immunity expires after that many blocked hits
       // (Rapunzel Ready for Adventure).
       const timed: TimedEffect = {
-        type: "damage_immunity",
+        type: "damage_prevention",
         damageSource: effect.source,
         expiresAt: effect.duration,
         appliedOnTurn: state.turnNumber,
@@ -5522,17 +5522,17 @@ function findDamageRedirect(
 
 /**
  * Check whether `instance` has active damage immunity vs `source` damage.
- * Consults both static damage_immunity entries (from gameModifiers) and the
+ * Consults both static damage_prevention entries (from gameModifiers) and the
  * instance's own timedEffects list ("takes no damage from challenges this turn").
  * "all" immunity blocks every source; "challenge" blocks only inChallenge; the
  * "non_challenge" tag blocks everything EXCEPT challenge damage (Hercules wording).
  */
-function hasStaticDamageImmunity(
+function hasStaticDamagePrevention(
   instance: CardInstance,
   modifiers: GameModifiers,
   inChallenge: boolean
 ): boolean {
-  const staticSources = modifiers.damageImmunity.get(instance.instanceId);
+  const staticSources = modifiers.damagePrevention.get(instance.instanceId);
   if (!staticSources) return false;
   let matches = false;
   if (staticSources.has("all")) matches = true;
@@ -5541,23 +5541,23 @@ function hasStaticDamageImmunity(
   if (!matches) return false;
   // Charge-based static immunity (Lilo Bundled Up): only blocks if the
   // instance has any charges remaining this turn.
-  const maxCharges = modifiers.damageImmunityCharges.get(instance.instanceId);
+  const maxCharges = modifiers.damagePreventionCharges.get(instance.instanceId);
   if (maxCharges !== undefined) {
-    const used = instance.damageImmunityChargesUsedThisTurn ?? 0;
+    const used = instance.damagePreventionChargesUsedThisTurn ?? 0;
     if (used >= maxCharges) return false;
   }
   return true;
 }
 
-/** Returns the index of the first matching damage_immunity timed effect, or -1
+/** Returns the index of the first matching damage_prevention timed effect, or -1
  *  if none. Caller is responsible for consuming the charge / dropping the effect. */
-function findTimedDamageImmunityIdx(
+function findTimedDamagePreventionIdx(
   instance: CardInstance,
   inChallenge: boolean
 ): number {
   for (let i = 0; i < instance.timedEffects.length; i++) {
     const te = instance.timedEffects[i]!;
-    if (te.type !== "damage_immunity") continue;
+    if (te.type !== "damage_prevention") continue;
     if (te.damageSource === "all") return i;
     if (inChallenge && te.damageSource === "challenge") return i;
     if (!inChallenge && te.damageSource === "non_challenge") return i;
@@ -5586,16 +5586,16 @@ function dealDamageToCard(
   // "Put a damage counter on" bypasses immunity (CRD: counters are not "dealt").
   const immTarget = state.cards[instanceId];
   if (!asDamageCounter && immTarget) {
-    if (hasStaticDamageImmunity(immTarget, modifiers, inChallenge)) {
+    if (hasStaticDamagePrevention(immTarget, modifiers, inChallenge)) {
       // Charge-based static immunity (Lilo Bundled Up): consume one charge
       // so subsequent hits this turn pass through.
-      if (modifiers.damageImmunityCharges.has(instanceId)) {
-        const used = (immTarget.damageImmunityChargesUsedThisTurn ?? 0) + 1;
-        state = updateInstance(state, instanceId, { damageImmunityChargesUsedThisTurn: used });
+      if (modifiers.damagePreventionCharges.has(instanceId)) {
+        const used = (immTarget.damagePreventionChargesUsedThisTurn ?? 0) + 1;
+        state = updateInstance(state, instanceId, { damagePreventionChargesUsedThisTurn: used });
       }
       return state;
     }
-    const timedIdx = findTimedDamageImmunityIdx(immTarget, inChallenge);
+    const timedIdx = findTimedDamagePreventionIdx(immTarget, inChallenge);
     if (timedIdx >= 0) {
       const te = immTarget.timedEffects[timedIdx]!;
       // Charges semantics (Rapunzel Ready for Adventure): consume one charge.
@@ -5927,9 +5927,9 @@ function applyEffectToTarget(
         sourceInstanceId,
       });
     }
-    case "damage_immunity_timed": {
+    case "damage_prevention_timed": {
       return addTimedEffect(state, targetInstanceId, {
-        type: "damage_immunity",
+        type: "damage_prevention",
         damageSource: effect.source,
         expiresAt: effect.duration,
         appliedOnTurn: state.turnNumber,

@@ -8109,7 +8109,7 @@
         "storyName": "FIGHT LIKE A BEAR",
         "rulesText": "Your characters with 7 {S} or more can't be dealt damage.",
         "effect": {
-          "type": "damage_immunity_static",
+          "type": "damage_prevention_static",
           "source": "all",
           "target": {
             "type": "all",

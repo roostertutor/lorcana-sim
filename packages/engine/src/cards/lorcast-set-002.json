@@ -6302,7 +6302,7 @@
         "storyName": "CHAMPION OF KUMANDRA",
         "rulesText": "Whenever this character challenges a damaged character, she takes no damage from the challenge.",
         "effect": {
-          "type": "challenge_damage_immunity",
+          "type": "challenge_damage_prevention",
           "targetFilter": {
             "hasDamage": true
           }

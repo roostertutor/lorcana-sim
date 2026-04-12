@@ -432,9 +432,9 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   //  implemented. Matched as fits-grammar below.)
   // Conditional "can't be challenged" with filter (Nick Wilde, Kenai, Iago)
   [/while .{0,60}can'?t be challenged\b/i, "conditional-cant-be-challenged"],
-  // (damage-immunity removed: damage_immunity_timed Effect +
-  //  damage_immunity_static StaticEffect implemented. Regex now lives in
-  //  FITS_GRAMMAR_PATTERNS and points at the `damage_immunity` capability.)
+  // (damage-immunity removed: damage_prevention_timed Effect +
+  //  damage_prevention_static StaticEffect implemented. Regex now lives in
+  //  FITS_GRAMMAR_PATTERNS and points at the `damage_prevention` capability.)
   [/\bprevent .{0,30}damage\b/i, "damage-prevention"],
   // Damage removal prevention (Vision Slab: "damage counters can't be removed")
   [/\bdamage counters can'?t be removed\b/i, "damage-removal-prevention"],
@@ -564,7 +564,7 @@ const CAPABILITIES = new Set<string>([
   // Static effects
   "stat_static", "cant_be_challenged_static", "cost_reduction_static",
   "action_restriction_static", "grant_activated_ability_static",
-  "damage_immunity", "stat_floor_printed", "restrict_play", "sing_cost_bonus_here",
+  "damage_prevention", "stat_floor_printed", "restrict_play", "sing_cost_bonus_here",
   "inkwell_enters_exerted", "each_opponent_may_discard_then_reward",
   // Triggers (TriggerEvent.on)
   "trigger_enters_play", "trigger_leaves_play", "trigger_quests",
@@ -677,9 +677,9 @@ const FITS_GRAMMAR_PATTERNS: [RegExp, string][] = [
   [/\bchosen opposing character can'?t (quest|challenge)\b/i, "cant_action"],
   [/\bthis character can'?t (challenge|quest)\b/i, "action_restriction_static"],
   [/\btakes? no damage from the challenge\b/i, "stat_static"],
-  // damage-immunity family — damage_immunity_timed / damage_immunity_static.
-  [/\btakes? no damage from challenges\b/i, "damage_immunity"],
-  [/\bcan'?t be dealt damage\b/i, "damage_immunity"],
+  // damage-immunity family — damage_prevention_timed / damage_prevention_static.
+  [/\btakes? no damage from challenges\b/i, "damage_prevention"],
+  [/\bcan'?t be dealt damage\b/i, "damage_prevention"],
   // stat-floor — Elisa Maza Transformed Gargoyle "can't be reduced below their printed value".
   [/\bcan'?t be reduced below .{0,20}printed\b/i, "stat_floor_printed"],
   // restricted-play-by-type — Pete Games Referee, Keep the Ancient Ways.

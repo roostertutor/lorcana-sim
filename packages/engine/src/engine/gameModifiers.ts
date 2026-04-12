@@ -70,7 +70,7 @@ export interface GameModifiers {
    * Characters with challenge damage immunity (Raya - Leader of Heart).
    * Key = instanceId, value = optional filter the defender must match (undefined = always immune).
    */
-  challengeDamageImmunity: Map<string, import("../types/index.js").CardFilter | undefined>;
+  challengeDamagePrevention: Map<string, import("../types/index.js").CardFilter | undefined>;
 
   /**
    * Ongoing damage immunity from static abilities (Baloo Ol' Iron Paws —
@@ -80,17 +80,17 @@ export interface GameModifiers {
    * write path (dealDamageToCard for ability damage, applyChallenge for
    * challenge damage).
    */
-  damageImmunity: Map<string, Set<"challenge" | "all" | "non_challenge">>;
+  damagePrevention: Map<string, Set<"challenge" | "all" | "non_challenge">>;
 
   /**
    * Charge-based damage immunity (Lilo Bundled Up: "first time would take
    * damage during each opponent's turn, takes no damage instead"). Parallel
-   * to damageImmunity but with a per-turn charge limit; consult
-   * CardInstance.damageImmunityChargesUsedThisTurn to know if any remain.
+   * to damagePrevention but with a per-turn charge limit; consult
+   * CardInstance.damagePreventionChargesUsedThisTurn to know if any remain.
    * Key = instanceId, value = max charges per turn (paired with the source
-   * tag set in the regular damageImmunity slot).
+   * tag set in the regular damagePrevention slot).
    */
-  damageImmunityCharges: Map<string, number>;
+  damagePreventionCharges: Map<string, number>;
 
   /**
    * Activated abilities granted by static effects (Cogsworth - Talking Clock).
@@ -327,9 +327,9 @@ export function getGameModifiers(
     actionRestrictions: [],
     extraInkPlays: new Map(),
     damageRedirects: new Map(),
-    challengeDamageImmunity: new Map(),
-    damageImmunity: new Map(),
-    damageImmunityCharges: new Map(),
+    challengeDamagePrevention: new Map(),
+    damagePrevention: new Map(),
+    damagePreventionCharges: new Map(),
     grantedActivatedAbilities: new Map(),
     selfActionRestrictions: new Map(),
     playForFreeSelf: new Map(),
@@ -864,38 +864,38 @@ export function getGameModifiers(
           break;
         }
 
-        case "challenge_damage_immunity": {
+        case "challenge_damage_prevention": {
           // Raya - Leader of Heart: immune to challenge damage vs damaged characters
-          modifiers.challengeDamageImmunity.set(instance.instanceId, effect.targetFilter);
+          modifiers.challengeDamagePrevention.set(instance.instanceId, effect.targetFilter);
           break;
         }
 
-        case "damage_immunity_static": {
+        case "damage_prevention_static": {
           // Baloo Ol' Iron Paws ("your characters with 7 {S} or more can't be
           // dealt damage" — source "all"), Hercules Mighty Leader ("can't be
           // dealt damage unless he's being challenged" — source "non_challenge"),
           // Lilo Bundled Up ("first time would take damage" — chargesPerTurn:1).
           const eff = effect;
-          const addImmunity = (id: string) => {
-            let set = modifiers.damageImmunity.get(id);
+          const addPrevention = (id: string) => {
+            let set = modifiers.damagePrevention.get(id);
             if (!set) {
               set = new Set();
-              modifiers.damageImmunity.set(id, set);
+              modifiers.damagePrevention.set(id, set);
             }
             set.add(eff.source);
             if (eff.chargesPerTurn !== undefined) {
-              modifiers.damageImmunityCharges.set(id, eff.chargesPerTurn);
+              modifiers.damagePreventionCharges.set(id, eff.chargesPerTurn);
             }
           };
           if (eff.target.type === "this") {
-            addImmunity(instance.instanceId);
+            addPrevention(instance.instanceId);
           } else if (eff.target.type === "all") {
             for (const candidate of Object.values(state.cards)) {
               if (candidate.zone !== "play") continue;
               const candidateDef = definitions[candidate.definitionId];
               if (!candidateDef) continue;
               if (matchesFilter(candidate, candidateDef, eff.target.filter, state, instance.ownerId, instance.instanceId)) {
-                addImmunity(candidate.instanceId);
+                addPrevention(candidate.instanceId);
               }
             }
           }

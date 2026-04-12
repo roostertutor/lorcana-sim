@@ -76,7 +76,7 @@ export default function SandboxPanel({
           zone: targetZone,
           isExerted: false,
           damage: 0,
-          isDrying: targetZone === "play",
+          isDrying: targetZone === "play" && selectedDef.cardType === "character",
           tempStrengthModifier: 0,
           tempWillpowerModifier: 0,
           tempLoreModifier: 0,

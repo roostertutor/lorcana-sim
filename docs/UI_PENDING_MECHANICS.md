@@ -8,7 +8,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Delayed triggered abilities (CRD 6.2.7.2)
+~~## Delayed triggered abilities (CRD 6.2.7.2)~~ **RESOLVED — orange clock icon on targeted card + Active Effects pill entry**
 
 **Engine**: `GameState.delayedTriggers: DelayedTrigger[]`. Created by `CreateDelayedTriggerEffect`. Each entry has `firesAt` (end_of_turn / start_of_next_turn), `targetInstanceId`, and `effects`. Resolved in `applyPassTurn` — if target is still in play, effects fire; otherwise fizzles.
 
@@ -24,7 +24,7 @@ Append to the top as new mechanics land.
 
 ---
 
-## Global timed effects / continuous statics (CRD 6.4.2.1)
+~~## Global timed effects / continuous statics (CRD 6.4.2.1)~~ **RESOLVED — per-card indicators from gameModifiers already work; global entries now in Active Effects pill**
 
 **Engine**: `GameState.globalTimedEffects: GlobalTimedEffect[]`. Unlike per-card `timedEffects`, these apply to ALL matching cards — including ones played AFTER the effect resolved. Checked in `getGameModifiers` every query. Types: `cant_be_challenged`, `cant_action`, `grant_keyword`, `modify_stat`.
 
@@ -184,7 +184,7 @@ Append to the top as new mechanics land.
 
 ~~## Damage immunity (timed + static)~~ **RESOLVED (commit ba8c634) — left-side shield icon (blue/amber/purple by source)**
 
-**Engine**: New TimedEffect kind `damage_immunity` with `source: "challenge" | "all" | "non_challenge"`. Static variant `damage_immunity_static` scanned into `gameModifiers.damageImmunity`. `dealDamageToCard` short-circuits to 0 and skips damage events when immunity matches.
+**Engine**: New TimedEffect kind `damage_prevention` with `source: "challenge" | "all" | "non_challenge"`. Static variant `damage_prevention_static` scanned into `gameModifiers.damagePrevention`. `dealDamageToCard` short-circuits to 0 and skips damage events when immunity matches.
 
 **UI needs**:
 - Shield icon overlay on characters with active immunity

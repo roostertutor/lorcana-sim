@@ -962,7 +962,7 @@
             "duration": "this_turn"
           },
           {
-            "type": "damage_immunity_timed",
+            "type": "damage_prevention_timed",
             "target": {
               "type": "last_resolved_target"
             },

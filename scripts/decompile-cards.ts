@@ -618,18 +618,18 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     return `choose one: ${opts.join(" OR ")}`;
   },
 
-  damage_immunity:           (e) => `${renderTarget(e.target ?? {})} can't be damaged${dur(e)}`,
+  damage_prevention:           (e) => `${renderTarget(e.target ?? {})} can't be damaged${dur(e)}`,
   // Permanent variant — applies as a static (Baloo Ol' Iron Paws "your
   // characters with 7+ {S} can't be damaged"). `source` distinguishes
   // "all" damage vs only "challenge" damage.
-  damage_immunity_static: (e) => {
+  damage_prevention_static: (e) => {
     const tgt = renderTarget(e.target ?? {});
     if (e.source === "challenge") return `${tgt} can't be damaged from challenges`;
     return `${tgt} can't be damaged`;
   },
   // Turn-scoped variant (Noi Acrobatic Baby "this character can't be
   // damaged from challenges this turn").
-  damage_immunity_timed: (e) => {
+  damage_prevention_timed: (e) => {
     const tgt = renderTarget(e.target ?? {});
     if (e.source === "challenge") return `${tgt} can't be damaged from challenges${dur(e)}`;
     return `${tgt} can't be damaged${dur(e)}`;
@@ -737,13 +737,13 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   // WHO is restricted, not the target of the restriction.
   deck_rule: (e) => e.rule ?? "deck-building rule",
   prevent_damage_removal: () => "Damage counters can't be removed",
-  damage_immunity_static: (e) => {
+  damage_prevention_static: (e) => {
     const tgt = renderTarget(e.target ?? { type: "this" });
     const src = e.source === "challenge" ? " from challenges" : e.source === "non_challenge" ? " except from challenges" : "";
     const charges = e.chargesPerTurn ? "the first time " + tgt + " would take damage, " + tgt + " takes no damage instead" : tgt + " can't be damaged" + src;
     return charges;
   },
-  challenge_damage_immunity: (e) => {
+  challenge_damage_prevention: (e) => {
     const tgt = renderTarget(e.target ?? { type: "this" });
     return `${tgt} can't be damaged from challenges`;
   },
@@ -822,7 +822,7 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
 
   // "This character takes no damage from the challenge" — optionally
   // gated by a filter on the opposing character (e.g. "a damaged character").
-  challenge_damage_immunity: (e) => {
+  challenge_damage_prevention: (e) => {
     if (e.targetFilter) {
       return `whenever this character challenges ${renderFilter(e.targetFilter)}, this character takes no damage from the challenge`;
     }

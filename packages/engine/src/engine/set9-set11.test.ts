@@ -814,7 +814,7 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
   it("Hercules - Mighty Leader EVER VALIANT: while exerted, other Hero characters share his damage immunity", () => {
     // Tier-1 fix: was wired with EVER VIGILANT (self-protection) only and the
     // EVER VALIANT rider dropped. Now uses a second static gated by
-    // condition this_is_exerted, granting damage_immunity_static (source
+    // condition this_is_exerted, granting damage_prevention_static (source
     // non_challenge) to other own Hero characters.
     let state = startGame();
     let herculesId: string, otherHeroId: string;

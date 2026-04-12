@@ -3113,7 +3113,7 @@
         "storyName": "ANCIENT INSIGHT",
         "rulesText": "Whenever he challenges a Hyena character, this character takes no damage from the challenge.",
         "effect": {
-          "type": "challenge_damage_immunity",
+          "type": "challenge_damage_prevention",
           "targetFilter": {
             "hasTrait": "Hyena"
           }
@@ -6596,7 +6596,7 @@
         "storyName": "YOU'RE NEXT!",
         "rulesText": "Whenever he challenges a Pirate character, this character takes no damage from the challenge.",
         "effect": {
-          "type": "challenge_damage_immunity",
+          "type": "challenge_damage_prevention",
           "targetFilter": {
             "hasTrait": "Pirate"
           }
@@ -11780,7 +11780,7 @@
         "storyName": "YOU'RE NEXT!",
         "rulesText": "Whenever he challenges a Pirate character, this character takes no damage from the challenge.",
         "effect": {
-          "type": "challenge_damage_immunity",
+          "type": "challenge_damage_prevention",
           "targetFilter": {
             "hasTrait": "Pirate"
           }

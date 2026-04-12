@@ -238,31 +238,23 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
         {zone === "play" && (() => {
           const leftIcons: { icon: string; color: string; label: string }[] = [];
           // Damage immunity (static from gameModifiers OR timed on instance)
-          const staticImmunity = mods?.damageImmunity.get(instanceId);
-          const timedImmunity = instance.timedEffects.some(te => te.type === "damage_immunity");
-          if (staticImmunity || timedImmunity) {
-            const source = staticImmunity?.has("all") ? "all"
-              : staticImmunity?.has("challenge") ? "challenge"
-              : staticImmunity?.has("non_challenge") ? "non_challenge"
-              : instance.timedEffects.find(te => te.type === "damage_immunity")?.damageSource ?? "all";
+          const staticPrevention = mods?.damagePrevention.get(instanceId);
+          const timedPrevention = instance.timedEffects.some(te => te.type === "damage_prevention");
+          if (staticPrevention || timedPrevention) {
+            const source = staticPrevention?.has("all") ? "all"
+              : staticPrevention?.has("challenge") ? "challenge"
+              : staticPrevention?.has("non_challenge") ? "non_challenge"
+              : instance.timedEffects.find(te => te.type === "damage_prevention")?.damageSource ?? "all";
             const color = source === "all" ? "bg-blue-500/90"
               : source === "challenge" ? "bg-amber-500/90"
               : "bg-purple-500/90";
-            leftIcons.push({ icon: "shield-check", color, label: "Immune" });
+            leftIcons.push({ icon: "shield-check", color, label: "Can't be dealt damage" });
           }
           // Can't be challenged (static from gameModifiers OR timed on instance)
           if (mods?.cantBeChallenged.has(instanceId) || instance.timedEffects.some(te => te.type === "cant_be_challenged")) {
             leftIcons.push({ icon: "lock-closed", color: "bg-gray-500/90", label: "Can't challenge" });
           }
-          // Enter-play-exerted source (Jiminy Cricket: forces opponents' cards to enter exerted)
-          if (mods?.enterPlayExerted.has(instance.ownerId === "player1" ? "player2" : "player1" as any)) {
-            // Check if THIS card is the source of an enter_play_exerted static
-            const hasEPE = def.abilities.some((a: any) => a.type === "static" && a.effect?.type === "enter_play_exerted");
-            if (hasEPE) {
-              leftIcons.push({ icon: "bolt", color: "bg-yellow-600/90", label: "Enter exerted" });
-            }
-          }
-          // Restrict sing (cant_action sing — timed or static)
+          // Restrict sing (cant_action sing — timed or per-card static)
           const cantSing = instance.timedEffects.some(te => te.type === "cant_action" && te.action === "sing")
             || mods?.selfActionRestrictions.get(instanceId)?.has("sing" as any);
           if (cantSing) {
@@ -284,11 +276,15 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
               label: allUsed ? "Used this turn" : "Once per turn",
             });
           }
-          // Remembered target restriction (Elsa Ice Palace: "can't ready")
-          const cantReady = mods?.selfActionRestrictions.get(instanceId)?.has("ready" as any);
-          if (cantReady && !instance.timedEffects.some(te => te.type === "cant_action" && te.action === "ready")) {
-            // Only show if the restriction comes from selfActionRestrictions (static/remembered),
-            // not from a timed effect (which would be a different mechanic like "can't ready next turn")
+          // Delayed trigger (Candy Drift: "at end of turn, banish them")
+          const delayedTriggers = (gameState as any).delayedTriggers as { targetInstanceId: string; firesAt: string }[] | undefined;
+          if (delayedTriggers?.some(dt => dt.targetInstanceId === instanceId)) {
+            leftIcons.push({ icon: "clock", color: "bg-orange-600/90", label: "Delayed trigger pending" });
+          }
+          // Can't ready (timed from Elsa Spirit of Winter, or static/remembered from Ice Palace)
+          const cantReadyStatic = mods?.selfActionRestrictions.get(instanceId)?.has("ready" as any);
+          const cantReadyTimed = instance.timedEffects.some(te => te.type === "cant_action" && te.action === "ready");
+          if (cantReadyStatic || cantReadyTimed) {
             leftIcons.push({ icon: "lock-closed", color: "bg-cyan-700/90", label: "Can't ready" });
           }
           if (leftIcons.length === 0) return null;

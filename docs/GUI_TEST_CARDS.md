@@ -1,0 +1,109 @@
+# GUI Mechanics Test Cards
+
+Exhaustive list of cards to test every GUI mechanic. One card per feature,
+inject via sandbox panel. Prefer lower-set cards where possible.
+
+Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
+
+---
+
+## Card Icons (left-side column)
+
+| OK  | Feature | Card | Set |
+|-----|---------|------|-----|
+| [X] | Can't be dealt damage shield | Hercules - Mighty Leader | 10 |
+| [X] | Can't be challenged lock | Captain Hook - Thinking a Happy Thought | 1 |
+| [ ] | Can't ready lock | Elsa's Ice Palace - Place of Solitude | 5 |
+| [ ] | Can't sing note | Ariel - On Human Legs | 1 |
+| [ ] | Once-per-turn clock | HeiHei - Accidental Explorer | 3 |
+| [X] | Delayed trigger clock | Candy Drift | 8 |
+
+## Keyword Badges
+
+| OK | Feature | Card | Set |
+|----|---------|------|-----|
+| [ ] | Rush | Flotsam - Ursula's Spy | 1 |
+| [ ] | Evasive | Jetsam - Ursula's Spy | 1 |
+| [ ] | Ward | Aladdin - Prince Ali | 1 |
+| [ ] | Resist | Hercules - Divine Hero | 2 |
+| [ ] | Bodyguard | Goofy - Musketeer | 1 |
+| [ ] | Alert | Sina - Vigilant Parent | 11 |
+| [ ] | Challenger | Dr. Facilier - Charlatan | 1 |
+| [ ] | Reckless | Felicia - Always Hungry | 2 |
+| [ ] | Singer | Ariel - Spectacular Singer | 1 |
+| [ ] | Boost | Bambi - Ethereal Fawn | 10 |
+
+## Other Badges
+
+| OK | Feature | Card | Set |
+|----|---------|------|-----|
+| [ ] | Dual-name | Flotsam & Jetsam - Entangling Eels | 4 |
+| [ ] | Granted trait | Chief Bogo - Calling the Shots | 5 |
+| [ ] | Universal shift | Baymax - Giant Robot | 7 |
+| [ ] | Cards-under count | Bambi - Ethereal Fawn | 10 |
+
+## Active Effects Pill (scoreboard)
+
+| OK | Feature | Card | Set |
+|----|---------|------|-----|
+| [ ] | Cost reduction static | Grandmother Willow - Ancient Advisor | 11 |
+| [ ] | Enter-play-exerted | Jiminy Cricket - Level-Headed and Wise | 4 |
+| [ ] | Inkwell enters exerted | Daisy Duck - Paranormal Investigator | 10 |
+| [ ] | Prevent lore loss | Koda - Talkative Cub | 5 |
+| [ ] | Prevent lore gain | Peter Pan - Never Land Prankster | 7 |
+| [ ] | One challenge per turn | Prince Charming - Protector of the Realm | 7 |
+| [ ] | Prevent discard from hand | Magica De Spell - Cruel Sorceress | 10 |
+| [ ] | Skip draw step | Arthur - Determined Squire | 8 |
+| [ ] | Deck top visible | Merlin's Cottage | 5 |
+| [ ] | Modify win threshold | Donald Duck - Flustered Sorcerer | 8 |
+| [ ] | Extra ink plays | Pascal - Rapunzel's Companion | 4 |
+| [ ] | Ink from discard | Moana - Curious Explorer | 6 |
+| [ ] | Action restrictions | Ariel - On Human Legs (restrict sing) | 1 |
+| [ ] | Forced targets | John Smith - Undaunted Protector | 8 |
+| [ ] | One-shot cost reduction | Imperial Proclamation | 4 |
+| [ ] | Play restrictions | Keep the Ancient Ways | 11 |
+| [ ] | Global timed effect | Restoring Atlantis | 7 |
+| [ ] | Delayed trigger | Candy Drift | 8 |
+| [ ] | Floating trigger (global) | Steal from the Rich | 1 |
+| [ ] | Floating trigger (attached) | Medallion Weights | 6 |
+| [ ] | Timed grant keyword | Cogsworth - Majordomo | 5 |
+| [ ] | Timed cant action | Elsa - Spirit of Winter | 2 |
+| [ ] | Timed damage immunity | Nothing We Won't Do | 8 |
+| [ ] | Timed cant be challenged | Isabela Madrigal - In the Moment | 7 |
+| [ ] | Timed stat buff | Good Job! | 1 |
+| [ ] | Timed must quest if able | Ariel - Curious Traveler | P3 |
+| [ ] | Timed sing cost bonus | Naveen's Ukulele | 6 |
+| [ ] | Timed challenge ready | Cinderella - Stouthearted | D23 |
+
+## PendingChoiceModal
+
+| OK | Feature | Card | Set |
+|----|---------|------|-----|
+| [ ] | Both-side grouping | Fire the Cannons | 1 |
+| [ ] | Revealed hand + discard | Ursula - Deceiver (Set 9 version) | 9 |
+| [ ] | Cross-player chooser | Tiana - Restaurant Owner | 5 |
+| [ ] | Multi-select discard | A Whole New World | 1 |
+| [ ] | "[A] or [B]" forced choice | Megara - Captivating Cynic | 4 |
+
+## Interaction Modes
+
+| OK | Feature | Card | Set |
+|----|---------|------|-----|
+| [ ] | Ink-cost shift | Hades - King of Olympus | 1 |
+| [ ] | Alt-cost shift (discard) | Diablo - Devoted Herald | 4 |
+| [ ] | Drag-to-sing | Sudden Chill + any 2-cost character | 1 |
+| [ ] | Challenge | Any two characters | any |
+| [ ] | Move to location | Any character + any location | 3+ |
+
+## Visual Indicators
+
+| OK | Feature | Card | Set |
+|----|---------|------|-----|
+| [ ] | Summoning sickness | Any newly played character | any |
+| [ ] | Exerted rotation | Any exerted character | any |
+| [ ] | Damage counter | Any damaged character | any |
+| [ ] | Cost reduction glow | LeFou - Bumbler (in hand) | 4 |
+| [ ] | Play restriction grey | Mirabel Madrigal - Family Gatherer | 5 |
+| [ ] | Play-from-discard glow | Pride Lands - Jungle Oasis | 6 |
+| [ ] | Floating ability pulse | Bruno Madrigal - Out of the Shadows | 8 |
+| [ ] | Reveal hand modal | Dolores Madrigal | 5 |

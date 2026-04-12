@@ -133,7 +133,7 @@
         "rulesText": "Whenever one of your characters is chosen for Support, until the start of your next turn, the next time they would be dealt damage they take no damage instead.",
         "effects": [
           {
-            "type": "damage_immunity_timed",
+            "type": "damage_prevention_timed",
             "source": "all",
             "duration": "until_caster_next_turn",
             "charges": 1,
@@ -6580,7 +6580,7 @@
         "storyName": "EVER VIGILANT",
         "rulesText": "This character can't be dealt damage unless he's being challenged.",
         "effect": {
-          "type": "damage_immunity_static",
+          "type": "damage_prevention_static",
           "source": "non_challenge",
           "target": {
             "type": "this"
@@ -6595,7 +6595,7 @@
           "type": "this_is_exerted"
         },
         "effect": {
-          "type": "damage_immunity_static",
+          "type": "damage_prevention_static",
           "source": "non_challenge",
           "target": {
             "type": "all",
@@ -7185,7 +7185,7 @@
         "storyName": "STANDING GROUND",
         "rulesText": "During your turn, if you've put a card under one of your characters or locations this turn, this character takes no damage from challenges.",
         "effect": {
-          "type": "damage_immunity_static",
+          "type": "damage_prevention_static",
           "source": "challenge",
           "target": {
             "type": "this"
@@ -10400,7 +10400,7 @@
           "type": "is_your_turn"
         },
         "effect": {
-          "type": "damage_immunity_static",
+          "type": "damage_prevention_static",
           "source": "all",
           "target": {
             "type": "this"
@@ -12228,7 +12228,7 @@
         "storyName": "STANDING GROUND",
         "rulesText": "During your turn, if you've put a card under one of your characters or locations this turn, this character takes no damage from challenges.",
         "effect": {
-          "type": "damage_immunity_static",
+          "type": "damage_prevention_static",
           "source": "challenge",
           "target": {
             "type": "this"

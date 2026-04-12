@@ -228,7 +228,7 @@ Implement in order of cards unblocked.
 | `grant_classification` | Grant a trait/classification to matching characters | multiple sets |
 | `stat_floor` | Character's stat can't be reduced below printed value | Set 11 |
 | `prevent_lore_loss` | Player can't lose lore during opponent's turns | Set 6+ |
-| `damage_immunity` | Character takes no damage (conditional or timed) | multiple sets |
+| `damage_prevention` | Character takes no damage (conditional or timed) | multiple sets |
 | `virtual_cost_modifier` | Characters count as having +N cost for singing purposes | Locations set 4 |
 
 ### New Cost types
