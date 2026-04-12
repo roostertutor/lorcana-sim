@@ -5624,11 +5624,11 @@ function dealDamageToCard(
 ): GameState {
   const modifiers = getGameModifiers(state, definitions);
 
-  // Damage immunity (Baloo static, Hercules, Noi timed) — zero out ability damage
-  // before it's written. No events emitted so damage_dealt_to triggers don't fire.
-  // "Put a damage counter on" bypasses immunity (CRD: counters are not "dealt").
+  // CRD 1.9.1.5: Damage prevention ("takes no damage") blocks ALL damage taking:
+  // deal, put, and move. Resist only blocks "dealt" (CRD 8.8.3).
+  // So asDamageCounter bypasses Resist but NOT damage prevention.
   const immTarget = state.cards[instanceId];
-  if (!asDamageCounter && immTarget) {
+  if (immTarget) {
     if (hasStaticDamagePrevention(immTarget, modifiers, inChallenge)) {
       // Charge-based static immunity (Lilo Bundled Up): consume one charge
       // so subsequent hits this turn pass through.
@@ -6131,6 +6131,13 @@ function applyEffectToTarget(
       if (allSources) {
         const dst0 = state.cards[targetInstanceId];
         if (!dst0) return state;
+        // CRD 1.9.1.5: check damage prevention on destination
+        const allDstMods = getGameModifiers(state, definitions);
+        const dstImmune = hasStaticDamagePrevention(dst0, allDstMods, false) || findTimedDamagePreventionIdx(dst0, false) >= 0;
+        if (dstImmune && allDstMods.damagePreventionCharges.has(targetInstanceId)) {
+          const used = (dst0.damagePreventionChargesUsedThisTurn ?? 0) + 1;
+          state = updateInstance(state, targetInstanceId, { damagePreventionChargesUsedThisTurn: used });
+        }
         let totalMoved = 0;
         for (const ref of allSources) {
           const src = state.cards[ref.instanceId];
@@ -6138,9 +6145,11 @@ function applyEffectToTarget(
           const moveAmt = Math.min(effect.amount, src.damage);
           if (moveAmt <= 0) continue;
           state = updateInstance(state, src.instanceId, { damage: src.damage - moveAmt });
-          const dstNow = state.cards[targetInstanceId];
-          if (!dstNow) continue;
-          state = updateInstance(state, targetInstanceId, { damage: dstNow.damage + moveAmt });
+          if (!dstImmune) {
+            const dstNow = state.cards[targetInstanceId];
+            if (!dstNow) continue;
+            state = updateInstance(state, targetInstanceId, { damage: dstNow.damage + moveAmt });
+          }
           totalMoved += moveAmt;
         }
         state = { ...state, lastEffectResult: totalMoved };
@@ -6176,9 +6185,22 @@ function applyEffectToTarget(
             },
           };
         }
-        const moveAmt = Math.min(effect.amount, src.damage);
-        state = updateInstance(state, src.instanceId, { damage: src.damage - moveAmt });
-        state = updateInstance(state, targetInstanceId, { damage: dst.damage + moveAmt });
+        let moveAmt = Math.min(effect.amount, src.damage);
+        // CRD 1.9.1.5: "move" counts as "take damage" — check damage prevention on destination
+        const dstModifiers = getGameModifiers(state, definitions);
+        if (hasStaticDamagePrevention(dst, dstModifiers, false) || findTimedDamagePreventionIdx(dst, false) >= 0) {
+          // Destination is immune to damage — damage is still removed from source but not added to dest
+          // Consume charges if applicable (Lilo Bundled Up)
+          if (dstModifiers.damagePreventionCharges.has(targetInstanceId)) {
+            const used = (dst.damagePreventionChargesUsedThisTurn ?? 0) + 1;
+            state = updateInstance(state, targetInstanceId, { damagePreventionChargesUsedThisTurn: used });
+          }
+          moveAmt = 0;
+        }
+        if (moveAmt > 0) {
+          state = updateInstance(state, src.instanceId, { damage: src.damage - moveAmt });
+          state = updateInstance(state, targetInstanceId, { damage: dst.damage + moveAmt });
+        }
         // Record actually-moved count on lastResolvedTarget for follow-up effects.
         const deltaRef = makeResolvedRef(state, definitions, targetInstanceId, { delta: moveAmt });
         if (deltaRef) state = { ...state, lastResolvedTarget: deltaRef };
