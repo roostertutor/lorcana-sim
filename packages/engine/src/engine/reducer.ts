@@ -1082,11 +1082,11 @@ function applyChallenge(
     const effsChal = Array.isArray(ability.effect) ? ability.effect : [ability.effect];
     for (const eff of effsChal) {
       if (eff.type !== "gets_stat_while_being_challenged") continue;
-      if ((eff as any).stat !== "strength") continue;
-      if ((eff as any).affects === "attacker") {
-        attackerStr += (eff as any).modifier;
+      if (eff.stat !== "strength") continue;
+      if (eff.affects === "attacker") {
+        attackerStr += eff.amount;
       } else {
-        defenderStr += (eff as any).modifier;
+        defenderStr += eff.amount;
       }
     }
   }

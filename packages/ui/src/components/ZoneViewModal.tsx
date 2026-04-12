@@ -13,9 +13,11 @@ interface ZoneViewModalProps {
   faceDown?: boolean;
   /** Per-card face-down set — cards in this set render face-down, others face-up. */
   faceDownIds?: Set<string>;
+  /** Per-card action buttons (e.g. "Ink" on discard cards when Moana is active). */
+  cardActions?: Map<string, { label: string; color: string; onClick: () => void }>;
 }
 
-export default function ZoneViewModal({ title, cardIds, gameState, definitions, onClose, faceDown, faceDownIds }: ZoneViewModalProps) {
+export default function ZoneViewModal({ title, cardIds, gameState, definitions, onClose, faceDown, faceDownIds, cardActions }: ZoneViewModalProps) {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
@@ -49,6 +51,7 @@ export default function ZoneViewModal({ title, cardIds, gameState, definitions, 
                 const instance = gameState.cards[id];
                 const def = instance ? definitions[instance.definitionId] : undefined;
                 const zone = (instance?.zone === "play" ? "play" : "hand") as "play" | "hand";
+                const action = cardActions?.get(id);
                 return (
                   <div key={id} className="flex flex-col items-center overflow-hidden" title={def?.fullName}>
                     <div className="scale-[0.78] origin-top">
@@ -57,11 +60,19 @@ export default function ZoneViewModal({ title, cardIds, gameState, definitions, 
                         gameState={gameState}
                         definitions={definitions}
                         isSelected={false}
-                        onClick={() => {}}
+                        onClick={action ? action.onClick : () => {}}
                         zone={zone}
                         faceDown={faceDownIds ? faceDownIds.has(id) : faceDown}
                       />
                     </div>
+                    {action && (
+                      <button
+                        className={`mt-0.5 px-2 py-0.5 text-[9px] font-bold rounded transition-colors ${action.color}`}
+                        onClick={action.onClick}
+                      >
+                        {action.label}
+                      </button>
+                    )}
                   </div>
                 );
               })}

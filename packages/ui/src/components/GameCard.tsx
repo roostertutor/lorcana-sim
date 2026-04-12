@@ -117,8 +117,10 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
     ? getEffectiveWillpower(instance, def, staticBonus?.willpower ?? 0)
     : null;
 
+  const loreDelta = staticBonus?.lore ?? 0;
   const hasModifiedStats = (strength != null && strength !== (def.strength ?? 0))
-    || (willpowerModified != null && willpowerModified !== (def.willpower ?? 0));
+    || (willpowerModified != null && willpowerModified !== (def.willpower ?? 0))
+    || loreDelta !== 0;
 
   // Keyword badges — check both printed abilities and dynamically granted keywords
   const BADGE_KEYWORDS = ["alert", "bodyguard", "boost", "challenger", "evasive", "reckless", "resist", "rush", "singer", "support", "ward"] as const;
@@ -198,17 +200,30 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
           onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
         />
 
-        {/* Modified stats strip — only when temp buff/debuff active */}
-        {hasModifiedStats && strength != null && willpowerModified != null && (
-          <div className="absolute bottom-4 left-0 right-0 flex items-center justify-between px-1.5">
-            <span className="inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-black bg-orange-500/90 text-white shadow">
-              {strength}
-            </span>
-            <span className="inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-black bg-blue-500/90 text-blue-100 shadow">
-              {willpowerModified}
-            </span>
-          </div>
-        )}
+        {/* Modified stats — bottom-right delta badges */}
+        {hasModifiedStats && strength != null && willpowerModified != null && (() => {
+          const sDelta = strength - (def.strength ?? 0);
+          const wDelta = willpowerModified - (def.willpower ?? 0);
+          return (
+            <div className="absolute bottom-0.5 right-0.5 z-10 pointer-events-none flex flex-col gap-0.5 items-end">
+              {sDelta !== 0 && (
+                <span className={`inline-flex items-center h-4 px-1 rounded text-[7px] font-black shadow ${sDelta > 0 ? "bg-orange-500/90 text-white" : "bg-red-700/90 text-red-100"}`}>
+                  {sDelta > 0 ? "+" : ""}{sDelta} S
+                </span>
+              )}
+              {wDelta !== 0 && (
+                <span className={`inline-flex items-center h-4 px-1 rounded text-[7px] font-black shadow ${wDelta > 0 ? "bg-blue-500/90 text-white" : "bg-red-700/90 text-red-100"}`}>
+                  {wDelta > 0 ? "+" : ""}{wDelta} W
+                </span>
+              )}
+              {loreDelta !== 0 && (
+                <span className={`inline-flex items-center h-4 px-1 rounded text-[7px] font-black shadow ${loreDelta > 0 ? "bg-amber-500/90 text-white" : "bg-red-700/90 text-red-100"}`}>
+                  {loreDelta > 0 ? "+" : ""}{loreDelta} L
+                </span>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Keyword badges — right-side icon column */}
         {activeKeywordBadges.length > 0 && (
@@ -405,11 +420,14 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
         )}
         {!isLocation && strength != null && willpowerModified != null && (
           <div className="flex items-center justify-between mt-2">
-            <div className="flex items-center gap-0.5">
-              <span className={`inline-flex items-center justify-center w-5 h-5 rounded bg-orange-700/60 text-[10px] font-black text-orange-200 ${hasModifiedStats ? "ring-1 ring-orange-400" : ""}`}>{strength}</span>
-              <span className="text-gray-600 text-[9px]">/</span>
-              <span className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-black ${hasModifiedStats ? "bg-blue-600/80 text-blue-100 ring-1 ring-blue-400" : "bg-blue-700/60 text-blue-200"}`}>{willpowerModified}</span>
-            </div>
+            {!hasModifiedStats && (
+              <div className="flex items-center gap-0.5">
+                <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-orange-700/60 text-[10px] font-black text-orange-200">{strength}</span>
+                <span className="text-gray-600 text-[9px]">/</span>
+                <span className="inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-black bg-blue-700/60 text-blue-200">{willpowerModified}</span>
+              </div>
+            )}
+            {hasModifiedStats && <div />}
             {def.lore != null && def.lore > 0 && (
               <div className="flex items-center gap-0.5">
                 {Array.from({ length: def.lore }, (_, i) => <span key={i} className="text-amber-400 text-[10px]">&#9670;</span>)}

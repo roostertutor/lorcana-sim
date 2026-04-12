@@ -572,7 +572,7 @@ export function getGameModifiers(
         case "modify_stat": {
           // Accept both `modifier` (canonical per types/index.ts) and `amount`
           // (used by some agent-wired cards). CRD: both mean the same thing.
-          const mod = effect.modifier ?? effect.amount ?? 0;
+          const mod = effect.amount ?? 0;
           if (effect.target.type === "this") {
             addStatBonus(modifiers, instance.instanceId, effect.stat, mod);
           } else if (effect.target.type === "all") {

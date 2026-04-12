@@ -1127,7 +1127,7 @@
         "effect": {
           "type": "modify_stat",
           "stat": "strength",
-          "modifier": 2,
+          "amount": 2,
           "target": {
             "type": "this"
           }
@@ -1142,7 +1142,7 @@
         "effect": {
           "type": "modify_stat",
           "stat": "willpower",
-          "modifier": 2,
+          "amount": 2,
           "target": {
             "type": "this"
           }

@@ -45,36 +45,36 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 
 ## Active Effects Pill (scoreboard)
 
-| OK  | Feature | Card | Set |
-|-----|---------|------|-----|
-| [X] | Cost reduction static | Grandmother Willow - Ancient Advisor | 11 |
-| [X] | Enter-play-exerted | Jiminy Cricket - Level-Headed and Wise | 4 |
-| [X] | Inkwell enters exerted | Daisy Duck - Paranormal Investigator | 10 |
-| [X] | Prevent lore loss | Koda - Talkative Cub | 5 |
-| [X] | Prevent lore gain | Peter Pan - Never Land Prankster | 7 |
-| [ ] | One challenge per turn | Prince Charming - Protector of the Realm | 7 |
-| [ ] | Prevent discard from hand | Magica De Spell - Cruel Sorceress | 10 |
-| [ ] | Skip draw step | Arthur - Determined Squire | 8 |
-| [ ] | Deck top visible | Merlin's Cottage | 5 |
-| [ ] | Modify win threshold | Donald Duck - Flustered Sorcerer | 8 |
-| [ ] | Extra ink plays | Pascal - Rapunzel's Companion | 4 |
-| [ ] | Ink from discard | Moana - Curious Explorer | 6 |
-| [ ] | Action restrictions | Ariel - On Human Legs (restrict sing) | 1 |
-| [ ] | Forced targets | John Smith - Undaunted Protector | 8 |
-| [ ] | One-shot cost reduction | Imperial Proclamation | 4 |
-| [ ] | Play restrictions | Keep the Ancient Ways | 11 |
-| [ ] | Global timed effect | Restoring Atlantis | 7 |
-| [ ] | Delayed trigger | Candy Drift | 8 |
-| [ ] | Floating trigger (global) | Steal from the Rich | 1 |
-| [ ] | Floating trigger (attached) | Medallion Weights | 6 |
-| [ ] | Timed grant keyword | Cogsworth - Majordomo | 5 |
-| [ ] | Timed cant action | Elsa - Spirit of Winter | 2 |
-| [ ] | Timed damage immunity | Nothing We Won't Do | 8 |
-| [ ] | Timed cant be challenged | Isabela Madrigal - In the Moment | 7 |
-| [ ] | Timed stat buff | Good Job! | 1 |
-| [ ] | Timed must quest if able | Ariel - Curious Traveler | P3 |
-| [ ] | Timed sing cost bonus | Naveen's Ukulele | 6 |
-| [ ] | Timed challenge ready | Cinderella - Stouthearted | D23 |
+| OK  | Feature | Card                                     | Set |
+|-----|---------|------------------------------------------|-----|
+| [X] | Cost reduction static | Grandmother Willow - Ancient Advisor     | 11 |
+| [X] | Enter-play-exerted | Jiminy Cricket - Level-Headed and Wise   | 4 |
+| [X] | Inkwell enters exerted | Daisy Duck - Paranormal Investigator     | 10 |
+| [X] | Prevent lore loss | Koda - Talkative Cub                     | 5 |
+| [X] | Prevent lore gain | Peter Pan - Never Land Prankster         | 7 |
+| [X] | One challenge per turn | Prince Charming - Protector of the Realm | 7 |
+| [X] | Prevent discard from hand | Magica De Spell - Cruel Sorceress        | 10 |
+| [X] | Skip draw step | Arthur - Determined Squire               | 8 |
+| [X] | Deck top visible | Merlin's Cottage                         | 5 |
+| [X] | Modify win threshold | Donald Duck - Flustered Sorcerer         | 8 |
+| [X] | Extra ink plays | Belle - Strange but Special              | 1 |
+| [X] | Ink from discard | Moana - Curious Explorer                 | 6 |
+| [X] | Action restrictions | Ursula - Sea Witch Queen                 | 1 |
+| [ ] | Forced targets | John Smith - Undaunted Protector         | 8 |
+| [ ] | One-shot cost reduction | Imperial Proclamation                    | 4 |
+| [X] | Play restrictions | Keep the Ancient Ways                    | 11 |
+| [X] | Global timed effect | Restoring Atlantis                       | 7 |
+| [X] | Delayed trigger | Candy Drift                              | 8 |
+| [X] | Floating trigger (global) | Steal from the Rich                      | 1 |
+| [ ] | Floating trigger (attached) | Medallion Weights                        | 6 |
+| [ ] | Timed grant keyword | Cogsworth - Majordomo                    | 5 |
+| [ ] | Timed cant action | Elsa - Spirit of Winter                  | 2 |
+| [ ] | Timed damage immunity | Nothing We Won't Do                      | 8 |
+| [ ] | Timed cant be challenged | Isabela Madrigal - In the Moment         | 7 |
+| [ ] | Timed stat buff | Good Job!                                | 1 |
+| [ ] | Timed must quest if able | Ariel - Curious Traveler                 | P3 |
+| [ ] | Timed sing cost bonus | Naveen's Ukulele                         | 6 |
+| [ ] | Timed challenge ready | Cinderella - Stouthearted                | D23 |
 
 ## PendingChoiceModal
 
@@ -115,13 +115,18 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 
 ## Visual Indicators
 
-| OK | Feature | Card | Set |
-|----|---------|------|-----|
-| [ ] | Drying overlay (cyan wash) | Any newly played character | any |
-| [ ] | Exerted rotation | Any exerted character | any |
-| [ ] | Damage counter (center) | Any damaged character | any |
-| [ ] | Cost reduction glow | LeFou - Bumbler (in hand) | 4 |
-| [ ] | Play restriction grey | Mirabel Madrigal - Family Gatherer | 5 |
-| [ ] | Play-from-discard glow | Pride Lands - Jungle Oasis | 6 |
+| OK | Feature | Card                                | Set |
+|----|---------|-------------------------------------|-----|
+| [ ] | +S delta (bottom-right, orange) | Snow Fort                           | ? |
+| [ ] | -S delta (bottom-right, red) | Painting the Roses Red              | 1 |
+| [ ] | +W delta (bottom-right, blue) | Rapunzel's Tower                    | ? |
+| [ ] | +L delta (bottom-right, amber) | Eye of the Fates                    | ? |
+| [ ] | -L delta (bottom-right, red) | Trust in Me                         | ? |
+| [ ] | Drying overlay (cyan wash) | Any newly played character          | any |
+| [ ] | Exerted rotation | Any exerted character               | any |
+| [ ] | Damage counter (center) | Any damaged character               | any |
+| [ ] | Cost reduction glow | LeFou - Bumbler (in hand)           | 4 |
+| [ ] | Play restriction grey | Mirabel Madrigal - Family Gatherer  | 5 |
+| [ ] | Play-from-discard glow | Pride Lands - Jungle Oasis          | 6 |
 | [ ] | Floating ability pulse | Bruno Madrigal - Out of the Shadows | 8 |
-| [ ] | Reveal hand modal | Dolores Madrigal | 5 |
+| [ ] | Reveal hand modal | Dolores Madrigal                    | 5 |

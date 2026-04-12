@@ -9672,7 +9672,7 @@
         "effect": {
           "type": "modify_stat",
           "stat": "willpower",
-          "modifier": 1,
+          "amount": 1,
           "target": {
             "type": "all",
             "filter": {

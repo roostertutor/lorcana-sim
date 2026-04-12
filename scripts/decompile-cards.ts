@@ -835,7 +835,7 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   gets_stat_while_being_challenged: (e) => {
     const stat = e.stat === "lore" ? "{L}" : e.stat === "willpower" ? "{W}" : "{S}";
     const who = e.affects === "attacker" ? "the challenging character" : "this character";
-    return `while this character is being challenged, ${who} gets ${signed(e.modifier ?? 0)} ${stat}`;
+    return `while this character is being challenged, ${who} gets ${signed(e.amount ?? 0)} ${stat}`;
   },
 
   // "+1 {L} for each 1 damage on him"
@@ -995,10 +995,10 @@ function verbS(target: string, base: string, third: string): string {
 function renderStatChange(e: Json): string {
   const tgt = renderTarget(e.target ?? {});
   const bits: string[] = [];
-  // modify_stat uses stat + modifier OR stat + amount
-  if (e.stat && (e.modifier !== undefined || e.amount !== undefined)) {
+  // modify_stat uses stat + amount
+  if (e.stat && e.amount !== undefined) {
     const sym = e.stat === "lore" ? "{L}" : e.stat === "willpower" ? "{W}" : "{S}";
-    const val = e.modifier ?? e.amount;
+    const val = e.amount;
     bits.push(`${signed(val)} ${sym}`);
   }
   // gain_stats uses individual stat fields

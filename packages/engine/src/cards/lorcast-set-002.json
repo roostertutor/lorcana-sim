@@ -369,7 +369,7 @@
         "effect": {
           "type": "modify_stat",
           "stat": "strength",
-          "modifier": 1,
+          "amount": 1,
           "target": {
             "type": "all",
             "filter": {
@@ -432,7 +432,7 @@
         "effect": {
           "type": "modify_stat",
           "stat": "strength",
-          "modifier": 1,
+          "amount": 1,
           "target": {
             "type": "all",
             "filter": {
@@ -3730,7 +3730,7 @@
         "effect": {
           "type": "modify_stat",
           "stat": "lore",
-          "modifier": 2,
+          "amount": 2,
           "target": {
             "type": "this"
           }
@@ -4235,7 +4235,7 @@
         "effect": {
           "type": "gets_stat_while_being_challenged",
           "stat": "strength",
-          "modifier": 2
+          "amount": 2
         }
       }
     ],
@@ -4368,7 +4368,7 @@
         "effect": {
           "type": "modify_stat",
           "stat": "strength",
-          "modifier": 3,
+          "amount": 3,
           "target": {
             "type": "this"
           }
@@ -4517,7 +4517,7 @@
         "effect": {
           "type": "modify_stat",
           "stat": "lore",
-          "modifier": 2,
+          "amount": 2,
           "target": {
             "type": "this"
           }
@@ -4692,7 +4692,7 @@
         "effect": {
           "type": "modify_stat",
           "stat": "lore",
-          "modifier": 2,
+          "amount": 2,
           "target": {
             "type": "this"
           }
@@ -6950,7 +6950,7 @@
         "effect": {
           "type": "modify_stat",
           "stat": "strength",
-          "modifier": 1,
+          "amount": 1,
           "target": {
             "type": "all",
             "filter": {
@@ -7088,7 +7088,7 @@
         "effect": {
           "type": "modify_stat",
           "stat": "lore",
-          "modifier": 4,
+          "amount": 4,
           "target": {
             "type": "this"
           }
@@ -9698,7 +9698,7 @@
         "effect": {
           "type": "modify_stat",
           "stat": "strength",
-          "modifier": 4,
+          "amount": 4,
           "target": {
             "type": "this"
           }
@@ -10937,7 +10937,7 @@
         "effect": {
           "type": "modify_stat",
           "stat": "lore",
-          "modifier": 2,
+          "amount": 2,
           "target": {
             "type": "this"
           }
@@ -11191,7 +11191,7 @@
         "effect": {
           "type": "modify_stat",
           "stat": "lore",
-          "modifier": 4,
+          "amount": 4,
           "target": {
             "type": "this"
           }

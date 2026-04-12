@@ -128,9 +128,11 @@ const BOARD_WIDE_EFFECTS = new Set([
   "cost_reduction", "enter_play_exerted", "inkwell_enters_exerted",
   "prevent_lore_gain", "prevent_lore_loss", "one_challenge_per_turn",
   "prevent_discard_from_hand", "modify_win_threshold", "skip_draw_step",
-  "top_of_deck_visible", "extra_ink_plays", "ink_from_discard",
-  "action_restriction", "damage_redirect", "forced_target",
-  "grant_keyword", "modify_stat_per_count",
+  "top_of_deck_visible", "ink_from_discard",
+  "action_restriction", "damage_redirect", "forced_target", "forced_target_priority",
+  "grant_keyword", "modify_stat_per_count", "one_challenge_per_turn_global",
+  "skip_draw_step_self", "extra_ink_play",
+  "all_hand_inkable", "prevent_damage_removal",
 ]);
 
 function getActiveEffects(
@@ -148,13 +150,47 @@ function getActiveEffects(
     return definitions[inst.definitionId]?.fullName ?? inst.definitionId;
   };
 
-  const sourceText = (sourceInstanceId: string | undefined): { name: string; text: string } | null => {
+  // Strip song reminder preamble and ink symbols from ability text for pill display
+  const trimPillText = (text: string) =>
+    text.replace(/\(A character with cost \d+ or more can \{E\} to sing this song for free\.\)\n?/i, "")
+        .replace(/\{[ISE]\}/g, "")
+        .trim();
+
+  // Look up the source card and try to find the specific ability that produced the effect.
+  // effectHint: match abilities containing an effect with this type string.
+  const sourceText = (sourceInstanceId: string | undefined, effectHint?: string): { name: string; text: string } | null => {
     if (!sourceInstanceId) return null;
     const inst = state.cards[sourceInstanceId];
     if (!inst) return null;
     const def = definitions[inst.definitionId];
     if (!def) return null;
-    return { name: def.fullName, text: def.rulesText ?? "" };
+    if (effectHint) {
+      // Search activated/triggered abilities for one whose effects[] contains the hint type
+      for (const ability of def.abilities) {
+        const a = ability as any;
+        if (a.type === "activated" || a.type === "triggered") {
+          const match = a.effects?.some((e: any) => e.type === effectHint) ||
+                        a.actionEffects?.some((e: any) => e.type === effectHint);
+          if (match) {
+            const text = a.storyName ? `${a.storyName} ${a.rulesText ?? ""}` : (a.rulesText ?? "");
+            return { name: def.fullName, text: trimPillText(text) };
+          }
+        }
+      }
+      // Search actionEffects (for action cards like Keep the Ancient Ways)
+      if ((def as any).actionEffects) {
+        const match = (def as any).actionEffects.some((e: any) => e.type === effectHint);
+        if (match) return { name: def.fullName, text: trimPillText(def.rulesText ?? "") };
+      }
+    }
+    // Fallback: if card has only one non-keyword ability, use that
+    const namedAbilities = def.abilities.filter((a: any) => a.type !== "keyword");
+    if (namedAbilities.length === 1) {
+      const a = namedAbilities[0] as any;
+      const text = a.storyName ? `${a.storyName} ${a.rulesText ?? ""}` : (a.rulesText ?? "");
+      return { name: def.fullName, text: trimPillText(text) };
+    }
+    return { name: def.fullName, text: trimPillText(def.rulesText ?? "") };
   };
 
   // Scan in-play cards for board-wide static abilities — quote their text
@@ -174,7 +210,7 @@ function getActiveEffects(
         const text = ability.storyName
           ? `${ability.storyName} ${ability.rulesText ?? ""}`
           : (ability.rulesText ?? effectType);
-        effects.push({ label: text.trim(), source: `${side}: ${def.fullName}`, color: "text-amber-300" });
+        effects.push({ label: trimPillText(text), source: `${side}: ${def.fullName}`, color: "text-amber-300" });
       }
     }
   }
@@ -182,7 +218,7 @@ function getActiveEffects(
   // One-shot cost reductions (player state — Lantern, Imperial Proclamation)
   for (const pid of [myId, oppId] as PlayerID[]) {
     for (const r of (state.players[pid]?.costReductions ?? [])) {
-      const src = sourceText((r as any).sourceInstanceId);
+      const src = sourceText((r as any).sourceInstanceId, "grant_cost_reduction");
       const label = src ? src.text : `Next card costs ${r.amount} less`;
       const source = src ? `${pid === myId ? "You" : "Opp"}: ${src.name}` : `${pid === myId ? "You" : "Opp"}: one-shot`;
       effects.push({ label, source, color: "text-emerald-400" });
@@ -192,22 +228,22 @@ function getActiveEffects(
   // Play restrictions (Pete Games Referee, Keep the Ancient Ways)
   for (const pid of [myId, oppId] as PlayerID[]) {
     for (const r of (state.players[pid]?.playRestrictions ?? [])) {
-      const src = sourceText((r as any).sourceInstanceId);
+      const src = sourceText((r as any).sourceInstanceId, "restrict_play");
       const label = src ? src.text : `Can't play ${r.cardTypes.join("/")}s`;
       const source = src ? `${r.casterPlayerId === myId ? "You" : "Opp"}: ${src.name}` : `${r.casterPlayerId === myId ? "You" : "Opp"}`;
       effects.push({ label, source, color: "text-red-400" });
     }
   }
 
-  // Global timed effects (Restoring Atlantis, etc.)
+  // Global timed effects (Restoring Atlantis, Kuzco BY INVITE ONLY, etc.)
   const globalEffects = (state as any).globalTimedEffects as { type: string; controllingPlayerId: string; expiresAt: string; sourceInstanceId?: string }[] | undefined;
   if (globalEffects) {
     for (const ge of globalEffects) {
-      const src = sourceText(ge.sourceInstanceId);
       const who = ge.controllingPlayerId === myId ? "You" : "Opp";
-      const label = src ? src.text : `${ge.type.replace(/_/g, " ")}`;
+      const src = sourceText(ge.sourceInstanceId, "grant_keyword");
+      const label = src ? src.text : ge.type.replace(/_/g, " ");
       const source = src ? `${who}: ${src.name}` : who;
-      effects.push({ label, source, color: "text-orange-400" });
+      effects.push({ label: label.trim(), source, color: "text-orange-400" });
     }
   }
 
@@ -215,12 +251,27 @@ function getActiveEffects(
   const delayedTriggers = (state as any).delayedTriggers as { targetInstanceId: string; firesAt: string; sourceInstanceId?: string; controllingPlayerId?: string }[] | undefined;
   if (delayedTriggers?.length) {
     for (const dt of delayedTriggers) {
-      const src = sourceText(dt.sourceInstanceId);
+      const src = sourceText(dt.sourceInstanceId, "create_delayed_trigger");
       const target = cardName(dt.targetInstanceId);
       const when = dt.firesAt === "end_of_turn" ? "end of turn" : "start of next turn";
       const label = src ? `${src.text} (on ${target})` : `${target}: trigger at ${when}`;
       const source = src ? src.name : "";
       effects.push({ label, source, color: "text-orange-400" });
+    }
+  }
+
+  // Floating triggers (Steal from the Rich — global; Medallion Weights — attached to a card)
+  const floatingTriggers = (state as any).floatingTriggers as { controllingPlayerId: string; attachedToInstanceId?: string; sourceInstanceId?: string }[] | undefined;
+  if (floatingTriggers?.length) {
+    for (const ft of floatingTriggers) {
+      const src = sourceText(ft.sourceInstanceId);
+      const who = ft.controllingPlayerId === myId ? "You" : "Opp";
+      const attached = ft.attachedToInstanceId ? cardName(ft.attachedToInstanceId) : null;
+      const label = src ? src.text : "Floating trigger";
+      const source = src
+        ? `${who}: ${src.name}${attached ? ` → ${attached}` : ""}`
+        : `${who}${attached ? `: on ${attached}` : ""}`;
+      effects.push({ label, source, color: "text-indigo-400" });
     }
   }
 
@@ -302,12 +353,12 @@ function InkwellZone({
 }
 
 function UtilityStrip({
-  deckCount, deckTopId, onDeckClick,
+  deckCount, deckTopId, onDeckClick, deckTopVisible,
   inkwellIds, availableInk, inksUsed, canStillInk, isYourTurn, isValidInkwellTarget, droppable,
   discardCount, discardTopId, onDiscardClick,
   gameState, definitions, gameModifiers,
 }: {
-  deckCount: number; deckTopId: string | undefined; onDeckClick?: () => void;
+  deckCount: number; deckTopId: string | undefined; onDeckClick?: () => void; deckTopVisible?: boolean;
   inkwellIds: string[]; availableInk: number; inksUsed: number; canStillInk: boolean;
   isYourTurn: boolean; isValidInkwellTarget: boolean; droppable?: boolean;
   discardCount: number; discardTopId: string | undefined; onDiscardClick: () => void;
@@ -322,7 +373,15 @@ function UtilityStrip({
         disabled={!onDeckClick}
         className="relative w-7 h-10 sm:w-14 sm:h-[78px] lg:w-16 lg:h-[90px] shrink-0 rounded overflow-hidden disabled:cursor-default hover:enabled:brightness-110 transition-all border border-gray-800/40"
       >
-        {deckTopId ? (
+        {deckTopId && deckTopVisible ? (
+          (() => {
+            const inst = gameState.cards[deckTopId];
+            const imgUrl = inst ? definitions[inst.definitionId]?.imageUrl : undefined;
+            return imgUrl
+              ? <img src={imgUrl} alt="Deck top" className="w-full h-full object-cover" draggable={false} />
+              : <img src="/card-back-small.jpg" alt="Deck" className="w-full h-full object-cover" draggable={false} />;
+          })()
+        ) : deckTopId ? (
           <img src="/card-back-small.jpg" alt="Deck" className="w-full h-full object-cover" draggable={false} />
         ) : (
           <div className="w-full h-full border border-dashed border-gray-700/40 rounded" />
@@ -1305,6 +1364,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           <UtilityStrip
             deckCount={p2Zones.deck.length}
             deckTopId={p2Zones.deck[p2Zones.deck.length - 1]}
+            deckTopVisible={gameModifiers?.topOfDeckVisible.has(opponentId)}
             inkwellIds={p2Zones.inkwell}
             availableInk={p2.availableInk}
             inksUsed={p2.inkPlaysThisTurn ?? (p2.hasPlayedInkThisTurn ? 1 : 0)}
@@ -1396,6 +1456,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           <UtilityStrip
             deckCount={p1Zones.deck.length}
             deckTopId={p1Zones.deck[p1Zones.deck.length - 1]}
+            deckTopVisible={gameModifiers?.topOfDeckVisible.has(myId)}
             onDeckClick={() => setDeckViewerOpen(true)}
             inkwellIds={p1Zones.inkwell}
             availableInk={p1.availableInk}
@@ -1724,15 +1785,32 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       )}
 
       {/* ======================= Discard Zone Viewer ======================= */}
-      {discardViewerId && (
-        <ZoneViewModal
-          title={discardViewerId === "player" ? "Your Discard" : "Opponent's Discard"}
-          cardIds={discardViewerId === "player" ? p1Zones.discard : p2Zones.discard}
-          gameState={gameState}
-          definitions={definitions}
-          onClose={() => setDiscardViewerId(null)}
-        />
-      )}
+      {discardViewerId && (() => {
+        const isPlayer = discardViewerId === "player";
+        const discardCards = isPlayer ? p1Zones.discard : p2Zones.discard;
+        const inkActions = new Map<string, { label: string; color: string; onClick: () => void }>();
+        if (isPlayer) {
+          for (const a of legalActions) {
+            if (a.type === "PLAY_INK" && discardCards.includes(a.instanceId)) {
+              inkActions.set(a.instanceId, {
+                label: "Ink",
+                color: "bg-blue-700 hover:bg-blue-600 text-blue-100",
+                onClick: () => { session.dispatch(a); setDiscardViewerId(null); },
+              });
+            }
+          }
+        }
+        return (
+          <ZoneViewModal
+            title={isPlayer ? "Your Discard" : "Opponent's Discard"}
+            cardIds={discardCards}
+            gameState={gameState}
+            definitions={definitions}
+            onClose={() => setDiscardViewerId(null)}
+            cardActions={inkActions.size > 0 ? inkActions : undefined}
+          />
+        );
+      })()}
 
       {/* ======================= Revealed Hand Viewer (auto-triggered by reveal_hand effect) ======================= */}
       {gameState?.lastRevealedHand && gameState.lastRevealedHand.cardIds.length > 0 && !revealHandDismissed && (

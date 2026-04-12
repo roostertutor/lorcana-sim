@@ -368,7 +368,7 @@
         "effect": {
           "type": "modify_stat",
           "stat": "lore",
-          "modifier": 1,
+          "amount": 1,
           "target": {
             "type": "this"
           }
@@ -1125,7 +1125,7 @@
         "effect": {
           "type": "modify_stat",
           "stat": "willpower",
-          "modifier": 2,
+          "amount": 2,
           "target": {
             "type": "all",
             "filter": {
@@ -3282,7 +3282,7 @@
         "effect": {
           "type": "modify_stat",
           "stat": "lore",
-          "modifier": 1,
+          "amount": 1,
           "target": {
             "type": "this"
           }
@@ -4417,7 +4417,7 @@
         "effect": {
           "type": "modify_stat",
           "stat": "strength",
-          "modifier": 2,
+          "amount": 2,
           "target": {
             "type": "this"
           }
@@ -4432,7 +4432,7 @@
         "effect": {
           "type": "modify_stat",
           "stat": "lore",
-          "modifier": 1,
+          "amount": 1,
           "target": {
             "type": "this"
           }
@@ -4704,7 +4704,7 @@
         "effect": {
           "type": "modify_stat",
           "stat": "lore",
-          "modifier": 1,
+          "amount": 1,
           "target": {
             "type": "this"
           }
@@ -6784,7 +6784,7 @@
         "effect": {
           "type": "modify_stat",
           "stat": "strength",
-          "modifier": 1,
+          "amount": 1,
           "target": {
             "type": "all",
             "filter": {
@@ -10919,7 +10919,7 @@
         "effect": {
           "type": "modify_stat",
           "stat": "strength",
-          "modifier": 2,
+          "amount": 2,
           "target": {
             "type": "this"
           }
@@ -10934,7 +10934,7 @@
         "effect": {
           "type": "modify_stat",
           "stat": "willpower",
-          "modifier": 2,
+          "amount": 2,
           "target": {
             "type": "this"
           }
@@ -12120,7 +12120,7 @@
         "effect": {
           "type": "modify_stat",
           "stat": "lore",
-          "modifier": 1,
+          "amount": 1,
           "target": {
             "type": "this"
           }

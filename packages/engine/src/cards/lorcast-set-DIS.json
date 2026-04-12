@@ -105,7 +105,7 @@
         "effect": {
           "type": "modify_stat",
           "stat": "strength",
-          "modifier": 6,
+          "amount": 6,
           "target": {
             "type": "this"
           }

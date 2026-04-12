@@ -1908,7 +1908,7 @@ export interface GainKeywordStatic {
 export interface ModifyStatStatic {
   type: "modify_stat";
   stat: "strength" | "willpower" | "lore";
-  modifier: number;
+  amount: number;
   target: CardTarget;
 }
 
@@ -1952,9 +1952,9 @@ export interface ModifyStatPerDamageStatic {
 export interface GetsStatWhileBeingChallengedStatic {
   type: "gets_stat_while_being_challenged";
   stat: "strength" | "willpower";
-  modifier: number;
+  amount: number;
   /** Default "self" — modifies the defender (this card). "attacker" applies the
-   *  modifier to the challenging character instead (Louie One Cool Duck:
+   *  amount to the challenging character instead (Louie One Cool Duck:
    *  "the challenging character gets -1 {S}"). */
   affects?: "self" | "attacker";
 }
