@@ -93,13 +93,13 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 | [X] | Play (normal) | Any hand card with enough ink | any |
 | [X] | Ink | Any inkable hand card | any |
 | [X] | Shift (ink-cost) | Hades - King of Olympus → click target | 1 |
-| [ ] | Shift (alt-cost discard) | Diablo - Devoted Herald → click target → click cost card | 4 |
+| [X] | Shift (alt-cost discard) | Diablo - Devoted Herald → click target → click cost card | 4 |
 | [X] | Sing | Any song → click singer | 1 |
 | [X] | Challenge | Any ready character → click exerted opponent | any |
-| [ ] | Move | Any ready character → click location | 3+ |
-| [ ] | Quest | Any ready non-drying character | any |
-| [ ] | Boost | Bambi - Ethereal Fawn (pay ink, deck top → under) | 10 |
-| [ ] | Activate ability | Any card with activated ability | any |
+| [X] | Move | Any ready character → click location | 3+ |
+| [X] | Quest | Any ready non-drying character | any |
+| [X] | Boost | Bambi - Ethereal Fawn (pay ink, deck top → under) | 10 |
+| [X] | Activate ability | Any card with activated ability | any |
 
 ## Drag-and-Drop Targets
 
@@ -115,18 +115,18 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 
 ## Visual Indicators
 
-| OK | Feature | Card                                | Set |
-|----|---------|-------------------------------------|-----|
-| [ ] | +S delta (bottom-right, orange) | Snow Fort                           | ? |
-| [ ] | -S delta (bottom-right, red) | Painting the Roses Red              | 1 |
-| [ ] | +W delta (bottom-right, blue) | Rapunzel's Tower                    | ? |
-| [ ] | +L delta (bottom-right, amber) | Eye of the Fates                    | ? |
-| [ ] | -L delta (bottom-right, red) | Trust in Me                         | ? |
-| [ ] | Drying overlay (cyan wash) | Any newly played character          | any |
-| [ ] | Exerted rotation | Any exerted character               | any |
-| [ ] | Damage counter (center) | Any damaged character               | any |
-| [ ] | Cost reduction glow | LeFou - Bumbler (in hand)           | 4 |
-| [ ] | Play restriction grey | Mirabel Madrigal - Family Gatherer  | 5 |
-| [ ] | Play-from-discard glow | Pride Lands - Jungle Oasis          | 6 |
-| [ ] | Floating ability pulse | Bruno Madrigal - Out of the Shadows | 8 |
-| [ ] | Reveal hand modal | Dolores Madrigal                    | 5 |
+| OK  | Feature | Card                                | Set |
+|-----|---------|-------------------------------------|-----|
+| [X] | +S delta (bottom-right, orange) | Snow Fort                           | 11  |
+| [X] | -S delta (bottom-right, red) | Painting the Roses Red              | 2   |
+| [X] | +W delta (bottom-right, blue) | Rapunzel's Tower                    | 2   |
+| [X] | +L delta (bottom-right, amber) | Eye of the Fates                    | 1   |
+| [X] | -L delta (bottom-right, red) | Trust in Me                         | 10  |
+| [X] | Drying overlay (cyan wash) | Any newly played character          | any |
+| [X] | Exerted rotation | Any exerted character               | any |
+| [X] | Damage counter (center) | Any damaged character               | any |
+| [X] | Cost reduction glow | LeFou - Bumbler (in hand)           | 4   |
+| [X] | Play restriction grey | Mirabel Madrigal - Family Gatherer  | 5   |
+| [ ] | Play-from-discard glow | Pride Lands - Jungle Oasis          | 6   |
+| [ ] | Floating ability pulse | Bruno Madrigal - Out of the Shadows | 8   |
+| [ ] | Reveal hand modal | Dolores Madrigal                    | 5   |

@@ -182,9 +182,11 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
     ? "border-red-400 ring-2 ring-red-400/50 animate-pulse z-10"
     : theme.border;
 
+  const rotationClass = isExerted && !skipRotation ? "rotate-90 opacity-80"
+    : isLocation && zone === "play" ? "rotate-90" : "";
   const baseClass = `game-card relative border-2 rounded-md sm:rounded-xl ${mobileWidth} sm:w-[104px] lg:w-[120px] shrink-0 cursor-pointer
     transition-all duration-200 ${ringClass} ${restrictionOpacity} ${costReductionGlow}
-    ${isExerted && !skipRotation ? "rotate-90 opacity-80" : ""}
+    ${rotationClass}
     hover:scale-105 hover:z-10 hover:shadow-lg hover:${theme.glow}`;
 
   // ── With image: card art fills the frame, overlays show only game state ──
