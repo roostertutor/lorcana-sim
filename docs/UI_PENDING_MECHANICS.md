@@ -8,6 +8,38 @@ Append to the top as new mechanics land.
 
 ---
 
+## Delayed triggered abilities (CRD 6.2.7.2)
+
+**Engine**: `GameState.delayedTriggers: DelayedTrigger[]`. Created by `CreateDelayedTriggerEffect`. Each entry has `firesAt` (end_of_turn / start_of_next_turn), `targetInstanceId`, and `effects`. Resolved in `applyPassTurn` — if target is still in play, effects fire; otherwise fizzles.
+
+**UI needs**:
+- Show a timer/hourglass icon on the targeted character indicating a pending delayed trigger
+- Tooltip: "Will be banished at end of turn" (or whatever the effect is)
+- When the trigger fires, animate the effect (banish animation)
+- When the trigger fizzles (character left play before end of turn), no visual needed
+
+**Watch**: `state.delayedTriggers` — each entry has `targetInstanceId` to match against board cards.
+
+**Cards**: Candy Drift (Set 8, "Draw a card. Chosen character gets +5 {S} this turn. At the end of your turn, banish them."). Future: any card that creates one-shot end-of-turn/start-of-turn effects on specific targets.
+
+---
+
+## Global timed effects / continuous statics (CRD 6.4.2.1)
+
+**Engine**: `GameState.globalTimedEffects: GlobalTimedEffect[]`. Unlike per-card `timedEffects`, these apply to ALL matching cards — including ones played AFTER the effect resolved. Checked in `getGameModifiers` every query. Types: `cant_be_challenged`, `cant_action`, `grant_keyword`, `modify_stat`.
+
+**UI needs**:
+- Show a banner/toast when a global continuous effect is active ("Your characters can't be challenged until your next turn")
+- Newly played characters should immediately show the effect's indicator (e.g., the gray lock icon for "can't be challenged")
+- The existing per-card indicators (lock icons from `gameModifiers.cantBeChallenged`) already cover this since `getGameModifiers` includes global effects — no per-card UI changes needed
+- Show the global effect source and duration in the turn info area
+
+**Watch**: `state.globalTimedEffects` — each entry has `type`, `filter`, `controllingPlayerId`, `expiresAt`.
+
+**Cards**: Restoring Atlantis (Set 7, "Your characters can't be challenged until the start of your next turn."). Future: any action that creates a continuous "all your characters get X until..." effect.
+
+---
+
 ~~## Once-per-turn ability indicator~~ **RESOLVED — green/gray clock icon on left-side status column**
 
 **Engine**: `oncePerTurn: true` on triggered, activated, and static abilities. Tracked per-instance via `CardInstance.oncePerTurnTriggered` (Record<string, boolean>), reset at turn start.
