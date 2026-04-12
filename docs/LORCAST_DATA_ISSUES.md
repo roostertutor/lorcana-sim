@@ -48,6 +48,16 @@ The audit currently reports **0 missing scalars** — every Sing Together song a
 
 A future divergence — e.g. Lorcana errata that decouples Sing Together cost from the song's normal cost — would surface here as soon as the new card is imported.
 
+## Pattern D — story name typos in API data
+
+Lorcast occasionally returns ability story names with typos that don't match the printed card.
+
+| Card | Set | API returns | Printed card says | Notes |
+|---|---|---|---|---|
+| Tinker Bell - Giant Fairy | P3 | PUN PIRATE! | PUNY PIRATE! | Every other printing (Set 1, Set 9) has "PUNY PIRATE!" correctly. Manually corrected in local data. |
+
+The `pnpm card-status` story name validator catches these by comparing `abilities[].storyName` against `_namedAbilityStubs[].storyName`. If the promo stub has a typo, the validator flags the mismatch after the reprint sync copies the correct name from the main set.
+
 ## How to file upstream
 
 Lorcast doesn't have a public issue tracker that we know of. If we accumulate enough patterns, we can DM the maintainer with an issue list referencing this doc.
