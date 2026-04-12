@@ -161,6 +161,23 @@ function validateCardFields(card: any): FieldError[] {
   // Walk actionEffects
   (card.actionEffects ?? []).forEach((e: any, i: number) => walkEffect(e, `actionEffects[${i}]`));
 
+  // Check story names against Lorcast stubs — catch fabricated ability names
+  const stubs: any[] = (card._namedAbilityStubs ?? []).filter((s: any) => s.storyName);
+  if (stubs.length > 0) {
+    const validStoryNames = new Set(stubs.map((s: any) => s.storyName));
+    (card.abilities ?? []).forEach((ab: any, i: number) => {
+      if (ab.type === "keyword" || !ab.storyName || ab.storyName === "") return;
+      if (!validStoryNames.has(ab.storyName)) {
+        errors.push({
+          path: `abilities[${i}]`,
+          field: "storyName",
+          value: ab.storyName,
+          validValues: [...validStoryNames].join(", "),
+        });
+      }
+    });
+  }
+
   return errors;
 }
 
