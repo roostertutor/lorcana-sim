@@ -686,11 +686,10 @@ function validateMoveCharacter(
   if (char.zone !== "play") return fail("Character is not in play.");
   const charDef = getDefinition(state, characterInstanceId, definitions);
   if (charDef.cardType !== "character") return fail("Only characters can move to locations.");
-  // CRD 4.7: Moving requires paying ink, not exerting — drying does NOT prevent moving.
-  // CRD 1.7.5: Drying only prevents quest, challenge, and {E} to pay costs.
-  // No movedThisTurn check — CRD 4.1.1 says turn actions can be taken any number of times.
-  // The only limit on moving is the player's ink to pay move costs.
-  if (char.isExerted) return fail("Exerted characters cannot move.");
+  // CRD 4.7: Moving only requires paying the location's move cost (ink).
+  // No exerted check — exerted characters can move.
+  // No drying check — CRD 1.7.5 only restricts quest/challenge/{E}.
+  // No movedThisTurn check — CRD 4.1.1 allows turn actions any number of times.
 
   // Self-restriction (Max Goof Rockin' Teen "I JUST WANNA STAY HOME") + any
   // future "can't move" timed/static effects.
