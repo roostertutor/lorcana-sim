@@ -117,7 +117,7 @@
       {
         "type": "triggered",
         "storyName": "YOU'LL NEVER EVEN MISS IT",
-        "rulesText": "When you play this card, chosen opponent reveals their hand and discards a song card of your choice.",
+        "rulesText": "When you play this character, chosen opponent reveals their hand and discards a song card of your choice.",
         "trigger": {
           "on": "enters_play"
         },
@@ -136,10 +136,10 @@
             },
             "chooser": "controller",
             "filter": {
-              "zone": "hand",
               "cardType": [
                 "action"
-              ]
+              ],
+              "hasTrait": "Song"
             }
           }
         ]
@@ -185,7 +185,7 @@
       {
         "type": "activated",
         "storyName": "YOU JUST HAVE TO SEE IT",
-        "rulesText": "{E} – Name a card, then reveal the top card of your deck. If it's the named card, put that card into your hand and gain 3 lore. Otherwise, put it on the top of your deck.",
+        "rulesText": "{E} — Name a card, then reveal the top card of your deck. If it's the named card, put that card into your hand and gain 3 lore. Otherwise, put it on the top of your deck.",
         "costs": [
           {
             "type": "exert"
@@ -252,9 +252,6 @@
               "character"
             ],
             "hasTrait": "Princess",
-            "owner": {
-              "type": "self"
-            },
             "excludeSelf": true
           }
         },

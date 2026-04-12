@@ -490,13 +490,13 @@
         "amount": {
           "type": "count",
           "filter": {
+            "owner": {
+              "type": "self"
+            },
             "zone": "play",
             "cardType": [
               "character"
-            ],
-            "owner": {
-              "type": "self"
-            }
+            ]
           }
         },
         "target": {
@@ -673,7 +673,7 @@
             "isMay": true
           }
         ],
-        "storyName": "PUN PIRATE!",
+        "storyName": "PUNY PIRATE!",
         "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character.",
         "condition": {
           "type": "is_your_turn"
@@ -1940,10 +1940,10 @@
           "source": "challenge",
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "this_at_location"
           }
+        },
+        "condition": {
+          "type": "this_at_location"
         }
       }
     ],

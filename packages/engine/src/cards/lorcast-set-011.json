@@ -3191,8 +3191,8 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "",
-        "rulesText": "When this character is banished in a challenge, return this card from your discard to your hand.",
+        "storyName": "HE'S BACK!",
+        "rulesText": "When this character is banished in a challenge, return this card to your hand.",
         "trigger": {
           "on": "banished_in_challenge"
         },
@@ -9133,8 +9133,6 @@
     "actionEffects": [
       {
         "type": "move_to_inkwell",
-        "enterExerted": true,
-        "fromZone": "play",
         "target": {
           "type": "chosen",
           "filter": {
@@ -9143,7 +9141,8 @@
               "character"
             ]
           }
-        }
+        },
+        "enterExerted": true
       }
     ]
   },
@@ -9176,7 +9175,6 @@
       {
         "type": "gain_stats",
         "strength": -2,
-        "duration": "this_turn",
         "target": {
           "type": "chosen",
           "filter": {
@@ -9185,7 +9183,8 @@
               "character"
             ]
           }
-        }
+        },
+        "duration": "this_turn"
       },
       {
         "type": "draw",

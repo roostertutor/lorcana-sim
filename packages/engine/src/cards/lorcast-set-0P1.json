@@ -1363,14 +1363,13 @@
       {
         "type": "static",
         "storyName": "LOOK ALIVE, YOU SWABS!",
-        "rulesText": "Characters gain Rush while here. (They can challenge the turn they're played.)",
+        "rulesText": "Characters gain Rush while here.",
         "effect": {
           "type": "grant_keyword",
           "keyword": "rush",
           "target": {
             "type": "all",
             "filter": {
-              "zone": "play",
               "cardType": [
                 "character"
               ],
@@ -2143,7 +2142,7 @@
         },
         "effects": [
           {
-            "type": "grant_cost_reduction",
+            "type": "cost_reduction",
             "amount": 1,
             "filter": {
               "cardType": [

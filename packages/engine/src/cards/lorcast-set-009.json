@@ -22,7 +22,7 @@
       {
         "type": "activated",
         "storyName": "YOU JUST HAVE TO SEE IT",
-        "rulesText": "{E} — Name a card, then reveal the top card of your deck. If it's the named card, put it into your hand and gain 3 lore. Otherwise, put it on the top of your deck.",
+        "rulesText": "{E} — Name a card, then reveal the top card of your deck. If it's the named card, put that card into your hand and gain 3 lore. Otherwise, put it on the top of your deck.",
         "costs": [
           {
             "type": "exert"
@@ -142,7 +142,7 @@
       {
         "type": "activated",
         "storyName": "TWILIGHT BARK",
-        "rulesText": "Once during your turn, you may pay 2 {I} to reveal the top card of your deck. If it's a character card, put it into your hand. Otherwise, put it on the bottom of your deck.",
+        "rulesText": "Once per turn, you may pay 2 {I} to reveal the top card of your deck. If it's a character card, put it into your hand. Otherwise, put it on the bottom of your deck.",
         "costs": [
           {
             "type": "pay_ink",
@@ -208,30 +208,43 @@
       },
       {
         "type": "triggered",
-        "storyName": "ADORING FANS",
-        "rulesText": "Whenever you play a character with cost 2 or less, you may exert them to draw a card.",
         "trigger": {
           "on": "card_played",
           "filter": {
-            "cardType": [
-              "character"
-            ],
             "owner": {
               "type": "self"
             },
+            "cardType": [
+              "character"
+            ],
             "costAtMost": 2
           }
         },
         "effects": [
           {
-            "type": "draw",
-            "amount": 1,
-            "isMay": true,
-            "target": {
-              "type": "self"
-            }
+            "type": "sequential",
+            "costEffects": [
+              {
+                "type": "exert",
+                "target": {
+                  "type": "triggering_card"
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ],
+            "isMay": true
           }
-        ]
+        ],
+        "storyName": "ADORING FANS",
+        "rulesText": "Whenever you play a character with cost 2 or less, you may exert them to draw a card."
       }
     ],
     "setId": "9",
@@ -510,16 +523,14 @@
           {
             "type": "remove_damage",
             "amount": 2,
-            "isUpTo": true,
             "target": {
               "type": "chosen",
               "filter": {
                 "zone": "play",
-                "cardType": [
-                  "character"
-                ]
+                "hasDamage": true
               }
-            }
+            },
+            "isUpTo": true
           }
         ]
       }
@@ -628,7 +639,8 @@
             "amount": 1,
             "target": {
               "type": "opponent"
-            }
+            },
+            "chooser": "target_player"
           }
         ]
       }
@@ -678,16 +690,16 @@
           {
             "type": "look_at_top",
             "count": 4,
-            "action": "up_to_n_to_hand_rest_bottom",
-            "maxToHand": 1,
-            "target": {
-              "type": "self"
-            },
+            "action": "one_to_hand_rest_bottom",
             "filter": {
               "cardType": [
                 "character"
               ]
-            }
+            },
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
           }
         ]
       }
@@ -773,10 +785,10 @@
           {
             "type": "remove_damage",
             "amount": 3,
-            "isUpTo": true,
             "target": {
               "type": "this"
-            }
+            },
+            "isUpTo": true
           }
         ]
       }
@@ -849,7 +861,7 @@
       {
         "type": "triggered",
         "storyName": "TO THE RESCUE",
-        "rulesText": "When you play this character, you may remove up to 3 damage from chosen character of yours.",
+        "rulesText": "When you play this character, you may remove up to 3 damage from one of your characters.",
         "trigger": {
           "on": "enters_play"
         },
@@ -942,7 +954,7 @@
       {
         "type": "triggered",
         "storyName": "SIGNATURE RECIPE",
-        "rulesText": "When you play this character, you may remove up to 2 damage from chosen character. If you removed damage this way, you may draw a card.",
+        "rulesText": "When you play this character, you may remove up to 2 damage from chosen character. If you removed damage this way, you may draw a card. (draw approximation skipped)",
         "trigger": {
           "on": "enters_play"
         },
@@ -951,7 +963,6 @@
             "type": "remove_damage",
             "amount": 2,
             "isUpTo": true,
-            "isMay": true,
             "target": {
               "type": "chosen",
               "filter": {
@@ -960,14 +971,6 @@
                   "character"
                 ]
               }
-            }
-          },
-          {
-            "type": "draw",
-            "amount": 1,
-            "isMay": true,
-            "target": {
-              "type": "self"
             }
           }
         ]
@@ -1014,8 +1017,6 @@
       },
       {
         "type": "activated",
-        "storyName": "A WONDERFUL DREAM",
-        "rulesText": "Remove up to 3 damage from chosen Princess character.",
         "costs": [
           {
             "type": "exert"
@@ -1025,19 +1026,24 @@
           {
             "type": "remove_damage",
             "amount": 3,
-            "isUpTo": true,
             "target": {
               "type": "chosen",
               "filter": {
+                "owner": {
+                  "type": "self"
+                },
                 "zone": "play",
                 "cardType": [
                   "character"
                 ],
                 "hasTrait": "Princess"
               }
-            }
+            },
+            "isUpTo": true
           }
-        ]
+        ],
+        "storyName": "A WONDERFUL DREAM",
+        "rulesText": "{E} — Remove up to 3 damage from chosen Princess character."
       }
     ],
     "setId": "9",
@@ -1075,15 +1081,12 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "WE CAN FIX IT",
-        "rulesText": "Whenever this character quests, you may ready your other exerted Princess characters. If you do, they can't quest for the rest of this turn.",
         "trigger": {
           "on": "quests"
         },
         "effects": [
           {
             "type": "ready",
-            "isMay": true,
             "target": {
               "type": "all",
               "filter": {
@@ -1094,23 +1097,25 @@
                 "cardType": [
                   "character"
                 ],
-                "excludeSelf": true,
                 "hasTrait": "Princess",
-                "isExerted": true
+                "excludeSelf": true
               }
             },
+            "isMay": true,
             "followUpEffects": [
               {
                 "type": "cant_action",
                 "action": "quest",
-                "duration": "this_turn",
                 "target": {
                   "type": "this"
-                }
+                },
+                "duration": "end_of_turn"
               }
             ]
           }
-        ]
+        ],
+        "storyName": "WE CAN FIX IT",
+        "rulesText": "Whenever this character quests, you may ready your other Princess characters. They can't quest for the rest of this turn."
       }
     ],
     "setId": "9",
@@ -1157,7 +1162,7 @@
         ],
         "effects": [
           {
-            "type": "grant_cost_reduction",
+            "type": "cost_reduction",
             "amount": 1,
             "filter": {
               "cardType": [
@@ -1245,7 +1250,6 @@
           {
             "type": "gain_stats",
             "lore": 1,
-            "duration": "this_turn",
             "target": {
               "type": "all",
               "filter": {
@@ -1256,10 +1260,11 @@
                 "cardType": [
                   "character"
                 ],
-                "excludeSelf": true,
-                "hasTrait": "Villain"
+                "hasTrait": "Villain",
+                "excludeSelf": true
               }
-            }
+            },
+            "duration": "this_turn"
           }
         ]
       }
@@ -1300,35 +1305,29 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "OHANA",
-        "rulesText": "When you play this character, if you have 2 or more other characters in play, you may draw 2 cards.",
         "trigger": {
           "on": "enters_play"
         },
         "condition": {
-          "type": "cards_in_zone_gte",
+          "type": "characters_in_play_gte",
           "amount": 2,
-          "zone": "play",
-          "owner": {
+          "player": {
             "type": "self"
           },
-          "filter": {
-            "cardType": [
-              "character"
-            ],
-            "excludeSelf": true
-          }
+          "excludeSelf": true
         },
         "effects": [
           {
             "type": "draw",
             "amount": 2,
-            "isMay": true,
             "target": {
               "type": "self"
-            }
+            },
+            "isMay": true
           }
-        ]
+        ],
+        "storyName": "OHANA",
+        "rulesText": "When you play this character, if you have 2 or more other characters in play, you may draw 2 cards."
       }
     ],
     "setId": "9",
@@ -1485,16 +1484,14 @@
       {
         "type": "remove_damage",
         "amount": 3,
-        "isUpTo": true,
         "target": {
           "type": "chosen",
           "filter": {
             "zone": "play",
-            "cardType": [
-              "character"
-            ]
+            "hasDamage": true
           }
-        }
+        },
+        "isUpTo": true
       },
       {
         "type": "draw",
@@ -1541,7 +1538,6 @@
       {
         "type": "gain_stats",
         "strength": -2,
-        "duration": "until_caster_next_turn",
         "target": {
           "type": "all",
           "filter": {
@@ -1553,7 +1549,8 @@
               "character"
             ]
           }
-        }
+        },
+        "duration": "until_caster_next_turn"
       }
     ]
   },
@@ -1588,13 +1585,13 @@
         "target": {
           "type": "chosen",
           "filter": {
-            "owner": {
-              "type": "self"
-            },
             "zone": "discard",
             "cardType": [
               "character"
-            ]
+            ],
+            "owner": {
+              "type": "self"
+            }
           }
         }
       },
@@ -1602,7 +1599,6 @@
         "type": "remove_damage",
         "amount": 2,
         "isUpTo": true,
-        "isMay": true,
         "target": {
           "type": "chosen",
           "filter": {
@@ -1656,7 +1652,7 @@
             "cardType": [
               "character"
             ],
-            "minStrength": 5
+            "strengthAtLeast": 5
           }
         }
       }
@@ -1697,15 +1693,14 @@
       {
         "type": "look_at_top",
         "count": 4,
-        "action": "up_to_n_to_hand_rest_bottom",
-        "maxToHand": 1,
-        "target": {
-          "type": "self"
-        },
+        "action": "one_to_hand_rest_bottom",
         "filter": {
           "cardType": [
             "character"
           ]
+        },
+        "target": {
+          "type": "self"
         }
       }
     ]
@@ -1721,7 +1716,29 @@
     "cost": 2,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "cost_reduction",
+            "amount": 1,
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            }
+          }
+        ],
+        "storyName": "BIRTHDAY LIGHTS",
+        "rulesText": "{E} — You pay 1 {I} less for the next character you play this turn."
+      }
+    ],
     "setId": "9",
     "number": 32,
     "rarity": "rare",
@@ -1761,18 +1778,18 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "NOW, SING!",
-        "rulesText": "Whenever you play a song, you may pay 1 {I} to draw a card.",
         "trigger": {
           "on": "card_played",
           "filter": {
+            "owner": {
+              "type": "self"
+            },
             "hasTrait": "Song"
           }
         },
         "effects": [
           {
             "type": "sequential",
-            "isMay": true,
             "costEffects": [
               {
                 "type": "pay_ink",
@@ -1787,9 +1804,12 @@
                   "type": "self"
                 }
               }
-            ]
+            ],
+            "isMay": true
           }
-        ]
+        ],
+        "storyName": "NOW, SING!",
+        "rulesText": "Whenever you play a song, you may pay 1 {I} to draw a card."
       }
     ],
     "setId": "9",
@@ -1863,8 +1883,6 @@
     "abilities": [
       {
         "type": "activated",
-        "storyName": "I SUMMON THEE",
-        "rulesText": "Draw a card.",
         "costs": [
           {
             "type": "exert"
@@ -1878,7 +1896,9 @@
               "type": "self"
             }
           }
-        ]
+        ],
+        "storyName": "I SUMMON THEE",
+        "rulesText": "{E} — Draw a card."
       }
     ],
     "setId": "9",
@@ -1921,30 +1941,15 @@
         "value": 3
       },
       {
-        "type": "triggered",
+        "type": "static",
         "storyName": "ANCIENT SKILLS",
         "rulesText": "Whenever he challenges a Hyena character, this character takes no damage from the challenge.",
-        "trigger": {
-          "on": "challenges",
-          "filter": {
-            "zone": "play",
-            "cardType": [
-              "character"
-            ],
+        "effect": {
+          "type": "challenge_damage_prevention",
+          "targetFilter": {
             "hasTrait": "Hyena"
           }
-        },
-        "effects": [
-          {
-            "type": "grant_keyword",
-            "keyword": "resist",
-            "keywordValue": 99,
-            "duration": "this_turn",
-            "target": {
-              "type": "this"
-            }
-          }
-        ]
+        }
       }
     ],
     "setId": "9",
@@ -1992,7 +1997,6 @@
           {
             "type": "cant_action",
             "action": "ready",
-            "duration": "end_of_owner_next_turn",
             "target": {
               "type": "chosen",
               "filter": {
@@ -2004,7 +2008,8 @@
                   "character"
                 ]
               }
-            }
+            },
+            "duration": "end_of_owner_next_turn"
           }
         ]
       }
@@ -2045,20 +2050,22 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "HIDDEN WONDERS",
-        "rulesText": "This character gets +1 {S} for each card in your hand.",
         "effect": {
           "type": "modify_stat_per_count",
           "stat": "strength",
           "perCount": 1,
-          "countZone": "hand",
-          "countOwner": {
-            "type": "self"
+          "countFilter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "hand"
           },
           "target": {
             "type": "this"
           }
-        }
+        },
+        "storyName": "HIDDEN WONDERS",
+        "rulesText": "This character gets +1 {S} for each card in your hand."
       }
     ],
     "setId": "9",
@@ -2107,17 +2114,16 @@
             "type": "move_damage",
             "amount": 1,
             "isUpTo": true,
-            "from": {
+            "source": {
               "type": "chosen",
               "filter": {
                 "zone": "play",
                 "cardType": [
                   "character"
-                ],
-                "hasDamage": true
+                ]
               }
             },
-            "to": {
+            "destination": {
               "type": "chosen",
               "filter": {
                 "owner": {
@@ -2185,17 +2191,16 @@
             "type": "move_damage",
             "amount": 3,
             "isUpTo": true,
-            "from": {
+            "source": {
               "type": "chosen",
               "filter": {
                 "zone": "play",
                 "cardType": [
                   "character"
-                ],
-                "hasDamage": true
+                ]
               }
             },
-            "to": {
+            "destination": {
               "type": "chosen",
               "filter": {
                 "owner": {
@@ -2297,8 +2302,8 @@
               "cardType": [
                 "character"
               ],
-              "excludeSelf": true,
-              "hasKeyword": "rush"
+              "hasKeyword": "rush",
+              "excludeSelf": true
             }
           }
         }
@@ -2345,8 +2350,6 @@
       },
       {
         "type": "triggered",
-        "storyName": "DEEP FREEZE",
-        "rulesText": "When you play this character, exert up to 2 chosen characters. They can't ready at the start of their next turn.",
         "trigger": {
           "on": "enters_play"
         },
@@ -2355,26 +2358,29 @@
             "type": "exert",
             "target": {
               "type": "chosen",
-              "count": 2,
               "filter": {
                 "zone": "play",
                 "cardType": [
                   "character"
                 ]
-              }
+              },
+              "count": 2
             },
+            "isUpTo": true,
             "followUpEffects": [
               {
                 "type": "cant_action",
                 "action": "ready",
-                "duration": "end_of_owner_next_turn",
                 "target": {
                   "type": "this"
-                }
+                },
+                "duration": "end_of_owner_next_turn"
               }
             ]
           }
-        ]
+        ],
+        "storyName": "DEEP FREEZE",
+        "rulesText": "When you play this character, exert up to 2 chosen characters. They can't ready at the start of their next turn."
       }
     ],
     "setId": "9",
@@ -2757,10 +2763,10 @@
           {
             "type": "draw",
             "amount": 1,
-            "isMay": true,
             "target": {
               "type": "self"
-            }
+            },
+            "isMay": true
           }
         ]
       }
@@ -2837,17 +2843,15 @@
           "on": "enters_play"
         },
         "condition": {
-          "type": "you_control_matching",
-          "filter": {
-            "owner": {
-              "type": "opponent"
-            },
-            "zone": "play",
-            "cardType": [
-              "character"
-            ],
-            "isExerted": true
-          }
+          "type": "cards_in_zone_gte",
+          "zone": "play",
+          "amount": 1,
+          "player": {
+            "type": "opponent"
+          },
+          "cardType": [
+            "character"
+          ]
         },
         "effects": [
           {
@@ -2897,27 +2901,26 @@
       {
         "type": "triggered",
         "storyName": "MANY FORMS",
-        "rulesText": "At the start of your turn, you may choose one: This character gets +1 {L} this turn. This character gains Challenger +2 this turn.",
+        "rulesText": "At the start of your turn, you may choose one: this character gets +1 {L} this turn; or this character gains Challenger +2 this turn.",
         "trigger": {
-          "on": "turn_start"
-        },
-        "condition": {
-          "type": "is_your_turn"
+          "on": "turn_start",
+          "player": {
+            "type": "self"
+          }
         },
         "effects": [
           {
             "type": "choose",
-            "count": 1,
+            "isMay": true,
             "options": [
               [
                 {
                   "type": "gain_stats",
                   "lore": 1,
-                  "duration": "this_turn",
                   "target": {
                     "type": "this"
                   },
-                  "isMay": true
+                  "duration": "this_turn"
                 }
               ],
               [
@@ -2925,11 +2928,10 @@
                   "type": "grant_keyword",
                   "keyword": "challenger",
                   "value": 2,
-                  "duration": "end_of_turn",
                   "target": {
                     "type": "this"
                   },
-                  "isMay": true
+                  "duration": "end_of_turn"
                 }
               ]
             ]
@@ -2973,8 +2975,6 @@
     "abilities": [
       {
         "type": "activated",
-        "storyName": "FREEZE",
-        "rulesText": "Exert chosen opposing character.",
         "costs": [
           {
             "type": "exert"
@@ -2986,17 +2986,19 @@
             "target": {
               "type": "chosen",
               "filter": {
-                "owner": {
-                  "type": "opponent"
-                },
                 "zone": "play",
                 "cardType": [
                   "character"
-                ]
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
               }
             }
           }
-        ]
+        ],
+        "storyName": "FREEZE",
+        "rulesText": "{E} — Exert chosen opposing character."
       }
     ],
     "setId": "9",
@@ -3041,12 +3043,25 @@
         },
         "effects": [
           {
-            "type": "draw",
-            "amount": 3,
+            "type": "sequential",
             "isMay": true,
-            "target": {
-              "type": "self"
-            }
+            "costEffects": [
+              {
+                "type": "shuffle_into_deck",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 3,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           }
         ]
       }
@@ -3146,15 +3161,10 @@
           {
             "type": "move_damage",
             "amount": 2,
-            "isUpTo": true,
-            "isMay": true,
             "from": {
               "type": "chosen",
               "filter": {
                 "zone": "play",
-                "cardType": [
-                  "character"
-                ],
                 "hasDamage": true
               }
             },
@@ -3249,7 +3259,8 @@
         "effects": [
           {
             "type": "look_at_top",
-            "amount": 2,
+            "count": 2,
+            "action": "reorder",
             "target": {
               "type": "self"
             }
@@ -3417,20 +3428,17 @@
       {
         "type": "grant_keyword",
         "keyword": "challenger",
-        "keywordValue": 2,
-        "duration": "this_turn",
+        "value": 2,
         "target": {
           "type": "chosen",
           "filter": {
-            "owner": {
-              "type": "self"
-            },
             "zone": "play",
             "cardType": [
               "character"
             ]
           }
-        }
+        },
+        "duration": "end_of_turn"
       }
     ]
   },
@@ -3463,17 +3471,14 @@
       {
         "type": "cant_action",
         "action": "ready",
-        "duration": "end_of_owner_next_turn",
         "target": {
           "type": "chosen",
           "filter": {
             "zone": "play",
-            "cardType": [
-              "character"
-            ],
             "isExerted": true
           }
-        }
+        },
+        "duration": "end_of_owner_next_turn"
       }
     ]
   },
@@ -3564,7 +3569,31 @@
     "cost": 2,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 4
+          }
+        ],
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ],
+        "storyName": "SPEAK!",
+        "rulesText": "{E}, 4 {I} — Draw a card."
+      }
+    ],
     "setId": "9",
     "number": 65,
     "rarity": "uncommon",
@@ -3599,7 +3628,41 @@
     "cost": 3,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "rush",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "end_of_turn"
+          }
+        ],
+        "storyName": "I'M LATE!",
+        "rulesText": "{E}, 1 {I} — Chosen character gains Rush this turn. (They can challenge the turn they're played.)"
+      }
+    ],
     "setId": "9",
     "number": 66,
     "rarity": "rare",
@@ -3641,7 +3704,49 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "MYSTICAL PETALS",
+        "rulesText": "{E} — Move 1 damage counter from chosen character to chosen opposing character.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 2
+          }
+        ],
+        "effects": [
+          {
+            "type": "move_damage",
+            "amount": 1,
+            "from": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "to": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "9",
     "number": 67,
     "rarity": "common",
@@ -3707,17 +3812,7 @@
           }
         },
         "condition": {
-          "type": "you_control_matching",
-          "filter": {
-            "owner": {
-              "type": "self"
-            },
-            "zone": "play",
-            "cardType": [
-              "character"
-            ],
-            "atLocation": "this"
-          }
+          "type": "this_location_has_character"
         },
         "effects": [
           {
@@ -3768,20 +3863,20 @@
       },
       {
         "type": "triggered",
-        "storyName": "NO TOUCHY!",
-        "rulesText": "When this character is challenged and banished, you may banish the challenging character.",
         "trigger": {
           "on": "banished_in_challenge"
         },
         "effects": [
           {
             "type": "banish",
-            "isMay": true,
             "target": {
               "type": "triggering_card"
-            }
+            },
+            "isMay": true
           }
-        ]
+        ],
+        "storyName": "NO TOUCHY!",
+        "rulesText": "When this character is challenged and banished, you may banish the challenging character."
       }
     ],
     "setId": "9",
@@ -3854,7 +3949,8 @@
             "amount": 1,
             "target": {
               "type": "opponent"
-            }
+            },
+            "chooser": "target_player"
           }
         ]
       }
@@ -3910,8 +4006,8 @@
               "cardType": [
                 "character"
               ],
-              "excludeSelf": true,
-              "hasTrait": "Hero"
+              "hasTrait": "Hero",
+              "excludeSelf": true
             }
           }
         }
@@ -4357,8 +4453,6 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "WONDER BOY",
-        "rulesText": "When you play this character, chosen character gets +2 {S} this turn.",
         "trigger": {
           "on": "enters_play"
         },
@@ -4366,7 +4460,6 @@
           {
             "type": "gain_stats",
             "strength": 2,
-            "duration": "this_turn",
             "target": {
               "type": "chosen",
               "filter": {
@@ -4375,9 +4468,12 @@
                   "character"
                 ]
               }
-            }
+            },
+            "duration": "this_turn"
           }
-        ]
+        ],
+        "storyName": "WONDER BOY",
+        "rulesText": "When you play this character, chosen character gets +2 {S} this turn."
       }
     ],
     "setId": "9",
@@ -4517,20 +4613,17 @@
           "filter": {
             "cardType": [
               "action"
-            ],
-            "owner": {
-              "type": "self"
-            }
+            ]
           }
         },
         "effects": [
           {
             "type": "gain_stats",
             "strength": 2,
-            "duration": "this_turn",
             "target": {
               "type": "this"
-            }
+            },
+            "duration": "this_turn"
           }
         ]
       }
@@ -4617,18 +4710,18 @@
           {
             "type": "draw",
             "amount": 1,
-            "isMay": true,
             "target": {
               "type": "self"
-            }
+            },
+            "isMay": true
           },
           {
             "type": "draw",
             "amount": 1,
-            "isMay": true,
             "target": {
               "type": "opponent"
-            }
+            },
+            "isMay": true
           }
         ]
       }
@@ -4672,6 +4765,10 @@
         "rulesText": "When you play this character, if an opponent has more cards in their inkwell than you, you may put the top card of your deck into your inkwell facedown and exerted.",
         "trigger": {
           "on": "enters_play"
+        },
+        "condition": {
+          "type": "opponent_has_more_than_self",
+          "metric": "cards_in_inkwell"
         },
         "effects": [
           {
@@ -4724,14 +4821,15 @@
         "storyName": "I'LL HANDLE THIS",
         "rulesText": "While this character is at a location, she gets +3 {S}.",
         "effect": {
-          "type": "gain_stats",
-          "strength": 3,
+          "type": "modify_stat",
+          "stat": "strength",
+          "amount": 3,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "this_at_location"
           }
+        },
+        "condition": {
+          "type": "this_at_location"
         }
       },
       {
@@ -4748,10 +4846,10 @@
           {
             "type": "draw",
             "amount": 1,
-            "isMay": true,
             "target": {
               "type": "self"
-            }
+            },
+            "isMay": true
           }
         ]
       }
@@ -4801,8 +4899,6 @@
       },
       {
         "type": "triggered",
-        "storyName": "PIXIE DUST",
-        "rulesText": "When you play this character, chosen character gains Evasive this turn.",
         "trigger": {
           "on": "enters_play"
         },
@@ -4810,7 +4906,6 @@
           {
             "type": "grant_keyword",
             "keyword": "evasive",
-            "duration": "this_turn",
             "target": {
               "type": "chosen",
               "filter": {
@@ -4819,9 +4914,12 @@
                   "character"
                 ]
               }
-            }
+            },
+            "duration": "end_of_turn"
           }
-        ]
+        ],
+        "storyName": "PIXIE DUST",
+        "rulesText": "When you play this character, chosen character gains Evasive this turn."
       }
     ],
     "setId": "9",
@@ -4861,8 +4959,6 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "PICK YOUR FIGHTS",
-        "rulesText": "When you play this character, chosen opposing character gains Reckless during their next turn.",
         "trigger": {
           "on": "enters_play"
         },
@@ -4870,26 +4966,26 @@
           {
             "type": "grant_keyword",
             "keyword": "reckless",
-            "duration": "end_of_owner_next_turn",
             "target": {
               "type": "chosen",
               "filter": {
-                "owner": {
-                  "type": "opponent"
-                },
                 "zone": "play",
                 "cardType": [
                   "character"
-                ]
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
               }
-            }
+            },
+            "duration": "end_of_owner_next_turn"
           }
-        ]
+        ],
+        "storyName": "PICK YOUR FIGHTS",
+        "rulesText": "When you play this character and whenever he quests, chosen opposing character gains Reckless during their next turn. (They can't quest and must challenge if able.)"
       },
       {
         "type": "triggered",
-        "storyName": "PICK YOUR FIGHTS",
-        "rulesText": "Whenever he quests, chosen opposing character gains Reckless during their next turn.",
         "trigger": {
           "on": "quests"
         },
@@ -4897,21 +4993,23 @@
           {
             "type": "grant_keyword",
             "keyword": "reckless",
-            "duration": "end_of_owner_next_turn",
             "target": {
               "type": "chosen",
               "filter": {
-                "owner": {
-                  "type": "opponent"
-                },
                 "zone": "play",
                 "cardType": [
                   "character"
-                ]
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
               }
-            }
+            },
+            "duration": "end_of_owner_next_turn"
           }
-        ]
+        ],
+        "storyName": "PICK YOUR FIGHTS",
+        "rulesText": "When you play this character and whenever he quests, chosen opposing character gains Reckless during their next turn. (They can't quest and must challenge if able.)"
       }
     ],
     "setId": "9",
@@ -4970,10 +5068,10 @@
             },
             "chooser": "controller",
             "filter": {
-              "zone": "hand",
               "cardType": [
                 "action"
-              ]
+              ],
+              "hasTrait": "Song"
             }
           }
         ]
@@ -5121,7 +5219,8 @@
             "amount": 1,
             "target": {
               "type": "opponent"
-            }
+            },
+            "chooser": "target_player"
           }
         ]
       }
@@ -5243,7 +5342,8 @@
         "amount": 1,
         "target": {
           "type": "opponent"
-        }
+        },
+        "chooser": "target_player"
       }
     ]
   },
@@ -5276,7 +5376,6 @@
       {
         "type": "gain_stats",
         "strength": 1,
-        "duration": "this_turn",
         "target": {
           "type": "chosen",
           "filter": {
@@ -5285,7 +5384,8 @@
               "character"
             ]
           }
-        }
+        },
+        "duration": "this_turn"
       },
       {
         "type": "draw",
@@ -5376,16 +5476,39 @@
     ],
     "actionEffects": [
       {
-        "type": "banish",
-        "target": {
-          "type": "chosen",
-          "filter": {
-            "zone": "play",
-            "cardType": [
-              "item"
-            ]
-          }
-        }
+        "type": "choose",
+        "options": [
+          [
+            {
+              "type": "banish",
+              "target": {
+                "type": "chosen",
+                "filter": {
+                  "zone": "play",
+                  "cardType": [
+                    "item"
+                  ]
+                }
+              }
+            }
+          ],
+          [
+            {
+              "type": "deal_damage",
+              "amount": 2,
+              "target": {
+                "type": "chosen",
+                "filter": {
+                  "zone": "play",
+                  "cardType": [
+                    "character"
+                  ],
+                  "hasDamage": true
+                }
+              }
+            }
+          ]
+        ]
       }
     ]
   },
@@ -5543,12 +5666,12 @@
         "trigger": {
           "on": "card_played",
           "filter": {
-            "cardType": [
-              "action"
-            ],
             "owner": {
               "type": "opponent"
             },
+            "cardType": [
+              "action"
+            ],
             "hasTrait": "Song"
           }
         },
@@ -5593,7 +5716,7 @@
       {
         "type": "static",
         "storyName": "REVITALIZING WATERS",
-        "rulesText": "Characters get +1 {S} and +1 {W} while here. Characters get +1 {W} while here.",
+        "rulesText": "Characters get +1 {S} while here. Characters get +1 {W} while here.",
         "effect": [
           {
             "type": "modify_stat",
@@ -5602,6 +5725,7 @@
             "target": {
               "type": "all",
               "filter": {
+                "zone": "play",
                 "cardType": [
                   "character"
                 ],
@@ -5616,6 +5740,7 @@
             "target": {
               "type": "all",
               "filter": {
+                "zone": "play",
                 "cardType": [
                   "character"
                 ],
@@ -5661,8 +5786,6 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "FAN THE FLAMES",
-        "rulesText": "When you play this character, ready chosen character. They can't quest for the rest of this turn.",
         "trigger": {
           "on": "enters_play"
         },
@@ -5682,14 +5805,16 @@
               {
                 "type": "cant_action",
                 "action": "quest",
-                "duration": "this_turn",
                 "target": {
                   "type": "this"
-                }
+                },
+                "duration": "end_of_turn"
               }
             ]
           }
-        ]
+        ],
+        "storyName": "FAN THE FLAMES",
+        "rulesText": "When you play this character, ready chosen character. They can't quest for the rest of this turn."
       }
     ],
     "setId": "9",
@@ -5734,11 +5859,7 @@
           "filter": {
             "owner": {
               "type": "self"
-            },
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
+            }
           }
         },
         "effects": [
@@ -5824,11 +5945,13 @@
       {
         "type": "activated",
         "storyName": "I GOT YOUR BACK",
-        "rulesText": "2 {I} – Ready this character. He can't quest for the rest of this turn.",
+        "rulesText": "Ready this character. He can't quest for the rest of this turn.",
         "costs": [
           {
-            "type": "pay_ink",
-            "amount": 2
+            "type": "exert"
+          },
+          {
+            "type": "banish_self"
           }
         ],
         "effects": [
@@ -5841,10 +5964,10 @@
               {
                 "type": "cant_action",
                 "action": "quest",
-                "duration": "end_of_turn",
                 "target": {
                   "type": "this"
-                }
+                },
+                "duration": "end_of_turn"
               }
             ]
           }
@@ -5896,7 +6019,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "COLLECTOR",
+        "storyName": "INSPIRING VOICE",
         "rulesText": "Whenever you play a song, chosen character of yours gains Evasive until the start of your next turn.",
         "trigger": {
           "on": "card_played",
@@ -5904,9 +6027,6 @@
             "cardType": [
               "action"
             ],
-            "owner": {
-              "type": "self"
-            },
             "hasTrait": "Song"
           }
         },
@@ -5914,7 +6034,6 @@
           {
             "type": "grant_keyword",
             "keyword": "evasive",
-            "duration": "until_caster_next_turn",
             "target": {
               "type": "chosen",
               "filter": {
@@ -5926,7 +6045,8 @@
                   "character"
                 ]
               }
-            }
+            },
+            "duration": "until_caster_next_turn"
           }
         ]
       }
@@ -5959,15 +6079,12 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "DRAGON FIRE",
-        "rulesText": "When you play this character, you may banish chosen character.",
         "trigger": {
           "on": "enters_play"
         },
         "effects": [
           {
             "type": "banish",
-            "isMay": true,
             "target": {
               "type": "chosen",
               "filter": {
@@ -5976,9 +6093,12 @@
                   "character"
                 ]
               }
-            }
+            },
+            "isMay": true
           }
-        ]
+        ],
+        "storyName": "DRAGON FIRE",
+        "rulesText": "When you play this character, you may banish chosen character."
       }
     ],
     "setId": "9",
@@ -6465,9 +6585,11 @@
           "type": "modify_stat_per_count",
           "stat": "strength",
           "perCount": 1,
-          "countZone": "hand",
-          "countOwner": {
-            "type": "opponent"
+          "countFilter": {
+            "owner": {
+              "type": "opponent"
+            },
+            "zone": "hand"
           },
           "target": {
             "type": "this"
@@ -6534,7 +6656,7 @@
                 "cardType": [
                   "character"
                 ],
-                "maxStrength": 1
+                "strengthAtMost": 1
               }
             }
           }
@@ -6589,21 +6711,17 @@
           "filter": {
             "owner": {
               "type": "self"
-            },
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
+            }
           }
         },
         "effects": [
           {
             "type": "draw",
             "amount": 1,
-            "isMay": true,
             "target": {
               "type": "self"
-            }
+            },
+            "isMay": true
           }
         ]
       }
@@ -6646,8 +6764,9 @@
         "storyName": "FERVENT ADDRESS",
         "rulesText": "Your other characters get +1 {S}.",
         "effect": {
-          "type": "gain_stats",
-          "strength": 1,
+          "type": "modify_stat",
+          "stat": "strength",
+          "amount": 1,
           "target": {
             "type": "all",
             "filter": {
@@ -6756,20 +6875,20 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "TANGLE",
-        "rulesText": "When you play this character, each opponent loses 1 lore.",
         "trigger": {
           "on": "enters_play"
         },
         "effects": [
           {
-            "type": "lose_lore",
-            "amount": 1,
+            "type": "gain_lore",
+            "amount": -1,
             "target": {
               "type": "opponent"
             }
           }
-        ]
+        ],
+        "storyName": "TANGLE",
+        "rulesText": "When you play this character, each opponent loses 1 lore."
       }
     ],
     "setId": "9",
@@ -6817,7 +6936,6 @@
           {
             "type": "deal_damage",
             "amount": 2,
-            "asDamageCounter": true,
             "target": {
               "type": "this"
             }
@@ -6866,39 +6984,41 @@
       },
       {
         "type": "triggered",
+        "storyName": "STRAIGHT SHOOTER",
+        "rulesText": "When you play this character, if you used Shift to play her, she gets +3 {S} this turn.",
         "trigger": {
           "on": "enters_play"
         },
-        "storyName": "STRAIGHT SHOOTER",
-        "rulesText": "When you play this character, if you used Shift to play her, she gets +3 {S} this turn.",
         "condition": {
           "type": "played_via_shift"
         },
         "effects": [
           {
-            "type": "gain_stats",
-            "strength": 3,
-            "duration": "this_turn",
+            "type": "modify_stat",
+            "stat": "strength",
+            "amount": 3,
             "target": {
               "type": "this"
-            }
+            },
+            "duration": "end_of_turn"
           }
         ]
       },
       {
         "type": "triggered",
+        "storyName": "TRIPLE SHOT",
+        "rulesText": "During your turn, whenever this character deals damage to another character in a challenge, deal the same amount of damage to up to 2 other chosen characters.",
         "trigger": {
           "on": "deals_damage_in_challenge"
         },
-        "storyName": "TRIPLE SHOT",
-        "rulesText": "During your turn, whenever this character deals damage to another character in a challenge, deal the same amount of damage to up to 2 other chosen characters.",
         "condition": {
           "type": "is_your_turn"
         },
         "effects": [
           {
             "type": "deal_damage",
-            "amount": "triggering_card_damage",
+            "amount": "last_damage_dealt",
+            "isMay": true,
             "target": {
               "type": "chosen",
               "filter": {
@@ -6907,8 +7027,22 @@
                   "character"
                 ],
                 "excludeSelf": true
-              },
-              "count": 2
+              }
+            }
+          },
+          {
+            "type": "deal_damage",
+            "amount": "last_damage_dealt",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true
+              }
             }
           }
         ]
@@ -6956,7 +7090,7 @@
       {
         "type": "triggered",
         "storyName": "NOTE TO SELF, DON'T DIE",
-        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may ready this character. If you do, she can't quest for the rest of this turn.",
+        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may ready this character. She can't quest for the rest of this turn.",
         "trigger": {
           "on": "banished_other_in_challenge"
         },
@@ -6966,18 +7100,18 @@
         "effects": [
           {
             "type": "ready",
-            "isMay": true,
             "target": {
               "type": "this"
             },
+            "isMay": true,
             "followUpEffects": [
               {
                 "type": "cant_action",
                 "action": "quest",
-                "duration": "this_turn",
                 "target": {
                   "type": "this"
-                }
+                },
+                "duration": "end_of_turn"
               }
             ]
           }
@@ -7045,6 +7179,61 @@
       {
         "type": "keyword",
         "keyword": "evasive"
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "isMay": true,
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": 2,
+            "duration": "this_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "notId": "self"
+              }
+            }
+          },
+          {
+            "type": "move_character",
+            "character": {
+              "type": "last_resolved_target"
+            },
+            "location": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "location"
+                ]
+              }
+            }
+          },
+          {
+            "type": "move_character",
+            "character": {
+              "type": "this"
+            },
+            "location": {
+              "type": "last_resolved_target"
+            }
+          }
+        ],
+        "storyName": "ON A ROLL"
       }
     ],
     "setId": "9",
@@ -7173,7 +7362,6 @@
       {
         "type": "grant_keyword",
         "keyword": "evasive",
-        "duration": "until_caster_next_turn",
         "target": {
           "type": "chosen",
           "filter": {
@@ -7182,7 +7370,8 @@
               "character"
             ]
           }
-        }
+        },
+        "duration": "until_caster_next_turn"
       }
     ]
   },
@@ -7402,7 +7591,8 @@
                 "zone": "play",
                 "cardType": [
                   "character"
-                ]
+                ],
+                "hasDamage": true
               }
             },
             "conditionFilter": {},
@@ -7417,10 +7607,12 @@
                 }
               },
               {
-                "type": "banish"
+                "type": "banish",
+                "target": {
+                  "type": "last_resolved_target"
+                }
               }
-            ],
-            "defaultEffects": []
+            ]
           }
         ]
       }
@@ -7489,7 +7681,6 @@
           {
             "type": "gain_stats",
             "lore": 1,
-            "duration": "this_turn",
             "target": {
               "type": "all",
               "filter": {
@@ -7500,10 +7691,11 @@
                 "cardType": [
                   "character"
                 ],
-                "excludeSelf": true,
-                "hasTrait": "Hero"
+                "hasTrait": "Hero",
+                "excludeSelf": true
               }
-            }
+            },
+            "duration": "this_turn"
           }
         ]
       }
@@ -7552,14 +7744,33 @@
         "trigger": {
           "on": "quests"
         },
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            {
+              "type": "has_character_named",
+              "name": "Dewey",
+              "player": {
+                "type": "self"
+              }
+            },
+            {
+              "type": "has_character_named",
+              "name": "Louie",
+              "player": {
+                "type": "self"
+              }
+            }
+          ]
+        },
         "effects": [
           {
             "type": "draw",
             "amount": 3,
-            "isMay": true,
             "target": {
               "type": "self"
-            }
+            },
+            "isMay": true
           }
         ]
       }
@@ -7932,10 +8143,10 @@
           "keyword": "evasive",
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "is_your_turn"
           }
+        },
+        "condition": {
+          "type": "is_your_turn"
         }
       }
     ],
@@ -7976,26 +8187,21 @@
       {
         "type": "static",
         "storyName": "I WAS BORN READY",
-        "rulesText": "While you have another Hero character in play, this character gets +1 {L}.",
+        "rulesText": "If you have another Hero character in play, this character gets +1 {L}.",
+        "condition": {
+          "type": "has_character_with_trait",
+          "trait": "Hero",
+          "player": {
+            "type": "self"
+          },
+          "excludeSelf": true
+        },
         "effect": {
-          "type": "gain_stats",
-          "lore": 1,
+          "type": "modify_stat",
+          "stat": "lore",
+          "amount": 1,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "you_control_matching",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "excludeSelf": true,
-              "hasTrait": "Hero"
-            }
           }
         }
       }
@@ -8067,17 +8273,37 @@
           "on": "enters_play"
         },
         "condition": {
-          "type": "you_control_matching",
-          "filter": {
-            "zone": "play",
-            "cardType": [
-              "character"
-            ],
-            "hasAnyTrait": [
-              "Princess",
-              "Queen"
-            ]
-          }
+          "type": "compound_or",
+          "conditions": [
+            {
+              "type": "has_character_with_trait",
+              "trait": "Princess",
+              "player": {
+                "type": "self"
+              }
+            },
+            {
+              "type": "has_character_with_trait",
+              "trait": "Queen",
+              "player": {
+                "type": "self"
+              }
+            },
+            {
+              "type": "has_character_with_trait",
+              "trait": "Princess",
+              "player": {
+                "type": "opponent"
+              }
+            },
+            {
+              "type": "has_character_with_trait",
+              "trait": "Queen",
+              "player": {
+                "type": "opponent"
+              }
+            }
+          ]
         },
         "effects": [
           {
@@ -8135,11 +8361,12 @@
         "effects": [
           {
             "type": "look_at_top",
-            "amount": 3,
-            "isMay": true,
+            "count": 3,
+            "action": "reorder",
             "target": {
               "type": "self"
-            }
+            },
+            "isMay": true
           }
         ]
       }
@@ -8186,11 +8413,7 @@
           "filter": {
             "owner": {
               "type": "self"
-            },
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
+            }
           }
         },
         "effects": [
@@ -8240,30 +8463,30 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "IS THERE A DOWNSIDE TO THIS?",
-        "rulesText": "When you play this character, you may put chosen opposing character into their player's inkwell facedown.",
         "trigger": {
           "on": "enters_play"
         },
         "effects": [
           {
             "type": "move_to_inkwell",
-            "isMay": true,
-            "fromZone": "play",
             "target": {
               "type": "chosen",
               "filter": {
-                "owner": {
-                  "type": "opponent"
-                },
                 "zone": "play",
                 "cardType": [
                   "character"
-                ]
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
               }
-            }
+            },
+            "enterExerted": false,
+            "isMay": true
           }
-        ]
+        ],
+        "storyName": "IS THERE A DOWNSIDE TO THIS?",
+        "rulesText": "? When you play this character, you may put chosen opposing character into their player's inkwell facedown."
       }
     ],
     "setId": "9",
@@ -8309,20 +8532,17 @@
             "cardType": [
               "action"
             ],
-            "owner": {
-              "type": "self"
-            },
             "hasTrait": "Song"
           }
         },
         "effects": [
           {
             "type": "move_to_inkwell",
-            "fromZone": "deck",
-            "enterExerted": true,
             "target": {
-              "type": "self"
+              "type": "this"
             },
+            "enterExerted": true,
+            "fromZone": "deck",
             "isMay": true
           }
         ]
@@ -8369,8 +8589,6 @@
       },
       {
         "type": "static",
-        "storyName": "PROTECTIVE EMBRACE",
-        "rulesText": "Your other characters gain Ward.",
         "effect": {
           "type": "grant_keyword",
           "keyword": "ward",
@@ -8387,7 +8605,9 @@
               "excludeSelf": true
             }
           }
-        }
+        },
+        "storyName": "PROTECTIVE EMBRACE",
+        "rulesText": "Your other characters gain Ward. (Opponents can't choose them except to challenge.)"
       }
     ],
     "setId": "9",
@@ -8467,19 +8687,17 @@
           {
             "type": "remove_damage",
             "amount": 1,
-            "isUpTo": true,
             "target": {
               "type": "chosen",
               "filter": {
+                "zone": "play",
                 "owner": {
                   "type": "self"
                 },
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ]
+                "hasDamage": true
               }
-            }
+            },
+            "isUpTo": true
           }
         ]
       }
@@ -8521,14 +8739,12 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "TINKER",
-        "rulesText": "Whenever this character quests, you pay 1 {I} less for the next item you play this turn.",
         "trigger": {
           "on": "quests"
         },
         "effects": [
           {
-            "type": "grant_cost_reduction",
+            "type": "cost_reduction",
             "amount": 1,
             "filter": {
               "cardType": [
@@ -8536,7 +8752,9 @@
               ]
             }
           }
-        ]
+        ],
+        "storyName": "TINKER",
+        "rulesText": "Whenever this character quests, you pay 1 {I} less for the next item you play this turn."
       }
     ],
     "setId": "9",
@@ -8575,23 +8793,37 @@
       {
         "type": "triggered",
         "storyName": "DON'T CALL ME CUTE",
-        "rulesText": "When you play this character, you may banish chosen item. If you do, its player draws a card.",
+        "rulesText": "When you play this character, you may banish chosen item. Its player draws a card.",
         "trigger": {
           "on": "enters_play"
         },
         "effects": [
           {
-            "type": "banish",
+            "type": "sequential",
             "isMay": true,
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "zone": "play",
-                "cardType": [
-                  "item"
-                ]
+            "costEffects": [
+              {
+                "type": "banish",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "item"
+                    ]
+                  }
+                }
               }
-            }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "target_owner"
+                }
+              }
+            ]
           }
         ]
       }
@@ -8640,7 +8872,6 @@
           {
             "type": "gain_stats",
             "strength": -2,
-            "duration": "this_turn",
             "target": {
               "type": "chosen",
               "filter": {
@@ -8649,7 +8880,8 @@
                   "character"
                 ]
               }
-            }
+            },
+            "duration": "this_turn"
           }
         ]
       }
@@ -8697,8 +8929,6 @@
         "effects": [
           {
             "type": "move_to_inkwell",
-            "isMay": true,
-            "fromZone": "hand",
             "target": {
               "type": "chosen",
               "filter": {
@@ -8707,7 +8937,10 @@
                 },
                 "zone": "hand"
               }
-            }
+            },
+            "enterExerted": false,
+            "isMay": true,
+            "fromZone": "hand"
           }
         ]
       }
@@ -8851,36 +9084,38 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "FEED THE POOR",
-        "rulesText": "When you play this character, if an opponent has more cards in their hand than you, you may draw a card.",
         "trigger": {
           "on": "enters_play"
+        },
+        "condition": {
+          "type": "opponent_has_more_cards_in_hand"
         },
         "effects": [
           {
             "type": "draw",
             "amount": 1,
-            "isMay": true,
             "target": {
               "type": "self"
             }
           }
-        ]
+        ],
+        "storyName": "FEED THE POOR",
+        "rulesText": "When you play this character, if an opponent has more cards in their hand than you, draw a card."
       },
       {
         "type": "static",
-        "storyName": "GOOD SHOT",
-        "rulesText": "During your turn, this character gains Evasive.",
+        "condition": {
+          "type": "is_your_turn"
+        },
         "effect": {
           "type": "grant_keyword",
           "keyword": "evasive",
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "is_your_turn"
           }
-        }
+        },
+        "storyName": "GOOD SHOT",
+        "rulesText": "During your turn, this character gains Evasive. (They can challenge characters with Evasive.)"
       }
     ],
     "setId": "9",
@@ -8935,8 +9170,7 @@
       {
         "type": "look_at_top",
         "count": 2,
-        "action": "up_to_n_to_hand_rest_bottom",
-        "maxToHand": 1,
+        "action": "one_to_hand_rest_bottom",
         "target": {
           "type": "self"
         }
@@ -8978,8 +9212,7 @@
       {
         "type": "grant_keyword",
         "keyword": "resist",
-        "keywordValue": 2,
-        "duration": "until_caster_next_turn",
+        "value": 2,
         "target": {
           "type": "all",
           "filter": {
@@ -8991,7 +9224,8 @@
               "character"
             ]
           }
-        }
+        },
+        "duration": "until_caster_next_turn"
       }
     ]
   },
@@ -9030,11 +9264,11 @@
     "actionEffects": [
       {
         "type": "move_to_inkwell",
-        "fromZone": "deck",
-        "enterExerted": true,
         "target": {
-          "type": "self"
-        }
+          "type": "this"
+        },
+        "enterExerted": true,
+        "fromZone": "deck"
       }
     ]
   },
@@ -9103,21 +9337,18 @@
           "filter": {
             "owner": {
               "type": "self"
-            },
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
+            }
           }
         },
         "effects": [
           {
             "type": "look_at_top",
-            "amount": 1,
-            "isMay": true,
+            "count": 1,
+            "action": "top_or_bottom",
             "target": {
               "type": "self"
-            }
+            },
+            "isMay": true
           }
         ]
       }
@@ -9147,7 +9378,32 @@
     "cost": 3,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "CREATE LIFE",
+        "rulesText": "Put the top card of your deck into your inkwell facedown and exerted.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 2
+          }
+        ],
+        "effects": [
+          {
+            "type": "move_to_inkwell",
+            "target": {
+              "type": "this"
+            },
+            "enterExerted": true,
+            "fromZone": "deck"
+          }
+        ]
+      }
+    ],
     "setId": "9",
     "number": 168,
     "rarity": "rare",
@@ -9186,17 +9442,15 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "CONSIDER THE COCONUT",
-        "rulesText": "Whenever you play a character, you may remove up to 2 damage from chosen character.",
         "trigger": {
           "on": "card_played",
           "filter": {
-            "cardType": [
-              "character"
-            ],
             "owner": {
               "type": "self"
-            }
+            },
+            "cardType": [
+              "character"
+            ]
           }
         },
         "effects": [
@@ -9204,7 +9458,6 @@
             "type": "remove_damage",
             "amount": 2,
             "isUpTo": true,
-            "isMay": true,
             "target": {
               "type": "chosen",
               "filter": {
@@ -9213,9 +9466,12 @@
                   "character"
                 ]
               }
-            }
+            },
+            "isMay": true
           }
-        ]
+        ],
+        "storyName": "CONSIDER THE COCONUT",
+        "rulesText": "Whenever you play a character, you may remove up to 2 damage from chosen character."
       }
     ],
     "setId": "9",
@@ -9249,23 +9505,22 @@
         "storyName": "REINCARNATION",
         "rulesText": "Whenever a character is banished while here, you may put that card into your inkwell facedown and exerted.",
         "trigger": {
-          "on": "banished_other_in_challenge",
+          "on": "is_banished",
           "filter": {
+            "atLocation": "this",
             "cardType": [
               "character"
-            ],
-            "atLocation": "this"
+            ]
           }
         },
         "effects": [
           {
-            "type": "reveal_top_conditional",
-            "filter": {},
-            "matchAction": "to_inkwell_exerted",
-            "isMay": true,
+            "type": "move_to_inkwell",
             "target": {
-              "type": "self"
-            }
+              "type": "triggering_card"
+            },
+            "enterExerted": true,
+            "isMay": true
           }
         ]
       }
@@ -9309,7 +9564,7 @@
         "effect": {
           "type": "grant_keyword",
           "keyword": "challenger",
-          "keywordValue": 1,
+          "value": 1,
           "target": {
             "type": "all",
             "filter": {
@@ -9322,8 +9577,7 @@
               ],
               "hasTrait": "Hero"
             }
-          },
-          "value": 1
+          }
         }
       },
       {
@@ -9336,9 +9590,6 @@
             "cardType": [
               "character"
             ],
-            "owner": {
-              "type": "self"
-            },
             "hasTrait": "Hero"
           }
         },
@@ -9406,17 +9657,10 @@
         "effects": [
           {
             "type": "play_for_free",
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "hand",
-                "cardType": [
-                  "character"
-                ]
-              }
+            "filter": {
+              "cardType": [
+                "character"
+              ]
             }
           }
         ]
@@ -9840,7 +10084,6 @@
       },
       {
         "type": "triggered",
-        "storyName": "THE GOOD OF OTHERS",
         "rulesText": "When this character is banished in a challenge, you may draw a card.",
         "trigger": {
           "on": "banished_in_challenge"
@@ -9849,10 +10092,10 @@
           {
             "type": "draw",
             "amount": 1,
-            "isMay": true,
             "target": {
               "type": "self"
-            }
+            },
+            "isMay": true
           }
         ]
       }
@@ -10008,7 +10251,6 @@
         "effects": [
           {
             "type": "banish",
-            "isMay": true,
             "target": {
               "type": "chosen",
               "filter": {
@@ -10017,7 +10259,8 @@
                   "item"
                 ]
               }
-            }
+            },
+            "isMay": true
           }
         ]
       }
@@ -10065,10 +10308,10 @@
           "keyword": "evasive",
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "is_your_turn"
           }
+        },
+        "condition": {
+          "type": "is_your_turn"
         }
       }
     ],
@@ -10231,8 +10474,7 @@
           {
             "type": "grant_keyword",
             "keyword": "challenger",
-            "keywordValue": 2,
-            "duration": "this_turn",
+            "value": 2,
             "target": {
               "type": "chosen",
               "filter": {
@@ -10241,7 +10483,8 @@
                   "character"
                 ]
               }
-            }
+            },
+            "duration": "end_of_turn"
           }
         ]
       }
@@ -10319,14 +10562,15 @@
         "storyName": "PAYBACK",
         "rulesText": "While this character has no damage, he gets +4 {S}.",
         "effect": {
-          "type": "gain_stats",
-          "strength": 4,
+          "type": "modify_stat",
+          "stat": "strength",
+          "amount": 4,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "this_has_no_damage"
           }
+        },
+        "condition": {
+          "type": "this_has_no_damage"
         }
       }
     ],
@@ -10371,8 +10615,6 @@
       },
       {
         "type": "triggered",
-        "storyName": "ROCK THE BOAT",
-        "rulesText": "When you play this character, deal 1 damage to each opposing character.",
         "trigger": {
           "on": "enters_play"
         },
@@ -10383,47 +10625,49 @@
             "target": {
               "type": "all",
               "filter": {
-                "owner": {
-                  "type": "opponent"
-                },
                 "zone": "play",
                 "cardType": [
                   "character"
-                ]
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
               }
             }
           }
-        ]
+        ],
+        "storyName": "ROCK THE BOAT",
+        "rulesText": "When you play this character, deal 1 damage to each opposing character."
       },
       {
         "type": "triggered",
-        "storyName": "PUNY PIRATE!",
-        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character.",
         "trigger": {
           "on": "banished_other_in_challenge"
-        },
-        "condition": {
-          "type": "is_your_turn"
         },
         "effects": [
           {
             "type": "deal_damage",
             "amount": 2,
-            "isMay": true,
             "target": {
               "type": "chosen",
               "filter": {
-                "owner": {
-                  "type": "opponent"
-                },
                 "zone": "play",
                 "cardType": [
                   "character"
-                ]
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
               }
-            }
+            },
+            "isMay": true
           }
-        ]
+        ],
+        "storyName": "PUNY PIRATE!",
+        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character.",
+        "condition": {
+          "type": "is_your_turn"
+        }
       }
     ],
     "setId": "9",
@@ -10467,8 +10711,6 @@
     "abilities": [
       {
         "type": "activated",
-        "storyName": "BATTLE PLANS",
-        "rulesText": "Draw a card, then choose and discard a card.",
         "costs": [
           {
             "type": "exert"
@@ -10487,9 +10729,12 @@
             "amount": 1,
             "target": {
               "type": "self"
-            }
+            },
+            "chooser": "target_player"
           }
-        ]
+        ],
+        "storyName": "BATTLE PLANS",
+        "rulesText": "{E} — Draw a card, then choose and discard a card."
       }
     ],
     "setId": "9",
@@ -10529,15 +10774,12 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "DOUBLE THE POWDER!",
-        "rulesText": "When you play this character, you may return an action card named Fire the Cannons! from your discard to your hand.",
         "trigger": {
           "on": "enters_play"
         },
         "effects": [
           {
             "type": "return_to_hand",
-            "isMay": true,
             "target": {
               "type": "chosen",
               "filter": {
@@ -10548,11 +10790,14 @@
                 "cardType": [
                   "action"
                 ],
-                "name": "Fire the Cannons!"
+                "hasName": "Fire the Cannons!"
               }
-            }
+            },
+            "isMay": true
           }
-        ]
+        ],
+        "storyName": "DOUBLE THE POWDER!",
+        "rulesText": "When you play this character, you may return an action card named Fire the Cannons! from your discard to your hand."
       }
     ],
     "setId": "9",
@@ -10625,16 +10870,16 @@
       {
         "type": "static",
         "storyName": "CHART YOUR OWN COURSE",
-        "rulesText": "For each location you have in play, this character gains Resist +1 and gets +1 {L}.",
+        "rulesText": "For each location you have in play, this character gets +1 {L}.",
         "effect": {
           "type": "modify_stat_per_count",
           "stat": "lore",
           "perCount": 1,
-          "countZone": "play",
-          "countOwner": {
-            "type": "self"
-          },
           "countFilter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
             "cardType": [
               "location"
             ]
@@ -10825,9 +11070,6 @@
             "cardType": [
               "action"
             ],
-            "owner": {
-              "type": "self"
-            },
             "hasTrait": "Song"
           }
         },
@@ -10845,7 +11087,8 @@
             "amount": 1,
             "target": {
               "type": "self"
-            }
+            },
+            "chooser": "controller"
           }
         ]
       }
@@ -10903,8 +11146,7 @@
       {
         "type": "grant_keyword",
         "keyword": "resist",
-        "keywordValue": 2,
-        "duration": "until_caster_next_turn",
+        "value": 2,
         "target": {
           "type": "chosen",
           "filter": {
@@ -10913,7 +11155,8 @@
               "character"
             ]
           }
-        }
+        },
+        "duration": "until_caster_next_turn"
       }
     ]
   },
@@ -11084,13 +11327,13 @@
         "amount": {
           "type": "count",
           "filter": {
+            "owner": {
+              "type": "self"
+            },
             "zone": "play",
             "cardType": [
               "character"
-            ],
-            "owner": {
-              "type": "self"
-            }
+            ]
           }
         },
         "target": {
@@ -11147,12 +11390,10 @@
         "amount": 3,
         "target": {
           "type": "chosen",
-          "count": 3,
           "filter": {
             "zone": "play",
             "cardType": [
-              "character",
-              "location"
+              "character"
             ]
           }
         }
@@ -11171,7 +11412,38 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 3
+          }
+        ],
+        "condition": {
+          "type": "cards_in_hand_eq",
+          "amount": 0,
+          "player": {
+            "type": "self"
+          }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ],
+        "storyName": "SHOW ME",
+        "rulesText": "{E}, 3 {I} — If you have no cards in your hand, draw a card."
+      }
+    ],
     "setId": "9",
     "number": 203,
     "rarity": "common",
@@ -11223,7 +11495,7 @@
         "effect": {
           "type": "grant_keyword",
           "keyword": "resist",
-          "keywordValue": 1,
+          "value": 1,
           "target": {
             "type": "all",
             "filter": {
@@ -11232,8 +11504,7 @@
               ],
               "atLocation": "this"
             }
-          },
-          "value": 1
+          }
         }
       }
     ],
@@ -11434,7 +11705,6 @@
           {
             "type": "cant_action",
             "action": "ready",
-            "duration": "end_of_owner_next_turn",
             "target": {
               "type": "chosen",
               "filter": {
@@ -11446,7 +11716,8 @@
                   "character"
                 ]
               }
-            }
+            },
+            "duration": "end_of_owner_next_turn"
           }
         ]
       }
@@ -11495,10 +11766,10 @@
           {
             "type": "draw",
             "amount": 1,
-            "isMay": true,
             "target": {
               "type": "self"
-            }
+            },
+            "isMay": true
           }
         ]
       }
@@ -11540,8 +11811,6 @@
     "abilities": [
       {
         "type": "activated",
-        "storyName": "FREEZE",
-        "rulesText": "Exert chosen opposing character.",
         "costs": [
           {
             "type": "exert"
@@ -11553,17 +11822,19 @@
             "target": {
               "type": "chosen",
               "filter": {
-                "owner": {
-                  "type": "opponent"
-                },
                 "zone": "play",
                 "cardType": [
                   "character"
-                ]
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
               }
             }
           }
-        ]
+        ],
+        "storyName": "FREEZE",
+        "rulesText": "{E} — Exert chosen opposing character."
       }
     ],
     "setId": "9",
@@ -12019,26 +12290,21 @@
       {
         "type": "static",
         "storyName": "I WAS BORN READY",
-        "rulesText": "While you have another Hero character in play, this character gets +1 {L}.",
+        "rulesText": "If you have another Hero character in play, this character gets +1 {L}.",
+        "condition": {
+          "type": "has_character_with_trait",
+          "trait": "Hero",
+          "player": {
+            "type": "self"
+          },
+          "excludeSelf": true
+        },
         "effect": {
-          "type": "gain_stats",
-          "lore": 1,
+          "type": "modify_stat",
+          "stat": "lore",
+          "amount": 1,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "you_control_matching",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "excludeSelf": true,
-              "hasTrait": "Hero"
-            }
           }
         }
       }
@@ -12088,11 +12354,12 @@
         "effects": [
           {
             "type": "look_at_top",
-            "amount": 3,
-            "isMay": true,
+            "count": 3,
+            "action": "reorder",
             "target": {
               "type": "self"
-            }
+            },
+            "isMay": true
           }
         ]
       }
@@ -12200,8 +12467,7 @@
           {
             "type": "grant_keyword",
             "keyword": "challenger",
-            "keywordValue": 2,
-            "duration": "this_turn",
+            "value": 2,
             "target": {
               "type": "chosen",
               "filter": {
@@ -12210,7 +12476,8 @@
                   "character"
                 ]
               }
-            }
+            },
+            "duration": "end_of_turn"
           }
         ]
       }
@@ -12268,8 +12535,7 @@
       {
         "type": "grant_keyword",
         "keyword": "resist",
-        "keywordValue": 2,
-        "duration": "until_caster_next_turn",
+        "value": 2,
         "target": {
           "type": "chosen",
           "filter": {
@@ -12278,7 +12544,8 @@
               "character"
             ]
           }
-        }
+        },
+        "duration": "until_caster_next_turn"
       }
     ]
   },
@@ -12300,7 +12567,7 @@
       {
         "type": "activated",
         "storyName": "TWILIGHT BARK",
-        "rulesText": "Once during your turn, you may pay 2 {I} to reveal the top card of your deck. If it's a character card, put it into your hand. Otherwise, put it on the bottom of your deck.",
+        "rulesText": "Once per turn, you may pay 2 {I} to reveal the top card of your deck. If it's a character card, put it into your hand. Otherwise, put it on the bottom of your deck.",
         "costs": [
           {
             "type": "pay_ink",
@@ -12484,17 +12751,16 @@
             "type": "move_damage",
             "amount": 3,
             "isUpTo": true,
-            "from": {
+            "source": {
               "type": "chosen",
               "filter": {
                 "zone": "play",
                 "cardType": [
                   "character"
-                ],
-                "hasDamage": true
+                ]
               }
             },
-            "to": {
+            "destination": {
               "type": "chosen",
               "filter": {
                 "owner": {
@@ -12856,9 +13122,6 @@
             "cardType": [
               "action"
             ],
-            "owner": {
-              "type": "self"
-            },
             "hasTrait": "Song"
           }
         },
@@ -12866,7 +13129,6 @@
           {
             "type": "grant_keyword",
             "keyword": "evasive",
-            "duration": "until_caster_next_turn",
             "target": {
               "type": "chosen",
               "filter": {
@@ -12878,7 +13140,8 @@
                   "character"
                 ]
               }
-            }
+            },
+            "duration": "until_caster_next_turn"
           }
         ]
       }
@@ -13211,30 +13474,30 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "IS THERE A DOWNSIDE TO THIS?",
-        "rulesText": "When you play this character, you may put chosen opposing character into their player's inkwell facedown.",
         "trigger": {
           "on": "enters_play"
         },
         "effects": [
           {
             "type": "move_to_inkwell",
-            "isMay": true,
-            "fromZone": "play",
             "target": {
               "type": "chosen",
               "filter": {
-                "owner": {
-                  "type": "opponent"
-                },
                 "zone": "play",
                 "cardType": [
                   "character"
-                ]
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
               }
-            }
+            },
+            "enterExerted": false,
+            "isMay": true
           }
-        ]
+        ],
+        "storyName": "IS THERE A DOWNSIDE TO THIS?",
+        "rulesText": "? When you play this character, you may put chosen opposing character into their player's inkwell facedown."
       }
     ],
     "setId": "9",

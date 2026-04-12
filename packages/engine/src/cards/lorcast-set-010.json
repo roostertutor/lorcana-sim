@@ -9050,22 +9050,22 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "GET A CLUE",
-        "rulesText": "When you play this character, you may put the top card of your deck into your inkwell facedown and exerted.",
         "trigger": {
           "on": "enters_play"
         },
         "effects": [
           {
             "type": "move_to_inkwell",
-            "fromZone": "deck",
-            "enterExerted": true,
             "target": {
-              "type": "self"
+              "type": "this"
             },
+            "enterExerted": true,
+            "fromZone": "deck",
             "isMay": true
           }
-        ]
+        ],
+        "storyName": "GET A CLUE",
+        "rulesText": "When you play this character, you may put the top card of your deck into your inkwell facedown and exerted."
       }
     ],
     "setId": "10",

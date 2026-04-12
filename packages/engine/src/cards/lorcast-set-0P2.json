@@ -770,7 +770,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "TEETH AND AMBITIONS",
+        "storyName": "BARED TEETH",
         "rulesText": "When you play this character, deal 2 damage to chosen character of yours to deal 2 damage to chosen character.",
         "trigger": {
           "on": "enters_play"
@@ -1206,7 +1206,7 @@
       },
       {
         "type": "static",
-        "storyName": "ENORMOUS RESPONSIBILITY",
+        "storyName": "BIG RESPONSIBILITY",
         "rulesText": "While this character is damaged, he gets +2 {S}.",
         "effect": {
           "type": "gain_stats",
@@ -1936,9 +1936,8 @@
                   {
                     "type": "play_for_free",
                     "sourceZone": "discard",
-                    "filter": {
-                      "cardType": "character",
-                      "hasTrait": "Illusion"
+                    "target": {
+                      "type": "from_last_discarded"
                     },
                     "isMay": true
                   }
@@ -2022,9 +2021,8 @@
                   {
                     "type": "play_for_free",
                     "sourceZone": "discard",
-                    "filter": {
-                      "cardType": "character",
-                      "hasTrait": "Illusion"
+                    "target": {
+                      "type": "from_last_discarded"
                     },
                     "isMay": true
                   }
