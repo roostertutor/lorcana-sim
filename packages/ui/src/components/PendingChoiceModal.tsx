@@ -25,6 +25,15 @@ export default function PendingChoiceModal({
   onHide,
   onResolveChoice,
 }: Props) {
+  // State for choose_amount picker (must be top-level per rules of hooks)
+  const [chooseAmountValue, setChooseAmountValue] = React.useState(0);
+  const chooseAmountMax = (pendingChoice as any).max ?? 0;
+  React.useEffect(() => {
+    if (pendingChoice.type === "choose_amount") {
+      setChooseAmountValue((pendingChoice as any).max ?? 0);
+    }
+  }, [pendingChoice]);
+
   function getName(instanceId: string): string {
     const instance = gameState.cards[instanceId];
     if (!instance) return "Unknown";
@@ -155,6 +164,40 @@ export default function PendingChoiceModal({
               Confirm (as opponent)
             </button>
           )}
+        </div>
+      );
+    }
+
+    // Choose amount (isUpTo: "remove up to 3 damage", "move up to 2 counters")
+    if (pendingChoice.type === "choose_amount") {
+      const min = (pendingChoice as any).min ?? 0;
+      const max = chooseAmountMax;
+      return (
+        <div className="space-y-4">
+          <div className="text-yellow-300 text-sm font-medium">{pendingChoice.prompt}</div>
+          <div className="flex items-center justify-center gap-3">
+            <button
+              className="w-8 h-8 rounded-full bg-gray-700 hover:bg-gray-600 text-gray-200 text-lg font-bold disabled:opacity-30"
+              disabled={chooseAmountValue <= min}
+              onClick={() => setChooseAmountValue(a => Math.max(min, a - 1))}
+            >
+              −
+            </button>
+            <span className="text-2xl font-black text-white w-10 text-center">{chooseAmountValue}</span>
+            <button
+              className="w-8 h-8 rounded-full bg-gray-700 hover:bg-gray-600 text-gray-200 text-lg font-bold disabled:opacity-30"
+              disabled={chooseAmountValue >= max}
+              onClick={() => setChooseAmountValue(a => Math.min(max, a + 1))}
+            >
+              +
+            </button>
+          </div>
+          <button
+            className="w-full px-4 py-2 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-medium transition-colors"
+            onClick={() => onResolveChoice(chooseAmountValue)}
+          >
+            Confirm ({chooseAmountValue})
+          </button>
         </div>
       );
     }
@@ -409,24 +452,41 @@ export default function PendingChoiceModal({
       );
     }
 
-    // Option picker
+    // Option picker — quote the source card's ability text
     if (pendingChoice.type === "choose_option" && pendingChoice.options) {
+      const srcId = (pendingChoice as any).sourceInstanceId;
+      const srcInst = srcId ? gameState.cards[srcId] : undefined;
+      const srcDef = srcInst ? definitions[srcInst.definitionId] : undefined;
+      // Find the ability with type "choose" to get the rulesText
+      const chooseAbility = srcDef?.abilities.find((a: any) =>
+        (a.type === "triggered" || a.type === "activated") &&
+        a.effects?.some((e: any) => e.type === "choose")
+      ) as { storyName?: string; rulesText?: string } | undefined;
+      const abilityText = chooseAbility
+        ? (chooseAbility.storyName ? `${chooseAbility.storyName} ${chooseAbility.rulesText ?? ""}` : (chooseAbility.rulesText ?? ""))
+        : "";
+      // Split on " or " to get per-option labels from the rules text
+      const orParts = abilityText.split(/ or /i);
       return (
         <div className="space-y-3">
           <div>
-            <div className="text-yellow-300 text-sm font-medium">{pendingChoice.prompt}</div>
-            {contextHints.length > 0 && (
-              <div className="text-[10px] text-gray-500 mt-0.5">{contextHints.join(" · ")}</div>
+            <div className="text-yellow-300 text-sm font-medium">
+              {srcDef ? srcDef.fullName : "Choose one:"}
+            </div>
+            {abilityText && (
+              <div className="text-gray-400 text-xs mt-0.5">{abilityText.trim()}</div>
             )}
           </div>
           <div className="flex flex-wrap gap-2">
-            {pendingChoice.options.map((_, i) => (
+            {pendingChoice.options.map((_: any, i: number) => (
               <button
                 key={i}
-                className="px-4 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg border border-gray-600 font-medium transition-colors"
+                className="px-4 py-2 text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg border border-gray-600 font-medium transition-colors"
                 onClick={() => onResolveChoice(i)}
               >
-                Option {i + 1}
+                {orParts.length === pendingChoice.options.length
+                  ? orParts[i]!.replace(/^(when you play this character, |choose and )/i, "").trim()
+                  : `Option ${i + 1}`}
               </button>
             ))}
           </div>

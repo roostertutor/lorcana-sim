@@ -235,6 +235,7 @@ export default function SandboxPanel({
                 >
                   <span className="font-medium">{d.fullName}</span>
                   <span className="ml-1.5 text-gray-600">({d.cost})</span>
+                  <span className="ml-1 text-gray-700">S{(d as any).setId}</span>
                 </button>
               ))}
             </div>

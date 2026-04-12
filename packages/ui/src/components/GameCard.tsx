@@ -118,9 +118,9 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
     : null;
 
   const loreDelta = staticBonus?.lore ?? 0;
-  const hasModifiedStats = (strength != null && strength !== (def.strength ?? 0))
-    || (willpowerModified != null && willpowerModified !== (def.willpower ?? 0))
-    || loreDelta !== 0;
+  const hasAnyStatMod = (staticBonus?.strength ?? 0) !== 0 || (staticBonus?.willpower ?? 0) !== 0 || loreDelta !== 0
+    || (instance.timedEffects ?? []).some((te: any) => te.type === "modify_strength" || te.type === "modify_willpower" || te.type === "modify_lore");
+  const hasModifiedStats = hasAnyStatMod;
 
   // Keyword badges — check both printed abilities and dynamically granted keywords
   const BADGE_KEYWORDS = ["alert", "bodyguard", "boost", "challenger", "evasive", "reckless", "resist", "rush", "singer", "support", "ward"] as const;
@@ -150,7 +150,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   const KEYWORD_STYLE: Record<BadgeKeyword, string> = {
     alert:      "bg-lime-500/90",
     bodyguard:  "bg-blue-600/90",
-    boost:      "bg-violet-600/90",
+    boost:      "bg-teal-600/90",
     challenger: "bg-amber-500/90",
     evasive:    "bg-sky-500/90",
     reckless:   "bg-orange-600/90",
@@ -205,10 +205,12 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
           onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
         />
 
-        {/* Modified stats — bottom-right delta badges */}
+        {/* Modified stats — bottom-right delta badges (raw modifiers, not clamped) */}
         {hasModifiedStats && strength != null && willpowerModified != null && (() => {
-          const sDelta = strength - (def.strength ?? 0);
-          const wDelta = willpowerModified - (def.willpower ?? 0);
+          const timedS = (instance.timedEffects ?? []).filter((te: any) => te.type === "modify_strength").reduce((s: number, te: any) => s + (te.amount ?? 0), 0);
+          const timedW = (instance.timedEffects ?? []).filter((te: any) => te.type === "modify_willpower").reduce((s: number, te: any) => s + (te.amount ?? 0), 0);
+          const sDelta = timedS + (staticBonus?.strength ?? 0);
+          const wDelta = timedW + (staticBonus?.willpower ?? 0);
           return (
             <div className="absolute bottom-0.5 right-0.5 z-10 pointer-events-none flex flex-col gap-0.5 items-end">
               {sDelta !== 0 && (

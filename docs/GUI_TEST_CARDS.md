@@ -81,21 +81,21 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 | OK  | Feature | Card | Set |
 |-----|---------|------|-----|
 | [X] | Both-side grouping | Fire the Cannons | 1 |
-| [ ] | Revealed hand + discard | Ursula - Deceiver (any version) | 3/9 |
-| [ ] | Cross-player chooser | Tiana - Restaurant Owner | 5 |
-| [ ] | Multi-select discard | You Have Forgotten Me | 1 |
-| [ ] | "[A] or [B]" forced choice | Megara - Captivating Cynic | 4 |
+| [X] | Revealed hand + discard | Ursula - Deceiver (any version) | 3/9 |
+| [X] | Cross-player chooser | Tiana - Restaurant Owner | 5 |
+| [X] | Multi-select discard | You Have Forgotten Me | 1 |
+| [X] | "[A] or [B]" forced choice | Megara - Captivating Cynic | 4 |
 
 ## Popover Actions (click card → action buttons)
 
-| OK | Feature | Card | Set |
-|----|---------|------|-----|
-| [ ] | Play (normal) | Any hand card with enough ink | any |
-| [ ] | Ink | Any inkable hand card | any |
-| [ ] | Shift (ink-cost) | Hades - King of Olympus → click target | 1 |
+| OK  | Feature | Card | Set |
+|-----|---------|------|-----|
+| [X] | Play (normal) | Any hand card with enough ink | any |
+| [X] | Ink | Any inkable hand card | any |
+| [X] | Shift (ink-cost) | Hades - King of Olympus → click target | 1 |
 | [ ] | Shift (alt-cost discard) | Diablo - Devoted Herald → click target → click cost card | 4 |
-| [ ] | Sing | Any song → click singer | 1 |
-| [ ] | Challenge | Any ready character → click exerted opponent | any |
+| [X] | Sing | Any song → click singer | 1 |
+| [X] | Challenge | Any ready character → click exerted opponent | any |
 | [ ] | Move | Any ready character → click location | 3+ |
 | [ ] | Quest | Any ready non-drying character | any |
 | [ ] | Boost | Bambi - Ethereal Fawn (pay ink, deck top → under) | 10 |
