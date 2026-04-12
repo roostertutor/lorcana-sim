@@ -22,6 +22,36 @@ Add a number picker to PendingChoiceModal for `choose_amount` type:
 
 ---
 
+## GUI: Stat modifier badge shows clamped delta instead of actual modifier
+
+**From:** Engine session (2026-04-12)
+
+**Bug:** GameCard.tsx line ~210 computes `sDelta = strength - (def.strength ?? 0)` where `strength` is from `getEffectiveStrength` (clamped to 0 per CRD 6.6.2). So Elsa (2 {S}) with Tiana's -3 {S} debuff shows "-2" instead of "-3".
+
+**CRD 6.6.2:** "counts as having a Strength of 0 **except for the purpose of applying modifiers**" — the modifier IS -3, the floor is just for combat.
+
+**Fix:** For the badge, sum `timedEffects.filter(te => te.type === "modify_strength").reduce(sum, te.amount)` + `staticBonus?.strength` directly instead of computing delta from the clamped effective value. The badge should show the raw modifier total, not the effective-vs-printed delta.
+
+---
+
 ~~## Engine: Set 3 Ursula - Deceiver missing `reveal_hand` effect~~ **DONE**
 
 Fixed 2026-04-12 — `reveal_hand` added before `discard_from_hand`.
+
+---
+
+## Engine: choose_amount re-entry loop — `isUpTo` not cleared on resolve
+
+**From:** GUI session (2026-04-12)
+
+**Bug:** When RESOLVE_CHOICE processes a `choose_amount`, it spreads the pending effect and overrides `amount` but keeps `isUpTo: true`. Then `applyEffectToTarget` sees `isUpTo: true` and creates ANOTHER `choose_amount` with the just-chosen amount as the new max. This loops: pick 3 → new modal 0-3, pick 2 → new modal 0-2, ... until confirm(0).
+
+**One-liner fix** at `reducer.ts` line ~2091:
+```js
+// Before (bug):
+const overridden = { ...pendingEffect, amount } as Effect;
+// After (fix):
+const overridden = { ...pendingEffect, amount, isUpTo: false } as Effect;
+```
+
+Setting `isUpTo: false` prevents re-entry — the overridden effect applies the chosen amount directly.
