@@ -1158,18 +1158,18 @@
           "target": {
             "type": "this"
           },
-          "condition": {
-            "type": "you_control_matching",
-            "filter": {
-              "cardType": [
-                "character"
-              ],
-              "inkColor": "amber",
-              "excludeSelf": true
-            },
-            "minCount": 2
-          },
           "value": 8
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "inkColor": "amber",
+            "excludeSelf": true
+          },
+          "minCount": 2
         }
       }
     ],
@@ -2662,10 +2662,10 @@
           "lore": 2,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "is_your_turn"
           }
+        },
+        "condition": {
+          "type": "is_your_turn"
         }
       }
     ],
@@ -6130,10 +6130,10 @@
           "strength": 2,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "a_character_was_banished_in_challenge_this_turn"
           }
+        },
+        "condition": {
+          "type": "a_character_was_banished_in_challenge_this_turn"
         }
       }
     ],
@@ -6912,15 +6912,15 @@
           "lore": 2,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "characters_in_play_gte",
-            "amount": 2,
-            "player": {
-              "type": "self"
-            },
-            "excludeSelf": true
           }
+        },
+        "condition": {
+          "type": "characters_in_play_gte",
+          "amount": 2,
+          "player": {
+            "type": "self"
+          },
+          "excludeSelf": true
         }
       }
     ],
@@ -6986,9 +6986,6 @@
               "hasKeyword": "reckless"
             }
           },
-          "condition": {
-            "type": "this_has_cards_under"
-          },
           "ability": {
             "type": "activated",
             "storyName": "RECKLESS LORE",
@@ -7008,6 +7005,9 @@
               }
             ]
           }
+        },
+        "condition": {
+          "type": "this_has_cards_under"
         }
       }
     ],
@@ -8477,9 +8477,6 @@
                 ],
                 "hasTrait": "Detective"
               }
-            },
-            "condition": {
-              "type": "is_your_turn"
             }
           },
           {
@@ -8499,12 +8496,20 @@
                 "hasTrait": "Detective"
               }
             },
-            "condition": {
-              "type": "is_your_turn"
-            },
             "value": 2
           }
-        ]
+        ],
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            {
+              "type": "is_your_turn"
+            },
+            {
+              "type": "is_your_turn"
+            }
+          ]
+        }
       }
     ],
     "setId": "10",
@@ -11594,10 +11599,10 @@
           },
           "target": {
             "type": "self"
-          },
-          "condition": {
-            "type": "this_location_has_character"
           }
+        },
+        "condition": {
+          "type": "this_location_has_character"
         }
       }
     ],
@@ -12076,10 +12081,10 @@
           "lore": 2,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "is_your_turn"
           }
+        },
+        "condition": {
+          "type": "is_your_turn"
         }
       }
     ],
@@ -12391,9 +12396,6 @@
               "hasKeyword": "reckless"
             }
           },
-          "condition": {
-            "type": "this_has_cards_under"
-          },
           "ability": {
             "type": "activated",
             "storyName": "RECKLESS LORE",
@@ -12413,6 +12415,9 @@
               }
             ]
           }
+        },
+        "condition": {
+          "type": "this_has_cards_under"
         }
       }
     ],
@@ -13709,9 +13714,6 @@
                 ],
                 "hasTrait": "Detective"
               }
-            },
-            "condition": {
-              "type": "is_your_turn"
             }
           },
           {
@@ -13731,12 +13733,20 @@
                 "hasTrait": "Detective"
               }
             },
-            "condition": {
-              "type": "is_your_turn"
-            },
             "value": 2
           }
-        ]
+        ],
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            {
+              "type": "is_your_turn"
+            },
+            {
+              "type": "is_your_turn"
+            }
+          ]
+        }
       }
     ],
     "setId": "10",

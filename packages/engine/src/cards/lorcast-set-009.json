@@ -2669,19 +2669,19 @@
           "lore": 1,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "you_control_matching",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasKeyword": "evasive"
-            }
+          }
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasKeyword": "evasive"
           }
         }
       }
@@ -4290,10 +4290,10 @@
               ],
               "excludeSelf": true
             }
-          },
-          "condition": {
-            "type": "this_is_exerted"
           }
+        },
+        "condition": {
+          "type": "this_is_exerted"
         }
       }
     ],
@@ -6252,10 +6252,10 @@
           "lore": 3,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "this_has_cards_under"
           }
+        },
+        "condition": {
+          "type": "this_has_cards_under"
         }
       }
     ],
@@ -6349,19 +6349,19 @@
           "lore": 1,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "you_control_matching",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasKeyword": "singer"
-            }
+          }
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasKeyword": "singer"
           }
         }
       }
@@ -8064,10 +8064,10 @@
               ],
               "costAtMost": 2
             }
-          },
-          "condition": {
-            "type": "is_your_turn"
           }
+        },
+        "condition": {
+          "type": "is_your_turn"
         }
       }
     ],
@@ -9708,9 +9708,6 @@
             "lore": 1,
             "target": {
               "type": "this"
-            },
-            "condition": {
-              "type": "this_has_no_damage"
             }
           },
           {
@@ -9720,12 +9717,20 @@
             "target": {
               "type": "this"
             },
-            "condition": {
-              "type": "this_has_no_damage"
-            },
             "value": 1
           }
-        ]
+        ],
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            {
+              "type": "this_has_no_damage"
+            },
+            {
+              "type": "this_has_no_damage"
+            }
+          ]
+        }
       }
     ],
     "setId": "9",
@@ -10148,10 +10153,10 @@
           "keyword": "evasive",
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "is_your_turn"
           }
+        },
+        "condition": {
+          "type": "is_your_turn"
         }
       },
       {
@@ -12980,10 +12985,10 @@
               ],
               "excludeSelf": true
             }
-          },
-          "condition": {
-            "type": "this_is_exerted"
           }
+        },
+        "condition": {
+          "type": "this_is_exerted"
         }
       }
     ],
@@ -13433,10 +13438,10 @@
               ],
               "costAtMost": 2
             }
-          },
-          "condition": {
-            "type": "is_your_turn"
           }
+        },
+        "condition": {
+          "type": "is_your_turn"
         }
       }
     ],
@@ -13762,10 +13767,10 @@
           "keyword": "evasive",
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "is_your_turn"
           }
+        },
+        "condition": {
+          "type": "is_your_turn"
         }
       },
       {
@@ -13935,10 +13940,10 @@
           "lore": 3,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "this_has_cards_under"
           }
+        },
+        "condition": {
+          "type": "this_has_cards_under"
         }
       }
     ],

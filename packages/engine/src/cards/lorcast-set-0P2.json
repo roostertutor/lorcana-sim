@@ -724,10 +724,10 @@
           "keyword": "evasive",
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "is_your_turn"
           }
+        },
+        "condition": {
+          "type": "is_your_turn"
         }
       }
     ],
@@ -1213,10 +1213,10 @@
           "strength": 2,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "this_has_damage"
           }
+        },
+        "condition": {
+          "type": "this_has_damage"
         }
       }
     ],
@@ -1567,9 +1567,6 @@
             "strength": 2,
             "target": {
               "type": "this"
-            },
-            "condition": {
-              "type": "this_has_no_damage"
             }
           },
           {
@@ -1577,12 +1574,20 @@
             "keyword": "support",
             "target": {
               "type": "this"
-            },
-            "condition": {
-              "type": "this_has_no_damage"
             }
           }
-        ]
+        ],
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            {
+              "type": "this_has_no_damage"
+            },
+            {
+              "type": "this_has_no_damage"
+            }
+          ]
+        }
       }
     ],
     "setId": "P2",
@@ -1782,20 +1787,20 @@
           "lore": 1,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "you_control_matching",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "excludeSelf": true,
-              "hasTrait": "Puppy"
-            }
+          }
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true,
+            "hasTrait": "Puppy"
           }
         }
       }

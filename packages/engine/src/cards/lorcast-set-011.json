@@ -2599,13 +2599,13 @@
           "keyword": "evasive",
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "cards_in_hand_gte",
-            "amount": 4,
-            "player": {
-              "type": "self"
-            }
+          }
+        },
+        "condition": {
+          "type": "cards_in_hand_gte",
+          "amount": 4,
+          "player": {
+            "type": "self"
           }
         }
       },
@@ -9256,15 +9256,15 @@
         "rulesText": "If you have a character named Darkwing Duck in play, you pay 1 {I} less to play this item.",
         "effect": {
           "type": "self_cost_reduction",
-          "amount": 1,
-          "condition": {
-            "type": "you_control_matching",
-            "filter": {
-              "cardType": [
-                "character"
-              ],
-              "hasName": "Darkwing Duck"
-            }
+          "amount": 1
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "hasName": "Darkwing Duck"
           }
         }
       },
@@ -10235,13 +10235,13 @@
           "value": 3,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "has_character_named",
-            "name": "Lilo",
-            "player": {
-              "type": "self"
-            }
+          }
+        },
+        "condition": {
+          "type": "has_character_named",
+          "name": "Lilo",
+          "player": {
+            "type": "self"
           }
         }
       }
@@ -10615,13 +10615,13 @@
           "value": 2,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "cards_in_hand_eq",
-            "amount": 0,
-            "player": {
-              "type": "self"
-            }
+          }
+        },
+        "condition": {
+          "type": "cards_in_hand_eq",
+          "amount": 0,
+          "player": {
+            "type": "self"
           }
         }
       },
@@ -13576,13 +13576,13 @@
           "value": 2,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "cards_in_hand_eq",
-            "amount": 0,
-            "player": {
-              "type": "self"
-            }
+          }
+        },
+        "condition": {
+          "type": "cards_in_hand_eq",
+          "amount": 0,
+          "player": {
+            "type": "self"
           }
         }
       },

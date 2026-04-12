@@ -919,19 +919,19 @@
           "lore": 1,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "you_control_matching",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasName": "Dolores Madrigal"
-            }
+          }
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasName": "Dolores Madrigal"
           }
         }
       }
@@ -5625,19 +5625,19 @@
           "lore": 1,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "you_control_matching",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasName": "Tramp"
-            }
+          }
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasName": "Tramp"
           }
         }
       }
@@ -5744,12 +5744,12 @@
           "lore": 2,
           "target": {
             "type": "this"
-          },
+          }
+        },
+        "condition": {
+          "type": "not",
           "condition": {
-            "type": "not",
-            "condition": {
-              "type": "opponent_has_more_cards_in_hand"
-            }
+            "type": "opponent_has_more_cards_in_hand"
           }
         }
       }
@@ -6937,10 +6937,10 @@
           "strength": 3,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "this_has_damage"
           }
+        },
+        "condition": {
+          "type": "this_has_damage"
         }
       }
     ],
@@ -7304,16 +7304,16 @@
           "strength": 2,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "you_control_matching",
-            "filter": {
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasDamage": true
-            }
+          }
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasDamage": true
           }
         }
       }
@@ -7360,18 +7360,18 @@
           "strength": 2,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "you_control_matching",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "discard",
-              "cardType": [
-                "item"
-              ]
-            }
+          }
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "discard",
+            "cardType": [
+              "item"
+            ]
           }
         }
       }
@@ -7526,10 +7526,10 @@
           "strength": 2,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "this_has_damage"
           }
+        },
+        "condition": {
+          "type": "this_has_damage"
         }
       }
     ],
@@ -9648,19 +9648,19 @@
           "keyword": "ward",
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "you_control_matching",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasTrait": "Hero"
-            }
+          }
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Hero"
           }
         }
       }
@@ -10237,10 +10237,10 @@
           "target": {
             "type": "this"
           },
-          "condition": {
-            "type": "this_has_no_damage"
-          },
           "value": 2
+        },
+        "condition": {
+          "type": "this_has_no_damage"
         }
       }
     ],
@@ -10316,10 +10316,10 @@
           "keyword": "evasive",
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "is_your_turn"
           }
+        },
+        "condition": {
+          "type": "is_your_turn"
         }
       }
     ],
@@ -10719,25 +10719,25 @@
           "keyword": "evasive",
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "compound_and",
-            "conditions": [
-              {
-                "type": "is_your_turn"
-              },
-              {
-                "type": "you_control_matching",
-                "filter": {
-                  "zone": "play",
-                  "cardType": [
-                    "character"
-                  ],
-                  "hasTrait": "Pirate"
-                }
-              }
-            ]
           }
+        },
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            {
+              "type": "is_your_turn"
+            },
+            {
+              "type": "you_control_matching",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Pirate"
+              }
+            }
+          ]
         }
       }
     ],
@@ -10785,21 +10785,21 @@
           "target": {
             "type": "this"
           },
-          "condition": {
-            "type": "you_control_matching",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "excludeSelf": true,
-              "hasTrait": "Pirate"
-            }
-          },
           "value": 3
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true,
+            "hasTrait": "Pirate"
+          }
         }
       }
     ],
@@ -10905,57 +10905,62 @@
           "keyword": "evasive",
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "compound_and",
-            "conditions": [
-              {
-                "type": "is_your_turn"
-              },
-              {
-                "type": "compound_or",
-                "conditions": [
-                  {
-                    "type": "has_character_named",
-                    "name": "Miss Bianca",
-                    "player": {
-                      "type": "self"
-                    }
-                  },
-                  {
-                    "type": "has_character_named",
-                    "name": "Bernard",
-                    "player": {
-                      "type": "self"
-                    }
-                  }
-                ]
-              }
-            ]
           }
         },
         "condition": {
           "type": "compound_and",
           "conditions": [
             {
-              "type": "is_your_turn"
-            },
-            {
-              "type": "compound_or",
+              "type": "compound_and",
               "conditions": [
                 {
-                  "type": "has_character_named",
-                  "name": "Miss Bianca",
-                  "player": {
-                    "type": "self"
-                  }
+                  "type": "is_your_turn"
                 },
                 {
-                  "type": "has_character_named",
-                  "name": "Bernard",
-                  "player": {
-                    "type": "self"
-                  }
+                  "type": "compound_or",
+                  "conditions": [
+                    {
+                      "type": "has_character_named",
+                      "name": "Miss Bianca",
+                      "player": {
+                        "type": "self"
+                      }
+                    },
+                    {
+                      "type": "has_character_named",
+                      "name": "Bernard",
+                      "player": {
+                        "type": "self"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "compound_and",
+              "conditions": [
+                {
+                  "type": "is_your_turn"
+                },
+                {
+                  "type": "compound_or",
+                  "conditions": [
+                    {
+                      "type": "has_character_named",
+                      "name": "Miss Bianca",
+                      "player": {
+                        "type": "self"
+                      }
+                    },
+                    {
+                      "type": "has_character_named",
+                      "name": "Bernard",
+                      "player": {
+                        "type": "self"
+                      }
+                    }
+                  ]
                 }
               ]
             }
@@ -11116,10 +11121,10 @@
               ],
               "hasTrait": "Ally"
             }
-          },
-          "condition": {
-            "type": "this_is_exerted"
           }
+        },
+        "condition": {
+          "type": "this_is_exerted"
         }
       }
     ],

@@ -870,19 +870,19 @@
           "willpower": 1,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "you_control_matching",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasTrait": "Puppy"
-            }
+          }
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Puppy"
           }
         }
       }
@@ -1049,20 +1049,20 @@
           "lore": 2,
           "target": {
             "type": "this"
+          }
+        },
+        "condition": {
+          "type": "cards_in_zone_gte",
+          "amount": 3,
+          "zone": "play",
+          "owner": {
+            "type": "self"
           },
-          "condition": {
-            "type": "cards_in_zone_gte",
-            "amount": 3,
-            "zone": "play",
-            "owner": {
-              "type": "self"
-            },
-            "filter": {
-              "cardType": [
-                "character"
-              ],
-              "hasTrait": "Puppy"
-            }
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Puppy"
           }
         }
       }
@@ -1629,20 +1629,20 @@
           "lore": 1,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "you_control_matching",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "excludeSelf": true,
-              "hasTrait": "Puppy"
-            }
+          }
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true,
+            "hasTrait": "Puppy"
           }
         }
       }
@@ -1815,9 +1815,6 @@
             "strength": 2,
             "target": {
               "type": "this"
-            },
-            "condition": {
-              "type": "this_has_no_damage"
             }
           },
           {
@@ -1825,12 +1822,20 @@
             "keyword": "support",
             "target": {
               "type": "this"
-            },
-            "condition": {
-              "type": "this_has_no_damage"
             }
           }
-        ]
+        ],
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            {
+              "type": "this_has_no_damage"
+            },
+            {
+              "type": "this_has_no_damage"
+            }
+          ]
+        }
       }
     ],
     "setId": "8",
@@ -1925,10 +1930,10 @@
           "target": {
             "type": "this"
           },
-          "condition": {
-            "type": "this_has_no_damage"
-          },
           "value": 2
+        },
+        "condition": {
+          "type": "this_has_no_damage"
         }
       }
     ],
@@ -3405,20 +3410,20 @@
           "target": {
             "type": "this"
           },
-          "condition": {
-            "type": "you_control_matching",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "name": "Hades"
-            }
-          },
           "value": 2
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "name": "Hades"
+          }
         }
       }
     ],
@@ -5615,17 +5620,17 @@
           "keyword": "evasive",
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "you_control_matching",
-            "filter": {
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasDamage": true,
-              "excludeSelf": true
-            }
+          }
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasDamage": true,
+            "excludeSelf": true
           }
         }
       }
@@ -6442,17 +6447,17 @@
           "lore": 3,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "cards_in_zone_gte",
-            "amount": 5,
-            "zone": "play",
-            "filter": {
-              "cardType": [
-                "character"
-              ],
-              "hasDamage": true
-            }
+          }
+        },
+        "condition": {
+          "type": "cards_in_zone_gte",
+          "amount": 5,
+          "zone": "play",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "hasDamage": true
           }
         }
       }
@@ -7955,18 +7960,18 @@
           "keyword": "evasive",
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "you_control_matching",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "discard",
-              "cardType": [
-                "item"
-              ]
-            }
+          }
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "discard",
+            "cardType": [
+              "item"
+            ]
           }
         }
       }
@@ -8122,21 +8127,21 @@
           "lore": 2,
           "target": {
             "type": "this"
+          }
+        },
+        "condition": {
+          "type": "cards_in_zone_gte",
+          "amount": 2,
+          "zone": "play",
+          "owner": {
+            "type": "self"
           },
-          "condition": {
-            "type": "cards_in_zone_gte",
-            "amount": 2,
-            "zone": "play",
-            "owner": {
-              "type": "self"
-            },
-            "filter": {
-              "cardType": [
-                "character"
-              ],
-              "isExerted": true,
-              "excludeSelf": true
-            }
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "isExerted": true,
+            "excludeSelf": true
           }
         }
       }
@@ -8695,20 +8700,20 @@
           "strength": 2,
           "target": {
             "type": "this"
+          }
+        },
+        "condition": {
+          "type": "cards_in_zone_gte",
+          "amount": 2,
+          "zone": "play",
+          "owner": {
+            "type": "self"
           },
-          "condition": {
-            "type": "cards_in_zone_gte",
-            "amount": 2,
-            "zone": "play",
-            "owner": {
-              "type": "self"
-            },
-            "filter": {
-              "cardType": [
-                "character"
-              ],
-              "isExerted": true
-            }
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "isExerted": true
           }
         }
       }
@@ -8992,11 +8997,11 @@
           "lore": 2,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "self_has_more_than_each_opponent",
-            "metric": "strength_in_play"
           }
+        },
+        "condition": {
+          "type": "self_has_more_than_each_opponent",
+          "metric": "strength_in_play"
         }
       }
     ],
@@ -11446,10 +11451,10 @@
           "keyword": "evasive",
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "is_your_turn"
           }
+        },
+        "condition": {
+          "type": "is_your_turn"
         }
       }
     ],
@@ -11496,10 +11501,10 @@
           "target": {
             "type": "this"
           },
-          "condition": {
-            "type": "this_is_exerted"
-          },
           "value": 1
+        },
+        "condition": {
+          "type": "this_is_exerted"
         }
       }
     ],

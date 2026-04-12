@@ -356,19 +356,19 @@
           "lore": 2,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "you_control_matching",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasName": "Nani"
-            }
+          }
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasName": "Nani"
           }
         }
       }
@@ -478,20 +478,20 @@
           "target": {
             "type": "this"
           },
-          "condition": {
-            "type": "you_control_matching",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasName": "Gazelle"
-            }
-          },
           "value": 6
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasName": "Gazelle"
+          }
         }
       }
     ],
@@ -536,19 +536,19 @@
           "keyword": "support",
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "you_control_matching",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasName": "Dale"
-            }
+          }
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasName": "Dale"
           }
         }
       }
@@ -3892,10 +3892,10 @@
               ],
               "hasTrait": "Pirate"
             }
-          },
-          "condition": {
-            "type": "this_is_exerted"
           }
+        },
+        "condition": {
+          "type": "this_is_exerted"
         }
       },
       {
@@ -4348,19 +4348,19 @@
           "lore": 2,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "you_control_matching",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasTrait": "Captain"
-            }
+          }
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Captain"
           }
         }
       }
@@ -5961,20 +5961,20 @@
           "lore": 1,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "you_control_matching",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasTrait": "Pirate",
-              "excludeSelf": true
-            }
+          }
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Pirate",
+            "excludeSelf": true
           }
         }
       }
@@ -6285,10 +6285,10 @@
           "strength": 2,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "this_at_location"
           }
+        },
+        "condition": {
+          "type": "this_at_location"
         }
       }
     ],
@@ -6335,10 +6335,10 @@
           "lore": 1,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "this_has_damage"
           }
+        },
+        "condition": {
+          "type": "this_has_damage"
         }
       }
     ],
@@ -6386,21 +6386,21 @@
           "action": "challenge",
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "not",
-            "inner": {
-              "type": "you_control_matching",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ],
-                "hasTrait": "Captain"
-              }
+          }
+        },
+        "condition": {
+          "type": "not",
+          "inner": {
+            "type": "you_control_matching",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Captain"
             }
           }
         }
@@ -8159,10 +8159,10 @@
           "keyword": "evasive",
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "is_your_turn"
           }
+        },
+        "condition": {
+          "type": "is_your_turn"
         }
       }
     ],
@@ -8272,20 +8272,20 @@
           "strength": 2,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "you_control_matching",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "excludeSelf": true,
-              "hasKeyword": "support"
-            }
+          }
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true,
+            "hasKeyword": "support"
           }
         }
       }
@@ -8365,10 +8365,10 @@
           "keyword": "evasive",
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "is_your_turn"
           }
+        },
+        "condition": {
+          "type": "is_your_turn"
         }
       }
     ],
@@ -10034,10 +10034,10 @@
           "keyword": "evasive",
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "is_your_turn"
           }
+        },
+        "condition": {
+          "type": "is_your_turn"
         }
       }
     ],
@@ -10164,20 +10164,20 @@
           "target": {
             "type": "this"
           },
-          "condition": {
-            "type": "you_control_matching",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasName": "Mr. Smee"
-            }
-          },
           "value": 1
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasName": "Mr. Smee"
+          }
         }
       }
     ],
@@ -10551,12 +10551,12 @@
           "strength": 4,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "not",
-            "inner": {
-              "type": "this_has_damage"
-            }
+          }
+        },
+        "condition": {
+          "type": "not",
+          "inner": {
+            "type": "this_has_damage"
           }
         }
       }

@@ -519,10 +519,6 @@ export function getGameModifiers(
       // Normalize compound abilities: effect can be a single StaticEffect or an array
       const effects = normalizeEffects(ability);
       for (const effect of effects) {
-      // CRD 6.4.3: Per-effect condition (e.g., "During opponents' turns, gain Resist +1")
-      if ((effect as any).condition) {
-        if (!evaluateCondition((effect as any).condition, state, definitions, instance.ownerId, instance.instanceId)) continue;
-      }
       switch (effect.type) {
         case "cant_be_challenged": {
           const { target } = effect;

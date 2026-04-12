@@ -2054,13 +2054,13 @@
           "keyword": "evasive",
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "cards_in_hand_gte",
-            "amount": 4,
-            "player": {
-              "type": "self"
-            }
+          }
+        },
+        "condition": {
+          "type": "cards_in_hand_gte",
+          "amount": 4,
+          "player": {
+            "type": "self"
           }
         }
       },
@@ -2132,13 +2132,13 @@
           "keyword": "evasive",
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "cards_in_hand_gte",
-            "amount": 4,
-            "player": {
-              "type": "self"
-            }
+          }
+        },
+        "condition": {
+          "type": "cards_in_hand_gte",
+          "amount": 4,
+          "player": {
+            "type": "self"
           }
         }
       },
@@ -2211,13 +2211,13 @@
           "value": 3,
           "target": {
             "type": "this"
-          },
-          "condition": {
-            "type": "has_character_named",
-            "name": "Lilo",
-            "player": {
-              "type": "self"
-            }
+          }
+        },
+        "condition": {
+          "type": "has_character_named",
+          "name": "Lilo",
+          "player": {
+            "type": "self"
           }
         }
       }
