@@ -2390,6 +2390,8 @@ export interface TimedEffect {
    *  Decremented per blocked hit; the timed effect is dropped when charges
    *  reach 0. Undefined = unlimited (default). */
   charges?: number;
+  /** Instance that created this effect (for UI: look up card name/text via state.cards[id].definitionId) */
+  sourceInstanceId?: string;
 }
 
 // -----------------------------------------------------------------------------
@@ -2644,6 +2646,8 @@ export interface PlayRestrictionEntry {
   cardTypes: CardType[];
   casterPlayerId: PlayerID;
   appliedOnTurn: number;
+  /** Instance that created this entry (for UI: look up card name/text via state.cards[id].definitionId) */
+  sourceInstanceId?: string;
 }
 
 export interface TurnChallengeBonus {
@@ -2655,6 +2659,8 @@ export interface TurnChallengeBonus {
 export interface CostReductionEntry {
   amount: number;
   filter: CardFilter;
+  /** Instance that created this entry (for UI: look up card name/text via state.cards[id].definitionId) */
+  sourceInstanceId?: string;
 }
 
 export interface GameState {
@@ -2773,6 +2779,8 @@ export interface FloatingTrigger {
    * trigger fires globally for any card matching `controllingPlayerId` + filter.
    */
   attachedToInstanceId?: string;
+  /** Instance that created this trigger (for UI: look up card name/text via state.cards[id].definitionId) */
+  sourceInstanceId?: string;
 }
 
 /**
@@ -2789,6 +2797,8 @@ export interface DelayedTrigger {
   controllingPlayerId: PlayerID;
   /** The specific card instance this trigger targets (e.g., "banish them") */
   targetInstanceId: string;
+  /** Instance that created this trigger (for UI: look up card name/text via state.cards[id].definitionId) */
+  sourceInstanceId?: string;
 }
 
 /**
@@ -2806,6 +2816,8 @@ export interface GlobalTimedEffect {
   filter: CardFilter;
   /** Player who generated this effect */
   controllingPlayerId: PlayerID;
+  /** Instance that created this effect (for UI: look up card name/text via state.cards[id].definitionId) */
+  sourceInstanceId?: string;
   /** When this expires */
   expiresAt: EffectDuration;
   /** Turn number when created (for expiry calculation) */

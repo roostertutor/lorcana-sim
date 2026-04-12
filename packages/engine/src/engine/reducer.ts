@@ -2525,7 +2525,7 @@ export function applyEffect(
       // Direct targets (this / triggering_card / last_resolved_target)
       const directGS = resolveDirectTarget(effect.target, state, sourceInstanceId, triggeringCardInstanceId);
       if (directGS && state.cards[directGS]) {
-        return applyGainStatsToInstance(state, directGS, effect, controllingPlayerId, definitions);
+        return applyGainStatsToInstance(state, directGS, effect, controllingPlayerId, definitions, sourceInstanceId);
       }
       if (effect.target.type === "chosen") {
         const validTargets = findChosenTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
@@ -2544,7 +2544,7 @@ export function applyEffect(
       }
       if (effect.target.type === "all") {
         const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
-        for (const id of targets) state = applyGainStatsToInstance(state, id, effect, controllingPlayerId, definitions);
+        for (const id of targets) state = applyGainStatsToInstance(state, id, effect, controllingPlayerId, definitions, sourceInstanceId);
         return state;
       }
       return state;
@@ -2562,6 +2562,7 @@ export function applyEffect(
         expiresAt: effect.duration,
         appliedOnTurn: state.turnNumber,
         casterPlayerId: controllingPlayerId,
+        sourceInstanceId,
         ...(effect.charges !== undefined ? { charges: effect.charges } : {}),
       };
       // Direct targets (this / triggering_card / last_resolved_target)
@@ -2597,6 +2598,7 @@ export function applyEffect(
         expiresAt: effect.duration,
         appliedOnTurn: state.turnNumber,
         casterPlayerId: controllingPlayerId,
+        sourceInstanceId,
       };
       if (effect.target.type === "this") {
         return addTimedEffect(state, sourceInstanceId, timed);
@@ -2626,6 +2628,7 @@ export function applyEffect(
               type: "cant_be_challenged",
               filter: effect.target.filter,
               controllingPlayerId,
+              sourceInstanceId,
               expiresAt: effect.duration,
               appliedOnTurn: state.turnNumber,
             }],
@@ -2835,7 +2838,7 @@ export function applyEffect(
           ...state.players,
           [controllingPlayerId]: {
             ...player,
-            costReductions: [...existing, { amount: effect.amount, filter: effect.filter }],
+            costReductions: [...existing, { amount: effect.amount, filter: effect.filter, sourceInstanceId }],
           },
         },
       };
@@ -3294,9 +3297,8 @@ export function applyEffect(
         amount: 0,
         expiresAt: effect.duration,
         appliedOnTurn: state.turnNumber,
-        // Caster anchor for "until your next turn" durations (until_caster_next_turn).
-        // Harmless to set unconditionally — only consulted when expiresAt matches.
         casterPlayerId: controllingPlayerId,
+        sourceInstanceId,
       };
       const directGK = resolveDirectTarget(effect.target, state, sourceInstanceId, triggeringCardInstanceId);
       if (directGK && state.cards[directGK]) return addTimedEffect(state, directGK, timedEffect);
@@ -3398,6 +3400,7 @@ export function applyEffect(
         expiresAt: effect.duration,
         appliedOnTurn: state.turnNumber,
         casterPlayerId: controllingPlayerId,
+        sourceInstanceId,
       };
       const directMQ = resolveDirectTarget(effect.target, state, sourceInstanceId, triggeringCardInstanceId);
       if (directMQ && state.cards[directMQ]) return addTimedEffect(state, directMQ, timedEffect);
@@ -3433,6 +3436,7 @@ export function applyEffect(
         expiresAt: effect.duration,
         appliedOnTurn: state.turnNumber,
         casterPlayerId: controllingPlayerId,
+        sourceInstanceId,
       };
       if (effect.target.type === "this") {
         return addTimedEffect(state, sourceInstanceId, timedEffect);
@@ -4174,6 +4178,7 @@ export function applyEffect(
         cardTypes: effect.cardTypes,
         casterPlayerId: controllingPlayerId,
         appliedOnTurn: state.turnNumber,
+        sourceInstanceId,
       };
       const playersUpdate: Record<string, import("../types/index.js").PlayerState> = {};
       for (const pid of affected) {
@@ -4586,7 +4591,7 @@ export function applyEffect(
           ...state.players,
           [controllingPlayerId]: {
             ...state.players[controllingPlayerId],
-            costReductions: [...existing, { amount: resolvedAmount, filter: effect.filter }],
+            costReductions: [...existing, { amount: resolvedAmount, filter: effect.filter, sourceInstanceId }],
           },
         },
       };
@@ -4620,6 +4625,7 @@ export function applyEffect(
           expiresAt: effect.duration,
           appliedOnTurn: state.turnNumber,
           casterPlayerId: controllingPlayerId,
+          sourceInstanceId,
         };
         return addTimedEffect(state, directCR, timedEffect);
       }
@@ -4679,6 +4685,7 @@ export function applyEffect(
             effects: effect.effects,
             controllingPlayerId,
             attachedToInstanceId: id,
+            sourceInstanceId,
           }],
         };
       }
@@ -4705,6 +4712,7 @@ export function applyEffect(
           trigger: effect.trigger,
           effects: effect.effects,
           controllingPlayerId,
+          sourceInstanceId,
         }],
       };
     }
@@ -4726,6 +4734,7 @@ export function applyEffect(
           effects: effect.effects,
           controllingPlayerId,
           targetInstanceId: targetId,
+          sourceInstanceId,
         }],
       };
     }
@@ -5730,6 +5739,7 @@ function applyEffectToTarget(
             effects: effect.effects,
             controllingPlayerId,
             attachedToInstanceId: targetInstanceId,
+            sourceInstanceId,
           },
         ],
       };
@@ -5825,21 +5835,21 @@ function applyEffectToTarget(
       if (effect.strengthPerDamage) {
         const instance = getInstance(state, targetInstanceId);
         const override = { ...effect, strength: instance.damage, strengthPerDamage: undefined };
-        return applyGainStatsToInstance(state, targetInstanceId, override as any, controllingPlayerId, definitions);
+        return applyGainStatsToInstance(state, targetInstanceId, override as any, controllingPlayerId, definitions, sourceInstanceId);
       }
       if (effect.strengthPerCardInHand) {
         const handSize = getZone(state, controllingPlayerId, "hand").length;
         const override = { ...effect, strength: handSize, strengthPerCardInHand: undefined };
-        return applyGainStatsToInstance(state, targetInstanceId, override as any, controllingPlayerId, definitions);
+        return applyGainStatsToInstance(state, targetInstanceId, override as any, controllingPlayerId, definitions, sourceInstanceId);
       }
       if (effect.strengthEqualsSourceStrength) {
         const sourceInst = state.cards[sourceInstanceId];
         const sourceDef = sourceInst ? definitions[sourceInst.definitionId] : undefined;
         const srcStrength = sourceInst && sourceDef ? getEffectiveStrength(sourceInst, sourceDef, 0, getGameModifiers(state, definitions)) : 0;
         const override = { ...effect, strength: srcStrength, strengthEqualsSourceStrength: undefined };
-        return applyGainStatsToInstance(state, targetInstanceId, override as any, controllingPlayerId, definitions);
+        return applyGainStatsToInstance(state, targetInstanceId, override as any, controllingPlayerId, definitions, sourceInstanceId);
       }
-      return applyGainStatsToInstance(state, targetInstanceId, effect, controllingPlayerId, definitions);
+      return applyGainStatsToInstance(state, targetInstanceId, effect, controllingPlayerId, definitions, sourceInstanceId);
     }
     case "remove_damage": {
       const instance = getInstance(state, targetInstanceId);
@@ -5884,6 +5894,7 @@ function applyEffectToTarget(
         expiresAt: effect.duration,
         appliedOnTurn: state.turnNumber,
         casterPlayerId: controllingPlayerId,
+        sourceInstanceId,
       };
       return addTimedEffect(state, targetInstanceId, timedEffect);
     }
@@ -5903,6 +5914,7 @@ function applyEffectToTarget(
         expiresAt: effect.duration,
         appliedOnTurn: state.turnNumber,
         casterPlayerId: controllingPlayerId,
+        sourceInstanceId,
       };
       return addTimedEffect(state, targetInstanceId, timedEffect);
     }
@@ -5912,6 +5924,7 @@ function applyEffectToTarget(
         expiresAt: effect.duration,
         appliedOnTurn: state.turnNumber,
         casterPlayerId: controllingPlayerId,
+        sourceInstanceId,
       });
     }
     case "damage_immunity_timed": {
@@ -5921,6 +5934,7 @@ function applyEffectToTarget(
         expiresAt: effect.duration,
         appliedOnTurn: state.turnNumber,
         casterPlayerId: controllingPlayerId,
+        sourceInstanceId,
         ...(effect.charges !== undefined ? { charges: effect.charges } : {}),
       });
     }
@@ -6186,6 +6200,7 @@ function applyEffectToTarget(
         expiresAt: effect.duration,
         appliedOnTurn: state.turnNumber,
         casterPlayerId: controllingPlayerId,
+        sourceInstanceId,
       };
       return addTimedEffect(state, targetInstanceId, timedEffect);
     }
@@ -6196,6 +6211,7 @@ function applyEffectToTarget(
         expiresAt: effect.duration,
         appliedOnTurn: state.turnNumber,
         casterPlayerId: controllingPlayerId,
+        sourceInstanceId,
       };
       return addTimedEffect(state, targetInstanceId, timedEffect);
     }
@@ -6341,7 +6357,8 @@ function applyGainStatsToInstance(
   instanceId: string,
   effect: import("../types/index.js").GainStatsEffect,
   casterPlayerId: PlayerID,
-  definitions?: Record<string, CardDefinition>
+  definitions?: Record<string, CardDefinition>,
+  sourceInstId?: string,
 ): GameState {
   const instance = state.cards[instanceId];
   if (!instance) return state;
@@ -6362,7 +6379,7 @@ function applyGainStatsToInstance(
     effect.duration === "this_turn" ? "end_of_turn"
     : effect.duration === "permanent" ? "end_of_turn" // no cards use permanent; safe default
     : effect.duration as import("../types/index.js").EffectDuration;
-  const baseTimed = { expiresAt, appliedOnTurn: state.turnNumber, casterPlayerId };
+  const baseTimed = { expiresAt, appliedOnTurn: state.turnNumber, casterPlayerId, sourceInstanceId: sourceInstId };
   if (strengthAmount) {
     state = addTimedEffect(state, instanceId, { type: "modify_strength", amount: strengthAmount, ...baseTimed });
   }
