@@ -2482,6 +2482,7 @@ export function applyEffect(
             validTargets,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             optional: effect.isMay ?? false,
+            count: effect.target.count ?? 1,
           },
         };
       }
