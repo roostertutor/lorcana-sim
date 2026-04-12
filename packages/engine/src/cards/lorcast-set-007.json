@@ -6499,7 +6499,7 @@
       },
       {
         "type": "static",
-        "storyName": "INTIMIDATING",
+        "storyName": "FRIGHTFUL SCHEME",
         "rulesText": "While this character is exerted, opposing characters can't exert to sing songs.",
         "condition": {
           "type": "this_is_exerted"
@@ -6514,8 +6514,11 @@
       },
       {
         "type": "static",
-        "storyName": "MARAUDING CREW",
-        "rulesText": "Your Pirate characters gain Resist +1.",
+        "storyName": "FRIGHTFUL SCHEME",
+        "rulesText": "While this character is exerted, your Pirate characters gain Resist +1.",
+        "condition": {
+          "type": "this_is_exerted"
+        },
         "effect": {
           "type": "grant_keyword",
           "keyword": "resist",
