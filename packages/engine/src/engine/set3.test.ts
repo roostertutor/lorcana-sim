@@ -30,7 +30,7 @@ describe("§7 Set 3 — Locations", () => {
     expect(inst.isExerted).toBe(false);
   });
 
-  it("MOVE_CHARACTER pays ink, sets atLocation and movedThisTurn", () => {
+  it("MOVE_CHARACTER pays ink and sets atLocation", () => {
     let state = startGame();
     state = giveInk(state, "player1", 5);
     let charId: string, locId: string;
@@ -46,7 +46,6 @@ describe("§7 Set 3 — Locations", () => {
     expect(result.newState.players.player1.availableInk).toBe(inkBefore - 1);
     const c = getInstance(result.newState, charId);
     expect(c.atLocationInstanceId).toBe(locId);
-    expect(c.movedThisTurn).toBe(true);
   });
 
   it("MOVE_CHARACTER: drying allowed, can move between locations, insufficient ink rejected", () => {
@@ -280,12 +279,8 @@ describe("§7 Set 3 — Locations", () => {
     expect(result.success).toBe(true);
     expect(result.newState.players["player2"]!.lore).toBe(4);
 
-    // Second move on same turn — should NOT trigger again
-    // Note: HeiHei has movedThisTurn=true, but allowing the move requires that flag to be cleared.
-    // For this test to work with engine that blocks double-move, we manually clear movedThisTurn.
-    state = { ...result.newState };
-    state = { ...state, cards: { ...state.cards, [heiId]: { ...state.cards[heiId]!, movedThisTurn: false } } };
-
+    // Second move on same turn — should NOT trigger again (once-per-turn already fired)
+    state = result.newState;
     result = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: heiId, locationInstanceId: loc2Id }, LORCAST_CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     // Opponent's lore unchanged — HeiHei's once-per-turn already fired this turn
@@ -340,7 +335,6 @@ describe("§7 Set 3 — Locations", () => {
           ...state.cards[heiId]!,
           // Simulate the zoneTransition reset block manually
           oncePerTurnTriggered: undefined,
-          movedThisTurn: false,
         },
       },
     };
@@ -646,7 +640,6 @@ describe("§7 Set 3 — Locations", () => {
     expect(r.success).toBe(true);
     state = r.newState;
     expect(getInstance(state, jimId).atLocationInstanceId).toBe(locId);
-    expect(getInstance(state, jimId).movedThisTurn).toBe(true);
     // No ink deducted for the move (effect-based, not action). Location cost 1 was paid for the play.
     expect(state.players.player1.availableInk).toBe(4);
   });
@@ -680,7 +673,6 @@ describe("§7 Set 3 — Locations", () => {
 
     // Mickey is now at the location, no ink paid for the move.
     expect(getInstance(state, mickeyId).atLocationInstanceId).toBe(locId);
-    expect(getInstance(state, mickeyId).movedThisTurn).toBe(true);
   });
 
   it("Voyage: action moves up to 2 of your characters to the same location for free", () => {

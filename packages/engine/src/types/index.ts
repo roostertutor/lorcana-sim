@@ -959,7 +959,7 @@ export interface NameACardThenRevealEffect {
 /**
  * Move a character of yours to one of your locations as an effect (CRD 4.7).
  * Differs from the MOVE_CHARACTER player action: effects don't pay the location's
- * moveCost and bypass the "drying" / movedThisTurn restrictions, since the ability
+ * moveCost and bypass the "drying" restrictions, since the ability
  * is the source of the move (e.g. Magic Carpet GLIDING RIDE / FIND THE WAY,
  * Jim Hawkins TAKE THE HELM).
  *
@@ -1190,8 +1190,6 @@ export interface LookAtTopEffect {
   restPlacement?: "top" | "bottom";
   target: PlayerTarget;
   /** CRD 6.1.4: player may choose not to apply this effect */
-  isMay?: boolean;
-  /** CRD 6.1.4 */
   isMay?: boolean;
 }
 
@@ -1442,9 +1440,7 @@ export type StaticEffect =
   | PreventDiscardFromHandStatic
   | OneChallengePerTurnGlobalStatic
   | InkFromDiscardStatic
-  | RemoveKeywordStatic
   | GrantTriggeredAbilityStatic
-  | SingCostBonusCharactersStatic
   | DeckRuleStatic
   | AllHandInkableStatic
   | PreventDamageRemovalStatic
@@ -1577,13 +1573,7 @@ export interface RemoveNamedAbilityStatic {
 }
 
 /** Captain Hook - Master Swordsman (Set 3): "Characters named Peter Pan lose
- *  Evasive and can't gain Evasive." Strips a keyword from matching characters.
- *  Collected in gameModifiers.suppressedKeywords Map. Consulted by hasKeyword(). */
-export interface RemoveKeywordStatic {
-  type: "remove_keyword";
-  keyword: Keyword;
-  target: CardTarget;
-}
+
 
 /**
  * Koda - Talkative Cub (Set 5): "During opponents' turns, you can't lose lore."
@@ -1646,14 +1636,6 @@ export interface SingCostBonusHereStatic {
 }
 
 /** Record Player HIT PARADE (Set 4): "Your characters named Stitch count as
- *  having +1 cost to sing songs." Per-character static sing cost bonus applied
- *  to matching characters. Consulted in the validator alongside location bonuses
- *  and timed bonuses. */
-export interface SingCostBonusCharactersStatic {
-  type: "sing_cost_bonus_characters";
-  amount: number;
-  target: CardTarget;
-}
 
 /**
  * Chief Bogo - Calling the Shots (Set 10): "DEPUTIZE Your other characters
@@ -2444,7 +2426,7 @@ export interface CardDefinition {
    *  Uses the same PlayForFreeCost union as grant_play_for_free_self.playCosts.
    *  Mutually exclusive with shiftCost — these cards have NO ink-based shift path. */
   altShiftCost?: PlayForFreeCost;
-  // additionalNames removed — unified into alternateNames (CRD 5.2.6.1–3)
+
   /** CRD 8.12: Sing Together N — any number of your characters with total cost ≥ N
    *  may exert to sing this song for free. Stays on CardDefinition because it's a
    *  printed cost property, not an ability. Set 4+ songs only. */
@@ -2572,8 +2554,6 @@ export interface CardInstance {
 
   /** CRD 4.7: instanceId of the location this character is currently at, if any */
   atLocationInstanceId?: string | undefined;
-  /** CRD 4.7.4: True if this character has moved to a location this turn */
-  movedThisTurn?: boolean | undefined;
   /** CRD 6.1.13: "Once per turn" tracking — keyed by ability storyName.
    *  Cleared at end of turn AND when the card leaves play (CRD 7.1.6 — becomes a "new" card). */
   oncePerTurnTriggered?: Record<string, boolean> | undefined;

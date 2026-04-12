@@ -1330,7 +1330,7 @@ function applyMoveCharacter(
 }
 
 /** Pure mutation shared by the MOVE_CHARACTER action and the move_character effect.
- *  Sets atLocationInstanceId, marks movedThisTurn, logs, and queues the
+ *  Sets atLocationInstanceId, logs, and queues the
  *  moves_to_location trigger. Does NOT pay ink — the action wrapper handles that.
  *
  *  Honors action restrictions (Max Goof Rockin' Teen "I JUST WANNA STAY HOME"
@@ -1359,7 +1359,6 @@ function performMove(
 
   state = updateInstance(state, characterInstanceId, {
     atLocationInstanceId: locationInstanceId,
-    movedThisTurn: true,
   });
 
   const charDef = definitions[characterInst.definitionId];
@@ -1655,7 +1654,6 @@ function applyPassTurn(
     if (
       instance.grantedKeywords.length > 0 ||
       instance.challengedThisTurn ||
-      instance.movedThisTurn ||
       instance.oncePerTurnTriggered ||
       instance.boostedThisTurn ||
       (instance.cardsPutUnderThisTurn ?? 0) > 0 ||
@@ -1667,7 +1665,6 @@ function applyPassTurn(
       state = updateInstance(state, id, {
         grantedKeywords: [],
         challengedThisTurn: false,
-        movedThisTurn: false,
         // CRD 6.1.13: once-per-turn flags reset at end of turn
         oncePerTurnTriggered: undefined,
         boostedThisTurn: false,
@@ -5479,7 +5476,6 @@ function zoneTransition(
       grantedKeywords: [],
       timedEffects: [],
       atLocationInstanceId: undefined,
-      movedThisTurn: false,
       // CRD 7.1.6: card becomes a "new" card on leaving play
       oncePerTurnTriggered: undefined,
       playedViaShift: false,
