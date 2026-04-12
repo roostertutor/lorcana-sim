@@ -74,7 +74,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "ON MY WAY",
+        "storyName": "WHO'S NEXT?",
         "rulesText": "Whenever this character quests, you pay 2 {I} less for the next Puppy character you play this turn.",
         "trigger": {
           "on": "quests"
@@ -94,7 +94,7 @@
       },
       {
         "type": "static",
-        "storyName": "BE PREPARED",
+        "storyName": "DON'T BE AFRAID",
         "rulesText": "Your Puppy characters gain Ward.",
         "effect": {
           "type": "grant_keyword",
@@ -186,7 +186,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "SUPERDOG",
+        "storyName": "MARK OF POWER",
         "rulesText": "Whenever you ready this character, gain 1 lore for each other undamaged character you have in play.",
         "trigger": {
           "on": "readied",
@@ -221,7 +221,7 @@
       },
       {
         "type": "activated",
-        "storyName": "BANISH ILLUSION",
+        "storyName": "BOLT STARE",
         "rulesText": "Banish chosen Illusion character.",
         "costs": [
           {
@@ -285,7 +285,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "CARE FOR PUPS",
+        "storyName": "THERE YOU GO",
         "rulesText": "Whenever this character quests, you may remove up to 1 damage from each of your Puppy characters.",
         "trigger": {
           "on": "quests"
@@ -379,7 +379,7 @@
     "abilities": [
       {
         "type": "activated",
-        "storyName": "PERFORMER",
+        "storyName": "CAPTIVE AUDIENCE",
         "rulesText": "If you have 3 or more other characters in play, draw a card.",
         "costs": [
           {
@@ -669,7 +669,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "TO THE RESCUE",
+        "storyName": "TELL NO TALES",
         "rulesText": "Whenever one of your other characters is banished, you may remove all damage from chosen character.",
         "trigger": {
           "on": "is_banished",
@@ -769,7 +769,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "WAKE UP",
+        "storyName": "SWEET DREAMS",
         "rulesText": "Whenever you remove 1 or more damage from a character, ready this character. She can't quest or challenge for the rest of this turn.",
         "trigger": {
           "on": "damage_removed_from"
@@ -837,7 +837,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "GLASS SLIPPER",
+        "storyName": "IF THE SLIPPER FITS",
         "rulesText": "When you play this character, you may put an item card named The Glass Slipper from your discard on the bottom of your deck to gain 3 lore.",
         "trigger": {
           "on": "enters_play"
@@ -912,7 +912,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "CHARMING SUITOR",
+        "storyName": "I SEE YOU",
         "rulesText": "While you have a character named Dolores Madrigal in play, this character gets +1 {L}.",
         "effect": {
           "type": "gain_stats",
@@ -972,7 +972,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "FINAL LAP",
+        "storyName": "WINNING ISN'T EVERYTHING",
         "rulesText": "When this character is banished, you may remove up to 2 damage from chosen character.",
         "trigger": {
           "on": "is_banished"
@@ -1165,7 +1165,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "GOOD PUP",
+        "storyName": "ENDURING LOYALTY",
         "rulesText": "When you play this character, you may remove up to 2 damage from chosen character and they gain Resist +1 until the start of your next turn.",
         "trigger": {
           "on": "enters_play"
@@ -1236,7 +1236,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "FIX IT",
+        "storyName": "LET'S GET TO WORK",
         "rulesText": "Whenever you return a Racer character card from your discard to your hand, you may ready chosen Racer character. They can't quest for the rest of this turn.",
         "trigger": {
           "on": "returned_to_hand",
@@ -1458,7 +1458,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "RESCUE OP",
+        "storyName": "BACK TO START POSITIONS!",
         "rulesText": "Whenever this character challenges another character, you may return a Racer character card from your discard to your hand.",
         "trigger": {
           "on": "challenges"
@@ -1519,7 +1519,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "WE CAN FIX IT",
+        "storyName": "OUTFLANK",
         "rulesText": "During your turn, whenever one of your other characters is banished, this character gets +1 {L} this turn.",
         "trigger": {
           "on": "banished_other_in_challenge",
@@ -1589,7 +1589,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "REFINED",
+        "storyName": "SOMETHING WONDERFUL",
         "rulesText": "When you play this character, you may return up to 2 character cards with cost 2 or less each from your discard to your hand.",
         "trigger": {
           "on": "enters_play"
@@ -1910,7 +1910,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "UNTOUCHABLE",
+        "storyName": "HIDDEN AWAY",
         "rulesText": "This character can't be challenged.",
         "effect": {
           "type": "cant_be_challenged",
@@ -1987,7 +1987,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "CATCHY TUNE",
+        "storyName": "HER OWN SPECIAL GIFT",
         "rulesText": "Whenever this character quests, you may return a song card with cost 3 or less from your discard to your hand.",
         "trigger": {
           "on": "quests"
@@ -2050,7 +2050,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "DOWNGRADE",
+        "storyName": "TACTICAL ADVANTAGE",
         "rulesText": "When you play this character, you may choose and discard a card to give chosen opposing character -3 {S} until the start of your next turn.",
         "trigger": {
           "on": "enters_play"
@@ -2127,7 +2127,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "WEATHERED",
+        "storyName": "CLEAR SKIES, CLEAR SKIES",
         "rulesText": "Whenever one or more of your characters sings a song, gain 1 lore.",
         "trigger": {
           "on": "sings",
@@ -2341,7 +2341,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "AMBER HEAL",
+        "storyName": "HEALING AURA",
         "rulesText": "During your turn, whenever a card is put into your inkwell, you may remove up to 2 damage from chosen character.",
         "trigger": {
           "on": "ink_played",
@@ -2396,7 +2396,7 @@
     "abilities": [
       {
         "type": "activated",
-        "storyName": "FAMILY MEAL",
+        "storyName": "FINE DINING",
         "rulesText": "If you have 2 or more characters in play, gain 1 lore.",
         "costs": [
           {
@@ -2453,7 +2453,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "GOOD DOG",
+        "storyName": "YOU CAN BE A CHAMPION, TOO",
         "rulesText": "Your Puppy characters get +1 {W}.",
         "effect": {
           "type": "gain_stats",
@@ -2683,7 +2683,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "WATCHFUL EYE",
+        "storyName": "UNTOLD TREASURE",
         "rulesText": "When you play this character, if you have an Illusion character in play, you may draw a card.",
         "trigger": {
           "on": "enters_play"
@@ -2748,7 +2748,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "EXPOSED",
+        "storyName": "TALE OF THE FIFTH SPIRIT",
         "rulesText": "When you play this character, if an opponent has an exerted character in play, gain 1 lore.",
         "trigger": {
           "on": "enters_play"
@@ -2846,7 +2846,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "NIGHT ON BALD MOUNTAIN",
+        "storyName": "MIDNIGHT REVEL",
         "rulesText": "When you play this character, each opponent chooses and exerts one of their ready characters. They can't ready at the start of their next turn.",
         "trigger": {
           "on": "enters_play"
@@ -2918,7 +2918,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "COLLECT THE ILLUSIONS",
+        "storyName": "THIS IS NOT DONE YET",
         "rulesText": "During an opponent's turn, whenever one of your Illusion characters is banished, you may return that card to your hand.",
         "trigger": {
           "on": "is_banished",
@@ -2987,7 +2987,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "FAST DEAL",
+        "storyName": "FOR JUST A LITTLE PAIN",
         "rulesText": "When you play this character, you may deal 2 damage to another chosen character of yours to banish chosen character with cost 3 or less.",
         "trigger": {
           "on": "enters_play"
@@ -3215,7 +3215,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "HAND IN HAND",
+        "storyName": "WHAT DO WE DO NOW?",
         "rulesText": "Whenever this character quests, if you have a character named Anna in play, gain 1 lore.",
         "trigger": {
           "on": "quests"
@@ -3280,7 +3280,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "PAYBACK",
+        "storyName": "PLAY ROUGH",
         "rulesText": "Whenever this character quests, exert chosen opposing character.",
         "trigger": {
           "on": "quests"
@@ -3341,7 +3341,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "SSSSSS",
+        "storyName": "MYSTERIOUS ADVANTAGE",
         "rulesText": "When you play this character, you may choose and discard a card to gain 2 lore.",
         "trigger": {
           "on": "enters_play"
@@ -3443,7 +3443,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "KITTY LIVES",
+        "storyName": "I WIN",
         "rulesText": "When this character is banished, if you have more cards in your hand than each opponent, you may return this card to your hand.",
         "trigger": {
           "on": "is_banished"
@@ -3500,7 +3500,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "NUTS ABOUT IT",
+        "storyName": "POP!",
         "rulesText": "When this character is banished in a challenge, you may draw a card.",
         "trigger": {
           "on": "banished_in_challenge"
@@ -3652,7 +3652,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "SHIFT THE BLAME",
+        "storyName": "NOW YOU'VE UPSET ME",
         "rulesText": "Whenever one of your characters challenges, you may move 1 damage counter from chosen character to chosen opposing character.",
         "trigger": {
           "on": "challenges",
@@ -3735,7 +3735,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "SHARP EYES",
+        "storyName": "FORMIDABLE GLARE",
         "rulesText": "When you play this character, chosen character gets -3 {S} this turn.",
         "trigger": {
           "on": "enters_play"
@@ -3949,7 +3949,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "ICE FORM",
+        "storyName": "WINTER WALL",
         "rulesText": "Whenever this character quests, you may exert chosen character. If you do and you have a character named Anna in play, the chosen character can't ready at the start of their next turn.",
         "trigger": {
           "on": "quests"
@@ -4028,7 +4028,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "BEAR FORM",
+        "storyName": "WISDOM OF HIS STORY",
         "rulesText": "During your turn, when this character is banished in a challenge, return this card to your hand and gain 1 lore.",
         "trigger": {
           "on": "banished_in_challenge"
@@ -4170,7 +4170,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "BREAKING THE ICE",
+        "storyName": "WINTER AMBUSH",
         "rulesText": "When you play this character, chosen opposing character can't ready at the start of their next turn.",
         "trigger": {
           "on": "enters_play"
@@ -4333,7 +4333,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "PANIC!",
+        "storyName": "STARTLED SHRIEK",
         "rulesText": "When you play this character, you may move up to 2 damage counters from chosen character to chosen opposing character.",
         "trigger": {
           "on": "enters_play"
@@ -4750,7 +4750,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "AMETHYST MOVE",
+        "storyName": "MAGICAL TOUCH",
         "rulesText": "During your turn, whenever a card is put into your inkwell, you may move 1 damage counter from chosen character to chosen opposing character.",
         "trigger": {
           "on": "ink_played",
@@ -4845,7 +4845,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "BIG GUNS",
+        "storyName": "RAPID FIRE",
         "rulesText": "Whenever this character quests, you pay 1 {I} less for the next action you play this turn.",
         "trigger": {
           "on": "quests"
@@ -4899,7 +4899,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "LOW BATTERY",
+        "storyName": "SHHHHH",
         "rulesText": "This character enters play exerted.",
         "trigger": {
           "on": "enters_play"
@@ -4980,7 +4980,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "ARRR!",
+        "storyName": "PILFER AND PLUNDER",
         "rulesText": "Whenever you play an action that isn't a song, you may banish chosen item.",
         "trigger": {
           "on": "card_played",
@@ -5046,7 +5046,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "FUTURE CHAMPION",
+        "storyName": "ORIGIN STORY",
         "rulesText": "When you play a Floodborn character on this card, draw a card.",
         "trigger": {
           "on": "card_played",
@@ -5105,7 +5105,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "DEVIOUS SMILE",
+        "storyName": "MAD GRIN",
         "rulesText": "When you play this character, you may deal 2 damage to chosen damaged character.",
         "trigger": {
           "on": "enters_play"
@@ -5164,7 +5164,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "FEAR ME",
+        "storyName": "WHAT A PITY",
         "rulesText": "When you play this character, discard your hand.",
         "trigger": {
           "on": "enters_play"
@@ -5216,7 +5216,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "INFORMED",
+        "storyName": "DRAW THEM OUT",
         "rulesText": "Whenever this character quests, opposing damaged characters gain Reckless during their next turn.",
         "trigger": {
           "on": "quests"
@@ -5278,7 +5278,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "TEA FOR ALL",
+        "storyName": "UNBIRTHDAY PRESENT",
         "rulesText": "Whenever a damaged character challenges another character, you may draw a card.",
         "trigger": {
           "on": "challenges",
@@ -5409,7 +5409,7 @@
       },
       {
         "type": "static",
-        "storyName": "YOU CAN BE WAY MORE (Evasive)",
+        "storyName": "YOU CAN BE WAY MORE",
         "rulesText": "Your Floodborn characters that have a card under them gain Evasive.",
         "effect": {
           "type": "grant_keyword",
@@ -5432,7 +5432,7 @@
       },
       {
         "type": "static",
-        "storyName": "YOU CAN BE WAY MORE (Ward)",
+        "storyName": "YOU CAN BE WAY MORE",
         "rulesText": "Your Floodborn characters that have a card under them gain Ward.",
         "effect": {
           "type": "grant_keyword",
@@ -5544,7 +5544,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "BATTLE CHATTER",
+        "storyName": "DUCK OF ACTION",
         "rulesText": "Whenever this character is challenged, you may return an action card that isn't a song card from your discard to your hand.",
         "trigger": {
           "on": "is_challenged"
@@ -5629,7 +5629,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "BEAUTIFUL COMPANION",
+        "storyName": "A DOG'S LIFE",
         "rulesText": "While you have a character named Tramp in play, this character gets +1 {L}.",
         "effect": {
           "type": "gain_stats",
@@ -5689,7 +5689,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "RUMINATE",
+        "storyName": "HOW SHALL I DO IT?",
         "rulesText": "When you play this character, you may draw a card, then choose and discard a card.",
         "trigger": {
           "on": "enters_play"
@@ -5748,7 +5748,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "MORE CARDS",
+        "storyName": "FULL PACK",
         "rulesText": "While you have more cards in your hand than each opponent, this character gets +2 {L}.",
         "effect": {
           "type": "gain_stats",
@@ -5800,7 +5800,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "CONTRARIWISE",
+        "storyName": "ANOTHER RECITATION",
         "rulesText": "Whenever this character quests, you may return chosen damaged character to their player's hand.",
         "trigger": {
           "on": "quests"
@@ -5860,7 +5860,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "UNIVERSAL SHIFT",
+        "storyName": "FUNCTIONALITY IMPROVED",
         "rulesText": "Universal Shift 4 (You may pay 4 {I} to play this on top of any one of your characters.)",
         "activeZones": [
           "hand"
@@ -5871,7 +5871,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "FULL RESTORE",
+        "storyName": "FUNCTIONALITY IMPROVED",
         "rulesText": "When you play this character, if you used Shift to play him, remove all damage from him.",
         "trigger": {
           "on": "enters_play"
@@ -5979,7 +5979,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "DIVERSION",
+        "storyName": "I TOOK CARE OF EVERYTHING",
         "rulesText": "Whenever this character quests, another chosen character of yours gains Evasive until the start of your next turn.",
         "trigger": {
           "on": "quests"
@@ -6043,7 +6043,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "MAKE IT SO",
+        "storyName": "PIPE UP THE CREW",
         "rulesText": "Whenever you play an action that isn't a song, you may ready chosen Pirate character.",
         "trigger": {
           "on": "card_played",
@@ -6441,7 +6441,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "HOW RUDE",
+        "storyName": "OH, I HATE THIS!",
         "rulesText": "Whenever this character is challenged, the challenging player chooses and discards a card.",
         "trigger": {
           "on": "is_challenged"
@@ -6828,7 +6828,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "EMERALD STEP",
+        "storyName": "SHIMMERING WINGS",
         "rulesText": "During your turn, whenever a card is put into your inkwell, chosen character gains Evasive until the start of your next turn.",
         "trigger": {
           "on": "ink_played",
@@ -6885,7 +6885,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "FINE ADVICE",
+        "storyName": "I'VE GOT ALL THE LUCK WE'LL NEED",
         "rulesText": "Whenever this character quests, you may give chosen character of yours +2 {S} this turn.",
         "trigger": {
           "on": "quests"
@@ -6947,7 +6947,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "OFF WITH HIS HEAD",
+        "storyName": "ROYAL PAIN",
         "rulesText": "While this character has damage, she gets +3 {S}.",
         "effect": {
           "type": "gain_stats",
@@ -6995,7 +6995,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "DISAPPROVE",
+        "storyName": "YOU ARE A DISGRACE!",
         "rulesText": "Whenever this character challenges another character, each opponent loses 1 lore.",
         "trigger": {
           "on": "challenges"
@@ -7206,7 +7206,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "SWARMING",
+        "storyName": "HIVE MIND",
         "rulesText": "This character gets +1 {S} for each other character you have in play.",
         "effect": {
           "type": "modify_stat_per_count",
@@ -7263,7 +7263,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "INTIMIDATE",
+        "storyName": "CRIME OF OPPORTUNITY",
         "rulesText": "When you play this character, chosen opponent loses 1 lore.",
         "trigger": {
           "on": "enters_play"
@@ -7314,7 +7314,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "BATTLE ORDERS",
+        "storyName": "TAKE POINT",
         "rulesText": "While a damaged character is in play, this character gets +2 {S}.",
         "effect": {
           "type": "gain_stats",
@@ -7370,7 +7370,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "CLIMB",
+        "storyName": "STILL USEFUL",
         "rulesText": "While you have an item card in your discard, this character gets +2 {S}.",
         "effect": {
           "type": "gain_stats",
@@ -7454,7 +7454,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "GANG UP",
+        "storyName": "HURRY IT UP!",
         "rulesText": "Whenever this character quests, chosen character of yours gains Rush and Resist +1 this turn.",
         "trigger": {
           "on": "quests"
@@ -7525,7 +7525,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "LEAD BY EXAMPLE",
+        "storyName": "I WON'T LET YOU DOWN",
         "rulesText": "This character can challenge ready characters.",
         "effect": {
           "type": "can_challenge_ready",
@@ -7536,7 +7536,7 @@
       },
       {
         "type": "static",
-        "storyName": "BATTLE HARDENED",
+        "storyName": "BIG RESPONSIBILITY",
         "rulesText": "While this character is damaged, he gets +2 {S}.",
         "effect": {
           "type": "gain_stats",
@@ -7594,7 +7594,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "CHARGE TOGETHER",
+        "storyName": "ADVENTUROUS SPIRIT",
         "rulesText": "Whenever this character challenges another character, another chosen character of yours gets +3 {S} this turn.",
         "trigger": {
           "on": "challenges"
@@ -7687,7 +7687,7 @@
     "abilities": [
       {
         "type": "activated",
-        "storyName": "DESIGN RAGE",
+        "storyName": "I'VE HAD IT!",
         "rulesText": "{E}, 2 {I}, Banish 2 of your items — Deal 5 damage to chosen character.",
         "costs": [
           {
@@ -7748,7 +7748,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "DRAGON AEGIS",
+        "storyName": "INTIMIDATING AND AWE-INSPIRING",
         "rulesText": "Whenever one of your characters challenges, they gain Resist +2 during that challenge.",
         "trigger": {
           "on": "challenges",
@@ -7775,7 +7775,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "DRAGON TRIUMPH",
+        "storyName": "GUARDIAN OF LOST SOULS",
         "rulesText": "During your turn, whenever one of your characters banishes another character in a challenge, gain 2 lore.",
         "trigger": {
           "on": "banished_other_in_challenge",
@@ -7843,7 +7843,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "TINKER",
+        "storyName": "HOW ON EARTH DID THAT HAPPEN?",
         "rulesText": "When you play this character, you may banish chosen item of yours to draw a card. If the banished item is named Maurice's Machine, you may also banish chosen character with 2 {S} or less.",
         "trigger": {
           "on": "enters_play"
@@ -7920,7 +7920,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "EXTREME SPORTS",
+        "storyName": "STAR POWER",
         "rulesText": "Whenever this character challenges another character, your other characters get +1 {L} this turn.",
         "trigger": {
           "on": "challenges"
@@ -8048,7 +8048,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "LEAD THE CHARGE",
+        "storyName": "EXCEPTIONAL LEADER",
         "rulesText": "Whenever this character challenges another character, your other characters gain \"This character can challenge ready characters\" this turn.",
         "trigger": {
           "on": "challenges"
@@ -8165,7 +8165,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "SCHEMING MASTERMIND",
+        "storyName": "A MARVELOUS PERFORMANCE",
         "rulesText": "Whenever you play an action while this character is exerted, gain 1 lore.",
         "trigger": {
           "on": "card_played",
@@ -8252,7 +8252,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "UNDAUNTED",
+        "storyName": "I'M YOUR GUY",
         "rulesText": "Whenever you play an action, you may give chosen character +2 {S} this turn.",
         "trigger": {
           "on": "card_played",
@@ -8433,7 +8433,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "RUBY EDGE",
+        "storyName": "CRIMSON SPARK",
         "rulesText": "During your turn, whenever a card is put into your inkwell, chosen character gets +2 {S} this turn.",
         "trigger": {
           "on": "ink_played",
@@ -8486,7 +8486,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "INVENTOR'S EDGE",
+        "storyName": "FIXED IN NO TIME",
         "rulesText": "When this item is banished, you pay 2 {I} less for the next item you play this turn.",
         "trigger": {
           "on": "is_banished"
@@ -8533,7 +8533,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "RECYCLED PARTS",
+        "storyName": "BREAK DOWN",
         "rulesText": "When this item is banished, you may return an item card with cost 2 or less from your discard to your hand.",
         "trigger": {
           "on": "is_banished"
@@ -8643,7 +8643,7 @@
       },
       {
         "type": "static",
-        "storyName": "BREAKING NEWS",
+        "storyName": "BREAKING STORY",
         "rulesText": "Your other characters with Support get +1 {S}.",
         "effect": {
           "type": "gain_stats",
@@ -8788,7 +8788,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "PROTECTIVE COMMANDER",
+        "storyName": "PROUD TO SERVE",
         "rulesText": "Your Queen characters gain Ward.",
         "effect": {
           "type": "grant_keyword",
@@ -8870,7 +8870,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "SCRAP IT",
+        "storyName": "I'VE COME TO COLLECT",
         "rulesText": "Whenever this character quests, you may banish chosen item of yours to draw a card.",
         "trigger": {
           "on": "quests"
@@ -9148,7 +9148,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "MINE",
+        "storyName": "COOLEST COLLECTION",
         "rulesText": "When you play this character, return up to 2 item cards from your discard to your hand.",
         "trigger": {
           "on": "enters_play"
@@ -9174,7 +9174,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "GLEAM",
+        "storyName": "I'M BEAUTIFUL, BABY!",
         "rulesText": "Whenever this character quests, you may play an item for free.",
         "trigger": {
           "on": "quests"
@@ -9241,7 +9241,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "EMPTY THE MIND",
+        "storyName": "CLEAR YOUR MIND",
         "rulesText": "When you play this character, put all cards from your hand into your inkwell facedown and exerted.",
         "trigger": {
           "on": "enters_play"
@@ -9377,7 +9377,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "I'M A LADY",
+        "storyName": "I'LL SHOW YOU",
         "rulesText": "Whenever this character quests, you may give chosen character -2 {S} this turn.",
         "trigger": {
           "on": "quests"
@@ -9435,7 +9435,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "QUICK SAVE",
+        "storyName": "IN THE NICK OF TIME",
         "rulesText": "Whenever one of your Puppy characters is banished, you may put that card into your inkwell facedown and exerted.",
         "trigger": {
           "on": "is_banished",
@@ -9497,7 +9497,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "YAP",
+        "storyName": "JUST SO CUTE!",
         "rulesText": "When you play this character, chosen opposing character gets -1 {S} this turn.",
         "trigger": {
           "on": "enters_play"
@@ -9558,7 +9558,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "CHEMIST'S TOUCH",
+        "storyName": "PRETTY GREAT, HUH?",
         "rulesText": "Whenever you play a Floodborn character, if you used Shift to play them, you may remove up to 2 damage from chosen character.",
         "trigger": {
           "on": "card_played",
@@ -9658,7 +9658,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "MY HERO",
+        "storyName": "OUR BOTTLE WORKED!",
         "rulesText": "While you have a Hero character in play, this character gains Ward.",
         "effect": {
           "type": "grant_keyword",
@@ -9749,7 +9749,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "DETERMINED RESEARCH",
+        "storyName": "EXTRA ASSISTANCE",
         "rulesText": "Whenever this character quests, if you have no cards in your hand, draw a card for each Ally character you have in play.",
         "trigger": {
           "on": "quests"
@@ -9823,7 +9823,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "GOOD EATS",
+        "storyName": "I GOT YOUR FOUR BASIC FOOD GROUPS",
         "rulesText": "When you play this character, chosen character gains Resist +1 until the start of your next turn.",
         "trigger": {
           "on": "enters_play"
@@ -9946,7 +9946,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "DEFLECT",
+        "storyName": "GOOD SHOT",
         "rulesText": "During an opponent's turn, whenever one of your Ally characters is damaged, deal 1 damage to chosen opposing character.",
         "trigger": {
           "on": "damage_dealt_to",
@@ -9988,7 +9988,7 @@
       },
       {
         "type": "static",
-        "storyName": "TEAMMATE",
+        "storyName": "FAIR PLAY",
         "rulesText": "Your characters named Lady Kluck gain Resist +1.",
         "effect": {
           "type": "grant_keyword",
@@ -10131,7 +10131,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "SAPPHIRE HEX",
+        "storyName": "BRILLIANT SHINE",
         "rulesText": "During your turn, whenever a card is put into your inkwell, you may give chosen character -2 {S} this turn.",
         "trigger": {
           "on": "ink_played",
@@ -10185,7 +10185,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "RECHARGING",
+        "storyName": "ENERGY CONVERTER",
         "rulesText": "Whenever you play a Floodborn character, if you used Shift to play them, you may draw a card.",
         "trigger": {
           "on": "card_played",
@@ -10245,7 +10245,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "UNHARMED",
+        "storyName": "YOU'RE BEGINNING TO IRK ME",
         "rulesText": "While this character has no damage, he gains Resist +2.",
         "effect": {
           "type": "grant_keyword",
@@ -10326,7 +10326,7 @@
       },
       {
         "type": "static",
-        "storyName": "ON THE MOVE",
+        "storyName": "QUICK REFLEXES",
         "rulesText": "During your turn, this character gains Evasive.",
         "effect": {
           "type": "grant_keyword",
@@ -10374,7 +10374,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "HEADSTRONG",
+        "storyName": "THERE'S NO TURNING BACK",
         "rulesText": "Whenever this character quests, if he has no damage, you may draw a card, then choose and discard a card.",
         "trigger": {
           "on": "quests"
@@ -10462,7 +10462,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "STEADY WATCH",
+        "storyName": "A GREATER PURPOSE",
         "rulesText": "During your turn, whenever a card is put into your inkwell, this character gains Resist +1 until the start of your next turn.",
         "trigger": {
           "on": "ink_played",
@@ -10546,7 +10546,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "HERO'S TIMING",
+        "storyName": "TRAINING EXERCISES",
         "rulesText": "Whenever one of your characters challenges another character, if it's the second challenge this turn, gain 3 lore.",
         "trigger": {
           "on": "challenges",
@@ -10607,7 +10607,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "FOR THE SULTAN",
+        "storyName": "MY ORDERS COME FROM JAFAR",
         "rulesText": "When you play this character, if you have a character named Jafar in play, you may banish chosen item.",
         "trigger": {
           "on": "enters_play"
@@ -10672,7 +10672,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "HEAR ME OUT",
+        "storyName": "THAT'S BETTER",
         "rulesText": "When you play this character, chosen character gains Challenger +2 this turn.",
         "trigger": {
           "on": "enters_play"
@@ -10729,7 +10729,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "TICK TOCK",
+        "storyName": "LOOKING FOR LUNCH",
         "rulesText": "During your turn, this character gains Evasive while a Pirate character is in play.",
         "effect": {
           "type": "grant_keyword",
@@ -10793,7 +10793,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "STRENGTH IN NUMBERS",
+        "storyName": "SHOWBOATING",
         "rulesText": "While you have another Pirate character in play, this character gains Challenger +3.",
         "effect": {
           "type": "grant_keyword",
@@ -10856,7 +10856,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "DISGUISE",
+        "storyName": "WHERE DO I SIGN IN?",
         "rulesText": "When you play this character, you may draw a card, then choose and discard a card.",
         "trigger": {
           "on": "enters_play"
@@ -10915,7 +10915,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "CO-PILOT",
+        "storyName": "WELCOME ABOARD, FOLKS",
         "rulesText": "During your turn, while you have a character named Miss Bianca or Bernard in play, this character gains Evasive.",
         "effect": {
           "type": "grant_keyword",
@@ -11091,7 +11091,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "ASSISTANT",
+        "storyName": "HELPING HAND",
         "rulesText": "Whenever this character quests, you may play an Ally character with cost 3 or less for free.",
         "trigger": {
           "on": "quests"
@@ -11116,7 +11116,7 @@
       },
       {
         "type": "static",
-        "storyName": "RALLY",
+        "storyName": "PUT IN THE EFFORT",
         "rulesText": "While this character is exerted, your Ally characters get +1 {S}.",
         "effect": {
           "type": "gain_stats",
@@ -11179,7 +11179,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "PROTECTIVE SPIRIT",
+        "storyName": "YOU MUST BE BRAVE",
         "rulesText": "When this character is banished during an opponent's turn, deal 2 damage to each opposing character.",
         "trigger": {
           "on": "is_banished"
@@ -11245,7 +11245,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "STOP RIGHT THERE!",
+        "storyName": "CLOSE ALL CHANNELS",
         "rulesText": "When you play this character, characters can't exert to sing songs until the start of your next turn.",
         "trigger": {
           "on": "enters_play",
@@ -11330,7 +11330,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "LEAD THE CHARGE",
+        "storyName": "STIRRING SPIRIT",
         "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may play a character for free.",
         "trigger": {
           "on": "banished_other_in_challenge"
@@ -11474,7 +11474,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "STEEL CYCLE",
+        "storyName": "METALLIC FLOW",
         "rulesText": "During your turn, whenever a card is put into your inkwell, you may draw a card, then choose and discard a card.",
         "trigger": {
           "on": "ink_played",
@@ -11576,7 +11576,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "WAKE UP",
+        "storyName": "SWEET DREAMS",
         "rulesText": "Whenever you remove 1 or more damage from a character, ready this character. She can't quest or challenge for the rest of this turn.",
         "trigger": {
           "on": "damage_removed_from"
@@ -11650,7 +11650,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "CATCHY TUNE",
+        "storyName": "HER OWN SPECIAL GIFT",
         "rulesText": "Whenever this character quests, you may return a song card with cost 3 or less from your discard to your hand.",
         "trigger": {
           "on": "quests"
@@ -11713,7 +11713,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "SUPERDOG",
+        "storyName": "MARK OF POWER",
         "rulesText": "Whenever you ready this character, gain 1 lore for each other undamaged character you have in play.",
         "trigger": {
           "on": "readied",
@@ -11748,7 +11748,7 @@
       },
       {
         "type": "activated",
-        "storyName": "BANISH ILLUSION",
+        "storyName": "BOLT STARE",
         "rulesText": "Banish chosen Illusion character.",
         "costs": [
           {
@@ -11941,7 +11941,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "COLLECT THE ILLUSIONS",
+        "storyName": "THIS IS NOT DONE YET",
         "rulesText": "During an opponent's turn, whenever one of your Illusion characters is banished, you may return that card to your hand.",
         "trigger": {
           "on": "is_banished",
@@ -12134,7 +12134,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "TEA FOR ALL",
+        "storyName": "UNBIRTHDAY PRESENT",
         "rulesText": "Whenever a damaged character challenges another character, you may draw a card.",
         "trigger": {
           "on": "challenges",
@@ -12199,7 +12199,7 @@
       },
       {
         "type": "static",
-        "storyName": "YOU CAN BE WAY MORE (Evasive)",
+        "storyName": "YOU CAN BE WAY MORE",
         "rulesText": "Your Floodborn characters that have a card under them gain Evasive.",
         "effect": {
           "type": "grant_keyword",
@@ -12222,7 +12222,7 @@
       },
       {
         "type": "static",
-        "storyName": "YOU CAN BE WAY MORE (Ward)",
+        "storyName": "YOU CAN BE WAY MORE",
         "rulesText": "Your Floodborn characters that have a card under them gain Ward.",
         "effect": {
           "type": "grant_keyword",
@@ -12328,7 +12328,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "SCHEMING MASTERMIND",
+        "storyName": "A MARVELOUS PERFORMANCE",
         "rulesText": "Whenever you play an action while this character is exerted, gain 1 lore.",
         "trigger": {
           "on": "card_played",
@@ -12533,7 +12533,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "MINE",
+        "storyName": "COOLEST COLLECTION",
         "rulesText": "When you play this character, return up to 2 item cards from your discard to your hand.",
         "trigger": {
           "on": "enters_play"
@@ -12559,7 +12559,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "GLEAM",
+        "storyName": "I'M BEAUTIFUL, BABY!",
         "rulesText": "Whenever this character quests, you may play an item for free.",
         "trigger": {
           "on": "quests"
@@ -12668,7 +12668,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "LEAD THE CHARGE",
+        "storyName": "STIRRING SPIRIT",
         "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may play a character for free.",
         "trigger": {
           "on": "banished_other_in_challenge"

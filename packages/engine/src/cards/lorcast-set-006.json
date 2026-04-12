@@ -17,7 +17,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "EYES UP",
+        "storyName": "WELL SPOTTED",
         "rulesText": "During your turn, whenever a card is put into your inkwell, chosen opposing character gets -1 {S} until the start of your next turn.",
         "trigger": {
           "on": "ink_played",
@@ -145,7 +145,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "FRIENDLY HELPER",
+        "storyName": "WE'RE PIRATES, YOU SEE",
         "rulesText": "Whenever this character quests, you pay 1 {I} less for the next Pirate character you play this turn.",
         "trigger": {
           "on": "quests"
@@ -250,7 +250,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "TEAMWORK",
+        "storyName": "DALE'S PARTNER",
         "rulesText": "When you play this character, chosen character gets +1 {L} this turn.",
         "trigger": {
           "on": "enters_play"
@@ -373,7 +373,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "OHANA",
+        "storyName": "SHOWING OFF",
         "rulesText": "While you have a character named Nani in play, this character gets +2 {L}.",
         "effect": {
           "type": "gain_stats",
@@ -641,7 +641,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "RESCUE OPERATION",
+        "storyName": "SEARCH AND RESCUE",
         "rulesText": "During your turn, whenever a card is put into your inkwell, you may return a character card from your discard to your hand.",
         "trigger": {
           "on": "ink_played",
@@ -843,7 +843,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "UNDIVIDED ATTENTION",
+        "storyName": "FIND IT!",
         "rulesText": "Whenever this character quests, your other Alien characters get +1 {L} this turn.",
         "trigger": {
           "on": "quests"
@@ -1175,7 +1175,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "I'M THE CAPTAIN",
+        "storyName": "BE MORE CAREFUL",
         "rulesText": "When you play this character, you may remove up to 1 damage from chosen character.",
         "trigger": {
           "on": "enters_play"
@@ -1235,7 +1235,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "PIRATE GAMES",
+        "storyName": "I'M A PIRATE TOO!",
         "rulesText": "When you play this character, you may give chosen character -2 {S} until the start of your next turn.",
         "trigger": {
           "on": "enters_play"
@@ -1999,7 +1999,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "WHO'S NEXT?",
+        "storyName": "SOUL COLLECTOR",
         "rulesText": "Whenever one of your other characters is banished during the opponent's turn, gain 2 lore.",
         "trigger": {
           "on": "banished_other_in_challenge",
@@ -2072,7 +2072,7 @@
       },
       {
         "type": "static",
-        "storyName": "I'M A GENIUS",
+        "storyName": "ZIM ZABBERIM ZIM",
         "rulesText": "Your other characters gain Challenger +1.",
         "effect": {
           "type": "grant_keyword",
@@ -2186,7 +2186,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "BLOOM",
+        "storyName": "THE BEAUTY OF THE WORLD",
         "rulesText": "When you play this character, gain 1 lore.",
         "trigger": {
           "on": "enters_play"
@@ -2237,7 +2237,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "MOVE ALONG",
+        "storyName": "BEES' KNEES",
         "rulesText": "When you play this character, move 1 damage counter from chosen character to chosen opposing character.",
         "trigger": {
           "on": "enters_play"
@@ -2362,7 +2362,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "OYSTERS, OYSTERS, OYSTERS!",
+        "storyName": "I'LL GET YOU!",
         "rulesText": "When this character is banished, you may exert chosen character.",
         "trigger": {
           "on": "is_banished"
@@ -2419,7 +2419,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "I CAN'T BELIEVE THIS",
+        "storyName": "GUESS WHO",
         "rulesText": "When this character is banished in a challenge, return this card to your hand.",
         "trigger": {
           "on": "banished_in_challenge"
@@ -2540,7 +2540,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "GRACE OUR PRESENCE",
+        "storyName": "SHINING EXAMPLE",
         "rulesText": "Whenever this character quests, your other Fairy characters get +1 {L} this turn.",
         "trigger": {
           "on": "quests"
@@ -2602,7 +2602,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "GOOD COMPANION",
+        "storyName": "FLY, MY PET!",
         "rulesText": "When this character is banished, you may draw a card.",
         "trigger": {
           "on": "is_banished"
@@ -2714,7 +2714,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "WHO ARE YOU?",
+        "storyName": "ASTRAL ATTUNEMENT",
         "rulesText": "During your turn, whenever a card is put into your inkwell, you may draw a card.",
         "trigger": {
           "on": "ink_played",
@@ -2773,7 +2773,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "YOUR FONDEST WISHES",
+        "storyName": "WHAT HAPPENS NOW?",
         "rulesText": "When you play this character, draw a card.",
         "trigger": {
           "on": "enters_play"
@@ -3084,7 +3084,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "GET HIM!",
+        "storyName": "GOTCHA!",
         "rulesText": "During your turn, whenever a card is put into your inkwell, exert chosen opposing character.",
         "trigger": {
           "on": "ink_played",
@@ -3244,7 +3244,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "SWITCH UP",
+        "storyName": "YOUR REWARD AWAITS",
         "rulesText": "Whenever you play a card, draw a card.",
         "trigger": {
           "on": "card_played",
@@ -3895,7 +3895,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "DASTARDLY PLAN",
+        "storyName": "INSPIRES DREAD",
         "rulesText": "While this character is exerted, opposing Pirate characters can't quest.",
         "effect": {
           "type": "cant_action",
@@ -3920,7 +3920,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "FANCY A FIGHT?",
+        "storyName": "UPPER HAND",
         "rulesText": "Whenever this character is challenged, draw a card.",
         "trigger": {
           "on": "is_challenged"
@@ -4050,7 +4050,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "NEED FOR SPEED",
+        "storyName": "STOP WHINING, WOMAN UP",
         "rulesText": "When you play this character, you may pay 2 {I} to gain lore equal to the damage on chosen opposing character.",
         "trigger": {
           "on": "enters_play"
@@ -4198,7 +4198,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "MASCOT MOMENT",
+        "storyName": "HOW COOL IS THAT",
         "rulesText": "Whenever this character is challenged, gain 2 lore.",
         "trigger": {
           "on": "is_challenged"
@@ -4361,7 +4361,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "GOOD SHOT",
+        "storyName": "CAPTAIN ON DECK",
         "rulesText": "While you have a Captain character in play, this character gets +2 {L}.",
         "effect": {
           "type": "gain_stats",
@@ -4749,7 +4749,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "PRESS RELEASE",
+        "storyName": "AN EYE FOR TECH",
         "rulesText": "When you play this character, if an opponent has an item in play, gain 1 lore.",
         "trigger": {
           "on": "enters_play"
@@ -4812,7 +4812,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "I CAN'T HELP MYSELF",
+        "storyName": "YOU ARE A REALLY HOT DANCER",
         "rulesText": "When you play this character, chosen character gains Evasive until the start of your next turn.",
         "trigger": {
           "on": "enters_play"
@@ -4874,7 +4874,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "MASTERFUL CRAFT",
+        "storyName": "CLEVER DESIGN",
         "rulesText": "Whenever this character quests, chosen character gains Ward until the start of your next turn.",
         "trigger": {
           "on": "quests"
@@ -4931,7 +4931,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "FROM THE SHADOWS",
+        "storyName": "FEAR ALWAYS WORKS",
         "rulesText": "During your turn, whenever a card is put into your inkwell, chosen opposing character gains Reckless during their next turn.",
         "trigger": {
           "on": "ink_played",
@@ -5800,7 +5800,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "FIRE!",
+        "storyName": "DIZZYING SPEED",
         "rulesText": "When you play this character, chosen Pirate character gains Evasive until the start of your next turn.",
         "trigger": {
           "on": "enters_play"
@@ -5859,7 +5859,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "I CAN HELP",
+        "storyName": "YOU'LL NEVER MISS IT",
         "rulesText": "Whenever this character quests, each opponent loses 1 lore.",
         "trigger": {
           "on": "quests"
@@ -5991,7 +5991,7 @@
       },
       {
         "type": "static",
-        "storyName": "WE CAN DO IT",
+        "storyName": "LOOK LIVELY, CREW!",
         "rulesText": "While you have another Pirate character in play, this character gets +1 {S} and +1 {L}.",
         "effect": {
           "type": "gain_stats",
@@ -6316,7 +6316,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "FOR ADVENTURE",
+        "storyName": "SOLID GROUND",
         "rulesText": "While this character is at a location, he gets +2 {S}.",
         "effect": {
           "type": "gain_stats",
@@ -6366,7 +6366,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "ICY POWER",
+        "storyName": "KEEP DRIVING",
         "rulesText": "While this character has damage, she gets +1 {L}.",
         "effect": {
           "type": "gain_stats",
@@ -6417,7 +6417,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "MAKE WAY",
+        "storyName": "LEARNING THE ROPES",
         "rulesText": "This character can't challenge unless you have a Captain character in play.",
         "effect": {
           "type": "cant_action",
@@ -6511,7 +6511,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "FALL IN LINE",
+        "storyName": "REMEMBER YOUR TRAINING",
         "rulesText": "When you play this character, your characters get +2 {S} this turn.",
         "trigger": {
           "on": "enters_play"
@@ -6953,7 +6953,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "FUN UP HERE",
+        "storyName": "SWASH YOUR BUCKLES",
         "rulesText": "Whenever you play an action, this character gets +1 {S} and +1 {L} this turn.",
         "trigger": {
           "on": "card_played",
@@ -7326,7 +7326,7 @@
     "abilities": [
       {
         "type": "activated",
-        "storyName": "DIG IN",
+        "storyName": "GLITTERING ACCESS",
         "rulesText": "{E}, 1 {I}, Banish this item – Ready chosen character of yours. They can't quest for the rest of this turn.",
         "costs": [
           {
@@ -7390,7 +7390,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "OFF WITH THEIR HEADS",
+        "storyName": "A SUITABLE WEAPON",
         "rulesText": "Your damaged characters get +1 {S}.",
         "effect": {
           "type": "gain_stats",
@@ -7515,7 +7515,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "BUCCANEER'S HIDEAWAY",
+        "storyName": "FAMILIAR GROUND",
         "rulesText": "Characters get +1 {S} while here.",
         "effect": {
           "type": "gain_stats",
@@ -7627,7 +7627,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "PROUD AS A PEACOCK",
+        "storyName": "HAPPY TO HELP",
         "rulesText": "Whenever this character quests, chosen Inventor character gets +1 {L} this turn.",
         "trigger": {
           "on": "quests"
@@ -7686,7 +7686,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "INVENT",
+        "storyName": "BRAINSTORM",
         "rulesText": "Whenever you play an item, this character gets +1 {L} this turn.",
         "trigger": {
           "on": "card_played",
@@ -7817,7 +7817,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "ASTUTE DECOY",
+        "storyName": "RUN INTERFERENCE",
         "rulesText": "During your turn, whenever a card is put into your inkwell, another chosen character gains Resist +1 until the start of your next turn.",
         "trigger": {
           "on": "ink_played",
@@ -8155,7 +8155,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "WAIT FOR ME!",
+        "storyName": "EAT ANYTHING",
         "rulesText": "When you play this character, exert chosen opposing item. It can't ready at the start of its next turn.",
         "trigger": {
           "on": "enters_play"
@@ -8190,7 +8190,7 @@
       },
       {
         "type": "static",
-        "storyName": "DODGE",
+        "storyName": "OUT TO LUNCH",
         "rulesText": "During your turn, this character gains Evasive.",
         "effect": {
           "type": "grant_keyword",
@@ -8243,7 +8243,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "WEAR DOWN",
+        "storyName": "UNPALATABLE",
         "rulesText": "When you play this character, chosen opposing character gets -2 {S} this turn.",
         "trigger": {
           "on": "enters_play"
@@ -8303,7 +8303,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "NIFTY TRICK",
+        "storyName": "NICE TO HAVE A PARTNER",
         "rulesText": "While you have another character with Support in play, this character gets +2 {S}.",
         "effect": {
           "type": "gain_stats",
@@ -8364,7 +8364,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "SCALPEL",
+        "storyName": "BLADES OF FURY",
         "rulesText": "When you play this character, you may banish chosen item. Its player gains 1 lore.",
         "trigger": {
           "on": "enters_play"
@@ -8396,7 +8396,7 @@
       },
       {
         "type": "static",
-        "storyName": "DODGE",
+        "storyName": "QUICK REFLEXES",
         "rulesText": "During your turn, this character gains Evasive.",
         "effect": {
           "type": "grant_keyword",
@@ -8454,7 +8454,7 @@
       },
       {
         "type": "static",
-        "storyName": "I KNOW EVERYBODY",
+        "storyName": "CAN'T TOUCH ME",
         "rulesText": "While you have an item in play, this character can't be challenged.",
         "condition": {
           "type": "you_control_matching",
@@ -8564,7 +8564,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "WORK IN PROGRESS",
+        "storyName": "LET'S GET BACK TO WORK",
         "rulesText": "This character gets +1 {S} and +1 {W} for each item you have in play.",
         "effect": {
           "type": "modify_stat_per_count",
@@ -8621,7 +8621,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "WE'RE GONNA HELP",
+        "storyName": "I NEED TO UPGRADE ALL OF YOU",
         "rulesText": "Your other Inventor characters gain Resist +1.",
         "effect": {
           "type": "grant_keyword",
@@ -8898,7 +8898,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "THE TREATMENT IS WORKING (quest)",
+        "storyName": "THE TREATMENT IS WORKING",
         "rulesText": "Whenever he quests, you may remove up to 2 damage from another chosen character of yours. Gain 1 lore for each 1 damage removed this way.",
         "trigger": {
           "on": "quests"
@@ -9118,7 +9118,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "KEEN OBSERVER",
+        "storyName": "AHOY!",
         "rulesText": "Whenever this character quests, another chosen character of yours gets +1 {L} and gains Ward until the start of your next turn.",
         "trigger": {
           "on": "quests"
@@ -9786,7 +9786,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "FIRE!",
+        "storyName": "A LITTLE HELP",
         "rulesText": "When you play this character, if you have another Pirate character in play, you may deal 1 damage to chosen character or location.",
         "trigger": {
           "on": "enters_play"
@@ -9965,7 +9965,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "READY TO RUMBLE",
+        "storyName": "COME HERE, COME HERE, COME HERE!",
         "rulesText": "During your turn, whenever a card is put into your inkwell, this character gets Challenger +2 this turn.",
         "trigger": {
           "on": "ink_played",
@@ -10124,7 +10124,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "YOU'LL BE SORRY!",
+        "storyName": "RAISE THE COLORS",
         "rulesText": "When you play this character, you may deal damage to chosen character equal to the number of your other Pirate characters in play.",
         "trigger": {
           "on": "enters_play"
@@ -10196,7 +10196,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "RIGHT HAND MAN",
+        "storyName": "FALL IN LINE",
         "rulesText": "While you have a character named Mr. Smee in play, this character gains Resist +1.",
         "effect": {
           "type": "grant_keyword",
@@ -10343,7 +10343,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "EAT UP",
+        "storyName": "HUNK OF HARDWARE",
         "rulesText": "When you play this character, chosen character can't challenge during their next turn.",
         "trigger": {
           "on": "enters_play"
@@ -10438,7 +10438,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "FIRE WHEN READY",
+        "storyName": "BATTLE STATION",
         "rulesText": "When you play this character, you may deal 1 damage to chosen character or location.",
         "trigger": {
           "on": "enters_play"
@@ -10523,7 +10523,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "WALK THE PLANK",
+        "storyName": "KEEP IT HIDDEN",
         "rulesText": "When this character is banished, you may banish chosen item or location.",
         "trigger": {
           "on": "is_banished"
@@ -10585,7 +10585,7 @@
       },
       {
         "type": "static",
-        "storyName": "FAITHFUL COMPANION",
+        "storyName": "BRAVO",
         "rulesText": "While this character has no damage, he gets +4 {S}.",
         "effect": {
           "type": "gain_stats",
@@ -10640,7 +10640,7 @@
       },
       {
         "type": "static",
-        "storyName": "ON GUARD",
+        "storyName": "SUPPORT",
         "rulesText": "Your Pluto characters get Resist +1.",
         "effect": {
           "type": "grant_keyword",
@@ -10788,7 +10788,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "SMASH!",
+        "storyName": "I WRECK THINGS",
         "rulesText": "Whenever this character quests, you may banish chosen item or location to gain 2 lore.",
         "trigger": {
           "on": "quests"
@@ -10865,7 +10865,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "KICK INTO ACTION",
+        "storyName": "LEVEL UP",
         "rulesText": "During your turn, whenever this character banishes another character in a challenge, gain 2 lore.",
         "trigger": {
           "on": "banished_other_in_challenge"
@@ -10996,7 +10996,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "FROM THE SHADOWS",
+        "storyName": "YOU WILL BE PAID WHEN THE TIME COMES",
         "rulesText": "During your turn, whenever a card is put into your inkwell, deal 1 damage to chosen character.",
         "trigger": {
           "on": "ink_played",
@@ -11683,7 +11683,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "ORDER IN THE COURT",
+        "storyName": "FEDERATION DECREE",
         "rulesText": "While you have an Alien or Robot character here, this location can't be challenged.",
         "condition": {
           "type": "you_control_matching",
@@ -11749,7 +11749,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "RESCUE OPERATION",
+        "storyName": "SEARCH AND RESCUE",
         "rulesText": "During your turn, whenever a card is put into your inkwell, you may return a character card from your discard to your hand.",
         "trigger": {
           "on": "ink_played",
@@ -11960,7 +11960,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "WHO ARE YOU?",
+        "storyName": "ASTRAL ATTUNEMENT",
         "rulesText": "During your turn, whenever a card is put into your inkwell, you may draw a card.",
         "trigger": {
           "on": "ink_played",
@@ -12377,7 +12377,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "FUN UP HERE",
+        "storyName": "SWASH YOUR BUCKLES",
         "rulesText": "Whenever you play an action, this character gets +1 {S} and +1 {L} this turn.",
         "trigger": {
           "on": "card_played",
@@ -12693,7 +12693,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "SMASH!",
+        "storyName": "I WRECK THINGS",
         "rulesText": "Whenever this character quests, you may banish chosen item or location to gain 2 lore.",
         "trigger": {
           "on": "quests"

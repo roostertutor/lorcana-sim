@@ -140,7 +140,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "MUSICAL DEBUT",
+        "storyName": "BEAUTIFUL VOICE",
         "rulesText": "Whenever this character sings a song, your other Princess characters get +1 {L} this turn.",
         "trigger": {
           "on": "sings"
@@ -344,7 +344,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "ALL FOR ONE",
+        "storyName": "WAIT FOR ME!",
         "rulesText": "When you play this character, chosen character gets +1 {L} this turn.",
         "trigger": {
           "on": "enters_play"
@@ -609,7 +609,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "FAMILY RECIPE",
+        "storyName": "SIGNATURE RECIPE",
         "rulesText": "When you play this character, you may remove up to 2 damage from chosen character. If you removed damage this way, you may draw a card. (draw approximation skipped)",
         "trigger": {
           "on": "enters_play"
@@ -788,7 +788,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "ALL FOR ONE",
+        "storyName": "MUSKETEERS UNITED",
         "rulesText": "When you play this character, if you used Shift to play him, you may draw a card for each character with Bodyguard you have in play.",
         "trigger": {
           "on": "enters_play"
@@ -860,7 +860,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "EN GARDE!",
+        "storyName": "DRAMATIC ENTRANCE",
         "rulesText": "When you play this character, banish chosen opposing character with 5 {S} or more.",
         "trigger": {
           "on": "enters_play"
@@ -924,7 +924,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "GIFT OF THE FAMILY",
+        "storyName": "SAVING THE MIRACLE",
         "rulesText": "Whenever this character quests, your other Madrigal characters get +1 {L} this turn.",
         "trigger": {
           "on": "quests"
@@ -1115,7 +1115,7 @@
       },
       {
         "type": "static",
-        "storyName": "I'M A FAST LEARNER",
+        "storyName": "UNDER VANESSA'S SPELL",
         "rulesText": "While you have a character named Ursula in play, this character gains Bodyguard.",
         "condition": {
           "type": "has_character_named",
@@ -1134,7 +1134,7 @@
       },
       {
         "type": "static",
-        "storyName": "I'M A FAST LEARNER",
+        "storyName": "UNDER VANESSA'S SPELL",
         "rulesText": "While you have a character named Ursula in play, this character gets +2 {W}.",
         "condition": {
           "type": "has_character_named",
@@ -1855,7 +1855,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "MENDING TOUCH",
+        "storyName": "ENHANCED HEALING",
         "rulesText": "When you play this character, move up to 3 damage counters from chosen character to chosen opposing character.",
         "trigger": {
           "on": "enters_play"
@@ -1998,7 +1998,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "I CAN SEE YOUR FUTURE",
+        "storyName": "IT WAS YOUR VISION",
         "rulesText": "When you play this character, chosen character gains \"When this character is banished in a challenge, you may return this card to your hand\" this turn.",
         "trigger": {
           "on": "enters_play"
@@ -2987,7 +2987,7 @@
       },
       {
         "type": "static",
-        "storyName": "YOU'RE FLYING!",
+        "storyName": "FLY, OF COURSE!",
         "rulesText": "Your other characters with Evasive gain Rush.",
         "effect": {
           "type": "grant_keyword",
@@ -4206,7 +4206,7 @@
       },
       {
         "type": "static",
-        "storyName": "MY HERO",
+        "storyName": "PROTECTIVE GODDESS",
         "rulesText": "Your characters named Zeus gain Ward.",
         "effect": {
           "type": "grant_keyword",
@@ -4228,7 +4228,7 @@
       },
       {
         "type": "static",
-        "storyName": "MY HERO",
+        "storyName": "YOU'RE A TRUE HERO",
         "rulesText": "Your characters named Hercules gain Evasive.",
         "effect": {
           "type": "grant_keyword",
@@ -4350,7 +4350,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "CUNNING MANEUVER (enters)",
+        "storyName": "CUNNING MANEUVER",
         "rulesText": "When you play this character, each opponent chooses and discards a card.",
         "trigger": {
           "on": "enters_play"
@@ -4368,7 +4368,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "CUNNING MANEUVER (challenged)",
+        "storyName": "CUNNING MANEUVER",
         "rulesText": "Whenever she's challenged, each opponent chooses and discards a card.",
         "trigger": {
           "on": "is_challenged"
@@ -4490,7 +4490,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "HEAD HELD HIGH",
+        "storyName": "PEOPLE ALWAYS DO CRAZY THINGS",
         "rulesText": "Whenever you play a character named Hercules, you may ready this character.",
         "trigger": {
           "on": "card_played",
@@ -4653,7 +4653,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "FLYING LESSONS",
+        "storyName": "HOP ON!",
         "rulesText": "When you play this character, if you used Shift to play him, your characters gain Evasive until the start of your next turn.",
         "trigger": {
           "on": "enters_play"
@@ -4845,7 +4845,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "DRAGON SLAYER",
+        "storyName": "SWIFT AND SURE",
         "rulesText": "When you play this character, banish all opposing damaged characters.",
         "trigger": {
           "on": "enters_play"
@@ -5019,7 +5019,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "FROM THE TOP",
+        "storyName": "THE GOSPEL TRUTH",
         "rulesText": "Whenever you play a song, you may return chosen character with 2 {S} or less to their player's hand.",
         "trigger": {
           "on": "card_played",
@@ -5627,7 +5627,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "REVITALIZING WATERS (S)",
+        "storyName": "REVITALIZING WATERS",
         "rulesText": "Characters get +1 {S} while here.",
         "effect": {
           "type": "modify_stat",
@@ -5647,7 +5647,7 @@
       },
       {
         "type": "static",
-        "storyName": "REVITALIZING WATERS (W)",
+        "storyName": "REVITALIZING WATERS",
         "rulesText": "Characters get +1 {W} while here.",
         "effect": {
           "type": "modify_stat",
@@ -6805,7 +6805,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "WHO'S NEXT?",
+        "storyName": "BRING ON THE HEAT!",
         "rulesText": "When you play this character, banish chosen opposing character with 1 {S} or less.",
         "trigger": {
           "on": "enters_play"
@@ -6927,7 +6927,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "WE'VE GOT WORK TO DO",
+        "storyName": "I GOT THIS!",
         "rulesText": "When you play this character, banish all opposing characters with 2 {S} or less.",
         "trigger": {
           "on": "enters_play"
@@ -8048,7 +8048,7 @@
       },
       {
         "type": "static",
-        "storyName": "BEST FRIENDS",
+        "storyName": "I'M NOT A GUPPY",
         "rulesText": "If you have a character named Ariel in play, you pay 1 {I} less to play this character.",
         "condition": {
           "type": "has_character_named",
@@ -8791,7 +8791,7 @@
       },
       {
         "type": "static",
-        "storyName": "RULER OF THE SEAS",
+        "storyName": "IMPOSING PRESENCE",
         "rulesText": "Opposing characters get -1 {S} for each location you have in play.",
         "effect": {
           "type": "modify_stat_per_count",
@@ -10242,7 +10242,7 @@
       },
       {
         "type": "static",
-        "storyName": "WORK TOGETHER",
+        "storyName": "ARMY OF BROOMS",
         "rulesText": "This character gets +2 {S} for each other character named Magic Broom you have in play.",
         "effect": {
           "type": "modify_stat_per_count",
@@ -10310,7 +10310,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "BROOMS EVERYWHERE",
+        "storyName": "SWEEP AWAY",
         "rulesText": "When you play this character, deal damage to chosen character equal to the number of Broom characters you have in play.",
         "trigger": {
           "on": "enters_play"
@@ -10553,7 +10553,7 @@
       },
       {
         "type": "static",
-        "storyName": "SHOW OF COURAGE",
+        "storyName": "NOT SO SMALL ANYMORE",
         "rulesText": "While you have no cards in your hand, this character can challenge ready characters.",
         "condition": {
           "type": "cards_in_hand_eq",
@@ -10604,7 +10604,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "REGAL GUARDIAN",
+        "storyName": "STEADY GAZE",
         "rulesText": "While you have no cards in your hand, characters with cost 4 or less can't challenge this character.",
         "condition": {
           "type": "cards_in_hand_eq",
@@ -10670,7 +10670,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "MY MOMENT",
+        "storyName": "YOU GAVE IT YOUR BEST",
         "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may draw a card.",
         "trigger": {
           "on": "banished_other_in_challenge"
@@ -11335,7 +11335,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "MUSICAL DEBUT",
+        "storyName": "BEAUTIFUL VOICE",
         "rulesText": "Whenever this character sings a song, your other Princess characters get +1 {L} this turn.",
         "trigger": {
           "on": "sings"
@@ -11402,7 +11402,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "EN GARDE!",
+        "storyName": "DRAMATIC ENTRANCE",
         "rulesText": "When you play this character, banish chosen opposing character with 5 {S} or more.",
         "trigger": {
           "on": "enters_play"
@@ -11801,7 +11801,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "CUNNING MANEUVER (enters)",
+        "storyName": "CUNNING MANEUVER",
         "rulesText": "When you play this character, each opponent chooses and discards a card.",
         "trigger": {
           "on": "enters_play"
@@ -11819,7 +11819,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "CUNNING MANEUVER (challenged)",
+        "storyName": "CUNNING MANEUVER",
         "rulesText": "Whenever she's challenged, each opponent chooses and discards a card.",
         "trigger": {
           "on": "is_challenged"
@@ -11985,7 +11985,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "WE'VE GOT WORK TO DO",
+        "storyName": "I GOT THIS!",
         "rulesText": "When you play this character, banish all opposing characters with 2 {S} or less.",
         "trigger": {
           "on": "enters_play"
@@ -12381,7 +12381,7 @@
       },
       {
         "type": "static",
-        "storyName": "SHOW OF COURAGE",
+        "storyName": "NOT SO SMALL ANYMORE",
         "rulesText": "While you have no cards in your hand, this character can challenge ready characters.",
         "condition": {
           "type": "cards_in_hand_eq",
@@ -12691,7 +12691,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "BROOMS EVERYWHERE",
+        "storyName": "SWEEP AWAY",
         "rulesText": "When you play this character, deal damage to chosen character equal to the number of Broom characters you have in play.",
         "trigger": {
           "on": "enters_play"

@@ -95,7 +95,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "A LITTLE TUNE",
+        "storyName": "IT'S BEAUTIFUL, NO?",
         "rulesText": "When you play this character, you may play a song with cost 6 or less for free.",
         "trigger": {
           "on": "enters_play"
@@ -183,7 +183,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "BROTHERLY LOVE",
+        "storyName": "BROTHERS FOREVER",
         "rulesText": "While this character is exerted, your characters named Koda can't be challenged.",
         "condition": {
           "type": "this_is_exerted"
@@ -452,7 +452,7 @@
       },
       {
         "type": "static",
-        "storyName": "I CAN FIX IT",
+        "storyName": "BUILDING TOGETHER",
         "rulesText": "Your locations get +2 {W}.",
         "effect": {
           "type": "modify_stat",
@@ -611,7 +611,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "LET'S GO, ALREADY!",
+        "storyName": "PARADE ORDER",
         "rulesText": "When you play this character, if you used Shift to play her, you may search your deck for a character card and reveal that card to all players. Shuffle your deck and put that card on top of it.",
         "trigger": {
           "on": "enters_play"
@@ -828,7 +828,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "NOW YOU SEE ME",
+        "storyName": "I HEREBY DECREE",
         "rulesText": "Whenever you play another Princess character, all opposing characters get -1 {S} until the start of your next turn.",
         "trigger": {
           "on": "card_played",
@@ -1829,7 +1829,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "DARK KNOWLEDGE",
+        "storyName": "LISTEN WELL, ALL OF YOU",
         "rulesText": "When you play this character, for each of your characters named Maleficent in play, return a chosen opposing character, item, or location with cost 3 or less to their player's hand.",
         "trigger": {
           "on": "enters_play"
@@ -2115,7 +2115,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "WHERE DID I PUT THAT?",
+        "storyName": "GIVE ME TIME TO THINK",
         "rulesText": "When you play this character and when he leaves play, look at the top 2 cards of your deck. Put one on the top of your deck and the other on the bottom.",
         "trigger": {
           "on": "enters_play"
@@ -2133,7 +2133,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "WHERE DID I PUT THAT?",
+        "storyName": "GIVE ME TIME TO THINK",
         "rulesText": "When you play this character and when he leaves play, look at the top 2 cards of your deck. Put one on the top of your deck and the other on the bottom.",
         "trigger": {
           "on": "leaves_play"
@@ -2219,7 +2219,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "IT'S OKAY, BRUNI",
+        "storyName": "PARTING GIFT",
         "rulesText": "When this character is banished, you may draw a card.",
         "trigger": {
           "on": "is_banished"
@@ -2543,7 +2543,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "WE NEED EACH OTHER",
+        "storyName": "EXCEPTIONAL POWER",
         "rulesText": "When you play this character, exert all opposing characters.",
         "trigger": {
           "on": "enters_play"
@@ -2652,7 +2652,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "POWER BEYOND MEASURE",
+        "storyName": "CRYSTALLIZE",
         "rulesText": "When you play this character, exert chosen opposing character.",
         "trigger": {
           "on": "enters_play"
@@ -3005,7 +3005,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "NEVER TOO OLD",
+        "storyName": "SURPRISING SKILL",
         "rulesText": "When you play this character, he gains Challenger +4 this turn.",
         "trigger": {
           "on": "enters_play"
@@ -3182,7 +3182,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "I'M THE LIFE OF THE FAMILY",
+        "storyName": "IMITATE",
         "rulesText": "Whenever this character quests, you may gain lore equal to the {L} of chosen other character of yours. Return that character to your hand.",
         "trigger": {
           "on": "quests"
@@ -3872,7 +3872,7 @@
       },
       {
         "type": "static",
-        "storyName": "THIRSTY FOR POWER",
+        "storyName": "EASY PICKINGS",
         "rulesText": "While challenging a damaged character, this character gets +2 {S}.",
         "effect": {
           "type": "conditional_challenger_self",
@@ -3972,7 +3972,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "SHHH!",
+        "storyName": "SILENT PERFORMANCE",
         "rulesText": "This character can't {E} to sing songs.",
         "effect": {
           "type": "cant_action_self",
@@ -4285,7 +4285,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "PRETTY POLLY",
+        "storyName": "IN DISGUISE",
         "rulesText": "Whenever this character quests, you pay 2 {I} less for the next action you play this turn.",
         "trigger": {
           "on": "quests",
@@ -5239,7 +5239,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "KINGS DON'T NEED ADVICE",
+        "storyName": "LIFE'S NOT FAIR, IS IT?",
         "rulesText": "Whenever one of your characters challenges a damaged character, you may draw a card.",
         "trigger": {
           "on": "challenges",
@@ -5690,7 +5690,7 @@
       },
       {
         "type": "static",
-        "storyName": "FAMILIAR TERRAIN (Ward)",
+        "storyName": "FAMILIAR TERRAIN",
         "rulesText": "Characters gain Ward while here.",
         "effect": {
           "type": "grant_keyword",
@@ -5709,7 +5709,7 @@
       },
       {
         "type": "static",
-        "storyName": "FAMILIAR TERRAIN (Activated)",
+        "storyName": "FAMILIAR TERRAIN",
         "rulesText": "Characters gain \"{E}, 1 {I} — Deal 2 damage to chosen damaged character\" while here.",
         "effect": {
           "type": "grant_activated_ability",
@@ -6607,7 +6607,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "NOTTINGHAM'S FINEST",
+        "storyName": "MY GREATEST PERFORMANCE",
         "rulesText": "Whenever this character quests, look at the top 4 cards of your deck. You may reveal an action card with cost 6 or less and play it for free. Put the rest in your discard.",
         "trigger": {
           "on": "quests",
@@ -6848,7 +6848,7 @@
       },
       {
         "type": "static",
-        "storyName": "THIS IS MY KINGDOM",
+        "storyName": "DELIGHTFULLY WICKED",
         "rulesText": "Your damaged characters get +2 {S}.",
         "effect": {
           "type": "modify_stat",
@@ -6911,7 +6911,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "I'M THE BEST DRIVER IN THE WORLD",
+        "storyName": "PIXLEXIA",
         "rulesText": "When you play this character, she gains Evasive until the start of your next turn.",
         "trigger": {
           "on": "enters_play"
@@ -8484,7 +8484,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "GREAT KINGS OF THE PAST",
+        "storyName": "A DELICATE BALANCE",
         "rulesText": "When you play this character, exert all cards in your inkwell, then return 2 cards at random from your inkwell to your hand.",
         "trigger": {
           "on": "enters_play"
@@ -8923,7 +8923,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "WHAT A WONDERFUL NIGHT",
+        "storyName": "USHERED INTO THE PARTY",
         "rulesText": "When you play this character, your other characters gain Ward until the start of your next turn.",
         "trigger": {
           "on": "enters_play"
@@ -8990,7 +8990,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "SEEKER OF KNOWLEDGE",
+        "storyName": "OVERDEVELOPED BRAIN",
         "rulesText": "When you play this character, if you used Shift to play him, you may search your deck for any card, put that card into your hand, then shuffle your deck.",
         "trigger": {
           "on": "enters_play"
@@ -9716,7 +9716,7 @@
       },
       {
         "type": "static",
-        "storyName": "YOU WILL OBEY ME",
+        "storyName": "INTIMIDATING GAZE",
         "rulesText": "Opposing characters with cost 4 or less can't challenge.",
         "effect": {
           "type": "action_restriction",
@@ -10314,7 +10314,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "I'M ALL EARS",
+        "storyName": "ARE YOU ON THE LIST?",
         "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may play a character with cost 5 or less for free.",
         "trigger": {
           "on": "banished_other_in_challenge"
@@ -10675,7 +10675,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "I LAUGH IN THE FACE OF DANGER",
+        "storyName": "FEARSOME ROAR",
         "rulesText": "When you play this character, you may banish chosen item or location.",
         "trigger": {
           "on": "enters_play"
@@ -10807,7 +10807,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "EXCALIBUR",
+        "storyName": "KNIGHTED BY THE KING",
         "rulesText": "When you play this character, chosen character gains Challenger +2 and Resist +2 this turn.",
         "trigger": {
           "on": "enters_play"
@@ -11398,7 +11398,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "GUARDED VAULT",
+        "storyName": "MOUNTAIN DEFENSE",
         "rulesText": "During your turn, the first time you move a character here, you may deal 1 damage to chosen character. If the moved character is a Knight, deal 2 damage instead.",
         "trigger": {
           "on": "moves_to_location",
@@ -11497,7 +11497,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "A LITTLE TUNE",
+        "storyName": "IT'S BEAUTIFUL, NO?",
         "rulesText": "When you play this character, you may play a song with cost 6 or less for free.",
         "trigger": {
           "on": "enters_play"
@@ -11562,7 +11562,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "NOW YOU SEE ME",
+        "storyName": "I HEREBY DECREE",
         "rulesText": "Whenever you play another Princess character, all opposing characters get -1 {S} until the start of your next turn.",
         "trigger": {
           "on": "card_played",
@@ -11872,7 +11872,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "KINGS DON'T NEED ADVICE",
+        "storyName": "LIFE'S NOT FAIR, IS IT?",
         "rulesText": "Whenever one of your characters challenges a damaged character, you may draw a card.",
         "trigger": {
           "on": "challenges",
@@ -12072,7 +12072,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "NOTTINGHAM'S FINEST",
+        "storyName": "MY GREATEST PERFORMANCE",
         "rulesText": "Whenever this character quests, look at the top 4 cards of your deck. You may reveal an action card with cost 6 or less and play it for free. Put the rest in your discard.",
         "trigger": {
           "on": "quests",
@@ -12186,7 +12186,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "GREAT KINGS OF THE PAST",
+        "storyName": "A DELICATE BALANCE",
         "rulesText": "When you play this character, exert all cards in your inkwell, then return 2 cards at random from your inkwell to your hand.",
         "trigger": {
           "on": "enters_play"
@@ -12450,7 +12450,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "EXCALIBUR",
+        "storyName": "KNIGHTED BY THE KING",
         "rulesText": "When you play this character, chosen character gains Challenger +2 and Resist +2 this turn.",
         "trigger": {
           "on": "enters_play"

@@ -20,7 +20,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "FLY HIGH",
+        "storyName": "AERIAL DUO",
         "rulesText": "When you play this character, chosen character gains Evasive until the start of your next turn.",
         "trigger": {
           "on": "enters_play"
@@ -77,7 +77,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "ADRIFT INK",
+        "storyName": "WASHED AWAY",
         "rulesText": "When you play this character, you may put chosen item into its player's inkwell facedown and exerted.",
         "trigger": {
           "on": "enters_play"
@@ -102,7 +102,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "WEAKEN",
+        "storyName": "MAKING WAVES",
         "rulesText": "Whenever this character quests, chosen opposing character gets -2 {S} this turn.",
         "trigger": {
           "on": "quests"
@@ -360,7 +360,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "POWER BEYOND MEASURE",
+        "storyName": "CRYSTALLIZE",
         "rulesText": "When you play this character, exert chosen opposing character.",
         "trigger": {
           "on": "enters_play"
@@ -417,7 +417,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "WHAT A WRETCHED FATE",
+        "storyName": "POOR SOULS",
         "rulesText": "Whenever this character is challenged, each opponent chooses and discards a card.",
         "trigger": {
           "on": "is_challenged"
@@ -534,7 +534,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "WHO'S NEXT?",
+        "storyName": "BRING ON THE HEAT!",
         "rulesText": "When you play this character, banish chosen opposing character with 1 {S} or less.",
         "trigger": {
           "on": "enters_play"
@@ -673,7 +673,7 @@
             "isMay": true
           }
         ],
-        "storyName": "PUNY PIRATE!",
+        "storyName": "PUN PIRATE!",
         "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character.",
         "condition": {
           "type": "is_your_turn"
@@ -722,7 +722,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "DIVINATION",
+        "storyName": "CALCULATING AND VAIN",
         "rulesText": "Whenever this character quests, you may look at the top 3 cards of your deck and put them back in any order.",
         "trigger": {
           "on": "quests"
@@ -859,7 +859,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "MASTERFUL CRAFT",
+        "storyName": "CLEVER DESIGN",
         "rulesText": "Whenever this character quests, chosen character gains Ward until the start of your next turn.",
         "trigger": {
           "on": "quests"
@@ -1180,7 +1180,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "RESEARCH",
+        "storyName": "STARTLING DISCOVERY",
         "rulesText": "Characters gain \"{E} — Draw a card\" while here.",
         "effect": {
           "type": "grant_activated_ability",
@@ -1372,7 +1372,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "DRAW",
+        "storyName": "CLOSER LOOK",
         "rulesText": "When you play this character, you may draw a card.",
         "trigger": {
           "on": "enters_play"
@@ -1540,7 +1540,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "EMERALD CHAMPION",
+        "storyName": "EVEN THE SCORE",
         "rulesText": "Whenever one of your other Emerald characters is challenged and banished, banish the challenging character.",
         "trigger": {
           "on": "banished_in_challenge",
@@ -1567,7 +1567,7 @@
       },
       {
         "type": "static",
-        "storyName": "EMERALD WARD",
+        "storyName": "PROVIDE COVER",
         "rulesText": "Your other Emerald characters gain Ward.",
         "effect": {
           "type": "grant_keyword",
@@ -1635,7 +1635,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "HEALING TOUCH",
+        "storyName": "UPLIFTING AURA",
         "rulesText": "Whenever this character quests, if there's a card under her, remove up to 3 damage from each of your characters.",
         "trigger": {
           "on": "quests"
@@ -2257,7 +2257,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "SECRET FILES",
+        "storyName": "BACKUP PLAN",
         "rulesText": "When you play this character, draw a card, then choose and discard a card.",
         "trigger": {
           "on": "enters_play"
@@ -2282,7 +2282,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "VANISH",
+        "storyName": "ON THE MOVE",
         "rulesText": "When this character is challenged, return this card to your hand.",
         "trigger": {
           "on": "is_challenged"
@@ -2416,7 +2416,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "DISGUISE",
+        "storyName": "WHERE DO I SIGN IN?",
         "rulesText": "When you play this character, you may draw a card, then choose and discard a card.",
         "trigger": {
           "on": "enters_play"
@@ -2557,7 +2557,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "HONOR PRINCESSES",
+        "storyName": "FULL DANCE CARD",
         "rulesText": "Your Princess characters get +1 {S} and +1 {W}.",
         "effect": {
           "type": "gain_stats",
@@ -2621,7 +2621,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "MENDING TOUCH",
+        "storyName": "ENHANCED HEALING",
         "rulesText": "When you play this character, move up to 3 damage counters from chosen character to chosen opposing character.",
         "trigger": {
           "on": "enters_play"

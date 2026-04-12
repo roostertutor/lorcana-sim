@@ -389,7 +389,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "BROOMS EVERYWHERE",
+        "storyName": "SWEEP AWAY",
         "rulesText": "When you play this character, deal damage to chosen character equal to the number of Broom characters you have in play.",
         "trigger": {
           "on": "enters_play"
@@ -458,7 +458,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "OUT OF REACH",
+        "storyName": "SELF-PRESERVATION",
         "rulesText": "While you have another exerted character in play, this character can't be challenged.",
         "condition": {
           "type": "you_control_matching",
@@ -517,7 +517,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "TEA FOR ALL",
+        "storyName": "UNBIRTHDAY PRESENT",
         "rulesText": "Whenever a damaged character challenges another character, you may draw a card.",
         "trigger": {
           "on": "challenges",

@@ -214,7 +214,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "THE TREATMENT IS WORKING (quest)",
+        "storyName": "THE TREATMENT IS WORKING",
         "rulesText": "Whenever he quests, you may remove up to 2 damage from another chosen character of yours. Gain 1 lore for each 1 damage removed this way.",
         "trigger": {
           "on": "quests"

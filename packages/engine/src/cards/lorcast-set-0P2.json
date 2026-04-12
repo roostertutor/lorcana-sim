@@ -441,7 +441,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "FALL IN LINE",
+        "storyName": "REMEMBER YOUR TRAINING",
         "rulesText": "When you play this character, your characters get +2 {S} this turn.",
         "trigger": {
           "on": "enters_play"
@@ -685,7 +685,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "SCALPEL",
+        "storyName": "BLADES OF FURY",
         "rulesText": "When you play this character, you may banish chosen item. Its player gains 1 lore.",
         "trigger": {
           "on": "enters_play"
@@ -717,7 +717,7 @@
       },
       {
         "type": "static",
-        "storyName": "DODGE",
+        "storyName": "QUICK REFLEXES",
         "rulesText": "During your turn, this character gains Evasive.",
         "effect": {
           "type": "grant_keyword",
@@ -770,7 +770,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "BARED TEETH",
+        "storyName": "TEETH AND AMBITIONS",
         "rulesText": "When you play this character, deal 2 damage to chosen character of yours to deal 2 damage to chosen character.",
         "trigger": {
           "on": "enters_play"
@@ -1014,7 +1014,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "BREAKING THE ICE",
+        "storyName": "WINTER AMBUSH",
         "rulesText": "When you play this character, chosen opposing character can't ready at the start of their next turn.",
         "trigger": {
           "on": "enters_play"
@@ -1113,7 +1113,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "ON MY WAY",
+        "storyName": "WHO'S NEXT?",
         "rulesText": "Whenever this character quests, you pay 2 {I} less for the next Puppy character you play this turn.",
         "trigger": {
           "on": "quests"
@@ -1133,7 +1133,7 @@
       },
       {
         "type": "static",
-        "storyName": "BE PREPARED",
+        "storyName": "DON'T BE AFRAID",
         "rulesText": "Your Puppy characters gain Ward.",
         "effect": {
           "type": "grant_keyword",
@@ -1195,7 +1195,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "LEAD BY EXAMPLE",
+        "storyName": "I WON'T LET YOU DOWN",
         "rulesText": "This character can challenge ready characters.",
         "effect": {
           "type": "can_challenge_ready",
@@ -1206,7 +1206,7 @@
       },
       {
         "type": "static",
-        "storyName": "BATTLE HARDENED",
+        "storyName": "ENORMOUS RESPONSIBILITY",
         "rulesText": "While this character is damaged, he gets +2 {S}.",
         "effect": {
           "type": "gain_stats",
@@ -1260,7 +1260,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "UNTOUCHABLE",
+        "storyName": "HIDDEN AWAY",
         "rulesText": "This character can't be challenged.",
         "effect": {
           "type": "cant_be_challenged",
@@ -1312,7 +1312,7 @@
       },
       {
         "type": "static",
-        "storyName": "YOU CAN BE WAY MORE (Evasive)",
+        "storyName": "YOU CAN BE WAY MORE",
         "rulesText": "Your Floodborn characters that have a card under them gain Evasive.",
         "effect": {
           "type": "grant_keyword",
@@ -1335,7 +1335,7 @@
       },
       {
         "type": "static",
-        "storyName": "YOU CAN BE WAY MORE (Ward)",
+        "storyName": "YOU CAN BE WAY MORE",
         "rulesText": "Your Floodborn characters that have a card under them gain Ward.",
         "effect": {
           "type": "grant_keyword",
@@ -1399,7 +1399,7 @@
       },
       {
         "type": "static",
-        "storyName": "YOU CAN BE WAY MORE (Evasive)",
+        "storyName": "YOU CAN BE WAY MORE",
         "rulesText": "Your Floodborn characters that have a card under them gain Evasive.",
         "effect": {
           "type": "grant_keyword",
@@ -1422,7 +1422,7 @@
       },
       {
         "type": "static",
-        "storyName": "YOU CAN BE WAY MORE (Ward)",
+        "storyName": "YOU CAN BE WAY MORE",
         "rulesText": "Your Floodborn characters that have a card under them gain Ward.",
         "effect": {
           "type": "grant_keyword",
@@ -1565,7 +1565,7 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "LOYAL",
+        "storyName": "HAPPY HELPER",
         "rulesText": "While this character has no damage, he gets +2 {S} and gains Support.",
         "effect": {
           "type": "gain_stats",
@@ -1580,7 +1580,7 @@
       },
       {
         "type": "static",
-        "storyName": "LOYAL",
+        "storyName": "HAPPY HELPER",
         "rulesText": "While this character has no damage, he gains Support.",
         "effect": {
           "type": "grant_keyword",
@@ -1717,7 +1717,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "WATCHFUL",
+        "storyName": "SAFE PASSAGE",
         "rulesText": "Whenever one of your Ally characters quests, you may remove up to 2 damage from this character.",
         "trigger": {
           "on": "quests",
@@ -1784,7 +1784,7 @@
       },
       {
         "type": "static",
-        "storyName": "PLAYFUL",
+        "storyName": "PUPPY BARKING",
         "rulesText": "While you have another Puppy character in play, this character gets +1 {L}.",
         "effect": {
           "type": "gain_stats",
@@ -2090,7 +2090,7 @@
       },
       {
         "type": "static",
-        "storyName": "GETTING STRONGER",
+        "storyName": "TRUE VALOR",
         "rulesText": "This character gets +1 {S} for each 1 damage on her.",
         "effect": {
           "type": "modify_stat_per_count",

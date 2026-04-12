@@ -2240,7 +2240,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "LISTEN WITH YOUR HEART",
+        "storyName": "WHAT IS MY PATH?",
         "rulesText": "Whenever this character quests, gain lore equal to another chosen exerted character's {L}.",
         "trigger": {
           "on": "quests"
@@ -3719,7 +3719,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "INNOVATIVE",
+        "storyName": "RIGOROUS TRAINING",
         "rulesText": "Whenever this character quests, gain lore equal to her {S}, to a maximum of 6 lore.",
         "trigger": {
           "on": "quests"
@@ -9990,7 +9990,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "WHO'S NEXT?",
+        "storyName": "GOOD RIDDANCE",
         "rulesText": "When you play this character, if an opposing character was banished in a challenge this turn, draw a card.",
         "trigger": {
           "on": "enters_play",
@@ -12968,7 +12968,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "INNOVATIVE",
+        "storyName": "RIGOROUS TRAINING",
         "rulesText": "Whenever this character quests, gain lore equal to her {S}, to a maximum of 6 lore.",
         "trigger": {
           "on": "quests"

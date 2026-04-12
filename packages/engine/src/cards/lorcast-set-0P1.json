@@ -743,7 +743,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "SWORD TRAINING",
+        "storyName": "HAVE COURAGE",
         "rulesText": "When you play this character, you may draw a card, then choose and discard a card.",
         "trigger": {
           "on": "enters_play"
@@ -803,7 +803,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "SQUEAK SQUEAK",
+        "storyName": "SQUEAK",
         "rulesText": "Whenever you play a Floodborn character, if you used Shift to play them, each opponent chooses and discards a card.",
         "trigger": {
           "on": "card_played",
@@ -873,7 +873,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "DEEP BREATH",
+        "storyName": "UNDERSEA ADVENTURE",
         "rulesText": "Whenever you play a second action in a turn, this character gets +2 lore this turn.",
         "trigger": {
           "on": "card_played",
@@ -993,7 +993,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "HERE TO HELP",
+        "storyName": "GLAD YOU'RE HERE!",
         "rulesText": "Whenever this character quests, you pay 3 {I} less for the next character you play this turn.",
         "trigger": {
           "on": "quests"
@@ -1304,7 +1304,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "I'M READY!",
+        "storyName": "SKYSURFING",
         "rulesText": "When you play this character, you may return chosen opposing character with 2 {S} or less to their player's hand.",
         "trigger": {
           "on": "enters_play"
@@ -1625,7 +1625,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "HEALING GLOW",
+        "storyName": "LET YOUR POWER SHINE",
         "rulesText": "Whenever you remove 1 or more damage from one of your characters, you may draw a card.",
         "trigger": {
           "on": "damage_removed_from",
@@ -1682,7 +1682,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "HI THERE!",
+        "storyName": "TELLING LIES",
         "rulesText": "When you play this character, you may exert chosen opposing character.",
         "trigger": {
           "on": "enters_play"

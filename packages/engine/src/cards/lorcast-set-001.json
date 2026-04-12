@@ -3370,7 +3370,7 @@
             }
           }
         ],
-        "storyName": "LOSE SOMETHING",
+        "storyName": "LOSE SOMETHING?",
         "rulesText": "? When this character is challenged and banished, banish the challenging character."
       }
     ],
@@ -3769,7 +3769,7 @@
             "duration": "end_of_owner_next_turn"
           }
         ],
-        "storyName": "YOU GOT A PROBLEM",
+        "storyName": "YOU GOT A PROBLEM?",
         "rulesText": "? {E} — Chosen character gains Reckless during their next turn. (They can't quest and must challenge if able.)"
       }
     ],
@@ -6922,7 +6922,7 @@
             "isMay": true
           }
         ],
-        "storyName": "IS THERE A DOWNSIDE TO THIS",
+        "storyName": "IS THERE A DOWNSIDE TO THIS?",
         "rulesText": "? When you play this character, you may put chosen opposing character into their player's inkwell facedown."
       }
     ],
@@ -8826,7 +8826,7 @@
             "chooser": "target_player"
           }
         ],
-        "storyName": "GUESS WHAT",
+        "storyName": "GUESS WHAT?",
         "rulesText": "? When you play this character, you may draw a card, then choose and discard a card."
       }
     ],
