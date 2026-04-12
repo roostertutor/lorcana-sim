@@ -49,28 +49,35 @@ describe("§7 Set 3 — Locations", () => {
     expect(c.movedThisTurn).toBe(true);
   });
 
-  it("MOVE_CHARACTER: drying allowed, already-moved/insufficient ink rejected", () => {
+  it("MOVE_CHARACTER: drying allowed, can move between locations, insufficient ink rejected", () => {
     let state = startGame();
-    let charId: string, locId: string;
+    let charId: string, locId: string, locId2: string;
     ({ state, instanceId: charId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: true }));
     ({ state, instanceId: locId } = injectCard(state, "player1", "never-land-mermaid-lagoon", "play"));
+    ({ state, instanceId: locId2 } = injectCard(state, "player1", "never-land-mermaid-lagoon", "play"));
     state = giveInk(state, "player1", 5);
 
     // CRD 4.7 + 1.7.5: drying does NOT prevent moving (only prevents quest/challenge/{E})
     let r = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: charId, locationInstanceId: locId }, LORCAST_CARD_DEFINITIONS);
     expect(r.success).toBe(true);
+    state = r.newState;
 
-    // moved twice — fails
-    const r2 = applyAction(r.newState, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: charId, locationInstanceId: locId }, LORCAST_CARD_DEFINITIONS);
-    expect(r2.success).toBe(false);
+    // CRD 4.7.2 + 4.1.1: can move from location to another location (no once-per-turn limit)
+    r = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: charId, locationInstanceId: locId2 }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+
+    // can't move to same location you're already at
+    state = r.newState;
+    r = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: charId, locationInstanceId: locId2 }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(false);
 
     // can't afford
-    let state2 = startGame();
-    let charId2: string, locId2: string;
-    ({ state: state2, instanceId: charId2 } = injectCard(state2, "player1", "mickey-mouse-true-friend", "play"));
-    ({ state: state2, instanceId: locId2 } = injectCard(state2, "player1", "never-land-mermaid-lagoon", "play"));
-    state2 = giveInk(state2, "player1", 0);
-    const r3 = applyAction(state2, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: charId2, locationInstanceId: locId2 }, LORCAST_CARD_DEFINITIONS);
+    let state3 = startGame();
+    let charId3: string, locId3: string;
+    ({ state: state3, instanceId: charId3 } = injectCard(state3, "player1", "mickey-mouse-true-friend", "play"));
+    ({ state: state3, instanceId: locId3 } = injectCard(state3, "player1", "never-land-mermaid-lagoon", "play"));
+    state3 = giveInk(state3, "player1", 0);
+    const r3 = applyAction(state3, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: charId3, locationInstanceId: locId3 }, LORCAST_CARD_DEFINITIONS);
     expect(r3.success).toBe(false);
   });
 
