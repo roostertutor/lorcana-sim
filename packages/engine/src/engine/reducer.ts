@@ -703,6 +703,7 @@ function applyPlayCard(
         [shiftTargetInstanceId]: {
           ...state.cards[shiftTargetInstanceId]!,
           zone: "under",
+          isFaceDown: false, // CRD 5.1.1.9: was in play, remains face-up
           damage: 0,
           isExerted: false,
           isDrying: false,
@@ -1368,6 +1369,7 @@ function applyBoostCard(
 
   // Move top card of deck → under this card. The under card's instance stays
   // addressable but its zone becomes "under" and it's removed from the deck array.
+  // CRD 8.4.2: card from deck is placed face-down — no player can look at it.
   const deck = getZone(state, playerId, "deck");
   const topId = deck[0]!;
   const topInst = state.cards[topId]!;
@@ -1375,7 +1377,7 @@ function applyBoostCard(
     ...state,
     cards: {
       ...state.cards,
-      [topId]: { ...topInst, zone: "under" },
+      [topId]: { ...topInst, zone: "under", isFaceDown: true },
       [instanceId]: {
         ...state.cards[instanceId]!,
         cardsUnder: [...state.cards[instanceId]!.cardsUnder, topId],
@@ -2945,7 +2947,7 @@ export function applyEffect(
         ...state,
         cards: {
           ...state.cards,
-          [topId]: { ...topInst, zone: "under" },
+          [topId]: { ...topInst, zone: "under", isFaceDown: true },
           [sourceInstanceId]: {
             ...sourceInst,
             cardsUnder: [...sourceInst.cardsUnder, topId],
@@ -5772,7 +5774,7 @@ function applyEffectToTarget(
         ...state,
         cards: {
           ...state.cards,
-          [topId]: { ...topInst, zone: "under" },
+          [topId]: { ...topInst, zone: "under", isFaceDown: true },
           [targetInstanceId]: {
             ...targetInst,
             cardsUnder: [...targetInst.cardsUnder, topId],
@@ -5807,6 +5809,7 @@ function applyEffectToTarget(
           [sourceInstanceId]: {
             ...src,
             zone: "under",
+            isFaceDown: false, // was in play — remains face-up
             damage: 0,
             isExerted: false,
             isDrying: false,

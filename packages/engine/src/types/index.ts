@@ -2547,6 +2547,11 @@ export interface CardInstance {
    *  instance has consumed this turn. Reset on PASS_TURN. */
   damagePreventionChargesUsedThisTurn?: number;
 
+  /** CRD 5.1.1.9–10: true if this card is face-down (e.g., placed under via Boost
+   *  from deck top). Cards from play/discard are face-up. Used by UI to determine
+   *  whether to show card art or card back in cards-under viewer. */
+  isFaceDown?: boolean;
+
   /** CRD 6.1.13: per-turn flag tracking — extends to Boost ("once during your turn"). */
   boostedThisTurn?: boolean;
   /** True if this character was challenged (as defender) this turn */
