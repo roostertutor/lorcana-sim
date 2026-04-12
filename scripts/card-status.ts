@@ -112,6 +112,18 @@ function validateCardFields(card: any): FieldError[] {
     if (e.duration && typeof e.duration === "string" && !VALID_DURATIONS.has(e.duration)) {
       errors.push({ path, field: "duration", value: e.duration, validValues: `[${[...VALID_DURATIONS].join(", ")}]` });
     }
+    // Catch deprecated field names
+    if (e.modifier !== undefined && e.type !== "challenge_damage_prevention") {
+      errors.push({ path, field: "modifier", value: e.modifier, validValues: "use 'amount' instead of 'modifier'" });
+    }
+    // Check filters for deprecated field names
+    const checkFilter = (f: any, fp: string) => {
+      if (f?.maxCost !== undefined) {
+        errors.push({ path: fp, field: "maxCost", value: f.maxCost, validValues: "use 'costAtMost' instead of 'maxCost'" });
+      }
+    };
+    if (e.filter) checkFilter(e.filter, path + ".filter");
+    if (e.target?.filter) checkFilter(e.target.filter, path + ".target.filter");
     // Check targets
     if (e.target) checkType(e.target, path + ".target");
     if (e.from) checkType(e.from, path + ".from");
