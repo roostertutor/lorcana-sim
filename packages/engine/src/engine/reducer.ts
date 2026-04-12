@@ -5099,7 +5099,7 @@ function processTriggerStack(
     for (const effect of trigger.ability.effects) {
       // CRD 6.1.5.1: Sequential effects with isMay — skip prompt if cost can't be paid
       if (effect.type === "sequential" && effect.isMay) {
-        const canAfford = effect.costEffects.every(
+        const canAfford = (effect.costEffects ?? []).every(
           (ce) => canPerformCostEffect(state, ce, source.ownerId, trigger.context.triggeringCardInstanceId)
         );
         if (!canAfford) {
