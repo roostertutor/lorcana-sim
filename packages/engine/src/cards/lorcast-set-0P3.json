@@ -673,7 +673,7 @@
             "isMay": true
           }
         ],
-        "storyName": "PUN PIRATE!",
+        "storyName": "PUNY PIRATE!",
         "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character.",
         "condition": {
           "type": "is_your_turn"
@@ -688,7 +688,7 @@
     "willpower": 5,
     "lore": 2,
     "shiftCost": 4,
-    "rulesText": "ROCK THE BOAT When you play this character, deal 1 damage to each opposing character.\nPUN PIRATE! During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character.",
+    "rulesText": "ROCK THE BOAT When you play this character, deal 1 damage to each opposing character.\nPUNY PIRATE! During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_895798f185da459bab814e8d6241da52.avif?1773508749",
     "_namedAbilityStubs": [
       {
@@ -697,9 +697,9 @@
         "raw": "ROCK THE BOAT When you play this character, deal 1 damage to each opposing character."
       },
       {
-        "storyName": "PUN PIRATE!",
+        "storyName": "PUNY PIRATE!",
         "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character.",
-        "raw": "PUN PIRATE! During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character."
+        "raw": "PUNY PIRATE! During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character."
       }
     ]
   },
