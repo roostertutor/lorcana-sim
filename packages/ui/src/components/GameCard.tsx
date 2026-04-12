@@ -119,7 +119,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
     || (willpowerModified != null && willpowerModified !== (def.willpower ?? 0));
 
   // Keyword badges — check both printed abilities and dynamically granted keywords
-  const BADGE_KEYWORDS = ["alert", "bodyguard", "challenger", "evasive", "reckless", "resist", "rush", "singer", "support", "ward"] as const;
+  const BADGE_KEYWORDS = ["alert", "bodyguard", "boost", "challenger", "evasive", "reckless", "resist", "rush", "singer", "support", "ward"] as const;
   type BadgeKeyword = typeof BADGE_KEYWORDS[number];
   const keywordAbilities = def.abilities.filter((a): a is KeywordAbility => a.type === "keyword");
   const printedKeywords = new Set(keywordAbilities.map(a => a.keyword));
@@ -141,6 +141,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   const KEYWORD_STYLE: Record<BadgeKeyword, string> = {
     alert:      "bg-lime-500/90",
     bodyguard:  "bg-blue-600/90",
+    boost:      "bg-violet-600/90",
     challenger: "bg-amber-500/90",
     evasive:    "bg-sky-500/90",
     reckless:   "bg-orange-600/90",
@@ -150,21 +151,10 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
     support:    "bg-teal-600/90",
     ward:       "bg-purple-600/90",
   };
-  const KEYWORD_LABEL: Record<BadgeKeyword, string> = {
-    alert:      "AL",
-    bodyguard:  "BG",
-    challenger: "CH",
-    evasive:    "EV",
-    reckless:   "RK",
-    resist:     "RS",
-    rush:       "RU",
-    singer:     "SG",
-    support:    "SP",
-    ward:       "WD",
-  };
   const KEYWORD_ICON: Record<BadgeKeyword, IconName> = {
     alert:      "eye",
     bodyguard:  "shield-check",
+    boost:      "rectangle-stack",
     challenger: "bolt",
     evasive:    "arrow-up",
     reckless:   "exclamation-triangle",
@@ -430,11 +420,15 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
       {/* Keyword badges — top-right column */}
       {activeKeywordBadges.length > 0 && (
         <div className="absolute top-1 right-1 flex flex-col gap-0.5 items-end pointer-events-none">
-          {activeKeywordBadges.map(k => (
-            <span key={k} className={`text-[7px] font-black px-1 py-0.5 rounded leading-none ${KEYWORD_STYLE[k]} shadow`}>
-              {KEYWORD_LABEL[k]}
-            </span>
-          ))}
+          {activeKeywordBadges.map(k => {
+            const val = keywordValues.get(k);
+            return (
+              <div key={k} className={`h-4 flex items-center gap-0.5 px-1 rounded ${KEYWORD_STYLE[k]} shadow`}>
+                <Icon name={KEYWORD_ICON[k]} className="w-2.5 h-2.5 text-white" />
+                {val != null && <span className="text-white text-[7px] font-black leading-none">{val}</span>}
+              </div>
+            );
+          })}
         </div>
       )}
 

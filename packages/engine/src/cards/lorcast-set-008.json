@@ -1811,32 +1811,29 @@
       {
         "type": "static",
         "storyName": "HAPPY HELPER",
-        "rulesText": "While this character has no damage, he gets +2 {S} and gains Support.",
-        "effect": {
-          "type": "gain_stats",
-          "strength": 2,
-          "target": {
-            "type": "this"
+        "rulesText": "While this character has no damage, he gets +2 {S} and gains Support. While this character has no damage, he gains Support.",
+        "effect": [
+          {
+            "type": "gain_stats",
+            "strength": 2,
+            "target": {
+              "type": "this"
+            },
+            "condition": {
+              "type": "this_has_no_damage"
+            }
           },
-          "condition": {
-            "type": "this_has_no_damage"
+          {
+            "type": "grant_keyword",
+            "keyword": "support",
+            "target": {
+              "type": "this"
+            },
+            "condition": {
+              "type": "this_has_no_damage"
+            }
           }
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "HAPPY HELPER",
-        "rulesText": "While this character has no damage, he gains Support.",
-        "effect": {
-          "type": "grant_keyword",
-          "keyword": "support",
-          "target": {
-            "type": "this"
-          },
-          "condition": {
-            "type": "this_has_no_damage"
-          }
-        }
+        ]
       }
     ],
     "setId": "8",

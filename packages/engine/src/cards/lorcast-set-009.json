@@ -5601,40 +5601,37 @@
       {
         "type": "static",
         "storyName": "REVITALIZING WATERS",
-        "rulesText": "Characters get +1 {S} and +1 {W} while here.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "strength",
-          "modifier": 1,
-          "target": {
-            "type": "all",
-            "filter": {
-              "cardType": [
-                "character"
-              ],
-              "atLocation": "this"
+        "rulesText": "Characters get +1 {S} and +1 {W} while here. Characters get +1 {W} while here.",
+        "effect": [
+          {
+            "type": "modify_stat",
+            "stat": "strength",
+            "modifier": 1,
+            "target": {
+              "type": "all",
+              "filter": {
+                "cardType": [
+                  "character"
+                ],
+                "atLocation": "this"
+              }
+            }
+          },
+          {
+            "type": "modify_stat",
+            "stat": "willpower",
+            "modifier": 1,
+            "target": {
+              "type": "all",
+              "filter": {
+                "cardType": [
+                  "character"
+                ],
+                "atLocation": "this"
+              }
             }
           }
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "REVITALIZING WATERS",
-        "rulesText": "Characters get +1 {W} while here.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "willpower",
-          "modifier": 1,
-          "target": {
-            "type": "all",
-            "filter": {
-              "cardType": [
-                "character"
-              ],
-              "atLocation": "this"
-            }
-          }
-        }
+        ]
       }
     ],
     "setId": "9",
@@ -9474,34 +9471,31 @@
       {
         "type": "static",
         "storyName": "DETERMINED DIVERSION",
-        "rulesText": "While this character has no damage, she gets +1 {L} and gains Resist +1.",
-        "effect": {
-          "type": "gain_stats",
-          "lore": 1,
-          "target": {
-            "type": "this"
+        "rulesText": "While this character has no damage, she gets +1 {L} and gains Resist +1. While this character has no damage, she gains Resist +1.",
+        "effect": [
+          {
+            "type": "gain_stats",
+            "lore": 1,
+            "target": {
+              "type": "this"
+            },
+            "condition": {
+              "type": "this_has_no_damage"
+            }
           },
-          "condition": {
-            "type": "this_has_no_damage"
+          {
+            "type": "grant_keyword",
+            "keyword": "resist",
+            "keywordValue": 1,
+            "target": {
+              "type": "this"
+            },
+            "condition": {
+              "type": "this_has_no_damage"
+            },
+            "value": 1
           }
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "DETERMINED DIVERSION",
-        "rulesText": "While this character has no damage, she gains Resist +1.",
-        "effect": {
-          "type": "grant_keyword",
-          "keyword": "resist",
-          "keywordValue": 1,
-          "target": {
-            "type": "this"
-          },
-          "condition": {
-            "type": "this_has_no_damage"
-          },
-          "value": 1
-        }
+        ]
       }
     ],
     "setId": "9",

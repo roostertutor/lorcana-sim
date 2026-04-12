@@ -130,6 +130,7 @@ const BOARD_WIDE_EFFECTS = new Set([
   "prevent_discard_from_hand", "modify_win_threshold", "skip_draw_step",
   "top_of_deck_visible", "extra_ink_plays", "ink_from_discard",
   "action_restriction", "damage_redirect", "forced_target",
+  "grant_keyword", "modify_stat_per_count",
 ]);
 
 function getActiveEffects(

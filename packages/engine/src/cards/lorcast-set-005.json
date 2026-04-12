@@ -5691,68 +5691,65 @@
       {
         "type": "static",
         "storyName": "FAMILIAR TERRAIN",
-        "rulesText": "Characters gain Ward while here.",
-        "effect": {
-          "type": "grant_keyword",
-          "keyword": "ward",
-          "target": {
-            "type": "all",
-            "filter": {
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "atLocation": "this"
-            }
-          }
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "FAMILIAR TERRAIN",
-        "rulesText": "Characters gain \"{E}, 1 {I} — Deal 2 damage to chosen damaged character\" while here.",
-        "effect": {
-          "type": "grant_activated_ability",
-          "target": {
-            "type": "all",
-            "filter": {
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "atLocation": "this"
+        "rulesText": "Characters gain Ward while here. Characters gain \"{E}, 1 {I} — Deal 2 damage to chosen damaged character\" while here.",
+        "effect": [
+          {
+            "type": "grant_keyword",
+            "keyword": "ward",
+            "target": {
+              "type": "all",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "atLocation": "this"
+              }
             }
           },
-          "ability": {
-            "type": "activated",
-            "rulesText": "{E}, 1 {I} — Deal 2 damage to chosen damaged character.",
-            "costs": [
-              {
-                "type": "exert"
-              },
-              {
-                "type": "pay_ink",
-                "amount": 1
+          {
+            "type": "grant_activated_ability",
+            "target": {
+              "type": "all",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "atLocation": "this"
               }
-            ],
-            "effects": [
-              {
-                "type": "deal_damage",
-                "amount": 2,
-                "target": {
-                  "type": "chosen",
-                  "filter": {
-                    "zone": "play",
-                    "cardType": [
-                      "character"
-                    ],
-                    "hasDamage": true
+            },
+            "ability": {
+              "type": "activated",
+              "rulesText": "{E}, 1 {I} — Deal 2 damage to chosen damaged character.",
+              "costs": [
+                {
+                  "type": "exert"
+                },
+                {
+                  "type": "pay_ink",
+                  "amount": 1
+                }
+              ],
+              "effects": [
+                {
+                  "type": "deal_damage",
+                  "amount": 2,
+                  "target": {
+                    "type": "chosen",
+                    "filter": {
+                      "zone": "play",
+                      "cardType": [
+                        "character"
+                      ],
+                      "hasDamage": true
+                    }
                   }
                 }
-              }
-            ]
+              ]
+            }
           }
-        }
+        ]
       }
     ],
     "setId": "5",

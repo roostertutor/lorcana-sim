@@ -396,7 +396,9 @@ export function getEffectiveCostWithReductions(
   // CRD 6.1.12: Self-cost-reduction from hand (e.g. LeFou: costs 1 less if Gaston in play)
   for (const ability of def.abilities) {
     if (ability.type !== "static") continue;
-    if (ability.effect.type !== "self_cost_reduction") continue;
+    const effsVal = Array.isArray(ability.effect) ? ability.effect : [ability.effect];
+    const scrEffVal = effsVal.find((e: any) => e.type === "self_cost_reduction") as any;
+    if (!scrEffVal) continue;
     // Check condition (e.g. "has_character_named Gaston")
     if (ability.condition) {
       if (!evaluateCondition(ability.condition, state, definitions, playerId, instanceId)) {
@@ -405,7 +407,7 @@ export function getEffectiveCostWithReductions(
     }
     // Resolve amount — literal number OR count-based DynamicAmount
     // (per-count-cost-reduction: "For each X, pay 1 {I} less").
-    const rawAmount = ability.effect.amount;
+    const rawAmount = scrEffVal.amount;
     let discount = 0;
     if (typeof rawAmount === "number") {
       discount = rawAmount;
@@ -413,11 +415,10 @@ export function getEffectiveCostWithReductions(
       const countAmt = rawAmount as { type: "count"; filter: import("../types/index.js").CardFilter; max?: number };
       let n = findMatchingInstances(state, definitions, countAmt.filter, playerId, instanceId).length;
       if (typeof countAmt.max === "number") n = Math.min(n, countAmt.max);
-      discount = n * (ability.effect.perMatch ?? 1);
+      discount = n * (scrEffVal.perMatch ?? 1);
     } else if (rawAmount === "opposing_chars_banished_in_challenge_this_turn") {
-      // Namaari Resolute Daughter: per-turn event counter on the controller.
       const n = state.players[playerId].opposingCharsBanishedInChallengeThisTurn ?? 0;
-      discount = n * (ability.effect.perMatch ?? 1);
+      discount = n * (scrEffVal.perMatch ?? 1);
     }
     cost -= discount;
   }

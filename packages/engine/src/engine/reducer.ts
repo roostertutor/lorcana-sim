@@ -623,7 +623,9 @@ function applyPlayCard(
     // CRD 6.1.12: Self-cost-reduction from hand (e.g. LeFou: costs 1 less if Gaston in play)
     for (const ability of def.abilities) {
       if (ability.type !== "static") continue;
-      if (ability.effect.type !== "self_cost_reduction") continue;
+      const effsScr = Array.isArray(ability.effect) ? ability.effect : [ability.effect];
+      const scrEff = effsScr.find((e: any) => e.type === "self_cost_reduction") as any;
+      if (!scrEff) continue;
       if (ability.condition) {
         if (!evaluateCondition(ability.condition, state, definitions, playerId, instanceId)) {
           continue;
@@ -631,7 +633,7 @@ function applyPlayCard(
       }
       // Mirror validator's resolution: literal number, count-based, or
       // per-turn event count.
-      const rawAmount = ability.effect.amount;
+      const rawAmount = scrEff.amount;
       let discount = 0;
       if (typeof rawAmount === "number") {
         discount = rawAmount;
@@ -639,10 +641,10 @@ function applyPlayCard(
         const countAmt = rawAmount as { type: "count"; filter: import("../types/index.js").CardFilter; max?: number };
         let n = findMatchingInstances(state, definitions, countAmt.filter, playerId, instanceId).length;
         if (typeof countAmt.max === "number") n = Math.min(n, countAmt.max);
-        discount = n * (ability.effect.perMatch ?? 1);
+        discount = n * (scrEff.perMatch ?? 1);
       } else if (rawAmount === "opposing_chars_banished_in_challenge_this_turn") {
         const n = state.players[playerId].opposingCharsBanishedInChallengeThisTurn ?? 0;
-        discount = n * (ability.effect.perMatch ?? 1);
+        discount = n * (scrEff.perMatch ?? 1);
       }
       cost -= discount;
     }
@@ -1050,12 +1052,15 @@ function applyChallenge(
   // (Louie One Cool Duck: "the challenging character gets -1 {S}").
   for (const ability of defenderDef.abilities) {
     if (ability.type !== "static") continue;
-    if (ability.effect.type !== "gets_stat_while_being_challenged") continue;
-    if (ability.effect.stat !== "strength") continue;
-    if (ability.effect.affects === "attacker") {
-      attackerStr += ability.effect.modifier;
-    } else {
-      defenderStr += ability.effect.modifier;
+    const effsChal = Array.isArray(ability.effect) ? ability.effect : [ability.effect];
+    for (const eff of effsChal) {
+      if (eff.type !== "gets_stat_while_being_challenged") continue;
+      if ((eff as any).stat !== "strength") continue;
+      if ((eff as any).affects === "attacker") {
+        attackerStr += (eff as any).modifier;
+      } else {
+        defenderStr += (eff as any).modifier;
+      }
     }
   }
 

@@ -20,18 +20,19 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 
 ## Keyword Badges
 
-| OK | Feature | Card | Set |
-|----|---------|------|-----|
-| [ ] | Rush | Flotsam - Ursula's Spy | 1 |
-| [ ] | Evasive | Jetsam - Ursula's Spy | 1 |
-| [ ] | Ward | Aladdin - Prince Ali | 1 |
-| [ ] | Resist | Hercules - Divine Hero | 2 |
-| [ ] | Bodyguard | Goofy - Musketeer | 1 |
-| [ ] | Alert | Sina - Vigilant Parent | 11 |
-| [ ] | Challenger | Dr. Facilier - Charlatan | 1 |
-| [ ] | Reckless | Felicia - Always Hungry | 2 |
-| [ ] | Singer | Ariel - Spectacular Singer | 1 |
-| [ ] | Boost | Bambi - Ethereal Fawn | 10 |
+| OK  | Feature | Card                                | Set |
+|-----|---------|-------------------------------------|-----|
+| [X] | Rush | Flotsam - Ursula's Spy              | 1 |
+| [X] | Evasive | Jetsam - Ursula's Spy               | 1 |
+| [X] | Ward | Aladdin - Prince Ali                | 1 |
+| [X] | Resist | Hercules - Divine Hero              | 2 |
+| [X] | Bodyguard | Goofy - Musketeer                   | 1 |
+| [X] | Alert | Sina - Vigilant Parent              | 11 |
+| [X] | Challenger | Dr. Facilier - Charlatan            | 1 |
+| [X] | Reckless | Felicia - Always Hungry             | 2 |
+| [X] | Singer | Ariel - Spectacular Singer          | 1 |
+| [?] | Boost | Bambi - Ethereal Fawn               | 10 |
+| [X] | Multiple keywords | Maui - Hero to All (Reckless, Rush) | 1 |
 
 ## Other Badges
 

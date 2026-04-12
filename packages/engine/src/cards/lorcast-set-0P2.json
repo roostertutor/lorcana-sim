@@ -1313,48 +1313,45 @@
       {
         "type": "static",
         "storyName": "YOU CAN BE WAY MORE",
-        "rulesText": "Your Floodborn characters that have a card under them gain Evasive.",
-        "effect": {
-          "type": "grant_keyword",
-          "keyword": "evasive",
-          "target": {
-            "type": "all",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasTrait": "Floodborn",
-              "hasCardUnder": true
+        "rulesText": "Your Floodborn characters that have a card under them gain Evasive. Your Floodborn characters that have a card under them gain Ward.",
+        "effect": [
+          {
+            "type": "grant_keyword",
+            "keyword": "evasive",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Floodborn",
+                "hasCardUnder": true
+              }
+            }
+          },
+          {
+            "type": "grant_keyword",
+            "keyword": "ward",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Floodborn",
+                "hasCardUnder": true
+              }
             }
           }
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "YOU CAN BE WAY MORE",
-        "rulesText": "Your Floodborn characters that have a card under them gain Ward.",
-        "effect": {
-          "type": "grant_keyword",
-          "keyword": "ward",
-          "target": {
-            "type": "all",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasTrait": "Floodborn",
-              "hasCardUnder": true
-            }
-          }
-        }
+        ]
       }
     ],
     "setId": "P2",
@@ -1400,48 +1397,45 @@
       {
         "type": "static",
         "storyName": "YOU CAN BE WAY MORE",
-        "rulesText": "Your Floodborn characters that have a card under them gain Evasive.",
-        "effect": {
-          "type": "grant_keyword",
-          "keyword": "evasive",
-          "target": {
-            "type": "all",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasTrait": "Floodborn",
-              "hasCardUnder": true
+        "rulesText": "Your Floodborn characters that have a card under them gain Evasive. Your Floodborn characters that have a card under them gain Ward.",
+        "effect": [
+          {
+            "type": "grant_keyword",
+            "keyword": "evasive",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Floodborn",
+                "hasCardUnder": true
+              }
+            }
+          },
+          {
+            "type": "grant_keyword",
+            "keyword": "ward",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Floodborn",
+                "hasCardUnder": true
+              }
             }
           }
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "YOU CAN BE WAY MORE",
-        "rulesText": "Your Floodborn characters that have a card under them gain Ward.",
-        "effect": {
-          "type": "grant_keyword",
-          "keyword": "ward",
-          "target": {
-            "type": "all",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasTrait": "Floodborn",
-              "hasCardUnder": true
-            }
-          }
-        }
+        ]
       }
     ],
     "setId": "P2",
@@ -1566,32 +1560,29 @@
       {
         "type": "static",
         "storyName": "HAPPY HELPER",
-        "rulesText": "While this character has no damage, he gets +2 {S} and gains Support.",
-        "effect": {
-          "type": "gain_stats",
-          "strength": 2,
-          "target": {
-            "type": "this"
+        "rulesText": "While this character has no damage, he gets +2 {S} and gains Support. While this character has no damage, he gains Support.",
+        "effect": [
+          {
+            "type": "gain_stats",
+            "strength": 2,
+            "target": {
+              "type": "this"
+            },
+            "condition": {
+              "type": "this_has_no_damage"
+            }
           },
-          "condition": {
-            "type": "this_has_no_damage"
+          {
+            "type": "grant_keyword",
+            "keyword": "support",
+            "target": {
+              "type": "this"
+            },
+            "condition": {
+              "type": "this_has_no_damage"
+            }
           }
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "HAPPY HELPER",
-        "rulesText": "While this character has no damage, he gains Support.",
-        "effect": {
-          "type": "grant_keyword",
-          "keyword": "support",
-          "target": {
-            "type": "this"
-          },
-          "condition": {
-            "type": "this_has_no_damage"
-          }
-        }
+        ]
       }
     ],
     "setId": "P2",

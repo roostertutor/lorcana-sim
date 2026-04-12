@@ -1116,7 +1116,7 @@
       {
         "type": "static",
         "storyName": "UNDER VANESSA'S SPELL",
-        "rulesText": "While you have a character named Ursula in play, this character gains Bodyguard.",
+        "rulesText": "While you have a character named Ursula in play, this character gains Bodyguard. While you have a character named Ursula in play, this character gets +2 {W}.",
         "condition": {
           "type": "has_character_named",
           "name": "Ursula",
@@ -1124,33 +1124,23 @@
             "type": "self"
           }
         },
-        "effect": {
-          "type": "grant_keyword",
-          "keyword": "bodyguard",
-          "target": {
-            "type": "this"
+        "effect": [
+          {
+            "type": "grant_keyword",
+            "keyword": "bodyguard",
+            "target": {
+              "type": "this"
+            }
+          },
+          {
+            "type": "modify_stat",
+            "stat": "willpower",
+            "modifier": 2,
+            "target": {
+              "type": "this"
+            }
           }
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "UNDER VANESSA'S SPELL",
-        "rulesText": "While you have a character named Ursula in play, this character gets +2 {W}.",
-        "condition": {
-          "type": "has_character_named",
-          "name": "Ursula",
-          "player": {
-            "type": "self"
-          }
-        },
-        "effect": {
-          "type": "modify_stat",
-          "stat": "willpower",
-          "modifier": 2,
-          "target": {
-            "type": "this"
-          }
-        }
+        ]
       }
     ],
     "setId": "4",
@@ -5628,42 +5618,39 @@
       {
         "type": "static",
         "storyName": "REVITALIZING WATERS",
-        "rulesText": "Characters get +1 {S} while here.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "strength",
-          "modifier": 1,
-          "target": {
-            "type": "all",
-            "filter": {
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "atLocation": "this"
+        "rulesText": "Characters get +1 {S} while here. Characters get +1 {W} while here.",
+        "effect": [
+          {
+            "type": "modify_stat",
+            "stat": "strength",
+            "modifier": 1,
+            "target": {
+              "type": "all",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "atLocation": "this"
+              }
+            }
+          },
+          {
+            "type": "modify_stat",
+            "stat": "willpower",
+            "modifier": 1,
+            "target": {
+              "type": "all",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "atLocation": "this"
+              }
             }
           }
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "REVITALIZING WATERS",
-        "rulesText": "Characters get +1 {W} while here.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "willpower",
-          "modifier": 1,
-          "target": {
-            "type": "all",
-            "filter": {
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "atLocation": "this"
-            }
-          }
-        }
+        ]
       }
     ],
     "setId": "4",

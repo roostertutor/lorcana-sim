@@ -373,11 +373,13 @@ export function getGameModifiers(
     if (!def) continue;
     for (const ability of def.abilities) {
       if (ability.type !== "static") continue;
-      if (ability.effect.type !== "grant_trait_static") continue;
+      const effs = Array.isArray(ability.effect) ? ability.effect : [ability.effect];
+      const grantTraitEff = effs.find((e: any) => e.type === "grant_trait_static");
+      if (!grantTraitEff) continue;
       const activeZones = ability.activeZones ?? ["play"];
       if (!activeZones.includes(instance.zone)) continue;
       if (ability.condition && !evaluateCondition(ability.condition, state, definitions, instance.ownerId, instance.instanceId)) continue;
-      const eff = ability.effect;
+      const eff = grantTraitEff;
       const grantTo = (id: string) => {
         let set = modifiers.grantedTraits.get(id);
         if (!set) {
@@ -414,11 +416,13 @@ export function getGameModifiers(
     if (!def) continue;
     for (const ability of def.abilities) {
       if (ability.type !== "static") continue;
-      if (ability.effect.type !== "remove_named_ability") continue;
+      const effsB = Array.isArray(ability.effect) ? ability.effect : [ability.effect];
+      const removeNamedEff = effsB.find((e: any) => e.type === "remove_named_ability");
+      if (!removeNamedEff) continue;
       const activeZones = ability.activeZones ?? ["play"];
       if (!activeZones.includes(instance.zone)) continue;
       if (ability.condition && !evaluateCondition(ability.condition, state, definitions, instance.ownerId, instance.instanceId)) continue;
-      const eff = ability.effect;
+      const eff = removeNamedEff;
       const addSuppression = (id: string) => {
         let set = suppressedAbilities.get(id);
         if (!set) {
@@ -449,11 +453,13 @@ export function getGameModifiers(
     if (!def) continue;
     for (const ability of def.abilities) {
       if (ability.type !== "static") continue;
-      if (ability.effect.type !== "remove_keyword") continue;
+      const effsC = Array.isArray(ability.effect) ? ability.effect : [ability.effect];
+      const removeKwEff = effsC.find((e: any) => e.type === "remove_keyword");
+      if (!removeKwEff) continue;
       const activeZones = ability.activeZones ?? ["play"];
       if (!activeZones.includes(instance.zone)) continue;
       if (ability.condition && !evaluateCondition(ability.condition, state, definitions, instance.ownerId, instance.instanceId)) continue;
-      const eff = ability.effect;
+      const eff = removeKwEff;
       const addKeywordSuppression = (id: string) => {
         let set = modifiers.suppressedKeywords.get(id);
         if (!set) {
@@ -505,7 +511,9 @@ export function getGameModifiers(
         if (instance.oncePerTurnTriggered?.[key]) continue;
       }
 
-      const { effect } = ability;
+      // Normalize compound abilities: effect can be a single StaticEffect or an array
+      const effects = Array.isArray(ability.effect) ? ability.effect : [ability.effect];
+      for (const effect of effects) {
       switch (effect.type) {
         case "cant_be_challenged": {
           const { target } = effect;
@@ -1111,7 +1119,8 @@ export function getGameModifiers(
           }
           break;
         }
-      }
+      } // end switch
+      } // end for (const effect of effects)
     }
   }
 

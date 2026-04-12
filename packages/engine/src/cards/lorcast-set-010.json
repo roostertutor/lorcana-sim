@@ -6475,38 +6475,35 @@
       {
         "type": "static",
         "storyName": "JOSTLING FOR POWER",
-        "rulesText": "King and Queen characters can't quest.",
-        "effect": {
-          "type": "action_restriction",
-          "restricts": "quest",
-          "target": {
-            "type": "all",
-            "filter": {
-              "cardType": [
-                "character"
-              ],
-              "hasTrait": "King"
+        "rulesText": "King and Queen characters can't quest. Queen characters can't quest.",
+        "effect": [
+          {
+            "type": "action_restriction",
+            "restricts": "quest",
+            "target": {
+              "type": "all",
+              "filter": {
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "King"
+              }
+            }
+          },
+          {
+            "type": "action_restriction",
+            "restricts": "quest",
+            "target": {
+              "type": "all",
+              "filter": {
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Queen"
+              }
             }
           }
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "JOSTLING FOR POWER",
-        "rulesText": "Queen characters can't quest.",
-        "effect": {
-          "type": "action_restriction",
-          "restricts": "quest",
-          "target": {
-            "type": "all",
-            "filter": {
-              "cardType": [
-                "character"
-              ],
-              "hasTrait": "Queen"
-            }
-          }
-        }
+        ]
       },
       {
         "type": "triggered",
@@ -8421,54 +8418,51 @@
       {
         "type": "static",
         "storyName": "LATERAL THINKING",
-        "rulesText": "During your turn, your Detective characters gain Alert.",
-        "effect": {
-          "type": "grant_keyword",
-          "keyword": "alert",
-          "target": {
-            "type": "all",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasTrait": "Detective"
+        "rulesText": "During your turn, your Detective characters gain Alert. During your turn, your Detective characters gain Resist +2.",
+        "effect": [
+          {
+            "type": "grant_keyword",
+            "keyword": "alert",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Detective"
+              }
+            },
+            "condition": {
+              "type": "is_your_turn"
             }
           },
-          "condition": {
-            "type": "is_your_turn"
+          {
+            "type": "grant_keyword",
+            "keyword": "resist",
+            "keywordValue": 2,
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Detective"
+              }
+            },
+            "condition": {
+              "type": "is_your_turn"
+            },
+            "value": 2
           }
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "LATERAL THINKING",
-        "rulesText": "During your turn, your Detective characters gain Resist +2.",
-        "effect": {
-          "type": "grant_keyword",
-          "keyword": "resist",
-          "keywordValue": 2,
-          "target": {
-            "type": "all",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasTrait": "Detective"
-            }
-          },
-          "condition": {
-            "type": "is_your_turn"
-          },
-          "value": 2
-        }
+        ]
       }
     ],
     "setId": "10",
@@ -11633,42 +11627,39 @@
       {
         "type": "static",
         "storyName": "PROTECT THIS CASTLE",
-        "rulesText": "Characters gain Challenger +1 while here.",
-        "effect": {
-          "type": "grant_keyword",
-          "keyword": "challenger",
-          "keywordValue": 1,
-          "target": {
-            "type": "all",
-            "filter": {
-              "cardType": [
-                "character"
-              ],
-              "atLocation": "this"
-            }
+        "rulesText": "Characters gain Challenger +1 while here. Characters gain Resist +1 while here.",
+        "effect": [
+          {
+            "type": "grant_keyword",
+            "keyword": "challenger",
+            "keywordValue": 1,
+            "target": {
+              "type": "all",
+              "filter": {
+                "cardType": [
+                  "character"
+                ],
+                "atLocation": "this"
+              }
+            },
+            "value": 1
           },
-          "value": 1
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "PROTECT THIS CASTLE",
-        "rulesText": "Characters gain Resist +1 while here.",
-        "effect": {
-          "type": "grant_keyword",
-          "keyword": "resist",
-          "keywordValue": 1,
-          "target": {
-            "type": "all",
-            "filter": {
-              "cardType": [
-                "character"
-              ],
-              "atLocation": "this"
-            }
-          },
-          "value": 1
-        }
+          {
+            "type": "grant_keyword",
+            "keyword": "resist",
+            "keywordValue": 1,
+            "target": {
+              "type": "all",
+              "filter": {
+                "cardType": [
+                  "character"
+                ],
+                "atLocation": "this"
+              }
+            },
+            "value": 1
+          }
+        ]
       }
     ],
     "setId": "10",
@@ -13589,54 +13580,51 @@
       {
         "type": "static",
         "storyName": "LATERAL THINKING",
-        "rulesText": "During your turn, your Detective characters gain Alert.",
-        "effect": {
-          "type": "grant_keyword",
-          "keyword": "alert",
-          "target": {
-            "type": "all",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasTrait": "Detective"
+        "rulesText": "During your turn, your Detective characters gain Alert. During your turn, your Detective characters gain Resist +2.",
+        "effect": [
+          {
+            "type": "grant_keyword",
+            "keyword": "alert",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Detective"
+              }
+            },
+            "condition": {
+              "type": "is_your_turn"
             }
           },
-          "condition": {
-            "type": "is_your_turn"
+          {
+            "type": "grant_keyword",
+            "keyword": "resist",
+            "keywordValue": 2,
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Detective"
+              }
+            },
+            "condition": {
+              "type": "is_your_turn"
+            },
+            "value": 2
           }
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "LATERAL THINKING",
-        "rulesText": "During your turn, your Detective characters gain Resist +2.",
-        "effect": {
-          "type": "grant_keyword",
-          "keyword": "resist",
-          "keywordValue": 2,
-          "target": {
-            "type": "all",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasTrait": "Detective"
-            }
-          },
-          "condition": {
-            "type": "is_your_turn"
-          },
-          "value": 2
-        }
+        ]
       }
     ],
     "setId": "10",

@@ -158,8 +158,10 @@ export interface StaticAbility {
   storyName?: string;
   /** CRD 5.2.8: The printed rules text for this ability (excluding story name) */
   rulesText?: string;
-  /** Describes an ongoing effect that modifies game rules */
-  effect: StaticEffect;
+  /** Describes an ongoing effect that modifies game rules.
+   *  Array form for compound abilities: "While X, [A] and [B]" — both
+   *  effects share the same condition and story name (CRD 6.2.6). */
+  effect: StaticEffect | StaticEffect[];
   /** Optional condition — static only applies while condition is true */
   condition?: Condition;
   /**
