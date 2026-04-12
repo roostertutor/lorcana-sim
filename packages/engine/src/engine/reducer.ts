@@ -2088,7 +2088,7 @@ function applyResolveChoice(
       // Override the effect's amount with the chosen value, then apply to the stored target
       const targetId = state.lastResolvedTarget?.instanceId;
       if (targetId && state.cards[targetId]) {
-        const overridden = { ...pendingEffect, amount } as Effect;
+        const overridden = { ...pendingEffect, amount, isUpTo: false } as Effect;
         state = applyEffectToTarget(state, overridden, targetId, playerId, definitions, events, srcId, trigId);
       }
     }
