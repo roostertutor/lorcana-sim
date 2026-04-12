@@ -1133,8 +1133,16 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       ? choiceLabel.slice(plainName.length).trim()
       : null;
 
-    // Whether this card can be a DnD drop target (shift or challenge)
+    // Whether this card can be a DnD drop target (shift, sing, challenge, move)
     const isDropTarget = !!dnd.activeId && dnd.isValidCardDrop(dnd.activeId, id);
+    const dropLabel = isDropTarget && dnd.activeId ? (() => {
+      const d = dnd.activeId!;
+      if (legalActions.some(a => a.type === "PLAY_CARD" && a.instanceId === d && a.shiftTargetInstanceId === id)) return "Shift";
+      if (legalActions.some(a => a.type === "PLAY_CARD" && a.instanceId === d && a.singerInstanceId === id)) return "Sing";
+      if (legalActions.some(a => a.type === "CHALLENGE" && a.attackerInstanceId === d && a.defenderInstanceId === id)) return "Challenge";
+      if (legalActions.some(a => a.type === "MOVE_CHARACTER" && a.characterInstanceId === d && a.locationInstanceId === id)) return "Move";
+      return undefined;
+    })() : undefined;
 
     // Fan effect for hand cards — overlap + subtle rotation
     const isHandCard = zone === "hand";
@@ -1228,7 +1236,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             setPopoverPos({ top: rect.bottom + 6, left });
           }}
         >
-          <DroppableCardTarget id={id} isValidTarget={isDropTarget} activeId={dnd.activeId}>
+          <DroppableCardTarget id={id} isValidTarget={isDropTarget} activeId={dnd.activeId} dropLabel={dropLabel}>
             <div className="relative">
               <GameCard
                 instanceId={id}
@@ -1454,6 +1462,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           <DroppablePlayZone
             isValidTarget={!!dnd.activeId && dnd.isValidPlayZoneDrop(dnd.activeId)}
             activeId={dnd.activeId}
+            dropLabel="Play"
             className="flex-1 min-h-0 flex flex-col"
           >
             {/* Player play zone */}
@@ -1928,11 +1937,13 @@ function DroppableCardTarget({
   id,
   isValidTarget,
   activeId,
+  dropLabel,
   children,
 }: {
   id: string;
   isValidTarget: boolean;
   activeId: string | null;
+  dropLabel?: string;
   children: React.ReactNode;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: dropCardId(id) });
@@ -1944,8 +1955,15 @@ function DroppableCardTarget({
     ? "opacity-60"
     : "";
   return (
-    <div ref={setNodeRef} className={`transition-all duration-150 ${ring}`}>
+    <div ref={setNodeRef} className={`relative transition-all duration-150 ${ring}`}>
       {children}
+      {isOver && isValidTarget && dropLabel && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+          <span className="px-2 py-1 rounded bg-black/80 text-green-300 text-[10px] font-bold shadow-lg">
+            {dropLabel}
+          </span>
+        </div>
+      )}
     </div>
   );
 }
@@ -1953,11 +1971,13 @@ function DroppableCardTarget({
 function DroppablePlayZone({
   isValidTarget,
   activeId,
+  dropLabel,
   children,
   className = "",
 }: {
   isValidTarget: boolean;
   activeId: string | null;
+  dropLabel?: string;
   children: React.ReactNode;
   className?: string;
 }) {
@@ -1970,8 +1990,15 @@ function DroppablePlayZone({
     ? "opacity-70"
     : "";
   return (
-    <div ref={setNodeRef} className={`rounded-lg transition-all duration-150 ${ring} ${className}`}>
+    <div ref={setNodeRef} className={`relative rounded-lg transition-all duration-150 ${ring} ${className}`}>
       {children}
+      {isOver && isValidTarget && dropLabel && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+          <span className="px-2 py-1 rounded bg-black/80 text-green-300 text-xs font-bold shadow-lg">
+            {dropLabel}
+          </span>
+        </div>
+      )}
     </div>
   );
 }
@@ -1986,8 +2013,15 @@ function DroppableInkwell({
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: DROP_INKWELL });
   return (
-    <div ref={setNodeRef} className={`transition-colors duration-150 ${isOver && isValidTarget ? "brightness-125" : ""}`}>
+    <div ref={setNodeRef} className={`relative transition-colors duration-150 ${isOver && isValidTarget ? "brightness-125" : ""}`}>
       {children}
+      {isOver && isValidTarget && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+          <span className="px-2 py-1 rounded bg-black/80 text-green-300 text-[10px] font-bold shadow-lg">
+            Ink
+          </span>
+        </div>
+      )}
     </div>
   );
 }

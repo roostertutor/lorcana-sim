@@ -101,17 +101,17 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 | [X] | Boost | Bambi - Ethereal Fawn (pay ink, deck top → under) | 10 |
 | [X] | Activate ability | Any card with activated ability | any |
 
-## Drag-and-Drop Targets
+## Drag-and-Drop Targets + Label
 
-| OK | Feature | Drag from → Drop on |
-|----|---------|---------------------|
-| [ ] | Play card | Hand card → play zone |
-| [ ] | Ink card | Hand card → inkwell |
-| [ ] | Shift (ink-cost) | Hand card → own character in play |
-| [ ] | Shift (alt-cost) | Hand card → own character → enters cost picker |
-| [ ] | Sing | Song from hand → ready character |
-| [ ] | Challenge | Own ready character → exerted opponent character |
-| [ ] | Move | Own ready character → own location |
+| OK  | Feature | Drag from → Drop on |
+|-----|---------|---------------------|
+| [X] | Play card | Hand card → play zone |
+| [X] | Ink card | Hand card → inkwell |
+| [X] | Shift (ink-cost) | Hand card → own character in play |
+| [X] | Shift (alt-cost) | Hand card → own character → enters cost picker |
+| [X] | Sing | Song from hand → ready character |
+| [X] | Challenge | Own ready character → exerted opponent character |
+| [X] | Move | Own ready character → own location |
 
 ## Visual Indicators
 

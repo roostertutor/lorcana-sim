@@ -37,7 +37,7 @@ export function useBoardDnd(params: {
 
     if (overId === DROP_PLAY_ZONE) {
       const action = legalActions.find(
-        (a) => a.type === "PLAY_CARD" && a.instanceId === draggingId && !a.shiftTargetInstanceId,
+        (a) => a.type === "PLAY_CARD" && a.instanceId === draggingId && !a.shiftTargetInstanceId && !a.singerInstanceId && !a.singerInstanceIds,
       );
       if (action) dispatch(action);
       return;
@@ -96,7 +96,7 @@ export function useBoardDnd(params: {
 
   function isValidPlayZoneDrop(draggingId: string): boolean {
     return legalActions.some(
-      (a) => a.type === "PLAY_CARD" && a.instanceId === draggingId && !a.shiftTargetInstanceId,
+      (a) => a.type === "PLAY_CARD" && a.instanceId === draggingId && !a.shiftTargetInstanceId && !a.singerInstanceId && !a.singerInstanceIds,
     );
   }
 
