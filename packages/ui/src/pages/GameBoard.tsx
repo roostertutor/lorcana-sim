@@ -275,6 +275,22 @@ function getActiveEffects(
     }
   }
 
+  // Per-card timed effects (Tinker Bell grants Evasive, Elsa cant_action ready, etc.)
+  for (const pid of [myId, oppId] as PlayerID[]) {
+    for (const id of state.zones[pid].play) {
+      const inst = state.cards[id];
+      if (!inst || !inst.timedEffects?.length) continue;
+      const target = cardName(id);
+      for (const te of inst.timedEffects) {
+        const teAny = te as any;
+        const src = sourceText(teAny.sourceInstanceId, teAny.type);
+        const label = src ? `${src.text} (on ${target})` : `${teAny.type.replace(/_/g, " ")} on ${target}`;
+        const source = src ? src.name : "";
+        effects.push({ label, source, color: "text-cyan-400" });
+      }
+    }
+  }
+
   return effects;
 }
 

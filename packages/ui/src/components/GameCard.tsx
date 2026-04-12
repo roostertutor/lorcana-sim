@@ -128,16 +128,21 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   const keywordAbilities = def.abilities.filter((a): a is KeywordAbility => a.type === "keyword");
   const printedKeywords = new Set(keywordAbilities.map(a => a.keyword));
   const keywordValues = new Map(keywordAbilities.filter(a => a.value != null).map(a => [a.keyword, a.value!]));
-  // Merge: printed keywords + instance-granted (TimedEffect) + static-granted (gameModifiers)
+  // Merge: printed keywords + instance-granted + timed-granted + static-granted (gameModifiers)
   const staticGranted = mods?.grantedKeywords.get(instanceId) ?? [];
+  const timedGranted = (instance.timedEffects ?? []).filter((te: any) => te.type === "grant_keyword" && te.keyword);
   const allKeywords = new Set([
     ...printedKeywords,
     ...(instance.grantedKeywords ?? []),
     ...staticGranted.map(g => g.keyword),
+    ...timedGranted.map((te: any) => te.keyword as string),
   ]);
-  // Also pick up static-granted keyword values (e.g. Resist +2 from Judy)
+  // Also pick up keyword values from static + timed grants (e.g. Resist +2)
   for (const g of staticGranted) {
     if (g.value != null && !keywordValues.has(g.keyword)) keywordValues.set(g.keyword, g.value);
+  }
+  for (const te of timedGranted) {
+    if ((te as any).value != null && !keywordValues.has((te as any).keyword)) keywordValues.set((te as any).keyword, (te as any).value);
   }
   const activeKeywordBadges = zone === "play"
     ? BADGE_KEYWORDS.filter(k => allKeywords.has(k))

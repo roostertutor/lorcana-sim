@@ -67,21 +67,21 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 | [X] | Delayed trigger | Candy Drift                              | 8 |
 | [X] | Floating trigger (global) | Steal from the Rich                      | 1 |
 | [X] | Floating trigger (attached) | Medallion Weights                        | 6 |
-| [ ] | Timed grant keyword | Cogsworth - Majordomo                    | 5 |
-| [ ] | Timed cant action | Elsa - Spirit of Winter                  | 2 |
-| [ ] | Timed damage immunity | Nothing We Won't Do                      | 8 |
+| [X] | Timed grant keyword | Tinker Bell - Most Helpful               | 5 |
+| [X] | Timed cant action | Elsa - Spirit of Winter                  | 2 |
+| [X] | Timed damage immunity | Nothing We Won't Do                      | 8 |
 | [ ] | Timed cant be challenged | Isabela Madrigal - In the Moment         | 7 |
-| [ ] | Timed stat buff | Good Job!                                | 1 |
+| [X] | Timed stat buff | Good Job!                                | 1 |
 | [ ] | Timed must quest if able | Ariel - Curious Traveler                 | P3 |
-| [ ] | Timed sing cost bonus | Naveen's Ukulele                         | 6 |
-| [ ] | Timed challenge ready | Cinderella - Stouthearted                | D23 |
+| [X] | Timed sing cost bonus | Naveen's Ukulele                         | 6 |
+| [X] | Timed challenge ready | Cinderella - Stouthearted                | D23 |
 
 ## PendingChoiceModal
 
 | OK  | Feature | Card | Set |
 |-----|---------|------|-----|
 | [X] | Both-side grouping | Fire the Cannons | 1 |
-| [ ] | Revealed hand + discard | Ursula - Deceiver (Set 9 version) | 9 |
+| [ ] | Revealed hand + discard | Ursula - Deceiver (any version) | 3/9 |
 | [ ] | Cross-player chooser | Tiana - Restaurant Owner | 5 |
 | [ ] | Multi-select discard | A Whole New World | 1 |
 | [ ] | "[A] or [B]" forced choice | Megara - Captivating Cynic | 4 |
