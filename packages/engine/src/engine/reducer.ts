@@ -4869,11 +4869,12 @@ function canPerformChooseOption(
     case "pay_ink":
       return state.players[controllingPlayerId].availableInk >= (typeof effect.amount === "number" ? effect.amount : 0);
     default: {
-      // CRD 6.1.5.2: If the effect targets "chosen" cards, check if any valid targets exist
+      // CRD 6.1.5.2: If the effect targets "chosen" cards, check if enough valid targets exist
       const target = (effect as any).target;
       if (target?.type === "chosen" && target.filter && definitions) {
         const validTargets = findChosenTargets(state, target.filter, controllingPlayerId, definitions, sourceInstanceId ?? "");
-        return validTargets.length > 0;
+        const requiredCount = target.count ?? 1;
+        return validTargets.length >= requiredCount;
       }
       return true;
     }
