@@ -683,7 +683,20 @@ function applyPlayCard(
       shiftedOntoInstanceId: shiftTargetInstanceId,
       playedViaShift: true,
       cardsUnder: [...inheritedUnder, shiftTargetInstanceId],
+      // CRD 8.10.5: shifted character keeps any effects that applied to the base card.
+      // Transfer timed effects (stat buffs, keyword grants, restrictions, etc.)
+      timedEffects: [...shiftTarget.timedEffects],
     });
+    // CRD 8.10.5: Update floating triggers that were attached to the base card
+    // so they now fire for the shifted card (same logical character, new instance).
+    if (state.floatingTriggers?.length) {
+      const updated = state.floatingTriggers.map(ft =>
+        ft.attachedToInstanceId === shiftTargetInstanceId
+          ? { ...ft, attachedToInstanceId: instanceId }
+          : ft
+      );
+      state = { ...state, floatingTriggers: updated };
+    }
     // CRD 8.10.4: queue the shifted_onto trigger BEFORE the original card is
     // moved into the "under" subzone, so cross-card scans (which only walk
     // in-play cards) can find the watcher. Source = the new shifter (filter
