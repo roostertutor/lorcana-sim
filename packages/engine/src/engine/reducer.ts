@@ -81,8 +81,8 @@ export function applyAction(
     let newState = applyActionInner(state, action, definitions, events);
     // After applying the action, check and resolve triggers
     newState = processTriggerStack(newState, definitions, events);
-    // Check win condition
-    newState = applyWinCheck(newState, definitions, events);
+    // CRD 1.8: Game state check — damage≥willpower banish + lore win
+    newState = runGameStateCheck(newState, definitions, events);
 
     return { success: true, newState, events };
   } catch (err) {
@@ -1266,41 +1266,13 @@ function applyChallenge(
     }
   }
 
-  const atkStaticWp = modifiers.statBonuses.get(attackerInstanceId)?.willpower ?? 0;
-  const defStaticWp = modifiers.statBonuses.get(defenderInstanceId)?.willpower ?? 0;
-  const attackerWp = getEffectiveWillpower(attacker, attackerDef, atkStaticWp);
-  const defenderWp = getEffectiveWillpower(defender, defenderDef, defStaticWp);
-
-  // Re-read damage after potential redirect
-  const attackerBanished = getInstance(state, attackerInstanceId).damage >= attackerWp;
-  const defenderBanished = getInstance(state, defenderInstanceId).damage >= defenderWp;
-
-  // Also check if redirect targets need banishing
-  if (attackerRedirect) {
-    const rInst = getInstance(state, attackerRedirect);
-    const rDef = definitions[rInst.definitionId];
-    if (rDef && rInst.damage >= getEffectiveWillpower(rInst, rDef)) {
-      state = banishCard(state, attackerRedirect, definitions, events);
-    }
-  }
-  if (defenderRedirect) {
-    const rInst = getInstance(state, defenderRedirect);
-    const rDef = definitions[rInst.definitionId];
-    if (rDef && rInst.damage >= getEffectiveWillpower(rInst, rDef)) {
-      state = banishCard(state, defenderRedirect, definitions, events);
-    }
-  }
-
-  if (attackerBanished) {
-    state = banishCard(state, attackerInstanceId, definitions, events, {
-      challengeOpponentId: defenderInstanceId,
-    });
-  }
-  if (defenderBanished) {
-    state = banishCard(state, defenderInstanceId, definitions, events, {
-      challengeOpponentId: attackerInstanceId,
-    });
-  }
+  // CRD 4.6.6.3 + 1.8: Game state check after challenge damage.
+  // Banishes from challenge damage are tagged with challengeOpponentId so
+  // banished_in_challenge / banished_other_in_challenge triggers fire correctly.
+  state = runGameStateCheck(state, definitions, events, {
+    attackerId: attackerInstanceId,
+    defenderId: defenderInstanceId,
+  });
 
   return state;
 }
@@ -1747,6 +1719,11 @@ function applyPassTurn(
       };
     }
   }
+
+  // CRD 1.8: Game state check after timed effect expiry. A willpower buff
+  // expiring may make existing damage lethal (e.g., character leaves Rapunzel's
+  // Tower location, loses +3 W, now damage ≥ willpower).
+  state = runGameStateCheck(state, definitions, events);
 
   // CRD 6.2.7.2: Resolve delayed triggers that fire at start of next turn
   if (state.delayedTriggers?.length) {
@@ -5671,10 +5648,7 @@ function dealDamageToCard(
       const newDamage = protector.damage + amount;
       state = updateInstance(state, redirectTo, { damage: newDamage });
       events.push({ type: "damage_dealt", instanceId: redirectTo, amount });
-      const willpower = getEffectiveWillpower(protector, protectorDef);
-      if (newDamage >= willpower) {
-        state = banishCard(state, redirectTo, definitions, events);
-      }
+      // CRD 1.8.1.4: Banish check handled by runGameStateCheck after action resolves
       return state;
     }
   }
@@ -5712,10 +5686,8 @@ function dealDamageToCard(
     state = queueTrigger(state, "damage_dealt_to", instanceId, definitions, {});
   }
 
-  const willpower = getEffectiveWillpower(instance, def);
-  if (newDamage >= willpower) {
-    state = banishCard(state, instanceId, definitions, events);
-  }
+  // CRD 1.8.1.4: Banish check moved to runGameStateCheck — called after every
+  // action/effect resolution. No longer inline here.
 
   return state;
 }
@@ -6560,21 +6532,61 @@ function findChosenTargets(
     });
 }
 
-/** CRD 1.8: Game state check — uses getLoreThreshold, never hardcodes 20.
- *  Per-player threshold so Donald Duck Flustered Sorcerer's "Opponents need 25 lore"
- *  raises only the affected player's bar. */
-function applyWinCheck(
+/**
+ * CRD 1.8: Unified game state check. Runs after every turn action, effect
+ * resolution, and at specific points during challenge and turn structure.
+ *
+ * Checks (in order):
+ * - 1.8.1.4: damage ≥ willpower → banish (cascades per 1.8.3)
+ * - 1.8.1.1: lore ≥ threshold → win
+ *
+ * @param challengeCtx — when called after challenge damage, provides attacker/
+ *   defender IDs so banishes are correctly tagged as "banished in a challenge"
+ *   for trigger dispatch (banished_in_challenge, banished_other_in_challenge).
+ */
+function runGameStateCheck(
   state: GameState,
   definitions: Record<string, CardDefinition>,
-  _events: GameEvent[]
+  events: GameEvent[],
+  challengeCtx?: { attackerId: string; defenderId: string }
 ): GameState {
   if (state.isGameOver) return state;
 
-  for (const [playerId, playerState] of Object.entries(state.players)) {
-    const threshold = getLoreThreshold(state, definitions, playerId as PlayerID);
-    if (playerState.lore >= threshold) {
-      return { ...state, winner: playerId as PlayerID, isGameOver: true };
+  // CRD 1.8.3: Loop until no new conditions are met
+  let changed = true;
+  while (changed) {
+    changed = false;
+
+    // CRD 1.8.1.4: damage ≥ willpower → banish
+    const modifiers = getGameModifiers(state, definitions);
+    for (const id of Object.keys(state.cards)) {
+      const inst = state.cards[id];
+      if (!inst || inst.zone !== "play") continue;
+      const def = definitions[inst.definitionId];
+      if (!def) continue;
+      if (def.cardType !== "character" && def.cardType !== "location") continue;
+      const wp = getEffectiveWillpower(inst, def,
+        modifiers.statBonuses.get(id)?.willpower ?? 0);
+      if (wp > 0 && inst.damage >= wp) {
+        // Determine if this banish is from a challenge (for trigger context)
+        const isChallengeBanish = challengeCtx && (id === challengeCtx.attackerId || id === challengeCtx.defenderId);
+        const challengeOpponentId = isChallengeBanish
+          ? (id === challengeCtx!.attackerId ? challengeCtx!.defenderId : challengeCtx!.attackerId)
+          : undefined;
+        state = banishCard(state, id, definitions, events,
+          challengeOpponentId ? { challengeOpponentId } : undefined);
+        changed = true;
+      }
+    }
+
+    // CRD 1.8.1.1: lore ≥ threshold → win
+    for (const [playerId, playerState] of Object.entries(state.players)) {
+      const threshold = getLoreThreshold(state, definitions, playerId as PlayerID);
+      if (playerState.lore >= threshold) {
+        return { ...state, winner: playerId as PlayerID, isGameOver: true };
+      }
     }
   }
+
   return state;
 }

@@ -548,8 +548,8 @@ describe("§6 Set 2 Card Coverage", () => {
     let swordId: string;
     let targetId: string;
     ({ state, instanceId: swordId } = injectCard(state, "player1", "sword-in-the-stone", "play"));
-    // Character with 3 damage
-    ({ state, instanceId: targetId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { damage: 3 }));
+    // Character with 2 damage (< 3 W so CRD 1.8 game state check doesn't banish between actions)
+    ({ state, instanceId: targetId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { damage: 2 }));
 
     // Activate Sword ({E}, 2{I})
     let result = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: swordId, abilityIndex: 0 }, LORCAST_CARD_DEFINITIONS);
@@ -559,8 +559,8 @@ describe("§6 Set 2 Card Coverage", () => {
       result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId] }, LORCAST_CARD_DEFINITIONS);
       expect(result.success).toBe(true);
     }
-    // Character should get +3 STR (1 per damage)
-    expect(getInstance(result.newState, targetId).timedEffects.filter((t: any)=>t.type==="modify_strength").reduce((s: number,t: any)=>s+(t.amount??0),0)).toBe(3);
+    // Character should get +2 STR (1 per damage)
+    expect(getInstance(result.newState, targetId).timedEffects.filter((t: any)=>t.type==="modify_strength").reduce((s: number,t: any)=>s+(t.amount??0),0)).toBe(2);
   });
 
   // ===== STATICS =====
