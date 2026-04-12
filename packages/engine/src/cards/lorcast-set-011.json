@@ -839,7 +839,7 @@
               "cardType": [
                 "character"
               ],
-              "maxCost": 2
+              "costAtMost": 2
             }
           }
         ]
@@ -1046,7 +1046,7 @@
               "cardType": [
                 "character"
               ],
-              "maxCost": 2
+              "costAtMost": 2
             }
           }
         ]
@@ -2011,7 +2011,7 @@
                   "item",
                   "location"
                 ],
-                "maxCost": 2
+                "costAtMost": 2
               }
             }
           }
@@ -3575,7 +3575,7 @@
               "cardType": [
                 "character"
               ],
-              "maxCost": 5
+              "costAtMost": 5
             },
             "grantKeywords": [
               "rush"
@@ -8337,7 +8337,7 @@
                   "cardType": [
                     "item"
                   ],
-                  "maxCost": 5
+                  "costAtMost": 5
                 }
               }
             ]
@@ -10103,7 +10103,7 @@
               "cardType": [
                 "character"
               ],
-              "maxCost": 2
+              "costAtMost": 2
             }
           }
         ]
@@ -11685,7 +11685,7 @@
                   "item",
                   "location"
                 ],
-                "maxCost": 2
+                "costAtMost": 2
               }
             }
           }
@@ -12603,7 +12603,7 @@
               "cardType": [
                 "character"
               ],
-              "maxCost": 2
+              "costAtMost": 2
             }
           }
         ]

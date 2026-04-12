@@ -734,7 +734,7 @@
               "cardType": [
                 "character"
               ],
-              "maxCost": 2
+              "costAtMost": 2
             }
           }
         ]
@@ -1547,7 +1547,7 @@
                   "character"
                 ],
                 "hasTrait": "Racer",
-                "maxCost": 6
+                "costAtMost": 6
               }
             }
           }
@@ -1575,7 +1575,7 @@
                   "character"
                 ],
                 "hasTrait": "Racer",
-                "maxCost": 6
+                "costAtMost": 6
               }
             }
           }
@@ -2964,7 +2964,7 @@
                 "cardType": [
                   "character"
                 ],
-                "maxCost": 2
+                "costAtMost": 2
               }
             }
           }
@@ -3354,7 +3354,7 @@
                   "item",
                   "location"
                 ],
-                "maxCost": 2
+                "costAtMost": 2
               }
             }
           }
@@ -10905,7 +10905,7 @@
           "type": "self"
         },
         "filter": {
-          "maxCost": 6
+          "costAtMost": 6
         }
       }
     ]
@@ -12460,7 +12460,7 @@
                   "character"
                 ],
                 "hasTrait": "Racer",
-                "maxCost": 6
+                "costAtMost": 6
               }
             }
           }
@@ -12488,7 +12488,7 @@
                   "character"
                 ],
                 "hasTrait": "Racer",
-                "maxCost": 6
+                "costAtMost": 6
               }
             }
           }

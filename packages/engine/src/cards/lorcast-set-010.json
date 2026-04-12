@@ -2893,7 +2893,7 @@
                     "cardType": [
                       "character"
                     ],
-                    "maxCost": 2
+                    "costAtMost": 2
                   }
                 }
               }
@@ -3427,7 +3427,7 @@
           "type": "chosen",
           "filter": {
             "zone": "play",
-            "maxCost": 3,
+            "costAtMost": 3,
             "cardType": [
               "character",
               "item",
@@ -3638,7 +3638,7 @@
             "cardType": [
               "character"
             ],
-            "maxCost": 2
+            "costAtMost": 2
           }
         },
         "followUpEffects": [
@@ -7458,7 +7458,7 @@
           "cardType": [
             "location"
           ],
-          "maxCost": 3
+          "costAtMost": 3
         }
       }
     ]
@@ -9302,7 +9302,7 @@
             "cardType": [
               "character"
             ],
-            "maxCost": 3
+            "costAtMost": 3
           }
         }
       }
@@ -13738,7 +13738,7 @@
             "cardType": [
               "character"
             ],
-            "maxCost": 3
+            "costAtMost": 3
           }
         }
       }

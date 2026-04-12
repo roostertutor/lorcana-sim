@@ -219,7 +219,7 @@
             "owner": {
               "type": "self"
             },
-            "maxCost": 2
+            "costAtMost": 2
           }
         },
         "effects": [
@@ -3367,7 +3367,7 @@
               "item",
               "location"
             ],
-            "maxCost": 2
+            "costAtMost": 2
           }
         }
       }
@@ -4126,7 +4126,7 @@
                   "filter": {
                     "zone": "discard",
                     "hasTrait": "Song",
-                    "maxCost": 3,
+                    "costAtMost": 3,
                     "owner": {
                       "type": "self"
                     }
@@ -7816,7 +7816,7 @@
             "cardType": [
               "character"
             ],
-            "maxCost": 2
+            "costAtMost": 2
           }
         },
         "oncePerTurn": true,
@@ -7851,7 +7851,7 @@
               "cardType": [
                 "character"
               ],
-              "maxCost": 2
+              "costAtMost": 2
             }
           },
           "condition": {
@@ -13127,7 +13127,7 @@
             "cardType": [
               "character"
             ],
-            "maxCost": 2
+            "costAtMost": 2
           }
         },
         "oncePerTurn": true,
@@ -13162,7 +13162,7 @@
               "cardType": [
                 "character"
               ],
-              "maxCost": 2
+              "costAtMost": 2
             }
           },
           "condition": {
