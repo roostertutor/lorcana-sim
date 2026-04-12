@@ -9277,6 +9277,14 @@
     "traits": [],
     "abilities": [
       {
+        "type": "static",
+        "storyName": "ASLEEP",
+        "rulesText": "This item enters play exerted.",
+        "effect": {
+          "type": "enter_play_exerted_self"
+        }
+      },
+      {
         "type": "activated",
         "storyName": "AWAKEN",
         "rulesText": "{E} — Put a character card from your discard into your inkwell facedown and exerted.",
@@ -9321,8 +9329,7 @@
         "rulesText": "Put a character card from your discard into your inkwell facedown and exerted.",
         "raw": "AWAKEN {E} — Put a character card from your discard into your inkwell facedown and exerted."
       }
-    ],
-    "entersPlayExerted": true
+    ]
   },
   {
     "id": "ice-block",

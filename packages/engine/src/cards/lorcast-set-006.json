@@ -304,7 +304,16 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "CHIP'S PARTNER",
+        "rulesText": "This character enters play exerted unless you have a character named Chip in play.",
+        "effect": {
+          "type": "enter_play_exerted_self"
+        }
+      }
+    ],
     "setId": "6",
     "number": 7,
     "rarity": "common",
@@ -321,8 +330,7 @@
         "rulesText": "This character enters play exerted unless you have a character named Chip in play.",
         "raw": "CHIP'S PARTNER This character enters play exerted unless you have a character named Chip in play."
       }
-    ],
-    "entersPlayExerted": true
+    ]
   },
   {
     "id": "david-impressive-surfer",
@@ -5295,6 +5303,14 @@
     "traits": [],
     "abilities": [
       {
+        "type": "static",
+        "storyName": "HAPPY FACE",
+        "rulesText": "This item enters play exerted.",
+        "effect": {
+          "type": "enter_play_exerted_self"
+        }
+      },
+      {
         "type": "activated",
         "storyName": "DESTROY!",
         "rulesText": "{E}, Banish this item — Choose one: Banish chosen item. Banish chosen damaged character.",
@@ -5361,8 +5377,7 @@
         "rulesText": "{E}, Banish this item - Choose one:",
         "raw": "DESTROY! {E}, Banish this item - Choose one:"
       }
-    ],
-    "entersPlayExerted": true
+    ]
   },
   {
     "id": "galactic-communicator",

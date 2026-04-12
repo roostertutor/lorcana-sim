@@ -820,9 +820,16 @@ function applyPlayCard(
   }
 
   // CRD 6.7.8: Self-entry modifier — card enters play already exerted.
+  // Check the card's own abilities for enter_play_exerted_self static.
   // No intermediate un-exerted state, no trigger, per CRD 6.7.8 example.
-  if (def.entersPlayExerted) {
-    state = updateInstance(state, instanceId, { isExerted: true });
+  for (const ab of def.abilities) {
+    if (ab.type === "static") {
+      const effs = Array.isArray(ab.effect) ? ab.effect : [ab.effect];
+      if (effs.some(e => e.type === "enter_play_exerted_self")) {
+        state = updateInstance(state, instanceId, { isExerted: true });
+        break;
+      }
+    }
   }
 
   // EnterPlayExertedStatic — Jiminy Cricket Level-Headed and Wise (opposing

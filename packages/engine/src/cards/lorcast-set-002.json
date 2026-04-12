@@ -990,7 +990,16 @@
       "Ally",
       "Seven Dwarfs"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "YAWN!",
+        "rulesText": "This character enters play exerted.",
+        "effect": {
+          "type": "enter_play_exerted_self"
+        }
+      }
+    ],
     "setId": "2",
     "number": 21,
     "rarity": "common",
@@ -1007,8 +1016,7 @@
         "rulesText": "This character enters play exerted.",
         "raw": "YAWN! This character enters play exerted."
       }
-    ],
-    "entersPlayExerted": true
+    ]
   },
   {
     "id": "sneezy-very-allergic",

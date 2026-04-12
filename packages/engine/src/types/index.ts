@@ -1425,6 +1425,7 @@ export type StaticEffect =
   | TopOfDeckVisibleStatic
   | MoveToSelfCostReductionStatic
   | EnterPlayExertedStatic
+  | EnterPlayExertedSelfStatic
   | StatFloorPrintedStatic
   | SingCostBonusHereStatic
   | SingCostBonusCharactersStatic
@@ -1712,6 +1713,12 @@ export interface EnterPlayExertedStatic {
    *  field is interpreted from the SOURCE card's perspective ("opponent" =
    *  cards played by the source's opponent). */
   filter: CardFilter;
+}
+
+/** CRD 6.7.8: "This character/item enters play exerted." Self-targeting
+ *  entry modifier — the card itself enters exerted. No filter needed. */
+export interface EnterPlayExertedSelfStatic {
+  type: "enter_play_exerted_self";
 }
 
 /**
@@ -2443,10 +2450,6 @@ export interface CardDefinition {
 
   /** CRD 4.7: Locations — ink a character pays to move here */
   moveCost?: number;
-
-  /** CRD 6.7.8: This card enters play exerted (static entry modifier, not a trigger).
-   *  "There's no moment within the game in which [the card] enters play [un-exerted]." */
-  entersPlayExerted?: boolean;
 
   abilities: Ability[];
 
