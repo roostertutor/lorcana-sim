@@ -4470,29 +4470,36 @@ export function applyEffect(
     // CRD 6.1.5.1: "[A] to [B]" sequential effect
     // CRD 6.1.3: "choose one of" — present options to the controller
     case "choose": {
+      // CRD 6.1.5.2: Filter infeasible options — "if [A] can't be chosen, [B] must be chosen"
+      const feasibleOptions = effect.options.filter(option =>
+        option.length > 0 && option.every(subEff => canPerformChooseOption(state, subEff, controllingPlayerId, triggeringCardInstanceId))
+      );
+      // If only one feasible option, auto-pick it (no choice to make)
+      const optionsToPresent = feasibleOptions.length > 0 ? feasibleOptions : [effect.options[effect.options.length - 1]!];
+      if (optionsToPresent.length === 1) {
+        // Forced — apply the only feasible option directly
+        const chosen = optionsToPresent[0]!;
+        for (const subEffect of chosen) {
+          state = applyEffect(state, subEffect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+          if (state.pendingChoice) return state;
+        }
+        return state;
+      }
       if (state.interactive) {
-        // Surface a choose_option pending choice for the human/UI
+        // Surface only feasible options to the human/UI
         return {
           ...state,
           pendingChoice: {
             type: "choose_option",
             choosingPlayerId: controllingPlayerId,
             prompt: "Choose one:",
-            options: effect.options,
+            options: optionsToPresent,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           },
         };
       }
-      // CRD 6.1.5.2: Non-interactive bot picks the first feasible option.
-      // If an option can't be performed (e.g., discard with empty hand), skip to next.
-      let chosen: Effect[] | undefined;
-      for (const option of effect.options) {
-        if (option.length === 0) continue;
-        const feasible = option.every(subEff => canPerformChooseOption(state, subEff, controllingPlayerId, triggeringCardInstanceId));
-        if (feasible) { chosen = option; break; }
-      }
-      // If no option is feasible, fall back to last option (forced by CRD 6.1.5.2)
-      if (!chosen) chosen = effect.options[effect.options.length - 1];
+      // Non-interactive bot: pick first feasible option
+      const chosen = optionsToPresent[0];
       if (!chosen) return state;
       for (const subEffect of chosen) {
         state = applyEffect(state, subEffect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
