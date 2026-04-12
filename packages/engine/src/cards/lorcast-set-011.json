@@ -4229,7 +4229,7 @@
           {
             "type": "sequential",
             "isMay": true,
-            "effects": [
+            "costEffects": [
               {
                 "type": "put_card_on_bottom_of_deck",
                 "from": "discard",
@@ -4239,7 +4239,9 @@
                   ]
                 },
                 "amount": 3
-              },
+              }
+            ],
+            "rewardEffects": [
               {
                 "type": "deal_damage",
                 "amount": 3,
