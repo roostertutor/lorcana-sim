@@ -673,7 +673,7 @@
             "isMay": true
           }
         ],
-        "storyName": "PUNY PIRATE!",
+        "storyName": "PUN PIRATE!",
         "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character.",
         "condition": {
           "type": "is_your_turn"

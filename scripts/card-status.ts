@@ -156,6 +156,12 @@ function validateCardFields(card: any): FieldError[] {
     }
     // Check condition on ability
     if (ab.condition) walkCondition(ab.condition, path + ".condition");
+    // Keywords that require a numeric value
+    if (ab.type === "keyword" && ["boost", "challenger", "resist", "singer", "shift"].includes(ab.keyword)) {
+      if (ab.value === undefined || ab.value === null) {
+        errors.push({ path, field: "value", value: "undefined", validValues: "numeric value required for " + ab.keyword });
+      }
+    }
     // Check costs
     if (Array.isArray(ab.costs)) {
       ab.costs.forEach((c: any, i: number) => checkType(c, `${path}.costs[${i}]`));

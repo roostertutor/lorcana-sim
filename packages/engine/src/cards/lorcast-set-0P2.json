@@ -770,7 +770,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "BARED TEETH",
+        "storyName": "TEETH AND AMBITIONS",
         "rulesText": "When you play this character, deal 2 damage to chosen character of yours to deal 2 damage to chosen character.",
         "trigger": {
           "on": "enters_play"
@@ -1206,7 +1206,7 @@
       },
       {
         "type": "static",
-        "storyName": "BIG RESPONSIBILITY",
+        "storyName": "ENORMOUS RESPONSIBILITY",
         "rulesText": "While this character is damaged, he gets +2 {S}.",
         "effect": {
           "type": "gain_stats",

@@ -7030,7 +7030,8 @@
       },
       {
         "type": "keyword",
-        "keyword": "boost"
+        "keyword": "boost",
+        "value": 1
       }
     ],
     "setId": "10",
@@ -13433,7 +13434,8 @@
       },
       {
         "type": "keyword",
-        "keyword": "boost"
+        "keyword": "boost",
+        "value": 1
       }
     ],
     "setId": "10",
