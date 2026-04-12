@@ -4507,7 +4507,7 @@
           {
             "type": "deal_damage",
             "amount": 1,
-            "asDamageCounter": true,
+            "asPutDamage": true,
             "target": {
               "type": "all",
               "filter": {
@@ -4930,7 +4930,7 @@
           {
             "type": "deal_damage",
             "amount": 1,
-            "asDamageCounter": true,
+            "asPutDamage": true,
             "isMay": true,
             "target": {
               "type": "chosen",
@@ -5498,7 +5498,7 @@
       {
         "type": "deal_damage",
         "amount": 1,
-        "asDamageCounter": true,
+        "asPutDamage": true,
         "target": {
           "type": "all",
           "filter": {
@@ -5543,7 +5543,7 @@
           {
             "type": "deal_damage",
             "amount": 1,
-            "asDamageCounter": true,
+            "asPutDamage": true,
             "target": {
               "type": "chosen",
               "filter": {
@@ -13387,7 +13387,7 @@
       {
         "type": "deal_damage",
         "amount": 1,
-        "asDamageCounter": true,
+        "asPutDamage": true,
         "target": {
           "type": "all",
           "filter": {

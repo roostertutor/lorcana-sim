@@ -515,7 +515,7 @@ export interface DealDamageEffect {
    * When true, the reducer mutates `instance.damage` directly without firing
    * dealt_damage triggers / damage_dealt events.
    */
-  asDamageCounter?: boolean;
+  asPutDamage?: boolean;
   /** CRD 6.1.4 */
   isMay?: boolean;
 }

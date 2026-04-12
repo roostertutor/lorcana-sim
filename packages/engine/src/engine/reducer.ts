@@ -2397,10 +2397,10 @@ export function applyEffect(
       const resolveAmount = (amt: typeof effect.amount): number =>
         resolveDynamicAmount(amt, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, state.lastResolvedTarget?.instanceId);
       if (effect.target.type === "this") {
-        return dealDamageToCard(state, sourceInstanceId, resolveAmount(effect.amount), definitions, events, false, false, effect.asDamageCounter);
+        return dealDamageToCard(state, sourceInstanceId, resolveAmount(effect.amount), definitions, events, false, false, effect.asPutDamage);
       }
       if (effect.target.type === "triggering_card" && triggeringCardInstanceId) {
-        return dealDamageToCard(state, triggeringCardInstanceId, resolveAmount(effect.amount), definitions, events, false, false, effect.asDamageCounter);
+        return dealDamageToCard(state, triggeringCardInstanceId, resolveAmount(effect.amount), definitions, events, false, false, effect.asPutDamage);
       }
       if (effect.target.type === "chosen") {
         const choosingPlayerId = chosenChooserPlayerId(effect.target, controllingPlayerId);
@@ -2422,7 +2422,7 @@ export function applyEffect(
         const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         const amount = resolveAmount(effect.amount);
         for (const targetId of targets) {
-          state = dealDamageToCard(state, targetId, amount, definitions, events, false, false, effect.asDamageCounter);
+          state = dealDamageToCard(state, targetId, amount, definitions, events, false, false, effect.asPutDamage);
         }
         return state;
       }
@@ -2506,11 +2506,11 @@ export function applyEffect(
     case "remove_damage": {
       if (effect.target.type === "this") {
         const instance = getInstance(state, sourceInstanceId);
-        const actualHeal = Math.min(effect.amount, instance.damage);
+        const actualRemoved = Math.min(effect.amount, instance.damage);
         state = updateInstance(state, sourceInstanceId, {
           damage: Math.max(0, instance.damage - effect.amount),
         });
-        if (actualHeal > 0) {
+        if (actualRemoved > 0) {
           state = queueTrigger(state, "damage_removed_from", sourceInstanceId, definitions, {});
         }
         return state;
@@ -2534,11 +2534,11 @@ export function applyEffect(
         const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         for (const targetId of targets) {
           const inst = getInstance(state, targetId);
-          const actualHeal = Math.min(effect.amount, inst.damage);
+          const actualRemoved = Math.min(effect.amount, inst.damage);
           state = updateInstance(state, targetId, {
             damage: Math.max(0, inst.damage - effect.amount),
           });
-          if (actualHeal > 0) {
+          if (actualRemoved > 0) {
             state = queueTrigger(state, "damage_removed_from", targetId, definitions, {});
           }
         }
@@ -5620,13 +5620,13 @@ function dealDamageToCard(
   inChallenge = false,
   /** CRD: "put a damage counter on" — bypass Resist + damage immunity + damage_dealt_to triggers.
    *  Banishment from willpower still resolves. Used by Queen of Hearts Unpredictable Bully. */
-  asDamageCounter = false
+  asPutDamage = false
 ): GameState {
   const modifiers = getGameModifiers(state, definitions);
 
   // CRD 1.9.1.5: Damage prevention ("takes no damage") blocks ALL damage taking:
   // deal, put, and move. Resist only blocks "dealt" (CRD 8.8.3).
-  // So asDamageCounter bypasses Resist but NOT damage prevention.
+  // So asPutDamage bypasses Resist but NOT damage prevention.
   const immTarget = state.cards[instanceId];
   if (immTarget) {
     if (hasStaticDamagePrevention(immTarget, modifiers, inChallenge)) {
@@ -5676,12 +5676,12 @@ function dealDamageToCard(
   const def = definitions[instance.definitionId];
   if (!def) return state;
 
-  const resistValue = (ignoreResist || asDamageCounter) ? 0 : getKeywordValue(instance, def, "resist", modifiers.grantedKeywords.get(instanceId));
+  const resistValue = (ignoreResist || asPutDamage) ? 0 : getKeywordValue(instance, def, "resist", modifiers.grantedKeywords.get(instanceId));
   const actualDamage = Math.max(0, amount - resistValue);
 
   const newDamage = instance.damage + actualDamage;
   state = updateInstance(state, instanceId, { damage: newDamage });
-  if (!asDamageCounter) {
+  if (!asPutDamage) {
     events.push({ type: "damage_dealt", instanceId, amount: actualDamage });
   }
   // Per-turn event flags for "if one of your characters was damaged this turn" (Brutus, Devil's Eye Diamond)
@@ -5701,7 +5701,7 @@ function dealDamageToCard(
   }
 
   // Fire damage_dealt_to trigger after damage is applied — skipped for "put damage counter".
-  if (actualDamage > 0 && !asDamageCounter) {
+  if (actualDamage > 0 && !asPutDamage) {
     state = queueTrigger(state, "damage_dealt_to", instanceId, definitions, {});
   }
 
@@ -5724,7 +5724,7 @@ function applyEffectToTarget(
   switch (effect.type) {
     case "deal_damage": {
       const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, targetInstanceId);
-      return dealDamageToCard(state, targetInstanceId, amount, definitions, events, false, false, effect.asDamageCounter);
+      return dealDamageToCard(state, targetInstanceId, amount, definitions, events, false, false, effect.asPutDamage);
     }
     case "gain_lore":
     case "lose_lore": {
@@ -5914,24 +5914,24 @@ function applyEffectToTarget(
           };
         }
       }
-      const actualHeal = Math.min(effect.amount, instance.damage);
+      const actualRemoved = Math.min(effect.amount, instance.damage);
       state = updateInstance(state, targetInstanceId, {
-        damage: instance.damage - actualHeal,
+        damage: instance.damage - actualRemoved,
       });
       // CRD 6.1.5.1: Store result for "[A]. For each damage removed, [B]" patterns
-      state = { ...state, lastEffectResult: actualHeal };
+      state = { ...state, lastEffectResult: actualRemoved };
       // Record the actual delta on lastResolvedTarget so follow-up reward effects
       // can read how many damage counters were consumed by an isUpTo remove_damage.
       // Baymax Armored Companion: "Gain 1 lore for each 1 damage removed this way."
-      const deltaRef = makeResolvedRef(state, definitions, targetInstanceId, { delta: actualHeal });
+      const deltaRef = makeResolvedRef(state, definitions, targetInstanceId, { delta: actualRemoved });
       if (deltaRef) state = { ...state, lastResolvedTarget: deltaRef };
-      if (actualHeal > 0) {
+      if (actualRemoved > 0) {
         const targetDef = definitions[getInstance(state, targetInstanceId).definitionId];
         const targetName = targetDef?.fullName ?? targetInstanceId;
         state = appendLog(state, {
           turn: state.turnNumber,
           playerId: controllingPlayerId,
-          message: `Removed ${actualHeal} damage from ${targetName}.`,
+          message: `Removed ${actualRemoved} damage from ${targetName}.`,
           type: "effect_resolved",
         });
         // Fire damage_removed_from trigger after damage is removed

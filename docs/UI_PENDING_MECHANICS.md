@@ -235,7 +235,7 @@ Append to the top as new mechanics land.
 
 ~~## Put damage counter (vs deal damage)~~ **RESOLVED — N/A: once damage lands, the source is indistinguishable in state. The CRD distinction (bypass Resist) is handled by the engine; the UI just shows the final damage number.**
 
-**Engine**: `DealDamageEffect.asDamageCounter: true` flag. Bypasses Resist, damage immunity, and `damage_dealt_to` triggers — pure state mutation per CRD distinction.
+**Engine**: `DealDamageEffect.asPutDamage: true` flag. CRD 1.9.1.2: "Put" damage bypasses Resist (CRD 8.8.3) and `damage_dealt_to` triggers, but NOT damage prevention (CRD 1.9.1.5: "take" encompasses put).
 
 **UI needs**:
 - Distinguish visually from regular damage: maybe a different damage marker color, or no impact animation

@@ -558,8 +558,8 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   //  attackerFilter with strengthAtLeast/hasTrait. Cards wired this batch.)
   // (both-players-effect removed: target { type: "both" } works for draw,
   //  discard_from_hand, and (as of this batch) gain_lore.)
-  // (put-damage-counter removed: deal_damage gained `asDamageCounter: true`
-  //  flag — bypasses Resist + immunity + dealt_damage triggers per CRD.)
+  // (put-damage-counter removed: deal_damage gained `asPutDamage: true`
+  //  flag — bypasses Resist + damage_dealt_to triggers per CRD 8.8.3 / 1.9.1.2.)
   // Dynamic filter based on card's own stat ("cost equal to or less than this character's {S}")
   [/cost equal to or less than .{0,30}\{S\}/i, "dynamic-filter"],
   // (broader timed-cant-be-challenged entries also removed — see above.)

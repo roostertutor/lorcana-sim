@@ -5351,7 +5351,7 @@
           {
             "type": "deal_damage",
             "amount": 1,
-            "asDamageCounter": true,
+            "asPutDamage": true,
             "target": {
               "type": "triggering_card"
             }
