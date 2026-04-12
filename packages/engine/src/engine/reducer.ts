@@ -3337,6 +3337,24 @@ export function applyEffect(
         };
       }
       if (effect.target.type === "all") {
+        // CRD 6.4.2.1: continuous — store globally so newly played cards are affected too
+        if (effect.continuous) {
+          const existing = state.globalTimedEffects ?? [];
+          return {
+            ...state,
+            globalTimedEffects: [...existing, {
+              type: "grant_keyword",
+              keyword: effect.keyword,
+              keywordValue: effect.value,
+              filter: effect.target.filter,
+              controllingPlayerId,
+              sourceInstanceId,
+              expiresAt: effect.duration,
+              appliedOnTurn: state.turnNumber,
+            }],
+          };
+        }
+        // CRD 6.4.2.2: applied — only affects current cards
         const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         for (const targetId of targets) {
           state = addTimedEffect(state, targetId, timedEffect);

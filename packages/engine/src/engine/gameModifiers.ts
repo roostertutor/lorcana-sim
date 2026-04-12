@@ -1185,7 +1185,7 @@ export function getGameModifiers(
               if (!candidateDef) continue;
               if (matchesFilter(candidate, candidateDef, gte.filter, state, gte.controllingPlayerId)) {
                 const existing = modifiers.grantedKeywords.get(candidate.instanceId) ?? [];
-                existing.push({ keyword: gte.keyword });
+                existing.push({ keyword: gte.keyword, value: gte.keywordValue });
                 modifiers.grantedKeywords.set(candidate.instanceId, existing);
               }
             }

@@ -1113,6 +1113,8 @@ export interface GrantKeywordEffect {
   duration: EffectDuration;
   /** CRD 6.1.4: player may choose not to apply this effect */
   isMay?: boolean;
+  /** CRD 6.4.2.1: continuous static — affects newly played cards too */
+  continuous?: boolean;
 }
 
 export interface ReadyEffect {
@@ -2836,6 +2838,8 @@ export interface GlobalTimedEffect {
   action?: RestrictedAction;
   /** For grant_keyword: which keyword */
   keyword?: Keyword;
+  /** For grant_keyword: +N value (e.g., Resist +1) */
+  keywordValue?: number;
   /** For modify_stat: stat changes */
   strength?: number;
   willpower?: number;
