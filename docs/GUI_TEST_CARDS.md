@@ -31,7 +31,7 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 | [X] | Challenger | Dr. Facilier - Charlatan            | 1 |
 | [X] | Reckless | Felicia - Always Hungry             | 2 |
 | [X] | Singer | Ariel - Spectacular Singer          | 1 |
-| [?] | Boost | Bambi - Ethereal Fawn               | 10 |
+| [X] | Boost | Bambi - Ethereal Fawn               | 10 |
 | [X] | Multiple keywords | Maui - Hero to All (Reckless, Rush) | 1 |
 
 ## Other Badges
