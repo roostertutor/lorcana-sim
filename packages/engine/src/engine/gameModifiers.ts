@@ -10,8 +10,13 @@
 // hardcoding the rule.
 // =============================================================================
 
-import type { CardDefinition, GameState, PlayerID } from "../types/index.js";
+import type { CardDefinition, GameState, PlayerID, StaticEffect, StaticAbility } from "../types/index.js";
 import { evaluateCondition, getZone, matchesFilter } from "../utils/index.js";
+
+/** Normalize StaticAbility.effect (single or array) to a flat array. */
+function normalizeEffects(ability: StaticAbility): StaticEffect[] {
+  return Array.isArray(ability.effect) ? ability.effect : [ability.effect];
+}
 
 export interface GameModifiers {
   /**
@@ -373,7 +378,7 @@ export function getGameModifiers(
     if (!def) continue;
     for (const ability of def.abilities) {
       if (ability.type !== "static") continue;
-      const effs = Array.isArray(ability.effect) ? ability.effect : [ability.effect];
+      const effs = normalizeEffects(ability);
       const grantTraitEff = effs.find((e: any) => e.type === "grant_trait_static");
       if (!grantTraitEff) continue;
       const activeZones = ability.activeZones ?? ["play"];
@@ -416,7 +421,7 @@ export function getGameModifiers(
     if (!def) continue;
     for (const ability of def.abilities) {
       if (ability.type !== "static") continue;
-      const effsB = Array.isArray(ability.effect) ? ability.effect : [ability.effect];
+      const effsB = normalizeEffects(ability);
       const removeNamedEff = effsB.find((e: any) => e.type === "remove_named_ability");
       if (!removeNamedEff) continue;
       const activeZones = ability.activeZones ?? ["play"];
@@ -453,7 +458,7 @@ export function getGameModifiers(
     if (!def) continue;
     for (const ability of def.abilities) {
       if (ability.type !== "static") continue;
-      const effsC = Array.isArray(ability.effect) ? ability.effect : [ability.effect];
+      const effsC = normalizeEffects(ability);
       const removeKwEff = effsC.find((e: any) => e.type === "remove_keyword");
       if (!removeKwEff) continue;
       const activeZones = ability.activeZones ?? ["play"];
@@ -512,7 +517,7 @@ export function getGameModifiers(
       }
 
       // Normalize compound abilities: effect can be a single StaticEffect or an array
-      const effects = Array.isArray(ability.effect) ? ability.effect : [ability.effect];
+      const effects = normalizeEffects(ability);
       for (const effect of effects) {
       switch (effect.type) {
         case "cant_be_challenged": {
