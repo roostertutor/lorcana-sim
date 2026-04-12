@@ -7323,13 +7323,7 @@
           },
           {
             "type": "create_floating_trigger",
-            "attachTo": "chosen",
-            "targetFilter": {
-              "zone": "play",
-              "cardType": [
-                "character"
-              ]
-            },
+            "attachTo": "last_resolved_target",
             "trigger": {
               "on": "challenges"
             },

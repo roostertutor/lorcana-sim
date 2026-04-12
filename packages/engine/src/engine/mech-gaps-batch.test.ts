@@ -144,10 +144,8 @@ describe("Mechanic gaps batch — grant-floating-trigger-to-target", () => {
     expect(state.pendingChoice?.type).toBe("choose_target");
     r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [charId] }, LORCAST_CARD_DEFINITIONS);
     state = r.newState;
-    // Second effect: create_floating_trigger attachTo chosen — surfaces another choice.
-    expect(state.pendingChoice?.type).toBe("choose_target");
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [charId] }, LORCAST_CARD_DEFINITIONS);
-    state = r.newState;
+    // Second effect: create_floating_trigger attachTo last_resolved_target — same character, no second prompt.
+    expect(state.pendingChoice).toBeFalsy();
     // Floating trigger registered, attached to charId.
     expect(state.floatingTriggers?.some((ft) => ft.attachedToInstanceId === charId)).toBe(true);
     // Now the chosen char challenges → draw a card via the floating trigger.
