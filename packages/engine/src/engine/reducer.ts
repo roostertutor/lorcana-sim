@@ -1044,7 +1044,9 @@ function applyQuest(
   return state;
 }
 
-// CRD 4.6: Challenge — exert attacker, deal simultaneous damage (CRD 4.6.6.2)
+// CRD 4.6: Challenge — split into Declaration (4.6.4) and Damage (4.6.6) steps.
+// Triggers from the Declaration step resolve BEFORE damage is calculated,
+// so effects like Tiana Restaurant Owner's -3 {S} debuff apply before damage.
 function applyChallenge(
   state: GameState,
   playerId: PlayerID,
@@ -1053,11 +1055,8 @@ function applyChallenge(
   definitions: Record<string, CardDefinition>,
   events: GameEvent[]
 ): GameState {
-  const attacker = getInstance(state, attackerInstanceId);
-  const defender = getInstance(state, defenderInstanceId);
   const attackerDef = getDefinition(state, attackerInstanceId, definitions);
   const defenderDef = getDefinition(state, defenderInstanceId, definitions);
-  const modifiers = getGameModifiers(state, definitions);
 
   // Set 11 pacifist cycle: track that the attacker's owner had a character
   // challenge this turn. Used by no_challenges_this_turn condition.
@@ -1069,14 +1068,71 @@ function applyChallenge(
     },
   };
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // CRD 4.6.4 — CHALLENGE DECLARATION STEP
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  // CRD 4.6.4.4: Exert the challenging character
+  state = exertInstance(state, attackerInstanceId, definitions);
+  // Mark defender as challenged this turn (for Last Stand and similar cards)
+  if (defenderDef.cardType === "character") {
+    state = updateInstance(state, defenderInstanceId, { challengedThisTurn: true });
+  }
+
+  // CRD 4.6.4.5: "challenges" and "is_challenged" triggered abilities
+  state = queueTrigger(state, "challenges", attackerInstanceId, definitions, {
+    triggeringCardInstanceId: defenderInstanceId,
+  });
+  if (defenderDef.cardType === "character") {
+    state = queueTrigger(state, "is_challenged", defenderInstanceId, definitions, {
+      triggeringCardInstanceId: attackerInstanceId,
+    });
+  }
+
+  // CRD 6.2.7.1: Check floating triggers for `challenges` (Medallion Weights)
+  if (state.floatingTriggers) {
+    const attacker = getInstance(state, attackerInstanceId);
+    for (const ft of state.floatingTriggers) {
+      if (ft.trigger.on !== "challenges") continue;
+      if (ft.attachedToInstanceId && ft.attachedToInstanceId !== attackerInstanceId) continue;
+      const triggerFilter = "filter" in ft.trigger ? ft.trigger.filter : undefined;
+      if (triggerFilter) {
+        if (!matchesFilter(attacker, attackerDef, triggerFilter, state, ft.controllingPlayerId)) continue;
+      }
+      for (const fEffect of ft.effects) {
+        state = applyEffect(state, fEffect, attackerInstanceId, ft.controllingPlayerId, definitions, events);
+      }
+    }
+  }
+
+  // CRD 4.6.5: Resolve triggered abilities from the Declaration step.
+  // This is where Tiana's -3 {S} debuff, Rafiki's "takes no damage", etc. resolve.
+  state = processTriggerStack(state, definitions, events);
+
+  // CRD 1.8: Game state check after Declaration step
+  state = runGameStateCheck(state, definitions, events);
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // CRD 4.6.6 — CHALLENGE DAMAGE STEP
+  // Strength is calculated NOW, after Declaration triggers have resolved.
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  // If either combatant left play during declaration (e.g., Puny Pirate banished
+  // the defender), skip the damage step.
+  const atkNow = state.cards[attackerInstanceId];
+  const defNow = state.cards[defenderInstanceId];
+  if (!atkNow || atkNow.zone !== "play" || !defNow || defNow.zone !== "play") {
+    return state;
+  }
+
+  // CRD 4.6.6.1: Calculate damage with current modifiers (post-trigger)
+  const modifiers = getGameModifiers(state, definitions);
   const atkStaticStr = modifiers.statBonuses.get(attackerInstanceId)?.strength ?? 0;
   const defStaticStr = modifiers.statBonuses.get(defenderInstanceId)?.strength ?? 0;
-  let attackerStr = getEffectiveStrength(attacker, attackerDef, atkStaticStr, modifiers);
-  let defenderStr = getEffectiveStrength(defender, defenderDef, defStaticStr, modifiers);
+  let attackerStr = getEffectiveStrength(atkNow, attackerDef, atkStaticStr, modifiers);
+  let defenderStr = getEffectiveStrength(defNow, defenderDef, defStaticStr, modifiers);
 
-  // Check for "while being challenged" stat bonuses on the defender. The
-  // modifier may target either the defender (self, default) or the attacker
-  // (Louie One Cool Duck: "the challenging character gets -1 {S}").
+  // "While being challenged" stat bonuses
   for (const ability of defenderDef.abilities) {
     if (ability.type !== "static") continue;
     const effsChal = Array.isArray(ability.effect) ? ability.effect : [ability.effect];
@@ -1091,63 +1147,43 @@ function applyChallenge(
     }
   }
 
-  // CRD 8.5.1: Challenger +N bonus (only when attacking a character, not defending — CRD 8.5.2)
-  // CRD 4.6.8: Challenger does not apply when challenging a location.
+  // CRD 8.5.1: Challenger +N bonus
   if (defenderDef.cardType === "character") {
-    const challengerValue = getKeywordValue(attacker, attackerDef, "challenger", modifiers.grantedKeywords.get(attackerInstanceId));
+    const challengerValue = getKeywordValue(atkNow, attackerDef, "challenger", modifiers.grantedKeywords.get(attackerInstanceId));
     attackerStr += challengerValue;
   }
 
-  // Conditional challenge bonuses (e.g. Olympus Would Be That Way: +3 {S} while challenging a location).
-  // These are turn-scoped player-wide bonuses that behave like Challenger but with a defender filter.
+  // Conditional challenge bonuses
   const turnBonuses = state.players[playerId].turnChallengeBonuses;
   if (turnBonuses && turnBonuses.length > 0) {
     for (const bonus of turnBonuses) {
-      if (matchesFilter(defender, defenderDef, bonus.defenderFilter, state, playerId)) {
+      if (matchesFilter(defNow, defenderDef, bonus.defenderFilter, state, playerId)) {
         attackerStr += bonus.strength;
       }
     }
   }
-  // Per-instance conditional challenger bonuses (Shenzi Scar's Accomplice
-  // EASY PICKINGS: "while challenging a damaged character, this character
-  // gets +2 {S}"). Permanent (lives as long as the source static is active).
   const selfBonuses = modifiers.conditionalChallengerSelf.get(attackerInstanceId);
   if (selfBonuses && selfBonuses.length > 0) {
     for (const bonus of selfBonuses) {
-      if (matchesFilter(defender, defenderDef, bonus.defenderFilter, state, playerId)) {
+      if (matchesFilter(defNow, defenderDef, bonus.defenderFilter, state, playerId)) {
         attackerStr += bonus.strength;
       }
     }
   }
 
-  state = exertInstance(state, attackerInstanceId, definitions);
-  // Mark defender as challenged this turn (for Last Stand and similar cards)
-  // CRD 4.6.8: Locations don't track challengedThisTurn (no character-state).
-  if (defenderDef.cardType === "character") {
-    state = updateInstance(state, defenderInstanceId, { challengedThisTurn: true });
-  }
-
-  // CRD 8.8.1: Resist +N reduces incoming challenge damage (min 0)
-  const attackerResist = getKeywordValue(attacker, attackerDef, "resist", modifiers.grantedKeywords.get(attackerInstanceId));
-  const defenderResist = getKeywordValue(defender, defenderDef, "resist", modifiers.grantedKeywords.get(defenderInstanceId));
+  // CRD 8.8.1: Resist
+  const attackerResist = getKeywordValue(atkNow, attackerDef, "resist", modifiers.grantedKeywords.get(attackerInstanceId));
+  const defenderResist = getKeywordValue(defNow, defenderDef, "resist", modifiers.grantedKeywords.get(defenderInstanceId));
   let actualAttackerDamage = Math.max(0, defenderStr - attackerResist);
   let actualDefenderDamage = Math.max(0, attackerStr - defenderResist);
 
-  // Raya - Leader of Heart: challenge damage immunity when defender matches filter
+  // Damage prevention (Raya, Noi, Lilo, etc.)
   const immuneFilter = modifiers.challengeDamagePrevention.get(attackerInstanceId);
   if (immuneFilter !== undefined) {
-    if (!immuneFilter || matchesFilter(defender, defenderDef, immuneFilter, state, playerId)) {
+    if (!immuneFilter || matchesFilter(defNow, defenderDef, immuneFilter, state, playerId)) {
       actualAttackerDamage = 0;
     }
   }
-
-  // Generic damage immunity — "takes no damage from challenges" (Noi, Pirate
-  // Mickey timed; Baloo all-source static). Applies separately to attacker and
-  // defender since either combatant may be immune. Hercules' "non_challenge"
-  // source does NOT apply here (it still takes challenge damage).
-  // Charges-based immunity (Rapunzel) is consumed via dealDamageToCard's
-  // hook below, not here — challenge damage path writes via direct updates,
-  // so consume timed charges manually if applicable.
   const consumeTimedCharge = (id: string): void => {
     const inst = state.cards[id];
     if (!inst) return;
@@ -1161,8 +1197,6 @@ function applyChallenge(
       : inst.timedEffects.map((e, i) => (i === idx ? { ...e, charges: remaining } : e));
     state = updateInstance(state, id, { timedEffects: next });
   };
-  // Lilo Bundled Up: charge-based static immunity. Consume one charge per
-  // blocked challenge hit by bumping the per-turn used counter.
   const consumeStaticCharge = (id: string): void => {
     if (!modifiers.damagePreventionCharges.has(id)) return;
     const inst = state.cards[id];
@@ -1170,14 +1204,14 @@ function applyChallenge(
     const used = (inst.damagePreventionChargesUsedThisTurn ?? 0) + 1;
     state = updateInstance(state, id, { damagePreventionChargesUsedThisTurn: used });
   };
-  if (hasStaticDamagePrevention(attacker, modifiers, true) || findTimedDamagePreventionIdx(attacker, true) >= 0) {
+  if (hasStaticDamagePrevention(atkNow, modifiers, true) || findTimedDamagePreventionIdx(atkNow, true) >= 0) {
     if (actualAttackerDamage > 0) {
       consumeStaticCharge(attackerInstanceId);
       consumeTimedCharge(attackerInstanceId);
     }
     actualAttackerDamage = 0;
   }
-  if (hasStaticDamagePrevention(defender, modifiers, true) || findTimedDamagePreventionIdx(defender, true) >= 0) {
+  if (hasStaticDamagePrevention(defNow, modifiers, true) || findTimedDamagePreventionIdx(defNow, true) >= 0) {
     if (actualDefenderDamage > 0) {
       consumeStaticCharge(defenderInstanceId);
       consumeTimedCharge(defenderInstanceId);
@@ -1185,11 +1219,11 @@ function applyChallenge(
     actualDefenderDamage = 0;
   }
 
-  // CRD 6.5: Check for damage redirect on each combatant
+  // CRD 6.5: Damage redirect
   const attackerRedirect = actualAttackerDamage > 0 ? findDamageRedirect(state, attackerInstanceId, definitions, modifiers) : null;
   const defenderRedirect = actualDefenderDamage > 0 ? findDamageRedirect(state, defenderInstanceId, definitions, modifiers) : null;
 
-  // Apply attacker damage (or redirect)
+  // CRD 4.6.6.2: Apply damage simultaneously
   if (actualAttackerDamage > 0) {
     const atkTarget = attackerRedirect ?? attackerInstanceId;
     const inst = getInstance(state, atkTarget);
@@ -1202,15 +1236,11 @@ function applyChallenge(
       },
     };
     events.push({ type: "damage_dealt", instanceId: atkTarget, amount: actualAttackerDamage });
-    // Fire damage_dealt_to trigger for challenge damage
     state = queueTrigger(state, "damage_dealt_to", atkTarget, definitions, {});
-    // CRD 4.3.6: defender is the damage-dealer for attacker-side damage
     state = queueTrigger(state, "deals_damage_in_challenge", defenderInstanceId, definitions, {
       triggeringCardInstanceId: atkTarget,
     });
   }
-
-  // Apply defender damage (or redirect)
   if (actualDefenderDamage > 0) {
     const defTarget = defenderRedirect ?? defenderInstanceId;
     const inst = getInstance(state, defTarget);
@@ -1223,12 +1253,8 @@ function applyChallenge(
       },
     };
     events.push({ type: "damage_dealt", instanceId: defTarget, amount: actualDefenderDamage });
-    // Fire damage_dealt_to trigger for challenge damage
     state = queueTrigger(state, "damage_dealt_to", defTarget, definitions, {});
-    // Stash the damage amount for `last_damage_dealt` DynamicAmount readers
-    // (Mulan Elite Archer TRIPLE SHOT, Namaari Heir of Fang TWO-WEAPON FIGHTING).
     state = { ...state, lastDamageDealtAmount: actualDefenderDamage };
-    // CRD 4.3.6: attacker dealt damage to defender
     state = queueTrigger(state, "deals_damage_in_challenge", attackerInstanceId, definitions, {
       triggeringCardInstanceId: defTarget,
     });
@@ -1241,34 +1267,7 @@ function applyChallenge(
     type: "card_challenged",
   });
 
-  state = queueTrigger(state, "challenges", attackerInstanceId, definitions, {
-    triggeringCardInstanceId: defenderInstanceId,
-  });
-  if (defenderDef.cardType === "character") {
-    state = queueTrigger(state, "is_challenged", defenderInstanceId, definitions, {
-      triggeringCardInstanceId: attackerInstanceId,
-    });
-  }
-
-  // CRD 6.2.7.1: Check floating triggers for `challenges` (Medallion Weights:
-  // "Whenever they challenge another character this turn, you may draw a card.")
-  if (state.floatingTriggers) {
-    for (const ft of state.floatingTriggers) {
-      if (ft.trigger.on !== "challenges") continue;
-      if (ft.attachedToInstanceId && ft.attachedToInstanceId !== attackerInstanceId) continue;
-      const triggerFilter = "filter" in ft.trigger ? ft.trigger.filter : undefined;
-      if (triggerFilter) {
-        if (!matchesFilter(attacker, attackerDef, triggerFilter, state, ft.controllingPlayerId)) continue;
-      }
-      for (const fEffect of ft.effects) {
-        state = applyEffect(state, fEffect, attackerInstanceId, ft.controllingPlayerId, definitions, events);
-      }
-    }
-  }
-
-  // CRD 4.6.6.3 + 1.8: Game state check after challenge damage.
-  // Banishes from challenge damage are tagged with challengeOpponentId so
-  // banished_in_challenge / banished_other_in_challenge triggers fire correctly.
+  // CRD 4.6.6.3 + 1.8: Game state check after challenge damage
   state = runGameStateCheck(state, definitions, events, {
     attackerId: attackerInstanceId,
     defenderId: defenderInstanceId,
