@@ -2848,7 +2848,7 @@ export interface TriggerContext {
 }
 
 export interface PendingChoice {
-  type: "choose_mulligan" | "choose_target" | "choose_option" | "choose_cards" | "choose_may" | "choose_discard" | "choose_from_revealed" | "choose_order" | "choose_trigger" | "choose_card_name" | "choose_player";
+  type: "choose_mulligan" | "choose_target" | "choose_option" | "choose_cards" | "choose_may" | "choose_discard" | "choose_from_revealed" | "choose_order" | "choose_trigger" | "choose_card_name" | "choose_player" | "choose_amount";
   /** Which player must make the choice */
   choosingPlayerId: PlayerID;
   prompt: string;
@@ -2865,6 +2865,9 @@ export interface PendingChoice {
   /** For choose_cards: card filter and count */
   filter?: CardFilter;
   count?: number;
+  /** For choose_amount: min and max of the numeric range (CRD "up to N") */
+  min?: number;
+  max?: number;
   /** The effect waiting for this choice to resolve (absent for choose_mulligan) */
   pendingEffect?: Effect;
   /** CRD 6.1.4: player can decline with empty choice */

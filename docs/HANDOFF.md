@@ -4,43 +4,21 @@ Items flagged by one session for another to pick up.
 
 ---
 
-## Engine: `choose_amount` pending choice for `isUpTo` effects
+~~## Engine: `choose_amount` pending choice for `isUpTo` effects~~ **DONE**
 
-**From:** GUI session (2026-04-11)
+**Engine work completed 2026-04-12:**
+- Added `choose_amount` to PendingChoice type union with `min`/`max` fields
+- `remove_damage` with `isUpTo` in interactive mode surfaces `choose_amount`
+- `move_damage` with `isUpTo` in interactive mode surfaces `choose_amount`
+- RESOLVE_CHOICE handler: accepts number, overrides effect amount, applies to target
+- Bot/non-interactive: unchanged — uses full amount (no choice surfaced)
 
-**Problem:** Cards with "up to N" effects (remove damage, move damage, exert) currently give the player no way to choose HOW MANY to apply. The engine treats `isUpTo` as all-or-nothing — either skip entirely (optional: true → resolve with []) or apply the full amount. Lorcana rules say "up to N" means the player chooses a number from 0 to N.
-
-**Affected cards:**
-- Cheshire Cat - Inexplicable: "move up to 2 damage counters"
-- Rapunzel - Gifted with Healing: "remove up to 3 damage"
-- Elsa - Spirit of Winter: "exert up to 2 chosen characters"
-- Any other effect with `isUpTo: true` and `amount > 1`
-
-**Proposed change:**
-
-```ts
-// New PendingChoice type
-interface ChooseAmountChoice {
-  type: "choose_amount";
-  choosingPlayerId: PlayerID;
-  prompt: string;
-  min: number;    // usually 0
-  max: number;    // effect amount, capped by actual available (e.g. damage on card)
-  pendingEffect: Effect;
-  sourceInstanceId: string;
-  triggeringCardInstanceId?: string;
-}
-```
-
-**Engine work:**
-1. Add `choose_amount` to the PendingChoice union
-2. In `remove_damage` chosen path: when `isUpTo` and amount > 1, surface `choose_amount` with max = min(effect.amount, target.damage). On resolve, remove that many.
-3. In `move_damage`: after picking source and destination, surface `choose_amount` with max = min(effect.amount, source.damage). On resolve, move that many.
-4. In `exert` chosen path with count > 1: already handled via multi-select choose_target (Elsa picks 0-2 targets). This one may be fine as-is since each target is a separate selection.
-5. RESOLVE_CHOICE handler: accept a number for `choose_amount`, apply it to the pending effect.
-
-**GUI work (after engine lands):**
-Add a number picker to PendingChoiceModal for `choose_amount` — +/- buttons or a row of clickable numbers (0, 1, 2) with a Confirm button.
+**GUI work needed:**
+Add a number picker to PendingChoiceModal for `choose_amount` type:
+- Read `pendingChoice.min` (usually 0) and `pendingChoice.max`
+- Display +/- buttons or clickable number row (0, 1, 2, ..., max)
+- Confirm button dispatches `RESOLVE_CHOICE` with `choice: selectedNumber`
+- `pendingChoice.prompt` has the text (e.g., "Remove how much damage? (0–3)")
 
 ---
 

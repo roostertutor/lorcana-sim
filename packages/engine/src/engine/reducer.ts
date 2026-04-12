@@ -2078,6 +2078,25 @@ function applyResolveChoice(
     return state;
   }
 
+  // CRD "up to N": player chose a specific amount (0..max)
+  if (pendingChoice.type === "choose_amount" && typeof choice === "number") {
+    const amount = Math.max(pendingChoice.min ?? 0, Math.min(choice, pendingChoice.max ?? choice));
+    const pendingEffect = pendingChoice.pendingEffect;
+    const srcId = pendingChoice.sourceInstanceId ?? "";
+    const trigId = pendingChoice.triggeringCardInstanceId;
+    if (pendingEffect) {
+      // Override the effect's amount with the chosen value, then apply to the stored target
+      const targetId = state.lastResolvedTarget?.instanceId;
+      if (targetId && state.cards[targetId]) {
+        const overridden = { ...pendingEffect, amount } as Effect;
+        state = applyEffectToTarget(state, overridden, targetId, playerId, definitions, events, srcId, trigId);
+      }
+    }
+    state = resumePendingEffectQueue(state, definitions, events);
+    state = cleanupPendingAction(state, playerId);
+    return state;
+  }
+
   if (pendingChoice.type === "choose_target" && Array.isArray(choice)) {
     // CRD 6.1.4: optional target choice — empty array = skip
     if (pendingChoice.optional && choice.length === 0) {
@@ -5873,6 +5892,28 @@ function applyEffectToTarget(
     }
     case "remove_damage": {
       const instance = getInstance(state, targetInstanceId);
+      // CRD "up to N": in interactive mode, let the player choose how much to remove
+      if (effect.isUpTo && state.interactive && instance.damage > 0) {
+        const maxHeal = Math.min(effect.amount, instance.damage);
+        if (maxHeal > 0) {
+          // Snapshot target for the choose_amount handler
+          const ref = makeResolvedRef(state, definitions, targetInstanceId);
+          if (ref) state = { ...state, lastResolvedTarget: ref };
+          return {
+            ...state,
+            pendingChoice: {
+              type: "choose_amount",
+              choosingPlayerId: controllingPlayerId,
+              prompt: `Remove how much damage? (0–${maxHeal})`,
+              min: 0,
+              max: maxHeal,
+              pendingEffect: effect,
+              sourceInstanceId,
+              triggeringCardInstanceId,
+            },
+          };
+        }
+      }
       const actualHeal = Math.min(effect.amount, instance.damage);
       state = updateInstance(state, targetInstanceId, {
         damage: instance.damage - actualHeal,
@@ -6112,8 +6153,30 @@ function applyEffectToTarget(
         const src = state.cards[effect._resolvedSource.instanceId];
         const dst = state.cards[targetInstanceId];
         if (!src || !dst) return state;
+        const maxMove = Math.min(effect.amount, src.damage);
+        if (maxMove <= 0) return state;
+        // CRD "up to N": in interactive mode, let the player choose how many to move
+        if (effect.isUpTo && state.interactive && maxMove > 0) {
+          // Snapshot for choose_amount — target is the destination
+          const ref = makeResolvedRef(state, definitions, targetInstanceId);
+          if (ref) state = { ...state, lastResolvedTarget: ref };
+          // Store source ref for the resolution handler
+          state = { ...state, lastResolvedSource: effect._resolvedSource };
+          return {
+            ...state,
+            pendingChoice: {
+              type: "choose_amount",
+              choosingPlayerId: controllingPlayerId,
+              prompt: `Move how much damage? (0–${maxMove})`,
+              min: 0,
+              max: maxMove,
+              pendingEffect: effect,
+              sourceInstanceId,
+              triggeringCardInstanceId,
+            },
+          };
+        }
         const moveAmt = Math.min(effect.amount, src.damage);
-        if (moveAmt <= 0) return state;
         state = updateInstance(state, src.instanceId, { damage: src.damage - moveAmt });
         state = updateInstance(state, targetInstanceId, { damage: dst.damage + moveAmt });
         // Record actually-moved count on lastResolvedTarget for follow-up effects.
