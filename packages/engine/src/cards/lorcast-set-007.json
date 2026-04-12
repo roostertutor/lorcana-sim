@@ -11410,7 +11410,8 @@
             }
           }
         },
-        "duration": "until_caster_next_turn"
+        "duration": "until_caster_next_turn",
+        "continuous": true
       }
     ]
   },
@@ -12745,7 +12746,8 @@
             }
           }
         },
-        "duration": "until_caster_next_turn"
+        "duration": "until_caster_next_turn",
+        "continuous": true
       }
     ]
   }

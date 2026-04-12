@@ -2543,6 +2543,19 @@
             ]
           }
         }
+      },
+      {
+        "type": "create_delayed_trigger",
+        "firesAt": "end_of_turn",
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "this"
+            }
+          }
+        ],
+        "attachTo": "last_resolved_target"
       }
     ]
   },

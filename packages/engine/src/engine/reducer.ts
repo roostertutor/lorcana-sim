@@ -1494,6 +1494,21 @@ function applyPassTurn(
     state = { ...state, pendingEndOfTurnBanish: [] };
   }
 
+  // CRD 6.2.7.2: Resolve delayed triggers that fire at end of turn
+  if (state.delayedTriggers?.length) {
+    const endOfTurnDelayed = state.delayedTriggers.filter(dt => dt.firesAt === "end_of_turn");
+    const remaining = state.delayedTriggers.filter(dt => dt.firesAt !== "end_of_turn");
+    for (const dt of endOfTurnDelayed) {
+      const targetInst = state.cards[dt.targetInstanceId];
+      // CRD 6.2.7.2: If the target has moved to a different zone, resolves with no effect
+      if (!targetInst || targetInst.zone !== "play") continue;
+      for (const eff of dt.effects) {
+        state = applyEffect(state, eff, dt.targetInstanceId, dt.controllingPlayerId, definitions, events, dt.targetInstanceId);
+      }
+    }
+    state = { ...state, delayedTriggers: remaining.length > 0 ? remaining : undefined };
+  }
+
   // CRD 3.4.1.1: end-of-turn triggered abilities
   state = queueTriggersByEvent(state, "turn_end", playerId, definitions, {});
   state = processTriggerStack(state, definitions, events);
@@ -1664,6 +1679,24 @@ function applyPassTurn(
     }
   }
 
+  // CRD 6.4.2.1: Expire global timed effects using the same duration logic
+  if (state.globalTimedEffects?.length) {
+    const remainingGlobal = state.globalTimedEffects.filter((gte) => {
+      if (gte.expiresAt === "end_of_turn") return false;
+      if (gte.expiresAt === "until_caster_next_turn") {
+        return !(gte.appliedOnTurn < newTurnNumber && gte.controllingPlayerId === opponent);
+      }
+      if (gte.expiresAt === "end_of_owner_next_turn") {
+        // Global effects don't have a single owner — expire based on controlling player
+        return !(gte.appliedOnTurn < newTurnNumber && gte.controllingPlayerId === playerId);
+      }
+      return true;
+    });
+    if (remainingGlobal.length !== state.globalTimedEffects.length) {
+      state = { ...state, globalTimedEffects: remainingGlobal.length > 0 ? remainingGlobal : undefined };
+    }
+  }
+
   // Expire timed play restrictions whose caster's next turn is starting now.
   // After applyPassTurn updates the active player to `opponent`, that player IS
   // the new turn-taker. If they equal an entry's casterPlayerId, the caster's
@@ -1683,6 +1716,20 @@ function applyPassTurn(
         },
       };
     }
+  }
+
+  // CRD 6.2.7.2: Resolve delayed triggers that fire at start of next turn
+  if (state.delayedTriggers?.length) {
+    const startOfTurnDelayed = state.delayedTriggers.filter(dt => dt.firesAt === "start_of_next_turn");
+    const remaining = state.delayedTriggers.filter(dt => dt.firesAt !== "start_of_next_turn");
+    for (const dt of startOfTurnDelayed) {
+      const targetInst = state.cards[dt.targetInstanceId];
+      if (!targetInst || targetInst.zone !== "play") continue;
+      for (const eff of dt.effects) {
+        state = applyEffect(state, eff, dt.targetInstanceId, dt.controllingPlayerId, definitions, events, dt.targetInstanceId);
+      }
+    }
+    state = { ...state, delayedTriggers: remaining.length > 0 ? remaining : undefined };
   }
 
   // CRD 3.2.2.3: Resolve triggered abilities from Ready + Set steps
@@ -2570,6 +2617,21 @@ export function applyEffect(
         };
       }
       if (effect.target.type === "all") {
+        // CRD 6.4.2.1: continuous static — store globally so newly played cards are affected too
+        if (effect.continuous) {
+          const existing = state.globalTimedEffects ?? [];
+          return {
+            ...state,
+            globalTimedEffects: [...existing, {
+              type: "cant_be_challenged",
+              filter: effect.target.filter,
+              controllingPlayerId,
+              expiresAt: effect.duration,
+              appliedOnTurn: state.turnNumber,
+            }],
+          };
+        }
+        // CRD 6.4.2.2: applied static — only affects current cards
         const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         for (const id of targets) state = addTimedEffect(state, id, timed);
         return state;
@@ -4373,12 +4435,20 @@ export function applyEffect(
           },
         };
       }
-      // Non-interactive: bot picks option 0 by default and applies sub-effects
-      const chosen = effect.options[0];
+      // CRD 6.1.5.2: Non-interactive bot picks the first feasible option.
+      // If an option can't be performed (e.g., discard with empty hand), skip to next.
+      let chosen: Effect[] | undefined;
+      for (const option of effect.options) {
+        if (option.length === 0) continue;
+        const feasible = option.every(subEff => canPerformChooseOption(state, subEff, controllingPlayerId, triggeringCardInstanceId));
+        if (feasible) { chosen = option; break; }
+      }
+      // If no option is feasible, fall back to last option (forced by CRD 6.1.5.2)
+      if (!chosen) chosen = effect.options[effect.options.length - 1];
       if (!chosen) return state;
       for (const subEffect of chosen) {
         state = applyEffect(state, subEffect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
-        if (state.pendingChoice) return state; // Sub-effect needs choice — pause here
+        if (state.pendingChoice) return state;
       }
       return state;
     }
@@ -4639,6 +4709,27 @@ export function applyEffect(
       };
     }
 
+    // CRD 6.2.7.2: Create a delayed triggered ability that fires once at a specific moment
+    case "create_delayed_trigger": {
+      let targetId: string | undefined;
+      if (effect.attachTo === "last_resolved_target") {
+        targetId = state.lastResolvedTarget?.instanceId;
+      } else if (effect.attachTo === "self") {
+        targetId = sourceInstanceId;
+      }
+      if (!targetId || !state.cards[targetId]) return state;
+      const existing = state.delayedTriggers ?? [];
+      return {
+        ...state,
+        delayedTriggers: [...existing, {
+          firesAt: effect.firesAt,
+          effects: effect.effects,
+          controllingPlayerId,
+          targetInstanceId: targetId,
+        }],
+      };
+    }
+
     default:
       return state; // Unimplemented effect type — no-op for now
   }
@@ -4695,6 +4786,29 @@ function canPerformCostEffect(
     }
     default:
       return true; // assume performable
+  }
+}
+
+/**
+ * CRD 6.1.5.2: Check if a sub-effect within a "choose" option can be performed.
+ * Used to determine which option the bot picks — if option A can't be performed,
+ * option B must be chosen. Mirrors canPerformCostEffect but for choose options.
+ */
+function canPerformChooseOption(
+  state: GameState,
+  effect: Effect,
+  controllingPlayerId: PlayerID,
+  triggeringCardInstanceId?: string
+): boolean {
+  switch (effect.type) {
+    case "discard_from_hand":
+      return typeof effect.amount === "number"
+        ? getZone(state, controllingPlayerId, "hand").length >= effect.amount
+        : true;
+    case "pay_ink":
+      return state.players[controllingPlayerId].availableInk >= (typeof effect.amount === "number" ? effect.amount : 0);
+    default:
+      return true;
   }
 }
 

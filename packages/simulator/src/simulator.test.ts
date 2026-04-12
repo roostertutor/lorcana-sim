@@ -40,7 +40,11 @@ const VALID_PHASES = new Set(["mulligan_p1", "mulligan_p2", "beginning", "main",
 function assertInvariants(state: GameState): void {
   for (const playerId of PLAYERS) {
     // Invariant 1: Total cards per player always 60
-    const total = ZONES.reduce((sum, zone) => sum + getZone(state, playerId, zone).length, 0);
+    // CRD 5.1.1.5: Cards "under" another card are still in the Play zone (not a separate zone),
+    // but our engine models them as zone: "under" (not tracked in zones arrays). Count them here.
+    const zoneTotal = ZONES.reduce((sum, zone) => sum + getZone(state, playerId, zone).length, 0);
+    const underCount = Object.values(state.cards).filter(c => c.zone === "under" && c.ownerId === playerId).length;
+    const total = zoneTotal + underCount;
     expect(total, `${playerId} total cards must always be 60`).toBe(60);
 
     // Invariant 3: availableInk >= 0
@@ -65,12 +69,15 @@ function assertInvariants(state: GameState): void {
       }
     }
   }
-  const uniqueCount = new Set(allZoneIds).size;
-  expect(uniqueCount, "No card instance may appear in two zones").toBe(allZoneIds.length);
+  // CRD 5.1.1.5: under-cards are in the Play zone but our engine tracks them separately
+  const underIds = Object.entries(state.cards).filter(([, c]) => c.zone === "under").map(([id]) => id);
+  const allTrackedIds = [...allZoneIds, ...underIds];
+  const uniqueCount = new Set(allTrackedIds).size;
+  expect(uniqueCount, "No card instance may appear in two zones").toBe(allTrackedIds.length);
 
   // Invariant 2b: Every card in state.cards is in exactly one zone
   const allCardIds = Object.keys(state.cards);
-  expect(allZoneIds.length, "Zone lists must account for all card instances").toBe(allCardIds.length);
+  expect(allTrackedIds.length, "Zone lists must account for all card instances").toBe(allCardIds.length);
 
   // Invariant 4: currentPlayer is valid
   expect(PLAYERS).toContain(state.currentPlayer);

@@ -241,7 +241,8 @@ export type Effect =
   | ConditionalOnPlayerStateEffect
   | OpponentMayPayToAvoidEffect
   | RememberChosenTargetEffect
-  | SingCostBonusTargetEffect;
+  | SingCostBonusTargetEffect
+  | CreateDelayedTriggerEffect;
 
 /**
  * The Return of Hercules: "Each player may reveal a character card from their
@@ -841,6 +842,12 @@ export interface CantBeChallengedTimedEffect {
   duration: EffectDuration;
   /** CRD 6.1.4: player may choose not to apply this effect */
   isMay?: boolean;
+  /**
+   * CRD 6.4.2.1: If true, this is a continuous static — affects all matching
+   * cards including those played after resolution. Stored as a GlobalTimedEffect
+   * on GameState instead of per-card TimedEffects.
+   */
+  continuous?: boolean;
 }
 
 /**
@@ -1358,6 +1365,29 @@ export interface CreateFloatingTriggerEffect {
    */
   attachTo?: "self" | "chosen" | "last_resolved_target";
   targetFilter?: CardFilter;
+}
+
+/**
+ * CRD 6.2.7.2: Create a delayed triggered ability that fires once at a specific
+ * moment later in the game. The ability exists outside the bag until its moment
+ * arrives, then it's added to the bag for resolution.
+ *
+ * Example: Candy Drift — "At the end of your turn, banish them."
+ * The "them" is the card resolved by a prior choose_target in the same action.
+ */
+export interface CreateDelayedTriggerEffect {
+  type: "create_delayed_trigger";
+  /** When the delayed trigger fires */
+  firesAt: "end_of_turn" | "start_of_next_turn";
+  /** Effects to apply when the trigger fires */
+  effects: Effect[];
+  /**
+   * What card the delayed trigger targets.
+   * "last_resolved_target" — the card resolved by the most recent choose_target
+   * (stored in state.lastResolvedTarget). Used for "banish them" where "them"
+   * refers to the chosen character from an earlier effect in the same action.
+   */
+  attachTo: "self" | "last_resolved_target";
 }
 
 // -----------------------------------------------------------------------------
@@ -2665,6 +2695,17 @@ export interface GameState {
   /** CRD 6.2.7.1: Floating triggered abilities that last until end of turn */
   floatingTriggers?: FloatingTrigger[];
 
+  /** CRD 6.2.7.2: Delayed triggered abilities that fire once at a specific moment */
+  delayedTriggers?: DelayedTrigger[];
+
+  /**
+   * CRD 6.4.2.1: Continuous static abilities from resolved effects.
+   * Unlike per-card timedEffects, these apply to ALL matching cards —
+   * including ones played AFTER the effect resolved.
+   * Example: Restoring Atlantis "Your characters can't be challenged until..."
+   */
+  globalTimedEffects?: GlobalTimedEffect[];
+
   /** Cards to banish at end of turn (e.g., Gruesome and Grim, Madam Mim - Rival of Merlin) */
   pendingEndOfTurnBanish?: string[];
 
@@ -2732,6 +2773,51 @@ export interface FloatingTrigger {
    * trigger fires globally for any card matching `controllingPlayerId` + filter.
    */
   attachedToInstanceId?: string;
+}
+
+/**
+ * CRD 6.2.7.2: A delayed triggered ability that fires once at a specific moment.
+ * Unlike floating triggers (which fire repeatedly on matching events), delayed
+ * triggers fire exactly once when their moment arrives, then cease to exist.
+ */
+export interface DelayedTrigger {
+  /** When this trigger fires */
+  firesAt: "end_of_turn" | "start_of_next_turn";
+  /** Effects to apply */
+  effects: Effect[];
+  /** Player who created the delayed trigger */
+  controllingPlayerId: PlayerID;
+  /** The specific card instance this trigger targets (e.g., "banish them") */
+  targetInstanceId: string;
+}
+
+/**
+ * CRD 6.4.2.1: A continuous static ability generated from a resolved effect.
+ * Applies to ALL matching cards in play — including ones played after the effect resolved.
+ * Checked in getGameModifiers for every card on every query.
+ *
+ * Contrast with per-card TimedEffect (CRD 6.4.2.2: applied statics) which only
+ * affects the specific cards that were in play at resolution time.
+ */
+export interface GlobalTimedEffect {
+  /** What kind of continuous effect this is */
+  type: "cant_be_challenged" | "cant_action" | "grant_keyword" | "modify_stat";
+  /** Which cards this affects */
+  filter: CardFilter;
+  /** Player who generated this effect */
+  controllingPlayerId: PlayerID;
+  /** When this expires */
+  expiresAt: EffectDuration;
+  /** Turn number when created (for expiry calculation) */
+  appliedOnTurn: number;
+  /** For cant_action: which action is restricted */
+  action?: RestrictedAction;
+  /** For grant_keyword: which keyword */
+  keyword?: Keyword;
+  /** For modify_stat: stat changes */
+  strength?: number;
+  willpower?: number;
+  lore?: number;
 }
 
 export type GamePhase =

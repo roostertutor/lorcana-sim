@@ -1136,6 +1136,70 @@ export function getGameModifiers(
     }
   }
 
+  // CRD 6.4.2.1: Apply global timed effects (continuous statics from resolved effects)
+  // These affect ALL matching cards, including ones played after the effect resolved.
+  if (state.globalTimedEffects) {
+    for (const gte of state.globalTimedEffects) {
+      switch (gte.type) {
+        case "cant_be_challenged": {
+          for (const candidate of Object.values(state.cards)) {
+            if (candidate.zone !== "play") continue;
+            const candidateDef = definitions[candidate.definitionId];
+            if (!candidateDef) continue;
+            if (matchesFilter(candidate, candidateDef, gte.filter, state, gte.controllingPlayerId)) {
+              modifiers.cantBeChallenged.set(candidate.instanceId, undefined);
+            }
+          }
+          break;
+        }
+        case "cant_action": {
+          if (gte.action) {
+            for (const candidate of Object.values(state.cards)) {
+              if (candidate.zone !== "play") continue;
+              const candidateDef = definitions[candidate.definitionId];
+              if (!candidateDef) continue;
+              if (matchesFilter(candidate, candidateDef, gte.filter, state, gte.controllingPlayerId)) {
+                modifiers.actionRestrictions.set(candidate.instanceId, [
+                  ...(modifiers.actionRestrictions.get(candidate.instanceId) ?? []),
+                  gte.action,
+                ]);
+              }
+            }
+          }
+          break;
+        }
+        case "grant_keyword": {
+          if (gte.keyword) {
+            for (const candidate of Object.values(state.cards)) {
+              if (candidate.zone !== "play") continue;
+              const candidateDef = definitions[candidate.definitionId];
+              if (!candidateDef) continue;
+              if (matchesFilter(candidate, candidateDef, gte.filter, state, gte.controllingPlayerId)) {
+                const existing = modifiers.grantedKeywords.get(candidate.instanceId) ?? [];
+                existing.push({ keyword: gte.keyword });
+                modifiers.grantedKeywords.set(candidate.instanceId, existing);
+              }
+            }
+          }
+          break;
+        }
+        case "modify_stat": {
+          for (const candidate of Object.values(state.cards)) {
+            if (candidate.zone !== "play") continue;
+            const candidateDef = definitions[candidate.definitionId];
+            if (!candidateDef) continue;
+            if (matchesFilter(candidate, candidateDef, gte.filter, state, gte.controllingPlayerId)) {
+              if (gte.strength) addStatBonus(modifiers, candidate.instanceId, "strength", gte.strength);
+              if (gte.willpower) addStatBonus(modifiers, candidate.instanceId, "willpower", gte.willpower);
+              if (gte.lore) addStatBonus(modifiers, candidate.instanceId, "lore", gte.lore);
+            }
+          }
+          break;
+        }
+      }
+    }
+  }
+
   return modifiers;
 }
 

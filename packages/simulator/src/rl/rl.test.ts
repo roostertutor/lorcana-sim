@@ -451,7 +451,10 @@ describe("Layer 3 invariants with RLPolicy", () => {
   function assertInvariants(state: GameState): void {
     for (const playerId of PLAYERS) {
       // Total cards per player always 60
-      const total = ZONES.reduce((sum, zone) => sum + getZone(state, playerId, zone).length, 0);
+      // CRD 5.1.1.5: under-cards are still in the Play zone conceptually
+      const zoneTotal = ZONES.reduce((sum, zone) => sum + getZone(state, playerId, zone).length, 0);
+      const underCount = Object.values(state.cards).filter(c => c.zone === "under" && c.ownerId === playerId).length;
+      const total = zoneTotal + underCount;
       expect(total, `${playerId} total cards must always be 60`).toBe(60);
 
       // availableInk >= 0

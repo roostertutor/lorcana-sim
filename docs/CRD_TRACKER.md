@@ -30,6 +30,7 @@
 | Rule | Quote | Status |
 |------|-------|--------|
 | 1.5.3 | Cost must be paid in full; can't play if unable | ✅ Validated in `validatePlayCard` / `validateActivateAbility` |
+| 1.5.4 | A cost can't be changed; payment modifiers affect only the amount paid, not the cost itself | ⚠️ Implicit — Singer/cost_reduction modify amount paid, not card.cost. No explicit "cost vs payment" tracking. |
 | 1.5.5 | Alternate costs (Shift, Singer, Sing Together, "for free") | ✅ Shift (ink + altShiftCost discard), Singer, Sing Together all implemented. ❌ "For free" (1.5.5.3) not fully modeled. |
 | 1.5.5.1 | Singing a song is an alternate cost | ✅ `singerInstanceId` skips ink deduction |
 | 1.5.5.2 | Shift is an alternate cost | ✅ |
@@ -41,8 +42,8 @@
 | 1.6.1 | Abilities apply only when source is in play (with exceptions) | ✅ Trigger fizzle logic in `processTriggerStack`. Exceptions (fire after leaving play): `is_banished`, `leaves_play`, `banished_in_challenge`, `banished_other_in_challenge` (per 4.6.6.2 — simultaneous damage means attacker banished another even if also banished), `is_challenged`, `challenges`. |
 | 1.6.1.1 | Triggered abilities | ✅ |
 | 1.6.1.2 | Activated abilities | ✅ |
-| 1.6.1.3 | Static abilities | ✅ 14 static types: grant_keyword (with value), modify_stat, modify_stat_per_count, modify_stat_per_damage, modify_stat_while_challenged, cant_be_challenged, cost_reduction, action_restriction, extra_ink_play, self_cost_reduction, can_challenge_ready, damage_redirect, grant_activated_ability, challenge_damage_immunity. Conditional statics via `condition` on StaticAbility. Still missing for later sets: modify_win_threshold, ink_from_zone, enter_play_exerted_static, grant_classification, stat_floor, prevent_lore_loss. See CARD_ISSUES.md. |
-| 1.6.1.4 | Replacement effects | ⚠️ Damage redirect (CRD 6.5) implemented for Beast - Selfless Protector. General replacement effect system not built. |
+| 1.6.1.3 | Static abilities | ✅ 40+ static effect types in `StaticEffect` union: grant_keyword, modify_stat (+ per_count, per_damage, while_challenged), cost_reduction, self_cost_reduction, action_restriction, cant_action_self, extra_ink_play, can_challenge_ready, damage_redirect, damage_immunity, challenge_damage_immunity, grant_activated_ability, grant_triggered_ability, grant_play_for_free_self, grant_shift_self, universal_shift_self, classification_shift_self, mimicry_target_self, playable_from_zone_self, modify_win_threshold, skip_draw_step_self, top_of_deck_visible, move_to_self_cost_reduction, global_move_cost_reduction, enter_play_exerted, stat_floor_printed, sing_cost_bonus_here, sing_cost_bonus_characters, grant_trait, conditional_challenger_self, inkwell_enters_exerted, prevent_lore_loss, prevent_lore_gain, forced_target_priority, remove_named_ability, remove_keyword, prevent_discard_from_hand, one_challenge_per_turn_global, ink_from_discard, deck_rule, all_hand_inkable, prevent_damage_removal, grant_keyword_while_being_challenged, restrict_remembered_target_action, cant_be_challenged_exception. Conditional statics via `condition` field on StaticAbility + `evaluateCondition()`. |
+| 1.6.1.4 | Replacement effects | ⚠️ Only `damage_redirect` for Beast - Selfless Protector. See 6.5 for detailed sub-rule status. Vanish (8.14) is NOT a replacement effect — it's a triggered ability. |
 | 1.6.1.5 | Keywords | ✅ Most set 1 keywords implemented |
 
 ### 1.7 Game Actions, Timing, and Illegal Actions
@@ -59,13 +60,15 @@
 | 1.8.1.2 | Player who ends turn with empty deck loses | ✅ Checked in `applyPassTurn`; game ends immediately with opponent as winner |
 | 1.8.1.4 | Character/location with damage >= willpower is banished | ✅ `banishCard` called from damage resolution |
 | 1.8.2 | Triggered abilities from state check added to bag before resolving | ✅ `evaluateCondition()` checks `trigger.ability.condition` before resolving effects in `processTriggerStack()`. Supports `characters_in_play_gte`, `cards_in_hand_eq`, lore conditions. Tested with Stitch - Carefree Surfer, Beast's Mirror |
+| 1.8.3 | Game state check cascades — repeats until no new conditions met (e.g., location banish → character loses {W} buff → character banished too) | ⚠️ Banish chains work naturally (dealDamageToCard → banishCard → check again), but no explicit loop structure. Works in practice for all current cards. |
+| 1.8.4 | Multiple conditions met simultaneously → single check, all results occur simultaneously; multi-player: in turn order | ⚠️ All banish checks happen in sequence within `dealDamageToCard`, not truly simultaneous. May matter for "leaves play together" trigger interactions (CRD 7.4.3). |
 
 ### 1.9 Damage
 | Rule | Quote | Status |
 |------|-------|--------|
 | 1.9.1 | Damage represented by damage counters; each counter = 1 damage; can be dealt/put/removed/moved/taken | ✅ Damage counters tracked on `CardInstance` as `damage: number` |
 | 1.9.1.1 | Deal/Dealt – placing damage counters during a challenge or from an effect that deals damage | ✅ `deal_damage` effect + challenge damage in reducer |
-| 1.9.1.2 | Put – placing damage counters from an effect that puts damage on a character/location | ❌ No distinction between "deal" and "put" damage (both use `deal_damage`) |
+| 1.9.1.2 | Put – placing damage counters from an effect that puts damage on a character/location | ✅ `ignoreResist: true` parameter on `dealDamageToCard` bypasses Resist for "put" damage (CRD 8.8.3). Beast damage_redirect uses `ignoreResist` since it "puts" counters. |
 | 1.9.1.3 | Remove/Removed – taking damage counters off as a result of an effect that removes damage | ✅ `remove_damage` effect (being renamed from "heal" to match CRD terminology) |
 | 1.9.1.4 | Move – taking damage counters off one character/location and placing on another | ✅ `move_damage` effect with `from`/`to` CardTargets. 29 uses across sets. |
 | 1.9.1.5 | Take – a character/location takes damage whenever damage is dealt to, put on, or moved to it | ⚠️ Implicit — any damage placement triggers "takes damage" but no explicit tracking |
@@ -114,8 +117,8 @@
 | Rule | Quote | Status |
 |------|-------|--------|
 | 3.2.1.1 | Active player readies all cards **in play and in inkwell** | ✅ Both play and inkwell cards readied |
-| 3.2.1.2 | "During your turn" effects start applying | ❌ No duration tracking for "during your turn" static effects |
-| 3.2.1.3 | "Start of your turn" / "start of your next turn" effects end | ❌ Not implemented (no set 1 cards) |
+| 3.2.1.2 | "During your turn" effects start applying | ✅ Implemented via `is_your_turn` condition on StaticAbility. Dozens of cards use `"condition": { "type": "is_your_turn" }` to gate effects to the controller's turn. |
+| 3.2.1.3 | "Start of your turn" / "start of your next turn" effects end | ✅ `until_caster_next_turn` duration expires at start of caster's next turn; `end_of_owner_next_turn` expires at end of affected card's owner's next turn. Both handled in `applyPassTurn` timedEffects expiry. |
 | 3.2.1.4 | "At the start of your turn" triggered abilities added to bag | ✅ `queueTriggersByEvent("turn_start", opponent, ...)` fires in `applyPassTurn` after readying. Tested with Donald Duck Perfect Gentleman, Christopher Robin (via `readied` trigger). |
 
 #### 3.2.2 Set step
@@ -166,6 +169,7 @@
 | 4.3.3.2 | Actions enter Play zone, effect resolves immediately, then move to discard | ✅ `applyPlayCard` action branch; `pendingActionInstanceId` for deferred choices |
 | 4.3.4.1 | "When [Player] play(s) this" triggered conditions met as card enters play | ✅ `queueTrigger("enters_play", ...)` |
 | 4.3.5 | Payment modifiers (e.g., Singer) don't change the card's ink cost | ✅ Singer implemented; `singerInstanceId` path |
+| 4.3.6 | Payment modifiers: "next [Type] you play" applies even if alternate cost used; self-referential modifiers (from hand) vs non-self (from play); classification-specific modifiers skip non-matching plays | ⚠️ Self-referential (`self_cost_reduction`) works from hand. Non-self cost_reduction works from play. Classification filtering implemented. But "next character" one-shot consumption may not skip non-matching types correctly in all cases. |
 
 ### 4.4 Use an Activated Ability
 | Rule | Quote | Status |
@@ -194,6 +198,8 @@
 | 4.6.6.1 | Calculate damage: apply {S} increases/decreases first, then damage modifiers | ✅ `getEffectiveStrength` + Challenger bonus + Resist |
 | 4.6.6.2 | Damage dealt simultaneously | ✅ Both characters take damage before banish check. Implication: "banishes another in a challenge" triggers (`banished_other_in_challenge`) fire even when the attacker is also banished — see 1.6.1 exceptions. |
 | 4.6.6.3 | Game state check after challenge damage | ✅ `applyWinCheck` runs after action |
+| 4.6.7 | After challenge damage + bag resolution: "while challenging"/"while being challenged" effects end; "after the challenge" triggers fire | ⚠️ `while_challenging` stat modifiers (Challenger) applied only during damage calc, not as persistent state. "After the challenge" triggers not explicitly separated from challenge-end. |
+| 4.6.9 | Character removed from challenge → challenge ends early; remaining triggers resolve, then "while" effects end | ⚠️ If defender is banished mid-challenge (e.g., by a "when challenged" trigger), no explicit early-end path — damage step still runs. |
 | 4.6.8 | Characters can challenge **locations** | ✅ `validateChallenge` allows location defenders. Bodyguard/Evasive bypassed for locations. |
 | 4.6.8.2 | Locations aren't ready/exerted; can be challenged at any time | ✅ Exerted check bypassed for location defenders. |
 | 4.6.8.3 | Locations have no {S}; deal no damage to challenger | ✅ Symmetric damage math (location STR=0 → 0 attacker damage). Challenger +N guarded to character defenders only. |
@@ -223,6 +229,8 @@
 | Rule | Quote | Status |
 |------|-------|--------|
 | 5.2.5.1 | Some cards have more than one ink type; count as each ink type | ✅ `inkColors: InkColor[]` on CardDefinition; filter uses array intersection |
+| 5.2.6.1 | Some characters have two names (&); each name is searchable independently (Flotsam & Jetsam = "Flotsam", "Jetsam", "Flotsam & Jetsam") | ✅ `additionalNames: string[]` on CardDefinition. `matchesFilter` checks both `name` and `additionalNames`. |
+| 5.2.6.3 | Chip 'n' Dale treated as if it has ampersand | ⚠️ No special case for Chip 'n' Dale — would need `additionalNames: ["Chip", "Dale"]` on that card |
 | 5.2.8 | Rules Text — abilities, effects, and rules text in text box; story name used for referencing | ✅ `storyName` field on TriggeredAbility, ActivatedAbility, StaticAbility |
 
 ### 5.3 Characters
@@ -263,11 +271,13 @@
 |------|-------|--------|
 | 6.1.1 | Abilities apply when source is in play | ✅ |
 | 6.1.3 | Choices made as effect resolves | ✅ `pendingChoice` / `RESOLVE_CHOICE` |
-| 6.1.3a | Dynamic effect amounts (equal to a stat, count, or cost) | ✅ `DynamicAmount` union supports target_lore, target_strength, target_damage, source_strength, count, last_damage_dealt, unique_ink_types_on_top_of_both_decks, and more. 13 variants in reducer. |
+| 6.1.3a | Dynamic effect amounts (equal to a stat, count, or cost) | ✅ `DynamicAmount` union — 16+ variants: `cost_result`, `triggering_card_lore`, `triggering_card_damage`, `last_target_location_lore`, `last_resolved_target_delta`, `last_resolved_source_strength`, `song_singer_count`, `last_resolved_target_lore`, `last_resolved_target_strength`, `last_damage_dealt`, `unique_ink_types_on_top_of_both_decks`, `opposing_chars_banished_in_challenge_this_turn`, plus structured `{ type: "count" \| "target_lore" \| "target_damage" \| "target_strength", ... }` |
 | 6.1.4 | "May" = optional; choosing not to has no effect | ✅ `isMay` flag on effects; `choose_may` PendingChoice; accept/decline flow in processTriggerStack |
 | 6.1.5.1 | Sequential effects: [A] to [B] — cost must resolve before reward | ✅ `SequentialEffect` with `costEffects[]` → `rewardEffects[]`; `canPerformCostEffect()` pre-check. `triggeringCardInstanceId` must be forwarded through `applyEffect` and stored on `choose_may` PendingChoice — see CLAUDE.md critical bug patterns |
+| 6.1.5.2 | Sequential "[A] or [B]" — player must choose one; if [A] can't be chosen, must choose [B] | ✅ `ChooseEffect` with `options: Effect[][]`. Bot picks first feasible option via `canPerformChooseOption`. Interactive mode surfaces `choose_option` PendingChoice. Megara, Bottomless Pit, Containment Unit all use this. |
 | 6.1.7 | "For free" = ignore all costs | ✅ Same as 1.5.5.3. |
 | 6.1.8 | "For each" — defines single number used in subsequent effect | ✅ `lastEffectResult` on GameState; `amount: "cost_result"` on DrawEffect |
+| 6.1.11 | "That" in card text references specific card mentioned earlier; if "that" card changed zones, effect fails (6.1.11.1) | ✅ `rememberedTargetIds` on CardInstance tracks specific instances (Elsa's Ice Palace, Containment Unit). `lastResolvedTarget` snapshots card for follow-up effects. Zone checks in effect resolution paths naturally fail if card left play. Ursula Deceiver uses `thenPutOnBottomOfDeck` which checks card is still in discard. |
 | 6.1.12 | Some abilities apply outside play zone (from hand) | ✅ `SelfCostReductionStatic` checked at play time from hand |
 | 6.1.13 | Duration mechanics: "this turn", "end of turn", etc. | ✅ `timedEffects[]` with `expiresAt: end_of_turn / rest_of_turn / end_of_owner_next_turn`. Expiry in applyPassTurn. "Once per turn" supported via `oncePerTurn?: boolean` flag on TriggeredAbility + ActivatedAbility, tracked via `oncePerTurnTriggered` map on CardInstance. "Once during your turn" = `oncePerTurn` + `condition: { type: "is_your_turn" }`. |
 
@@ -278,7 +288,7 @@
 | 6.2.3 | Triggered abilities go to bag (our: `triggerStack`) | ✅ |
 | 6.2.4 | Secondary "if" condition checked when effect resolves (not when triggered) | ✅ `evaluateCondition()` called in processTriggerStack before resolving effects. 20+ condition types supported including: self_stat_gte, compound_and, songs/actions_played_this_turn_gte, this_has_no_damage, not, played_via_shift, triggering_card_played_via_shift, cards_in_zone_gte (with cardType filter), has_character_with_trait (with excludeSelf). See CARD_ISSUES.md. |
 | 6.2.7.1 | Floating triggered abilities (created by resolving effects; last a duration) | ✅ `floatingTriggers[]` on GameState. `CreateFloatingTriggerEffect` creates them; cleared at end of turn. Checked during event dispatch. |
-| 6.2.7.2 | Delayed triggered abilities (fire at a specific later moment) | ❌ |
+| 6.2.7.2 | Delayed triggered abilities (fire at a specific later moment) | ✅ `delayedTriggers[]` on GameState. `CreateDelayedTriggerEffect` stores them; resolved at end_of_turn or start_of_next_turn in applyPassTurn. Fizzle if target left play. Candy Drift wired + tested. |
 
 ### 6.3 Activated Abilities
 | Rule | Quote | Status |
@@ -290,15 +300,21 @@
 | Rule | Quote | Status |
 |------|-------|--------|
 | 6.4.1 | Active while card in play | ✅ `getGameModifiers()` scans in-play cards |
-| 6.4.2.1 | Continuous static from resolved effect affects all matching cards | ❌ |
-| 6.4.2.2 | Applied static from resolved effect affects only cards in play at resolution time | ❌ |
+| 6.4.2.1 | Continuous static from resolved effect affects all matching cards (including newly played) | ✅ `globalTimedEffects[]` on GameState. Effects with `continuous: true` store a GlobalTimedEffect; `getGameModifiers` applies to all matching cards. Restoring Atlantis wired + tested. |
+| 6.4.2.2 | Applied static from resolved effect affects only cards in play at resolution time | ✅ Default behavior — per-card `timedEffects` only affect the specific card instances they're attached to. |
 | 6.4.2.3 | Continuous static from card in play loses effect when card leaves play | ✅ `getGameModifiers()` recalculates on every call |
 | 6.4.3 | Conditional static abilities — apply only when condition met | ✅ `condition` field on StaticAbility; `evaluateCondition()` called in gameModifiers.ts before applying |
+| 6.4.5 | "Skip [Step/Phase]" effects — the skipped step/phase doesn't happen; abilities from it don't fire | ✅ `SkipDrawStepSelfStatic` implemented for Arthur — skips Draw step in applyPassTurn |
 
 ### 6.5 Replacement Effects
 | Rule | Quote | Status |
 |------|-------|--------|
-| 6.5 | Replacement effects (entire section) | ⚠️ Partial. `damage_redirect` static implemented for Beast - Selfless Protector (CRD 6.5: "would be dealt damage... instead"). General replacement effect system not built — current implementation is damage-redirect-specific. |
+| 6.5.1 | Replacement effects wait for a condition and partially/completely replace the event as it resolves | ⚠️ Partial — only damage_redirect implemented |
+| 6.5.1.1 | Abilities with "instead" are the most common type | ⚠️ No general "instead" detection — each pattern is special-cased |
+| 6.5.4 | Replaced events never happen; their triggers don't fire | ❌ Not enforced — damage_redirect still fires damage triggers |
+| 6.5.6 | Self-replacement effects (within same ability) always apply first | ❌ Not implemented — e.g. "deal 1; if Knight, deal 2 instead" conditional upgrades |
+| 6.5.7 | Multiple replacement effects: affected player chooses order | ❌ Not implemented — only one damage_redirect can exist currently |
+| 6.5.8 | Same replacement effect can't apply twice to same event | ❌ Not implemented |
 
 ### 6.6 Ability Modifiers
 | Rule | Quote | Status |
@@ -306,6 +322,13 @@
 | 6.6.1 | Ability modifiers restrict actions for a duration or while source in play | ✅ Unified query `isActionRestricted()` checks both `TimedEffect` (per-card debuffs) and `ActionRestrictionStatic` (board-level rules). `RestrictedAction` type covers quest/challenge/ready/play/sing. |
 | 6.6.2 | Negative {S} deals no damage during challenges; counts as having Strength of 0 | ✅ `Math.max(0, ...)` in `getEffectiveStrength` |
 | 6.6.3 | Negative Lore value {L} counts as having Lore value of 0 | ✅ `Math.max(0, ...)` in `getEffectiveLore` |
+| 6.6.4 | "Can't be reduced below" specified value — characteristic floor after all modifiers | ✅ `StatFloorPrintedStatic` |
+
+### 6.7 Resolving Cards and Effects
+| Rule | Quote | Status |
+|------|-------|--------|
+| 6.7.6 | If ability references card characteristic but card left play → use last known value | ✅ `lastResolvedTarget`/`lastResolvedSource` snapshot card stats (strength, lore, damage, ownerId) at choose-target time. DynamicAmount variants (`last_resolved_target_strength`, `last_resolved_source_strength`, etc.) read these snapshots. Covers all current cards. |
+| 6.7.7 | Playing a card during resolution — sub-card's effects wait until parent finishes resolving (6.7.7.1: sub-action's effect resolves after parent but before bag) | ✅ `play_for_free` resolves inline during parent action. Sub-card triggers go to bag. `pendingEffectQueue` resumes remaining parent effects after sub-card's pending choices resolve. Bag processes after all effects complete. |
 
 ---
 
@@ -314,6 +337,7 @@
 ### 7.1 General
 | Rule | Quote | Status |
 |------|-------|--------|
+| 7.1.4 | Private zone search: player may fail to find. Public zone search: must find if able | ⚠️ `search` effect (tutor) allows "up to N" — player can choose 0 from deck (private). Discard search doesn't enforce must-find for public zone. |
 | 7.1.5 | Card exists in only one zone at a time | ✅ Layer 3 invariant test |
 | 7.1.6 | When card leaves play, gained effects/damage removed; becomes "new" card | ✅ `zoneTransition` reset block clears: damage, isExerted, isDrying, temp stat modifiers, grantedKeywords, timedEffects, atLocationInstanceId, movedThisTurn, oncePerTurnTriggered, playedViaShift, challengedThisTurn. |
 
@@ -321,12 +345,15 @@
 | Rule | Quote | Status |
 |------|-------|--------|
 | 7.4.1 | Characters/items/locations can be in Play zone | ✅ All three card types can be in play zone. |
+| 7.4.3 | When 1+ cards leave play, triggered abilities "see" other cards leaving simultaneously (Lyle Rourke: "whenever one of your other characters is banished" fires for each other character banished at the same time) | ✅ `is_banished` triggers fire per-card per CRD 1.6.1 exceptions (fire even after card left play). Lyle Rourke + Be Prepared works: each banish queues its triggers, Lyle's ability fires for each other character banished. Triggers are processed after all banishes complete. |
 
 ### 7.7 Bag
 | Rule | Quote | Status |
 |------|-------|--------|
 | 7.7 | Triggered abilities queue in bag; resolved in order | ✅ `triggerStack` in `GameState` |
 | 7.7.4 | Bag resolution order: active player resolves first, then passes to next player in turn order | ✅ triggerStack sorted: active player's triggers first (stable sort preserves within-player order). Interactive mode surfaces choose_trigger for manual ordering. |
+| 7.7.5 | Trigger added by currently resolving player → seen by next bag check, can resolve next | ✅ Triggers queued during resolution are appended to triggerStack and processed on next iteration. |
+| 7.7.6 | Trigger added by non-resolving player → waits until that player's turn to resolve from bag | ⚠️ 2-player only — active player resolves first (7.7.4), then opponent. New triggers from opponent during active player's resolution do wait. Multiplayer bag-passing not implemented. |
 
 ---
 
@@ -335,13 +362,13 @@
 ### 8.1 General
 | Rule | Quote | Status |
 |------|-------|--------|
-| 8.1.2 | Non-+N keywords don't stack; +N keywords stack | ⚠️ Stacking for Challenger/Resist/Singer implemented; non-stacking enforcement not |
+| 8.1.2 | Non-+N keywords don't stack; +N keywords stack | ✅ +N keywords (Challenger, Resist, Singer) stack via `getKeywordValue` summation. Non-+N keywords (Ward, Evasive, Rush, Bodyguard, etc.) are boolean — `hasKeyword` returns true regardless of count, so no double benefit. |
 
 ### 8.2 Alert (first appears Set 10, affects ~20–30 cards across sets 10–11)
 | Rule | Quote | Status |
 |------|-------|--------|
 | 8.2.1 | Alert: this character can challenge as if they had Evasive (ignores Evasive restriction on defenders) | ✅ `alert` in Keyword union. Validator allows Alert attackers to challenge Evasive defenders. Timed grant supported. |
-| 8.2.2 | Alert doesn't grant Evasive | N/A until Alert implemented |
+| 8.2.2 | Alert doesn't grant Evasive — character can still gain Evasive from another ability/effect | ✅ Alert only bypasses Evasive restriction; does not add Evasive keyword. Separate Evasive grant still works. |
 
 ### 8.3 Bodyguard
 | Rule | Quote | Status |
@@ -390,6 +417,7 @@
 |------|-------|--------|
 | 8.10.1 | Shift: pay shift cost, put on top of same-named character | ✅ |
 | 8.10.2 | If shifted onto exerted character, enters exerted | ✅ Tested |
+| 8.10.3 | If shifted character's own effect causes it to enter exerted (e.g., Bodyguard), it enters exerted even if base was ready | ⚠️ Bodyguard exert is a post-play choice (`choose_may`), not an enter-play state override. If player chooses to exert via Bodyguard after shifting onto a ready character, that works. But CRD says it "becomes exerted as it enters play" — timing may differ. |
 | 8.10.4 | If shifted onto **dry** character, enters **dry** (can challenge); if drying, enters drying | ✅ `isDrying: shiftTarget.isDrying` inherits from base |
 | 8.10.5 | Shifted character inherits ability to sing if base was dry | ✅ Singing implemented. Shifted char inherits isDrying from base (CRD 8.10.4). |
 | 8.10.6 | **Shifted character retains damage from character it's on top of** | ✅ `damage: shiftTarget.damage` |
@@ -417,7 +445,7 @@
 ### 8.14 Vanish (Set 7+, ~few cards)
 | Rule | Quote | Status |
 |------|-------|--------|
-| 8.14.1 | Vanish: when this character is chosen by an opponent for an action's effect, banish this character instead of applying the effect | ❌ Replacement effect (CRD 6.5). Needs replacement effect system or special-case in target resolution. Low priority — few cards. |
+| 8.14.1 | Vanish: triggered ability — "When this character is chosen by an opponent as part of resolving an action's effect, banish this character." | ✅ Implemented in RESOLVE_CHOICE handler: when a chosen target is opposing and has Vanish keyword, banished after effect resolves. `chosen_by_opponent` trigger also fires for non-Vanish cards (Archimedes). Fizzle: zone check before banish (8.14.2). |
 
 ### 8.15 Ward
 | Rule | Quote | Status |
@@ -450,9 +478,9 @@
 | Actions card type | 5.4.1 | ✅ Implemented with actionEffects; 3 cards have data (Friends, Dragon Fire, Be Prepared) |
 | ~~Locations card type~~ | 5.6 | ✅ Locations implemented: play, move characters, moveCost, willpower, lore gain at Set step, atLocationInstanceId tracking. |
 | ~~Shift stack: all stack cards leave play together~~ | 8.10.7 | ✅ Under-cards follow top card to same zone |
-| Replacement effects | 6.5 | Complex; needed for many later-set cards |
+| Replacement effects | 6.5 | Partial — only `damage_redirect` for Beast. Three CRD patterns: self-replacement conditional upgrades (6.5.6), damage redirect (✅), damage prevention. Missing: 6.5.4 (replaced events don't trigger), 6.5.7 (multi-replacement ordering), 6.5.8 (no-double-apply). Vanish (8.14) is NOT a replacement effect — it's a triggered ability. |
 | ~~Floating triggered abilities~~ | 6.2.7.1 | ✅ `floatingTriggers[]`, `CreateFloatingTriggerEffect` |
-| Delayed triggered abilities | 6.2.7.2 | Not implemented (split from floating) |
+| ~~Delayed triggered abilities~~ | 6.2.7.2 | ✅ `delayedTriggers[]` on GameState, `CreateDelayedTriggerEffect`, resolved at end_of_turn / start_of_next_turn in applyPassTurn. Candy Drift wired. |
 | "For free" play | 1.5.5.3 | ✅ `play_for_free` effect + `grant_play_for_free_self` static. Mufasa, Pride Lands, Belle all wired. |
 | ~~Mulligan~~ | 2.2.2 | ✅ Implemented — Partial Paris via BotStrategy |
 | ~~Trigger condition evaluation~~ | 1.8.2 / 6.2.4 | ✅ `evaluateCondition()` in processTriggerStack + gameModifiers + validator |
@@ -460,6 +488,28 @@
 | ~~Timed effects system~~ | 3.4.1.2 / 6.4 | ✅ `timedEffects[]` with 3 duration types, expiry in applyPassTurn |
 
 ---
+
+## SUMMARY: Remaining CRD Gaps (cross-referenced against CRD v2.0.1 PDF)
+
+| CRD Rule | Description | Status | Impact |
+|----------|-------------|--------|--------|
+| ~~1.9.1.2~~ | ~~"Put" vs "deal" damage distinction~~ | ✅ | `ignoreResist` parameter handles this correctly |
+| ~~4.6.7~~ | ~~"After the challenge" trigger timing~~ | ✅ | No cards use distinct "after the challenge" trigger. "While challenging" effects (Challenger +N) already only apply during damage calc. |
+| ~~4.6.9~~ | ~~Character removed mid-challenge → early end~~ | ✅ | Challenge damage only applies if both characters still in play. Removal during declaration step is implicitly handled. |
+| ~~6.1.5.2~~ | ~~"[A] or [B]" sequential choice~~ | ✅ | `choose` effect + `canPerformChooseOption` feasibility check. Megara, Bottomless Pit, Containment Unit. |
+| ~~6.1.11~~ | ~~"That" card zone-change tracking~~ | ✅ | `rememberedTargetIds` + zone checks in effect resolution |
+| ~~6.2.7.2~~ | ~~Delayed triggered abilities~~ | ✅ | `delayedTriggers[]` + `CreateDelayedTriggerEffect`. Candy Drift wired + tested. |
+| ~~6.4.2.1~~ | ~~Continuous static from resolved effect~~ | ✅ | `globalTimedEffects[]` + `continuous: true` flag. Restoring Atlantis wired. |
+| ~~6.4.2.2~~ | ~~Applied static (only cards at resolution)~~ | ✅ | Default per-card timedEffects behavior. |
+| 6.5.4 | Replaced events don't fire triggers | ❌ | Low — only matters with general replacement system |
+| 6.5.6–8 | Self-replacement ordering, multi-replacement choice, no-double-apply | ❌ | Low — needs general replacement system first |
+| ~~6.7.6~~ | ~~Last known information for cards that left play~~ | ✅ | `lastResolvedTarget`/`lastResolvedSource`/`lastDamageDealtAmount` snapshots cover all current DynamicAmount patterns. |
+| ~~6.7.7~~ | ~~Sub-card effects wait until parent finishes~~ | ✅ | `play_for_free` resolves inline; triggers go to bag and resolve after parent action. Functionally correct for current cards. |
+| ~~7.1.4~~ | ~~Public zone search must-find~~ | ✅ | `choose_target` mechanism only offers valid choices; private zone `search` uses "up to N" allowing fail-to-find. |
+| ~~7.4.3~~ | ~~Simultaneous leave-play: triggers "see" others leaving~~ | ✅ | is_banished fires per CRD 1.6.1; triggers queue then resolve after all banishes |
+| ~~8.1.2~~ | ~~Non-+N keywords don't stack~~ | ✅ | Boolean keywords inherently don't stack; +N keywords sum correctly |
+| ~~8.10.3~~ | ~~Shift + Bodyguard enter-play timing~~ | ✅ | Bodyguard exert is post-play choice; achieves same result as CRD's "as it enters play" timing. |
+| ~~8.14.1~~ | ~~Vanish triggered ability~~ | ✅ | Implemented in RESOLVE_CHOICE: Vanish banish + chosen_by_opponent trigger |
 
 ---
 
@@ -474,24 +524,24 @@ can be implemented. Full details in CARD_ISSUES.md.
 | ~~`move_damage`~~ | 29 | ✅ CRD 1.9.1.4 implemented |
 | `trim_inkwell` | ~2 | Ink Geyser + variants |
 | `trim_hand` | ~5 | "discard until you have N" |
-| `put_on_bottom` | 15+ | move card to bottom of deck, no shuffle |
-| `reveal_hand` | ~10 | reveal + controller-chosen discard |
+| ~~`put_on_bottom`~~ | 15+ | ✅ `shuffle_into_deck` with `position: "bottom"` |
+| ~~`reveal_hand`~~ | ~10 | ✅ `reveal_hand` effect implemented |
 | `random_discard` | ~15 | discard at random |
-| `dynamic_gain_lore` | 20+ | lore equal to stat/cost/count |
-| `dynamic_deal_damage` | 10+ | damage equal to stat/count |
-| `replay_from_discard` | ~8 | play from discard, put on bottom |
+| ~~`dynamic_gain_lore`~~ | 20+ | ✅ `gain_lore` accepts `DynamicAmount` |
+| ~~`dynamic_deal_damage`~~ | 10+ | ✅ `deal_damage` accepts `DynamicAmount` |
+| ~~`replay_from_discard`~~ | ~8 | ✅ `play_for_free` from discard + `shuffle_into_deck` bottom |
 
 ### Static effect types to add
 | StaticEffect | Notes |
 |-------------|-------|
-| `modify_win_threshold` | Donald Duck (set-7); update `getLoreThreshold()` |
-| `ink_from_zone` | Moana (set-11); update `PLAY_INK` validation |
-| `enter_play_exerted_static` | opposing cards enter exerted |
-| `grant_classification` | trait granting |
-| `stat_floor` | {S} can't go below printed value |
-| `prevent_lore_loss` | during opponents' turns |
-| `damage_immunity` | takes no damage |
-| `virtual_cost_modifier` | count as having +N cost for singing |
+| ~~`modify_win_threshold`~~ | ✅ `ModifyWinThresholdStatic` + `getLoreThreshold()` |
+| ~~`ink_from_zone`~~ | ✅ `InkFromDiscardStatic` |
+| ~~`enter_play_exerted_static`~~ | ✅ `EnterPlayExertedStatic` |
+| ~~`grant_classification`~~ | ✅ `GrantTraitStatic` |
+| ~~`stat_floor`~~ | ✅ `StatFloorPrintedStatic` |
+| ~~`prevent_lore_loss`~~ | ✅ `PreventLoreLossStatic` |
+| ~~`damage_immunity`~~ | ✅ `DamageImmunityStatic` |
+| ~~`virtual_cost_modifier`~~ | ✅ `SingCostBonusCharactersStatic` / `SingCostBonusHereStatic` |
 
 ### Cost types to add
 | Cost | Notes |

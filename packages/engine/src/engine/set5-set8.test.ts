@@ -760,3 +760,140 @@ describe("§7 Set 7 — Queen of Hearts Unpredictable Bully (cross-player card_p
     expect(getInstance(state, ownCharId).damage).toBe(1);
   });
 });
+
+// =============================================================================
+// CRD 6.2.7.2 — Delayed Triggered Abilities
+// =============================================================================
+
+describe("§CRD 6.2.7.2 — Delayed Triggered Abilities", () => {
+  it("Candy Drift: chosen character gets +5 {S} this turn, banished at end of turn", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    // Put a character in play to target
+    let charId: string;
+    ({ state, instanceId: charId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    // Put Candy Drift in hand
+    let candyId: string;
+    ({ state, instanceId: candyId } = injectCard(state, "player1", "candy-drift", "hand"));
+
+    // Play Candy Drift — it asks to choose a character
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: candyId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Should have pending choice to pick target character
+    expect(state.pendingChoice?.type).toBe("choose_target");
+
+    // Choose the character
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [charId] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Character should still be in play with a delayed trigger queued
+    expect(getInstance(state, charId).zone).toBe("play");
+    expect(state.delayedTriggers).toBeDefined();
+    expect(state.delayedTriggers!.length).toBe(1);
+    expect(state.delayedTriggers![0].firesAt).toBe("end_of_turn");
+
+    // Pass turn — delayed trigger should banish the character
+    r = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Character should be banished (in discard)
+    expect(getInstance(state, charId).zone).toBe("discard");
+    // Delayed triggers should be cleaned up
+    expect(state.delayedTriggers?.length ?? 0).toBe(0);
+  });
+
+  it("Candy Drift: if character leaves play before end of turn, delayed trigger fizzles", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let charId: string;
+    ({ state, instanceId: charId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    let candyId: string;
+    ({ state, instanceId: candyId } = injectCard(state, "player1", "candy-drift", "hand"));
+
+    // Play Candy Drift and choose target
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: candyId }, LORCAST_CARD_DEFINITIONS);
+    state = r.newState;
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [charId] }, LORCAST_CARD_DEFINITIONS);
+    state = r.newState;
+    expect(state.delayedTriggers!.length).toBe(1);
+
+    // Simulate character leaving play (e.g., banished by opponent's challenge)
+    // Move to discard zone directly
+    const zones = state.zones;
+    const p1Play = zones.player1.play.filter((id: string) => id !== charId);
+    const p1Discard = [...zones.player1.discard, charId];
+    state = {
+      ...state,
+      cards: { ...state.cards, [charId]: { ...state.cards[charId], zone: "discard" } },
+      zones: { ...zones, player1: { ...zones.player1, play: p1Play, discard: p1Discard } },
+    };
+
+    // Pass turn — delayed trigger should fizzle (character already left play)
+    r = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Character should still be in discard (not double-banished)
+    expect(getInstance(state, charId).zone).toBe("discard");
+    expect(state.delayedTriggers?.length ?? 0).toBe(0);
+  });
+});
+
+// =============================================================================
+// CRD 6.4.2.1 — Continuous Static Abilities from Resolved Effects
+// =============================================================================
+
+describe("§CRD 6.4.2.1 — Continuous Statics (global timed effects)", () => {
+  it("Restoring Atlantis: characters played AFTER resolution also can't be challenged", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 15);
+
+    // Play Restoring Atlantis
+    let raId: string;
+    ({ state, instanceId: raId } = injectCard(state, "player1", "restoring-atlantis", "hand"));
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: raId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // GlobalTimedEffect should exist
+    expect(state.globalTimedEffects).toBeDefined();
+    expect(state.globalTimedEffects!.length).toBe(1);
+    expect(state.globalTimedEffects![0].type).toBe("cant_be_challenged");
+
+    // Now play a character AFTER Restoring Atlantis resolved
+    let charId: string;
+    ({ state, instanceId: charId } = injectCard(state, "player1", "mickey-mouse-true-friend", "hand"));
+    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: charId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // The new character should also be protected — check via gameModifiers
+    const mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    expect(mods.cantBeChallenged.has(charId)).toBe(true);
+  });
+
+  it("Restoring Atlantis: global effect expires at start of caster's next turn", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 15);
+
+    let raId: string;
+    ({ state, instanceId: raId } = injectCard(state, "player1", "restoring-atlantis", "hand"));
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: raId }, LORCAST_CARD_DEFINITIONS);
+    state = r.newState;
+
+    expect(state.globalTimedEffects!.length).toBe(1);
+
+    // Pass turn to player2, then back to player1 — effect should expire
+    r = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, LORCAST_CARD_DEFINITIONS);
+    state = r.newState;
+    r = applyAction(state, { type: "PASS_TURN", playerId: "player2" }, LORCAST_CARD_DEFINITIONS);
+    state = r.newState;
+
+    // Global effect should be expired
+    expect(state.globalTimedEffects?.length ?? 0).toBe(0);
+  });
+});
