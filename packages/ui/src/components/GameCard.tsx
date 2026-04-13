@@ -148,17 +148,17 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
     ? BADGE_KEYWORDS.filter(k => allKeywords.has(k))
     : [];
   const KEYWORD_STYLE: Record<BadgeKeyword, string> = {
-    alert:      "bg-lime-500/90",
-    bodyguard:  "bg-blue-600/90",
-    boost:      "bg-teal-600/90",
-    challenger: "bg-amber-500/90",
-    evasive:    "bg-sky-500/90",
-    reckless:   "bg-orange-600/90",
-    resist:     "bg-rose-700/90",
-    rush:       "bg-green-600/90",
-    singer:     "bg-yellow-500/90",
-    support:    "bg-teal-600/90",
-    ward:       "bg-purple-600/90",
+    alert:      "bg-slate-600/90",
+    bodyguard:  "bg-slate-600/90",
+    boost:      "bg-slate-600/90",
+    challenger: "bg-slate-600/90",
+    evasive:    "bg-slate-600/90",
+    reckless:   "bg-slate-600/90",
+    resist:     "bg-slate-600/90",
+    rush:       "bg-slate-600/90",
+    singer:     "bg-slate-600/90",
+    support:    "bg-slate-600/90",
+    ward:       "bg-slate-600/90",
   };
   const KEYWORD_ICON: Record<BadgeKeyword, IconName> = {
     alert:      "eye",
@@ -216,17 +216,17 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
           return (
             <div className="absolute bottom-0.5 right-0.5 z-10 pointer-events-none flex flex-col gap-0.5 items-end">
               {sDelta !== 0 && (
-                <span className={`inline-flex items-center h-4 px-1 rounded text-[7px] font-black shadow ${sDelta > 0 ? "bg-orange-500/90 text-white" : "bg-red-700/90 text-red-100"}`}>
+                <span className={`inline-flex items-center h-4 px-1 rounded text-[7px] font-black shadow ${sDelta > 0 ? "bg-green-700/90 text-white" : "bg-red-700/90 text-red-100"}`}>
                   {sDelta > 0 ? "+" : ""}{sDelta} S
                 </span>
               )}
               {wDelta !== 0 && (
-                <span className={`inline-flex items-center h-4 px-1 rounded text-[7px] font-black shadow ${wDelta > 0 ? "bg-blue-500/90 text-white" : "bg-red-700/90 text-red-100"}`}>
+                <span className={`inline-flex items-center h-4 px-1 rounded text-[7px] font-black shadow ${wDelta > 0 ? "bg-green-700/90 text-white" : "bg-red-700/90 text-red-100"}`}>
                   {wDelta > 0 ? "+" : ""}{wDelta} W
                 </span>
               )}
               {loreDelta !== 0 && (
-                <span className={`inline-flex items-center h-4 px-1 rounded text-[7px] font-black shadow ${loreDelta > 0 ? "bg-amber-500/90 text-white" : "bg-red-700/90 text-red-100"}`}>
+                <span className={`inline-flex items-center h-4 px-1 rounded text-[7px] font-black shadow ${loreDelta > 0 ? "bg-green-700/90 text-white" : "bg-red-700/90 text-red-100"}`}>
                   {loreDelta > 0 ? "+" : ""}{loreDelta} L
                 </span>
               )}
@@ -257,24 +257,23 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
           const staticPrevention = mods?.damagePrevention.get(instanceId);
           const timedPrevention = instance.timedEffects.some(te => te.type === "damage_prevention");
           if (staticPrevention || timedPrevention) {
-            const source = staticPrevention?.has("all") ? "all"
-              : staticPrevention?.has("challenge") ? "challenge"
-              : staticPrevention?.has("non_challenge") ? "non_challenge"
-              : instance.timedEffects.find(te => te.type === "damage_prevention")?.damageSource ?? "all";
-            const color = source === "all" ? "bg-blue-500/90"
-              : source === "challenge" ? "bg-amber-500/90"
-              : "bg-purple-500/90";
-            leftIcons.push({ icon: "shield-check", color, label: "Can't be dealt damage" });
+            leftIcons.push({ icon: "shield-check", color: "bg-amber-600/90", label: "Can't be dealt damage" });
           }
           // Can't be challenged (static from gameModifiers OR timed on instance)
           if (mods?.cantBeChallenged.has(instanceId) || instance.timedEffects.some(te => te.type === "cant_be_challenged")) {
-            leftIcons.push({ icon: "lock-closed", color: "bg-gray-500/90", label: "Can't challenge" });
+            leftIcons.push({ icon: "lock-closed", color: "bg-red-700/90", label: "Can't challenge" });
           }
           // Restrict sing (cant_action sing — timed or per-card static)
           const cantSing = instance.timedEffects.some(te => te.type === "cant_action" && te.action === "sing")
             || mods?.selfActionRestrictions.get(instanceId)?.has("sing" as any);
           if (cantSing) {
             leftIcons.push({ icon: "musical-note", color: "bg-red-700/90", label: "Can't sing" });
+          }
+          // Can't ready (timed from Elsa Spirit of Winter, or static/remembered from Ice Palace)
+          const cantReadyStatic = mods?.selfActionRestrictions.get(instanceId)?.has("ready" as any);
+          const cantReadyTimed = instance.timedEffects.some(te => te.type === "cant_action" && te.action === "ready");
+          if (cantReadyStatic || cantReadyTimed) {
+            leftIcons.push({ icon: "lock-closed", color: "bg-red-700/90", label: "Can't ready" });
           }
           // Once-per-turn ability tracker
           const oncePerTurnAbilities = def.abilities.filter((a: any) =>
@@ -288,20 +287,14 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
             });
             leftIcons.push({
               icon: "clock",
-              color: allUsed ? "bg-gray-700/90" : "bg-green-600/90",
+              color: allUsed ? "bg-gray-700/90" : "bg-gray-500/90",
               label: allUsed ? "Used this turn" : "Once per turn",
             });
           }
           // Delayed trigger (Candy Drift: "at end of turn, banish them")
           const delayedTriggers = (gameState as any).delayedTriggers as { targetInstanceId: string; firesAt: string }[] | undefined;
           if (delayedTriggers?.some(dt => dt.targetInstanceId === instanceId)) {
-            leftIcons.push({ icon: "clock", color: "bg-orange-600/90", label: "Delayed trigger pending" });
-          }
-          // Can't ready (timed from Elsa Spirit of Winter, or static/remembered from Ice Palace)
-          const cantReadyStatic = mods?.selfActionRestrictions.get(instanceId)?.has("ready" as any);
-          const cantReadyTimed = instance.timedEffects.some(te => te.type === "cant_action" && te.action === "ready");
-          if (cantReadyStatic || cantReadyTimed) {
-            leftIcons.push({ icon: "lock-closed", color: "bg-cyan-700/90", label: "Can't ready" });
+            leftIcons.push({ icon: "clock", color: "bg-amber-600/90", label: "Delayed trigger pending" });
           }
           if (leftIcons.length === 0) return null;
           return (
@@ -320,13 +313,13 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
         {(() => {
           const badges: { text: string; color: string }[] = [];
           if (zone === "hand" && mods?.universalShifters.has(instanceId)) {
-            badges.push({ text: "U-Shift", color: "bg-indigo-500/90" });
+            badges.push({ text: "U-Shift", color: "bg-gray-600/90" });
           }
           if (zone === "play" && (def as any).alternateNames?.length > 0) {
-            badges.push({ text: (def as any).alternateNames.join(" / "), color: "bg-gray-700/90" });
+            badges.push({ text: (def as any).alternateNames.join(" / "), color: "bg-gray-600/90" });
           }
           if (zone === "play" && mods?.grantedTraits.get(instanceId)?.size) {
-            badges.push({ text: `+${[...(mods.grantedTraits.get(instanceId) ?? [])].join(", ")}`, color: "bg-fuchsia-600/90" });
+            badges.push({ text: `+${[...(mods.grantedTraits.get(instanceId) ?? [])].join(", ")}`, color: "bg-green-700/90" });
           }
           if (badges.length === 0) return null;
           return (
@@ -346,7 +339,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
             className="absolute bottom-0.5 left-0.5 z-10 cursor-pointer"
             onClick={(e) => { e.stopPropagation(); onCardsUnderClick?.(instanceId); }}
           >
-            <span className="inline-flex items-center justify-center w-4 h-4 rounded text-[8px] font-black bg-violet-600/90 text-violet-100 shadow border border-violet-400/50 hover:bg-violet-500/90">
+            <span className="inline-flex items-center justify-center w-4 h-4 rounded text-[8px] font-black bg-gray-600/90 text-gray-100 shadow border border-gray-400/50 hover:bg-gray-500/90">
               {instance.cardsUnder?.length}
             </span>
           </div>

@@ -132,9 +132,33 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 
 ---
 
+## Color Scheme (5 families)
+
+| Category | Tailwind | Used for |
+|----------|----------|----------|
+| Keywords | `slate-600` | All 11 keyword badges (icons differentiate) |
+| Buffs | `green-700` | +S/+W/+L deltas, granted traits |
+| Debuffs/Restrictions | `red-700` | -S/-W/-L deltas, can't challenge/ready/sing |
+| Info | `gray-600` | U-Shift, dual-name, cards-under count, once-per-turn |
+| Warning | `amber-600` | Damage prevention shield, delayed trigger |
+
+---
+
 ## TBD — Deferred GUI Decisions
 
 - **Generic timed effect icon** — small clock for timed effects without a dedicated left-side icon (sing cost bonus, challenge ready, must quest, etc.). Currently only in the pill.
 - **Hand card playability indicators** — highlight playable cards (green glow?) vs dim unplayable vs show inkable/non-inkable. Currently only play-restriction grey exists.
 - **Discard tile glow for ink-from-discard** — Moana Curious Explorer enables inking from discard but the tile doesn't glow (only play-from-discard like Lilo triggers glow).
 - **Floating ability pulse / animations** — removed indigo pulse border (too distracting without other animations). Revisit when adding animations generally (damage flying, card enter/exit, mill, etc.).
+
+---
+
+## Next Session — Potential Focus Areas
+
+- **Animations** — card enter/exit play, damage flying, mill (deck→discard), ink card flip. Currently all state changes are instant with no transitions.
+- **Card inspect modal** — clicking a card shows full-size art + full rules text + stats. Currently minimal.
+- **Game log improvements** — the log shows raw action text. Could show card names, icons, color-coded by player.
+- **Multiplayer UI** — lobby, rejoin, spectator mode. Engine supports it, UI has stubs.
+- **Mobile polish** — test all interactions on touch devices. DnD may need touch-specific tuning.
+- **Sound effects** — play card, challenge, quest, lore gain. Optional polish.
+- **Deck builder** — currently uses text input. Could have a visual card picker with filters.
