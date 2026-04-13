@@ -305,13 +305,6 @@ export interface GameModifiers {
   /** Captain Amelia: keyword granted to other chars only while being challenged. */
   grantKeywordWhileBeingChallenged: Map<string, { keyword: import("../types/index.js").Keyword; value?: number }[]>;
 
-  /**
-   * Per-character sing-cost bonus from static effects (Record Player:
-   * "Your Stitch characters count as having +1 cost to sing songs").
-   * Key = instanceId, value = total sing bonus. Consumed by validator's
-   * sing-eligibility check alongside singCostBonusHere and timed bonuses.
-   */
-  singCostBonusCharacters: Map<string, number>;
 }
 
 /**
@@ -362,7 +355,6 @@ export function getGameModifiers(
     conditionalChallengerSelf: new Map(),
     suppressedKeywords: new Map(),
     grantedTriggeredAbilities: new Map(),
-    singCostBonusCharacters: new Map(),
     allHandInkable: new Set(),
     preventDamageRemoval: false,
     globalMoveCostReduction: [],
