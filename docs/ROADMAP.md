@@ -537,124 +537,45 @@ Everything else — parallel, no blocking dependencies
 
 ---
 
-### Stream 6: Engine Stewardship + Card Implementation
+### Stream 6: Engine Stewardship + Card Implementation ✅ DONE
+
 *Spec: docs/CRD_TRACKER.md, docs/CARD_ISSUES.md*
-*Goal: keep the engine correct, sustainable, and able to support real decks*
 
-This stream runs continuously in the background alongside all other streams.
-It is not a sprint — it is ongoing maintenance and incremental card work.
-The engine is well-architected already. This stream is stewardship, not rewrite.
+#### 6a. Card implementation ✅
 
-#### 6a. Card implementation (demand-driven, not set-complete)
+**2146/2146 named-ability cards + 506 vanillas = 2652/2652 (100%) complete.**
+All sets 1–11 + promos (P1, P2, P3, cp, DIS, D23) fully implemented.
+0 stubs, 0 partial, 0 invalid fields, 0 known approximations.
+Four audit scripts (`card-status`, `audit-lorcast`, `audit-approximations`,
+`decompile-cards`) all report clean.
 
-Current state across all sets:
-```
-Set 1:  204/204 unique cards fully implemented ✅
-          216 entries in JSON — 12 are enchanted variants (same card, premium art)
-          40 cards are legitimately vanilla (no abilities on the physical card)
-          176 have named abilities — all implemented and tested
+#### 6b. Engine gaps ✅
 
-Sets 2-11: keyword-only data imported from Lorcast API
-          The card data (cost, inkable, stats, keywords) is correct
-          Named abilities (triggered, activated, static, actionEffects) are stubs
-          EXCEPTION — 5 cards implemented for RampCindyCowBot testing:
-            tipo-growing-son (Set 5) — MEASURE ME AGAIN: inkwell ability
-            vision-of-the-future (Set 5) — look_at_top actionEffect
-            sail-the-azurite-sea (Set 6) — grant_extra_ink_play + draw
-            clarabelle-light-on-her-hooves (Set 10) — shift keyword only
+All previously listed gaps are implemented:
+- ✅ Locations (CRD 5.6, 4.6.8, 4.7) — full support
+- ✅ Start-of-turn / end-of-turn triggers
+- ✅ Sing Together (CRD 8.12)
+- ✅ Shift stack (CRD 8.10.7)
+- ✅ Play for free costs (CRD 1.5.5.3, 6.1.7)
+- ✅ Alert, Vanish, Boost keywords
+- ✅ Floating/delayed triggered abilities
+- ✅ Put/Move damage distinction
 
-Approximate stub count: ~1,500 cards across sets 2-11 need named abilities
-Numbers per set (keyword-only cards count as implemented for simulation purposes
-since keywords work correctly — only named ability stubs are the real gap):
-  Set 2: ~154 named ability stubs
-  Set 3: ~173 named ability stubs
-  Set 4: ~155 named ability stubs
-  Sets 5-11: ~140-187 each
-```
+Only CRD 6.5 (replacement effects) remains unimplemented — no current cards require it.
 
-Strategy: implement cards on demand when needed for a specific deck analysis.
-Do NOT implement all cards in set order — you may never need most of them.
-When you want to sim a deck containing card X, implement X first.
+#### 6c. Engine sustainability ✅
 
-Important: "keyword-only" cards (Evasive, Rush, Bodyguard, etc.) work correctly
-in simulation already — the engine handles all keywords. The stub gap is only
-for cards with named abilities (the italicized ability name + effect text).
+- ✅ Seeded RNG (xoshiro128**)
+- ✅ applyPassTurn split — start/end of turn separated
+- ✅ Cross-set interaction tests — 424 engine tests across 13 test files
+- ✅ `runGameStateCheck` replaces inline banish checks (CRD 1.8)
 
-Process per card:
-1. Check lorcast-set-XXX.json for the card's current data
-2. Read the actual card text (verify against physical card or official source)
-3. Map effects to existing effect grammar (see DECISIONS.md effect grammar section)
-4. If a new effect type is needed, add to types/index.ts + reducer.ts + test
-5. Add tests in reducer.test.ts citing the CRD rule
-6. Update CARD_ISSUES.md
+#### 6d. Ongoing stewardship
 
-#### 6b. Engine gaps (implement when first card needs it)
-
-Known gaps from CRD_TRACKER.md, in rough priority order:
-
-```
-HIGH (multiple cards need these, blocking real deck sims):
-  Locations — entire section missing (CRD 5.6, 4.6.8, 4.7)
-    Characters in play move to locations for bonuses
-    Locations have willpower, take damage, get banished
-    Significant architecture addition — new zone or in-play type
-  
-  Start-of-turn triggers (CRD 3.2.1.4, 3.2.2.3)
-    "At the start of your turn" abilities — many cards across sets 2+
-    queueTriggersByEvent("turn_start") already scaffolded, no cards use it yet
-  
-  End-of-turn triggers (CRD 3.4.1.1)
-    "At the end of your turn" abilities
-    queueTriggersByEvent("turn_end") already scaffolded, no cards use it yet
-
-MEDIUM (needed for specific card interactions):
-  Sing Together (CRD 8.12)
-    Exert characters with total cost N+ to play a song
-    New alternate cost type, similar to Singer implementation
-  
-  Shift stack: all cards leave play together (CRD 8.10.7)
-    Currently only top card moves to discard on banish
-    Need to track and move the full shift stack
-  
-  "For free" costs (CRD 1.5.5.3, 6.1.7)
-    play_for_free effect exists but cost bypass not fully implemented
-
-LOW (edge cases, no current cards need):
-  Replacement effects (CRD 6.5) — complex, needed for future sets
-  Preventing effects supersede allowing effects (CRD 1.2.2)
-  Put/Move damage distinction (CRD 1.9.1.2, 1.9.1.4)
-  Floating/delayed triggered abilities (CRD 6.2.7.1, 6.2.7.2)
-  Alert keyword (CRD 8.2) — not in sets 1-6
-  Vanish keyword (CRD 8.14) — not in sets 1-6
-  Boost keyword (CRD 8.4) — not in sets 1-6
-```
-
-#### 6c. Engine sustainability (ongoing)
-
-```
-✅ Seeded RNG — done (xoshiro128** in GameState)
-
-applyPassTurn split (CRD 3.2 / 3.4)
-  Currently one monolithic function handles both end-of-turn and start-of-turn
-  Draw is a start-of-turn action but lives in end-of-turn code
-  Matters when start-of-turn triggers are implemented (6b above)
-  Do alongside start-of-turn trigger implementation
-
-Layer 6 tests: cross-set interaction tests
-  As more sets are implemented, cards from different sets interact
-  Add tests for specific cross-set interactions as they are implemented
-  Pattern: reducer.test.ts, organized by interaction type not card name
-```
-
-#### 6d. What NOT to do in this stream
-
-```
-❌ Do not implement entire sets in sequence — demand-driven only
-❌ Do not add new effect types without a test and CRD reference
-❌ Do not change the engine public API without updating all callers
-❌ Do not implement Locations until at least one real deck needs them
-   (Locations are a significant architecture addition — worth a spec session first)
-```
+Engine is in maintenance mode. New work limited to:
+- Bug fixes surfaced by sandbox / multiplayer testing
+- Interactive mode improvements (`card_revealed`, pending choice UX)
+- Future set imports when released
 
 ---
 
@@ -737,5 +658,5 @@ Ask in order:
    Remaining: deploy to Railway (~$5/mo), token refresh, OAuth (optional), polish.
    See docs/MULTIPLAYER.md for the full phased plan.
 
-5. **Need to implement a new card for a deck you want to sim?**
-   If yes — Stream 6. Check CRD_TRACKER.md for gaps, implement on demand.
+5. **Need to fix a card bug or add interactive-mode support?**
+   Stream 6 (maintenance). All 2652 cards are implemented — work is bug fixes only.
