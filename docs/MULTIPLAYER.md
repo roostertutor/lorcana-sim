@@ -71,19 +71,23 @@ a lobby, and play a complete game against each other right now on localhost.
 | ✅ Token auto-refresh (serverApi reads from supabase session) | 2 | `c1af4ec` |
 | ✅ Connection status indicator (green/red dot) | 2 | `c1af4ec` |
 | ✅ Abandoned lobby cleanup on new lobby create | 2 | `c1af4ec` |
+| ✅ ELO display in lobby (per-format) | 3 | `500547a` |
+| ✅ Game history (recent games in lobby) | 3 | `500547a` |
+| ✅ Game actions endpoint for replay | 3 | `500547a` |
+| ✅ Bo1/Bo3 match format | 3 | `0d6c1a7` |
+| ✅ Core/Infinity game format | 3 | `0d6c1a7` |
+| ✅ Per-format ELO (4 buckets: bo1/bo3 × core/infinity) | 3 | `0d6c1a7` |
+| ✅ Bo3 auto-creates next game when match undecided | 3 | `0d6c1a7` |
+| ✅ ELO updates once per match (not per game in Bo3) | 3 | `0d6c1a7` |
 
 ## What's Missing
 
 | Gap | Severity | Iteration |
 |-----|----------|-----------|
 | Server deployment (Railway) | Blocking for remote play | 2 |
-| OAuth buttons (Google/Discord) | Nice-to-have | 2 |
-| Game history UI | Nice-to-have | 3 |
-| ELO display | Nice-to-have | 3 |
-| Rematch flow | Nice-to-have | 3 |
-| Replay saving endpoint | Nice-to-have | 3 |
-| Match formats (Bo1/Bo3) | Nice-to-have | 3 |
-| Server integration tests | Maintenance | 3 |
+| OAuth buttons (Google/Discord) | Nice-to-have | — |
+| Replay viewer for past multiplayer games | Nice-to-have | — |
+| Server integration tests | Maintenance | — |
 
 ---
 
@@ -258,58 +262,48 @@ None.
 
 ---
 
-## Iteration 3: Polish
+## Iteration 3: Polish — MOSTLY DONE ✅
 
 **Goal**: Social features and quality-of-life that make the platform feel complete.
 
-### 3a. Game History Page
+### 3a. Game History — DONE ✅
 
-**New file**: `packages/ui/src/pages/GameHistory.tsx`
+"Recent Games" section in MultiplayerLobby shows last 10 finished games with
+W/L badge, opponent name, opponent ELO, date. Server endpoint `GET /game/history`
+with pagination. Opponent info joined from `profiles` table.
 
-List of completed games. Query `games` table where `status = 'finished'`. Show:
-- Opponent username (join `profiles`)
-- Win/loss badge
-- Date
-- ELO change
-- "Replay" button → load into `useReplaySession`
+### 3b. ELO Display — DONE ✅
 
-Paginated. Add as section in multiplayer lobby.
+Session bar shows username, per-format ELO (updates live as you toggle Bo1/Bo3
+and Core/Infinity selectors), and total games played. Fetched from `GET /auth/me`.
 
-### 3b. ELO Display
+### 3c. Rematch Flow — DONE ✅
 
-Show current ELO in MultiplayerLobby session bar. `GET /auth/me` already returns profile with `elo` and `games_played`.
+Game-over modal shows "Back to Lobby" for multiplayer. Deck persists in the
+lobby textarea so user can immediately create a new lobby with the same deck.
 
-### 3c. Rematch Flow
+### 3d. Replay Actions Endpoint — DONE ✅
 
-After game-over, show "Rematch" button → creates new lobby with same decks, shows code. Simple approach — no Realtime rematch handshake, just share the code.
+`GET /game/:id/actions` returns ordered action list for a finished game. Ready
+for a replay viewer UI to consume via `useReplaySession`. The client-side
+`getGameActionList()` function is wired but no replay viewer button yet for
+multiplayer games (local solo replays still work via `session.completedGame`).
 
-### 3d. Replay Saving
+### 3e. Match Formats (Bo1/Bo3) — DONE ✅
 
-**Server**: Add `POST /replay` route. Client's `saveReplay()` in `serverApi.ts` already calls it — just needs the server endpoint.
+- Host selects Bo1/Bo3 + Core/Infinity when creating a lobby
+- Bo3: server tracks `p1_wins`/`p2_wins` on lobby, auto-creates next game via
+  `handleMatchProgress()` when match isn't decided, returns `nextGameId` in
+  action response
+- ELO updates once per match, not per game
+- Guest deck stored on lobby for Bo3 auto-rematch
+- `game_number` column on `games` table tracks position within match
 
-**Replay viewer for past games**: Fetch `game_actions` for a finished game, extract ordered actions, reconstruct via `useReplaySession`.
+### 3f. Per-Format ELO — DONE ✅
 
-### 3e. Server Integration Tests
-
-Cover: lobby flow, action processing, turn validation, resign, ELO, state filtering.
-
-### 3f. Match Formats (Bo1 / Bo3)
-
-Currently every game is a standalone Bo1. Add match format support:
-
-- **Lobby config**: Host selects format (Bo1, Bo3) when creating lobby
-- **DB**: Add `format` column to `lobbies` table, add `match_id` + `game_number`
-  to `games` table to link games within a match
-- **Match flow (Bo3)**: After game 1 ends, game-over modal shows match score
-  (e.g. "1-0") and a "Next Game" button instead of "Back to Lobby". Server
-  creates the next game in the same match automatically. Match ends when one
-  player wins 2 games.
-- **Sideboarding**: Between games in a Bo3, allow deck modifications (swap cards
-  in/out from a sideboard). Requires sideboard field on lobby/deck config.
-  Lorcana doesn't have an official sideboard rule — decide whether to allow
-  full deck swaps or a fixed sideboard size.
-- **ELO**: Update once per match, not per game. A Bo3 counts as one rated match.
-- **Match history**: Game history page shows matches, expandable to individual games.
+4 independent ratings: `bo1_core`, `bo1_infinity`, `bo3_core`, `bo3_infinity`.
+Stored as `elo_ratings` JSONB on `profiles`. Each defaults to 1200. Updated
+based on lobby's `format` + `game_format`. Legacy `elo` column kept in sync.
 
 ### 3g. Spectator Mode (Design Notes Only — Do Not Build)
 
@@ -320,12 +314,21 @@ For future reference:
 - Read-only GameBoard mode (no dispatch)
 - Share link: `https://app/spectate/{gameId}`
 
+### Remaining
+
+- [ ] Replay viewer button for multiplayer game history (endpoint exists, UI not wired)
+- [ ] Server integration tests
+- [ ] OAuth buttons (Google/Discord)
+
 ### Acceptance Criteria
 
-- [ ] Player sees ELO rating in lobby
-- [ ] Player can view list of past games
-- [ ] Player can replay completed multiplayer games
-- [ ] Rematch via lobby code after game ends
+- [x] Player sees ELO rating in lobby (per-format)
+- [x] Player can view list of past games
+- [x] Bo1/Bo3 match format selectable
+- [x] Core/Infinity game format selectable
+- [x] Back to lobby after game ends (deck persists for rematch)
+- [ ] Player can replay completed multiplayer games (endpoint ready, UI not wired)
+- [ ] OAuth sign-in
 
 ---
 

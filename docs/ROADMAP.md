@@ -451,9 +451,16 @@ For 3e (replay mode):
 ✅ 4h. Resign flow — updates GameState, correct Victory/Defeat per player,
       "Back to Lobby" button, lobby cleanup on new create
 
-❌ 4i. Deploy to Railway + static host (only remaining Iteration 2 item)
-❌ 4j. OAuth buttons (Google/Discord — optional, email/password works)
-❌ 4k. Game history UI, ELO display, rematch, replay saving, Bo1/Bo3 (Iteration 3)
+✅ 4i. ELO display — per-format ratings (bo1/bo3 × core/infinity) in lobby
+✅ 4j. Game history — recent games in lobby (W/L, opponent, ELO, date)
+✅ 4k. Bo1/Bo3 match format — auto-creates next game, ELO per match
+✅ 4l. Core/Infinity game format — separate ELO buckets per format
+✅ 4m. Game actions endpoint — GET /game/:id/actions for replay reconstruction
+
+❌ 4n. Deploy to Railway + static host (only remaining blocker for remote play)
+❌ 4o. OAuth buttons (Google/Discord — optional, email/password works)
+❌ 4p. Replay viewer for multiplayer games (endpoint ready, UI not wired)
+❌ 4q. Server integration tests
 ```
 
 **Full phased spec**: See `docs/MULTIPLAYER.md` for detailed iteration plan,
