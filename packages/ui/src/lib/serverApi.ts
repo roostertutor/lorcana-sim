@@ -31,7 +31,7 @@ export async function getLobbyGame(lobbyId: string) {
     headers: await authHeaders(),
   })
   if (!res.ok) return null
-  const data = await res.json() as { lobby: { status: string }; game: { id: string } | null }
+  const data = await res.json() as { lobby: { status: string }; game: { id: string } | null; hostSide: "player1" | "player2" }
   return data
 }
 
@@ -59,7 +59,7 @@ export async function joinLobby(code: string, deck: DeckEntry[]) {
     body: JSON.stringify({ code, deck }),
   })
   if (!res.ok) throw new Error(await extractError(res))
-  return res.json() as Promise<{ lobbyId: string; gameId: string }>
+  return res.json() as Promise<{ lobbyId: string; gameId: string; myPlayerId: "player1" | "player2" }>
 }
 
 export async function getGame(gameId: string) {

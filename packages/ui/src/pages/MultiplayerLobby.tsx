@@ -121,7 +121,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
       const data = await getLobbyGame(lobbyId);
       if (data?.lobby.status === "active" && data.game) {
         clearInterval(pollRef.current!);
-        onGameStart(data.game.id, "player1");
+        onGameStart(data.game.id, data.hostSide);
       }
     }, 2000);
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
@@ -149,7 +149,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
     try {
       const result = await joinLobby(joinCode.trim(), deck);
       setStatus("Starting game…");
-      onGameStart(result.gameId, "player2");
+      onGameStart(result.gameId, result.myPlayerId);
     } catch (err) {
       setError(String(err));
       setStatus(null);

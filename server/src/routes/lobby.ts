@@ -43,7 +43,7 @@ lobby.post("/join", requireAuth, async (c) => {
 
   try {
     const result = await joinLobby(userId, body.code, body.deck)
-    return c.json(result)
+    return c.json({ lobbyId: result.lobbyId, gameId: result.gameId, myPlayerId: result.guestSide })
   } catch (err) {
     const msg = String(err)
     if (msg.includes("not found")) return c.json({ error: msg }, 404)
@@ -59,18 +59,22 @@ lobby.get("/:id", requireAuth, async (c) => {
 
   // Attach the latest game for this lobby (Bo3 may have multiple)
   let game = null
+  let hostSide: "player1" | "player2" = "player1"
   if (lobbyData.status === "active") {
     const { data } = await supabase
       .from("games")
-      .select("id, status, game_number")
+      .select("id, status, game_number, player1_id, player2_id")
       .eq("lobby_id", lobbyData.id)
       .order("game_number", { ascending: false })
       .limit(1)
       .single()
     game = data
+    if (data) {
+      hostSide = data.player1_id === lobbyData.host_id ? "player1" : "player2"
+    }
   }
 
-  return c.json({ lobby: lobbyData, game })
+  return c.json({ lobby: lobbyData, game, hostSide })
 })
 
 // GET /lobby/list

@@ -105,7 +105,7 @@ export async function joinLobby(
 
   if (updateError) throw new Error(`Failed to join lobby: ${updateError.message}`)
 
-  // Create the game
+  // Create the game (player order randomized inside createNewGame)
   const game = await createNewGame(
     lobby.id,
     lobby.host_id as string,
@@ -114,7 +114,17 @@ export async function joinLobby(
     guestDeck,
   )
 
-  return { lobbyId: lobby.id as string, gameId: game.id as string }
+  // Look up which side the guest got (randomized)
+  const { data: gameRow } = await supabase
+    .from("games")
+    .select("player1_id, player2_id")
+    .eq("id", game.id)
+    .single()
+
+  const guestSide = gameRow?.player1_id === guestId ? "player1" : "player2"
+  const hostSide = guestSide === "player1" ? "player2" : "player1"
+
+  return { lobbyId: lobby.id as string, gameId: game.id as string, guestSide, hostSide }
 }
 
 export async function getLobby(lobbyId: string) {

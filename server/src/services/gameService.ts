@@ -25,23 +25,30 @@ function updatedElo(rating: number, expected: number, actual: number): number {
 
 export async function createNewGame(
   lobbyId: string,
-  player1Id: string,
-  player2Id: string,
-  player1Deck: DeckEntry[],
-  player2Deck: DeckEntry[],
+  hostId: string,
+  guestId: string,
+  hostDeck: DeckEntry[],
+  guestDeck: DeckEntry[],
   gameNumber = 1,
 ) {
-  const config: GameConfig = { player1Deck, player2Deck, interactive: true }
+  // Randomize who goes first — engine always starts with "player1"
+  const hostGoesFirst = Math.random() < 0.5
+  const p1Id = hostGoesFirst ? hostId : guestId
+  const p2Id = hostGoesFirst ? guestId : hostId
+  const p1Deck = hostGoesFirst ? hostDeck : guestDeck
+  const p2Deck = hostGoesFirst ? guestDeck : hostDeck
+
+  const config: GameConfig = { player1Deck: p1Deck, player2Deck: p2Deck, interactive: true }
   const initialState = createGame(config, definitions)
 
   const { data, error } = await supabase
     .from("games")
     .insert({
       lobby_id: lobbyId,
-      player1_id: player1Id,
-      player2_id: player2Id,
-      player1_deck: player1Deck,
-      player2_deck: player2Deck,
+      player1_id: p1Id,
+      player2_id: p2Id,
+      player1_deck: p1Deck,
+      player2_deck: p2Deck,
       state: initialState,
       game_number: gameNumber,
     })
