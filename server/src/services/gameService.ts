@@ -208,9 +208,12 @@ export async function resignGame(gameId: string, userId: string) {
   const winner = playerSide === "player1" ? "player2" : "player1"
   const winnerId = winner === "player1" ? game.player1_id : game.player2_id
 
+  // Update the GameState so clients see isGameOver + winner via Realtime
+  const updatedState = { ...(game.state as Record<string, unknown>), isGameOver: true, winner }
+
   await supabase
     .from("games")
-    .update({ status: "finished", winner_id: winnerId, updated_at: new Date() })
+    .update({ state: updatedState, status: "finished", winner_id: winnerId, updated_at: new Date() })
     .eq("id", gameId)
 
   await updateElo(game.player1_id as string, game.player2_id as string, winner)

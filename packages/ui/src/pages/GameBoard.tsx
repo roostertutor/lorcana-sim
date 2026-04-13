@@ -1801,17 +1801,21 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="bg-gray-950 border border-amber-500/30 rounded-2xl p-8 text-center space-y-4 shadow-2xl mx-4 w-full max-w-sm">
             <div className="text-4xl font-black text-amber-400 tracking-tight">
-              {winner === "player1" ? "Victory!" : winner === "player2" ? "Defeat" : "Draw"}
+              {winner === myId ? "Victory!" : winner ? "Defeat" : "Draw"}
             </div>
             <div className="text-sm text-gray-400">
-              {winner === "player1" ? "You won the game" : winner === "player2" ? "The bot won" : "The game ended in a draw"}
+              {winner === myId ? "You won the game" : winner ? (multiplayerGame ? "Your opponent won" : "The bot won") : "The game ended in a draw"}
             </div>
             <div className="flex flex-col items-center gap-2 pt-1">
               <button
                 className="w-full px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold transition-colors shadow-lg shadow-amber-600/20"
-                onClick={() => { session.reset(); setReplayData(null); }}
+                onClick={() => {
+                  session.reset();
+                  setReplayData(null);
+                  if (multiplayerGame) onBack?.();
+                }}
               >
-                Play Again
+                {multiplayerGame ? "Back to Lobby" : "Play Again"}
               </button>
               {session.completedGame && (
                 <>
