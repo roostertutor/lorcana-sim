@@ -35,7 +35,7 @@ async function checkForActiveGame(userId: string): Promise<string | null> {
   return null
 }
 
-export async function createLobby(hostId: string, hostDeck: DeckEntry[]) {
+export async function createLobby(hostId: string, hostDeck: DeckEntry[], format: "bo1" | "bo3" = "bo1", gameFormat: "core" | "infinity" = "infinity") {
   const activeGameId = await checkForActiveGame(hostId)
   if (activeGameId) {
     throw new Error(`You already have an active game (${activeGameId}). Finish or resign it first.`)
@@ -64,7 +64,7 @@ export async function createLobby(hostId: string, hostDeck: DeckEntry[]) {
 
   const { data, error } = await supabase
     .from("lobbies")
-    .insert({ code, host_id: hostId, host_deck: hostDeck })
+    .insert({ code, host_id: hostId, host_deck: hostDeck, format, game_format: gameFormat })
     .select()
     .single()
 
@@ -97,10 +97,10 @@ export async function joinLobby(
     throw new Error("Cannot join your own lobby")
   }
 
-  // Update lobby to active with guest
+  // Update lobby to active with guest + store guest deck for Bo3 rematches
   const { error: updateError } = await supabase
     .from("lobbies")
-    .update({ guest_id: guestId, status: "active", updated_at: new Date() })
+    .update({ guest_id: guestId, guest_deck: guestDeck, status: "active", updated_at: new Date() })
     .eq("id", lobby.id)
 
   if (updateError) throw new Error(`Failed to join lobby: ${updateError.message}`)

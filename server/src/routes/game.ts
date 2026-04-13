@@ -69,7 +69,7 @@ game.post("/:id/action", requireAuth, async (c) => {
     ? filterStateForPlayer(result.newState, playerSide)
     : undefined
 
-  return c.json({ success: true, newState: filteredState })
+  return c.json({ success: true, newState: filteredState, nextGameId: result.nextGameId })
 })
 
 // POST /game/:id/resign

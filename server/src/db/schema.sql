@@ -91,5 +91,18 @@ CREATE POLICY "Actions visible to game players"
     )
   );
 
+-- Match format support (Bo1/Bo3) and card pool (core/infinity)
+ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS format TEXT NOT NULL DEFAULT 'bo1';      -- bo1 | bo3
+ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS game_format TEXT NOT NULL DEFAULT 'infinity'; -- core | infinity
+ALTER TABLE games ADD COLUMN IF NOT EXISTS game_number INTEGER NOT NULL DEFAULT 1;    -- 1, 2, or 3
+ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS guest_deck JSONB;    -- stored on join for Bo3 rematches
+ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS p1_wins INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS p2_wins INTEGER NOT NULL DEFAULT 0;
+
+-- Per-format ELO ratings (replaces single elo column)
+-- Format: { "bo1_core": 1200, "bo1_infinity": 1200, "bo3_core": 1200, "bo3_infinity": 1200 }
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS elo_ratings JSONB NOT NULL DEFAULT
+  '{"bo1_core": 1200, "bo1_infinity": 1200, "bo3_core": 1200, "bo3_infinity": 1200}'::jsonb;
+
 -- Enable Supabase Realtime on the games table
 ALTER TABLE games REPLICA IDENTITY FULL;

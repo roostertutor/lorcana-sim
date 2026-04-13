@@ -14,15 +14,18 @@ const lobby = new Hono<{ Variables: { userId: string } }>()
 // POST /lobby/create
 lobby.post("/create", requireAuth, async (c) => {
   const userId = c.get("userId")
-  const body = await c.req.json<{ deck: DeckEntry[] }>()
+  const body = await c.req.json<{ deck: DeckEntry[]; format?: string; gameFormat?: string }>()
 
   if (!Array.isArray(body.deck) || body.deck.length === 0) {
     return c.json({ error: "deck is required" }, 400)
   }
 
+  const format = body.format === "bo3" ? "bo3" : "bo1"
+  const gameFormat = body.gameFormat === "core" ? "core" : "infinity"
+
   try {
-    const result = await createLobby(userId, body.deck)
-    return c.json({ lobbyId: result.id, code: result.code })
+    const result = await createLobby(userId, body.deck, format, gameFormat)
+    return c.json({ lobbyId: result.id, code: result.code, format, gameFormat })
   } catch (err) {
     return c.json({ error: String(err) }, 500)
   }
@@ -54,13 +57,15 @@ lobby.get("/:id", requireAuth, async (c) => {
   const lobbyData = await getLobby(c.req.param("id")!)
   if (!lobbyData) return c.json({ error: "Lobby not found" }, 404)
 
-  // Attach game if active
+  // Attach the latest game for this lobby (Bo3 may have multiple)
   let game = null
   if (lobbyData.status === "active") {
     const { data } = await supabase
       .from("games")
-      .select("id, status")
+      .select("id, status, game_number")
       .eq("lobby_id", lobbyData.id)
+      .order("game_number", { ascending: false })
+      .limit(1)
       .single()
     game = data
   }

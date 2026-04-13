@@ -29,6 +29,7 @@ export async function createNewGame(
   player2Id: string,
   player1Deck: DeckEntry[],
   player2Deck: DeckEntry[],
+  gameNumber = 1,
 ) {
   const config: GameConfig = { player1Deck, player2Deck, interactive: true }
   const initialState = createGame(config, definitions)
@@ -42,6 +43,7 @@ export async function createNewGame(
       player1_deck: player1Deck,
       player2_deck: player2Deck,
       state: initialState,
+      game_number: gameNumber,
     })
     .select()
     .single()
@@ -54,7 +56,7 @@ export async function processAction(
   gameId: string,
   userId: string,
   action: GameAction,
-): Promise<{ success: boolean; newState?: GameState; error?: string }> {
+): Promise<{ success: boolean; newState?: GameState; error?: string; nextGameId?: string }> {
   // Load current game state
   const { data: game, error: loadError } = await supabase
     .from("games")
@@ -139,44 +141,67 @@ export async function processAction(
     player_elo_at_time: playerElo,
   })
 
-  // Update ELO if game is over
+  // Handle match completion (Bo1 or Bo3)
+  let nextGameId: string | undefined
   if (isFinished && newState.winner) {
-    await updateElo(game.player1_id as string, game.player2_id as string, newState.winner)
+    const lobbyResult = await handleMatchProgress(
+      game.lobby_id as string,
+      game.player1_id as string,
+      game.player2_id as string,
+      newState.winner,
+    )
+    nextGameId = lobbyResult.nextGameId
   }
 
-  return { success: true, newState }
+  return { success: true, newState, nextGameId }
+}
+
+type EloKey = "bo1_core" | "bo1_infinity" | "bo3_core" | "bo3_infinity"
+type EloRatings = Record<EloKey, number>
+
+const DEFAULT_RATINGS: EloRatings = { bo1_core: 1200, bo1_infinity: 1200, bo3_core: 1200, bo3_infinity: 1200 }
+
+function getEloKey(format: string, cardPool: string): EloKey {
+  const f = format === "bo3" ? "bo3" : "bo1"
+  const p = cardPool === "core" ? "core" : "infinity"
+  return `${f}_${p}` as EloKey
 }
 
 async function updateElo(
   player1Id: string,
   player2Id: string,
   winner: "player1" | "player2",
+  eloKey: EloKey = "bo1_infinity",
 ) {
   const [{ data: p1 }, { data: p2 }] = await Promise.all([
-    supabase.from("profiles").select("elo, games_played").eq("id", player1Id).single(),
-    supabase.from("profiles").select("elo, games_played").eq("id", player2Id).single(),
+    supabase.from("profiles").select("elo, elo_ratings, games_played").eq("id", player1Id).single(),
+    supabase.from("profiles").select("elo, elo_ratings, games_played").eq("id", player2Id).single(),
   ])
 
   if (!p1 || !p2) return
 
-  const p1Elo = p1.elo as number
-  const p2Elo = p2.elo as number
+  const p1Ratings: EloRatings = { ...DEFAULT_RATINGS, ...(p1.elo_ratings as Partial<EloRatings> | null) }
+  const p2Ratings: EloRatings = { ...DEFAULT_RATINGS, ...(p2.elo_ratings as Partial<EloRatings> | null) }
+
+  const p1Elo = p1Ratings[eloKey]
+  const p2Elo = p2Ratings[eloKey]
 
   const p1Expected = expectedScore(p1Elo, p2Elo)
   const p1Actual = winner === "player1" ? 1 : 0
   const p2Actual = 1 - p1Actual
 
-  const newP1Elo = updatedElo(p1Elo, p1Expected, p1Actual)
-  const newP2Elo = updatedElo(p2Elo, 1 - p1Expected, p2Actual)
+  p1Ratings[eloKey] = updatedElo(p1Elo, p1Expected, p1Actual)
+  p2Ratings[eloKey] = updatedElo(p2Elo, 1 - p1Expected, p2Actual)
 
+  // Also update the legacy elo column with the rating that just changed
   await Promise.all([
     supabase
       .from("profiles")
-      .update({ elo: newP1Elo, games_played: (p1.games_played as number) + 1 })
+      .update({ elo: p1Ratings[eloKey], elo_ratings: p1Ratings, games_played: (p1.games_played as number) + 1 })
       .eq("id", player1Id),
     supabase
       .from("profiles")
-      .update({ elo: newP2Elo, games_played: (p2.games_played as number) + 1 })
+      .update({ elo: p2Ratings[eloKey], elo_ratings: p2Ratings, games_played: (p2.games_played as number) + 1 })
       .eq("id", player2Id),
   ])
 }
@@ -219,6 +244,69 @@ export async function resignGame(gameId: string, userId: string) {
   await updateElo(game.player1_id as string, game.player2_id as string, winner)
 
   return { success: true }
+}
+
+/**
+ * After a game finishes, update the match score and decide what happens next.
+ * Bo1: update ELO immediately, mark lobby finished.
+ * Bo3: update score, create next game if match not decided, update ELO when match ends.
+ */
+async function handleMatchProgress(
+  lobbyId: string,
+  player1Id: string,
+  player2Id: string,
+  winner: "player1" | "player2",
+): Promise<{ nextGameId?: string }> {
+  const { data: lobby } = await supabase
+    .from("lobbies")
+    .select("*")
+    .eq("id", lobbyId)
+    .single()
+
+  if (!lobby) {
+    // Fallback: no lobby found, just update ELO
+    await updateElo(player1Id, player2Id, winner)
+    return {}
+  }
+
+  const format = (lobby.format as string) ?? "bo1"
+  const p1Wins = ((lobby.p1_wins as number) ?? 0) + (winner === "player1" ? 1 : 0)
+  const p2Wins = ((lobby.p2_wins as number) ?? 0) + (winner === "player2" ? 1 : 0)
+
+  // Update lobby score
+  await supabase
+    .from("lobbies")
+    .update({ p1_wins: p1Wins, p2_wins: p2Wins, updated_at: new Date() })
+    .eq("id", lobbyId)
+
+  const winsNeeded = format === "bo3" ? 2 : 1
+  const matchDecided = p1Wins >= winsNeeded || p2Wins >= winsNeeded
+
+  if (matchDecided) {
+    // Match over — update ELO once per match and close lobby
+    const matchWinner = p1Wins >= winsNeeded ? "player1" : "player2"
+    const gameFormat = (lobby.game_format as string) ?? "infinity"
+    const eloKey = getEloKey(format, gameFormat)
+    await updateElo(player1Id, player2Id, matchWinner, eloKey)
+    await supabase
+      .from("lobbies")
+      .update({ status: "finished", updated_at: new Date() })
+      .eq("id", lobbyId)
+    return {}
+  }
+
+  // Bo3 not decided — create next game
+  const gameNumber = p1Wins + p2Wins + 1
+  const nextGame = await createNewGame(
+    lobbyId,
+    player1Id,
+    player2Id,
+    lobby.host_deck as DeckEntry[],
+    lobby.guest_deck as DeckEntry[],
+    gameNumber,
+  )
+
+  return { nextGameId: nextGame.id }
 }
 
 export async function getGameHistory(userId: string, page: number, limit: number) {

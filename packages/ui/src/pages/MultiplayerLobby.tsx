@@ -34,6 +34,8 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   const [password, setPassword] = useState("");
   const [deckText, setDeckText] = useState(SAMPLE_DECK);
   const [deckOpen, setDeckOpen] = useState(false);
+  const [format, setFormat]     = useState<"bo1" | "bo3">("bo1");
+  const [gameFormat, setGameFormat] = useState<"core" | "infinity">("infinity");
   const [joinCode, setJoinCode] = useState(initialJoinCode ?? "");
   const [status, setStatus]     = useState<string | null>(null);
   const [error, setError]       = useState<string | null>(null);
@@ -126,7 +128,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
     setError(null);
     setStatus("Creating lobby…");
     try {
-      const result = await createLobby(deck);
+      const result = await createLobby(deck, format, gameFormat);
       setLobbyCode(result.code);
       setLobbyId(result.lobbyId);
       setStatus(null);
@@ -281,8 +283,10 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-2">
                 <span className="text-xs text-gray-600">{profile?.username ?? session.email}</span>
-                {profile && (
-                  <span className="text-xs font-mono text-amber-500/80">{profile.elo} ELO</span>
+                {profile?.elo_ratings && (
+                  <span className="text-xs font-mono text-amber-500/80">
+                    {profile.elo_ratings[`${format}_${gameFormat}`] ?? profile.elo} ELO
+                  </span>
                 )}
                 {profile && profile.games_played > 0 && (
                   <span className="text-xs text-gray-700">({profile.games_played} games)</span>
@@ -303,6 +307,39 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                   <div>
                     <div className="text-sm font-semibold text-gray-200">Host a game</div>
                     <div className="text-xs text-gray-600 mt-0.5">Create a lobby, share the code</div>
+                  </div>
+                  {/* Format selectors */}
+                  <div className="space-y-1.5">
+                    <div className="flex rounded-lg bg-gray-800 p-0.5">
+                      {(["bo1", "bo3"] as const).map((f) => (
+                        <button
+                          key={f}
+                          onClick={() => setFormat(f)}
+                          className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                            format === f
+                              ? "bg-gray-700 text-gray-100 shadow-sm"
+                              : "text-gray-500 hover:text-gray-300"
+                          }`}
+                        >
+                          {f === "bo1" ? "Bo1" : "Bo3"}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex rounded-lg bg-gray-800 p-0.5">
+                      {(["core", "infinity"] as const).map((gf) => (
+                        <button
+                          key={gf}
+                          onClick={() => setGameFormat(gf)}
+                          className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                            gameFormat === gf
+                              ? "bg-gray-700 text-gray-100 shadow-sm"
+                              : "text-gray-500 hover:text-gray-300"
+                          }`}
+                        >
+                          {gf === "core" ? "Core" : "Infinity"}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                   <button
                     className="w-full py-2.5 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-800

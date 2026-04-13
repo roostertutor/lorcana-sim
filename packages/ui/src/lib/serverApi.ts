@@ -42,14 +42,14 @@ export async function ensureProfile() {
   if (!res.ok) throw new Error("Failed to initialize profile")
 }
 
-export async function createLobby(deck: DeckEntry[]) {
+export async function createLobby(deck: DeckEntry[], format: "bo1" | "bo3" = "bo1", gameFormat: "core" | "infinity" = "infinity") {
   const res = await fetch(`${SERVER_URL}/lobby/create`, {
     method: "POST",
     headers: await authHeaders(),
-    body: JSON.stringify({ deck }),
+    body: JSON.stringify({ deck, format, gameFormat }),
   })
   if (!res.ok) throw new Error(await extractError(res))
-  return res.json() as Promise<{ lobbyId: string; code: string }>
+  return res.json() as Promise<{ lobbyId: string; code: string; format: string; gameFormat: string }>
 }
 
 export async function joinLobby(code: string, deck: DeckEntry[]) {
@@ -78,7 +78,7 @@ export async function sendAction(gameId: string, action: GameAction) {
     body: JSON.stringify({ action }),
   })
   if (!res.ok) throw new Error(await extractError(res))
-  return res.json() as Promise<{ success: boolean; newState: GameState }>
+  return res.json() as Promise<{ success: boolean; newState: GameState; nextGameId?: string }>
 }
 
 export async function resignGame(gameId: string) {
@@ -89,12 +89,26 @@ export async function resignGame(gameId: string) {
   if (!res.ok) throw new Error(await extractError(res))
 }
 
-export async function getProfile() {
+export interface EloRatings {
+  bo1_core: number
+  bo1_infinity: number
+  bo3_core: number
+  bo3_infinity: number
+}
+
+export interface Profile {
+  username: string
+  elo: number
+  elo_ratings: EloRatings
+  games_played: number
+}
+
+export async function getProfile(): Promise<Profile | null> {
   const res = await fetch(`${SERVER_URL}/auth/me`, {
     headers: await authHeaders(),
   })
   if (!res.ok) return null
-  const data = await res.json() as { profile: { username: string; elo: number; games_played: number } }
+  const data = await res.json() as { profile: Profile }
   return data.profile
 }
 
