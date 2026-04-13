@@ -84,6 +84,23 @@ export function applyAction(
     // CRD 1.8: Game state check — damage≥willpower banish + lore win
     newState = runGameStateCheck(newState, definitions, events);
 
+    // Persist revealed cards on state for multiplayer visibility (events are transient)
+    const revealEvents = events.filter((e): e is Extract<GameEvent, { type: "card_revealed" }> => e.type === "card_revealed");
+    if (revealEvents.length > 0) {
+      const last = revealEvents[revealEvents.length - 1]!;
+      newState = {
+        ...newState,
+        lastRevealedCards: {
+          instanceIds: revealEvents.map(e => e.instanceId),
+          sourceInstanceId: last.sourceInstanceId,
+          playerId: last.playerId,
+        },
+      };
+    } else if (newState.lastRevealedCards) {
+      // Clear stale reveals from previous action
+      newState = { ...newState, lastRevealedCards: undefined };
+    }
+
     return { success: true, newState, events };
   } catch (err) {
     console.error("[engine] applyAction threw:", err);

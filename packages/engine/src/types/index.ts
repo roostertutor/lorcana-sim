@@ -2731,6 +2731,12 @@ export interface GameState {
    *  effect so the UI can show a modal without needing event listeners. */
   lastRevealedHand?: { playerId: PlayerID; cardIds: string[] };
 
+  /** Snapshot of cards revealed to all players during search/look_at_top effects.
+   *  Set at the end of applyAction from card_revealed events so multiplayer
+   *  clients can read it from synced state (events are transient). Cleared when
+   *  the next action has no reveals. */
+  lastRevealedCards?: { instanceIds: string[]; sourceInstanceId: string; playerId: PlayerID };
+
   /** Snapshot of the last card resolved as a cost-side target (banish/exert chosen
    *  own character inside a sequential cost). Used by reward-side effects like
    *  Hades Double Dealer ("play a character with the same name as the banished

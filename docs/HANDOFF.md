@@ -34,9 +34,9 @@ Fixed — `reveal_hand` added before `discard_from_hand`.
 
 ---
 
-~~## GUI: `card_revealed` event — show revealed cards to all players~~ **DONE**
+~~## Engine: `card_revealed` — persist on GameState for multiplayer visibility~~ **DONE**
 
-Implemented — `useGameSession` now captures `result.events` as `lastEvents`.
-GameBoard watches for `card_revealed` events and shows a centered overlay with
-the revealed card image(s), source card name, and auto-dismiss after 2.5s.
-Handles multiple reveals (fan layout). Manual dismiss button also available.
+`lastRevealedCards` added to `GameState` — set at the end of `applyAction` from
+`card_revealed` events, cleared on next action if no reveals. Shape:
+`{ instanceIds: string[]; sourceInstanceId: string; playerId: PlayerID }`.
+GUI can read `gameState.lastRevealedCards` — works in sandbox, multiplayer, and replay.
