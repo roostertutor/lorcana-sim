@@ -89,6 +89,41 @@ export async function resignGame(gameId: string) {
   if (!res.ok) throw new Error(await extractError(res))
 }
 
+export async function getProfile() {
+  const res = await fetch(`${SERVER_URL}/auth/me`, {
+    headers: await authHeaders(),
+  })
+  if (!res.ok) return null
+  const data = await res.json() as { profile: { username: string; elo: number; games_played: number } }
+  return data.profile
+}
+
+export interface GameHistoryEntry {
+  id: string
+  opponentName: string
+  opponentElo: number
+  won: boolean
+  date: string
+}
+
+export async function getGameHistory(page = 0, limit = 20): Promise<GameHistoryEntry[]> {
+  const res = await fetch(`${SERVER_URL}/game/history?page=${page}&limit=${limit}`, {
+    headers: await authHeaders(),
+  })
+  if (!res.ok) return []
+  const data = await res.json() as { games: GameHistoryEntry[] }
+  return data.games
+}
+
+export async function getGameActionList(gameId: string): Promise<GameAction[]> {
+  const res = await fetch(`${SERVER_URL}/game/${gameId}/actions`, {
+    headers: await authHeaders(),
+  })
+  if (!res.ok) return []
+  const data = await res.json() as { actions: GameAction[] }
+  return data.actions
+}
+
 export interface ReplayPayload {
   seed: number
   p1Deck: DeckEntry[]

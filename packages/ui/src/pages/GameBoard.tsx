@@ -1814,30 +1814,41 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               {winner === myId ? "You won the game" : winner ? (multiplayerGame ? "Your opponent won" : "The bot won") : "The game ended in a draw"}
             </div>
             <div className="flex flex-col items-center gap-2 pt-1">
-              <button
-                className="w-full px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold transition-colors shadow-lg shadow-amber-600/20"
-                onClick={() => {
-                  session.reset();
-                  setReplayData(null);
-                  if (multiplayerGame) onBack?.();
-                }}
-              >
-                {multiplayerGame ? "Back to Lobby" : "Play Again"}
-              </button>
-              {session.completedGame && (
+              {multiplayerGame ? (
+                <button
+                  className="w-full px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold transition-colors shadow-lg shadow-amber-600/20"
+                  onClick={() => {
+                    session.reset();
+                    setReplayData(null);
+                    onBack?.();
+                  }}
+                >
+                  Back to Lobby
+                </button>
+              ) : (
                 <>
                   <button
-                    className="w-full px-4 py-2 bg-indigo-700/50 hover:bg-indigo-700/70 text-indigo-200 rounded-lg font-medium transition-colors border border-indigo-600/40 text-sm"
-                    onClick={() => setReplayData(session.completedGame)}
+                    className="w-full px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold transition-colors shadow-lg shadow-amber-600/20"
+                    onClick={() => { session.reset(); setReplayData(null); }}
                   >
-                    Review Game
+                    Play Again
                   </button>
-                  <button
-                    className="w-full px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg font-medium transition-colors border border-gray-700 text-sm"
-                    onClick={handleDownloadReplay}
-                  >
-                    Download Replay
-                  </button>
+                  {session.completedGame && (
+                    <>
+                      <button
+                        className="w-full px-4 py-2 bg-indigo-700/50 hover:bg-indigo-700/70 text-indigo-200 rounded-lg font-medium transition-colors border border-indigo-600/40 text-sm"
+                        onClick={() => setReplayData(session.completedGame)}
+                      >
+                        Review Game
+                      </button>
+                      <button
+                        className="w-full px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg font-medium transition-colors border border-gray-700 text-sm"
+                        onClick={handleDownloadReplay}
+                      >
+                        Download Replay
+                      </button>
+                    </>
+                  )}
                 </>
               )}
             </div>

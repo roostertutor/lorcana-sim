@@ -220,3 +220,59 @@ export async function resignGame(gameId: string, userId: string) {
 
   return { success: true }
 }
+
+export async function getGameHistory(userId: string, page: number, limit: number) {
+  const { data, error } = await supabase
+    .from("games")
+    .select(`
+      id,
+      player1_id,
+      player2_id,
+      status,
+      winner_id,
+      created_at,
+      updated_at
+    `)
+    .or(`player1_id.eq.${userId},player2_id.eq.${userId}`)
+    .eq("status", "finished")
+    .order("updated_at", { ascending: false })
+    .range(page * limit, (page + 1) * limit - 1)
+
+  if (error || !data) return []
+
+  // Fetch opponent usernames + ELO in one pass
+  const opponentIds = data.map((g) =>
+    g.player1_id === userId ? g.player2_id : g.player1_id,
+  )
+  const uniqueIds = [...new Set(opponentIds)]
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select("id, username, elo")
+    .in("id", uniqueIds)
+
+  const profileMap = new Map((profiles ?? []).map((p) => [p.id, p]))
+
+  return data.map((g) => {
+    const opponentId = g.player1_id === userId ? g.player2_id : g.player1_id
+    const opponent = profileMap.get(opponentId as string)
+    const won = g.winner_id === userId
+    return {
+      id: g.id,
+      opponentName: (opponent?.username as string | undefined) ?? "Unknown",
+      opponentElo: (opponent?.elo as number | undefined) ?? 1200,
+      won,
+      date: g.updated_at ?? g.created_at,
+    }
+  })
+}
+
+export async function getGameActions(gameId: string) {
+  const { data, error } = await supabase
+    .from("game_actions")
+    .select("action, turn_number")
+    .eq("game_id", gameId)
+    .order("created_at", { ascending: true })
+
+  if (error || !data) return []
+  return data.map((row) => row.action)
+}

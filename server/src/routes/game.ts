@@ -1,10 +1,22 @@
 import { Hono } from "hono"
 import type { GameAction, GameState, PlayerID } from "@lorcana-sim/engine"
 import { requireAuth } from "../middleware/auth.js"
-import { processAction, getGame, resignGame } from "../services/gameService.js"
+import { processAction, getGame, resignGame, getGameHistory, getGameActions } from "../services/gameService.js"
 import { filterStateForPlayer } from "../services/stateFilter.js"
 
 const game = new Hono<{ Variables: { userId: string } }>()
+
+// Static routes MUST come before parameterized /:id routes
+
+// GET /game/history — list of finished games for the current user
+game.get("/history", requireAuth, async (c) => {
+  const userId = c.get("userId")
+  const page = parseInt(c.req.query("page") ?? "0", 10)
+  const limit = Math.min(parseInt(c.req.query("limit") ?? "20", 10), 50)
+
+  const games = await getGameHistory(userId, page, limit)
+  return c.json({ games })
+})
 
 // GET /game/:id — reconnect / page refresh
 game.get("/:id", requireAuth, async (c) => {
@@ -21,6 +33,20 @@ game.get("/:id", requireAuth, async (c) => {
   const filteredState = filterStateForPlayer(gameData.state as GameState, playerSide)
 
   return c.json({ game: { ...gameData, state: filteredState } })
+})
+
+// GET /game/:id/actions — ordered action list for replay reconstruction
+game.get("/:id/actions", requireAuth, async (c) => {
+  const gameData = await getGame(c.req.param("id")!)
+  if (!gameData) return c.json({ error: "Game not found" }, 404)
+
+  const userId = c.get("userId")
+  if (gameData.player1_id !== userId && gameData.player2_id !== userId) {
+    return c.json({ error: "Forbidden" }, 403)
+  }
+
+  const actions = await getGameActions(c.req.param("id")!)
+  return c.json({ actions })
 })
 
 // POST /game/:id/action

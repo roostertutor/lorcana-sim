@@ -2,7 +2,8 @@ import React, { useState, useMemo, useEffect, useRef } from "react";
 import { LORCAST_CARD_DEFINITIONS, parseDecklist } from "@lorcana-sim/engine";
 import type { DeckEntry } from "@lorcana-sim/engine";
 import { supabase } from "../lib/supabase.js";
-import { createLobby, joinLobby, ensureProfile, getLobbyGame } from "../lib/serverApi.js";
+import { createLobby, joinLobby, ensureProfile, getLobbyGame, getProfile, getGameHistory } from "../lib/serverApi.js";
+import type { GameHistoryEntry } from "../lib/serverApi.js";
 
 const SAMPLE_DECK = `4 Tinker Bell - Giant Fairy
 2 Captain Hook - Thinking a Happy Thought
@@ -41,6 +42,8 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   const [copied, setCopied]     = useState(false);
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
   const [session, setSession]   = useState<{ email: string } | null>(null);
+  const [profile, setProfile]   = useState<{ username: string; elo: number; games_played: number } | null>(null);
+  const [history, setHistory]   = useState<GameHistoryEntry[]>([]);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Restore session from Supabase localStorage cache on mount
@@ -51,6 +54,13 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
       }
     });
   }, []);
+
+  // Fetch profile + game history when signed in
+  useEffect(() => {
+    if (!session) { setProfile(null); setHistory([]); return; }
+    getProfile().then((p) => { if (p) setProfile(p); });
+    getGameHistory().then(setHistory);
+  }, [session]);
 
   const { entries: deck, errors: deckErrors } = useMemo(
     () => parseDecklist(deckText, LORCAST_CARD_DEFINITIONS),
@@ -269,7 +279,15 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
           <div className="space-y-3">
             {/* Session bar */}
             <div className="flex items-center justify-between px-1">
-              <span className="text-xs text-gray-600">{session.email}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-600">{profile?.username ?? session.email}</span>
+                {profile && (
+                  <span className="text-xs font-mono text-amber-500/80">{profile.elo} ELO</span>
+                )}
+                {profile && profile.games_played > 0 && (
+                  <span className="text-xs text-gray-700">({profile.games_played} games)</span>
+                )}
+              </div>
               <button
                 onClick={handleSignOut}
                 className="text-xs text-gray-600 hover:text-gray-400 transition-colors"
@@ -377,6 +395,27 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
         {error && (
           <div className="rounded-lg px-4 py-3 bg-red-950/50 border border-red-800/50 text-red-400 text-sm">
             {error}
+          </div>
+        )}
+
+        {/* Game History */}
+        {session && history.length > 0 && (
+          <div className="rounded-xl bg-gray-900/60 border border-gray-800 p-4 space-y-2">
+            <div className="text-sm font-semibold text-gray-300">Recent Games</div>
+            <div className="space-y-1.5">
+              {history.slice(0, 10).map((g) => (
+                <div key={g.id} className="flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className={`font-bold ${g.won ? "text-green-400" : "text-red-400"}`}>
+                      {g.won ? "W" : "L"}
+                    </span>
+                    <span className="text-gray-400">vs {g.opponentName}</span>
+                    <span className="text-gray-700">({g.opponentElo})</span>
+                  </div>
+                  <span className="text-gray-700">{new Date(g.date).toLocaleDateString()}</span>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
