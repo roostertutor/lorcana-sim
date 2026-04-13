@@ -66,19 +66,23 @@ a lobby, and play a complete game against each other right now on localhost.
 | ✅ Reconnection on refresh/crash (localStorage) | 2 | `5580f78` |
 | ✅ Shareable lobby links (`/lobby/:code`) | 2 | `5580f78` |
 | ✅ Duplicate game guard (server-side) | 2 | `5580f78` |
+| ✅ Resign updates GameState + correct Victory/Defeat per player | 2 | `ef57a4d` |
+| ✅ Multiplayer game-over → "Back to Lobby" (clears localStorage) | 2 | `ef57a4d` |
+| ✅ Token auto-refresh (serverApi reads from supabase session) | 2 | `c1af4ec` |
+| ✅ Connection status indicator (green/red dot) | 2 | `c1af4ec` |
+| ✅ Abandoned lobby cleanup on new lobby create | 2 | `c1af4ec` |
 
 ## What's Missing
 
 | Gap | Severity | Iteration |
 |-----|----------|-----------|
-| Token refresh mid-game (1hr expiry) | Medium | 2 |
-| Connection status indicator | Small | 2 |
 | Server deployment (Railway) | Blocking for remote play | 2 |
 | OAuth buttons (Google/Discord) | Nice-to-have | 2 |
 | Game history UI | Nice-to-have | 3 |
 | ELO display | Nice-to-have | 3 |
 | Rematch flow | Nice-to-have | 3 |
 | Replay saving endpoint | Nice-to-have | 3 |
+| Match formats (Bo1/Bo3) | Nice-to-have | 3 |
 | Server integration tests | Maintenance | 3 |
 
 ---
@@ -207,37 +211,22 @@ Active game config stored in `localStorage("mp-game")`. On mount, `/multiplayer`
 route checks for stored game and redirects to `/game/:gameId`. Shareable lobby
 links via `/lobby/:code` with pre-filled join code.
 
-### 2c. Token Refresh
+### 2c. Token Refresh — DONE ✅
 
-**File**: `packages/ui/src/lib/serverApi.ts`
-
-Problem: Every function takes a `token` parameter, which is a snapshot from login time. Supabase tokens expire after 1 hour. Long games will hit 401 errors.
-
-Fix: Read current session token at call time instead of accepting a parameter:
-```typescript
-async function getToken(): Promise<string> {
-  const { data } = await supabase.auth.getSession();
-  if (!data.session) throw new Error("Not authenticated");
-  return data.session.access_token;  // always fresh — supabase-js auto-refreshes
-}
-```
-
-Remove `token` parameter from all serverApi functions. This also simplifies the component prop chain — no more threading `token` through `multiplayerGame`.
+`serverApi.ts` reads fresh token from `supabase.auth.getSession()` internally
+on every call. Removed `token` parameter from all API functions and the entire
+prop chain (`multiplayerGame.token`, `onGameStart` third arg, `GameSessionConfig`).
 
 ### 2d. Error Recovery / State Re-sync — DONE ✅
 
 Dispatch catches `sendAction` errors and re-fetches authoritative state from
 server via `getGame()`. Implemented in `useGameSession.ts` dispatch callback.
 
-### 2e. Connection Status Indicator
+### 2e. Connection Status Indicator — DONE ✅
 
-**File**: `GameBoard.tsx`
-
-Show indicator based on Realtime channel state:
-- `SUBSCRIBED` → green "Connected"
-- `CLOSED` / `CHANNEL_ERROR` → red "Reconnecting..."
-
-Surface in the scoreboard area when in multiplayer mode.
+`useGameSession` exposes `connectionStatus` ("connected" | "reconnecting" | null)
+from the Supabase Realtime channel state. GameBoard shows a green/red dot in
+the scoreboard area next to the resign button during multiplayer games.
 
 ### 2f. OAuth Buttons (Optional)
 
@@ -255,10 +244,10 @@ None.
 
 - [x] Refreshing the page mid-game returns player to their active game
 - [x] Invalid action errors don't desync (client re-fetches server state)
+- [x] Token expiry mid-game doesn't break the session
+- [x] Connection status visible in multiplayer mode
 - [ ] Deployed to Railway (server) + static host (UI) with HTTPS
 - [ ] Two players on different networks can play a complete game
-- [ ] Token expiry mid-game doesn't break the session
-- [ ] Connection status visible in multiplayer mode
 - [ ] OAuth sign-in works (if wired)
 
 ### Risks / Open Questions
@@ -304,7 +293,25 @@ After game-over, show "Rematch" button → creates new lobby with same decks, sh
 
 Cover: lobby flow, action processing, turn validation, resign, ELO, state filtering.
 
-### 3f. Spectator Mode (Design Notes Only — Do Not Build)
+### 3f. Match Formats (Bo1 / Bo3)
+
+Currently every game is a standalone Bo1. Add match format support:
+
+- **Lobby config**: Host selects format (Bo1, Bo3) when creating lobby
+- **DB**: Add `format` column to `lobbies` table, add `match_id` + `game_number`
+  to `games` table to link games within a match
+- **Match flow (Bo3)**: After game 1 ends, game-over modal shows match score
+  (e.g. "1-0") and a "Next Game" button instead of "Back to Lobby". Server
+  creates the next game in the same match automatically. Match ends when one
+  player wins 2 games.
+- **Sideboarding**: Between games in a Bo3, allow deck modifications (swap cards
+  in/out from a sideboard). Requires sideboard field on lobby/deck config.
+  Lorcana doesn't have an official sideboard rule — decide whether to allow
+  full deck swaps or a fixed sideboard size.
+- **ELO**: Update once per match, not per game. A Bo3 counts as one rated match.
+- **Match history**: Game history page shows matches, expandable to individual games.
+
+### 3g. Spectator Mode (Design Notes Only — Do Not Build)
 
 For future reference:
 - Spectators subscribe to game's Realtime channel
@@ -353,7 +360,7 @@ Hidden from opponent: `hand`, `deck`. Public: `play`, `inkwell`, `discard`.
 
 Filtering: keep zone array lengths, replace hidden card entries in `cards` with stubs.
 
-### Token Management (target state after Iteration 2)
+### Token Management — DONE ✅
 
 All `serverApi` functions read token from `supabase.auth.getSession()` internally.
 No `token` parameter in function signatures. No token in component props.

@@ -446,11 +446,14 @@ For 3e (replay mode):
     Reconnection: localStorage persistence, auto-redirect to active game
     Duplicate game guard: server rejects if user has active game
 
-❌ 4f. Deploy to Railway + static host (not yet)
-❌ 4g. Token refresh (serverApi still takes token param, will expire after 1hr)
-❌ 4h. OAuth buttons (Google/Discord — optional, email/password works)
-❌ 4i. Connection status indicator
-❌ 4j. Game history UI, ELO display, rematch, replay saving (Iteration 3)
+✅ 4f. Token auto-refresh — serverApi reads fresh token from supabase session
+✅ 4g. Connection status indicator — green/red dot in scoreboard
+✅ 4h. Resign flow — updates GameState, correct Victory/Defeat per player,
+      "Back to Lobby" button, lobby cleanup on new create
+
+❌ 4i. Deploy to Railway + static host (only remaining Iteration 2 item)
+❌ 4j. OAuth buttons (Google/Discord — optional, email/password works)
+❌ 4k. Game history UI, ELO display, rematch, replay saving, Bo1/Bo3 (Iteration 3)
 ```
 
 **Full phased spec**: See `docs/MULTIPLAYER.md` for detailed iteration plan,
