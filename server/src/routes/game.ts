@@ -32,7 +32,7 @@ game.get("/:id", requireAuth, async (c) => {
   const playerSide: PlayerID = gameData.player1_id === userId ? "player1" : "player2"
   const filteredState = filterStateForPlayer(gameData.state as GameState, playerSide)
 
-  return c.json({ game: { ...gameData, state: filteredState } })
+  return c.json({ game: { ...gameData, state: filteredState }, playerSide })
 })
 
 // GET /game/:id/actions — ordered action list for replay reconstruction

@@ -3,7 +3,7 @@ import { Routes, Route, useNavigate, useLocation, useParams, Navigate } from "re
 import { LORCAST_CARD_DEFINITIONS } from "@lorcana-sim/engine";
 import type { DeckEntry } from "@lorcana-sim/engine";
 import type { ReplayData } from "./hooks/useGameSession.js";
-import { getGameReplay } from "./lib/serverApi.js";
+import { getGameReplay, getGameInfo } from "./lib/serverApi.js";
 import DecksPage from "./pages/DecksPage.js";
 import SimulationView from "./pages/SimulationView.js";
 import TestBench from "./pages/TestBench.js";
@@ -46,16 +46,43 @@ function MultiplayerGamePage() {
   const navigate = useNavigate();
 
   // Read multiplayer config from localStorage (persisted on game start)
-  const [config] = useState(() => {
+  const [config, setConfig] = useState<{ gameId: string; myPlayerId: "player1" | "player2" } | null>(() => {
     try {
       const raw = localStorage.getItem("mp-game");
       return raw ? (JSON.parse(raw) as { gameId: string; myPlayerId: "player1" | "player2" }) : null;
     } catch { return null; }
   });
+  const [loading, setLoading] = useState(false);
+  const [failed, setFailed] = useState(false);
 
-  // If config doesn't match this gameId (stale or missing), go back to lobby
-  if (!config || config.gameId !== gameId) {
+  // If no localStorage config (e.g. rejoin from error), fetch player side from server
+  useEffect(() => {
+    if (config?.gameId === gameId || !gameId) return;
+    setLoading(true);
+    getGameInfo(gameId)
+      .then((info) => {
+        if (info && info.status === "active") {
+          const cfg = { gameId, myPlayerId: info.playerSide };
+          localStorage.setItem("mp-game", JSON.stringify(cfg));
+          setConfig(cfg);
+        } else {
+          setFailed(true);
+        }
+      })
+      .catch(() => setFailed(true))
+      .finally(() => setLoading(false));
+  }, [gameId, config]);
+
+  if (failed) {
     return <Navigate to="/multiplayer" replace />;
+  }
+
+  if (loading || !config || config.gameId !== gameId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-950">
+        <span className="text-gray-500 text-sm animate-pulse">Reconnecting to game...</span>
+      </div>
+    );
   }
 
   return (

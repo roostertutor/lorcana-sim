@@ -67,8 +67,17 @@ export async function getGame(gameId: string) {
     headers: await authHeaders(),
   })
   if (!res.ok) throw new Error(await extractError(res))
-  const data = await res.json() as { game: { state: GameState } }
+  const data = await res.json() as { game: { state: GameState; status?: string }; playerSide?: "player1" | "player2" }
   return data.game.state
+}
+
+export async function getGameInfo(gameId: string) {
+  const res = await fetch(`${SERVER_URL}/game/${gameId}`, {
+    headers: await authHeaders(),
+  })
+  if (!res.ok) return null
+  const data = await res.json() as { game: { state: GameState; status?: string }; playerSide: "player1" | "player2" }
+  return { state: data.game.state, playerSide: data.playerSide, status: data.game.status }
 }
 
 export async function sendAction(gameId: string, action: GameAction) {
