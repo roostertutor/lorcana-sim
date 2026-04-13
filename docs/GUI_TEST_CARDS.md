@@ -130,9 +130,9 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 | [X] | Play restriction grey | Mirabel Madrigal - Family Gatherer  | 5   |
 | [X] | Play-from-discard glow | Pride Lands - Jungle Oasis          | 6   |
 | [X] | Reveal hand modal | Dolores Madrigal                    | 5   |
-| [ ] | Revealed cards viewer (search/look-at-top) | Ariel - Spectacular Singer | 1 |
-| [ ] | Unplayable hand card dim | Any card costing more than available ink | any |
-| [ ] | Discard tile glow (ink-from-discard) | Moana - Curious Explorer | 6 |
+| [X] | Revealed cards viewer (search/look-at-top) | Ariel - Spectacular Singer | 1 |
+| [X] | Unplayable hand card dim | Any card costing more than available ink | any |
+| [X] | Discard tile glow (ink-from-discard) | Moana - Curious Explorer | 6 |
 
 ---
 
@@ -161,13 +161,13 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 
 | OK  | Feature | Card | Set |
 |-----|---------|------|-----|
-| [ ] | Full image + card name/subtitle | Any card | any |
-| [ ] | Ink color badges + cost circle | Any card | any |
-| [ ] | Traits row | Stitch - Rock Star (Alien, Hero) | 1 |
-| [ ] | Stats: STR/WIL/Lore + effective vs base | Any buffed/debuffed character | any |
-| [ ] | Keywords (printed + granted) | Tinker Bell - Most Helpful (grants Rush) | 5 |
-| [ ] | In-play state (damage, exerted, drying) | Any damaged exerted character | any |
-| [ ] | Rules text + flavor text | Any card with rules text | any |
+| [X] | Full image + card name/subtitle | Any card | any |
+| [X] | Ink color badges + cost circle | Any card | any |
+| [X] | Traits row | Stitch - Rock Star (Alien, Hero) | 1 |
+| [X] | Stats: STR/WIL/Lore + effective vs base | Any buffed/debuffed character | any |
+| [X] | Keywords (printed + granted) | Tinker Bell - Most Helpful (grants Rush) | 5 |
+| [X] | In-play state (damage, exerted, drying) | Any damaged exerted character | any |
+| [X] | Rules text + flavor text | Any card with rules text | any |
 
 ## Next Session — Potential Focus Areas
 
