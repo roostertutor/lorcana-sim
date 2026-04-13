@@ -130,7 +130,7 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 | [X] | Play restriction grey | Mirabel Madrigal - Family Gatherer  | 5   |
 | [X] | Play-from-discard glow | Pride Lands - Jungle Oasis          | 6   |
 | [X] | Reveal hand modal | Dolores Madrigal                    | 5   |
-| [ ] | Revealed cards overlay (search/look-at-top) | Alma Madrigal | 4 |
+| [ ] | Revealed cards viewer (search/look-at-top) | Ariel - Spectacular Singer | 1 |
 | [ ] | Unplayable hand card dim | Any card costing more than available ink | any |
 | [ ] | Discard tile glow (ink-from-discard) | Moana - Curious Explorer | 6 |
 
@@ -138,13 +138,13 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 
 ## Color Scheme (5 families)
 
-| Category | Tailwind | Used for |
-|----------|----------|----------|
-| Keywords | `slate-600` | All 11 keyword badges (icons differentiate) |
-| Buffs | `green-700` | +S/+W/+L deltas, granted traits |
-| Debuffs/Restrictions | `red-700` | -S/-W/-L deltas, can't challenge/ready/sing |
-| Info | `gray-600` | U-Shift, dual-name, cards-under count, once-per-turn |
-| Warning | `amber-600` | Damage prevention shield, delayed trigger |
+| OK  | Category | Tailwind | Used for |
+|-----|----------|----------|----------|
+| [X] | Keywords | `slate-600` | All 11 keyword badges (icons differentiate) |
+| [X] | Buffs | `green-700` | +S/+W/+L deltas, granted traits |
+| [X] | Debuffs/Restrictions | `red-700` | -S/-W/-L deltas, can't challenge/ready/sing |
+| [X] | Info | `gray-600` | U-Shift, dual-name, cards-under count, once-per-turn |
+| [X] | Warning | `amber-600` | Damage prevention shield, delayed trigger |
 
 ---
 

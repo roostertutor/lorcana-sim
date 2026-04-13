@@ -2733,8 +2733,9 @@ export interface GameState {
 
   /** Snapshot of cards revealed to all players during search/look_at_top effects.
    *  Set at the end of applyAction from card_revealed events so multiplayer
-   *  clients can read it from synced state (events are transient). Cleared when
-   *  the next action has no reveals. */
+   *  clients can read it from synced state (events are transient). Persists until
+   *  overwritten by the next action that produces reveals — NOT cleared by
+   *  actions with no reveals (the GUI is responsible for dismissing). */
   lastRevealedCards?: { instanceIds: string[]; sourceInstanceId: string; playerId: PlayerID };
 
   /** Snapshot of the last card resolved as a cost-side target (banish/exert chosen

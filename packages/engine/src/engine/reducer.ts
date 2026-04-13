@@ -84,7 +84,11 @@ export function applyAction(
     // CRD 1.8: Game state check — damage≥willpower banish + lore win
     newState = runGameStateCheck(newState, definitions, events);
 
-    // Persist revealed cards on state for multiplayer visibility (events are transient)
+    // Persist revealed cards on state for multiplayer visibility (events are transient).
+    // Only overwrite when this action produced reveals — follow-up actions like
+    // choose_order (which have no reveals) must NOT clear stale data, because the
+    // GUI may not have rendered the overlay yet (Ariel Spectacular Singer flow:
+    // choose_from_revealed → choose_order back-to-back).
     const revealEvents = events.filter((e): e is Extract<GameEvent, { type: "card_revealed" }> => e.type === "card_revealed");
     if (revealEvents.length > 0) {
       const last = revealEvents[revealEvents.length - 1]!;
@@ -96,9 +100,6 @@ export function applyAction(
           playerId: last.playerId,
         },
       };
-    } else if (newState.lastRevealedCards) {
-      // Clear stale reveals from previous action
-      newState = { ...newState, lastRevealedCards: undefined };
     }
 
     return { success: true, newState, events };

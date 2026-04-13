@@ -40,3 +40,23 @@ Fixed — `reveal_hand` added before `discard_from_hand`.
 `card_revealed` events, cleared on next action if no reveals. Shape:
 `{ instanceIds: string[]; sourceInstanceId: string; playerId: PlayerID }`.
 GUI can read `gameState.lastRevealedCards` — works in sandbox, multiplayer, and replay.
+
+---
+
+~~## Server: Anti-cheat filter must include `lastRevealedCards` instance data~~ **DONE**
+
+`stateFilter.ts` now whitelists `lastRevealedCards.instanceIds` — skips stubbing
+those cards even if they're in the opponent's hand/deck.
+
+---
+
+~~## Engine: `lastRevealedCards` not set for triggered-ability reveals (Ariel Spectacular Singer)~~ **NOT AN ENGINE BUG**
+
+Verified via trace test — engine sets `lastRevealedCards` correctly:
+- Action 2 (RESOLVE choose_from_revealed): `lastRevealedCards` IS set with the chosen card
+- Action 3 (RESOLVE choose_order): `lastRevealedCards` persists (not cleared)
+
+The engine data is there. The problem is on the GUI side — likely the reveal
+overlay is suppressed or not rendered when `pendingChoice` is also present
+(`choose_order` is active at the same time as `lastRevealedCards`). The GUI
+needs to show the reveal overlay even when a `pendingChoice` modal is queued.

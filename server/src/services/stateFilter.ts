@@ -35,11 +35,16 @@ export function filterStateForPlayer(state: GameState, playerId: PlayerID): Game
   // Deep-clone cards map so we can replace entries without mutating the original
   const filteredCards: Record<string, CardInstance> = { ...state.cards }
 
+  // Cards referenced by lastRevealedCards are public — don't stub them even if
+  // they're in a hidden zone (the whole point of "reveal" is both players see it).
+  const revealedSet = new Set(state.lastRevealedCards?.instanceIds ?? [])
+
   // Hidden zones: opponent's hand and deck
   const hiddenZones: ZoneName[] = ["hand", "deck"]
   for (const zoneName of hiddenZones) {
     const instanceIds = state.zones[opponentId]?.[zoneName] ?? []
     for (const id of instanceIds) {
+      if (revealedSet.has(id)) continue
       filteredCards[id] = hiddenStub(id, zoneName, opponentId)
     }
   }

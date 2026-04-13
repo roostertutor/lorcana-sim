@@ -525,16 +525,16 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   const [autoPassP2, setAutoPassP2] = useState(true);
   const [revealHandDismissed, setRevealHandDismissed] = useState(false);
   const lastRevealRef = useRef<string | null>(null);
-  // Revealed cards overlay — shows card_revealed events briefly
-  const [revealedCards, setRevealedCards] = useState<{ instanceId: string; sourceInstanceId: string }[]>([]);
-  const revealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const lastRevealEventsRef = useRef<string | null>(null);
   // Reset dismiss when a NEW reveal arrives (different card IDs)
   const currentRevealKey = session.gameState?.lastRevealedHand?.cardIds.join(",") ?? null;
   if (currentRevealKey && currentRevealKey !== lastRevealRef.current) {
     lastRevealRef.current = currentRevealKey;
     if (revealHandDismissed) setRevealHandDismissed(false);
   }
+  // Revealed cards (search/look-at-top) — track which reveal was dismissed by key
+  const [dismissedRevealKey, setDismissedRevealKey] = useState<string | null>(null);
+  const currentRevealCardsKey = session.gameState?.lastRevealedCards?.instanceIds.join(",") ?? null;
+  const showRevealCards = currentRevealCardsKey !== null && currentRevealCardsKey !== dismissedRevealKey;
 
   const p1Parse = useMemo(() => parseDecklist(p1DeckText, definitions), [p1DeckText, definitions]);
   const p2Parse = useMemo(() => parseDecklist(p2DeckText, definitions), [p2DeckText, definitions]);
@@ -780,23 +780,6 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       logRef.current.scrollTop = logRef.current.scrollHeight;
     }
   }, [session.actionLog.length]);
-
-  // Watch for card_revealed events and show overlay
-  useEffect(() => {
-    const reveals = session.lastEvents.filter(
-      (e): e is Extract<typeof e, { type: "card_revealed" }> => e.type === "card_revealed",
-    );
-    if (reveals.length === 0) return;
-    // Deduplicate — don't re-show the same set of reveals
-    const key = reveals.map((r) => r.instanceId).join(",");
-    if (key === lastRevealEventsRef.current) return;
-    lastRevealEventsRef.current = key;
-    setRevealedCards(reveals.map((r) => ({ instanceId: r.instanceId, sourceInstanceId: r.sourceInstanceId })));
-    // Auto-dismiss after 2.5 seconds
-    if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
-    revealTimerRef.current = setTimeout(() => setRevealedCards([]), 2500);
-    return () => { if (revealTimerRef.current) clearTimeout(revealTimerRef.current); };
-  }, [session.lastEvents]);
 
   // Disable pull-to-refresh, overscroll bounce, and long-press callout while the game board is mounted
   useEffect(() => {
@@ -1763,47 +1746,6 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         </div>
       )}
 
-      {/* ======================= Revealed Cards Overlay ======================= */}
-      {revealedCards.length > 0 && gameState && (() => {
-        // Find the source card name for the header
-        const srcId = revealedCards[0]!.sourceInstanceId;
-        const srcInst = gameState.cards[srcId];
-        const srcDef = srcInst ? definitions[srcInst.definitionId] : undefined;
-        const sourceName = srcDef?.fullName ?? "Card";
-        return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-            <div className="bg-gray-950/90 border border-indigo-700/60 rounded-2xl p-4 shadow-2xl pointer-events-auto max-w-lg animate-in fade-in">
-              <div className="text-center mb-3">
-                <div className="text-indigo-300 text-xs font-bold uppercase tracking-wider">Revealed</div>
-                <div className="text-gray-400 text-[10px]">{sourceName}</div>
-              </div>
-              <div className="flex justify-center gap-2 flex-wrap">
-                {revealedCards.map((r) => (
-                  <div key={r.instanceId} className="scale-[0.85] origin-top">
-                    <GameCard
-                      instanceId={r.instanceId}
-                      gameState={gameState}
-                      definitions={definitions}
-                      isSelected={false}
-                      onClick={() => {}}
-                      zone="play"
-                    />
-                  </div>
-                ))}
-              </div>
-              <div className="text-center mt-2">
-                <button
-                  className="px-3 py-1 text-[10px] text-gray-500 hover:text-gray-300 bg-gray-800/60 hover:bg-gray-700/60 rounded-full border border-gray-700 transition-colors"
-                  onClick={() => setRevealedCards([])}
-                >
-                  Dismiss
-                </button>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
-
       {/* ======================= DragOverlay ======================= */}
       <DragOverlay>
         {dnd.activeId && gameState ? (
@@ -1974,6 +1916,23 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           onClose={() => setRevealHandDismissed(true)}
         />
       )}
+
+      {/* ======================= Revealed Cards Viewer (search/look-at-top with reveal) ======================= */}
+      {showRevealCards && gameState?.lastRevealedCards && (() => {
+        const rc = gameState.lastRevealedCards!;
+        const srcInst = gameState.cards[rc.sourceInstanceId];
+        const srcDef = srcInst ? definitions[srcInst.definitionId] : undefined;
+        const sourceName = srcDef?.fullName ?? "Card";
+        return (
+          <ZoneViewModal
+            title={`Revealed by ${sourceName}`}
+            cardIds={rc.instanceIds}
+            gameState={gameState}
+            definitions={definitions}
+            onClose={() => setDismissedRevealKey(currentRevealCardsKey)}
+          />
+        );
+      })()}
 
       {/* ======================= Deck Viewer (your deck only) ======================= */}
       {deckViewerOpen && (
