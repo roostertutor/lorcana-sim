@@ -3620,20 +3620,24 @@ export function applyEffect(
             };
           }
 
-          // No filter: let the bot choose which card to keep
-          if (topCards.length <= 1) {
-            // Only 1 card — no choice needed
+          // No filter: let the player choose which card to keep
+          if (!state.interactive && topCards.length <= 1) {
+            // Bot mode: 0-1 card, no choice needed
             if (topCards.length === 1) {
               state = moveCard(state, topCards[0]!, targetPlayer, "hand");
             }
             return state;
           }
+          if (topCards.length === 0) return state;
+          // Interactive: always show the choice, even for 1 card
           return {
             ...state,
             pendingChoice: {
               type: "choose_from_revealed",
               choosingPlayerId: controllingPlayerId,
-              prompt: `Choose 1 of ${topCards.length} revealed cards to put into your hand. The rest go to the bottom of your deck.`,
+              prompt: topCards.length === 1
+                ? `Revealed 1 card. Put it into your hand.`
+                : `Choose 1 of ${topCards.length} revealed cards to put into your hand. The rest go to the bottom of your deck.`,
               validTargets: topCards,
               pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             },
@@ -4664,18 +4668,8 @@ export function applyEffect(
       if (state.interactive) {
         const allMatches = sourceCards.filter(isMatch);
         if (allMatches.length === 0) return state;
-        if (allMatches.length === 1) {
-          // Only one match — auto-resolve (no meaningful choice)
-          const matchId = allMatches[0]!;
-          if (effect.reveal) {
-            events.push({ type: "card_revealed", instanceId: matchId, playerId: controllingPlayerId, sourceInstanceId });
-          }
-          if (effect.putInto === "deck" && effect.position === "top") {
-            return moveCard(state, matchId, targetPlayer, "deck", "top");
-          }
-          return moveCard(state, matchId, targetPlayer, effect.putInto);
-        }
-        // Multiple matches — let the player pick
+        // Always show the choice — even for single match, so the player sees
+        // what was found and both sides get the reveal overlay in multiplayer.
         return {
           ...state,
           pendingChoice: {

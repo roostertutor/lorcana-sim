@@ -70,3 +70,17 @@ Interactive mode now collects ALL matching cards with `.filter()` and presents a
 auto-resolves). The `choose_from_revealed` handler detects `pendingEffect.type === "search"`
 and moves the chosen card to the search's `putInto` destination without touching
 the remaining deck cards.
+
+---
+
+~~## Engine: Discuss auto-resolve UX for forced single-target choices~~ **DONE (option 1)**
+
+In interactive mode, the engine no longer auto-resolves:
+- `search`: always shows `choose_from_revealed` even for single match
+- `look_at_top` (no-filter, 1 card): shows `choose_from_revealed` instead of
+  silently moving to hand
+
+Note: `choose_target` and `choose_discard` already always created pending choices
+— they were never auto-resolving. `choose` with 1 feasible option still auto-
+resolves because CRD 6.1.5.2 mandates the forced pick (game rules, not UX skip).
+Bot/headless mode unchanged.
