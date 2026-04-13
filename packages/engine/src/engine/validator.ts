@@ -480,7 +480,8 @@ function validateQuest(
   if (def.cardType !== "character") return fail("Only characters can quest."); // CRD 5.3.4
   // CRD 8.7.2: Reckless characters can't quest
   if (hasKeyword(instance, def, "reckless")) return fail("Reckless characters can't quest.");
-  if (!def.lore || def.lore <= 0) return fail("This character has no lore value."); // CRD 4.5.3.1
+  // 0-lore characters CAN quest (they gain 0 lore normally but may have
+  // triggered abilities like Mulan Resourceful Recruit's RIGOROUS TRAINING).
 
   // CRD 6.6.1: Unified check for quest restrictions (timed effects + statics like Gothel)
   const modifiers = getGameModifiers(state, definitions);
