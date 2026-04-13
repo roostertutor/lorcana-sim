@@ -54,7 +54,7 @@ function DeckField({ label, value, onChange }: { label: string; value: string; o
         {count > 0 && errors.length === 0 && <span className="text-xs text-green-400">{count} cards ✓</span>}
       </div>
       <textarea
-        className="w-full h-40 bg-gray-950 border border-gray-700 rounded-lg p-3 text-xs font-mono
+        className="w-full h-40 bg-gray-950 border border-gray-700 rounded-lg p-3 text-sm font-mono
                    text-gray-200 focus:outline-none focus:border-amber-500 resize-none"
         placeholder="4 Card Name..."
         value={value}
@@ -121,7 +121,11 @@ export default function SimulationView() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Simulate</h1>
+      {/* Header */}
+      <div className="text-center">
+        <h1 className="text-2xl font-black text-amber-400 tracking-tight">Simulate</h1>
+        <p className="text-gray-600 text-sm mt-1">Run thousands of games to measure deck performance</p>
+      </div>
 
       {/* Mode toggle */}
       <div className="flex rounded-lg bg-gray-800 p-0.5 w-fit">

@@ -1,6 +1,6 @@
 // =============================================================================
 // AnalysisPanel — Win probability bar + position factor indicators
-// Used by both TestBench and GameBoard.
+// Used by both Sandbox and GameBoard.
 // =============================================================================
 
 import React from "react";

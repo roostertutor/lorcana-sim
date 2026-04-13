@@ -1,6 +1,6 @@
 // =============================================================================
 // formatAction — converts GameAction → human-readable label
-// Shared between TestBench and GameBoard.
+// Shared between Sandbox and GameBoard.
 // =============================================================================
 
 import type { CardDefinition, GameAction, GameState } from "@lorcana-sim/engine";

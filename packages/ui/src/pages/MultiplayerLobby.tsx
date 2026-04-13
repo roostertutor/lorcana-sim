@@ -5,23 +5,8 @@ import type { DeckEntry } from "@lorcana-sim/engine";
 import { supabase } from "../lib/supabase.js";
 import { createLobby, joinLobby, ensureProfile, getLobbyGame, getProfile, getGameHistory } from "../lib/serverApi.js";
 import type { GameHistoryEntry } from "../lib/serverApi.js";
-
-const SAMPLE_DECK = `4 Tinker Bell - Giant Fairy
-2 Captain Hook - Thinking a Happy Thought
-4 Ariel - Spectacular Singer
-4 Simba - Protective Cub
-4 Be Our Guest
-4 A Whole New World
-4 Beast - Hardheaded
-4 Stitch - Rock Star
-4 Simba - Future King
-4 Captain Hook - Forceful Duelist
-4 Grab Your Sword
-4 Rapunzel - Gifted with Healing
-2 Fire the Cannons!
-4 Stitch - New Dog
-4 Lantern
-4 Stitch - Carefree Surfer`;
+import { listDecks } from "../lib/deckApi.js";
+import type { SavedDeck } from "../lib/deckApi.js";
 
 interface Props {
   onGameStart: (gameId: string, myPlayerId: "player1" | "player2") => void;
@@ -34,7 +19,10 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   const navigate = useNavigate();
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
-  const [deckText, setDeckText] = useState(SAMPLE_DECK);
+  const [savedDecks, setSavedDecks] = useState<SavedDeck[]>([]);
+  const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null);
+  const [deckText, setDeckText] = useState("");
+  const [deckMode, setDeckMode] = useState<"saved" | "paste">("saved");
   const [deckOpen, setDeckOpen] = useState(false);
   const [format, setFormat]     = useState<"bo1" | "bo3">("bo1");
   const [gameFormat, setGameFormat] = useState<"core" | "infinity">("infinity");
@@ -63,11 +51,20 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
     return () => subscription.unsubscribe();
   }, []);
 
-  // Fetch profile + game history when signed in
+  // Fetch profile + game history + saved decks when signed in
   useEffect(() => {
-    if (!session) { setProfile(null); setHistory([]); return; }
+    if (!session) { setProfile(null); setHistory([]); setSavedDecks([]); return; }
     getProfile().then((p) => { if (p) setProfile(p); });
     getGameHistory().then(setHistory);
+    listDecks().then((decks) => {
+      setSavedDecks(decks);
+      // Auto-select first valid deck
+      if (decks.length > 0 && !selectedDeckId) {
+        const first = decks[0];
+        setSelectedDeckId(first.id);
+        setDeckText(first.decklist_text);
+      }
+    }).catch(() => {});
   }, [session]);
 
   const { entries: deck, errors: deckErrors } = useMemo(
@@ -172,34 +169,89 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
 
         {/* Header */}
         <div className="text-center mb-6">
-          <h2 className="text-2xl font-black text-amber-400 tracking-tight">Multiplayer</h2>
+          <h1 className="text-2xl font-black text-amber-400 tracking-tight">Multiplayer</h1>
           <p className="text-gray-600 text-sm mt-1">Play against a real opponent</p>
         </div>
 
         {/* Deck section */}
-        <div className="rounded-xl bg-gray-900/60 border border-gray-800 p-4">
-          <button
-            className="w-full flex items-center justify-between text-left"
-            onClick={() => setDeckOpen((v) => !v)}
-          >
+        <div className="card p-4 space-y-3">
+          <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-gray-300">Your Deck</span>
             <span className="flex items-center gap-2">
               {deckReady ? (
-                <span className="text-xs text-green-400 font-mono">{cardCount} cards ✓</span>
-              ) : (
+                <span className="text-xs text-green-400 font-mono">{cardCount} cards</span>
+              ) : deckText ? (
                 <span className="text-xs text-red-400">invalid</span>
+              ) : (
+                <span className="text-xs text-gray-600">none selected</span>
               )}
-              <span className="text-gray-600 text-xs">{deckOpen ? "▲" : "▼"}</span>
             </span>
-          </button>
+          </div>
 
-          {deckOpen && (
-            <div className="mt-3 space-y-2">
+          {/* Mode toggle */}
+          <div className="flex rounded-lg bg-gray-800 p-0.5">
+            {(["saved", "paste"] as const).map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setDeckMode(mode)}
+                className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  deckMode === mode
+                    ? "bg-gray-700 text-gray-100 shadow-sm"
+                    : "text-gray-500 hover:text-gray-300"
+                }`}
+              >
+                {mode === "saved" ? "Saved Decks" : "Paste"}
+              </button>
+            ))}
+          </div>
+
+          {deckMode === "saved" ? (
+            savedDecks.length > 0 ? (
+              <div className="space-y-1.5">
+                {savedDecks.map((d) => {
+                  const parsed = parseDecklist(d.decklist_text, LORCAST_CARD_DEFINITIONS);
+                  const count = parsed.entries.reduce((s, e) => s + e.count, 0);
+                  const isValid = parsed.entries.length > 0 && parsed.errors.length === 0;
+                  return (
+                    <button
+                      key={d.id}
+                      onClick={() => { setSelectedDeckId(d.id); setDeckText(d.decklist_text); }}
+                      className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
+                        selectedDeckId === d.id
+                          ? "border-amber-500 bg-amber-900/20"
+                          : "border-gray-800 bg-gray-950 hover:border-gray-700"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-200 truncate">{d.name}</span>
+                        {isValid ? (
+                          <span className="text-xs text-green-400 font-mono shrink-0 ml-2">{count}</span>
+                        ) : (
+                          <span className="text-xs text-red-400 shrink-0 ml-2">invalid</span>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-3 space-y-2">
+                <p className="text-xs text-gray-600">No saved decks</p>
+                <button
+                  className="text-xs text-amber-500 hover:text-amber-400 transition-colors"
+                  onClick={() => navigate("/")}
+                >
+                  Go to Decks to create one
+                </button>
+              </div>
+            )
+          ) : (
+            <div className="space-y-2">
               <textarea
-                className="w-full h-44 bg-gray-800/80 border border-gray-700 rounded-lg px-3 py-2
-                           text-xs text-gray-200 font-mono resize-none focus:border-amber-500/60 focus:outline-none"
+                className="w-full h-44 bg-gray-950 border border-gray-700 rounded-lg p-3
+                           text-sm text-gray-200 font-mono resize-none focus:border-amber-500 focus:outline-none"
                 value={deckText}
-                onChange={(e) => setDeckText(e.target.value)}
+                onChange={(e) => { setDeckText(e.target.value); setSelectedDeckId(null); }}
                 placeholder={"4 Card Name\n4 Another Card\n..."}
                 spellCheck={false}
               />
@@ -230,7 +282,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
 
         {/* Auth */}
         {!session ? (
-          <div className="rounded-xl bg-gray-900/60 border border-gray-800 p-4 space-y-3">
+          <div className="card p-4 space-y-3">
             {/* Mode toggle */}
             <div className="flex rounded-lg bg-gray-800 p-0.5">
               {(["signin", "signup"] as const).map((mode) => (
@@ -251,7 +303,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
             <input
               className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5
                          text-sm text-gray-200 placeholder-gray-600
-                         focus:border-amber-500/60 focus:outline-none"
+                         focus:border-amber-500 focus:outline-none"
               placeholder="Email"
               type="email"
               autoComplete="email"
@@ -262,7 +314,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
             <input
               className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5
                          text-sm text-gray-200 placeholder-gray-600
-                         focus:border-amber-500/60 focus:outline-none"
+                         focus:border-amber-500 focus:outline-none"
               placeholder="Password"
               type="password"
               autoComplete={authMode === "signin" ? "current-password" : "new-password"}
@@ -334,7 +386,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
             {!isWaiting ? (
               <div className="grid grid-cols-2 gap-3">
                 {/* Host */}
-                <div className="rounded-xl bg-gray-900/60 border border-gray-800 p-4 space-y-3">
+                <div className="card p-4 space-y-3">
                   <div>
                     <div className="text-sm font-semibold text-gray-200">Host a game</div>
                     <div className="text-xs text-gray-600 mt-0.5">Create a lobby, share the code</div>
@@ -384,7 +436,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                 </div>
 
                 {/* Join */}
-                <div className="rounded-xl bg-gray-900/60 border border-gray-800 p-4 space-y-3">
+                <div className="card p-4 space-y-3">
                   <div>
                     <div className="text-sm font-semibold text-gray-200">Join a game</div>
                     <div className="text-xs text-gray-600 mt-0.5">Enter the host's code</div>
@@ -392,7 +444,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                   <input
                     className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2
                                text-sm text-gray-200 font-mono tracking-[0.3em] uppercase text-center
-                               focus:border-amber-500/60 focus:outline-none placeholder-gray-700"
+                               focus:border-amber-500 focus:outline-none placeholder-gray-700"
                     placeholder="XXXXXX"
                     maxLength={6}
                     value={joinCode}
@@ -412,7 +464,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
               </div>
             ) : (
               /* Waiting state */
-              <div className="rounded-xl bg-gray-900/60 border border-gray-800 p-6 text-center space-y-4">
+              <div className="card p-6 text-center space-y-4">
                 {/* Animated dots */}
                 <div className="flex justify-center gap-1.5">
                   {[0, 1, 2].map((i) => (
@@ -481,7 +533,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
 
         {/* Game History */}
         {session && history.length > 0 && (
-          <div className="rounded-xl bg-gray-900/60 border border-gray-800 p-4 space-y-2">
+          <div className="card p-4 space-y-2">
             <div className="text-sm font-semibold text-gray-300">Recent Games</div>
             <div className="space-y-1.5">
               {history.slice(0, 10).map((g) => (

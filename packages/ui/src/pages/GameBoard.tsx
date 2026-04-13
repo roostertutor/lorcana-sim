@@ -1371,6 +1371,27 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               <span className="text-gray-600 text-[10px]">/20</span>
             </div>
 
+            {/* Mobile drawer toggles — pushed right via ml-auto in sandbox mode;
+                in multiplayer mode the ml-auto is on the !sandboxMode block instead */}
+            <div className={`flex items-center gap-1 md:hidden ${sandboxMode ? "ml-auto" : ""}`}>
+              <button
+                className="p-1.5 rounded-lg text-gray-500 hover:text-gray-300 hover:bg-gray-800/50 active:scale-95 transition-colors"
+                onClick={() => setShowLog(true)}
+                title="Game Log"
+              >
+                <Icon name="document-text" className="w-4 h-4" />
+              </button>
+              {sandboxMode && (
+                <button
+                  className="p-1.5 rounded-lg text-gray-500 hover:text-gray-300 hover:bg-gray-800/50 active:scale-95 transition-colors"
+                  onClick={() => setShowAnalysis(true)}
+                  title="Sandbox"
+                >
+                  <Icon name="wrench" className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
             {/* Desktop full lore trackers */}
             <div className="hidden md:flex md:flex-1 md:flex-col md:gap-0.5 md:ml-2">
               <LoreTracker lore={p1.lore} label="You" color="green" />
@@ -1396,7 +1417,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               </button>
             )}
 
-            {!sandboxMode && (
+            {(!sandboxMode || onBack) && (
               <div className="ml-auto shrink-0 flex items-center gap-1">
                 {session.connectionStatus && (
                   <span
@@ -1632,72 +1653,65 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
 
 
 
-      {/* ======================= Mobile: Analysis/Sandbox bottom sheet ======================= */}
-      {showAnalysis && (
-        <div className="fixed inset-0 z-40 md:hidden">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAnalysis(false)} />
-          <div className="absolute bottom-0 left-0 right-0 max-h-[70vh] overflow-y-auto
-                          bg-gray-950 rounded-t-2xl border-t border-gray-800 p-4
-                          pb-[env(safe-area-inset-bottom,16px)]">
-            <div className="w-10 h-1 bg-gray-700 rounded-full mx-auto mb-4" />
-            {sandboxMode ? (
-              <div className="space-y-4">
-                <SandboxPanel
-                  session={session}
-                  gameState={gameState}
-                  definitions={definitions}
-                  myId={myId}
-                  autoPassP2={autoPassP2}
-                  onAutoPassP2Change={setAutoPassP2}
-                />
-                <div className="space-y-2">
-                  <div className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">
-                    Game Log ({actionLog.length})
-                  </div>
-                  <div className="h-48 overflow-y-auto rounded-lg border border-gray-800/30 p-2 bg-gray-950/50 text-[11px] font-mono space-y-0.5 select-text">
-                    {logEntries}
-                  </div>
-                </div>
+      {/* ======================= Mobile: Sandbox drawer ======================= */}
+      <div className={`fixed inset-0 z-40 md:hidden transition-opacity duration-200 ${showAnalysis ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAnalysis(false)} />
+        <div className={`absolute top-0 right-0 bottom-0 w-[280px] max-w-[85vw] flex flex-col
+                        bg-gray-950 border-l border-gray-800 shadow-2xl
+                        transition-transform duration-200 ${showAnalysis ? "translate-x-0" : "translate-x-full"}`}>
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800 shrink-0">
+            <span className="text-sm font-bold text-gray-300">Sandbox</span>
+            <button onClick={() => setShowAnalysis(false)} className="text-gray-500 hover:text-gray-300 active:scale-95">
+              <Icon name="x-mark" className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-3 space-y-4">
+            <SandboxPanel
+              session={session}
+              gameState={gameState}
+              definitions={definitions}
+              myId={myId}
+              autoPassP2={autoPassP2}
+              onAutoPassP2Change={setAutoPassP2}
+              onResetBoard={handleResetBoard}
+            />
+            <div className="space-y-2">
+              <div className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">
+                Game Log ({actionLog.length})
               </div>
-            ) : (
-              <div className="space-y-2">
-                <div className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">
-                  Game Log ({actionLog.length})
-                </div>
-                <div className="h-48 overflow-y-auto rounded-lg border border-gray-800/30 p-2 bg-gray-950/50 text-[11px] font-mono space-y-0.5 select-text">
-                  {logEntries}
-                </div>
+              <div className="h-48 overflow-y-auto rounded-lg border border-gray-800/30 p-2 bg-gray-950/50 text-[11px] font-mono space-y-0.5 select-text">
+                {logEntries}
               </div>
-            )}
+            </div>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* ======================= Mobile: Log bottom sheet ======================= */}
-      {showLog && (
-        <div className="fixed inset-0 z-40 md:hidden">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowLog(false)} />
-          <div className="absolute bottom-0 left-0 right-0 max-h-[60vh] flex flex-col
-                          bg-gray-950 rounded-t-2xl border-t border-gray-800
-                          pb-[env(safe-area-inset-bottom,0px)]">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800 shrink-0">
-              <span className="text-sm font-bold text-gray-300">Game Log ({actionLog.length})</span>
-              <button onClick={() => setShowLog(false)} className="text-gray-500 hover:text-gray-300 active:scale-95"><Icon name="x-mark" className="w-4 h-4" /></button>
-            </div>
-            <div className="flex-1 overflow-y-auto p-3 font-mono text-[11px] space-y-0.5 select-text">
-              {recentLog.map((entry, i) => (
-                <div key={i} className="text-gray-500">
-                  <span className="text-gray-700">T{entry.turn}</span>{" "}
-                  <span className={entry.playerId === "player1" ? "text-green-600" : "text-red-600"}>
-                    {entry.playerId === "player1" ? "P1" : "P2"}
-                  </span>{" "}
-                  {fmtMsg(entry.message)}
-                </div>
-              ))}
-            </div>
+      {/* ======================= Mobile: Log drawer ======================= */}
+      <div className={`fixed inset-0 z-40 md:hidden transition-opacity duration-200 ${showLog ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowLog(false)} />
+        <div className={`absolute top-0 right-0 bottom-0 w-[280px] max-w-[85vw] flex flex-col
+                        bg-gray-950 border-l border-gray-800 shadow-2xl
+                        transition-transform duration-200 ${showLog ? "translate-x-0" : "translate-x-full"}`}>
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800 shrink-0">
+            <span className="text-sm font-bold text-gray-300">Game Log ({actionLog.length})</span>
+            <button onClick={() => setShowLog(false)} className="text-gray-500 hover:text-gray-300 active:scale-95">
+              <Icon name="x-mark" className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-3 font-mono text-[11px] space-y-0.5 select-text">
+            {recentLog.map((entry, i) => (
+              <div key={i} className="text-gray-500">
+                <span className="text-gray-700">T{entry.turn}</span>{" "}
+                <span className={entry.playerId === "player1" ? "text-green-600" : "text-red-600"}>
+                  {entry.playerId === "player1" ? "P1" : "P2"}
+                </span>{" "}
+                {fmtMsg(entry.message)}
+              </div>
+            ))}
           </div>
         </div>
-      )}
+      </div>
 
       {/* ======================= Floating mode toasts ======================= */}
       {pendingChoice && pendingChoice.choosingPlayerId !== myId && (

@@ -6,16 +6,14 @@ import type { ReplayData } from "./hooks/useGameSession.js";
 import { getGameReplay, getGameInfo } from "./lib/serverApi.js";
 import DecksPage from "./pages/DecksPage.js";
 import SimulationView from "./pages/SimulationView.js";
-import TestBench from "./pages/TestBench.js";
+import SandboxLobby from "./pages/SandboxLobby.js";
 import GameBoard from "./pages/GameBoard.js";
 import MultiplayerLobby from "./pages/MultiplayerLobby.js";
 
-type Tab = "decks" | "simulate" | "sandbox" | "multiplayer";
+type Tab = "decks" | "multiplayer";
 
 const TABS: { id: Tab; path: string; label: string }[] = [
   { id: "decks", path: "/", label: "Decks" },
-  { id: "simulate", path: "/simulate", label: "Simulate" },
-  { id: "sandbox", path: "/sandbox", label: "Sandbox" },
   { id: "multiplayer", path: "/multiplayer", label: "Multiplayer" },
 ];
 
@@ -37,6 +35,17 @@ function SoloGamePage() {
       definitions={LORCAST_CARD_DEFINITIONS}
       initialDeck={deck}
       onBack={() => navigate("/multiplayer")}
+    />
+  );
+}
+
+function SandboxGamePage() {
+  const navigate = useNavigate();
+  return (
+    <GameBoard
+      definitions={LORCAST_CARD_DEFINITIONS}
+      sandboxMode
+      onBack={() => navigate("/sandbox")}
     />
   );
 }
@@ -147,12 +156,25 @@ function Shell({ children, activeTab, navigate }: { children: React.ReactNode; a
       </nav>
 
       <main className={`flex-1 w-full ${
-        activeTab === "sandbox" || activeTab === "multiplayer"
+        activeTab === "multiplayer"
           ? "p-0"
           : "max-w-6xl mx-auto px-4 py-6"
       }`}>
         {children}
       </main>
+
+      <footer className="border-t border-gray-800 bg-gray-950 px-4 py-4">
+        <p className="max-w-6xl mx-auto text-[10px] leading-relaxed text-gray-600 text-center">
+          This site uses trademarks and/or copyrights associated with Disney Lorcana TCG,
+          used under Ravensburger's Community Code Policy. We are expressly prohibited from
+          charging you to use or access this content. This site is not published, endorsed,
+          or specifically approved by Disney or Ravensburger. For more information about
+          Disney Lorcana TCG, visit{" "}
+          <a href="https://disneylorcana.com" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-400 underline">
+            disneylorcana.com
+          </a>.
+        </p>
+      </footer>
     </div>
   );
 }
@@ -268,14 +290,15 @@ export default function App() {
     <Routes>
       {/* Tab pages */}
       <Route path="/" element={<TabPage tab="decks"><DecksPage /></TabPage>} />
-      <Route path="/simulate" element={<TabPage tab="simulate"><SimulationView /></TabPage>} />
-      <Route path="/sandbox" element={<TabPage tab="sandbox"><TestBench definitions={LORCAST_CARD_DEFINITIONS} /></TabPage>} />
       <Route path="/multiplayer" element={<MultiplayerPage />} />
 
       {/* Lobby join via URL — /lobby/ABC123 */}
       <Route path="/lobby/:code" element={<LobbyJoinPage />} />
 
-      {/* Full-screen game pages */}
+      {/* Dev-only routes (URL access only, no tab) */}
+      <Route path="/simulate" element={<SimulationView />} />
+      <Route path="/sandbox" element={<SandboxLobby />} />
+      <Route path="/sandbox/play" element={<SandboxGamePage />} />
       <Route path="/solo" element={<SoloGamePage />} />
       <Route path="/game/:gameId" element={<MultiplayerGamePage />} />
       <Route path="/replay/:gameId" element={<ReplayPage />} />
