@@ -3,7 +3,7 @@
 # Cross-references all docs in docs/ folder.
 # Does NOT replace SPEC.md or DECISIONS.md.
 #
-# Last updated: Session 21 (UI polish: utility strip, card action popover, play-state reset CRD 1.9.3, DnD dual-container fix)
+# Last updated: 2026-04-12 (GUI review session: full mechanic visualization audit, sandbox tooling, color scheme unification)
 
 ---
 
@@ -35,8 +35,7 @@
 ✅ Extra ink plays — ExtraInkPlayStatic, inkPlaysThisTurn counter, Belle supported
 
 ❌ Smart choice resolution — bots still pick random targets
-✅ TestBench — text-based interactive game board (Stream 3a + 3b)
-✅ GameBoard — visual game board with card components (Stream 3c)
+✅ Sandbox — full interactive game board with all mechanic visualizations (Stream 3a-3c)
 ✅ Analysis overlay — win probability + position factors (Stream 3d)
 ✅ Seeded RNG — xoshiro128** in GameState (Stream 1/3e prereq)
 ✅ Raw GameAction[] capture in GameResult (Stream 1/3e prereq)
@@ -47,7 +46,13 @@
 ✅ Utility strip — deck tile | inkwell | discard tile row; replaces floating badge clusters
 ✅ Card action popover — fixed-position popover anchored to clicked card; works on all breakpoints
 ✅ Play-state reset on leave-play — damage/exerted/isDrying/modifiers cleared (CRD 1.9.3 / 7.1.6)
-✅ Engine tests — 180 passing (up from 162)
+✅ Engine tests — 400+ passing
+✅ Cards — 2652/2652 (100%) across sets 1-11 + promos
+✅ Sandbox — full GUI mechanic visualization (see docs/GUI_TEST_CARDS.md)
+✅ Alt-cost shift — discard-based shift (Diablo, Flotsam & Jetsam)
+✅ Delayed triggers — CRD 6.2.7.2 (Candy Drift pattern)
+✅ Global timed effects — CRD 6.4.2.1 (Restoring Atlantis pattern)
+✅ choose_amount — isUpTo picker for remove/move damage
 ❌ Multiplayer server
 ```
 
