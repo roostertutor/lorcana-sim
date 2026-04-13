@@ -10,50 +10,35 @@
 ## Where We Are
 
 ```
-✅ Rule engine — Sets 1-11 imported, Sets 1 + 2 fully implemented, CRD audited
+✅ Rule engine — Sets 1-11 + promos fully implemented, CRD v2.0.1 audited against PDF
 ✅ Simulator — RandomBot, GreedyBot, RLPolicy (deprecated bots deleted)
-✅ Mulligan — engine-level partial mulligan CRD 2.2.2 (choose_mulligan pendingChoice, mulligan_p1/p2 phases, all bots + RLPolicy handle it)
+✅ Mulligan — engine-level partial mulligan CRD 2.2.2
 ✅ Analytics — composition, aggregation, comparison, calibration, sensitivity
 ✅ Query system — GameCondition language, ref/mulliganed conditions, save/load results
-✅ CLI — analyze, compare, query (query accepts --policy for RL bot), learn
-✅ Basic UI — 5 pages, all aligned with current direction:
-           DeckInput: permanent, no changes needed
-           CompositionView: permanent, no changes needed (pure math, no bots)
-           SimulationView: greedy + random bots only
-           ComparisonView: greedy + random bots only
-           WeightExplorer: DELETED (ProbabilityBot removed)
-✅ Layer 1-3 tests — 162 engine tests + 1000 RandomBot invariant games
-✅ Layer 5 bot tests — 12 tests in bot.test.ts
-✅ Set 1 complete — 204 unique cards, 216 entries, all abilities implemented, 0 stubs
-✅ Set 2 complete — 162 named-ability cards, 216 entries, zero approximations, fully tested
-✅ Set 3 complete — 178 named-ability cards, 226 entries, Locations engine implemented, ~10 approximations for unbuilt features
-✅ Dual-ink support — inkColors is always an array
-✅ Reckless keyword — can't quest, can't pass if able to challenge, 4 tests
-✅ Floating triggers — floatingTriggers[], CreateFloatingTriggerEffect
-✅ Timed effects — timedEffects[] with 3 duration types, expiry in applyPassTurn
-✅ Conditional statics — evaluateCondition() in gameModifiers, 12 condition types
-✅ Extra ink plays — ExtraInkPlayStatic, inkPlaysThisTurn counter, Belle supported
-
-❌ Smart choice resolution — bots still pick random targets
-✅ Sandbox — full interactive game board with all mechanic visualizations (Stream 3a-3c)
-✅ Analysis overlay — win probability + position factors (Stream 3d)
-✅ Seeded RNG — xoshiro128** in GameState (Stream 1/3e prereq)
-✅ Raw GameAction[] capture in GameResult (Stream 1/3e prereq)
-✅ RL training loop — autoTag, network, policy, trainer, learn CLI (per-card scoring)
-✅ Replay mode — seeded RNG + action capture + ReplayControls UI (Stream 3e)
-✅ Discard zone viewer — clickable discard tile in utility strip opens face-up card grid modal
-✅ Deck viewer — clickable deck tile opens face-down card grid (hides order, no cheating)
-✅ Utility strip — deck tile | inkwell | discard tile row; replaces floating badge clusters
-✅ Card action popover — fixed-position popover anchored to clicked card; works on all breakpoints
-✅ Play-state reset on leave-play — damage/exerted/isDrying/modifiers cleared (CRD 1.9.3 / 7.1.6)
-✅ Engine tests — 400+ passing
-✅ Cards — 2652/2652 (100%) across sets 1-11 + promos
-✅ Sandbox — full GUI mechanic visualization (see docs/GUI_TEST_CARDS.md)
-✅ Alt-cost shift — discard-based shift (Diablo, Flotsam & Jetsam)
+✅ CLI — analyze, compare, query, learn
+✅ Basic UI — 5 pages (DeckInput, CompositionView, SimulationView, ComparisonView)
+✅ Engine tests — 424+ passing (engine) + 46 simulator + 15 analytics = 485+ total
+✅ Layer 3 invariants — 1000 RandomBot games, under-zone counted per CRD 5.1.1.5
+✅ Cards — 2652/2652 (100%), 0 stubs, 0 partial, 0 invalid fields, 0 approximations
+✅ All keywords — Rush, Evasive, Ward, Resist, Bodyguard, Challenger, Reckless, Singer,
+           Sing Together, Support, Alert, Boost, Vanish, Shift (normal + Classification + Universal)
+✅ CRD compliance — full PDF cross-reference done. Only CRD 6.5 (general replacement effects) unimplemented.
+✅ CRD 1.8 game state check — runGameStateCheck (cascade, damage≥willpower + lore)
+✅ CRD 4.6 challenge split — Declaration step (triggers resolve) → Damage step (strength calculated after)
+✅ CRD 1.9.1 damage taxonomy — deal/put/move/remove/take all properly distinguished
+✅ Floating triggers — CRD 6.2.7.1
 ✅ Delayed triggers — CRD 6.2.7.2 (Candy Drift pattern)
 ✅ Global timed effects — CRD 6.4.2.1 (Restoring Atlantis pattern)
 ✅ choose_amount — isUpTo picker for remove/move damage
+✅ choose (A or B) — CRD 6.1.5.2 feasibility filtering
+✅ Sandbox — full interactive game board with all mechanic visualizations
+✅ Seeded RNG + Replay mode + RL training loop
+✅ Codebase consistency audit — field names standardized, duplicate types removed,
+           story names verified against Lorcast, importer text-fallback for missing keywords
+
+❌ Smart choice resolution — bots still pick random targets
 ❌ Multiplayer server
+❌ CRD 6.5 — general replacement effect system (only damage_redirect exists)
 ```
 
 ---
