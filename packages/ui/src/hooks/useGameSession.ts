@@ -155,6 +155,8 @@ export function useGameSession(): GameSession {
   const hmrRestoredRef = useRef(false);
   // Quick save slot
   const quickSaveRef = useRef<GameState | null>(null);
+  // Realtime channel ref for cleanup
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   // ---------------------------------------------------------------------------
   // startGame
@@ -170,9 +172,50 @@ export function useGameSession(): GameSession {
 
     if (config.multiplayer) {
       // Multiplayer: fetch current state from server — don't create locally
-      getGame(config.multiplayer.gameId)
-        .then((state) => setGameState(state))
+      const mp = config.multiplayer;
+      getGame(mp.gameId)
+        .then((state) => {
+          gameStateRef.current = state;
+          setGameState(state);
+        })
         .catch((err: unknown) => setError(String(err)));
+
+      // Set up Realtime subscription for opponent actions.
+      // ANTI-CHEAT: ignore raw payload (contains full unfiltered state),
+      // fetch filtered state from GET /game/:id instead.
+      if (channelRef.current) {
+        void supabase.removeChannel(channelRef.current);
+      }
+      const channel = supabase
+        .channel(`game:${mp.gameId}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "UPDATE",
+            schema: "public",
+            table: "games",
+            filter: `id=eq.${mp.gameId}`,
+          },
+          () => {
+            getGame(mp.gameId)
+              .then((filtered) => {
+                gameStateRef.current = filtered;
+                setGameState(filtered);
+                setError(null);
+              })
+              .catch((err: unknown) => {
+                setError(String(err));
+              });
+          },
+        )
+        .subscribe((status) => {
+          if (status === "SUBSCRIBED") {
+            setConnectionStatus("connected");
+          } else if (status === "CLOSED" || status === "CHANNEL_ERROR") {
+            setConnectionStatus("reconnecting");
+          }
+        });
+      channelRef.current = channel;
       return;
     }
 
@@ -337,55 +380,15 @@ export function useGameSession(): GameSession {
     };
   }, [gameState, dispatch]);
 
-  // ---------------------------------------------------------------------------
-  // Supabase Realtime subscription (multiplayer only)
-  // Listens for game state updates broadcast by the server after each action.
-  //
-  // ANTI-CHEAT: We do NOT read state from the Realtime payload — postgres_changes
-  // broadcasts the raw DB row including the full unfiltered GameState (opponent's
-  // hand, deck, etc.). Instead we use the event as a "something changed" signal
-  // and fetch the filtered state from GET /game/:id.
-  // ---------------------------------------------------------------------------
+  // Clean up Realtime channel on unmount
   useEffect(() => {
-    const mp = configRef.current?.multiplayer;
-    if (!mp) return;
-
-    const channel = supabase
-      .channel(`game:${mp.gameId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "games",
-          filter: `id=eq.${mp.gameId}`,
-        },
-        () => {
-          // Fetch filtered state from server — never trust the raw payload
-          getGame(mp.gameId)
-            .then((filtered) => {
-              gameStateRef.current = filtered;
-              setGameState(filtered);
-              setError(null);
-            })
-            .catch((err: unknown) => {
-              setError(String(err));
-            });
-        },
-      )
-      .subscribe((status) => {
-        if (status === "SUBSCRIBED") {
-          setConnectionStatus("connected");
-        } else if (status === "CLOSED" || status === "CHANNEL_ERROR") {
-          setConnectionStatus("reconnecting");
-        }
-      });
-
     return () => {
-      void supabase.removeChannel(channel);
-      setConnectionStatus(null);
+      if (channelRef.current) {
+        void supabase.removeChannel(channelRef.current);
+        setConnectionStatus(null);
+      }
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- intentionally runs once; subscription handles its own state updates
+  }, []);
 
   // ---------------------------------------------------------------------------
   // selectCard
@@ -429,6 +432,11 @@ export function useGameSession(): GameSession {
   // ---------------------------------------------------------------------------
   const reset = useCallback(() => {
     if (botTimerRef.current) clearTimeout(botTimerRef.current);
+    if (channelRef.current) {
+      void supabase.removeChannel(channelRef.current);
+      channelRef.current = null;
+      setConnectionStatus(null);
+    }
     configRef.current = null;
     gameStateRef.current = null;
     setGameState(null);
