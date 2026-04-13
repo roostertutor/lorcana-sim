@@ -1154,7 +1154,7 @@
         "effect": {
           "type": "grant_keyword",
           "keyword": "singer",
-          "keywordValue": 8,
+          "value": 8,
           "target": {
             "type": "this"
           },
@@ -8482,7 +8482,7 @@
           {
             "type": "grant_keyword",
             "keyword": "resist",
-            "keywordValue": 2,
+            "value": 2,
             "target": {
               "type": "all",
               "filter": {
@@ -8970,7 +8970,7 @@
         "effect": {
           "type": "grant_keyword",
           "keyword": "resist",
-          "keywordValue": 1,
+          "value": 1,
           "target": {
             "type": "all",
             "filter": {
@@ -11714,7 +11714,7 @@
           {
             "type": "grant_keyword",
             "keyword": "challenger",
-            "keywordValue": 1,
+            "value": 1,
             "target": {
               "type": "all",
               "filter": {
@@ -11729,7 +11729,7 @@
           {
             "type": "grant_keyword",
             "keyword": "resist",
-            "keywordValue": 1,
+            "value": 1,
             "target": {
               "type": "all",
               "filter": {
@@ -13719,7 +13719,7 @@
           {
             "type": "grant_keyword",
             "keyword": "resist",
-            "keywordValue": 2,
+            "value": 2,
             "target": {
               "type": "all",
               "filter": {

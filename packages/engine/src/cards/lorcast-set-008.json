@@ -1926,7 +1926,7 @@
         "effect": {
           "type": "grant_keyword",
           "keyword": "resist",
-          "keywordValue": 2,
+          "value": 2,
           "target": {
             "type": "this"
           },
@@ -3298,7 +3298,7 @@
           {
             "type": "grant_keyword",
             "keyword": "challenger",
-            "keywordValue": 1,
+            "value": 1,
             "duration": "this_turn",
             "target": {
               "type": "this"
@@ -3406,7 +3406,7 @@
         "effect": {
           "type": "grant_keyword",
           "keyword": "challenger",
-          "keywordValue": 2,
+          "value": 2,
           "target": {
             "type": "this"
           },
@@ -3471,7 +3471,7 @@
           {
             "type": "grant_keyword",
             "keyword": "challenger",
-            "keywordValue": 2,
+            "value": 2,
             "duration": "this_turn",
             "target": {
               "type": "chosen",
@@ -4860,7 +4860,7 @@
       {
         "type": "grant_keyword",
         "keyword": "challenger",
-        "keywordValue": 2,
+        "value": 2,
         "duration": "this_turn",
         "target": {
           "type": "all",
@@ -9569,7 +9569,7 @@
           {
             "type": "grant_keyword",
             "keyword": "resist",
-            "keywordValue": 1,
+            "value": 1,
             "isMay": true,
             "duration": "until_caster_next_turn",
             "target": {
@@ -9985,7 +9985,7 @@
           {
             "type": "grant_keyword",
             "keyword": "resist",
-            "keywordValue": 1,
+            "value": 1,
             "isMay": true,
             "duration": "until_caster_next_turn",
             "target": {
@@ -10143,7 +10143,7 @@
       {
         "type": "grant_keyword",
         "keyword": "resist",
-        "keywordValue": 2,
+        "value": 2,
         "duration": "this_turn",
         "target": {
           "type": "chosen",
@@ -11071,7 +11071,7 @@
       {
         "type": "grant_keyword",
         "keyword": "resist",
-        "keywordValue": 2,
+        "value": 2,
         "duration": "until_caster_next_turn",
         "target": {
           "type": "chosen",
@@ -11180,7 +11180,7 @@
         "effect": {
           "type": "grant_keyword",
           "keyword": "challenger",
-          "keywordValue": 1,
+          "value": 1,
           "target": {
             "type": "all",
             "filter": {
@@ -11497,7 +11497,7 @@
         "effect": {
           "type": "grant_keyword",
           "keyword": "resist",
-          "keywordValue": 1,
+          "value": 1,
           "target": {
             "type": "this"
           },
@@ -12323,7 +12323,7 @@
       {
         "type": "grant_keyword",
         "keyword": "resist",
-        "keywordValue": 2,
+        "value": 2,
         "duration": "until_caster_next_turn",
         "target": {
           "type": "chosen",

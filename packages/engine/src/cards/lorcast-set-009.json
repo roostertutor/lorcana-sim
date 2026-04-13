@@ -9713,7 +9713,7 @@
           {
             "type": "grant_keyword",
             "keyword": "resist",
-            "keywordValue": 1,
+            "value": 1,
             "target": {
               "type": "this"
             },
@@ -9776,7 +9776,7 @@
           {
             "type": "grant_keyword",
             "keyword": "challenger",
-            "keywordValue": 2,
+            "value": 2,
             "duration": "this_turn",
             "target": {
               "type": "all",
@@ -9805,7 +9805,7 @@
           {
             "type": "grant_keyword",
             "keyword": "challenger",
-            "keywordValue": 2,
+            "value": 2,
             "duration": "this_turn",
             "target": {
               "type": "chosen",
@@ -13554,7 +13554,7 @@
           {
             "type": "grant_keyword",
             "keyword": "challenger",
-            "keywordValue": 2,
+            "value": 2,
             "duration": "this_turn",
             "target": {
               "type": "all",
@@ -13583,7 +13583,7 @@
           {
             "type": "grant_keyword",
             "keyword": "challenger",
-            "keywordValue": 2,
+            "value": 2,
             "duration": "this_turn",
             "target": {
               "type": "chosen",

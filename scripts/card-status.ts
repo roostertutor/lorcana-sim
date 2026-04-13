@@ -116,6 +116,9 @@ function validateCardFields(card: any): FieldError[] {
     if (e.modifier !== undefined && e.type !== "challenge_damage_prevention") {
       errors.push({ path, field: "modifier", value: e.modifier, validValues: "use 'amount' instead of 'modifier'" });
     }
+    if (e.keywordValue !== undefined) {
+      errors.push({ path, field: "keywordValue", value: e.keywordValue, validValues: "use 'value' instead of 'keywordValue'" });
+    }
     // Check filters for deprecated field names
     const checkFilter = (f: any, fp: string) => {
       if (f?.maxCost !== undefined) {

@@ -1189,7 +1189,7 @@
               {
                 "type": "grant_keyword",
                 "keyword": "resist",
-                "keywordValue": 1,
+                "value": 1,
                 "duration": "until_caster_next_turn",
                 "target": {
                   "type": "this"
@@ -7462,7 +7462,7 @@
               {
                 "type": "grant_keyword",
                 "keyword": "resist",
-                "keywordValue": 1,
+                "value": 1,
                 "target": {
                   "type": "this"
                 }
@@ -7749,7 +7749,7 @@
           {
             "type": "grant_keyword",
             "keyword": "resist",
-            "keywordValue": 2,
+            "value": 2,
             "target": {
               "type": "triggering_card"
             }
@@ -9815,7 +9815,7 @@
           {
             "type": "grant_keyword",
             "keyword": "resist",
-            "keywordValue": 1,
+            "value": 1,
             "duration": "until_caster_next_turn",
             "target": {
               "type": "chosen",
@@ -9976,7 +9976,7 @@
         "effect": {
           "type": "grant_keyword",
           "keyword": "resist",
-          "keywordValue": 1,
+          "value": 1,
           "target": {
             "type": "all",
             "filter": {
@@ -10233,7 +10233,7 @@
         "effect": {
           "type": "grant_keyword",
           "keyword": "resist",
-          "keywordValue": 2,
+          "value": 2,
           "target": {
             "type": "this"
           },
@@ -10457,7 +10457,7 @@
           {
             "type": "grant_keyword",
             "keyword": "resist",
-            "keywordValue": 1,
+            "value": 1,
             "duration": "until_caster_next_turn",
             "target": {
               "type": "this"
@@ -10664,7 +10664,7 @@
           {
             "type": "grant_keyword",
             "keyword": "challenger",
-            "keywordValue": 2,
+            "value": 2,
             "target": {
               "type": "chosen",
               "filter": {
@@ -10781,7 +10781,7 @@
         "effect": {
           "type": "grant_keyword",
           "keyword": "challenger",
-          "keywordValue": 3,
+          "value": 3,
           "target": {
             "type": "this"
           },
@@ -11532,7 +11532,7 @@
       {
         "type": "grant_keyword",
         "keyword": "challenger",
-        "keywordValue": 2,
+        "value": 2,
         "duration": "this_turn",
         "target": {
           "type": "chosen",
