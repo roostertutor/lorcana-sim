@@ -11,7 +11,35 @@ function generateCode(): string {
   return code
 }
 
+/** Check if a user already has an active game or is hosting a waiting lobby. */
+async function checkForActiveGame(userId: string): Promise<string | null> {
+  const { data } = await supabase
+    .from("games")
+    .select("id")
+    .or(`player1_id.eq.${userId},player2_id.eq.${userId}`)
+    .eq("status", "active")
+    .limit(1)
+
+  if (data && data.length > 0) return data[0]!.id as string
+
+  // Also check for waiting lobbies they're hosting
+  const { data: lobbies } = await supabase
+    .from("lobbies")
+    .select("id")
+    .eq("host_id", userId)
+    .eq("status", "waiting")
+    .limit(1)
+
+  if (lobbies && lobbies.length > 0) return null // waiting lobby is fine to abandon
+
+  return null
+}
+
 export async function createLobby(hostId: string, hostDeck: DeckEntry[]) {
+  const activeGameId = await checkForActiveGame(hostId)
+  if (activeGameId) {
+    throw new Error(`You already have an active game (${activeGameId}). Finish or resign it first.`)
+  }
   // Generate a unique 6-char code
   let code = generateCode()
   let attempts = 0
@@ -41,6 +69,11 @@ export async function joinLobby(
   code: string,
   guestDeck: DeckEntry[],
 ) {
+  const activeGameId = await checkForActiveGame(guestId)
+  if (activeGameId) {
+    throw new Error(`You already have an active game (${activeGameId}). Finish or resign it first.`)
+  }
+
   const { data: lobby, error: findError } = await supabase
     .from("lobbies")
     .select("*")

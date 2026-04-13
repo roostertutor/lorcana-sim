@@ -24,14 +24,16 @@ const SAMPLE_DECK = `4 Tinker Bell - Giant Fairy
 interface Props {
   onGameStart: (gameId: string, myPlayerId: "player1" | "player2", token: string) => void;
   onPlaySolo: (deck: import("@lorcana-sim/engine").DeckEntry[]) => void;
+  /** Pre-fill the join code (from /lobby/:code URL) */
+  initialJoinCode?: string;
 }
 
-export default function MultiplayerLobby({ onGameStart, onPlaySolo }: Props) {
+export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinCode }: Props) {
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
   const [deckText, setDeckText] = useState(SAMPLE_DECK);
   const [deckOpen, setDeckOpen] = useState(false);
-  const [joinCode, setJoinCode] = useState("");
+  const [joinCode, setJoinCode] = useState(initialJoinCode ?? "");
   const [status, setStatus]     = useState<string | null>(null);
   const [error, setError]       = useState<string | null>(null);
   const [lobbyCode, setLobbyCode] = useState<string | null>(null);

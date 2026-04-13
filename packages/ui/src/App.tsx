@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Routes, Route, useNavigate, useLocation, useParams, Navigate } from "react-router-dom";
 import { LORCAST_CARD_DEFINITIONS } from "@lorcana-sim/engine";
 import type { DeckEntry } from "@lorcana-sim/engine";
 import DecksPage from "./pages/DecksPage.js";
@@ -7,48 +8,94 @@ import TestBench from "./pages/TestBench.js";
 import GameBoard from "./pages/GameBoard.js";
 import MultiplayerLobby from "./pages/MultiplayerLobby.js";
 
-type Tab = "decks" | "simulate" | "testbench" | "multiplayer";
+type Tab = "decks" | "simulate" | "sandbox" | "multiplayer";
 
-const TABS: { id: Tab; label: string }[] = [
-  { id: "decks", label: "Decks" },
-  { id: "simulate", label: "Simulate" },
-  { id: "testbench", label: "Sandbox" },
-  { id: "multiplayer", label: "Multiplayer" },
+const TABS: { id: Tab; path: string; label: string }[] = [
+  { id: "decks", path: "/", label: "Decks" },
+  { id: "simulate", path: "/simulate", label: "Simulate" },
+  { id: "sandbox", path: "/sandbox", label: "Sandbox" },
+  { id: "multiplayer", path: "/multiplayer", label: "Multiplayer" },
 ];
 
-export default function App() {
-  const [activeTab, setActiveTab] = useState<Tab>(
-    () => (localStorage.getItem("activeTab") as Tab | null) ?? "decks"
+// ---------------------------------------------------------------------------
+// Full-screen game pages (no header/nav)
+// ---------------------------------------------------------------------------
+
+function SoloGamePage() {
+  const navigate = useNavigate();
+  const [deck] = useState<DeckEntry[]>(() => {
+    try {
+      const raw = sessionStorage.getItem("solo-deck");
+      return raw ? (JSON.parse(raw) as DeckEntry[]) : [];
+    } catch { return []; }
+  });
+
+  return (
+    <GameBoard
+      definitions={LORCAST_CARD_DEFINITIONS}
+      initialDeck={deck}
+      onBack={() => navigate("/multiplayer")}
+    />
   );
-  const [soloMode, setSoloMode] = useState(false);
-  const [soloDeck, setSoloDeck] = useState<DeckEntry[]>([]);
-  const [multiplayerGame, setMultiplayerGame] = useState<{
-    gameId: string;
-    myPlayerId: "player1" | "player2";
-    token: string;
-  } | null>(null);
+}
 
-  function handleTabChange(tab: Tab) {
-    setActiveTab(tab);
-    localStorage.setItem("activeTab", tab);
-  }
+function MultiplayerGamePage() {
+  const { gameId } = useParams<{ gameId: string }>();
+  const navigate = useNavigate();
 
-  // Solo and multiplayer games go full-screen (no header/nav)
-  // Sandbox stays with nav so users can switch tabs freely
-  const inGame = soloMode || !!multiplayerGame;
+  // Read multiplayer config from localStorage (persisted on game start)
+  const [config] = useState(() => {
+    try {
+      const raw = localStorage.getItem("mp-game");
+      return raw ? (JSON.parse(raw) as { gameId: string; myPlayerId: "player1" | "player2"; token: string }) : null;
+    } catch { return null; }
+  });
 
-  if (inGame) {
-    if (soloMode) {
-      return <GameBoard definitions={LORCAST_CARD_DEFINITIONS} initialDeck={soloDeck} onBack={() => setSoloMode(false)} />;
-    }
-    if (multiplayerGame) {
-      return <GameBoard definitions={LORCAST_CARD_DEFINITIONS} multiplayerGame={multiplayerGame} onBack={() => setMultiplayerGame(null)} />;
-    }
+  // If config doesn't match this gameId (stale or missing), go back to lobby
+  if (!config || config.gameId !== gameId) {
+    return <Navigate to="/multiplayer" replace />;
   }
 
   return (
+    <GameBoard
+      definitions={LORCAST_CARD_DEFINITIONS}
+      multiplayerGame={config}
+      onBack={() => {
+        localStorage.removeItem("mp-game");
+        navigate("/multiplayer");
+      }}
+    />
+  );
+}
+
+function LobbyJoinPage() {
+  const { code } = useParams<{ code: string }>();
+  const navigate = useNavigate();
+
+  return (
+    <Shell activeTab="multiplayer" navigate={navigate}>
+      <MultiplayerLobby
+        initialJoinCode={code ?? ""}
+        onGameStart={(gameId, myPlayerId, token) => {
+          localStorage.setItem("mp-game", JSON.stringify({ gameId, myPlayerId, token }));
+          navigate(`/game/${gameId}`);
+        }}
+        onPlaySolo={(deck) => {
+          sessionStorage.setItem("solo-deck", JSON.stringify(deck));
+          navigate("/solo");
+        }}
+      />
+    </Shell>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Shell — header + tab nav wrapper
+// ---------------------------------------------------------------------------
+
+function Shell({ children, activeTab, navigate }: { children: React.ReactNode; activeTab: Tab; navigate: (path: string) => void }) {
+  return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
       <header className="border-b border-gray-800 bg-gray-950/80 backdrop-blur sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
           <span className="text-amber-400 text-xl font-bold tracking-tight">⬡ Lorcana Sim</span>
@@ -56,13 +103,12 @@ export default function App() {
         </div>
       </header>
 
-      {/* Tabs */}
       <nav className="border-b border-gray-800 bg-gray-950">
         <div className="max-w-6xl mx-auto px-4 py-2 flex gap-1 flex-wrap">
           {TABS.map((t) => (
             <button
               key={t.id}
-              onClick={() => handleTabChange(t.id)}
+              onClick={() => navigate(t.path)}
               className={activeTab === t.id ? "tab-active" : "tab-inactive"}
             >
               {t.label}
@@ -71,26 +117,85 @@ export default function App() {
         </div>
       </nav>
 
-      {/* Content */}
       <main className={`flex-1 w-full ${
-        activeTab === "testbench" || activeTab === "multiplayer"
+        activeTab === "sandbox" || activeTab === "multiplayer"
           ? "p-0"
           : "max-w-6xl mx-auto px-4 py-6"
       }`}>
-        {activeTab === "decks" && <DecksPage />}
-        {activeTab === "simulate" && <SimulationView />}
-        {activeTab === "testbench" && (
-          <TestBench definitions={LORCAST_CARD_DEFINITIONS} />
-        )}
-        {activeTab === "multiplayer" && (
-          <MultiplayerLobby
-            onGameStart={(gameId, myPlayerId, token) => {
-              setMultiplayerGame({ gameId, myPlayerId, token });
-            }}
-            onPlaySolo={(deck) => { setSoloDeck(deck); setSoloMode(true); }}
-          />
-        )}
+        {children}
       </main>
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Tab pages (with Shell)
+// ---------------------------------------------------------------------------
+
+function TabPage({ tab, children }: { tab: Tab; children: React.ReactNode }) {
+  const navigate = useNavigate();
+  return (
+    <Shell activeTab={tab} navigate={navigate}>
+      {children}
+    </Shell>
+  );
+}
+
+function MultiplayerPage() {
+  const navigate = useNavigate();
+
+  // Check for active game on mount — reconnect if found
+  const [reconnectGameId] = useState(() => {
+    try {
+      const raw = localStorage.getItem("mp-game");
+      if (!raw) return null;
+      const config = JSON.parse(raw) as { gameId: string };
+      return config.gameId;
+    } catch { return null; }
+  });
+
+  if (reconnectGameId) {
+    return <Navigate to={`/game/${reconnectGameId}`} replace />;
+  }
+
+  return (
+    <Shell activeTab="multiplayer" navigate={navigate}>
+      <MultiplayerLobby
+        onGameStart={(gameId, myPlayerId, token) => {
+          localStorage.setItem("mp-game", JSON.stringify({ gameId, myPlayerId, token }));
+          navigate(`/game/${gameId}`);
+        }}
+        onPlaySolo={(deck) => {
+          sessionStorage.setItem("solo-deck", JSON.stringify(deck));
+          navigate("/solo");
+        }}
+      />
+    </Shell>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// App
+// ---------------------------------------------------------------------------
+
+export default function App() {
+  return (
+    <Routes>
+      {/* Tab pages */}
+      <Route path="/" element={<TabPage tab="decks"><DecksPage /></TabPage>} />
+      <Route path="/simulate" element={<TabPage tab="simulate"><SimulationView /></TabPage>} />
+      <Route path="/sandbox" element={<TabPage tab="sandbox"><TestBench definitions={LORCAST_CARD_DEFINITIONS} /></TabPage>} />
+      <Route path="/multiplayer" element={<MultiplayerPage />} />
+
+      {/* Lobby join via URL — /lobby/ABC123 */}
+      <Route path="/lobby/:code" element={<LobbyJoinPage />} />
+
+      {/* Full-screen game pages */}
+      <Route path="/solo" element={<SoloGamePage />} />
+      <Route path="/game/:gameId" element={<MultiplayerGamePage />} />
+
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
