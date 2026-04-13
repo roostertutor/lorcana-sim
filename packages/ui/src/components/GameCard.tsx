@@ -127,23 +127,35 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   type BadgeKeyword = typeof BADGE_KEYWORDS[number];
   const keywordAbilities = def.abilities.filter((a): a is KeywordAbility => a.type === "keyword");
   const printedKeywords = new Set(keywordAbilities.map(a => a.keyword));
-  const keywordValues = new Map(keywordAbilities.filter(a => a.value != null).map(a => [a.keyword, a.value!]));
+  const printedValues = new Map(keywordAbilities.filter(a => a.value != null).map(a => [a.keyword, a.value!]));
   // Merge: printed keywords + instance-granted + timed-granted + static-granted (gameModifiers)
   const staticGranted = mods?.grantedKeywords.get(instanceId) ?? [];
   const timedGranted = (instance.timedEffects ?? []).filter((te: any) => te.type === "grant_keyword" && te.keyword);
-  const allKeywords = new Set([
-    ...printedKeywords,
+  const grantedKeywordSet = new Set([
     ...(instance.grantedKeywords ?? []),
     ...staticGranted.map(g => g.keyword),
     ...timedGranted.map((te: any) => te.keyword as string),
   ]);
-  // Also pick up keyword values from static + timed grants (e.g. Resist +2)
+  const allKeywords = new Set([...printedKeywords, ...grantedKeywordSet]);
+  // CRD 8.1.2: +N keywords stack (sum all values), non-+N keywords are boolean
+  const keywordValues = new Map<string, number>();
+  for (const [kw, val] of printedValues) keywordValues.set(kw, val);
   for (const g of staticGranted) {
-    if (g.value != null && !keywordValues.has(g.keyword)) keywordValues.set(g.keyword, g.value);
+    if (g.value != null) keywordValues.set(g.keyword, (keywordValues.get(g.keyword) ?? 0) + g.value);
   }
   for (const te of timedGranted) {
-    if ((te as any).value != null && !keywordValues.has((te as any).keyword)) keywordValues.set((te as any).keyword, (te as any).value);
+    const kw = (te as any).keyword as string;
+    const val = (te as any).value as number | undefined;
+    if (val != null) keywordValues.set(kw, (keywordValues.get(kw) ?? 0) + val);
   }
+  // Track which keywords are granted (not just printed) for color coding
+  const isGrantedKeyword = (k: string) => grantedKeywordSet.has(k) && !printedKeywords.has(k);
+  const isBuffedKeyword = (k: string) => {
+    if (!printedKeywords.has(k)) return false;
+    const printed = printedValues.get(k);
+    const total = keywordValues.get(k);
+    return printed != null && total != null && total > printed;
+  };
   const activeKeywordBadges = zone === "play"
     ? BADGE_KEYWORDS.filter(k => allKeywords.has(k))
     : [];
@@ -241,7 +253,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
               // Support's "value" is the card's current STR at resolution — not a fixed number to display
               const val = k === "support" ? undefined : keywordValues.get(k);
               return (
-                <div key={k} className={`h-4 flex items-center gap-0.5 rounded-full px-1 shadow ${KEYWORD_STYLE[k]}`}>
+                <div key={k} className={`h-4 flex items-center gap-0.5 rounded-full px-1 shadow ${isGrantedKeyword(k) || isBuffedKeyword(k) ? "bg-green-700/90" : KEYWORD_STYLE[k]}`}>
                   <Icon name={KEYWORD_ICON[k]} className="w-2.5 h-2.5 text-white shrink-0" />
                   {val != null && <span className="text-white text-[8px] font-black leading-none">{val}</span>}
                 </div>
