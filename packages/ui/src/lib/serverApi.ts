@@ -138,6 +138,15 @@ export async function getGameActionList(gameId: string): Promise<GameAction[]> {
   return data.actions
 }
 
+export async function getGameReplay(gameId: string) {
+  const res = await fetch(`${SERVER_URL}/game/${gameId}/replay`, {
+    headers: await authHeaders(),
+  })
+  if (!res.ok) return null
+  const data = await res.json() as { replay: { seed: number; p1Deck: DeckEntry[]; p2Deck: DeckEntry[]; actions: GameAction[]; winner: string | null; turnCount: number } }
+  return data.replay
+}
+
 export interface ReplayPayload {
   seed: number
   p1Deck: DeckEntry[]

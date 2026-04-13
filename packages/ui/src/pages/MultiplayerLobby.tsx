@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { LORCAST_CARD_DEFINITIONS, parseDecklist } from "@lorcana-sim/engine";
 import type { DeckEntry } from "@lorcana-sim/engine";
 import { supabase } from "../lib/supabase.js";
@@ -30,6 +31,7 @@ interface Props {
 }
 
 export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinCode }: Props) {
+  const navigate = useNavigate();
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
   const [deckText, setDeckText] = useState(SAMPLE_DECK);
@@ -449,7 +451,15 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                     <span className="text-gray-400">vs {g.opponentName}</span>
                     <span className="text-gray-700">({g.opponentElo})</span>
                   </div>
-                  <span className="text-gray-700">{new Date(g.date).toLocaleDateString()}</span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      className="text-amber-500/70 hover:text-amber-400 transition-colors"
+                      onClick={() => navigate(`/replay/${g.id}`)}
+                    >
+                      Replay
+                    </button>
+                    <span className="text-gray-700">{new Date(g.date).toLocaleDateString()}</span>
+                  </div>
                 </div>
               ))}
             </div>

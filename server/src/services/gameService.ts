@@ -354,6 +354,60 @@ export async function getGameHistory(userId: string, page: number, limit: number
   })
 }
 
+export async function getGameReplay(gameId: string) {
+  const { data: game } = await supabase
+    .from("games")
+    .select("player1_deck, player2_deck, winner_id, player1_id, game_number")
+    .eq("id", gameId)
+    .single()
+
+  if (!game) return null
+
+  // Get the initial state (state_before of the first action)
+  const { data: firstAction } = await supabase
+    .from("game_actions")
+    .select("state_before")
+    .eq("game_id", gameId)
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .single()
+
+  // Extract seed from the initial state's rng
+  const initialState = firstAction?.state_before as { rng?: { seed?: number }; turnNumber?: number } | null
+  const seed = initialState?.rng?.seed ?? Date.now()
+
+  // Get all actions in order
+  const { data: actionRows } = await supabase
+    .from("game_actions")
+    .select("action, state_after")
+    .eq("game_id", gameId)
+    .order("created_at", { ascending: true })
+
+  const actions = (actionRows ?? []).map((row) => row.action)
+
+  // Determine winner as PlayerID
+  const winner = game.winner_id === game.player1_id
+    ? "player1"
+    : game.winner_id
+      ? "player2"
+      : null
+
+  // Get turn count from last action's state
+  const lastState = actionRows?.length
+    ? (actionRows[actionRows.length - 1]!.state_after as { turnNumber?: number })
+    : null
+  const turnCount = lastState?.turnNumber ?? 0
+
+  return {
+    seed,
+    p1Deck: game.player1_deck,
+    p2Deck: game.player2_deck,
+    actions,
+    winner,
+    turnCount,
+  }
+}
+
 export async function getGameActions(gameId: string) {
   const { data, error } = await supabase
     .from("game_actions")

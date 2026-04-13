@@ -70,6 +70,8 @@ interface Props {
     gameId: string;
     myPlayerId: "player1" | "player2";
   };
+  /** Pre-loaded replay data (for multiplayer replay viewer) */
+  initialReplayData?: ReplayData;
 }
 
 // --- Lore tracker: visual pips ---
@@ -488,11 +490,11 @@ function UtilityStrip({
   );
 }
 
-export default function GameBoard({ definitions, sandboxMode, initialDeck, onBack, multiplayerGame }: Props) {
+export default function GameBoard({ definitions, sandboxMode, initialDeck, onBack, multiplayerGame, initialReplayData }: Props) {
   const session = useGameSession();
 
   // Replay mode — null = live mode; non-null = reviewing a completed game
-  const [replayData, setReplayData] = useState<ReplayData | null>(null);
+  const [replayData, setReplayData] = useState<ReplayData | null>(initialReplayData ?? null);
   const replaySession = useReplaySession(replayData, definitions);
 
   const [p1DeckText, setP1DeckText] = useState(SAMPLE_DECK);

@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation, useParams, Navigate } from "react-router-dom";
 import { LORCAST_CARD_DEFINITIONS } from "@lorcana-sim/engine";
 import type { DeckEntry } from "@lorcana-sim/engine";
+import type { ReplayData } from "./hooks/useGameSession.js";
+import { getGameReplay } from "./lib/serverApi.js";
 import DecksPage from "./pages/DecksPage.js";
 import SimulationView from "./pages/SimulationView.js";
 import TestBench from "./pages/TestBench.js";
@@ -174,6 +176,62 @@ function MultiplayerPage() {
   );
 }
 
+function ReplayPage() {
+  const { gameId } = useParams<{ gameId: string }>();
+  const navigate = useNavigate();
+  const [replayData, setReplayData] = useState<ReplayData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!gameId) return;
+    getGameReplay(gameId)
+      .then((data) => {
+        if (data) {
+          setReplayData({
+            seed: data.seed,
+            p1Deck: data.p1Deck,
+            p2Deck: data.p2Deck,
+            actions: data.actions,
+            winner: (data.winner as ReplayData["winner"]) ?? null,
+            turnCount: data.turnCount,
+          });
+        } else {
+          setError("Replay not found");
+        }
+      })
+      .catch(() => setError("Failed to load replay"));
+  }, [gameId]);
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-950">
+        <div className="text-center space-y-3">
+          <div className="text-red-400">{error}</div>
+          <button className="text-amber-400 text-sm hover:underline" onClick={() => navigate("/multiplayer")}>
+            Back to Lobby
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!replayData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-950">
+        <span className="text-gray-500 text-sm animate-pulse">Loading replay...</span>
+      </div>
+    );
+  }
+
+  return (
+    <GameBoard
+      definitions={LORCAST_CARD_DEFINITIONS}
+      initialReplayData={replayData}
+      onBack={() => navigate("/multiplayer")}
+    />
+  );
+}
+
 // ---------------------------------------------------------------------------
 // App
 // ---------------------------------------------------------------------------
@@ -193,6 +251,7 @@ export default function App() {
       {/* Full-screen game pages */}
       <Route path="/solo" element={<SoloGamePage />} />
       <Route path="/game/:gameId" element={<MultiplayerGamePage />} />
+      <Route path="/replay/:gameId" element={<ReplayPage />} />
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />

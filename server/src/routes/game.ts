@@ -1,7 +1,7 @@
 import { Hono } from "hono"
 import type { GameAction, GameState, PlayerID } from "@lorcana-sim/engine"
 import { requireAuth } from "../middleware/auth.js"
-import { processAction, getGame, resignGame, getGameHistory, getGameActions } from "../services/gameService.js"
+import { processAction, getGame, resignGame, getGameHistory, getGameActions, getGameReplay } from "../services/gameService.js"
 import { filterStateForPlayer } from "../services/stateFilter.js"
 
 const game = new Hono<{ Variables: { userId: string } }>()
@@ -47,6 +47,22 @@ game.get("/:id/actions", requireAuth, async (c) => {
 
   const actions = await getGameActions(c.req.param("id")!)
   return c.json({ actions })
+})
+
+// GET /game/:id/replay — full replay data (seed + decks + actions) for replay viewer
+game.get("/:id/replay", requireAuth, async (c) => {
+  const gameData = await getGame(c.req.param("id")!)
+  if (!gameData) return c.json({ error: "Game not found" }, 404)
+
+  const userId = c.get("userId")
+  if (gameData.player1_id !== userId && gameData.player2_id !== userId) {
+    return c.json({ error: "Forbidden" }, 403)
+  }
+
+  const replay = await getGameReplay(c.req.param("id")!)
+  if (!replay) return c.json({ error: "Replay data not available" }, 404)
+
+  return c.json({ replay })
 })
 
 // POST /game/:id/action
