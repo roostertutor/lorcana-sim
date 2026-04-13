@@ -22,7 +22,7 @@ const SAMPLE_DECK = `4 Tinker Bell - Giant Fairy
 4 Stitch - Carefree Surfer`;
 
 interface Props {
-  onGameStart: (gameId: string, myPlayerId: "player1" | "player2", token: string) => void;
+  onGameStart: (gameId: string, myPlayerId: "player1" | "player2") => void;
   onPlaySolo: (deck: import("@lorcana-sim/engine").DeckEntry[]) => void;
   /** Pre-fill the join code (from /lobby/:code URL) */
   initialJoinCode?: string;
@@ -40,17 +40,14 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   const [lobbyId, setLobbyId]   = useState<string | null>(null);
   const [copied, setCopied]     = useState(false);
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
-  const [session, setSession]   = useState<{ token: string; email: string } | null>(null);
+  const [session, setSession]   = useState<{ email: string } | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Restore session from Supabase localStorage cache on mount
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) {
-        setSession({
-          token: data.session.access_token,
-          email: data.session.user.email ?? "",
-        });
+        setSession({ email: data.session.user.email ?? "" });
       }
     });
   }, []);
@@ -69,14 +66,14 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
     if (authMode === "signin") {
       const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
       if (authError || !data.session) { setError(authError?.message ?? "Login failed"); setStatus(null); return; }
-      await ensureProfile(data.session.access_token);
-      setSession({ token: data.session.access_token, email: data.user?.email ?? email });
+      await ensureProfile();
+      setSession({ email: data.user?.email ?? email });
       setStatus(null);
     } else {
       const { data, error: authError } = await supabase.auth.signUp({ email, password });
       if (authError || !data.session) { setError(authError?.message ?? "Sign up failed — check your email for a confirmation link"); setStatus(null); return; }
-      await ensureProfile(data.session.access_token);
-      setSession({ token: data.session.access_token, email: data.user?.email ?? email });
+      await ensureProfile();
+      setSession({ email: data.user?.email ?? email });
       setStatus(null);
     }
   }
@@ -105,10 +102,10 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
         setLobbyId(null);
         return;
       }
-      const data = await getLobbyGame(session.token, lobbyId);
+      const data = await getLobbyGame(lobbyId);
       if (data?.lobby.status === "active" && data.game) {
         clearInterval(pollRef.current!);
-        onGameStart(data.game.id, "player1", session.token);
+        onGameStart(data.game.id, "player1");
       }
     }, 2000);
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
@@ -119,7 +116,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
     setError(null);
     setStatus("Creating lobby…");
     try {
-      const result = await createLobby(session.token, deck);
+      const result = await createLobby(deck);
       setLobbyCode(result.code);
       setLobbyId(result.lobbyId);
       setStatus(null);
@@ -134,9 +131,9 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
     setError(null);
     setStatus("Joining…");
     try {
-      const result = await joinLobby(session.token, joinCode.trim(), deck);
+      const result = await joinLobby(joinCode.trim(), deck);
       setStatus("Starting game…");
-      onGameStart(result.gameId, "player2", session.token);
+      onGameStart(result.gameId, "player2");
     } catch (err) {
       setError(String(err));
       setStatus(null);

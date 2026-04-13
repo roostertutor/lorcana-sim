@@ -46,7 +46,6 @@ export interface GameSessionConfig {
   multiplayer?: {
     gameId: string;
     myPlayerId: PlayerID;
-    token: string;
   };
 }
 
@@ -63,6 +62,8 @@ export interface GameSession {
   completedGame: ReplayData | null;
   /** True when there are actions to undo (local mode, non-game-over only) */
   canUndo: boolean;
+  /** Realtime connection status (multiplayer only) */
+  connectionStatus: "connected" | "reconnecting" | null;
 
   startGame: (config: GameSessionConfig) => void;
   dispatch: (action: GameAction) => void;
@@ -135,6 +136,7 @@ export function useGameSession(): GameSession {
   const [selectedInstanceId, setSelectedInstanceId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [completedGame, setCompletedGame] = useState<ReplayData | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState<"connected" | "reconnecting" | null>(null);
   // actionCount drives canUndo reactivity — refs alone don't trigger re-renders
   const [actionCount, setActionCount] = useState(0);
 
@@ -168,7 +170,7 @@ export function useGameSession(): GameSession {
 
     if (config.multiplayer) {
       // Multiplayer: fetch current state from server — don't create locally
-      getGame(config.multiplayer.token, config.multiplayer.gameId)
+      getGame(config.multiplayer.gameId)
         .then((state) => setGameState(state))
         .catch((err: unknown) => setError(String(err)));
       return;
@@ -202,10 +204,10 @@ export function useGameSession(): GameSession {
         }
       }
       // Fire-and-forget to server — Realtime will push authoritative state to both players
-      sendAction(mp.token, mp.gameId, action).catch((err: unknown) => {
+      sendAction(mp.gameId, action).catch((err: unknown) => {
         setError(String(err));
         // Re-sync with server truth on error
-        getGame(mp.token, mp.gameId)
+        getGame(mp.gameId)
           .then((state) => {
             gameStateRef.current = state;
             setGameState(state);
@@ -352,7 +354,7 @@ export function useGameSession(): GameSession {
         },
         () => {
           // Fetch filtered state from server — never trust the raw payload
-          getGame(mp.token, mp.gameId)
+          getGame(mp.gameId)
             .then((filtered) => {
               gameStateRef.current = filtered;
               setGameState(filtered);
@@ -363,10 +365,17 @@ export function useGameSession(): GameSession {
             });
         },
       )
-      .subscribe();
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") {
+          setConnectionStatus("connected");
+        } else if (status === "CLOSED" || status === "CHANNEL_ERROR") {
+          setConnectionStatus("reconnecting");
+        }
+      });
 
     return () => {
       void supabase.removeChannel(channel);
+      setConnectionStatus(null);
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps -- intentionally runs once; subscription handles its own state updates
 
@@ -494,6 +503,7 @@ export function useGameSession(): GameSession {
     error,
     completedGame,
     canUndo,
+    connectionStatus,
     startGame,
     dispatch,
     selectCard,

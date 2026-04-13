@@ -40,6 +40,14 @@ export async function createLobby(hostId: string, hostDeck: DeckEntry[]) {
   if (activeGameId) {
     throw new Error(`You already have an active game (${activeGameId}). Finish or resign it first.`)
   }
+
+  // Clean up any abandoned waiting lobbies for this user
+  await supabase
+    .from("lobbies")
+    .update({ status: "finished", updated_at: new Date() })
+    .eq("host_id", hostId)
+    .eq("status", "waiting")
+
   // Generate a unique 6-char code
   let code = generateCode()
   let attempts = 0

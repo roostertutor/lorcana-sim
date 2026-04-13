@@ -47,7 +47,7 @@ function MultiplayerGamePage() {
   const [config] = useState(() => {
     try {
       const raw = localStorage.getItem("mp-game");
-      return raw ? (JSON.parse(raw) as { gameId: string; myPlayerId: "player1" | "player2"; token: string }) : null;
+      return raw ? (JSON.parse(raw) as { gameId: string; myPlayerId: "player1" | "player2" }) : null;
     } catch { return null; }
   });
 
@@ -76,8 +76,8 @@ function LobbyJoinPage() {
     <Shell activeTab="multiplayer" navigate={navigate}>
       <MultiplayerLobby
         initialJoinCode={code ?? ""}
-        onGameStart={(gameId, myPlayerId, token) => {
-          localStorage.setItem("mp-game", JSON.stringify({ gameId, myPlayerId, token }));
+        onGameStart={(gameId, myPlayerId) => {
+          localStorage.setItem("mp-game", JSON.stringify({ gameId, myPlayerId }));
           navigate(`/game/${gameId}`);
         }}
         onPlaySolo={(deck) => {
@@ -161,8 +161,8 @@ function MultiplayerPage() {
   return (
     <Shell activeTab="multiplayer" navigate={navigate}>
       <MultiplayerLobby
-        onGameStart={(gameId, myPlayerId, token) => {
-          localStorage.setItem("mp-game", JSON.stringify({ gameId, myPlayerId, token }));
+        onGameStart={(gameId, myPlayerId) => {
+          localStorage.setItem("mp-game", JSON.stringify({ gameId, myPlayerId }));
           navigate(`/game/${gameId}`);
         }}
         onPlaySolo={(deck) => {

@@ -69,7 +69,6 @@ interface Props {
   multiplayerGame?: {
     gameId: string;
     myPlayerId: "player1" | "player2";
-    token: string;
   };
 }
 
@@ -1397,12 +1396,20 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
 
             {!sandboxMode && (
               <div className="ml-auto shrink-0 flex items-center gap-1">
+                {session.connectionStatus && (
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      session.connectionStatus === "connected" ? "bg-green-500" : "bg-red-500 animate-pulse"
+                    }`}
+                    title={session.connectionStatus === "connected" ? "Connected" : "Reconnecting…"}
+                  />
+                )}
                 {multiplayerGame && !isGameOver && (
                   <button
                     className="px-2 py-1 text-red-600 hover:text-red-400 rounded transition-colors"
                     onClick={() => {
                       import("../lib/serverApi.js").then(({ resignGame }) =>
-                        resignGame(multiplayerGame.token, multiplayerGame.gameId)
+                        resignGame(multiplayerGame.gameId)
                       );
                     }}
                     title="Resign"
