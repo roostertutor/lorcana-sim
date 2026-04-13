@@ -431,11 +431,24 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
         )}
 
         {/* Error */}
-        {error && (
-          <div className="rounded-lg px-4 py-3 bg-red-950/50 border border-red-800/50 text-red-400 text-sm">
-            {error}
-          </div>
-        )}
+        {error && (() => {
+          // Extract game ID from "active game (UUID)" error message
+          const activeGameMatch = error.match(/active game \(([^)]+)\)/);
+          const activeGameId = activeGameMatch?.[1];
+          return (
+            <div className="rounded-lg px-4 py-3 bg-red-950/50 border border-red-800/50 text-sm space-y-2">
+              <div className="text-red-400">{error}</div>
+              {activeGameId && (
+                <button
+                  className="w-full py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-bold transition-colors"
+                  onClick={() => navigate(`/game/${activeGameId}`)}
+                >
+                  Rejoin Game
+                </button>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Game History */}
         {session && history.length > 0 && (
