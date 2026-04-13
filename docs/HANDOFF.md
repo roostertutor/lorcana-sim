@@ -60,3 +60,13 @@ The engine data is there. The problem is on the GUI side — likely the reveal
 overlay is suppressed or not rendered when `pendingChoice` is also present
 (`choose_order` is active at the same time as `lastRevealedCards`). The GUI
 needs to show the reveal overlay even when a `pendingChoice` modal is queued.
+
+---
+
+~~## Engine: `search` effect auto-picks instead of letting player choose~~ **DONE**
+
+Interactive mode now collects ALL matching cards with `.filter()` and presents a
+`choose_from_revealed` pending choice when multiple matches exist (single match
+auto-resolves). The `choose_from_revealed` handler detects `pendingEffect.type === "search"`
+and moves the chosen card to the search's `putInto` destination without touching
+the remaining deck cards.

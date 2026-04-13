@@ -1970,8 +1970,25 @@ function applyResolveChoice(
   if (pendingChoice.type === "choose_from_revealed" && Array.isArray(choice)) {
     const owner = playerId;
     if (choice.length === 1) {
-      // Player picked a card to put in hand — rest go to bottom
       const chosenId = choice[0]!;
+      const pendingEff = pendingChoice.pendingEffect as any;
+
+      // Search effect: move chosen card to its destination, leave rest in deck
+      if (pendingEff?.type === "search") {
+        if (pendingEff.reveal) {
+          events.push({ type: "card_revealed", instanceId: chosenId, playerId: owner, sourceInstanceId: pendingChoice.sourceInstanceId ?? "" });
+        }
+        if (pendingEff.putInto === "deck" && pendingEff.position === "top") {
+          state = moveCard(state, chosenId, owner, "deck", "top");
+        } else {
+          state = moveCard(state, chosenId, owner, pendingEff.putInto);
+        }
+        state = resumePendingEffectQueue(state, definitions, events);
+        state = cleanupPendingAction(state, playerId);
+        return state;
+      }
+
+      // look_at_top: picked card to hand, rest go to bottom
       // Bug fix: use revealedCards (all revealed) not validTargets (filtered subset) for rest
       const allRevealed = pendingChoice.revealedCards ?? pendingChoice.validTargets ?? [];
       const rest = allRevealed.filter(id => id !== chosenId);
@@ -4637,19 +4654,48 @@ export function applyEffect(
       const targetPlayer = effect.target.type === "opponent"
         ? getOpponent(controllingPlayerId) : controllingPlayerId;
       const sourceCards = getZone(state, targetPlayer, effect.zone);
-      const matchId = sourceCards.find((id) => {
+      const isMatch = (id: string) => {
         const inst = state.cards[id];
         const def = inst ? definitions[inst.definitionId] : undefined;
         return inst && def ? matchesFilter(inst, def, effect.filter, state, controllingPlayerId, sourceInstanceId, definitions) : false;
-      });
+      };
+
+      // Interactive mode: show all matching cards and let the player choose
+      if (state.interactive) {
+        const allMatches = sourceCards.filter(isMatch);
+        if (allMatches.length === 0) return state;
+        if (allMatches.length === 1) {
+          // Only one match — auto-resolve (no meaningful choice)
+          const matchId = allMatches[0]!;
+          if (effect.reveal) {
+            events.push({ type: "card_revealed", instanceId: matchId, playerId: controllingPlayerId, sourceInstanceId });
+          }
+          if (effect.putInto === "deck" && effect.position === "top") {
+            return moveCard(state, matchId, targetPlayer, "deck", "top");
+          }
+          return moveCard(state, matchId, targetPlayer, effect.putInto);
+        }
+        // Multiple matches — let the player pick
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_from_revealed",
+            choosingPlayerId: controllingPlayerId,
+            prompt: `Choose a card to take.`,
+            validTargets: allMatches,
+            revealedCards: allMatches,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
+          },
+        };
+      }
+
+      // Bot/headless mode: pick the first match
+      const matchId = sourceCards.find(isMatch);
       if (!matchId) return state;
-      // CRD: some search cards reveal the found card to all players
       if (effect.reveal) {
         events.push({ type: "card_revealed", instanceId: matchId, playerId: controllingPlayerId, sourceInstanceId });
       }
       if (effect.putInto === "deck" && effect.position === "top") {
-        // Move to top of deck — moveCard puts it at the END (bottom) of the
-        // target zone by default, so we need explicit position.
         return moveCard(state, matchId, targetPlayer, "deck", "top");
       }
       return moveCard(state, matchId, targetPlayer, effect.putInto);
