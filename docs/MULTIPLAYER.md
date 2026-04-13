@@ -2,7 +2,7 @@
 # Stream 4 implementation plan: what exists, what's missing, how to ship it.
 # Three iterations: Anti-Cheat → Deploy → Polish.
 #
-# Last updated: 2026-04-12
+# Last updated: 2026-04-13
 
 ---
 
@@ -14,13 +14,18 @@ a lobby, and play a complete game against each other right now on localhost.
 ### Fully Wired (end-to-end)
 
 - **Auth**: Email/password sign in + sign up via Supabase (`MultiplayerLobby.tsx`)
-- **Lobby**: Create lobby → 6-char code + copy button + polling for guest. Join lobby → enter code → game auto-starts for both players.
-- **Game session**: `useGameSession` has a full multiplayer branch — if `config.multiplayer` is set, it fetches initial state via `getGame()`, dispatches actions via `sendAction()`, and listens for state updates via Supabase Realtime `postgres_changes` subscription.
+- **Lobby**: Create lobby → 6-char code + copy button + polling for guest. Join lobby → enter code → game auto-starts for both players. Shareable lobby links (`/lobby/ABC123`).
+- **Game session**: `useGameSession` has a full multiplayer branch — local-first `applyAction()` for instant feedback, fire-and-forget `sendAction()` to server, Realtime fetch-on-notify for opponent actions.
+- **Anti-cheat state filtering**: `stateFilter.ts` strips opponent's hand, deck, and face-down cards before sending to clients. Realtime handler ignores raw payload (which contains full state) and fetches filtered state from server.
 - **Perspective**: `myId = multiplayerGame?.myPlayerId ?? "player1"` — all rendering uses `myId`, not hardcoded `"player1"`. Player 2 sees their cards at the bottom correctly.
-- **Server**: Hono server with `POST /game/:id/action` (validates turn, calls `applyAction()`, saves to DB, triggers Realtime broadcast), `POST /game/:id/resign`, `GET /game/:id` (reconnect), lobby CRUD, auth middleware (JWT via Supabase).
+- **Server**: Hono server with `POST /game/:id/action` (validates turn, calls `applyAction()`, saves to DB, triggers Realtime broadcast), `POST /game/:id/resign`, `GET /game/:id` (reconnect + filtered state), lobby CRUD, auth middleware (JWT via Supabase).
 - **ELO**: K=32, updated on game completion and resignation.
 - **Action logging**: Every action logged to `game_actions` with `state_before`, `state_after`, `turn_number`, `player_elo_at_time` — ready for clone trainer (Stream 5).
-- **Full-screen transition**: `App.tsx` switches to full-screen `GameBoard` when multiplayer game starts, passes `multiplayerGame` prop.
+- **URL routing**: react-router-dom — `/`, `/simulate`, `/sandbox`, `/multiplayer`, `/lobby/:code`, `/game/:gameId`, `/solo`.
+- **Reconnection**: Active game persisted to localStorage. Browser crash/refresh → auto-redirects to `/game/:id`. Cleared on game end or explicit leave.
+- **Duplicate game guard**: Server rejects create/join lobby if user already has an active game.
+- **Resign button**: Multiplayer-only, calls `resignGame()` on server.
+- **"Waiting for opponent" indicator**: Shows when it's opponent's turn in multiplayer.
 
 ### Infrastructure (server + DB)
 
@@ -32,7 +37,8 @@ a lobby, and play a complete game against each other right now on localhost.
 | Lobby routes | `server/src/routes/lobby.ts` | Working (create/join/list) |
 | Game routes | `server/src/routes/game.ts` | Working (action/resign/get) |
 | Game service | `server/src/services/gameService.ts` | Working (core loop + ELO) |
-| Lobby service | `server/src/services/lobbyService.ts` | Working (6-char codes) |
+| State filter | `server/src/services/stateFilter.ts` | Working (strips opponent hand/deck) |
+| Lobby service | `server/src/services/lobbyService.ts` | Working (6-char codes + duplicate guard) |
 | DB schema | `server/src/db/schema.sql` | Deployed (`profiles`, `lobbies`, `games`, `game_actions`) |
 | Client API | `packages/ui/src/lib/serverApi.ts` | Working (all functions) |
 | Supabase client | `packages/ui/src/lib/supabase.ts` | Working |
@@ -46,16 +52,26 @@ a lobby, and play a complete game against each other right now on localhost.
 
 ---
 
+## What's Done
+
+| Feature | Iteration | Commit |
+|---------|-----------|--------|
+| ✅ State filtering (opponent hand/deck hidden) | 1 | `73aa823` |
+| ✅ Resign button in GameBoard | 1 | `73aa823` |
+| ✅ "Waiting for opponent" indicator | 1 | `73aa823` |
+| ✅ Realtime fetch-on-notify (anti-cheat) | 1 | `73aa823` |
+| ✅ Local-first dispatch (instant UI feedback) | 1 | `73aa823` |
+| ✅ Error recovery / state re-sync | 2 | `73aa823` |
+| ✅ URL routing (react-router-dom) | 2 | `5580f78` |
+| ✅ Reconnection on refresh/crash (localStorage) | 2 | `5580f78` |
+| ✅ Shareable lobby links (`/lobby/:code`) | 2 | `5580f78` |
+| ✅ Duplicate game guard (server-side) | 2 | `5580f78` |
+
 ## What's Missing
 
 | Gap | Severity | Iteration |
 |-----|----------|-----------|
-| **State filtering — opponent can see your hand** | Critical | 1 |
-| Resign button in GameBoard | Small | 1 |
-| "Waiting for opponent" indicator | Small | 1 |
-| Reconnection on page refresh | Medium | 2 |
 | Token refresh mid-game (1hr expiry) | Medium | 2 |
-| Error recovery / state re-sync | Medium | 2 |
 | Connection status indicator | Small | 2 |
 | Server deployment (Railway) | Blocking for remote play | 2 |
 | OAuth buttons (Google/Discord) | Nice-to-have | 2 |
@@ -67,12 +83,12 @@ a lobby, and play a complete game against each other right now on localhost.
 
 ---
 
-## Iteration 1: Anti-Cheat (State Filtering)
+## Iteration 1: Anti-Cheat (State Filtering) — DONE ✅
 
-**Goal**: Close the information leak. Right now both players receive the **full
-GameState** via Supabase Realtime — opponent's hand, deck order, everything. A
-player can open browser devtools and see the opponent's cards. This must be fixed
-before multiplayer is usable even between friends.
+**Goal**: Close the information leak. ~~Right now both players receive the full
+GameState via Supabase Realtime — opponent's hand, deck order, everything.~~
+Fixed: server filters state before sending, Realtime handler fetches filtered
+state instead of reading raw payload.
 
 ### 1a. Server-Side State Filter
 
@@ -160,10 +176,14 @@ None. Filtering is a server concern.
 
 ---
 
-## Iteration 2: Deploy + Resilience
+## Iteration 2: Deploy + Resilience (IN PROGRESS)
 
 **Goal**: Ship to the public internet. Players anywhere can play. Handle disconnects,
 token expiry, and errors gracefully.
+
+**Already done**: Reconnection (localStorage + `/game/:id` route), error recovery
+(re-sync on sendAction failure), URL routing, shareable lobby links, duplicate
+game guard.
 
 ### 2a. Deployment
 
@@ -180,23 +200,12 @@ token expiry, and errors gracefully.
 - Add production domain to OAuth redirect URLs
 - Set Site URL to production domain
 
-### 2b. Reconnection on Refresh
+### 2b. Reconnection on Refresh — DONE ✅
 
-**Files**: `App.tsx`, `useGameSession.ts`
-
-Problem: `multiplayerGame` is React component state — lost on page refresh. The `GET /game/:id` endpoint exists but nothing calls it on mount.
-
-Fix: Persist `multiplayerGame` config to `sessionStorage`:
-```typescript
-// On game start:
-sessionStorage.setItem("mp-game", JSON.stringify({ gameId, myPlayerId }));
-// On game end or explicit leave:
-sessionStorage.removeItem("mp-game");
-```
-
-On app mount, check for stored game. If found, call `GET /game/:id`. If game is still active, re-enter GameBoard with multiplayer config. If finished/not found, clear storage.
-
-Note: don't store the token — read it fresh from `supabase.auth.getSession()` (see 2c).
+Implemented via react-router-dom URL routing + localStorage persistence.
+Active game config stored in `localStorage("mp-game")`. On mount, `/multiplayer`
+route checks for stored game and redirects to `/game/:gameId`. Shareable lobby
+links via `/lobby/:code` with pre-filled join code.
 
 ### 2c. Token Refresh
 
@@ -215,17 +224,10 @@ async function getToken(): Promise<string> {
 
 Remove `token` parameter from all serverApi functions. This also simplifies the component prop chain — no more threading `token` through `multiplayerGame`.
 
-### 2d. Error Recovery / State Re-sync
+### 2d. Error Recovery / State Re-sync — DONE ✅
 
-When `sendAction` returns an error, re-fetch authoritative state to prevent desync:
-```typescript
-sendAction(gameId, action).catch(async (err) => {
-  setError(String(err));
-  const state = await getGame(gameId);  // re-sync with server truth
-  gameStateRef.current = state;
-  setGameState(state);
-});
-```
+Dispatch catches `sendAction` errors and re-fetches authoritative state from
+server via `getGame()`. Implemented in `useGameSession.ts` dispatch callback.
 
 ### 2e. Connection Status Indicator
 
@@ -251,11 +253,11 @@ None.
 
 ### Acceptance Criteria
 
+- [x] Refreshing the page mid-game returns player to their active game
+- [x] Invalid action errors don't desync (client re-fetches server state)
 - [ ] Deployed to Railway (server) + static host (UI) with HTTPS
 - [ ] Two players on different networks can play a complete game
-- [ ] Refreshing the page mid-game returns player to their active game
 - [ ] Token expiry mid-game doesn't break the session
-- [ ] Invalid action errors don't desync (client re-fetches server state)
 - [ ] Connection status visible in multiplayer mode
 - [ ] OAuth sign-in works (if wired)
 

@@ -36,8 +36,11 @@
 ✅ Codebase consistency audit — field names standardized, duplicate types removed,
            story names verified against Lorcast, importer text-fallback for missing keywords
 
+✅ Multiplayer server — Hono + Supabase, anti-cheat state filtering, ELO, reconnection,
+           URL routing, shareable lobby links. See docs/MULTIPLAYER.md.
+           Remaining: deployment (Railway), token refresh, OAuth, game history/polish.
+
 ❌ Smart choice resolution — bots still pick random targets
-❌ Multiplayer server
 ❌ CRD 6.5 — general replacement effect system (only damage_redirect exists)
 ```
 
@@ -404,46 +407,54 @@ For 3e (replay mode):
 ---
 
 ### Stream 4: Multiplayer Server
-*Spec: server/SPEC.md (SERVER.md copied to /server folder)*
+*Spec: docs/MULTIPLAYER.md (phased delivery plan), server/SERVER.md (architecture)*
 *Goal: play against a real opponent, zero chance of cheating*
 
-Separate folder (/server), separate Claude Code session, separate CLAUDE.md.
-Imports from @lorcana-sim/engine only. Does not touch the monorepo.
-
-Prerequisite: Stream 3's useGameSession hook must exist before wiring in
-the server transport layer.
-
 ```
-4a. Supabase setup
-    Database schema (games, lobbies, profiles tables)
-    replays table: id, created_at, player_id (nullable), seed, p1_deck, p2_deck, actions, winner, turn_count, share_for_training
-    Row Level Security policies
-    Auth: Google + Discord OAuth via Supabase
-    NOTE: client-side saveReplay() already implemented in serverApi.ts (Stream 3e-v); just needs POST /replay endpoint
+✅ 4a. Supabase setup
+    Database schema (profiles, lobbies, games, game_actions tables)
+    Row Level Security policies — players see only their games
+    Auth: email/password via Supabase (Google/Discord OAuth optional, not wired yet)
+    REPLICA IDENTITY FULL on games table for Realtime broadcasts
 
-4b. Hono server
-    POST /game/:id/action — receives action, runs applyAction, saves, broadcasts
-    POST /lobby/create — generate 6-char code
-    POST /lobby/join — join by code, creates game
-    GET /game/:id — current state (for reconnect)
+✅ 4b. Hono server
+    POST /game/:id/action — validates turn, runs applyAction, saves, broadcasts
+    POST /game/:id/resign — forfeit, updates ELO
+    GET /game/:id — reconnect (returns FILTERED state — anti-cheat)
+    POST /lobby/create — generate 6-char code (rejects if user has active game)
+    POST /lobby/join — join by code, creates game (rejects if user has active game)
+    GET /lobby/:id, GET /lobby/ — lobby status + list
+    GET /auth/me, POST /auth/profile — profile management
+    ELO: K=32, updated on game completion + resignation
 
-4c. Supabase Realtime
-    Server writes to games table → Supabase broadcasts to both clients
-    Client subscribes: channel → onUpdate → setGameState
-    No manual WebSocket management
+✅ 4c. Supabase Realtime + Anti-Cheat
+    Server writes to games table → Supabase Realtime fires postgres_changes
+    Client uses fetch-on-notify pattern — ignores raw payload (contains full
+    unfiltered state), fetches filtered state from GET /game/:id instead
+    stateFilter.ts strips opponent hand, deck, and face-down cards
 
-4d. Multiplayer mode in useGameSession
-    Add mode: "solo" | "multiplayer" to GameSessionConfig
-    Multiplayer dispatch: POST /api/game/:id/action instead of local applyAction
-    State update comes via Supabase Realtime subscription
-    Components never know the difference — same hook, different transport
+✅ 4d. Multiplayer mode in useGameSession
+    Local-first dispatch: applyAction() locally for instant UI, sendAction() to
+    server in background. Error recovery: re-syncs from server on failure.
+    Realtime subscription for opponent actions.
 
-4e. Lobby UI
-    Create lobby → share 6-char code with friend
-    Join lobby → enter code → game starts
-    Private games only — no public matchmaking in v1
-    Deploy to Railway
+✅ 4e. Lobby UI + URL Routing
+    MultiplayerLobby.tsx: email/password auth, deck input, create/join lobby
+    react-router-dom: /, /simulate, /sandbox, /multiplayer, /lobby/:code,
+      /game/:gameId, /solo
+    Shareable lobby links: /lobby/ABC123 pre-fills join code
+    Reconnection: localStorage persistence, auto-redirect to active game
+    Duplicate game guard: server rejects if user has active game
+
+❌ 4f. Deploy to Railway + static host (not yet)
+❌ 4g. Token refresh (serverApi still takes token param, will expire after 1hr)
+❌ 4h. OAuth buttons (Google/Discord — optional, email/password works)
+❌ 4i. Connection status indicator
+❌ 4j. Game history UI, ELO display, rematch, replay saving (Iteration 3)
 ```
+
+**Full phased spec**: See `docs/MULTIPLAYER.md` for detailed iteration plan,
+acceptance criteria, infrastructure costs, and open questions.
 
 **Claude Code session prompt (in /server folder):**
 ```
@@ -512,10 +523,12 @@ Stream 3e (Replay UI) — unblocked (prereqs done), not yet built
 Stream 3e-prereqs ✅ both done (seeded RNG + GameAction[] capture)
 
 Stream 3a (useGameSession) ✅ done — prerequisite for
-Stream 4d (multiplayer mode in useGameSession)
+✅ Stream 4a-4e (multiplayer) — done (server, anti-cheat, lobby, routing, reconnection)
+   Remaining: deploy (4f), token refresh (4g), OAuth (4h), polish (4j)
 
 Stream 1 (RL) + Stream 4 (multiplayer) — both prerequisites for
-Stream 5 (clone bot + coaching map)
+Stream 5 (clone bot + coaching map) — Stream 4 core done, Stream 5 unblocked
+  once multiplayer is deployed and generating game logs
 
 Stream 2a-2e — ✅ done (ruby-amethyst + amber-steel queries complete, policies trained)
 
@@ -719,8 +732,10 @@ Ask in order:
    Stream 3e — replay mode (unblocked, prereqs done, UI only remaining).
    Stream 3f — done ✅ (RL policy upload in GameBoard/TestBench, Session 17).
 
-4. **Do I want to play against a real person?**
-   If yes — Stream 4 (server). Stream 3's useGameSession already done ✅.
+4. **Stream 4 (multiplayer) — CORE DONE. Deploy remaining.**
+   Server, anti-cheat, lobby, routing, reconnection all working on localhost.
+   Remaining: deploy to Railway (~$5/mo), token refresh, OAuth (optional), polish.
+   See docs/MULTIPLAYER.md for the full phased plan.
 
 5. **Need to implement a new card for a deck you want to sim?**
    If yes — Stream 6. Check CRD_TRACKER.md for gaps, implement on demand.
