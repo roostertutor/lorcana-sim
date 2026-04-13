@@ -85,6 +85,7 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 | [X] | Cross-player chooser | Tiana - Restaurant Owner | 5 |
 | [X] | Multi-select discard | You Have Forgotten Me | 1 |
 | [X] | "[A] or [B]" forced choice | Megara - Captivating Cynic | 4 |
+| [X] | Choose amount (isUpTo +/- picker) | Rapunzel - Gifted with Healing | 1 |
 
 ## Popover Actions (click card → action buttons)
 
@@ -129,6 +130,9 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 | [X] | Play restriction grey | Mirabel Madrigal - Family Gatherer  | 5   |
 | [X] | Play-from-discard glow | Pride Lands - Jungle Oasis          | 6   |
 | [X] | Reveal hand modal | Dolores Madrigal                    | 5   |
+| [ ] | Revealed cards overlay (search/look-at-top) | Alma Madrigal | 4 |
+| [ ] | Unplayable hand card dim | Any card costing more than available ink | any |
+| [ ] | Discard tile glow (ink-from-discard) | Moana - Curious Explorer | 6 |
 
 ---
 
@@ -147,16 +151,28 @@ Mark `[x]` when verified working. Leave `[ ]` for untested/broken.
 ## TBD — Deferred GUI Decisions
 
 - **Generic timed effect icon** — small clock for timed effects without a dedicated left-side icon (sing cost bonus, challenge ready, must quest, etc.). Currently only in the pill.
-- **Hand card playability indicators** — highlight playable cards (green glow?) vs dim unplayable vs show inkable/non-inkable. Currently only play-restriction grey exists.
-- **Discard tile glow for ink-from-discard** — Moana Curious Explorer enables inking from discard but the tile doesn't glow (only play-from-discard like Lilo triggers glow).
+- ~~**Hand card playability indicators**~~ — DONE. Unplayable hand cards dim (opacity+desaturate) when it's your turn. Cost reduction glow + restriction grey still apply.
+- ~~**Discard tile glow for ink-from-discard**~~ — DONE. Moana Curious Explorer's `ink_from_discard` now triggers teal glow on the discard tile.
 - **Floating ability pulse / animations** — removed indigo pulse border (too distracting without other animations). Revisit when adding animations generally (damage flying, card enter/exit, mill, etc.).
 
 ---
 
+## Card Inspect Modal (long-press / inspect)
+
+| OK  | Feature | Card | Set |
+|-----|---------|------|-----|
+| [ ] | Full image + card name/subtitle | Any card | any |
+| [ ] | Ink color badges + cost circle | Any card | any |
+| [ ] | Traits row | Stitch - Rock Star (Alien, Hero) | 1 |
+| [ ] | Stats: STR/WIL/Lore + effective vs base | Any buffed/debuffed character | any |
+| [ ] | Keywords (printed + granted) | Tinker Bell - Most Helpful (grants Rush) | 5 |
+| [ ] | In-play state (damage, exerted, drying) | Any damaged exerted character | any |
+| [ ] | Rules text + flavor text | Any card with rules text | any |
+
 ## Next Session — Potential Focus Areas
 
 - **Animations** — card enter/exit play, damage flying, mill (deck→discard), ink card flip. Currently all state changes are instant with no transitions.
-- **Card inspect modal** — clicking a card shows full-size art + full rules text + stats. Currently minimal.
+- ~~**Card inspect modal**~~ — DONE. Now shows full image, stats (base vs effective), traits, keywords, rules text, flavor text, in-play state.
 - **Game log improvements** — the log shows raw action text. Could show card names, icons, color-coded by player.
 - **Multiplayer UI** — lobby, rejoin, spectator mode. Engine supports it, UI has stubs.
 - **Mobile polish** — test all interactions on touch devices. DnD may need touch-specific tuning.

@@ -135,13 +135,39 @@ const BOARD_WIDE_EFFECTS = new Set([
   "all_hand_inkable", "prevent_damage_removal",
 ]);
 
+function formatEffectDuration(d: string | undefined): string | undefined {
+  if (!d) return undefined;
+  switch (d) {
+    case "end_of_turn": return "This turn";
+    case "end_of_owner_next_turn": return "Until their next turn";
+    case "until_caster_next_turn": return "Until your next turn";
+    case "end_of_next_turn": return "Until next turn";
+    case "while_in_play": return "While in play";
+    case "permanent": return "Permanent";
+    case "once": return "Once";
+    default: return d.replace(/_/g, " ");
+  }
+}
+
+interface ActiveEffect {
+  label: string;
+  source: string;
+  color: string;
+  /** Source card's full name */
+  sourceName?: string;
+  /** Duration label (for timed effects) */
+  duration?: string;
+  /** Target card name (for per-card effects) */
+  target?: string;
+}
+
 function getActiveEffects(
   state: GameState,
   _mods: GameModifiers,
   definitions: Record<string, CardDefinition>,
   myId: PlayerID,
-): { label: string; source: string; color: string }[] {
-  const effects: { label: string; source: string; color: string }[] = [];
+): ActiveEffect[] {
+  const effects: ActiveEffect[] = [];
   const oppId: PlayerID = myId === "player1" ? "player2" : "player1";
 
   const cardName = (instanceId: string) => {
@@ -210,7 +236,7 @@ function getActiveEffects(
         const text = ability.storyName
           ? `${ability.storyName} ${ability.rulesText ?? ""}`
           : (ability.rulesText ?? effectType);
-        effects.push({ label: trimPillText(text), source: `${side}: ${def.fullName}`, color: "text-amber-300" });
+        effects.push({ label: trimPillText(text), source: `${side}: ${def.fullName}`, color: "text-amber-300", sourceName: def.fullName });
       }
     }
   }
@@ -221,7 +247,7 @@ function getActiveEffects(
       const src = sourceText((r as any).sourceInstanceId, "grant_cost_reduction");
       const label = src ? src.text : `Next card costs ${r.amount} less`;
       const source = src ? `${pid === myId ? "You" : "Opp"}: ${src.name}` : `${pid === myId ? "You" : "Opp"}: one-shot`;
-      effects.push({ label, source, color: "text-emerald-400" });
+      effects.push({ label, source, color: "text-emerald-400", sourceName: src?.name });
     }
   }
 
@@ -231,7 +257,7 @@ function getActiveEffects(
       const src = sourceText((r as any).sourceInstanceId, "restrict_play");
       const label = src ? src.text : `Can't play ${r.cardTypes.join("/")}s`;
       const source = src ? `${r.casterPlayerId === myId ? "You" : "Opp"}: ${src.name}` : `${r.casterPlayerId === myId ? "You" : "Opp"}`;
-      effects.push({ label, source, color: "text-red-400" });
+      effects.push({ label, source, color: "text-red-400", sourceName: src?.name });
     }
   }
 
@@ -243,7 +269,7 @@ function getActiveEffects(
       const src = sourceText(ge.sourceInstanceId, "grant_keyword");
       const label = src ? src.text : ge.type.replace(/_/g, " ");
       const source = src ? `${who}: ${src.name}` : who;
-      effects.push({ label: label.trim(), source, color: "text-orange-400" });
+      effects.push({ label: label.trim(), source, color: "text-orange-400", sourceName: src?.name, duration: formatEffectDuration(ge.expiresAt) });
     }
   }
 
@@ -256,7 +282,7 @@ function getActiveEffects(
       const when = dt.firesAt === "end_of_turn" ? "end of turn" : "start of next turn";
       const label = src ? `${src.text} (on ${target})` : `${target}: trigger at ${when}`;
       const source = src ? src.name : "";
-      effects.push({ label, source, color: "text-orange-400" });
+      effects.push({ label, source, color: "text-orange-400", sourceName: src?.name, target, duration: dt.firesAt === "end_of_turn" ? "End of turn" : "Start of next turn" });
     }
   }
 
@@ -271,7 +297,7 @@ function getActiveEffects(
       const source = src
         ? `${who}: ${src.name}${attached ? ` → ${attached}` : ""}`
         : `${who}${attached ? `: on ${attached}` : ""}`;
-      effects.push({ label, source, color: "text-indigo-400" });
+      effects.push({ label, source, color: "text-indigo-400", sourceName: src?.name });
     }
   }
 
@@ -286,7 +312,7 @@ function getActiveEffects(
         const src = sourceText(teAny.sourceInstanceId, teAny.type);
         const label = src ? `${src.text} (on ${target})` : `${teAny.type.replace(/_/g, " ")} on ${target}`;
         const source = src ? src.name : "";
-        effects.push({ label, source, color: "text-cyan-400" });
+        effects.push({ label, source, color: "text-cyan-400", sourceName: src?.name, target, duration: formatEffectDuration(teAny.expiresAt) });
       }
     }
   }
@@ -372,7 +398,7 @@ function UtilityStrip({
   deckCount, deckTopId, onDeckClick, deckTopVisible,
   inkwellIds, availableInk, inksUsed, canStillInk, isYourTurn, isValidInkwellTarget, droppable,
   discardCount, discardTopId, onDiscardClick,
-  gameState, definitions, gameModifiers,
+  gameState, definitions, gameModifiers, playerId,
 }: {
   deckCount: number; deckTopId: string | undefined; onDeckClick?: () => void; deckTopVisible?: boolean;
   inkwellIds: string[]; availableInk: number; inksUsed: number; canStillInk: boolean;
@@ -380,6 +406,7 @@ function UtilityStrip({
   discardCount: number; discardTopId: string | undefined; onDiscardClick: () => void;
   gameState: GameState; definitions: Record<string, CardDefinition>;
   gameModifiers: GameModifiers | null;
+  playerId?: PlayerID;
 }) {
   return (
     <div className="shrink-0 flex items-stretch gap-1 mt-1">
@@ -421,17 +448,21 @@ function UtilityStrip({
         />
       </div>
 
-      {/* Discard tile — glow when a card is playable from discard (Lilo Escape Artist, etc.) */}
+      {/* Discard tile — glow when a card is playable from discard or inkable from discard */}
       <button
         onClick={onDiscardClick}
         disabled={discardCount === 0}
         className={`relative w-7 h-10 sm:w-14 sm:h-[78px] lg:w-16 lg:h-[90px] shrink-0 rounded overflow-hidden disabled:cursor-default hover:enabled:brightness-110 transition-all border ${
-          // Check if any discard card has a playable_from_zone_self or play_for_free trigger active
-          discardCount > 0 && Object.values(gameState.cards).some(
-            (c: any) => c.zone === "discard" && c.ownerId === (gameState as any).currentPlayer &&
-              definitions[c.definitionId]?.abilities?.some((a: any) =>
-                a.activeZones?.includes("discard") && a.effects?.some((e: any) => e.type === "play_for_free")
-              )
+          discardCount > 0 && (
+            // Play from discard (Lilo Escape Artist, Pride Lands)
+            Object.values(gameState.cards).some(
+              (c: any) => c.zone === "discard" && c.ownerId === (gameState as any).currentPlayer &&
+                definitions[c.definitionId]?.abilities?.some((a: any) =>
+                  a.activeZones?.includes("discard") && a.effects?.some((e: any) => e.type === "play_for_free")
+                )
+            ) ||
+            // Ink from discard (Moana Curious Explorer)
+            (playerId && gameModifiers?.inkFromDiscard.has(playerId))
           ) ? "border-teal-500/60 ring-1 ring-teal-500/30" : "border-gray-800/40"
         }`}
       >
@@ -494,6 +525,10 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   const [autoPassP2, setAutoPassP2] = useState(true);
   const [revealHandDismissed, setRevealHandDismissed] = useState(false);
   const lastRevealRef = useRef<string | null>(null);
+  // Revealed cards overlay — shows card_revealed events briefly
+  const [revealedCards, setRevealedCards] = useState<{ instanceId: string; sourceInstanceId: string }[]>([]);
+  const revealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastRevealEventsRef = useRef<string | null>(null);
   // Reset dismiss when a NEW reveal arrives (different card IDs)
   const currentRevealKey = session.gameState?.lastRevealedHand?.cardIds.join(",") ?? null;
   if (currentRevealKey && currentRevealKey !== lastRevealRef.current) {
@@ -745,6 +780,23 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       logRef.current.scrollTop = logRef.current.scrollHeight;
     }
   }, [session.actionLog.length]);
+
+  // Watch for card_revealed events and show overlay
+  useEffect(() => {
+    const reveals = session.lastEvents.filter(
+      (e): e is Extract<typeof e, { type: "card_revealed" }> => e.type === "card_revealed",
+    );
+    if (reveals.length === 0) return;
+    // Deduplicate — don't re-show the same set of reveals
+    const key = reveals.map((r) => r.instanceId).join(",");
+    if (key === lastRevealEventsRef.current) return;
+    lastRevealEventsRef.current = key;
+    setRevealedCards(reveals.map((r) => ({ instanceId: r.instanceId, sourceInstanceId: r.sourceInstanceId })));
+    // Auto-dismiss after 2.5 seconds
+    if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
+    revealTimerRef.current = setTimeout(() => setRevealedCards([]), 2500);
+    return () => { if (revealTimerRef.current) clearTimeout(revealTimerRef.current); };
+  }, [session.lastEvents]);
 
   // Disable pull-to-refresh, overscroll bounce, and long-press callout while the game board is mounted
   useEffect(() => {
@@ -1046,6 +1098,15 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   const inksUsed = p1.inkPlaysThisTurn ?? (p1.hasPlayedInkThisTurn ? 1 : 0);
   const canStillInk = isYourTurn && !pendingChoice && !isGameOver && legalActions.some(a => a.type === "PLAY_INK");
 
+  // Hand card playability — set of card IDs that have at least one legal action
+  // (PLAY_CARD, PLAY_INK). Lets GameCard dim unplayable cards.
+  // Not a useMemo — this runs after an early return guard, so hooks aren't allowed here.
+  const playableHandIds = new Set<string>();
+  for (const a of legalActions) {
+    if (a.type === "PLAY_CARD" && (a as any).instanceId) playableHandIds.add((a as any).instanceId);
+    if (a.type === "PLAY_INK" && (a as any).instanceId) playableHandIds.add((a as any).instanceId);
+  }
+
   // Helpers for readability in JSX
   function isDraggableEnabled(isOpponent: boolean) {
     return !isOpponent && isYourTurn && !pendingChoice && !isGameOver;
@@ -1250,6 +1311,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                 zone={zone}
                 faceDown={faceDown}
                 onCardsUnderClick={(cid) => setCardsUnderViewerId(cid)}
+                isPlayable={zone === "hand" && !isOpponent && isYourTurn ? playableHandIds.has(id) : undefined}
               />
               {disambigBadge && (
                 <span className="absolute top-1 right-1 text-[10px] font-black bg-white/90 text-gray-900 px-1.5 py-0.5 rounded shadow pointer-events-none">
@@ -1414,6 +1476,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             gameState={gameState}
             definitions={definitions}
             gameModifiers={gameModifiers}
+            playerId={opponentId}
           />
           {/* Opponent play zone */}
           {p2Zones.play.length === 0 ? (
@@ -1509,6 +1572,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             gameState={gameState}
             definitions={definitions}
             gameModifiers={gameModifiers}
+            playerId={myId}
           />
 
 
@@ -1699,6 +1763,47 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         </div>
       )}
 
+      {/* ======================= Revealed Cards Overlay ======================= */}
+      {revealedCards.length > 0 && gameState && (() => {
+        // Find the source card name for the header
+        const srcId = revealedCards[0]!.sourceInstanceId;
+        const srcInst = gameState.cards[srcId];
+        const srcDef = srcInst ? definitions[srcInst.definitionId] : undefined;
+        const sourceName = srcDef?.fullName ?? "Card";
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+            <div className="bg-gray-950/90 border border-indigo-700/60 rounded-2xl p-4 shadow-2xl pointer-events-auto max-w-lg animate-in fade-in">
+              <div className="text-center mb-3">
+                <div className="text-indigo-300 text-xs font-bold uppercase tracking-wider">Revealed</div>
+                <div className="text-gray-400 text-[10px]">{sourceName}</div>
+              </div>
+              <div className="flex justify-center gap-2 flex-wrap">
+                {revealedCards.map((r) => (
+                  <div key={r.instanceId} className="scale-[0.85] origin-top">
+                    <GameCard
+                      instanceId={r.instanceId}
+                      gameState={gameState}
+                      definitions={definitions}
+                      isSelected={false}
+                      onClick={() => {}}
+                      zone="play"
+                    />
+                  </div>
+                ))}
+              </div>
+              <div className="text-center mt-2">
+                <button
+                  className="px-3 py-1 text-[10px] text-gray-500 hover:text-gray-300 bg-gray-800/60 hover:bg-gray-700/60 rounded-full border border-gray-700 transition-colors"
+                  onClick={() => setRevealedCards([])}
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* ======================= DragOverlay ======================= */}
       <DragOverlay>
         {dnd.activeId && gameState ? (
@@ -1827,6 +1932,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           definitions={definitions}
           actions={[]}
           onClose={() => setInspectModalOpen(false)}
+          gameModifiers={gameModifiers}
         />
       )}
 
@@ -1899,10 +2005,10 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       })()}
       {/* ======================= Active Effects Modal ======================= */}
       {showEffects && activeEffects.length > 0 && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowEffects(false)}>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" onClick={() => setShowEffects(false)}>
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
           <div
-            className="relative bg-gray-950 border border-gray-800 rounded-2xl p-4 max-w-sm w-[90vw] shadow-2xl"
+            className="relative bg-gray-950 border border-gray-800 rounded-t-2xl sm:rounded-2xl p-4 max-w-sm w-full sm:w-[90vw] shadow-2xl max-h-[80vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-3">
@@ -1911,11 +2017,18 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                 <Icon name="x-mark" className="w-4 h-4" />
               </button>
             </div>
-            <div className="space-y-1.5 max-h-60 overflow-y-auto">
+            <div className="space-y-1.5">
               {activeEffects.map((e, i) => (
-                <div key={i} className="flex items-start gap-2 text-xs">
-                  <span className={`font-bold ${e.color}`}>{e.label}</span>
-                  {e.source && <span className="text-gray-600 text-[10px] ml-auto shrink-0">{e.source}</span>}
+                <div key={i} className="rounded-lg bg-gray-900 border border-gray-800 px-2.5 py-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[10px] font-bold text-indigo-300 truncate">{e.sourceName ?? e.source}</span>
+                    {e.duration && <span className="text-[9px] text-gray-600 shrink-0">{e.duration}</span>}
+                    {e.target && <span className="text-[9px] text-gray-500 shrink-0">{e.target}</span>}
+                  </div>
+                  <div className="text-[10px] text-gray-400 leading-snug mt-0.5">{e.label}</div>
+                  {e.sourceName && e.source !== e.sourceName && (
+                    <div className="text-[9px] text-gray-600 mt-0.5">{e.source}</div>
+                  )}
                 </div>
               ))}
             </div>

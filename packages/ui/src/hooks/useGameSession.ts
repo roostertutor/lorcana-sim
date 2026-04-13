@@ -8,6 +8,7 @@ import type {
   CardDefinition,
   DeckEntry,
   GameAction,
+  GameEvent,
   GameState,
   GameLogEntry,
   PendingChoice,
@@ -63,6 +64,8 @@ export interface GameSession {
   completedGame: ReplayData | null;
   /** True when there are actions to undo (local mode, non-game-over only) */
   canUndo: boolean;
+  /** Events from the most recent action (card_revealed, etc.) — cleared on next action */
+  lastEvents: GameEvent[];
 
   startGame: (config: GameSessionConfig) => void;
   dispatch: (action: GameAction) => void;
@@ -135,6 +138,7 @@ export function useGameSession(): GameSession {
   const [selectedInstanceId, setSelectedInstanceId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [completedGame, setCompletedGame] = useState<ReplayData | null>(null);
+  const [lastEvents, setLastEvents] = useState<GameEvent[]>([]);
   // actionCount drives canUndo reactivity — refs alone don't trigger re-renders
   const [actionCount, setActionCount] = useState(0);
 
@@ -197,6 +201,7 @@ export function useGameSession(): GameSession {
       if (prev && configRef.current) {
         const localResult = applyAction(prev, action, configRef.current.definitions);
         if (localResult.success) {
+          setLastEvents(localResult.events ?? []);
           gameStateRef.current = localResult.newState;
           setGameState(localResult.newState);
         }
@@ -224,6 +229,8 @@ export function useGameSession(): GameSession {
       return;
     }
     setError(null);
+    // Expose events from the action result (card_revealed, etc.)
+    setLastEvents(result.events ?? []);
     // Track action for undo/replay — runs exactly once
     actionHistoryRef.current = [...actionHistoryRef.current, action];
     setActionCount((c) => c + 1);
@@ -494,6 +501,7 @@ export function useGameSession(): GameSession {
     error,
     completedGame,
     canUndo,
+    lastEvents,
     startGame,
     dispatch,
     selectCard,

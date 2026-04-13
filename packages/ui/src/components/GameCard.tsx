@@ -39,9 +39,11 @@ interface Props {
   onCardsUnderClick?: (instanceId: string) => void;
   /** Pre-computed game modifiers — if not passed, computed internally */
   gameModifiers?: GameModifiers | null;
+  /** Hand card is playable this turn (enough ink, no restrictions). Dims if false. */
+  isPlayable?: boolean;
 }
 
-export default function GameCard({ instanceId, gameState, definitions, isSelected, onClick, zone, faceDown, isTarget, isAttacker, skipRotation, onCardsUnderClick, gameModifiers: externalMods }: Props) {
+export default function GameCard({ instanceId, gameState, definitions, isSelected, onClick, zone, faceDown, isTarget, isAttacker, skipRotation, onCardsUnderClick, gameModifiers: externalMods, isPlayable }: Props) {
   const instance = gameState.cards[instanceId];
   if (!instance) return null;
   const def = definitions[instance.definitionId];
@@ -76,6 +78,10 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
     (!a.condition || evaluateCondition(a.condition, gameState, definitions, instance.ownerId, instanceId))
   );
   const costReductionGlow = hasCostReduction ? "ring-1 ring-emerald-500/50" : "";
+
+  // Unplayable hand card dim — lighter than restriction grey (those are blocked,
+  // these just need more ink). Only applies when isPlayable is explicitly false.
+  const unplayableDim = zone === "hand" && isPlayable === false && !hasFailedRestriction ? "opacity-60 saturate-50" : "";
 
   const handleKey = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); }
@@ -197,7 +203,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   const rotationClass = isExerted && !skipRotation ? "rotate-90 opacity-80"
     : isLocation && zone === "play" ? "rotate-90" : "";
   const baseClass = `game-card relative border-2 rounded-md sm:rounded-xl ${mobileWidth} sm:w-[104px] lg:w-[120px] shrink-0 cursor-pointer
-    transition-all duration-200 ${ringClass} ${restrictionOpacity} ${costReductionGlow}
+    transition-all duration-200 ${ringClass} ${restrictionOpacity} ${costReductionGlow} ${unplayableDim}
     ${rotationClass}
     hover:scale-105 hover:z-10 hover:shadow-lg hover:${theme.glow}`;
 
