@@ -204,16 +204,24 @@ export function useGameSession(): GameSession {
         }
       }
       // Fire-and-forget to server — Realtime will push authoritative state to both players
-      sendAction(mp.gameId, action).catch((err: unknown) => {
-        setError(String(err));
-        // Re-sync with server truth on error
-        getGame(mp.gameId)
-          .then((state) => {
-            gameStateRef.current = state;
-            setGameState(state);
-          })
-          .catch(() => {});
-      });
+      sendAction(mp.gameId, action)
+        .then((res) => {
+          // Server succeeded — apply filtered state from response for immediate consistency
+          if (res.newState) {
+            gameStateRef.current = res.newState;
+            setGameState(res.newState);
+          }
+        })
+        .catch((err: unknown) => {
+          setError(String(err));
+          // Re-sync with server truth on error
+          getGame(mp.gameId)
+            .then((state) => {
+              gameStateRef.current = state;
+              setGameState(state);
+            })
+            .catch(() => {});
+        });
       return;
     }
     // Local: read current state from ref (not updater form — React Strict Mode
