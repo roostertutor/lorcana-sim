@@ -2537,6 +2537,7 @@
           },
           {
             "type": "search",
+            "reveal": true,
             "filter": {
               "cardType": [
                 "character"
@@ -11837,6 +11838,7 @@
           },
           {
             "type": "search",
+            "reveal": true,
             "filter": {
               "cardType": [
                 "character"

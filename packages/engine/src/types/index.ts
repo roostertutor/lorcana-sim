@@ -1076,6 +1076,10 @@ export interface SearchEffect {
    *  "search your deck for X, reveal it, shuffle your deck and put that
    *  card on top of it" (Hiro Hamada Robotics Prodigy, etc.). */
   position?: "top" | "bottom";
+  /** When true, emits a card_revealed event so the UI can show the found
+   *  card to all players. Set for cards whose oracle text says "reveal
+   *  that card to all players". */
+  reveal?: boolean;
 }
 
 
@@ -3049,5 +3053,6 @@ export type GameEvent =
   | { type: "lore_gained"; playerId: PlayerID; amount: number }
   | { type: "card_drawn"; playerId: PlayerID; instanceId: string }
   | { type: "ability_triggered"; instanceId: string; abilityType: string }
+  | { type: "card_revealed"; instanceId: string; playerId: PlayerID; sourceInstanceId: string }
   | { type: "hand_revealed"; playerId: PlayerID; cardInstanceIds: string[]; sourceInstanceId: string }
   | { type: "turn_passed"; to: PlayerID };

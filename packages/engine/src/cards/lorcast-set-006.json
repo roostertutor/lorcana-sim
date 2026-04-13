@@ -7158,6 +7158,7 @@
     "actionEffects": [
       {
         "type": "search",
+        "reveal": true,
         "filter": {
           "cardType": [
             "location"
@@ -8057,6 +8058,7 @@
         "effects": [
           {
             "type": "search",
+            "reveal": true,
             "filter": {
               "anyOf": [
                 {
@@ -12416,6 +12418,7 @@
     "actionEffects": [
       {
         "type": "search",
+        "reveal": true,
         "filter": {
           "cardType": [
             "location"

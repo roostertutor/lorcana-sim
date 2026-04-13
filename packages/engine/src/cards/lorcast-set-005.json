@@ -622,6 +622,7 @@
         "effects": [
           {
             "type": "search",
+            "reveal": true,
             "filter": {
               "cardType": [
                 "character"

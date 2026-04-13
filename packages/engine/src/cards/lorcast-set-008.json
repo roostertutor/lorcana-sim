@@ -364,6 +364,7 @@
         "effects": [
           {
             "type": "search",
+            "reveal": true,
             "filter": {
               "cardType": [
                 "character"
@@ -4256,6 +4257,7 @@
         "effects": [
           {
             "type": "search",
+            "reveal": true,
             "filter": {
               "hasName": "Wrong Lever!"
             },

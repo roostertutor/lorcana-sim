@@ -1957,6 +1957,7 @@ function applyResolveChoice(
       // Bug fix: use revealedCards (all revealed) not validTargets (filtered subset) for rest
       const allRevealed = pendingChoice.revealedCards ?? pendingChoice.validTargets ?? [];
       const rest = allRevealed.filter(id => id !== chosenId);
+      events.push({ type: "card_revealed", instanceId: chosenId, playerId: owner, sourceInstanceId: pendingChoice.sourceInstanceId ?? "" });
       state = moveCard(state, chosenId, owner, "hand");
       if (rest.length > 1 && state.interactive) {
         // Let human choose the order the rest go to the bottom
@@ -3540,6 +3541,7 @@ export function applyEffect(
             }
             const chosenId = topCards[chosenIdx]!;
             const rest = topCards.filter((_, i) => i !== chosenIdx);
+            events.push({ type: "card_revealed", instanceId: chosenId, playerId: controllingPlayerId, sourceInstanceId });
             state = moveCard(state, chosenId, targetPlayer, "hand");
             state = reorderDeckTopToBottom(state, targetPlayer, rest, []);
             return state;
@@ -3650,6 +3652,8 @@ export function applyEffect(
           const playInst = state.cards[playId];
           const playDef = playInst ? definitions[playInst.definitionId] : undefined;
           if (playInst && playDef) {
+            // "may reveal a matching card and play it for free"
+            events.push({ type: "card_revealed", instanceId: playId, playerId: controllingPlayerId, sourceInstanceId });
             state = zoneTransition(state, playId, "play", definitions, events, {
               reason: "played", triggeringPlayerId: targetPlayer,
             });
@@ -3799,6 +3803,8 @@ export function applyEffect(
           const topInst = state.cards[topId];
           const topDef = topInst ? definitions[topInst.definitionId] : undefined;
           if (!topInst || !topDef) return state;
+          // Kristoff's Lute: "reveal" the top card to all players
+          events.push({ type: "card_revealed", instanceId: topId, playerId: controllingPlayerId, sourceInstanceId });
           // Use the same effective-cost helper as the standard play action so
           // static + one-shot cost reductions (Mickey Broom, Grandmother Willow,
           // Olaf Snowman of Action, etc.) apply to the revealed-card play.
@@ -3862,6 +3868,11 @@ export function applyEffect(
           const matchId = fullDeck[matchIdx]!;
           const revealedNonMatch = fullDeck.slice(0, matchIdx);
           const remaining = fullDeck.slice(matchIdx + 1);
+          // All revealed cards (non-match + match) are shown to all players
+          for (const revId of revealedNonMatch) {
+            events.push({ type: "card_revealed", instanceId: revId, playerId: controllingPlayerId, sourceInstanceId });
+          }
+          events.push({ type: "card_revealed", instanceId: matchId, playerId: controllingPlayerId, sourceInstanceId });
           state = moveCard(state, matchId, targetPlayer, "hand");
           // Shuffle revealedNonMatch back into the remaining deck.
           const merged = [...remaining, ...revealedNonMatch];
@@ -4614,6 +4625,10 @@ export function applyEffect(
         return inst && def ? matchesFilter(inst, def, effect.filter, state, controllingPlayerId, sourceInstanceId, definitions) : false;
       });
       if (!matchId) return state;
+      // CRD: some search cards reveal the found card to all players
+      if (effect.reveal) {
+        events.push({ type: "card_revealed", instanceId: matchId, playerId: controllingPlayerId, sourceInstanceId });
+      }
       if (effect.putInto === "deck" && effect.position === "top") {
         // Move to top of deck — moveCard puts it at the END (bottom) of the
         // target zone by default, so we need explicit position.
