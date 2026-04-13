@@ -375,7 +375,7 @@ export function getGameModifiers(
       if (!grantTraitEff) continue;
       const activeZones = ability.activeZones ?? ["play"];
       if (!activeZones.includes(instance.zone)) continue;
-      if (ability.condition && !evaluateCondition(ability.condition, state, definitions, instance.ownerId, instance.instanceId)) continue;
+      if (ability.condition && !evaluateCondition(ability.condition, state, definitions, instance.ownerId, instance.instanceId, undefined, modifiers.statBonuses)) continue;
       const eff = grantTraitEff;
       const grantTo = (id: string) => {
         let set = modifiers.grantedTraits.get(id);
@@ -418,7 +418,7 @@ export function getGameModifiers(
       if (!removeNamedEff) continue;
       const activeZones = ability.activeZones ?? ["play"];
       if (!activeZones.includes(instance.zone)) continue;
-      if (ability.condition && !evaluateCondition(ability.condition, state, definitions, instance.ownerId, instance.instanceId)) continue;
+      if (ability.condition && !evaluateCondition(ability.condition, state, definitions, instance.ownerId, instance.instanceId, undefined, modifiers.statBonuses)) continue;
       const eff = removeNamedEff;
       const addSuppression = (id: string) => {
         let set = suppressedAbilities.get(id);
@@ -455,7 +455,7 @@ export function getGameModifiers(
       if (!removeKwEff) continue;
       const activeZones = ability.activeZones ?? ["play"];
       if (!activeZones.includes(instance.zone)) continue;
-      if (ability.condition && !evaluateCondition(ability.condition, state, definitions, instance.ownerId, instance.instanceId)) continue;
+      if (ability.condition && !evaluateCondition(ability.condition, state, definitions, instance.ownerId, instance.instanceId, undefined, modifiers.statBonuses)) continue;
       const eff = removeKwEff;
       const addKeywordSuppression = (id: string) => {
         let set = modifiers.suppressedKeywords.get(id);
@@ -480,12 +480,19 @@ export function getGameModifiers(
     }
   }
 
+  // Two-pass processing: unconditional statics first (pass=0), then conditional
+  // (pass=1). This ensures self_stat_gte conditions see stat bonuses from
+  // unconditional statics like Snowfort's +1 str regardless of iteration order.
+  for (let pass = 0; pass < 2; pass++) {
   for (const instance of Object.values(state.cards)) {
     const def = definitions[instance.definitionId];
     if (!def) continue;
 
     for (const ability of def.abilities) {
       if (ability.type !== "static") continue;
+      // Pass 0: unconditional only. Pass 1: conditional only.
+      if (pass === 0 && ability.condition) continue;
+      if (pass === 1 && !ability.condition) continue;
       // CRD 6.3-ish: an ability functions only in play unless it says otherwise.
       // activeZones declares where this static is active; default is ["play"].
       const activeZones = ability.activeZones ?? ["play"];
@@ -494,8 +501,10 @@ export function getGameModifiers(
       if (ability.storyName && suppressedAbilities.get(instance.instanceId)?.has(ability.storyName)) continue;
 
       // Check condition on static ability (e.g. "while you have a Captain in play")
+      // Pass in-progress statBonuses so self_stat_gte sees static strength from
+      // other cards (e.g. Snowfort +1 str feeding Lady Decisive Dog's threshold).
       if (ability.condition) {
-        if (!evaluateCondition(ability.condition, state, definitions, instance.ownerId, instance.instanceId)) {
+        if (!evaluateCondition(ability.condition, state, definitions, instance.ownerId, instance.instanceId, undefined, modifiers.statBonuses)) {
           continue;
         }
       }
@@ -1120,6 +1129,7 @@ export function getGameModifiers(
       } // end for (const effect of effects)
     }
   }
+  } // end two-pass (unconditional then conditional)
 
   // Turn-scoped granted activated abilities (Food Fight!, Donald Duck Coin
   // Collector, Walk the Plank!): merge per-player timed grants into the same

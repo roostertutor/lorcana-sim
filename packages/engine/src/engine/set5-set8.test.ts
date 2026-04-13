@@ -897,3 +897,38 @@ describe("§CRD 6.4.2.1 — Continuous Statics (global timed effects)", () => {
     expect(state.globalTimedEffects?.length ?? 0).toBe(0);
   });
 });
+
+describe("§8 Set 8 — Lady Decisive Dog", () => {
+  it("TAKE THE LEAD: +2 lore when strength >= 3 via Snowfort static + timed buffs", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    state.currentPlayer = "player1";
+
+    // Lady in play (0 str base, 1 lore base)
+    let ladyId: string;
+    ({ state, instanceId: ladyId } = injectCard(state, "player1", "lady-decisive-dog", "play", { isDrying: false }));
+
+    // Snowfort in play — static +1 str to all your characters
+    ({ state } = injectCard(state, "player1", "snow-fort", "play"));
+
+    // Play 2 characters to trigger PACK OF HER OWN twice → +2 str timed
+    let c1: string, c2: string;
+    ({ state, instanceId: c1 } = injectCard(state, "player1", "mickey-mouse-true-friend", "hand"));
+    ({ state, instanceId: c2 } = injectCard(state, "player1", "mickey-mouse-true-friend", "hand"));
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: c1 }, LORCAST_CARD_DEFINITIONS);
+    state = r.newState;
+    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: c2 }, LORCAST_CARD_DEFINITIONS);
+    state = r.newState;
+
+    // Lady: 0 base + 2 timed + 1 static (Snowfort) = 3 str → TAKE THE LEAD active
+    const mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    const loreBonus = mods.statBonuses.get(ladyId)?.lore ?? 0;
+    expect(loreBonus).toBe(2); // +2 lore from TAKE THE LEAD
+
+    // Quest: 1 base + 2 static = 3 lore
+    r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: ladyId }, LORCAST_CARD_DEFINITIONS);
+    state = r.newState;
+    expect(state.players.player1.lore).toBe(3);
+  });
+});

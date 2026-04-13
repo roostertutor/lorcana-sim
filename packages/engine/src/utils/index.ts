@@ -639,7 +639,10 @@ export function evaluateCondition(
   definitions: Record<string, CardDefinition>,
   controllingPlayerId: PlayerID,
   sourceInstanceId: string,
-  triggeringCardInstanceId?: string
+  triggeringCardInstanceId?: string,
+  /** In-progress static stat bonuses from getGameModifiers — needed so self_stat_gte
+   *  sees strength/willpower/lore from other static abilities (e.g. Snowfort +1 str). */
+  statBonuses?: Map<string, { strength: number; willpower: number; lore: number }>
 ): boolean {
   const opponent = getOpponent(controllingPlayerId);
   switch (condition.type) {
@@ -780,20 +783,21 @@ export function evaluateCondition(
       if (!inst) return false;
       const def = definitions[inst.definitionId];
       if (!def) return false;
+      const sb = statBonuses?.get(sourceInstanceId);
       let value = 0;
-      if (condition.stat === "strength") value = getEffectiveStrength(inst, def);
-      else if (condition.stat === "willpower") value = getEffectiveWillpower(inst, def);
-      else if (condition.stat === "lore") value = getEffectiveLore(inst, def);
+      if (condition.stat === "strength") value = getEffectiveStrength(inst, def, sb?.strength ?? 0);
+      else if (condition.stat === "willpower") value = getEffectiveWillpower(inst, def, sb?.willpower ?? 0);
+      else if (condition.stat === "lore") value = getEffectiveLore(inst, def, sb?.lore ?? 0);
       return value >= condition.amount;
     }
     case "compound_and": {
       return condition.conditions.every(sub =>
-        evaluateCondition(sub, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId)
+        evaluateCondition(sub, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, statBonuses)
       );
     }
     case "compound_or": {
       return condition.conditions.some(sub =>
-        evaluateCondition(sub, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId)
+        evaluateCondition(sub, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, statBonuses)
       );
     }
     case "songs_played_this_turn_gte": {
@@ -913,7 +917,7 @@ export function evaluateCondition(
       return !!state.players[opponent].aCharacterWasDamagedThisTurn;
     }
     case "not": {
-      return !evaluateCondition(condition.condition, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId);
+      return !evaluateCondition(condition.condition, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, statBonuses);
     }
     case "played_via_shift": {
       const inst = state.cards[sourceInstanceId];
