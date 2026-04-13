@@ -64,6 +64,8 @@ export interface GameSession {
   canUndo: boolean;
   /** Realtime connection status (multiplayer only) */
   connectionStatus: "connected" | "reconnecting" | null;
+  /** Next game ID in a Bo3 match (set when current game ends and match continues) */
+  nextGameId: string | null;
 
   startGame: (config: GameSessionConfig) => void;
   dispatch: (action: GameAction) => void;
@@ -137,6 +139,7 @@ export function useGameSession(): GameSession {
   const [error, setError] = useState<string | null>(null);
   const [completedGame, setCompletedGame] = useState<ReplayData | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<"connected" | "reconnecting" | null>(null);
+  const [nextGameId, setNextGameId] = useState<string | null>(null);
   // actionCount drives canUndo reactivity — refs alone don't trigger re-renders
   const [actionCount, setActionCount] = useState(0);
 
@@ -166,6 +169,7 @@ export function useGameSession(): GameSession {
     setSelectedInstanceId(null);
     setError(null);
     setCompletedGame(null);
+    setNextGameId(null);
     setActionCount(0);
     actionHistoryRef.current = [];
     initialStateRef.current = null;
@@ -253,6 +257,10 @@ export function useGameSession(): GameSession {
           if (res.newState) {
             gameStateRef.current = res.newState;
             setGameState(res.newState);
+          }
+          // Bo3: server created the next game in the match
+          if (res.nextGameId) {
+            setNextGameId(res.nextGameId);
           }
         })
         .catch((err: unknown) => {
@@ -520,6 +528,7 @@ export function useGameSession(): GameSession {
     completedGame,
     canUndo,
     connectionStatus,
+    nextGameId,
     startGame,
     dispatch,
     selectCard,

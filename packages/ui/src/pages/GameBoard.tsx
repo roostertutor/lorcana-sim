@@ -1806,7 +1806,15 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     </div>
 
       {/* ======================= Game Over Modal ======================= */}
-      {isGameOver && !replayData && (
+      {isGameOver && !replayData && (() => {
+        // Bo3 match state (embedded by server on game-over)
+        const matchNextGameId = (gameState as Record<string, unknown>)._matchNextGameId as string | null | undefined;
+        const matchScore = (gameState as Record<string, unknown>)._matchScore as { p1: number; p2: number } | undefined;
+        const hasNextGame = !!matchNextGameId;
+        const myScore = matchScore ? (myId === "player1" ? matchScore.p1 : matchScore.p2) : 0;
+        const oppScore = matchScore ? (myId === "player1" ? matchScore.p2 : matchScore.p1) : 0;
+
+        return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="bg-gray-950 border border-amber-500/30 rounded-2xl p-8 text-center space-y-4 shadow-2xl mx-4 w-full max-w-sm">
             <div className="text-4xl font-black text-amber-400 tracking-tight">
@@ -1815,8 +1823,28 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             <div className="text-sm text-gray-400">
               {winner === myId ? "You won the game" : winner ? (multiplayerGame ? "Your opponent won" : "The bot won") : "The game ended in a draw"}
             </div>
+            {/* Bo3 match score */}
+            {matchScore && (
+              <div className="text-lg font-bold text-gray-200">
+                Match: <span className="text-green-400">{myScore}</span> – <span className="text-red-400">{oppScore}</span>
+                {!hasNextGame && <span className="text-xs text-gray-500 ml-2">(final)</span>}
+              </div>
+            )}
             <div className="flex flex-col items-center gap-2 pt-1">
-              {multiplayerGame ? (
+              {multiplayerGame && hasNextGame ? (
+                <button
+                  className="w-full px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold transition-colors shadow-lg shadow-amber-600/20"
+                  onClick={() => {
+                    // Navigate to the next game in the Bo3 match
+                    const nextId = matchNextGameId!;
+                    localStorage.setItem("mp-game", JSON.stringify({ gameId: nextId, myPlayerId: myId }));
+                    session.reset();
+                    window.location.href = `/game/${nextId}`;
+                  }}
+                >
+                  Next Game
+                </button>
+              ) : multiplayerGame ? (
                 <button
                   className="w-full px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold transition-colors shadow-lg shadow-amber-600/20"
                   onClick={() => {
@@ -1856,7 +1884,8 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             </div>
           </div>
         </div>
-      )}
+        );
+      })()}
 
       {/* ======================= Desktop: card action popover (fixed near card) ======================= */}
       {inspectCardId && popoverPos && (

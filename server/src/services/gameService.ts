@@ -102,7 +102,7 @@ export async function processAction(
     return { success: false, error: result.error ?? "Action failed" }
   }
 
-  const newState = result.newState
+  let newState = result.newState
 
   // Get current player ELO for clone trainer annotation
   const { data: playerProfile } = await supabase
@@ -151,6 +151,21 @@ export async function processAction(
       newState.winner,
     )
     nextGameId = lobbyResult.nextGameId
+
+    // Embed nextGameId + match score into the stored state so both
+    // players see it via Realtime (only acting player gets the HTTP response)
+    if (nextGameId || lobbyResult.p1Wins !== undefined) {
+      const stateWithMatch = {
+        ...newState,
+        _matchNextGameId: nextGameId ?? null,
+        _matchScore: { p1: lobbyResult.p1Wins ?? 0, p2: lobbyResult.p2Wins ?? 0 },
+      }
+      await supabase
+        .from("games")
+        .update({ state: stateWithMatch, updated_at: new Date() })
+        .eq("id", gameId)
+      newState = stateWithMatch as typeof newState
+    }
   }
 
   return { success: true, newState, nextGameId }
@@ -256,7 +271,7 @@ async function handleMatchProgress(
   player1Id: string,
   player2Id: string,
   winner: "player1" | "player2",
-): Promise<{ nextGameId?: string }> {
+): Promise<{ nextGameId?: string; p1Wins?: number; p2Wins?: number }> {
   const { data: lobby } = await supabase
     .from("lobbies")
     .select("*")
@@ -292,7 +307,7 @@ async function handleMatchProgress(
       .from("lobbies")
       .update({ status: "finished", updated_at: new Date() })
       .eq("id", lobbyId)
-    return {}
+    return { p1Wins, p2Wins }
   }
 
   // Bo3 not decided — create next game
@@ -306,7 +321,7 @@ async function handleMatchProgress(
     gameNumber,
   )
 
-  return { nextGameId: nextGame.id }
+  return { nextGameId: nextGame.id, p1Wins, p2Wins }
 }
 
 export async function getGameHistory(userId: string, page: number, limit: number) {
