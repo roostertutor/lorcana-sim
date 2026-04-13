@@ -191,9 +191,26 @@ export function useGameSession(): GameSession {
   const dispatch = useCallback((action: GameAction) => {
     const mp = configRef.current?.multiplayer;
     if (mp) {
-      // Multiplayer: send to server, state update comes via Realtime
+      // Multiplayer: apply locally first for instant feedback, then send to server.
+      // Server is authoritative — if the action fails, re-sync from server state.
+      const prev = gameStateRef.current;
+      if (prev && configRef.current) {
+        const localResult = applyAction(prev, action, configRef.current.definitions);
+        if (localResult.success) {
+          gameStateRef.current = localResult.newState;
+          setGameState(localResult.newState);
+        }
+      }
+      // Fire-and-forget to server — Realtime will push authoritative state to both players
       sendAction(mp.token, mp.gameId, action).catch((err: unknown) => {
         setError(String(err));
+        // Re-sync with server truth on error
+        getGame(mp.token, mp.gameId)
+          .then((state) => {
+            gameStateRef.current = state;
+            setGameState(state);
+          })
+          .catch(() => {});
       });
       return;
     }
@@ -313,6 +330,11 @@ export function useGameSession(): GameSession {
   // ---------------------------------------------------------------------------
   // Supabase Realtime subscription (multiplayer only)
   // Listens for game state updates broadcast by the server after each action.
+  //
+  // ANTI-CHEAT: We do NOT read state from the Realtime payload — postgres_changes
+  // broadcasts the raw DB row including the full unfiltered GameState (opponent's
+  // hand, deck, etc.). Instead we use the event as a "something changed" signal
+  // and fetch the filtered state from GET /game/:id.
   // ---------------------------------------------------------------------------
   useEffect(() => {
     const mp = configRef.current?.multiplayer;
@@ -328,11 +350,17 @@ export function useGameSession(): GameSession {
           table: "games",
           filter: `id=eq.${mp.gameId}`,
         },
-        (payload) => {
-          const newState = (payload.new as { state: GameState }).state;
-          gameStateRef.current = newState;
-          setGameState(newState);
-          setError(null);
+        () => {
+          // Fetch filtered state from server — never trust the raw payload
+          getGame(mp.token, mp.gameId)
+            .then((filtered) => {
+              gameStateRef.current = filtered;
+              setGameState(filtered);
+              setError(null);
+            })
+            .catch((err: unknown) => {
+              setError(String(err));
+            });
         },
       )
       .subscribe();

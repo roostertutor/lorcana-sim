@@ -1,7 +1,8 @@
 import { Hono } from "hono"
-import type { GameAction } from "@lorcana-sim/engine"
+import type { GameAction, GameState, PlayerID } from "@lorcana-sim/engine"
 import { requireAuth } from "../middleware/auth.js"
 import { processAction, getGame, resignGame } from "../services/gameService.js"
+import { filterStateForPlayer } from "../services/stateFilter.js"
 
 const game = new Hono<{ Variables: { userId: string } }>()
 
@@ -15,7 +16,11 @@ game.get("/:id", requireAuth, async (c) => {
     return c.json({ error: "Forbidden" }, 403)
   }
 
-  return c.json({ game: gameData })
+  // Filter hidden information before sending to client
+  const playerSide: PlayerID = gameData.player1_id === userId ? "player1" : "player2"
+  const filteredState = filterStateForPlayer(gameData.state as GameState, playerSide)
+
+  return c.json({ game: { ...gameData, state: filteredState } })
 })
 
 // POST /game/:id/action
@@ -31,7 +36,14 @@ game.post("/:id/action", requireAuth, async (c) => {
     return c.json({ success: false, error: result.error }, 400)
   }
 
-  return c.json({ success: true, newState: result.newState })
+  // Filter hidden information — don't leak opponent's hand/deck to the acting player
+  const gameData = await getGame(c.req.param("id")!)
+  const playerSide: PlayerID = gameData?.player1_id === userId ? "player1" : "player2"
+  const filteredState = result.newState
+    ? filterStateForPlayer(result.newState, playerSide)
+    : undefined
+
+  return c.json({ success: true, newState: filteredState })
 })
 
 // POST /game/:id/resign

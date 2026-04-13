@@ -1351,7 +1351,20 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             )}
 
             {!sandboxMode && (
-              <div className="ml-auto shrink-0">
+              <div className="ml-auto shrink-0 flex items-center gap-1">
+                {multiplayerGame && !isGameOver && (
+                  <button
+                    className="px-2 py-1 text-red-600 hover:text-red-400 rounded transition-colors"
+                    onClick={() => {
+                      import("../lib/serverApi.js").then(({ resignGame }) =>
+                        resignGame(multiplayerGame.token, multiplayerGame.gameId)
+                      );
+                    }}
+                    title="Resign"
+                  >
+                    <span className="text-[10px] uppercase tracking-wider font-medium">Resign</span>
+                  </button>
+                )}
                 <button
                   className="px-2 py-1 text-gray-600 hover:text-gray-400 rounded transition-colors"
                   onClick={() => {
@@ -1635,6 +1648,14 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
           <div className="bg-yellow-950/90 border border-yellow-700/60 rounded-full px-4 py-1.5 shadow-lg">
             <span className="text-yellow-400 text-xs font-medium animate-pulse">Opponent is thinking…</span>
+          </div>
+        </div>
+      )}
+      {/* Multiplayer: waiting for opponent's turn (no pending choice, not your turn) */}
+      {multiplayerGame && !pendingChoice && !isGameOver && !isYourTurn && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
+          <div className="bg-gray-900/90 border border-gray-700/60 rounded-full px-4 py-1.5 shadow-lg">
+            <span className="text-gray-400 text-xs font-medium animate-pulse">Waiting for opponent…</span>
           </div>
         </div>
       )}
