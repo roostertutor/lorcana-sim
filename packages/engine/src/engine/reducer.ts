@@ -2283,7 +2283,10 @@ function resolveDynamicAmount(
     case "target_lore": {
       const inst = targetInstanceId ? state.cards[targetInstanceId] : undefined;
       const def = inst ? definitions[inst.definitionId] : undefined;
-      resolved = def?.lore ?? 0;
+      if (inst && def) {
+        const mods = getGameModifiers(state, definitions);
+        resolved = getEffectiveLore(inst, def, mods.statBonuses.get(targetInstanceId!)?.lore ?? 0);
+      }
       break;
     }
     case "target_damage": {
@@ -2294,19 +2297,28 @@ function resolveDynamicAmount(
     case "target_strength": {
       const inst = targetInstanceId ? state.cards[targetInstanceId] : undefined;
       const def = inst ? definitions[inst.definitionId] : undefined;
-      resolved = inst && def ? getEffectiveStrength(inst, def, 0, getGameModifiers(state, definitions)) : 0;
+      if (inst && def) {
+        const mods = getGameModifiers(state, definitions);
+        resolved = getEffectiveStrength(inst, def, mods.statBonuses.get(targetInstanceId!)?.strength ?? 0, mods);
+      }
       break;
     }
     case "source_lore": {
       const inst = state.cards[sourceInstanceId];
       const def = inst ? definitions[inst.definitionId] : undefined;
-      resolved = def?.lore ?? 0;
+      if (inst && def) {
+        const mods = getGameModifiers(state, definitions);
+        resolved = getEffectiveLore(inst, def, mods.statBonuses.get(sourceInstanceId)?.lore ?? 0);
+      }
       break;
     }
     case "source_strength": {
       const inst = state.cards[sourceInstanceId];
       const def = inst ? definitions[inst.definitionId] : undefined;
-      resolved = inst && def ? getEffectiveStrength(inst, def, 0, getGameModifiers(state, definitions)) : 0;
+      if (inst && def) {
+        const mods = getGameModifiers(state, definitions);
+        resolved = getEffectiveStrength(inst, def, mods.statBonuses.get(sourceInstanceId)?.strength ?? 0, mods);
+      }
       break;
     }
     case "cards_under_count": {
