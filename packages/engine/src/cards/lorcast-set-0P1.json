@@ -750,20 +750,26 @@
         },
         "effects": [
           {
-            "type": "draw",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            },
-            "isMay": true
-          },
-          {
-            "type": "discard_from_hand",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            },
-            "chooser": "target_player"
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              },
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                },
+                "chooser": "target_player"
+              }
+            ]
           }
         ]
       }

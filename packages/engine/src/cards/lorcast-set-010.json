@@ -1157,8 +1157,7 @@
           "value": 8,
           "target": {
             "type": "this"
-          },
-          "value": 8
+          }
         },
         "condition": {
           "type": "you_control_matching",
@@ -8495,8 +8494,7 @@
                 ],
                 "hasTrait": "Detective"
               }
-            },
-            "value": 2
+            }
           }
         ],
         "condition": {
@@ -8984,8 +8982,7 @@
               "excludeSelf": true,
               "inkColor": "sapphire"
             }
-          },
-          "value": 1
+          }
         }
       },
       {
@@ -10176,20 +10173,26 @@
         },
         "effects": [
           {
-            "type": "draw",
-            "amount": 1,
+            "type": "sequential",
             "isMay": true,
-            "target": {
-              "type": "self"
-            }
-          },
-          {
-            "type": "discard_from_hand",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            },
-            "chooser": "target_player"
+            "costEffects": [],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              },
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                },
+                "chooser": "target_player"
+              }
+            ]
           }
         ]
       },
@@ -11659,20 +11662,26 @@
         },
         "effects": [
           {
-            "type": "draw",
-            "amount": 1,
+            "type": "sequential",
             "isMay": true,
-            "target": {
-              "type": "self"
-            }
-          },
-          {
-            "type": "discard_from_hand",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            },
-            "chooser": "target_player"
+            "costEffects": [],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              },
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                },
+                "chooser": "target_player"
+              }
+            ]
           }
         ]
       }
@@ -11723,8 +11732,7 @@
                 ],
                 "atLocation": "this"
               }
-            },
-            "value": 1
+            }
           },
           {
             "type": "grant_keyword",
@@ -11738,8 +11746,7 @@
                 ],
                 "atLocation": "this"
               }
-            },
-            "value": 1
+            }
           }
         ]
       }
@@ -13732,8 +13739,7 @@
                 ],
                 "hasTrait": "Detective"
               }
-            },
-            "value": 2
+            }
           }
         ],
         "condition": {

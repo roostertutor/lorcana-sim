@@ -8811,23 +8811,30 @@
         },
         "effects": [
           {
-            "type": "draw",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            }
-          },
-          {
-            "type": "discard_from_hand",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            },
-            "chooser": "target_player"
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              },
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                },
+                "chooser": "target_player"
+              }
+            ]
           }
         ],
         "storyName": "GUESS WHAT?",
-        "rulesText": "? When you play this character, you may draw a card, then choose and discard a card."
+        "rulesText": "When you play this character, you may draw a card, then choose and discard a card."
       }
     ],
     "setId": "1",

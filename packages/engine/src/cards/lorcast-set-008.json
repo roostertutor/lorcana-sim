@@ -1930,8 +1930,7 @@
           "value": 2,
           "target": {
             "type": "this"
-          },
-          "value": 2
+          }
         },
         "condition": {
           "type": "this_has_no_damage"
@@ -3410,8 +3409,7 @@
           "value": 2,
           "target": {
             "type": "this"
-          },
-          "value": 2
+          }
         },
         "condition": {
           "type": "you_control_matching",
@@ -7087,19 +7085,26 @@
         },
         "effects": [
           {
-            "type": "draw",
-            "amount": 1,
+            "type": "sequential",
             "isMay": true,
-            "target": {
-              "type": "self"
-            }
-          },
-          {
-            "type": "discard_from_hand",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            }
+            "costEffects": [],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              },
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                },
+                "chooser": "target_player"
+              }
+            ]
           }
         ]
       }
@@ -11196,8 +11201,7 @@
               "excludeSelf": true,
               "hasTrait": "Illusion"
             }
-          },
-          "value": 1
+          }
         }
       }
     ],
@@ -11502,8 +11506,7 @@
           "value": 1,
           "target": {
             "type": "this"
-          },
-          "value": 1
+          }
         },
         "condition": {
           "type": "this_is_exerted"
@@ -11896,19 +11899,26 @@
         },
         "effects": [
           {
-            "type": "draw",
-            "amount": 1,
+            "type": "sequential",
             "isMay": true,
-            "target": {
-              "type": "self"
-            }
-          },
-          {
-            "type": "discard_from_hand",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            }
+            "costEffects": [],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              },
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                },
+                "chooser": "target_player"
+              }
+            ]
           }
         ]
       },
@@ -11924,19 +11934,26 @@
         },
         "effects": [
           {
-            "type": "draw",
-            "amount": 1,
+            "type": "sequential",
             "isMay": true,
-            "target": {
-              "type": "self"
-            }
-          },
-          {
-            "type": "discard_from_hand",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            }
+            "costEffects": [],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              },
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                },
+                "chooser": "target_player"
+              }
+            ]
           }
         ]
       },

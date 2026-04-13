@@ -562,31 +562,38 @@
         },
         "effects": [
           {
-            "type": "draw",
-            "amount": {
-              "type": "count",
-              "filter": {
-                "owner": {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": {
+                  "type": "count",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "excludeSelf": true
+                  }
+                },
+                "target": {
+                  "type": "self"
+                }
+              },
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
                   "type": "self"
                 },
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ],
-                "excludeSelf": true
+                "chooser": "target_player"
               }
-            },
-            "target": {
-              "type": "self"
-            },
-            "isMay": true
-          },
-          {
-            "type": "discard_from_hand",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            }
+            ]
           }
         ]
       }
@@ -5686,19 +5693,26 @@
         },
         "effects": [
           {
-            "type": "draw",
-            "amount": 1,
+            "type": "sequential",
             "isMay": true,
-            "target": {
-              "type": "self"
-            }
-          },
-          {
-            "type": "discard_from_hand",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            }
+            "costEffects": [],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              },
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                },
+                "chooser": "target_player"
+              }
+            ]
           }
         ]
       }
@@ -9990,8 +10004,7 @@
               ],
               "hasName": "Lady Kluck"
             }
-          },
-          "value": 1
+          }
         }
       }
     ],
@@ -10237,8 +10250,7 @@
           "value": 2,
           "target": {
             "type": "this"
-          },
-          "value": 2
+          }
         },
         "condition": {
           "type": "this_has_no_damage"
@@ -10368,19 +10380,26 @@
         },
         "effects": [
           {
-            "type": "draw",
-            "amount": 1,
+            "type": "sequential",
             "isMay": true,
-            "target": {
-              "type": "self"
-            }
-          },
-          {
-            "type": "discard_from_hand",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            }
+            "costEffects": [],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              },
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                },
+                "chooser": "target_player"
+              }
+            ]
           }
         ]
       }
@@ -10785,8 +10804,7 @@
           "value": 3,
           "target": {
             "type": "this"
-          },
-          "value": 3
+          }
         },
         "condition": {
           "type": "you_control_matching",
@@ -10847,19 +10865,26 @@
         },
         "effects": [
           {
-            "type": "draw",
-            "amount": 1,
+            "type": "sequential",
             "isMay": true,
-            "target": {
-              "type": "self"
-            }
-          },
-          {
-            "type": "discard_from_hand",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            }
+            "costEffects": [],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              },
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                },
+                "chooser": "target_player"
+              }
+            ]
           }
         ]
       }
@@ -11473,19 +11498,26 @@
         },
         "effects": [
           {
-            "type": "draw",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            },
-            "isMay": true
-          },
-          {
-            "type": "discard_from_hand",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            }
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              },
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                },
+                "chooser": "target_player"
+              }
+            ]
           }
         ]
       }
