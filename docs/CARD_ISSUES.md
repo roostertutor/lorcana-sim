@@ -434,16 +434,21 @@ This is NOT the more common "reveal top, then route back" pattern
 *discard* and the destination flips based on a board condition, not based
 on what was revealed. No CRD grammar for this explicitly.
 
-Engine doesn't currently support "move chosen-from-discard to top of
-deck" as an effect primitive. Options if more cards ship with this
-pattern:
-- Extend `put_card_on_bottom_of_deck` with `position?: "top" | "bottom"`
-  (name becomes misleading but minimal churn).
-- Add a sibling `put_card_on_top_of_deck` effect type.
-- `conditional_on_player_state` wrapping different destination effects
-  (runs two choosers — UX is worse because player picks twice).
+**Implementation (2026-04-14):** wired via `conditional_on_player_state`
+branching on `has_character_with_trait: Detective`:
+- `thenEffects`: `return_to_hand` with chosen item from discard
+- `elseEffects`: `search` with `zone: "discard"`, `putInto: "deck"`,
+  `position: "top"` (leverages the existing SearchEffect `position` field
+  originally added for Hiro Hamada "shuffle deck and put that card on top").
 
-Currently unimplemented. Revisit when a second card surfaces this.
+Only one branch executes (condition evaluates first), so only one chooser
+surfaces — no worse UX than a single-branch effect. If this pattern ever
+needs to route BOTH destinations off a *target* instead of a *board state*
+condition, the engine will need a `conditional_on_target_destination`
+primitive (not currently necessary).
+
+Tests: set9-set11.test.ts "Pluto Clever Cluefinder ON THE TRAIL" — both
+branches covered.
 
 ---
 

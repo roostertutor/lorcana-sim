@@ -8921,19 +8921,37 @@
         ],
         "effects": [
           {
-            "type": "return_to_hand",
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "discard",
-                "cardType": [
-                  "item"
-                ]
+            "type": "conditional_on_player_state",
+            "condition": {
+              "type": "has_character_with_trait",
+              "trait": "Detective",
+              "player": { "type": "self" }
+            },
+            "thenEffects": [
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": { "type": "self" },
+                    "zone": "discard",
+                    "cardType": ["item"]
+                  }
+                }
               }
-            }
+            ],
+            "elseEffects": [
+              {
+                "type": "search",
+                "zone": "discard",
+                "filter": {
+                  "cardType": ["item"]
+                },
+                "target": { "type": "self" },
+                "putInto": "deck",
+                "position": "top"
+              }
+            ]
           }
         ]
       }

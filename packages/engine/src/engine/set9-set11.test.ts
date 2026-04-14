@@ -939,6 +939,58 @@ describe("§P2 Promo — Lilo Escape Artist NO PLACE I'D RATHER BE (paid play fr
   });
 });
 
+describe("§10 Set 10 — Pluto Clever Cluefinder ON THE TRAIL", () => {
+  it("with Detective in play: returns an item from discard to hand", () => {
+    let state = startGame();
+    state.currentPlayer = "player1";
+    let plutoId: string, itemId: string;
+    ({ state, instanceId: plutoId } = injectCard(state, "player1", "pluto-clever-cluefinder", "play", { isDrying: false }));
+    // Inject a Detective character (Judy Hopps Uncovering Clues has Detective trait)
+    ({ state } = injectCard(state, "player1", "judy-hopps-uncovering-clues", "play", { isDrying: false }));
+    ({ state, instanceId: itemId } = injectCard(state, "player1", "basils-magnifying-glass", "discard"));
+
+    // Activate ability index 0 (ON THE TRAIL)
+    let r = applyAction(state, {
+      type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: plutoId, abilityIndex: 0,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Should surface a choose_target for the item in discard
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    expect(state.pendingChoice?.validTargets).toContain(itemId);
+
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [itemId] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Item moved to hand
+    expect(getInstance(state, itemId).zone).toBe("hand");
+  });
+
+  it("without Detective in play: puts an item from discard on top of deck", () => {
+    let state = startGame();
+    state.currentPlayer = "player1";
+    let plutoId: string, itemId: string;
+    ({ state, instanceId: plutoId } = injectCard(state, "player1", "pluto-clever-cluefinder", "play", { isDrying: false }));
+    // No Detective character present
+    ({ state, instanceId: itemId } = injectCard(state, "player1", "basils-magnifying-glass", "discard"));
+    const deckTopBefore = getZone(state, "player1", "deck")[0];
+
+    const r = applyAction(state, {
+      type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: plutoId, abilityIndex: 0,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Non-interactive: search auto-resolves with single match → item goes on
+    // top of deck (not in hand).
+    expect(getInstance(state, itemId).zone).toBe("deck");
+    expect(getZone(state, "player1", "deck")[0]).toBe(itemId);
+    expect(getZone(state, "player1", "deck")[0]).not.toBe(deckTopBefore);
+  });
+});
+
 describe("§Engine — TimedEffect.sourceStoryName attribution", () => {
   it("The Queen Conceited Ruler: Support's modify_strength is attributed to 'Support', not ROYAL SUMMONS", () => {
     let state = startGame();
