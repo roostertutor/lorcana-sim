@@ -1017,7 +1017,13 @@ function applyQuest(
   const questingInstance = getInstance(state, instanceId);
   const questingDef = getDefinition(state, instanceId, definitions);
   if (hasKeyword(questingInstance, questingDef, "support")) {
-    const supportStrength = getEffectiveStrength(questingInstance, questingDef, 0, getGameModifiers(state, definitions));
+    const supportMods = getGameModifiers(state, definitions);
+    const supportStrength = getEffectiveStrength(
+      questingInstance,
+      questingDef,
+      supportMods.statBonuses.get(instanceId)?.strength ?? 0,
+      supportMods,
+    );
     if (supportStrength > 0) {
       // Check there is at least one other character in play to target
       const otherChars = getZone(state, playerId, "play").filter((id) => {
@@ -5941,7 +5947,16 @@ function applyEffectToTarget(
       if (effect.strengthEqualsSourceStrength) {
         const sourceInst = state.cards[sourceInstanceId];
         const sourceDef = sourceInst ? definitions[sourceInst.definitionId] : undefined;
-        const srcStrength = sourceInst && sourceDef ? getEffectiveStrength(sourceInst, sourceDef, 0, getGameModifiers(state, definitions)) : 0;
+        let srcStrength = 0;
+        if (sourceInst && sourceDef) {
+          const srcMods = getGameModifiers(state, definitions);
+          srcStrength = getEffectiveStrength(
+            sourceInst,
+            sourceDef,
+            srcMods.statBonuses.get(sourceInstanceId)?.strength ?? 0,
+            srcMods,
+          );
+        }
         const override = { ...effect, strength: srcStrength, strengthEqualsSourceStrength: undefined };
         return applyGainStatsToInstance(state, targetInstanceId, override as any, controllingPlayerId, definitions, sourceInstanceId);
       }

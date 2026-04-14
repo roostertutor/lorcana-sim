@@ -839,3 +839,43 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     expect(getInstance(state, otherHeroId).damage).toBe(0);
   });
 });
+
+describe("§11 Set 11 — Snow Fort static strength + Support", () => {
+  it("Support strength includes static bonuses from other cards (e.g. Snow Fort +1 str)", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    state.currentPlayer = "player1";
+
+    // HeiHei (Support, base str 1) + Mickey (str 3) + Snow Fort (+1 str to your chars)
+    let heiHeiId: string, mickeyId: string;
+    ({ state, instanceId: heiHeiId } = injectCard(state, "player1", "heihei-boat-snack", "play", { isDrying: false }));
+    ({ state, instanceId: mickeyId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    ({ state } = injectCard(state, "player1", "snow-fort", "play"));
+
+    // Quest with HeiHei — should trigger Support
+    const r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: heiHeiId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Support triggers a "may" choice — accept it
+    expect(state.pendingChoice?.type).toBe("choose_may");
+    state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS).newState;
+
+    // Then chooses a target — pick Mickey
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [mickeyId] }, LORCAST_CARD_DEFINITIONS).newState;
+
+    // Mickey should have +2 strength from support (HeiHei base 1 + Snow Fort +1 = 2),
+    // plus +1 static from Snow Fort himself, so effective strength = 3 + 2 + 1 = 6.
+    const mickeyInst = getInstance(state, mickeyId);
+    const mickeyDef = LORCAST_CARD_DEFINITIONS[mickeyInst.definitionId]!;
+    const mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    const mickeyStr = getEffectiveStrength(
+      mickeyInst,
+      mickeyDef,
+      mods.statBonuses.get(mickeyId)?.strength ?? 0,
+      mods,
+    );
+    expect(mickeyStr).toBe(6); // 3 base + 1 Snow Fort + 2 Support (HeiHei's 1+1 effective str)
+  });
+});
