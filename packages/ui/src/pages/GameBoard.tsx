@@ -1557,9 +1557,10 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
 
         {/* ---- Opponent zone ---- */}
         <div className={`flex-1 min-h-0 flex flex-col -mx-3 px-2 md:mx-0 rounded-xl bg-gradient-to-b from-red-950/10 to-transparent border p-2 transition-colors duration-300 ${!isYourTurn ? "border-red-600/50" : "border-gray-800/30"}`}>
-          {/* Opponent hand — face-down, clipped to just show card tops */}
+          {/* Opponent hand — face-down, clipped to just show card tops.
+              Shorter on mobile to reclaim vertical space for the board. */}
           {p2Zones.hand.length > 0 && (
-            <div className="shrink-0 h-10 sm:h-16 overflow-hidden flex flex-nowrap items-end justify-center mb-1">
+            <div className="shrink-0 h-6 sm:h-16 overflow-hidden flex flex-nowrap items-end justify-center mb-0.5 sm:mb-1">
               {p2Zones.hand.map((id, i) => renderCardWithActions(id, "hand", true, i, p2Zones.hand.length, true))}
             </div>
           )}
