@@ -325,6 +325,31 @@ Run `pnpm card-status` to confirm 0 unknowns. Key reclassifications:
 
 ---
 
+## Rulings TBD
+
+Open ruling questions where the strict CRD reading allows an interaction
+that may or may not match designer intent. Engine currently follows the
+strict reading; revisit if Ravensburger publishes a clarifying ruling.
+
+### The Queen - Conceited Ruler — ROYAL SUMMONS self-loop
+
+> "At the start of your turn, you may choose and discard a Princess or
+> Queen character card to return a character card from your discard to
+> your hand."
+
+Sequential cost (discard) → reward (return). The discarded card lands in
+discard before the return picks, so per strict reading the player can
+discard a Princess/Queen and immediately return that same card — a no-op
+loop that triggers no other effects.
+
+Engine behavior: allowed (the just-discarded card is a valid return target).
+
+If a future ruling restricts this, the fix would be to add an
+`excludeInstanceId: state.lastResolvedTarget?.instanceId` filter on the
+return_to_hand effect (or equivalent "exclude this turn's discards" mechanic).
+
+---
+
 *Last updated: Session 22 (post-unknown review)*
 *Generated from `pnpm card-status` analysis across sets 2–11*
 *All 2003 stubs categorized — 0 unknowns remaining*
