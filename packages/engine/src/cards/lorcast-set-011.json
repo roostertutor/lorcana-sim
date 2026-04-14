@@ -7318,7 +7318,7 @@
       {
         "type": "look_at_top",
         "count": 4,
-        "action": "one_to_hand_rest_bottom",
+        "action": "up_to_n_to_hand_rest_bottom",
         "filter": {
           "cardType": [
             "location"
@@ -7327,7 +7327,8 @@
         "noMatchDestination": "discard",
         "target": {
           "type": "self"
-        }
+        },
+        "maxToHand": 1
       },
       {
         "type": "grant_cost_reduction",
@@ -8588,10 +8589,11 @@
           {
             "type": "look_at_top",
             "count": 1,
-            "action": "one_to_hand_rest_bottom",
+            "action": "up_to_n_to_hand_rest_bottom",
             "target": {
               "type": "self"
-            }
+            },
+            "maxToHand": 1
           }
         ]
       }
@@ -13318,7 +13320,7 @@
       {
         "type": "look_at_top",
         "count": 4,
-        "action": "one_to_hand_rest_bottom",
+        "action": "up_to_n_to_hand_rest_bottom",
         "filter": {
           "cardType": [
             "location"
@@ -13327,7 +13329,8 @@
         "noMatchDestination": "discard",
         "target": {
           "type": "self"
-        }
+        },
+        "maxToHand": 1
       },
       {
         "type": "grant_cost_reduction",

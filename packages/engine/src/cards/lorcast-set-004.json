@@ -8565,7 +8565,7 @@
           {
             "type": "look_at_top",
             "count": 4,
-            "action": "one_to_hand_rest_bottom",
+            "action": "up_to_n_to_hand_rest_bottom",
             "filter": {
               "cardType": [
                 "item"
@@ -8574,7 +8574,8 @@
             "target": {
               "type": "self"
             },
-            "isMay": true
+            "isMay": true,
+            "maxToHand": 1
           }
         ]
       }

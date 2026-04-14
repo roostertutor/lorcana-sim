@@ -73,7 +73,7 @@
           {
             "type": "look_at_top",
             "count": 4,
-            "action": "one_to_hand_rest_bottom",
+            "action": "up_to_n_to_hand_rest_bottom",
             "filter": {
               "cardType": [
                 "action"
@@ -82,7 +82,8 @@
             },
             "target": {
               "type": "self"
-            }
+            },
+            "maxToHand": 1
           }
         ],
         "storyName": "MUSICAL DEBUT",
@@ -1182,7 +1183,7 @@
       {
         "type": "look_at_top",
         "count": 4,
-        "action": "one_to_hand_rest_bottom",
+        "action": "up_to_n_to_hand_rest_bottom",
         "filter": {
           "cardType": [
             "character"
@@ -1190,7 +1191,8 @@
         },
         "target": {
           "type": "self"
-        }
+        },
+        "maxToHand": 1
       }
     ]
   },
@@ -7643,10 +7645,11 @@
       {
         "type": "look_at_top",
         "count": 2,
-        "action": "one_to_hand_rest_bottom",
+        "action": "up_to_n_to_hand_rest_bottom",
         "target": {
           "type": "self"
-        }
+        },
+        "maxToHand": 1
       }
     ]
   },

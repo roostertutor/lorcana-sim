@@ -9064,10 +9064,11 @@
       {
         "type": "look_at_top",
         "count": 5,
-        "action": "one_to_hand_rest_bottom",
+        "action": "up_to_n_to_hand_rest_bottom",
         "target": {
           "type": "self"
-        }
+        },
+        "maxToHand": 1
       }
     ]
   },

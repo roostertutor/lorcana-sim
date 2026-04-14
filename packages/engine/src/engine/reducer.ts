@@ -3571,90 +3571,6 @@ export function applyEffect(
       const topCards = deck.slice(0, lookCount);
 
       switch (effect.action) {
-        case "one_to_hand_rest_bottom": {
-          if (effect.filter && !state.interactive) {
-            // Headless/bot mode: auto-resolve — find first card that matches
-            const chosenIdx = topCards.findIndex((id) => {
-              const inst = state.cards[id];
-              if (!inst) return false;
-              const def = definitions[inst.definitionId];
-              if (!def) return false;
-              return matchesFilter(inst, def, effect.filter!, state, controllingPlayerId);
-            });
-            if (chosenIdx === -1) {
-              // No match — put all on bottom (may pattern = don't take any)
-              state = reorderDeckTopToBottom(state, targetPlayer, topCards, []);
-              return state;
-            }
-            const chosenId = topCards[chosenIdx]!;
-            const rest = topCards.filter((_, i) => i !== chosenIdx);
-            events.push({ type: "card_revealed", instanceId: chosenId, playerId: controllingPlayerId, sourceInstanceId });
-            state = moveCard(state, chosenId, targetPlayer, "hand");
-            state = reorderDeckTopToBottom(state, targetPlayer, rest, []);
-            return state;
-          }
-          if (effect.filter && state.interactive) {
-            // Interactive mode: show filtered cards and let human choose
-            const matchingCards = topCards.filter((id) => {
-              const inst = state.cards[id];
-              if (!inst) return false;
-              const def = definitions[inst.definitionId];
-              if (!def) return false;
-              return matchesFilter(inst, def, effect.filter!, state, controllingPlayerId);
-            });
-            if (matchingCards.length === 0) {
-              // No valid cards — show all revealed cards so human can see what was looked at,
-              // then auto-send rest to bottom when they dismiss (optional with empty validTargets)
-              return {
-                ...state,
-                pendingChoice: {
-                  type: "choose_from_revealed",
-                  choosingPlayerId: controllingPlayerId,
-                  prompt: `No matching cards found. All revealed cards go to the bottom of your deck.`,
-                  validTargets: [],
-                  revealedCards: topCards,
-                  pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
-                  optional: true,
-                },
-              };
-            }
-            return {
-              ...state,
-              pendingChoice: {
-                type: "choose_from_revealed",
-                choosingPlayerId: controllingPlayerId,
-                prompt: `Choose a card to put into your hand. The rest go to the bottom of your deck.`,
-                validTargets: matchingCards,
-                revealedCards: topCards,
-                pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
-                optional: true,
-              },
-            };
-          }
-
-          // No filter: let the player choose which card to keep
-          if (!state.interactive && topCards.length <= 1) {
-            // Bot mode: 0-1 card, no choice needed
-            if (topCards.length === 1) {
-              state = moveCard(state, topCards[0]!, targetPlayer, "hand");
-            }
-            return state;
-          }
-          if (topCards.length === 0) return state;
-          // Interactive: always show the choice, even for 1 card
-          return {
-            ...state,
-            pendingChoice: {
-              type: "choose_from_revealed",
-              choosingPlayerId: controllingPlayerId,
-              prompt: topCards.length === 1
-                ? `Revealed 1 card. Put it into your hand.`
-                : `Choose 1 of ${topCards.length} revealed cards to put into your hand. The rest go to the bottom of your deck.`,
-              validTargets: topCards,
-              pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
-            },
-          };
-        }
         case "top_or_bottom": {
           // Bot heuristic: keep on top (simple strategy)
           // No actual change needed — card stays where it is
@@ -3744,6 +3660,47 @@ export function applyEffect(
           //   3. neither: pick first maxToHand cards unconditionally
           //      (Dig a Little Deeper).
           const maxToHand = effect.maxToHand ?? 1;
+
+          // Interactive mode: show the cards and let the player choose
+          if (state.interactive) {
+            // Find which of the revealed cards match the filter(s)
+            let matchingCards: string[];
+            if (effect.filters && effect.filters.length > 0) {
+              matchingCards = topCards.filter((id) => {
+                const inst = state.cards[id];
+                const def = inst ? definitions[inst.definitionId] : undefined;
+                if (!inst || !def) return false;
+                return effect.filters!.some((f: any) =>
+                  matchesFilter(inst, def!, f, state, controllingPlayerId)
+                );
+              });
+            } else if (effect.filter) {
+              matchingCards = topCards.filter((id) => {
+                const inst = state.cards[id];
+                const def = inst ? definitions[inst.definitionId] : undefined;
+                if (!inst || !def) return false;
+                return matchesFilter(inst, def, effect.filter!, state, controllingPlayerId);
+              });
+            } else {
+              matchingCards = [...topCards];
+            }
+            return {
+              ...state,
+              pendingChoice: {
+                type: "choose_from_revealed",
+                choosingPlayerId: controllingPlayerId,
+                prompt: matchingCards.length === 0
+                  ? `No matching cards found. All revealed cards go to the bottom of your deck.`
+                  : `Choose up to ${maxToHand} card(s) to put into your hand. The rest go to the bottom of your deck.`,
+                validTargets: matchingCards,
+                revealedCards: topCards,
+                pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
+                optional: true,
+              },
+            };
+          }
+
+          // Bot/headless: greedy auto-pick
           const picked: string[] = [];
           const rest: string[] = [];
           if (effect.filters && effect.filters.length > 0) {

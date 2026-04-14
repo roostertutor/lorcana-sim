@@ -2326,28 +2326,18 @@ it("Elsa exerts chosen characters and prevents them from readying", () => {
     const deckBefore = getZone(state, "player1", "deck").length;
     const handBefore = getZone(state, "player1", "hand").length;
 
-    const playResult = applyAction(state, {
+    // Bot mode: greedy auto-pick first top card into hand, rest to bottom.
+    // (Interactive mode shows a choose_from_revealed prompt.)
+    const result = applyAction(state, {
       type: "PLAY_CARD", playerId: "player1", instanceId: dyb,
-    }, LORCAST_CARD_DEFINITIONS);
-    expect(playResult.success).toBe(true);
-
-    // DYB presents a choose_from_revealed choice (pick 1 of top 2)
-    expect(playResult.newState.pendingChoice).not.toBeNull();
-    expect(playResult.newState.pendingChoice!.type).toBe("choose_from_revealed");
-    expect(playResult.newState.pendingChoice!.validTargets!.length).toBe(2);
-
-    // Resolve: pick the first revealed card
-    const pick = playResult.newState.pendingChoice!.validTargets![0]!;
-    const result = applyAction(playResult.newState, {
-      type: "RESOLVE_CHOICE", playerId: "player1", choice: [pick],
     }, LORCAST_CARD_DEFINITIONS);
     expect(result.success).toBe(true);
 
     // One card moved from deck to hand
     const deckAfter = getZone(result.newState, "player1", "deck").length;
     const handAfter = getZone(result.newState, "player1", "hand").length;
-    expect(handAfter).toBe(handBefore - 1 + 1); // -1 for playing DYB, +1 from choice
-    expect(deckAfter).toBe(deckBefore - 1); // -1 moved to hand (other stays in deck on bottom)
+    expect(handAfter).toBe(handBefore - 1 + 1); // -1 for playing DYB, +1 from top pick
+    expect(deckAfter).toBe(deckBefore - 1); // -1 moved to hand (other stays on bottom)
   });
 
   // Be Our Guest: look at top 4, may reveal character to hand

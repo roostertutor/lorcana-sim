@@ -571,7 +571,7 @@
           {
             "type": "look_at_top",
             "count": 3,
-            "action": "one_to_hand_rest_bottom",
+            "action": "up_to_n_to_hand_rest_bottom",
             "filter": {
               "cardType": [
                 "character"
@@ -581,7 +581,8 @@
             "target": {
               "type": "self"
             },
-            "isMay": true
+            "isMay": true,
+            "maxToHand": 1
           }
         ]
       },
@@ -1169,7 +1170,7 @@
           {
             "type": "look_at_top",
             "count": 1,
-            "action": "one_to_hand_rest_bottom",
+            "action": "up_to_n_to_hand_rest_bottom",
             "filter": {
               "cardType": [
                 "character"
@@ -1177,7 +1178,8 @@
             },
             "target": {
               "type": "self"
-            }
+            },
+            "maxToHand": 1
           }
         ]
       }
@@ -1321,7 +1323,7 @@
           {
             "type": "look_at_top",
             "count": 4,
-            "action": "one_to_hand_rest_bottom",
+            "action": "up_to_n_to_hand_rest_bottom",
             "filter": {
               "cardType": [
                 "character"
@@ -1330,7 +1332,8 @@
             "target": {
               "type": "self"
             },
-            "isMay": true
+            "isMay": true,
+            "maxToHand": 1
           }
         ]
       }
@@ -7786,11 +7789,12 @@
           {
             "type": "look_at_top",
             "count": 2,
-            "action": "one_to_hand_rest_bottom",
+            "action": "up_to_n_to_hand_rest_bottom",
             "target": {
               "type": "self"
             },
-            "isMay": true
+            "isMay": true,
+            "maxToHand": 1
           }
         ]
       }
@@ -8744,10 +8748,11 @@
       {
         "type": "look_at_top",
         "count": 2,
-        "action": "one_to_hand_rest_bottom",
+        "action": "up_to_n_to_hand_rest_bottom",
         "target": {
           "type": "self"
-        }
+        },
+        "maxToHand": 1
       }
     ]
   },

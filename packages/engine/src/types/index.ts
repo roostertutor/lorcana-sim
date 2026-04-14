@@ -1154,7 +1154,7 @@ export interface MustQuestIfAbleEffect {
 
 /**
  * Look at top N cards of deck. Bot resolves automatically:
- * - "one_to_hand_rest_bottom": pick one card (optionally matching filter) to hand, rest to bottom in original order (bot simplification — no user-chosen reorder)
+ * - "up_to_n_to_hand_rest_bottom": pick up to maxToHand cards (optionally matching filter/filters) to hand, rest to bottom in original order
  * - "top_or_bottom": look at one card, put on top or bottom
  * - "reorder": look at N cards, put back in any order (bot uses default order)
  */
@@ -1164,7 +1164,6 @@ export interface LookAtTopEffect {
    *  (e.g. `cards_under_count` for Bambi Ethereal Fawn). */
   count: number | DynamicAmount;
   action:
-    | "one_to_hand_rest_bottom"
     | "top_or_bottom"
     | "reorder"
     | "up_to_n_to_hand_rest_bottom"
