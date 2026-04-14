@@ -1860,10 +1860,15 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             </div>
             {dragActionLabel && (
               <div className="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                {/* Colors mirror the mode-toast vocabulary so click-mode and
+                    drag-mode feel like the same action with the same color. */}
                 <span className={`px-2 py-1 rounded text-[11px] font-bold shadow-lg border ${
-                  dragActionLabel === "Challenge"
-                    ? "bg-red-950/95 text-red-200 border-red-700"
-                    : "bg-black/90 text-green-300 border-green-700/60"
+                  dragActionLabel === "Challenge" ? "bg-red-950/95 text-red-200 border-red-700" :
+                  dragActionLabel === "Shift"     ? "bg-purple-950/95 text-purple-200 border-purple-700" :
+                  dragActionLabel === "Sing"      ? "bg-yellow-950/95 text-yellow-200 border-yellow-700" :
+                  dragActionLabel === "Move"      ? "bg-cyan-950/95 text-cyan-200 border-cyan-700" :
+                  dragActionLabel === "Ink"       ? "bg-blue-950/95 text-blue-200 border-blue-700" :
+                  /* Play */                        "bg-black/90 text-green-300 border-green-700/60"
                 }`}>
                   {dragActionLabel}
                 </span>
