@@ -4,6 +4,7 @@ import type { PlayerID, GameState, GameAction } from "@lorcana-sim/engine";
 
 export const DROP_PLAY_ZONE = "drop:playzone";
 export const DROP_INKWELL  = "drop:inkwell";
+export const DROP_QUEST    = "drop:quest";
 export const dropCardId = (instanceId: string) => `drop:card:${instanceId}`;
 
 export function useBoardDnd(params: {
@@ -46,6 +47,14 @@ export function useBoardDnd(params: {
     if (overId === DROP_INKWELL) {
       const action = legalActions.find(
         (a) => a.type === "PLAY_INK" && a.instanceId === draggingId,
+      );
+      if (action) dispatch(action);
+      return;
+    }
+
+    if (overId === DROP_QUEST) {
+      const action = legalActions.find(
+        (a) => a.type === "QUEST" && a.instanceId === draggingId,
       );
       if (action) dispatch(action);
       return;
@@ -104,6 +113,10 @@ export function useBoardDnd(params: {
     return legalActions.some((a) => a.type === "PLAY_INK" && a.instanceId === draggingId);
   }
 
+  function isValidQuestDrop(draggingId: string): boolean {
+    return legalActions.some((a) => a.type === "QUEST" && a.instanceId === draggingId);
+  }
+
   function isValidCardDrop(draggingId: string, targetId: string): boolean {
     return legalActions.some(
       (a) =>
@@ -122,6 +135,7 @@ export function useBoardDnd(params: {
     handleDragCancel,
     isValidPlayZoneDrop,
     isValidInkwellDrop,
+    isValidQuestDrop,
     isValidCardDrop,
   };
 }

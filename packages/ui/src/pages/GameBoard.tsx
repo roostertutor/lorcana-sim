@@ -26,7 +26,7 @@ import {
 import { useGameSession, getSavedSnapshot } from "../hooks/useGameSession.js";
 import type { ReplayData } from "../hooks/useGameSession.js";
 import { useReplaySession } from "../hooks/useReplaySession.js";
-import { useBoardDnd, DROP_PLAY_ZONE, DROP_INKWELL, dropCardId } from "../hooks/useBoardDnd.js";
+import { useBoardDnd, DROP_PLAY_ZONE, DROP_INKWELL, DROP_QUEST, dropCardId } from "../hooks/useBoardDnd.js";
 import { buildLabelMap } from "../utils/buildLabelMap.js";
 import SandboxPanel from "../components/SandboxPanel.js";
 import GameCard from "../components/GameCard.js";
@@ -1036,6 +1036,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     if (!dnd.activeId || !hoveredDropId) return null;
     if (hoveredDropId === DROP_PLAY_ZONE) return "Play";
     if (hoveredDropId === DROP_INKWELL) return "Ink";
+    if (hoveredDropId === DROP_QUEST) return "Quest";
     if (hoveredDropId.startsWith("drop:card:")) {
       const targetId = hoveredDropId.slice("drop:card:".length);
       const d = dnd.activeId;
@@ -1593,7 +1594,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           )}
         </div>
 
-        {/* ---- Play zone divider ---- */}
+        {/* ---- Play zone divider (also drop target for quest) ---- */}
         <div className="shrink-0 flex items-center gap-2 py-0.5">
           {/* Undo — left side */}
           <div className="w-16 flex justify-start">
@@ -1608,9 +1609,10 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             )}
           </div>
 
-          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-700/50 to-transparent" />
-          <span className="text-[9px] text-gray-700 uppercase tracking-widest shrink-0">Play</span>
-          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-700/50 to-transparent" />
+          <DroppableQuestDivider
+            isValidTarget={!!dnd.activeId && dnd.isValidQuestDrop(dnd.activeId)}
+            activeId={dnd.activeId}
+          />
 
           {/* Pass / Cancel — right side */}
           <div className="w-16 flex justify-end">
@@ -1886,6 +1888,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                   dragActionLabel === "Sing"      ? "bg-yellow-950/95 text-yellow-200 border-yellow-700" :
                   dragActionLabel === "Move"      ? "bg-cyan-950/95 text-cyan-200 border-cyan-700" :
                   dragActionLabel === "Ink"       ? "bg-blue-950/95 text-blue-200 border-blue-700" :
+                  dragActionLabel === "Quest"     ? "bg-amber-950/95 text-amber-200 border-amber-700" :
                   /* Play */                        "bg-black/90 text-green-300 border-green-700/60"
                 }`}>
                   {dragActionLabel}
@@ -2264,6 +2267,38 @@ function DroppablePlayZone({
           </span>
         </div>
       )}
+    </div>
+  );
+}
+
+function DroppableQuestDivider({
+  isValidTarget,
+  activeId,
+}: {
+  isValidTarget: boolean;
+  activeId: string | null;
+}) {
+  const { setNodeRef, isOver } = useDroppable({ id: DROP_QUEST });
+  // When a valid quester is being dragged, thicken the divider and shift
+  // its color to amber (lore) so the player sees it as a real target.
+  // Otherwise it stays the thin gray divider the board has always had.
+  const lineBase = isValidTarget
+    ? `${isOver ? "bg-amber-400" : "bg-amber-500/70 animate-pulse"}`
+    : "bg-gradient-to-r from-transparent via-gray-700/50 to-transparent";
+  const lineHeight = isValidTarget ? "h-0.5" : "h-px";
+  const textColor = isValidTarget
+    ? (isOver ? "text-amber-200" : "text-amber-400")
+    : "text-gray-700";
+  return (
+    <div
+      ref={setNodeRef}
+      className={`flex-1 flex items-center gap-2 py-0.5 transition-colors duration-150 ${activeId && !isValidTarget ? "opacity-70" : ""}`}
+    >
+      <div className={`flex-1 rounded-full transition-all ${lineHeight} ${lineBase}`} />
+      <span className={`text-[9px] uppercase tracking-widest shrink-0 transition-colors ${textColor}`}>
+        {isValidTarget ? (isOver ? "Drop to Quest" : "Quest") : "Play"}
+      </span>
+      <div className={`flex-1 rounded-full transition-all ${lineHeight} ${lineBase}`} />
     </div>
   );
 }
