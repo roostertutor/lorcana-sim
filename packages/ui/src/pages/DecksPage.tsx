@@ -1,9 +1,11 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
-import { LORCAST_CARD_DEFINITIONS, parseDecklist } from "@lorcana-sim/engine";
+import { LORCAST_CARD_DEFINITIONS, parseDecklist, serializeDecklist } from "@lorcana-sim/engine";
+import type { DeckEntry } from "@lorcana-sim/engine";
 import { supabase } from "../lib/supabase.js";
-import { listDecks, saveDeck, updateDeck, deleteDeck } from "../lib/deckApi.js";
-import type { SavedDeck } from "../lib/deckApi.js";
+import { listDecks, saveDeck, updateDeck, deleteDeck, listDeckVersions } from "../lib/deckApi.js";
+import type { SavedDeck, DeckVersion } from "../lib/deckApi.js";
 import CompositionView from "./CompositionView.js";
+import DeckBuilder from "../components/DeckBuilder.js";
 
 const SAMPLE_DECKLIST = `# Sample deck — The First Chapter (set 1)
 4 HeiHei - Boat Snack
@@ -51,50 +53,73 @@ export default function DecksPage() {
 
   useEffect(() => { loadDecks(); }, [loadDecks]);
 
-  // ── Editor state ──
+  // ── Editor state (signed in: entries are source of truth) ──
   const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null);
   const [deckName, setDeckName] = useState("");
-  const [deckText, setDeckText] = useState("");
+  const [entries, setEntries] = useState<DeckEntry[]>([]);
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
-  const { entries: deck, errors: parseErrors } = useMemo(
-    () => parseDecklist(deckText, LORCAST_CARD_DEFINITIONS),
-    [deckText],
-  );
-  const totalCards = deck.reduce((s, e) => s + e.count, 0);
-  const deckReady = deck.length > 0 && parseErrors.length === 0;
+  // ── Version history ──
+  const [versions, setVersions] = useState<DeckVersion[]>([]);
+  const [historyOpen, setHistoryOpen] = useState(false);
+
+  const loadVersions = useCallback(async (deckId: string) => {
+    try {
+      setVersions(await listDeckVersions(deckId));
+    } catch {
+      setVersions([]);
+    }
+  }, []);
+
+  const deckReady = entries.length > 0;
 
   function handleSelectDeck(d: SavedDeck) {
+    const parsed = parseDecklist(d.decklist_text, LORCAST_CARD_DEFINITIONS);
     setSelectedDeckId(d.id);
     setDeckName(d.name);
-    setDeckText(d.decklist_text);
+    setEntries(parsed.entries);
     setConfirmDelete(null);
+    setHistoryOpen(false);
+    loadVersions(d.id);
   }
 
   function handleNewDeck() {
     setSelectedDeckId(null);
     setDeckName("");
-    setDeckText("");
+    setEntries([]);
     setConfirmDelete(null);
+    setVersions([]);
+    setHistoryOpen(false);
+  }
+
+  function handleRestoreVersion(v: DeckVersion) {
+    const parsed = parseDecklist(v.decklist_text, LORCAST_CARD_DEFINITIONS);
+    setEntries(parsed.entries);
+    setHistoryOpen(false);
   }
 
   async function handleSave() {
-    if (!deckName.trim() || !deckText.trim()) return;
+    if (!deckName.trim() || entries.length === 0) return;
+    const decklistText = serializeDecklist(entries, LORCAST_CARD_DEFINITIONS);
     setSaving(true);
     setError(null);
     try {
+      let savedId: string;
       if (selectedDeckId) {
         const updated = await updateDeck(selectedDeckId, {
           name: deckName.trim(),
-          decklist_text: deckText,
+          decklist_text: decklistText,
         });
         setDecks((prev) => prev.map((d) => (d.id === updated.id ? updated : d)));
+        savedId = updated.id;
       } else {
-        const created = await saveDeck(deckName.trim(), deckText);
+        const created = await saveDeck(deckName.trim(), decklistText);
         setDecks((prev) => [created, ...prev]);
         setSelectedDeckId(created.id);
+        savedId = created.id;
       }
+      loadVersions(savedId);
     } catch (e) {
       setError(String(e));
     } finally {
@@ -115,10 +140,23 @@ export default function DecksPage() {
   }
 
   // ── Dirty check ──
+  const currentText = useMemo(
+    () => serializeDecklist(entries, LORCAST_CARD_DEFINITIONS),
+    [entries],
+  );
   const selectedDeck = decks.find((d) => d.id === selectedDeckId);
   const isDirty = selectedDeck
-    ? selectedDeck.name !== deckName || selectedDeck.decklist_text !== deckText
-    : deckName.trim() !== "" || deckText.trim() !== "";
+    ? selectedDeck.name !== deckName || selectedDeck.decklist_text !== currentText
+    : deckName.trim() !== "" || entries.length > 0;
+
+  // ── Signed-out paste state ──
+  const [pasteText, setPasteText] = useState("");
+  const { entries: pasteDeck, errors: pasteErrors } = useMemo(
+    () => parseDecklist(pasteText, LORCAST_CARD_DEFINITIONS),
+    [pasteText],
+  );
+  const pasteTotalCards = pasteDeck.reduce((s, e) => s + e.count, 0);
+  const pasteReady = pasteDeck.length > 0 && pasteErrors.length === 0;
 
   return (
     <div className="space-y-6">
@@ -143,7 +181,7 @@ export default function DecksPage() {
               <span className="label">Paste Decklist</span>
               <button
                 className="btn-ghost text-xs py-1 px-2"
-                onClick={() => setDeckText(SAMPLE_DECKLIST)}
+                onClick={() => setPasteText(SAMPLE_DECKLIST)}
               >
                 Load sample
               </button>
@@ -152,30 +190,30 @@ export default function DecksPage() {
               className="w-full h-56 bg-gray-950 border border-gray-700 rounded-lg p-3 text-sm font-mono
                          text-gray-200 focus:outline-none focus:border-amber-500 resize-none"
               placeholder={"4 HeiHei - Boat Snack\n4 Stitch - New Dog\n4 Mickey Mouse - True Friend\n..."}
-              value={deckText}
-              onChange={(e) => setDeckText(e.target.value)}
+              value={pasteText}
+              onChange={(e) => setPasteText(e.target.value)}
               spellCheck={false}
             />
-            {parseErrors.length > 0 && (
+            {pasteErrors.length > 0 && (
               <div className="bg-red-950/40 border border-red-800 rounded-lg p-3 space-y-1">
-                {parseErrors.map((err, i) => (
+                {pasteErrors.map((err, i) => (
                   <p key={i} className="text-red-400 text-xs font-mono">{err}</p>
                 ))}
               </div>
             )}
-            {deckReady && (
+            {pasteReady && (
               <p className="text-sm text-gray-400">
-                {totalCards} cards, {deck.length} unique
+                {pasteTotalCards} cards, {pasteDeck.length} unique
               </p>
             )}
           </div>
 
-          {deckReady && (
-            <CompositionView deck={deck} definitions={LORCAST_CARD_DEFINITIONS} />
+          {pasteReady && (
+            <CompositionView deck={pasteDeck} definitions={LORCAST_CARD_DEFINITIONS} />
           )}
         </div>
       ) : (
-        /* ── Signed in: deck list + editor ── */
+        /* ── Signed in: deck list + row-based builder ── */
         <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-6">
           {/* Sidebar: deck list */}
           <div className="space-y-3">
@@ -242,58 +280,37 @@ export default function DecksPage() {
                 onChange={(e) => setDeckName(e.target.value)}
               />
 
-              {/* Decklist */}
-              <div className="flex items-center justify-between">
-                <span className="label">Decklist</span>
-                <div className="flex items-center gap-2">
-                  {!deckText && (
-                    <button
-                      className="btn-ghost text-xs py-1 px-2"
-                      onClick={() => setDeckText(SAMPLE_DECKLIST)}
-                    >
-                      Load sample
-                    </button>
-                  )}
-                  {deckReady && (
-                    <span className="text-xs text-green-400 font-mono">
-                      {totalCards} cards
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <textarea
-                className="w-full h-56 bg-gray-950 border border-gray-700 rounded-lg p-3 text-sm font-mono
-                           text-gray-200 focus:outline-none focus:border-amber-500 resize-none"
-                placeholder={"4 HeiHei - Boat Snack\n4 Stitch - New Dog\n4 Mickey Mouse - True Friend\n..."}
-                value={deckText}
-                onChange={(e) => setDeckText(e.target.value)}
-                spellCheck={false}
+              {/* Deck builder */}
+              <DeckBuilder
+                entries={entries}
+                definitions={LORCAST_CARD_DEFINITIONS}
+                onChange={setEntries}
               />
 
-              {parseErrors.length > 0 && (
-                <div className="bg-red-950/40 border border-red-800 rounded-lg p-3 space-y-1">
-                  {parseErrors.map((err, i) => (
-                    <p key={i} className="text-red-400 text-xs font-mono">{err}</p>
-                  ))}
-                </div>
-              )}
-
               {/* Action buttons */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 pt-1">
                 <button
                   className="py-2.5 px-5 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-800
                              disabled:text-gray-600 text-white rounded-lg text-sm font-bold
                              transition-colors active:scale-[0.98]"
-                  disabled={!deckName.trim() || !deckText.trim() || saving || !isDirty}
+                  disabled={!deckName.trim() || entries.length === 0 || saving || !isDirty}
                   onClick={handleSave}
                 >
                   {saving ? "Saving..." : selectedDeckId ? "Save Changes" : "Save Deck"}
                 </button>
 
+                {selectedDeckId && versions.length > 0 && (
+                  <button
+                    className="py-2 px-3 text-gray-500 hover:text-gray-300 text-xs font-medium transition-colors"
+                    onClick={() => setHistoryOpen((v) => !v)}
+                  >
+                    History ({versions.length}) {historyOpen ? "▲" : "▼"}
+                  </button>
+                )}
+
                 {selectedDeckId && (
                   confirmDelete === selectedDeckId ? (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 ml-auto">
                       <button
                         className="py-2 px-3 bg-red-700 hover:bg-red-600 text-white rounded-lg text-xs font-bold transition-colors"
                         onClick={() => handleDelete(selectedDeckId)}
@@ -309,7 +326,7 @@ export default function DecksPage() {
                     </div>
                   ) : (
                     <button
-                      className="py-2 px-3 text-red-500 hover:text-red-400 text-xs font-medium transition-colors"
+                      className="py-2 px-3 text-red-500 hover:text-red-400 text-xs font-medium transition-colors ml-auto"
                       onClick={() => setConfirmDelete(selectedDeckId)}
                     >
                       Delete
@@ -318,6 +335,49 @@ export default function DecksPage() {
                 )}
               </div>
             </div>
+
+            {/* Version history */}
+            {selectedDeckId && historyOpen && versions.length > 0 && (
+              <div className="card p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="label">Version History</span>
+                  <span className="text-[10px] text-gray-600">Click to restore into the builder</span>
+                </div>
+                <div className="space-y-1 max-h-64 overflow-y-auto">
+                  {versions.map((v, i) => {
+                    const parsed = parseDecklist(v.decklist_text, LORCAST_CARD_DEFINITIONS);
+                    const count = parsed.entries.reduce((s, e) => s + e.count, 0);
+                    const isCurrent = i === 0;
+                    const currentText = serializeDecklist(entries, LORCAST_CARD_DEFINITIONS);
+                    const matchesCurrent = v.decklist_text === currentText;
+                    return (
+                      <button
+                        key={v.id}
+                        onClick={() => handleRestoreVersion(v)}
+                        className="w-full text-left flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-gray-950 border border-gray-800 hover:border-gray-700 transition-colors"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-xs text-gray-400">
+                            {new Date(v.created_at).toLocaleString()}
+                          </span>
+                          {isCurrent && (
+                            <span className="text-[9px] uppercase tracking-wider text-amber-500 font-bold">
+                              Latest
+                            </span>
+                          )}
+                          {matchesCurrent && !isCurrent && (
+                            <span className="text-[9px] uppercase tracking-wider text-green-500 font-bold">
+                              Matches builder
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-xs font-mono text-gray-500 shrink-0">{count} cards</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Error */}
             {error && (
@@ -328,7 +388,7 @@ export default function DecksPage() {
 
             {/* Composition */}
             {deckReady && (
-              <CompositionView deck={deck} definitions={LORCAST_CARD_DEFINITIONS} />
+              <CompositionView deck={entries} definitions={LORCAST_CARD_DEFINITIONS} />
             )}
           </div>
         </div>

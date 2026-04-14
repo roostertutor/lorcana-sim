@@ -82,6 +82,21 @@ export function parseDecklist(
   return { entries, errors };
 }
 
+/** Serialize DeckEntries back into plaintext decklist format ("4 Card Name" per line).
+ *  Inverse of parseDecklist. Unknown definitionIds are skipped. */
+export function serializeDecklist(
+  entries: DeckEntry[],
+  definitions: Record<string, CardDefinition>,
+): string {
+  const lines: string[] = [];
+  for (const entry of entries) {
+    const def = definitions[entry.definitionId];
+    if (!def) continue;
+    lines.push(`${entry.count} ${def.fullName}`);
+  }
+  return lines.join("\n");
+}
+
 /** Counter for seeded ID generation — reset per createGame call */
 let idCounter = 0;
 

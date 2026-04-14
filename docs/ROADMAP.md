@@ -591,30 +591,36 @@ Engine is in maintenance mode. New work limited to:
 
 ## Decks Page Direction
 
-*Decision made 2026-04-14: keep copy-paste as primary, add deckbuilder affordances incrementally.*
+*Decision revised 2026-04-14: row-based deckbuilder is primary, paste is a bulk-import pathway.*
 
 **Rationale:**
-- Most Lorcana players already build decks in Dreamborn, Inkdecks, or the official TCG site — they want to paste and go
-- A full deckbuilder is a massive project that competes with dedicated tools
-- App value prop is analytics + multiplayer, not deckbuilding
-- Textarea with smart features gets 80% of the deckbuilder value for 10% of the work
+- Structured row view prevents parse errors — every row maps to a real card (no typos)
+- Qty as a number with +/- controls is more natural than editing a text prefix
+- Visual — each row can show cost/ink/type at a glance
+- Still preserves paste workflow from Dreamborn/Inkdecks via an Import action
+- Storage format stays the same (`decklist_text` in Supabase) — we just parse on load, serialize on save
+- App value prop is analytics + multiplayer, not deckbuilding — so the builder stays focused (no archetype suggestions, no mana curve warnings, no public sharing)
 
 **Current state ✅ (2026-04-14):**
 - Saved decks in Supabase (one per user per name), CRUD via `lib/deckApi.ts`
-- DecksPage: signed-out paste+analyze; signed-in deck list + editor + composition view
+- DecksPage: signed-out paste+analyze; signed-in deck list + textarea editor + composition view
 - MultiplayerLobby: deck picker with Saved Decks / Paste toggle
+
+**In progress (2026-04-14):**
+- Row-based deckbuilder replacing textarea in DecksPage
+  - Each card is a row: name, cost, ink, qty +/-, remove
+  - "Add card" search with autocomplete (can only pick real cards)
+  - Import from paste (bulk) + Export to paste (share)
 
 **Progression (do on demand, not upfront):**
 ```
-1. Card name autocomplete in the textarea
-2. Inline card preview on hover (hover card name → show image)
-3. "Add card" search box that appends to the textarea
-4. Set legality validation (core vs infinity)
-5. Full visual builder — ONLY if users ask for it
+1. Row-based builder with autocomplete add — IN PROGRESS
+2. Inline card preview on hover (hover row → show image)
+3. Set legality validation (core vs infinity)
+4. Card filtering in the add search (by ink, cost, type)
 ```
 
 **Explicitly NOT building (yet):**
-- Drag-to-add card browser with filters
 - Ink curve / card type visual breakdowns beyond existing CompositionView
 - Deckbuilder-specific tools (mana curve warnings, archetype suggestions)
 - Deck sharing via public URL (private-only for now)
