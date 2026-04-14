@@ -480,6 +480,13 @@ export function useGameSession(): GameSession {
       gameStateRef.current = saved;
       quickSaveRef.current = saved;
       setGameState(saved);
+      // Treat the loaded state as a fresh undo baseline — otherwise undo
+      // would replay actions from the pre-quickload initialStateRef using
+      // the old history, producing a state unrelated to what was loaded
+      // (appears as "the whole game clears").
+      initialStateRef.current = saved;
+      actionHistoryRef.current = [];
+      setActionCount(0);
       setError(null);
     } catch { /* ignore */ }
   }, []);
