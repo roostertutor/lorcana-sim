@@ -348,6 +348,27 @@ If a future ruling restricts this, the fix would be to add an
 `excludeInstanceId: state.lastResolvedTarget?.instanceId` filter on the
 return_to_hand effect (or equivalent "exclude this turn's discards" mechanic).
 
+### Kuzco - Selfish Emperor — BY INVITE ONLY scope (continuous vs snapshot)
+
+> "4 {I} — Your other characters gain Resist +1 until the start of your
+> next turn."
+
+Open question: does the buff apply only to characters in play AT THE TIME
+of activation (snapshot, CRD 6.4.2.2), or also to characters played
+afterwards while the duration is in effect (continuous, CRD 6.4.2.1)?
+
+Engine behavior: continuous (`grant_keyword` with `continuous: true`).
+Newly played characters DO gain Resist +1 until Kuzco's next turn.
+
+Typical TCG convention treats activated/triggered "gain X until Y"
+effects as snapshots — but Lorcana hasn't published an explicit ruling
+either way. Revisit if Ravensburger clarifies.
+
+If snapshot is the correct ruling, the fix is to remove `"continuous":
+true` from the JSON; the engine's snapshot path (CRD 6.4.2.2 — line 3450
+of reducer.ts) iterates `findValidTargets` once and adds a per-card
+`addTimedEffect`, so future cards naturally don't get the buff.
+
 ---
 
 *Last updated: Session 22 (post-unknown review)*
