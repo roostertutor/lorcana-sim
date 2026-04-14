@@ -566,26 +566,43 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   const [dismissedRevealKey, setDismissedRevealKey] = useState<string | null>(null);
   // Include sequenceId so back-to-back reveals of the same cards produce
   // distinct keys during normal play. Engine increments sequenceId on every
-  // reveal-producing action, so "reveal A, dismiss, reveal A again via a
-  // different trigger" works (different sequenceId → overlay shows).
+  // reveal-producing action.
   const currentRevealCardsKey = (() => {
     const rc = session.gameState?.lastRevealedCards;
     return rc ? `${rc.sequenceId}:${rc.instanceIds.join(",")}` : null;
   })();
-  // Undo case: engine's sequenceId is state-derived (replay reconstructs from
-  // the initial state), so it resets to 1 after undo. A "quest Daisy →
-  // dismiss → undo → quest Daisy again" would otherwise keep the overlay
-  // hidden because the re-quest produces the same key as the dismissed one.
-  // We detect undo by watching for actionCount decreases and reset the
-  // dismiss tracker — the next reveal will show fresh.
-  const prevActionCount = useRef(session.actionCount);
+  // "Fresh reveal" tracking: a reveal is considered fresh only if it JUST
+  // appeared on this action. The engine persists lastRevealedCards across
+  // non-reveal actions (doc: "NOT cleared by actions with no reveals"),
+  // which means after dismissing + doing N actions + undoing, state.lastRev
+  // still has the old reveal content — which made the overlay resurrect
+  // for a reveal the user saw many actions ago.
+  //
+  // Solution: track (a) the actionCount at which the current reveal key
+  // first appeared and (b) clear the dismiss-tracker on each key change so
+  // undo → re-quest (same seqId after state rewind) still shows fresh.
+  // Overlay only shows when the current actionCount matches the "birth"
+  // actionCount of this reveal key.
+  const [revealActionCount, setRevealActionCount] = useState<number | null>(null);
+  const prevRevealKey = useRef<string | null>(null);
   useEffect(() => {
-    if (session.actionCount < prevActionCount.current) {
-      setDismissedRevealKey(null);
+    if (currentRevealCardsKey !== prevRevealKey.current) {
+      if (currentRevealCardsKey !== null) {
+        // New reveal event — lock in its birth actionCount, clear any
+        // stale dismiss from a prior reveal with the same content key
+        // (e.g. post-undo re-quest producing the same engine-derived seq).
+        setRevealActionCount(session.actionCount);
+        setDismissedRevealKey(null);
+      } else {
+        setRevealActionCount(null);
+      }
+      prevRevealKey.current = currentRevealCardsKey;
     }
-    prevActionCount.current = session.actionCount;
-  }, [session.actionCount]);
-  const showRevealCards = currentRevealCardsKey !== null && currentRevealCardsKey !== dismissedRevealKey;
+  }, [currentRevealCardsKey, session.actionCount]);
+  const showRevealCards =
+    currentRevealCardsKey !== null
+    && currentRevealCardsKey !== dismissedRevealKey
+    && session.actionCount === revealActionCount;
 
   const p1Parse = useMemo(() => parseDecklist(p1DeckText, definitions), [p1DeckText, definitions]);
   const p2Parse = useMemo(() => parseDecklist(p2DeckText, definitions), [p2DeckText, definitions]);
@@ -1993,18 +2010,20 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         );
       })()}
 
-      {/* ======================= Desktop: card action popover (fixed near card) ======================= */}
+      {/* ======================= Card action popover (fixed near card) =======================
+          Buttons scale down on mobile to stay proportional to the smaller
+          card width (52px play / 88px hand) vs desktop (104-120px). */}
       {inspectCardId && popoverPos && (
         <div
           data-card-popover
-          className="fixed z-50 flex flex-col items-stretch gap-1 pointer-events-auto min-w-[120px]"
+          className="fixed z-50 flex flex-col items-stretch gap-1 pointer-events-auto sm:min-w-[120px]"
           style={{ top: popoverPos.top, left: popoverPos.left, transform: "translateX(-50%)" }}
           onClick={e => e.stopPropagation()}
         >
           {(cardButtons.get(inspectCardId) ?? []).map((btn, i) => (
             <button
               key={i}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap shadow-lg transition-colors active:scale-95 ${btn.color}`}
+              className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-bold whitespace-nowrap shadow-lg transition-colors active:scale-95 ${btn.color}`}
               onClick={(e) => { btn.onClick(e); setInspectCardId(null); }}
             >
               {btn.label}
@@ -2013,17 +2032,17 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           {/* Inspect + close sit on a small horizontal row at the bottom */}
           <div className="flex items-center justify-end gap-1">
             <button
-              className="shrink-0 p-1.5 text-gray-400 hover:text-gray-200 bg-gray-800/90 hover:bg-gray-700 rounded-lg shadow-lg transition-colors"
+              className="shrink-0 p-1 sm:p-1.5 text-gray-400 hover:text-gray-200 bg-gray-800/90 hover:bg-gray-700 rounded-md sm:rounded-lg shadow-lg transition-colors"
               onClick={() => setInspectModalOpen(true)}
               title="Inspect card"
             >
-              <Icon name="magnifying-glass" className="w-3.5 h-3.5" />
+              <Icon name="magnifying-glass" className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             </button>
             <button
-              className="shrink-0 p-1.5 text-gray-500 hover:text-gray-300 bg-gray-800/90 hover:bg-gray-700 rounded-lg shadow-lg transition-colors"
+              className="shrink-0 p-1 sm:p-1.5 text-gray-500 hover:text-gray-300 bg-gray-800/90 hover:bg-gray-700 rounded-md sm:rounded-lg shadow-lg transition-colors"
               onClick={() => { setInspectCardId(null); setInspectModalOpen(false); }}
             >
-              <Icon name="x-mark" className="w-3.5 h-3.5" />
+              <Icon name="x-mark" className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             </button>
           </div>
         </div>
