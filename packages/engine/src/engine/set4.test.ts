@@ -914,3 +914,124 @@ describe("§4 Set 4 — Diablo Devoted Herald (altShiftCost discard)", () => {
     expect(shiftAction).toBeUndefined();
   });
 });
+
+describe("§4 Set 4 — look_at_top up_to_n_to_hand_rest_bottom variants", () => {
+  it("Dig a Little Deeper: mandatory put 2 into hand, both without reveal events", () => {
+    let state = startGame();
+    state = { ...state, interactive: true };
+    let daldId: string;
+    ({ state, instanceId: daldId } = injectCard(state, "player1", "dig-a-little-deeper", "hand"));
+    state = giveInk(state, "player1", 10);
+
+    const handBefore = getZone(state, "player1", "hand").length;
+
+    // Play DALD via sing-together alt-cost workaround: just pay the full cost (8 ink)
+    // ...actually DALD costs 8 and has Sing Together 8; pay ink directly
+    const r = applyAction(state, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: daldId,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+
+    // Interactive mode: should present a choose_from_revealed mandatory pick
+    expect(r.newState.pendingChoice?.type).toBe("choose_from_revealed");
+    expect(r.newState.pendingChoice?.optional).toBe(false); // isMay: false (mandatory)
+    expect(r.newState.pendingChoice?.validTargets?.length).toBe(7); // no filter → all 7 are valid
+    expect(r.newState.pendingChoice?.revealedCards?.length).toBe(7);
+
+    // Player picks 2 of the 7
+    const [pick1, pick2] = r.newState.pendingChoice!.validTargets!;
+    const r2 = applyAction(r.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [pick1!, pick2!],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(r2.success).toBe(true);
+
+    // Both picks should be in hand (handBefore - 1 for DALD + 2 picks = handBefore + 1)
+    const handAfter = getZone(r2.newState, "player1", "hand").length;
+    expect(handAfter).toBe(handBefore - 1 + 2);
+
+    // No card_revealed events for DALD (revealPicks: false → private)
+    const revealEvents = r2.events.filter(e => e.type === "card_revealed");
+    expect(revealEvents.length).toBe(0);
+  });
+
+  it("Dig a Little Deeper: short deck — completes as best as possible (CRD 1.7)", () => {
+    let state = startGame();
+    state = { ...state, interactive: true };
+    let daldId: string;
+    ({ state, instanceId: daldId } = injectCard(state, "player1", "dig-a-little-deeper", "hand"));
+    state = giveInk(state, "player1", 10);
+
+    // Shrink deck to 1 card only. Ensure one is left on top by slicing out the rest
+    // and dumping them to discard (the exact destination doesn't matter).
+    const deckIds = [...getZone(state, "player1", "deck")];
+    const keepId = deckIds[0]!;
+    const removed = deckIds.slice(1);
+    state = {
+      ...state,
+      zones: {
+        ...state.zones,
+        player1: {
+          ...state.zones.player1,
+          deck: [keepId],
+          discard: [...state.zones.player1.discard, ...removed],
+        },
+      },
+    };
+    for (const id of removed) {
+      state = { ...state, cards: { ...state.cards, [id]: { ...state.cards[id]!, zone: "discard" } } };
+    }
+
+    const handBefore = getZone(state, "player1", "hand").length;
+
+    const r = applyAction(state, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: daldId,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+
+    // With only 1 card in deck, look_at_top sees 1 card.
+    // maxToHand=2 but only 1 available → mandatory pick of 1 (as best as possible).
+    expect(r.newState.pendingChoice?.type).toBe("choose_from_revealed");
+    expect(r.newState.pendingChoice?.validTargets?.length).toBe(1);
+
+    // Player picks the single available card
+    const pick = r.newState.pendingChoice!.validTargets![0]!;
+    const r2 = applyAction(r.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [pick],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(r2.success).toBe(true);
+
+    // One card moved to hand
+    const handAfter = getZone(r2.newState, "player1", "hand").length;
+    expect(handAfter).toBe(handBefore - 1 + 1); // -1 for DALD + 1 from deck
+    // Deck now empty
+    expect(getZone(r2.newState, "player1", "deck").length).toBe(0);
+  });
+
+  it("Look at This Family: may pick up to 2 character cards, reveals picks", () => {
+    let state = startGame(["mickey-mouse-true-friend"]); // deck full of characters
+    state = { ...state, interactive: true };
+    let latfId: string;
+    ({ state, instanceId: latfId } = injectCard(state, "player1", "look-at-this-family", "hand"));
+    state = giveInk(state, "player1", 10);
+
+    const r = applyAction(state, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: latfId,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+
+    expect(r.newState.pendingChoice?.type).toBe("choose_from_revealed");
+    expect(r.newState.pendingChoice?.optional).toBe(true); // isMay: true
+    expect(r.newState.pendingChoice?.revealedCards?.length).toBe(5);
+
+    // Pick 2 characters
+    const picks = r.newState.pendingChoice!.validTargets!.slice(0, 2);
+    const r2 = applyAction(r.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: picks,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(r2.success).toBe(true);
+
+    // Both picks revealed (revealPicks: true → 2 card_revealed events)
+    const revealEvents = r2.events.filter(e => e.type === "card_revealed");
+    expect(revealEvents.length).toBe(2);
+  });
+});

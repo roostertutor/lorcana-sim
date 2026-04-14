@@ -477,8 +477,7 @@
           "value": 6,
           "target": {
             "type": "this"
-          },
-          "value": 6
+          }
         },
         "condition": {
           "type": "you_control_matching",
@@ -1385,7 +1384,9 @@
                 "character"
               ],
               "hasTrait": "Pirate"
-            }
+            },
+            "isMay": true,
+            "revealPicks": true
           }
         ]
       }
@@ -2070,8 +2071,7 @@
               ],
               "excludeSelf": true
             }
-          },
-          "value": 1
+          }
         }
       }
     ],
@@ -8604,8 +8604,7 @@
               "excludeSelf": true,
               "hasTrait": "Inventor"
             }
-          },
-          "value": 1
+          }
         }
       },
       {
@@ -10165,8 +10164,7 @@
           "value": 1,
           "target": {
             "type": "this"
-          },
-          "value": 1
+          }
         },
         "condition": {
           "type": "you_control_matching",
@@ -10619,8 +10617,7 @@
               ],
               "hasName": "Pluto"
             }
-          },
-          "value": 1
+          }
         }
       }
     ],

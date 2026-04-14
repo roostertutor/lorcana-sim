@@ -10563,7 +10563,9 @@
                 "character"
               ],
               "hasTrait": "Ally"
-            }
+            },
+            "isMay": true,
+            "revealPicks": true
           }
         ]
       }
@@ -10918,7 +10920,9 @@
         },
         "filter": {
           "costAtMost": 6
-        }
+        },
+        "isMay": true,
+        "revealPicks": true
       }
     ]
   },
@@ -13626,7 +13630,9 @@
                 "character"
               ],
               "hasTrait": "Ally"
-            }
+            },
+            "isMay": true,
+            "revealPicks": true
           }
         ]
       }

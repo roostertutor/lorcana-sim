@@ -83,7 +83,9 @@
             "target": {
               "type": "self"
             },
-            "maxToHand": 1
+            "maxToHand": 1,
+            "isMay": true,
+            "revealPicks": true
           }
         ],
         "storyName": "MUSICAL DEBUT",
@@ -1192,7 +1194,9 @@
         "target": {
           "type": "self"
         },
-        "maxToHand": 1
+        "maxToHand": 1,
+        "isMay": true,
+        "revealPicks": true
       }
     ]
   },

@@ -2330,7 +2330,9 @@
         "restPlacement": "top",
         "target": {
           "type": "self"
-        }
+        },
+        "isMay": true,
+        "revealPicks": true
       }
     ]
   },
@@ -8741,7 +8743,9 @@
               "cardType": [
                 "item"
               ]
-            }
+            },
+            "isMay": true,
+            "revealPicks": true
           }
         ]
       }
@@ -9050,7 +9054,9 @@
                 "character"
               ],
               "hasTrait": "Puppy"
-            }
+            },
+            "isMay": true,
+            "revealPicks": true
           }
         ]
       }
@@ -9903,7 +9909,9 @@
                 "character"
               ],
               "hasTrait": "Floodborn"
-            }
+            },
+            "isMay": true,
+            "revealPicks": true
           }
         ]
       }

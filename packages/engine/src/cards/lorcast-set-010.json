@@ -1595,7 +1595,9 @@
               "cardType": [
                 "character"
               ]
-            }
+            },
+            "isMay": true,
+            "revealPicks": true
           }
         ]
       },
@@ -8838,7 +8840,9 @@
                 "character"
               ],
               "hasTrait": "Detective"
-            }
+            },
+            "isMay": true,
+            "revealPicks": true
           }
         ]
       },
@@ -8863,7 +8867,9 @@
                 "character"
               ],
               "hasTrait": "Detective"
-            }
+            },
+            "isMay": true,
+            "revealPicks": true
           }
         ]
       }
@@ -9284,7 +9290,9 @@
         "maxToHand": 2,
         "target": {
           "type": "self"
-        }
+        },
+        "isMay": true,
+        "revealPicks": true
       }
     ]
   },

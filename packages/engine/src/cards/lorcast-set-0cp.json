@@ -36,7 +36,8 @@
           "cardType": [
             "character"
           ]
-        }
+        },
+        "revealPicks": true
       }
     ]
   },

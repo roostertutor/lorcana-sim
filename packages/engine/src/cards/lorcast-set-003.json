@@ -1179,7 +1179,8 @@
             "target": {
               "type": "self"
             },
-            "maxToHand": 1
+            "maxToHand": 1,
+            "revealPicks": true
           }
         ]
       }
@@ -1333,7 +1334,8 @@
               "type": "self"
             },
             "isMay": true,
-            "maxToHand": 1
+            "maxToHand": 1,
+            "revealPicks": true
           }
         ]
       }

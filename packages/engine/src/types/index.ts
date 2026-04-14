@@ -1192,8 +1192,17 @@ export interface LookAtTopEffect {
    *  "bottom" (Dig a Little Deeper). The Family Madrigal uses "top". */
   restPlacement?: "top" | "bottom";
   target: PlayerTarget;
-  /** CRD 6.1.4: player may choose not to apply this effect */
+  /** CRD 6.1.4: player may choose not to apply this effect. For
+   *  "up_to_n_to_hand_rest_bottom" specifically: when true, phase 2 (the pick)
+   *  is optional — player can take 0 to maxToHand cards ("You may reveal...").
+   *  When false, phase 2 is mandatory — must take exactly maxToHand if enough
+   *  valid cards exist ("Put 2 into your hand"). Default: false. */
   isMay?: boolean;
+  /** For "up_to_n_to_hand_rest_bottom": are the picked cards revealed to the
+   *  opponent ("you may reveal X and put it into your hand" → true) or do
+   *  they go to hand privately ("put 2 into your hand" → false/undefined)?
+   *  Default: false. */
+  revealPicks?: boolean;
 }
 
 /**

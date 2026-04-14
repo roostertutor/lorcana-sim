@@ -1969,62 +1969,52 @@ function applyResolveChoice(
 
   if (pendingChoice.type === "choose_from_revealed" && Array.isArray(choice)) {
     const owner = playerId;
-    if (choice.length === 1) {
+    const pendingEff = pendingChoice.pendingEffect as any;
+
+    // Search effect: move chosen card (single) to its destination, leave rest in deck
+    if (pendingEff?.type === "search" && choice.length === 1) {
       const chosenId = choice[0]!;
-      const pendingEff = pendingChoice.pendingEffect as any;
-
-      // Search effect: move chosen card to its destination, leave rest in deck
-      if (pendingEff?.type === "search") {
-        if (pendingEff.reveal) {
-          events.push({ type: "card_revealed", instanceId: chosenId, playerId: owner, sourceInstanceId: pendingChoice.sourceInstanceId ?? "" });
-        }
-        if (pendingEff.putInto === "deck" && pendingEff.position === "top") {
-          state = moveCard(state, chosenId, owner, "deck", "top");
-        } else {
-          state = moveCard(state, chosenId, owner, pendingEff.putInto);
-        }
-        state = resumePendingEffectQueue(state, definitions, events);
-        state = cleanupPendingAction(state, playerId);
-        return state;
+      if (pendingEff.reveal) {
+        events.push({ type: "card_revealed", instanceId: chosenId, playerId: owner, sourceInstanceId: pendingChoice.sourceInstanceId ?? "" });
       }
-
-      // look_at_top: picked card to hand, rest go to bottom
-      // Bug fix: use revealedCards (all revealed) not validTargets (filtered subset) for rest
-      const allRevealed = pendingChoice.revealedCards ?? pendingChoice.validTargets ?? [];
-      const rest = allRevealed.filter(id => id !== chosenId);
-      events.push({ type: "card_revealed", instanceId: chosenId, playerId: owner, sourceInstanceId: pendingChoice.sourceInstanceId ?? "" });
-      state = moveCard(state, chosenId, owner, "hand");
-      if (rest.length > 1 && state.interactive) {
-        // Let human choose the order the rest go to the bottom
-        state = { ...state, pendingChoice: null };
-        return {
-          ...state,
-          pendingChoice: {
-            type: "choose_order",
-            choosingPlayerId: owner,
-            prompt: `Choose the order to place the remaining ${rest.length} cards on the bottom of your deck (first selected = bottommost).`,
-            validTargets: rest,
-          },
-        };
+      if (pendingEff.putInto === "deck" && pendingEff.position === "top") {
+        state = moveCard(state, chosenId, owner, "deck", "top");
+      } else {
+        state = moveCard(state, chosenId, owner, pendingEff.putInto);
       }
-      state = reorderDeckTopToBottom(state, owner, rest, []);
-    } else {
-      // Empty choice (optional skip — no valid targets): put all revealed to bottom
-      const allRevealed = pendingChoice.revealedCards ?? [];
-      if (allRevealed.length > 1 && state.interactive) {
-        state = { ...state, pendingChoice: null };
-        return {
-          ...state,
-          pendingChoice: {
-            type: "choose_order",
-            choosingPlayerId: owner,
-            prompt: `Choose the order to place the ${allRevealed.length} revealed cards on the bottom of your deck (first selected = bottommost).`,
-            validTargets: allRevealed,
-          },
-        };
-      }
-      state = reorderDeckTopToBottom(state, owner, allRevealed, []);
+      state = resumePendingEffectQueue(state, definitions, events);
+      state = cleanupPendingAction(state, playerId);
+      return state;
     }
+
+    // look_at_top: picked card(s) to hand, rest go to bottom.
+    // Supports multi-pick (Look at This Family maxToHand=2, Dig a Little
+    // Deeper maxToHand=2). revealPicks controls whether picked cards are
+    // revealed to opponent ("you may reveal X" = true, "put N" = false).
+    const allRevealed = pendingChoice.revealedCards ?? pendingChoice.validTargets ?? [];
+    const chosenSet = new Set(choice as string[]);
+    const rest = allRevealed.filter(id => !chosenSet.has(id));
+    const revealPicks = pendingEff?.revealPicks ?? false;
+    for (const chosenId of choice as string[]) {
+      if (revealPicks) {
+        events.push({ type: "card_revealed", instanceId: chosenId, playerId: owner, sourceInstanceId: pendingChoice.sourceInstanceId ?? "" });
+      }
+      state = moveCard(state, chosenId, owner, "hand");
+    }
+    if (rest.length > 1 && state.interactive) {
+      // Let human choose the order the rest go to the bottom
+      state = { ...state, pendingChoice: null };
+      return {
+        ...state,
+        pendingChoice: {
+          type: "choose_order",
+          choosingPlayerId: owner,
+          prompt: `Choose the order to place the remaining ${rest.length} cards on the bottom of your deck (first selected = bottommost).`,
+          validTargets: rest,
+        },
+      };
+    }
+    state = reorderDeckTopToBottom(state, owner, rest, []);
     state = resumePendingEffectQueue(state, definitions, events);
     state = cleanupPendingAction(state, playerId);
     return state;
@@ -3684,6 +3674,14 @@ export function applyEffect(
             } else {
               matchingCards = [...topCards];
             }
+            // isMay: "you may reveal..." = optional (can take 0). Default false
+            // means mandatory: "put N into your hand" — must take min(maxToHand,
+            // matchingCards.length) per CRD 1.7.x "as much as possible" rule
+            // when the deck is short.
+            const isOptional = effect.isMay ?? false;
+            const pickCount = isOptional
+              ? `up to ${maxToHand}`
+              : `${Math.min(maxToHand, matchingCards.length)}`;
             return {
               ...state,
               pendingChoice: {
@@ -3691,11 +3689,11 @@ export function applyEffect(
                 choosingPlayerId: controllingPlayerId,
                 prompt: matchingCards.length === 0
                   ? `No matching cards found. All revealed cards go to the bottom of your deck.`
-                  : `Choose up to ${maxToHand} card(s) to put into your hand. The rest go to the bottom of your deck.`,
+                  : `Choose ${pickCount} card(s) to put into your hand. The rest go to the bottom of your deck.`,
                 validTargets: matchingCards,
                 revealedCards: topCards,
                 pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
-                optional: true,
+                optional: isOptional,
               },
             };
           }

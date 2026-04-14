@@ -163,7 +163,8 @@
             "target": {
               "type": "self"
             },
-            "maxToHand": 1
+            "maxToHand": 1,
+            "revealPicks": true
           }
         ]
       }
@@ -701,7 +702,8 @@
               "type": "self"
             },
             "isMay": true,
-            "maxToHand": 1
+            "maxToHand": 1,
+            "revealPicks": true
           }
         ]
       }
@@ -1399,7 +1401,9 @@
         },
         "target": {
           "type": "self"
-        }
+        },
+        "isMay": true,
+        "revealPicks": true
       }
     ],
     "singTogetherCost": 7
@@ -1704,7 +1708,9 @@
         "target": {
           "type": "self"
         },
-        "maxToHand": 1
+        "maxToHand": 1,
+        "isMay": true,
+        "revealPicks": true
       }
     ]
   },
@@ -7990,7 +7996,9 @@
                 "character"
               ],
               "hasTrait": "Princess"
-            }
+            },
+            "isMay": true,
+            "revealPicks": true
           }
         ]
       }
@@ -12609,7 +12617,8 @@
             "target": {
               "type": "self"
             },
-            "maxToHand": 1
+            "maxToHand": 1,
+            "revealPicks": true
           }
         ]
       }
@@ -13371,7 +13380,9 @@
                 "character"
               ],
               "hasTrait": "Princess"
-            }
+            },
+            "isMay": true,
+            "revealPicks": true
           }
         ]
       }

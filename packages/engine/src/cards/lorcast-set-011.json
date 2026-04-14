@@ -1047,7 +1047,9 @@
                 "character"
               ],
               "costAtMost": 2
-            }
+            },
+            "isMay": true,
+            "revealPicks": true
           }
         ]
       }
@@ -1331,7 +1333,8 @@
             },
             "target": {
               "type": "self"
-            }
+            },
+            "revealPicks": true
           }
         ]
       }
@@ -7328,7 +7331,9 @@
         "target": {
           "type": "self"
         },
-        "maxToHand": 1
+        "maxToHand": 1,
+        "isMay": true,
+        "revealPicks": true
       },
       {
         "type": "grant_cost_reduction",
@@ -8265,7 +8270,9 @@
               "cardType": [
                 "item"
               ]
-            }
+            },
+            "isMay": true,
+            "revealPicks": true
           }
         ]
       }
@@ -13330,7 +13337,9 @@
         "target": {
           "type": "self"
         },
-        "maxToHand": 1
+        "maxToHand": 1,
+        "isMay": true,
+        "revealPicks": true
       },
       {
         "type": "grant_cost_reduction",

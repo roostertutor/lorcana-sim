@@ -1445,7 +1445,9 @@
         },
         "target": {
           "type": "self"
-        }
+        },
+        "isMay": true,
+        "revealPicks": true
       }
     ],
     "singTogetherCost": 7
@@ -8575,7 +8577,8 @@
               "type": "self"
             },
             "isMay": true,
-            "maxToHand": 1
+            "maxToHand": 1,
+            "revealPicks": true
           }
         ]
       }
@@ -8664,7 +8667,9 @@
             },
             "target": {
               "type": "self"
-            }
+            },
+            "isMay": true,
+            "revealPicks": true
           },
           {
             "type": "conditional_on_target",
@@ -11492,7 +11497,9 @@
         },
         "target": {
           "type": "self"
-        }
+        },
+        "isMay": true,
+        "revealPicks": true
       }
     ],
     "singTogetherCost": 7
@@ -12188,7 +12195,9 @@
             },
             "target": {
               "type": "self"
-            }
+            },
+            "isMay": true,
+            "revealPicks": true
           },
           {
             "type": "conditional_on_target",

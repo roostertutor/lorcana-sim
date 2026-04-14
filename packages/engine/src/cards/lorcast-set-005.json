@@ -1477,7 +1477,8 @@
           "cardType": [
             "character"
           ]
-        }
+        },
+        "revealPicks": true
       }
     ]
   },
@@ -8346,7 +8347,9 @@
                 "character"
               ],
               "hasName": "The Queen"
-            }
+            },
+            "isMay": true,
+            "revealPicks": true
           }
         ]
       }
@@ -9364,7 +9367,9 @@
               "cardType": [
                 "item"
               ]
-            }
+            },
+            "isMay": true,
+            "revealPicks": true
           }
         ]
       }
