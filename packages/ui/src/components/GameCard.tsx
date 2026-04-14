@@ -68,7 +68,8 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   // Play restriction check — grey out hand cards whose playRestrictions fail
   const hasFailedRestriction = zone === "hand" && (def as any).playRestrictions?.length > 0 &&
     (def as any).playRestrictions.some((r: any) => !evaluateCondition(r, gameState, definitions, instance.ownerId, instanceId));
-  const restrictionOpacity = hasFailedRestriction ? "opacity-50" : "";
+  // Unified "can't interact" dim — used for both blocked and unaffordable hand cards
+  const restrictionOpacity = hasFailedRestriction ? "opacity-60" : "";
 
   // Self cost reduction indicator — green glow on hand cards that have an active
   // cost reduction (the card is cheaper than printed). Reads the static ability
@@ -79,9 +80,9 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   );
   const costReductionGlow = hasCostReduction ? "ring-1 ring-emerald-500/50" : "";
 
-  // Unplayable hand card dim — lighter than restriction grey (those are blocked,
-  // these just need more ink). Only applies when isPlayable is explicitly false.
-  const unplayableDim = zone === "hand" && isPlayable === false && !hasFailedRestriction ? "opacity-60 saturate-50" : "";
+  // Unplayable hand card dim — same level as restriction (unified "can't interact"
+  // signal; ink count in the inkwell already tells you recoverability).
+  const unplayableDim = zone === "hand" && isPlayable === false && !hasFailedRestriction ? "opacity-60" : "";
 
   const handleKey = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); }
@@ -200,7 +201,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
     ? "border-red-400 ring-2 ring-red-400/50 animate-pulse z-10"
     : theme.border;
 
-  const rotationClass = isExerted && !skipRotation ? "rotate-90 opacity-80"
+  const rotationClass = isExerted && !skipRotation ? "rotate-90 opacity-60"
     : isLocation && zone === "play" ? "rotate-90" : "";
   const baseClass = `game-card relative border-2 rounded-md sm:rounded-xl ${mobileWidth} sm:w-[104px] lg:w-[120px] shrink-0 cursor-pointer
     transition-all duration-200 ${ringClass} ${restrictionOpacity} ${costReductionGlow} ${unplayableDim}
