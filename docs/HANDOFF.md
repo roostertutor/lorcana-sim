@@ -105,24 +105,34 @@ Behavior:
 
 ---
 
-## GUI: update reveal overlay key to use `lastRevealedCards.sequenceId`
+~~## GUI: update reveal overlay key to use `lastRevealedCards.sequenceId`~~ **PARTIAL — still broken for undo+re-quest**
 
-`packages/ui/src/pages/GameBoard.tsx:567` — the `currentRevealCardsKey` is
-computed from `instanceIds.join(",")` (content-based). This breaks on the
-undo → re-quest flow: if you quest Daisy Duck Donald's Date (reveals top
-of opponent's deck), dismiss the overlay, then undo and quest again, the
-SAME top card is revealed and produces the same content-key, so
-`dismissedRevealKey === currentRevealCardsKey` and the overlay stays hidden.
+`currentRevealCardsKey` now prefixes with `sequenceId` — works for consecutive
+reveals within a play-through (e.g. reveal card X, dismiss, reveal card X
+again via a different trigger → different sequenceId → overlay shows).
 
-Fix: include `sequenceId` in the key.
+**But undo+re-quest is still broken** because the engine's sequenceId is
+state-derived (`(state.lastRevealedCards?.sequenceId ?? 0) + 1`) and
+`reconstructState` replays actions from the initial state, so the counter
+resets to 0 after undo. Re-questing Daisy Duck after undo produces the
+same sequenceId as the undone quest — identical key, overlay stays hidden.
+
+The engine CANNOT fix this while remaining deterministic (any state-derived
+counter necessarily produces the same value for the same action sequence).
+
+**Fix — UI side:** clear `dismissedRevealKey` when `actionCount` decreases
+(i.e. on undo). Something like:
 ```ts
-const rc = session.gameState?.lastRevealedCards;
-const currentRevealCardsKey = rc ? `${rc.sequenceId}:${rc.instanceIds.join(",")}` : null;
+const prevActionCount = useRef(session.actionCount);
+useEffect(() => {
+  if (session.actionCount < prevActionCount.current) {
+    setDismissedRevealKey(null); // undo happened — forget prior dismissals
+  }
+  prevActionCount.current = session.actionCount;
+}, [session.actionCount]);
 ```
-
-Engine change (already landed): `lastRevealedCards` now carries a `sequenceId:
-number` that increments on every reveal-producing action. This makes two
-reveals of the same card-id produce distinct keys.
+This resets the dismiss-tracker whenever the user undoes, so a re-quest that
+produces the same reveal key counts as "not yet dismissed."
 
 ---
 
