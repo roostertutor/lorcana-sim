@@ -1992,7 +1992,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       {inspectCardId && popoverPos && (
         <div
           data-card-popover
-          className="fixed z-50 flex items-center gap-1 pointer-events-auto"
+          className="fixed z-50 flex flex-col items-stretch gap-1 pointer-events-auto min-w-[120px]"
           style={{ top: popoverPos.top, left: popoverPos.left, transform: "translateX(-50%)" }}
           onClick={e => e.stopPropagation()}
         >
@@ -2005,19 +2005,22 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               {btn.label}
             </button>
           ))}
-          <button
-            className="shrink-0 p-1.5 text-gray-400 hover:text-gray-200 bg-gray-800/90 hover:bg-gray-700 rounded-lg shadow-lg transition-colors"
-            onClick={() => setInspectModalOpen(true)}
-            title="Inspect card"
-          >
-            <Icon name="magnifying-glass" className="w-3.5 h-3.5" />
-          </button>
-          <button
-            className="shrink-0 p-1.5 text-gray-500 hover:text-gray-300 bg-gray-800/90 hover:bg-gray-700 rounded-lg shadow-lg transition-colors"
-            onClick={() => { setInspectCardId(null); setInspectModalOpen(false); }}
-          >
-            <Icon name="x-mark" className="w-3.5 h-3.5" />
-          </button>
+          {/* Inspect + close sit on a small horizontal row at the bottom */}
+          <div className="flex items-center justify-end gap-1">
+            <button
+              className="shrink-0 p-1.5 text-gray-400 hover:text-gray-200 bg-gray-800/90 hover:bg-gray-700 rounded-lg shadow-lg transition-colors"
+              onClick={() => setInspectModalOpen(true)}
+              title="Inspect card"
+            >
+              <Icon name="magnifying-glass" className="w-3.5 h-3.5" />
+            </button>
+            <button
+              className="shrink-0 p-1.5 text-gray-500 hover:text-gray-300 bg-gray-800/90 hover:bg-gray-700 rounded-lg shadow-lg transition-colors"
+              onClick={() => { setInspectCardId(null); setInspectModalOpen(false); }}
+            >
+              <Icon name="x-mark" className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       )}
 
@@ -2254,7 +2257,7 @@ function DroppableInkwell({
       {children}
       {isOver && isValidTarget && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-          <span className="px-2 py-1 rounded bg-black/80 text-green-300 text-[10px] font-bold shadow-lg">
+          <span className="px-2 py-1 rounded bg-blue-950/90 text-blue-200 border border-blue-700/60 text-[10px] font-bold shadow-lg">
             Ink
           </span>
         </div>
