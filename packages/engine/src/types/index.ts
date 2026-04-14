@@ -1175,11 +1175,16 @@ export interface LookAtTopEffect {
     | "reorder"
     | "up_to_n_to_hand_rest_bottom"
     | "one_to_inkwell_exerted_rest_top"
-    /** "may reveal a matching card and play it for free; put the rest
-     *  in your discard / on the bottom of your deck" — unified action.
+    /** Pure chooser: peek at top N, may pick ONE matching card and set
+     *  lastResolvedTarget to it (card stays in deck), move the rest per
+     *  restPlacement. The picked card is then acted on by a subsequent
+     *  effect in the same ability's effects array — typically a
+     *  `play_for_free` with target: last_resolved_target, sourceZone: "deck".
+     *  Separates the peek-and-choose concern from the "what to do with the
+     *  chosen card" concern.
      *  Powerline World's Greatest Rock Star (restPlacement: "bottom"),
      *  Robin Hood Sharpshooter (restPlacement: "discard"). */
-    | "one_to_play_for_free"
+    | "peek_and_set_target"
     /** Kristoff's Lute MOMENT OF INSPIRATION — reveal top, may play for free,
      *  otherwise put it into discard. count is implicitly 1. */
     | "may_play_for_free_else_discard"
@@ -1215,10 +1220,6 @@ export interface LookAtTopEffect {
    *  they go to hand privately ("put 2 into your hand" → false/undefined)?
    *  Default: false. */
   revealPicks?: boolean;
-  /** For "one_to_play_for_free": the played card enters play exerted
-   *  (Mufasa Betrayed Leader "they enter play exerted"). Default false
-   *  (character enters play drying and un-exerted). */
-  enterExerted?: boolean;
 }
 
 /**

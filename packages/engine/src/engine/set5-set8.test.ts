@@ -917,6 +917,50 @@ describe("§5 Set 5 — reveal_top_conditional fires card_revealed events", () =
   });
 });
 
+describe("§5 Set 5 — Robin Hood Sharpshooter MY GREATEST PERFORMANCE (peek_and_set_target chain)", () => {
+  it("peeks top 4, plays picked action, rest to discard", () => {
+    let state = startGame();
+    state.currentPlayer = "player1";
+
+    // Put Robin Hood in play (dry)
+    let robinId: string;
+    ({ state, instanceId: robinId } = injectCard(state, "player1", "robin-hood-sharpshooter", "play", { isDrying: false }));
+
+    // Inject Be Our Guest (action cost 2) on top of deck.
+    let bogId: string;
+    ({ state, instanceId: bogId } = injectCard(state, "player1", "be-our-guest", "deck"));
+    state = {
+      ...state,
+      zones: {
+        ...state.zones,
+        player1: {
+          ...state.zones.player1,
+          deck: [bogId, ...state.zones.player1.deck.filter(id => id !== bogId)],
+        },
+      },
+    };
+    const discardBefore = state.zones.player1.discard.length;
+
+    // Quest — triggers MY GREATEST PERFORMANCE (isMay)
+    let r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: robinId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Accept the may prompt
+    expect(state.pendingChoice?.type).toBe("choose_may");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Chain result: BoG was played (its actionEffects resolved, action card
+    // moved to discard). The 3 non-matching top cards also went to discard
+    // via restPlacement: "discard". There may be subsequent pendingChoices
+    // from BoG's own look_at_top — that's fine.
+    expect(getInstance(state, bogId).zone).not.toBe("deck");
+    expect(state.zones.player1.discard.length).toBeGreaterThanOrEqual(discardBefore + 3);
+  });
+});
+
 describe("§8 Set 8 — Lady Decisive Dog", () => {
   it("TAKE THE LEAD: +2 lore when strength >= 3 via Snowfort static + timed buffs", () => {
     let state = startGame();

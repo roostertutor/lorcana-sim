@@ -2015,6 +2015,35 @@ function applyResolveChoice(
     const owner = playerId;
     const pendingEff = pendingChoice.pendingEffect as any;
 
+    // peek_and_set_target (Robin Hood Sharpshooter, Powerline): set
+    // lastResolvedTarget to the picked card (card stays in deck), move the
+    // rest per restPlacement. The next effect in the ability's effects
+    // array acts on lastResolvedTarget (typically play_for_free).
+    if (pendingEff?.type === "look_at_top" && pendingEff?.action === "peek_and_set_target") {
+      const allRevealed = pendingChoice.revealedCards ?? pendingChoice.validTargets ?? [];
+      const chosenId = choice.length === 1 ? choice[0]! : undefined;
+      const rest = chosenId ? allRevealed.filter((id) => id !== chosenId) : allRevealed;
+      // Set lastResolvedTarget on pick (undefined if skipped).
+      if (chosenId) {
+        const ref = makeResolvedRef(state, definitions, chosenId);
+        if (ref) state = { ...state, lastResolvedTarget: ref };
+        events.push({ type: "card_revealed", instanceId: chosenId, playerId: owner, sourceInstanceId: pendingChoice.sourceInstanceId ?? "" });
+      } else {
+        state = { ...state, lastResolvedTarget: undefined };
+      }
+      // Move unpicked cards per restPlacement.
+      const restPlacement = pendingEff.restPlacement ?? "bottom";
+      if (restPlacement === "discard") {
+        for (const id of rest) state = moveCard(state, id, owner, "discard");
+      } else if (restPlacement === "bottom") {
+        state = reorderDeckTopToBottom(state, owner, rest, []);
+      }
+      // "top" placement: cards stay in position — no action needed.
+      state = resumePendingEffectQueue(state, definitions, events);
+      state = cleanupPendingAction(state, playerId);
+      return state;
+    }
+
     // Search effect: move chosen card (single) to its destination, leave rest in deck
     if (pendingEff?.type === "search" && choice.length === 1) {
       const chosenId = choice[0]!;
@@ -3623,21 +3652,15 @@ export function applyEffect(
           state = reorderDeckTopToBottom(state, targetPlayer, toBottom, []);
           return state;
         }
-        case "one_to_play_for_free": {
-          // "Look at top N, may reveal a matching card and play it for free.
-          // Put the rest [on bottom | in discard | on top]." Unified action —
-          // restPlacement decides where the unrevealed cards go.
+        case "peek_and_set_target": {
+          // Pure chooser: peek top N, optionally pick ONE matching card and
+          // set lastResolvedTarget to it (card stays in deck). Move the rest
+          // per restPlacement. The picked card is acted on by the NEXT effect
+          // in the ability's effects array (typically play_for_free with
+          // target: last_resolved_target, sourceZone: "deck").
+          //
           // Powerline World's Greatest Rock Star: restPlacement "bottom".
           // Robin Hood Sharpshooter: restPlacement "discard".
-          const matchIdx = effect.filter
-            ? topCards.findIndex((id) => {
-                const inst = state.cards[id];
-                if (!inst) return false;
-                const def = definitions[inst.definitionId];
-                if (!def) return false;
-                return matchesFilter(inst, def, effect.filter!, state, controllingPlayerId);
-              })
-            : -1;
           const restPlacement = effect.restPlacement ?? "bottom";
           const moveRest = (ids: string[]) => {
             if (restPlacement === "discard") {
@@ -3645,40 +3668,50 @@ export function applyEffect(
                 state = moveCard(state, id, targetPlayer, "discard");
               }
             } else if (restPlacement === "top") {
-              // Default behavior — cards stay on top in original order after
-              // the match is removed via moveCard. No reorder needed.
+              // Cards stay on top in original order — no-op.
             } else {
               state = reorderDeckTopToBottom(state, targetPlayer, ids, []);
             }
           };
-          if (matchIdx === -1) {
+          // Compute matching cards (for interactive chooser or bot greedy).
+          const matchingCards = effect.filter
+            ? topCards.filter((id) => {
+                const inst = state.cards[id];
+                const def = inst ? definitions[inst.definitionId] : undefined;
+                return inst && def ? matchesFilter(inst, def, effect.filter!, state, controllingPlayerId) : false;
+              })
+            : [...topCards];
+          // Clear any stale lastResolvedTarget — if the player skips, it stays cleared.
+          state = { ...state, lastResolvedTarget: undefined };
+          if (state.interactive) {
+            // Surface a choose_from_revealed. On resolve: set lastResolvedTarget
+            // to the picked card and move rest per restPlacement. isMay maps to
+            // optional; when the player skips, rest still moves per oracle.
+            return {
+              ...state,
+              pendingChoice: {
+                type: "choose_from_revealed",
+                choosingPlayerId: controllingPlayerId,
+                prompt: matchingCards.length === 0
+                  ? `No matching cards found — continuing.`
+                  : `Choose 1 card to set as the selected target (or skip).`,
+                validTargets: matchingCards,
+                revealedCards: topCards,
+                pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
+                optional: effect.isMay ?? true,
+              },
+            };
+          }
+          // Bot/headless: greedy — pick first match if any, set lastResolvedTarget,
+          // move the rest per restPlacement.
+          if (matchingCards.length === 0) {
             moveRest(topCards);
             return state;
           }
-          const playId = topCards[matchIdx]!;
-          const rest = topCards.filter((_, i) => i !== matchIdx);
-          const playInst = state.cards[playId];
-          const playDef = playInst ? definitions[playInst.definitionId] : undefined;
-          if (playInst && playDef) {
-            // "may reveal a matching card and play it for free"
-            events.push({ type: "card_revealed", instanceId: playId, playerId: controllingPlayerId, sourceInstanceId });
-            state = zoneTransition(state, playId, "play", definitions, events, {
-              reason: "played", triggeringPlayerId: targetPlayer,
-            });
-            if (playDef.cardType === "character") {
-              // Mufasa Betrayed Leader "they enter play exerted".
-              state = updateInstance(state, playId, {
-                isDrying: true,
-                ...(effect.enterExerted ? { isExerted: true } : {}),
-              });
-            }
-            if (playDef.cardType === "action" && playDef.actionEffects) {
-              for (const ae of playDef.actionEffects) {
-                state = applyEffect(state, ae, playId, targetPlayer, definitions, events);
-              }
-              state = zoneTransition(state, playId, "discard", definitions, events, { reason: "discarded" });
-            }
-          }
+          const pickedId = matchingCards[0]!;
+          const rest = topCards.filter((id) => id !== pickedId);
+          const ref = makeResolvedRef(state, definitions, pickedId);
+          if (ref) state = { ...state, lastResolvedTarget: ref };
           moveRest(rest);
           return state;
         }

@@ -6223,7 +6223,7 @@
           {
             "type": "look_at_top",
             "count": 4,
-            "action": "one_to_play_for_free",
+            "action": "peek_and_set_target",
             "filter": {
               "cardType": [
                 "action"
@@ -6233,7 +6233,14 @@
             },
             "target": {
               "type": "self"
-            }
+            },
+            "isMay": true,
+            "restPlacement": "bottom"
+          },
+          {
+            "type": "play_for_free",
+            "target": { "type": "last_resolved_target" },
+            "sourceZone": "deck"
           }
         ]
       }
@@ -13276,7 +13283,7 @@
           {
             "type": "look_at_top",
             "count": 4,
-            "action": "one_to_play_for_free",
+            "action": "peek_and_set_target",
             "filter": {
               "cardType": [
                 "action"
@@ -13286,7 +13293,14 @@
             },
             "target": {
               "type": "self"
-            }
+            },
+            "isMay": true,
+            "restPlacement": "bottom"
+          },
+          {
+            "type": "play_for_free",
+            "target": { "type": "last_resolved_target" },
+            "sourceZone": "deck"
           }
         ]
       }

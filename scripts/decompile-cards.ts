@@ -488,7 +488,14 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     return `you pay ${amt} {I} less to play ${filt}`;
   },
 
-  play_for_free: (e) => `${maybe(e)}play ${e.filter ? renderFilter(e.filter) : "a card"} for free`,
+  play_for_free: (e) => {
+    // When chained after peek_and_set_target (Robin Hood, Powerline), the
+    // previous renderer already says "...and play it for free". Suppress the
+    // redundant second phrase by returning empty — the effect still runs in
+    // the engine.
+    if (e.target?.type === "last_resolved_target") return "";
+    return `${maybe(e)}play ${e.filter ? renderFilter(e.filter) : "a card"} for free`;
+  },
 
   look_at_top: (e) => {
     const count = e.count ?? "?";
@@ -510,20 +517,18 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
         return `${base}. Put them back in any order`;
       case "one_to_inkwell_exerted_rest_top":
         return `${base}. You may put one into your inkwell facedown and exerted`;
-      case "one_to_play_for_free": {
-        // restPlacement: "bottom" (Powerline — default), "discard" (Robin Hood
-        // Sharpshooter), "top" (Mufasa Betrayed Leader — count=1 single-reveal).
+      case "peek_and_set_target": {
+        // Pure chooser: peek top N, set lastResolvedTarget (via subsequent
+        // effect like play_for_free). Renderer assumes the next effect is
+        // play_for_free (Powerline, Robin Hood) and folds both into one
+        // sentence matching the oracle.
         const placement = e.restPlacement ?? "bottom";
-        const exerted = e.enterExerted ? " and they enter play exerted" : "";
         const restClause = placement === "discard"
           ? " Put the rest in your discard"
           : placement === "top"
-            // For count=1 "on top" variants: the unrevealed top stays in place
-            // naturally, so the oracle phrase is "Otherwise, put it on the top
-            // of your deck" (Mufasa) rather than a "put the rest" clause.
-            ? (count === 1 ? " Otherwise, put it on the top of your deck" : " Put the rest back on top of your deck")
+            ? ""  // handled by the next effect or oracle doesn't mention it
             : " Put the rest on the bottom of your deck in any order";
-        return `${base}. You may reveal ${filter} and play it for free${exerted}.${restClause}`;
+        return `${base}. You may reveal ${filter} and play it for free.${restClause}`;
       }
       // Kristoff's Lute MOMENT OF INSPIRATION — count is implicitly 1.
       case "may_play_for_free_else_discard":
@@ -1071,7 +1076,9 @@ function renderStatChange(e: Json): string {
 function renderTriggered(ab: Json): string {
   const head = renderTrigger(ab.trigger ?? {});
   const cond = ab.condition ? renderCondition(ab.condition) : "";
-  const body = (ab.effects ?? []).map(renderEffect).join(", and ");
+  // Filter empty renderings so chained effects (e.g. peek_and_set_target
+  // → play_for_free with last_resolved_target) don't produce ". ." artifacts.
+  const body = (ab.effects ?? []).map(renderEffect).filter(Boolean).join(", and ");
   if (cond.startsWith("during ")) return `${cap(cond)}, ${head}, ${body}`;
   if (cond) return `${head}, ${cond}, ${body}`;
   return `${head}, ${body}`;
@@ -1080,7 +1087,7 @@ function renderTriggered(ab: Json): string {
 function renderActivated(ab: Json, ctx?: { cardType?: string }): string {
   const costs = (ab.costs ?? []).map((c: Json) => renderCost(c, ctx)).join(", ");
   const cond = ab.condition ? renderCondition(ab.condition) : "";
-  const effects = (ab.effects ?? []).map(renderEffect).join(", and ");
+  const effects = (ab.effects ?? []).map(renderEffect).filter(Boolean).join(", and ");
   if (cond) return `${costs} — ${cap(cond)}, ${effects}`;
   return `${costs} — ${effects}`;
 }
