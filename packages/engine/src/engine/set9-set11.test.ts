@@ -873,6 +873,60 @@ describe("§CRD 3.2.1.4 / 3.2.3.1 — turn_start trigger defers draw step", () =
   });
 });
 
+describe("§P2 Promo — Lilo Escape Artist NO PLACE I'D RATHER BE (paid play from discard)", () => {
+  it("DIRECT applyEffect with cost:normal deducts ink", () => {
+    let state = startGame();
+    let liloId: string;
+    ({ state, instanceId: liloId } = injectCard(state, "player1", "lilo-escape-artist", "discard"));
+    state = { ...state, players: { ...state.players, player1: { ...state.players.player1, availableInk: 5 } } };
+    const inkBefore = state.players.player1.availableInk;
+    const newState = applyEffect(
+      state,
+      {
+        type: "play_for_free",
+        target: { type: "this" },
+        sourceZone: "discard",
+        enterExerted: true,
+        cost: "normal",
+      } as any,
+      liloId,
+      "player1",
+      LORCAST_CARD_DEFINITIONS,
+      [],
+    );
+    expect(newState.cards[liloId]?.zone).toBe("play");
+    expect(newState.players.player1.availableInk).toBe(inkBefore - 2);
+  });
+
+  it("requires paying ink cost — Lilo's 2 ink is deducted on accept", () => {
+    let state = startGame();
+    let liloId: string;
+    ({ state, instanceId: liloId } = injectCard(state, "player1", "lilo-escape-artist", "discard"));
+    // Put 3 ink cards in inkwell so they ready on turn start (covers Lilo's cost 2).
+    for (let i = 0; i < 3; i++) {
+      ({ state } = injectCard(state, "player1", "mickey-mouse-true-friend", "inkwell"));
+    }
+
+    // Pass to player2 then back to player1 — turn_start trigger fires.
+    state = passTurns(state, 2);
+
+    // Should surface a may-prompt (turn_start trigger)
+    expect(state.pendingChoice?.type).toBe("choose_may");
+    const inkBefore = state.players.player1.availableInk;
+    expect(inkBefore).toBeGreaterThanOrEqual(2); // need to afford Lilo
+
+    // Accept the may
+    let r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Lilo is now in play, exerted, and 2 ink has been deducted (not free!)
+    expect(getInstance(state, liloId).zone).toBe("play");
+    expect(getInstance(state, liloId).isExerted).toBe(true);
+    expect(state.players.player1.availableInk).toBe(inkBefore - 2);
+  });
+});
+
 describe("§Engine — TimedEffect.sourceStoryName attribution", () => {
   it("The Queen Conceited Ruler: Support's modify_strength is attributed to 'Support', not ROYAL SUMMONS", () => {
     let state = startGame();

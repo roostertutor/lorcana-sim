@@ -100,7 +100,8 @@
             },
             "sourceZone": "discard",
             "enterExerted": true,
-            "isMay": true
+            "isMay": true,
+            "cost": "normal"
           }
         ]
       }
