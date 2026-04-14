@@ -3666,7 +3666,11 @@ export function applyEffect(
               reason: "played", triggeringPlayerId: targetPlayer,
             });
             if (playDef.cardType === "character") {
-              state = updateInstance(state, playId, { isDrying: true });
+              // Mufasa Betrayed Leader "they enter play exerted".
+              state = updateInstance(state, playId, {
+                isDrying: true,
+                ...(effect.enterExerted ? { isExerted: true } : {}),
+              });
             }
             if (playDef.cardType === "action" && playDef.actionEffects) {
               for (const ae of playDef.actionEffects) {

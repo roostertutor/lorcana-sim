@@ -638,7 +638,7 @@
           {
             "type": "look_at_top",
             "count": 1,
-            "action": "up_to_n_to_hand_rest_bottom",
+            "action": "one_to_play_for_free",
             "filter": {
               "cardType": [
                 "character"
@@ -648,8 +648,8 @@
               "type": "self"
             },
             "isMay": true,
-            "maxToHand": 1,
-            "revealPicks": true
+            "restPlacement": "top",
+            "enterExerted": true
           }
         ]
       }

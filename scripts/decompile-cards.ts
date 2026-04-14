@@ -512,14 +512,18 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
         return `${base}. You may put one into your inkwell facedown and exerted`;
       case "one_to_play_for_free": {
         // restPlacement: "bottom" (Powerline — default), "discard" (Robin Hood
-        // Sharpshooter), "top" (not used today but legal).
+        // Sharpshooter), "top" (Mufasa Betrayed Leader — count=1 single-reveal).
         const placement = e.restPlacement ?? "bottom";
+        const exerted = e.enterExerted ? " and they enter play exerted" : "";
         const restClause = placement === "discard"
-          ? "Put the rest in your discard"
+          ? " Put the rest in your discard"
           : placement === "top"
-            ? "Put the rest back on top of your deck"
-            : "Put the rest on the bottom of your deck in any order";
-        return `${base}. You may reveal ${filter} and play it for free. ${restClause}`;
+            // For count=1 "on top" variants: the unrevealed top stays in place
+            // naturally, so the oracle phrase is "Otherwise, put it on the top
+            // of your deck" (Mufasa) rather than a "put the rest" clause.
+            ? (count === 1 ? " Otherwise, put it on the top of your deck" : " Put the rest back on top of your deck")
+            : " Put the rest on the bottom of your deck in any order";
+        return `${base}. You may reveal ${filter} and play it for free${exerted}.${restClause}`;
       }
       // Kristoff's Lute MOMENT OF INSPIRATION — count is implicitly 1.
       case "may_play_for_free_else_discard":

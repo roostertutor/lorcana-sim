@@ -1215,6 +1215,10 @@ export interface LookAtTopEffect {
    *  they go to hand privately ("put 2 into your hand" → false/undefined)?
    *  Default: false. */
   revealPicks?: boolean;
+  /** For "one_to_play_for_free": the played card enters play exerted
+   *  (Mufasa Betrayed Leader "they enter play exerted"). Default false
+   *  (character enters play drying and un-exerted). */
+  enterExerted?: boolean;
 }
 
 /**
