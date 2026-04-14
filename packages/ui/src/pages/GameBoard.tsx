@@ -956,6 +956,26 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     },
   });
 
+  // Track the drop target currently under the cursor during a drag — used to
+  // show the action label ("Challenge" / "Shift" / "Sing" / "Move" / "Play" /
+  // "Ink") on the DragOverlay instead of on the target card (which the
+  // DragOverlay would otherwise obscure).
+  const [hoveredDropId, setHoveredDropId] = useState<string | null>(null);
+  const dragActionLabel = useMemo(() => {
+    if (!dnd.activeId || !hoveredDropId) return null;
+    if (hoveredDropId === DROP_PLAY_ZONE) return "Play";
+    if (hoveredDropId === DROP_INKWELL) return "Ink";
+    if (hoveredDropId.startsWith("drop:card:")) {
+      const targetId = hoveredDropId.slice("drop:card:".length);
+      const d = dnd.activeId;
+      if (session.legalActions.some(a => a.type === "PLAY_CARD" && a.instanceId === d && a.shiftTargetInstanceId === targetId)) return "Shift";
+      if (session.legalActions.some(a => a.type === "PLAY_CARD" && a.instanceId === d && a.singerInstanceId === targetId)) return "Sing";
+      if (session.legalActions.some(a => a.type === "CHALLENGE" && a.attackerInstanceId === d && a.defenderInstanceId === targetId)) return "Challenge";
+      if (session.legalActions.some(a => a.type === "MOVE_CHARACTER" && a.characterInstanceId === d && a.locationInstanceId === targetId)) return "Move";
+    }
+    return null;
+  }, [dnd.activeId, hoveredDropId, session.legalActions]);
+
   // =========================================================================
   // SETUP MODE
   // =========================================================================
@@ -1105,8 +1125,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   // Render a single in-play card cell with the exerted-rotation sizing kludge
   function renderPlayCell(id: string, isOpponent: boolean) {
     const exerted = gameState!.cards[id]?.isExerted ?? false;
+    const isLocation = definitions[gameState!.cards[id]?.definitionId ?? ""]?.cardType === "location";
+    // Locations are always rotated 90° in play, same as exerted characters —
+    // reserve their rotated footprint so the visual overhang doesn't get
+    // clipped by parent edges (e.g. when a location is the only card in play).
+    const needsRotatedSlot = exerted || isLocation;
     return (
-      <div key={id} className={`shrink-0 ${exerted ? "w-[73px] h-[52px] sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] flex items-center justify-center overflow-hidden" : ""}`}>
+      <div key={id} className={`shrink-0 ${needsRotatedSlot ? "w-[73px] h-[52px] sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] flex items-center justify-center overflow-hidden" : ""}`}>
         {renderCardWithActions(id, "play", isOpponent)}
       </div>
     );
@@ -1178,16 +1203,10 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       ? choiceLabel.slice(plainName.length).trim()
       : null;
 
-    // Whether this card can be a DnD drop target (shift, sing, challenge, move)
+    // Whether this card can be a DnD drop target (shift, sing, challenge, move).
+    // The action label itself is computed once at the top level for the
+    // DragOverlay — no need to compute per-card here.
     const isDropTarget = !!dnd.activeId && dnd.isValidCardDrop(dnd.activeId, id);
-    const dropLabel = isDropTarget && dnd.activeId ? (() => {
-      const d = dnd.activeId!;
-      if (legalActions.some(a => a.type === "PLAY_CARD" && a.instanceId === d && a.shiftTargetInstanceId === id)) return "Shift";
-      if (legalActions.some(a => a.type === "PLAY_CARD" && a.instanceId === d && a.singerInstanceId === id)) return "Sing";
-      if (legalActions.some(a => a.type === "CHALLENGE" && a.attackerInstanceId === d && a.defenderInstanceId === id)) return "Challenge";
-      if (legalActions.some(a => a.type === "MOVE_CHARACTER" && a.characterInstanceId === d && a.locationInstanceId === id)) return "Move";
-      return undefined;
-    })() : undefined;
 
     // Fan effect for hand cards — overlap + subtle rotation
     const isHandCard = zone === "hand";
@@ -1281,7 +1300,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             setPopoverPos({ top: rect.bottom + 6, left });
           }}
         >
-          <DroppableCardTarget id={id} isValidTarget={isDropTarget} activeId={dnd.activeId} dropLabel={dropLabel}>
+          <DroppableCardTarget id={id} isValidTarget={isDropTarget} activeId={dnd.activeId}>
             <div className="relative">
               <GameCard
                 instanceId={id}
@@ -1289,7 +1308,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                 definitions={definitions}
                 gameModifiers={gameModifiers}
                 isSelected={isAltShiftPicked}
-                isTarget={isChallTarget || isShiftTarget || isSingTarget || isMoveTarget || isAltShiftCost}
+                isTarget={isChallTarget || isShiftTarget || isSingTarget || isMoveTarget || isAltShiftCost || isDropTarget}
                 isAttacker={isAttacker}
                 onClick={handleClick}
                 zone={zone}
@@ -1329,8 +1348,9 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       sensors={sensors}
       collisionDetection={pointerWithin}
       onDragStart={dnd.handleDragStart}
-      onDragEnd={dnd.handleDragEnd}
-      onDragCancel={dnd.handleDragCancel}
+      onDragOver={(e) => setHoveredDropId((e.over?.id as string) ?? null)}
+      onDragEnd={(e) => { setHoveredDropId(null); dnd.handleDragEnd(e); }}
+      onDragCancel={() => { setHoveredDropId(null); dnd.handleDragCancel(); }}
     >
     <div className="h-dvh overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_220px] lg:grid-cols-[1fr_280px] gap-0 md:gap-4 lg:gap-5">
       {/* ======================= Main game area ======================= */}
@@ -1772,16 +1792,29 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       {/* ======================= DragOverlay ======================= */}
       <DragOverlay>
         {dnd.activeId && gameState ? (
-          <div className="opacity-80 scale-110 rotate-3 pointer-events-none">
-            <GameCard
-              instanceId={dnd.activeId}
-              gameState={gameState}
-              definitions={definitions}
-              gameModifiers={gameModifiers}
-              isSelected={false}
-              onClick={() => {}}
-              zone={dnd.activeZone ?? "hand"}
-            />
+          <div className="pointer-events-none relative">
+            <div className="opacity-80 scale-110 rotate-3">
+              <GameCard
+                instanceId={dnd.activeId}
+                gameState={gameState}
+                definitions={definitions}
+                gameModifiers={gameModifiers}
+                isSelected={false}
+                onClick={() => {}}
+                zone={dnd.activeZone ?? "hand"}
+              />
+            </div>
+            {dragActionLabel && (
+              <div className="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                <span className={`px-2 py-1 rounded text-[11px] font-bold shadow-lg border ${
+                  dragActionLabel === "Challenge"
+                    ? "bg-red-950/95 text-red-200 border-red-700"
+                    : "bg-black/90 text-green-300 border-green-700/60"
+                }`}>
+                  {dragActionLabel}
+                </span>
+              </div>
+            )}
           </div>
         ) : null}
       </DragOverlay>
@@ -2097,33 +2130,22 @@ function DroppableCardTarget({
   id,
   isValidTarget,
   activeId,
-  dropLabel,
   children,
 }: {
   id: string;
   isValidTarget: boolean;
   activeId: string | null;
-  dropLabel?: string;
   children: React.ReactNode;
 }) {
-  const { setNodeRef, isOver } = useDroppable({ id: dropCardId(id) });
-  const ring = isOver && isValidTarget
-    ? "ring-2 ring-green-400 ring-inset shadow-green-400/30 shadow-lg rounded-xl"
-    : isValidTarget
-    ? "ring-1 ring-green-600/50 ring-inset animate-pulse rounded-xl"
-    : activeId
-    ? "opacity-60"
-    : "";
+  const { setNodeRef, isOver: _isOver } = useDroppable({ id: dropCardId(id) });
+  // The red border+ring+pulse on valid targets is rendered by GameCard via
+  // the isTarget prop (tracks 90°-rotated cards correctly). The action label
+  // ("Challenge" / "Sing" / etc.) rides on the DragOverlay. All we do here
+  // is dim non-target cards during drag, so invalid targets recede visually.
+  const dim = activeId && !isValidTarget ? "brightness-50" : "";
   return (
-    <div ref={setNodeRef} className={`relative transition-all duration-150 ${ring}`}>
+    <div ref={setNodeRef} className={`relative transition-all duration-150 ${dim}`}>
       {children}
-      {isOver && isValidTarget && dropLabel && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-          <span className="px-2 py-1 rounded bg-black/80 text-green-300 text-[10px] font-bold shadow-lg">
-            {dropLabel}
-          </span>
-        </div>
-      )}
     </div>
   );
 }

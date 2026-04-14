@@ -92,7 +92,7 @@ export default function PendingChoiceModal({
     const zone = (gameState.cards[id]?.zone === "play" ? "play" : "hand") as "play" | "hand";
     return (
       <div
-        className={`flex flex-col items-center cursor-pointer transition-opacity overflow-hidden ${isDimmed ? "opacity-60" : ""}`}
+        className={`flex flex-col items-center cursor-pointer transition overflow-hidden ${isDimmed ? "brightness-50" : ""}`}
       >
         {/* scale wrapper so cards fit comfortably in the modal */}
         <div className="scale-[0.78] origin-top">

@@ -68,8 +68,9 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   // Play restriction check — grey out hand cards whose playRestrictions fail
   const hasFailedRestriction = zone === "hand" && (def as any).playRestrictions?.length > 0 &&
     (def as any).playRestrictions.some((r: any) => !evaluateCondition(r, gameState, definitions, instance.ownerId, instanceId));
-  // Unified "can't interact" dim — used for both blocked and unaffordable hand cards
-  const restrictionOpacity = hasFailedRestriction ? "opacity-60" : "";
+  // Unified "can't interact" dim — used for both blocked and unaffordable hand cards.
+  // brightness (not opacity) so fanned hand cards don't bleed through each other.
+  const restrictionOpacity = hasFailedRestriction ? "brightness-50" : "";
 
   // Self cost reduction indicator — green glow on hand cards that have an active
   // cost reduction (the card is cheaper than printed). Reads the static ability
@@ -82,7 +83,8 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
 
   // Unplayable hand card dim — same level as restriction (unified "can't interact"
   // signal; ink count in the inkwell already tells you recoverability).
-  const unplayableDim = zone === "hand" && isPlayable === false && !hasFailedRestriction ? "opacity-60" : "";
+  // brightness (not opacity) so fanned hand cards don't bleed through each other.
+  const unplayableDim = zone === "hand" && isPlayable === false && !hasFailedRestriction ? "brightness-50" : "";
 
   const handleKey = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); }
@@ -193,15 +195,22 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
     ward:       "lock-closed",
   };
 
-  const ringClass = isAttacker
-    ? "border-orange-400 ring-2 ring-orange-400/60 scale-105 z-10"
+  // Preserve the ink-color theme border as card identity; layer the state
+  // ring on top so the card doesn't lose its ink-color signal when selected,
+  // targeted, or attacking.
+  const stateRing = isAttacker
+    ? "ring-2 ring-orange-400/60 scale-105 z-10"
     : isSelected
-    ? "border-amber-400 ring-2 ring-amber-400/40 scale-105 z-10"
+    ? "ring-2 ring-amber-400/40 scale-105 z-10"
     : isTarget
-    ? "border-red-400 ring-2 ring-red-400/50 animate-pulse z-10"
-    : theme.border;
+    ? "ring-2 ring-red-400/50 animate-pulse z-10"
+    : "";
+  const ringClass = `${theme.border} ${stateRing}`;
 
-  const rotationClass = isExerted && !skipRotation ? "rotate-90 opacity-60"
+  // Exerted cards dim via brightness-50 unless they're a valid target for an
+  // action — a target card should stay bright so the red border is visible.
+  const rotationClass = isExerted && !skipRotation
+    ? `rotate-90 ${isTarget ? "" : "brightness-50"}`
     : isLocation && zone === "play" ? "rotate-90" : "";
   const baseClass = `game-card relative border-2 rounded-md sm:rounded-xl ${mobileWidth} sm:w-[104px] lg:w-[120px] shrink-0 cursor-pointer
     transition-all duration-200 ${ringClass} ${restrictionOpacity} ${costReductionGlow} ${unplayableDim}
