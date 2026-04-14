@@ -84,3 +84,43 @@ Note: `choose_target` and `choose_discard` already always created pending choice
 — they were never auto-resolving. `choose` with 1 feasible option still auto-
 resolves because CRD 6.1.5.2 mandates the forced pick (game rules, not UX skip).
 Bot/headless mode unchanged.
+
+---
+
+## GUI: `choose_from_revealed` now supports multi-pick + mandatory mode
+
+Engine refactor collapsed `one_to_hand_rest_bottom` into `up_to_n_to_hand_rest_bottom`
+and added `isMay` / `revealPicks` flags. The `choose_from_revealed` pending choice
+for look-at-top effects now has **three new behaviors** the GUI needs to handle:
+
+1. **Multi-pick** — `pendingEffect.maxToHand` can be > 1 (Look at This Family = 2,
+   Dig a Little Deeper = 2, Might Solve a Mystery = 2). The player should be able
+   to select 0..maxToHand cards from `validTargets` and submit all picks via a
+   single `RESOLVE_CHOICE` with `choice: [pick1, pick2, ...]`. Currently the UI
+   may only support single-pick.
+
+2. **Mandatory vs optional** — `pendingChoice.optional` now reflects
+   `effect.isMay ?? false`. When `false` (Dig a Little Deeper: "Put 2 into your
+   hand"), the player MUST pick exactly `min(maxToHand, validTargets.length)`
+   cards and cannot dismiss the modal. When `true` (Ariel: "you may reveal..."),
+   the player can pick 0..maxToHand. UI should grey out / disable a skip button
+   when `optional: false`.
+
+3. **Private vs public picks** — `pendingEffect.revealPicks` controls whether the
+   engine fires `card_revealed` events for the picks. DALD and Develop Your Brain
+   have `revealPicks: false` — picks should NOT be shown to the opponent (no
+   reveal overlay in multiplayer). The engine already handles this (no events
+   fired, so `lastRevealedCards` stays unset for those picks). GUI just needs to
+   trust the existing `lastRevealedCards` mechanism — no action needed if it
+   already drives the overlay off that field. **Verify**: the reveal overlay is
+   NOT shown for DALD in multiplayer (it should remain private info).
+
+Affected cards — see oracle text for exact semantics:
+- Mandatory + private: Dig a Little Deeper (2), Develop Your Brain (2),
+  Hen Wen's Visions, How Far I'll Go (2), Pete Ghost of Christmas Future,
+  Vision of the Future
+- May + reveal (the majority ~46 cards): Ariel Spectacular Singer, Nani Stage
+  Manager, Look at This Family, Jim Hawkins, Judy Hopps Uncovering Clues, etc.
+- Mandatory + reveal: Bambi Ethereal Fawn (reveal-all variant),
+  Invited to the Ball
+
