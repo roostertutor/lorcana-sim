@@ -9860,6 +9860,7 @@
                     "target": {
                       "type": "chosen",
                       "filter": {
+                        "zone": "play",
                         "cardType": [
                           "character",
                           "location"
@@ -9875,6 +9876,7 @@
                     "target": {
                       "type": "chosen",
                       "filter": {
+                        "zone": "play",
                         "cardType": [
                           "character",
                           "location"
@@ -11333,6 +11335,7 @@
             "target": {
               "type": "chosen",
               "filter": {
+                "zone": "play",
                 "cardType": [
                   "character"
                 ]
