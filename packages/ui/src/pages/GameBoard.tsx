@@ -556,7 +556,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       document.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [inspectCardId]);
+  }, [inspectCardId, inspectModalOpen]);
   const [autoPassP2, setAutoPassP2] = useState(true);
   const [revealHandDismissed, setRevealHandDismissed] = useState(false);
   const lastRevealRef = useRef<string | null>(null);

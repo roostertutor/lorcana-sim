@@ -212,13 +212,48 @@ export default function CardInspectModal({ instanceId, gameState, definitions, a
                 {instance.timedEffects.map((te: any, i: number) => {
                   const srcInst = te.sourceInstanceId ? gameState.cards[te.sourceInstanceId] : undefined;
                   const srcDef = srcInst ? definitions[srcInst.definitionId] : undefined;
-                  // Find the ability on the source card that produced this effect
-                  const srcAbility = srcDef?.abilities.find((a: any) =>
-                    a.type !== "keyword" && (a.rulesText || a.storyName)
-                  ) as { storyName?: string; rulesText?: string } | undefined;
-                  const srcText = srcAbility
-                    ? (srcAbility.storyName ? `${srcAbility.storyName} — ${srcAbility.rulesText ?? ""}` : (srcAbility.rulesText ?? ""))
-                    : (srcDef?.rulesText ?? "");
+                  // Engine stamps `sourceStoryName` on TimedEffects created
+                  // by gain_stats (covers Support's synthesized trigger AND
+                  // explicit triggered abilities). Use it directly when
+                  // present — no more guessing which ability produced this.
+                  const stampedStoryName = te.sourceStoryName as string | undefined;
+                  // Find a matching ability on the source card to pull
+                  // rulesText for the stamped storyName.
+                  const stampedAbility = stampedStoryName
+                    ? srcDef?.abilities.find((a: any) => a.storyName === stampedStoryName) as { storyName: string; rulesText?: string } | undefined
+                    : undefined;
+                  // For TimedEffects without sourceStoryName (e.g. grant_keyword,
+                  // damage_prevention — not yet wired engine-side), fall back
+                  // to the legacy guess: pick the first non-keyword ability or
+                  // the keyword on the timed effect itself.
+                  const fallbackAbility = !stampedStoryName
+                    ? srcDef?.abilities.find((a: any) =>
+                        a.type !== "keyword" && (a.rulesText || a.storyName)
+                      ) as { storyName?: string; rulesText?: string } | undefined
+                    : undefined;
+                  let srcText: string;
+                  if (stampedStoryName && stampedAbility) {
+                    srcText = `${stampedStoryName} — ${stampedAbility.rulesText ?? ""}`;
+                  } else if (stampedStoryName) {
+                    // Synthesized keyword (e.g. "Support") with no matching
+                    // ability entry on the card — display the storyName alone.
+                    srcText = stampedStoryName;
+                  } else if (fallbackAbility) {
+                    srcText = fallbackAbility.storyName
+                      ? `${fallbackAbility.storyName} — ${fallbackAbility.rulesText ?? ""}`
+                      : (fallbackAbility.rulesText ?? "");
+                  } else if (te.keyword) {
+                    srcText = capitalize(te.keyword);
+                  } else if (srcDef) {
+                    const sourceKws = srcDef.abilities
+                      .filter((a: any) => a.type === "keyword" && a.keyword)
+                      .map((a: any) => capitalize(a.keyword as string));
+                    srcText = sourceKws.length > 0
+                      ? sourceKws.join(", ")
+                      : (srcDef.rulesText ?? "");
+                  } else {
+                    srcText = "";
+                  }
                   const srcName = srcDef?.fullName ?? "Unknown";
                   const duration = formatDuration(te.expiresAt);
                   return (
