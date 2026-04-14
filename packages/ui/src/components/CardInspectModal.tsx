@@ -61,10 +61,14 @@ export default function CardInspectModal({ instanceId, gameState, definitions, a
   return (
     <div
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm"
-      onClick={onClose}
+      // Only close when the actual backdrop is tapped, not when a scroll or
+      // momentum touch bubbles up from inside content. stopPropagation on
+      // the inner content handles descendant clicks but iOS touch momentum
+      // can still synthesize clicks on the backdrop.
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
-        className="relative bg-gray-950 border border-gray-800 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm shadow-2xl pb-safe max-h-[90vh] overflow-y-auto"
+        className="relative bg-gray-950 border border-gray-800 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm shadow-2xl pb-[env(safe-area-inset-bottom,16px)] max-h-[90dvh] sm:max-h-[90vh] overflow-y-auto overscroll-contain"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}

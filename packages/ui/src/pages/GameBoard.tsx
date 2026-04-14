@@ -528,8 +528,12 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   // empty board space, scoreboard, utility strip) or presses Escape. Clicks
   // on another card are handled by handleClick which toggles/swaps inspectCardId;
   // clicks on the popover itself stopPropagation so won't reach this listener.
+  // Disabled while the full Card Inspect modal is open — that modal has its
+  // own backdrop-click close handler, and otherwise the global pointerdown
+  // here treats modal taps (scrolling content, etc.) as "outside" clicks
+  // and dismisses both modal AND popover.
   useEffect(() => {
-    if (!inspectCardId) return;
+    if (!inspectCardId || inspectModalOpen) return;
     const onPointerDown = (e: PointerEvent) => {
       const target = e.target as HTMLElement | null;
       if (!target) return;
@@ -1556,15 +1560,18 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           </div>
         )}
 
+        {/* ---- Opponent hand — hoisted OUT of the opponent zone so that
+               the opponent/player zones compete for equal flex-1 vertical
+               space and end up with equal effective play-area heights.
+               Only the hand strip heights differ between players. ---- */}
+        {p2Zones.hand.length > 0 && (
+          <div className="shrink-0 h-6 sm:h-16 overflow-hidden flex flex-nowrap items-end justify-center -mx-3 px-2 md:mx-0">
+            {p2Zones.hand.map((id, i) => renderCardWithActions(id, "hand", true, i, p2Zones.hand.length, true))}
+          </div>
+        )}
+
         {/* ---- Opponent zone ---- */}
         <div className={`flex-1 min-h-0 flex flex-col -mx-3 px-2 md:mx-0 rounded-xl bg-gradient-to-b from-red-950/10 to-transparent border p-2 transition-colors duration-300 ${!isYourTurn ? "border-red-600/50" : "border-gray-800/30"}`}>
-          {/* Opponent hand — face-down, clipped to just show card tops.
-              Shorter on mobile to reclaim vertical space for the board. */}
-          {p2Zones.hand.length > 0 && (
-            <div className="shrink-0 h-6 sm:h-16 overflow-hidden flex flex-nowrap items-end justify-center mb-0.5 sm:mb-1">
-              {p2Zones.hand.map((id, i) => renderCardWithActions(id, "hand", true, i, p2Zones.hand.length, true))}
-            </div>
-          )}
           {/* Opponent utility strip */}
           <UtilityStrip
             deckCount={p2Zones.deck.length}
@@ -1681,17 +1688,19 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             gameModifiers={gameModifiers}
             playerId={myId}
           />
+        </div>
 
-
-          {/* Hand */}
-          <div className="shrink-0 mt-1">
-            <div className="h-20 overflow-hidden flex flex-nowrap items-start justify-center md:h-auto md:overflow-hidden md:flex-wrap md:max-h-[260px] lg:max-h-[355px] md:p-1 md:min-h-[80px]">
-              {p1Zones.hand.length === 0 ? (
-                <span className="text-gray-700 text-xs italic self-center">Empty hand</span>
-              ) : (
-                p1Zones.hand.map((id, i) => renderCardWithActions(id, "hand", false, i, p1Zones.hand.length))
-              )}
-            </div>
+        {/* ---- Player hand — hoisted OUT of the player zone so that the
+               opponent/player zones compete for equal flex-1 vertical space
+               and end up with equal effective play-area heights. Only the
+               hand strip heights differ between players. ---- */}
+        <div className="shrink-0 mt-1 -mx-3 px-2 md:mx-0">
+          <div className="h-20 overflow-hidden flex flex-nowrap items-start justify-center md:h-auto md:overflow-hidden md:flex-wrap md:max-h-[260px] lg:max-h-[355px] md:p-1 md:min-h-[80px]">
+            {p1Zones.hand.length === 0 ? (
+              <span className="text-gray-700 text-xs italic self-center">Empty hand</span>
+            ) : (
+              p1Zones.hand.map((id, i) => renderCardWithActions(id, "hand", false, i, p1Zones.hand.length))
+            )}
           </div>
         </div>
 
