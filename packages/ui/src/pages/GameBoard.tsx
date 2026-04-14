@@ -564,7 +564,14 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   }
   // Revealed cards (search/look-at-top) — track which reveal was dismissed by key
   const [dismissedRevealKey, setDismissedRevealKey] = useState<string | null>(null);
-  const currentRevealCardsKey = session.gameState?.lastRevealedCards?.instanceIds.join(",") ?? null;
+  // Include sequenceId so an undo-then-redo that reveals the same card(s)
+  // produces a distinct key and the overlay re-appears (content-only key
+  // would collide and stay dismissed). Engine increments sequenceId on
+  // every reveal-producing action.
+  const currentRevealCardsKey = (() => {
+    const rc = session.gameState?.lastRevealedCards;
+    return rc ? `${rc.sequenceId}:${rc.instanceIds.join(",")}` : null;
+  })();
   const showRevealCards = currentRevealCardsKey !== null && currentRevealCardsKey !== dismissedRevealKey;
 
   const p1Parse = useMemo(() => parseDecklist(p1DeckText, definitions), [p1DeckText, definitions]);
