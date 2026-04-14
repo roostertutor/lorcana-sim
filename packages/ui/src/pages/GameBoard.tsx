@@ -868,9 +868,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [multiplayerGame]);
 
-  // Solo mode: auto-start with deck from lobby, bot plays P2
+  // Solo mode: auto-start with deck from lobby, bot plays P2. Re-fires whenever
+  // session.gameState transitions to null (initial mount + after "Play Again"
+  // in the victory modal, which calls session.reset()). Bails if a game is
+  // already running or if the user is reviewing a replay.
   useEffect(() => {
     if (!onBack || sandboxMode || multiplayerGame) return;
+    if (session.gameState || replayData) return;
     session.startGame({
       player1Deck: initialDeck ?? [],
       player2Deck: initialDeck ?? [],
@@ -880,7 +884,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       player2IsHuman: false,
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // run once on mount
+  }, [session.gameState, replayData]);
 
   // Sandbox: restore from sessionStorage (HMR survival) or start fresh
   useEffect(() => {
