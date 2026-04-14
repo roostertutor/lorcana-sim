@@ -62,6 +62,9 @@ export interface GameSession {
   completedGame: ReplayData | null;
   /** True when there are actions to undo (local mode, non-game-over only) */
   canUndo: boolean;
+  /** Number of actions applied since game start; decreases on undo. Used by UI
+   *  components that need to detect undos to reset transient dismiss state. */
+  actionCount: number;
   /** Realtime connection status (multiplayer only) */
   connectionStatus: "connected" | "reconnecting" | null;
   /** Next game ID in a Bo3 match (set when current game ends and match continues) */
@@ -527,6 +530,7 @@ export function useGameSession(): GameSession {
     error,
     completedGame,
     canUndo,
+    actionCount,
     connectionStatus,
     nextGameId,
     startGame,

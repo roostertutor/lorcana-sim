@@ -105,34 +105,15 @@ Behavior:
 
 ---
 
-~~## GUI: update reveal overlay key to use `lastRevealedCards.sequenceId`~~ **PARTIAL — still broken for undo+re-quest**
+~~## GUI: update reveal overlay key to use `lastRevealedCards.sequenceId`~~ **DONE**
 
-`currentRevealCardsKey` now prefixes with `sequenceId` — works for consecutive
-reveals within a play-through (e.g. reveal card X, dismiss, reveal card X
-again via a different trigger → different sequenceId → overlay shows).
-
-**But undo+re-quest is still broken** because the engine's sequenceId is
-state-derived (`(state.lastRevealedCards?.sequenceId ?? 0) + 1`) and
-`reconstructState` replays actions from the initial state, so the counter
-resets to 0 after undo. Re-questing Daisy Duck after undo produces the
-same sequenceId as the undone quest — identical key, overlay stays hidden.
-
-The engine CANNOT fix this while remaining deterministic (any state-derived
-counter necessarily produces the same value for the same action sequence).
-
-**Fix — UI side:** clear `dismissedRevealKey` when `actionCount` decreases
-(i.e. on undo). Something like:
-```ts
-const prevActionCount = useRef(session.actionCount);
-useEffect(() => {
-  if (session.actionCount < prevActionCount.current) {
-    setDismissedRevealKey(null); // undo happened — forget prior dismissals
-  }
-  prevActionCount.current = session.actionCount;
-}, [session.actionCount]);
-```
-This resets the dismiss-tracker whenever the user undoes, so a re-quest that
-produces the same reveal key counts as "not yet dismissed."
+Two-part fix landed:
+1. `currentRevealCardsKey` prefixes `sequenceId` so back-to-back reveals of
+   the same cards produce distinct keys during normal play.
+2. `useGameSession` now exposes `actionCount`; GameBoard watches it via a
+   ref and resets `dismissedRevealKey` when it decreases (undo detected).
+   This handles the quest → dismiss → undo → re-quest case where engine's
+   state-derived sequenceId resets to 1.
 
 ---
 

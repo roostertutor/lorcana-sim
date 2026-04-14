@@ -564,14 +564,27 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   }
   // Revealed cards (search/look-at-top) — track which reveal was dismissed by key
   const [dismissedRevealKey, setDismissedRevealKey] = useState<string | null>(null);
-  // Include sequenceId so an undo-then-redo that reveals the same card(s)
-  // produces a distinct key and the overlay re-appears (content-only key
-  // would collide and stay dismissed). Engine increments sequenceId on
-  // every reveal-producing action.
+  // Include sequenceId so back-to-back reveals of the same cards produce
+  // distinct keys during normal play. Engine increments sequenceId on every
+  // reveal-producing action, so "reveal A, dismiss, reveal A again via a
+  // different trigger" works (different sequenceId → overlay shows).
   const currentRevealCardsKey = (() => {
     const rc = session.gameState?.lastRevealedCards;
     return rc ? `${rc.sequenceId}:${rc.instanceIds.join(",")}` : null;
   })();
+  // Undo case: engine's sequenceId is state-derived (replay reconstructs from
+  // the initial state), so it resets to 1 after undo. A "quest Daisy →
+  // dismiss → undo → quest Daisy again" would otherwise keep the overlay
+  // hidden because the re-quest produces the same key as the dismissed one.
+  // We detect undo by watching for actionCount decreases and reset the
+  // dismiss tracker — the next reveal will show fresh.
+  const prevActionCount = useRef(session.actionCount);
+  useEffect(() => {
+    if (session.actionCount < prevActionCount.current) {
+      setDismissedRevealKey(null);
+    }
+    prevActionCount.current = session.actionCount;
+  }, [session.actionCount]);
   const showRevealCards = currentRevealCardsKey !== null && currentRevealCardsKey !== dismissedRevealKey;
 
   const p1Parse = useMemo(() => parseDecklist(p1DeckText, definitions), [p1DeckText, definitions]);
