@@ -6223,7 +6223,7 @@
           {
             "type": "look_at_top",
             "count": 4,
-            "action": "one_to_play_for_free_rest_bottom",
+            "action": "one_to_play_for_free",
             "filter": {
               "cardType": [
                 "action"
@@ -13276,7 +13276,7 @@
           {
             "type": "look_at_top",
             "count": 4,
-            "action": "one_to_play_for_free_rest_bottom",
+            "action": "one_to_play_for_free",
             "filter": {
               "cardType": [
                 "action"

@@ -1175,8 +1175,11 @@ export interface LookAtTopEffect {
     | "reorder"
     | "up_to_n_to_hand_rest_bottom"
     | "one_to_inkwell_exerted_rest_top"
-    | "one_to_play_for_free_rest_bottom"
-    | "one_to_play_for_free_rest_discard"
+    /** "may reveal a matching card and play it for free; put the rest
+     *  in your discard / on the bottom of your deck" — unified action.
+     *  Powerline World's Greatest Rock Star (restPlacement: "bottom"),
+     *  Robin Hood Sharpshooter (restPlacement: "discard"). */
+    | "one_to_play_for_free"
     /** Kristoff's Lute MOMENT OF INSPIRATION — reveal top, may play for free,
      *  otherwise put it into discard. count is implicitly 1. */
     | "may_play_for_free_else_discard"
@@ -1195,9 +1198,11 @@ export interface LookAtTopEffect {
   filters?: CardFilter[];
   /** For "up_to_n_to_hand_rest_bottom": max number of cards to put into hand (Look at This Family = 2, Dig a Little Deeper = 2). */
   maxToHand?: number;
-  /** For "up_to_n_to_hand_rest_bottom": where the unchosen cards go. Default
-   *  "bottom" (Dig a Little Deeper). The Family Madrigal uses "top". */
-  restPlacement?: "top" | "bottom";
+  /** Where the unchosen cards go. Default "bottom".
+   *  - "bottom" — The Family Madrigal rest, DYB, Powerline
+   *  - "top"    — The Family Madrigal uses top
+   *  - "discard"— Robin Hood Sharpshooter "put the rest in your discard" */
+  restPlacement?: "top" | "bottom" | "discard";
   target: PlayerTarget;
   /** CRD 6.1.4: player may choose not to apply this effect. For
    *  "up_to_n_to_hand_rest_bottom" specifically: when true, phase 2 (the pick)

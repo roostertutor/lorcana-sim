@@ -6624,7 +6624,8 @@
           {
             "type": "look_at_top",
             "count": 4,
-            "action": "one_to_play_for_free_rest_discard",
+            "action": "one_to_play_for_free",
+            "restPlacement": "discard",
             "filter": {
               "cardType": [
                 "action"
@@ -12096,7 +12097,8 @@
           {
             "type": "look_at_top",
             "count": 4,
-            "action": "one_to_play_for_free_rest_discard",
+            "action": "one_to_play_for_free",
+            "restPlacement": "discard",
             "filter": {
               "cardType": [
                 "action"

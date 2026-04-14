@@ -510,10 +510,17 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
         return `${base}. Put them back in any order`;
       case "one_to_inkwell_exerted_rest_top":
         return `${base}. You may put one into your inkwell facedown and exerted`;
-      case "one_to_play_for_free_rest_bottom":
-        return `${base}. You may reveal ${filter} and play it for free. Put the rest on the bottom of your deck in any order`;
-      case "one_to_play_for_free_rest_discard":
-        return `${base}. You may reveal ${filter} and play it for free. Put the rest in your discard`;
+      case "one_to_play_for_free": {
+        // restPlacement: "bottom" (Powerline — default), "discard" (Robin Hood
+        // Sharpshooter), "top" (not used today but legal).
+        const placement = e.restPlacement ?? "bottom";
+        const restClause = placement === "discard"
+          ? "Put the rest in your discard"
+          : placement === "top"
+            ? "Put the rest back on top of your deck"
+            : "Put the rest on the bottom of your deck in any order";
+        return `${base}. You may reveal ${filter} and play it for free. ${restClause}`;
+      }
       // Kristoff's Lute MOMENT OF INSPIRATION — count is implicitly 1.
       case "may_play_for_free_else_discard":
         return `reveal the top card of your deck. You may play it as if it were in your hand. Otherwise, put it in your discard`;

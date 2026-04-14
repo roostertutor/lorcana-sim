@@ -3623,12 +3623,12 @@ export function applyEffect(
           state = reorderDeckTopToBottom(state, targetPlayer, toBottom, []);
           return state;
         }
-        case "one_to_play_for_free_rest_bottom":
-        case "one_to_play_for_free_rest_discard": {
-          // Powerline World's Greatest Rock Star (rest_bottom): look at top N,
-          // may reveal a matching card and play it for free, rest to bottom.
-          // Robin Hood Sharpshooter (rest_discard): same but rest goes to
-          // discard instead. Headless heuristic: pick first matching card.
+        case "one_to_play_for_free": {
+          // "Look at top N, may reveal a matching card and play it for free.
+          // Put the rest [on bottom | in discard | on top]." Unified action —
+          // restPlacement decides where the unrevealed cards go.
+          // Powerline World's Greatest Rock Star: restPlacement "bottom".
+          // Robin Hood Sharpshooter: restPlacement "discard".
           const matchIdx = effect.filter
             ? topCards.findIndex((id) => {
                 const inst = state.cards[id];
@@ -3638,12 +3638,15 @@ export function applyEffect(
                 return matchesFilter(inst, def, effect.filter!, state, controllingPlayerId);
               })
             : -1;
-          const restToDiscard = effect.action === "one_to_play_for_free_rest_discard";
+          const restPlacement = effect.restPlacement ?? "bottom";
           const moveRest = (ids: string[]) => {
-            if (restToDiscard) {
+            if (restPlacement === "discard") {
               for (const id of ids) {
                 state = moveCard(state, id, targetPlayer, "discard");
               }
+            } else if (restPlacement === "top") {
+              // Default behavior — cards stay on top in original order after
+              // the match is removed via moveCard. No reorder needed.
             } else {
               state = reorderDeckTopToBottom(state, targetPlayer, ids, []);
             }
