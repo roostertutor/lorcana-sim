@@ -413,6 +413,38 @@ the actual bugs that drove the user's "we keep finding bugs" observation.
 Renderer cosmetic gaps can stay as-is or be addressed if the renderer
 is enhanced.
 
+### Novel card wordings seen once — revisit if pattern repeats
+
+**Pluto - Clever Cluefinder (set 10) ON THE TRAIL** — first card seen with
+the "choose X, then route based on condition to destination A or
+destination B" structure:
+
+> "{E} — If you have a Detective character in play, return an item card
+> from your discard to your hand. **Otherwise, put it on the top of your
+> deck.**"
+
+Reading confirmed with user (2026-04-14): "it" refers to the chosen item
+from discard. So the effect is:
+1. Choose an item card from your discard
+2. If you have a Detective character in play → to hand
+3. Otherwise → to top of your own deck
+
+This is NOT the more common "reveal top, then route back" pattern
+(Tiana/Merlin/"YOU JUST HAVE TO SEE IT") — the chooser picks from
+*discard* and the destination flips based on a board condition, not based
+on what was revealed. No CRD grammar for this explicitly.
+
+Engine doesn't currently support "move chosen-from-discard to top of
+deck" as an effect primitive. Options if more cards ship with this
+pattern:
+- Extend `put_card_on_bottom_of_deck` with `position?: "top" | "bottom"`
+  (name becomes misleading but minimal churn).
+- Add a sibling `put_card_on_top_of_deck` effect type.
+- `conditional_on_player_state` wrapping different destination effects
+  (runs two choosers — UX is worse because player picks twice).
+
+Currently unimplemented. Revisit when a second card surfaces this.
+
 ---
 
 ## Rulings TBD
