@@ -3,7 +3,7 @@
 # Cross-references all docs in docs/ folder.
 # Does NOT replace SPEC.md or DECISIONS.md.
 #
-# Last updated: 2026-04-12 (GUI review session: full mechanic visualization audit, sandbox tooling, color scheme unification)
+# Last updated: 2026-04-14 (nav consistency + saved decks: Sandbox/Simulate moved to dev-only URL routes, saved deck CRUD via Supabase, Multiplayer deck picker, Ravensburger disclaimer footer)
 
 ---
 
@@ -586,6 +586,39 @@ Engine is in maintenance mode. New work limited to:
 - Bug fixes surfaced by sandbox / multiplayer testing
 - Interactive mode improvements (`card_revealed`, pending choice UX)
 - Future set imports when released
+
+---
+
+## Decks Page Direction
+
+*Decision made 2026-04-14: keep copy-paste as primary, add deckbuilder affordances incrementally.*
+
+**Rationale:**
+- Most Lorcana players already build decks in Dreamborn, Inkdecks, or the official TCG site — they want to paste and go
+- A full deckbuilder is a massive project that competes with dedicated tools
+- App value prop is analytics + multiplayer, not deckbuilding
+- Textarea with smart features gets 80% of the deckbuilder value for 10% of the work
+
+**Current state ✅ (2026-04-14):**
+- Saved decks in Supabase (one per user per name), CRUD via `lib/deckApi.ts`
+- DecksPage: signed-out paste+analyze; signed-in deck list + editor + composition view
+- MultiplayerLobby: deck picker with Saved Decks / Paste toggle
+
+**Progression (do on demand, not upfront):**
+```
+1. Card name autocomplete in the textarea
+2. Inline card preview on hover (hover card name → show image)
+3. "Add card" search box that appends to the textarea
+4. Set legality validation (core vs infinity)
+5. Full visual builder — ONLY if users ask for it
+```
+
+**Explicitly NOT building (yet):**
+- Drag-to-add card browser with filters
+- Ink curve / card type visual breakdowns beyond existing CompositionView
+- Deckbuilder-specific tools (mana curve warnings, archetype suggestions)
+- Deck sharing via public URL (private-only for now)
+- Deck import from external URLs (Dreamborn/Inkdecks API)
 
 ---
 
