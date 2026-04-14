@@ -1984,12 +1984,11 @@
         "storyName": "SOUL COLLECTOR",
         "rulesText": "Whenever one of your other characters is banished during the opponent's turn, gain 2 lore.",
         "trigger": {
-          "on": "banished_other_in_challenge",
+          "on": "is_banished",
           "filter": {
             "owner": {
               "type": "self"
             },
-            "zone": "play",
             "cardType": [
               "character"
             ],
@@ -1998,7 +1997,7 @@
         },
         "condition": {
           "type": "not",
-          "inner": {
+          "condition": {
             "type": "is_your_turn"
           }
         },

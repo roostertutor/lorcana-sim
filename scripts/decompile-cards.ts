@@ -160,7 +160,11 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
   enters_play:                   ()  => "When you play this character",
   leaves_play:                   ()  => "When this character leaves play",
   is_banished:                   (t) => t.filter ? `Whenever one of your ${renderFilter(t.filter)} is banished` : "When this character is banished",
-  banished_in_challenge:         (t) => t.filter?.owner?.type === "self" ? "Whenever one of your other characters is banished in a challenge" : "When this character is challenged and banished",
+  banished_in_challenge:         (t) => {
+    if (t.filter?.owner?.type === "self") return "Whenever one of your other characters is banished in a challenge";
+    if (t.filter?.excludeSelf) return "Whenever another character is banished in a challenge";
+    return "When this character is challenged and banished";
+  },
   banished_other_in_challenge:   (t) => t.filter ? `Whenever this character banishes ${renderFilter(t.filter)} in a challenge` : "Whenever this character banishes another character in a challenge",
   banishes_in_challenge:         ()  => "Whenever this character banishes another character in a challenge",
   // Legacy spelling alias.
@@ -333,12 +337,17 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     if (typeof e.untilHandSize === "number") {
       return `${maybe(e)}draw cards until you have ${e.untilHandSize} cards in your hand`;
     }
+    // Subject framing: target=both → "each player draws N", target=opponent → "each opponent draws N".
+    // Default (self) keeps the original "draw N cards" phrasing.
+    const subject = e.target?.type === "both" ? "each player draws " :
+                    e.target?.type === "opponent" ? "each opponent draws " :
+                    "draw ";
     const amt = e.amount ?? 1;
     if (typeof amt !== "number") {
-      return `${maybe(e)}draw cards equal to ${renderAmount(amt)}`;
+      return `${maybe(e)}${subject}cards equal to ${renderAmount(amt)}`;
     }
-    if (amt === 1) return `${maybe(e)}draw a card`;
-    return `${maybe(e)}draw ${amt} cards`;
+    if (amt === 1) return `${maybe(e)}${subject}a card`;
+    return `${maybe(e)}${subject}${amt} cards`;
   },
   discard:            (e) => `${maybe(e)}discard ${e.amount ?? 1} card${plural(e.amount ?? 1)}`,
   discard_from_hand:  (e) => {
@@ -503,6 +512,17 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
         return `${base}. You may put one into your inkwell facedown and exerted`;
       case "one_to_play_for_free_rest_bottom":
         return `${base}. You may reveal ${filter} and play it for free. Put the rest on the bottom of your deck in any order`;
+      case "one_to_play_for_free_rest_discard":
+        return `${base}. You may reveal ${filter} and play it for free. Put the rest in your discard`;
+      // Kristoff's Lute MOMENT OF INSPIRATION — count is implicitly 1.
+      case "may_play_for_free_else_discard":
+        return `reveal the top card of your deck. You may play it as if it were in your hand. Otherwise, put it in your discard`;
+      // We Know the Way — look at top 1, may play for free if matches, else hand.
+      case "one_to_play_for_free_else_to_hand":
+        return `${base}. You may reveal ${filter} and play it for free. Otherwise, put it into your hand`;
+      // Fred Giant-Sized I LIKE WHERE THIS IS HEADING — reveal until first match.
+      case "reveal_until_match_to_hand_shuffle_rest":
+        return `reveal cards from the top of your deck until you reveal ${filter}. Put that card into your hand and shuffle the others back into your deck`;
       default:
         return base;
     }
@@ -940,7 +960,16 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
 function renderEffect(e: Json): string {
   if (!e || !e.type) return "[empty-effect]";
   const fn = EFFECT_RENDERERS[e.type];
-  return fn ? fn(e) : `[unknown:${e.type}]`;
+  const body = fn ? fn(e) : `[unknown:${e.type}]`;
+  // Effect-level condition: "If [condition], [effect]" (Marching Off to Battle,
+  // Enigmatic Inkcaster, etc.). The condition wraps the effect so the renderer
+  // doesn't drop the conditional gating.
+  if (e.condition) {
+    const cond = renderCondition(e.condition);
+    const stripped = cond.startsWith("if ") || cond.startsWith("If ") ? cond.slice(3) : cond;
+    return `if ${stripped}, ${body}`;
+  }
+  return body;
 }
 
 // -----------------------------------------------------------------------------

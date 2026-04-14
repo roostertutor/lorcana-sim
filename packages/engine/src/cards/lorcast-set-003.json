@@ -1603,6 +1603,12 @@
     ],
     "actionEffects": [
       {
+        "type": "reveal_hand",
+        "target": {
+          "type": "opponent"
+        }
+      },
+      {
         "type": "discard_from_hand",
         "amount": 1,
         "target": {
@@ -3632,11 +3638,43 @@
         ],
         "effects": [
           {
-            "type": "draw",
-            "amount": 2,
-            "target": {
-              "type": "self"
-            }
+            "type": "conditional_on_player_state",
+            "condition": {
+              "type": "characters_in_play_gte",
+              "amount": 1,
+              "player": { "type": "self" },
+              "hasName": "Jafar"
+            },
+            "thenEffects": [
+              {
+                "type": "draw",
+                "amount": 2,
+                "target": { "type": "self" }
+              }
+            ],
+            "elseEffects": []
+          },
+          {
+            "type": "conditional_on_player_state",
+            "condition": {
+              "type": "characters_in_play_gte",
+              "amount": 1,
+              "player": { "type": "self" },
+              "hasName": "Genie"
+            },
+            "thenEffects": [
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "cardType": ["character"],
+                    "costAtMost": 4
+                  }
+                }
+              }
+            ],
+            "elseEffects": []
           }
         ]
       }
