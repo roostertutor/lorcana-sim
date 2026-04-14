@@ -1436,7 +1436,7 @@
       {
         "type": "look_at_top",
         "count": 5,
-        "action": "up_to_n_to_hand_rest_bottom",
+        "action": "choose_from_top",
         "maxToHand": 2,
         "filter": {
           "cardType": [
@@ -8567,7 +8567,7 @@
           {
             "type": "look_at_top",
             "count": 4,
-            "action": "up_to_n_to_hand_rest_bottom",
+            "action": "choose_from_top",
             "filter": {
               "cardType": [
                 "item"
@@ -8658,7 +8658,7 @@
           {
             "type": "look_at_top",
             "count": 4,
-            "action": "up_to_n_to_hand_rest_bottom",
+            "action": "choose_from_top",
             "maxToHand": 1,
             "filter": {
               "cardType": [
@@ -9057,7 +9057,7 @@
       {
         "type": "look_at_top",
         "count": 7,
-        "action": "up_to_n_to_hand_rest_bottom",
+        "action": "choose_from_top",
         "maxToHand": 2,
         "target": {
           "type": "self"
@@ -11488,7 +11488,7 @@
       {
         "type": "look_at_top",
         "count": 5,
-        "action": "up_to_n_to_hand_rest_bottom",
+        "action": "choose_from_top",
         "maxToHand": 2,
         "filter": {
           "cardType": [
@@ -12186,7 +12186,7 @@
           {
             "type": "look_at_top",
             "count": 4,
-            "action": "up_to_n_to_hand_rest_bottom",
+            "action": "choose_from_top",
             "maxToHand": 1,
             "filter": {
               "cardType": [

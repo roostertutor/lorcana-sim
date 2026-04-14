@@ -1586,7 +1586,7 @@
           {
             "type": "look_at_top",
             "count": 4,
-            "action": "up_to_n_to_hand_rest_bottom",
+            "action": "choose_from_top",
             "maxToHand": 1,
             "target": {
               "type": "self"
@@ -8834,7 +8834,7 @@
           {
             "type": "look_at_top",
             "count": 3,
-            "action": "up_to_n_to_hand_rest_bottom",
+            "action": "choose_from_top",
             "maxToHand": 1,
             "target": {
               "type": "self"
@@ -8861,7 +8861,7 @@
           {
             "type": "look_at_top",
             "count": 3,
-            "action": "up_to_n_to_hand_rest_bottom",
+            "action": "choose_from_top",
             "maxToHand": 1,
             "target": {
               "type": "self"
@@ -8925,7 +8925,9 @@
             "condition": {
               "type": "has_character_with_trait",
               "trait": "Detective",
-              "player": { "type": "self" }
+              "player": {
+                "type": "self"
+              }
             },
             "thenEffects": [
               {
@@ -8933,9 +8935,13 @@
                 "target": {
                   "type": "chosen",
                   "filter": {
-                    "owner": { "type": "self" },
+                    "owner": {
+                      "type": "self"
+                    },
                     "zone": "discard",
-                    "cardType": ["item"]
+                    "cardType": [
+                      "item"
+                    ]
                   }
                 }
               }
@@ -8945,9 +8951,13 @@
                 "type": "search",
                 "zone": "discard",
                 "filter": {
-                  "cardType": ["item"]
+                  "cardType": [
+                    "item"
+                  ]
                 },
-                "target": { "type": "self" },
+                "target": {
+                  "type": "self"
+                },
                 "putInto": "deck",
                 "position": "top"
               }
@@ -9209,7 +9219,7 @@
       {
         "type": "look_at_top",
         "count": 4,
-        "action": "up_to_n_to_hand_rest_bottom",
+        "action": "choose_from_top",
         "target": {
           "type": "self"
         },
@@ -9308,7 +9318,7 @@
       {
         "type": "look_at_top",
         "count": 4,
-        "action": "up_to_n_to_hand_rest_bottom",
+        "action": "choose_from_top",
         "maxToHand": 2,
         "target": {
           "type": "self"

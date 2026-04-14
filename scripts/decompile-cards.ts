@@ -502,21 +502,35 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     const base = `look at the top ${count} card${plural(count)} of your deck`;
     const filter = e.filter ? renderFilter(e.filter) : "a card";
     switch (e.action) {
-      case "up_to_n_to_hand_rest_bottom":
-        if ((e.maxToHand ?? 1) === 1) {
+      case "choose_from_top": {
+        // Generalized chooser. pickDestination + restPlacement drive the rendering.
+        const pickDest = e.pickDestination ?? "hand";
+        const rest = e.restPlacement ?? "bottom";
+        const maxPick = e.maxToHand ?? 1;
+        if (pickDest === "deck_top") {
+          // Ursula's Cauldron, Merlin Turtle: "put one on the top and the other on the bottom".
+          if (count === 2 && maxPick === 1 && rest === "bottom") {
+            return `${base}. Put one on the top of your deck and the other on the bottom`;
+          }
+          return `${base}. Keep ${maxPick} on top. Put the rest on the ${rest} of your deck`;
+        }
+        if (pickDest === "inkwell_exerted") {
+          return `${base}. You may put one into your inkwell facedown and exerted`;
+        }
+        // pickDestination "hand" (default)
+        if (maxPick === 1) {
           if (count === 2 && !e.filter) {
             return `${base}. Put one into your hand and the other on the bottom of your deck`;
           }
           return `${base}. You may reveal ${filter} and put it into your hand. Put the rest on the bottom of your deck in any order`;
         }
         return `${base}. You may put each ${filter} into your hand. Put the rest on the bottom of your deck in any order`;
+      }
       case "top_or_bottom":
         if (count === 2) return `${base}. Put one on the top of your deck and the other on the bottom`;
         return `${base}. Put it on either the top or the bottom of your deck`;
       case "reorder":
         return `${base}. Put them back in any order`;
-      case "one_to_inkwell_exerted_rest_top":
-        return `${base}. You may put one into your inkwell facedown and exerted`;
       case "peek_and_set_target": {
         // Pure chooser: peek top N, set lastResolvedTarget (via subsequent
         // effect like play_for_free). Renderer assumes the next effect is

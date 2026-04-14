@@ -2060,34 +2060,53 @@ function applyResolveChoice(
       return state;
     }
 
-    // look_at_top: picked card(s) to hand, rest go to bottom.
-    // Supports multi-pick (Look at This Family maxToHand=2, Dig a Little
-    // Deeper maxToHand=2). revealPicks controls whether picked cards are
-    // revealed to opponent ("you may reveal X" = true, "put N" = false).
+    // look_at_top (choose_from_top): picked card(s) go to pickDestination,
+    // rest go to restPlacement.
+    // Supports multi-pick (Look at This Family maxToHand=2, DALD maxToHand=2).
+    // pickDestination:
+    //   - "hand" (default): Develop Your Brain, Ariel, Nani, LatF, DALD, etc.
+    //   - "deck_top": Ursula's Cauldron, Merlin Turtle (picked stays at top).
+    //   - "inkwell_exerted": Kida Creative Thinker.
+    // revealPicks controls whether picked cards are publicly revealed.
     const allRevealed = pendingChoice.revealedCards ?? pendingChoice.validTargets ?? [];
     const chosenSet = new Set(choice as string[]);
     const rest = allRevealed.filter(id => !chosenSet.has(id));
     const revealPicks = pendingEff?.revealPicks ?? false;
+    const pickDestination = pendingEff?.pickDestination ?? "hand";
+    const restPlacement = pendingEff?.restPlacement ?? "bottom";
     for (const chosenId of choice as string[]) {
       if (revealPicks) {
         events.push({ type: "card_revealed", instanceId: chosenId, playerId: owner, sourceInstanceId: pendingChoice.sourceInstanceId ?? "" });
       }
-      state = moveCard(state, chosenId, owner, "hand");
+      if (pickDestination === "hand") {
+        state = moveCard(state, chosenId, owner, "hand");
+      } else if (pickDestination === "inkwell_exerted") {
+        state = zoneTransition(state, chosenId, "inkwell", definitions, events, { reason: "inked" });
+        state = updateInstance(state, chosenId, { isExerted: true });
+      }
+      // "deck_top": chosen stays in place. With restPlacement "bottom" (moving
+      // the rest to bottom), the chosen card ends up at top naturally.
     }
-    if (rest.length > 1 && state.interactive) {
-      // Let human choose the order the rest go to the bottom
-      state = { ...state, pendingChoice: null };
-      return {
-        ...state,
-        pendingChoice: {
-          type: "choose_order",
-          choosingPlayerId: owner,
-          prompt: `Choose the order to place the remaining ${rest.length} cards on the bottom of your deck (first selected = bottommost).`,
-          validTargets: rest,
-        },
-      };
+    // Handle rest placement.
+    if (restPlacement === "discard") {
+      for (const id of rest) state = moveCard(state, id, owner, "discard");
+    } else if (restPlacement === "bottom") {
+      if (rest.length > 1 && state.interactive) {
+        // Let human choose the order the rest go to the bottom
+        state = { ...state, pendingChoice: null };
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_order",
+            choosingPlayerId: owner,
+            prompt: `Choose the order to place the remaining ${rest.length} cards on the bottom of your deck (first selected = bottommost).`,
+            validTargets: rest,
+          },
+        };
+      }
+      state = reorderDeckTopToBottom(state, owner, rest, []);
     }
-    state = reorderDeckTopToBottom(state, owner, rest, []);
+    // "top" placement: cards stay where they were after chosen is removed — no-op.
     state = resumePendingEffectQueue(state, definitions, events);
     state = cleanupPendingAction(state, playerId);
     return state;
@@ -3715,29 +3734,24 @@ export function applyEffect(
           moveRest(rest);
           return state;
         }
-        case "one_to_inkwell_exerted_rest_top": {
-          // Kida Creative Thinker: look at top 2, put 1 into inkwell facedown
-          // exerted, the other on top. Headless heuristic: ink the FIRST card
-          // and leave the rest on top in their original order.
-          if (topCards.length === 0) return state;
-          const inkId = topCards[0]!;
-          state = zoneTransition(state, inkId, "inkwell", definitions, events, { reason: "inked" });
-          state = updateInstance(state, inkId, { isExerted: true });
-          // Other cards stay where they are (still on top of deck after the inked one is removed).
-          return state;
-        }
-        case "up_to_n_to_hand_rest_bottom": {
-          // Look at top N, put up to maxToHand cards into hand, rest go to
-          // top|bottom (default bottom). Headless/bot: greedy — first match.
+        case "choose_from_top": {
+          // Generalized chooser: peek top N, pick up to maxToHand cards
+          // (optionally matching filter/filters), picked cards go to
+          // pickDestination (default "hand"), rest go to restPlacement.
           //
           // Three filter modes:
           //   1. effect.filters (array): pick at most one card matching each
-          //      filter in order. Used by The Family Madrigal (1 Madrigal char
-          //      + 1 Song).
+          //      filter in order (The Family Madrigal).
           //   2. effect.filter (single): pick first up to maxToHand matching.
-          //   3. neither: pick first maxToHand cards unconditionally
-          //      (Dig a Little Deeper).
+          //   3. neither: pick first maxToHand cards unconditionally (Dig a
+          //      Little Deeper, Ursula's Cauldron).
+          //
+          // pickDestination variants:
+          //   - "hand" (default): Develop Your Brain, Ariel, Nani, LatF, DALD, etc.
+          //   - "deck_top": Ursula's Cauldron, Merlin Turtle (picked stays at top).
+          //   - "inkwell_exerted": Kida Creative Thinker.
           const maxToHand = effect.maxToHand ?? 1;
+          const pickDestination = effect.pickDestination ?? "hand";
 
           // Interactive mode: show the cards and let the player choose
           if (state.interactive) {
@@ -3777,7 +3791,11 @@ export function applyEffect(
                 choosingPlayerId: controllingPlayerId,
                 prompt: matchingCards.length === 0
                   ? `No matching cards found. All revealed cards go to the bottom of your deck.`
-                  : `Choose ${pickCount} card(s) to put into your hand. The rest go to the bottom of your deck.`,
+                  : (effect.pickDestination === "deck_top"
+                      ? `Choose ${pickCount} card(s) to keep on top of your deck. The rest go to the bottom of your deck.`
+                      : effect.pickDestination === "inkwell_exerted"
+                        ? `Choose ${pickCount} card(s) to put into your inkwell facedown and exerted.`
+                        : `Choose ${pickCount} card(s) to put into your hand. The rest go to the bottom of your deck.`),
                 validTargets: matchingCards,
                 revealedCards: topCards,
                 pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
@@ -3834,12 +3852,22 @@ export function applyEffect(
               picked.push(id);
             }
           }
+          // Apply pickDestination: move picked cards to their destination.
           for (const id of picked) {
-            state = moveCard(state, id, targetPlayer, "hand");
+            if (pickDestination === "hand") {
+              state = moveCard(state, id, targetPlayer, "hand");
+            } else if (pickDestination === "inkwell_exerted") {
+              // Kida Creative Thinker: picked goes to inkwell facedown exerted.
+              state = zoneTransition(state, id, "inkwell", definitions, events, { reason: "inked" });
+              state = updateInstance(state, id, { isExerted: true });
+            }
+            // "deck_top": chosen card stays in deck — no move needed. With
+            // restPlacement: "bottom", removing the rest from deck naturally
+            // leaves the chosen card at the top (Ursula's Cauldron, Merlin Turtle).
           }
           // restPlacement default "bottom". For "top" the cards remain in
-          // place after the picked ones are removed via moveCard, so no
-          // reorder is needed.
+          // place after the picked ones are removed (or not, for deck_top
+          // pickDestination), so no reorder is needed.
           if ((effect.restPlacement ?? "bottom") === "bottom") {
             state = reorderDeckTopToBottom(state, targetPlayer, rest, []);
           }
@@ -3847,8 +3875,7 @@ export function applyEffect(
           // conditional_on_target with target.type=last_resolved_target can
           // dispatch escalation effects (Queen Diviner: "If that item costs 3
           // or less, you may play it for free instead"). Only meaningful when
-          // exactly one card is picked (maxToHand=1) — for multi-pick the
-          // semantics get ambiguous and conditional_on_target shouldn't chain.
+          // exactly one card is picked (maxToHand=1).
           if (picked.length === 1) {
             const ref = makeResolvedRef(state, definitions, picked[0]!);
             if (ref) state = { ...state, lastResolvedTarget: ref };

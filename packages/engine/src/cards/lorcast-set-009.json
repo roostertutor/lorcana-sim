@@ -104,8 +104,12 @@
                     "character"
                   ],
                   "anyOf": [
-                    { "hasTrait": "Princess" },
-                    { "hasTrait": "Queen" }
+                    {
+                      "hasTrait": "Princess"
+                    },
+                    {
+                      "hasTrait": "Queen"
+                    }
                   ]
                 }
               }
@@ -178,7 +182,7 @@
           {
             "type": "look_at_top",
             "count": 1,
-            "action": "up_to_n_to_hand_rest_bottom",
+            "action": "choose_from_top",
             "filter": {
               "cardType": [
                 "character"
@@ -716,7 +720,7 @@
           {
             "type": "look_at_top",
             "count": 4,
-            "action": "up_to_n_to_hand_rest_bottom",
+            "action": "choose_from_top",
             "filter": {
               "cardType": [
                 "character"
@@ -1416,7 +1420,7 @@
       {
         "type": "look_at_top",
         "count": 5,
-        "action": "up_to_n_to_hand_rest_bottom",
+        "action": "choose_from_top",
         "maxToHand": 2,
         "filter": {
           "cardType": [
@@ -1723,7 +1727,7 @@
       {
         "type": "look_at_top",
         "count": 4,
-        "action": "up_to_n_to_hand_rest_bottom",
+        "action": "choose_from_top",
         "filter": {
           "cardType": [
             "character"
@@ -6239,7 +6243,9 @@
           },
           {
             "type": "play_for_free",
-            "target": { "type": "last_resolved_target" },
+            "target": {
+              "type": "last_resolved_target"
+            },
             "sourceZone": "deck"
           }
         ]
@@ -8017,7 +8023,7 @@
           {
             "type": "look_at_top",
             "count": 4,
-            "action": "up_to_n_to_hand_rest_bottom",
+            "action": "choose_from_top",
             "maxToHand": 1,
             "target": {
               "type": "self"
@@ -9219,7 +9225,7 @@
       {
         "type": "look_at_top",
         "count": 2,
-        "action": "up_to_n_to_hand_rest_bottom",
+        "action": "choose_from_top",
         "target": {
           "type": "self"
         },
@@ -9357,7 +9363,7 @@
       {
         "type": "look_at_top",
         "count": 7,
-        "action": "up_to_n_to_hand_rest_bottom",
+        "action": "choose_from_top",
         "maxToHand": 2,
         "target": {
           "type": "self"
@@ -11634,8 +11640,12 @@
                     "character"
                   ],
                   "anyOf": [
-                    { "hasTrait": "Princess" },
-                    { "hasTrait": "Queen" }
+                    {
+                      "hasTrait": "Princess"
+                    },
+                    {
+                      "hasTrait": "Queen"
+                    }
                   ]
                 }
               }
@@ -12663,7 +12673,7 @@
           {
             "type": "look_at_top",
             "count": 1,
-            "action": "up_to_n_to_hand_rest_bottom",
+            "action": "choose_from_top",
             "filter": {
               "cardType": [
                 "character"
@@ -13299,7 +13309,9 @@
           },
           {
             "type": "play_for_free",
-            "target": { "type": "last_resolved_target" },
+            "target": {
+              "type": "last_resolved_target"
+            },
             "sourceZone": "deck"
           }
         ]
@@ -13432,7 +13444,7 @@
           {
             "type": "look_at_top",
             "count": 4,
-            "action": "up_to_n_to_hand_rest_bottom",
+            "action": "choose_from_top",
             "maxToHand": 1,
             "target": {
               "type": "self"

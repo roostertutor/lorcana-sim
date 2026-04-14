@@ -1161,7 +1161,8 @@ export interface MustQuestIfAbleEffect {
 
 /**
  * Look at top N cards of deck. Bot resolves automatically:
- * - "up_to_n_to_hand_rest_bottom": pick up to maxToHand cards (optionally matching filter/filters) to hand, rest to bottom in original order
+ * - "choose_from_top": pick up to maxPick cards (optionally matching filter/filters);
+ *   picked cards go to pickDestination, rest go to restPlacement. Generalized chooser.
  * - "top_or_bottom": look at one card, put on top or bottom
  * - "reorder": look at N cards, put back in any order (bot uses default order)
  */
@@ -1173,8 +1174,12 @@ export interface LookAtTopEffect {
   action:
     | "top_or_bottom"
     | "reorder"
-    | "up_to_n_to_hand_rest_bottom"
-    | "one_to_inkwell_exerted_rest_top"
+    /** Generalized chooser: peek top N, pick up to maxPick cards, picked
+     *  cards go to pickDestination, rest go to restPlacement. Replaces the
+     *  former `up_to_n_to_hand_rest_bottom` (pickDestination defaults to
+     *  "hand") and `one_to_inkwell_exerted_rest_top` (pickDestination
+     *  "inkwell_exerted"). */
+    | "choose_from_top"
     /** Pure chooser: peek at top N, may pick ONE matching card and set
      *  lastResolvedTarget to it (card stays in deck), move the rest per
      *  restPlacement. The picked card is then acted on by a subsequent
@@ -1197,15 +1202,21 @@ export interface LookAtTopEffect {
     | "one_to_play_for_free_else_to_hand";
   /** Optional filter — only matching cards can go to hand (for "may reveal matching" patterns) */
   filter?: CardFilter;
-  /** When set, applies to `up_to_n_to_hand_rest_bottom` and means "take up to
+  /** When set, applies to `choose_from_top` and means "take up to
    *  1 card matching EACH filter" (capped collectively by `maxToHand`).
    *  Used by The Family Madrigal: filters [Madrigal-character, Song]. */
   filters?: CardFilter[];
-  /** For "up_to_n_to_hand_rest_bottom": max number of cards to put into hand (Look at This Family = 2, Dig a Little Deeper = 2). */
+  /** For "choose_from_top": max number of cards the player may pick
+   *  (Look at This Family = 2, Dig a Little Deeper = 2, default 1). */
   maxToHand?: number;
+  /** For "choose_from_top": where the picked cards go. Default "hand".
+   *  - "hand"             — Develop Your Brain, Ariel, Nani, The Family Madrigal
+   *  - "deck_top"         — Ursula's Cauldron, Merlin Turtle (picked card stays on top)
+   *  - "inkwell_exerted"  — Kida Creative Thinker (picked goes into inkwell facedown) */
+  pickDestination?: "hand" | "deck_top" | "inkwell_exerted";
   /** Where the unchosen cards go. Default "bottom".
    *  - "bottom" — The Family Madrigal rest, DYB, Powerline
-   *  - "top"    — The Family Madrigal uses top
+   *  - "top"    — The Family Madrigal uses top, Kida Creative Thinker
    *  - "discard"— Robin Hood Sharpshooter "put the rest in your discard" */
   restPlacement?: "top" | "bottom" | "discard";
   target: PlayerTarget;

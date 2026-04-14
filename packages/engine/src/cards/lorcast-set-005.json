@@ -1468,7 +1468,7 @@
       {
         "type": "look_at_top",
         "count": 2,
-        "action": "up_to_n_to_hand_rest_bottom",
+        "action": "choose_from_top",
         "maxToHand": 99,
         "target": {
           "type": "self"
@@ -2126,7 +2126,10 @@
           {
             "type": "look_at_top",
             "count": 2,
-            "action": "reorder",
+            "action": "choose_from_top",
+            "pickDestination": "deck_top",
+            "restPlacement": "bottom",
+            "maxToHand": 1,
             "target": {
               "type": "self"
             }
@@ -2144,7 +2147,10 @@
           {
             "type": "look_at_top",
             "count": 2,
-            "action": "reorder",
+            "action": "choose_from_top",
+            "pickDestination": "deck_top",
+            "restPlacement": "bottom",
+            "maxToHand": 1,
             "target": {
               "type": "self"
             }
@@ -6639,7 +6645,9 @@
           },
           {
             "type": "play_for_free",
-            "target": { "type": "last_resolved_target" },
+            "target": {
+              "type": "last_resolved_target"
+            },
             "sourceZone": "deck"
           }
         ]
@@ -8343,7 +8351,7 @@
           {
             "type": "look_at_top",
             "count": 3,
-            "action": "up_to_n_to_hand_rest_bottom",
+            "action": "choose_from_top",
             "maxToHand": 99,
             "target": {
               "type": "self"
@@ -9073,7 +9081,7 @@
       {
         "type": "look_at_top",
         "count": 5,
-        "action": "up_to_n_to_hand_rest_bottom",
+        "action": "choose_from_top",
         "target": {
           "type": "self"
         },
@@ -9364,7 +9372,7 @@
           {
             "type": "look_at_top",
             "count": 3,
-            "action": "up_to_n_to_hand_rest_bottom",
+            "action": "choose_from_top",
             "maxToHand": 1,
             "target": {
               "type": "self"
@@ -12117,7 +12125,9 @@
           },
           {
             "type": "play_for_free",
-            "target": { "type": "last_resolved_target" },
+            "target": {
+              "type": "last_resolved_target"
+            },
             "sourceZone": "deck"
           }
         ]

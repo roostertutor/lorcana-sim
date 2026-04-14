@@ -571,7 +571,7 @@
           {
             "type": "look_at_top",
             "count": 3,
-            "action": "up_to_n_to_hand_rest_bottom",
+            "action": "choose_from_top",
             "filter": {
               "cardType": [
                 "character"
@@ -1170,7 +1170,7 @@
           {
             "type": "look_at_top",
             "count": 1,
-            "action": "up_to_n_to_hand_rest_bottom",
+            "action": "choose_from_top",
             "filter": {
               "cardType": [
                 "character"
@@ -1324,7 +1324,7 @@
           {
             "type": "look_at_top",
             "count": 4,
-            "action": "up_to_n_to_hand_rest_bottom",
+            "action": "choose_from_top",
             "filter": {
               "cardType": [
                 "character"
@@ -3642,14 +3642,18 @@
             "condition": {
               "type": "characters_in_play_gte",
               "amount": 1,
-              "player": { "type": "self" },
+              "player": {
+                "type": "self"
+              },
               "hasName": "Jafar"
             },
             "thenEffects": [
               {
                 "type": "draw",
                 "amount": 2,
-                "target": { "type": "self" }
+                "target": {
+                  "type": "self"
+                }
               }
             ],
             "elseEffects": []
@@ -3659,7 +3663,9 @@
             "condition": {
               "type": "characters_in_play_gte",
               "amount": 1,
-              "player": { "type": "self" },
+              "player": {
+                "type": "self"
+              },
               "hasName": "Genie"
             },
             "thenEffects": [
@@ -3669,7 +3675,9 @@
                   "type": "chosen",
                   "filter": {
                     "zone": "play",
-                    "cardType": ["character"],
+                    "cardType": [
+                      "character"
+                    ],
                     "costAtMost": 4
                   }
                 }
@@ -7830,7 +7838,7 @@
           {
             "type": "look_at_top",
             "count": 2,
-            "action": "up_to_n_to_hand_rest_bottom",
+            "action": "choose_from_top",
             "target": {
               "type": "self"
             },
@@ -8789,7 +8797,7 @@
       {
         "type": "look_at_top",
         "count": 2,
-        "action": "up_to_n_to_hand_rest_bottom",
+        "action": "choose_from_top",
         "target": {
           "type": "self"
         },

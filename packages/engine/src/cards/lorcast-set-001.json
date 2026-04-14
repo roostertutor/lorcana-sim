@@ -73,7 +73,7 @@
           {
             "type": "look_at_top",
             "count": 4,
-            "action": "up_to_n_to_hand_rest_bottom",
+            "action": "choose_from_top",
             "filter": {
               "cardType": [
                 "action"
@@ -1185,7 +1185,7 @@
       {
         "type": "look_at_top",
         "count": 4,
-        "action": "up_to_n_to_hand_rest_bottom",
+        "action": "choose_from_top",
         "filter": {
           "cardType": [
             "character"
@@ -3169,7 +3169,10 @@
           {
             "type": "look_at_top",
             "count": 2,
-            "action": "top_or_bottom",
+            "action": "choose_from_top",
+            "pickDestination": "deck_top",
+            "restPlacement": "bottom",
+            "maxToHand": 1,
             "target": {
               "type": "self"
             }
@@ -7649,7 +7652,7 @@
       {
         "type": "look_at_top",
         "count": 2,
-        "action": "up_to_n_to_hand_rest_bottom",
+        "action": "choose_from_top",
         "target": {
           "type": "self"
         },

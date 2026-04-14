@@ -1375,7 +1375,7 @@
           {
             "type": "look_at_top",
             "count": 4,
-            "action": "up_to_n_to_hand_rest_bottom",
+            "action": "choose_from_top",
             "maxToHand": 99,
             "target": {
               "type": "self"

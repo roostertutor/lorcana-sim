@@ -2315,7 +2315,7 @@
       {
         "type": "look_at_top",
         "count": 5,
-        "action": "up_to_n_to_hand_rest_bottom",
+        "action": "choose_from_top",
         "maxToHand": 2,
         "filters": [
           {
@@ -8734,7 +8734,7 @@
           {
             "type": "look_at_top",
             "count": 4,
-            "action": "up_to_n_to_hand_rest_bottom",
+            "action": "choose_from_top",
             "maxToHand": 1,
             "target": {
               "type": "self"
@@ -9044,7 +9044,7 @@
           {
             "type": "look_at_top",
             "count": 2,
-            "action": "up_to_n_to_hand_rest_bottom",
+            "action": "choose_from_top",
             "maxToHand": 99,
             "target": {
               "type": "self"
@@ -9314,10 +9314,13 @@
           {
             "type": "look_at_top",
             "count": 2,
-            "action": "one_to_inkwell_exerted_rest_top",
+            "action": "choose_from_top",
             "target": {
               "type": "self"
-            }
+            },
+            "pickDestination": "inkwell_exerted",
+            "restPlacement": "top",
+            "maxToHand": 1
           }
         ]
       }
@@ -9899,7 +9902,7 @@
           {
             "type": "look_at_top",
             "count": 4,
-            "action": "up_to_n_to_hand_rest_bottom",
+            "action": "choose_from_top",
             "maxToHand": 1,
             "target": {
               "type": "self"

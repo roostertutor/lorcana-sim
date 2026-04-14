@@ -732,7 +732,7 @@
           {
             "type": "look_at_top",
             "count": 1,
-            "action": "up_to_n_to_hand_rest_bottom",
+            "action": "choose_from_top",
             "filter": {
               "cardType": [
                 "action"
@@ -7576,7 +7576,7 @@
           {
             "type": "look_at_top",
             "count": 3,
-            "action": "up_to_n_to_hand_rest_bottom",
+            "action": "choose_from_top",
             "target": {
               "type": "self"
             },
@@ -8253,7 +8253,7 @@
           {
             "type": "look_at_top",
             "count": 2,
-            "action": "up_to_n_to_hand_rest_bottom",
+            "action": "choose_from_top",
             "target": {
               "type": "self"
             },
@@ -11264,7 +11264,7 @@
           {
             "type": "look_at_top",
             "count": 2,
-            "action": "up_to_n_to_hand_rest_bottom",
+            "action": "choose_from_top",
             "target": {
               "type": "self"
             },
