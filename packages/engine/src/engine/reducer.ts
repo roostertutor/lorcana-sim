@@ -2734,6 +2734,10 @@ export function applyEffect(
       const topInst = state.cards[topId];
       const topDef = topInst ? definitions[topInst.definitionId] : undefined;
       if (!topInst || !topDef) return state;
+      // CRD: the card is publicly revealed regardless of whether it matches.
+      // Fire card_revealed so the UI / opponent / replay see the top card
+      // (Daisy Duck Donald's Date BIG PRIZE, Sisu Uniting Dragon, etc.).
+      events.push({ type: "card_revealed", instanceId: topId, playerId: targetPlayer, sourceInstanceId });
       const matches = matchesFilter(topInst, topDef, effect.filter, state, targetPlayer);
       if (matches) {
         // CRD 6.1.4: "may" — in non-interactive mode the bot accepts (best-case for the controller).

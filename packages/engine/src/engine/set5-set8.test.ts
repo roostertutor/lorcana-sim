@@ -898,6 +898,25 @@ describe("§CRD 6.4.2.1 — Continuous Statics (global timed effects)", () => {
   });
 });
 
+describe("§5 Set 5 — reveal_top_conditional fires card_revealed events", () => {
+  it("Daisy Duck Donald's Date BIG PRIZE: opponent top card is publicly revealed", () => {
+    let state = startGame();
+    state.currentPlayer = "player1";
+    let daisyId: string;
+    ({ state, instanceId: daisyId } = injectCard(state, "player1", "daisy-duck-donalds-date", "play", { isDrying: false }));
+
+    const opponentTopId = getZone(state, "player2", "deck")[0]!;
+
+    const r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: daisyId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+
+    // The top card of opponent's deck should have been publicly revealed
+    // (regardless of whether it matched the character filter).
+    const revealEvents = r.events.filter(e => e.type === "card_revealed");
+    expect(revealEvents.some(e => e.instanceId === opponentTopId)).toBe(true);
+  });
+});
+
 describe("§8 Set 8 — Lady Decisive Dog", () => {
   it("TAKE THE LEAD: +2 lore when strength >= 3 via Snowfort static + timed buffs", () => {
     let state = startGame();
