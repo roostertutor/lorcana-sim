@@ -921,6 +921,13 @@ export interface RevealTopConditionalEffect {
    *  played card enters play exerted (Oswald Lucky Rabbit FAVORABLE CHANCE
    *  for items). */
   matchEnterExerted?: boolean;
+  /** Only meaningful when matchAction === "play_for_free". When true, the
+   *  controller pays the card's normal ink cost (Kristoff's Lute MOMENT OF
+   *  INSPIRATION: "play it as if it were in your hand"). When false/undefined,
+   *  the card is played for free (Daisy Duck Donald's Date, Mufasa). If the
+   *  controller can't afford the cost, the card goes to noMatchDestination
+   *  instead (treated as a decline). */
+  matchPayCost?: boolean;
   /** Sisu Uniting Dragon: "If it's a Dragon character card, put it into your
    *  hand and repeat this effect." After a successful match, run the same
    *  reveal again with the new top card. Loops until a non-match. */
@@ -1190,9 +1197,6 @@ export interface LookAtTopEffect {
      *  Powerline World's Greatest Rock Star (restPlacement: "bottom"),
      *  Robin Hood Sharpshooter (restPlacement: "discard"). */
     | "peek_and_set_target"
-    /** Kristoff's Lute MOMENT OF INSPIRATION — reveal top, may play for free,
-     *  otherwise put it into discard. count is implicitly 1. */
-    | "may_play_for_free_else_discard"
     /** Fred Giant-Sized I LIKE WHERE THIS IS HEADING — reveal cards from top
      *  until first match against `filter`, that card to hand, shuffle the rest
      *  of the revealed cards back into the deck. count is implicitly "until_match". */

@@ -7487,12 +7487,12 @@
         ],
         "effects": [
           {
-            "type": "look_at_top",
-            "count": 1,
-            "action": "may_play_for_free_else_discard",
-            "target": {
-              "type": "self"
-            }
+            "type": "reveal_top_conditional",
+            "target": { "type": "self" },
+            "filter": {},
+            "matchAction": "play_for_free",
+            "matchPayCost": true,
+            "noMatchDestination": "discard"
           }
         ]
       }

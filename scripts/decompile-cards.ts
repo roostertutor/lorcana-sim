@@ -544,9 +544,6 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
             : " Put the rest on the bottom of your deck in any order";
         return `${base}. You may reveal ${filter} and play it for free.${restClause}`;
       }
-      // Kristoff's Lute MOMENT OF INSPIRATION — count is implicitly 1.
-      case "may_play_for_free_else_discard":
-        return `reveal the top card of your deck. You may play it as if it were in your hand. Otherwise, put it in your discard`;
       // We Know the Way — look at top 1, may play for free if matches, else hand.
       case "one_to_play_for_free_else_to_hand":
         return `${base}. You may reveal ${filter} and play it for free. Otherwise, put it into your hand`;
@@ -559,17 +556,24 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   },
   reveal_top_conditional: (e) => {
     const tgt = e.target?.type === "opponent" ? "opponent's" : "your";
-    const filter = e.filter ? renderFilter(e.filter) : "a card";
+    const hasFilter = e.filter && Object.keys(e.filter).length > 0;
+    const filter = hasFilter ? renderFilter(e.filter) : "a card";
     const exerted = e.matchEnterExerted ? " and they enter play exerted" : "";
+    const playVerb = e.matchPayCost ? "play it as if it were in your hand" : `play it for free${exerted}`;
     const match = e.matchAction === "to_hand" ? "put it into your hand"
-      : e.matchAction === "play_for_free" ? `play it for free${exerted}`
+      : e.matchAction === "play_for_free" ? `you may ${playVerb}`
       : e.matchAction === "to_inkwell_exerted" ? "put it into your inkwell facedown and exerted"
       : e.matchAction ?? "keep it";
     const noMatch = e.noMatchDestination === "bottom" ? "put it on the bottom of your deck"
       : e.noMatchDestination === "hand" ? "put it into your hand"
-      : e.noMatchDestination === "discard" ? "put it into your discard"
+      : e.noMatchDestination === "discard" ? "put it in your discard"
       : e.noMatchDestination === "top" ? "put it on the top of your deck"
       : "put it back";
+    // When filter is empty (Kristoff's Lute — match ANY revealed card),
+    // skip the "If it's X" clause and just say "reveal ... and do Y."
+    if (!hasFilter) {
+      return `reveal the top card of ${tgt} deck. ${cap(match)}. Otherwise, ${noMatch}`;
+    }
     return `reveal the top card of ${tgt} deck. If it's ${filter}, ${match}. Otherwise, ${noMatch}`;
   },
   search: (e) => {

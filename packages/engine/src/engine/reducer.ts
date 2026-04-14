@@ -2833,6 +2833,28 @@ export function applyEffect(
             state = moveCard(state, topId, targetPlayer, "hand");
             break;
           case "play_for_free": {
+            // matchPayCost: controller pays the card's normal ink cost
+            // (Kristoff's Lute "play it as if it were in your hand"). If they
+            // can't afford, fall through to noMatchDestination (treated as
+            // decline). Default/false = play for free (Daisy Duck, Mufasa).
+            if (effect.matchPayCost) {
+              const cardCost = getEffectiveCostWithReductions(state, targetPlayer, topId, definitions);
+              const canAfford = state.players[targetPlayer].availableInk >= cardCost;
+              if (!canAfford) {
+                // Can't afford — route to noMatchDestination.
+                const dest = effect.noMatchDestination ?? "top";
+                if (dest === "discard") {
+                  state = zoneTransition(state, topId, "discard", definitions, events, { reason: "discarded" });
+                } else if (dest === "bottom") {
+                  state = moveCard(state, topId, targetPlayer, "deck");
+                } else if (dest === "hand") {
+                  state = moveCard(state, topId, targetPlayer, "hand");
+                }
+                // else "top" — stays where it is.
+                return state;
+              }
+              state = updatePlayerInk(state, targetPlayer, -cardCost);
+            }
             // Move to play and resolve any action effects (mirrors play_for_free direct path).
             state = zoneTransition(state, topId, "play", definitions, events, {
               reason: "played", triggeringPlayerId: targetPlayer,
@@ -3909,46 +3931,6 @@ export function applyEffect(
             }
           } else {
             state = moveCard(state, topId, targetPlayer, "hand");
-          }
-          return state;
-        }
-        case "may_play_for_free_else_discard": {
-          // Kristoff's Lute MOMENT OF INSPIRATION: reveal top, may play it for
-          // free, otherwise put it into discard. count is implicitly 1.
-          //
-          // Per CRD: "play it as if it were in your hand" — the controller pays
-          // the card's normal ink cost. Bot heuristic: pay if you can afford it
-          // (and the card type is playable from this path), otherwise discard.
-          if (topCards.length === 0) return state;
-          const topId = topCards[0]!;
-          const topInst = state.cards[topId];
-          const topDef = topInst ? definitions[topInst.definitionId] : undefined;
-          if (!topInst || !topDef) return state;
-          // Kristoff's Lute: "reveal" the top card to all players
-          events.push({ type: "card_revealed", instanceId: topId, playerId: controllingPlayerId, sourceInstanceId });
-          // Use the same effective-cost helper as the standard play action so
-          // static + one-shot cost reductions (Mickey Broom, Grandmother Willow,
-          // Olaf Snowman of Action, etc.) apply to the revealed-card play.
-          const cardCost = getEffectiveCostWithReductions(state, targetPlayer, topId, definitions);
-          const canAfford = state.players[targetPlayer].availableInk >= cardCost;
-          if (!canAfford) {
-            // Decline -> discard the revealed card.
-            state = moveCard(state, topId, targetPlayer, "discard");
-            return state;
-          }
-          // Pay normal cost and play.
-          state = updatePlayerInk(state, targetPlayer, -cardCost);
-          state = zoneTransition(state, topId, "play", definitions, events, {
-            reason: "played", triggeringPlayerId: targetPlayer,
-          });
-          if (topDef.cardType === "character") {
-            state = updateInstance(state, topId, { isDrying: true });
-          }
-          if (topDef.cardType === "action" && topDef.actionEffects) {
-            for (const ae of topDef.actionEffects) {
-              state = applyEffect(state, ae, topId, targetPlayer, definitions, events);
-            }
-            state = zoneTransition(state, topId, "discard", definitions, events, { reason: "discarded" });
           }
           return state;
         }
