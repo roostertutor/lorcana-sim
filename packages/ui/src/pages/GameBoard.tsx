@@ -558,14 +558,27 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     };
   }, [inspectCardId, inspectModalOpen]);
   const [autoPassP2, setAutoPassP2] = useState(true);
+  // `lastRevealedHand` (from reveal_hand effects, e.g. Ursula-Deceiver) has
+  // no sequenceId on the engine side, so a second Ursula revealing the same
+  // hand produces an identical content key. We detect new reveal events by
+  // OBJECT REFERENCE — the engine creates a fresh lastRevealedHand object
+  // on every reveal_hand action, and state-spread preserves references for
+  // non-reveal_hand actions in between, so reference equality cleanly
+  // distinguishes "new reveal" from "persisted stale reveal". Same
+  // actionCount-based freshness check as lastRevealedCards to hide the
+  // overlay once subsequent actions advance past it.
   const [revealHandDismissed, setRevealHandDismissed] = useState(false);
-  const lastRevealRef = useRef<string | null>(null);
-  // Reset dismiss when a NEW reveal arrives (different card IDs)
-  const currentRevealKey = session.gameState?.lastRevealedHand?.cardIds.join(",") ?? null;
-  if (currentRevealKey && currentRevealKey !== lastRevealRef.current) {
-    lastRevealRef.current = currentRevealKey;
-    if (revealHandDismissed) setRevealHandDismissed(false);
-  }
+  const [revealHandActionCount, setRevealHandActionCount] = useState<number | null>(null);
+  const currentRevealedHand = session.gameState?.lastRevealedHand;
+  useEffect(() => {
+    if (currentRevealedHand) {
+      setRevealHandActionCount(session.actionCount);
+      setRevealHandDismissed(false);
+    } else {
+      setRevealHandActionCount(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentRevealedHand]);
   // Revealed cards (search/look-at-top) — track which reveal was dismissed by key
   const [dismissedRevealKey, setDismissedRevealKey] = useState<string | null>(null);
   // Include sequenceId so back-to-back reveals of the same cards produce
@@ -2107,7 +2120,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       })()}
 
       {/* ======================= Revealed Hand Viewer (auto-triggered by reveal_hand effect) ======================= */}
-      {gameState?.lastRevealedHand && gameState.lastRevealedHand.cardIds.length > 0 && !revealHandDismissed && (
+      {gameState?.lastRevealedHand && gameState.lastRevealedHand.cardIds.length > 0 && !revealHandDismissed && session.actionCount === revealHandActionCount && (
         <ZoneViewModal
           title={`${gameState.lastRevealedHand.playerId === myId ? "Your" : "Opponent's"} Revealed Hand`}
           cardIds={gameState.lastRevealedHand.cardIds}
