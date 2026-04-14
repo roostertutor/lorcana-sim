@@ -3668,6 +3668,7 @@
                 "target": {
                   "type": "chosen",
                   "filter": {
+                    "zone": "play",
                     "cardType": ["character"],
                     "costAtMost": 4
                   }
