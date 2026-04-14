@@ -523,6 +523,36 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   const [inspectCardId, setInspectCardId] = useState<string | null>(null);
   const [inspectModalOpen, setInspectModalOpen] = useState(false);
   const [popoverPos, setPopoverPos] = useState<{ top: number; left: number } | null>(null);
+
+  // Dismiss the card action popover when the user clicks outside it (e.g.
+  // empty board space, scoreboard, utility strip) or presses Escape. Clicks
+  // on another card are handled by handleClick which toggles/swaps inspectCardId;
+  // clicks on the popover itself stopPropagation so won't reach this listener.
+  useEffect(() => {
+    if (!inspectCardId) return;
+    const onPointerDown = (e: PointerEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      if (target.closest("[data-card-popover]")) return;
+      if (target.closest(".game-card")) return;
+      setInspectCardId(null);
+      setInspectModalOpen(false);
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setInspectCardId(null);
+        setInspectModalOpen(false);
+      }
+    };
+    // Delay one tick so the click that opened the popover doesn't immediately close it
+    const t = setTimeout(() => document.addEventListener("pointerdown", onPointerDown), 0);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      clearTimeout(t);
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [inspectCardId]);
   const [autoPassP2, setAutoPassP2] = useState(true);
   const [revealHandDismissed, setRevealHandDismissed] = useState(false);
   const lastRevealRef = useRef<string | null>(null);
@@ -1347,7 +1377,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     <DndContext
       sensors={sensors}
       collisionDetection={pointerWithin}
-      onDragStart={dnd.handleDragStart}
+      onDragStart={(e) => { setInspectCardId(null); setInspectModalOpen(false); dnd.handleDragStart(e); }}
       onDragOver={(e) => setHoveredDropId((e.over?.id as string) ?? null)}
       onDragEnd={(e) => { setHoveredDropId(null); dnd.handleDragEnd(e); }}
       onDragCancel={() => { setHoveredDropId(null); dnd.handleDragCancel(); }}
@@ -1937,6 +1967,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       {/* ======================= Desktop: card action popover (fixed near card) ======================= */}
       {inspectCardId && popoverPos && (
         <div
+          data-card-popover
           className="fixed z-50 flex items-center gap-1 pointer-events-auto"
           style={{ top: popoverPos.top, left: popoverPos.left, transform: "translateX(-50%)" }}
           onClick={e => e.stopPropagation()}
