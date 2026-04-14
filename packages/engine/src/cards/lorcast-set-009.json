@@ -89,20 +89,44 @@
         },
         "effects": [
           {
-            "type": "return_to_hand",
+            "type": "sequential",
             "isMay": true,
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
+            "costEffects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
                   "type": "self"
                 },
-                "zone": "discard",
-                "cardType": [
-                  "character"
-                ]
+                "chooser": "controller",
+                "filter": {
+                  "cardType": [
+                    "character"
+                  ],
+                  "anyOf": [
+                    { "hasTrait": "Princess" },
+                    { "hasTrait": "Queen" }
+                  ]
+                }
               }
-            }
+            ],
+            "rewardEffects": [
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "discard",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
+              }
+            ]
           }
         ]
       }
@@ -11588,20 +11612,44 @@
         },
         "effects": [
           {
-            "type": "return_to_hand",
+            "type": "sequential",
             "isMay": true,
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
+            "costEffects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
                   "type": "self"
                 },
-                "zone": "discard",
-                "cardType": [
-                  "character"
-                ]
+                "chooser": "controller",
+                "filter": {
+                  "cardType": [
+                    "character"
+                  ],
+                  "anyOf": [
+                    { "hasTrait": "Princess" },
+                    { "hasTrait": "Queen" }
+                  ]
+                }
               }
-            }
+            ],
+            "rewardEffects": [
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "discard",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
+              }
+            ]
           }
         ]
       }

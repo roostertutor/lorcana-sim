@@ -841,35 +841,47 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
 });
 
 describe("§CRD 3.2.1.4 / 3.2.3.1 — turn_start trigger defers draw step", () => {
-  it("The Queen Conceited Ruler ROYAL SUMMONS: draw happens after may-choice resolves", () => {
-    // Set up: The Queen on player1's side, a character card in player1's discard.
+  it("The Queen Conceited Ruler ROYAL SUMMONS: discard A → return B (sequential cost+reward)", () => {
+    // Set up: The Queen in play, a Princess (Ariel) in hand to discard,
+    // a character (Mickey) in discard to return.
     let state = startGame();
-    let queenId: string, targetCharId: string;
+    let queenId: string, arielId: string, mickeyDiscardId: string;
     ({ state, instanceId: queenId } = injectCard(state, "player1", "the-queen-conceited-ruler", "play", { isDrying: false }));
-    ({ state, instanceId: targetCharId } = injectCard(state, "player1", "mickey-mouse-true-friend", "discard"));
+    ({ state, instanceId: arielId } = injectCard(state, "player1", "ariel-on-human-legs", "hand"));
+    ({ state, instanceId: mickeyDiscardId } = injectCard(state, "player1", "mickey-mouse-true-friend", "discard"));
 
     // Pass twice so player1's turn starts again. ROYAL SUMMONS queues as
-    // turn_start, isMay + chosen target → pendingChoice (choose_may).
+    // turn_start, sequential isMay → pendingChoice (choose_may).
     state = passTurns(state, 2);
 
     expect(state.pendingChoice?.type).toBe("choose_may");
-    // Deferred draw flag set — hand has not received the draw yet
-    expect(state.pendingDrawForPlayer).toBe("player1");
-    const handSizeWithChoiceOpen = getZone(state, "player1", "hand").length;
+    expect(state.pendingDrawForPlayer).toBe("player1"); // draw deferred
+    const handSizeBefore = getZone(state, "player1", "hand").length;
 
-    // Accept the may → target the Mickey in discard
+    // Accept the may
     let r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetCharId] }, LORCAST_CARD_DEFINITIONS);
+
+    // First sub-choice: discard cost — pick the Princess from hand to discard
+    expect(state.pendingChoice?.type).toBe("choose_discard");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [arielId] }, LORCAST_CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
-    // After choice resolution: +1 from return_to_hand, +1 from deferred draw
-    expect(getZone(state, "player1", "hand").length).toBe(handSizeWithChoiceOpen + 2);
+    // Second sub-choice: return target — pick the Mickey from discard
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [mickeyDiscardId] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Cost actually fired — Ariel is in discard now
+    expect(getInstance(state, arielId).zone).toBe("discard");
+    // Reward fired — Mickey is in hand now
+    expect(getInstance(state, mickeyDiscardId).zone).toBe("hand");
+    // Net hand: -1 Ariel discarded + 1 Mickey returned + 1 deferred draw = +1
+    expect(getZone(state, "player1", "hand").length).toBe(handSizeBefore + 1);
     expect(state.pendingDrawForPlayer).toBeUndefined();
-    // Returned card is now in hand
-    expect(getInstance(state, targetCharId).zone).toBe("hand");
   });
 });
 

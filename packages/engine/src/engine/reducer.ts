@@ -4919,6 +4919,12 @@ function canPerformCostEffect(
     case "discard_from_hand":
       // "any" — performable if there's at least one card in hand (Geppetto).
       // "all" — always performable. Numeric — need >= count.
+      // KNOWN GAP: when effect.filter is set, this doesn't check whether any
+      // hand card matches the filter (canPerformCostEffect lacks definitions).
+      // For ROYAL SUMMONS-style "discard a [filtered] card to reward", the may
+      // prompt appears even when no valid card exists; the cost then fizzles
+      // mid-resolution while the reward still fires. Acceptable for now since
+      // the player still controls the may; tracker item if it bites a card.
       return effect.amount === "all"
         ? true
         : effect.amount === "any"
