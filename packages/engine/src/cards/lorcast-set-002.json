@@ -636,20 +636,18 @@
         },
         "effects": [
           {
-            "type": "look_at_top",
-            "count": 1,
-            "action": "one_to_play_for_free",
+            "type": "reveal_top_conditional",
+            "target": {
+              "type": "self"
+            },
             "filter": {
               "cardType": [
                 "character"
               ]
             },
-            "target": {
-              "type": "self"
-            },
-            "isMay": true,
-            "restPlacement": "top",
-            "enterExerted": true
+            "matchAction": "play_for_free",
+            "matchEnterExerted": true,
+            "noMatchDestination": "top"
           }
         ]
       }

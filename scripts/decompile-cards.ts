@@ -541,12 +541,15 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   reveal_top_conditional: (e) => {
     const tgt = e.target?.type === "opponent" ? "opponent's" : "your";
     const filter = e.filter ? renderFilter(e.filter) : "a card";
+    const exerted = e.matchEnterExerted ? " and they enter play exerted" : "";
     const match = e.matchAction === "to_hand" ? "put it into your hand"
-      : e.matchAction === "play_for_free" ? "play it for free"
+      : e.matchAction === "play_for_free" ? `play it for free${exerted}`
+      : e.matchAction === "to_inkwell_exerted" ? "put it into your inkwell facedown and exerted"
       : e.matchAction ?? "keep it";
     const noMatch = e.noMatchDestination === "bottom" ? "put it on the bottom of your deck"
       : e.noMatchDestination === "hand" ? "put it into your hand"
       : e.noMatchDestination === "discard" ? "put it into your discard"
+      : e.noMatchDestination === "top" ? "put it on the top of your deck"
       : "put it back";
     return `reveal the top card of ${tgt} deck. If it's ${filter}, ${match}. Otherwise, ${noMatch}`;
   },
