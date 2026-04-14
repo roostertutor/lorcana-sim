@@ -117,6 +117,31 @@ Two-part fix landed:
 
 ---
 
+~~## Engine: stamp producing ability/keyword onto TimedEffect for UI attribution~~ **DONE**
+
+`TimedEffect.sourceStoryName?: string` added. Populated at creation time:
+- Synthesized Support trigger sets `_sourceStoryName: "Support"` on its
+  gain_stats effect.
+- Trigger resolver also stamps `trigger.ability.storyName` onto any
+  gain_stats effect before applying it, so explicit triggered abilities
+  benefit too (preserves explicit attribution via `??`).
+- `applyGainStatsToInstance` reads `effect._sourceStoryName` and writes
+  `sourceStoryName` onto each modify_strength/willpower/lore TimedEffect
+  it creates.
+
+GUI can now read `timedEffect.sourceStoryName` directly instead of
+guessing via the effect-type → keyword map.
+
+Test: `set9-set11.test.ts` "The Queen Conceited Ruler: Support's
+modify_strength is attributed to 'Support', not ROYAL SUMMONS".
+
+Note: only gain_stats path is wired today. If we discover other TimedEffect
+creators (grant_keyword, damage_prevention, etc.) need attribution, follow
+the same pattern — add internal `_sourceStoryName` to that effect type and
+plumb through the creator function.
+
+---
+
 ## Simulator: bot policy enumerator only generates single-pick for multi-pick choices
 
 `packages/simulator/src/rl/policy.ts:232-242` — the `choose_from_revealed`

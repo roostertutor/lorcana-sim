@@ -1081,6 +1081,9 @@ function applyQuest(
               duration: "this_turn",
               isMay: true, // CRD 6.1.4
               _supportRecipientHook: true,
+              // Stamp so the TimedEffect on the recipient is attributed to
+              // Support (not to a sibling ability like ROYAL SUMMONS).
+              _sourceStoryName: "Support",
             }],
           },
           sourceInstanceId: instanceId,
@@ -5294,9 +5297,16 @@ function processTriggerStack(
         break; // Pause trigger processing — will resume after choice
       }
 
+      // Stamp _sourceStoryName onto gain_stats so any TimedEffect this
+      // ability creates is attributed to the right ability/keyword in the
+      // UI. Preserves explicit attribution (e.g. synthesized Support trigger
+      // already sets "Support") via ??.
+      const effectToApply = (effect.type === "gain_stats" && trigger.ability.storyName)
+        ? { ...effect, _sourceStoryName: effect._sourceStoryName ?? trigger.ability.storyName }
+        : effect;
       state = applyEffect(
         state,
-        effect,
+        effectToApply,
         trigger.sourceInstanceId,
         source.ownerId,
         definitions,
@@ -6595,7 +6605,16 @@ function applyGainStatsToInstance(
     effect.duration === "this_turn" ? "end_of_turn"
     : effect.duration === "permanent" ? "end_of_turn" // no cards use permanent; safe default
     : effect.duration as import("../types/index.js").EffectDuration;
-  const baseTimed = { expiresAt, appliedOnTurn: state.turnNumber, casterPlayerId, sourceInstanceId: sourceInstId };
+  const baseTimed = {
+    expiresAt,
+    appliedOnTurn: state.turnNumber,
+    casterPlayerId,
+    sourceInstanceId: sourceInstId,
+    // Stamp the producing ability/keyword's storyName so the UI's Active
+    // Effects panel can attribute the buff correctly on multi-ability cards
+    // (The Queen Conceited Ruler: Support AND ROYAL SUMMONS).
+    ...(effect._sourceStoryName ? { sourceStoryName: effect._sourceStoryName } : {}),
+  };
   if (strengthAmount) {
     state = addTimedEffect(state, instanceId, { type: "modify_strength", amount: strengthAmount, ...baseTimed });
   }

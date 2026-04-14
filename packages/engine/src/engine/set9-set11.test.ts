@@ -873,6 +873,42 @@ describe("§CRD 3.2.1.4 / 3.2.3.1 — turn_start trigger defers draw step", () =
   });
 });
 
+describe("§Engine — TimedEffect.sourceStoryName attribution", () => {
+  it("The Queen Conceited Ruler: Support's modify_strength is attributed to 'Support', not ROYAL SUMMONS", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    state.currentPlayer = "player1";
+
+    // The Queen has BOTH Support keyword AND ROYAL SUMMONS triggered ability.
+    // After her quest, the Support trigger fires and adds modify_strength to
+    // the chosen recipient. The TimedEffect must carry sourceStoryName="Support"
+    // so the UI can attribute it correctly (not to ROYAL SUMMONS).
+    let queenId: string, otherId: string;
+    ({ state, instanceId: queenId } = injectCard(state, "player1", "the-queen-conceited-ruler", "play", { isDrying: false }));
+    ({ state, instanceId: otherId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+
+    // Quest with The Queen — triggers Support
+    let r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: queenId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Support's "may" → accept
+    expect(state.pendingChoice?.type).toBe("choose_may");
+    state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS).newState;
+
+    // Pick recipient
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [otherId] }, LORCAST_CARD_DEFINITIONS).newState;
+
+    // The recipient (Mickey) should have a modify_strength TimedEffect
+    // attributed to "Support" (NOT undefined, NOT "ROYAL SUMMONS").
+    const mickey = getInstance(state, otherId);
+    const supportEffect = mickey.timedEffects.find((te: any) => te.type === "modify_strength" && te.sourceInstanceId === queenId);
+    expect(supportEffect).toBeDefined();
+    expect((supportEffect as any).sourceStoryName).toBe("Support");
+  });
+});
+
 describe("§11 Set 11 — Snow Fort static strength + Support", () => {
   it("Support strength includes static bonuses from other cards (e.g. Snow Fort +1 str)", () => {
     let state = startGame();

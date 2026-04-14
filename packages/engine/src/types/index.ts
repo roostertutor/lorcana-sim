@@ -589,6 +589,13 @@ export interface GainStatsEffect {
    *  picked character (Prince Phillip Gallant Defender, Rapunzel Ready for
    *  Adventure). Not part of the JSON spec. */
   _supportRecipientHook?: boolean;
+  /** Internal — story name of the producing ability/keyword. Stamped onto
+   *  the resulting TimedEffect so the UI can attribute the buff to the
+   *  right ability on cards with multiple abilities (e.g. The Queen
+   *  Conceited Ruler has Support AND ROYAL SUMMONS). Set by the trigger
+   *  synthesis ("Support" / "Challenger") or by the trigger-resolution
+   *  pass when an ability defines explicit effects. */
+  _sourceStoryName?: string;
   /**
    * Dynamic strength modifier resolved via DynamicAmount (count-based, etc.).
    * When set, overrides the literal `strength` field. The sign convention is:
@@ -2397,6 +2404,13 @@ export interface TimedEffect {
   charges?: number;
   /** Instance that created this effect (for UI: look up card name/text via state.cards[id].definitionId) */
   sourceInstanceId?: string;
+  /** Story name of the ability/keyword that produced this effect. Populated
+   *  at creation time so the UI can attribute the effect to the right
+   *  ability on cards with multiple abilities (e.g. The Queen Conceited
+   *  Ruler has Support keyword AND ROYAL SUMMONS — without this the GUI
+   *  has to guess). "Support" / "Challenger" / etc. for synthesized keyword
+   *  triggers; ability.storyName for explicit triggered/static abilities. */
+  sourceStoryName?: string;
 }
 
 // -----------------------------------------------------------------------------
