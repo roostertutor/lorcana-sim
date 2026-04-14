@@ -1695,7 +1695,12 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                and end up with equal effective play-area heights. Only the
                hand strip heights differ between players. ---- */}
         <div className="shrink-0 mt-1 -mx-3 px-2 md:mx-0">
-          <div className="h-20 overflow-hidden flex flex-nowrap items-start justify-center md:h-auto md:overflow-hidden md:flex-wrap md:max-h-[260px] lg:max-h-[355px] md:p-1 md:min-h-[80px]">
+          {/* min-h matches the natural single-row card height (md card 146px,
+              lg card 168px + padding) so empty hand and filled-single-row
+              hand are the same height — no board shift when a card is drawn
+              into an empty hand. max-h still allows wrapping to 2 rows for
+              rare large hands (which will shift, but that's acceptable). */}
+          <div className="h-20 overflow-hidden flex flex-nowrap items-start justify-center md:h-auto md:overflow-hidden md:flex-wrap md:max-h-[260px] lg:max-h-[355px] md:p-1 md:min-h-[160px] lg:min-h-[180px]">
             {p1Zones.hand.length === 0 ? (
               <span className="text-gray-700 text-xs italic self-center">Empty hand</span>
             ) : (
