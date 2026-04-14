@@ -92,12 +92,17 @@ export function applyAction(
     const revealEvents = events.filter((e): e is Extract<GameEvent, { type: "card_revealed" }> => e.type === "card_revealed");
     if (revealEvents.length > 0) {
       const last = revealEvents[revealEvents.length - 1]!;
+      // Increment sequenceId each time so the UI can distinguish distinct
+      // reveals of the same card (e.g. quest Daisy → undo → quest Daisy again:
+      // both reveal the same top-of-deck, but they are separate events).
+      const nextSeq = (newState.lastRevealedCards?.sequenceId ?? 0) + 1;
       newState = {
         ...newState,
         lastRevealedCards: {
           instanceIds: revealEvents.map(e => e.instanceId),
           sourceInstanceId: last.sourceInstanceId,
           playerId: last.playerId,
+          sequenceId: nextSeq,
         },
       };
     }

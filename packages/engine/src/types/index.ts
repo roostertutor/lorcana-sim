@@ -2743,8 +2743,11 @@ export interface GameState {
    *  Set at the end of applyAction from card_revealed events so multiplayer
    *  clients can read it from synced state (events are transient). Persists until
    *  overwritten by the next action that produces reveals — NOT cleared by
-   *  actions with no reveals (the GUI is responsible for dismissing). */
-  lastRevealedCards?: { instanceIds: string[]; sourceInstanceId: string; playerId: PlayerID };
+   *  actions with no reveals (the GUI is responsible for dismissing).
+   *  `sequenceId` increments on every reveal-producing action so the UI can
+   *  distinguish "same card revealed twice" (e.g. quest Daisy → undo → quest
+   *  Daisy again reveals the same top card) as two distinct reveals. */
+  lastRevealedCards?: { instanceIds: string[]; sourceInstanceId: string; playerId: PlayerID; sequenceId: number };
 
   /** Snapshot of the last card resolved as a cost-side target (banish/exert chosen
    *  own character inside a sequential cost). Used by reward-side effects like

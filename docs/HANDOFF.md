@@ -105,6 +105,27 @@ Behavior:
 
 ---
 
+## GUI: update reveal overlay key to use `lastRevealedCards.sequenceId`
+
+`packages/ui/src/pages/GameBoard.tsx:567` — the `currentRevealCardsKey` is
+computed from `instanceIds.join(",")` (content-based). This breaks on the
+undo → re-quest flow: if you quest Daisy Duck Donald's Date (reveals top
+of opponent's deck), dismiss the overlay, then undo and quest again, the
+SAME top card is revealed and produces the same content-key, so
+`dismissedRevealKey === currentRevealCardsKey` and the overlay stays hidden.
+
+Fix: include `sequenceId` in the key.
+```ts
+const rc = session.gameState?.lastRevealedCards;
+const currentRevealCardsKey = rc ? `${rc.sequenceId}:${rc.instanceIds.join(",")}` : null;
+```
+
+Engine change (already landed): `lastRevealedCards` now carries a `sequenceId:
+number` that increments on every reveal-producing action. This makes two
+reveals of the same card-id produce distinct keys.
+
+---
+
 ## Simulator: bot policy enumerator only generates single-pick for multi-pick choices
 
 `packages/simulator/src/rl/policy.ts:232-242` — the `choose_from_revealed`
