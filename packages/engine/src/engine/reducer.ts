@@ -84,6 +84,27 @@ export function applyAction(
     // CRD 1.8: Game state check — damage≥willpower banish + lore win
     newState = runGameStateCheck(newState, definitions, events);
 
+    // CRD 3.2.3.1: if applyPassTurn deferred the draw step because a
+    // turn_start trigger created a pendingChoice (e.g. The Queen Conceited
+    // Ruler ROYAL SUMMONS), resume the draw now that the choice has resolved
+    // and the trigger stack has drained. Loop since the draw itself may
+    // queue triggers (on_draw) that cascade further.
+    while (
+      newState.pendingDrawForPlayer &&
+      !newState.pendingChoice &&
+      newState.triggerStack.length === 0 &&
+      !newState.isGameOver
+    ) {
+      const drawPlayer = newState.pendingDrawForPlayer;
+      newState = { ...newState, pendingDrawForPlayer: undefined };
+      const drawModifiers = getGameModifiers(newState, definitions);
+      if (!drawModifiers.skipsDrawStep.has(drawPlayer)) {
+        newState = applyDraw(newState, drawPlayer, 1, events, definitions);
+      }
+      newState = processTriggerStack(newState, definitions, events);
+      newState = runGameStateCheck(newState, definitions, events);
+    }
+
     // Persist revealed cards on state for multiplayer visibility (events are transient).
     // Only overwrite when this action produced reveals — follow-up actions like
     // choose_order (which have no reveals) must NOT clear stale data, because the
@@ -1778,9 +1799,18 @@ function applyPassTurn(
   // CRD 3.2.3.1: draw step — active player draws a card.
   // Skip if a static effect on a card the active player owns says so
   // (Arthur Determined Squire — "Skip your turn's Draw step").
-  const drawModifiers = getGameModifiers(state, definitions);
-  if (!drawModifiers.skipsDrawStep.has(opponent)) {
-    state = applyDraw(state, opponent, 1, events, definitions);
+  // If a turn_start trigger created a pendingChoice (e.g. The Queen
+  // Conceited Ruler ROYAL SUMMONS' may-choose target in discard), defer
+  // the draw step until the choice resolves. The draw must happen AFTER
+  // the trigger fully resolves, not before. See applyAction's post-
+  // processing which consumes pendingDrawForPlayer.
+  if (state.pendingChoice) {
+    state = { ...state, pendingDrawForPlayer: opponent };
+  } else {
+    const drawModifiers = getGameModifiers(state, definitions);
+    if (!drawModifiers.skipsDrawStep.has(opponent)) {
+      state = applyDraw(state, opponent, 1, events, definitions);
+    }
   }
 
   state = { ...state, phase: "main" };

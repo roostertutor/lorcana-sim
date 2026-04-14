@@ -232,8 +232,8 @@ describe("§11 Set 11 — Graveyard of Christmas Future", () => {
     expect(getInstance(state, graveyardId).cardsUnder.length).toBe(1);
 
     // Pass twice to come back to player1 — ANOTHER CHANCE fires at start of turn.
-    // Capture hand AFTER the pass (which includes the draw-step card) so we
-    // isolate the hand delta from ANOTHER CHANCE alone.
+    // Per CRD 3.2.3.1 the draw step is deferred while the turn_start trigger's
+    // pendingChoice is open, so hand size captured after passTurns(2) is pre-draw.
     state = passTurns(state, 2);
 
     // ANOTHER CHANCE is a "may" — surfaces a choose_may pendingChoice for the controller
@@ -243,8 +243,8 @@ describe("§11 Set 11 — Graveyard of Christmas Future", () => {
     expect(r.success).toBe(true);
     state = r.newState;
 
-    // 1 card moved into hand, Graveyard banished
-    expect(getZone(state, "player1", "hand").length).toBe(handSizeBeforeMay + 1);
+    // 1 card from under → hand (ANOTHER CHANCE) + 1 deferred draw = +2. Graveyard banished.
+    expect(getZone(state, "player1", "hand").length).toBe(handSizeBeforeMay + 2);
     expect(getInstance(state, graveyardId).zone).toBe("discard");
   });
 });
@@ -837,6 +837,39 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     } };
     state = applyEffect(state, { type: "deal_damage", amount: 2, target: { type: "this" } } as any, otherHeroId, "player1", LORCAST_CARD_DEFINITIONS, []);
     expect(getInstance(state, otherHeroId).damage).toBe(0);
+  });
+});
+
+describe("§CRD 3.2.1.4 / 3.2.3.1 — turn_start trigger defers draw step", () => {
+  it("The Queen Conceited Ruler ROYAL SUMMONS: draw happens after may-choice resolves", () => {
+    // Set up: The Queen on player1's side, a character card in player1's discard.
+    let state = startGame();
+    let queenId: string, targetCharId: string;
+    ({ state, instanceId: queenId } = injectCard(state, "player1", "the-queen-conceited-ruler", "play", { isDrying: false }));
+    ({ state, instanceId: targetCharId } = injectCard(state, "player1", "mickey-mouse-true-friend", "discard"));
+
+    // Pass twice so player1's turn starts again. ROYAL SUMMONS queues as
+    // turn_start, isMay + chosen target → pendingChoice (choose_may).
+    state = passTurns(state, 2);
+
+    expect(state.pendingChoice?.type).toBe("choose_may");
+    // Deferred draw flag set — hand has not received the draw yet
+    expect(state.pendingDrawForPlayer).toBe("player1");
+    const handSizeWithChoiceOpen = getZone(state, "player1", "hand").length;
+
+    // Accept the may → target the Mickey in discard
+    let r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetCharId] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // After choice resolution: +1 from return_to_hand, +1 from deferred draw
+    expect(getZone(state, "player1", "hand").length).toBe(handSizeWithChoiceOpen + 2);
+    expect(state.pendingDrawForPlayer).toBeUndefined();
+    // Returned card is now in hand
+    expect(getInstance(state, targetCharId).zone).toBe("hand");
   });
 });
 

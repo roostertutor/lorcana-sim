@@ -2696,6 +2696,13 @@ export interface GameState {
   /** Effects waiting to resolve after a pending choice is resolved */
   pendingEffectQueue?: { effects: Effect[]; sourceInstanceId: string; controllingPlayerId: PlayerID } | undefined;
 
+  /** CRD 3.2.3.1: Draw step deferred when a turn_start trigger ("At the start
+   *  of your turn", e.g. The Queen Conceited Ruler ROYAL SUMMONS) creates a
+   *  pendingChoice. Resumed once trigger stack empties and no choice is pending,
+   *  so the mandatory draw happens AFTER all start-of-turn triggers fully
+   *  resolve — not before/during them. */
+  pendingDrawForPlayer?: PlayerID;
+
   /** Seeded PRNG state — advances with every random operation */
   rng: RngState;
 
