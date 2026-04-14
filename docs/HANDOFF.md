@@ -87,40 +87,34 @@ Bot/headless mode unchanged.
 
 ---
 
-## GUI: `choose_from_revealed` now supports multi-pick + mandatory mode
+~~## GUI: `choose_from_revealed` now supports multi-pick + mandatory mode~~ **DONE**
 
-Engine refactor collapsed `one_to_hand_rest_bottom` into `up_to_n_to_hand_rest_bottom`
-and added `isMay` / `revealPicks` flags. The `choose_from_revealed` pending choice
-for look-at-top effects now has **three new behaviors** the GUI needs to handle:
+PendingChoiceModal.tsx now reads `pendingEffect.maxToHand` for `choose_from_revealed`
+backed by `look_at_top` effects and caps picks by `Math.min(maxToHand, validTargets.length)`.
 
-1. **Multi-pick** — `pendingEffect.maxToHand` can be > 1 (Look at This Family = 2,
-   Dig a Little Deeper = 2, Might Solve a Mystery = 2). The player should be able
-   to select 0..maxToHand cards from `validTargets` and submit all picks via a
-   single `RESOLVE_CHOICE` with `choice: [pick1, pick2, ...]`. Currently the UI
-   may only support single-pick.
+Behavior:
+- **Multi-pick**: modal allows selecting 0..targetCount cards; resolves via array.
+- **Mandatory vs optional**: driven by `pendingChoice.optional` (set from `effect.isMay`).
+  When mandatory, header reads "Select N (X/N)", Confirm disabled unless
+  `multiSelectTargets.length === targetCount`, no Skip button. When optional,
+  header reads "Select up to N", Confirm enabled at ≥1, Skip button available.
+- **Private vs public picks**: already handled by engine — private picks
+  (`revealPicks: false`) don't emit `card_revealed` events, so `lastRevealedCards`
+  stays unset and the overlay correctly stays hidden in multiplayer. The
+  chooser still sees cards via `pendingChoice.revealedCards` (local modal only).
 
-2. **Mandatory vs optional** — `pendingChoice.optional` now reflects
-   `effect.isMay ?? false`. When `false` (Dig a Little Deeper: "Put 2 into your
-   hand"), the player MUST pick exactly `min(maxToHand, validTargets.length)`
-   cards and cannot dismiss the modal. When `true` (Ariel: "you may reveal..."),
-   the player can pick 0..maxToHand. UI should grey out / disable a skip button
-   when `optional: false`.
+---
 
-3. **Private vs public picks** — `pendingEffect.revealPicks` controls whether the
-   engine fires `card_revealed` events for the picks. DALD and Develop Your Brain
-   have `revealPicks: false` — picks should NOT be shown to the opponent (no
-   reveal overlay in multiplayer). The engine already handles this (no events
-   fired, so `lastRevealedCards` stays unset for those picks). GUI just needs to
-   trust the existing `lastRevealedCards` mechanism — no action needed if it
-   already drives the overlay off that field. **Verify**: the reveal overlay is
-   NOT shown for DALD in multiplayer (it should remain private info).
+## Simulator: bot policy enumerator only generates single-pick for multi-pick choices
 
-Affected cards — see oracle text for exact semantics:
-- Mandatory + private: Dig a Little Deeper (2), Develop Your Brain (2),
-  Hen Wen's Visions, How Far I'll Go (2), Pete Ghost of Christmas Future,
-  Vision of the Future
-- May + reveal (the majority ~46 cards): Ariel Spectacular Singer, Nani Stage
-  Manager, Look at This Family, Jim Hawkins, Judy Hopps Uncovering Clues, etc.
-- Mandatory + reveal: Bambi Ethereal Fawn (reveal-all variant),
-  Invited to the Ball
+`packages/simulator/src/rl/policy.ts:232-242` — the `choose_from_revealed`
+candidate enumerator emits one candidate per valid target (single pick) plus
+an empty-array candidate if optional. For mandatory multi-pick effects
+(e.g. Dig a Little Deeper: pick exactly 2), this underfills — the bot will
+only put 1 card into hand instead of 2, leaving the other picks on deck.
+
+Fix: for `choose_from_revealed` backed by `look_at_top` with
+`pendingEffect.maxToHand > 1`, enumerate multi-pick combinations (or at least
+pick the top-K valid targets as a single candidate when mandatory). May need
+a similar pass in any other bot that handles this choice type.
 

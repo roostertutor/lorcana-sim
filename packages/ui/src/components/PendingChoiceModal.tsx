@@ -498,8 +498,19 @@ export default function PendingChoiceModal({
     const displayCards = pendingChoice.revealedCards ?? pendingChoice.validTargets ?? [];
     const validSet = new Set(pendingChoice.validTargets ?? []);
     const hasValidTargets = validSet.size > 0;
-    const targetCount = (pendingChoice as any).count ?? 1;
+    // For choose_from_revealed backed by a look_at_top effect, the max number
+    // of picks lives on pendingEffect.maxToHand (not pendingChoice.count).
+    // For choose_target multi-pick, pendingChoice.count is used.
+    const pendingEffect = (pendingChoice as any).pendingEffect;
+    const maxToHand: number | undefined =
+      pendingEffect?.type === "look_at_top" ? pendingEffect.maxToHand : undefined;
+    const rawCap = maxToHand ?? (pendingChoice as any).count ?? 1;
+    // Can't pick more than exist among valid targets (mandatory "put 2" with only
+    // 1 valid match collapses to exactly 1).
+    const targetCount = Math.max(1, Math.min(rawCap, Math.max(validSet.size, 1)));
     const isMultiTarget = targetCount > 1;
+    // Mandatory mode: must pick exactly targetCount. Optional: 1..targetCount.
+    const isMandatory = !pendingChoice.optional;
 
     // Split into "mine" and "opponent's" groups. When grouping is meaningful
     // (both sides represented), render them under labeled sections; otherwise
@@ -545,7 +556,7 @@ export default function PendingChoiceModal({
           <div className="text-yellow-300 text-sm font-medium">{pendingChoice.prompt}</div>
           {isMultiTarget && (
             <div className="text-[10px] text-gray-500 uppercase tracking-wider">
-              Select up to {targetCount} ({multiSelectTargets.length}/{targetCount})
+              {isMandatory ? "Select" : "Select up to"} {targetCount} ({multiSelectTargets.length}/{targetCount})
             </div>
           )}
           {contextHints.length > 0 && (
@@ -580,7 +591,13 @@ export default function PendingChoiceModal({
           {hasValidTargets && (
             <button
               className="px-4 py-2 text-xs bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg font-medium transition-colors"
-              disabled={isMultiTarget ? multiSelectTargets.length === 0 : !multiSelectTargets[0]}
+              disabled={
+                isMultiTarget
+                  ? isMandatory
+                    ? multiSelectTargets.length !== targetCount
+                    : multiSelectTargets.length === 0
+                  : !multiSelectTargets[0]
+              }
               onClick={() => onResolveChoice(multiSelectTargets)}
             >
               {isMultiTarget ? `Confirm (${multiSelectTargets.length}/${targetCount})` : "Confirm"}
