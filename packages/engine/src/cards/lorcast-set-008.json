@@ -728,7 +728,7 @@
         },
         "effects": [
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "isMay": true,
             "sourceZone": "hand",
             "filter": {
@@ -1131,7 +1131,7 @@
               ],
               "costAtMost": 5
             },
-            "matchAction": "play_for_free",
+            "matchAction": "play_card",
             "isMay": true,
             "noMatchDestination": "top",
             "target": {
@@ -4688,7 +4688,7 @@
                 },
                 "then": [
                   {
-                    "type": "play_for_free",
+                    "type": "play_card",
                     "sourceZone": "discard",
                     "target": {
                       "type": "from_last_discarded"
@@ -10249,7 +10249,7 @@
             ],
             "rewardEffects": [
               {
-                "type": "play_for_free",
+                "type": "play_card",
                 "target": {
                   "type": "this"
                 },
@@ -13553,7 +13553,7 @@
             ],
             "rewardEffects": [
               {
-                "type": "play_for_free",
+                "type": "play_card",
                 "target": {
                   "type": "this"
                 },

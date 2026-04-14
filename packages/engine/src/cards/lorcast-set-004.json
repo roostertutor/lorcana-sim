@@ -4098,7 +4098,7 @@
             ],
             "rewardEffects": [
               {
-                "type": "play_for_free",
+                "type": "play_card",
                 "sourceZone": "hand",
                 "filter": {
                   "cardType": [
@@ -8682,7 +8682,7 @@
             "defaultEffects": [],
             "ifMatchEffects": [
               {
-                "type": "play_for_free",
+                "type": "play_card",
                 "isMay": true,
                 "sourceZone": "hand",
                 "target": {
@@ -12210,7 +12210,7 @@
             "defaultEffects": [],
             "ifMatchEffects": [
               {
-                "type": "play_for_free",
+                "type": "play_card",
                 "isMay": true,
                 "sourceZone": "hand",
                 "target": {

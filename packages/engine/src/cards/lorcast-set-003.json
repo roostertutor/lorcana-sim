@@ -5048,7 +5048,7 @@
         },
         "effects": [
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "sourceZone": "discard",
             "target": {
               "type": "triggering_card"
@@ -6042,7 +6042,7 @@
         },
         "effects": [
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "filter": {
               "cardType": [
                 "location"
@@ -8419,7 +8419,7 @@
         },
         "effects": [
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "filter": {
               "cardType": [
                 "item"
@@ -9869,7 +9869,7 @@
         ],
         "effects": [
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "filter": {
               "cardType": [
                 "character"
@@ -11645,7 +11645,7 @@
         },
         "effects": [
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "sourceZone": "discard",
             "target": {
               "type": "triggering_card"
@@ -12038,7 +12038,7 @@
         },
         "effects": [
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "filter": {
               "cardType": [
                 "item"
@@ -12148,7 +12148,7 @@
         ],
         "effects": [
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "filter": {
               "cardType": [
                 "character"

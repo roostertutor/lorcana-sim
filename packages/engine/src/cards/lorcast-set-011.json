@@ -832,7 +832,7 @@
         },
         "effects": [
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "isMay": true,
             "sourceZone": "discard",
             "filter": {
@@ -3573,7 +3573,7 @@
         },
         "effects": [
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "filter": {
               "cardType": [
                 "character"
@@ -5607,7 +5607,7 @@
             ],
             "rewardEffects": [
               {
-                "type": "play_for_free",
+                "type": "play_card",
                 "sourceZone": "hand",
                 "filter": {
                   "cardType": "character",
@@ -7488,9 +7488,11 @@
         "effects": [
           {
             "type": "reveal_top_conditional",
-            "target": { "type": "self" },
+            "target": {
+              "type": "self"
+            },
             "filter": {},
-            "matchAction": "play_for_free",
+            "matchAction": "play_card",
             "matchPayCost": true,
             "noMatchDestination": "discard"
           }
@@ -8338,7 +8340,7 @@
             ],
             "rewardEffects": [
               {
-                "type": "play_for_free",
+                "type": "play_card",
                 "isMay": true,
                 "sourceZone": "discard",
                 "filter": {
@@ -10105,7 +10107,7 @@
         },
         "effects": [
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "isMay": true,
             "filter": {
               "cardType": [
@@ -11052,7 +11054,7 @@
             "character"
           ]
         },
-        "matchAction": "play_for_free",
+        "matchAction": "play_card",
         "noMatchDestination": "bottom",
         "isMay": true,
         "target": {
@@ -12604,7 +12606,7 @@
         },
         "effects": [
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "isMay": true,
             "sourceZone": "discard",
             "filter": {
@@ -13774,7 +13776,7 @@
             "character"
           ]
         },
-        "matchAction": "play_for_free",
+        "matchAction": "play_card",
         "noMatchDestination": "bottom",
         "isMay": true,
         "target": {

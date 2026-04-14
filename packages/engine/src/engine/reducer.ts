@@ -2832,7 +2832,7 @@ export function applyEffect(
           case "to_hand":
             state = moveCard(state, topId, targetPlayer, "hand");
             break;
-          case "play_for_free": {
+          case "play_card": {
             // matchPayCost: controller pays the card's normal ink cost
             // (Kristoff's Lute "play it as if it were in your hand"). If they
             // can't afford, fall through to noMatchDestination (treated as
@@ -4141,7 +4141,7 @@ export function applyEffect(
           prompt: "Choose a card from your hand to reveal and play for free.",
           validTargets: eligible,
           pendingEffect: {
-            type: "play_for_free",
+            type: "play_card",
             sourceZone: "hand",
             target: { type: "triggering_card" },
           } as Effect,
@@ -4521,7 +4521,7 @@ export function applyEffect(
       return state;
     }
 
-    case "play_for_free": {
+    case "play_card": {
       // Direct-target form — skip the choose-from-zone flow and apply directly.
       if (effect.target) {
         const directPF = resolveDirectTarget(effect.target, state, sourceInstanceId, triggeringCardInstanceId);
@@ -6196,7 +6196,7 @@ function applyEffectToTarget(
       }
       return state;
     }
-    case "play_for_free": {
+    case "play_card": {
       // Play the chosen card. Source zone defaults to "hand" but may be "discard"
       // (Ursula - Deceiver of All), "under" (The Black Cauldron), or any other zone.
       // `cost: "normal"` deducts the card's effective ink cost (paid play); default is free.

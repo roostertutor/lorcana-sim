@@ -942,7 +942,7 @@
                 "character"
               ]
             },
-            "matchAction": "play_for_free",
+            "matchAction": "play_card",
             "noMatchDestination": "bottom",
             "isMay": true,
             "target": {
@@ -1770,7 +1770,7 @@
         ],
         "effects": [
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "sourceZone": "under",
             "sourceInstanceId": "self",
             "cost": "normal",
@@ -7062,7 +7062,7 @@
         },
         "effects": [
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "sourceZone": "discard",
             "filter": {
               "owner": {
@@ -7498,7 +7498,7 @@
     ],
     "actionEffects": [
       {
-        "type": "play_for_free",
+        "type": "play_card",
         "sourceZone": "discard",
         "filter": {
           "cardType": [
@@ -10995,7 +10995,7 @@
                     "item"
                   ]
                 },
-                "matchAction": "play_for_free",
+                "matchAction": "play_card",
                 "noMatchDestination": "bottom",
                 "isMay": true
               }
@@ -12953,7 +12953,7 @@
                 "character"
               ]
             },
-            "matchAction": "play_for_free",
+            "matchAction": "play_card",
             "noMatchDestination": "bottom",
             "isMay": true,
             "target": {
@@ -13037,7 +13037,7 @@
         ],
         "effects": [
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "sourceZone": "under",
             "sourceInstanceId": "self",
             "cost": "normal",
@@ -13592,7 +13592,7 @@
         },
         "effects": [
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "sourceZone": "discard",
             "filter": {
               "owner": {

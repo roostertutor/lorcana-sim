@@ -1099,7 +1099,7 @@
         },
         "effects": [
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "filter": {
               "cardType": [
                 "action"

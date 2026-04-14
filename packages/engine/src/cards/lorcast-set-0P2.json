@@ -26,7 +26,7 @@
         ],
         "effects": [
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "filter": {
               "cardType": [
                 "item"
@@ -1486,7 +1486,7 @@
         "rulesText": "At the start of your turn, if this card is in your discard, you may play her and she enters play exerted.",
         "effects": [
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "target": {
               "type": "this"
             },
@@ -1940,7 +1940,7 @@
                 },
                 "then": [
                   {
-                    "type": "play_for_free",
+                    "type": "play_card",
                     "sourceZone": "discard",
                     "target": {
                       "type": "from_last_discarded"
@@ -2025,7 +2025,7 @@
                 },
                 "then": [
                   {
-                    "type": "play_for_free",
+                    "type": "play_card",
                     "sourceZone": "discard",
                     "target": {
                       "type": "from_last_discarded"

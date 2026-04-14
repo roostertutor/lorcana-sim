@@ -330,7 +330,7 @@
                 "item"
               ]
             },
-            "matchAction": "play_for_free",
+            "matchAction": "play_card",
             "matchEnterExerted": true,
             "noMatchDestination": "bottom",
             "isMay": true,

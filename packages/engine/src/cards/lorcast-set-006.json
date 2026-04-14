@@ -94,7 +94,7 @@
         "rulesText": "At the start of your turn, if this card is in your discard, you may play her and she enters play exerted.",
         "effects": [
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "target": {
               "type": "this"
             },
@@ -7861,7 +7861,7 @@
                 "item"
               ]
             },
-            "matchAction": "play_for_free",
+            "matchAction": "play_card",
             "matchEnterExerted": true,
             "noMatchDestination": "bottom",
             "isMay": true,

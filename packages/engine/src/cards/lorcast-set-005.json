@@ -102,7 +102,7 @@
         },
         "effects": [
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "isMay": true,
             "filter": {
               "cardType": [
@@ -1384,7 +1384,7 @@
     ],
     "actionEffects": [
       {
-        "type": "play_for_free",
+        "type": "play_card",
         "sourceZone": "discard",
         "filter": {
           "cardType": [
@@ -1777,7 +1777,7 @@
             }
           },
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "sourceZone": "discard",
             "filter": {
               "zone": "discard",
@@ -6644,7 +6644,7 @@
             "isMay": true
           },
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "target": {
               "type": "last_resolved_target"
             },
@@ -8285,7 +8285,7 @@
         ],
         "effects": [
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "filter": {
               "cardType": [
                 "item"
@@ -10344,7 +10344,7 @@
         },
         "effects": [
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "isMay": true,
             "filter": {
               "cardType": [
@@ -10490,7 +10490,7 @@
               ],
               "hasName": "Pete"
             },
-            "matchAction": "play_for_free",
+            "matchAction": "play_card",
             "isMay": true,
             "noMatchDestination": "top",
             "target": {
@@ -11375,7 +11375,7 @@
             ],
             "effects": [
               {
-                "type": "play_for_free",
+                "type": "play_card",
                 "sourceZone": "hand",
                 "filter": {
                   "cardType": "character",
@@ -11524,7 +11524,7 @@
         },
         "effects": [
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "isMay": true,
             "filter": {
               "cardType": [
@@ -11659,7 +11659,7 @@
     ],
     "actionEffects": [
       {
-        "type": "play_for_free",
+        "type": "play_card",
         "sourceZone": "discard",
         "filter": {
           "cardType": [
@@ -12124,7 +12124,7 @@
             "isMay": true
           },
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "target": {
               "type": "last_resolved_target"
             },
@@ -12582,7 +12582,7 @@
             ],
             "effects": [
               {
-                "type": "play_for_free",
+                "type": "play_card",
                 "sourceZone": "hand",
                 "filter": {
                   "cardType": "character",

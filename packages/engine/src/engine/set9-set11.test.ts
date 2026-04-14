@@ -895,7 +895,7 @@ describe("§P2 Promo — Lilo Escape Artist NO PLACE I'D RATHER BE (paid play fr
     const newState = applyEffect(
       state,
       {
-        type: "play_for_free",
+        type: "play_card",
         target: { type: "this" },
         sourceZone: "discard",
         enterExerted: true,

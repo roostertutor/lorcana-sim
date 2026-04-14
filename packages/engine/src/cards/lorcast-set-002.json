@@ -645,7 +645,7 @@
                 "character"
               ]
             },
-            "matchAction": "play_for_free",
+            "matchAction": "play_card",
             "matchEnterExerted": true,
             "noMatchDestination": "top"
           }
@@ -2473,7 +2473,7 @@
         ],
         "effects": [
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "filter": {
               "cardType": [
                 "character"
@@ -3302,7 +3302,7 @@
     ],
     "actionEffects": [
       {
-        "type": "play_for_free",
+        "type": "play_card",
         "filter": {
           "cardType": [
             "character"
@@ -5074,7 +5074,7 @@
         ],
         "rewardEffects": [
           {
-            "type": "play_for_free",
+            "type": "play_card",
             "filter": {
               "cardType": [
                 "character"

@@ -223,7 +223,7 @@ export type Effect =
   | DiscardEffect
   | MoveToInkwellEffect
   | ConditionalOnTargetEffect
-  | PlayForFreeEffect
+  | PlayCardEffect
   | ShuffleIntoDeckEffect
   | PayInkEffect
   | SequentialEffect
@@ -908,20 +908,20 @@ export interface DamagePreventionStatic {
  *
  * Examples:
  *  - Queen's/King's Sensor Core: matchAction "to_hand", filter Princess|Queen
- *  - Pete - Wrestling Champ: matchAction "play_for_free", filter name "Pete"
- *  - Chief Bogo - Commanding Officer: matchAction "play_for_free", filter cardType character cost≤5
+ *  - Pete - Wrestling Champ: matchAction "play_card", filter name "Pete"
+ *  - Chief Bogo - Commanding Officer: matchAction "play_card", filter cardType character cost≤5
  */
 export interface RevealTopConditionalEffect {
   type: "reveal_top_conditional";
   /** Filter the revealed card must match for matchAction to apply. */
   filter: CardFilter;
   /** What to do with the revealed card if it matches. */
-  matchAction: "to_hand" | "play_for_free" | "to_inkwell_exerted";
-  /** Only meaningful when matchAction === "play_for_free". When true, the
+  matchAction: "to_hand" | "play_card" | "to_inkwell_exerted";
+  /** Only meaningful when matchAction === "play_card". When true, the
    *  played card enters play exerted (Oswald Lucky Rabbit FAVORABLE CHANCE
    *  for items). */
   matchEnterExerted?: boolean;
-  /** Only meaningful when matchAction === "play_for_free". When true, the
+  /** Only meaningful when matchAction === "play_card". When true, the
    *  controller pays the card's normal ink cost (Kristoff's Lute MOMENT OF
    *  INSPIRATION: "play it as if it were in your hand"). When false/undefined,
    *  the card is played for free (Daisy Duck Donald's Date, Mufasa). If the
@@ -1191,7 +1191,7 @@ export interface LookAtTopEffect {
      *  lastResolvedTarget to it (card stays in deck), move the rest per
      *  restPlacement. The picked card is then acted on by a subsequent
      *  effect in the same ability's effects array — typically a
-     *  `play_for_free` with target: last_resolved_target, sourceZone: "deck".
+     *  `play_card` with target: last_resolved_target, sourceZone: "deck".
      *  Separates the peek-and-choose concern from the "what to do with the
      *  chosen card" concern.
      *  Powerline World's Greatest Rock Star (restPlacement: "bottom"),
@@ -1271,9 +1271,13 @@ export interface ConditionalOnTargetEffect {
   ifMatchEffects: Effect[];
 }
 
-/** Play a card from hand for free (skip ink payment). */
-export interface PlayForFreeEffect {
-  type: "play_for_free";
+/** Play a card from some source zone (hand/discard/under/deck/etc.).
+ *  Defaults to FREE play (no ink cost). Set `cost: "normal"` to charge the
+ *  card's normal ink cost (Lilo Escape Artist, The Black Cauldron, Mystical
+ *  Inkcaster — "play it as if it were in your hand"). Renamed from
+ *  "play_for_free" since that name was misleading for the paid variants. */
+export interface PlayCardEffect {
+  type: "play_card";
   /**
    * Where to look for the card. Default: "hand".
    * Use "discard" for "play that song again from your discard" (Ursula - Deceiver of All).
@@ -1303,7 +1307,7 @@ export interface PlayForFreeEffect {
    */
   thenPutOnBottomOfDeck?: boolean;
   /**
-   * Generalization to "play a card from a zone" — see card-status `play_for_free` capability.
+   * Generalization to "play a card from a zone" — see card-status `play_card` capability.
    * Default "free" preserves the historical behavior; "normal" deducts the card's effective
    * ink cost using the same cost-payment helpers as the standard play action. Used by
    * The Black Cauldron RISE AND JOIN ME! (paid play from the item's cards-under pile).

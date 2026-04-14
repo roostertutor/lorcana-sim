@@ -488,13 +488,14 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     return `you pay ${amt} {I} less to play ${filt}`;
   },
 
-  play_for_free: (e) => {
+  play_card: (e) => {
     // When chained after peek_and_set_target (Robin Hood, Powerline), the
     // previous renderer already says "...and play it for free". Suppress the
     // redundant second phrase by returning empty — the effect still runs in
     // the engine.
     if (e.target?.type === "last_resolved_target") return "";
-    return `${maybe(e)}play ${e.filter ? renderFilter(e.filter) : "a card"} for free`;
+    const costClause = e.cost === "normal" ? "" : " for free";
+    return `${maybe(e)}play ${e.filter ? renderFilter(e.filter) : "a card"}${costClause}`;
   },
 
   look_at_top: (e) => {
@@ -561,7 +562,7 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     const exerted = e.matchEnterExerted ? " and they enter play exerted" : "";
     const playVerb = e.matchPayCost ? "play it as if it were in your hand" : `play it for free${exerted}`;
     const match = e.matchAction === "to_hand" ? "put it into your hand"
-      : e.matchAction === "play_for_free" ? `you may ${playVerb}`
+      : e.matchAction === "play_card" ? `you may ${playVerb}`
       : e.matchAction === "to_inkwell_exerted" ? "put it into your inkwell facedown and exerted"
       : e.matchAction ?? "keep it";
     const noMatch = e.noMatchDestination === "bottom" ? "put it on the bottom of your deck"
