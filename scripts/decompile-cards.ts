@@ -81,21 +81,16 @@ function renderCard(card: CardJSON): string {
   if (CARD_OVERRIDES[card.id]) return CARD_OVERRIDES[card.id]!;
 
   const parts: string[] = [];
-  // Reminder text of songs.
+  // Reminder text of songs. Sing Together songs use a different reminder
+  // ("Any number of your or your teammates' characters with total cost N
+  // or more may {E} to sing this song for free.") — emit the matching
+  // form so the diff doesn't double-up.
   if (card.traits.includes("Song")) {
-    parts.push(`(A character with cost ${card.cost} or more can {E} to sing this song for free.)`);
-  }
-
-
-  // Scalar keywords (Shift, Sing Together) are NOT in the rules text box
-  // on the physical card — they're printed as separate icons/badges. Skip
-  // them to avoid noise in the diff. Exception: Sing Together cost IS
-  // included in the oracle rulesText as "(Any number of your characters
-  // with total cost N or more may...)" for some cards.
-  // Shift: always skip.
-  // Sing Together: only emit if the oracle text includes it.
-  if (card.singTogetherCost !== undefined && card.rulesText?.includes("Sing Together")) {
-    parts.push(`Sing Together ${card.singTogetherCost}`);
+    if (card.singTogetherCost !== undefined && card.rulesText?.includes("Sing Together")) {
+      parts.push(`Sing Together ${card.singTogetherCost} (Any number of your or your teammates' characters with total cost ${card.singTogetherCost} or more may {E} to sing this song for free.)`);
+    } else {
+      parts.push(`(A character with cost ${card.cost} or more can {E} to sing this song for free.)`);
+    }
   }
 
   // Dual-name characters: Flotsam & Jetsam, Turbo - Royal Hack. The card
@@ -701,6 +696,10 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     return `${filt} enter play exerted`;
   },
 
+  // Self variant — Sleepy Nodding Off, Dale Friend in Need, Baymax Low Battery,
+  // Bolt Down but Not Out. Card simply enters play exerted.
+  enter_play_exerted_self: () => "this character enters play exerted",
+
   // "This character costs N less for each X you have" — Sherwood Forest
   // Outlaw Hideaway pattern. `amount: "all"` means "by 1 per match".
   move_to_self_cost_reduction: (e) => {
@@ -964,6 +963,19 @@ function renderAmount(a: any): string {
       case "last_effect_result": return "each 1 lost this way";
       case "cost_result": return "each 1 affected this way";
       case "last_resolved_target_delta": return "each 1 removed this way";
+      // Colors of the Wind: "for each different ink type of cards revealed this way"
+      case "unique_ink_types_on_top_of_both_decks": return "each different ink type of cards revealed this way";
+      // Namaari Resolute Daughter: "For each opposing character banished in a challenge this turn"
+      case "opposing_chars_banished_in_challenge_this_turn": return "each opposing character banished in a challenge this turn";
+      // Mulan Elite Archer / Namaari Heir of Fang: "equal to the damage just dealt"
+      case "last_damage_dealt": return "the damage just dealt";
+      case "last_resolved_source_strength": return "their {S}";
+      case "last_resolved_target_lore": return "their {L}";
+      case "last_resolved_target_strength": return "their {S}";
+      case "song_singer_count": return "the number of characters that sang this song";
+      case "triggering_card_lore": return "their {L}";
+      case "triggering_card_damage": return "the damage on them";
+      case "last_target_location_lore": return "the {L} of that location";
       default: return a;
     }
   }
@@ -1036,7 +1048,16 @@ function renderStatic(ab: Json): string {
   if (cond.startsWith("if ") || cond.startsWith("If ")) {
     cond = "While " + cond.slice(3);
   }
-  const body = renderEffect(ab.effect ?? {});
+  // ab.effect can be a single effect object OR an array of effects
+  // (compound static — Hidden Cove "+1 S and +1 W while here", Judy Hopps
+  // Lead Detective "Alert + Resist +2", etc.). Render each and join.
+  const eff = ab.effect;
+  let body: string;
+  if (Array.isArray(eff)) {
+    body = eff.map(renderEffect).filter((s) => s && !s.startsWith("[empty")).join(" and ");
+  } else {
+    body = renderEffect(eff ?? {});
+  }
   if (cond) return `${cap(cond)}, ${body}`;
   return body;
 }
@@ -1081,7 +1102,14 @@ function renderTarget(t: Json): string {
     case "chosen": {
       const f = t.filter ? renderFilter(t.filter, { suppressOwnerSelf: true }) : "character";
       const count = t.count && t.count > 1 ? `${t.count} ` : "";
-      // "Each opponent chooses" pattern: chooser=target_player with owner=self
+      // "Each opponent chooses" pattern: chooser=target_player with owner=opponent.
+      // Used by Swooping Strike, Triton's Decree, Lady Tremaine ("each opponent
+      // chooses and Xs one of their characters"). Render as a noun phrase the
+      // surrounding effect verb can attach to via "each opponent's chosen X".
+      if (t.chooser === "target_player" && t.filter?.owner?.type === "opponent") {
+        return `each opponent's chosen ${f}`;
+      }
+      // Same with self owner — "their" is correct.
       if (t.chooser === "target_player") {
         return `one of their ${pluralizeFilter(f)}`;
       }
