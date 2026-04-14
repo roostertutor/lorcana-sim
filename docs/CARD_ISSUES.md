@@ -325,6 +325,96 @@ Run `pnpm card-status` to confirm 0 unknowns. Key reclassifications:
 
 ---
 
+## Decompiler triage — cards under 0.5 similarity (post renderer-fix sweep)
+
+After the renderer improvements (enter_play_exerted_self, array static
+effects, Sing Together long-form reminder, missing DynamicAmounts, "each
+opponent chooses" framing), 34 cards remain under 0.5 similarity. Triage:
+
+### Confirmed wiring bugs (need fixing)
+
+- **Show Me More!** (set 7) — oracle: "Each player draws 3 cards." JSON
+  draws for self only; missing `target: "both"` (or both-player draw). Fix
+  is one-line.
+- **Marching Off to Battle** (set 11) — missing condition gate "If a
+  character was banished this turn"; current draw is unconditional.
+- **The Lamp** (set 3) — only "draw 2 cards" wired. Both Jafar/Genie
+  conditional branches missing entirely.
+- **Ink Geyser** (set 7) — second clause "discard at random down to 3"
+  renders as `[empty-effect]`; second action effect is unwired/wrong.
+- **Do You Want to Build A Snowman?** (set 11) — choose-one option labels
+  ("YES! / NO!") wired but neither option's actual sub-effects (gain 3
+  lore / put-on-bottom) are populated.
+- **Raksha - Fearless Mother** (set 10) — wired as generic cost-reduction
+  on play; oracle is move-cost reduction once per turn for Raksha. Wrong
+  effect type entirely.
+- **Blast from Your Past** (set 5) — wired as `name + reveal top` but
+  oracle is "Return all character cards with that name from discard". Wrong
+  mechanic — needs a "return all discard cards with that name" effect.
+- **The Bare Necessities** (set 3) — "each opponent discards 1 card"
+  wired but oracle is "Chosen opponent reveals their hand and discards a
+  non-character of your choice". Missing reveal_hand + chooser-controller.
+- **Restoring the Crown** (set 7) — first effect (exert) wired; missing
+  the floating trigger "this turn, gain 2 lore on your banishes-in-challenge".
+- **Enigmatic Inkcaster** (set 10) — `{E} → gain 1 lore` wired, missing
+  condition "If you've played 2 or more cards this turn".
+- **Mystical Inkcaster** (set 11) — wired as `enters_play` triggered
+  ability ("When you play this character, play character with cost 5 or
+  less for free"), but oracle is `{E}, 3 {I}` activated ability with Rush
+  + end-of-turn banish. Whole ability is wrong type.
+- **Kristoff's Lute** (set 11) — only `look at top 1` wired; missing the
+  may-play and put-into-discard branches.
+- **Robin Hood - Sharpshooter** (set 5) — only `look at top 4` wired;
+  missing the may-reveal-action-and-play-for-free branch.
+- **Pluto - Clever Cluefinder** (set 10) — only "return item" branch
+  wired; missing "If Detective in play... otherwise put on top of deck".
+- **We Know the Way** (set 5) — wired as `shuffle + look at top` but
+  oracle is the same-name-reveal pattern (shuffle, reveal top, if same
+  name play for free else hand). Mechanic mismatch.
+- **Hades - Lord of the Dead** (set 6) — wired with
+  `banished_other_in_challenge` trigger but oracle is "Whenever one of
+  your other characters is banished during the opponent's turn." Wrong
+  trigger event/filter.
+- **The Bitterwood - Underground Forest** (set 10) — trigger fires on
+  any move-to-this-location; oracle filters to "5 {S} or more" + "Once
+  during your turn" gate.
+
+### Renderer cosmetic gaps (wiring is correct, oracle phrases differently)
+
+- **Beast - Snowfield Troublemaker** — wired as static "while at location
+  can't be damaged from challenges", oracle is triggered phrasing. Same
+  effect.
+- **Swooping Strike, Triton's Decree, Unfortunate Situation,
+  Lady Tremaine - Imperious Queen, Gwythaint - Savage Hunter** — wired
+  correctly with chooser=target_player + owner=opponent. Renderer now says
+  "each opponent's chosen X" but oracle says "Each opponent chooses one
+  of their X and Ys them" — close enough semantically.
+- **Trust In Me** — choose-one with two options; renderer only flattens
+  one path into output.
+- **Repair, Keep the Ancient Ways** — minor wording (filter expressed
+  loosely; missing duration phrase).
+- **Yzma - Above It All** — wired as is_challenged_and_banished;
+  oracle is "Whenever another character is banished in a challenge" —
+  effectively equivalent for this card.
+- **John Smith - Undaunted Protector** — DO YOUR WORST is in the known-
+  needs-new-mechanic list (super-Bodyguard for actions+abilities).
+- **King of Hearts - Picky Ruler** — "all opposing damaged characters
+  can't challenge" wired; oracle says "Damaged characters can't challenge
+  your characters" (filter target slightly different).
+- **I2I** — `[unknown:ready_singers]` is a missing effect type for the
+  "if 2+ characters sang this song, ready them" sub-clause.
+- **Bad-Anon** — needs the inner ability to reference "this character"
+  by name (currently generic).
+
+### Recommended action
+
+Open follow-up issues for each "confirmed wiring bug" entry — these are
+the actual bugs that drove the user's "we keep finding bugs" observation.
+Renderer cosmetic gaps can stay as-is or be addressed if the renderer
+is enhanced.
+
+---
+
 ## Rulings TBD
 
 Open ruling questions where the strict CRD reading allows an interaction
