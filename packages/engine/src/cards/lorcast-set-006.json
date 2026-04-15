@@ -20,7 +20,7 @@
         "storyName": "WELL SPOTTED",
         "rulesText": "During your turn, whenever a card is put into your inkwell, chosen opposing character gets -1 {S} until the start of your next turn.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -620,7 +620,7 @@
         "storyName": "SEARCH AND RESCUE",
         "rulesText": "During your turn, whenever a card is put into your inkwell, you may return a character card from your discard to your hand.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -2697,7 +2697,7 @@
         "storyName": "ASTRAL ATTUNEMENT",
         "rulesText": "During your turn, whenever a card is put into your inkwell, you may draw a card.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -3067,7 +3067,7 @@
         "storyName": "GOTCHA!",
         "rulesText": "During your turn, whenever a card is put into your inkwell, exert chosen opposing character.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -4904,7 +4904,7 @@
         "storyName": "FEAR ALWAYS WORKS",
         "rulesText": "During your turn, whenever a card is put into your inkwell, chosen opposing character gains Reckless during their next turn.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -4973,7 +4973,7 @@
         "storyName": "TWISTS AND TURNS",
         "rulesText": "During your turn, whenever a card is put into your inkwell, you may pay 1 {I} to have chosen opponent choose and discard a card.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -5876,7 +5876,7 @@
         "storyName": "COME ON, LET'S DO THIS",
         "rulesText": "Once during your turn, whenever a card is put into your inkwell, you may ready another chosen character of yours. They can't quest for the rest of this turn.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -6537,7 +6537,7 @@
         "storyName": "LAND, HO!",
         "rulesText": "Once during your turn, whenever a card is put into your inkwell, you may return a location card from your discard to your hand.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -7783,7 +7783,7 @@
         "storyName": "RUN INTERFERENCE",
         "rulesText": "During your turn, whenever a card is put into your inkwell, another chosen character gains Resist +1 until the start of your next turn.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -7843,7 +7843,7 @@
       {
         "type": "triggered",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -7867,7 +7867,8 @@
             "isMay": true,
             "target": {
               "type": "self"
-            }
+            },
+            "matchIsMay": true
           }
         ]
       }
@@ -9930,7 +9931,7 @@
         "storyName": "COME HERE, COME HERE, COME HERE!",
         "rulesText": "During your turn, whenever a card is put into your inkwell, this character gets Challenger +2 this turn.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -10959,7 +10960,7 @@
         "storyName": "YOU WILL BE PAID WHEN THE TIME COMES",
         "rulesText": "During your turn, whenever a card is put into your inkwell, deal 1 damage to chosen character.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -11458,7 +11459,8 @@
             "noMatchDestination": "top",
             "target": {
               "type": "self"
-            }
+            },
+            "matchIsMay": true
           }
         ]
       }
@@ -11713,7 +11715,7 @@
         "storyName": "SEARCH AND RESCUE",
         "rulesText": "During your turn, whenever a card is put into your inkwell, you may return a character card from your discard to your hand.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -11928,7 +11930,7 @@
         "storyName": "ASTRAL ATTUNEMENT",
         "rulesText": "During your turn, whenever a card is put into your inkwell, you may draw a card.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -12159,7 +12161,7 @@
         "storyName": "TWISTS AND TURNS",
         "rulesText": "During your turn, whenever a card is put into your inkwell, you may pay 1 {I} to have chosen opponent choose and discard a card.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -12265,7 +12267,7 @@
         "storyName": "COME ON, LET'S DO THIS",
         "rulesText": "Once during your turn, whenever a card is put into your inkwell, you may ready another chosen character of yours. They can't quest for the rest of this turn.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }

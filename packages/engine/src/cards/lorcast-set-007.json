@@ -472,7 +472,7 @@
         "storyName": "NO THANKS NECESSARY",
         "rulesText": "Once during your turn, whenever a card is put into your inkwell, your other characters with Bodyguard get +1 {L} this turn.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -2353,7 +2353,7 @@
         "storyName": "HEALING AURA",
         "rulesText": "During your turn, whenever a card is put into your inkwell, you may remove up to 2 damage from chosen character.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -2600,7 +2600,7 @@
         "storyName": "DON'T YOU SAY A WORD",
         "rulesText": "Once during your turn, whenever a card is put into your inkwell, you may return chosen character, item, or location with cost 2 or less to their player's hand, then that player draws a card.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -4763,7 +4763,7 @@
         "storyName": "MAGICAL TOUCH",
         "rulesText": "During your turn, whenever a card is put into your inkwell, you may move 1 damage counter from chosen character to chosen opposing character.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -6120,7 +6120,7 @@
         "storyName": "FOWL PLAY",
         "rulesText": "Once during your turn, whenever a card is put into your inkwell, chosen opponent chooses one of their characters and returns that card to their hand.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -6831,7 +6831,7 @@
         "storyName": "SHIMMERING WINGS",
         "rulesText": "During your turn, whenever a card is put into your inkwell, chosen character gains Evasive until the start of your next turn.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -7983,7 +7983,7 @@
         "storyName": "EXPLOSIVE",
         "rulesText": "Once during your turn, whenever a card is put into your inkwell, deal 2 damage to each character in play.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -8436,7 +8436,7 @@
         "storyName": "CRIMSON SPARK",
         "rulesText": "During your turn, whenever a card is put into your inkwell, chosen character gets +2 {S} this turn.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -9099,7 +9099,7 @@
         "storyName": "BE SENSIBLE",
         "rulesText": "Once during your turn, whenever a card is put into your inkwell, look at the top card of your deck. You may put it on either the top or the bottom of your deck.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -10142,7 +10142,7 @@
         "storyName": "BRILLIANT SHINE",
         "rulesText": "During your turn, whenever a card is put into your inkwell, you may give chosen character -2 {S} this turn.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -10479,7 +10479,7 @@
         "storyName": "A GREATER PURPOSE",
         "rulesText": "During your turn, whenever a card is put into your inkwell, this character gains Resist +1 until the start of your next turn.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -11502,7 +11502,7 @@
         "storyName": "METALLIC FLOW",
         "rulesText": "During your turn, whenever a card is put into your inkwell, you may draw a card, then choose and discard a card.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }

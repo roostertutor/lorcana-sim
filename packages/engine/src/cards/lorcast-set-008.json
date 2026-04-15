@@ -1136,7 +1136,8 @@
             "noMatchDestination": "top",
             "target": {
               "type": "self"
-            }
+            },
+            "matchIsMay": true
           }
         ]
       }
@@ -10964,7 +10965,8 @@
             "isMay": true,
             "target": {
               "type": "self"
-            }
+            },
+            "matchIsMay": true
           }
         ]
       }

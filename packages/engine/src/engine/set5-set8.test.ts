@@ -33,7 +33,7 @@ describe("§5 Set 5 — reveal_top_conditional", () => {
     const isPrincessOrQueen = topDef.traits.includes("Princess") || topDef.traits.includes("Queen");
 
     const handBefore = getZone(state, "player1", "hand").length;
-    const r = applyAction(state, {
+    let r = applyAction(state, {
       type: "ACTIVATE_ABILITY",
       playerId: "player1",
       instanceId: coreId,
@@ -43,7 +43,12 @@ describe("§5 Set 5 — reveal_top_conditional", () => {
     state = r.newState;
 
     if (isPrincessOrQueen) {
-      // Card moved to hand
+      // ROYAL SEARCH oracle: "you may put that card into your hand" — matchIsMay
+      // surfaces a choose_may. Accept to move it to hand.
+      expect(state.pendingChoice?.type).toBe("choose_may");
+      r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+      expect(r.success).toBe(true);
+      state = r.newState;
       expect(getZone(state, "player1", "hand").length).toBe(handBefore + 1);
       expect(getZone(state, "player1", "hand")).toContain(topId);
     } else {
@@ -758,6 +763,94 @@ describe("§7 Set 7 — Queen of Hearts Unpredictable Bully (cross-player card_p
     expect(r.success).toBe(true);
     state = r.newState;
     expect(getInstance(state, ownCharId).damage).toBe(1);
+  });
+});
+
+describe("§6 Set 6 — Oswald FAVORABLE CHANCE fires on effect-driven inkwell placement", () => {
+  it("Fishbone Quill putting a hand card into inkwell triggers Oswald's card_put_into_inkwell watcher", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let oswaldId: string, quillId: string, handCardId: string;
+    ({ state, instanceId: oswaldId } = injectCard(state, "player1", "oswald-the-lucky-rabbit", "play", { isDrying: false }));
+    ({ state, instanceId: quillId } = injectCard(state, "player1", "fishbone-quill", "play", { isDrying: false }));
+    ({ state, instanceId: handCardId } = injectCard(state, "player1", "mickey-mouse-true-friend", "hand"));
+
+    // Activate Fishbone Quill → chooser → pick the mickey → put into inkwell
+    let r = applyAction(state, {
+      type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: quillId, abilityIndex: 0,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    r = applyAction(r.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [handCardId],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+
+    // Oswald's FAVORABLE CHANCE is a "you may reveal" — should produce a may choice.
+    expect(r.newState.pendingChoice).toBeDefined();
+    expect(r.newState.pendingChoice?.choosingPlayerId).toBe("player1");
+  });
+
+  it("Oswald second 'may' — with matchIsMay, declining routes top-of-deck to noMatchDestination (bottom)", () => {
+    // Force-stack the top of player1's deck with an item so we can deterministically
+    // exercise the match + second-may branch.
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let oswaldId: string;
+    ({ state, instanceId: oswaldId } = injectCard(state, "player1", "oswald-the-lucky-rabbit", "play", { isDrying: false }));
+
+    // Inject an item at top of the deck (append a new fishbone-quill then reorder).
+    const { state: s2, instanceId: itemId } = injectCard(state, "player1", "fishbone-quill", "deck");
+    state = s2;
+    // Move the injected item to position 0 of the deck.
+    const deck = [...getZone(state, "player1", "deck")];
+    const idx = deck.indexOf(itemId);
+    if (idx > 0) { deck.splice(idx, 1); deck.unshift(itemId); }
+    state = { ...state, zones: { ...state.zones, player1: { ...state.zones.player1, deck } } };
+
+    // Trigger an inkwell-put to fire Oswald.
+    let quillId: string, handCardId: string;
+    ({ state, instanceId: quillId } = injectCard(state, "player1", "fishbone-quill", "play", { isDrying: false }));
+    ({ state, instanceId: handCardId } = injectCard(state, "player1", "mickey-mouse-true-friend", "hand"));
+    let r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: quillId, abilityIndex: 0 }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [handCardId] }, LORCAST_CARD_DEFINITIONS);
+
+    // First may: "may reveal top?". Accept to reveal.
+    expect(r.newState.pendingChoice?.type).toBe("choose_may");
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+
+    // Second may: "may play that item for free?". Decline → item routes to bottom (noMatchDestination).
+    expect(r.newState.pendingChoice?.type).toBe("choose_may");
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "decline" }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+
+    // Item stayed in deck; landed at bottom (not played into play).
+    expect(getInstance(r.newState, itemId).zone).toBe("deck");
+    const finalDeck = getZone(r.newState, "player1", "deck");
+    expect(finalDeck[finalDeck.length - 1]).toBe(itemId);
+  });
+
+  it("does not fire Oswald for the opponent's effect-driven inkwell placement", () => {
+    let state = startGame();
+    let oswaldId: string;
+    ({ state, instanceId: oswaldId } = injectCard(state, "player1", "oswald-the-lucky-rabbit", "play", { isDrying: false }));
+    // Move to opponent's turn so they can act
+    state = passTurns(state, 1);
+    state = giveInk(state, "player2", 5);
+    let quillId: string, handCardId: string;
+    ({ state, instanceId: quillId } = injectCard(state, "player2", "fishbone-quill", "play", { isDrying: false }));
+    ({ state, instanceId: handCardId } = injectCard(state, "player2", "mickey-mouse-true-friend", "hand"));
+
+    let r = applyAction(state, {
+      type: "ACTIVATE_ABILITY", playerId: "player2", instanceId: quillId, abilityIndex: 0,
+    }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(r.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player2", choice: [handCardId],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // Oswald's trigger.player is self — player1 (Oswald's owner) is not the inking player,
+    // so the trigger is filtered out; also "During your turn" condition bars it.
+    expect(r.newState.pendingChoice).toBeFalsy();
   });
 });
 

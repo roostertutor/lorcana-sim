@@ -1218,4 +1218,35 @@ describe("§6 Set 2 Card Coverage", () => {
     // Player1: -1 (played Yzma), no draw
     expect(getZone(result.newState, "player1", "hand").length).toBe(p1HandBefore - 1);
   });
+
+  it("Maurice's Workshop LOOKING FOR THIS? only triggers on controller's item plays", () => {
+    // Oracle: "Whenever you play another item, you may pay 1 {I} to draw a card."
+    // Must NOT fire for opponent's item plays.
+    let state = startGame();
+    let workshopId: string;
+    ({ state, instanceId: workshopId } = injectCard(state, "player1", "maurices-workshop", "play", { isDrying: false }));
+
+    // Pass to player2's turn and have them play an item.
+    state = passTurns(state, 1);
+    state = giveInk(state, "player2", 5);
+    let oppItemId: string;
+    ({ state, instanceId: oppItemId } = injectCard(state, "player2", "fishbone-quill", "hand"));
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player2", instanceId: oppItemId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // Maurice's Workshop should NOT produce a may choice for player1.
+    expect(r.newState.pendingChoice).toBeFalsy();
+  });
+
+  it("Maurice's Workshop fires for the controller's item plays", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let workshopId: string, itemId: string;
+    ({ state, instanceId: workshopId } = injectCard(state, "player1", "maurices-workshop", "play", { isDrying: false }));
+    ({ state, instanceId: itemId } = injectCard(state, "player1", "fishbone-quill", "hand"));
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: itemId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // Workshop's "may pay 1 {I} to draw" should surface as a sequential may choice.
+    expect(r.newState.pendingChoice).toBeDefined();
+    expect(r.newState.pendingChoice?.choosingPlayerId).toBe("player1");
+  });
 });

@@ -367,7 +367,7 @@ const NEW_MECHANIC_PATTERNS: [RegExp, string][] = [
   // Dinner Bell: "Draw cards equal to the damage on chosen character" — draw-with-dynamic-amount-from-target
   [/\bdraw cards? equal to the damage on\b/i, "dynamic-draw-from-target-damage"],
   // "When you put a card into your inkwell, if it's the [second|third|fourth] card" — inkwell-count trigger
-  // (inkwell-count-trigger removed: ink_played trigger + ink_plays_this_turn_eq Condition implemented.)
+  // (inkwell-count-trigger removed: card_put_into_inkwell trigger + ink_plays_this_turn_eq Condition implemented.)
   // "For each opposing character banished in a challenge this turn, you pay N less"
   [/\bfor each opposing character banished in a challenge this turn, you pay\b/i, "event-tracking-cost-reduction"],
   // Other-at-location static ("While one of your X characters is at a location, that character gains")

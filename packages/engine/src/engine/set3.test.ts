@@ -799,4 +799,32 @@ describe("§7 Set 3 — Locations", () => {
     state = passTurns(state, 1);
     expect(state.players.player1.turnChallengeBonuses?.length ?? 0).toBe(0);
   });
+
+  it("Lucky Dime NUMBER ONE: activate surfaces, choose target, gain lore equal to their {L}", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let dimeId: string, charId: string;
+    ({ state, instanceId: dimeId } = injectCard(state, "player1", "lucky-dime", "play", { isDrying: false }));
+    // Mickey True Friend has lore 2 — gain 2 lore on activate.
+    ({ state, instanceId: charId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+
+    // Legal-action enumeration should include Lucky Dime's activate.
+    const legal = getAllLegalActions(state, "player1", LORCAST_CARD_DEFINITIONS);
+    const dimeActivate = legal.filter(a => a.type === "ACTIVATE_ABILITY" && a.instanceId === dimeId);
+    expect(dimeActivate.length).toBeGreaterThan(0);
+
+    const activated = applyAction(state, {
+      type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: dimeId, abilityIndex: 0,
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(activated.success).toBe(true);
+    expect(activated.newState.pendingChoice?.type).toBe("choose_target");
+    expect(activated.newState.pendingChoice?.validTargets).toContain(charId);
+
+    const loreBefore = activated.newState.players.player1.lore;
+    const resolved = applyAction(activated.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [charId],
+    }, LORCAST_CARD_DEFINITIONS);
+    expect(resolved.success).toBe(true);
+    expect(resolved.newState.players.player1.lore).toBe(loreBefore + 2);
+  });
 });

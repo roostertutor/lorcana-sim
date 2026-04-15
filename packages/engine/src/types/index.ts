@@ -932,8 +932,15 @@ export interface RevealTopConditionalEffect {
    *  hand and repeat this effect." After a successful match, run the same
    *  reveal again with the new top card. Loops until a non-match. */
   repeatOnMatch?: boolean;
-  /** CRD 6.1.4: revealed-and-matched cards are optional (player may decline). */
+  /** CRD 6.1.4: first "may" — player may decline to run this whole effect
+   *  (i.e. "you may reveal the top card"). Handled at the trigger layer via a
+   *  choose_may before this effect is applied. */
   isMay?: boolean;
+  /** CRD 6.1.4: second "may" — after the reveal, if the card MATCHES the filter,
+   *  the player may decline to run matchAction ("if it's an item, you may play
+   *  that item"). On decline, the revealed card is routed to noMatchDestination
+   *  (symmetric with the can't-afford fallback on matchPayCost). */
+  matchIsMay?: boolean;
   /** Where to put the revealed card if it does NOT match. Default "top". */
   noMatchDestination?: "top" | "bottom" | "hand" | "discard";
   /**
@@ -2214,7 +2221,7 @@ export type TriggerEvent =
   | { on: "turn_start"; player: PlayerTarget }
   | { on: "turn_end"; player: PlayerTarget }
   | { on: "card_drawn"; player: PlayerTarget }
-  | { on: "ink_played"; player: PlayerTarget }
+  | { on: "card_put_into_inkwell"; player: PlayerTarget }
   | { on: "card_played"; filter?: CardFilter }
   // item_played: DELETED — collapsed to card_played with filter cardType:["item"]
   | { on: "banished_other_in_challenge"; filter?: CardFilter }
@@ -2962,6 +2969,21 @@ export interface PendingChoice {
    *  (Snowman): the opponent picks YES, but the YES effect "you gain 3 lore"
    *  must run with the caster as controllingPlayer. */
   acceptControllingPlayerId?: PlayerID | undefined;
+  /** Internal: used by reveal_top_conditional's matchIsMay flow (Oswald, Simba
+   *  King in the Making, Chief Bogo Commanding Officer, etc.). Carries the
+   *  revealed card's identity and the original effect's match/no-match config
+   *  across the choose_may accept/decline boundary. On accept, the reducer runs
+   *  matchAction against revealedInstanceId; on decline, it routes the card to
+   *  noMatchDestination. Never surfaced to user JSON. */
+  _revealContinuation?: {
+    revealedInstanceId: string;
+    matchAction: "to_hand" | "play_card" | "to_inkwell_exerted";
+    matchEnterExerted?: boolean;
+    matchPayCost?: boolean;
+    matchExtraEffects?: Effect[];
+    noMatchDestination?: "top" | "bottom" | "hand" | "discard";
+    targetPlayerId: PlayerID;
+  };
 }
 
 export interface GameLogEntry {
@@ -2979,7 +3001,7 @@ export type GameLogEntryType =
   | "turn_end"
   | "card_drawn"
   | "card_played"
-  | "ink_played"
+  | "card_put_into_inkwell"
   | "card_quested"
   | "card_challenged"
   | "card_banished"

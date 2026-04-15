@@ -551,7 +551,10 @@
               "character"
             ],
             "hasKeyword": "bodyguard",
-            "excludeSelf": true
+            "excludeSelf": true,
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -1629,7 +1632,10 @@
             "cardType": [
               "action"
             ],
-            "hasTrait": "Song"
+            "hasTrait": "Song",
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -2659,7 +2665,10 @@
             "cardType": [
               "character"
             ],
-            "excludeSelf": true
+            "excludeSelf": true,
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -6390,7 +6399,10 @@
           "filter": {
             "cardType": [
               "action"
-            ]
+            ],
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -9250,7 +9262,10 @@
           "filter": {
             "cardType": [
               "character"
-            ]
+            ],
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -9640,7 +9655,10 @@
             "cardType": [
               "action"
             ],
-            "hasTrait": "Song"
+            "hasTrait": "Song",
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -9715,7 +9733,10 @@
         "trigger": {
           "on": "card_played",
           "filter": {
-            "hasTrait": "Song"
+            "hasTrait": "Song",
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -10499,7 +10520,10 @@
             "cardType": [
               "character"
             ],
-            "hasTrait": "Hero"
+            "hasTrait": "Hero",
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -12321,7 +12345,10 @@
         "trigger": {
           "on": "card_played",
           "filter": {
-            "hasTrait": "Song"
+            "hasTrait": "Song",
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [

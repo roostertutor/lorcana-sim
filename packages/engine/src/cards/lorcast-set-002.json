@@ -647,7 +647,8 @@
             },
             "matchAction": "play_card",
             "matchEnterExerted": true,
-            "noMatchDestination": "top"
+            "noMatchDestination": "top",
+            "matchIsMay": true
           }
         ]
       }
@@ -792,7 +793,10 @@
             "cardType": [
               "character"
             ],
-            "hasTrait": "Floodborn"
+            "hasTrait": "Floodborn",
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -1046,7 +1050,10 @@
             "cardType": [
               "character"
             ],
-            "hasTrait": "Seven Dwarfs"
+            "hasTrait": "Seven Dwarfs",
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -1815,7 +1822,10 @@
             "cardType": [
               "character"
             ],
-            "hasTrait": "Floodborn"
+            "hasTrait": "Floodborn",
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -2075,7 +2085,10 @@
             "cardType": [
               "character"
             ],
-            "hasName": "Cinderella"
+            "hasName": "Cinderella",
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -3848,7 +3861,10 @@
             "cardType": [
               "character"
             ],
-            "hasTrait": "Floodborn"
+            "hasTrait": "Floodborn",
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "condition": {
@@ -4117,7 +4133,10 @@
           "filter": {
             "cardType": [
               "action"
-            ]
+            ],
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -4668,7 +4687,10 @@
           "filter": {
             "cardType": [
               "action"
-            ]
+            ],
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -5583,7 +5605,10 @@
             "cardType": [
               "character"
             ],
-            "hasTrait": "Floodborn"
+            "hasTrait": "Floodborn",
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -5820,7 +5845,10 @@
           "filter": {
             "cardType": [
               "action"
-            ]
+            ],
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "condition": {
@@ -6494,7 +6522,10 @@
           "filter": {
             "cardType": [
               "action"
-            ]
+            ],
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -7979,7 +8010,10 @@
             "cardType": [
               "character"
             ],
-            "hasTrait": "Floodborn"
+            "hasTrait": "Floodborn",
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -8738,7 +8772,10 @@
             "excludeSelf": true,
             "cardType": [
               "item"
-            ]
+            ],
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -9191,7 +9228,10 @@
             "cardType": [
               "character"
             ],
-            "hasTrait": "Floodborn"
+            "hasTrait": "Floodborn",
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -10608,7 +10648,10 @@
             "cardType": [
               "character"
             ],
-            "strengthAtLeast": 4
+            "strengthAtLeast": 4,
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -10927,7 +10970,10 @@
           "filter": {
             "cardType": [
               "action"
-            ]
+            ],
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [

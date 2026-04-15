@@ -694,7 +694,8 @@
             "noMatchDestination": "bottom",
             "target": {
               "type": "opponent"
-            }
+            },
+            "matchIsMay": true
           }
         ]
       }
@@ -838,7 +839,10 @@
               "character"
             ],
             "hasTrait": "Princess",
-            "excludeSelf": true
+            "excludeSelf": true,
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -902,7 +906,10 @@
         "trigger": {
           "on": "card_played",
           "filter": {
-            "hasTrait": "Song"
+            "hasTrait": "Song",
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -1615,7 +1622,8 @@
             "noMatchDestination": "top",
             "target": {
               "type": "self"
-            }
+            },
+            "matchIsMay": true
           }
         ]
       }
@@ -7868,7 +7876,10 @@
           "filter": {
             "cardType": [
               "item"
-            ]
+            ],
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -8210,7 +8221,7 @@
       {
         "type": "triggered",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -10495,7 +10506,8 @@
             "noMatchDestination": "top",
             "target": {
               "type": "self"
-            }
+            },
+            "matchIsMay": true
           }
         ]
       }
@@ -11591,7 +11603,10 @@
               "character"
             ],
             "hasTrait": "Princess",
-            "excludeSelf": true
+            "excludeSelf": true,
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [

@@ -675,7 +675,10 @@
             "cardType": [
               "character"
             ],
-            "hasKeyword": "bodyguard"
+            "hasKeyword": "bodyguard",
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -2086,7 +2089,10 @@
             "cardType": [
               "character"
             ],
-            "hasName": "Maleficent"
+            "hasName": "Maleficent",
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -5718,7 +5724,10 @@
             "cardType": [
               "action"
             ],
-            "hasTrait": "Song"
+            "hasTrait": "Song",
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -6062,7 +6071,10 @@
           "filter": {
             "cardType": [
               "location"
-            ]
+            ],
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -7891,7 +7903,7 @@
         "storyName": "DO YOU KNOW WHO YOU ARE?",
         "rulesText": "Whenever a card is put into your inkwell, gain 1 lore.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -8267,7 +8279,10 @@
             "cardType": [
               "action"
             ],
-            "hasTrait": "Song"
+            "hasTrait": "Song",
+            "owner": {
+              "type": "self"
+            }
           }
         },
         "effects": [
@@ -11963,7 +11978,7 @@
         "storyName": "DO YOU KNOW WHO YOU ARE?",
         "rulesText": "Whenever a card is put into your inkwell, gain 1 lore.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }

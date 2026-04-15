@@ -1035,3 +1035,32 @@ describe("§4 Set 4 — look_at_top up_to_n_to_hand_rest_bottom variants", () =>
     expect(revealEvents.length).toBe(2);
   });
 });
+
+describe("§4 Set 4 — CRD 6.1.6 excludeSelf on self-trigger", () => {
+  // Magic Broom Illuminary Keeper: "Whenever you play ANOTHER character, you may
+  // banish this character to draw a card." The "another" wording means the
+  // trigger must NOT fire on Illuminary Keeper's own play event.
+  it("Illuminary Keeper does NOT trigger on its own play", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let keeperId: string;
+    ({ state, instanceId: keeperId } = injectCard(state, "player1", "magic-broom-illuminary-keeper", "hand"));
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: keeperId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // No NICE AND TIDY may choice: excludeSelf should reject self-trigger.
+    expect(r.newState.pendingChoice).toBeFalsy();
+    expect(getInstance(r.newState, keeperId).zone).toBe("play");
+  });
+
+  it("Illuminary Keeper DOES trigger on another character being played", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let keeperId: string, otherId: string;
+    ({ state, instanceId: keeperId } = injectCard(state, "player1", "magic-broom-illuminary-keeper", "play", { isDrying: false }));
+    ({ state, instanceId: otherId } = injectCard(state, "player1", "mickey-mouse-true-friend", "hand"));
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: otherId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(r.newState.pendingChoice).toBeDefined();
+    expect(r.newState.pendingChoice?.choosingPlayerId).toBe("player1");
+  });
+});

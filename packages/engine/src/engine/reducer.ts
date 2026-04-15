@@ -971,12 +971,12 @@ function applyPlayInk(
     turn: state.turnNumber,
     playerId,
     message: `${playerId} added ${def.fullName} to their inkwell.`,
-    type: "ink_played",
+    type: "card_put_into_inkwell",
   });
-  // CRD 6.2: ink_played triggered abilities (Chicha Dedicated Mother). Queue
+  // CRD 6.2: card_put_into_inkwell triggered abilities (Chicha Dedicated Mother). Queue
   // after the inkPlaysThisTurn counter has been bumped so condition checks see
   // the post-play count.
-  state = queueTriggersByEvent(state, "ink_played", playerId, definitions, {});
+  state = queueTriggersByEvent(state, "card_put_into_inkwell", playerId, definitions, {});
   return state;
 }
 
@@ -1943,6 +1943,19 @@ function applyResolveChoice(
 
   // CRD 6.1.4: "may" effect — accept or decline
   if (pendingChoice.type === "choose_may") {
+    const revealCont = pendingChoice._revealContinuation;
+    if (revealCont) {
+      // reveal_top_conditional matchIsMay continuation (Oswald FAVORABLE CHANCE,
+      // Simba King in the Making, Chief Bogo Commanding Officer, etc.)
+      const sourceId = pendingChoice.sourceInstanceId ?? "";
+      if (choice === "accept") {
+        state = applyRevealMatchAction(state, revealCont.revealedInstanceId, revealCont, revealCont.targetPlayerId, playerId, sourceId, definitions, events);
+      } else {
+        state = applyRevealNoMatchRoute(state, revealCont.revealedInstanceId, revealCont.noMatchDestination ?? "top", revealCont.targetPlayerId, definitions, events);
+      }
+      state = resumePendingEffectQueue(state, definitions, events);
+      return state;
+    }
     if (choice === "accept") {
       // Apply the effect — which may itself create a target choice (e.g. Support)
       const sourceId = pendingChoice.sourceInstanceId ?? "";
@@ -2826,79 +2839,41 @@ export function applyEffect(
       events.push({ type: "card_revealed", instanceId: topId, playerId: targetPlayer, sourceInstanceId });
       const matches = matchesFilter(topInst, topDef, effect.filter, state, targetPlayer);
       if (matches) {
-        // CRD 6.1.4: "may" — in non-interactive mode the bot accepts (best-case for the controller).
-        // Interactive choose_may flow could be added later if needed.
-        switch (effect.matchAction) {
-          case "to_hand":
-            state = moveCard(state, topId, targetPlayer, "hand");
-            break;
-          case "play_card": {
-            // matchPayCost: controller pays the card's normal ink cost
-            // (Kristoff's Lute "play it as if it were in your hand"). If they
-            // can't afford, fall through to noMatchDestination (treated as
-            // decline). Default/false = play for free (Daisy Duck, Mufasa).
-            if (effect.matchPayCost) {
-              const cardCost = getEffectiveCostWithReductions(state, targetPlayer, topId, definitions);
-              const canAfford = state.players[targetPlayer].availableInk >= cardCost;
-              if (!canAfford) {
-                // Can't afford — route to noMatchDestination.
-                const dest = effect.noMatchDestination ?? "top";
-                if (dest === "discard") {
-                  state = zoneTransition(state, topId, "discard", definitions, events, { reason: "discarded" });
-                } else if (dest === "bottom") {
-                  state = moveCard(state, topId, targetPlayer, "deck");
-                } else if (dest === "hand") {
-                  state = moveCard(state, topId, targetPlayer, "hand");
-                }
-                // else "top" — stays where it is.
-                return state;
-              }
-              state = updatePlayerInk(state, targetPlayer, -cardCost);
-            }
-            // Move to play and resolve any action effects (mirrors play_for_free direct path).
-            state = zoneTransition(state, topId, "play", definitions, events, {
-              reason: "played", triggeringPlayerId: targetPlayer,
-            });
-            if (topDef.cardType === "character") {
-              state = updateInstance(state, topId, { isDrying: true, ...(effect.matchEnterExerted ? { isExerted: true } : {}) });
-            } else if (effect.matchEnterExerted && (topDef.cardType === "item" || topDef.cardType === "location")) {
-              // Oswald Lucky Rabbit: items entering play exerted via the
-              // FAVORABLE CHANCE reveal-and-play path.
-              state = updateInstance(state, topId, { isExerted: true });
-            }
-            if (topDef.cardType === "action" && topDef.actionEffects) {
-              for (const ae of topDef.actionEffects) {
-                state = applyEffect(state, ae, topId, targetPlayer, definitions, events);
-              }
-              state = zoneTransition(state, topId, "discard", definitions, events, { reason: "discarded" });
-            }
-            break;
-          }
-          case "to_inkwell_exerted": {
-            // Move to inkwell facedown and exerted (no ink granted, no inkable check)
-            state = zoneTransition(state, topId, "inkwell", definitions, events, { reason: "inked" });
-            state = updateInstance(state, topId, { isExerted: true });
-            break;
-          }
+        // CRD 6.1.4: second "may" — "if it's X, you may Y". When matchIsMay is
+        // set, pause here with a choose_may so the controller can decline the
+        // match action (Oswald, Simba King in the Making, Chief Bogo Commanding
+        // Officer, etc.). On decline, the revealed card routes to
+        // noMatchDestination (symmetric with matchPayCost's can't-afford
+        // fallback).
+        if (effect.matchIsMay) {
+          const sourceDef = definitions[state.cards[sourceInstanceId]?.definitionId ?? ""];
+          const cardName = sourceDef?.fullName ?? sourceInstanceId;
+          const revealedName = topDef.fullName;
+          state = {
+            ...state,
+            pendingChoice: {
+              type: "choose_may",
+              choosingPlayerId: controllingPlayerId,
+              prompt: `${cardName}: revealed ${revealedName}. ${effect.matchAction === "play_card" ? "Play it for free" : effect.matchAction === "to_hand" ? "Put it into your hand" : "Put it into inkwell exerted"}?`,
+              optional: true,
+              sourceInstanceId,
+              _revealContinuation: {
+                revealedInstanceId: topId,
+                matchAction: effect.matchAction,
+                matchEnterExerted: effect.matchEnterExerted,
+                matchPayCost: effect.matchPayCost,
+                matchExtraEffects: effect.matchExtraEffects,
+                noMatchDestination: effect.noMatchDestination,
+                targetPlayerId: targetPlayer,
+              },
+            },
+          };
+          return state;
         }
-        // Chained match-only effects (Bruno "gain 3 lore", etc.). Revealed card is
-        // forwarded as the triggering card so `triggering_card` targets resolve to it.
-        if (effect.matchExtraEffects) {
-          for (const extra of effect.matchExtraEffects) {
-            state = applyEffect(state, extra, sourceInstanceId, controllingPlayerId, definitions, events, topId);
-          }
-        }
+        state = applyRevealMatchAction(state, topId, effect, targetPlayer, controllingPlayerId, sourceInstanceId, definitions, events);
       } else {
         // CRD: revealed but not matching → put on top (default), bottom, hand, or discard.
-        const dest = effect.noMatchDestination ?? "top";
-        if (dest === "bottom") {
-          state = moveCard(state, topId, targetPlayer, "deck");
-        } else if (dest === "hand") {
-          state = moveCard(state, topId, targetPlayer, "hand");
-        } else if (dest === "discard") {
-          state = zoneTransition(state, topId, "discard", definitions, events, { reason: "discarded" });
-        }
-        // else "top": stays where it is — already on top.
+        state = applyRevealNoMatchRoute(state, topId, effect.noMatchDestination ?? "top", targetPlayer, definitions, events);
         return state;
       }
       // repeatOnMatch: continue the loop with the new top card.
@@ -4471,22 +4446,28 @@ export function applyEffect(
         } else {
           state = addInkFromEffect(state, controllingPlayerId);
         }
+        // CRD 6.2: "whenever a card is put into your inkwell" fires on effect-driven
+        // inkwell placement (Oswald watching Fishbone Quill), not just normal INK_CARD.
+        state = queueTriggersByEvent(state, "card_put_into_inkwell", controllingPlayerId, definitions, {});
         return state;
       }
 
       if (effect.target.type === "this") {
         // Self → inkwell (gramma-tala)
+        const inkingPlayer = getInstance(state, sourceInstanceId).ownerId;
         state = zoneTransition(state, sourceInstanceId, "inkwell", definitions, events, { reason: "inked" });
         if (effect.enterExerted) {
           state = updateInstance(state, sourceInstanceId, { isExerted: true });
         } else {
           state = addInkFromEffect(state, controllingPlayerId);
         }
+        state = queueTriggersByEvent(state, "card_put_into_inkwell", inkingPlayer, definitions, {});
         return state;
       }
 
       if (effect.target.type === "chosen") {
         const validTargets = findChosenTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        if (validTargets.length === 0) return state; // CRD 1.7.7: no legal targets → fizzle
         return {
           ...state,
           pendingChoice: {
@@ -4504,6 +4485,7 @@ export function applyEffect(
     case "conditional_on_target": {
       if (effect.target.type === "chosen") {
         const validTargets = findChosenTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        if (validTargets.length === 0) return state; // CRD 1.7.7: no legal targets → fizzle
         return {
           ...state,
           pendingChoice: {
@@ -5040,6 +5022,99 @@ function addInkFromEffect(state: GameState, playerId: PlayerID): GameState {
 }
 
 // -----------------------------------------------------------------------------
+// REVEAL_TOP_CONDITIONAL HELPERS — match/no-match routing
+// -----------------------------------------------------------------------------
+
+/** Apply the revealed card's matchAction (to_hand / play_card / to_inkwell_exerted)
+ *  plus any matchExtraEffects. Used from both the auto-accept path (no matchIsMay)
+ *  and the choose_may accept branch. */
+function applyRevealMatchAction(
+  state: GameState,
+  revealedInstanceId: string,
+  config: {
+    matchAction: "to_hand" | "play_card" | "to_inkwell_exerted";
+    matchEnterExerted?: boolean;
+    matchPayCost?: boolean;
+    matchExtraEffects?: Effect[];
+    noMatchDestination?: "top" | "bottom" | "hand" | "discard";
+  },
+  targetPlayer: PlayerID,
+  controllingPlayerId: PlayerID,
+  sourceInstanceId: string,
+  definitions: Record<string, CardDefinition>,
+  events: GameEvent[],
+): GameState {
+  const topInst = state.cards[revealedInstanceId];
+  const topDef = topInst ? definitions[topInst.definitionId] : undefined;
+  if (!topInst || !topDef) return state;
+
+  switch (config.matchAction) {
+    case "to_hand":
+      state = moveCard(state, revealedInstanceId, targetPlayer, "hand");
+      break;
+    case "play_card": {
+      // matchPayCost: controller pays the card's normal ink cost (Kristoff's
+      // Lute). If they can't afford, fall through to noMatchDestination.
+      if (config.matchPayCost) {
+        const cardCost = getEffectiveCostWithReductions(state, targetPlayer, revealedInstanceId, definitions);
+        const canAfford = state.players[targetPlayer].availableInk >= cardCost;
+        if (!canAfford) {
+          return applyRevealNoMatchRoute(state, revealedInstanceId, config.noMatchDestination ?? "top", targetPlayer, definitions, events);
+        }
+        state = updatePlayerInk(state, targetPlayer, -cardCost);
+      }
+      state = zoneTransition(state, revealedInstanceId, "play", definitions, events, {
+        reason: "played", triggeringPlayerId: targetPlayer,
+      });
+      if (topDef.cardType === "character") {
+        state = updateInstance(state, revealedInstanceId, { isDrying: true, ...(config.matchEnterExerted ? { isExerted: true } : {}) });
+      } else if (config.matchEnterExerted && (topDef.cardType === "item" || topDef.cardType === "location")) {
+        state = updateInstance(state, revealedInstanceId, { isExerted: true });
+      }
+      if (topDef.cardType === "action" && topDef.actionEffects) {
+        for (const ae of topDef.actionEffects) {
+          state = applyEffect(state, ae, revealedInstanceId, targetPlayer, definitions, events);
+        }
+        state = zoneTransition(state, revealedInstanceId, "discard", definitions, events, { reason: "discarded" });
+      }
+      break;
+    }
+    case "to_inkwell_exerted": {
+      state = zoneTransition(state, revealedInstanceId, "inkwell", definitions, events, { reason: "inked" });
+      state = updateInstance(state, revealedInstanceId, { isExerted: true });
+      break;
+    }
+  }
+  if (config.matchExtraEffects) {
+    for (const extra of config.matchExtraEffects) {
+      state = applyEffect(state, extra, sourceInstanceId, controllingPlayerId, definitions, events, revealedInstanceId);
+    }
+  }
+  return state;
+}
+
+/** Route the revealed card to its noMatchDestination. Used on non-match, on
+ *  matchIsMay decline, and on can't-afford fallback for matchPayCost. */
+function applyRevealNoMatchRoute(
+  state: GameState,
+  revealedInstanceId: string,
+  dest: "top" | "bottom" | "hand" | "discard",
+  targetPlayer: PlayerID,
+  definitions: Record<string, CardDefinition>,
+  events: GameEvent[],
+): GameState {
+  if (dest === "bottom") {
+    state = moveCard(state, revealedInstanceId, targetPlayer, "deck");
+  } else if (dest === "hand") {
+    state = moveCard(state, revealedInstanceId, targetPlayer, "hand");
+  } else if (dest === "discard") {
+    state = zoneTransition(state, revealedInstanceId, "discard", definitions, events, { reason: "discarded" });
+  }
+  // "top": stays where it is.
+  return state;
+}
+
+// -----------------------------------------------------------------------------
 // TRIGGER SYSTEM
 // -----------------------------------------------------------------------------
 
@@ -5062,7 +5137,11 @@ function queueTrigger(
     .filter((a): a is TriggeredAbility => {
       if (a.type !== "triggered" || a.trigger.on !== eventType) return false;
       const triggerFilter = "filter" in a.trigger ? a.trigger.filter : undefined;
-      if (triggerFilter && !matchesFilter(instance, def, triggerFilter, state, instance.ownerId)) return false;
+      // CRD 6.1.6: pass sourceInstanceId so `excludeSelf` ("another character",
+      // "another item") can reject the source's own event — otherwise a card like
+      // Magic Broom Illuminary Keeper fires its "another character" trigger on its
+      // own play.
+      if (triggerFilter && !matchesFilter(instance, def, triggerFilter, state, instance.ownerId, sourceInstanceId)) return false;
       // For `challenges` triggers, defenderFilter (optional) matches the
       // challenged character. The defender lives on context.triggeringCardInstanceId.
       // Used by Shenzi Head Hyena ("challenges a damaged character") etc.
@@ -6183,6 +6262,9 @@ function applyEffectToTarget(
       } else {
         state = addInkFromEffect(state, inst.ownerId);
       }
+      // CRD 6.2: "whenever a card is put into your inkwell" fires for chosen-target
+      // inkwell placement (Oswald watching Fishbone Quill's chosen-hand-card path).
+      state = queueTriggersByEvent(state, "card_put_into_inkwell", inst.ownerId, definitions, {});
       return state;
     }
     case "conditional_on_target": {

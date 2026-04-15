@@ -200,7 +200,7 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
     return `Whenever you play ${filt}`;
   },
   // item_played: DELETED — collapsed to card_played with cardType filter
-  ink_played:                    ()  => "Whenever you put a card into your inkwell",
+  card_put_into_inkwell:                    ()  => "Whenever you put a card into your inkwell",
   moves_to_location:             ()  => "Whenever this character moves to a location",
   damage_dealt_to:               ()  => "Whenever damage is dealt to this character",
   damage_removed_from:           (t) => t.filter?.owner?.type === "self" ? "Whenever you remove 1 or more damage from one of your characters" : "Whenever damage is removed from this character",

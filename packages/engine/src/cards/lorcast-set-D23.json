@@ -312,7 +312,7 @@
       {
         "type": "triggered",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -336,7 +336,8 @@
             "isMay": true,
             "target": {
               "type": "self"
-            }
+            },
+            "matchIsMay": true
           }
         ]
       }

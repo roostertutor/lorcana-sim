@@ -948,7 +948,8 @@
             "target": {
               "type": "self"
             },
-            "matchEnterExerted": true
+            "matchEnterExerted": true,
+            "matchIsMay": true
           }
         ]
       }
@@ -8760,34 +8761,49 @@
     "abilities": [
       {
         "type": "triggered",
+        "storyName": "WHATEVER YOU WISH FOR",
+        "rulesText": "At the end of your turn, if you played a Princess character this turn, you may put a card from your hand into your inkwell facedown to draw a card.",
         "trigger": {
-          "on": "enters_play"
+          "on": "turn_end",
+          "player": {
+            "type": "self"
+          }
+        },
+        "condition": {
+          "type": "played_character_with_trait_this_turn",
+          "trait": "Princess"
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "self"
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "move_to_inkwell",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "hand"
+                  }
                 },
-                "zone": "hand"
+                "enterExerted": false,
+                "fromZone": "hand"
               }
-            },
-            "enterExerted": false,
-            "fromZone": "hand",
-            "isMay": true
-          },
-          {
-            "type": "draw",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           }
-        ],
-        "_hack": "One-off: real ability is end-of-turn conditional on Princess played. Simplified to enters_play for goldfish sim."
+        ]
       }
     ],
     "setId": "10",
@@ -9541,7 +9557,7 @@
         "storyName": "ONLY TILL MIDNIGHT",
         "rulesText": "During your turn, whenever you put a card into your inkwell, chosen Princess character of yours gains Ward until the start of your next turn.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "filter": {
             "owner": {
               "type": "self"
@@ -12959,7 +12975,8 @@
             "target": {
               "type": "self"
             },
-            "matchEnterExerted": true
+            "matchEnterExerted": true,
+            "matchIsMay": true
           }
         ]
       }
@@ -13832,34 +13849,49 @@
     "abilities": [
       {
         "type": "triggered",
+        "storyName": "WHATEVER YOU WISH FOR",
+        "rulesText": "At the end of your turn, if you played a Princess character this turn, you may put a card from your hand into your inkwell facedown to draw a card.",
         "trigger": {
-          "on": "enters_play"
+          "on": "turn_end",
+          "player": {
+            "type": "self"
+          }
+        },
+        "condition": {
+          "type": "played_character_with_trait_this_turn",
+          "trait": "Princess"
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "self"
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "move_to_inkwell",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "hand"
+                  }
                 },
-                "zone": "hand"
+                "enterExerted": false,
+                "fromZone": "hand"
               }
-            },
-            "enterExerted": false,
-            "fromZone": "hand",
-            "isMay": true
-          },
-          {
-            "type": "draw",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           }
-        ],
-        "_hack": "One-off: real ability is end-of-turn conditional on Princess played. Simplified to enters_play for goldfish sim."
+        ]
       }
     ],
     "setId": "10",

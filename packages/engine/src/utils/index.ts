@@ -760,10 +760,13 @@ export function evaluateCondition(
       return zoneCards.length >= condition.amount;
     }
     case "played_character_with_trait_this_turn": {
-      // Check if any character in play was played this turn (isDrying) and has the trait
-      return getZone(state, controllingPlayerId, "play").some((id) => {
+      // Use the tracked charactersPlayedThisTurn list so banished characters still
+      // count (Cinderella Dream Come True "if you played a Princess character this
+      // turn" fires at end-of-turn even if the Princess was already banished).
+      const tracked = state.players[controllingPlayerId].charactersPlayedThisTurn ?? [];
+      return tracked.some((id) => {
         const inst = state.cards[id];
-        if (!inst || !inst.isDrying) return false;
+        if (!inst) return false;
         const def = definitions[inst.definitionId];
         return def?.cardType === "character" && def.traits.includes(condition.trait);
       });

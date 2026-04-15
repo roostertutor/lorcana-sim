@@ -1066,3 +1066,37 @@ describe("§11 Set 11 — Snow Fort static strength + Support", () => {
     expect(mickeyStr).toBe(6); // 3 base + 1 Snow Fort + 2 Support (HeiHei's 1+1 effective str)
   });
 });
+
+describe("§10 Set 10 — Cinderella Dream Come True WHATEVER YOU WISH FOR", () => {
+  // At the end of your turn, if you played a Princess character this turn,
+  // you may put a card from your hand into your inkwell facedown to draw a card.
+  it("fires at turn_end when a Princess was played this turn", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let cindyId: string, princessId: string;
+    ({ state, instanceId: cindyId } = injectCard(state, "player1", "cinderella-dream-come-true", "play", { isDrying: false }));
+    // Play Mickey's Princess-trait cousin — use an actual Princess.
+    ({ state, instanceId: princessId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: princessId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // Pass turn → triggers WHATEVER YOU WISH FOR at end of player1's turn.
+    r = applyAction(r.newState, { type: "PASS_TURN", playerId: "player1" }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // Should now have a sequential may choice (put-hand-card-to-inkwell → draw).
+    expect(r.newState.pendingChoice).toBeDefined();
+    expect(r.newState.pendingChoice?.choosingPlayerId).toBe("player1");
+  });
+
+  it("does NOT fire at turn_end when no Princess was played this turn", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let cindyId: string, nonPrincessId: string;
+    ({ state, instanceId: cindyId } = injectCard(state, "player1", "cinderella-dream-come-true", "play", { isDrying: false }));
+    ({ state, instanceId: nonPrincessId } = injectCard(state, "player1", "mickey-mouse-true-friend", "hand"));
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: nonPrincessId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    r = applyAction(r.newState, { type: "PASS_TURN", playerId: "player1" }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(r.newState.pendingChoice).toBeFalsy();
+  });
+});

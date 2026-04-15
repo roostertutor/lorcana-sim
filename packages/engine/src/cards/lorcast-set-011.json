@@ -1815,7 +1815,8 @@
             "noMatchDestination": "bottom",
             "target": {
               "type": "self"
-            }
+            },
+            "matchIsMay": true
           }
         ],
         "condition": {
@@ -8975,7 +8976,7 @@
         "storyName": "",
         "rulesText": "During your turn, whenever a card is put into your inkwell, chosen character gets -1 {S} this turn.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
@@ -9040,7 +9041,7 @@
         "storyName": "AND THEN...",
         "rulesText": "Once during your turn, whenever a card is put into your inkwell, look at the top card of your deck. You may put it on either the top or the bottom of your deck.",
         "trigger": {
-          "on": "ink_played",
+          "on": "card_put_into_inkwell",
           "player": {
             "type": "self"
           }
