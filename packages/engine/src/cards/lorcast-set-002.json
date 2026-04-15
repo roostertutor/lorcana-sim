@@ -10603,7 +10603,35 @@
     "cost": 2,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "PROTECTION",
+        "rulesText": "Chosen character gains Resist +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "resist",
+            "value": 1,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "until_caster_next_turn"
+          }
+        ]
+      }
+    ],
     "setId": "2",
     "number": 203,
     "rarity": "uncommon",
@@ -10615,23 +10643,6 @@
         "storyName": "PROTECTION",
         "rulesText": "Chosen character gains Resist +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)",
         "raw": "PROTECTION {E} — Chosen character gains Resist +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)"
-      }
-    ],
-    "actionEffects": [
-      {
-        "type": "grant_keyword",
-        "keyword": "resist",
-        "value": 1,
-        "target": {
-          "type": "chosen",
-          "filter": {
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
-          }
-        },
-        "duration": "until_caster_next_turn"
       }
     ]
   },

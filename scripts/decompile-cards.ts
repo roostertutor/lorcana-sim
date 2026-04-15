@@ -298,6 +298,20 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
 
   // Pete Games Referee — "during your turn, opponents can't play actions"
   opponent_no_challenges_this_turn: () => "if no opposing character has challenged this turn",
+
+  // Per-turn event flags
+  a_character_was_banished_in_challenge_this_turn: () => "if a character was banished in a challenge this turn",
+  opposing_character_was_damaged_this_turn: () => "if an opposing character was damaged this turn",
+
+  // Stat / location / state checks
+  this_has_damage: () => "if this character has damage",
+  this_location_has_damaged_character: () => "if this location has a damaged character at it",
+  this_location_has_character_with_trait: (c) => `if this location has a ${c.trait ?? "?"} character at it`,
+  characters_here_gte: (c) => `if you have ${c.amount ?? 0} or more characters here`,
+
+  // Player-state comparisons
+  opponent_has_lore_gte: (c) => `if an opponent has ${c.amount ?? 0} or more lore`,
+  opponent_has_more_than_self: (c) => `if an opponent has more ${c.metric ?? "cards"} than you`,
 };
 
 function stripIfPrefix(s: string): string {
@@ -394,6 +408,11 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   deal_damage: (e) => {
     const amt = e.amount ?? 1;
     const amtStr = typeof amt === "number" ? `${up(e)}${amt}` : `damage equal to ${renderAmount(amt)}`;
+    if (e.target?.chooser === "target_player") {
+      return typeof amt === "number"
+        ? `${maybe(e)}each opponent chooses one of their characters and deals ${amtStr} damage to them`
+        : `${maybe(e)}each opponent chooses one of their characters and deals ${amtStr} to them`;
+    }
     return typeof amt === "number"
       ? `${maybe(e)}deal ${amtStr} damage to ${renderTarget(e.target ?? {})}`
       : `${maybe(e)}deal ${amtStr} to ${renderTarget(e.target ?? {})}`;
@@ -402,11 +421,12 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   move_damage:    (e) => `${maybe(e)}move ${up(e)}${e.amount ?? 1} damage from ${renderTarget(e.from ?? {})} to ${renderTarget(e.to ?? {})}`,
 
   banish: (e) => {
-    if (e.target?.chooser === "target_player") return `${maybe(e)}each opponent chooses and banishes ${renderTarget(e.target)}`;
+    if (e.target?.chooser === "target_player") return `${maybe(e)}each opponent chooses and banishes one of their characters`;
     return `${maybe(e)}banish ${renderTarget(e.target ?? {})}`;
   },
   banish_chosen:  (e) => `${maybe(e)}banish ${renderTarget(e.target ?? {})}`,
   return_to_hand: (e) => {
+    if (e.target?.chooser === "target_player") return `${maybe(e)}each opponent chooses one of their characters and returns it to their hand`;
     const tgt = e.target?.type ?? "this";
     if (tgt === "this") return `${maybe(e)}return this card to your hand`;
     if (tgt === "triggering_card") return `${maybe(e)}return that card to its player's hand`;
@@ -423,6 +443,10 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   exert: (e) => {
     const upTo = e.isUpTo ? "up to " : "";
     const count = e.count && e.count > 1 ? `${e.count} ` : "";
+    if (e.target?.chooser === "target_player") {
+      const which = (e.target?.filter as Json | undefined)?.isExerted === false ? "ready " : "";
+      return `${maybe(e)}each opponent chooses and exerts one of their ${which}characters`;
+    }
     const base = `exert ${upTo}${count}${renderTarget(e.target ?? {})}`;
     if (e.followUpEffects?.length) {
       const followUp = e.followUpEffects.map((f: Json) => renderEffect(f)).join(". ");
@@ -477,7 +501,11 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   self_cost_reduction: (e) => {
     const amt = e.amount;
     if (typeof amt === "number") return `this character costs ${amt} {I} less to play`;
-    if (typeof amt === "string") return `this character costs ${amt} {I} less to play`;
+    if (typeof amt === "string") {
+      // Per-turn-event DynamicAmount string (e.g. opposing_chars_banished_in_challenge_this_turn)
+      const phrase = renderAmount(amt);
+      return `you pay 1 {I} less to play this character for ${phrase}`;
+    }
     if (typeof amt === "object" && amt?.type === "count") {
       const filt = amt.filter ? renderFilter(amt.filter) : "matching card";
       return `For each ${filt}, you pay ${e.perMatch ?? 1} {I} less to play this character`;
@@ -728,9 +756,20 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   // cards in your inkwell". `mode` distinguishes the operation.
   mass_inkwell: (e) => {
     const tgt = renderTarget(e.target ?? { type: "self" });
-    if (e.mode === "exert_all") return `exert all cards in ${tgt === "you" ? "your" : tgt + "'s"} inkwell`;
-    if (e.mode === "ready_all") return `ready all cards in ${tgt === "you" ? "your" : tgt + "'s"} inkwell`;
-    return `affect all cards in ${tgt === "you" ? "your" : tgt + "'s"} inkwell`;
+    const owner = tgt === "you" ? "your"
+                : tgt === "each player" ? "each player's"
+                : tgt + "'s";
+    if (e.mode === "exert_all") return `exert all cards in ${owner} inkwell`;
+    if (e.mode === "ready_all") return `ready all cards in ${owner} inkwell`;
+    if (e.mode === "return_random_to_hand") {
+      const n = e.amount ?? 1;
+      return `return ${n} random card${n === 1 ? "" : "s"} from ${owner} inkwell to ${owner === "your" ? "your" : "their"} hand`;
+    }
+    if (e.mode === "return_random_until") {
+      const n = e.untilCount ?? 0;
+      return `${owner === "each player's" ? "each player with" : "if you have"} more than ${n} cards in ${owner} inkwell, return cards at random from ${owner} inkwell to ${owner === "your" ? "your" : "their"} hand until ${owner === "your" ? "you have" : "they have"} ${n} cards left in ${owner} inkwell`;
+    }
+    return `affect all cards in ${owner} inkwell`;
   },
 
   // "Reveal target's hand" — Dolores Madrigal Within Earshot.

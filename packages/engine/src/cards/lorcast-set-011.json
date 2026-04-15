@@ -3570,8 +3570,13 @@
         "storyName": "SPECIAL SUMMONS",
         "rulesText": "{E}, 3 {I} — Play a character with cost 5 or less for free. They gain Rush. At the end of your turn, banish them.",
         "costs": [
-          { "type": "exert" },
-          { "type": "pay_ink", "amount": 3 }
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 3
+          }
         ],
         "effects": [
           {
@@ -9341,7 +9346,34 @@
     "cost": 1,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "AT YOUR SIDE",
+        "rulesText": "Chosen character gains Support this turn. (Whenever they quest, you may add their {S} to another chosen character's {S} this turn.)",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "support",
+            "duration": "end_of_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 167,
     "rarity": "common",
@@ -9353,22 +9385,6 @@
         "storyName": "AT YOUR SIDE",
         "rulesText": "Chosen character gains Support this turn. (Whenever they quest, you may add their {S} to another chosen character's {S} this turn.)",
         "raw": "AT YOUR SIDE {E} — Chosen character gains Support this turn. (Whenever they quest, you may add their {S} to another chosen character's {S} this turn.)"
-      }
-    ],
-    "actionEffects": [
-      {
-        "type": "grant_keyword",
-        "keyword": "support",
-        "duration": "end_of_turn",
-        "target": {
-          "type": "chosen",
-          "filter": {
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
-          }
-        }
       }
     ]
   },
@@ -9461,7 +9477,66 @@
     "cost": 3,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "BLINDING CLOUD",
+        "rulesText": "{E}, 1 {I} — Chosen character gets -1 {S} this turn. If you have a character named Darkwing Duck in play, chosen character gets -2 {S} this turn instead.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "conditional_on_player_state",
+            "condition": {
+              "type": "has_character_named",
+              "name": "Darkwing Duck",
+              "player": {
+                "type": "self"
+              }
+            },
+            "thenEffects": [
+              {
+                "type": "gain_stats",
+                "strength": -2,
+                "duration": "this_turn",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
+              }
+            ],
+            "elseEffects": [
+              {
+                "type": "gain_stats",
+                "strength": -1,
+                "duration": "this_turn",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "11",
     "number": 169,
     "rarity": "uncommon",
@@ -9472,22 +9547,6 @@
         "storyName": "BLINDING CLOUD",
         "rulesText": "Chosen character gets -1 {S} this turn. If you have a character named Darkwing Duck in play, chosen character gets -2 {S} this turn instead.",
         "raw": "BLINDING CLOUD {E}, 1 {I} — Chosen character gets -1 {S} this turn. If you have a character named Darkwing Duck in play, chosen character gets -2 {S} this turn instead."
-      }
-    ],
-    "actionEffects": [
-      {
-        "type": "gain_stats",
-        "strength": -1,
-        "duration": "this_turn",
-        "target": {
-          "type": "chosen",
-          "filter": {
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
-          }
-        }
       }
     ]
   },
@@ -11312,23 +11371,6 @@
         "storyName": "LAY OF THE LAND",
         "rulesText": "If a character was banished in a challenge this turn, gain 1 lore.",
         "raw": "LAY OF THE LAND {E} — If a character was banished in a challenge this turn, gain 1 lore."
-      }
-    ],
-    "actionEffects": [
-      {
-        "type": "conditional_on_target",
-        "condition": {
-          "type": "a_character_was_banished_in_challenge_this_turn"
-        },
-        "thenEffects": [
-          {
-            "type": "gain_lore",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            }
-          }
-        ]
       }
     ]
   },

@@ -183,6 +183,21 @@ function validateCardFields(card: any): FieldError[] {
   // Walk actionEffects
   (card.actionEffects ?? []).forEach((e: any, i: number) => walkEffect(e, `actionEffects[${i}]`));
 
+  // actionEffects on non-action cards is silently ignored — flag as invalid.
+  // Items / characters / locations should use `abilities` (activated/triggered/static)
+  // instead. The runtime only consumes actionEffects when the card moves through
+  // the action play path. Caught Darkwing's Gas Device + 10 other latent bugs in
+  // commit 5420889. Some cards (Lantern, Magic Mirror) had BOTH abilities AND
+  // actionEffects — the actionEffects portion was dead data and is now caught.
+  if (card.actionEffects?.length && card.cardType !== "action") {
+    errors.push({
+      path: "actionEffects",
+      field: "actionEffects",
+      value: `present on ${card.cardType}`,
+      validValues: "actionEffects only fires for cardType: 'action' — use abilities[] instead",
+    });
+  }
+
   // Check for old-format fields (trigger.event instead of trigger.on, name instead of storyName)
   (card.abilities ?? []).forEach((ab: any, i: number) => {
     if (ab.trigger?.event) {

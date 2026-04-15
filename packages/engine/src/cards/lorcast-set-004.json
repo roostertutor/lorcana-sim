@@ -7568,20 +7568,28 @@
         "effects": [
           {
             "type": "conditional_on_target",
-            "target": { "type": "triggering_card" },
-            "conditionFilter": { "strengthAtLeast": 6 },
+            "target": {
+              "type": "triggering_card"
+            },
+            "conditionFilter": {
+              "strengthAtLeast": 6
+            },
             "ifMatchEffects": [
               {
                 "type": "gain_lore",
                 "amount": 3,
-                "target": { "type": "self" }
+                "target": {
+                  "type": "self"
+                }
               }
             ],
             "defaultEffects": [
               {
                 "type": "gain_lore",
                 "amount": 1,
-                "target": { "type": "self" }
+                "target": {
+                  "type": "self"
+                }
               }
             ]
           }
@@ -9387,7 +9395,34 @@
     "cost": 1,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "CHILLY LABOR",
+        "rulesText": "Chosen character gets -1 {S} this turn.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": -1,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "this_turn"
+          }
+        ]
+      }
+    ],
     "setId": "4",
     "number": 168,
     "rarity": "common",
@@ -9399,22 +9434,6 @@
         "storyName": "CHILLY LABOR",
         "rulesText": "Chosen character gets -1 {S} this turn.",
         "raw": "CHILLY LABOR {E} — Chosen character gets -1 {S} this turn."
-      }
-    ],
-    "actionEffects": [
-      {
-        "type": "gain_stats",
-        "strength": -1,
-        "target": {
-          "type": "chosen",
-          "filter": {
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
-          }
-        },
-        "duration": "this_turn"
       }
     ]
   },
@@ -12107,20 +12126,28 @@
         "effects": [
           {
             "type": "conditional_on_target",
-            "target": { "type": "triggering_card" },
-            "conditionFilter": { "strengthAtLeast": 6 },
+            "target": {
+              "type": "triggering_card"
+            },
+            "conditionFilter": {
+              "strengthAtLeast": 6
+            },
             "ifMatchEffects": [
               {
                 "type": "gain_lore",
                 "amount": 3,
-                "target": { "type": "self" }
+                "target": {
+                  "type": "self"
+                }
               }
             ],
             "defaultEffects": [
               {
                 "type": "gain_lore",
                 "amount": 1,
-                "target": { "type": "self" }
+                "target": {
+                  "type": "self"
+                }
               }
             ]
           }

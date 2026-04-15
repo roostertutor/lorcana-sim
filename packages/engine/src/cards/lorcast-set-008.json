@@ -5313,23 +5313,6 @@
         "rulesText": "Exert chosen opposing item. It can’t ready at the start of its next turn.",
         "raw": "IT'S STUCK {E}, 1 {I} – Exert chosen opposing item. It can’t ready at the start of its next turn."
       }
-    ],
-    "actionEffects": [
-      {
-        "type": "exert",
-        "target": {
-          "type": "chosen",
-          "filter": {
-            "owner": {
-              "type": "opponent"
-            },
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
-          }
-        }
-      }
     ]
   },
   {
@@ -8078,7 +8061,34 @@
       "Ally",
       "Dragon"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "LET'S GET THIS SHOW ON THE ROAD",
+        "rulesText": "Chosen character gains Rush this turn. (They can challenge the turn they're played.)",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "rush",
+            "duration": "this_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 130,
     "rarity": "common",
@@ -8094,22 +8104,6 @@
         "storyName": "LET'S GET THIS SHOW ON THE ROAD",
         "rulesText": "Chosen character gains Rush this turn. (They can challenge the turn they're played.)",
         "raw": "LET'S GET THIS SHOW ON THE ROAD {E} — Chosen character gains Rush this turn. (They can challenge the turn they're played.)"
-      }
-    ],
-    "actionEffects": [
-      {
-        "type": "grant_keyword",
-        "keyword": "rush",
-        "duration": "this_turn",
-        "target": {
-          "type": "chosen",
-          "filter": {
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
-          }
-        }
       }
     ]
   },
@@ -8262,7 +8256,34 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "YOU CAN DO IT!",
+        "rulesText": "Chosen character gets +3 this turn.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": 3,
+            "duration": "this_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 134,
     "rarity": "uncommon",
@@ -8278,22 +8299,6 @@
         "storyName": "YOU CAN DO IT!",
         "rulesText": "Chosen character gets +3 this turn.",
         "raw": "YOU CAN DO IT! {E} — Chosen character gets +3 this turn."
-      }
-    ],
-    "actionEffects": [
-      {
-        "type": "gain_stats",
-        "strength": 3,
-        "duration": "this_turn",
-        "target": {
-          "type": "chosen",
-          "filter": {
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
-          }
-        }
       }
     ]
   },
@@ -10132,7 +10137,58 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "STICK TO THE PLAN",
+        "rulesText": "{E} — Another chosen character gains Resist +2 this turn.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "resist",
+            "value": 2,
+            "duration": "this_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "static",
+        "storyName": "IT'S UP TO YOU, LILO",
+        "rulesText": "Your characters named Lilo gain Support.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "support",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasName": "Lilo"
+            }
+          }
+        }
+      }
+    ],
     "setId": "8",
     "number": 165,
     "rarity": "rare",
@@ -10152,42 +10208,6 @@
         "storyName": "IT'S UP TO YOU, LILO",
         "rulesText": "Your characters named Lilo gain Support. (Whenever they quest, you may add their {S} to another chosen character's {S} this turn.)",
         "raw": "IT'S UP TO YOU, LILO Your characters named Lilo gain Support. (Whenever they quest, you may add their {S} to another chosen character's {S} this turn.)"
-      }
-    ],
-    "actionEffects": [
-      {
-        "type": "grant_keyword",
-        "keyword": "resist",
-        "value": 2,
-        "duration": "this_turn",
-        "target": {
-          "type": "chosen",
-          "filter": {
-            "zone": "play",
-            "cardType": [
-              "character"
-            ],
-            "excludeSelf": true
-          }
-        }
-      },
-      {
-        "type": "grant_keyword",
-        "keyword": "support",
-        "duration": "this_turn",
-        "target": {
-          "type": "all",
-          "filter": {
-            "owner": {
-              "type": "self"
-            },
-            "zone": "play",
-            "cardType": [
-              "character"
-            ],
-            "name": "Lilo"
-          }
-        }
       }
     ]
   },
@@ -11074,7 +11094,53 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "SHIELDING LIGHT",
+        "rulesText": "Chosen character gains Resist +2 and Support until the start of your next turn. (Damage dealt to them is reduced by 2. Whenever they quest, you may add their {S} to another chosen character's {S} this turn.)",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 2
+          }
+        ],
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "resist",
+            "value": 2,
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          },
+          {
+            "type": "grant_keyword",
+            "keyword": "support",
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 180,
     "rarity": "rare",
@@ -11085,37 +11151,6 @@
         "storyName": "SHIELDING LIGHT",
         "rulesText": "Chosen character gains Resist +2 and Support until the start of your next turn. (Damage dealt to them is reduced by 2. Whenever they quest, you may add their {S} to another chosen character's {S} this turn.)",
         "raw": "SHIELDING LIGHT {E}, 2 {I} — Chosen character gains Resist +2 and Support until the start of your next turn. (Damage dealt to them is reduced by 2. Whenever they quest, you may add their {S} to another chosen character's {S} this turn.)"
-      }
-    ],
-    "actionEffects": [
-      {
-        "type": "grant_keyword",
-        "keyword": "resist",
-        "value": 2,
-        "duration": "until_caster_next_turn",
-        "target": {
-          "type": "chosen",
-          "filter": {
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
-          }
-        }
-      },
-      {
-        "type": "grant_keyword",
-        "keyword": "support",
-        "duration": "until_caster_next_turn",
-        "target": {
-          "type": "chosen",
-          "filter": {
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
-          }
-        }
       }
     ]
   },
@@ -12337,7 +12372,40 @@
     "cost": 3,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "ROLL WITH THE PUNCHES",
+        "rulesText": "Chosen character with no damage gains Resist +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "resist",
+            "value": 2,
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasDamage": false
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "8",
     "number": 204,
     "rarity": "common",
@@ -12348,24 +12416,6 @@
         "storyName": "ROLL WITH THE PUNCHES",
         "rulesText": "Chosen character with no damage gains Resist +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)",
         "raw": "ROLL WITH THE PUNCHES {E}, 1 {I} — Chosen character with no damage gains Resist +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)"
-      }
-    ],
-    "actionEffects": [
-      {
-        "type": "grant_keyword",
-        "keyword": "resist",
-        "value": 2,
-        "duration": "until_caster_next_turn",
-        "target": {
-          "type": "chosen",
-          "filter": {
-            "zone": "play",
-            "cardType": [
-              "character"
-            ],
-            "hasDamage": false
-          }
-        }
       }
     ]
   },

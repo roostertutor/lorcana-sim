@@ -1788,17 +1788,6 @@
         "rulesText": "You pay 1 {I} less for the next character you play this turn.",
         "raw": "BIRTHDAY LIGHTS {E} — You pay 1 {I} less for the next character you play this turn."
       }
-    ],
-    "actionEffects": [
-      {
-        "type": "grant_cost_reduction",
-        "amount": 1,
-        "filter": {
-          "cardType": [
-            "character"
-          ]
-        }
-      }
     ]
   },
   {
@@ -3643,15 +3632,6 @@
         "rulesText": "Draw a card.",
         "raw": "SPEAK! {E}, 4 {I} — Draw a card."
       }
-    ],
-    "actionEffects": [
-      {
-        "type": "draw",
-        "amount": 1,
-        "target": {
-          "type": "self"
-        }
-      }
     ]
   },
   {
@@ -3711,22 +3691,6 @@
         "storyName": "I'M LATE!",
         "rulesText": "Chosen character gains Rush this turn. (They can challenge the turn they're played.)",
         "raw": "I'M LATE! {E}, 1 {I} — Chosen character gains Rush this turn. (They can challenge the turn they're played.)"
-      }
-    ],
-    "actionEffects": [
-      {
-        "type": "grant_keyword",
-        "keyword": "rush",
-        "duration": "this_turn",
-        "target": {
-          "type": "chosen",
-          "filter": {
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
-          }
-        }
       }
     ]
   },
@@ -3795,34 +3759,6 @@
         "storyName": "MYSTICAL PETALS",
         "rulesText": "Move 1 damage counter from chosen character to chosen opposing character.",
         "raw": "MYSTICAL PETALS {E}, 2 {I} — Move 1 damage counter from chosen character to chosen opposing character."
-      }
-    ],
-    "actionEffects": [
-      {
-        "type": "move_damage",
-        "amount": 1,
-        "from": {
-          "type": "chosen",
-          "filter": {
-            "zone": "play",
-            "cardType": [
-              "character"
-            ],
-            "hasDamage": true
-          }
-        },
-        "to": {
-          "type": "chosen",
-          "filter": {
-            "owner": {
-              "type": "opponent"
-            },
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
-          }
-        }
       }
     ]
   },
@@ -9475,16 +9411,6 @@
         "rulesText": "Put the top card of your deck into your inkwell facedown and exerted.",
         "raw": "CREATE LIFE {E}, 2 {I} — Put the top card of your deck into your inkwell facedown and exerted."
       }
-    ],
-    "actionEffects": [
-      {
-        "type": "move_to_inkwell",
-        "fromZone": "deck",
-        "enterExerted": true,
-        "target": {
-          "type": "self"
-        }
-      }
     ]
   },
   {
@@ -11524,24 +11450,6 @@
         "storyName": "SHOW ME",
         "rulesText": "If you have no cards in your hand, draw a card.",
         "raw": "SHOW ME {E}, 3 {I} — If you have no cards in your hand, draw a card."
-      }
-    ],
-    "actionEffects": [
-      {
-        "type": "draw",
-        "amount": 1,
-        "target": {
-          "type": "self"
-        },
-        "condition": {
-          "type": "cards_in_zone_gte",
-          "amount": 0,
-          "zone": "hand",
-          "owner": {
-            "type": "self"
-          },
-          "maxAmount": 0
-        }
       }
     ]
   },

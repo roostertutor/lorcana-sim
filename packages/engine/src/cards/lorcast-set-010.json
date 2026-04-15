@@ -1828,6 +1828,7 @@
           {
             "type": "remove_damage",
             "amount": 2,
+            "isUpTo": true,
             "target": {
               "type": "chosen",
               "filter": {
@@ -1874,22 +1875,6 @@
         "storyName": "COME ON OUT",
         "rulesText": "You pay 1 {I} less to play characters named Gurgi.",
         "raw": "COME ON OUT You pay 1 {I} less to play characters named Gurgi."
-      }
-    ],
-    "actionEffects": [
-      {
-        "type": "remove_damage",
-        "amount": 2,
-        "isUpTo": true,
-        "target": {
-          "type": "chosen",
-          "filter": {
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
-          }
-        }
       }
     ]
   },

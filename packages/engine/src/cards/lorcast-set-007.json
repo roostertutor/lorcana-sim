@@ -11578,7 +11578,39 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "PRECISION STRIKE",
+        "rulesText": "Chosen character gains Challenger +2 this turn. (They get +2 {S} while challenging.)",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "challenger",
+            "value": 2,
+            "duration": "this_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "7",
     "number": 204,
     "rarity": "common",
@@ -11590,23 +11622,6 @@
         "storyName": "PRECISION STRIKE",
         "rulesText": "Chosen character gains Challenger +2 this turn. (They get +2 {S} while challenging.)",
         "raw": "PRECISION STRIKE {E}, 1 {I} — Chosen character gains Challenger +2 this turn. (They get +2 {S} while challenging.)"
-      }
-    ],
-    "actionEffects": [
-      {
-        "type": "grant_keyword",
-        "keyword": "challenger",
-        "value": 2,
-        "duration": "this_turn",
-        "target": {
-          "type": "chosen",
-          "filter": {
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
-          }
-        }
       }
     ]
   },
