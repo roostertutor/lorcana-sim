@@ -6546,14 +6546,10 @@
       },
       {
         "type": "static",
-        "storyName": "",
-        "rulesText": "While at a location, this character takes no damage from challenges.",
+        "storyName": "DYNAMIC MANEUVER",
+        "rulesText": "Whenever this character challenges, if he's at a location, he takes no damage from the challenge.",
         "effect": {
-          "type": "damage_prevention_static",
-          "source": "challenge",
-          "target": {
-            "type": "this"
-          }
+          "type": "challenge_damage_prevention"
         },
         "condition": {
           "type": "this_at_location"

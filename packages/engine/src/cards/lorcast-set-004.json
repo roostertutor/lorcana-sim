@@ -7553,7 +7553,7 @@
       {
         "type": "triggered",
         "storyName": "ROUTINE RUCKUS",
-        "rulesText": "Whenever a character with 3 {S} or more challenges another character while here, gain 1 lore.",
+        "rulesText": "Whenever a character with 3 {S} or more challenges another character while here, gain 1 lore. If the challenging character has 6 {S} or more, gain 3 lore instead.",
         "trigger": {
           "on": "challenges",
           "filter": {
@@ -7567,11 +7567,23 @@
         },
         "effects": [
           {
-            "type": "gain_lore",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            }
+            "type": "conditional_on_target",
+            "target": { "type": "triggering_card" },
+            "conditionFilter": { "strengthAtLeast": 6 },
+            "ifMatchEffects": [
+              {
+                "type": "gain_lore",
+                "amount": 3,
+                "target": { "type": "self" }
+              }
+            ],
+            "defaultEffects": [
+              {
+                "type": "gain_lore",
+                "amount": 1,
+                "target": { "type": "self" }
+              }
+            ]
           }
         ]
       }
@@ -12080,7 +12092,7 @@
       {
         "type": "triggered",
         "storyName": "ROUTINE RUCKUS",
-        "rulesText": "Whenever a character with 3 {S} or more challenges another character while here, gain 1 lore.",
+        "rulesText": "Whenever a character with 3 {S} or more challenges another character while here, gain 1 lore. If the challenging character has 6 {S} or more, gain 3 lore instead.",
         "trigger": {
           "on": "challenges",
           "filter": {
@@ -12094,11 +12106,23 @@
         },
         "effects": [
           {
-            "type": "gain_lore",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            }
+            "type": "conditional_on_target",
+            "target": { "type": "triggering_card" },
+            "conditionFilter": { "strengthAtLeast": 6 },
+            "ifMatchEffects": [
+              {
+                "type": "gain_lore",
+                "amount": 3,
+                "target": { "type": "self" }
+              }
+            ],
+            "defaultEffects": [
+              {
+                "type": "gain_lore",
+                "amount": 1,
+                "target": { "type": "self" }
+              }
+            ]
           }
         ]
       }
