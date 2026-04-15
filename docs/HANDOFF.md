@@ -10,21 +10,6 @@ Conventions:
 
 ---
 
-## Engine + GUI: altShift (Diablo/Flotsam) GUI cleanup remaining
-
-Engine already migrated altShift to the pendingChoice pattern (same as
-Belle/Scrooge via `_altShiftCostContinuation` on choose_target). Per-combo
-enumeration is gone; one action per shift target.
-
-**GUI cleanup remaining** (`GameBoard.tsx:513-1355`, ~150 LOC): alt-shift
-cost picker mode code is now dead — `altShiftCostInstanceIds` never appears
-on enumerated actions, so the picker-mode branch at `useBoardDnd.ts:73` never
-triggers. Drag-drop falls through to direct dispatch → engine surfaces
-pendingChoice → PendingChoiceModal handles it. GUI works unchanged, but the
-picker-mode state/toast/hand-tap handling can be deleted as housekeeping.
-
----
-
 ## Engine / GUI: chosen-target activated abilities with zero valid targets (CRD 1.7.6)
 
 Reported as "Lucky Dime has no activate ability." Verified engine-side: Lucky

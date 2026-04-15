@@ -13,11 +13,8 @@ export function useBoardDnd(params: {
   legalActions: GameAction[];
   dispatch: (action: GameAction) => void;
   isEnabled: boolean;
-  /** Optional: called when a drag-drop resolves to an alt-cost shift.
-   *  Instead of dispatching immediately, the caller enters a cost-picker mode. */
-  onAltShiftDrop?: (sourceInstanceId: string, targetInstanceId: string) => void;
 }) {
-  const { myId, gameState, legalActions, dispatch, isEnabled, onAltShiftDrop } = params;
+  const { myId, gameState, legalActions, dispatch, isEnabled } = params;
   const [activeId,   setActiveId]   = useState<string | null>(null);
   const [activeZone, setActiveZone] = useState<"hand" | "play" | null>(null);
 
@@ -63,20 +60,13 @@ export function useBoardDnd(params: {
     if (overId.startsWith("drop:card:")) {
       const targetId = overId.slice("drop:card:".length);
 
-      // Shift: drag from hand onto own play zone character
+      // Shift: drag from hand onto own play zone character. Alt-cost shifts
+      // (Diablo, Flotsam) dispatch the same way — the engine surfaces a
+      // pendingChoice to collect cost targets after the action fires.
       const shiftAction = legalActions.find(
         (a) => a.type === "PLAY_CARD" && a.instanceId === draggingId && a.shiftTargetInstanceId === targetId,
       );
-      if (shiftAction) {
-        // Alt-cost shift (Diablo - Devoted Herald, Flotsam & Jetsam): delegate
-        // to the cost-picker mode instead of auto-dispatching the first combo.
-        if ((shiftAction as { altShiftCostInstanceIds?: string[] }).altShiftCostInstanceIds && onAltShiftDrop) {
-          onAltShiftDrop(draggingId, targetId);
-          return;
-        }
-        dispatch(shiftAction);
-        return;
-      }
+      if (shiftAction) { dispatch(shiftAction); return; }
 
       // Sing: drag song from hand onto own ready character that can sing it
       const singAction = legalActions.find(

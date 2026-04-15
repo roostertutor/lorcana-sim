@@ -508,12 +508,6 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   const [cardsUnderViewerId, setCardsUnderViewerId] = useState<string | null>(null);
   const [challengeAttackerId, setChallengeAttackerId] = useState<string | null>(null);
   const [shiftCardId, setShiftCardId] = useState<string | null>(null);
-  // Alt-cost shift: after picking the shift target, the user must pick which
-  // cost cards to discard. Stores the chosen target instance id; eligible cost
-  // cards are derived from the legal actions for (shiftCardId, altShiftTargetId).
-  const [altShiftTargetId, setAltShiftTargetId] = useState<string | null>(null);
-  // Cards picked so far for the alt-shift discard cost (Flotsam needs 2)
-  const [altShiftCostPicks, setAltShiftCostPicks] = useState<string[]>([]);
   const [singCardId, setSingCardId] = useState<string | null>(null);
   const [moveCharId, setMoveCharId] = useState<string | null>(null);
   const [showAnalysis, setShowAnalysis] = useState(false);
@@ -652,8 +646,6 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   const cancelMode = React.useCallback(() => {
     setChallengeAttackerId(null);
     setShiftCardId(null);
-    setAltShiftTargetId(null);
-    setAltShiftCostPicks([]);
     setSingCardId(null);
     setMoveCharId(null);
   }, []);
@@ -677,35 +669,6 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         .map(a => (a as { shiftTargetInstanceId: string }).shiftTargetInstanceId)
     );
   }, [shiftCardId, session.legalActions]);
-
-  // Alt-cost shift: after picking target, compute the set of eligible cost
-  // cards (cards in hand the user can discard to pay the shift cost).
-  const altShiftCostTargets = useMemo(() => {
-    if (!shiftCardId || !altShiftTargetId) return new Set<string>();
-    const ids = new Set<string>();
-    for (const a of session.legalActions) {
-      const pa = a as { type: string; instanceId?: string; shiftTargetInstanceId?: string; altShiftCostInstanceIds?: string[] };
-      if (pa.type !== "PLAY_CARD") continue;
-      if (pa.instanceId !== shiftCardId) continue;
-      if (pa.shiftTargetInstanceId !== altShiftTargetId) continue;
-      if (!pa.altShiftCostInstanceIds) continue;
-      for (const costId of pa.altShiftCostInstanceIds) ids.add(costId);
-    }
-    return ids;
-  }, [shiftCardId, altShiftTargetId, session.legalActions]);
-
-  // How many cost cards the alt-shift requires (1 for Diablo, 2 for Flotsam)
-  const altShiftRequiredCount = useMemo(() => {
-    if (!shiftCardId || !altShiftTargetId) return 0;
-    for (const a of session.legalActions) {
-      const pa = a as { type: string; instanceId?: string; shiftTargetInstanceId?: string; altShiftCostInstanceIds?: string[] };
-      if (pa.type !== "PLAY_CARD") continue;
-      if (pa.instanceId !== shiftCardId) continue;
-      if (pa.shiftTargetInstanceId !== altShiftTargetId) continue;
-      if (pa.altShiftCostInstanceIds) return pa.altShiftCostInstanceIds.length;
-    }
-    return 0;
-  }, [shiftCardId, altShiftTargetId, session.legalActions]);
 
   // Valid location targets for the selected character (CRD 4.7)
   const moveTargets = useMemo(() => {
@@ -1039,11 +1002,6 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       !session.pendingChoice &&
       !session.isGameOver
     ),
-    onAltShiftDrop: (sourceInstanceId, targetInstanceId) => {
-      cancelMode();
-      setShiftCardId(sourceInstanceId);
-      setAltShiftTargetId(targetInstanceId);
-    },
   });
 
   // Track the drop target currently under the cursor during a drag — used to
@@ -1285,8 +1243,6 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     const isShiftTarget = shiftTargets.has(id);
     const isSingTarget = singTargets.has(id);
     const isMoveTarget = moveTargets.has(id);
-    const isAltShiftCost = altShiftCostTargets.has(id);
-    const isAltShiftPicked = altShiftCostPicks.includes(id);
     const isAttacker = id === challengeAttackerId || id === shiftCardId || id === moveCharId;
     const choiceLabel = choiceLabels.get(id);
     const plainName = getCardName(id);
@@ -1320,47 +1276,11 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         return;
       }
       if (!isOpponent && shiftCardId && isShiftTarget) {
-        // Check if this is an alt-cost shift (discard a card to shift).
-        // If so, enter the cost-picker mode instead of dispatching.
-        const altShiftActions = legalActions.filter(a =>
-          a.type === "PLAY_CARD" && a.instanceId === shiftCardId && a.shiftTargetInstanceId === id && (a as any).altShiftCostInstanceIds,
-        );
-        if (altShiftActions.length > 0) {
-          setAltShiftTargetId(id);
-          return;
-        }
-        // Standard ink-cost shift
+        // Both ink-cost and alt-cost shift dispatch the same way — the engine
+        // surfaces a pendingChoice for alt-cost targets after the action fires.
         const shiftAction = legalActions.find(a => a.type === "PLAY_CARD" && a.instanceId === shiftCardId && a.shiftTargetInstanceId === id);
         if (shiftAction) session.dispatch(shiftAction);
         setShiftCardId(null);
-        return;
-      }
-      // Alt-cost shift cost picker: click eligible cards to select them.
-      // For 1-card shifts (Diablo), dispatches immediately on single click.
-      // For N-card shifts (Flotsam), toggles selection until N reached, then dispatches.
-      if (!isOpponent && shiftCardId && altShiftTargetId && altShiftCostTargets.has(id)) {
-        const currentPicks = altShiftCostPicks.includes(id)
-          ? altShiftCostPicks.filter(x => x !== id)
-          : [...altShiftCostPicks, id];
-        if (currentPicks.length < altShiftRequiredCount) {
-          setAltShiftCostPicks(currentPicks);
-          return;
-        }
-        // Reached required count — find the matching legal action (same set of IDs, order-independent)
-        const pickSet = new Set(currentPicks);
-        const altAction = legalActions.find(a => {
-          const pa = a as { type: string; instanceId?: string; shiftTargetInstanceId?: string; altShiftCostInstanceIds?: string[] };
-          if (pa.type !== "PLAY_CARD") return false;
-          if (pa.instanceId !== shiftCardId) return false;
-          if (pa.shiftTargetInstanceId !== altShiftTargetId) return false;
-          const ids = pa.altShiftCostInstanceIds;
-          if (!ids || ids.length !== pickSet.size) return false;
-          return ids.every(x => pickSet.has(x));
-        });
-        if (altAction) session.dispatch(altAction);
-        setShiftCardId(null);
-        setAltShiftTargetId(null);
-        setAltShiftCostPicks([]);
         return;
       }
       if (!isOpponent && singCardId && isSingTarget) {
@@ -1403,8 +1323,8 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                 gameState={gameState}
                 definitions={definitions}
                 gameModifiers={gameModifiers}
-                isSelected={isAltShiftPicked}
-                isTarget={isChallTarget || isShiftTarget || isSingTarget || isMoveTarget || isAltShiftCost || isDropTarget}
+                isSelected={false}
+                isTarget={isChallTarget || isShiftTarget || isSingTarget || isMoveTarget || isDropTarget}
                 isAttacker={isAttacker}
                 onClick={handleClick}
                 zone={zone}
@@ -1866,17 +1786,10 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               <button className="text-red-500 hover:text-red-300 font-bold active:scale-95" onClick={cancelMode}><Icon name="x-mark" className="w-3.5 h-3.5" /></button>
             </div>
           )}
-          {shiftCardId && !altShiftTargetId && (
+          {shiftCardId && (
             <div className="flex items-center gap-2 rounded-full px-3 py-1 sm:px-4 sm:py-1.5 bg-purple-950/90 border border-purple-700/60 text-purple-300 text-xs shadow-lg">
               <span className="font-bold">Shift</span>
               <span className="hidden sm:inline text-purple-500">— tap a highlighted character</span>
-              <button className="text-purple-500 hover:text-purple-300 font-bold active:scale-95" onClick={cancelMode}><Icon name="x-mark" className="w-3.5 h-3.5" /></button>
-            </div>
-          )}
-          {shiftCardId && altShiftTargetId && (
-            <div className="flex items-center gap-2 rounded-full px-3 py-1 sm:px-4 sm:py-1.5 bg-purple-950/90 border border-purple-700/60 text-purple-300 text-xs shadow-lg">
-              <span className="font-bold">Shift — discard ({altShiftCostPicks.length}/{altShiftRequiredCount})</span>
-              <span className="hidden sm:inline text-purple-500">— tap {altShiftRequiredCount > 1 ? `${altShiftRequiredCount} cards` : "a card"} in hand to pay the shift cost</span>
               <button className="text-purple-500 hover:text-purple-300 font-bold active:scale-95" onClick={cancelMode}><Icon name="x-mark" className="w-3.5 h-3.5" /></button>
             </div>
           )}
