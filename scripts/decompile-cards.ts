@@ -194,8 +194,13 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
     if (!t.filter) return "Whenever you play a card";
     // No owner filter = ANY player ("whenever another character is played")
     const hasOwnerFilter = t.filter.owner?.type;
+    if (!hasOwnerFilter && t.filter.excludeSelf) {
+      // "Whenever another X is played" — drop the redundant "other" from the
+      // filter render since "another" already implies it.
+      const { excludeSelf, ...rest } = t.filter;
+      return `Whenever another ${renderFilter(rest)} is played`;
+    }
     const filt = renderFilter(t.filter);
-    if (!hasOwnerFilter && t.filter.excludeSelf) return `Whenever another ${filt} is played`;
     if (!hasOwnerFilter) return `Whenever ${filt} is played`;
     return `Whenever you play ${filt}`;
   },
@@ -346,8 +351,18 @@ const COST_RENDERERS: Record<string, Renderer> = {
   pay_ink:            (c) => `${c.amount ?? "?"} {I}`,
   banish_chosen:      (c) => `Banish ${renderTarget(c.target ?? {})}`,
   banish_self:        (_c, ctx) => `Banish this ${ctx?.cardType === "item" ? "item" : "character"}`,
-  discard:            ()  => "Discard a card",
-  discard_from_hand:  ()  => "Discard a card",
+  discard:            (c) => {
+    const amt = c.amount ?? 1;
+    const filt = c.filter ? renderFilter(c.filter) : "card";
+    if (amt === 1) return `Choose and discard a ${filt}`;
+    return `Choose and discard ${amt} ${filt}${filt.endsWith("s") ? "" : "s"}`;
+  },
+  discard_from_hand:  (c) => {
+    const amt = c.amount ?? 1;
+    const filt = c.filter ? renderFilter(c.filter) : "card";
+    if (amt === 1) return `Choose and discard a ${filt}`;
+    return `Choose and discard ${amt} ${filt}${filt.endsWith("s") ? "" : "s"}`;
+  },
 };
 
 function renderCost(c: Json, ctx?: { cardType?: string }): string {
@@ -424,16 +439,29 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
 
   deal_damage: (e) => {
     const amt = e.amount ?? 1;
-    const amtStr = typeof amt === "number" ? `${up(e)}${amt}` : `damage equal to ${renderAmount(amt)}`;
+    // asPutDamage: Lorcana distinguishes "deal damage" (triggers damage
+    // reactions) from "put damage counter(s)" (direct counter placement,
+    // bypasses damage-dealt triggers). Cards: Malicious Mean and Scary,
+    // Queen of Hearts Unpredictable Bully, Hades Looking for a Deal.
+    const verb = e.asPutDamage ? "put" : "deal";
+    const suffix = e.asPutDamage ? "damage counter" : "damage";
     let base: string;
     if (e.target?.chooser === "target_player") {
       base = typeof amt === "number"
-        ? `${maybe(e)}each opponent chooses one of their characters and deals ${amtStr} damage to them`
-        : `${maybe(e)}each opponent chooses one of their characters and deals ${amtStr} to them`;
+        ? `${maybe(e)}each opponent chooses one of their characters and ${verb}s ${up(e)}${amt} ${suffix}${amt === 1 ? "" : "s"} on them`
+        : `${maybe(e)}each opponent chooses one of their characters and ${verb}s ${suffix} equal to ${renderAmount(amt)} on them`;
+    } else if (typeof amt === "number") {
+      const amtStr = `${up(e)}${amt}`;
+      if (e.asPutDamage) {
+        base = `${maybe(e)}put ${amtStr} ${suffix}${amt === 1 ? "" : "s"} on ${renderTarget(e.target ?? {})}`;
+      } else {
+        base = `${maybe(e)}deal ${amtStr} damage to ${renderTarget(e.target ?? {})}`;
+      }
     } else {
-      base = typeof amt === "number"
-        ? `${maybe(e)}deal ${amtStr} damage to ${renderTarget(e.target ?? {})}`
-        : `${maybe(e)}deal ${amtStr} to ${renderTarget(e.target ?? {})}`;
+      const dyn = renderAmount(amt);
+      base = e.asPutDamage
+        ? `${maybe(e)}put ${suffix}s equal to ${dyn} on ${renderTarget(e.target ?? {})}`
+        : `${maybe(e)}deal damage equal to ${dyn} to ${renderTarget(e.target ?? {})}`;
     }
     if (e.followUpEffects?.length) {
       const follow = e.followUpEffects.map((f: Json) => renderEffect(f)).join(". ");
@@ -1223,11 +1251,45 @@ function renderTriggered(ab: Json): string {
 }
 
 function renderActivated(ab: Json, ctx?: { cardType?: string }): string {
-  const costs = (ab.costs ?? []).map((c: Json) => renderCost(c, ctx)).join(", ");
+  const costParts = (ab.costs ?? []).map((c: Json) => renderCost(c, ctx));
+  const effects: Json[] = [...(ab.effects ?? [])];
+  // Lorcana convention: "banish one of your X" / "discard a card" written
+  // as a cost in oracle text is modeled here as the FIRST effect. Hoist
+  // leading cost-effects into the cost line so "{E}, Banish one of your
+  // items — Gain N lore" renders correctly. Guard: never hoist if it would
+  // leave effects empty — some cards put the primary action first, not a
+  // cost (Sugar Rush Speedway's ON YOUR MARKS! exerts as the main effect).
+  while (effects.length > 1) {
+    const first = effects[0];
+    if (first?.type === "banish"
+        && first.target?.type === "chosen"
+        && first.target.filter?.owner?.type === "self") {
+      costParts.push(`Banish ${renderTarget(first.target)}`);
+      effects.shift();
+      continue;
+    }
+    if (first?.type === "exert"
+        && first.target?.type === "chosen"
+        && first.target.filter?.owner?.type === "self") {
+      costParts.push(`Exert ${renderTarget(first.target)}`);
+      effects.shift();
+      continue;
+    }
+    if (first?.type === "discard_from_hand"
+        && first.target?.type === "self"
+        && typeof first.amount === "number") {
+      const filt = first.filter ? ` ${renderFilter(first.filter)}` : first.amount === 1 ? " card" : " cards";
+      costParts.push(first.amount === 1 ? `Choose and discard a${filt}` : `Choose and discard ${first.amount}${filt}`);
+      effects.shift();
+      continue;
+    }
+    break;
+  }
+  const costs = costParts.join(", ");
   const cond = ab.condition ? renderCondition(ab.condition) : "";
-  const effects = (ab.effects ?? []).map(renderEffect).filter(Boolean).join(", and ");
-  if (cond) return `${costs} — ${cap(cond)}, ${effects}`;
-  return `${costs} — ${effects}`;
+  const body = effects.map(renderEffect).filter(Boolean).join(", and ");
+  if (cond) return `${costs} — ${cap(cond)}, ${body}`;
+  return `${costs} — ${body}`;
 }
 
 function renderStatic(ab: Json): string {
