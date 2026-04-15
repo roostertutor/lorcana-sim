@@ -1067,6 +1067,45 @@ describe("§11 Set 11 — Snow Fort static strength + Support", () => {
   });
 });
 
+describe("§10 Set 10 — Raksha Fearless Mother ON PATROL (self-only oncePerTurn move discount)", () => {
+  it("first move pays 1 less; second same-turn move pays full", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let rakshaId: string, locA: string, locB: string;
+    ({ state, instanceId: rakshaId } = injectCard(state, "player1", "raksha-fearless-mother", "play", { isDrying: false }));
+    // Two locations with moveCost 2 each.
+    ({ state, instanceId: locA } = injectCard(state, "player1", "pride-lands-pride-rock", "play", { isDrying: false }));
+    ({ state, instanceId: locB } = injectCard(state, "player1", "tianas-palace-jazz-restaurant", "play", { isDrying: false }));
+
+    const inkBefore = state.players.player1.availableInk;
+
+    // First move: 2 - 1 = 1 ink charged.
+    let r = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: rakshaId, locationInstanceId: locA }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(r.newState.players.player1.availableInk).toBe(inkBefore - 1);
+
+    // Second move (same turn): full cost (2 ink).
+    r = applyAction(r.newState, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: rakshaId, locationInstanceId: locB }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(r.newState.players.player1.availableInk).toBe(inkBefore - 1 - 2);
+  });
+
+  it("ON PATROL is self-only — does NOT discount other characters' moves", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let rakshaId: string, otherId: string, locA: string;
+    ({ state, instanceId: rakshaId } = injectCard(state, "player1", "raksha-fearless-mother", "play", { isDrying: false }));
+    ({ state, instanceId: otherId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    ({ state, instanceId: locA } = injectCard(state, "player1", "pride-lands-pride-rock", "play", { isDrying: false }));
+
+    const inkBefore = state.players.player1.availableInk;
+    // Move Mickey (not Raksha) — should pay full 2 ink.
+    const r = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: otherId, locationInstanceId: locA }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(r.newState.players.player1.availableInk).toBe(inkBefore - 2);
+  });
+});
+
 describe("§10 Set 10 — played_this_turn unified condition", () => {
   it("Enigmatic Inkcaster ITS OWN REWARD: fizzles until 2+ cards played, then grants lore", () => {
     let state = startGame();

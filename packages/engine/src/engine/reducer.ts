@@ -1328,11 +1328,28 @@ function applyMoveCharacter(
 ): GameState {
   const locDef = getDefinition(state, locationInstanceId, definitions);
   const baseCost = locDef.moveCost ?? 0;
-  // Apply per-location move cost reductions (Jolly Roger).
+  // Apply per-location, global, and self-only move cost reductions
+  // (Jolly Roger Hook's Ship, Map of Treasure Planet, Raksha Fearless Mother).
   const moveModifiers = getGameModifiers(state, definitions);
   const charInst = getInstance(state, characterInstanceId);
   const charDef = getDefinition(state, characterInstanceId, definitions);
   const moveCost = applyMoveCostReduction(baseCost, charInst, charDef, locationInstanceId, moveModifiers, state, playerId);
+
+  // Mark oncePerTurn flags on any source whose self-only reduction was just consumed
+  // (Raksha — "Once during your turn, you may pay 1 {I} less to move this character").
+  // We mark BEFORE deducting ink so the marker reflects the move that's about to pay.
+  if (moveCost < baseCost) {
+    for (const entry of moveModifiers.globalMoveCostReduction) {
+      if (entry.playerId !== playerId) continue;
+      if (!entry.oncePerTurnKey || !entry.sourceInstanceId) continue;
+      if (entry.selfOnly && entry.sourceInstanceId !== characterInstanceId) continue;
+      const src = state.cards[entry.sourceInstanceId];
+      if (!src || src.oncePerTurnTriggered?.[entry.oncePerTurnKey]) continue;
+      state = updateInstance(state, entry.sourceInstanceId, {
+        oncePerTurnTriggered: { ...(src.oncePerTurnTriggered ?? {}), [entry.oncePerTurnKey]: true },
+      });
+    }
+  }
 
   // Deduct ink (the move_character effect path skips this — see performMove)
   if (moveCost > 0) {

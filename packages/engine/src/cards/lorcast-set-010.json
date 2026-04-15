@@ -5991,12 +5991,14 @@
         "type": "static",
         "storyName": "ON PATROL",
         "rulesText": "Once during your turn, you may pay 1 {I} less to move this character to a location.",
+        "condition": {
+          "type": "is_your_turn"
+        },
         "effect": {
-          "type": "move_to_self_cost_reduction",
+          "type": "global_move_cost_reduction",
           "amount": 1,
-          "filter": {
-            "type": "this"
-          }
+          "selfOnly": true,
+          "oncePerTurn": true
         }
       }
     ],

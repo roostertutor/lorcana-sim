@@ -300,8 +300,18 @@ export interface GameModifiers {
   allHandInkable: Set<import("../types/index.js").PlayerID>;
   /** Vision Slab: "Damage counters can't be removed." */
   preventDamageRemoval: boolean;
-  /** Map of Treasure Planet: global move cost reduction from non-locations. */
-  globalMoveCostReduction: { amount: number; playerId: import("../types/index.js").PlayerID; filter?: import("../types/index.js").CardFilter }[];
+  /** Map of Treasure Planet: global move cost reduction from non-locations.
+   *  Raksha Fearless Mother: per-source-self oncePerTurn variant (selfOnly +
+   *  oncePerTurnKey + sourceInstanceId set; validator filters to source's own
+   *  moves and skips when source.oncePerTurnTriggered[oncePerTurnKey] is set). */
+  globalMoveCostReduction: {
+    amount: number;
+    playerId: import("../types/index.js").PlayerID;
+    filter?: import("../types/index.js").CardFilter;
+    selfOnly?: boolean;
+    sourceInstanceId?: string;
+    oncePerTurnKey?: string;
+  }[];
   /** Captain Amelia: keyword granted to other chars only while being challenged. */
   grantKeywordWhileBeingChallenged: Map<string, { keyword: import("../types/index.js").Keyword; value?: number }[]>;
 
@@ -1056,10 +1066,16 @@ export function getGameModifiers(
 
         case "global_move_cost_reduction": {
           // Map of Treasure Planet — global move cost reduction.
+          // Raksha Fearless Mother — selfOnly + oncePerTurn variant.
+          const oncePerTurnKey = effect.oncePerTurn
+            ? (ability.storyName ?? ability.rulesText ?? "anon")
+            : undefined;
           modifiers.globalMoveCostReduction.push({
             amount: effect.amount,
             playerId: instance.ownerId,
             filter: effect.filter,
+            ...(effect.selfOnly ? { selfOnly: true, sourceInstanceId: instance.instanceId } : {}),
+            ...(oncePerTurnKey ? { oncePerTurnKey } : {}),
           });
           break;
         }

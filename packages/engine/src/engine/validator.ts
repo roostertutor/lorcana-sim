@@ -739,23 +739,53 @@ function validateMoveCharacter(
   return OK;
 }
 
-/** Compute the effective move cost after location-bound move-cost reductions
- *  (Jolly Roger Hook's Ship "Your Pirate characters may move here for free"). */
+/** Compute the effective move cost after move-cost reductions:
+ *  - Location-keyed: Jolly Roger Hook's Ship "Your Pirate characters may move here for free"
+ *  - Global: Map of Treasure Planet "You pay 1 {I} less to move your characters to a location"
+ *  - Self-only oncePerTurn: Raksha Fearless Mother "Once during your turn, you may
+ *    pay 1 {I} less to move this character to a location"
+ *
+ *  Returns `{ cost, consumedOncePerTurn }` so the reducer can mark the once-per-turn
+ *  flag on the source after the move actually pays. (This is feasibility — actual
+ *  consumption is deferred to applyMoveCharacter.) */
 export function applyMoveCostReduction(
   baseCost: number,
   charInstance: import("../types/index.js").CardInstance,
   charDef: CardDefinition,
   locationInstanceId: string,
-  modifiers: { moveToSelfCostReductions: Map<string, { amount: number | "all"; filter: import("../types/index.js").CardFilter }[]> },
+  modifiers: {
+    moveToSelfCostReductions: Map<string, { amount: number | "all"; filter: import("../types/index.js").CardFilter }[]>;
+    globalMoveCostReduction: {
+      amount: number;
+      playerId: PlayerID;
+      filter?: import("../types/index.js").CardFilter;
+      selfOnly?: boolean;
+      sourceInstanceId?: string;
+      oncePerTurnKey?: string;
+    }[];
+  },
   state: GameState,
   viewingPlayerId: PlayerID
 ): number {
-  const entries = modifiers.moveToSelfCostReductions.get(locationInstanceId);
-  if (!entries || entries.length === 0) return baseCost;
   let cost = baseCost;
-  for (const entry of entries) {
-    if (!matchesFilter(charInstance, charDef, entry.filter, state, viewingPlayerId)) continue;
-    if (entry.amount === "all") return 0;
+  // Location-keyed reductions (Jolly Roger Hook's Ship)
+  const locEntries = modifiers.moveToSelfCostReductions.get(locationInstanceId);
+  if (locEntries) {
+    for (const entry of locEntries) {
+      if (!matchesFilter(charInstance, charDef, entry.filter, state, viewingPlayerId)) continue;
+      if (entry.amount === "all") return 0;
+      cost = Math.max(0, cost - entry.amount);
+    }
+  }
+  // Global / self-only reductions (Map of Treasure Planet, Raksha Fearless Mother)
+  for (const entry of modifiers.globalMoveCostReduction) {
+    if (entry.playerId !== charInstance.ownerId) continue;
+    if (entry.filter && !matchesFilter(charInstance, charDef, entry.filter, state, viewingPlayerId)) continue;
+    if (entry.selfOnly && entry.sourceInstanceId !== charInstance.instanceId) continue;
+    if (entry.oncePerTurnKey && entry.sourceInstanceId) {
+      const src = state.cards[entry.sourceInstanceId];
+      if (src?.oncePerTurnTriggered?.[entry.oncePerTurnKey]) continue;
+    }
     cost = Math.max(0, cost - entry.amount);
   }
   return cost;

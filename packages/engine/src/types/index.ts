@@ -1577,11 +1577,24 @@ export interface DeckRuleStatic {
 /** Map of Treasure Planet (Set 3): "You pay 1 {I} less to move your characters
  *  to a location." Global move cost reduction from an item (not a location).
  *  Unlike move_to_self_cost_reduction (location-keyed), this applies to ALL
- *  move destinations. Reducer subtracts from move cost before deducting ink. */
+ *  move destinations. Reducer subtracts from move cost before deducting ink.
+ *
+ *  Raksha Fearless Mother (Set 10) ON PATROL: "Once during your turn, you may
+ *  pay 1 {I} less to move this character to a location." — uses
+ *  `selfOnly: true` to scope to only the source character's moves and
+ *  `oncePerTurn: true` for the once-per-turn gating (consumed marker stored on
+ *  source.oncePerTurnTriggered, keyed by storyName). */
 export interface GlobalMoveCostReductionStatic {
   type: "global_move_cost_reduction";
   amount: number;
   filter?: CardFilter;
+  /** Only applies when the moving character IS the source of this static
+   *  (e.g. Raksha — "to move THIS character"). */
+  selfOnly?: boolean;
+  /** CRD 6.1.13: only one move per turn benefits from this reduction.
+   *  Marker key = ability storyName, stored on source instance's
+   *  oncePerTurnTriggered map. */
+  oncePerTurn?: boolean;
 }
 
 /** Captain Amelia (Set 6): "While being challenged, your other characters gain
