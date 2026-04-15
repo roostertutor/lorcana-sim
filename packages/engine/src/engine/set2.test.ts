@@ -499,12 +499,14 @@ describe("§6 Set 2 Card Coverage", () => {
     // Need a valid target for Befuddle (return char/item cost <=2)
     ({ state, instanceId: bounceTargetId } = injectCard(state, "player2", "lilo-making-a-wish", "play")); // cost 1
 
-    // Set actionsPlayedThisTurn to 1 so next action is the "second"
+    // Mark one action as already-played-this-turn so next action is the "second"
+    let priorActionId: string;
+    ({ state, instanceId: priorActionId } = injectCard(state, "player1", "befuddle", "discard"));
     state = {
       ...state,
       players: {
         ...state.players,
-        player1: { ...state.players.player1, actionsPlayedThisTurn: 1 },
+        player1: { ...state.players.player1, cardsPlayedThisTurn: [priorActionId] },
       },
     };
 

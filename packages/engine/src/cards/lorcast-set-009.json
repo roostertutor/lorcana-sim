@@ -6580,8 +6580,11 @@
         "storyName": "ELECTRIC MOVE",
         "rulesText": "If you've played a song this turn, this character gains Rush this turn.",
         "condition": {
-          "type": "songs_played_this_turn_gte",
-          "amount": 1
+          "type": "played_this_turn",
+          "amount": 1,
+          "filter": {
+            "hasTrait": "Song"
+          }
         },
         "effects": [
           {
@@ -12191,8 +12194,11 @@
         "storyName": "ELECTRIC MOVE",
         "rulesText": "If you've played a song this turn, this character gains Rush this turn.",
         "condition": {
-          "type": "songs_played_this_turn_gte",
-          "amount": 1
+          "type": "played_this_turn",
+          "amount": 1,
+          "filter": {
+            "hasTrait": "Song"
+          }
         },
         "effects": [
           {

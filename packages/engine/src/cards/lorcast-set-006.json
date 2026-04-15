@@ -5575,8 +5575,14 @@
           }
         },
         "condition": {
-          "type": "actions_played_this_turn_eq",
-          "amount": 2
+          "type": "played_this_turn",
+          "amount": 2,
+          "op": "==",
+          "filter": {
+            "cardType": [
+              "action"
+            ]
+          }
         },
         "effects": [
           {

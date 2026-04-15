@@ -1067,6 +1067,62 @@ describe("§11 Set 11 — Snow Fort static strength + Support", () => {
   });
 });
 
+describe("§10 Set 10 — played_this_turn unified condition", () => {
+  it("Enigmatic Inkcaster ITS OWN REWARD: fizzles until 2+ cards played, then grants lore", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let inkcasterId: string;
+    ({ state, instanceId: inkcasterId } = injectCard(state, "player1", "enigmatic-inkcaster", "play", { isDrying: false }));
+    // 0 cards played — per CRD 6.2.1 activation succeeds but effect fizzles.
+    // (Cost is only {E} — no ink/card waste on fizzle beyond the exert.)
+    const loreStart = state.players.player1.lore;
+    let r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: inkcasterId, abilityIndex: 0 }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(r.newState.players.player1.lore).toBe(loreStart); // fizzled
+    expect(getInstance(r.newState, inkcasterId).isExerted).toBe(true);
+
+    // Ready and play 2 cards to satisfy the condition.
+    state = { ...r.newState, cards: { ...r.newState.cards, [inkcasterId]: { ...r.newState.cards[inkcasterId]!, isExerted: false } } };
+    let charId: string, itemId: string;
+    ({ state, instanceId: charId } = injectCard(state, "player1", "mickey-mouse-true-friend", "hand"));
+    ({ state, instanceId: itemId } = injectCard(state, "player1", "fishbone-quill", "hand"));
+    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: charId }, LORCAST_CARD_DEFINITIONS);
+    state = r.newState;
+    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: itemId }, LORCAST_CARD_DEFINITIONS);
+    state = r.newState;
+    expect(state.players.player1.cardsPlayedThisTurn?.length).toBeGreaterThanOrEqual(2);
+    // Now activation grants lore.
+    const loreBefore = state.players.player1.lore;
+    r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: inkcasterId, abilityIndex: 0 }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(r.newState.players.player1.lore).toBe(loreBefore + 1);
+  });
+
+  it("Ichabod Crane WELL-READ: only fires on quest if a cost-5+ character was played this turn", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let ichabodId: string;
+    ({ state, instanceId: ichabodId } = injectCard(state, "player1", "ichabod-crane-bookish-schoolmaster", "play", { isDrying: false }));
+    // Quest with no cost-5+ played → condition fails, no inkwell put.
+    const inkBefore = getZone(state, "player1", "inkwell").length;
+    let r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: ichabodId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getZone(r.newState, "player1", "inkwell").length).toBe(inkBefore);
+
+    // Pass and return; play a cost-5 character (Moana cost 5), then quest → fires.
+    state = passTurns(r.newState, 2);
+    state = giveInk(state, "player1", 10);
+    let bigCharId: string;
+    ({ state, instanceId: bigCharId } = injectCard(state, "player1", "moana-of-motunui", "hand"));
+    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: bigCharId }, LORCAST_CARD_DEFINITIONS);
+    state = r.newState;
+    const inkBefore2 = getZone(state, "player1", "inkwell").length;
+    r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: ichabodId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getZone(r.newState, "player1", "inkwell").length).toBe(inkBefore2 + 1);
+  });
+});
+
 describe("§10 Set 10 — Cinderella Dream Come True WHATEVER YOU WISH FOR", () => {
   // At the end of your turn, if you played a Princess character this turn,
   // you may put a card from your hand into your inkwell facedown to draw a card.

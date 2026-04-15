@@ -5691,6 +5691,10 @@
             "type": "exert"
           }
         ],
+        "condition": {
+          "type": "played_this_turn",
+          "amount": 2
+        },
         "effects": [
           {
             "type": "gain_lore",
@@ -8343,6 +8347,14 @@
         "trigger": {
           "on": "quests"
         },
+        "condition": {
+          "type": "played_this_turn",
+          "amount": 1,
+          "filter": {
+            "cardType": ["character"],
+            "costAtLeast": 5
+          }
+        },
         "effects": [
           {
             "type": "move_to_inkwell",
@@ -8770,8 +8782,14 @@
           }
         },
         "condition": {
-          "type": "played_character_with_trait_this_turn",
-          "trait": "Princess"
+          "type": "played_this_turn",
+          "amount": 1,
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Princess"
+          }
         },
         "effects": [
           {
@@ -13858,8 +13876,14 @@
           }
         },
         "condition": {
-          "type": "played_character_with_trait_this_turn",
-          "trait": "Princess"
+          "type": "played_this_turn",
+          "amount": 1,
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Princess"
+          }
         },
         "effects": [
           {

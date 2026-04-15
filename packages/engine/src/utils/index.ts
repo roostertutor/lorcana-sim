@@ -724,11 +724,21 @@ export function evaluateCondition(
       const opp: PlayerID = controllingPlayerId === "player1" ? "player2" : "player1";
       return !state.players[opp].aCharacterChallengedThisTurn;
     }
-    case "played_another_character_this_turn": {
-      // Travelers (P3): "if you played another character this turn". Check
-      // for any tracked entry whose id is NOT the source instance.
-      const list = state.players[controllingPlayerId].charactersPlayedThisTurn ?? [];
-      return list.some((id) => id !== sourceInstanceId);
+    case "played_this_turn": {
+      // Unified "you've played [filter] this turn" condition. Counts entries
+      // in cardsPlayedThisTurn (all card plays) matching the optional filter.
+      const list = state.players[controllingPlayerId].cardsPlayedThisTurn ?? [];
+      let count = 0;
+      for (const id of list) {
+        const inst = state.cards[id];
+        if (!inst) continue;
+        const def = definitions[inst.definitionId];
+        if (!def) continue;
+        if (condition.filter && !matchesFilter(inst, def, condition.filter, state, controllingPlayerId, sourceInstanceId)) continue;
+        count++;
+      }
+      const op = condition.op ?? ">=";
+      return op === ">=" ? count >= condition.amount : count === condition.amount;
     }
     case "your_first_turn_as_underdog": {
       // CRD: UNDERDOG ("if this is your first turn and you're not the first
@@ -758,18 +768,6 @@ export function evaluateCondition(
         return matchingCount >= condition.amount;
       }
       return zoneCards.length >= condition.amount;
-    }
-    case "played_character_with_trait_this_turn": {
-      // Use the tracked charactersPlayedThisTurn list so banished characters still
-      // count (Cinderella Dream Come True "if you played a Princess character this
-      // turn" fires at end-of-turn even if the Princess was already banished).
-      const tracked = state.players[controllingPlayerId].charactersPlayedThisTurn ?? [];
-      return tracked.some((id) => {
-        const inst = state.cards[id];
-        if (!inst) return false;
-        const def = definitions[inst.definitionId];
-        return def?.cardType === "character" && def.traits.includes(condition.trait);
-      });
     }
     case "card_has_trait": {
       const inst = state.cards[sourceInstanceId];
@@ -802,18 +800,6 @@ export function evaluateCondition(
       return condition.conditions.some(sub =>
         evaluateCondition(sub, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, statBonuses)
       );
-    }
-    case "songs_played_this_turn_gte": {
-      return (state.players[controllingPlayerId].songsPlayedThisTurn ?? 0) >= condition.amount;
-    }
-    case "actions_played_this_turn_gte": {
-      return (state.players[controllingPlayerId].actionsPlayedThisTurn ?? 0) >= condition.amount;
-    }
-    case "actions_played_this_turn_eq": {
-      // CRD 6.2.4: Owl - Island Secluded Entrance ("Whenever you play a second
-      // action in a turn, gain 3 lore"). Counter is incremented BEFORE trigger
-      // resolves, so "second action" = counter == 2 at evaluation time.
-      return (state.players[controllingPlayerId].actionsPlayedThisTurn ?? 0) === condition.amount;
     }
     case "this_has_no_damage": {
       const inst = state.cards[sourceInstanceId];

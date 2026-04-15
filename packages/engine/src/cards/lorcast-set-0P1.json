@@ -890,8 +890,13 @@
           }
         },
         "condition": {
-          "type": "actions_played_this_turn_gte",
-          "amount": 2
+          "type": "played_this_turn",
+          "amount": 2,
+          "filter": {
+            "cardType": [
+              "action"
+            ]
+          }
         },
         "effects": [
           {

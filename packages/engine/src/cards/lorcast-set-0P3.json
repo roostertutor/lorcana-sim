@@ -2779,7 +2779,14 @@
           "on": "quests"
         },
         "condition": {
-          "type": "played_another_character_this_turn"
+          "type": "played_this_turn",
+          "amount": 1,
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true
+          }
         },
         "effects": [
           {
@@ -2851,7 +2858,14 @@
         "storyName": "HEED MY WORDS",
         "rulesText": "Whenever this character quests, if you played another character this turn, you may exert chosen opposing character.",
         "condition": {
-          "type": "played_another_character_this_turn"
+          "type": "played_this_turn",
+          "amount": 1,
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true
+          }
         },
         "effects": [
           {
@@ -2914,7 +2928,14 @@
         "storyName": "YOU'RE OUT OF FASHION",
         "rulesText": "Whenever this character quests, if you played another character this turn, you may banish chosen damaged character.",
         "condition": {
-          "type": "played_another_character_this_turn"
+          "type": "played_this_turn",
+          "amount": 1,
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true
+          }
         },
         "effects": [
           {
@@ -2976,7 +2997,14 @@
         "storyName": "ROYAL COMMAND",
         "rulesText": "Whenever this character quests, if you played another character this turn, chosen character gains Rush this turn.",
         "condition": {
-          "type": "played_another_character_this_turn"
+          "type": "played_this_turn",
+          "amount": 1,
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true
+          }
         },
         "effects": [
           {
@@ -3038,7 +3066,14 @@
         "storyName": "THIS AND THAT",
         "rulesText": "Whenever this character quests, if you played another character this turn, you may put the top card of your deck into your inkwell facedown and exerted.",
         "condition": {
-          "type": "played_another_character_this_turn"
+          "type": "played_this_turn",
+          "amount": 1,
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true
+          }
         },
         "effects": [
           {
@@ -3095,7 +3130,14 @@
         "storyName": "WANDERING SPIRIT",
         "rulesText": "Whenever this character quests, if you played another character this turn, return a location card from your discard to your hand.",
         "condition": {
-          "type": "played_another_character_this_turn"
+          "type": "played_this_turn",
+          "amount": 1,
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true
+          }
         },
         "effects": [
           {

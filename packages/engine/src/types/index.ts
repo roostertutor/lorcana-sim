@@ -2288,13 +2288,23 @@ export type Condition =
   | { type: "is_your_turn" }
   | { type: "this_is_exerted" }
   | { type: "cards_in_zone_gte"; zone: ZoneName; amount: number; player: PlayerTarget; cardType?: CardType[] }
-  | { type: "played_character_with_trait_this_turn"; trait: string }
   | { type: "self_stat_gte"; stat: "strength" | "willpower" | "lore"; amount: number }
   | { type: "compound_and"; conditions: Condition[] }
   | { type: "compound_or"; conditions: Condition[] }
-  | { type: "songs_played_this_turn_gte"; amount: number }
-  | { type: "actions_played_this_turn_gte"; amount: number }
-  | { type: "actions_played_this_turn_eq"; amount: number }
+  /** Unified "you've played [filter] this turn" condition. Counts entries in
+   *  `PlayerState.cardsPlayedThisTurn` (unified list of all card plays)
+   *  matching the optional CardFilter. Subsumes the old per-category
+   *  conditions (actions_played_this_turn_gte/_eq, songs_played_this_turn_gte,
+   *  played_character_with_trait_this_turn, played_another_character_this_turn).
+   *  Examples:
+   *  - `{amount: 2}` → "played 2 or more cards this turn" (Enigmatic Inkcaster)
+   *  - `{amount: 2, filter: {cardType: ["action"]}}` → Airfoil "played 2+ actions"
+   *  - `{amount: 1, filter: {hasTrait: "Song"}}` → Powerline "played a song"
+   *  - `{amount: 1, filter: {cardType: ["character"], hasTrait: "Princess"}}` → Cinderella
+   *  - `{amount: 1, filter: {cardType: ["character"], excludeSelf: true}}` → "another character"
+   *  - `{amount: 1, filter: {cardType: ["character"], costAtLeast: 5}}` → Ichabod "cost 5+ character"
+   *  - `{amount: 2, op: "=="}` → Minnie Wide-Eyed Diver "second action" exact match */
+  | { type: "played_this_turn"; amount: number; op?: ">=" | "=="; filter?: CardFilter }
   | { type: "this_has_no_damage" }
   | { type: "this_has_damage" }
   | { type: "this_at_location" }
@@ -2342,10 +2352,6 @@ export type Condition =
    *  player, ...". True when the controlling player has not yet completed a
    *  turn AND they are NOT state.firstPlayerId. */
   | { type: "your_first_turn_as_underdog" }
-  /** Travelers cycle (P3): "if you played another character this turn".
-   *  True when the controller has at least one entry in
-   *  charactersPlayedThisTurn whose id is NOT the source instanceId. */
-  | { type: "played_another_character_this_turn" }
   /** Set 11 pacifist cycle (Mother's Necklace, John Smith Snow Tracker):
    *  "if none of your characters challenged this turn". True iff the
    *  controller's aCharacterChallengedThisTurn flag is unset/false. */
@@ -2653,13 +2659,16 @@ export interface PlayerState {
    *  (Isabela Madrigal Golden Child — "if no other character has quested this
    *  turn"). Reset on PASS_TURN. */
   charactersQuestedThisTurn?: number;
-  /** Number of action cards played this turn */
-  actionsPlayedThisTurn?: number;
-  /** Number of songs played this turn */
-  songsPlayedThisTurn?: number;
-  /** Instance IDs of characters played this turn (Travelers cycle, P3 — "if you
-   *  played another character this turn"). Cleared on PASS_TURN. */
-  charactersPlayedThisTurn?: string[];
+  /** Unified list of instance IDs of EVERY card this player played this turn
+   *  (characters, items, locations, actions, songs, shifts, free-plays,
+   *  reveal-and-play). Populated by `zoneTransition` whenever `ctx.reason ===
+   *  "played"` and `targetZone === "play"`. Cleared on PASS_TURN.
+   *
+   *  Backs the generic `played_this_turn` condition, which filters this list
+   *  by CardFilter to count matching plays. Subsumes the old per-category
+   *  counters (actionsPlayedThisTurn, songsPlayedThisTurn,
+   *  charactersPlayedThisTurn). */
+  cardsPlayedThisTurn?: string[];
   /**
    * Conditional challenge strength bonuses active this turn (CRD 6.1.4 / 8.5.1-style).
    * Each entry adds `strength` to any of this player's characters when challenging

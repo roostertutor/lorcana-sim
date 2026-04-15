@@ -259,7 +259,6 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
   },
   opponent_has_more_cards_in_hand:  () => "if an opponent has more cards in their hand than you",
   self_has_more_than_each_opponent: (c) => `if you have more ${c.metric ?? "cards"} than each opponent`,
-  played_another_character_this_turn: () => "if you've played another character this turn",
   your_first_turn_as_underdog: () => "during your first turn as the underdog",
 
   // ---- This-card-state checks ----------------------------------------------
@@ -280,9 +279,18 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
   opponent_character_was_banished_in_challenge_this_turn:
                               () => "if an opposing character was banished in a challenge this turn",
   ink_plays_this_turn_eq:     (c) => `if you've played exactly ${c.amount ?? 0} cards into your inkwell this turn`,
-  songs_played_this_turn_gte: (c) => `if you've played ${c.amount ?? 0} or more songs this turn`,
-  actions_played_this_turn_gte: (c) => `if you've played ${c.amount ?? 0} or more actions this turn`,
-  actions_played_this_turn_eq: (c) => `if you've played exactly ${c.amount ?? 0} actions this turn`,
+  played_this_turn: (c) => {
+    const amt = c.amount ?? 1;
+    const op = c.op ?? ">=";
+    const n = op === "==" ? `exactly ${amt}` : (amt === 1 ? "a" : `${amt} or more`);
+    const filt = c.filter ? renderFilter(c.filter) : "card";
+    // "a" as article vs "1" count wording
+    const article = amt === 1 && op !== "==" ? n : (op === "==" ? n : `${n} ${filt.endsWith("s") ? "" : ""}`);
+    if (amt === 1 && op !== "==") {
+      return `if you've played ${c.filter?.excludeSelf ? "another " : "a "}${filt} this turn`;
+    }
+    return `if you've played ${n} ${filt}${filt.endsWith("s") ? "" : "s"} this turn`;
+  },
   your_character_was_damaged_this_turn: () => "if one of your characters was damaged this turn",
   no_other_character_quested_this_turn: () => "if no other character has quested this turn",
   card_left_discard_this_turn: () => "if a card left a player's discard this turn",

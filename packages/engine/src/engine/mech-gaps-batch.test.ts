@@ -563,7 +563,7 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     // Inject Cruella into play directly with playedThisTurn tracking already set.
     ({ state, instanceId: cruellaId } = injectCard(state, "player1", "cruella-de-vil-judgmental-traveler", "play", { isDrying: false }));
     // Manually mark Cruella as the only character played this turn.
-    state = { ...state, players: { ...state.players, player1: { ...state.players.player1, charactersPlayedThisTurn: [cruellaId] } } };
+    state = { ...state, players: { ...state.players, player1: { ...state.players.player1, cardsPlayedThisTurn: [cruellaId] } } };
     // A damaged opposing character to potentially banish.
     let victimId: string;
     ({ state, instanceId: victimId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false, damage: 1 }));
@@ -578,7 +578,7 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     // Easier: ready Cruella, push another id into the played list, requery.
     state = { ...state, cards: { ...state.cards, [cruellaId]: { ...state.cards[cruellaId], isExerted: false } } };
     ({ state, instanceId: otherId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: true }));
-    state = { ...state, players: { ...state.players, player1: { ...state.players.player1, charactersPlayedThisTurn: [cruellaId, otherId] } } };
+    state = { ...state, players: { ...state.players, player1: { ...state.players.player1, cardsPlayedThisTurn: [cruellaId, otherId] } } };
     r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: cruellaId }, LORCAST_CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     // Now there should be a may-prompt; first the yes/no, then on accept a choose_target.

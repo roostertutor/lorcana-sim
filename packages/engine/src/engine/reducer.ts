@@ -793,39 +793,12 @@ function applyPlayCard(
       message: `${playerId} shifted ${def.fullName} onto ${definitions[shiftTarget.definitionId]?.fullName}.`,
       type: "card_played",
     });
-    // Track shifted-in characters for the Travelers "played another character
-    // this turn" condition.
-    {
-      const existing = state.players[playerId].charactersPlayedThisTurn ?? [];
-      state = {
-        ...state,
-        players: {
-          ...state.players,
-          [playerId]: { ...state.players[playerId], charactersPlayedThisTurn: [...existing, instanceId] },
-        },
-      };
-    }
+    // cardsPlayedThisTurn is now tracked centrally in zoneTransition.
   } else if (def.cardType === "action") {
     // CRD 4.3.3.2: Action enters play zone, effect resolves, then moves to discard
     state = zoneTransition(state, instanceId, "play", definitions, events, {
       reason: "played", triggeringPlayerId: playerId,
     });
-
-    // Track actions and songs played this turn
-    const currentActions = state.players[playerId].actionsPlayedThisTurn ?? 0;
-    const currentSongs = state.players[playerId].songsPlayedThisTurn ?? 0;
-    const isSongCard = isSong(def);
-    state = {
-      ...state,
-      players: {
-        ...state.players,
-        [playerId]: {
-          ...state.players[playerId],
-          actionsPlayedThisTurn: currentActions + 1,
-          ...(isSongCard ? { songsPlayedThisTurn: currentSongs + 1 } : {}),
-        },
-      },
-    };
 
     if (!singerInstanceId) {
       state = appendLog(state, {
@@ -870,20 +843,7 @@ function applyPlayCard(
       message: `${playerId} played ${def.fullName}.`,
       type: "card_played",
     });
-    // Travelers cycle (P3): track characters played this turn for the
-    // "played another character this turn" condition. Track shift plays too —
-    // see the shift branch above which falls through to here only for non-
-    // shift plays; record from there as well via a separate update below.
-    if (def.cardType === "character") {
-      const existing = state.players[playerId].charactersPlayedThisTurn ?? [];
-      state = {
-        ...state,
-        players: {
-          ...state.players,
-          [playerId]: { ...state.players[playerId], charactersPlayedThisTurn: [...existing, instanceId] },
-        },
-      };
-    }
+    // cardsPlayedThisTurn is now tracked centrally in zoneTransition.
   }
 
   state = applyEnterPlayExertion(state, instanceId, playerId, definitions);
@@ -1612,9 +1572,7 @@ function applyPassTurn(
         availableInk: getZone(state, opponent, "inkwell").length,
         costReductions: [], // Clear one-shot cost reductions at turn start
         extraInkPlaysGranted: 0, // Clear turn-scoped extra ink grants
-        actionsPlayedThisTurn: 0,
-        songsPlayedThisTurn: 0,
-        charactersPlayedThisTurn: [],
+        cardsPlayedThisTurn: [],
         charactersQuestedThisTurn: 0,
         // Per-turn event flags reset on the new active player too (defensive)
         aCharacterWasDamagedThisTurn: false,
@@ -1629,7 +1587,7 @@ function applyPassTurn(
       [playerId]: {
         ...state.players[playerId],
         turnChallengeBonuses: [],
-        charactersPlayedThisTurn: [],
+        cardsPlayedThisTurn: [],
         charactersQuestedThisTurn: 0,
         aCharacterWasDamagedThisTurn: false,
         aCharacterWasBanishedInChallengeThisTurn: false,
@@ -2267,9 +2225,8 @@ function applyResolveChoice(
       });
       if (charDef.cardType === "character") {
         state = updateInstance(state, characterInstanceId, { isDrying: true });
-        const existing = state.players[playerId].charactersPlayedThisTurn ?? [];
-        state = { ...state, players: { ...state.players, [playerId]: { ...state.players[playerId], charactersPlayedThisTurn: [...existing, characterInstanceId] } } };
       }
+      // cardsPlayedThisTurn is tracked centrally in zoneTransition.
       state = appendLog(state, {
         turn: state.turnNumber,
         playerId,
@@ -5787,6 +5744,23 @@ function zoneTransition(
       state = queueTrigger(state, "enters_play", instanceId, definitions, triggerCtx);
       state = queueTrigger(state, "card_played", instanceId, definitions, triggerCtx);
       // item_played: DELETED — collapsed to card_played with cardType filter.
+      // Track "cards played this turn" — backs the unified played_this_turn
+      // condition (Enigmatic Inkcaster 2+ cards, Airfoil 2+ actions, Powerline
+      // a song, Ichabod cost-5+ character, Ariel Curious Traveler "another",
+      // Cinderella Dream Come True Princess, Travelers cycle, etc.). Single
+      // hook so all play paths (normal, free-play, shift, reveal-and-play,
+      // sing-then-play) increment uniformly.
+      if (ctx.reason === "played") {
+        const ownerPid = instance.ownerId;
+        const existing = state.players[ownerPid].cardsPlayedThisTurn ?? [];
+        state = {
+          ...state,
+          players: {
+            ...state.players,
+            [ownerPid]: { ...state.players[ownerPid], cardsPlayedThisTurn: [...existing, instanceId] },
+          },
+        };
+      }
     }
 
     // returned_to_hand trigger

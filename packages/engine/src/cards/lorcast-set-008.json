@@ -8461,8 +8461,13 @@
               "type": "is_your_turn"
             },
             {
-              "type": "actions_played_this_turn_gte",
-              "amount": 3
+              "type": "played_this_turn",
+              "amount": 3,
+              "filter": {
+                "cardType": [
+                  "action"
+                ]
+              }
             }
           ]
         },
@@ -13266,8 +13271,13 @@
               "type": "is_your_turn"
             },
             {
-              "type": "actions_played_this_turn_gte",
-              "amount": 3
+              "type": "played_this_turn",
+              "amount": 3,
+              "filter": {
+                "cardType": [
+                  "action"
+                ]
+              }
             }
           ]
         },
