@@ -2984,6 +2984,18 @@ export interface PendingChoice {
     noMatchDestination?: "top" | "bottom" | "hand" | "discard";
     targetPlayerId: PlayerID;
   };
+  /** Internal: used by granted-free-play alt-cost chooser (Belle Apprentice
+   *  Inventor's banish_chosen, Scrooge McDuck Resourceful Miser's
+   *  exert_n_matching). Held on a choose_target pendingChoice — on resolve the
+   *  reducer pays the cost using the chosen instance IDs, then completes the
+   *  play (moves the character from hand to play, fires enters_play, logs).
+   *  Requires exactly `exactCount` picks; validator enforces. */
+  _freePlayContinuation?: {
+    characterInstanceId: string;
+    playerId: PlayerID;
+    costType: "banish_chosen" | "exert_n_matching" | "discard";
+    exactCount: number;
+  };
 }
 
 export interface GameLogEntry {
@@ -3064,10 +3076,6 @@ export interface PlayCardAction {
   /** CRD 8.12: For Sing Together — multiple characters whose combined effective cost
    *  must be ≥ the song's singTogetherCost. Mutually exclusive with singerInstanceId. */
   singerInstanceIds?: string[];
-  /** Belle Apprentice Inventor: the instanceId of the item to banish as the
-   *  alternative cost (instead of paying ink). Only valid when the played
-   *  card declares an `altPlayCost` that matches. */
-  altCostBanishInstanceId?: string;
   /** Pudge - Controls the Weather: alternative free-play mode granted by a
    *  conditional `grant_play_for_free_self` static. When true, the validator
    *  forces cost to 0 (gated on the modifier being active) and the apply

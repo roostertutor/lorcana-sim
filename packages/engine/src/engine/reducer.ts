@@ -246,48 +246,15 @@ export function getAllLegalActions(
     // enumerator surfaces this variant alongside the normal-cost play so the
     // player can pick either (CRD 6.4.4 / "may"/"can" wording — the granted
     // ability is OPT-IN, not a forced cost reduction).
+    //
+    // One action per card regardless of alt-cost shape — if the card has a
+    // non-trivial cost (Belle's banish_chosen, Scrooge's exert_n_matching),
+    // applyPlayCard surfaces a pendingChoice after the click so the player can
+    // pick which item(s) to pay with. The validator checks cost feasibility.
     if (playMods.playForFreeSelf.has(instanceId)) {
-      const playCosts = playMods.playForFreeSelf.get(instanceId);
-      if (!playCosts) {
-        // No extra costs — unconditional free play (Pudge/LeFou/Lilo)
-        const freePlay: GameAction = { type: "PLAY_CARD", playerId, instanceId, viaGrantedFreePlay: true };
-        if (validateAction(state, freePlay, definitions).valid) {
-          actions.push(freePlay);
-        }
-      } else {
-        // Has playCosts — enumerate per valid cost target.
-        // Belle: one action per banishable item.
-        // Scrooge: one action if enough ready items exist.
-        let hasBanishChosen = false;
-        let hasOtherCosts = false;
-        for (const pc of playCosts) {
-          if (pc.type === "banish_chosen") {
-            hasBanishChosen = true;
-            for (const itemId of myPlay) {
-              const itemInst = state.cards[itemId];
-              const itemDef = itemInst ? definitions[itemInst.definitionId] : undefined;
-              if (!itemInst || !itemDef) continue;
-              if (!matchesFilter(itemInst, itemDef, pc.filter, state, playerId)) continue;
-              const altPlay: GameAction = {
-                type: "PLAY_CARD", playerId, instanceId,
-                viaGrantedFreePlay: true,
-                altCostBanishInstanceId: itemId,
-              };
-              if (validateAction(state, altPlay, definitions).valid) {
-                actions.push(altPlay);
-              }
-            }
-          } else {
-            hasOtherCosts = true;
-          }
-        }
-        // Non-banish costs (exert_n, discard): surface one action, validator checks feasibility
-        if (!hasBanishChosen || hasOtherCosts) {
-          const freePlay: GameAction = { type: "PLAY_CARD", playerId, instanceId, viaGrantedFreePlay: true };
-          if (validateAction(state, freePlay, definitions).valid) {
-            actions.push(freePlay);
-          }
-        }
+      const freePlay: GameAction = { type: "PLAY_CARD", playerId, instanceId, viaGrantedFreePlay: true };
+      if (validateAction(state, freePlay, definitions).valid) {
+        actions.push(freePlay);
       }
     }
 
@@ -479,7 +446,7 @@ function applyActionInner(
 ): GameState {
   switch (action.type) {
     case "PLAY_CARD":
-      return applyPlayCard(state, action.playerId, action.instanceId, definitions, events, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds, action.altCostBanishInstanceId, action.viaGrantedFreePlay, action.altShiftCostInstanceIds);
+      return applyPlayCard(state, action.playerId, action.instanceId, definitions, events, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds, action.viaGrantedFreePlay, action.altShiftCostInstanceIds);
     case "PLAY_INK":
       return applyPlayInk(state, action.playerId, action.instanceId, definitions, events);
     case "QUEST":
@@ -512,7 +479,6 @@ function applyPlayCard(
   shiftTargetInstanceId?: string,
   singerInstanceId?: string,
   singerInstanceIds?: string[],
-  altCostBanishInstanceId?: string,
   viaGrantedFreePlay?: boolean,
   altShiftCostInstanceIds?: string[],
 ): GameState {
@@ -561,35 +527,58 @@ function applyPlayCard(
       triggeringCardInstanceId: instanceId,
     });
   } else if (viaGrantedFreePlay) {
-    // Granted free-play: Pudge (no costs), Belle (banish item), Scrooge (exert items).
-    // Pay any playCosts first, then the card enters play for free.
+    // Granted free-play: Pudge (no costs), Belle (banish 1 item), Scrooge
+    // (exert 4 items). If there's a non-trivial cost, surface a pendingChoice
+    // so the player picks which instance(s) to pay with. On resolve, the
+    // handler pays the cost and completes the play via completeFreePlayInto
+    // Play. Pudge (no costs) falls through to the zoneTransition below.
     const mods = getGameModifiers(state, definitions);
     const playCosts = mods.playForFreeSelf.get(instanceId);
-    if (playCosts) {
-      for (const pc of playCosts) {
-        if (pc.type === "banish_chosen" && altCostBanishInstanceId) {
-          state = banishCard(state, altCostBanishInstanceId, definitions, events);
-        }
-        if (pc.type === "exert_n_matching") {
-          // Bot: exert the first N matching ready cards
-          const candidates = getZone(state, playerId, "play").filter((id) => {
-            const inst = state.cards[id];
-            if (!inst || inst.isExerted) return false;
-            const d = definitions[inst.definitionId];
-            return d ? matchesFilter(inst, d, pc.filter, state, playerId) : false;
-          });
-          for (let i = 0; i < Math.min(pc.count, candidates.length); i++) {
-            state = exertInstance(state, candidates[i]!, definitions);
-          }
-        }
-        if (pc.type === "discard") {
-          // Bot: discard first N eligible cards from hand
-          const hand = getZone(state, playerId, "hand").filter(id => id !== instanceId);
-          for (let i = 0; i < Math.min(pc.amount, hand.length); i++) {
-            state = moveCard(state, hand[i]!, playerId, "discard");
-          }
-        }
+    if (playCosts && playCosts.length > 0) {
+      const firstCost = playCosts[0]!;
+      const filter = "filter" in firstCost ? firstCost.filter : undefined;
+      let validTargets: string[] = [];
+      let exactCount = 1;
+      let costType: "banish_chosen" | "exert_n_matching" | "discard" = "banish_chosen";
+      if (firstCost.type === "banish_chosen" && filter) {
+        costType = "banish_chosen";
+        exactCount = 1;
+        validTargets = getZone(state, playerId, "play").filter((id) => {
+          const inst = state.cards[id];
+          const d = inst ? definitions[inst.definitionId] : undefined;
+          return !!inst && !!d && matchesFilter(inst, d, filter, state, playerId);
+        });
+      } else if (firstCost.type === "exert_n_matching" && filter) {
+        costType = "exert_n_matching";
+        exactCount = firstCost.count;
+        validTargets = getZone(state, playerId, "play").filter((id) => {
+          const inst = state.cards[id];
+          if (!inst || inst.isExerted) return false;
+          const d = definitions[inst.definitionId];
+          return !!d && matchesFilter(inst, d, filter, state, playerId);
+        });
+      } else if (firstCost.type === "discard") {
+        costType = "discard";
+        exactCount = firstCost.amount;
+        validTargets = getZone(state, playerId, "hand").filter((id) => id !== instanceId);
       }
+      // Surface chooser — on resolve, reducer pays cost + completes play.
+      return {
+        ...state,
+        pendingChoice: {
+          type: "choose_target",
+          choosingPlayerId: playerId,
+          prompt: `${def.fullName} — choose ${exactCount} ${costType === "banish_chosen" ? "item to banish" : costType === "exert_n_matching" ? "item(s) to exert" : "card(s) to discard"}.`,
+          validTargets,
+          count: exactCount,
+          _freePlayContinuation: {
+            characterInstanceId: instanceId,
+            playerId,
+            costType,
+            exactCount,
+          },
+        },
+      };
     }
     state = appendLog(state, {
       turn: state.turnNumber,
@@ -876,9 +865,22 @@ function applyPlayCard(
     }
   }
 
-  // CRD 6.7.8: Self-entry modifier — card enters play already exerted.
-  // Check the card's own abilities for enter_play_exerted_self static.
-  // No intermediate un-exerted state, no trigger, per CRD 6.7.8 example.
+  state = applyEnterPlayExertion(state, instanceId, playerId, definitions);
+  return state;
+}
+
+/** CRD 6.7.8 / 8.3.2 entry-exertion logic shared by applyPlayCard and the
+ *  granted-free-play pendingChoice resolver. Applies, in order:
+ *  - enter_play_exerted_self static on the card's own abilities
+ *  - EnterPlayExertedStatic opponent modifiers (Jiminy, Figaro)
+ *  - Bodyguard keyword may-exert trigger (prepended to stack). */
+function applyEnterPlayExertion(
+  state: GameState,
+  instanceId: string,
+  playerId: PlayerID,
+  definitions: Record<string, CardDefinition>,
+): GameState {
+  const def = getDefinition(state, instanceId, definitions);
   for (const ab of def.abilities) {
     if (ab.type === "static") {
       const effs = Array.isArray(ab.effect) ? ab.effect : [ab.effect];
@@ -888,31 +890,20 @@ function applyPlayCard(
       }
     }
   }
-
-  // EnterPlayExertedStatic — Jiminy Cricket Level-Headed and Wise (opposing
-  // chars with Rush enter exerted), Figaro Tuxedo Cat (opposing items enter
-  // exerted). Force-exert here, before any enters_play triggers resolve.
-  {
-    const epeMods = getGameModifiers(state, definitions);
-    const filters = epeMods.enterPlayExerted.get(playerId) ?? [];
-    if (filters.length > 0) {
-      const playedInst = getInstance(state, instanceId);
-      const playedDefForce = getDefinition(state, instanceId, definitions);
-      for (const f of filters) {
-        // Drop owner field — already resolved when populating gameModifiers.
-        const { owner: _omit, ...rest } = f;
-        if (matchesFilter(playedInst, playedDefForce, rest, state, playerId)) {
-          state = updateInstance(state, instanceId, { isExerted: true });
-          break;
-        }
+  const epeMods = getGameModifiers(state, definitions);
+  const filters = epeMods.enterPlayExerted.get(playerId) ?? [];
+  if (filters.length > 0) {
+    const playedInst = getInstance(state, instanceId);
+    for (const f of filters) {
+      const { owner: _omit, ...rest } = f;
+      if (matchesFilter(playedInst, def, rest, state, playerId)) {
+        state = updateInstance(state, instanceId, { isExerted: true });
+        break;
       }
     }
   }
-
-  // CRD 8.3.2: Bodyguard — may enter play exerted
   const playedInstance = getInstance(state, instanceId);
-  const playedDef = getDefinition(state, instanceId, definitions);
-  if (hasKeyword(playedInstance, playedDef, "bodyguard")) {
+  if (hasKeyword(playedInstance, def, "bodyguard")) {
     const bodyguardTrigger: PendingTrigger = {
       ability: {
         type: "triggered",
@@ -922,16 +913,14 @@ function applyPlayCard(
         effects: [{
           type: "exert",
           target: { type: "this" },
-          isMay: true, // CRD 6.1.4
+          isMay: true,
         }],
       },
       sourceInstanceId: instanceId,
       context: { triggeringPlayerId: playerId },
     };
-    // Prepend so bodyguard is resolved before other enters_play triggers (FIFO)
     state = { ...state, triggerStack: [bodyguardTrigger, ...state.triggerStack] };
   }
-
   return state;
 }
 
@@ -2228,6 +2217,38 @@ function applyResolveChoice(
   }
 
   if (pendingChoice.type === "choose_target" && Array.isArray(choice)) {
+    // Granted-free-play alt-cost chooser (Belle, Scrooge). Pay the cost with
+    // the chosen instances, then move the character/item from hand to play.
+    const freePlayCont = pendingChoice._freePlayContinuation;
+    if (freePlayCont) {
+      const { characterInstanceId, costType } = freePlayCont;
+      const charDef = getDefinition(state, characterInstanceId, definitions);
+      if (costType === "banish_chosen") {
+        for (const id of choice) state = banishCard(state, id, definitions, events);
+      } else if (costType === "exert_n_matching") {
+        for (const id of choice) state = exertInstance(state, id, definitions);
+      } else if (costType === "discard") {
+        for (const id of choice) state = moveCard(state, id, playerId, "discard");
+      }
+      state = zoneTransition(state, characterInstanceId, "play", definitions, events, {
+        reason: "played", triggeringPlayerId: playerId,
+      });
+      if (charDef.cardType === "character") {
+        state = updateInstance(state, characterInstanceId, { isDrying: true });
+        const existing = state.players[playerId].charactersPlayedThisTurn ?? [];
+        state = { ...state, players: { ...state.players, [playerId]: { ...state.players[playerId], charactersPlayedThisTurn: [...existing, characterInstanceId] } } };
+      }
+      state = appendLog(state, {
+        turn: state.turnNumber,
+        playerId,
+        message: `${playerId} played ${charDef.fullName} for free.`,
+        type: "card_played",
+      });
+      state = applyEnterPlayExertion(state, characterInstanceId, playerId, definitions);
+      state = resumePendingEffectQueue(state, definitions, events);
+      state = cleanupPendingAction(state, playerId);
+      return state;
+    }
     // CRD 6.1.4: optional target choice — empty array = skip
     if (pendingChoice.optional && choice.length === 0) {
       state = resumePendingEffectQueue(state, definitions, events);

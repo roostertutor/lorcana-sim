@@ -142,6 +142,31 @@ plumb through the creator function.
 
 ---
 
+## Engine + GUI: migrate altShift (Diablo/Flotsam) to pendingChoice pattern
+
+Granted-free-play alt-cost (Belle banish_chosen, Scrooge exert_n_matching) now
+uses a pendingChoice chooser after the Play click, via a `_freePlayContinuation`
+field on choose_target (commit landed alongside bugs 1/2). The parallel altShift
+path (`altShiftCost`, discard or banish to pay Shift) still uses the per-combo
+action enumeration with the GUI's custom "alt-shift cost picker mode"
+(GameBoard.tsx:513-1355, ~150 LOC of mode state, hand-tap handling, toast).
+
+They're semantic twins ("pay a non-ink cost to play something"). Unifying:
+- Engine: mirror the free-play pattern. Collapse altShift enumeration to one
+  action per shift target; surface choose_target pendingChoice in
+  applyPlayCard's altShiftCost branch with an `_altShiftCostContinuation`
+  carrying shift target + cost type + exactCount. Resolver pays the cost using
+  chosen IDs, then proceeds with the shift zoneTransition + shifted_onto
+  trigger.
+- GUI: delete alt-shift picker mode. PendingChoiceModal's generic choose_target
+  already handles multi-pick with an exactCount-enforcing validator (added for
+  Scrooge).
+
+Requires coordinated engine + GUI change since the GUI's picker mode would
+break if engine stops enumerating combos. Deferred until GUI agent available.
+
+---
+
 ## Engine / GUI: chosen-target activated abilities with zero valid targets (CRD 1.7.6)
 
 Reported as "Lucky Dime has no activate ability." Verified engine-side: Lucky

@@ -3,7 +3,7 @@
 // =============================================================================
 
 import { describe, it, expect } from "vitest";
-import { applyAction, applyEffect, getLoreThreshold, checkWinConditions } from "./reducer.js";
+import { applyAction, applyEffect, getLoreThreshold, checkWinConditions, getAllLegalActions } from "./reducer.js";
 import { evaluateCondition } from "../utils/index.js";
 import { getGameModifiers } from "./gameModifiers.js";
 import { applyMoveCostReduction } from "./validator.js";
@@ -1086,5 +1086,73 @@ describe("§8 Set 8 — Lady Decisive Dog", () => {
     r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: ladyId }, LORCAST_CARD_DEFINITIONS);
     state = r.newState;
     expect(state.players.player1.lore).toBe(3);
+  });
+});
+
+describe("§7 Set 7 — granted-free-play alt-cost chooser (Belle, Scrooge)", () => {
+  it("Belle Apprentice Inventor WHAT A MESS: chooser lets player pick which item to banish", () => {
+    let state = startGame();
+    let belleId: string, itemA: string, itemB: string;
+    ({ state, instanceId: belleId } = injectCard(state, "player1", "belle-apprentice-inventor", "hand"));
+    ({ state, instanceId: itemA } = injectCard(state, "player1", "fishbone-quill", "play", { isDrying: false }));
+    ({ state, instanceId: itemB } = injectCard(state, "player1", "eye-of-the-fates", "play", { isDrying: false }));
+
+    // One action surfaces (no per-item fanout).
+    const legal = getAllLegalActions(state, "player1", LORCAST_CARD_DEFINITIONS);
+    const bellePlays = legal.filter(a => a.type === "PLAY_CARD" && a.instanceId === belleId && (a as any).viaGrantedFreePlay);
+    expect(bellePlays.length).toBe(1);
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: belleId, viaGrantedFreePlay: true }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(r.newState.pendingChoice?.type).toBe("choose_target");
+    expect(r.newState.pendingChoice?.validTargets).toEqual(expect.arrayContaining([itemA, itemB]));
+
+    // Pick itemB to banish.
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [itemB] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getInstance(r.newState, itemB).zone).toBe("discard");
+    expect(getInstance(r.newState, itemA).zone).toBe("play");
+    expect(getInstance(r.newState, belleId).zone).toBe("play");
+    expect(getInstance(r.newState, belleId).isDrying).toBe(true);
+  });
+
+  it("Belle chooser validates: must pick exactly one item", () => {
+    let state = startGame();
+    let belleId: string, itemA: string;
+    ({ state, instanceId: belleId } = injectCard(state, "player1", "belle-apprentice-inventor", "hand"));
+    ({ state, instanceId: itemA } = injectCard(state, "player1", "fishbone-quill", "play", { isDrying: false }));
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: belleId, viaGrantedFreePlay: true }, LORCAST_CARD_DEFINITIONS);
+    // Zero picks → validator rejects.
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(false);
+  });
+
+  it("Scrooge McDuck Resourceful Miser PUT IT TO GOOD USE: chooser picks exactly 4 items to exert", () => {
+    let state = startGame();
+    let scroogeId: string;
+    ({ state, instanceId: scroogeId } = injectCard(state, "player1", "scrooge-mcduck-resourceful-miser", "hand"));
+    const items: string[] = [];
+    for (let i = 0; i < 5; i++) {
+      const r = injectCard(state, "player1", "fishbone-quill", "play", { isDrying: false });
+      state = r.state;
+      items.push(r.instanceId);
+    }
+    // Free-play action surfaces.
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: scroogeId, viaGrantedFreePlay: true }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(r.newState.pendingChoice?.type).toBe("choose_target");
+    expect(r.newState.pendingChoice?.count).toBe(4);
+
+    // Picking 3 items → validator rejects (exactly 4 required).
+    let bad = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: items.slice(0, 3) }, LORCAST_CARD_DEFINITIONS);
+    expect(bad.success).toBe(false);
+
+    // Pick 4 items → resolve.
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: items.slice(0, 4) }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    for (let i = 0; i < 4; i++) expect(getInstance(r.newState, items[i]!).isExerted).toBe(true);
+    expect(getInstance(r.newState, items[4]!).isExerted).toBe(false);
+    expect(getInstance(r.newState, scroogeId).zone).toBe("play");
+    expect(getInstance(r.newState, scroogeId).isDrying).toBe(true);
   });
 });

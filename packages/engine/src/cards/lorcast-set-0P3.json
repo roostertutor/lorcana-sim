@@ -2409,22 +2409,7 @@
         "rulesText": "During your turn, you may banish chosen item of yours to play this character for free.",
         "raw": "WHAT A MESS During your turn, you may banish chosen item of yours to play this character for free."
       }
-    ],
-    "altPlayCost": {
-      "type": "banish_item",
-      "filter": {
-        "owner": {
-          "type": "self"
-        },
-        "zone": "play",
-        "cardType": [
-          "item"
-        ]
-      },
-      "condition": {
-        "type": "is_your_turn"
-      }
-    }
+    ]
   },
   {
     "id": "mulan-disguised-soldier",

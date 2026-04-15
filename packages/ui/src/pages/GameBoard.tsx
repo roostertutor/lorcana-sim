@@ -770,10 +770,11 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               });
             }
           } else if ((action as any).viaGrantedFreePlay) {
-            // Free-play variant (Pudge/Belle/Scrooge) — label distinguishes from normal play
-            const hasAltCost = !!(action as any).altCostBanishInstanceId;
+            // Free-play variant (Pudge/Belle/Scrooge). Engine surfaces a
+            // pendingChoice after the click for cards with an alt cost (Belle
+            // banish, Scrooge exert 4) — PendingChoiceModal handles the pick.
             add(action.instanceId, {
-              label: hasAltCost ? "Play Free ⚡" : "Play Free",
+              label: "Play Free",
               color: "bg-teal-700 hover:bg-teal-600 text-teal-100",
               onClick: (e) => { e.stopPropagation(); session.dispatch(action); },
             });

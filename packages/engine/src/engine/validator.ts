@@ -298,26 +298,17 @@ function validatePlayCard(
     return OK;
   }
 
-  // Belle Apprentice Inventor: alternative play cost — banish an item.
-  // When the player provides altCostBanishInstanceId, validate the alt cost
-  // path instead of the normal ink check.
-  // Note: ApplyAction's PlayCardAction discriminator carries the field but
-  // validatePlayCard doesn't have direct access to it; the action is passed
-  // via the validator entry point. We re-read it through state context below
-  // by checking def.altPlayCost — if the def has it AND the condition holds,
-  // we accept either an ink path OR the alt path.
-  const _ignored_altCheck = def.altPlayCost; // silence — handled at action level
-  // Granted free-play (Pudge): when the in-hand instance is flagged in
-  // mods.playForFreeSelf the player has the OPTION to play it for 0 ink.
-  // The action's viaGrantedFreePlay flag opts in; without it the normal
+  // Granted free-play (Pudge, Belle, Scrooge): when the in-hand instance is
+  // flagged in mods.playForFreeSelf the player has the OPTION to play it for
+  // 0 ink. The action's viaGrantedFreePlay flag opts in; without it the normal
   // cost is paid (LeFou-style cost reductions still apply on top).
   const grantedFreePlayMods = getGameModifiers(state, definitions);
   if (viaGrantedFreePlay && !grantedFreePlayMods.playForFreeSelf.has(instanceId)) {
     return fail("This card cannot be played for free right now.");
   }
-  // Validate playCosts are payable (Belle: banish item, Scrooge: exert 4 items).
-  // The specific target (which item to banish) is carried on the action's
-  // altCostBanishInstanceId field; we just check feasibility here.
+  // Validate playCosts are payable (Belle: banish item, Scrooge: exert 4
+  // items). The specific cost target(s) are picked via the pendingChoice
+  // surfaced by applyPlayCard; here we just confirm feasibility.
   if (viaGrantedFreePlay) {
     const playCosts = grantedFreePlayMods.playForFreeSelf.get(instanceId);
     if (playCosts) {
@@ -894,15 +885,25 @@ function validateResolveChoice(
 
   // CRD 8.15.1: Ward — opponents can't choose this character for their effects
   if (state.pendingChoice.type === "choose_target" && Array.isArray(choice)) {
-    // CRD 6.1.3: "up to N" — validate count
-    const maxCount = state.pendingChoice.count ?? 1;
-    if (choice.length > maxCount) {
-      return fail(`Must choose at most ${maxCount} target(s).`);
-    }
-    // Empty choice is allowed if optional, or if there are no valid targets
-    const hasValidTargets = (state.pendingChoice.validTargets?.length ?? 0) > 0;
-    if (!state.pendingChoice.optional && hasValidTargets && choice.length === 0) {
-      return fail("Must choose at least one target.");
+    // Granted-free-play alt-cost chooser requires EXACTLY the specified count
+    // (Belle: 1 item to banish; Scrooge: 4 items to exert). Check before the
+    // up-to-N rule below.
+    const freePlayCont = state.pendingChoice._freePlayContinuation;
+    if (freePlayCont) {
+      if (choice.length !== freePlayCont.exactCount) {
+        return fail(`Must choose exactly ${freePlayCont.exactCount} ${freePlayCont.costType === "banish_chosen" ? "item to banish" : freePlayCont.costType === "exert_n_matching" ? "item(s) to exert" : "card(s) to discard"}.`);
+      }
+    } else {
+      // CRD 6.1.3: "up to N" — validate count
+      const maxCount = state.pendingChoice.count ?? 1;
+      if (choice.length > maxCount) {
+        return fail(`Must choose at most ${maxCount} target(s).`);
+      }
+      // Empty choice is allowed if optional, or if there are no valid targets
+      const hasValidTargets = (state.pendingChoice.validTargets?.length ?? 0) > 0;
+      if (!state.pendingChoice.optional && hasValidTargets && choice.length === 0) {
+        return fail("Must choose at least one target.");
+      }
     }
 
     const opponent = getOpponent(playerId);
