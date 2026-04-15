@@ -714,6 +714,13 @@ export function evaluateCondition(
       const inst = state.cards[sourceInstanceId];
       return !!inst && (inst.cardsPutUnderThisTurn ?? 0) > 0;
     }
+    case "you_put_card_under_this_turn": {
+      // Player-wide aggregate: any of controller's in-play cards has cardsPutUnderThisTurn > 0.
+      return getZone(state, controllingPlayerId, "play").some((id) => {
+        const inst = state.cards[id];
+        return !!inst && (inst.cardsPutUnderThisTurn ?? 0) > 0;
+      });
+    }
     case "no_challenges_this_turn": {
       return !state.players[controllingPlayerId].aCharacterChallengedThisTurn;
     }

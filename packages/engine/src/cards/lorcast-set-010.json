@@ -5400,12 +5400,32 @@
     ],
     "actionEffects": [
       {
-        "type": "discard_from_hand",
-        "amount": 2,
-        "target": {
-          "type": "opponent"
-        },
-        "chooser": "target_player"
+        "type": "choose",
+        "options": [
+          [
+            {
+              "type": "gain_stats",
+              "lore": -1,
+              "duration": "until_caster_next_turn",
+              "target": {
+                "type": "all",
+                "filter": {
+                  "owner": { "type": "opponent" },
+                  "zone": "play",
+                  "cardType": ["character"]
+                }
+              }
+            }
+          ],
+          [
+            {
+              "type": "discard_from_hand",
+              "amount": 2,
+              "target": { "type": "opponent" },
+              "chooser": "target_player"
+            }
+          ]
+        ]
       }
     ]
   },
@@ -7227,7 +7247,7 @@
               "type": "is_your_turn"
             },
             {
-              "type": "this_had_card_put_under_this_turn"
+              "type": "you_put_card_under_this_turn"
             }
           ]
         }
@@ -11357,28 +11377,30 @@
       {
         "type": "move_character",
         "character": {
-          "type": "chosen",
+          "type": "all",
           "filter": {
-            "owner": {
-              "type": "self"
-            },
+            "owner": { "type": "self" },
             "zone": "play",
-            "cardType": [
-              "character"
-            ]
-          }
+            "cardType": ["character"]
+          },
+          "maxCount": 2
         },
         "location": {
           "type": "chosen",
           "filter": {
-            "owner": {
-              "type": "self"
-            },
+            "owner": { "type": "self" },
             "zone": "play",
-            "cardType": [
-              "location"
-            ]
+            "cardType": ["location"]
           }
+        }
+      },
+      {
+        "type": "grant_keyword",
+        "keyword": "resist",
+        "value": 2,
+        "duration": "until_caster_next_turn",
+        "target": {
+          "type": "last_resolved_target"
         }
       }
     ]

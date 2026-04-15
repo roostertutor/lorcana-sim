@@ -2379,6 +2379,11 @@ export type Condition =
   /** Set 11 (Willie the Giant Ghost of Christmas Present): true when this
    *  source instance has had at least one card placed under it this turn. */
   | { type: "this_had_card_put_under_this_turn" }
+  /** Mulan Standing Her Ground FLOWING BLADE: "If you've put a card under
+   *  one of your characters or locations this turn". Player-wide aggregate —
+   *  true if ANY of the controller's in-play cards has cardsPutUnderThisTurn
+   *  > 0. Distinct from `this_had_card_put_under_this_turn` (per-instance). */
+  | { type: "you_put_card_under_this_turn" }
   /** Chicha Dedicated Mother (Set 5): "if it's the Nth card you've put into
    *  your inkwell this turn". True iff PlayerState.inkPlaysThisTurn equals N. */
   | { type: "ink_plays_this_turn_eq"; amount: number }

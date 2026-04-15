@@ -48,6 +48,18 @@ The audit currently reports **0 missing scalars** — every Sing Together song a
 
 A future divergence — e.g. Lorcana errata that decouples Sing Together cost from the song's normal cost — would surface here as soon as the new card is imported.
 
+## Pattern D-stat — stat symbol dropped from rules text
+
+Lorcast occasionally drops the `{S}` / `{L}` / `{W}` symbol from a rules-text
+fragment, leaving just `gets -1` or `gains 2` with no qualifier. The card
+text becomes ambiguous (printed cards always specify which stat).
+
+| Card | Set | API returns | Printed card says | Notes |
+|---|---|---|---|---|
+| Trust In Me | 10 | "Each opposing character gets -1 until the start of your next turn." | "Each opposing character gets -1 {L} until the start of your next turn." | Wired locally as `gain_stats lore: -1`. Verified against `.lorcast-raw/set-010.json` — the `text` field literally says "gets -1" with no `{L}` symbol. |
+
+The `pnpm decompile-cards` similarity score won't catch this on its own (oracle and rendered both omit the symbol), but the renderer-vs-oracle diff drops to ~0.50 because the *engine* effect must commit to one stat. Cross-check upstream when patching.
+
 ## Pattern D — story name typos in API data
 
 Lorcast occasionally returns ability story names with typos that don't match the printed card.
