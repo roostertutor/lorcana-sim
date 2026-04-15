@@ -223,24 +223,10 @@ describe("§6 Set 2 Card Coverage", () => {
   });
 
   // Pattern: CRD 6.5 damage redirect (Beast - Selfless Protector)
-  it("Beast Selfless Protector: redirects damage from allies to self", () => {
-    let state = startGame(["beast-selfless-protector"]);
-    let beastId: string;
-    let allyId: string;
-    ({ state, instanceId: beastId } = injectCard(state, "player1", "beast-selfless-protector", "play"));
-    ({ state, instanceId: allyId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { isExerted: true }));
-    let attackerId: string;
-    ({ state, instanceId: attackerId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play")); // 3 STR
-    state = { ...state, currentPlayer: "player2" };
-
-    // Challenge the ally — Beast should absorb the damage
-    const result = applyAction(state, { type: "CHALLENGE", playerId: "player2", attackerInstanceId: attackerId, defenderInstanceId: allyId }, LORCAST_CARD_DEFINITIONS);
-    expect(result.success).toBe(true);
-    // Minnie should have 0 damage (redirected to Beast)
-    expect(getInstance(result.newState, allyId).damage).toBe(0);
-    // Beast should have 3 damage (absorbed Minnie's share)
-    expect(getInstance(result.newState, beastId).damage).toBe(3);
-  });
+  // Beast Selfless Protector's basic redirect is covered end-to-end by the
+  // 1WP-ally + Smash test later in the file (line ~1024) — it asserts both
+  // that the redirect happens AND that Beast takes the full 3 damage rather
+  // than being clamped to the ally's willpower. Subsumes this baseline case.
 
   // Pattern: is_banished trigger with isMay draw (opponent's character)
   it("Kuzco: is_banished isMay draw", () => {
@@ -381,30 +367,22 @@ describe("§6 Set 2 Card Coverage", () => {
 
   // ===== NEW CONDITIONS =====
 
-  // Pattern: self_stat_gte condition — Pain gets +2 lore while 5+ strength
-  it("Pain: +2 lore while 5+ strength (self_stat_gte)", () => {
-    let state = startGame(["pain-underworld-imp"]);
-    let painId: string;
-    // Pain has 1 base STR, needs +4 to reach 5
-    ({ state, instanceId: painId } = injectCard(state, "player1", "pain-underworld-imp", "play", { timedEffects: [{ type: "modify_strength" as any, amount: 4, expiresAt: "end_of_turn" as any, appliedOnTurn: 0 }] }));
+  // Pattern: self_stat_gte condition — Pain gets +2 lore while 5+ strength,
+  // no bonus below 5. Both branches in one test.
+  it("Pain: +2 lore while 5+ strength, no bonus below (self_stat_gte)", () => {
+    // Below threshold — no bonus
+    let stateLow = startGame(["pain-underworld-imp"]);
+    let painLowId: string;
+    ({ state: stateLow, instanceId: painLowId } = injectCard(stateLow, "player1", "pain-underworld-imp", "play"));
+    const lowMods = getGameModifiers(stateLow, LORCAST_CARD_DEFINITIONS);
+    expect(lowMods.statBonuses.get(painLowId)?.lore ?? 0).toBe(0);
 
-    const modifiers = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
-    const bonus = modifiers.statBonuses.get(painId);
-    // Static ability should grant +2 lore when STR >= 5
-    expect(bonus?.lore).toBe(2);
-  });
-
-  // Pattern: self_stat_gte condition fails when below threshold
-  it("Pain: no lore bonus when below 5 strength", () => {
-    let state = startGame(["pain-underworld-imp"]);
-    let painId: string;
-    // Pain has 1 base STR, no modifier → below 5
-    ({ state, instanceId: painId } = injectCard(state, "player1", "pain-underworld-imp", "play"));
-
-    const modifiers = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
-    const bonus = modifiers.statBonuses.get(painId);
-    // Should NOT have the +2 lore bonus
-    expect(bonus?.lore ?? 0).toBe(0);
+    // At threshold (STR 5 via +4 timed buff) — +2 lore
+    let stateHigh = startGame(["pain-underworld-imp"]);
+    let painHighId: string;
+    ({ state: stateHigh, instanceId: painHighId } = injectCard(stateHigh, "player1", "pain-underworld-imp", "play", { timedEffects: [{ type: "modify_strength" as any, amount: 4, expiresAt: "end_of_turn" as any, appliedOnTurn: 0 }] }));
+    const highMods = getGameModifiers(stateHigh, LORCAST_CARD_DEFINITIONS);
+    expect(highMods.statBonuses.get(painHighId)?.lore).toBe(2);
   });
 
   // Pattern: compound_and condition — Tiana restricts opponent actions only when exerted AND empty hand
