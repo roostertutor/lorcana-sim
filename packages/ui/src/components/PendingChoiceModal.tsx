@@ -43,28 +43,51 @@ export default function PendingChoiceModal({
 
   // Build context-aware hints from game state for richer prompts.
   // Shows resolved values, card names from lastResolvedTarget/Source, etc.
+  //
+  // Gating: the snapshots (lastResolvedTarget, lastResolvedSource,
+  // lastDamageDealtAmount) persist across effect chains in engine state and
+  // are often stale relative to the current pending choice. Only surface a
+  // hint when the pending effect (or its follow-ups / options / reject branch)
+  // actually references the matching DynamicAmount/target-type — determined by
+  // token-scanning the serialized effect JSON.
   function getContextHints(): string[] {
     const hints: string[] = [];
+    const pc = pendingChoice as any;
+    // Serialize every effect-bearing field on the pending choice so token
+    // checks catch DynamicAmount references regardless of where they live.
+    const effectJson = JSON.stringify({
+      pendingEffect: pc.pendingEffect,
+      followUpEffects: pc.followUpEffects,
+      options: pc.options,
+      rejectEffect: pc.rejectEffect,
+    });
+    const referencesTarget = effectJson.includes('"last_resolved_target"') ||
+                             effectJson.includes('last_resolved_target_strength') ||
+                             effectJson.includes('last_resolved_target_lore');
+    const referencesSource = effectJson.includes('"last_resolved_source"') ||
+                             effectJson.includes('last_resolved_source_strength');
+    const referencesDamage = effectJson.includes('"last_damage_dealt"');
+
     // Last resolved target info (Hades: "Choose a Mickey Mouse to play",
     // isUpTo: show actual consumed amount, cost-side strength snapshot)
     const lrt = (gameState as any).lastResolvedTarget;
-    if (lrt?.name) {
+    if (referencesTarget && lrt?.name) {
       hints.push(`Target: ${lrt.fullName ?? lrt.name}${lrt.strength != null ? ` (${lrt.strength} STR)` : ""}${lrt.lore != null ? ` (${lrt.lore} lore)` : ""}`);
       if (lrt.delta != null) hints.push(`Amount: ${lrt.delta}`);
     }
     // Last resolved source (cost-side: "exerted character's strength")
     const lrs = (gameState as any).lastResolvedSource;
-    if (lrs?.name && lrs.name !== lrt?.name) {
+    if (referencesSource && lrs?.name && lrs.name !== lrt?.name) {
       hints.push(`Source: ${lrs.fullName ?? lrs.name}${lrs.strength != null ? ` (${lrs.strength} STR)` : ""}`);
     }
     // Last damage dealt (Mulan/Namaari: "deal the same amount of damage")
     const ldd = (gameState as any).lastDamageDealtAmount;
-    if (typeof ldd === "number" && ldd > 0) {
+    if (referencesDamage && typeof ldd === "number" && ldd > 0) {
       hints.push(`Damage dealt: ${ldd}`);
     }
     // Draw to hand size
     if (pendingChoice.type === "choose_may") {
-      const pe = (pendingChoice as any).pendingEffect;
+      const pe = pc.pendingEffect;
       if (pe?.type === "draw" && pe.untilHandSize != null) {
         const target = typeof pe.untilHandSize === "number"
           ? `${pe.untilHandSize} cards`

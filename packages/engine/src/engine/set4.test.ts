@@ -607,63 +607,10 @@ describe("§4 Set 4 — Noi Acrobatic Baby (damage_prevention_timed)", () => {
     expect(getInstance(state, noiId).timedEffects.some(te => te.type === "damage_prevention")).toBe(false);
   });
 
-  it("lastResolvedSource captures cost-side banished character (Hades Double Dealer pattern)", () => {
-    let state = startGame();
-    let srcId: string, sacId: string;
-    ({ state, instanceId: srcId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
-    ({ state, instanceId: sacId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
-
-    // Sequential: [banish chosen own character] → [gain 1 lore]
-    state = applyEffect(
-      state,
-      {
-        type: "sequential",
-        costEffects: [{ type: "banish", target: { type: "chosen", filter: { controller: "self", cardType: "character" } } }],
-        rewardEffects: [{ type: "gain_lore", amount: 1, target: { type: "self" } }],
-      } as any,
-      srcId,
-      "player1",
-      LORCAST_CARD_DEFINITIONS,
-      []
-    );
-    // A choose_target should be pending for the banish cost
-    expect(state.pendingChoice?.type).toBe("choose_target");
-    const r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [sacId] }, LORCAST_CARD_DEFINITIONS);
-    expect(r.success).toBe(true);
-    state = r.newState;
-    // After cost resolves, lastResolvedSource should snapshot the banished card.
-    expect(state.lastResolvedSource?.instanceId).toBe(sacId);
-    expect(state.lastResolvedSource?.name).toBe(LORCAST_CARD_DEFINITIONS["mickey-mouse-true-friend"]!.name);
-  });
-
-  it("isUpTo remove_damage records actual delta on lastResolvedTarget", () => {
-    let state = startGame();
-    let srcId: string, tgtId: string;
-    ({ state, instanceId: srcId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
-    ({ state, instanceId: tgtId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, damage: 1 }));
-
-    // "Remove up to 3 damage from chosen character of yours."
-    state = applyEffect(
-      state,
-      {
-        type: "remove_damage",
-        amount: 3,
-        target: { type: "chosen", filter: { controller: "self", cardType: "character" } },
-      } as any,
-      srcId,
-      "player1",
-      LORCAST_CARD_DEFINITIONS,
-      []
-    );
-    expect(state.pendingChoice?.type).toBe("choose_target");
-    const r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [tgtId] }, LORCAST_CARD_DEFINITIONS);
-    expect(r.success).toBe(true);
-    state = r.newState;
-    // Target only had 1 damage even though "up to 3" was requested.
-    expect(state.lastResolvedTarget?.instanceId).toBe(tgtId);
-    expect(state.lastResolvedTarget?.delta).toBe(1);
-    expect(getInstance(state, tgtId).damage).toBe(0);
-  });
+  // Snapshot-carrier internal-state tests (lastResolvedSource / lastResolvedTarget.delta)
+  // were removed when applyAction started clearing these at action boundaries —
+  // the Hades Double Dealer test below + Baymax test exercise the same carriers
+  // end-to-end via actual card flows.
 
   it("Hades Double Dealer HERE'S THE TRADE-OFF: banish a character to play a same-named one from hand", () => {
     let state = startGame();

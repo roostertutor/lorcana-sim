@@ -75,6 +75,62 @@ function findBestChallenge(
   return best?.action;
 }
 
+/**
+ * Least-bad challenge: used when the engine forces a challenge via CRD 8.7.3
+ * (Reckless must-challenge) or CRD 1.6.2 (`must_quest_if_able` TimedEffect,
+ * satisfied by QUEST instead). Without this fallback, a Reckless character
+ * with only non-lethal targets would deadlock the bot — `findBestChallenge`
+ * rejects non-lethal and `PASS_TURN` is then illegal.
+ *
+ * Preference: survive > kill defender > remove a high-lore threat.
+ */
+function findLeastBadChallenge(
+  state: GameState,
+  legalActions: GameAction[],
+  definitions: Record<string, CardDefinition>
+): GameAction | undefined {
+  let best: { action: GameAction; score: number } | undefined;
+
+  for (const action of legalActions) {
+    if (action.type !== "CHALLENGE") continue;
+
+    const attacker = state.cards[action.attackerInstanceId];
+    const defender = state.cards[action.defenderInstanceId];
+    if (!attacker || !defender) continue;
+
+    const attackerDef = definitions[attacker.definitionId];
+    const defenderDef = definitions[defender.definitionId];
+    if (!attackerDef || !defenderDef) continue;
+
+    let attackerStr = getEffectiveStrength(attacker, attackerDef);
+    const challengerAbility = attackerDef.abilities.find(
+      (a) => a.type === "keyword" && a.keyword === "challenger"
+    );
+    if (challengerAbility?.type === "keyword") {
+      attackerStr += challengerAbility.value ?? 0;
+    }
+
+    const defenderStr = getEffectiveStrength(defender, defenderDef);
+    const attackerWp = getEffectiveWillpower(attacker, attackerDef);
+    const defenderWp = getEffectiveWillpower(defender, defenderDef);
+
+    const defenderDies = defender.damage + attackerStr >= defenderWp;
+    const attackerDies = attacker.damage + defenderStr >= attackerWp;
+
+    // Survival dominates (10), then lethal (5), then defender lore.
+    const score =
+      (attackerDies ? 0 : 10) +
+      (defenderDies ? 5 : 0) +
+      getEffectiveLore(defender, defenderDef);
+
+    if (!best || score > best.score) {
+      best = { action, score };
+    }
+  }
+
+  return best?.action;
+}
+
 /** Play the most expensive affordable card (maximizes board impact). */
 function findBestPlay(
   state: GameState,
@@ -161,7 +217,27 @@ export const GreedyBot: BotStrategy = {
     const inkAction = findBestInk(state, legal, definitions);
     if (inkAction) return inkAction;
 
-    // 5. Pass
+    // 5. Pass — unless a hard obligation blocks it.
+    //    CRD 8.7.3: a ready Reckless character with a valid challenge target
+    //    makes PASS_TURN illegal. CRD 1.6.2 `must_quest_if_able` likewise.
+    //    When the validator has filtered PASS_TURN out of `legal`, we must
+    //    satisfy the obligation before ending the turn, or the game deadlocks.
+    if (legal.some((a) => a.type === "PASS_TURN")) {
+      return { type: "PASS_TURN", playerId };
+    }
+
+    // Obligation unsatisfied. QUEST covers must_quest_if_able; a forced
+    // challenge covers Reckless. Quest is already preferred at step 1, so if
+    // we're here and a QUEST is legal it's only still available because step 1
+    // found none — but re-check defensively in case state changed mid-decision.
+    const forcedQuest = legal.find((a) => a.type === "QUEST");
+    if (forcedQuest) return forcedQuest;
+
+    const forcedChallenge = findLeastBadChallenge(state, legal, definitions);
+    if (forcedChallenge) return forcedChallenge;
+
+    // No legal action found. Return pass; the engine will reject and the game
+    // loop will surface the deadlock rather than hanging.
     return { type: "PASS_TURN", playerId };
   },
 };

@@ -105,6 +105,24 @@ export function applyAction(
       newState = runGameStateCheck(newState, definitions, events);
     }
 
+    // Clear within-chain snapshot carriers at action boundaries. These fields
+    // (lastResolvedTarget, lastResolvedSource, lastDamageDealtAmount) are used
+    // by DynamicAmounts and CardFilter refs that resolve within a single
+    // action's chain (Mulan TRIPLE SHOT's last_damage_dealt, Ambush's
+    // last_resolved_source_strength, Hades Double Dealer's nameFromLast
+    // ResolvedSource, etc.) — none read cross-action. Only clear when the
+    // action fully resolved: no pendingChoice (deferred player pick) and no
+    // pending triggers. Keeps the GUI's "Target: X / Damage dealt: 4" hint
+    // strip from showing stale data on unrelated later choices.
+    if (!newState.pendingChoice && newState.triggerStack.length === 0) {
+      newState = {
+        ...newState,
+        lastResolvedTarget: undefined,
+        lastResolvedSource: undefined,
+        lastDamageDealtAmount: undefined,
+      };
+    }
+
     // Persist revealed cards on state for multiplayer visibility (events are transient).
     // Only overwrite when this action produced reveals — follow-up actions like
     // choose_order (which have no reveals) must NOT clear stale data, because the

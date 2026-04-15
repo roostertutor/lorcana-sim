@@ -134,6 +134,7 @@ const BOARD_WIDE_EFFECTS = new Set([
   "grant_keyword", "modify_stat_per_count", "one_challenge_per_turn_global",
   "skip_draw_step_self", "extra_ink_play",
   "all_hand_inkable", "prevent_damage_removal",
+  "grant_activated_ability",
 ]);
 
 function formatEffectDuration(d: string | undefined): string | undefined {
@@ -522,7 +523,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   const [deckViewerOpen, setDeckViewerOpen] = useState(false);
   const [inspectCardId, setInspectCardId] = useState<string | null>(null);
   const [inspectModalOpen, setInspectModalOpen] = useState(false);
-  const [popoverPos, setPopoverPos] = useState<{ top: number; left: number } | null>(null);
+  const [popoverPos, setPopoverPos] = useState<{ top: number; left: number; placement: "above" | "below" } | null>(null);
 
   // Dismiss the card action popover when the user clicks outside it (e.g.
   // empty board space, scoreboard, utility strip) or presses Escape. Clicks
@@ -1387,7 +1388,12 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           onClick={(e) => {
             const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
             const left = Math.max(8, Math.min(window.innerWidth - 8, rect.left + rect.width / 2));
-            setPopoverPos({ top: rect.bottom + 6, left });
+            // Hand cards sit at the bottom of the screen — flip the popover above
+            // the card when there's not enough room below.
+            const POPOVER_EST_HEIGHT = 160;
+            const placement = rect.bottom + POPOVER_EST_HEIGHT > window.innerHeight - 8 ? "above" : "below";
+            const top = placement === "below" ? rect.bottom + 6 : rect.top - 6;
+            setPopoverPos({ top, left, placement });
           }}
         >
           <DroppableCardTarget id={id} isValidTarget={isDropTarget} activeId={dnd.activeId}>
@@ -2049,7 +2055,11 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         <div
           data-card-popover
           className="fixed z-50 flex flex-col items-stretch gap-1 pointer-events-auto sm:min-w-[120px]"
-          style={{ top: popoverPos.top, left: popoverPos.left, transform: "translateX(-50%)" }}
+          style={{
+            top: popoverPos.top,
+            left: popoverPos.left,
+            transform: popoverPos.placement === "above" ? "translate(-50%, -100%)" : "translateX(-50%)",
+          }}
           onClick={e => e.stopPropagation()}
         >
           {(cardButtons.get(inspectCardId) ?? []).map((btn, i) => (

@@ -196,6 +196,37 @@ Option 1 is more correct to CRD. Option 2 is a safety net. Ideally both.
 
 ---
 
+~~## Engine: clear stale effect-chain snapshots between chains (optional cleanup)~~ **DONE**
+
+`applyAction` now clears `lastResolvedTarget`, `lastResolvedSource`, and
+`lastDamageDealtAmount` at the END of each action — guarded by
+`!pendingChoice && triggerStack.length === 0` so in-progress actions awaiting
+a player pick keep their carriers. Confirmed no cross-action consumers; all
+DynamicAmount + CardFilter ref readers resolve within the same chain.
+
+Two internal-state tests (`set4.test.ts`'s "lastResolvedSource captures cost-
+side banished character" and "isUpTo remove_damage records actual delta") were
+removed since they asserted post-action carrier state that's now intentionally
+cleared. The end-to-end card tests (Hades Double Dealer HERE'S THE TRADE-OFF +
+Baymax Armored Companion) still exercise the carriers via actual card flows.
+
+GUI band-aid in `PendingChoiceModal.tsx:44-90` can stay as defense-in-depth
+but is no longer strictly necessary.
+
+---
+
+## Card data: Madam Mim - Snake parsing vs oracle text
+
+User flagged the card as "parsing a little iffy" while acknowledging the
+wiring used the original oracle text verbatim. Not prioritized as a bug.
+
+Next step: run `pnpm decompile-cards --set 002 | grep -A1 madam-mim-snake` to
+diff the rendered JSON-to-English output against the oracle. If the similarity
+tail flags a semantic mismatch, file as a card-data fix; otherwise it's
+oracle-text phrasing preference and can be left alone.
+
+---
+
 ## Simulator: bot policy enumerator only generates single-pick for multi-pick choices
 
 `packages/simulator/src/rl/policy.ts:232-242` — the `choose_from_revealed`

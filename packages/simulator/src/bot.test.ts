@@ -169,6 +169,54 @@ describe("Layer 5a — Bot correctness floor", () => {
     expect(action.type).not.toBe("CHALLENGE");
   });
 
+  it("satisfies Reckless obligation with a non-lethal challenge (CRD 8.7.3)", () => {
+    // Repro for the solo-sandbox bug: John Silver - Alien Pirate grants Reckless
+    // to an opponent character. On the bot's turn, that character is ready and
+    // has a valid (non-lethal) challenge target. PASS_TURN is illegal (validator
+    // blocks it), and the old bot would fall through to PASS_TURN anyway — now
+    // it must pick the least-bad challenge.
+    let state = createGame(
+      { player1Deck: TEST_DECK, player2Deck: TEST_DECK },
+      defs
+    );
+
+    // Drain player1's hand + ink so no play/ink action distracts the bot.
+    state = {
+      ...state,
+      zones: { ...state.zones, player1: { ...state.zones.player1, hand: [] } },
+      players: {
+        ...state.players,
+        player1: { ...state.players.player1, availableInk: 0 },
+      },
+    };
+
+    // Bot's Reckless character: simba (str 2, wp 3) — can't lethal anything wp > 2.
+    const { state: s2, instanceId: recklessId } = injectCard(
+      state, "player1", "simba-protective-cub", "play",
+      { isDrying: false, isExerted: false, grantedKeywords: ["reckless"] }
+    );
+    state = s2;
+
+    // Opponent's defender: stitch-rock-star (str 3, wp 5), exerted — survives
+    // the 2 strength hit but will kill simba. findBestChallenge correctly skips
+    // this (non-lethal), the fallback must still take it.
+    const { state: s3, instanceId: defenderId } = injectCard(
+      state, "player2", "stitch-rock-star", "play",
+      { isDrying: false, isExerted: true }
+    );
+    state = s3;
+
+    state = { ...state, currentPlayer: "player1", phase: "main", pendingChoice: null };
+
+    const action = GreedyBot.decideAction(state, "player1", defs);
+
+    expect(action.type).toBe("CHALLENGE");
+    if (action.type === "CHALLENGE") {
+      expect(action.attackerInstanceId).toBe(recklessId);
+      expect(action.defenderInstanceId).toBe(defenderId);
+    }
+  });
+
   it("choose_discard picks lowest-cost card from hand", () => {
     let state = createGame(
       { player1Deck: TEST_DECK, player2Deck: TEST_DECK },
