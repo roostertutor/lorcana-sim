@@ -422,6 +422,13 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
       if (n < 0) return `${tgt} ${verbS(tgt, "lose", "loses")} ${-n} lore`;
       return `${tgt} ${verbS(tgt, "gain", "gains")} ${n} lore`;
     }
+    // "Count"-typed DynamicAmount renders as "for each X" (oracle wording)
+    // rather than "equal to the number of Xs". Pack Tactics: "Gain 1 lore
+    // for each damaged character opponents have in play."
+    if (typeof n === "object" && n?.type === "count" && n.filter) {
+      const sing = renderFilter(n.filter);
+      return `${tgt} ${verbS(tgt, "gain", "gains")} 1 lore for each ${sing}`;
+    }
     return `${tgt} ${verbS(tgt, "gain", "gains")} lore equal to ${renderAmount(n)}`;
   },
   lose_lore: (e) => {
@@ -525,6 +532,13 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
 
   grant_keyword: (e) => {
     const tgt = renderTarget(e.target ?? {});
+    // count-typed valueDynamic: render as "Resist +1 for each X" to match
+    // oracle (Snow White Fair-Hearted). Other DynamicAmounts fall back to
+    // "+the-number-of-X" style.
+    if (e.valueDynamic?.type === "count" && e.valueDynamic.filter) {
+      const sing = renderFilter(e.valueDynamic.filter);
+      return `${tgt} ${verbS(tgt, "gain", "gains")} ${cap(e.keyword)} +1 for each ${sing}${dur(e)}`;
+    }
     let v = "";
     if (e.valueDynamic) {
       v = " +" + renderAmount(e.valueDynamic);
@@ -1240,11 +1254,26 @@ function renderStatChange(e: Json): string {
 // pattern tables above.
 // -----------------------------------------------------------------------------
 function renderTriggered(ab: Json): string {
+  // Enter-play-with-damage pattern: enters_play trigger + single
+  // deal_damage target:this with a fixed number. Oracle phrasing is
+  // "This character enters play with N damage." (Mulan - Injured Soldier,
+  // Fa Zhou - Honorable Warrior's BATTLE WOUND).
+  const effects = ab.effects ?? [];
+  if (ab.trigger?.on === "enters_play" && !ab.condition && effects.length === 1) {
+    const e = effects[0];
+    if (e?.type === "deal_damage"
+        && e.target?.type === "this"
+        && typeof e.amount === "number"
+        && !e.followUpEffects?.length
+        && !e.asPutDamage) {
+      return `This character enters play with ${e.amount} damage`;
+    }
+  }
   const head = renderTrigger(ab.trigger ?? {});
   const cond = ab.condition ? renderCondition(ab.condition) : "";
   // Filter empty renderings so chained effects (e.g. peek_and_set_target
   // → play_for_free with last_resolved_target) don't produce ". ." artifacts.
-  const body = (ab.effects ?? []).map(renderEffect).filter(Boolean).join(", and ");
+  const body = effects.map(renderEffect).filter(Boolean).join(", and ");
   if (cond.startsWith("during ")) return `${cap(cond)}, ${head}, ${body}`;
   if (cond) return `${head}, ${cond}, ${body}`;
   return `${head}, ${body}`;
