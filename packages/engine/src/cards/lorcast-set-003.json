@@ -2860,7 +2860,8 @@
                 "zone": "play",
                 "cardType": [
                   "item"
-                ]
+                ],
+                "costAtMostFromSourceStrength": true
               }
             }
           }
@@ -7968,18 +7969,13 @@
         ],
         "effects": [
           {
-            "type": "shuffle_into_deck",
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "discard",
-                "cardType": [
-                  "item"
-                ]
-              }
+            "type": "put_card_on_bottom_of_deck",
+            "from": "discard",
+            "position": "top",
+            "filter": {
+              "cardType": [
+                "item"
+              ]
             }
           }
         ]
@@ -8755,28 +8751,33 @@
     ],
     "actionEffects": [
       {
-        "type": "move_to_inkwell",
-        "target": {
-          "type": "this"
-        },
-        "enterExerted": true,
-        "fromZone": "deck"
-      },
-      {
-        "type": "move_to_inkwell",
-        "target": {
-          "type": "this"
-        },
-        "enterExerted": true,
-        "fromZone": "deck"
-      },
-      {
-        "type": "move_to_inkwell",
-        "target": {
-          "type": "this"
-        },
-        "enterExerted": true,
-        "fromZone": "deck"
+        "type": "each_player",
+        "effects": [
+          {
+            "type": "move_to_inkwell",
+            "target": {
+              "type": "this"
+            },
+            "enterExerted": true,
+            "fromZone": "deck"
+          },
+          {
+            "type": "move_to_inkwell",
+            "target": {
+              "type": "this"
+            },
+            "enterExerted": true,
+            "fromZone": "deck"
+          },
+          {
+            "type": "move_to_inkwell",
+            "target": {
+              "type": "this"
+            },
+            "enterExerted": true,
+            "fromZone": "deck"
+          }
+        ]
       }
     ]
   },

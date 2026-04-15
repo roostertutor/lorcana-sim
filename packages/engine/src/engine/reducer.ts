@@ -22,6 +22,7 @@ import type {
   ZoneName,
   CardTarget,
   ResolvedRef,
+  EachPlayerEffect,
 } from "../types/index.js";
 import { getGameModifiers, type GameModifiers } from "./gameModifiers.js";
 import { validateAction, applyMoveCostReduction, getEffectiveCostWithReductions } from "./validator.js";
@@ -2954,10 +2955,11 @@ export function applyEffect(
     }
 
     case "put_card_on_bottom_of_deck": {
-      // CRD: place card(s) on the bottom of a deck without shuffling.
+      // CRD: place card(s) on the bottom (or top) of a deck without shuffling.
       // See PutCardOnBottomOfDeckEffect docs for variants.
       const amount = effect.amount ?? 1;
       const ownerScope = effect.ownerScope ?? "self";
+      const position: "top" | "bottom" = effect.position ?? "bottom";
       const targetPlayer =
         ownerScope === "self" ? controllingPlayerId
         : ownerScope === "opponent" ? getOpponent(controllingPlayerId)
@@ -2965,12 +2967,12 @@ export function applyEffect(
 
       if (effect.from === "play") {
         // Surface choose_target like return_to_hand. Each chosen instance moves
-        // to the bottom of ITS OWN owner's deck.
+        // to its OWN owner's deck at the configured position.
         const target: CardTarget = effect.target ?? { type: "chosen", filter: { zone: "play", cardType: ["character"] } };
         if (target.type === "this") {
           const inst = state.cards[sourceInstanceId];
           if (!inst) return state;
-          return moveCard(state, sourceInstanceId, inst.ownerId, "deck", "bottom");
+          return moveCard(state, sourceInstanceId, inst.ownerId, "deck", position);
         }
         if (target.type === "chosen") {
           const validTargets = findChosenTargets(state, target.filter, controllingPlayerId, definitions, sourceInstanceId);
@@ -2980,7 +2982,9 @@ export function applyEffect(
             pendingChoice: {
               type: "choose_target",
               choosingPlayerId: controllingPlayerId,
-              prompt: "Choose a card to put on the bottom of its owner's deck.",
+              prompt: position === "top"
+                ? "Choose a card to put on top of its owner's deck."
+                : "Choose a card to put on the bottom of its owner's deck.",
               validTargets,
               pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
               optional: effect.isMay ?? false,
@@ -3011,7 +3015,9 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: "Choose a card to put on the bottom of its deck.",
+            prompt: position === "top"
+              ? "Choose a card to put on top of its deck."
+              : "Choose a card to put on the bottom of its deck.",
             validTargets: pool,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             optional: effect.isMay ?? false,
@@ -3023,7 +3029,7 @@ export function applyEffect(
       let moved = 0;
       for (let i = 0; i < moveCount; i++) {
         const cardId = pool[i]!;
-        state = moveCard(state, cardId, targetPlayer, "deck", "bottom");
+        state = moveCard(state, cardId, targetPlayer, "deck", position);
         moved++;
       }
       // CRD 6.1.5.1: store count for "for each card moved this way" patterns
@@ -3193,14 +3199,29 @@ export function applyEffect(
 
     // Unified handler for moving cards FROM the cardsUnder subzone TO a
     // destination zone. Two legacy aliases route here:
-    //   put_cards_under_into_hand:    scope=this, destination=hand (Alice Well-Read Whisper)
+    //   put_cards_under_into_hand:    scope=this-or-chosen, destination=hand|bottom_of_deck
     //   move_cards_under_to_inkwell:  scope=all_own, destination=inkwell+exerted (Visiting Christmas Past)
     case "put_cards_under_into_hand":
     case "move_cards_under_to_inkwell": {
       const isInkwell = effect.type === "move_cards_under_to_inkwell";
-      const destZone: ZoneName = isInkwell ? "inkwell" : "hand";
-      // Scope: put_cards_under_into_hand drains ONE parent (the source);
-      // move_cards_under_to_inkwell drains ALL the controller's in-play cards.
+      // Chosen-target branch (Come Out and Fight): pause for target picking,
+      // then resume via applyEffectToTarget.
+      if (!isInkwell && effect.target?.type === "chosen") {
+        const validTargets = findChosenTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        if (validTargets.length === 0) return state;
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_target",
+            choosingPlayerId: controllingPlayerId,
+            prompt: "Choose a card whose under-pile to drain.",
+            validTargets,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
+            optional: effect.isMay ?? false,
+          },
+        };
+      }
+      const destination = isInkwell ? "inkwell" : "hand";
       const parentIds: string[] = isInkwell
         ? getZone(state, controllingPlayerId, "play").filter(id => {
             const p = state.cards[id];
@@ -3212,6 +3233,7 @@ export function applyEffect(
       for (const parentId of parentIds) {
         const parent = state.cards[parentId];
         if (!parent || parent.cardsUnder.length === 0) continue;
+        const destZone: ZoneName = destination === "inkwell" ? "inkwell" : "hand";
         for (const id of [...parent.cardsUnder]) {
           const u = state.cards[id];
           if (!u) continue;
@@ -4165,39 +4187,6 @@ export function applyEffect(
       };
     }
 
-    case "player_may_play_from_hand": {
-      // The Return of Hercules: surface a may → choose-from-hand by filter
-      // → play_for_free, for the specified player. The wiring uses two
-      // instances (self + opponent) for "each player".
-      const targetPlayer = effect.player.type === "opponent"
-        ? getOpponent(controllingPlayerId)
-        : controllingPlayerId;
-      const hand = getZone(state, targetPlayer, "hand");
-      const eligible = hand.filter((id) => {
-        const inst = state.cards[id];
-        const d = inst ? definitions[inst.definitionId] : undefined;
-        return inst && d && matchesFilter(inst, d, effect.filter, state, targetPlayer);
-      });
-      if (eligible.length === 0) return state;
-      return {
-        ...state,
-        pendingChoice: {
-          type: "choose_target",
-          choosingPlayerId: targetPlayer,
-          prompt: "Choose a card from your hand to reveal and play for free.",
-          validTargets: eligible,
-          pendingEffect: {
-            type: "play_card",
-            sourceZone: "hand",
-            target: { type: "triggering_card" },
-          } as Effect,
-          sourceInstanceId,
-          triggeringCardInstanceId,
-          optional: true,
-        },
-      };
-    }
-
     case "conditional_on_player_state": {
       // Desperate Plan: branch on a player-state condition.
       const condMet = evaluateCondition(effect.condition, state, definitions, controllingPlayerId, sourceInstanceId);
@@ -4205,6 +4194,92 @@ export function applyEffect(
       for (const sub of branch) {
         state = applyEffect(state, sub, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
         if (state.pendingChoice) return state;
+      }
+      return state;
+    }
+
+    case "each_player": {
+      // CRD 6.1.4 + 7.7.4: apply inner effects once per player in turn order
+      // (active player first). Each iteration uses its player as the inner
+      // effects' controllingPlayerId, so self/opponent targeting resolves
+      // relative to that iteration — Donald Duck's opponent draws for their
+      // own side, not the caster's.
+      //
+      // First invocation (no `_iterations`) seeds from state.currentPlayer.
+      // Thereafter we process the head iteration inline; if a pendingChoice
+      // is raised mid-iteration, the remaining sub-effects for that player
+      // AND the remaining iterations are queued via pendingEffectQueue so
+      // work resumes cleanly after the choice.
+      const iterations = effect._iterations ?? [state.currentPlayer, getOpponent(state.currentPlayer)];
+      if (iterations.length === 0) return state;
+      const iterPlayer = iterations[0]!;
+      const remainingIterations = iterations.slice(1);
+
+      if (effect.isMay) {
+        // Queue the other iterations first (they run after current resolves).
+        if (remainingIterations.length > 0) {
+          const residual: EachPlayerEffect = { ...effect, _iterations: remainingIterations };
+          state = queueAfterCurrent(state, [residual], sourceInstanceId, controllingPlayerId);
+        }
+        // Surface the may prompt to this iteration's own player. The accept
+        // effect is a single-iteration each_player (isMay stripped) so accept
+        // re-enters the mandatory branch with iterPlayer as controller.
+        const acceptEffect: EachPlayerEffect = {
+          type: "each_player",
+          effects: effect.effects,
+          _iterations: [iterPlayer],
+        };
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_may",
+            choosingPlayerId: iterPlayer,
+            prompt: "Use this effect?",
+            pendingEffect: acceptEffect,
+            acceptControllingPlayerId: iterPlayer,
+            sourceInstanceId,
+            triggeringCardInstanceId,
+            optional: true,
+          },
+        };
+      }
+
+      // Mandatory: apply sub-effects inline with iterPlayer as controller.
+      for (let i = 0; i < effect.effects.length; i++) {
+        const sub = effect.effects[i]!;
+        state = applyEffect(state, sub, sourceInstanceId, iterPlayer, definitions, events, triggeringCardInstanceId);
+        if (state.pendingChoice) {
+          // Queue (a) remaining subs for this player, (b) remaining iterations.
+          const remainingSubs = effect.effects.slice(i + 1);
+          const entries: Effect[] = [];
+          if (remainingSubs.length > 0) {
+            entries.push({
+              type: "each_player",
+              effects: remainingSubs,
+              _iterations: [iterPlayer],
+            } as EachPlayerEffect);
+          }
+          if (remainingIterations.length > 0) {
+            entries.push({
+              type: "each_player",
+              effects: effect.effects,
+              _iterations: remainingIterations,
+            } as EachPlayerEffect);
+          }
+          if (entries.length > 0) {
+            state = queueAfterCurrent(state, entries, sourceInstanceId, controllingPlayerId);
+          }
+          return state;
+        }
+      }
+
+      // Current iteration fully resolved — chain into the next inline so the
+      // whole each_player completes within a single applyEffect call when no
+      // pendingChoice is raised. Action-card actionEffects drives this loop
+      // purely off pendingChoice, not off pendingEffectQueue.
+      if (remainingIterations.length > 0) {
+        const next: EachPlayerEffect = { ...effect, _iterations: remainingIterations };
+        return applyEffect(state, next, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
       }
       return state;
     }
@@ -4537,13 +4612,14 @@ export function applyEffect(
       }
 
       if (effect.target.type === "chosen") {
-        const validTargets = findChosenTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        const choosingPlayerId = chosenChooserPlayerId(effect.target, controllingPlayerId);
+        const validTargets = findChosenTargets(state, effect.target.filter, choosingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state; // CRD 1.7.7: no legal targets → fizzle
         return {
           ...state,
           pendingChoice: {
             type: "choose_target",
-            choosingPlayerId: controllingPlayerId,
+            choosingPlayerId,
             prompt: "Choose a card to put into inkwell.",
             validTargets,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
@@ -5065,6 +5141,28 @@ function canPerformChooseOption(
         : true;
     case "pay_ink":
       return state.players[controllingPlayerId].availableInk >= (typeof effect.amount === "number" ? effect.amount : 0);
+    case "put_card_on_bottom_of_deck": {
+      // When a choose option's cost-step moves a card from hand/discard
+      // (Wrong Lever!'s option B: "Put a Pull the Lever! card from your
+      // discard..."), the option is selectable only if the pool is non-empty.
+      // The engine can't actually pay the cost if no matching card exists.
+      if (effect.from === "play") return true;
+      if (!definitions) return true;
+      const ownerScope = effect.ownerScope ?? "self";
+      const targetPlayer =
+        ownerScope === "self" ? controllingPlayerId
+        : ownerScope === "opponent" ? getOpponent(controllingPlayerId)
+        : getOpponent(controllingPlayerId);
+      let pool = getZone(state, targetPlayer, effect.from);
+      if (effect.filter) {
+        pool = pool.filter(cardId => {
+          const inst = state.cards[cardId];
+          const def = inst ? definitions[inst.definitionId] : undefined;
+          return inst && def ? matchesFilter(inst, def, effect.filter!, state, targetPlayer) : false;
+        });
+      }
+      return pool.length >= (effect.amount ?? 1);
+    }
     default: {
       // CRD 6.1.5.2: If the effect targets "chosen" cards, check if enough valid targets exist
       const target = (effect as any).target;
@@ -5462,8 +5560,12 @@ function processTriggerStack(
         }
       }
 
-      // CRD 6.1.4: "may" effects require player decision before resolving
-      if ("isMay" in effect && effect.isMay) {
+      // CRD 6.1.4: "may" effects require player decision before resolving.
+      // `each_player` is an exception — its `isMay` binds per-iteration, not
+      // per-trigger. The each_player reducer surfaces a choose_may to each
+      // iteration's own player, so wrapping it here would double-prompt and
+      // address the wrong player (source owner instead of iteration player).
+      if ("isMay" in effect && effect.isMay && effect.type !== "each_player") {
         const sourceDef = definitions[source.definitionId];
         const cardName = sourceDef?.fullName ?? source.definitionId;
         const abilityName = trigger.ability.storyName ? `"${trigger.ability.storyName}"` : "ability";
@@ -5546,6 +5648,23 @@ function processTriggerStack(
 // -----------------------------------------------------------------------------
 
 /** Resume processing remaining effects after a pending choice resolves */
+/** Prepend effects to pendingEffectQueue so they run AFTER the currently
+ *  raised pendingChoice resolves. Preserves any existing queued entries by
+ *  placing the new ones before them. */
+function queueAfterCurrent(
+  state: GameState,
+  newEffects: Effect[],
+  sourceInstanceId: string,
+  controllingPlayerId: PlayerID
+): GameState {
+  return {
+    ...state,
+    pendingEffectQueue: state.pendingEffectQueue
+      ? { ...state.pendingEffectQueue, effects: [...newEffects, ...state.pendingEffectQueue.effects] }
+      : { effects: newEffects, sourceInstanceId, controllingPlayerId },
+  };
+}
+
 function resumePendingEffectQueue(
   state: GameState,
   definitions: Record<string, CardDefinition>,
@@ -6117,12 +6236,49 @@ function applyEffectToTarget(
       };
     }
     case "put_card_on_bottom_of_deck": {
-      // Resolution path for chosen-from-play targets. The chosen instance moves
-      // to the bottom of its OWNER'S deck (Wrong Lever!, Do You Want to Build
-      // A Snowman?, opponent-chosen variants).
+      // Resolution path for chosen targets (from play or from hand/discard).
+      // The chosen instance moves to its OWNER'S deck at the configured
+      // position (Wrong Lever!, Anna Soothing Sister, Gyro Gearloose).
       const inst = state.cards[targetInstanceId];
       if (!inst) return state;
-      return moveCard(state, targetInstanceId, inst.ownerId, "deck", "bottom");
+      const position: "top" | "bottom" = effect.position ?? "bottom";
+      return moveCard(state, targetInstanceId, inst.ownerId, "deck", position);
+    }
+    case "put_cards_under_into_hand": {
+      // Come Out and Fight: resolution path for chosen target. Drain the
+      // chosen card's under-pile into the configured destination. Cards go
+      // to their original owner's zone ("their player's deck / hand").
+      const parent = state.cards[targetInstanceId];
+      if (!parent || parent.cardsUnder.length === 0) return state;
+      const destination = effect.destination ?? "hand";
+      let underIds = [...parent.cardsUnder];
+      if (destination === "bottom_of_deck") {
+        // "In a random order" — shuffle drained cards before appending.
+        for (let i = underIds.length - 1; i > 0; i--) {
+          const j = rngNextInt(state.rng, i + 1);
+          [underIds[i], underIds[j]] = [underIds[j]!, underIds[i]!];
+        }
+      }
+      const destZoneName: ZoneName = destination === "bottom_of_deck" ? "deck" : "hand";
+      for (const id of underIds) {
+        const u = state.cards[id];
+        if (!u) continue;
+        state = {
+          ...state,
+          cards: {
+            ...state.cards,
+            [id]: { ...u, zone: destZoneName },
+          },
+          zones: {
+            ...state.zones,
+            [u.ownerId]: {
+              ...state.zones[u.ownerId],
+              [destZoneName]: [...state.zones[u.ownerId][destZoneName], id],
+            },
+          },
+        };
+      }
+      return updateInstance(state, targetInstanceId, { cardsUnder: [] });
     }
     case "put_top_card_under": {
       // CRD 8.4.2: Resolution path for chosen-target variant. Top card of the

@@ -1026,9 +1026,13 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     const reject = renderEffect(e.rejectEffect ?? {});
     return `${reject} unless opposing player ${accept}`;
   },
-  player_may_play_from_hand: (e) => {
-    const filt = e.filter ? renderFilter(e.filter) : "a card";
-    return `each player may play ${filt} from their hand for free`;
+  each_player: (e) => {
+    const inner = Array.isArray(e.effects)
+      ? e.effects.map(renderEffect).join(". ")
+      : "[no effects]";
+    return e.isMay
+      ? `each player may: ${inner}`
+      : `each player: ${inner}`;
   },
   prevent_discard_from_hand: () => "you can't discard cards from your hand",
   inkwell_enters_exerted: () => "cards added to inkwell enter exerted",

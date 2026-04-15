@@ -1318,17 +1318,12 @@
         },
         "effects": [
           {
-            "type": "return_to_hand",
+            "type": "put_card_on_bottom_of_deck",
+            "from": "discard",
+            "position": "top",
             "isMay": true,
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "discard",
-                "hasTrait": "Song"
-              }
+            "filter": {
+              "hasTrait": "Song"
             }
           }
         ]
@@ -7520,6 +7515,29 @@
           ],
           "costAtMost": 3
         }
+      },
+      {
+        "type": "conditional_on_player_state",
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "location"
+            ],
+            "hasName": "Sleepy Hollow"
+          }
+        },
+        "thenEffects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ],
+        "elseEffects": []
       }
     ]
   },

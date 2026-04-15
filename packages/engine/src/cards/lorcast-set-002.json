@@ -4077,20 +4077,17 @@
         },
         "effects": [
           {
-            "type": "draw",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            },
-            "isMay": true
-          },
-          {
-            "type": "draw",
-            "amount": 1,
-            "target": {
-              "type": "opponent"
-            },
-            "isMay": true
+            "type": "each_player",
+            "isMay": true,
+            "effects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           }
         ]
       }
@@ -8439,36 +8436,25 @@
     ],
     "actionEffects": [
       {
-        "type": "move_to_inkwell",
-        "target": {
-          "type": "chosen",
-          "filter": {
-            "owner": {
-              "type": "self"
+        "type": "each_player",
+        "effects": [
+          {
+            "type": "move_to_inkwell",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
             },
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
+            "enterExerted": true
           }
-        },
-        "enterExerted": true
-      },
-      {
-        "type": "move_to_inkwell",
-        "target": {
-          "type": "chosen",
-          "filter": {
-            "owner": {
-              "type": "opponent"
-            },
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
-          }
-        },
-        "enterExerted": true
+        ]
       }
     ]
   },

@@ -382,19 +382,14 @@
         },
         "effects": [
           {
-            "type": "return_to_hand",
+            "type": "put_card_on_bottom_of_deck",
+            "from": "discard",
+            "position": "top",
             "isMay": true,
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "discard",
-                "cardType": [
-                  "action"
-                ]
-              }
+            "filter": {
+              "cardType": [
+                "action"
+              ]
             }
           }
         ]

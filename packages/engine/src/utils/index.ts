@@ -380,6 +380,13 @@ export function matchesFilter(
     if (srcCost === undefined) return false;
     if (definition.cost > srcCost + filter.costAtMostFromLastResolvedSourcePlus) return false;
   }
+  if (filter.costAtMostFromSourceStrength && sourceInstanceId) {
+    const src = state.cards[sourceInstanceId];
+    const srcDef = src ? definitions?.[src.definitionId] : undefined;
+    if (!src || !srcDef) return false;
+    const srcStrength = getEffectiveStrength(src, srcDef);
+    if (definition.cost > srcStrength) return false;
+  }
 
   if (filter.costAtLeast !== undefined) {
     if (definition.cost < filter.costAtLeast) return false;

@@ -7253,17 +7253,46 @@
     ],
     "actionEffects": [
       {
-        "type": "put_card_on_bottom_of_deck",
-        "from": "play",
-        "target": {
-          "type": "chosen",
-          "filter": {
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
-          }
-        }
+        "type": "choose",
+        "count": 1,
+        "options": [
+          [
+            {
+              "type": "return_to_hand",
+              "target": {
+                "type": "chosen",
+                "filter": {
+                  "zone": "play",
+                  "cardType": [
+                    "character"
+                  ]
+                }
+              }
+            }
+          ],
+          [
+            {
+              "type": "put_card_on_bottom_of_deck",
+              "from": "discard",
+              "filter": {
+                "hasName": "Pull the Lever!"
+              }
+            },
+            {
+              "type": "put_card_on_bottom_of_deck",
+              "from": "play",
+              "target": {
+                "type": "chosen",
+                "filter": {
+                  "zone": "play",
+                  "cardType": [
+                    "character"
+                  ]
+                }
+              }
+            }
+          ]
+        ]
       }
     ]
   },
@@ -13279,17 +13308,46 @@
     ],
     "actionEffects": [
       {
-        "type": "put_card_on_bottom_of_deck",
-        "from": "play",
-        "target": {
-          "type": "chosen",
-          "filter": {
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
-          }
-        }
+        "type": "choose",
+        "count": 1,
+        "options": [
+          [
+            {
+              "type": "return_to_hand",
+              "target": {
+                "type": "chosen",
+                "filter": {
+                  "zone": "play",
+                  "cardType": [
+                    "character"
+                  ]
+                }
+              }
+            }
+          ],
+          [
+            {
+              "type": "put_card_on_bottom_of_deck",
+              "from": "discard",
+              "filter": {
+                "hasName": "Pull the Lever!"
+              }
+            },
+            {
+              "type": "put_card_on_bottom_of_deck",
+              "from": "play",
+              "target": {
+                "type": "chosen",
+                "filter": {
+                  "zone": "play",
+                  "cardType": [
+                    "character"
+                  ]
+                }
+              }
+            }
+          ]
+        ]
       }
     ]
   },

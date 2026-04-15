@@ -9505,7 +9505,7 @@
       {
         "type": "triggered",
         "storyName": "HELP THE WOUNDED",
-        "rulesText": "Whenever a character quests while here, remove up to 2 damage from them.",
+        "rulesText": "Whenever a character quests while here, remove up to 2 damage from them. If they're a Hero character, remove up to 4 damage instead.",
         "trigger": {
           "on": "quests",
           "filter": {
@@ -9518,12 +9518,33 @@
         },
         "effects": [
           {
-            "type": "remove_damage",
-            "amount": 2,
-            "isUpTo": true,
+            "type": "conditional_on_target",
             "target": {
-              "type": "this"
-            }
+              "type": "triggering_card"
+            },
+            "conditionFilter": {
+              "hasTrait": "Hero"
+            },
+            "ifMatchEffects": [
+              {
+                "type": "remove_damage",
+                "amount": 4,
+                "isUpTo": true,
+                "target": {
+                  "type": "triggering_card"
+                }
+              }
+            ],
+            "defaultEffects": [
+              {
+                "type": "remove_damage",
+                "amount": 2,
+                "isUpTo": true,
+                "target": {
+                  "type": "triggering_card"
+                }
+              }
+            ]
           }
         ]
       }

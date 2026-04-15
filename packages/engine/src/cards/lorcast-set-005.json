@@ -3669,12 +3669,17 @@
         ],
         "effects": [
           {
-            "type": "draw",
-            "amount": 1,
-            "target": {
-              "type": "both"
-            },
-            "isMay": true
+            "type": "each_player",
+            "isMay": true,
+            "effects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           }
         ]
       }

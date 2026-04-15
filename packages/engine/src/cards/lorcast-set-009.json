@@ -2467,6 +2467,15 @@
                 "isExerted": false
               }
             }
+          },
+          {
+            "type": "play_card",
+            "sourceZone": "hand",
+            "isMay": true,
+            "filter": {
+              "hasTrait": "Song",
+              "costAtMostFromLastResolvedSourcePlus": 0
+            }
           }
         ]
       }
@@ -4688,20 +4697,17 @@
         },
         "effects": [
           {
-            "type": "draw",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            },
-            "isMay": true
-          },
-          {
-            "type": "draw",
-            "amount": 1,
-            "target": {
-              "type": "opponent"
-            },
-            "isMay": true
+            "type": "each_player",
+            "isMay": true,
+            "effects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           }
         ]
       }

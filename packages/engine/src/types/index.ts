@@ -239,24 +239,54 @@ export type Effect =
   | EachOpponentMayDiscardThenRewardEffect
   | GrantActivatedAbilityTimedEffect
   | FillHandToEffect
-  | PlayerMayPlayFromHandEffect
   | ConditionalOnPlayerStateEffect
   | OpponentMayPayToAvoidEffect
   | RememberChosenTargetEffect
   | SingCostBonusTargetEffect
-  | CreateDelayedTriggerEffect;
+  | CreateDelayedTriggerEffect
+  | EachPlayerEffect;
 
 /**
  * The Return of Hercules: "Each player may reveal a character card from their
  * hand and play it for free." Each instance handles one player; the action
  * uses two instances (one self, one opponent) to cover both players.
  */
-export interface PlayerMayPlayFromHandEffect {
-  type: "player_may_play_from_hand";
-  /** Whose hand to draw from. "self" / "opponent". */
-  player: PlayerTarget;
-  /** Filter applied to the hand cards (e.g. cardType:character). */
-  filter: CardFilter;
+/**
+ * CRD 6.1.4 + 7.7.4: "Each player [may] X" — apply inner effects once per
+ * player, in turn order (active player first), with each iteration's player
+ * as the inner effect's controller. If `isMay` is set, each player
+ * independently receives a choose_may prompt before their iteration.
+ *
+ * Unifies the wiring pattern for: Donald Duck Perfect Gentleman + Amethyst
+ * Chromicon (each may draw), Return of Hercules (each may play from hand),
+ * Falling Down the Rabbit Hole (each inks one of their own), A Whole New
+ * World (each discards hand + draws 7), Show Me More (each draws 3),
+ * Friend Like Me (each puts top 3 into inkwell), and future cards.
+ *
+ * Semantics:
+ *  - Per-iteration player becomes the `controllingPlayerId` for each inner
+ *    effect, so `target: self/opponent` and owner-filter resolution are
+ *    relative to that player (not the original caster).
+ *  - Effects are applied sequentially within an iteration (like a mini
+ *    ability-effects array); the next player's iteration begins after the
+ *    current one fully resolves (including any pending choices).
+ *  - Implementation uses `pendingEffectQueue` to carry the remaining
+ *    iterations across pendingChoice boundaries.
+ */
+export interface EachPlayerEffect {
+  type: "each_player";
+  /** Effects applied once per player, in order. */
+  effects: Effect[];
+  /** If true, each player receives a choose_may prompt before their
+   *  iteration's effects run. The caster retains `acceptControllingPlayerId`
+   *  for cost/trigger accounting, but the iteration's own player is the
+   *  controller of the inner effects on accept. */
+  isMay?: boolean;
+  /** Internal: remaining player iterations when reducing through
+   *  pendingEffectQueue. Populated by the reducer on the first invocation
+   *  from [activePlayer, opponent] per CRD 7.7.4 and consumed iteratively.
+   *  Do NOT author this field in card JSON. */
+  _iterations?: PlayerID[];
 }
 
 /**
@@ -698,6 +728,11 @@ export interface PutCardOnBottomOfDeckEffect {
   amount?: number;
   /** For from "play": chosen character target. */
   target?: CardTarget;
+  /** Deck end to place cards at. Defaults to "bottom". "top" is used by
+   *  Gyro Gearloose NOW TRY TO KEEP UP, Stitch Alien Buccaneer READY FOR
+   *  ACTION, Gazelle Ballad Singer CROWD FAVORITE — "put on the top of your
+   *  deck". */
+  position?: "top" | "bottom";
   /** CRD 6.1.4: optional. */
   isMay?: boolean;
 }
@@ -742,8 +777,14 @@ export interface MoveCardsUnderToTargetEffect {
 
 export interface PutCardsUnderIntoHandEffect {
   type: "put_cards_under_into_hand";
-  /** Which card's under-pile to drain. "this" = the source instance. */
-  target: { type: "this" };
+  /** Which card's under-pile to drain. "this" = the source instance,
+   *  "chosen" = player picks a target whose under-pile is drained
+   *  (Come Out and Fight: "chosen character, item, or location"). */
+  target: { type: "this" } | { type: "chosen"; filter: CardFilter };
+  /** Where the drained cards go. Defaults to "hand".
+   *  "bottom_of_deck" = bottom of the target's owner's deck in random order
+   *  (Come Out and Fight). */
+  destination?: "hand" | "bottom_of_deck";
   /** CRD 6.1.4: player may choose not to apply this effect. When part of a
    *  triggered ability with multiple effects (Graveyard of Christmas Future:
    *  "may put all cards... If you do, banish this location") the may gates the
@@ -2157,6 +2198,12 @@ export interface CardFilter {
    *  banished character for free" — the banish step sets lastResolvedSource,
    *  the play step reads its cost. Resolved at match time. */
   costAtMostFromLastResolvedSourcePlus?: number;
+  /** Dynamic cost cap: the source card's current effective strength.
+   *  Used by Magica De Spell Thieving Sorceress TELEKINESIS: "Return chosen
+   *  item with cost equal to or less than this character's {S} to its
+   *  player's hand." Resolved at match time against the source instance
+   *  passed to matchesFilter. */
+  costAtMostFromSourceStrength?: boolean;
   costAtLeast?: number;
   /** Exclude a specific card instance (e.g. Support can't target itself) */
   excludeInstanceId?: string;

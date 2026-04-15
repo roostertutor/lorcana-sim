@@ -308,19 +308,23 @@
     ],
     "actionEffects": [
       {
-        "type": "discard_from_hand",
-        "amount": "all",
-        "target": {
-          "type": "both"
-        },
-        "chooser": "target_player"
-      },
-      {
-        "type": "draw",
-        "amount": 7,
-        "target": {
-          "type": "both"
-        }
+        "type": "each_player",
+        "effects": [
+          {
+            "type": "discard_from_hand",
+            "amount": "all",
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "draw",
+            "amount": 7,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ]
   },

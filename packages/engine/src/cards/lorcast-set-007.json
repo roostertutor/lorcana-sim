@@ -4694,11 +4694,16 @@
     ],
     "actionEffects": [
       {
-        "type": "draw",
-        "amount": 3,
-        "target": {
-          "type": "both"
-        }
+        "type": "each_player",
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 3,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ]
   },
@@ -6768,26 +6773,19 @@
     ],
     "actionEffects": [
       {
-        "type": "player_may_play_from_hand",
-        "player": {
-          "type": "self"
-        },
-        "filter": {
-          "cardType": [
-            "character"
-          ]
-        }
-      },
-      {
-        "type": "player_may_play_from_hand",
-        "player": {
-          "type": "opponent"
-        },
-        "filter": {
-          "cardType": [
-            "character"
-          ]
-        }
+        "type": "each_player",
+        "isMay": true,
+        "effects": [
+          {
+            "type": "play_card",
+            "sourceZone": "hand",
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            }
+          }
+        ]
       }
     ]
   },
@@ -12090,11 +12088,16 @@
     ],
     "actionEffects": [
       {
-        "type": "draw",
-        "amount": 3,
-        "target": {
-          "type": "both"
-        }
+        "type": "each_player",
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 3,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ]
   },
@@ -12359,26 +12362,19 @@
     ],
     "actionEffects": [
       {
-        "type": "player_may_play_from_hand",
-        "player": {
-          "type": "self"
-        },
-        "filter": {
-          "cardType": [
-            "character"
-          ]
-        }
-      },
-      {
-        "type": "player_may_play_from_hand",
-        "player": {
-          "type": "opponent"
-        },
-        "filter": {
-          "cardType": [
-            "character"
-          ]
-        }
+        "type": "each_player",
+        "isMay": true,
+        "effects": [
+          {
+            "type": "play_card",
+            "sourceZone": "hand",
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            }
+          }
+        ]
       }
     ]
   },

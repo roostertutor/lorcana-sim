@@ -343,26 +343,40 @@ describe("§6 Set 2 Card Coverage", () => {
     expect(getInstance(result.newState, merlinId).timedEffects.filter((t: any)=>t.type==="modify_lore").reduce((s: number,t: any)=>s+(t.amount??0),0)).toBe(1);
   });
 
-  // Pattern: turn_start trigger — Donald Duck Perfect Gentleman offers draw at start of your turn
-  it("Donald Duck Perfect Gentleman: at start of your turn, each player may draw", () => {
+  // CRD 7.7.4 + 6.1.4: "each player may" surfaces independent choose_may to
+  // EACH player in turn order (active first); each decides for themselves.
+  it("Donald Duck Perfect Gentleman: each-player may-draw surfaces to each player in turn order", () => {
     let state = startGame(["donald-duck-perfect-gentleman"]);
-    // Donald on player2's side so trigger fires when player2's turn starts
     let donaldId: string;
     ({ state, instanceId: donaldId } = injectCard(state, "player2", "donald-duck-perfect-gentleman", "play"));
 
-    const p2HandBefore = getZone(state, "player2", "hand").length;
-
-    // Player1 passes turn → player2's turn starts → Donald's turn_start trigger fires
+    // player1 passes → player2's turn starts → ALLOW ME trigger fires.
     let result = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, LORCAST_CARD_DEFINITIONS);
     expect(result.success).toBe(true);
-    // Should have a choose_may pending for the isMay draw
-    if (result.newState.pendingChoice?.type === "choose_may") {
-      result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player2", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
-      expect(result.success).toBe(true);
-    }
-    // Player2 drew from turn_start trigger accept + normal draw step
-    // At minimum the trigger offered a draw
-    expect(getZone(result.newState, "player2", "hand").length).toBeGreaterThan(p2HandBefore);
+    state = result.newState;
+
+    // Active-player-first: player2 prompted before player1.
+    expect(state.pendingChoice?.type).toBe("choose_may");
+    expect(state.pendingChoice?.choosingPlayerId).toBe("player2");
+
+    const p2HandAtP2Prompt = getZone(state, "player2", "hand").length;
+
+    // player2 accepts → draws 1, then p1's may surfaces.
+    result = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player2", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    state = result.newState;
+    expect(state.pendingChoice?.type).toBe("choose_may");
+    expect(state.pendingChoice?.choosingPlayerId).toBe("player1");
+    expect(getZone(state, "player2", "hand").length).toBe(p2HandAtP2Prompt + 1);
+
+    const p1HandAtP1Prompt = getZone(state, "player1", "hand").length;
+
+    // player1 declines — no draw for them; pendingChoice clears.
+    result = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "decline" }, LORCAST_CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    state = result.newState;
+    expect(state.pendingChoice).toBeFalsy();
+    expect(getZone(state, "player1", "hand").length).toBe(p1HandAtP1Prompt);
   });
 
   // ===== NEW CONDITIONS =====
