@@ -99,3 +99,64 @@ Fix: for `choose_from_revealed` backed by `look_at_top` with
 `pendingEffect.maxToHand > 1`, enumerate multi-pick combinations (or at least
 pick the top-K valid targets as a single candidate when mandatory). May need
 a similar pass in any other bot that handles this choice type.
+
+---
+
+## GUI: each_player may-prompts route to the iteration player (not the caster)
+
+Phase 1/2 `each_player` primitive (commits 249a0db, 7fa7bca) surfaces a
+`choose_may` pendingChoice per player iteration when `isMay: true`, with
+`choosingPlayerId` = the iteration player and `acceptControllingPlayerId` =
+the caster. Cards: Donald Duck Perfect Gentleman ×2, Amethyst Chromicon,
+Return of Hercules ×2.
+
+Concretely for Donald Duck (caster is p2): on p2's turn start, the trigger
+fires and immediately surfaces `choose_may` with `choosingPlayerId: "player2"`.
+On accept, p2 draws; engine then surfaces the NEXT `choose_may` with
+`choosingPlayerId: "player1"`. The pending-choice sequence is active-first.
+
+What the GUI must do:
+- Route the choose_may modal to `choosingPlayerId`, not to the source card's
+  owner or to the active player. Previously the engine's generic isMay wrapper
+  at `processTriggerStack` always used `source.ownerId` as the chooser — that
+  path is now bypassed for `each_player`, and the iteration reducer sets the
+  choosing player explicitly.
+- In single-player sandbox (user + bot), when the bot is the `choosingPlayerId`
+  the bot strategy must decide accept/decline for itself. If the bot only
+  consults pendingChoice when it matches its own playerId, this should just
+  work. Verify on Donald Duck on opponent side.
+- The sequence of prompts means the GUI may flash two modals back-to-back.
+  Consider keeping the second modal from visually overlapping the first's
+  resolution animation (card draw etc).
+
+Accept/reject routing: `acceptControllingPlayerId` is preserved on the
+pendingChoice so reward effects (e.g. Return of Hercules' `play_card`) fire
+with the correct controller — no change needed GUI-side. The modal just
+needs to tell the RESOLVE_CHOICE action that `playerId` matches
+`choosingPlayerId`.
+
+---
+
+## GUI: `put_card_on_bottom_of_deck` now supports `position: "top"`
+
+Commit 249a0db extended the primitive with a `position` field. Cards:
+- Gyro Gearloose NOW TRY TO KEEP UP (set 3) — item to top of deck
+- Stitch Alien Buccaneer READY FOR ACTION (sets 6, 0P2) — action to top
+- Gazelle Ballad Singer CROWD FAVORITE (set 10) — song to top
+
+If the GUI has distinct animations for "to bottom of deck" vs "to top of
+deck", it should read `effect.position` (or the resolved zone transition
+event) to render the correct one. If the GUI just shows "moved to deck"
+generically, no change needed.
+
+---
+
+## GUI: each_player rendering in card text / log messages
+
+The decompiler renderer outputs "each opponent with more lore than you: they
+lose 1 lore" — third-person rewrite of "you" → "they" inside the wrapper
+body. If the GUI uses the engine's ability text or log messages to describe
+what's happening at apply time (e.g. "player1 played Tangle → player2 lost
+1 lore"), the log is already player-qualified via `appendLog`. No change
+expected, but if any UI surfaces rulesText rendered by the decompiler, the
+new wording is ready for it.
