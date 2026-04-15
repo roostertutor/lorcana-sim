@@ -4126,12 +4126,17 @@
             ],
             "rewardEffects": [
               {
-                "type": "discard_from_hand",
-                "amount": 1,
-                "target": {
-                  "type": "opponent"
-                },
-                "chooser": "target_player"
+                "type": "each_player",
+                "scope": "opponents",
+                "effects": [
+                  {
+                    "type": "discard_from_hand",
+                    "amount": 1,
+                    "target": {
+                      "type": "self"
+                    }
+                  }
+                ]
               }
             ]
           }
@@ -5516,12 +5521,17 @@
         "rulesText": "Whenever a character is challenged while here, each opponent chooses and discards a card.",
         "effects": [
           {
-            "type": "discard_from_hand",
-            "target": {
-              "type": "opponent"
-            },
-            "amount": 1,
-            "chooser": "target_player"
+            "type": "each_player",
+            "scope": "opponents",
+            "effects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           }
         ]
       }
@@ -5830,11 +5840,17 @@
         },
         "effects": [
           {
-            "type": "lose_lore",
-            "amount": 1,
-            "target": {
-              "type": "opponent"
-            }
+            "type": "each_player",
+            "scope": "opponents",
+            "effects": [
+              {
+                "type": "lose_lore",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           }
         ]
       }

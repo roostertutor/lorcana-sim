@@ -154,12 +154,17 @@
         },
         "effects": [
           {
-            "type": "discard_from_hand",
-            "amount": 1,
-            "target": {
-              "type": "opponent"
-            },
-            "chooser": "target_player"
+            "type": "each_player",
+            "scope": "opponents",
+            "effects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           }
         ]
       }
@@ -4466,12 +4471,17 @@
         },
         "effects": [
           {
-            "type": "discard_from_hand",
-            "amount": 1,
-            "target": {
-              "type": "opponent"
-            },
-            "chooser": "target_player"
+            "type": "each_player",
+            "scope": "opponents",
+            "effects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           }
         ]
       }
@@ -4918,12 +4928,17 @@
         },
         "effects": [
           {
-            "type": "discard_from_hand",
-            "amount": 1,
-            "target": {
-              "type": "opponent"
-            },
-            "chooser": "target_player"
+            "type": "each_player",
+            "scope": "opponents",
+            "effects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           }
         ]
       },
@@ -4936,12 +4951,17 @@
         },
         "effects": [
           {
-            "type": "discard_from_hand",
-            "amount": 1,
-            "target": {
-              "type": "opponent"
-            },
-            "chooser": "target_player"
+            "type": "each_player",
+            "scope": "opponents",
+            "effects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           }
         ]
       }
@@ -5211,12 +5231,17 @@
     ],
     "actionEffects": [
       {
-        "type": "discard_from_hand",
-        "amount": 1,
-        "target": {
-          "type": "opponent"
-        },
-        "chooser": "target_player"
+        "type": "each_player",
+        "scope": "opponents",
+        "effects": [
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       },
       {
         "type": "gain_lore",
@@ -6438,11 +6463,17 @@
         },
         "effects": [
           {
-            "type": "lose_lore",
-            "amount": 1,
-            "target": {
-              "type": "opponent"
-            }
+            "type": "each_player",
+            "scope": "opponents",
+            "effects": [
+              {
+                "type": "lose_lore",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           },
           {
             "type": "gain_lore",
@@ -6779,11 +6810,17 @@
         },
         "effects": [
           {
-            "type": "lose_lore",
-            "amount": 2,
-            "target": {
-              "type": "opponent"
-            }
+            "type": "each_player",
+            "scope": "opponents",
+            "effects": [
+              {
+                "type": "lose_lore",
+                "amount": 2,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           }
         ]
       }
@@ -6952,11 +6989,17 @@
         },
         "effects": [
           {
-            "type": "lose_lore",
-            "amount": 1,
-            "target": {
-              "type": "opponent"
-            }
+            "type": "each_player",
+            "scope": "opponents",
+            "effects": [
+              {
+                "type": "lose_lore",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           },
           {
             "type": "draw",
@@ -7176,14 +7219,20 @@
         "conditionFilter": {},
         "ifMatchEffects": [
           {
-            "type": "lose_lore",
-            "amount": {
-              "type": "target_damage",
-              "max": 4
-            },
-            "target": {
-              "type": "opponent"
-            }
+            "type": "each_player",
+            "scope": "opponents",
+            "effects": [
+              {
+                "type": "lose_lore",
+                "amount": {
+                  "type": "target_damage",
+                  "max": 4
+                },
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           }
         ],
         "defaultEffects": []
@@ -13188,11 +13237,17 @@
         },
         "effects": [
           {
-            "type": "lose_lore",
-            "amount": 1,
-            "target": {
-              "type": "opponent"
-            }
+            "type": "each_player",
+            "scope": "opponents",
+            "effects": [
+              {
+                "type": "lose_lore",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           },
           {
             "type": "gain_lore",

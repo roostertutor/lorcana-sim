@@ -4730,12 +4730,17 @@
         },
         "effects": [
           {
-            "type": "discard_from_hand",
-            "amount": 1,
-            "target": {
-              "type": "opponent"
-            },
-            "chooser": "target_player"
+            "type": "each_player",
+            "scope": "opponents",
+            "effects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           }
         ]
       }
@@ -5405,19 +5410,30 @@
               "target": {
                 "type": "all",
                 "filter": {
-                  "owner": { "type": "opponent" },
+                  "owner": {
+                    "type": "opponent"
+                  },
                   "zone": "play",
-                  "cardType": ["character"]
+                  "cardType": [
+                    "character"
+                  ]
                 }
               }
             }
           ],
           [
             {
-              "type": "discard_from_hand",
-              "amount": 2,
-              "target": { "type": "opponent" },
-              "chooser": "target_player"
+              "type": "each_player",
+              "scope": "opponents",
+              "effects": [
+                {
+                  "type": "discard_from_hand",
+                  "amount": 2,
+                  "target": {
+                    "type": "self"
+                  }
+                }
+              ]
             }
           ]
         ]
@@ -6253,11 +6269,17 @@
         },
         "effects": [
           {
-            "type": "lose_lore",
-            "amount": 1,
-            "target": {
-              "type": "opponent"
-            }
+            "type": "each_player",
+            "scope": "opponents",
+            "effects": [
+              {
+                "type": "lose_lore",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           },
           {
             "type": "gain_lore",
@@ -7295,11 +7317,17 @@
         },
         "effects": [
           {
-            "type": "lose_lore",
-            "amount": 1,
-            "target": {
-              "type": "opponent"
-            }
+            "type": "each_player",
+            "scope": "opponents",
+            "effects": [
+              {
+                "type": "lose_lore",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           }
         ]
       }
@@ -11397,18 +11425,26 @@
         "character": {
           "type": "all",
           "filter": {
-            "owner": { "type": "self" },
+            "owner": {
+              "type": "self"
+            },
             "zone": "play",
-            "cardType": ["character"]
+            "cardType": [
+              "character"
+            ]
           },
           "maxCount": 2
         },
         "location": {
           "type": "chosen",
           "filter": {
-            "owner": { "type": "self" },
+            "owner": {
+              "type": "self"
+            },
             "zone": "play",
-            "cardType": ["location"]
+            "cardType": [
+              "location"
+            ]
           }
         }
       },
@@ -12356,12 +12392,17 @@
         },
         "effects": [
           {
-            "type": "discard_from_hand",
-            "amount": 1,
-            "target": {
-              "type": "opponent"
-            },
-            "chooser": "target_player"
+            "type": "each_player",
+            "scope": "opponents",
+            "effects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           }
         ]
       }

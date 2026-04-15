@@ -1027,12 +1027,24 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     return `${reject} unless opposing player ${accept}`;
   },
   each_player: (e) => {
+    // The inner effects run with the iteration player as "self" — rewrite
+    // first-person wording to third-person so "you lose 1 lore" becomes
+    // "they lose 1 lore" when appearing under an each_player wrapper.
+    const rewriteInnerPerspective = (s: string): string =>
+      s
+        .replace(/\byou draw\b/g, "they draw")
+        .replace(/\byou lose\b/g, "they lose")
+        .replace(/\byou gain\b/g, "they gain")
+        .replace(/\byour hand\b/g, "their hand")
+        .replace(/\byour deck\b/g, "their deck")
+        .replace(/\byour inkwell\b/g, "their inkwell");
     const inner = Array.isArray(e.effects)
-      ? e.effects.map(renderEffect).join(". ")
+      ? rewriteInnerPerspective(e.effects.map(renderEffect).join(". "))
       : "[no effects]";
-    return e.isMay
-      ? `each player may: ${inner}`
-      : `each player: ${inner}`;
+    const scope = e.scope === "opponents" ? "each opponent" : "each player";
+    const filter = renderPlayerFilter(e.filter);
+    const subject = filter ? `${scope} ${filter}` : scope;
+    return e.isMay ? `${subject} may: ${inner}` : `${subject}: ${inner}`;
   },
   prevent_discard_from_hand: () => "you can't discard cards from your hand",
   inkwell_enters_exerted: () => "cards added to inkwell enter exerted",
@@ -1219,6 +1231,30 @@ function renderDuration(d: string): string {
       return "";
     default:
       return `[dur:${d}]`;
+  }
+}
+
+// Player filters for each_player's `filter` field (phase 2).
+function renderPlayerFilter(f: Json | undefined): string {
+  if (!f || !f.type) return "";
+  const metric = String(f.metric ?? "?").replace(/_/g, " ");
+  switch (f.type) {
+    case "player_vs_caster": {
+      const wording: Record<string, string> = {
+        ">": "more", ">=": "at least as much", "<": "less", "<=": "at most as much", "==": "the same",
+      };
+      return `with ${wording[String(f.op)] ?? f.op} ${metric} than you`;
+    }
+    case "player_is_group_extreme":
+      return `with the ${f.mode === "fewest" ? "fewest" : "most"} ${metric}`;
+    case "player_metric": {
+      const wording: Record<string, string> = {
+        ">": "more than", ">=": "at least", "<": "fewer than", "<=": "at most", "==": "exactly",
+      };
+      return `with ${wording[String(f.op)] ?? f.op} ${f.amount} ${metric}`;
+    }
+    default:
+      return `[unknown player filter:${f.type}]`;
   }
 }
 

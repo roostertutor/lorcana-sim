@@ -6,7 +6,7 @@
 
 import { describe, it, expect } from "vitest";
 import { applyAction, getAllLegalActions } from "../engine/reducer.js";
-import { LORCAST_CARD_DEFINITIONS, startGame, injectCard, giveInk, passTurns } from "./test-helpers.js";
+import { LORCAST_CARD_DEFINITIONS, startGame, injectCard, giveInk, passTurns, setLore } from "./test-helpers.js";
 import { getZone, getInstance, getEffectiveLore } from "../utils/index.js";
 import { getGameModifiers } from "../engine/gameModifiers.js";
 
@@ -377,6 +377,30 @@ describe("§6 Set 2 Card Coverage", () => {
     state = result.newState;
     expect(state.pendingChoice).toBeFalsy();
     expect(getZone(state, "player1", "hand").length).toBe(p1HandAtP1Prompt);
+  });
+
+  // each_player scope:"opponents" + filter player_vs_caster lore ">".
+  // Lady Tremaine Overbearing: "each opponent with MORE LORE THAN YOU loses 1".
+  // Filter gates — opponent at equal-or-below lore takes nothing.
+  const playTremaine = (p1Lore: number, p2Lore: number): GameState => {
+    let state = startGame(["lady-tremaine-overbearing-matriarch"]);
+    state = setLore(state, "player1", p1Lore);
+    state = setLore(state, "player2", p2Lore);
+    state = giveInk(state, "player1", 4);
+    let tremId: string;
+    ({ state, instanceId: tremId } = injectCard(state, "player1", "lady-tremaine-overbearing-matriarch", "hand"));
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: tremId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    return r.newState;
+  };
+
+  it("Lady Tremaine Overbearing Matriarch: only hits opponents with strictly more lore", () => {
+    // Case A: opponent has MORE lore → loses 1.
+    expect(playTremaine(0, 3).players.player2.lore).toBe(2);
+    // Case B: opponent has EQUAL lore → no change.
+    expect(playTremaine(2, 2).players.player2.lore).toBe(2);
+    // Case C: opponent has LESS lore → no change.
+    expect(playTremaine(5, 1).players.player2.lore).toBe(1);
   });
 
   // ===== NEW CONDITIONS =====

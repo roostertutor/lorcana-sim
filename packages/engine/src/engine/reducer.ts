@@ -23,6 +23,8 @@ import type {
   CardTarget,
   ResolvedRef,
   EachPlayerEffect,
+  PlayerFilter,
+  PlayerMetric,
 } from "../types/index.js";
 import { getGameModifiers, type GameModifiers } from "./gameModifiers.js";
 import { validateAction, applyMoveCostReduction, getEffectiveCostWithReductions } from "./validator.js";
@@ -4199,18 +4201,46 @@ export function applyEffect(
     }
 
     case "each_player": {
-      // CRD 6.1.4 + 7.7.4: apply inner effects once per player in turn order
-      // (active player first). Each iteration uses its player as the inner
-      // effects' controllingPlayerId, so self/opponent targeting resolves
-      // relative to that iteration — Donald Duck's opponent draws for their
-      // own side, not the caster's.
+      // CRD 6.1.4 + 7.7.4: apply inner effects once per matching player in
+      // turn order (active player first). Each iteration uses its player as
+      // the inner effects' controllingPlayerId, so self/opponent targeting
+      // resolves relative to that iteration — Donald Duck's opponent draws
+      // for their own side, not the caster's.
       //
-      // First invocation (no `_iterations`) seeds from state.currentPlayer.
-      // Thereafter we process the head iteration inline; if a pendingChoice
-      // is raised mid-iteration, the remaining sub-effects for that player
-      // AND the remaining iterations are queued via pendingEffectQueue so
-      // work resumes cleanly after the choice.
-      const iterations = effect._iterations ?? [state.currentPlayer, getOpponent(state.currentPlayer)];
+      // Scope: "all" (default) includes everyone; "opponents" excludes the
+      // caster (Sudden Chill, Tangle). Filter gates each iteration by a
+      // per-player PlayerFilter (Lady Tremaine Overbearing's "more lore
+      // than you", Friar Tuck's "player(s) with the most cards").
+      //
+      // First invocation (no `_iterations`) seeds the list from scope +
+      // filter. Thereafter we process the head iteration inline; if a
+      // pendingChoice is raised mid-iteration, remaining sub-effects AND
+      // remaining iterations queue via pendingEffectQueue.
+      let iterations: PlayerID[];
+      if (effect._iterations !== undefined) {
+        iterations = effect._iterations;
+      } else {
+        const activePlayer = state.currentPlayer;
+        const other = getOpponent(activePlayer);
+        // Scope: "opponents" excludes the caster. Turn order: active first,
+        // then others. Caster may or may not be the active player (e.g. a
+        // triggered ability can fire on opponent's turn).
+        const scope = effect.scope ?? "all";
+        const allInOrder: PlayerID[] =
+          activePlayer === controllingPlayerId
+            ? [activePlayer, other]
+            : [activePlayer, other];
+        iterations = scope === "opponents"
+          ? allInOrder.filter(p => p !== controllingPlayerId)
+          : allInOrder;
+        // Apply per-player filter (tie-aware for group-extreme).
+        if (effect.filter) {
+          const candidates = [...iterations];
+          iterations = iterations.filter(p =>
+            evaluatePlayerFilter(effect.filter!, p, controllingPlayerId, candidates, state)
+          );
+        }
+      }
       if (iterations.length === 0) return state;
       const iterPlayer = iterations[0]!;
       const remainingIterations = iterations.slice(1);
@@ -5648,6 +5678,62 @@ function processTriggerStack(
 // -----------------------------------------------------------------------------
 
 /** Resume processing remaining effects after a pending choice resolves */
+/** Read a per-player metric for `each_player` filters. Centralized so
+ *  `player_vs_caster` and `player_is_group_extreme` agree on how each
+ *  metric is computed. */
+function getPlayerMetric(state: GameState, playerId: PlayerID, metric: PlayerMetric): number {
+  switch (metric) {
+    case "lore": return state.players[playerId].lore;
+    case "cards_in_hand": return state.zones[playerId].hand.length;
+    case "cards_in_inkwell": return state.zones[playerId].inkwell.length;
+    case "characters_in_play": {
+      return getZone(state, playerId, "play").filter(id => {
+        const inst = state.cards[id];
+        return inst ? inst.definitionId && inst.zone === "play" : false;
+      }).length;
+    }
+  }
+}
+
+function compareOp(lhs: number, op: ">" | ">=" | "<" | "<=" | "==", rhs: number): boolean {
+  switch (op) {
+    case ">": return lhs > rhs;
+    case ">=": return lhs >= rhs;
+    case "<": return lhs < rhs;
+    case "<=": return lhs <= rhs;
+    case "==": return lhs === rhs;
+  }
+}
+
+/** Evaluate a PlayerFilter for a candidate iteration player. The `candidates`
+ *  list is the scope-respecting full iteration set (needed for group-extreme
+ *  comparisons — "most" is tie-aware across the iteration group). */
+function evaluatePlayerFilter(
+  filter: PlayerFilter,
+  iterationPlayerId: PlayerID,
+  casterPlayerId: PlayerID,
+  candidates: PlayerID[],
+  state: GameState
+): boolean {
+  switch (filter.type) {
+    case "player_vs_caster": {
+      const lhs = getPlayerMetric(state, iterationPlayerId, filter.metric);
+      const rhs = getPlayerMetric(state, casterPlayerId, filter.metric);
+      return compareOp(lhs, filter.op, rhs);
+    }
+    case "player_is_group_extreme": {
+      const values = candidates.map(p => getPlayerMetric(state, p, filter.metric));
+      const extreme = filter.mode === "most" ? Math.max(...values) : Math.min(...values);
+      const playerValue = getPlayerMetric(state, iterationPlayerId, filter.metric);
+      return playerValue === extreme;
+    }
+    case "player_metric": {
+      const lhs = getPlayerMetric(state, iterationPlayerId, filter.metric);
+      return compareOp(lhs, filter.op, filter.amount);
+    }
+  }
+}
+
 /** Prepend effects to pendingEffectQueue so they run AFTER the currently
  *  raised pendingChoice resolves. Preserves any existing queued entries by
  *  placing the new ones before them. */

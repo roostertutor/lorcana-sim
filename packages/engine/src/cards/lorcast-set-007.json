@@ -7020,11 +7020,17 @@
         },
         "effects": [
           {
-            "type": "lose_lore",
-            "amount": 1,
-            "target": {
-              "type": "opponent"
-            }
+            "type": "each_player",
+            "scope": "opponents",
+            "effects": [
+              {
+                "type": "lose_lore",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           }
         ]
       }

@@ -275,19 +275,53 @@ export type Effect =
  */
 export interface EachPlayerEffect {
   type: "each_player";
-  /** Effects applied once per player, in order. */
+  /** Effects applied once per (matching) player, in order. */
   effects: Effect[];
+  /** Which players iterate. Default "all" (active player + non-active in
+   *  turn order per CRD 7.7.4). "opponents" excludes the caster — used by
+   *  "each opponent X" (Sudden Chill, Tangle, Steal from the Rich, etc.). */
+  scope?: "all" | "opponents";
   /** If true, each player receives a choose_may prompt before their
    *  iteration's effects run. The caster retains `acceptControllingPlayerId`
    *  for cost/trigger accounting, but the iteration's own player is the
    *  controller of the inner effects on accept. */
   isMay?: boolean;
+  /** Optional per-iteration filter. Only players for whom this filter
+   *  evaluates true run the effects. Used by "each opponent with more lore
+   *  than you" (Lady Tremaine Overbearing, Prince John Phony King), "the
+   *  player or players with the most cards in hand" (Friar Tuck), etc. */
+  filter?: PlayerFilter;
   /** Internal: remaining player iterations when reducing through
    *  pendingEffectQueue. Populated by the reducer on the first invocation
    *  from [activePlayer, opponent] per CRD 7.7.4 and consumed iteratively.
    *  Do NOT author this field in card JSON. */
   _iterations?: PlayerID[];
 }
+
+/**
+ * CRD condition language for per-iteration `each_player` filters. Composable
+ * DSL that covers the "each opponent/player with X" family with three
+ * metric-comparison primitives:
+ *
+ *  - `player_vs_caster`: iteration player's metric compared to caster's
+ *    same metric (Lady Tremaine Overbearing, Prince John Phony King:
+ *    "each opponent with more lore than YOU").
+ *  - `player_is_group_extreme`: iteration player is tied for max/min on a
+ *    metric across all matching players (Friar Tuck: "the player or
+ *    players with the MOST cards in their hand" — tie-aware).
+ *  - `player_metric`: absolute threshold (Demona: "each player with fewer
+ *    than 3 cards in their hand").
+ */
+export type PlayerMetric =
+  | "lore"
+  | "cards_in_hand"
+  | "cards_in_inkwell"
+  | "characters_in_play";
+
+export type PlayerFilter =
+  | { type: "player_vs_caster"; metric: PlayerMetric; op: ">" | ">=" | "<" | "<=" | "==" }
+  | { type: "player_is_group_extreme"; metric: PlayerMetric; mode: "most" | "fewest" }
+  | { type: "player_metric"; metric: PlayerMetric; op: ">" | ">=" | "<" | "<=" | "=="; amount: number };
 
 /**
  * Desperate Plan: "If you have no cards in your hand, draw until you have 3.

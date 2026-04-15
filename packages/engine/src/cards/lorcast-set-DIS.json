@@ -86,11 +86,17 @@
         },
         "effects": [
           {
-            "type": "lose_lore",
-            "amount": 2,
-            "target": {
-              "type": "opponent"
-            }
+            "type": "each_player",
+            "scope": "opponents",
+            "effects": [
+              {
+                "type": "lose_lore",
+                "amount": 2,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
           }
         ]
       },
