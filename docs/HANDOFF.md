@@ -151,6 +151,46 @@ generically, no change needed.
 
 ---
 
+## TBD: reverse compiler — oracle text → JSON wiring (build later tonight)
+
+Invert the decompiler to auto-wire new cards on set import. The decompiler
+already maps JSON → English via `EFFECT_RENDERERS`; a compiler adds
+`EFFECT_COMPILERS` — regex pattern matchers that go English → JSON for the
+80%+ of Lorcana cards that fit templated shapes ("When you play this
+character, draw N cards" / "Each opponent loses N lore" / etc.).
+
+Starter plan:
+1. Extract top 50 most-common oracle-text patterns from the ~2147 implemented
+   cards (normalize rulesText to placeholders; group by template).
+2. Build a compiler entry per template: `{ re: RegExp, emit: (m) => Json }`.
+3. On new-set import, run the compile pass; for each unwired card, try each
+   regex. On match, emit JSON, run decompiler round-trip, require ≥0.85
+   similarity score vs original oracle text before auto-wiring.
+4. Skip below-threshold / no-match cards → stay in `card-status` queue for
+   manual wiring.
+
+Closed-loop validation is free: compile(oracle) → decompile(json) → compare.
+The `fits-grammar` category in `pnpm card-status` is already the harness —
+it classifies cards whose text matches known grammar but aren't yet wired.
+Currently 0 across all sets because every fit was manually authored.
+
+**Prerequisite**: improve the renderer first so more primitives have
+reversible grammar. The fewer renderer gaps, the fewer false-negative
+compiles. Current decompiler-tail work is fixing both wiring bugs AND
+renderer gaps — every renderer improvement is a compiler template gained
+when the flip happens. Don't start the compiler until the renderer covers
+most of the tail.
+
+Practical caveats:
+- Oracle text drift in Lorcast data ({L}/{S} symbols sometimes dropped) —
+  seed tokenizer with the same drift tolerance `pnpm audit-lorcast` handles.
+- Card name normalization ("Daisy Duck" vs "this character").
+- Precedence: most-specific patterns first, to avoid over-matching.
+- Conservative thresholds — better to under-wire (leave for human) than
+  silently miswire.
+
+---
+
 ## GUI: each_player rendering in card text / log messages
 
 The decompiler renderer outputs "each opponent with more lore than you: they

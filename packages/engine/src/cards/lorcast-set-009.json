@@ -7307,32 +7307,23 @@
     ],
     "actionEffects": [
       {
-        "type": "draw",
-        "amount": 2,
-        "target": {
-          "type": "self"
-        }
-      },
-      {
-        "type": "draw",
-        "amount": 2,
-        "target": {
-          "type": "opponent"
-        }
-      },
-      {
-        "type": "gain_lore",
-        "amount": 2,
-        "target": {
-          "type": "self"
-        }
-      },
-      {
-        "type": "gain_lore",
-        "amount": 2,
-        "target": {
-          "type": "opponent"
-        }
+        "type": "each_player",
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "gain_lore",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       },
       {
         "type": "ready_singers",
@@ -13325,32 +13316,23 @@
     ],
     "actionEffects": [
       {
-        "type": "draw",
-        "amount": 2,
-        "target": {
-          "type": "self"
-        }
-      },
-      {
-        "type": "draw",
-        "amount": 2,
-        "target": {
-          "type": "opponent"
-        }
-      },
-      {
-        "type": "gain_lore",
-        "amount": 2,
-        "target": {
-          "type": "self"
-        }
-      },
-      {
-        "type": "gain_lore",
-        "amount": 2,
-        "target": {
-          "type": "opponent"
-        }
+        "type": "each_player",
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "gain_lore",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       },
       {
         "type": "ready_singers",

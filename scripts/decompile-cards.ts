@@ -312,6 +312,13 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
   // Player-state comparisons
   opponent_has_lore_gte: (c) => `if an opponent has ${c.amount ?? 0} or more lore`,
   opponent_has_more_than_self: (c) => `if an opponent has more ${c.metric ?? "cards"} than you`,
+
+  // "Whenever you put a card under..." — Mulan Standing Her Ground FLOWING BLADE
+  // (condition on a static effect, so it renders as "if ... this turn").
+  you_put_card_under_this_turn: () => "if you've put a card under one of your characters or locations this turn",
+
+  // "if you have lore at least N"
+  you_have_lore_gte: (c) => `if you have ${c.amount ?? 0} or more lore`,
 };
 
 function stripIfPrefix(s: string): string {
@@ -398,7 +405,11 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   },
   lose_lore: (e) => {
     const tgt = renderTarget(e.target ?? { type: "self" });
-    return `${tgt} ${verbS(tgt, "lose", "loses")} ${e.amount ?? 1} lore`;
+    const n = e.amount ?? 1;
+    if (typeof n === "number") {
+      return `${tgt} ${verbS(tgt, "lose", "loses")} ${n} lore`;
+    }
+    return `${tgt} ${verbS(tgt, "lose", "loses")} lore equal to ${renderAmount(n)}`;
   },
   prevent_lore_gain: (e) => {
     const tgt = renderTarget(e.target ?? {});
@@ -656,34 +667,8 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   // oracle-shaped phrasing for each combination.
   move_character: (e) => {
     const may = e.isMay ? "you may " : "";
-    let who = "this character";
-    if (e.character) {
-      switch (e.character.type) {
-        case "this": who = "this character"; break;
-        case "triggering_card": who = "the triggering character"; break;
-        case "last_resolved_target": who = "that character"; break;
-        case "chosen":
-          who = `chosen ${e.character.filter ? renderFilter(e.character.filter) : "character"}`;
-          break;
-        case "all":
-          if (typeof e.character.maxCount === "number") {
-            who = `up to ${e.character.maxCount} ${e.character.filter ? renderFilter(e.character.filter) : "characters"}`;
-          } else {
-            who = `any number of ${e.character.filter ? renderFilter(e.character.filter) : "characters"}`;
-          }
-          break;
-      }
-    }
-    let where = "a location";
-    if (e.location) {
-      switch (e.location.type) {
-        case "triggering_card": where = "that location"; break;
-        case "last_resolved_target": where = "the same location"; break;
-        case "chosen":
-          where = `chosen ${e.location.filter ? renderFilter(e.location.filter) : "location"}`;
-          break;
-      }
-    }
+    const who = e.character ? renderTarget(e.character) : "this character";
+    const where = e.location ? renderTarget(e.location) : "a location";
     return `${may}move ${who} to ${where} for free`;
   },
 
@@ -1032,19 +1017,28 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     // "they lose 1 lore" when appearing under an each_player wrapper.
     const rewriteInnerPerspective = (s: string): string =>
       s
-        .replace(/\byou draw\b/g, "they draw")
-        .replace(/\byou lose\b/g, "they lose")
-        .replace(/\byou gain\b/g, "they gain")
+        // Oracle wording for "each X: Y" in Lorcana is third-person-singular
+        // ("each opponent loses 2 lore", not "each opponent: they lose 2 lore").
+        // Rewrite "you VERB" → "VERBs" for common verbs that appear under
+        // each_player bodies via target:self inner effects.
+        .replace(/\byou draw\b/g, "draws")
+        .replace(/\byou lose\b/g, "loses")
+        .replace(/\byou gain\b/g, "gains")
         .replace(/\byour hand\b/g, "their hand")
         .replace(/\byour deck\b/g, "their deck")
-        .replace(/\byour inkwell\b/g, "their inkwell");
+        .replace(/\byour inkwell\b/g, "their inkwell")
+        // "discard N card(s)" becomes "chooses and discards N card(s)" —
+        // under each_player the iteration player picks their own discard
+        // (matches oracle wording: "each opponent chooses and discards").
+        .replace(/\bdiscard (\d+) cards?\b/g, (_, n) => `chooses and discards ${n} card${n === "1" ? "" : "s"}`)
+        .replace(/\bdiscard their hand\b/g, "discards their hand");
     const inner = Array.isArray(e.effects)
-      ? rewriteInnerPerspective(e.effects.map(renderEffect).join(". "))
+      ? rewriteInnerPerspective(e.effects.map(renderEffect).join(" and "))
       : "[no effects]";
     const scope = e.scope === "opponents" ? "each opponent" : "each player";
     const filter = renderPlayerFilter(e.filter);
     const subject = filter ? `${scope} ${filter}` : scope;
-    return e.isMay ? `${subject} may: ${inner}` : `${subject}: ${inner}`;
+    return e.isMay ? `${subject} may ${inner}` : `${subject} ${inner}`;
   },
   prevent_discard_from_hand: () => "you can't discard cards from your hand",
   inkwell_enters_exerted: () => "cards added to inkwell enter exerted",
@@ -1053,7 +1047,17 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     return `${maybe(e)}put all ${filt} into your inkwell`;
   },
   remember_chosen_target: (e) => `choose ${e.filter ? renderFilter(e.filter) : "a character"}`,
-  restrict_play: (e) => `${e.affectedPlayer?.type === "opponent" ? "opponents" : "you"} can't play ${(e.cardTypes ?? []).join("/")}s`,
+  restrict_play: (e) => {
+    const who = e.affectedPlayer?.type === "opponent" ? "opponents" : "you";
+    const types = (e.cardTypes ?? []);
+    const list = types.length === 1
+      ? `${types[0]}s`
+      : types.length === 2
+        ? `${types[0]}s or ${types[1]}s`
+        : `${types.slice(0, -1).map((t: string) => `${t}s`).join(", ")}, or ${types[types.length - 1]}s`;
+    // Restriction auto-clears on the caster's next turn (reducer handles it).
+    return `${who} can't play ${list} until the start of your next turn`;
+  },
   return_all_to_bottom_in_order: (e) => `put all ${e.filter ? renderFilter(e.filter) : "characters"} on the bottom of their players' decks`,
   modify_win_threshold: (e) => `${e.affectedPlayer?.type === "opponent" ? "opponents" : "you"} need ${e.newThreshold ?? "?"} lore to win`,
   stat_floor_printed: (e) => `${renderTarget(e.target ?? {})} ${e.stat ?? "strength"} can't be reduced below printed value`,
@@ -1067,6 +1071,13 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   put_self_under_target: (e) => `put this card under ${e.filter ? renderFilter(e.filter) : "a character"}`,
   sing_cost_bonus_target: (e) => `${renderTarget(e.target ?? {})} counts as having +${e.amount ?? 0} cost to sing songs${dur(e)}`,
   top_of_deck_visible: () => "the top card of your deck is played face up",
+  ready_singers: (e) => {
+    const min = e.minSingers ?? 2;
+    const follow = Array.isArray(e.followUpEffects) && e.followUpEffects.length > 0
+      ? `. ${e.followUpEffects.map(renderEffect).join(". ")}`
+      : "";
+    return `if ${min} or more characters sang this song, ready them${follow}`;
+  },
   skip_draw_step_self: () => "you skip your draw step",
   one_challenge_per_turn_global: () => "each player may only challenge once per turn",
   prevent_lore_loss: () => "you can't lose lore",
@@ -1292,6 +1303,19 @@ function renderTarget(t: Json): string {
       if (t.chooser === "target_player") {
         return `one of their ${pluralizeFilter(f)}`;
       }
+      // Owner-self on a chosen target: canonical Lorcana wording is "chosen
+      // X of yours" (Grandmother Fa FIND THE WAY, Poisoned Apple) when the
+      // filter has no trailing qualifier, OR "one of your [plural]" when
+      // there's a trailing qualifier that would make "... of yours ..." read
+      // awkwardly ("one of your characters with damage" vs the weird
+      // "chosen character of yours with damage").
+      if (t.filter?.owner?.type === "self") {
+        const hasTrailing = !!(t.filter.hasDamage || t.filter.hasCardUnder || t.filter.challengedThisTurn
+          || t.filter.hasName || t.filter.costAtMost !== undefined || t.filter.costAtLeast !== undefined
+          || t.filter.strengthAtMost !== undefined || t.filter.strengthAtLeast !== undefined);
+        if (hasTrailing) return `one of your ${pluralizeFilter(f)}`;
+        return `chosen ${count}${f} of yours`;
+      }
       return `chosen ${count}${f}`;
     }
     case "all": {
@@ -1323,7 +1347,8 @@ function renderFilter(f: Json, opts?: { suppressOwnerSelf?: boolean }): string {
   const rawTypes = f.cardType;
   const types: string[] = Array.isArray(rawTypes) ? rawTypes : rawTypes ? [rawTypes] : [];
   if (types.length === 1) noun = types[0]!;
-  else if (types.length > 1) noun = types.join("/");
+  else if (types.length === 2) noun = types.join(" or ");
+  else if (types.length > 2) noun = types.slice(0, -1).join(", ") + ", or " + types[types.length - 1];
   // No cardType filter → generic "card"
   // Song actions should render as "song" not "Song action"
   if (f.hasTrait === "Song" && noun === "action") noun = "song";
