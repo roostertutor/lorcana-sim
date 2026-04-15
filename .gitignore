@@ -48,6 +48,10 @@ tmp
 docs/ENGINE_PRIMITIVES.md
 packages/engine/src/cards/.effect-counts.json
 
+# Diagnostic output from `pnpm decompile-cards --all --json`
+decompile.json
+decompile-all.json
+
 # Raw Lorcast API response cache (pnpm import-cards --cache)
 .lorcast-raw/
 packages/engine/src/cards/.lorcast-raw/

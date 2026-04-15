@@ -1408,7 +1408,7 @@
         },
         "condition": {
           "type": "not",
-          "inner": {
+          "condition": {
             "type": "is_your_turn"
           }
         },
@@ -11682,12 +11682,11 @@
         "storyName": "LEARNING EXPERIENCE",
         "rulesText": "During an opponent's turn, whenever one of your other characters is banished, gain 1 lore.",
         "trigger": {
-          "on": "banished_other_in_challenge",
+          "on": "is_banished",
           "filter": {
             "owner": {
               "type": "self"
             },
-            "zone": "play",
             "cardType": [
               "character"
             ],
@@ -11696,7 +11695,7 @@
         },
         "condition": {
           "type": "not",
-          "inner": {
+          "condition": {
             "type": "is_your_turn"
           }
         },

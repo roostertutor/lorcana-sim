@@ -6397,7 +6397,7 @@
         },
         "condition": {
           "type": "not",
-          "inner": {
+          "condition": {
             "type": "you_control_matching",
             "filter": {
               "owner": {
@@ -8684,7 +8684,7 @@
         },
         "condition": {
           "type": "not",
-          "inner": {
+          "condition": {
             "type": "is_your_turn"
           }
         },
@@ -10565,7 +10565,7 @@
         },
         "condition": {
           "type": "not",
-          "inner": {
+          "condition": {
             "type": "this_has_damage"
           }
         }

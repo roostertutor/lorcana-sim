@@ -6349,10 +6349,8 @@
         "rulesText": "Ready this character. He can't quest for the rest of this turn.",
         "costs": [
           {
-            "type": "exert"
-          },
-          {
-            "type": "banish_self"
+            "type": "pay_ink",
+            "amount": 2
           }
         ],
         "effects": [
