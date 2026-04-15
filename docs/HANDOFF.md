@@ -2,162 +2,23 @@
 
 Items flagged by one session for another to pick up.
 
----
-
-~~## GUI: `choose_amount` number picker for `isUpTo` effects~~ **DONE**
-
-Already implemented — PendingChoiceModal handles `choose_amount` with +/- buttons and Confirm.
-
----
-
-~~## GUI: Stat modifier badge shows clamped delta instead of actual modifier~~ **DONE**
-
-Already fixed — GameCard.tsx sums timedEffects + staticBonus directly instead of computing from clamped effective value.
+Conventions:
+- List only **open** items. Strike-through DONE entries while a task is fresh,
+  then delete them once the rationale is captured in the commit message or no
+  longer needed for context. Keep a DONE entry only when it preserves non-trivial
+  reasoning not in a single commit (multi-commit decisions, deliberate non-fixes).
 
 ---
 
-~~## Engine: `choose_amount` re-entry loop~~ **DONE**
+## Engine + GUI: altShift (Diablo/Flotsam) GUI cleanup remaining
 
-Fixed — `isUpTo: false` set on overridden effect.
+Engine already migrated altShift to the pendingChoice pattern (same as
+Belle/Scrooge via `_altShiftCostContinuation` on choose_target). Per-combo
+enumeration is gone; one action per shift target.
 
----
-
-~~## Engine: `return_to_hand` missing `count` on pending choice~~ **DONE**
-
-Fixed — `count: effect.target.count ?? 1` added.
-
----
-
-~~## Engine: Set 3 Ursula - Deceiver missing `reveal_hand`~~ **DONE**
-
-Fixed — `reveal_hand` added before `discard_from_hand`.
-
----
-
-~~## Engine: `card_revealed` — persist on GameState for multiplayer visibility~~ **DONE**
-
-`lastRevealedCards` added to `GameState` — set at the end of `applyAction` from
-`card_revealed` events, cleared on next action if no reveals. Shape:
-`{ instanceIds: string[]; sourceInstanceId: string; playerId: PlayerID }`.
-GUI can read `gameState.lastRevealedCards` — works in sandbox, multiplayer, and replay.
-
----
-
-~~## Server: Anti-cheat filter must include `lastRevealedCards` instance data~~ **DONE**
-
-`stateFilter.ts` now whitelists `lastRevealedCards.instanceIds` — skips stubbing
-those cards even if they're in the opponent's hand/deck.
-
----
-
-~~## Engine: `lastRevealedCards` not set for triggered-ability reveals (Ariel Spectacular Singer)~~ **NOT AN ENGINE BUG**
-
-Verified via trace test — engine sets `lastRevealedCards` correctly:
-- Action 2 (RESOLVE choose_from_revealed): `lastRevealedCards` IS set with the chosen card
-- Action 3 (RESOLVE choose_order): `lastRevealedCards` persists (not cleared)
-
-The engine data is there. The problem is on the GUI side — likely the reveal
-overlay is suppressed or not rendered when `pendingChoice` is also present
-(`choose_order` is active at the same time as `lastRevealedCards`). The GUI
-needs to show the reveal overlay even when a `pendingChoice` modal is queued.
-
----
-
-~~## Engine: `search` effect auto-picks instead of letting player choose~~ **DONE**
-
-Interactive mode now collects ALL matching cards with `.filter()` and presents a
-`choose_from_revealed` pending choice when multiple matches exist (single match
-auto-resolves). The `choose_from_revealed` handler detects `pendingEffect.type === "search"`
-and moves the chosen card to the search's `putInto` destination without touching
-the remaining deck cards.
-
----
-
-~~## Engine: Discuss auto-resolve UX for forced single-target choices~~ **DONE (option 1)**
-
-In interactive mode, the engine no longer auto-resolves:
-- `search`: always shows `choose_from_revealed` even for single match
-- `look_at_top` (no-filter, 1 card): shows `choose_from_revealed` instead of
-  silently moving to hand
-
-Note: `choose_target` and `choose_discard` already always created pending choices
-— they were never auto-resolving. `choose` with 1 feasible option still auto-
-resolves because CRD 6.1.5.2 mandates the forced pick (game rules, not UX skip).
-Bot/headless mode unchanged.
-
----
-
-~~## GUI: `choose_from_revealed` now supports multi-pick + mandatory mode~~ **DONE**
-
-PendingChoiceModal.tsx now reads `pendingEffect.maxToHand` for `choose_from_revealed`
-backed by `look_at_top` effects and caps picks by `Math.min(maxToHand, validTargets.length)`.
-
-Behavior:
-- **Multi-pick**: modal allows selecting 0..targetCount cards; resolves via array.
-- **Mandatory vs optional**: driven by `pendingChoice.optional` (set from `effect.isMay`).
-  When mandatory, header reads "Select N (X/N)", Confirm disabled unless
-  `multiSelectTargets.length === targetCount`, no Skip button. When optional,
-  header reads "Select up to N", Confirm enabled at ≥1, Skip button available.
-- **Private vs public picks**: already handled by engine — private picks
-  (`revealPicks: false`) don't emit `card_revealed` events, so `lastRevealedCards`
-  stays unset and the overlay correctly stays hidden in multiplayer. The
-  chooser still sees cards via `pendingChoice.revealedCards` (local modal only).
-
----
-
-~~## GUI: update reveal overlay key to use `lastRevealedCards.sequenceId`~~ **DONE**
-
-Two-part fix landed:
-1. `currentRevealCardsKey` prefixes `sequenceId` so back-to-back reveals of
-   the same cards produce distinct keys during normal play.
-2. `useGameSession` now exposes `actionCount`; GameBoard watches it via a
-   ref and resets `dismissedRevealKey` when it decreases (undo detected).
-   This handles the quest → dismiss → undo → re-quest case where engine's
-   state-derived sequenceId resets to 1.
-
----
-
-~~## Engine: stamp producing ability/keyword onto TimedEffect for UI attribution~~ **DONE**
-
-`TimedEffect.sourceStoryName?: string` added. Populated at creation time:
-- Synthesized Support trigger sets `_sourceStoryName: "Support"` on its
-  gain_stats effect.
-- Trigger resolver also stamps `trigger.ability.storyName` onto any
-  gain_stats effect before applying it, so explicit triggered abilities
-  benefit too (preserves explicit attribution via `??`).
-- `applyGainStatsToInstance` reads `effect._sourceStoryName` and writes
-  `sourceStoryName` onto each modify_strength/willpower/lore TimedEffect
-  it creates.
-
-GUI can now read `timedEffect.sourceStoryName` directly instead of
-guessing via the effect-type → keyword map.
-
-Test: `set9-set11.test.ts` "The Queen Conceited Ruler: Support's
-modify_strength is attributed to 'Support', not ROYAL SUMMONS".
-
-Note: only gain_stats path is wired today. If we discover other TimedEffect
-creators (grant_keyword, damage_prevention, etc.) need attribution, follow
-the same pattern — add internal `_sourceStoryName` to that effect type and
-plumb through the creator function.
-
----
-
-~~## Engine + GUI: migrate altShift (Diablo/Flotsam) to pendingChoice pattern~~ **ENGINE DONE — GUI CLEANUP REMAINING**
-
-Engine migrated. `altShiftCost` now uses the same pendingChoice pattern as
-Belle/Scrooge via `_altShiftCostContinuation` on choose_target. Per-combo
-enumeration removed — one action per shift target. Resolver re-invokes
-applyPlayCard with the picked cost IDs filled in, which lands in the legacy
-altShiftCostInstanceIds branch and completes the shift normally (shifted_onto
-trigger, zone transition, Bodyguard hook, etc.). Validator does a feasibility
-check (≥ requiredAmount valid cost targets) when no cost IDs are provided.
-
-Tests covered: Diablo Devoted Herald (1 discard), Flotsam & Jetsam (exactly 2
-discards, validator rejects 1 and 3).
-
-**GUI cleanup remaining** (GameBoard.tsx:513-1355, ~150 LOC): alt-shift cost
-picker mode code is now dead — `altShiftCostInstanceIds` never appears on
-enumerated actions, so the picker-mode branch at useBoardDnd.ts:73 never
+**GUI cleanup remaining** (`GameBoard.tsx:513-1355`, ~150 LOC): alt-shift
+cost picker mode code is now dead — `altShiftCostInstanceIds` never appears
+on enumerated actions, so the picker-mode branch at `useBoardDnd.ts:73` never
 triggers. Drag-drop falls through to direct dispatch → engine surfaces
 pendingChoice → PendingChoiceModal handles it. GUI works unchanged, but the
 picker-mode state/toast/hand-tap handling can be deleted as housekeeping.
@@ -217,4 +78,3 @@ Fix: for `choose_from_revealed` backed by `look_at_top` with
 `pendingEffect.maxToHand > 1`, enumerate multi-pick combinations (or at least
 pick the top-K valid targets as a single candidate when mandatory). May need
 a similar pass in any other bot that handles this choice type.
-
