@@ -37,12 +37,19 @@ export function buildTestDeck(cardIds: string[], fillerId = "minnie-mouse-belove
   return entries;
 }
 
+/** Fixed seed for test determinism. createGame falls back to Date.now() when
+ *  no seed is provided, which produces wallclock-dependent shuffles and makes
+ *  any test that touches deck order flaky (e.g. Yzma shuffling a character
+ *  into the opponent's deck then having them draw — the drawn cards depend on
+ *  shuffle RNG). All test-helpers use this constant so tests are reproducible. */
+const TEST_SEED = 0xc0ffee;
+
 export function startGame(
   p1Cards: string[] = ["mickey-mouse-true-friend"],
   p2Cards: string[] = ["mickey-mouse-true-friend"]
 ): GameState {
   let state = createGame(
-    { player1Deck: buildTestDeck(p1Cards), player2Deck: buildTestDeck(p2Cards) },
+    { player1Deck: buildTestDeck(p1Cards), player2Deck: buildTestDeck(p2Cards), seed: TEST_SEED },
     LORCAST_CARD_DEFINITIONS
   );
   state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [] }, LORCAST_CARD_DEFINITIONS).newState;
