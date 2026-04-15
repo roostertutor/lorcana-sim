@@ -299,56 +299,19 @@ export function getAllLegalActions(
       }
     }
     if (hasAltShift && cardDef?.altShiftCost) {
-      // Alt-cost shift: one action per (shift target × eligible cost target)
-      const altCost = cardDef.altShiftCost;
-      // Find eligible cost targets
-      let costCandidates: string[] = [];
-      if (altCost.type === "discard") {
-        // Discard from hand — eligible cards matching filter (excluding the card being played)
-        costCandidates = hand.filter(id => {
-          if (id === instanceId) return false;
-          const inst = state.cards[id];
-          if (!inst) return false;
-          const d = definitions[inst.definitionId];
-          if (!d) return false;
-          return !altCost.filter || matchesFilter(inst, d, altCost.filter, state, playerId);
-        });
-      } else if (altCost.type === "banish_chosen") {
-        // Banish from play — eligible cards matching filter
-        costCandidates = myPlay.filter(id => {
-          const inst = state.cards[id];
-          if (!inst) return false;
-          const d = definitions[inst.definitionId];
-          if (!d) return false;
-          return matchesFilter(inst, d, altCost.filter, state, playerId);
-        });
-      }
-      const requiredAmount = altCost.type === "discard" ? (altCost.amount ?? 1) : 1;
-      // Generate cost-target combos of the required size
-      const combos: string[][] = [];
-      if (requiredAmount === 1) {
-        for (const id of costCandidates) combos.push([id]);
-      } else if (requiredAmount === 2) {
-        for (let i = 0; i < costCandidates.length; i++) {
-          for (let j = i + 1; j < costCandidates.length; j++) {
-            combos.push([costCandidates[i]!, costCandidates[j]!]);
-          }
-        }
-      }
-      // For each shift target × cost combo
+      // Alt-cost shift (Diablo, Flotsam, etc.): one action per shift target.
+      // The cost picker (which cards to discard/banish) is surfaced as a
+      // pendingChoice by applyPlayCard after the click — same pattern as
+      // Belle/Scrooge's granted-free-play alt cost. No per-combo fanout.
       for (const targetId of myPlay) {
-        for (const combo of combos) {
-          if (combo.includes(targetId)) continue;
-          const shiftPlay: GameAction = {
-            type: "PLAY_CARD",
-            playerId,
-            instanceId,
-            shiftTargetInstanceId: targetId,
-            altShiftCostInstanceIds: combo,
-          };
-          if (validateAction(state, shiftPlay, definitions).valid) {
-            actions.push(shiftPlay);
-          }
+        const shiftPlay: GameAction = {
+          type: "PLAY_CARD",
+          playerId,
+          instanceId,
+          shiftTargetInstanceId: targetId,
+        };
+        if (validateAction(state, shiftPlay, definitions).valid) {
+          actions.push(shiftPlay);
         }
       }
     }
@@ -604,6 +567,46 @@ function applyPlayCard(
       message: `${playerId} played ${def.fullName} for free.`,
       type: "card_played",
     });
+  } else if (shiftTargetInstanceId && def.altShiftCost && (!altShiftCostInstanceIds || altShiftCostInstanceIds.length === 0)) {
+    // Alt-cost shift interactive entry: cost picker not yet collected.
+    // Surface a choose_target pendingChoice; on resolve the reducer re-invokes
+    // applyPlayCard with the chosen cost IDs filled in, which lands in the
+    // altShiftCostInstanceIds branch below and completes the shift normally.
+    const altCost = def.altShiftCost;
+    const requiredAmount = altCost.type === "discard" ? (altCost.amount ?? 1) : 1;
+    let validTargets: string[] = [];
+    if (altCost.type === "discard") {
+      validTargets = getZone(state, playerId, "hand").filter(id => {
+        if (id === instanceId) return false;
+        const inst = state.cards[id];
+        const d = inst ? definitions[inst.definitionId] : undefined;
+        return !!inst && !!d && (!altCost.filter || matchesFilter(inst, d, altCost.filter, state, playerId));
+      });
+    } else if (altCost.type === "banish_chosen") {
+      validTargets = getZone(state, playerId, "play").filter(id => {
+        if (id === shiftTargetInstanceId) return false;
+        const inst = state.cards[id];
+        const d = inst ? definitions[inst.definitionId] : undefined;
+        return !!inst && !!d && matchesFilter(inst, d, altCost.filter, state, playerId);
+      });
+    }
+    return {
+      ...state,
+      pendingChoice: {
+        type: "choose_target",
+        choosingPlayerId: playerId,
+        prompt: `${def.fullName} — choose ${requiredAmount} ${altCost.type === "discard" ? "card(s) to discard" : "card(s) to banish"} to Shift.`,
+        validTargets,
+        count: requiredAmount,
+        _altShiftCostContinuation: {
+          characterInstanceId: instanceId,
+          shiftTargetInstanceId,
+          playerId,
+          costType: altCost.type,
+          exactCount: requiredAmount,
+        },
+      },
+    };
   } else if (altShiftCostInstanceIds && altShiftCostInstanceIds.length > 0 && shiftTargetInstanceId && def.altShiftCost) {
     // Alternate-cost shift (Diablo, Flotsam etc.): pay a non-ink cost.
     const altCost = def.altShiftCost;
@@ -2235,6 +2238,17 @@ function applyResolveChoice(
   }
 
   if (pendingChoice.type === "choose_target" && Array.isArray(choice)) {
+    // Alt-cost Shift chooser (Diablo, Flotsam). Re-invoke applyPlayCard with
+    // the chosen cost IDs filled in — lands in the altShiftCostInstanceIds
+    // branch and completes the shift normally.
+    const altShiftCont = pendingChoice._altShiftCostContinuation;
+    if (altShiftCont) {
+      state = { ...state, pendingChoice: null };
+      state = applyPlayCard(state, altShiftCont.playerId, altShiftCont.characterInstanceId, definitions, events, altShiftCont.shiftTargetInstanceId, undefined, undefined, undefined, choice as string[]);
+      state = resumePendingEffectQueue(state, definitions, events);
+      state = cleanupPendingAction(state, playerId);
+      return state;
+    }
     // Granted-free-play alt-cost chooser (Belle, Scrooge). Pay the cost with
     // the chosen instances, then move the character/item from hand to play.
     const freePlayCont = pendingChoice._freePlayContinuation;

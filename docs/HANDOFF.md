@@ -142,28 +142,25 @@ plumb through the creator function.
 
 ---
 
-## Engine + GUI: migrate altShift (Diablo/Flotsam) to pendingChoice pattern
+~~## Engine + GUI: migrate altShift (Diablo/Flotsam) to pendingChoice pattern~~ **ENGINE DONE — GUI CLEANUP REMAINING**
 
-Granted-free-play alt-cost (Belle banish_chosen, Scrooge exert_n_matching) now
-uses a pendingChoice chooser after the Play click, via a `_freePlayContinuation`
-field on choose_target (commit landed alongside bugs 1/2). The parallel altShift
-path (`altShiftCost`, discard or banish to pay Shift) still uses the per-combo
-action enumeration with the GUI's custom "alt-shift cost picker mode"
-(GameBoard.tsx:513-1355, ~150 LOC of mode state, hand-tap handling, toast).
+Engine migrated. `altShiftCost` now uses the same pendingChoice pattern as
+Belle/Scrooge via `_altShiftCostContinuation` on choose_target. Per-combo
+enumeration removed — one action per shift target. Resolver re-invokes
+applyPlayCard with the picked cost IDs filled in, which lands in the legacy
+altShiftCostInstanceIds branch and completes the shift normally (shifted_onto
+trigger, zone transition, Bodyguard hook, etc.). Validator does a feasibility
+check (≥ requiredAmount valid cost targets) when no cost IDs are provided.
 
-They're semantic twins ("pay a non-ink cost to play something"). Unifying:
-- Engine: mirror the free-play pattern. Collapse altShift enumeration to one
-  action per shift target; surface choose_target pendingChoice in
-  applyPlayCard's altShiftCost branch with an `_altShiftCostContinuation`
-  carrying shift target + cost type + exactCount. Resolver pays the cost using
-  chosen IDs, then proceeds with the shift zoneTransition + shifted_onto
-  trigger.
-- GUI: delete alt-shift picker mode. PendingChoiceModal's generic choose_target
-  already handles multi-pick with an exactCount-enforcing validator (added for
-  Scrooge).
+Tests covered: Diablo Devoted Herald (1 discard), Flotsam & Jetsam (exactly 2
+discards, validator rejects 1 and 3).
 
-Requires coordinated engine + GUI change since the GUI's picker mode would
-break if engine stops enumerating combos. Deferred until GUI agent available.
+**GUI cleanup remaining** (GameBoard.tsx:513-1355, ~150 LOC): alt-shift cost
+picker mode code is now dead — `altShiftCostInstanceIds` never appears on
+enumerated actions, so the picker-mode branch at useBoardDnd.ts:73 never
+triggers. Drag-drop falls through to direct dispatch → engine surfaces
+pendingChoice → PendingChoiceModal handles it. GUI works unchanged, but the
+picker-mode state/toast/hand-tap handling can be deleted as housekeeping.
 
 ---
 

@@ -2996,6 +2996,19 @@ export interface PendingChoice {
     costType: "banish_chosen" | "exert_n_matching" | "discard";
     exactCount: number;
   };
+  /** Internal: used by the alt-cost Shift chooser (Diablo - Devoted Herald's
+   *  discard, Flotsam & Jetsam-style two-card discards, etc.). Held on a
+   *  choose_target pendingChoice. On resolve the reducer re-invokes
+   *  applyPlayCard with the chosen cost IDs filled in, landing in the legacy
+   *  altShiftCostInstanceIds branch which pays the cost and completes the
+   *  shift (zone transitions, shifted_onto trigger, etc.). */
+  _altShiftCostContinuation?: {
+    characterInstanceId: string;
+    shiftTargetInstanceId: string;
+    playerId: PlayerID;
+    costType: "discard" | "banish_chosen";
+    exactCount: number;
+  };
 }
 
 export interface GameLogEntry {

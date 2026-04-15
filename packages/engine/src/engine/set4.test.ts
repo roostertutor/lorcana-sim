@@ -819,18 +819,26 @@ describe("§4 Set 4 — Diablo Devoted Herald (altShiftCost discard)", () => {
     // An action card in hand to discard as cost
     ({ state, instanceId: actionId } = injectCard(state, "player1", "be-prepared", "hand"));
 
-    // Legal actions should include the alt-shift variant
+    // One action per shift target — no per-combo fanout. The cost picker
+    // surfaces as a pendingChoice after the click (same pattern as Belle/Scrooge).
     const actions = getAllLegalActions(state, "player1", LORCAST_CARD_DEFINITIONS);
     const shiftAction = actions.find(a =>
       a.type === "PLAY_CARD" &&
       a.instanceId === shiftId &&
-      a.shiftTargetInstanceId === baseId &&
-      a.altShiftCostInstanceIds?.includes(actionId)
+      a.shiftTargetInstanceId === baseId
     );
     expect(shiftAction).toBeDefined();
+    // No altShiftCostInstanceIds on the enumerated action.
+    expect((shiftAction as any).altShiftCostInstanceIds).toBeUndefined();
 
-    // Apply it
-    const r = applyAction(state, shiftAction!, LORCAST_CARD_DEFINITIONS);
+    // Apply it — should surface choose_target for the discard cost.
+    let r = applyAction(state, shiftAction!, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(r.newState.pendingChoice?.type).toBe("choose_target");
+    expect(r.newState.pendingChoice?.validTargets).toContain(actionId);
+
+    // Pick the action card as the discard.
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [actionId] }, LORCAST_CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -843,6 +851,38 @@ describe("§4 Set 4 — Diablo Devoted Herald (altShiftCost discard)", () => {
     expect(getInstance(state, actionId).zone).toBe("discard");
     // No ink spent
     expect(state.players.player1.availableInk).toBe(0);
+  });
+
+  it("alt-shift: Flotsam & Jetsam exactCount=2 — chooser requires exactly 2 cards", () => {
+    let state = startGame();
+    let baseId: string, shiftId: string;
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "flotsam-ursulas-spy", "play"));
+    ({ state, instanceId: shiftId } = injectCard(state, "player1", "flotsam-jetsam-entangling-eels", "hand"));
+    // Three discard candidates in hand.
+    const picks: string[] = [];
+    for (let i = 0; i < 3; i++) {
+      const r = injectCard(state, "player1", "mickey-mouse-true-friend", "hand");
+      state = r.state;
+      picks.push(r.instanceId);
+    }
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: shiftId, shiftTargetInstanceId: baseId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(r.newState.pendingChoice?.count).toBe(2);
+
+    // 1 pick rejected (exactly 2 required).
+    let bad = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: picks.slice(0, 1) }, LORCAST_CARD_DEFINITIONS);
+    expect(bad.success).toBe(false);
+    // 3 picks also rejected.
+    bad = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: picks }, LORCAST_CARD_DEFINITIONS);
+    expect(bad.success).toBe(false);
+    // 2 picks resolve.
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: picks.slice(0, 2) }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getInstance(r.newState, picks[0]!).zone).toBe("discard");
+    expect(getInstance(r.newState, picks[1]!).zone).toBe("discard");
+    expect(getInstance(r.newState, picks[2]!).zone).toBe("hand");
+    expect(getInstance(r.newState, shiftId).zone).toBe("play");
+    expect(getInstance(r.newState, shiftId).playedViaShift).toBe(true);
   });
 
   it("alt-shift: blocked when no eligible action card in hand", () => {

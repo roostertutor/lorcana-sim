@@ -179,31 +179,57 @@ function validatePlayCard(
     if (!canShiftOnto(instanceId, def, shiftTargetInstanceId, shiftTargetDef, shiftModifiers)) {
       return fail("Shift target must share this character's name.");
     }
-    // Alt-cost shift (Diablo, Flotsam etc.): pay a non-ink cost
-    if (hasAltShift && altShiftCostInstanceIds && altShiftCostInstanceIds.length > 0) {
+    // Alt-cost shift (Diablo, Flotsam etc.): pay a non-ink cost. Two entry
+    // modes — cost-IDs provided (legacy, headless bot, or post-pendingChoice
+    // re-invoke) validates each target; no cost-IDs (new interactive path)
+    // just verifies feasibility so applyPlayCard can surface the chooser.
+    if (hasAltShift) {
       const altCost = def.altShiftCost!;
       const requiredAmount = altCost.type === "discard" ? (altCost.amount ?? 1) : 1;
-      if (altShiftCostInstanceIds.length !== requiredAmount) {
-        return fail(`Alt shift cost requires ${requiredAmount} card(s), got ${altShiftCostInstanceIds.length}.`);
-      }
-      for (const costId of altShiftCostInstanceIds) {
-        const costTarget = getInstance(state, costId);
-        if (costTarget.ownerId !== playerId) return fail("You don't own the cost target.");
-        if (costId === instanceId) return fail("Can't use the card you're playing as a cost.");
-        const costTargetDef = getDefinition(state, costId, definitions);
-        if (altCost.type === "discard") {
-          if (costTarget.zone !== "hand") return fail("Discard target is not in your hand.");
-          if (altCost.filter && !matchesFilter(costTarget, costTargetDef, altCost.filter, state, playerId)) {
-            return fail("Discard target doesn't match the shift cost filter.");
-          }
-        } else if (altCost.type === "banish_chosen") {
-          if (costTarget.zone !== "play") return fail("Banish target is not in play.");
-          if (!matchesFilter(costTarget, costTargetDef, altCost.filter, state, playerId)) {
-            return fail("Banish target doesn't match the shift cost filter.");
+      if (altShiftCostInstanceIds && altShiftCostInstanceIds.length > 0) {
+        if (altShiftCostInstanceIds.length !== requiredAmount) {
+          return fail(`Alt shift cost requires ${requiredAmount} card(s), got ${altShiftCostInstanceIds.length}.`);
+        }
+        for (const costId of altShiftCostInstanceIds) {
+          const costTarget = getInstance(state, costId);
+          if (costTarget.ownerId !== playerId) return fail("You don't own the cost target.");
+          if (costId === instanceId) return fail("Can't use the card you're playing as a cost.");
+          const costTargetDef = getDefinition(state, costId, definitions);
+          if (altCost.type === "discard") {
+            if (costTarget.zone !== "hand") return fail("Discard target is not in your hand.");
+            if (altCost.filter && !matchesFilter(costTarget, costTargetDef, altCost.filter, state, playerId)) {
+              return fail("Discard target doesn't match the shift cost filter.");
+            }
+          } else if (altCost.type === "banish_chosen") {
+            if (costTarget.zone !== "play") return fail("Banish target is not in play.");
+            if (!matchesFilter(costTarget, costTargetDef, altCost.filter, state, playerId)) {
+              return fail("Banish target doesn't match the shift cost filter.");
+            }
           }
         }
+        return OK; // No ink check — alt cost IS the cost
       }
-      return OK; // No ink check — alt cost IS the cost
+      // No cost-IDs → feasibility check: at least `requiredAmount` valid cost
+      // targets must exist. applyPlayCard surfaces a pendingChoice from here.
+      let eligible: string[] = [];
+      if (altCost.type === "discard") {
+        eligible = getZone(state, playerId, "hand").filter(id => {
+          if (id === instanceId) return false;
+          const inst = state.cards[id];
+          const d = inst ? definitions[inst.definitionId] : undefined;
+          return !!inst && !!d && (!altCost.filter || matchesFilter(inst, d, altCost.filter, state, playerId));
+        });
+      } else if (altCost.type === "banish_chosen") {
+        eligible = getZone(state, playerId, "play").filter(id => {
+          if (id === shiftTargetInstanceId) return false;
+          const inst = state.cards[id];
+          const d = inst ? definitions[inst.definitionId] : undefined;
+          return !!inst && !!d && matchesFilter(inst, d, altCost.filter, state, playerId);
+        });
+      }
+      if (eligible.length >= requiredAmount) return OK;
+      // Not enough valid cost targets — fall through to ink check below (may
+      // still work if the card happens to have a printed shift cost too).
     }
     // Ink-based shift (standard)
     if (hasInkShift) {
@@ -213,8 +239,8 @@ function validatePlayCard(
       }
       return OK;
     }
-    // Has alt shift but no cost target provided
-    return fail("Shift requires paying the alternate cost.");
+    // Has alt shift but no feasible cost
+    return fail("Not enough valid cards to pay the Shift alternate cost.");
   }
 
   // CRD 5.4.4.2: Singing — exert character to play song for free (alternate cost)
@@ -886,12 +912,18 @@ function validateResolveChoice(
   // CRD 8.15.1: Ward — opponents can't choose this character for their effects
   if (state.pendingChoice.type === "choose_target" && Array.isArray(choice)) {
     // Granted-free-play alt-cost chooser requires EXACTLY the specified count
-    // (Belle: 1 item to banish; Scrooge: 4 items to exert). Check before the
+    // (Belle: 1 item to banish; Scrooge: 4 items to exert). Alt-shift chooser
+    // (Diablo: 1 discard; Flotsam: 2 discards) same rule. Check before the
     // up-to-N rule below.
     const freePlayCont = state.pendingChoice._freePlayContinuation;
+    const altShiftCont = state.pendingChoice._altShiftCostContinuation;
     if (freePlayCont) {
       if (choice.length !== freePlayCont.exactCount) {
         return fail(`Must choose exactly ${freePlayCont.exactCount} ${freePlayCont.costType === "banish_chosen" ? "item to banish" : freePlayCont.costType === "exert_n_matching" ? "item(s) to exert" : "card(s) to discard"}.`);
+      }
+    } else if (altShiftCont) {
+      if (choice.length !== altShiftCont.exactCount) {
+        return fail(`Must choose exactly ${altShiftCont.exactCount} ${altShiftCont.costType === "discard" ? "card(s) to discard" : "card(s) to banish"} to Shift.`);
       }
     } else {
       // CRD 6.1.3: "up to N" — validate count
