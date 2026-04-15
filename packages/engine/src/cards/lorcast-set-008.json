@@ -5970,7 +5970,8 @@
             "amount": 1,
             "target": {
               "type": "opponent"
-            }
+            },
+            "chooser": "target_player"
           }
         ]
       }
@@ -7315,7 +7316,8 @@
         "amount": 1,
         "target": {
           "type": "opponent"
-        }
+        },
+        "chooser": "target_player"
       },
       {
         "type": "gain_stats",

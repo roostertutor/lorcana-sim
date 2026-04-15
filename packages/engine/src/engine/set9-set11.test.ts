@@ -1143,6 +1143,76 @@ describe("§10 Set 10 — Cinderella Dream Come True WHATEVER YOU WISH FOR", () 
     expect(r.newState.pendingChoice?.choosingPlayerId).toBe("player1");
   });
 
+  it("two Cinderella Dream Come True both fire when a Princess was played this turn", () => {
+    // Bug report: "Cinderella Dream Come True works by herself, but if there are
+    // two Cinderella Dream Come True, neither of them work." Root cause: the first
+    // Cindy's trigger creates a pendingChoice which pauses processTriggerStack,
+    // then applyPassTurn proceeds to transition the turn and reset cardsPlayed
+    // ThisTurn. When the second Cindy's trigger resolves, its condition sees an
+    // empty list and fizzles.
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let cindy1Id: string, cindy2Id: string, princessId: string;
+    ({ state, instanceId: cindy1Id } = injectCard(state, "player1", "cinderella-dream-come-true", "play", { isDrying: false }));
+    ({ state, instanceId: cindy2Id } = injectCard(state, "player1", "cinderella-dream-come-true", "play", { isDrying: false }));
+    // Play a Princess this turn so the condition is satisfied.
+    ({ state, instanceId: princessId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: princessId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+
+    // Pass → both Cindy triggers fire. First creates pendingChoice.
+    r = applyAction(r.newState, { type: "PASS_TURN", playerId: "player1" }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(r.newState.pendingChoice?.type).toBe("choose_may");
+    // Accept the first may → it surfaces move_to_inkwell chooser.
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(r.newState.pendingChoice?.type).toBe("choose_target");
+    // Pick a hand card to inkwell.
+    const hand1 = getZone(r.newState, "player1", "hand");
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [hand1[0]!] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+
+    // Second Cindy's trigger should now surface — another choose_may.
+    expect(r.newState.pendingChoice?.type).toBe("choose_may");
+  });
+
+  it("Cindy's inkwell-put at end of turn chains Oswald's FAVORABLE CHANCE (still your turn)", () => {
+    // Bug report: "Cinderella Dream Come True 'at end of turn' ability happens
+    // after opponent's character has already readied. Any additional triggers
+    // like Cindy putting a card to inkwell should trigger Oswald's watcher."
+    // Root cause: same as the two-Cindys bug — applyPassTurn transitioned the
+    // turn before the Cindy may-choice resolved, so Oswald's "During your
+    // turn" condition was false when the inkwell-put fired.
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let cindyId: string, oswaldId: string, princessId: string;
+    ({ state, instanceId: cindyId } = injectCard(state, "player1", "cinderella-dream-come-true", "play", { isDrying: false }));
+    ({ state, instanceId: oswaldId } = injectCard(state, "player1", "oswald-the-lucky-rabbit", "play", { isDrying: false }));
+    // Play a Princess so Cindy's condition is satisfied.
+    ({ state, instanceId: princessId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: princessId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+
+    // Pass → Cindy's turn_end trigger creates choose_may. Opponent cards must
+    // NOT yet be readied (turn transition deferred).
+    r = applyAction(r.newState, { type: "PASS_TURN", playerId: "player1" }, LORCAST_CARD_DEFINITIONS);
+    expect(r.newState.pendingChoice?.type).toBe("choose_may");
+    expect(r.newState.currentPlayer).toBe("player1"); // still our turn
+
+    // Accept Cindy's may → surfaces choose_target for inkwell cost
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    expect(r.newState.pendingChoice?.type).toBe("choose_target");
+    expect(r.newState.currentPlayer).toBe("player1");
+    const hand = getZone(r.newState, "player1", "hand");
+    // Pick a hand card → inkwell → this triggers Oswald's FAVORABLE CHANCE.
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [hand[0]!] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // Oswald's trigger should now be the active pendingChoice (choose_may).
+    expect(r.newState.pendingChoice?.type).toBe("choose_may");
+    expect(r.newState.currentPlayer).toBe("player1");
+  });
+
   it("does NOT fire at turn_end when no Princess was played this turn", () => {
     let state = startGame();
     state = giveInk(state, "player1", 10);

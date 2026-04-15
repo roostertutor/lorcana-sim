@@ -4753,7 +4753,8 @@
             "amount": 1,
             "target": {
               "type": "opponent"
-            }
+            },
+            "chooser": "target_player"
           }
         ]
       }
@@ -8351,7 +8352,9 @@
           "type": "played_this_turn",
           "amount": 1,
           "filter": {
-            "cardType": ["character"],
+            "cardType": [
+              "character"
+            ],
             "costAtLeast": 5
           }
         },
@@ -12329,7 +12332,8 @@
             "amount": 1,
             "target": {
               "type": "opponent"
-            }
+            },
+            "chooser": "target_player"
           }
         ]
       }

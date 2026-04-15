@@ -2762,6 +2762,18 @@ export interface GameState {
    *  resolve — not before/during them. */
   pendingDrawForPlayer?: PlayerID;
 
+  /** CRD 3.4.1.1/3.2.1.x: When a turn_end triggered ability creates a
+   *  pendingChoice (Cinderella Dream Come True "may put a card in inkwell
+   *  to draw a card"), the turn transition MUST pause until the choice
+   *  resolves — otherwise cardsPlayedThisTurn is reset and later triggers
+   *  in the stack fizzle, the active player switches before the effect
+   *  finishes, and any chained triggers from within the effect (e.g. a
+   *  card_put_into_inkwell triggered by the may-pay inkwell cost) run in
+   *  the opponent's turn context. Set by applyPassTurn when
+   *  processTriggerStack leaves a pendingChoice; applyAction's outer
+   *  post-processing completes the transition once the stack drains. */
+  pendingTurnTransition?: PlayerID;
+
   /** Seeded PRNG state — advances with every random operation */
   rng: RngState;
 

@@ -766,6 +766,34 @@ describe("§7 Set 7 — Queen of Hearts Unpredictable Bully (cross-player card_p
   });
 });
 
+describe("§6 Set 6 — Basil Disguised Detective TWISTS AND TURNS (opponent picks discard)", () => {
+  it("chosen opponent picks which card to discard — chooser: target_player", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let basilId: string, quillId: string, handCardId: string;
+    ({ state, instanceId: basilId } = injectCard(state, "player1", "basil-disguised-detective", "play", { isDrying: false }));
+    ({ state, instanceId: quillId } = injectCard(state, "player1", "fishbone-quill", "play", { isDrying: false }));
+    ({ state, instanceId: handCardId } = injectCard(state, "player1", "mickey-mouse-true-friend", "hand"));
+
+    // Activate Fishbone Quill → ink a hand card → fires Basil's trigger
+    let r = applyAction(state, {
+      type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: quillId, abilityIndex: 0,
+    }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(r.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [handCardId],
+    }, LORCAST_CARD_DEFINITIONS);
+
+    // Basil's TWISTS AND TURNS is a may — accept to pay 1 {I} and force discard.
+    expect(r.newState.pendingChoice?.type).toBe("choose_may");
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    // Now a choose_discard should surface — choosingPlayerId must be player2
+    // (the opponent picks which card to discard, not player1).
+    expect(r.success).toBe(true);
+    expect(r.newState.pendingChoice?.type).toBe("choose_discard");
+    expect(r.newState.pendingChoice?.choosingPlayerId).toBe("player2");
+  });
+});
+
 describe("§6 Set 6 — Oswald FAVORABLE CHANCE fires on effect-driven inkwell placement", () => {
   it("Fishbone Quill putting a hand card into inkwell triggers Oswald's card_put_into_inkwell watcher", () => {
     let state = startGame();

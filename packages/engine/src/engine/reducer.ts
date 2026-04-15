@@ -105,6 +105,24 @@ export function applyAction(
       newState = runGameStateCheck(newState, definitions, events);
     }
 
+    // CRD 3.4.1.1: if applyPassTurn deferred the turn transition because a
+    // turn_end trigger created a pendingChoice (e.g. two Cinderella Dream
+    // Come True triggers queued, first creates a may choice), complete the
+    // transition now that the stack and choices have drained. performTurn
+    // Transition may itself queue turn_start triggers which can pend a
+    // choice — loop to handle cascades.
+    while (
+      newState.pendingTurnTransition &&
+      !newState.pendingChoice &&
+      newState.triggerStack.length === 0 &&
+      !newState.isGameOver
+    ) {
+      const endingPlayer = newState.pendingTurnTransition;
+      newState = performTurnTransition(newState, endingPlayer, definitions, events);
+      newState = processTriggerStack(newState, definitions, events);
+      newState = runGameStateCheck(newState, definitions, events);
+    }
+
     // Clear within-chain snapshot carriers at action boundaries. These fields
     // (lastResolvedTarget, lastResolvedSource, lastDamageDealtAmount) are used
     // by DynamicAmounts and CardFilter refs that resolve within a single
@@ -1539,6 +1557,31 @@ function applyPassTurn(
   state = queueTriggersByEvent(state, "turn_end", playerId, definitions, {});
   state = processTriggerStack(state, definitions, events);
 
+  // If a turn_end trigger created a pendingChoice (Cinderella Dream Come True's
+  // "may put a card in inkwell to draw a card", etc.) or there are unprocessed
+  // triggers, defer the turn transition. applyAction's post-processing will
+  // complete the transition via performTurnTransition once the stack drains.
+  // Without this, cardsPlayedThisTurn would reset before subsequent turn_end
+  // triggers evaluate their conditions (breaking multi-trigger end-of-turn
+  // scenarios like two Cinderellas), the opponent's cards would ready before
+  // our effect finishes, and any chained triggers from within the effect
+  // (e.g. Oswald watching card_put_into_inkwell) would run against the new
+  // turn's "is_your_turn" context.
+  if (state.pendingChoice || state.triggerStack.length > 0) {
+    return { ...state, pendingTurnTransition: playerId };
+  }
+
+  return performTurnTransition(state, playerId, definitions, events);
+}
+
+function performTurnTransition(
+  state: GameState,
+  playerId: PlayerID,
+  definitions: Record<string, CardDefinition>,
+  events: GameEvent[],
+): GameState {
+  const opponent = getOpponent(playerId);
+
   // CRD 2.3.3.2: Player who ends turn with empty deck loses
   const deckAtEndOfTurn = getZone(state, playerId, "deck");
   if (deckAtEndOfTurn.length === 0) {
@@ -1553,6 +1596,7 @@ function applyPassTurn(
       ...state,
       isGameOver: true,
       winner,
+      pendingTurnTransition: undefined,
     };
   }
 
@@ -1795,7 +1839,7 @@ function applyPassTurn(
     type: "turn_start",
   });
 
-  return state;
+  return { ...state, pendingTurnTransition: undefined };
 }
 
 // CRD 1.12: Drawing — top card of deck to hand, one at a time
