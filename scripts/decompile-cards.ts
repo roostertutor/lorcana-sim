@@ -408,17 +408,29 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   deal_damage: (e) => {
     const amt = e.amount ?? 1;
     const amtStr = typeof amt === "number" ? `${up(e)}${amt}` : `damage equal to ${renderAmount(amt)}`;
+    let base: string;
     if (e.target?.chooser === "target_player") {
-      return typeof amt === "number"
+      base = typeof amt === "number"
         ? `${maybe(e)}each opponent chooses one of their characters and deals ${amtStr} damage to them`
         : `${maybe(e)}each opponent chooses one of their characters and deals ${amtStr} to them`;
+    } else {
+      base = typeof amt === "number"
+        ? `${maybe(e)}deal ${amtStr} damage to ${renderTarget(e.target ?? {})}`
+        : `${maybe(e)}deal ${amtStr} to ${renderTarget(e.target ?? {})}`;
     }
-    return typeof amt === "number"
-      ? `${maybe(e)}deal ${amtStr} damage to ${renderTarget(e.target ?? {})}`
-      : `${maybe(e)}deal ${amtStr} to ${renderTarget(e.target ?? {})}`;
+    if (e.followUpEffects?.length) {
+      const follow = e.followUpEffects.map((f: Json) => renderEffect(f)).join(". ");
+      return `${base}. Then, ${follow}`;
+    }
+    return base;
   },
   remove_damage:  (e) => `${maybe(e)}remove ${up(e)}${typeof e.amount === "number" ? e.amount : renderAmount(e.amount)} damage from ${renderTarget(e.target ?? {})}`,
-  move_damage:    (e) => `${maybe(e)}move ${up(e)}${e.amount ?? 1} damage from ${renderTarget(e.from ?? {})} to ${renderTarget(e.to ?? {})}`,
+  move_damage:    (e) => {
+    // CardJSON shape varies: legacy uses `from`/`to`, newer uses `source`/`destination`.
+    const from = e.from ?? e.source ?? {};
+    const to = e.to ?? e.destination ?? {};
+    return `${maybe(e)}move ${up(e)}${e.amount ?? 1} damage from ${renderTarget(from)} to ${renderTarget(to)}`;
+  },
 
   banish: (e) => {
     if (e.target?.chooser === "target_player") return `${maybe(e)}each opponent chooses and banishes one of their characters`;
@@ -776,7 +788,16 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   reveal_hand: (e) => `reveal ${renderTarget(e.target ?? {}) === "you" ? "your" : "each opponent's"} hand`,
 
   // "Name a card, then reveal the top of your deck" — The Sorcerer's Hat.
-  name_a_card_then_reveal: () => "name a card, then reveal the top card of your deck",
+  name_a_card_then_reveal: (e) => {
+    if (e.matchAction === "return_all_from_discard") {
+      return "name a card, then return all character cards with that name from your discard to your hand";
+    }
+    if (e.matchAction === "to_inkwell_exerted") {
+      return "name a card, then reveal the top card of your deck — if it's the named card, put it into your inkwell facedown and exerted";
+    }
+    const lore = e.gainLoreOnHit ? ` and gain ${e.gainLoreOnHit} lore` : "";
+    return `name a card, then reveal the top card of your deck — if it's the named card, put it into your hand${lore}; otherwise, put it on top of your deck`;
+  },
 
   // "Each opponent may discard a card. For each opponent who doesn't, [reward]."
   // Sign the Scroll, Ursula's Trickery.
@@ -805,11 +826,13 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   // Bolt Down but Not Out. Card simply enters play exerted.
   enter_play_exerted_self: () => "this character enters play exerted",
 
-  // "This character costs N less for each X you have" — Sherwood Forest
-  // Outlaw Hideaway pattern. `amount: "all"` means "by 1 per match".
+  // Location-keyed move-cost reduction. Jolly Roger Hook's Ship: "Your Pirate
+  // characters may move here for free" (amount: "all"). Sherwood Forest /
+  // Outlaw Hideaway: "Your Robin Hood characters may move here for free".
   move_to_self_cost_reduction: (e) => {
-    const filt = e.filter ? renderFilter(e.filter) : "matching characters";
-    return `this character costs 1 {I} less to play for each ${filt} you have`;
+    const filt = e.filter ? renderFilter(e.filter) : "characters";
+    if (e.amount === "all") return `your ${filt} may move here for free`;
+    return `your ${filt} pay ${e.amount ?? 1} {I} less to move here`;
   },
 
   // CRD must-quest (Reckless-style restriction). Often timed.
@@ -1033,7 +1056,7 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   prevent_lore_loss: () => "you can't lose lore",
   forced_target_priority: () => "this character must be chosen as a target if able",
   remove_named_ability: () => "remove a named ability from matching characters",
-  classification_shift_self: (e) => `this character gains Shift onto ${e.trait ?? "?"} characters`,
+  classification_shift_self: (e) => `${e.trait ?? "?"} Shift`,
   universal_shift_self: () => "this character gains Universal Shift",
   grant_trait_static: (e) => `${renderTarget(e.target ?? {})} gains the ${e.trait ?? "?"} classification`,
   conditional_challenger_self: (e) => `while challenging ${e.defenderFilter ? renderFilter(e.defenderFilter) : "a character"}, this character gets +${e.strength ?? 0} {S}`,
