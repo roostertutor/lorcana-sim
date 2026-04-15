@@ -565,6 +565,23 @@ describe("§6 Set 2 Card Coverage", () => {
   });
 
   // Pattern: ChooseEffect inside triggered ability — interactive mode
+  it("Lady Tremaine Imperious Queen POWER TO RULE: opponent picks which of their characters to banish", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let tremaineId: string, oppA: string, oppB: string;
+    ({ state, instanceId: tremaineId } = injectCard(state, "player1", "lady-tremaine-imperious-queen", "hand"));
+    ({ state, instanceId: oppA } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play", { isDrying: false }));
+    ({ state, instanceId: oppB } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
+
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: tremaineId }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // Opponent (player2) is the chooser
+    expect(r.newState.pendingChoice?.type).toBe("choose_target");
+    expect(r.newState.pendingChoice?.choosingPlayerId).toBe("player2");
+    // Valid targets are player2's own characters
+    expect(r.newState.pendingChoice?.validTargets).toEqual(expect.arrayContaining([oppA, oppB]));
+  });
+
   it("Madam Mim Fox: choose banish self or return another (ChooseEffect in trigger)", () => {
     let state = startGame(["madam-mim-fox"]);
     state = { ...state, interactive: true };

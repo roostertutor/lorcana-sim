@@ -3086,7 +3086,7 @@
               "type": "chosen",
               "filter": {
                 "owner": {
-                  "type": "opponent"
+                  "type": "self"
                 },
                 "zone": "play",
                 "cardType": [

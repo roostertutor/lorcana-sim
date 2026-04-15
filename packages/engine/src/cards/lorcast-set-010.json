@@ -2120,14 +2120,15 @@
               "type": "chosen",
               "filter": {
                 "owner": {
-                  "type": "opponent"
+                  "type": "self"
                 },
                 "zone": "play",
                 "cardType": [
                   "character"
                 ],
                 "isExerted": false
-              }
+              },
+              "chooser": "target_player"
             }
           }
         ]
@@ -3541,7 +3542,7 @@
           "type": "chosen",
           "filter": {
             "owner": {
-              "type": "opponent"
+              "type": "self"
             },
             "zone": "play",
             "cardType": [
