@@ -885,6 +885,40 @@ describe("§4 Set 4 — Diablo Devoted Herald (altShiftCost discard)", () => {
     expect(getInstance(r.newState, shiftId).playedViaShift).toBe(true);
   });
 
+  it("alt-shift: trace — Diablo Devoted Herald + action in hand, base Diablo in play", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let baseId: string, shiftId: string, actionId: string;
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "diablo-maleficents-spy", "play"));
+    ({ state, instanceId: shiftId } = injectCard(state, "player1", "diablo-devoted-herald", "hand"));
+    ({ state, instanceId: actionId } = injectCard(state, "player1", "be-prepared", "hand"));
+
+    const legal = getAllLegalActions(state, "player1", LORCAST_CARD_DEFINITIONS);
+    const diabloPlays = legal.filter(a => a.type === "PLAY_CARD" && a.instanceId === shiftId);
+    // Two legal plays: normal (cost 3) + shift onto base (alt-cost discard)
+    const normal = diabloPlays.find(a => !a.shiftTargetInstanceId);
+    const shift = diabloPlays.find(a => a.shiftTargetInstanceId === baseId);
+    expect(normal).toBeDefined();
+    expect(shift).toBeDefined();
+    expect((shift as any).altShiftCostInstanceIds).toBeUndefined();
+
+    // Apply shift → pendingChoice for discard cost.
+    let r = applyAction(state, shift!, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(r.newState.pendingChoice?.type).toBe("choose_target");
+    expect(r.newState.pendingChoice?.count).toBe(1);
+    // Ink NOT spent yet (alt cost is discard, not ink)
+    expect(r.newState.players.player1.availableInk).toBe(10);
+
+    // Resolve → action discarded, Diablo shifts, STILL 0 ink spent.
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [actionId] }, LORCAST_CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(r.newState.players.player1.availableInk).toBe(10);
+    expect(getInstance(r.newState, actionId).zone).toBe("discard");
+    expect(getInstance(r.newState, shiftId).zone).toBe("play");
+    expect(getInstance(r.newState, shiftId).playedViaShift).toBe(true);
+  });
+
   it("alt-shift: blocked when no eligible action card in hand", () => {
     let state = startGame();
     let baseId: string, shiftId: string;
