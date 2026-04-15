@@ -237,7 +237,13 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
   controls_location:          ()  => "if you have a location in play",
   // `not` wraps a sub-condition. Renders as "unless ..." so it slots into
   // "this character can't quest UNLESS you have another Seven Dwarfs in play".
-  not:                        (c) => "unless " + stripIfPrefix(renderCondition(c.condition ?? {})),
+  not:                        (c) => {
+    // Special-case: not(is_your_turn) → "during opponents' turns" (Magica De
+    // Spell Cruel Sorceress PLAYING WITH POWER). Reads far better than the
+    // generic "unless during your turn".
+    if (c.condition?.type === "is_your_turn") return "during opponents' turns";
+    return "unless " + stripIfPrefix(renderCondition(c.condition ?? {}));
+  },
 
   // ---- Compound logic ------------------------------------------------------
   compound_and:               (c) => "if " + (c.conditions ?? []).map((sub: Json) => stripIfPrefix(renderCondition(sub))).join(" and "),
@@ -554,7 +560,19 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     // the engine.
     if (e.target?.type === "last_resolved_target") return "";
     const costClause = e.cost === "normal" ? "" : " for free";
-    return `${maybe(e)}play ${e.filter ? renderFilter(e.filter) : "a card"}${costClause}`;
+    // sourceZone qualifier (hand is the unstated default; discard/under are
+    // meaningful). Under-self (Black Cauldron RISE AND JOIN ME!) reads as
+    // "this turn, you may play characters from under this item".
+    const sz = e.sourceZone;
+    const filter = e.filter ? renderFilter(e.filter) : "a card";
+    const plural = filter.endsWith("s") ? filter : `${filter}s`;
+    if (sz === "under") {
+      return `${maybe(e)}this turn, you may play ${plural} from under this item${costClause}`;
+    }
+    if (sz === "discard") {
+      return `${maybe(e)}play ${filter} from your discard${costClause}`;
+    }
+    return `${maybe(e)}play ${filter}${costClause}`;
   },
 
   look_at_top: (e) => {
@@ -638,7 +656,11 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   },
   search: (e) => {
     const filter = e.filter ? renderFilter(e.filter) : "a card";
-    if (e.zone === "discard") return `return ${filter} from your discard to your hand`;
+    // From-discard paths: Black Cauldron (under_self), basic return-to-hand, etc.
+    if (e.zone === "discard") {
+      if (e.putInto === "under_self") return `put ${filter} from your discard under this item faceup`;
+      return `return ${filter} from your discard to your hand`;
+    }
     const dest = e.putInto === "deck" && e.position === "top"
       ? ". Shuffle your deck and put that card on top of it"
       : e.putInto === "hand" ? " and put it into your hand" : "";
@@ -723,9 +745,9 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   },
 
   opponent_chooses_yes_or_no: (e) => {
-    const yes = e.acceptEffect ? renderEffect(e.acceptEffect) : "accept";
-    const no = e.rejectEffect ? renderEffect(e.rejectEffect) : "decline";
-    return `chosen opponent chooses: YES! ${yes}. NO! ${no}`;
+    const yes = renderEffect(e.yesEffect ?? e.acceptEffect ?? {});
+    const no = renderEffect(e.noEffect ?? e.rejectEffect ?? {});
+    return `chosen opponent chooses YES! or NO!: YES! ${yes}. NO! ${no}`;
   },
 
   // Timed variant of cant_be_challenged (Kanga Nurturing Mother "until your
@@ -1040,7 +1062,7 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     const subject = filter ? `${scope} ${filter}` : scope;
     return e.isMay ? `${subject} may ${inner}` : `${subject} ${inner}`;
   },
-  prevent_discard_from_hand: () => "you can't discard cards from your hand",
+  prevent_discard_from_hand: () => "if an effect would cause you to discard one or more cards from your hand, you don't discard",
   inkwell_enters_exerted: () => "cards added to inkwell enter exerted",
   move_all_matching_to_inkwell: (e) => {
     const filt = e.filter ? renderFilter(e.filter) : "cards";
@@ -1061,7 +1083,7 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   return_all_to_bottom_in_order: (e) => `put all ${e.filter ? renderFilter(e.filter) : "characters"} on the bottom of their players' decks`,
   modify_win_threshold: (e) => `${e.affectedPlayer?.type === "opponent" ? "opponents" : "you"} need ${e.newThreshold ?? "?"} lore to win`,
   stat_floor_printed: (e) => `${renderTarget(e.target ?? {})} ${e.stat ?? "strength"} can't be reduced below printed value`,
-  ink_from_discard: () => "you may put cards from your discard into your inkwell",
+  ink_from_discard: () => "you can ink cards from your discard",
   restrict_remembered_target_action: (e) => `remembered target can't ${e.action ?? "act"}`,
   banish_item: (e) => `${maybe(e)}banish ${renderTarget(e.target ?? {})}`,
   sing_cost_bonus_here: (e) => `characters here count as having +${e.amount ?? 0} cost to sing songs`,
@@ -1079,9 +1101,9 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     return `if ${min} or more characters sang this song, ready them${follow}`;
   },
   skip_draw_step_self: () => "you skip your draw step",
-  one_challenge_per_turn_global: () => "each player may only challenge once per turn",
+  one_challenge_per_turn_global: () => "each turn, only one character can challenge",
   prevent_lore_loss: () => "you can't lose lore",
-  forced_target_priority: () => "this character must be chosen as a target if able",
+  forced_target_priority: () => "opponents must choose this character for actions and abilities if able",
   remove_named_ability: () => "remove a named ability from matching characters",
   classification_shift_self: (e) => `${e.trait ?? "?"} Shift`,
   universal_shift_self: () => "this character gains Universal Shift",
@@ -1364,7 +1386,16 @@ function renderFilter(f: Json, opts?: { suppressOwnerSelf?: boolean }): string {
   }
   if (f.strengthAtMost !== undefined) bits.push(`with ${f.strengthAtMost} {S} or less`);
   if (f.strengthAtLeast !== undefined) bits.push(`with ${f.strengthAtLeast} {S} or more`);
+  // Magica De Spell Thieving Sorceress: "chosen item with cost equal to or
+  // less than this character's {S}" — the source's live strength is the cap.
+  if (f.costAtMostFromSourceStrength) bits.push("with cost equal to or less than this character's {S}");
   if (f.hasDamage) bits.push("with damage");
+  // Hades Double Dealer: play a character "with the same name as the
+  // banished character" — nameFromLastResolvedSource pins the name to
+  // state.lastResolvedSource (set by the preceding banish effect).
+  if (f.nameFromLastResolvedSource) bits.push("with the same name as the banished character");
+  if (f.nameFromLastResolvedTarget) bits.push("with the same name as the chosen card");
+  if (f.nameFromSource) bits.push("with the same name as this character");
   if (f.hasCardUnder) bits.push("with a card under them");
   if (f.challengedThisTurn) bits.push("that challenged this turn");
   if (f.inkable) bits.push("with {IW}");
