@@ -1289,7 +1289,13 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
         // under each_player the iteration player picks their own discard
         // (matches oracle wording: "each opponent chooses and discards").
         .replace(/\bdiscard (\d+) cards?\b/g, (_, n) => `chooses and discards ${n} card${n === "1" ? "" : "s"}`)
-        .replace(/\bdiscard their hand\b/g, "discards their hand");
+        .replace(/\bdiscard their hand\b/g, "discards their hand")
+        // "chosen X of yours" → "chosen X" under each_player (no longer the
+        // caster's own — each iteration owns its picks). Falling Down the
+        // Rabbit Hole: "chooses one of their characters".
+        .replace(/\bchosen ([a-z]+) of yours\b/g, "chosen $1")
+        // "put X into" verb-agrees with the singular "each player" subject.
+        .replace(/\bput ([a-z ]+) into their\b/g, "puts $1 into their");
     const inner = Array.isArray(e.effects)
       ? rewriteInnerPerspective(e.effects.map(renderEffect).join(" and "))
       : "[no effects]";
@@ -1751,6 +1757,8 @@ function renderFilter(f: Json, opts?: { suppressOwnerSelf?: boolean }): string {
   // less than this character's {S}" — the source's live strength is the cap.
   if (f.costAtMostFromSourceStrength) bits.push("with cost equal to or less than this character's {S}");
   if (f.hasDamage) bits.push("with damage");
+  // Tug-of-War: "each opposing character without Evasive".
+  if (f.lacksKeyword) bits.push(`without ${cap(f.lacksKeyword)}`);
   // Hades Double Dealer: play a character "with the same name as the
   // banished character" — nameFromLastResolvedSource pins the name to
   // state.lastResolvedSource (set by the preceding banish effect).

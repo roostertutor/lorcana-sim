@@ -2295,6 +2295,9 @@ export interface CardFilter {
   /** Match cards that have ANY of these traits */
   hasAnyTrait?: string[];
   hasKeyword?: Keyword;
+  /** Negated keyword check — matches cards that do NOT have the keyword.
+   *  Used by Tug-of-War ("each opposing character without Evasive"). */
+  lacksKeyword?: Keyword;
   isExerted?: boolean;
   costAtMost?: number;
   /** Dynamic cost cap: `state.lastResolvedSource.cost + offset`. Used by Retro

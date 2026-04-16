@@ -376,6 +376,12 @@ export function matchesFilter(
     if (!hasKeyword(instance, definition, filter.hasKeyword)) return false;
   }
 
+  // Tug-of-War: "each opposing character without Evasive" — match cards
+  // that do NOT have the keyword.
+  if (filter.lacksKeyword) {
+    if (hasKeyword(instance, definition, filter.lacksKeyword)) return false;
+  }
+
   if (filter.isExerted !== undefined) {
     if (instance.isExerted !== filter.isExerted) return false;
   }

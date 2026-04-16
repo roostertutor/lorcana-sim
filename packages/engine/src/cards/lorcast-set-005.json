@@ -11032,20 +11032,48 @@
     ],
     "actionEffects": [
       {
-        "type": "deal_damage",
-        "amount": 1,
-        "target": {
-          "type": "all",
-          "filter": {
-            "owner": {
-              "type": "opponent"
-            },
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
-          }
-        }
+        "type": "choose",
+        "count": 1,
+        "options": [
+          [
+            {
+              "type": "deal_damage",
+              "amount": 1,
+              "target": {
+                "type": "all",
+                "filter": {
+                  "owner": {
+                    "type": "opponent"
+                  },
+                  "zone": "play",
+                  "cardType": [
+                    "character"
+                  ],
+                  "lacksKeyword": "evasive"
+                }
+              }
+            }
+          ],
+          [
+            {
+              "type": "deal_damage",
+              "amount": 3,
+              "target": {
+                "type": "all",
+                "filter": {
+                  "owner": {
+                    "type": "opponent"
+                  },
+                  "zone": "play",
+                  "cardType": [
+                    "character"
+                  ],
+                  "hasKeyword": "evasive"
+                }
+              }
+            }
+          ]
+        ]
       }
     ]
   },

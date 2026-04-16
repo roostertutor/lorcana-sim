@@ -33,20 +33,19 @@ describe("§9 Set 9 — Max Goof Rockin' Teen (cant_action_self move)", () => {
     expect(r.error).toMatch(/can't move/i);
   });
 
-  it("Magic Carpet GLIDING RIDE cannot move Max Goof either (effect-based moves honor cant_action_self)", () => {
+  it("Magic Carpet FIND THE WAY cannot move Max Goof either (effect-based moves honor cant_action_self)", () => {
     // The "can't move" restriction must apply regardless of how the move is
     // initiated — both player MOVE_CHARACTER actions AND effect-driven moves
-    // (Magic Carpet, Jim Hawkins TAKE THE HELM) should be blocked.
+    // (Magic Carpet's activated FIND THE WAY, Jim Hawkins TAKE THE HELM)
+    // should be blocked.
     let state = startGame();
-    state = giveInk(state, "player1", 5);
     let maxId: string, locId: string, carpetId: string;
     ({ state, instanceId: maxId } = injectCard(state, "player1", "max-goof-rockin-teen", "play", { isDrying: false }));
     ({ state, instanceId: locId } = injectCard(state, "player1", "never-land-mermaid-lagoon", "play", { isDrying: false }));
-    ({ state, instanceId: carpetId } = injectCard(state, "player1", "magic-carpet-flying-rug", "hand"));
+    ({ state, instanceId: carpetId } = injectCard(state, "player1", "magic-carpet-flying-rug", "play", { isDrying: false }));
 
-    // Play Magic Carpet — fires GLIDING RIDE, which lets the controller pick a
-    // character + location to move via the move_character effect.
-    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: carpetId }, LORCAST_CARD_DEFINITIONS);
+    // Activate FIND THE WAY — exert + choose character + location.
+    let r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: carpetId, abilityIndex: 1 }, LORCAST_CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 

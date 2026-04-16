@@ -644,16 +644,15 @@ describe("§7 Set 3 — Locations", () => {
     expect(state.players.player1.availableInk).toBe(4);
   });
 
-  it("Magic Carpet GLIDING RIDE: enters_play triggers chained choose for character + location", () => {
+  it("Magic Carpet FIND THE WAY: activated ability chains choose for character + location", () => {
     let state = startGame();
-    state = giveInk(state, "player1", 5);
     let mickeyId: string, locId: string, carpetId: string;
     ({ state, instanceId: mickeyId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
     ({ state, instanceId: locId } = injectCard(state, "player1", "never-land-mermaid-lagoon", "play", { isDrying: false }));
-    ({ state, instanceId: carpetId } = injectCard(state, "player1", "magic-carpet-flying-rug", "hand"));
+    ({ state, instanceId: carpetId } = injectCard(state, "player1", "magic-carpet-flying-rug", "play", { isDrying: false }));
 
-    // Play Magic Carpet — fires GLIDING RIDE.
-    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: carpetId }, LORCAST_CARD_DEFINITIONS);
+    // Activate FIND THE WAY (exert cost → choose character + location).
+    let r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: carpetId, abilityIndex: 1 }, LORCAST_CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 

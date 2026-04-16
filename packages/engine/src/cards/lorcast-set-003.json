@@ -2648,43 +2648,6 @@
         "keyword": "evasive"
       },
       {
-        "type": "triggered",
-        "storyName": "FIND THE WAY",
-        "rulesText": "When you play this character, move a character of yours to a location for free.",
-        "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "move_character",
-            "character": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ]
-              }
-            },
-            "location": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "play",
-                "cardType": [
-                  "location"
-                ]
-              }
-            }
-          }
-        ]
-      },
-      {
         "type": "activated",
         "storyName": "FIND THE WAY",
         "rulesText": "{E} — Move a character of yours to a location for free.",
