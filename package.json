@@ -17,6 +17,7 @@
     "audit-lorcast": "tsx scripts/audit-lorcast-data.ts",
     "catalog": "tsx scripts/catalog-primitives.ts > docs/ENGINE_PRIMITIVES.md",
     "decompile-cards": "tsx scripts/decompile-cards.ts",
+    "compile-cards": "tsx scripts/compile-cards.ts",
     "train-mirror": "tsx --tsconfig scripts/tsconfig.scripts.json scripts/train-mirror.ts",
     "card-status": "tsx --tsconfig scripts/tsconfig.scripts.json scripts/card-status.ts"
   },
