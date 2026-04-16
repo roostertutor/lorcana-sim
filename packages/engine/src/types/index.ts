@@ -2350,6 +2350,9 @@ export interface CardFilter {
   /** CRD 8.4.2: Match characters/locations with at least one card in their
    *  cards-under pile ("with a card under them", "while there's a card under"). */
   hasCardUnder?: boolean;
+  /** Match cards with the {IW} inkable mark. Used by Stitch Experiment 626
+   *  STEALTH MODE ("choose and discard a card with {IW}"). */
+  inkable?: boolean;
   /** CRD 5.6.4: Match characters currently at the source location ("while here")
    *  or at any location ("while at a location"). */
   atLocation?: "this" | "any";

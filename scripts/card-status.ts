@@ -81,6 +81,25 @@ const VALID_TARGET_TYPES = new Set([
   "from_last_discarded", "chosen", "all", "random", "target_owner",
 ]);
 
+/** Extract the field names declared inside an interface body. Handles the
+ *  common shapes we care about (property name followed by `?:` or `:`). */
+function extractInterfaceFields(source: string, interfaceName: string): Set<string> {
+  const re = new RegExp(`export interface ${interfaceName}\\s*\\{([\\s\\S]*?)\\n\\}`, "m");
+  const match = source.match(re);
+  if (!match) return new Set();
+  const fields = new Set<string>();
+  // Match `fieldName?: ` or `fieldName: ` at line starts (after whitespace/indent)
+  for (const m of match[1]!.matchAll(/^\s+([a-zA-Z_][a-zA-Z0-9_]*)\??:\s/gm)) {
+    fields.add(m[1]!);
+  }
+  return fields;
+}
+
+// CardFilter field names — catches silent wiring bugs like `maxStrength`
+// vs `strengthAtMost`, `inkColor` vs `inkColors`, `hasCardsUnder` vs
+// `hasCardUnder`, `notId` vs `excludeSelf`, etc.
+const VALID_CARDFILTER_FIELDS = extractInterfaceFields(typesSource, "CardFilter");
+
 interface FieldError {
   path: string;
   field: string;
@@ -119,14 +138,45 @@ function validateCardFields(card: any): FieldError[] {
     if (e.keywordValue !== undefined) {
       errors.push({ path, field: "keywordValue", value: e.keywordValue, validValues: "use 'value' instead of 'keywordValue'" });
     }
-    // Check filters for deprecated field names
+    // Check filters for unknown field names — catches silent wiring bugs
+    // (maxStrength vs strengthAtMost, inkColor vs inkColors, hasCardsUnder
+    // vs hasCardUnder, notId vs excludeSelf, hasNoTrait typos, etc.). The
+    // reducer reads the canonical field name only; unknown fields are
+    // silent no-ops and the filter predicate is skipped.
     const checkFilter = (f: any, fp: string) => {
-      if (f?.maxCost !== undefined) {
-        errors.push({ path: fp, field: "maxCost", value: f.maxCost, validValues: "use 'costAtMost' instead of 'maxCost'" });
+      if (!f || typeof f !== "object") return;
+      for (const key of Object.keys(f)) {
+        if (!VALID_CARDFILTER_FIELDS.has(key)) {
+          errors.push({
+            path: fp,
+            field: key,
+            value: JSON.stringify(f[key]),
+            validValues: "not a CardFilter field — likely a typo (check types/index.ts)",
+          });
+        }
+      }
+      // Recurse into anyOf sub-filters.
+      if (Array.isArray(f.anyOf)) {
+        f.anyOf.forEach((sub: any, i: number) => checkFilter(sub, `${fp}.anyOf[${i}]`));
       }
     };
-    if (e.filter) checkFilter(e.filter, path + ".filter");
+    // each_player's `filter` field is a PlayerFilter (different union:
+    // player_vs_caster / player_is_group_extreme / player_metric), not a
+    // CardFilter. Skip CardFilter validation for it.
+    if (e.filter && e.type !== "each_player") checkFilter(e.filter, path + ".filter");
     if (e.target?.filter) checkFilter(e.target.filter, path + ".target.filter");
+    if (e.source?.filter) checkFilter(e.source.filter, path + ".source.filter");
+    if (e.destination?.filter) checkFilter(e.destination.filter, path + ".destination.filter");
+    if (e.character?.filter) checkFilter(e.character.filter, path + ".character.filter");
+    if (e.location?.filter) checkFilter(e.location.filter, path + ".location.filter");
+    if (e.conditionFilter) checkFilter(e.conditionFilter, path + ".conditionFilter");
+    if (e.targetFilter) checkFilter(e.targetFilter, path + ".targetFilter");
+    if (e.countFilter) checkFilter(e.countFilter, path + ".countFilter");
+    if (e.bonusFilter) checkFilter(e.bonusFilter, path + ".bonusFilter");
+    // DynamicAmount-shaped amount field can carry a filter.
+    if (typeof e.amount === "object" && e.amount?.filter) checkFilter(e.amount.filter, path + ".amount.filter");
+    // Trigger filters also live on triggers.
+    if (e.trigger?.filter) checkFilter(e.trigger.filter, path + ".trigger.filter");
     // Check targets
     if (e.target) checkType(e.target, path + ".target");
     if (e.from) checkType(e.from, path + ".from");
@@ -156,6 +206,22 @@ function validateCardFields(card: any): FieldError[] {
     // Check trigger event name
     if (ab.trigger?.on) {
       checkOn(ab.trigger, path + ".trigger");
+    }
+    // Validate fields on the trigger's CardFilter (if any). Triggers carry
+    // their filter at ab.trigger.filter (not under an effect), so the
+    // walkEffect checks don't see it.
+    if (ab.trigger?.filter) {
+      const tf = ab.trigger.filter;
+      for (const key of Object.keys(tf)) {
+        if (!VALID_CARDFILTER_FIELDS.has(key)) {
+          errors.push({
+            path: `${path}.trigger.filter`,
+            field: key,
+            value: JSON.stringify(tf[key]),
+            validValues: "not a CardFilter field — likely a typo (check types/index.ts)",
+          });
+        }
+      }
     }
     // Check condition on ability
     if (ab.condition) walkCondition(ab.condition, path + ".condition");

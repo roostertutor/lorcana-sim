@@ -470,6 +470,12 @@ export function matchesFilter(
     if (!filter.hasCardUnder && has) return false;
   }
 
+  // Stitch Experiment 626 STEALTH MODE: "a card with {IW}" — the printed
+  // inkable flag from the card definition.
+  if (filter.inkable !== undefined) {
+    if (filter.inkable !== definition.inkable) return false;
+  }
+
   // OR-of-subfilters at the filter-clause level. Top-level fields are AND'd
   // (handled above); anyOf adds an OR group on top of that. The instance must
   // match at least ONE entry. Each entry is a full CardFilter, evaluated

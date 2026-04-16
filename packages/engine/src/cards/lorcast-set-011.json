@@ -8042,7 +8042,7 @@
               "cardType": [
                 "character"
               ],
-              "name": "Darkwing Duck"
+              "hasName": "Darkwing Duck"
             }
           }
         }

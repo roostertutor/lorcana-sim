@@ -655,7 +655,7 @@
                 "cardType": [
                   "character"
                 ],
-                "name": "Hen Wen"
+                "hasName": "Hen Wen"
               }
             }
           }
@@ -3798,7 +3798,7 @@
               "cardType": [
                 "character"
               ],
-              "name": "Demona"
+              "hasName": "Demona"
             }
           }
         }

@@ -387,7 +387,7 @@
               "cardType": [
                 "character"
               ],
-              "name": "Mickey Mouse"
+              "hasName": "Mickey Mouse"
             }
           }
         }
@@ -13907,7 +13907,7 @@
               "cardType": [
                 "character"
               ],
-              "name": "Mickey Mouse"
+              "hasName": "Mickey Mouse"
             }
           }
         }
