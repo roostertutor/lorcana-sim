@@ -4966,18 +4966,27 @@
     ],
     "actionEffects": [
       {
-        "type": "draw",
-        "amount": "song_singer_count",
-        "target": {
-          "type": "self"
-        }
-      },
-      {
-        "type": "gain_lore",
-        "amount": "song_singer_count",
-        "target": {
-          "type": "self"
-        }
+        "type": "each_target",
+        "source": {
+          "type": "state_ids",
+          "key": "lastSongSingerIds"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "singTogetherCost": 9
@@ -13049,18 +13058,27 @@
     ],
     "actionEffects": [
       {
-        "type": "draw",
-        "amount": "song_singer_count",
-        "target": {
-          "type": "self"
-        }
-      },
-      {
-        "type": "gain_lore",
-        "amount": "song_singer_count",
-        "target": {
-          "type": "self"
-        }
+        "type": "each_target",
+        "source": {
+          "type": "state_ids",
+          "key": "lastSongSingerIds"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "singTogetherCost": 9

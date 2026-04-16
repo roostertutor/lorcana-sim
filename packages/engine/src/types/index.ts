@@ -200,7 +200,6 @@ export type Effect =
   | DamagePreventionTimedEffect
   | PutCardsUnderIntoHandEffect
   | MoveCardsUnderToTargetEffect
-  | ReadySingersEffect
   | MoveCardsUnderToInkwellEffect
   | MoveAllMatchingToInkwellEffect
   | ConditionalOnLastDiscardedEffect
@@ -244,7 +243,8 @@ export type Effect =
   | RememberChosenTargetEffect
   | SingCostBonusTargetEffect
   | CreateDelayedTriggerEffect
-  | EachPlayerEffect;
+  | EachPlayerEffect
+  | EachTargetEffect;
 
 /**
  * The Return of Hercules: "Each player may reveal a character card from their
@@ -322,6 +322,38 @@ export type PlayerFilter =
   | { type: "player_vs_caster"; metric: PlayerMetric; op: ">" | ">=" | "<" | "<=" | "==" }
   | { type: "player_is_group_extreme"; metric: PlayerMetric; mode: "most" | "fewest" }
   | { type: "player_metric"; metric: PlayerMetric; op: ">" | ">=" | "<" | "<=" | "=="; amount: number };
+
+/**
+ * Iterate over a runtime-resolved set of card instance IDs and apply inner
+ * effects to each. The per-iteration target becomes available as
+ * `triggeringCardInstanceId` for inner effects that reference it (e.g.
+ * `target: { type: "triggering_card" }` resolves to the current iteration's
+ * instance).
+ *
+ * State-stored ID source keys:
+ *  - `"lastSongSingerIds"` — IDs of characters that sang the current song
+ *    (set during song play resolution). Used by I2I ("if 2+ characters sang
+ *    this song, ready them, they can't quest") and Fantastical and Magical
+ *    ("for each character that sang this song, draw a card and gain 1 lore").
+ *
+ * Optional `minCount`: skip entirely if the resolved set has fewer IDs than
+ * this threshold (I2I's "if 2 or more characters sang this song" gate).
+ *
+ * Design parallel: `each_player` iterates over players; `each_target`
+ * iterates over cards. Both chain via `pendingEffectQueue` when a
+ * mid-iteration pendingChoice suspends work.
+ */
+export interface EachTargetEffect {
+  type: "each_target";
+  /** Where to read the instance ID list from the game state. */
+  source: { type: "state_ids"; key: "lastSongSingerIds" };
+  /** Effects applied per target. The iteration target is passed as
+   *  `triggeringCardInstanceId` so inner effects can reference it. */
+  effects: Effect[];
+  /** Skip entirely if the resolved ID set has fewer than this many entries.
+   *  I2I uses `minCount: 2` ("if 2 or more characters sang this song"). */
+  minCount?: number;
+}
 
 /**
  * Desperate Plan: "If you have no cards in your hand, draw until you have 3.
@@ -793,15 +825,9 @@ export interface ReturnAllToBottomInOrderEffect {
  *  cardsUnder pile to the chosen target's cardsUnder pile. */
 /** I2I (Set 9): "If 2 or more characters sang this song, ready them. They
  *  can't quest for the rest of this turn." Targets the characters from
- *  `state.lastSongSingerIds`. Reusable for any Sing Together card that
- *  has conditional effects on the singers. */
-export interface ReadySingersEffect {
-  type: "ready_singers";
-  /** Minimum number of singers required for the effect to fire. */
-  minSingers?: number;
-  /** Effects to apply to each singer after readying (e.g. can't quest). */
-  followUpEffects?: Effect[];
-}
+ *  `state.lastSongSingerIds`. Subsumed by `each_target` with
+ *  `source: { type: "state_ids", key: "lastSongSingerIds" }`. */
+// ReadySingersEffect: DELETED — use each_target instead.
 
 export interface MoveCardsUnderToTargetEffect {
   type: "move_cards_under_to_target";

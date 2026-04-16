@@ -7326,14 +7326,24 @@
         ]
       },
       {
-        "type": "ready_singers",
-        "minSingers": 2,
-        "followUpEffects": [
+        "type": "each_target",
+        "source": {
+          "type": "state_ids",
+          "key": "lastSongSingerIds"
+        },
+        "minCount": 2,
+        "effects": [
+          {
+            "type": "ready",
+            "target": {
+              "type": "triggering_card"
+            }
+          },
           {
             "type": "cant_action",
             "action": "quest",
             "target": {
-              "type": "this"
+              "type": "triggering_card"
             },
             "duration": "end_of_turn"
           }
@@ -13335,14 +13345,24 @@
         ]
       },
       {
-        "type": "ready_singers",
-        "minSingers": 2,
-        "followUpEffects": [
+        "type": "each_target",
+        "source": {
+          "type": "state_ids",
+          "key": "lastSongSingerIds"
+        },
+        "minCount": 2,
+        "effects": [
+          {
+            "type": "ready",
+            "target": {
+              "type": "triggering_card"
+            }
+          },
           {
             "type": "cant_action",
             "action": "quest",
             "target": {
-              "type": "this"
+              "type": "triggering_card"
             },
             "duration": "end_of_turn"
           }

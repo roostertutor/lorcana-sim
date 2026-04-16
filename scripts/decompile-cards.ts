@@ -1139,12 +1139,17 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   put_self_under_target: (e) => `put this card under ${e.filter ? renderFilter(e.filter) : "a character"}`,
   sing_cost_bonus_target: (e) => `${renderTarget(e.target ?? {})} counts as having +${e.amount ?? 0} cost to sing songs${dur(e)}`,
   top_of_deck_visible: () => "the top card of your deck is played face up",
-  ready_singers: (e) => {
-    const min = e.minSingers ?? 2;
-    const follow = Array.isArray(e.followUpEffects) && e.followUpEffects.length > 0
-      ? `. ${e.followUpEffects.map(renderEffect).join(". ")}`
-      : "";
-    return `if ${min} or more characters sang this song, ready them${follow}`;
+  each_target: (e) => {
+    const inner = Array.isArray(e.effects)
+      ? e.effects.map(renderEffect).filter(Boolean).join(" and ")
+      : "[no effects]";
+    const min = e.minCount;
+    const key = e.source?.key;
+    if (key === "lastSongSingerIds") {
+      if (min) return `if ${min} or more characters sang this song, for each of them, ${inner}`;
+      return `for each character that sang this song, ${inner}`;
+    }
+    return `for each target, ${inner}`;
   },
   skip_draw_step_self: () => "you skip your draw step",
   one_challenge_per_turn_global: () => "each turn, only one character can challenge",

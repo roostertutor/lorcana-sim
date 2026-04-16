@@ -3263,25 +3263,9 @@ export function applyEffect(
       return state;
     }
 
-    case "ready_singers": {
-      // I2I: "If 2 or more characters sang this song, ready them."
-      // Reads from state.lastSongSingerIds (set during song play resolution).
-      const singerIds = state.lastSongSingerIds ?? [];
-      const minSingers = effect.minSingers ?? 2;
-      if (singerIds.length < minSingers) return state;
-      for (const sid of singerIds) {
-        const singer = state.cards[sid];
-        if (!singer || singer.zone !== "play") continue;
-        state = updateInstance(state, sid, { isExerted: false });
-        // Apply follow-up effects (e.g. "can't quest for the rest of this turn")
-        if (effect.followUpEffects) {
-          for (const followUp of effect.followUpEffects) {
-            state = applyEffect(state, followUp, sid, controllingPlayerId, definitions, events, triggeringCardInstanceId);
-          }
-        }
-      }
-      return state;
-    }
+    // ready_singers: DELETED — subsumed by each_target with
+    // source: { type: "state_ids", key: "lastSongSingerIds" }.
+    // I2I and Fantastical and Magical now use each_target directly.
 
     case "move_cards_under_to_target": {
       // Mickey Mouse Bob Cratchit: "put all cards that were under him under
@@ -4310,6 +4294,73 @@ export function applyEffect(
       if (remainingIterations.length > 0) {
         const next: EachPlayerEffect = { ...effect, _iterations: remainingIterations };
         return applyEffect(state, next, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+      }
+      return state;
+    }
+
+    case "each_target": {
+      // Iterate over a runtime-resolved set of card instance IDs and apply
+      // inner effects to each. Design parallel to each_player (which iterates
+      // players). The per-iteration target is passed as triggeringCardInstanceId
+      // so inner effects can reference it via target: triggering_card.
+      let targetIds: string[];
+      // _resolvedIds: internal field set when resuming from pendingEffectQueue.
+      // When present, skip the state lookup (IDs were already resolved before
+      // the choice interrupted us).
+      if ((effect as any)._resolvedIds) {
+        targetIds = (effect as any)._resolvedIds;
+      } else if (effect.source.type === "state_ids") {
+        switch (effect.source.key) {
+          case "lastSongSingerIds":
+            targetIds = [...(state.lastSongSingerIds ?? [])];
+            break;
+          default:
+            targetIds = [];
+        }
+      } else {
+        targetIds = [];
+      }
+      // minCount gate (I2I: "if 2 or more characters sang this song").
+      if (effect.minCount !== undefined && targetIds.length < effect.minCount) return state;
+      // Filter to only in-play instances (singers may have been banished since
+      // the song resolved).
+      targetIds = targetIds.filter(id => {
+        const inst = state.cards[id];
+        return inst && inst.zone === "play";
+      });
+      // Process each target inline. On pendingChoice, queue the rest.
+      for (let i = 0; i < targetIds.length; i++) {
+        const tid = targetIds[i]!;
+        for (let j = 0; j < effect.effects.length; j++) {
+          const sub = effect.effects[j]!;
+          state = applyEffect(state, sub, tid, controllingPlayerId, definitions, events, tid);
+          if (state.pendingChoice) {
+            // Queue remaining sub-effects for this target + remaining targets.
+            const remainingSubs = effect.effects.slice(j + 1);
+            const remainingTargets = targetIds.slice(i + 1);
+            const entries: Effect[] = [];
+            if (remainingSubs.length > 0) {
+              entries.push({
+                type: "each_target",
+                source: effect.source,
+                effects: remainingSubs,
+                _resolvedIds: [tid],
+              } as any);
+            }
+            if (remainingTargets.length > 0) {
+              entries.push({
+                type: "each_target",
+                source: effect.source,
+                effects: effect.effects,
+                _resolvedIds: remainingTargets,
+              } as any);
+            }
+            if (entries.length > 0) {
+              state = queueAfterCurrent(state, entries, sourceInstanceId, controllingPlayerId);
+            }
+            return state;
+          }
+        }
       }
       return state;
     }
