@@ -411,7 +411,7 @@
                   "character"
                 ],
                 "isExerted": true,
-                "minStrength": 5
+                "strengthAtLeast": 5
               }
             }
           }
@@ -7225,7 +7225,7 @@
                 "cardType": [
                   "character"
                 ],
-                "notId": "self"
+                "excludeSelf": true
               }
             }
           },
@@ -13931,7 +13931,7 @@
                   "character"
                 ],
                 "isExerted": true,
-                "minStrength": 5
+                "strengthAtLeast": 5
               }
             }
           }

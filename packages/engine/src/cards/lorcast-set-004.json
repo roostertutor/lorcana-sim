@@ -7105,7 +7105,7 @@
                 "cardType": [
                   "character"
                 ],
-                "notId": "self"
+                "excludeSelf": true
               }
             }
           },

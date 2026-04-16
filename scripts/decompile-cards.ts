@@ -1951,6 +1951,9 @@ function renderFilter(f: Json, opts?: { suppressOwnerSelf?: boolean }): string {
   if (f.hasKeyword) bits.push(`${cap(f.hasKeyword)}`);
   if (f.hasTrait) bits.push(f.hasTrait);
   if (f.hasAnyTrait?.length) bits.push(f.hasAnyTrait.join(" or "));
+  // Don Karnage SCORNFUL TAUNT: "an action that isn't a song" — rendered
+  // as a "non-<trait>" adjective prefix.
+  if (f.hasNoTrait) bits.push(`non-${f.hasNoTrait}`);
   // Noun
   let noun = "card";
   const rawTypes = f.cardType;

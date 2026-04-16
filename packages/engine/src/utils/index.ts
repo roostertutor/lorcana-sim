@@ -363,6 +363,13 @@ export function matchesFilter(
     const hasIt = definition.traits.includes(filter.hasTrait) || (granted?.has(filter.hasTrait) ?? false);
     if (!hasIt) return false;
   }
+  // Don Karnage Air Pirate Leader SCORNFUL TAUNT: "whenever you play an
+  // action that isn't a song" — negated trait check.
+  if (filter.hasNoTrait) {
+    const granted = modifiers?.grantedTraits.get(instance.instanceId);
+    const hasIt = definition.traits.includes(filter.hasNoTrait) || (granted?.has(filter.hasNoTrait) ?? false);
+    if (hasIt) return false;
+  }
 
   if (filter.hasAnyTrait) {
     const granted = modifiers?.grantedTraits.get(instance.instanceId);

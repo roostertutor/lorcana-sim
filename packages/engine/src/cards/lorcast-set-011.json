@@ -6906,7 +6906,7 @@
                 "cardType": [
                   "character"
                 ],
-                "maxStrength": 3
+                "strengthAtMost": 3
               }
             }
           }
@@ -6938,7 +6938,7 @@
                 "cardType": [
                   "character"
                 ],
-                "maxStrength": 3
+                "strengthAtMost": 3
               }
             }
           }
@@ -13338,7 +13338,7 @@
                 "cardType": [
                   "character"
                 ],
-                "maxStrength": 3
+                "strengthAtMost": 3
               }
             }
           }
@@ -13370,7 +13370,7 @@
                 "cardType": [
                   "character"
                 ],
-                "maxStrength": 3
+                "strengthAtMost": 3
               }
             }
           }

@@ -1143,7 +1143,9 @@
                 "character"
               ],
               "excludeSelf": true,
-              "inkColor": "amber"
+              "inkColors": [
+                "amber"
+              ]
             }
           }
         }
@@ -1166,8 +1168,10 @@
             "cardType": [
               "character"
             ],
-            "inkColor": "amber",
-            "excludeSelf": true
+            "excludeSelf": true,
+            "inkColors": [
+              "amber"
+            ]
           },
           "minCount": 2
         }
@@ -1958,7 +1962,9 @@
               "character"
             ],
             "excludeSelf": true,
-            "inkColor": "amethyst"
+            "inkColors": [
+              "amethyst"
+            ]
           }
         },
         "effects": [
@@ -5139,7 +5145,9 @@
               "character"
             ],
             "excludeSelf": true,
-            "inkColor": "emerald"
+            "inkColors": [
+              "emerald"
+            ]
           }
         },
         "effects": [
@@ -5169,7 +5177,9 @@
                 "character"
               ],
               "excludeSelf": true,
-              "inkColor": "emerald"
+              "inkColors": [
+                "emerald"
+              ]
             }
           }
         }
@@ -5817,7 +5827,7 @@
               "character",
               "location"
             ],
-            "hasCardsUnder": true
+            "hasCardUnder": true
           }
         },
         "effects": [
@@ -6113,7 +6123,7 @@
             "owner": {
               "type": "self"
             },
-            "minStrength": 5
+            "strengthAtLeast": 5
           }
         },
         "effects": [
@@ -6427,7 +6437,7 @@
                 "cardType": [
                   "character"
                 ],
-                "maxStrength": 2
+                "strengthAtMost": 2
               }
             }
           }
@@ -6891,7 +6901,9 @@
                 "character"
               ],
               "excludeSelf": true,
-              "inkColor": "ruby"
+              "inkColors": [
+                "ruby"
+              ]
             }
           }
         }
@@ -6914,8 +6926,10 @@
                 "character"
               ],
               "excludeSelf": true,
-              "inkColor": "ruby",
-              "minStrength": 7
+              "strengthAtLeast": 7,
+              "inkColors": [
+                "ruby"
+              ]
             }
           }
         }
@@ -7186,7 +7200,7 @@
                 "cardType": [
                   "character"
                 ],
-                "maxStrength": 2
+                "strengthAtMost": 2
               }
             }
           }
@@ -7336,7 +7350,7 @@
             "cardType": [
               "character"
             ],
-            "maxStrength": 2
+            "strengthAtMost": 2
           }
         },
         "effects": [
@@ -7688,7 +7702,7 @@
             "cardType": [
               "character"
             ],
-            "maxStrength": 2
+            "strengthAtMost": 2
           }
         }
       }
@@ -7846,8 +7860,8 @@
             "cardType": [
               "character"
             ],
-            "minStrength": 5,
-            "atLocation": "this"
+            "atLocation": "this",
+            "strengthAtLeast": 5
           }
         },
         "condition": {
@@ -9133,7 +9147,9 @@
                 "character"
               ],
               "excludeSelf": true,
-              "inkColor": "sapphire"
+              "inkColors": [
+                "sapphire"
+              ]
             }
           }
         }
@@ -9153,7 +9169,9 @@
               "character"
             ],
             "excludeSelf": true,
-            "inkColor": "sapphire"
+            "inkColors": [
+              "sapphire"
+            ]
           }
         },
         "effects": [
@@ -11016,7 +11034,9 @@
               "character"
             ],
             "excludeSelf": true,
-            "inkColor": "steel"
+            "inkColors": [
+              "steel"
+            ]
           }
         },
         "condition": {
@@ -11045,7 +11065,9 @@
             "owner": {
               "type": "self"
             },
-            "inkColor": "steel"
+            "inkColors": [
+              "steel"
+            ]
           }
         },
         "effects": [
@@ -13680,7 +13702,7 @@
                 "cardType": [
                   "character"
                 ],
-                "maxStrength": 2
+                "strengthAtMost": 2
               }
             }
           }

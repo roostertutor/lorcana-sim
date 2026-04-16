@@ -2294,6 +2294,10 @@ export interface CardFilter {
   hasTrait?: string;
   /** Match cards that have ANY of these traits */
   hasAnyTrait?: string[];
+  /** Match cards that do NOT have this trait. Used by Don Karnage Air
+   *  Pirate Leader SCORNFUL TAUNT ("Whenever you play an action that
+   *  isn't a song, ..."). */
+  hasNoTrait?: string;
   hasKeyword?: Keyword;
   /** Negated keyword check — matches cards that do NOT have the keyword.
    *  Used by Tug-of-War ("each opposing character without Evasive"). */
