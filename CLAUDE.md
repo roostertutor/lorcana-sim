@@ -22,14 +22,19 @@ playable sandbox exists as a thin UI layer over the engine.
 ## Quick Reference
 
 ```bash
-pnpm test                 # all tests
-pnpm test:watch           # TDD (engine)
-pnpm typecheck            # fails on pre-existing exactOptionalPropertyTypes strictness — not from recent changes
-pnpm dev                  # UI at localhost:5173
-pnpm import-cards         # fetch cards from Lorcast API
-pnpm import-cards --cache # same + save raw API responses to .lorcast-raw/
-pnpm learn                # train RL policy (see --help)
+pnpm test                             # all tests
+pnpm test:watch                       # TDD (engine)
+pnpm typecheck                        # fails on pre-existing exactOptionalPropertyTypes strictness — not from recent changes
+pnpm dev                              # UI at localhost:5173
+pnpm tsx scripts/import-cards-rav.ts  # fetch main sets 1-12 from Ravensburger API (authoritative; zero publish delay)
+pnpm import-cards --sets P1,P2,P3,cp,D23,DIS  # fetch promo sets from Lorcast (Ravensburger doesn't expose these)
+pnpm learn                            # train RL policy (see --help)
 ```
+
+Card data sources:
+- **Main sets 1-12**: Ravensburger's `disneylorcana.com/api/getCardApiData` — use `import-cards-rav.ts`. Official, zero delay, includes Iconic/Epic cards Lorcast doesn't. See `docs/DECISIONS.md` → Card Data Decisions.
+- **Promos (P1/P2/P3/cp/D23/DIS)**: Lorcast API — use legacy `import-cards`. Ravensburger doesn't expose these.
+- **Ravensburger transcription errors**: hardcoded in `STORY_NAME_OVERRIDES` inside `scripts/import-cards-rav.ts` (3 known cases). Add new entries when discovered; re-imports stay correct.
 
 ## Audits
 

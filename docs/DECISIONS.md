@@ -130,20 +130,52 @@ PersonalBots are type "personal" — never mixed with algorithm results.
 
 ## Card Data Decisions
 
-### Lorcast API as the data source
-`https://api.lorcast.com/v0` — real REST API, no auth required,
-well-documented, returns clean JSON with all fields we need.
-Rate limit ~10 req/sec (100ms between requests), gameplay data
-stable enough to cache weekly.
+### Ravensburger's official API as the primary data source (main sets)
+`https://www.disneylorcana.com/api/getCardApiData?locale=en&filter=setN` —
+the API that powers Ravensburger's Play Hub web app. Not publicly
+documented but stable and CORS-open. Returns full card data grouped by
+ink color: name, subtitle, cost, stats, traits, rules_text (with
+`\Name\` markers around stylized ability names), rarity, flavor_text,
+variants array with direct foil-mask + normal-map URLs, and
+`culture_invariant_id` as a stable numeric ID.
 
-Previous sessions hallucinated a GitHub URL. Lorcast API was the
-correct source, identified by navigating to the actual documentation.
+**Why we switched from Lorcast** (prior primary source):
+- **Zero publish delay.** Ravensburger's API updates the day the app
+  ships. Lorcast had a multi-day-to-week delay per set — blocked
+  analytics on the newest meta for every release.
+- **More complete.** Ravensburger includes Iconic/Epic "special" cards
+  (+127 cards across sets 1-12) that Lorcast doesn't index at all.
+- **Authoritative foil pairing.** Each card's variants array includes
+  `foil_mask_url` and `foil_top_layer_mask_url`, removing the need for
+  the pHash-based heuristic foil pairing we had in `Desktop/Lorcana_Assets/`.
+- **Official source.** Ravensburger publishes the game; Lorcast scrapes
+  theirs. Lorcast had ~27 `storyName` errors across main sets (AI-
+  paraphrased names, not transcribed from physical cards); Ravensburger
+  had 3 (see `STORY_NAME_OVERRIDES` in the importer).
+- **Not public but stable.** Using an undocumented internal API is
+  accepted risk — if it changes format, we have to chase. Offset by
+  the fact that disneylorcana.com depends on it, so breaks would
+  affect Ravensburger's own website.
 
-**What we considered:**
-- Hand-entering cards — rejected immediately, hundreds of cards per set
+**Importer:** `scripts/import-cards-rav.ts`. Produces the same
+`lorcast-set-XXX.json` shape as the Lorcast importer. Merge logic
+preserves hand-wired `abilities[]` and derived scalar fields on
+re-import, with a slug-alias fallback when a slug changes.
+
+### Lorcast API as the fallback (promos, D23, DIS)
+`https://api.lorcast.com/v0` — Ravensburger's API returns empty for
+the promo filters (`promo1`, `promo2`, `promo3`, `cp`, `d23`, `dis`).
+Those sets stay on Lorcast via `scripts/import-cards.ts` until they
+get covered by another authoritative source.
+
+**What we considered for card data, in order:**
+- Hand-entering cards — rejected, hundreds of cards per set
 - Scraping a fan wiki — fragile, no structured schema
-- The official Lorcana companion app — no public API
-- Lorcast API — chosen: structured, stable, complete
+- The official Lorcana companion app — no public API (at the time)
+- Lorcast API — chosen initially; community-maintained, structured,
+  stable but with publish delay and transcription errors
+- Ravensburger's internal API — discovered later via HAR-dump of
+  disneylorcana.com; now primary for main sets
 
 ### Named ability stub strategy
 Cards with unimplemented named abilities ship as vanilla stubs

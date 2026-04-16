@@ -327,7 +327,7 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     let state = startGame();
     state = giveInk(state, "player1", 5);
     let trickeryId: string;
-    ({ state, instanceId: trickeryId } = injectCard(state, "player1", "ursula-s-trickery", "hand"));
+    ({ state, instanceId: trickeryId } = injectCard(state, "player1", "ursulas-trickery", "hand"));
     const oppHandBefore = getZone(state, "player2", "hand").length;
     const p1HandBefore = getZone(state, "player1", "hand").length;
     let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: trickeryId }, LORCAST_CARD_DEFINITIONS);

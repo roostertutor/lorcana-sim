@@ -19,7 +19,7 @@ describe("§4 Set 4 — Sing Together", () => {
     // a-pirate-s-life is Sing Together 6. Use two cost-3 characters (Mickey True Friend + Mickey True Friend).
     let state = startGame();
     let songId: string, singer1Id: string, singer2Id: string;
-    ({ state, instanceId: songId } = injectCard(state, "player1", "a-pirate-s-life", "hand"));
+    ({ state, instanceId: songId } = injectCard(state, "player1", "a-pirates-life", "hand"));
     ({ state, instanceId: singer1Id } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
     ({ state, instanceId: singer2Id } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
 
@@ -41,7 +41,7 @@ describe("§4 Set 4 — Sing Together", () => {
     // a-pirate-s-life Sing Together 6, single Mickey (cost 3) is not enough.
     let state = startGame();
     let songId: string, singer1Id: string;
-    ({ state, instanceId: songId } = injectCard(state, "player1", "a-pirate-s-life", "hand"));
+    ({ state, instanceId: songId } = injectCard(state, "player1", "a-pirates-life", "hand"));
     ({ state, instanceId: singer1Id } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
 
     const r = applyAction(state, {
@@ -362,7 +362,7 @@ describe("§4 Set 4 — Sing Together", () => {
   it("Sing Together rejects duplicate singers", () => {
     let state = startGame();
     let songId: string, singer1Id: string;
-    ({ state, instanceId: songId } = injectCard(state, "player1", "a-pirate-s-life", "hand"));
+    ({ state, instanceId: songId } = injectCard(state, "player1", "a-pirates-life", "hand"));
     ({ state, instanceId: singer1Id } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
 
     const r = applyAction(state, {
@@ -396,7 +396,7 @@ describe("§4 Set 4 — Sing Together", () => {
   it("Ursula's Garden: opposing characters get -1 lore while an exerted character is here", async () => {
     let state = startGame();
     let locId: string, myCharId: string, oppCharId: string;
-    ({ state, instanceId: locId } = injectCard(state, "player1", "ursula-s-garden-full-of-the-unfortunate", "play", { isDrying: false }));
+    ({ state, instanceId: locId } = injectCard(state, "player1", "ursulas-garden-full-of-the-unfortunate", "play", { isDrying: false }));
     ({ state, instanceId: myCharId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, isExerted: true }));
     ({ state, instanceId: oppCharId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
     // Put my char at the location.

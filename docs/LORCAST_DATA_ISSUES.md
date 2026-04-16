@@ -1,5 +1,13 @@
 # Lorcast Upstream Data Issues
 
+**Scope note (post-Ravensburger migration):** This doc now only applies to
+**promo sets** (P1, P2, P3, cp, D23, DIS) — the sets still imported via
+Lorcast because Ravensburger's API doesn't expose them. Main sets 1-12
+moved to Ravensburger as the primary data source (see DECISIONS.md → Card
+Data Decisions and `scripts/import-cards-rav.ts`). For Ravensburger data
+issues, see the `STORY_NAME_OVERRIDES` constant in `scripts/import-cards-rav.ts`
+(3 known cases as of migration).
+
 This file tracks known data drift in the Lorcast API (https://api.lorcast.com/v0) — places where the upstream data is missing or wrong relative to the printed cards. We don't control any of this; the file exists so we can:
 
 1. Detect when our local JSON drifts from upstream on a re-import.
@@ -17,7 +25,7 @@ pnpm audit-lorcast          # human-readable
 pnpm audit-lorcast --json   # machine-readable
 ```
 
-The audit is currently **clean**. The findings below are the historical drift we've already corrected in local data.
+The audit is currently **clean**. The findings below are the historical drift we've already corrected in local data. Main-set entries are preserved as historical reference — they were sourced from Lorcast before the Ravensburger migration and the corrections remain in the JSON data via union-merge.
 
 ## Pattern A — keyword present in `text` but missing from `keywords[]`
 

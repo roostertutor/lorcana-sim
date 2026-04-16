@@ -10,6 +10,64 @@ Conventions:
 
 ---
 
+## Card data: Ravensburger API migration landed (main sets 1-12)
+
+`scripts/import-cards-rav.ts` is the new importer for main sets (1-12). Fetches
+directly from `https://www.disneylorcana.com/api/getCardApiData?locale=en&filter=setN`
+— Ravensburger's official API (what powers their Play Hub site). Zero publish
+delay, includes Iconic/Epic cards Lorcast doesn't index, and provides
+`variants[].foil_mask_url` for authoritative foil layer pairing.
+
+**Coverage split:**
+- **Ravensburger** (`pnpm tsx scripts/import-cards-rav.ts`): set1..set12.
+  Supports `quest1`/`quest2` Illumineer Quest filters too, but those are keyed
+  by the original set the cards are reprinted from — not Quest-specific
+  numbering — so migration deferred until numbering strategy is decided.
+- **Lorcast** (`pnpm import-cards`): P1, P2, P3, cp, D23, DIS promos. The
+  Ravensburger API returns empty for those filters.
+
+**Things the importer handles:**
+- Slug generation matches the project's existing convention exactly
+  (straight apostrophes become word separators, curly apostrophes get stripped)
+  so re-imports don't change IDs.
+- Merge logic preserves hand-wired `abilities[]`, `actionEffects`,
+  `alternateNames`, `playRestrictions`, `altPlayCost`, `selfCostReduction`,
+  `shiftCost`, `altShiftCost`, `moveCost`, `singTogetherCost` on re-import.
+- `slug-alias fallback` — when a card's slug changed between re-imports
+  (e.g. Te Kā's macron normalization), matches by (number, normalized
+  fullName) to preserve wiring instead of orphaning it.
+- `STORY_NAME_OVERRIDES` in the importer — hardcoded corrections where
+  Ravensburger's API is wrong. Three entries as of migration:
+  - `the-bayou-mysterious-swamp` — Ravensburger says `GONNA TAKE YOU THERE`,
+    printed card says `SHOW ME THE WAY`.
+  - `half-hexwell-crown` — Ravensburger returns one merged story name
+    `UMBRA'S POWER, UMBRA'S GIFT`, printed card has two abilities
+    `AN UNEXPECTED FIND` + `A PERILOUS POWER`.
+  - `mama-odie-solitary-sage` — both Lorcast and Ravensburger miss the
+    `I'VE` prefix; canonical is `I'VE GOT TO DO EVERYTHING AROUND HERE`.
+  Future Ravensburger transcription errors: add an entry here, not a
+  separate patch.
+- `scripts/patch-storynames.ts` — one-time fix already applied for 24 cards
+  whose Lorcast-generated storyNames were AI-paraphrased (not transcribed
+  from the printed cards). Not expected to be re-run unless another discovery
+  batch surfaces.
+
+**Next moves (not yet done):**
+1. Quest card numbering — decide whether Illumineer Quest cards should be
+   stored under their original set + number (Ravensburger's scheme) or
+   duplicated under `Q1`/`Q2` with Quest-specific numbers (the app's cache
+   filenames use the Quest scheme). Blocks `quest1`/`quest2` import.
+2. Filename rename — `packages/engine/src/cards/lorcast-set-*.json` →
+   `card-set-*.json` (name was accurate when all data came from Lorcast;
+   source-neutral now). Single-purpose PR after the source swap settles.
+3. Promo migration — if/when Ravensburger exposes P1/P2/P3/cp/D23/DIS or
+   we find another authoritative source, retire `scripts/import-cards.ts`.
+
+**Validation:** `pnpm --filter engine test` (460/460) and `pnpm card-status`
+(0 invalid) should stay green after any re-import.
+
+---
+
 ## Engine: unify play-cost and move-cost reduction systems (deferred cleanup)
 
 Both follow the same conceptual model — base cost + ordered stack of
