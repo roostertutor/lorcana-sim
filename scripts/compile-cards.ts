@@ -215,6 +215,13 @@ const TRIGGER_MATCHERS: Matcher<Json>[] = [
     pattern: /^Whenever this character sings a song/i,
     build: () => ({ on: "sings" }),
   },
+  // deals_damage_in_challenge — "Whenever this character deals damage to
+  // another character in a challenge" (decompiler: "deals_damage_in_challenge").
+  {
+    name: "deals_damage_in_challenge",
+    pattern: /^Whenever this character deals damage to another character in a challenge/i,
+    build: () => ({ on: "deals_damage_in_challenge" }),
+  },
   // banishes_in_challenge — hand-wired cards use `banished_other_in_challenge`
   // (synonym: both resolve to "this character banishes another"). We emit
   // the form that matches existing card JSON.
@@ -539,15 +546,16 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       destination: chosenCharacter({ opposing: true }),
     }),
   },
-  // remove_damage — hand-wired uses `hasDamage:true` filter (no cardType
-  // needed since only characters carry damage in Lorcana).
+  // remove_damage — hand-wired data is split between `hasDamage:true` and
+  // `cardType:["character"]` target filters. The cardType form is more
+  // common so we emit that; user corrects on the minority.
   {
     name: "remove_damage_up_to_may",
     pattern: /^you may remove up to (\d+) damage from chosen character/i,
     build: (m) => ({
       type: "remove_damage",
       amount: n(m[1]),
-      target: { type: "chosen", filter: { hasDamage: true, zone: "play" } },
+      target: chosenCharacter(),
       isUpTo: true,
       isMay: true,
     }),
@@ -558,7 +566,7 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     build: (m) => ({
       type: "remove_damage",
       amount: n(m[1]),
-      target: { type: "chosen", filter: { hasDamage: true, zone: "play" } },
+      target: chosenCharacter(),
       isUpTo: true,
     }),
   },
@@ -712,6 +720,29 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     pattern: /^return this card to your hand/i,
     build: () => ({ type: "return_to_hand", target: { type: "this" } }),
   },
+  // "return chosen character to their player's hand" — bounce
+  {
+    name: "return_chosen_character_may",
+    pattern: /^you may return chosen character to their player['’]s hand/i,
+    build: () => ({
+      type: "return_to_hand",
+      target: chosenCharacter(),
+      isMay: true,
+    }),
+  },
+  {
+    name: "return_chosen_character",
+    pattern: /^return chosen character to their player['’]s hand/i,
+    build: () => ({ type: "return_to_hand", target: chosenCharacter() }),
+  },
+  {
+    name: "return_chosen_opposing_character",
+    pattern: /^return chosen opposing character to their player['’]s hand/i,
+    build: () => ({
+      type: "return_to_hand",
+      target: chosenCharacter({ opposing: true }),
+    }),
+  },
   // Return a character from your discard. "return a character card from your
   // discard to your hand"
   {
@@ -847,6 +878,36 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       target: { type: "this" },
       isMay: true,
       enterExerted: true,
+    }),
+  },
+
+  // ============= COST REDUCTION =============================================
+  // "you pay N {I} less for the next <type> you play this turn"
+  {
+    name: "cost_reduction_next_character",
+    pattern: /^you pay (\d+) \{I\} less for the next character you play this turn/i,
+    build: (m) => ({
+      type: "cost_reduction",
+      amount: parseInt(m[1], 10),
+      filter: { cardType: ["character"] },
+    }),
+  },
+  {
+    name: "cost_reduction_next_item",
+    pattern: /^you pay (\d+) \{I\} less for the next item you play this turn/i,
+    build: (m) => ({
+      type: "cost_reduction",
+      amount: parseInt(m[1], 10),
+      filter: { cardType: ["item"] },
+    }),
+  },
+  {
+    name: "cost_reduction_next_action",
+    pattern: /^you pay (\d+) \{I\} less for the next action you play this turn/i,
+    build: (m) => ({
+      type: "cost_reduction",
+      amount: parseInt(m[1], 10),
+      filter: { cardType: ["action"] },
     }),
   },
 
@@ -1035,7 +1096,11 @@ export interface CompileResult {
 
 export function compileAbility(text: string, ctx: { cardType: string }): CompileResult {
   const original = text.trim();
-  let rest = original;
+  // Reminder text in parentheses is boilerplate the forward decompiler
+  // never emits (e.g. "Your other characters gain Ward. (Opponents can't
+  // choose them ...)"). Strip trailing-paren blocks up front so static
+  // matchers that anchor with `.?$` still land.
+  let rest = original.replace(/\s*\([^)]*\)\s*\.?$/, "").trim();
 
   // -------- Leading condition ----------------------------------------------
   // The forward decompiler emits conditions in two places: as a leading
@@ -1157,6 +1222,19 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
     const ability: Json = {
       type: "static",
       effect: { type: "self_cost_reduction", amount: parseInt(statSelfCost[1], 10) },
+    };
+    if (leadingCondition) ability.condition = leadingCondition;
+    return { ability, unmatched: "" };
+  }
+
+  // "This character can challenge ready characters." — Namaari Morning Mist
+  // shape. Granted as a static flag the reducer consults when validating
+  // challenges.
+  const statChallengeReady = /^This character can challenge ready characters\.?$/i.exec(rest);
+  if (statChallengeReady) {
+    const ability: Json = {
+      type: "static",
+      effect: { type: "can_challenge_ready", target: { type: "this" } },
     };
     if (leadingCondition) ability.condition = leadingCondition;
     return { ability, unmatched: "" };
@@ -1347,17 +1425,67 @@ function parseYourCharactersFilter(text: string): { filter: Json; consumed: numb
   return null;
 }
 
+// Effect-side variant of parseYourCharactersGetsStat — consumes the whole
+// phrase length and returns it for the chain parser. When a duration is
+// present, emits `gain_stats` (the triggered-form canonical per hand-wired
+// data); otherwise emits `modify_stat` (rare in triggered context but kept
+// for symmetry with static).
+function tryFilterTargetStatEffect(text: string): { json: Json; consumed: number } | null {
+  const f = parseYourCharactersFilter(text);
+  if (!f) return null;
+  const after = text.slice(f.consumed);
+  const mStat = /^\s+get ([+-]?\d+) \{(S|W|L)\}(?:\s+(this turn|until the start of your next turn))?/i.exec(
+    after,
+  );
+  if (!mStat) return null;
+  const amt = parseInt(mStat[1], 10);
+  const statChar = mStat[2].toUpperCase();
+  const stat = statChar === "S" ? "strength" : statChar === "W" ? "willpower" : "lore";
+  const durPhrase = mStat[3];
+  const consumed = f.consumed + mStat[0].length;
+  if (durPhrase) {
+    const eff: Json = { type: "gain_stats", target: { type: "all", filter: f.filter } };
+    eff[stat] = amt;
+    eff.duration =
+      /until the start of your next turn/i.test(durPhrase) ? "until_caster_next_turn" : "this_turn";
+    return { json: eff, consumed };
+  }
+  return {
+    json: {
+      type: "modify_stat",
+      stat,
+      amount: amt,
+      target: { type: "all", filter: f.filter },
+    },
+    consumed,
+  };
+}
+
 function parseYourCharactersGetsStat(text: string): Json | null {
   const f = parseYourCharactersFilter(text);
   if (!f) return null;
   const after = text.slice(f.consumed);
-  const mStat = /^\s+get ([+-]?\d+) \{(S|W|L)\}\.?$/i.exec(after);
+  // "get +N {stat}" optionally followed by " this turn" / "until the start of
+  // your next turn". Duration-ful filter-target buffs render as gain_stats
+  // (not modify_stat) per existing card JSON.
+  const mStat = /^\s+get ([+-]?\d+) \{(S|W|L)\}(?:\s+(this turn|until the start of your next turn))?\.?$/i.exec(after);
   if (!mStat) return null;
-  const stat = mStat[2].toUpperCase() === "S" ? "strength" : mStat[2].toUpperCase() === "W" ? "willpower" : "lore";
+  const amt = parseInt(mStat[1], 10);
+  const statChar = mStat[2].toUpperCase();
+  const stat = statChar === "S" ? "strength" : statChar === "W" ? "willpower" : "lore";
+  const durPhrase = mStat[3];
+  if (durPhrase) {
+    // gain_stats form with individual stat fields.
+    const eff: Json = { type: "gain_stats", target: { type: "all", filter: f.filter } };
+    eff[stat] = amt;
+    eff.duration =
+      /until the start of your next turn/i.test(durPhrase) ? "until_caster_next_turn" : "this_turn";
+    return eff;
+  }
   return {
     type: "modify_stat",
     stat,
-    amount: parseInt(mStat[1], 10),
+    amount: amt,
     target: { type: "all", filter: f.filter },
   };
 }
@@ -1386,6 +1514,27 @@ function parseEffectChain(
   let rest = text.trim();
   const effects: Json[] = [];
   while (rest.length > 0) {
+    // Filter-target stat buffs — "your [filter] characters get +N {stat}
+    // [this turn]". Use the same shared parser as static abilities.
+    const fStat = tryFilterTargetStatEffect(rest);
+    if (fStat) {
+      effects.push(fStat.json);
+      rest = rest.slice(fStat.consumed).trimStart();
+      // Reuse the same separator/terminator handling below.
+      const rem = /^\([^)]*\)\s*/.exec(rest);
+      if (rem) rest = rest.slice(rem[0].length);
+      if (rest === "" || rest === ".") {
+        return { json: effects, consumedAll: true, remainder: "" };
+      }
+      const sepMatch = /^(?:,\s*then\s+|\.\s+Then,?\s+|,\s*and\s+|,\s*|\.\s+and\s+|\.\s+|\s+and\s+)/i.exec(
+        rest,
+      );
+      if (sepMatch) {
+        rest = rest.slice(sepMatch[0].length);
+        continue;
+      }
+      break;
+    }
     const m = matchEffect(rest);
     if (!m) break;
     // Consume the matched effect phrase, then a trailing duration clause if
