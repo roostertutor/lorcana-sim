@@ -2794,15 +2794,21 @@ export function applyEffect(
       if (effect.target.type === "chosen") {
         const validTargets = findChosenTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state; // CRD 1.7.7
+        // Ever as Before: "any number of chosen characters" — count>1 enables
+        // multi-select; isMay lets the player pick 0.
+        const count = effect.target.count ?? 1;
         return {
           ...state,
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: "Choose a character to remove damage from.",
+            prompt: count > 1
+              ? `Choose up to ${count} characters to remove damage from.`
+              : "Choose a character to remove damage from.",
             validTargets,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             optional: true, // "Remove up to N" — player can decline
+            count,
           },
         };
       }
@@ -3153,16 +3159,35 @@ export function applyEffect(
           // available damage; if there is none, the reward (draw cost_result)
           // resolves to 0 and the effect fizzles cleanly.
         }
-        const validDestinations = findChosenTargets(state, effect.destination.filter, controllingPlayerId, definitions, sourceInstanceId);
-        if (validDestinations.length === 0) {
-          state = { ...state, lastEffectResult: 0 };
-          return state;
-        }
         // Stash the resolved-source list on the cloned effect so the destination
         // resolution path can drain damage from each source.
         const resolvedSources = sources
           .map((id) => makeResolvedRef(state, definitions, id))
           .filter((r): r is ResolvedRef => !!r);
+        // Can't Hold It Back Anymore: destination "last_resolved_target" pins
+        // the drain to the previously-exerted character — no second prompt.
+        if (effect.destination.type === "last_resolved_target") {
+          const destId = state.lastResolvedTarget?.instanceId;
+          if (!destId || !state.cards[destId]) {
+            state = { ...state, lastEffectResult: 0 };
+            return state;
+          }
+          return applyEffectToTarget(
+            state,
+            { ...effect, _resolvedSources: resolvedSources } as any,
+            destId,
+            controllingPlayerId,
+            definitions,
+            events,
+            sourceInstanceId,
+            triggeringCardInstanceId,
+          );
+        }
+        const validDestinations = findChosenTargets(state, effect.destination.filter, controllingPlayerId, definitions, sourceInstanceId);
+        if (validDestinations.length === 0) {
+          state = { ...state, lastEffectResult: 0 };
+          return state;
+        }
         return {
           ...state,
           pendingChoice: {
@@ -3630,6 +3655,28 @@ export function applyEffect(
           };
         }
         // CRD 6.4.2.2: applied — only affects current cards
+        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        for (const targetId of targets) {
+          state = addTimedEffect(state, targetId, timedEffect);
+        }
+        return state;
+      }
+      return state;
+    }
+
+    case "remove_keyword_target": {
+      // Maui Soaring Demigod IN MA BELLY: "loses Reckless this turn".
+      const timedEffect: TimedEffect = {
+        type: "suppress_keyword",
+        keyword: effect.keyword,
+        expiresAt: effect.duration,
+        appliedOnTurn: state.turnNumber,
+        casterPlayerId: controllingPlayerId,
+        sourceInstanceId,
+      };
+      const directRKT = resolveDirectTarget(effect.target, state, sourceInstanceId, triggeringCardInstanceId);
+      if (directRKT && state.cards[directRKT]) return addTimedEffect(state, directRKT, timedEffect);
+      if (effect.target.type === "all") {
         const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         for (const targetId of targets) {
           state = addTimedEffect(state, targetId, timedEffect);
@@ -6710,6 +6757,20 @@ function applyEffectToTarget(
       };
       return addTimedEffect(state, targetInstanceId, timedEffect);
     }
+    case "remove_keyword_target": {
+      // Maui Soaring Demigod IN MA BELLY: "loses Reckless this turn". Attach
+      // a `suppress_keyword` TimedEffect; hasKeyword honors it until the
+      // duration expires.
+      const timedEffect: TimedEffect = {
+        type: "suppress_keyword",
+        keyword: effect.keyword,
+        expiresAt: effect.duration,
+        appliedOnTurn: state.turnNumber,
+        casterPlayerId: controllingPlayerId,
+        sourceInstanceId,
+      };
+      return addTimedEffect(state, targetInstanceId, timedEffect);
+    }
     case "ready": {
       // Effect-driven ready (Shield of Virtue, Fan the Flames, Maui's I GOT
       // YOUR BACK, Fred Giant-Sized's boost-ready). The NARROW "ready"
@@ -6908,6 +6969,10 @@ function applyEffectToTarget(
         }
         let totalMoved = 0;
         for (const ref of allSources) {
+          // Skip the destination itself — "move damage from all OTHER
+          // characters" (Can't Hold It Back Anymore). Without this, if the
+          // destination had damage pre-effect, we'd drain it to itself.
+          if (ref.instanceId === targetInstanceId) continue;
           const src = state.cards[ref.instanceId];
           if (!src || src.damage <= 0) continue;
           const moveAmt = Math.min(effect.amount, src.damage);

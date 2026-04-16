@@ -1318,7 +1318,12 @@
       {
         "type": "triggered",
         "trigger": {
-          "on": "character_exerted"
+          "on": "character_exerted",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
         },
         "storyName": "COME SEE!",
         "rulesText": "During your turn, whenever this character exerts, reveal a number of cards from the top of your deck equal to the number of cards under him. Put all revealed character cards into your hand. Put the rest on the bottom of your deck in any order.",
@@ -1328,7 +1333,9 @@
         "effects": [
           {
             "type": "look_at_top",
-            "count": "cards_under_count",
+            "count": {
+              "type": "cards_under_count"
+            },
             "action": "choose_from_top",
             "maxToHand": 99,
             "filter": {

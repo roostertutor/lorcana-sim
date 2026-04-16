@@ -216,6 +216,13 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
     }
     const filt = renderFilter(t.filter);
     if (!hasOwnerFilter) return `Whenever ${filt} is played`;
+    // owner:self → "Whenever you play a character" (suppress the "your"
+    // prefix since "you play" already implies ownership). Chem Purse
+    // HERE'S THE BEST PART oracle: "Whenever you play a character, ...".
+    if (t.filter.owner?.type === "self") {
+      const filtNoOwner = renderFilter(t.filter, { suppressOwnerSelf: true });
+      return `Whenever you play a ${filtNoOwner}`;
+    }
     return `Whenever you play ${filt}`;
   },
   // item_played: DELETED — collapsed to card_played with cardType filter
@@ -224,7 +231,15 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
   damage_dealt_to:               ()  => "Whenever damage is dealt to this character",
   damage_removed_from:           (t) => t.filter?.owner?.type === "self" ? "Whenever you remove 1 or more damage from one of your characters" : "Whenever damage is removed from this character",
   readied:                       ()  => "Whenever this character is readied",
-  returned_to_hand:              ()  => "Whenever this character is returned to your hand",
+  returned_to_hand:              (t) => {
+    if (!t.filter) return "Whenever this character is returned to your hand";
+    // Maleficent's Staff BACK, FOOLS!: "Whenever one of your opponents'
+    // characters, items, or locations is returned to their hand from play".
+    if (t.filter.owner?.type === "opponent") {
+      return `Whenever one of your opponents' ${pluralizeFilter(renderFilter({ ...t.filter, owner: undefined }))} is returned to their hand from play`;
+    }
+    return `Whenever one of your ${pluralizeFilter(renderFilter(t.filter))} is returned to your hand`;
+  },
   cards_discarded:               ()  => "Whenever a card is discarded",
   deals_damage_in_challenge:     ()  => "Whenever this character deals damage in a challenge",
   card_put_under:                (t) => filterMentionsYour(t.filter)
@@ -268,6 +283,10 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
     // Spell Cruel Sorceress PLAYING WITH POWER). Reads far better than the
     // generic "unless during your turn".
     if (c.condition?.type === "is_your_turn") return "during opponents' turns";
+    // not(this_has_no_damage) → "while this character has damage" (Ratigan
+    // Raging Rat NOTHING CAN STAND IN MY WAY). Positive phrasing matches
+    // the oracle better than the awkward "unless this character has no damage".
+    if (c.condition?.type === "this_has_no_damage") return "while this character has damage";
     return "unless " + stripIfPrefix(renderCondition(c.condition ?? {}));
   },
 
@@ -602,6 +621,10 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   cant_action_self: (e) => {
     if (e.action === "ready") return `this character can't ready at the start of your turn${dur(e)}`;
     if (e.action === "ready_anytime") return `this character can't ready${dur(e)}`;
+    // Max Goof Rockin' Teen I JUST WANNA STAY HOME: "can't move to locations".
+    // In Lorcana, "move" always means "move to a location", so render that
+    // explicitly so the rendered text matches the oracle wording.
+    if (e.action === "move") return `this character can't move to locations${dur(e)}`;
     return `this character can't ${e.action ?? "act"}${dur(e)}`;
   },
 
@@ -641,9 +664,18 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   // when the first matching card is played, cleared on turn pass. Oracle
   // phrasing is "for the next X you play this turn" (Dr. Facilier's Cards,
   // Encanto Holiday Playset, etc.), NOT a permanent discount.
+  //
+  // Convention: `amount: 99` is the engine's "effectively free" idiom used
+  // in STATIC contexts for "you may play X for free" (Yokai Scientific
+  // Supervillain NEUROTRANSMITTER). Detect and render accordingly — the
+  // "this turn" scope is also dropped since static reductions are permanent
+  // while the source is in play.
   cost_reduction: (e) => {
-    const amt = typeof e.amount === "number" ? `${e.amount}` : typeof e.amount === "object" ? renderAmount(e.amount) : `${e.amount ?? "?"}`;
     const filt = e.filter ? renderFilter(e.filter) : "card";
+    if (e.amount === 99) {
+      return `you may play ${pluralizeFilter(filt)} for free`;
+    }
+    const amt = typeof e.amount === "number" ? `${e.amount}` : typeof e.amount === "object" ? renderAmount(e.amount) : `${e.amount ?? "?"}`;
     return `you pay ${amt} {I} less for the next ${filt} you play this turn`;
   },
 
@@ -660,18 +692,28 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     const sz = e.sourceZone;
     const filter = e.filter ? renderFilter(e.filter) : "a card";
     const plural = filter.endsWith("s") ? filter : `${filter}s`;
+    // Mystical Inkcaster: grantKeywords + banishAtEndOfTurn add post-clauses
+    // — "They gain Rush. At the end of your turn, banish them."
+    const kwClause = e.grantKeywords?.length
+      ? `. They gain ${(e.grantKeywords as string[]).map((k) => cap(k)).join(" and ")}`
+      : "";
+    const banishClause = e.banishAtEndOfTurn
+      ? ". At the end of your turn, banish them"
+      : "";
     if (sz === "under") {
-      return `${maybe(e)}this turn, you may play ${plural} from under this item${costClause}`;
+      return `${maybe(e)}this turn, you may play ${plural} from under this item${costClause}${kwClause}${banishClause}`;
     }
     if (sz === "discard") {
-      return `${maybe(e)}play ${filter} from your discard${costClause}`;
+      return `${maybe(e)}play ${filter} from your discard${costClause}${kwClause}${banishClause}`;
     }
-    return `${maybe(e)}play ${filter}${costClause}`;
+    return `${maybe(e)}play ${filter}${costClause}${kwClause}${banishClause}`;
   },
 
   look_at_top: (e) => {
-    const count = e.count ?? "?";
-    const base = `look at the top ${count} card${plural(count)} of your deck`;
+    // count can be literal number or DynamicAmount object (Bambi Ethereal
+    // Fawn: {type: "cards_under_count"}) — use renderAmount to stringify.
+    const count: number | string = typeof e.count === "number" ? e.count : (typeof e.count === "object" ? renderAmount(e.count) : (e.count ?? "?"));
+    const base = `look at the top ${count} card${typeof count === "number" ? plural(count) : "s"} of your deck`;
     const filter = e.filter ? renderFilter(e.filter) : "a card";
     switch (e.action) {
       case "choose_from_top": {
@@ -1034,6 +1076,12 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   remove_keyword: (e) => {
     const tgt = renderTarget(e.target ?? {});
     return `${tgt} lose ${cap(e.keyword ?? "keyword")} and can't gain ${cap(e.keyword ?? "keyword")}`;
+  },
+  // Maui Soaring Demigod IN MA BELLY: "loses Reckless this turn" — timed
+  // keyword suppression via suppress_keyword TimedEffect.
+  remove_keyword_target: (e) => {
+    const tgt = renderTarget(e.target ?? {});
+    return `${tgt} ${verbS(tgt, "lose", "loses")} ${cap(e.keyword ?? "keyword")}${dur(e)}`;
   },
   sing_cost_bonus_characters: (e) => {
     const tgt = renderTarget(e.target ?? {});

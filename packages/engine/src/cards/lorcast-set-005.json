@@ -9237,16 +9237,13 @@
         "amount": 2,
         "isUpTo": true,
         "target": {
-          "type": "all",
+          "type": "chosen",
+          "count": 99,
           "filter": {
-            "owner": {
-              "type": "self"
-            },
             "zone": "play",
             "cardType": [
               "character"
-            ],
-            "hasDamage": true
+            ]
           }
         }
       }

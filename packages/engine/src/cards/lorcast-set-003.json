@@ -6341,6 +6341,14 @@
               "type": "this"
             },
             "duration": "this_turn"
+          },
+          {
+            "type": "remove_keyword_target",
+            "keyword": "reckless",
+            "target": {
+              "type": "this"
+            },
+            "duration": "this_turn"
           }
         ]
       }

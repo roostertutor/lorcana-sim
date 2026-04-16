@@ -234,6 +234,14 @@ export function hasKeyword(
   // Check if this keyword is suppressed by a static (remove_keyword)
   if (modifiers?.suppressedKeywords.get(instance.instanceId)?.has(keyword)) return false;
 
+  // Check if this keyword is suppressed by a timed effect (Maui Soaring
+  // Demigod "loses Reckless this turn"). Timed suppression outranks grants:
+  // even if grantedKeywords includes the keyword, the suppression hides it
+  // for the duration.
+  if (instance.timedEffects.some(
+    (te) => te.type === "suppress_keyword" && te.keyword === keyword
+  )) return false;
+
   // Check granted keywords first (from effects)
   if (instance.grantedKeywords.includes(keyword)) return true;
 

@@ -1240,12 +1240,7 @@
       {
         "type": "triggered",
         "trigger": {
-          "on": "sings",
-          "filter": {
-            "owner": {
-              "type": "self"
-            }
-          }
+          "on": "sings"
         },
         "storyName": "BRIGHT FUTURE",
         "rulesText": "Whenever this character sings a song, you may draw a card for each character you have in play.",

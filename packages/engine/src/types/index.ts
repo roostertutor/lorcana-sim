@@ -219,6 +219,7 @@ export type Effect =
   | ChooseEffect
   | ExertEffect
   | GrantKeywordEffect
+  | RemoveKeywordTargetEffect
   | ReadyEffect
   | CantActionEffect
   | MustQuestIfAbleEffect
@@ -741,8 +742,13 @@ export interface MoveDamageEffect {
   source:
     | { type: "chosen"; filter: CardFilter }
     | { type: "all_damaged"; filter: CardFilter };
-  /** Destination character. */
-  destination: { type: "chosen"; filter: CardFilter };
+  /** Destination character. "last_resolved_target" pins the destination to
+   *  the previously-chosen card (Can't Hold It Back Anymore: "exert chosen
+   *  opposing character" sets lastResolvedTarget, then the move_damage uses
+   *  it without prompting for a second target). */
+  destination:
+    | { type: "chosen"; filter: CardFilter }
+    | { type: "last_resolved_target" };
   /** Internal: stage-2 marker carrying the resolved source snapshot. */
   _resolvedSource?: ResolvedRef;
 }
@@ -1249,6 +1255,17 @@ export interface GrantKeywordEffect {
   isMay?: boolean;
   /** CRD 6.4.2.1: continuous static — affects newly played cards too */
   continuous?: boolean;
+}
+
+/** Timed-variant "loses <keyword>". Attaches a `suppress_keyword` TimedEffect
+ *  to the target. Used by Maui Soaring Demigod IN MA BELLY ("loses Reckless
+ *  this turn"). Distinct from the permanent `remove_keyword` StaticEffect
+ *  which is applied via static ability scans in gameModifiers. */
+export interface RemoveKeywordTargetEffect {
+  type: "remove_keyword_target";
+  keyword: Keyword;
+  target: CardTarget;
+  duration: EffectDuration;
 }
 
 export interface ReadyEffect {
@@ -2580,7 +2597,13 @@ export interface TimedEffect {
      *  the location-bound `singCostBonusHere` but applies per-character via
      *  TimedEffect. The validator's sing-eligibility checks sum these in
      *  addition to any location bonus from the singer's atLocation. */
-    | "sing_cost_bonus";
+    | "sing_cost_bonus"
+    /** Timed keyword suppression: "loses <keyword> this turn". Used by Maui
+     *  Soaring Demigod IN MA BELLY ("loses Reckless this turn"). Mirrors the
+     *  permanent `remove_keyword` static but scoped to a duration. hasKeyword
+     *  respects this timed effect the same way it respects static
+     *  suppressedKeywords. */
+    | "suppress_keyword";
   keyword?: Keyword | undefined;
   value?: number | undefined;       // for keyword values (e.g. Challenger +N)
   amount?: number | undefined;      // for modify_* effects

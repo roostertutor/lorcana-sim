@@ -3487,6 +3487,22 @@
             ]
           }
         }
+      },
+      {
+        "type": "move_damage",
+        "amount": 99,
+        "source": {
+          "type": "all_damaged",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "destination": {
+          "type": "last_resolved_target"
+        }
       }
     ]
   },
