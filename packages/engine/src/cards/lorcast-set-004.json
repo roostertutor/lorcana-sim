@@ -3503,7 +3503,7 @@
       {
         "type": "activated",
         "storyName": "DISPEL THE ENTANGLEMENT",
-        "rulesText": "Banish this item — Chosen character named Beast gets +2 {L} this turn.",
+        "rulesText": "Banish this item — Chosen character named Beast gets +2 {L} this turn. If you have a character named Belle in play, move up to 3 damage counters from chosen character to chosen opposing character.",
         "costs": [
           {
             "type": "banish_self"
@@ -3524,6 +3524,40 @@
               }
             },
             "duration": "this_turn"
+          },
+          {
+            "type": "conditional_on_player_state",
+            "condition": {
+              "type": "has_character_named",
+              "name": "Belle"
+            },
+            "effects": [
+              {
+                "type": "move_damage",
+                "amount": 3,
+                "isUpTo": true,
+                "isMay": true,
+                "source": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "hasDamage": true
+                  }
+                },
+                "destination": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "opponent"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
+              }
+            ]
           }
         ]
       }

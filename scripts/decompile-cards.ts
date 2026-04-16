@@ -334,7 +334,7 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
   },
   opponent_has_more_cards_in_hand:  () => "if an opponent has more cards in their hand than you",
   self_has_more_than_each_opponent: (c) => `if you have more ${c.metric ?? "cards"} than each opponent`,
-  your_first_turn_as_underdog: () => "during your first turn as the underdog",
+  your_first_turn_as_underdog: () => "if this is your first turn and you're not the first player",
 
   // ---- This-card-state checks ----------------------------------------------
   this_has_no_damage:         () => "if this character has no damage",
@@ -463,15 +463,25 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     }
     // Subject framing: target=both → "each player draws N", target=opponent → "each opponent draws N".
     // Default (self) keeps the original "draw N cards" phrasing.
-    const subject = e.target?.type === "both" ? "each player draws " :
-                    e.target?.type === "opponent" ? "each opponent draws " :
-                    "draw ";
+    // isMay + target:opponent → "each opponent may draw" (Kuzco's
+    // "Then, each opponent may draw a card") — put "may" INSIDE the
+    // subject so it agrees with "each opponent" rather than emitting
+    // a dangling "you may each opponent draws".
+    const otherPlayers = e.target?.type === "both" || e.target?.type === "opponent";
+    const mayPrefix = (e.isMay && !otherPlayers) ? "you may " : "";
+    // When "may" is present the verb loses its -s ("each opponent may draw"
+    // not "each opponent may draws").
+    const drawVerb = e.isMay ? "draw" : "draws";
+    const mayInside = (e.isMay && otherPlayers) ? "may " : "";
+    const subject = e.target?.type === "both" ? `each player ${mayInside}${drawVerb} ` :
+                    e.target?.type === "opponent" ? `each opponent ${mayInside}${drawVerb} ` :
+                    `${mayPrefix}draw `;
     const amt = e.amount ?? 1;
     if (typeof amt !== "number") {
-      return `${maybe(e)}${subject}cards equal to ${renderAmount(amt)}`;
+      return `${subject}cards equal to ${renderAmount(amt)}`;
     }
-    if (amt === 1) return `${maybe(e)}${subject}a card`;
-    return `${maybe(e)}${subject}${amt} cards`;
+    if (amt === 1) return `${subject}a card`;
+    return `${subject}${amt} cards`;
   },
   discard:            (e) => `${maybe(e)}discard ${e.amount ?? 1} card${plural(e.amount ?? 1)}`,
   discard_from_hand:  (e) => {
@@ -612,6 +622,14 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     const tgt = e.target?.type ?? "this";
     if (tgt === "this") return `${maybe(e)}return this card to your hand`;
     if (tgt === "triggering_card") return `${maybe(e)}return that card to its player's hand`;
+    // Treasures Untold: "Return up to 2 item cards from your discard into
+    // your hand." — detect count>1 + isMay + owner:self + zone:discard and
+    // build the "up to N X from your discard" phrasing.
+    if (e.isMay && e.target?.type === "chosen" && e.target.count && e.target.count > 1
+        && e.target.filter?.owner?.type === "self" && e.target.filter?.zone === "discard") {
+      const noun = pluralizeFilter(renderFilter(e.target.filter, { suppressOwnerSelf: true }));
+      return `return up to ${e.target.count} ${noun} from your discard to your hand`;
+    }
     return `${maybe(e)}return ${renderTarget(e.target ?? {})} to their player's hand`;
   },
   ready: (e) => {
@@ -1330,6 +1348,20 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   create_floating_trigger: (e) => {
     const head = renderTrigger(e.trigger ?? {});
     const body = (e.effects ?? []).map(renderEffect).join(", and ");
+    // attachTo:"chosen" / "all_matching" → Oracle wraps the floating trigger
+    // as a granted ability: 'X gains "<trigger>, <body>" this turn.'
+    // Bruno Madrigal Out of the Shadows / Forest Duel / Magical Aid.
+    if (e.attachTo === "chosen") {
+      const filt = e.targetFilter ? renderFilter(e.targetFilter) : "character";
+      return `chosen ${filt} gains "${head}, ${body}" this turn`;
+    }
+    if (e.attachTo === "all_matching") {
+      const filt = e.targetFilter ? pluralizeFilter(renderFilter(e.targetFilter)) : "characters";
+      return `${filt} gain "${head}, ${body}" this turn`;
+    }
+    if (e.attachTo === "last_resolved_target") {
+      return `they gain "${head}, ${body}" this turn`;
+    }
     return `${head} this turn, ${body}`;
   },
 
@@ -1549,11 +1581,21 @@ function renderStatChange(e: Json): string {
   // `strengthDynamicNegate: true` flag flips sign for the "loses" wording.
   const dyn = (stat: "strength" | "willpower" | "lore", sym: string) => {
     const key = `${stat}Dynamic`;
-    if (e[key]) {
-      const sign = e[`${stat}DynamicNegate`] ? "-" : "+";
-      const amountPhrase = renderAmount(e[key]);
-      bits.push(`${sign}${amountPhrase} ${sym}`);
+    const val = e[key];
+    if (!val) return;
+    const sign = e[`${stat}DynamicNegate`] ? "-" : "+";
+    // He's A Tramp: "+1 {S} for each character you have in play" reads
+    // better than "+the number of your characters {S}". Detect count
+    // filter with owner:self and emit the "for each" form.
+    if (typeof val === "object" && val.type === "count" && val.filter) {
+      const filt = val.filter.owner?.type === "self"
+        ? renderFilter(val.filter, { suppressOwnerSelf: true }) + " you have in play"
+        : renderFilter(val.filter);
+      bits.push(`${sign}1 ${sym} for each ${filt}`);
+      return;
     }
+    const amountPhrase = renderAmount(val);
+    bits.push(`${sign}${amountPhrase} ${sym}`);
   };
   dyn("strength", "{S}");
   dyn("willpower", "{W}");
