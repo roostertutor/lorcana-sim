@@ -561,6 +561,13 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
         const sing = renderFilter(n.filter, { suppressOwnerSelf: true });
         return `${tgt} ${verbS(tgt, "gain", "gains")} 1 lore for each ${sing} you have in play`;
       }
+      // Pack Tactics: "Gain 1 lore for each damaged character opponents
+      // have in play" — owner:opponent gets the "opponents have in play"
+      // trailing phrase.
+      if (n.filter.owner?.type === "opponent") {
+        const sing = renderFilter({ ...n.filter, owner: undefined });
+        return `${tgt} ${verbS(tgt, "gain", "gains")} 1 lore for each ${sing} opponents have in play`;
+      }
       const sing = renderFilter(n.filter);
       return `${tgt} ${verbS(tgt, "gain", "gains")} 1 lore for each ${sing}`;
     }
@@ -1336,6 +1343,13 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
       return alt ? `choose ${tgt} — ${alt}` : `choose ${tgt}`;
     }
     const cond = e.conditionFilter ? renderFilter(e.conditionFilter) : "matching";
+    // Seven Dwarfs' Mine / Winter Camp Medical Tent: when target is
+    // triggering_card the default branch already operates on the moved
+    // character — drop the "the triggering character:" prefix to keep
+    // the rendered text readable. "X. If they're a Knight, Y instead."
+    if (e.target?.type === "triggering_card") {
+      return `${def}. If they're ${cond.startsWith("a ") || cond.startsWith("an ") ? cond : "a " + cond}, ${alt} instead`;
+    }
     return `${tgt}: ${def}. If a ${cond} is chosen, ${alt} instead`;
   },
 
