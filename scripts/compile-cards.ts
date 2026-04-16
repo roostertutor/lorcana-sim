@@ -493,6 +493,25 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
   },
 
   // ============= DAMAGE ======================================================
+  // Compound trait filter: "chosen opposing X or Y character"
+  {
+    name: "deal_damage_may_n_opp_trait_or",
+    pattern: /^you may deal (\d+) damage to chosen opposing ([A-Z][a-z]+) or ([A-Z][a-z]+) character/i,
+    build: (m) => ({
+      type: "deal_damage",
+      amount: n(m[1]),
+      target: {
+        type: "chosen",
+        filter: {
+          zone: "play",
+          cardType: ["character"],
+          owner: { type: "opponent" },
+          hasAnyTrait: [m[2], m[3]],
+        },
+      },
+      isMay: true,
+    }),
+  },
   {
     name: "deal_damage_may_n",
     pattern: /^you may deal (\d+) damage to chosen character/i,
@@ -699,6 +718,27 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       type: "cant_action",
       action: "challenge",
       target: chosenCharacter({ opposing: true }),
+      duration: "end_of_owner_next_turn",
+    }),
+  },
+  // Non-opposing variants
+  {
+    name: "chosen_cant_challenge_next_turn",
+    pattern: /^chosen character can't challenge during their next turn/i,
+    build: () => ({
+      type: "cant_action",
+      action: "challenge",
+      target: chosenCharacter(),
+      duration: "end_of_owner_next_turn",
+    }),
+  },
+  {
+    name: "chosen_cant_quest_next_turn",
+    pattern: /^chosen character can't quest during their next turn/i,
+    build: () => ({
+      type: "cant_action",
+      action: "quest",
+      target: chosenCharacter(),
       duration: "end_of_owner_next_turn",
     }),
   },
@@ -1213,9 +1253,11 @@ export interface CompileResult {
 export function compileAbility(text: string, ctx: { cardType: string }): CompileResult {
   const original = text.trim();
   // Ravensburger data wraps keywords in angle brackets: <Rush>, <Evasive>.
-  // Normalize to plain text so our matchers work. Also strip keyword-reminder
-  // parentheticals that follow.
+  // Also uses curly apostrophes (U+2018/2019) instead of straight ones.
+  // Normalize both so our matchers work. Strip keyword-reminder
+  // parentheticals after normalization.
   let rest = original
+    .replace(/[\u2018\u2019]/g, "'")   // curly → straight apostrophes
     .replace(/<(Rush|Evasive|Ward|Reckless|Bodyguard|Support|Challenger|Resist|Vanish|Shift)>/gi, "$1")
     .replace(/\s*\([^)]*\)\s*\.?$/, "")
     .trim();
@@ -1353,6 +1395,17 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
     const ability: Json = {
       type: "static",
       effect: { type: "can_challenge_ready", target: { type: "this" } },
+    };
+    if (leadingCondition) ability.condition = leadingCondition;
+    return { ability, unmatched: "" };
+  }
+
+  // "This character can quest the turn he's/they're played."
+  const statQuestTurnPlayed = /^This character can quest the turn (?:he's|she's|they're|it's) played\.?$/i.exec(rest);
+  if (statQuestTurnPlayed) {
+    const ability: Json = {
+      type: "static",
+      effect: { type: "can_quest_turn_played", target: { type: "this" } },
     };
     if (leadingCondition) ability.condition = leadingCondition;
     return { ability, unmatched: "" };
