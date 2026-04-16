@@ -900,6 +900,15 @@ export function evaluateCondition(
       // CRD 8.10.4 / 8.4.2: true if this card has at least one card under it
       // (from Shift base or Boost). Used by Flynn Rider Spectral Scoundrel etc.
       const inst = state.cards[sourceInstanceId];
+      // Merlin Completing His Research LEGACY OF LEARNING: the ability fires
+      // on banished_in_challenge AFTER leave-play cleanup has cleared the
+      // pile — fall back to the snapshot captured at banish time only when
+      // the source is no longer in play.
+      if (inst && inst.zone !== "play"
+          && state.lastBanishedCardsUnderCount !== undefined
+          && state.lastBanishedCardsUnderCount > 0) {
+        return true;
+      }
       return !!inst && inst.cardsUnder.length > 0;
     }
     case "you_control_matching": {

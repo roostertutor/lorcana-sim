@@ -1535,11 +1535,20 @@ function renderStatChange(e: Json): string {
   dyn("strength", "{S}");
   dyn("willpower", "{W}");
   dyn("lore", "{L}");
+  // followUpEffects attach to the same chosen target, pronounized as "they"
+  // (Alice Savvy Sailor AHOY!: "gets +1 {L} and gains Ward until the start
+  // of your next turn").
+  const followUp = Array.isArray(e.followUpEffects) && e.followUpEffects.length > 0
+    ? " and " + (e.followUpEffects as Json[]).map((f) => {
+        const r = renderEffect(f);
+        return r.replace(/^this character /i, "they ").replace(/^they gain/i, "gain");
+      }).join(" and ")
+    : "";
   // "you may give chosen character +2 {S}" for isMay — Grandmother Fa-style.
   if (e.isMay) {
-    return `you may give ${tgt} ${bits.join(" and ")}${dur(e)}`;
+    return `you may give ${tgt} ${bits.join(" and ")}${dur(e)}${followUp}`;
   }
-  return `${tgt} ${verbS(tgt, "get", "gets")} ${bits.join(" and ")}${dur(e)}`;
+  return `${tgt} ${verbS(tgt, "get", "gets")} ${bits.join(" and ")}${dur(e)}${followUp}`;
 }
 
 // -----------------------------------------------------------------------------
