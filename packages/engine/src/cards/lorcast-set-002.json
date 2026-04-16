@@ -20,11 +20,8 @@
         "storyName": "OH, GOSH!",
         "rulesText": "This character can't quest unless you have another Seven Dwarfs character in play.",
         "effect": {
-          "type": "action_restriction",
-          "restricts": "quest",
-          "affectedPlayer": {
-            "type": "self"
-          }
+          "type": "cant_action_self",
+          "action": "quest"
         },
         "condition": {
           "type": "not",

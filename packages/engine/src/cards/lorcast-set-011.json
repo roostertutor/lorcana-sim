@@ -476,14 +476,11 @@
       },
       {
         "type": "static",
-        "storyName": "",
+        "storyName": "STANDS HIS GROUND",
         "rulesText": "This character can't challenge.",
         "effect": {
-          "type": "action_restriction",
-          "restricts": "challenge",
-          "target": {
-            "type": "this"
-          }
+          "type": "cant_action_self",
+          "action": "challenge"
         }
       }
     ],
