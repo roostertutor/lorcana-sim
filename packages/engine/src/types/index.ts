@@ -2504,6 +2504,10 @@ export type Condition =
    *  The filter is evaluated against the controller's play zone; `owner`
    *  defaults to self if unset. */
   | { type: "you_control_matching"; filter: CardFilter; minimum?: number }
+  /** Vision Slab DANGER REVEALED: "if an opposing character has damage".
+   *  Opponent-scoped counterpart of `you_control_matching`. `minimum`
+   *  defaults to 1. */
+  | { type: "opponent_controls_matching"; filter: CardFilter; minimum?: number }
   | { type: "your_character_was_damaged_this_turn" }
   | { type: "opposing_character_was_damaged_this_turn" }
   | { type: "opponent_character_was_banished_in_challenge_this_turn" }

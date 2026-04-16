@@ -186,9 +186,18 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
   is_challenged:                 ()  => "Whenever this character is challenged",
   // Legacy spelling alias.
   challenged:                    ()  => "Whenever this character is challenged",
-  challenges:                    (t) => filterMentionsYour(t.filter)
-                                          ? "Whenever one of your characters challenges another character"
-                                          : "Whenever this character challenges another character",
+  challenges:                    (t) => {
+    if (filterMentionsYour(t.filter)) return "Whenever one of your characters challenges another character";
+    // Snuggly Duckling ROUTINE RUCKUS: location-scoped filter with
+    // strength cap → "Whenever a character with 3 {S} or more challenges
+    // another character while here".
+    if (t.filter?.atLocation === "this") {
+      const { atLocation, ...rest } = t.filter;
+      const filt = renderFilter(rest);
+      return `Whenever a ${filt} challenges another character while here`;
+    }
+    return "Whenever this character challenges another character";
+  },
   // Legacy spelling alias for `challenges`.
   challenge_initiated:           (t) => filterMentionsYour(t.filter)
                                           ? "Whenever one of your characters challenges another character"
@@ -311,6 +320,7 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
   // "If you have a [filter] in play" — supersedes the legacy single-trait /
   // single-name forms when the filter is more general.
   you_control_matching:       (c) => `if you have ${c.filter ? renderFilter(c.filter) : "a character"} in play`,
+  opponent_controls_matching: (c) => `if an opposing ${c.filter ? renderFilter({ ...c.filter, owner: undefined }) : "character"} is in play`,
   cards_in_hand_gte:          (c) => {
     const who = c.player?.type === "opponent" ? "an opponent has" : "you have";
     return `if ${who} ${c.amount ?? 0} or more cards in ${c.player?.type === "opponent" ? "their" : "your"} hand`;
@@ -1860,6 +1870,11 @@ function renderTarget(t: Json): string {
 }
 
 function renderFilter(f: Json, opts?: { suppressOwnerSelf?: boolean }): string {
+  // anyOf compound filter: disjunction of sub-filters (Hiro Hamada: "item
+  // card or Robot character card"). Render as "X or Y".
+  if (Array.isArray(f.anyOf) && f.anyOf.length > 0) {
+    return f.anyOf.map((sub: Json) => renderFilter(sub, opts)).join(" or ");
+  }
   const bits: string[] = [];
   // Owner — suppress "your" for chosen targets (oracle says "chosen character" not "chosen your character")
   if (f.owner?.type === "self" && !opts?.suppressOwnerSelf) bits.push("your");
@@ -1895,6 +1910,14 @@ function renderFilter(f: Json, opts?: { suppressOwnerSelf?: boolean }): string {
   // Magica De Spell Thieving Sorceress: "chosen item with cost equal to or
   // less than this character's {S}" — the source's live strength is the cap.
   if (f.costAtMostFromSourceStrength) bits.push("with cost equal to or less than this character's {S}");
+  // Ursula Voice Stealer SING FOR ME: "with cost equal to or less than the
+  // exerted character's cost" — renders when filter references the cost
+  // snapshot from the previous effect step.
+  if (f.costAtMostFromLastResolvedSourcePlus !== undefined) {
+    const plus = f.costAtMostFromLastResolvedSourcePlus;
+    if (plus === 0) bits.push("with cost equal to or less than the exerted character's cost");
+    else bits.push(`with cost equal to or less than the exerted character's cost +${plus}`);
+  }
   if (f.hasDamage) bits.push("with damage");
   // Tug-of-War: "each opposing character without Evasive".
   if (f.lacksKeyword) bits.push(`without ${cap(f.lacksKeyword)}`);

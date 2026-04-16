@@ -5627,15 +5627,14 @@
           }
         },
         "condition": {
-          "type": "cards_in_zone_gte",
-          "zone": "play",
-          "amount": 1,
-          "player": {
-            "type": "opponent"
-          },
-          "cardType": [
-            "character"
-          ]
+          "type": "opponent_controls_matching",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasDamage": true
+          }
         },
         "effects": [
           {

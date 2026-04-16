@@ -944,6 +944,34 @@ export function evaluateCondition(
       }
       return false;
     }
+    case "opponent_controls_matching": {
+      // Vision Slab DANGER REVEALED: "if an opposing character has damage".
+      // Opponent-scoped mirror of you_control_matching.
+      const min = condition.minimum ?? 1;
+      const filter: CardFilter = condition.filter.owner
+        ? condition.filter
+        : { ...condition.filter, owner: { type: "opponent" } };
+      const zones: ZoneName[] = Array.isArray(filter.zone)
+        ? filter.zone
+        : filter.zone
+        ? [filter.zone]
+        : ["play"];
+      let count = 0;
+      for (const zone of zones) {
+        const ids = getZone(state, opponent, zone);
+        for (const id of ids) {
+          const inst = state.cards[id];
+          if (!inst) continue;
+          const def = definitions[inst.definitionId];
+          if (!def) continue;
+          if (matchesFilter(inst, def, filter, state, controllingPlayerId, sourceInstanceId)) {
+            count++;
+            if (count >= min) return true;
+          }
+        }
+      }
+      return false;
+    }
     case "your_character_was_damaged_this_turn": {
       // Devil's Eye Diamond / Brutus - Fearsome Crocodile.
       return !!state.players[controllingPlayerId].aCharacterWasDamagedThisTurn;
