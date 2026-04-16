@@ -55,6 +55,7 @@ function injectCard(
     tempLoreModifier: 0,
     grantedKeywords: [],
     timedEffects: [],
+    cardsUnder: [],
     ...overrides,
   };
 

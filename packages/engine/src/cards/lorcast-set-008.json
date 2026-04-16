@@ -4875,6 +4875,30 @@
             ]
           }
         }
+      },
+      {
+        "type": "create_floating_trigger",
+        "attachTo": "all_matching",
+        "targetFilter": {
+          "owner": {
+            "type": "self"
+          },
+          "zone": "play",
+          "cardType": [
+            "character"
+          ]
+        },
+        "trigger": {
+          "on": "banished_in_challenge"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
       }
     ]
   },

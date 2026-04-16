@@ -49,7 +49,7 @@ import {
   moveCard,
   updateInstance,
 } from "../utils/index.js";
-import { rngNextInt } from "../utils/seededRng.js";
+import { cloneRng, rngNextInt } from "../utils/seededRng.js";
 
 // Maximum trigger chain depth before treating as an infinite loop (CRD 6.2.x)
 const MAX_TRIGGER_CHAIN = 100;
@@ -79,6 +79,14 @@ export function applyAction(
   }
 
   const events: GameEvent[] = [];
+
+  // `rngNext` mutates `state.rng.s` in place for performance. Clone the rng
+  // up front so the caller's state object is never modified — required for
+  // deterministic replay (undo, quicksave/load, branching sim) where any
+  // held state reference must preserve its original seed. All downstream
+  // reducer paths thread through this working state, so their rng mutations
+  // land on the clone, not the caller's copy.
+  state = { ...state, rng: cloneRng(state.rng) };
 
   try {
     let newState = applyActionInner(state, action, definitions, events);
@@ -1463,6 +1471,13 @@ function applyBoostCard(
     triggeringPlayerId: playerId,
     triggeringCardInstanceId: topId,
   });
+  // CRD 8.4.1: emit boost_used trigger — fires ONLY on Boost activation (not
+  // on put_top_card_under effects). Carrier/source = the boosted character,
+  // triggering card = the boosted character itself so "put under THEM" works.
+  state = queueTrigger(state, "boost_used", instanceId, definitions, {
+    triggeringPlayerId: playerId,
+    triggeringCardInstanceId: instanceId,
+  });
   return state;
 }
 
@@ -1638,6 +1653,7 @@ function performTurnTransition(
         extraInkPlaysGranted: 0, // Clear turn-scoped extra ink grants
         cardsPlayedThisTurn: [],
         charactersQuestedThisTurn: 0,
+        cardsDrawnThisTurn: 0,
         // Per-turn event flags reset on the new active player too (defensive)
         aCharacterWasDamagedThisTurn: false,
         aCharacterWasBanishedInChallengeThisTurn: false,
@@ -1653,6 +1669,7 @@ function performTurnTransition(
         turnChallengeBonuses: [],
         cardsPlayedThisTurn: [],
         charactersQuestedThisTurn: 0,
+        cardsDrawnThisTurn: 0,
         aCharacterWasDamagedThisTurn: false,
         aCharacterWasBanishedInChallengeThisTurn: false,
         aCharacterChallengedThisTurn: false,
@@ -1664,13 +1681,20 @@ function performTurnTransition(
   };
 
   // Ready all of opponent's cards in play and inkwell (CRD 3.2.1.1)
-  // CRD 6.6.1: Respect "can't ready" from both timed effects and static modifiers
+  // CRD 6.6.1: Respect "can't ready" from both timed effects and static modifiers.
+  // Both the narrow "ready" (Maui) and the blanket "ready_anytime" (Gargoyle
+  // STONE BY DAY) block the start-of-turn ready step; only effect-driven
+  // ready distinguishes them.
   const modifiers = getGameModifiers(state, definitions);
   const opponentPlay = getZone(state, opponent, "play");
   for (const id of opponentPlay) {
     const inst = getInstance(state, id);
     const def = definitions[inst.definitionId];
-    if (def && isActionRestricted(inst, def, "ready", opponent, state, modifiers)) {
+    const cantReady = def && (
+      isActionRestricted(inst, def, "ready", opponent, state, modifiers)
+      || isActionRestricted(inst, def, "ready_anytime", opponent, state, modifiers)
+    );
+    if (cantReady) {
       // CRD: Can't ready — only clear isDrying, keep exerted
       state = updateInstance(state, id, { isDrying: false });
     } else {
@@ -1884,6 +1908,18 @@ function applyDraw(
       message: `${playerId} drew ${cardName}.`,
       type: "card_drawn",
     });
+    // Ink Amplifier ENERGY CAPTURE: tally draws this turn so the
+    // "Nth card drawn this turn" condition reads the post-draw count.
+    state = {
+      ...state,
+      players: {
+        ...state.players,
+        [playerId]: {
+          ...state.players[playerId],
+          cardsDrawnThisTurn: (state.players[playerId].cardsDrawnThisTurn ?? 0) + 1,
+        },
+      },
+    };
     // CRD 6.2: queue card_drawn triggers (Jafar Striking Illusionist, etc.)
     // Player filter is handled by queueTriggersByEvent matching trigger.player
     // against the drawing player.
@@ -2112,7 +2148,10 @@ function applyResolveChoice(
     //   - "hand" (default): Develop Your Brain, Ariel, Nani, LatF, DALD, etc.
     //   - "deck_top": Ursula's Cauldron, Merlin Turtle (picked stays at top).
     //   - "inkwell_exerted": Kida Creative Thinker.
+    //   - "discard": Mad Hatter Eccentric Host (picked goes to target's discard).
     // revealPicks controls whether picked cards are publicly revealed.
+    // Zones resolve per each card's ownerId so chosen-player/opponent-deck
+    // flows (Mad Hatter) route to the right player's zones, not the chooser's.
     const allRevealed = pendingChoice.revealedCards ?? pendingChoice.validTargets ?? [];
     const chosenSet = new Set(choice as string[]);
     const rest = allRevealed.filter(id => !chosenSet.has(id));
@@ -2120,21 +2159,29 @@ function applyResolveChoice(
     const pickDestination = pendingEff?.pickDestination ?? "hand";
     const restPlacement = pendingEff?.restPlacement ?? "bottom";
     for (const chosenId of choice as string[]) {
+      const cardOwner = state.cards[chosenId]?.ownerId ?? owner;
       if (revealPicks) {
         events.push({ type: "card_revealed", instanceId: chosenId, playerId: owner, sourceInstanceId: pendingChoice.sourceInstanceId ?? "" });
       }
       if (pickDestination === "hand") {
-        state = moveCard(state, chosenId, owner, "hand");
+        state = moveCard(state, chosenId, cardOwner, "hand");
       } else if (pickDestination === "inkwell_exerted") {
         state = zoneTransition(state, chosenId, "inkwell", definitions, events, { reason: "inked" });
         state = updateInstance(state, chosenId, { isExerted: true });
+      } else if (pickDestination === "discard") {
+        state = moveCard(state, chosenId, cardOwner, "discard");
       }
       // "deck_top": chosen stays in place. With restPlacement "bottom" (moving
       // the rest to bottom), the chosen card ends up at top naturally.
     }
-    // Handle rest placement.
+    // Handle rest placement. Use the rest cards' owner (typically the target
+    // player for look_at_top on an opponent/chosen-player deck).
+    const restOwner = rest.length > 0 ? (state.cards[rest[0]!]?.ownerId ?? owner) : owner;
     if (restPlacement === "discard") {
-      for (const id of rest) state = moveCard(state, id, owner, "discard");
+      for (const id of rest) {
+        const cardOwner = state.cards[id]?.ownerId ?? owner;
+        state = moveCard(state, id, cardOwner, "discard");
+      }
     } else if (restPlacement === "bottom") {
       if (rest.length > 1 && state.interactive) {
         // Let human choose the order the rest go to the bottom
@@ -2149,7 +2196,7 @@ function applyResolveChoice(
           },
         };
       }
-      state = reorderDeckTopToBottom(state, owner, rest, []);
+      state = reorderDeckTopToBottom(state, restOwner, rest, []);
     }
     // "top" placement: cards stay where they were after chosen is removed — no-op.
     state = resumePendingEffectQueue(state, definitions, events);
@@ -2496,6 +2543,13 @@ function resolveDynamicAmount(
       resolved = inst?.cardsUnder.length ?? 0;
       break;
     }
+    case "triggering_card_cards_under_count": {
+      // Donald Duck Fred Honeywell WELL WISHES: "draw a card for each card
+      // that was under them". Reads the snapshot captured at banish time
+      // before leave-play cleanup cleared cardsUnder.
+      resolved = state.lastBanishedCardsUnderCount ?? 0;
+      break;
+    }
   }
   const max = (amount as { max?: number }).max;
   if (typeof max === "number") resolved = Math.min(resolved, max);
@@ -2650,15 +2704,20 @@ export function applyEffect(
         const choosingPlayerId = chosenChooserPlayerId(effect.target, controllingPlayerId);
         const validTargets = findChosenTargets(state, effect.target.filter, choosingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state; // CRD 1.7.7
+        // Grab Your Bow: "Banish up to 2 chosen characters with 2 {S} or less."
+        // target.count > 1 surfaces a multi-select; isMay gates the optional
+        // "up to" semantic (player can pick 0..count).
+        const count = effect.target.count ?? 1;
         return {
           ...state,
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId,
-            prompt: "Choose a target to banish.",
+            prompt: count > 1 ? `Choose up to ${count} targets to banish.` : "Choose a target to banish.",
             validTargets,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             optional: effect.isMay ?? false,
+            count,
           },
         };
       }
@@ -3586,7 +3645,7 @@ export function applyEffect(
       // your turn") — Shield of Virtue and other active ready effects override
       // it. The ready loop in applyPassTurn enforces the narrow check.
       // If a future card needs broad "can't be readied period" semantics, add
-      // a new RestrictedAction value (e.g. "ready_anywhere") and check it here.
+      // a new RestrictedAction value (e.g. "ready_anytime") and check it here.
       if (effect.target.type === "this") {
         const wasExerted = getInstance(state, sourceInstanceId).isExerted;
         state = updateInstance(state, sourceInstanceId, { isExerted: false });
@@ -3720,6 +3779,11 @@ export function applyEffect(
     }
 
     case "look_at_top": {
+      // Mad Hatter Eccentric Host: "chosen player's deck" — surface chooser
+      // first, then re-apply with substituted self/opponent target.
+      if (effect.target.type === "chosen") {
+        return surfaceChoosePlayer(state, effect, controllingPlayerId, sourceInstanceId, definitions, events);
+      }
       // Headless engine: bot auto-resolves look_at_top choices
       const targetPlayer = effect.target.type === "opponent"
         ? getOpponent(controllingPlayerId) : controllingPlayerId;
@@ -3871,7 +3935,9 @@ export function applyEffect(
                       ? `Choose ${pickCount} card(s) to keep on top of your deck. The rest go to the bottom of your deck.`
                       : effect.pickDestination === "inkwell_exerted"
                         ? `Choose ${pickCount} card(s) to put into your inkwell facedown and exerted.`
-                        : `Choose ${pickCount} card(s) to put into your hand. The rest go to the bottom of your deck.`),
+                        : effect.pickDestination === "discard"
+                          ? `Choose ${pickCount} card(s) to put into the discard. The rest stay on top of the deck.`
+                          : `Choose ${pickCount} card(s) to put into your hand. The rest go to the bottom of your deck.`),
                 validTargets: matchingCards,
                 revealedCards: topCards,
                 pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
@@ -3936,6 +4002,9 @@ export function applyEffect(
               // Kida Creative Thinker: picked goes to inkwell facedown exerted.
               state = zoneTransition(state, id, "inkwell", definitions, events, { reason: "inked" });
               state = updateInstance(state, id, { isExerted: true });
+            } else if (pickDestination === "discard") {
+              // Mad Hatter Eccentric Host: picked card goes to target player's discard.
+              state = moveCard(state, id, targetPlayer, "discard");
             }
             // "deck_top": chosen card stays in deck — no move needed. With
             // restPlacement: "bottom", removing the rest from deck naturally
@@ -4011,7 +4080,7 @@ export function applyEffect(
             // No match — entire deck was revealed; shuffle deck (no card to hand).
             const shuffled = [...fullDeck];
             for (let i = shuffled.length - 1; i > 0; i--) {
-              const r = rngNextInt(state, i + 1);
+              const r = rngNextInt(state.rng, i + 1);
               const tmp = shuffled[i]!; shuffled[i] = shuffled[r]!; shuffled[r] = tmp;
             }
             return {
@@ -4034,7 +4103,7 @@ export function applyEffect(
           // Shuffle revealedNonMatch back into the remaining deck.
           const merged = [...remaining, ...revealedNonMatch];
           for (let i = merged.length - 1; i > 0; i--) {
-            const r = rngNextInt(state, i + 1);
+            const r = rngNextInt(state.rng, i + 1);
             const tmp = merged[i]!; merged[i] = merged[r]!; merged[r] = tmp;
           }
           return {
@@ -4563,6 +4632,15 @@ export function applyEffect(
         if (ownerId) players.push(ownerId as PlayerID);
         else players.push(getOpponent(controllingPlayerId)); // fallback
       }
+      // Search for Clues: expand to every player whose hand size equals the
+      // max (tie → both players each discard 2).
+      else if (effect.target.type === "players_with_most_cards_in_hand") {
+        const p1Hand = getZone(state, "player1", "hand").length;
+        const p2Hand = getZone(state, "player2", "hand").length;
+        const maxHand = Math.max(p1Hand, p2Hand);
+        if (p1Hand === maxHand) players.push("player1");
+        if (p2Hand === maxHand) players.push("player2");
+      }
 
       const discardMods = getGameModifiers(state, definitions);
       for (const pid of players) {
@@ -4663,19 +4741,25 @@ export function applyEffect(
       const fromZone = effect.fromZone ?? "play";
 
       if (fromZone === "deck") {
-        // Top of deck → inkwell (one-jump-ahead, mickey-mouse-detective)
-        const deck = getZone(state, controllingPlayerId, "deck");
+        // Top of deck → inkwell (one-jump-ahead, mickey-mouse-detective).
+        // Sudden Scare: "That player puts the top card of their deck into
+        // their inkwell" — when target is last_resolved_target, use the
+        // previously-chosen card's owner instead of the controller.
+        const sourcePlayer = effect.target?.type === "last_resolved_target"
+          ? (state.lastResolvedTarget?.ownerId ?? controllingPlayerId)
+          : controllingPlayerId;
+        const deck = getZone(state, sourcePlayer, "deck");
         if (deck.length === 0) return state;
         const topCardId = deck[0]!;
         state = zoneTransition(state, topCardId, "inkwell", definitions, events, { reason: "inked" });
         if (effect.enterExerted) {
           state = updateInstance(state, topCardId, { isExerted: true });
         } else {
-          state = addInkFromEffect(state, controllingPlayerId);
+          state = addInkFromEffect(state, sourcePlayer);
         }
         // CRD 6.2: "whenever a card is put into your inkwell" fires on effect-driven
         // inkwell placement (Oswald watching Fishbone Quill), not just normal INK_CARD.
-        state = queueTriggersByEvent(state, "card_put_into_inkwell", controllingPlayerId, definitions, {});
+        state = queueTriggersByEvent(state, "card_put_into_inkwell", sourcePlayer, definitions, {});
         return state;
       }
 
@@ -4722,6 +4806,7 @@ export function applyEffect(
             prompt: "Choose a target.",
             validTargets,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
+            optional: effect.isMay ?? false,
           },
         };
       }
@@ -4907,15 +4992,23 @@ export function applyEffect(
         const filter = effect.target.filter;
         const validTargets = findChosenTargets(state, filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state;
+        // It Calls Me "choose up to 3": target.count>1 surfaces a multi-select.
+        // isUpTo (on DealDamage-style effects) isn't on ShuffleIntoDeckEffect,
+        // so reuse isMay to gate optional (0..count) picks — semantically
+        // equivalent for the "up to N" wording.
+        const count = effect.target.count ?? 1;
         return {
           ...state,
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: "Choose a card to shuffle into its owner's deck.",
+            prompt: count > 1
+              ? `Choose up to ${count} cards to shuffle into their owner's deck.`
+              : "Choose a card to shuffle into its owner's deck.",
             validTargets,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             optional: effect.isMay ?? false,
+            count,
           },
         };
       }
@@ -5103,6 +5196,21 @@ export function applyEffect(
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           },
         };
+      }
+      // attachTo: "all_matching" — Forest Duel pattern: attach one floating
+      // trigger per matching in-play card. Each gets its own entry so the
+      // trigger dispatches correctly when any individual attached card fires.
+      if (effect.attachTo === "all_matching") {
+        const filter = effect.targetFilter ?? { owner: { type: "self" }, zone: "play", cardType: ["character"] };
+        const matches = findValidTargets(state, filter, controllingPlayerId, definitions, sourceInstanceId);
+        const additions = matches.map((id) => ({
+          trigger: effect.trigger,
+          effects: effect.effects,
+          controllingPlayerId,
+          attachedToInstanceId: id,
+          sourceInstanceId,
+        }));
+        return { ...state, floatingTriggers: [...existing, ...additions] };
       }
       return {
         ...state,
@@ -5921,6 +6029,13 @@ function zoneTransition(
       state = queueTrigger(state, "leaves_play", instanceId, definitions, triggerCtx);
 
       if (ctx.reason === "banished") {
+        // Capture cardsUnder count BEFORE leave-play cleanup clears it. Read
+        // by the `triggering_card_cards_under_count` DynamicAmount for Donald
+        // Duck Fred Honeywell WELL WISHES ("draw a card for each card that
+        // was under them"). `?? 0` guards against test-injected cards that
+        // may not initialize cardsUnder — the type is string[] but not every
+        // test helper fills it in.
+        state = { ...state, lastBanishedCardsUnderCount: instance.cardsUnder?.length ?? 0 };
         state = queueTrigger(state, "is_banished", instanceId, definitions, {});
 
         if (ctx.fromChallenge && ctx.challengeOpponentId) {
@@ -6596,7 +6711,21 @@ function applyEffectToTarget(
       return addTimedEffect(state, targetInstanceId, timedEffect);
     }
     case "ready": {
-      const wasExerted = getInstance(state, targetInstanceId).isExerted;
+      // Effect-driven ready (Shield of Virtue, Fan the Flames, Maui's I GOT
+      // YOUR BACK, Fred Giant-Sized's boost-ready). The NARROW "ready"
+      // restriction is turn-start-only and does NOT block this path, but the
+      // BLANKET "ready_anytime" restriction (Gargoyle STONE BY DAY) does —
+      // dormant Gargoyles with 3+ cards in hand cannot be readied by any
+      // means while the condition holds.
+      const targetInst = getInstance(state, targetInstanceId);
+      const targetDef = definitions[targetInst.definitionId];
+      if (targetDef) {
+        const readyMods = getGameModifiers(state, definitions);
+        if (isActionRestricted(targetInst, targetDef, "ready_anytime", targetInst.ownerId, state, readyMods)) {
+          return state;
+        }
+      }
+      const wasExerted = targetInst.isExerted;
       state = updateInstance(state, targetInstanceId, { isExerted: false });
       if (wasExerted) {
         state = queueTrigger(state, "readied", targetInstanceId, definitions, {});

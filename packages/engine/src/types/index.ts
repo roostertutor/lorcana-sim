@@ -55,14 +55,18 @@ export type CardType = "character" | "action" | "item" | "location";
 export type RestrictedAction =
   | "quest"
   | "challenge"
-  /** "can't ready at the start of your turn" — blocks the start-of-turn ready
-   *  loop (CRD 3.2.1.1) only, NOT effect-driven readying. Lorcana's "can't ready"
-   *  cards are uniformly narrow (Elsa's "can't ready at the start of their next
-   *  turn", Maui's "can't ready at the start of your turn"); Shield of Virtue
-   *  and similar active-ready effects override the restriction.
-   *  If a future card needs a broader "can't be readied period" semantic, add
-   *  a new value (e.g. "ready_anywhere") rather than changing this one. */
+  /** "can't ready at the start of your turn" — NARROW. Blocks only the
+   *  start-of-turn ready loop (CRD 3.2.1.1); effect-driven ready (Shield of
+   *  Virtue, Fan the Flames, I GOT YOUR BACK) overrides it. Used by Maui -
+   *  Whale ("This character can't ready at the start of your turn") and Elsa
+   *  Spirit of Winter ("they can't ready at the start of their next turn"). */
   | "ready"
+  /** "can't ready period" — BLANKET. Blocks BOTH the start-of-turn ready loop
+   *  and effect-driven ready. Used by Gargoyle STONE BY DAY ("If you have 3
+   *  or more cards in your hand, this character can't ready") where the
+   *  oracle text lacks the "at the start of your turn" scope — so Fan the
+   *  Flames cannot ready a dormant Gargoyle either. */
+  | "ready_anytime"
   | "play"
   | "sing"
   | "move";
@@ -571,7 +575,11 @@ export type DynamicAmount =
   /** CRD 8.4.2: number of cards in the source's cards-under pile ("for each card
    *  under this character" / "equal to the number of cards under"). Resolved
    *  against the SOURCE instance's `cardsUnder.length`. */
-  | { type: "cards_under_count"; max?: number };
+  | { type: "cards_under_count"; max?: number }
+  /** Donald Duck Fred Honeywell WELL WISHES: "draw a card for each card that
+   *  was under them". Reads state.lastBanishedCardsUnderCount — the count
+   *  captured at banish time before leave-play cleanup clears cardsUnder. */
+  | { type: "triggering_card_cards_under_count"; max?: number };
 
 export interface DrawEffect {
   type: "draw";
@@ -1324,8 +1332,9 @@ export interface LookAtTopEffect {
   /** For "choose_from_top": where the picked cards go. Default "hand".
    *  - "hand"             — Develop Your Brain, Ariel, Nani, The Family Madrigal
    *  - "deck_top"         — Ursula's Cauldron, Merlin Turtle (picked card stays on top)
-   *  - "inkwell_exerted"  — Kida Creative Thinker (picked goes into inkwell facedown) */
-  pickDestination?: "hand" | "deck_top" | "inkwell_exerted";
+   *  - "inkwell_exerted"  — Kida Creative Thinker (picked goes into inkwell facedown)
+   *  - "discard"          — Mad Hatter Eccentric Host (look at top, may discard it or leave on top) */
+  pickDestination?: "hand" | "deck_top" | "inkwell_exerted" | "discard";
   /** Where the unchosen cards go. Default "bottom".
    *  - "bottom" — The Family Madrigal rest, DYB, Powerline
    *  - "top"    — The Family Madrigal uses top, Kida Creative Thinker
@@ -1377,6 +1386,9 @@ export interface ConditionalOnTargetEffect {
   conditionFilter: CardFilter;
   /** Effects if target DOES match condition */
   ifMatchEffects: Effect[];
+  /** CRD 6.1.4: "you may" — surfaces as optional choose_target. Used by
+   *  Seven Dwarfs' Mine "you may deal 1 damage... If Knight, deal 2 instead". */
+  isMay?: boolean;
 }
 
 /** Play a card from some source zone (hand/discard/under/deck/etc.).
@@ -1520,8 +1532,13 @@ export interface CreateFloatingTriggerEffect {
    * "last_resolved_target" attaches to state.lastResolvedTarget — used by
    * Mother Gothel KWB where a damage cost selects the chosen, then the
    * floating trigger attaches to that same chosen target.
+   * "all_matching" attaches one instance of the trigger to EVERY card
+   * matching `targetFilter`. Used by Forest Duel ("Your characters gain
+   * Challenger +2 and '[floating trigger]' this turn"): the Challenger
+   * grant is one effect (target: all), and the floating trigger grant is a
+   * sibling effect that needs the same broad scope.
    */
-  attachTo?: "self" | "chosen" | "last_resolved_target";
+  attachTo?: "self" | "chosen" | "last_resolved_target" | "all_matching";
   targetFilter?: CardFilter;
 }
 
@@ -2216,7 +2233,11 @@ export type PlayerTarget =
    *  prompt the controller to pick among opponents).
    *  Used by Second Star to the Right ("Chosen player draws 5 cards"),
    *  Mad Hatter, Madame Medusa, Water Has Memory, Copper Hound Pup, etc. */
-  | { type: "chosen"; excludeSelf?: boolean };
+  | { type: "chosen"; excludeSelf?: boolean }
+  /** "The player or players with the most cards in their hand" — Search for
+   *  Clues. Expands to every player whose hand size equals the max (tie
+   *  = both players). */
+  | { type: "players_with_most_cards_in_hand" };
 
 export type CardTarget =
   | { type: "this" } // The card itself
@@ -2363,6 +2384,14 @@ export type TriggerEvent =
    *  under-card as triggeringCardInstanceId. "Whenever you put a card under
    *  one of your characters, draw a card." — Webby's Diary. */
   | { on: "card_put_under"; filter?: CardFilter }
+  /** CRD 8.4.1: Fires ONLY when a player activates the Boost keyword ability
+   *  (not for arbitrary put_top_card_under effects). Filter matches the
+   *  character whose Boost was used (the carrier). The carrier is also the
+   *  triggering card. Used by Donald Duck Fred Honeywell SPIRIT OF GIVING:
+   *  "Whenever you use the Boost ability of a character, you may put the top
+   *  card of your deck under them facedown." Distinct from card_put_under
+   *  because Donald shouldn't fire on Mickey Bob Cratchit's quest-under. */
+  | { on: "boost_used"; filter?: CardFilter }
   /** CRD 8.10.4: fires on the previous version of a character that just had
    *  another character shifted onto it. Source is the under card; the
    *  triggering card is the new shifter. Used by Go Go Tomago Mechanical
@@ -2494,6 +2523,10 @@ export type Condition =
   /** Chicha Dedicated Mother (Set 5): "if it's the Nth card you've put into
    *  your inkwell this turn". True iff PlayerState.inkPlaysThisTurn equals N. */
   | { type: "ink_plays_this_turn_eq"; amount: number }
+  /** Ink Amplifier ENERGY CAPTURE: "if it's the second card they've drawn
+   *  this turn". Reads cardsDrawnThisTurn on the triggering card's owner
+   *  (the player who drew). Falls back to controller if no trigger context. */
+  | { type: "triggering_player_draws_this_turn_eq"; amount: number }
   /** Isabela Madrigal Golden Child: "if no other character has quested this
    *  turn". True iff the controller's charactersQuestedThisTurn count is 0
    *  OR the only quester is the source itself. */
@@ -2784,6 +2817,10 @@ export interface PlayerState {
    *  (Isabela Madrigal Golden Child — "if no other character has quested this
    *  turn"). Reset on PASS_TURN. */
   charactersQuestedThisTurn?: number;
+  /** Number of cards this player has drawn this turn. Used by Ink Amplifier
+   *  ENERGY CAPTURE ("if it's the second card they've drawn this turn").
+   *  Reset on PASS_TURN. */
+  cardsDrawnThisTurn?: number;
   /** Unified list of instance IDs of EVERY card this player played this turn
    *  (characters, items, locations, actions, songs, shifts, free-plays,
    *  reveal-and-play). Populated by `zoneTransition` whenever `ctx.reason ===
@@ -2937,6 +2974,13 @@ export interface GameState {
    *  TRIPLE SHOT and Namaari Heir of Fang TWO-WEAPON FIGHTING ("deal the same
    *  amount of damage to another chosen character"). */
   lastDamageDealtAmount?: number;
+
+  /** Snapshot of the most recently banished card's cardsUnder count — captured
+   *  before leave-play cleanup clears the array. Read by the
+   *  `triggering_card_cards_under_count` DynamicAmount so "draw a card for
+   *  each card that was under them" (Donald Duck Fred Honeywell WELL WISHES)
+   *  sees the count at trigger resolution time. */
+  lastBanishedCardsUnderCount?: number;
 
   /** Snapshot of the most recently revealed hand — set by the reveal_hand
    *  effect so the UI can show a modal without needing event listeners. */

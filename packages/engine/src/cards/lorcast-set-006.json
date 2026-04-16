@@ -3134,10 +3134,13 @@
           {
             "type": "look_at_top",
             "count": 1,
-            "action": "up_to_n_to_discard_rest_top",
-            "maxToHand": 0,
+            "action": "choose_from_top",
+            "maxToHand": 1,
+            "pickDestination": "discard",
+            "restPlacement": "top",
+            "isMay": true,
             "target": {
-              "type": "opponent"
+              "type": "chosen"
             }
           }
         ]
@@ -6877,6 +6880,21 @@
           }
         ],
         "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          },
           {
             "type": "banish",
             "target": {

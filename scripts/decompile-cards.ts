@@ -159,7 +159,17 @@ type Renderer = (e: Json, ctx?: { cardType?: string }) => string;
 const TRIGGER_RENDERERS: Record<string, Renderer> = {
   enters_play:                   ()  => "When you play this character",
   leaves_play:                   ()  => "When this character leaves play",
-  is_banished:                   (t) => t.filter ? `Whenever one of your ${renderFilter(t.filter)} is banished` : "When this character is banished",
+  is_banished:                   (t) => {
+    if (!t.filter) return "When this character is banished";
+    // "one of your OTHER characters is banished" — excludeSelf means the
+    // ability carrier is excluded. Drop excludeSelf from renderFilter so
+    // we don't double-count "other".
+    if (t.filter.excludeSelf && t.filter.owner?.type === "self") {
+      const { excludeSelf, ...rest } = t.filter;
+      return `Whenever one of your other ${renderFilter(rest)} is banished`;
+    }
+    return `Whenever one of your ${renderFilter(t.filter)} is banished`;
+  },
   banished_in_challenge:         (t) => {
     if (t.filter?.owner?.type === "self") return "Whenever one of your other characters is banished in a challenge";
     if (t.filter?.excludeSelf) return "Whenever another character is banished in a challenge";
@@ -182,14 +192,18 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
   quests:                        (t) => filterMentionsYour(t.filter)
                                           ? "Whenever one of your characters quests"
                                           : "Whenever this character quests",
-  sings:                         ()  => "Whenever this character sings a song",
+  sings:                         (t) => filterMentionsYour(t.filter)
+                                          ? "Whenever one of your characters sings a song"
+                                          : "Whenever this character sings a song",
   turn_start:                    (t) => t.player?.type === "opponent"
                                           ? "At the start of an opponent's turn"
                                           : "At the start of your turn",
   turn_end:                      (t) => t.player?.type === "opponent"
                                           ? "At the end of an opponent's turn"
                                           : "At the end of your turn",
-  card_drawn:                    ()  => "Whenever you draw a card",
+  card_drawn:                    (t) => t.player?.type === "opponent"
+                                          ? "Whenever an opponent draws a card"
+                                          : "Whenever you draw a card",
   card_played: (t) => {
     if (!t.filter) return "Whenever you play a card";
     // No owner filter = ANY player ("whenever another character is played")
@@ -213,11 +227,18 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
   returned_to_hand:              ()  => "Whenever this character is returned to your hand",
   cards_discarded:               ()  => "Whenever a card is discarded",
   deals_damage_in_challenge:     ()  => "Whenever this character deals damage in a challenge",
-  card_put_under:                ()  => "Whenever a card is put underneath this",
+  card_put_under:                (t) => filterMentionsYour(t.filter)
+                                          ? "Whenever you put a card under one of your characters or locations"
+                                          : "Whenever a card is put underneath this",
+  boost_used:                    (t) => filterMentionsYour(t.filter)
+                                          ? "Whenever you use the Boost ability of a character"
+                                          : "Whenever the Boost ability is used",
   shifted_onto:                  ()  => "Whenever a character is shifted onto this character",
   chosen_by_opponent:            ()  => "Whenever this character is chosen by an opponent",
   character_exerted:             ()  => "Whenever a character is exerted",
-  chosen_for_support:            ()  => "Whenever this character is chosen for support",
+  chosen_for_support:            (t) => filterMentionsYour(t.filter)
+                                          ? "Whenever one of your characters is chosen for support"
+                                          : "Whenever this character is chosen for support",
 };
 
 function renderTrigger(t: Json): string {
@@ -406,8 +427,22 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
       return `${maybe(e)}each player discards ${amt}`;
     }
     if (e.target?.type === "opponent") {
+      // Ursula - Eric's Bride VANESSA'S DESIGN: chooser:controller + filter →
+      // "chosen opponent reveals their hand and discards a [filtered] card
+      // of your choice." The reveal-hand is implicit from chooser:controller
+      // (comment in types/index.ts:500).
+      if (e.chooser === "controller" && e.filter) {
+        const filt = renderFilter(e.filter);
+        return `${maybe(e)}chosen opponent reveals their hand and discards a ${filt} of your choice`;
+      }
       const chooser = e.chooser === "target_player" ? "chooses and " : "";
       return `${maybe(e)}each opponent ${chooser}discards ${amt}`;
+    }
+    // Search for Clues: "The player or players with the most cards in their
+    // hand choose and discard N cards."
+    if (e.target?.type === "players_with_most_cards_in_hand") {
+      const chooser = e.chooser === "target_player" ? "choose and " : "";
+      return `${maybe(e)}the player or players with the most cards in their hand ${chooser}discard ${amt}`;
     }
     if (e.chooser === "target_player") {
       return `${maybe(e)}choose and discard ${amt}`;
@@ -561,8 +596,14 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     return `${tgt} can't ${action}${d}`;
   },
   // Self-restriction variant — same shape as cant_action but always targets
-  // this character. Used by Maui - Whale "this character can't ready..."
-  cant_action_self: (e) => `this character can't ${e.action ?? "act"}${dur(e)}`,
+  // this character. Used by Maui - Whale ("This character can't ready at the
+  // start of your turn") and Gargoyle STONE BY DAY ("this character can't
+  // ready" — blanket, via ready_anytime).
+  cant_action_self: (e) => {
+    if (e.action === "ready") return `this character can't ready at the start of your turn${dur(e)}`;
+    if (e.action === "ready_anytime") return `this character can't ready${dur(e)}`;
+    return `this character can't ${e.action ?? "act"}${dur(e)}`;
+  },
 
   // pay_ink as an effect (e.g. Ursula's Shell Necklace nested cost-as-effect).
   // The cost-side renderer in COST_RENDERERS handles the activated-cost form;
@@ -581,6 +622,13 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
       const filt = amt.filter ? renderFilter(amt.filter) : "matching card";
       return `For each ${filt}, you pay ${e.perMatch ?? 1} {I} less to play this character`;
     }
+    // Olaf Snowman of Action ABOUT TIME!: `perCount` + `countFilter` schema.
+    // "For each action card in your discard, you pay 1 {I} less to play this
+    // character."
+    if (e.countFilter) {
+      const filt = renderFilter(e.countFilter);
+      return `For each ${filt}, you pay ${e.perCount ?? 1} {I} less to play this character`;
+    }
     return `this character costs less to play`;
   },
   grant_play_for_free_self:   ()  => "you may play this character for free",
@@ -589,10 +637,14 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     const amt = typeof e.amount === "number" ? `${e.amount}` : typeof e.amount === "object" ? renderAmount(e.amount) : `${e.amount ?? "?"}`;
     return `you pay ${amt} {I} less for the next ${e.filter ? renderFilter(e.filter) : "card"} you play this turn`;
   },
+  // CRD: `cost_reduction` creates a one-shot this-turn reduction — consumed
+  // when the first matching card is played, cleared on turn pass. Oracle
+  // phrasing is "for the next X you play this turn" (Dr. Facilier's Cards,
+  // Encanto Holiday Playset, etc.), NOT a permanent discount.
   cost_reduction: (e) => {
     const amt = typeof e.amount === "number" ? `${e.amount}` : typeof e.amount === "object" ? renderAmount(e.amount) : `${e.amount ?? "?"}`;
-    const filt = e.filter ? pluralizeFilter(renderFilter(e.filter)) : "cards";
-    return `you pay ${amt} {I} less to play ${filt}`;
+    const filt = e.filter ? renderFilter(e.filter) : "card";
+    return `you pay ${amt} {I} less for the next ${filt} you play this turn`;
   },
 
   play_card: (e) => {
@@ -675,26 +727,39 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     }
   },
   reveal_top_conditional: (e) => {
-    const tgt = e.target?.type === "opponent" ? "opponent's" : "your";
+    // Let's Get Dangerous: target:both → per-player reveal with per-player
+    // play-for-free and per-player bottom-of-deck. The pronoun flips to
+    // "each player" / "their deck" / "their player's deck".
+    const isBoth = e.target?.type === "both";
+    const deckPossessive = isBoth
+      ? "their deck"
+      : e.target?.type === "opponent" ? "opponent's deck" : "your deck";
+    const subject = isBoth ? "Each player" : null;
     const hasFilter = e.filter && Object.keys(e.filter).length > 0;
     const filter = hasFilter ? renderFilter(e.filter) : "a card";
     const exerted = e.matchEnterExerted ? " and they enter play exerted" : "";
     const playVerb = e.matchPayCost ? "play it as if it were in your hand" : `play it for free${exerted}`;
     const match = e.matchAction === "to_hand" ? "put it into your hand"
-      : e.matchAction === "play_card" ? `you may ${playVerb}`
+      : e.matchAction === "play_card" ? (isBoth ? `that player may play it for free${exerted}` : `you may ${playVerb}`)
       : e.matchAction === "to_inkwell_exerted" ? "put it into your inkwell facedown and exerted"
       : e.matchAction ?? "keep it";
-    const noMatch = e.noMatchDestination === "bottom" ? "put it on the bottom of your deck"
+    const noMatch = e.noMatchDestination === "bottom" ? (isBoth ? "put the revealed card on the bottom of their player's deck" : "put it on the bottom of your deck")
       : e.noMatchDestination === "hand" ? "put it into your hand"
       : e.noMatchDestination === "discard" ? "put it in your discard"
       : e.noMatchDestination === "top" ? "put it on the top of your deck"
       : "put it back";
+    if (isBoth) {
+      // "Each player shuffles their deck and then reveals the top card."
+      const prefix = `${subject} shuffles their deck and then reveals the top card. ${subject}`;
+      if (!hasFilter) return `${prefix} ${match}. Otherwise, ${noMatch}`;
+      return `${prefix} who reveals ${filter} ${match}. Otherwise, ${noMatch}`;
+    }
     // When filter is empty (Kristoff's Lute — match ANY revealed card),
     // skip the "If it's X" clause and just say "reveal ... and do Y."
     if (!hasFilter) {
-      return `reveal the top card of ${tgt} deck. ${cap(match)}. Otherwise, ${noMatch}`;
+      return `reveal the top card of ${deckPossessive}. ${cap(match)}. Otherwise, ${noMatch}`;
     }
-    return `reveal the top card of ${tgt} deck. If it's ${filter}, ${match}. Otherwise, ${noMatch}`;
+    return `reveal the top card of ${deckPossessive}. If it's ${filter}, ${match}. Otherwise, ${noMatch}`;
   },
   search: (e) => {
     const filter = e.filter ? renderFilter(e.filter) : "a card";
@@ -708,7 +773,25 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
       : e.putInto === "hand" ? " and put it into your hand" : "";
     return `search your deck for ${filter}${dest}`;
   },
-  shuffle_into_deck:      (e) => `shuffle ${renderTarget(e.target ?? {})} into your deck`,
+  shuffle_into_deck:      (e) => {
+    // It Calls Me: "shuffle them into their deck" — when target is in the
+    // opponent's discard, the cards are shuffled back into THEIR (opponent's)
+    // deck, not the caster's. Detect via target.filter.owner.
+    const f = e.target?.filter;
+    const ownerIsOpponent = f?.owner?.type === "opponent";
+    const may = e.isMay ? "may " : "";
+    const count = e.target?.count;
+    const isUpTo = (e.isMay && count && count > 1);
+    // "choose up to N cards from chosen opponent's discard and shuffle them
+    // into their deck" — build phrasing from scratch for the opponent-discard
+    // variant so we get the right verb ("choose...shuffle") and ownership.
+    if (ownerIsOpponent && f?.zone === "discard" && count && count > 1) {
+      const upto = isUpTo ? "up to " : "";
+      return `${may ? "" : ""}choose ${upto}${count} cards from chosen opponent's discard and shuffle them into their deck`;
+    }
+    const dest = ownerIsOpponent ? "their deck" : "your deck";
+    return `${may}shuffle ${renderTarget(e.target ?? {})} into ${dest}`;
+  },
   move_to_inkwell: (e) => {
     const exerted = e.enterExerted ? " facedown and exerted" : " facedown";
     // Fishbone Quill: "put any card from your hand into your inkwell"
@@ -915,6 +998,14 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   // "Put all cards under this character into your hand" — Alice Well-Read Whisper.
   put_cards_under_into_hand: (e) => `put all cards under ${renderTarget(e.target ?? { type: "this" })} into your hand`,
   move_cards_under_to_inkwell: () => `put cards from under your characters into your inkwell`,
+  // Mickey Mouse Bob Cratchit A GIVING HEART: "put all cards that were under
+  // him under another chosen character or location of yours". The target is
+  // the destination; the source (cards-under pile) comes from the ability's
+  // own source card ("this").
+  move_cards_under_to_target: (e) => {
+    const may = e.isMay ? "you may " : "";
+    return `${may}put all cards that were under this card under ${renderTarget(e.target ?? {})}`;
+  },
 
   // ---- NEW: shapes added in the second pass --------------------------------
 
@@ -996,8 +1087,17 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   conditional_on_target: (e) => {
     const tgt = renderTarget(e.target ?? {});
     const def = (e.defaultEffects ?? []).map(renderEffect).join(" and ");
-    const cond = e.conditionFilter ? renderFilter(e.conditionFilter) : "matching";
     const alt = (e.ifMatchEffects ?? []).map(renderEffect).join(" and ");
+    // Trivial/empty conditionFilter + no defaultEffects: used as a "chain
+    // effects against a chosen target" pattern (Dinner Bell: "draw cards
+    // equal to the damage on chosen character of yours, then banish them"
+    // — banish targets last_resolved_target which is set by the chosen
+    // pick). Render as a plain sequence pinned on the chosen target.
+    const condFilterTrivial = !e.conditionFilter || Object.keys(e.conditionFilter).length === 0;
+    if (condFilterTrivial && (!e.defaultEffects || e.defaultEffects.length === 0)) {
+      return alt ? `choose ${tgt} — ${alt}` : `choose ${tgt}`;
+    }
+    const cond = e.conditionFilter ? renderFilter(e.conditionFilter) : "matching";
     return `${tgt}: ${def}. If a ${cond} is chosen, ${alt} instead`;
   },
 
@@ -1225,6 +1325,8 @@ function renderAmount(a: any): string {
     if (a.type === "last_effect_result") return "the number of cards affected";
     if (a.type === "last_resolved_target_delta") return "the amount removed";
     if (a.type === "cards_under_count") return "the number of cards under this character";
+    // Donald Duck Fred Honeywell WELL WISHES: "for each card that was under them"
+    if (a.type === "triggering_card_cards_under_count") return "the number of cards that were under them";
     return `[amount:${a.type}]`;
   }
   return "?";
@@ -1255,6 +1357,20 @@ function renderStatChange(e: Json): string {
   if (e.strength !== undefined) bits.push(`${signed(e.strength)} {S}`);
   if (e.willpower !== undefined) bits.push(`${signed(e.willpower)} {W}`);
   if (e.lore !== undefined) bits.push(`${signed(e.lore)} {L}`);
+  // gain_stats with a DynamicAmount (Rescue Rangers Away: "Chosen character
+  // loses {S} equal to the number of characters you have in play"). The
+  // `strengthDynamicNegate: true` flag flips sign for the "loses" wording.
+  const dyn = (stat: "strength" | "willpower" | "lore", sym: string) => {
+    const key = `${stat}Dynamic`;
+    if (e[key]) {
+      const sign = e[`${stat}DynamicNegate`] ? "-" : "+";
+      const amountPhrase = renderAmount(e[key]);
+      bits.push(`${sign}${amountPhrase} ${sym}`);
+    }
+  };
+  dyn("strength", "{S}");
+  dyn("willpower", "{W}");
+  dyn("lore", "{L}");
   // "you may give chosen character +2 {S}" for isMay — Grandmother Fa-style.
   if (e.isMay) {
     return `you may give ${tgt} ${bits.join(" and ")}${dur(e)}`;
@@ -1287,9 +1403,16 @@ function renderTriggered(ab: Json): string {
   // Filter empty renderings so chained effects (e.g. peek_and_set_target
   // → play_for_free with last_resolved_target) don't produce ". ." artifacts.
   const body = effects.map(renderEffect).filter(Boolean).join(", and ");
-  if (cond.startsWith("during ")) return `${cap(cond)}, ${head}, ${body}`;
-  if (cond) return `${head}, ${cond}, ${body}`;
-  return `${head}, ${body}`;
+  // oncePerTurn prefix: "Once per turn, whenever X, Y" (Taffyta Muttonfudge,
+  // Sugar Rush Speedway's ON YOUR MARKS — activated is handled separately).
+  const oncePrefix = ab.oncePerTurn ? "Once per turn, " : "";
+  // "during opponents' turns" / "during your turn" reads best at the front.
+  if (cond.startsWith("during ")) {
+    const headLower = head.charAt(0).toLowerCase() + head.slice(1);
+    return `${cap(cond)}, ${oncePrefix}${headLower}, ${body}`;
+  }
+  if (cond) return `${oncePrefix}${head}, ${cond}, ${body}`;
+  return `${oncePrefix}${head}, ${body}`;
 }
 
 function renderActivated(ab: Json, ctx?: { cardType?: string }): string {
@@ -1306,14 +1429,24 @@ function renderActivated(ab: Json, ctx?: { cardType?: string }): string {
     if (first?.type === "banish"
         && first.target?.type === "chosen"
         && first.target.filter?.owner?.type === "self") {
-      costParts.push(`Banish ${renderTarget(first.target)}`);
+      // Oracle wording for cost-hoist banish is consistently "Banish one of
+      // your X" (Triton Discerning King, Hades Strong Arm, Beast Frustrated
+      // Designer). `renderTarget` would produce "chosen X of yours" which
+      // is only used when the banish is the main effect, not a cost-step.
+      const count = first.target.count && first.target.count > 1 ? `${first.target.count} of your ` : "one of your ";
+      const { owner, ...restFilter } = first.target.filter;
+      const noun = pluralizeFilter(renderFilter(restFilter, { suppressOwnerSelf: true }));
+      costParts.push(`Banish ${count}${noun}`);
       effects.shift();
       continue;
     }
     if (first?.type === "exert"
         && first.target?.type === "chosen"
         && first.target.filter?.owner?.type === "self") {
-      costParts.push(`Exert ${renderTarget(first.target)}`);
+      const count = first.target.count && first.target.count > 1 ? `${first.target.count} of your ` : "one of your ";
+      const { owner, ...restFilter } = first.target.filter;
+      const noun = pluralizeFilter(renderFilter(restFilter, { suppressOwnerSelf: true }));
+      costParts.push(`Exert ${count}${noun}`);
       effects.shift();
       continue;
     }
@@ -1330,8 +1463,15 @@ function renderActivated(ab: Json, ctx?: { cardType?: string }): string {
   const costs = costParts.join(", ");
   const cond = ab.condition ? renderCondition(ab.condition) : "";
   const body = effects.map(renderEffect).filter(Boolean).join(", and ");
-  if (cond) return `${costs} — ${cap(cond)}, ${body}`;
-  return `${costs} — ${body}`;
+  // oncePerTurn prefix for activated abilities. Pairs with condition:is_your_turn
+  // to form "Once during your turn" (Grandmother Willow, Sugar Rush Speedway).
+  const oncePrefix = ab.oncePerTurn
+    ? (cond === "during your turn" ? "Once during your turn, " : "Once per turn, ")
+    : "";
+  // If we used "Once during your turn" prefix, the condition is absorbed.
+  const condOut = (ab.oncePerTurn && cond === "during your turn") ? "" : cond;
+  if (condOut) return `${oncePrefix}${costs} — ${cap(condOut)}, ${body}`;
+  return `${oncePrefix}${costs} — ${body}`;
 }
 
 function renderStatic(ab: Json): string {

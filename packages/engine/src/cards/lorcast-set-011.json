@@ -1429,7 +1429,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "",
+        "storyName": "I'VE GOT YOU",
         "rulesText": "When you play this character, return a character card from your discard to your hand. If that character is named Tod, you may play him for free.",
         "trigger": {
           "on": "enters_play"
@@ -1449,6 +1449,26 @@
                 ]
               }
             }
+          },
+          {
+            "type": "conditional_on_target",
+            "target": {
+              "type": "last_resolved_target"
+            },
+            "conditionFilter": {
+              "hasName": "Tod"
+            },
+            "ifMatchEffects": [
+              {
+                "type": "play_card",
+                "isMay": true,
+                "target": {
+                  "type": "last_resolved_target"
+                },
+                "sourceZone": "hand"
+              }
+            ],
+            "defaultEffects": []
           }
         ]
       }
@@ -5065,41 +5085,10 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "",
+        "storyName": "SPIRIT OF GIVING",
         "rulesText": "Whenever you use the Boost ability of a character, you may put the top card of your deck under them facedown.",
         "trigger": {
-          "on": "card_put_under",
-          "filter": {
-            "owner": {
-              "type": "self"
-            }
-          }
-        },
-        "effects": [
-          {
-            "type": "put_top_card_under",
-            "isMay": true,
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ]
-              }
-            }
-          }
-        ]
-      },
-      {
-        "type": "triggered",
-        "storyName": "",
-        "rulesText": "During opponents' turns, whenever one of your other characters is banished, you may draw a card.",
-        "trigger": {
-          "on": "banished_other_in_challenge",
+          "on": "boost_used",
           "filter": {
             "owner": {
               "type": "self"
@@ -5107,6 +5096,32 @@
             "cardType": [
               "character"
             ]
+          }
+        },
+        "effects": [
+          {
+            "type": "put_top_card_under",
+            "isMay": true,
+            "target": {
+              "type": "triggering_card"
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "WELL WISHES",
+        "rulesText": "During opponents' turns, whenever one of your other characters is banished, you may draw a card for each card that was under them.",
+        "trigger": {
+          "on": "is_banished",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true
           }
         },
         "condition": {
@@ -5118,7 +5133,9 @@
         "effects": [
           {
             "type": "draw",
-            "amount": 1,
+            "amount": {
+              "type": "triggering_card_cards_under_count"
+            },
             "isMay": true,
             "target": {
               "type": "self"
@@ -6294,7 +6311,7 @@
         },
         "effect": {
           "type": "cant_action_self",
-          "action": "ready"
+          "action": "ready_anytime"
         }
       }
     ],
@@ -7433,14 +7450,16 @@
     "actionEffects": [
       {
         "type": "banish",
+        "isMay": true,
         "target": {
           "type": "chosen",
+          "count": 2,
           "filter": {
             "zone": "play",
             "cardType": [
               "character"
             ],
-            "maxStrength": 2
+            "strengthAtMost": 2
           }
         }
       }
@@ -8882,10 +8901,10 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "",
+        "storyName": "WINTER STOCKPILE",
         "rulesText": "Whenever one of your characters is banished, you may put that card from your discard into your inkwell facedown and exerted.",
         "trigger": {
-          "on": "banished_other_in_challenge",
+          "on": "is_banished",
           "filter": {
             "owner": {
               "type": "self"
@@ -13551,10 +13570,10 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "",
+        "storyName": "WINTER STOCKPILE",
         "rulesText": "Whenever one of your characters is banished, you may put that card from your discard into your inkwell facedown and exerted.",
         "trigger": {
-          "on": "banished_other_in_challenge",
+          "on": "is_banished",
           "filter": {
             "owner": {
               "type": "self"

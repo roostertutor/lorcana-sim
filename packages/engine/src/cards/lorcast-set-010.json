@@ -1376,7 +1376,7 @@
         "type": "discard_from_hand",
         "amount": 2,
         "target": {
-          "type": "opponent"
+          "type": "players_with_most_cards_in_hand"
         },
         "chooser": "target_player"
       },
@@ -2217,7 +2217,7 @@
         },
         "effect": {
           "type": "cant_action_self",
-          "action": "ready"
+          "action": "ready_anytime"
         }
       }
     ],
@@ -3023,7 +3023,7 @@
         },
         "effect": {
           "type": "cant_action_self",
-          "action": "ready"
+          "action": "ready_anytime"
         }
       }
     ],
@@ -6341,7 +6341,7 @@
         },
         "effect": {
           "type": "cant_action_self",
-          "action": "ready"
+          "action": "ready_anytime"
         }
       }
     ],
@@ -6752,7 +6752,7 @@
         },
         "effect": {
           "type": "cant_action_self",
-          "action": "ready"
+          "action": "ready_anytime"
         }
       }
     ],
@@ -6811,7 +6811,7 @@
         },
         "effect": {
           "type": "cant_action_self",
-          "action": "ready"
+          "action": "ready_anytime"
         }
       }
     ],
@@ -9460,6 +9460,14 @@
             ]
           }
         }
+      },
+      {
+        "type": "move_to_inkwell",
+        "enterExerted": true,
+        "fromZone": "deck",
+        "target": {
+          "type": "last_resolved_target"
+        }
       }
     ]
   },
@@ -9582,11 +9590,24 @@
         "rulesText": "Whenever an opponent draws a card during their turn, if it's the second card they've drawn this turn, you may put the top card of your deck into your inkwell facedown and exerted.",
         "trigger": {
           "on": "card_drawn",
-          "filter": {
-            "owner": {
-              "type": "opponent"
-            }
+          "player": {
+            "type": "opponent"
           }
+        },
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            {
+              "type": "not",
+              "condition": {
+                "type": "is_your_turn"
+              }
+            },
+            {
+              "type": "triggering_player_draws_this_turn_eq",
+              "amount": 2
+            }
+          ]
         },
         "effects": [
           {
@@ -10006,7 +10027,7 @@
         },
         "effect": {
           "type": "cant_action_self",
-          "action": "ready"
+          "action": "ready_anytime"
         }
       }
     ],
@@ -10341,7 +10362,7 @@
         },
         "effect": {
           "type": "cant_action_self",
-          "action": "ready"
+          "action": "ready_anytime"
         }
       }
     ],
@@ -10485,7 +10506,7 @@
         },
         "effect": {
           "type": "cant_action_self",
-          "action": "ready"
+          "action": "ready_anytime"
         }
       }
     ],
@@ -10896,7 +10917,7 @@
         },
         "effect": {
           "type": "cant_action_self",
-          "action": "ready"
+          "action": "ready_anytime"
         }
       }
     ],
@@ -11802,6 +11823,10 @@
             "atLocation": "this"
           }
         },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "oncePerTurn": true,
         "effects": [
           {
             "type": "sequential",
@@ -13308,7 +13333,7 @@
         },
         "effect": {
           "type": "cant_action_self",
-          "action": "ready"
+          "action": "ready_anytime"
         }
       }
     ],
@@ -14099,7 +14124,7 @@
         },
         "effect": {
           "type": "cant_action_self",
-          "action": "ready"
+          "action": "ready_anytime"
         }
       }
     ],

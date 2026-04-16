@@ -3493,6 +3493,21 @@
           }
         },
         "duration": "end_of_turn"
+      },
+      {
+        "type": "create_floating_trigger",
+        "attachTo": "last_resolved_target",
+        "trigger": {
+          "on": "banished_in_challenge"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
       }
     ]
   },
@@ -11493,6 +11508,7 @@
               {
                 "type": "deal_damage",
                 "amount": 2,
+                "isMay": true,
                 "target": {
                   "type": "chosen",
                   "filter": {
@@ -11508,6 +11524,7 @@
               {
                 "type": "deal_damage",
                 "amount": 1,
+                "isMay": true,
                 "target": {
                   "type": "chosen",
                   "filter": {

@@ -7716,9 +7716,29 @@
         "costs": [
           {
             "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 2
           }
         ],
         "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "item"
+                ]
+              },
+              "count": 2
+            }
+          },
           {
             "type": "deal_damage",
             "amount": 5,

@@ -711,6 +711,13 @@ export function evaluateCondition(
     case "ink_plays_this_turn_eq": {
       return (state.players[controllingPlayerId].inkPlaysThisTurn ?? 0) === condition.amount;
     }
+    case "triggering_player_draws_this_turn_eq": {
+      // Ink Amplifier ENERGY CAPTURE: derive the drawing player from the
+      // triggering card's owner (card_drawn trigger carries the drawn card).
+      const triggerCard = triggeringCardInstanceId ? state.cards[triggeringCardInstanceId] : undefined;
+      const triggerPlayer = triggerCard?.ownerId ?? controllingPlayerId;
+      return (state.players[triggerPlayer].cardsDrawnThisTurn ?? 0) === condition.amount;
+    }
     case "no_other_character_quested_this_turn": {
       // Isabela Madrigal Golden Child. The counter is bumped AFTER static lore
       // computation in applyQuest, so at evaluate time it reflects only OTHER
