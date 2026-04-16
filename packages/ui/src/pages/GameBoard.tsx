@@ -1382,7 +1382,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       }}
     >
       {/* ======================= Main game area ======================= */}
-      <div className="min-w-0 flex flex-col gap-2 min-h-0 overflow-hidden px-3 md:pl-4 md:pr-0 pt-3 pb-3 landscape-phone:!px-2 landscape-phone:!pt-1 landscape-phone:!pb-1">
+      <div className="min-w-0 flex flex-col gap-2 min-h-0 overflow-hidden px-3 md:pl-4 md:pr-0 pt-3 pb-3 landscape-phone:!px-2 landscape-phone:!pt-1 landscape-phone:!pb-1 landscape-phone:!gap-0.5">
 
 
         {/* Replay mode banner */}
@@ -1646,7 +1646,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                opponent/player zones compete for equal flex-1 vertical space
                and end up with equal effective play-area heights. Only the
                hand strip heights differ between players. ---- */}
-        <div className="shrink-0 mt-1 -mx-3 px-2 md:mx-0">
+        <div className="shrink-0 mt-1 -mx-3 px-2 md:mx-0 landscape-phone:!mt-0">
           {/* min-h matches the natural single-row card height (md card 146px,
               lg card 168px + padding) so empty hand and filled-single-row
               hand are the same height — no board shift when a card is drawn
