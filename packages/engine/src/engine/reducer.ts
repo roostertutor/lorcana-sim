@@ -1119,11 +1119,17 @@ function applyChallenge(
 
   // Set 11 pacifist cycle: track that the attacker's owner had a character
   // challenge this turn. Used by no_challenges_this_turn condition.
+  // Also track the count so cards like Fa Zhou War Hero TRAINING EXERCISES
+  // ("if it's the second challenge this turn") can condition on it.
   state = {
     ...state,
     players: {
       ...state.players,
-      [playerId]: { ...state.players[playerId], aCharacterChallengedThisTurn: true },
+      [playerId]: {
+        ...state.players[playerId],
+        aCharacterChallengedThisTurn: true,
+        charactersChallengedThisTurn: (state.players[playerId].charactersChallengedThisTurn ?? 0) + 1,
+      },
     },
   };
 
@@ -1661,6 +1667,7 @@ function performTurnTransition(
         cardsPlayedThisTurn: [],
         charactersQuestedThisTurn: 0,
         cardsDrawnThisTurn: 0,
+        charactersChallengedThisTurn: 0,
         // Per-turn event flags reset on the new active player too (defensive)
         aCharacterWasDamagedThisTurn: false,
         aCharacterWasBanishedInChallengeThisTurn: false,
@@ -1677,6 +1684,7 @@ function performTurnTransition(
         cardsPlayedThisTurn: [],
         charactersQuestedThisTurn: 0,
         cardsDrawnThisTurn: 0,
+        charactersChallengedThisTurn: 0,
         aCharacterWasDamagedThisTurn: false,
         aCharacterWasBanishedInChallengeThisTurn: false,
         aCharacterChallengedThisTurn: false,

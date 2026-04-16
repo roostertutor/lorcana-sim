@@ -10652,6 +10652,10 @@
             ]
           }
         },
+        "condition": {
+          "type": "character_challenges_this_turn_eq",
+          "amount": 2
+        },
         "effects": [
           {
             "type": "gain_lore",

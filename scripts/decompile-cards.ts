@@ -261,7 +261,7 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
                                           ? "Whenever you use the Boost ability of a character"
                                           : "Whenever the Boost ability is used",
   shifted_onto:                  ()  => "Whenever a character is shifted onto this character",
-  chosen_by_opponent:            ()  => "Whenever this character is chosen by an opponent",
+  chosen_by_opponent:            ()  => "Whenever an opponent chooses this character for an action or ability",
   character_exerted:             ()  => "Whenever a character is exerted",
   chosen_for_support:            (t) => filterMentionsYour(t.filter)
                                           ? "Whenever one of your characters is chosen for support"
@@ -369,6 +369,11 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
   your_character_was_damaged_this_turn: () => "if one of your characters was damaged this turn",
   no_other_character_quested_this_turn: () => "if no other character has quested this turn",
   card_left_discard_this_turn: () => "if a card left a player's discard this turn",
+  character_challenges_this_turn_eq: (c) => {
+    // Oracle wording: "if it's the Nth challenge this turn" (Fa Zhou).
+    const ord = c.amount === 2 ? "second" : c.amount === 3 ? "third" : c.amount === 4 ? "fourth" : `${c.amount}${c.amount === 1 ? "st" : "th"}`;
+    return `if it's the ${ord} challenge this turn`;
+  },
   this_had_card_put_under_this_turn: () => "if a card was put under this character this turn",
 
   // Pete Games Referee — "during your turn, opponents can't play actions"
@@ -482,6 +487,14 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
       if (e.chooser === "controller" && e.filter) {
         const filt = renderFilter(e.filter);
         return `${maybe(e)}chosen opponent reveals their hand and discards a ${filt} of your choice`;
+      }
+      // Belle Hidden Archer THORNY ARROWS: target:opponent + amount:"all" +
+      // chooser:target_player. Oracle uses context-specific wording ("the
+      // challenging character's player discards all cards in their hand")
+      // but the neutral "the opposing player discards all cards in their
+      // hand" reads correctly and doesn't depend on trigger context.
+      if (e.amount === "all" && e.chooser === "target_player") {
+        return `${maybe(e)}the opposing player discards all cards in their hand`;
       }
       const chooser = e.chooser === "target_player" ? "chooses and " : "";
       return `${maybe(e)}each opponent ${chooser}discards ${amt}`;

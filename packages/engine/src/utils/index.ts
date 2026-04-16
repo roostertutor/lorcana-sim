@@ -740,6 +740,11 @@ export function evaluateCondition(
       const triggerPlayer = triggerCard?.ownerId ?? controllingPlayerId;
       return (state.players[triggerPlayer].cardsDrawnThisTurn ?? 0) === condition.amount;
     }
+    case "character_challenges_this_turn_eq": {
+      // Fa Zhou War Hero TRAINING EXERCISES: "if it's the second challenge
+      // this turn". Read controller's charactersChallengedThisTurn.
+      return (state.players[controllingPlayerId].charactersChallengedThisTurn ?? 0) === condition.amount;
+    }
     case "no_other_character_quested_this_turn": {
       // Isabela Madrigal Golden Child. The counter is bumped AFTER static lore
       // computation in applyQuest, so at evaluate time it reflects only OTHER

@@ -2558,6 +2558,11 @@ export type Condition =
    *  this turn". Reads cardsDrawnThisTurn on the triggering card's owner
    *  (the player who drew). Falls back to controller if no trigger context. */
   | { type: "triggering_player_draws_this_turn_eq"; amount: number }
+  /** Fa Zhou War Hero TRAINING EXERCISES: "if it's the second challenge
+   *  this turn". Reads the controller's charactersChallengedThisTurn.
+   *  The counter is incremented AT the start of a challenge so this
+   *  condition sees the live count at trigger-resolution time. */
+  | { type: "character_challenges_this_turn_eq"; amount: number }
   /** Isabela Madrigal Golden Child: "if no other character has quested this
    *  turn". True iff the controller's charactersQuestedThisTurn count is 0
    *  OR the only quester is the source itself. */
@@ -2858,6 +2863,10 @@ export interface PlayerState {
    *  ENERGY CAPTURE ("if it's the second card they've drawn this turn").
    *  Reset on PASS_TURN. */
   cardsDrawnThisTurn?: number;
+  /** Number of times any of this player's characters has challenged this
+   *  turn. Used by Fa Zhou War Hero TRAINING EXERCISES ("if it's the
+   *  second challenge this turn"). Reset on PASS_TURN. */
+  charactersChallengedThisTurn?: number;
   /** Unified list of instance IDs of EVERY card this player played this turn
    *  (characters, items, locations, actions, songs, shifts, free-plays,
    *  reveal-and-play). Populated by `zoneTransition` whenever `ctx.reason ===
