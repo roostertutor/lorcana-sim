@@ -3772,6 +3772,14 @@ export function applyEffect(
         }
         return state;
       }
+      // John Silver Ferocious Friend: after the cost-step damage chose a
+      // target, ready THAT character via last_resolved_target and apply
+      // the "can't quest this turn" follow-up to the same card.
+      if (effect.target.type === "last_resolved_target") {
+        const id = state.lastResolvedTarget?.instanceId;
+        if (!id || !state.cards[id]) return state;
+        return applyEffectToTarget(state, effect, id, controllingPlayerId, definitions, events, sourceInstanceId, triggeringCardInstanceId);
+      }
       return state;
     }
 
@@ -6828,6 +6836,14 @@ function applyEffectToTarget(
       state = updateInstance(state, targetInstanceId, { isExerted: false });
       if (wasExerted) {
         state = queueTrigger(state, "readied", targetInstanceId, definitions, {});
+      }
+      // John Silver Ferocious Friend: "ready that character. They cannot
+      // quest this turn." — followUpEffects apply to the same readied card
+      // (mirrors the applyEffect `this` branch that already does this).
+      if (effect.followUpEffects) {
+        for (const followUp of effect.followUpEffects) {
+          state = applyEffectToTarget(state, followUp, targetInstanceId, controllingPlayerId, definitions, events, sourceInstanceId, triggeringCardInstanceId);
+        }
       }
       return state;
     }

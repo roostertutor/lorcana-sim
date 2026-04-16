@@ -488,6 +488,13 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     // rather than "equal to the number of Xs". Pack Tactics: "Gain 1 lore
     // for each damaged character opponents have in play."
     if (typeof n === "object" && n?.type === "count" && n.filter) {
+      // Stratos Tornado Titan: "for each Titan character you have in play"
+      // — owner:self suppresses the "your" adjective, replaced by a
+      // trailing "you have in play" phrase.
+      if (n.filter.owner?.type === "self") {
+        const sing = renderFilter(n.filter, { suppressOwnerSelf: true });
+        return `${tgt} ${verbS(tgt, "gain", "gains")} 1 lore for each ${sing} you have in play`;
+      }
       const sing = renderFilter(n.filter);
       return `${tgt} ${verbS(tgt, "gain", "gains")} 1 lore for each ${sing}`;
     }
@@ -982,8 +989,23 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   // "Put TARGET on the bottom of your deck" — `from` is the source zone
   // (hand / play / discard). Used by King Candy Sweet Abomination.
   put_card_on_bottom_of_deck: (e) => {
-    const where = e.from === "play" ? renderTarget(e.target ?? {}) : `a card from your ${e.from ?? "hand"}`;
-    return `put ${where} on the bottom of your deck`;
+    // Despite the effect name, `position` can be "top" (Gyro Gearloose NOW
+    // TRY TO KEEP UP: "Put an item card from your discard on the top of
+    // your deck"). Filter can narrow the candidate pool.
+    const position = e.position === "top" ? "top" : "bottom";
+    const source = e.from ?? "hand";
+    const filterPhrase = e.filter ? renderFilter(e.filter) : "card";
+    // Deck ownership follows the target card's owner filter: "on the
+    // bottom of their deck" when the target is an opposing card (Kuzco
+    // Impulsive Llama "each opponent chooses one of their characters and
+    // puts that card on the bottom of their deck").
+    const deckPossessive = e.from === "play" && e.target?.filter?.owner?.type === "opponent"
+      ? "their deck"
+      : "your deck";
+    const subject = e.from === "play"
+      ? renderTarget(e.target ?? {})
+      : `a ${filterPhrase} from your ${source}`;
+    return `put ${subject} on the ${position} of ${deckPossessive}`;
   },
 
   // "Mill N cards" — put top N of own deck into discard. Dale Mischievous
@@ -1150,6 +1172,13 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     const tgt = renderTarget(e.target ?? { type: "this" });
     const stat = e.stat === "lore" ? "{L}" : e.stat === "willpower" ? "{W}" : "{S}";
     const per = e.perCount ?? 1;
+    // Minnie Mouse Daring Defender / The Dodo Outlandish Storyteller:
+    // "this character gets +1 {S} for each 1 damage on her/him".
+    // `countSelfDamage: true` counts the source card's damage counters
+    // rather than matching a CardFilter.
+    if (e.countSelfDamage) {
+      return `${tgt} ${verbS(tgt, "get", "gets")} +${per} ${stat} for each ${per === 1 ? "1" : per} damage on ${tgt === "this character" ? "them" : tgt}`;
+    }
     const cf = e.countFilter;
     let where = "you have in play";
     if (cf?.zone === "hand") where = "in your hand";

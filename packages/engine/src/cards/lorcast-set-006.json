@@ -6076,7 +6076,7 @@
               {
                 "type": "ready",
                 "target": {
-                  "type": "triggering_card"
+                  "type": "last_resolved_target"
                 },
                 "followUpEffects": [
                   {
@@ -6084,7 +6084,7 @@
                     "action": "quest",
                     "duration": "this_turn",
                     "target": {
-                      "type": "this"
+                      "type": "last_resolved_target"
                     }
                   }
                 ]
