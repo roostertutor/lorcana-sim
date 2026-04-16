@@ -156,7 +156,38 @@ const TRIGGER_MATCHERS: Matcher<Json>[] = [
     pattern: /^When this character leaves play/i,
     build: () => ({ on: "leaves_play" }),
   },
-  // is_banished
+  // banished_in_challenge — "When this character is banished in a challenge"
+  // OR "When this character challenges and is banished" (legacy wording).
+  {
+    name: "banished_in_challenge_this",
+    pattern: /^When this character is banished in a challenge/i,
+    build: () => ({ on: "banished_in_challenge" }),
+  },
+  {
+    name: "banished_in_challenge_legacy",
+    pattern: /^When this character challenges and is banished/i,
+    build: () => ({ on: "banished_in_challenge" }),
+  },
+  {
+    name: "banished_in_challenge_your_other",
+    pattern: /^Whenever one of your other characters is banished in a challenge/i,
+    build: () => ({ on: "banished_in_challenge", filter: { owner: { type: "self" } } }),
+  },
+  // damage_removed_from — "Whenever you remove 1 or more damage from one of
+  // your characters"
+  {
+    name: "damage_removed_from_yours",
+    pattern: /^Whenever you remove (?:1 or more )?damage from one of your characters/i,
+    build: () => ({ on: "damage_removed_from", filter: { owner: { type: "self" } } }),
+  },
+  // chosen_by_opponent — "Whenever an opponent chooses this character for an
+  // action or ability"
+  {
+    name: "chosen_by_opponent",
+    pattern: /^Whenever an opponent chooses this character for an action or ability/i,
+    build: () => ({ on: "chosen_by_opponent" }),
+  },
+  // is_banished — generic fallback
   {
     name: "is_banished",
     pattern: /^When this character is banished/i,
@@ -508,13 +539,15 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       destination: chosenCharacter({ opposing: true }),
     }),
   },
+  // remove_damage — hand-wired uses `hasDamage:true` filter (no cardType
+  // needed since only characters carry damage in Lorcana).
   {
     name: "remove_damage_up_to_may",
     pattern: /^you may remove up to (\d+) damage from chosen character/i,
     build: (m) => ({
       type: "remove_damage",
       amount: n(m[1]),
-      target: chosenCharacter(),
+      target: { type: "chosen", filter: { hasDamage: true, zone: "play" } },
       isUpTo: true,
       isMay: true,
     }),
@@ -525,7 +558,7 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     build: (m) => ({
       type: "remove_damage",
       amount: n(m[1]),
-      target: chosenCharacter(),
+      target: { type: "chosen", filter: { hasDamage: true, zone: "play" } },
       isUpTo: true,
     }),
   },
@@ -551,6 +584,42 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
   },
 
   // ============= KEYWORD GRANTS =============================================
+  // Opposing character variant first so it matches before the plain "chosen
+  // character" pattern below.
+  {
+    name: "chosen_opposing_character_gains_keyword",
+    pattern: /^chosen opposing character gains (Rush|Evasive|Ward|Reckless|Bodyguard|Support|Challenger|Resist|Vanish)(?: \+(\d+))?/i,
+    build: (m) => {
+      const out: Json = {
+        type: "grant_keyword",
+        keyword: m[1].toLowerCase(),
+        target: chosenCharacter({ opposing: true }),
+      };
+      if (m[2]) out.value = parseInt(m[2], 10);
+      return out;
+    },
+  },
+  // "chosen character of yours gains X" — owner:self
+  {
+    name: "chosen_character_of_yours_gains_keyword",
+    pattern: /^chosen character of yours gains (Rush|Evasive|Ward|Reckless|Bodyguard|Support|Challenger|Resist|Vanish)(?: \+(\d+))?/i,
+    build: (m) => {
+      const out: Json = {
+        type: "grant_keyword",
+        keyword: m[1].toLowerCase(),
+        target: {
+          type: "chosen",
+          filter: {
+            zone: "play",
+            cardType: ["character"],
+            owner: { type: "self" },
+          },
+        },
+      };
+      if (m[2]) out.value = parseInt(m[2], 10);
+      return out;
+    },
+  },
   {
     name: "chosen_character_gains_keyword_n",
     pattern: /^chosen character gains (Rush|Evasive|Ward|Reckless|Bodyguard|Support|Challenger|Resist|Vanish)(?: \+(\d+))?/i,
@@ -643,9 +712,312 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     pattern: /^return this card to your hand/i,
     build: () => ({ type: "return_to_hand", target: { type: "this" } }),
   },
+  // Return a character from your discard. "return a character card from your
+  // discard to your hand"
+  {
+    name: "return_character_from_discard",
+    pattern: /^return a character card from your discard to your hand/i,
+    build: () => ({
+      type: "return_to_hand",
+      target: {
+        type: "chosen",
+        filter: { zone: "discard", cardType: ["character"], owner: { type: "self" } },
+      },
+    }),
+  },
+  {
+    name: "return_action_from_discard_cost",
+    pattern: /^(?:you may )?return an action card with cost (\d+) or less from your discard to your hand/i,
+    build: (m) => ({
+      type: "return_to_hand",
+      isMay: /^you may /i.test(m[0]) || undefined,
+      target: {
+        type: "chosen",
+        filter: {
+          zone: "discard",
+          cardType: ["action"],
+          costAtMost: parseInt(m[1], 10),
+          owner: { type: "self" },
+        },
+      },
+    }),
+  },
+  {
+    name: "return_location_from_discard",
+    pattern: /^return a location card from your discard to your hand/i,
+    build: () => ({
+      type: "return_to_hand",
+      target: {
+        type: "chosen",
+        filter: { zone: "discard", cardType: ["location"], owner: { type: "self" } },
+      },
+    }),
+  },
+
+  // ============= PLAY FOR FREE ==============================================
+  // "you may play a character with cost N or less for free"
+  {
+    name: "play_character_cost_for_free",
+    pattern: /^you may play a character with cost (\d+) or less for free/i,
+    build: (m) => ({
+      type: "play_card",
+      filter: {
+        cardType: ["character"],
+        costAtMost: parseInt(m[1], 10),
+        owner: { type: "self" },
+        zone: "hand",
+      },
+      isMay: true,
+    }),
+  },
+  {
+    name: "play_action_cost_for_free",
+    pattern: /^you may play an action with cost (\d+) or less for free/i,
+    build: (m) => ({
+      type: "play_card",
+      filter: {
+        cardType: ["action"],
+        costAtMost: parseInt(m[1], 10),
+        owner: { type: "self" },
+        zone: "hand",
+      },
+      isMay: true,
+    }),
+  },
+  {
+    name: "play_song_cost_for_free",
+    pattern: /^you may play a song with cost (\d+) or less for free/i,
+    build: (m) => ({
+      type: "play_card",
+      isMay: true,
+      filter: {
+        cardType: ["action"],
+        hasTrait: "Song",
+        costAtMost: parseInt(m[1], 10),
+        zone: "hand",
+        owner: { type: "self" },
+      },
+    }),
+  },
+  {
+    name: "play_item_cost_for_free",
+    pattern: /^you may play an item with cost (\d+) or less for free/i,
+    build: (m) => ({
+      type: "play_card",
+      isMay: true,
+      filter: {
+        cardType: ["item"],
+        costAtMost: parseInt(m[1], 10),
+        owner: { type: "self" },
+        zone: "hand",
+      },
+    }),
+  },
+  {
+    name: "play_item_for_free_bare",
+    pattern: /^you may play an item for free/i,
+    build: () => ({
+      type: "play_card",
+      isMay: true,
+      filter: { cardType: ["item"], owner: { type: "self" }, zone: "hand" },
+    }),
+  },
+
+  // ============= PUT INTO INKWELL ===========================================
+  // Hand-wired uses `move_to_inkwell` with `fromZone:"deck"` for "top of deck"
+  // and omits fromZone with target:this for "put this card in your inkwell".
+  // `enterExerted:true` is always set for this oracle phrasing (the "facedown
+  // and exerted" suffix).
+  {
+    name: "put_top_deck_into_inkwell",
+    pattern: /^you may put the top card of your deck into your inkwell facedown and exerted/i,
+    build: () => ({
+      type: "move_to_inkwell",
+      target: { type: "self" },
+      fromZone: "deck",
+      isMay: true,
+      enterExerted: true,
+    }),
+  },
+  {
+    name: "put_this_into_inkwell",
+    pattern: /^you may put this card into your inkwell facedown and exerted/i,
+    build: () => ({
+      type: "move_to_inkwell",
+      target: { type: "this" },
+      isMay: true,
+      enterExerted: true,
+    }),
+  },
+
+  // ============= MILL / DECK MANIPULATION ===================================
+  {
+    name: "mill_self_top_to_discard",
+    pattern: /^(?:you may )?put the top card of your deck into your discard/i,
+    build: (m) => ({
+      type: "mill_self",
+      amount: 1,
+      isMay: /^you may /i.test(m[0]) || undefined,
+    }),
+  },
 ];
 
 const matchEffect = makeMatcher(EFFECT_MATCHERS);
+
+// =============================================================================
+// CONDITION MATCHERS — invert decompile-cards.ts CONDITION_RENDERERS.
+// -----------------------------------------------------------------------------
+// Matches a conditional phrase at the start of the text (usually after "if "
+// or "while "). Returns the `condition` field value as hand-wired cards store
+// it.
+// =============================================================================
+
+const CONDITION_MATCHERS: Matcher<Json>[] = [
+  // is_your_turn handled at ability-level as leading "During your turn," —
+  // also appears as a post-trigger "during your turn, " phrase that the
+  // leading-condition pass already absorbs.
+
+  // characters_in_play_gte — "if you have N or more [other] characters in play"
+  {
+    name: "chars_in_play_gte_other",
+    pattern: /^if you have (\d+) or more other characters in play/i,
+    build: (m) => ({
+      type: "characters_in_play_gte",
+      amount: parseInt(m[1], 10),
+      player: { type: "self" },
+      excludeSelf: true,
+    }),
+  },
+  {
+    name: "chars_in_play_gte",
+    pattern: /^if you have (\d+) or more characters in play/i,
+    build: (m) => ({
+      type: "characters_in_play_gte",
+      amount: parseInt(m[1], 10),
+      player: { type: "self" },
+    }),
+  },
+
+  // has_character_named — "if you have a character named X in play"
+  {
+    name: "has_char_named",
+    pattern: /^if you have a character named ([A-Z][\w'’\- ]*?) in play/i,
+    build: (m) => ({
+      type: "has_character_named",
+      name: m[1].trim(),
+      player: { type: "self" },
+    }),
+  },
+
+  // has_character_with_trait — "if you have a|another <Trait> character in
+  // play" / "while you have a <Trait> character in play"
+  {
+    name: "has_char_with_trait_other",
+    pattern: /^(?:if|while) you have another ([A-Z][a-zA-Z]*) character in play/i,
+    build: (m) => ({
+      type: "has_character_with_trait",
+      trait: m[1],
+      player: { type: "self" },
+      excludeSelf: true,
+    }),
+  },
+  {
+    name: "has_char_with_trait",
+    pattern: /^(?:if|while) you have a ([A-Z][a-zA-Z]*) character in play/i,
+    build: (m) => ({
+      type: "has_character_with_trait",
+      trait: m[1],
+      player: { type: "self" },
+    }),
+  },
+
+  // you_control_matching — "if you have a location in play"
+  {
+    name: "control_location",
+    pattern: /^if you have a location in play/i,
+    build: () => ({
+      type: "you_control_matching",
+      filter: { cardType: ["location"], zone: "play", owner: { type: "self" } },
+    }),
+  },
+
+  // cards_in_hand_gte
+  {
+    name: "cards_in_hand_gte",
+    pattern: /^if you have (\d+) or more cards in your hand/i,
+    build: (m) => ({
+      type: "cards_in_hand_gte",
+      amount: parseInt(m[1], 10),
+      player: { type: "self" },
+    }),
+  },
+  {
+    name: "cards_in_hand_eq_zero",
+    pattern: /^if you have no cards in your hand/i,
+    build: () => ({ type: "cards_in_hand_eq", amount: 0, player: { type: "self" } }),
+  },
+
+  // played_this_turn — matching "if you played (another )?<filter> this turn"
+  {
+    name: "played_another_character_this_turn",
+    pattern: /^if you(?:'ve| have)? played another character this turn/i,
+    build: () => ({
+      type: "played_this_turn",
+      amount: 1,
+      filter: { cardType: ["character"], excludeSelf: true },
+    }),
+  },
+  {
+    name: "played_a_character_this_turn",
+    pattern: /^if you(?:'ve| have)? played a character this turn/i,
+    build: () => ({
+      type: "played_this_turn",
+      amount: 1,
+      filter: { cardType: ["character"] },
+    }),
+  },
+  {
+    name: "played_a_song_this_turn",
+    pattern: /^if you(?:'ve| have)? played a song this turn/i,
+    build: () => ({ type: "played_this_turn", amount: 1, filter: { hasTrait: "Song" } }),
+  },
+  {
+    name: "played_an_action_this_turn",
+    pattern: /^if you(?:'ve| have)? played an action this turn/i,
+    build: () => ({
+      type: "played_this_turn",
+      amount: 1,
+      filter: { cardType: ["action"] },
+    }),
+  },
+
+  // your_first_turn_as_underdog — "If this is your first turn and you're not
+  // the first player". Straight/curly apostrophes both accepted.
+  {
+    name: "first_turn_underdog",
+    pattern: /^if this is your first turn and you['’]re not the first player/i,
+    build: () => ({ type: "your_first_turn_as_underdog" }),
+  },
+
+  // this-card-state
+  {
+    name: "this_has_no_damage",
+    pattern: /^if this character has no damage/i,
+    build: () => ({ type: "this_has_no_damage" }),
+  },
+  {
+    name: "this_has_cards_under",
+    pattern: /^if this character has cards under it/i,
+    build: () => ({ type: "this_has_cards_under" }),
+  },
+  {
+    name: "this_is_exerted",
+    pattern: /^(?:if|while) this character is exerted/i,
+    build: () => ({ type: "this_is_exerted" }),
+  },
+];
+
+const matchCondition = makeMatcher(CONDITION_MATCHERS);
 
 // =============================================================================
 // MAIN COMPILE FUNCTION — one ability's rulesText → JSON ability.
@@ -665,10 +1037,12 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
   const original = text.trim();
   let rest = original;
 
-  // -------- Leading condition ("During your turn, ...") -------------------
-  // Matches the forward decompiler's oracle output when the condition reads
-  // "during your turn" / "during opponents' turns". Absorbs it and attaches
-  // `condition` to whatever follows (triggered OR static).
+  // -------- Leading condition ----------------------------------------------
+  // The forward decompiler emits conditions in two places: as a leading
+  // "During your turn, ..." clause, or as a post-trigger "if X, ..." phrase.
+  // On statics with a condition, the oracle text is "If X, this character
+  // can't ...". Try a generic condition match first; fall back to the hard-
+  // coded turn forms for phrasings the condition table doesn't cover.
   let leadingCondition: Json | null = null;
   const leadCond = /^(?:During your turn|Once during your turn|During opponents'?\s*turns?),\s*/i.exec(rest);
   if (leadCond) {
@@ -680,6 +1054,19 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
       leadingCondition = { type: "is_your_turn" };
     }
     rest = rest.slice(leadCond[0].length);
+  } else {
+    // Generic: "If <condition>, ..." / "While <condition>, ...". We peel it
+    // using the same CONDITION_MATCHERS the post-trigger path uses.
+    const cond = matchCondition(rest);
+    if (cond) {
+      // Must be followed by ", " for this to be a leading-condition phrase
+      // (otherwise it's the start of a sentence that happens to match).
+      const after = rest.slice(cond.consumed);
+      if (/^,\s+/.test(after)) {
+        leadingCondition = cond.json;
+        rest = after.replace(/^,\s+/, "");
+      }
+    }
   }
 
   // -------- Triggered shape -----------------------------------------------
@@ -687,17 +1074,25 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
   if (trig) {
     let after = rest.slice(trig.consumed).trimStart();
     if (after.startsWith(",")) after = after.slice(1).trimStart();
-    // "you may X, then Y" wraps the whole chain in a sequential effect. Detect
-    // the lead-in before running parseEffectChain so the isMay scopes over
-    // the full chain rather than just the first effect.
+
+    // Optional post-trigger condition ("if X," / "while X,"). The forward
+    // decompiler emits these between the trigger and the effect chain:
+    // "Whenever this character quests, if you played a song this turn, ...".
+    // Note: leadingCondition ("During your turn, ...") takes precedence — if
+    // both are present (rare, but legal), the leading form wins.
+    let triggerCondition: Json | null = null;
+    const cond = matchCondition(after);
+    if (cond) {
+      triggerCondition = cond.json;
+      after = after.slice(cond.consumed).trimStart();
+      if (after.startsWith(",")) after = after.slice(1).trimStart();
+    }
+
+    // "you may X, then Y" wraps the whole chain in a sequential effect.
     const seqLead = /^you may (.+?,\s+then\s+.+?\.?)$/i.exec(after);
     if (seqLead) {
-      // Strip "you may " so effects match without the may-prefix variants;
-      // isMay is hoisted to the sequential wrapper.
       const inner = parseEffectChain(seqLead[1]);
       if (inner && inner.consumedAll && inner.json.length >= 2) {
-        // Drop isMay on the first effect if the matcher set it — sequential
-        // now owns the may-flag.
         const first = { ...inner.json[0] };
         delete first.isMay;
         const rewardEffects = [first, ...inner.json.slice(1)];
@@ -708,7 +1103,8 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
             { type: "sequential", isMay: true, costEffects: [], rewardEffects },
           ],
         };
-        if (leadingCondition) ability.condition = leadingCondition;
+        const finalCond = leadingCondition ?? triggerCondition;
+        if (finalCond) ability.condition = finalCond;
         return { ability, unmatched: "" };
       }
     }
@@ -719,7 +1115,8 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
         trigger: trig.json,
         effects: effects.json,
       };
-      if (leadingCondition) ability.condition = leadingCondition;
+      const finalCond = leadingCondition ?? triggerCondition;
+      if (finalCond) ability.condition = finalCond;
       return { ability, unmatched: "" };
     }
     return { ability: null, unmatched: effects ? effects.remainder : after };
@@ -746,6 +1143,37 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
     if (leadingCondition) ability.condition = leadingCondition;
     return { ability, unmatched: "" };
   }
+  // -------- Activated shape (EXPLICIT cost only) --------------------------
+  // Match "{E} — body" / "{E}, 2 {I} — body" up front. The bare-body
+  // fallback (activated with default {E} cost) runs LAST so it doesn't
+  // swallow statics that happen to start with an effect phrase (e.g.
+  // "this character gets +1 {L}").
+  const activatedExplicit = tryActivatedAbility(rest, leadingCondition, { requireExplicitCost: true });
+  if (activatedExplicit) return { ability: activatedExplicit, unmatched: "" };
+
+  // "you pay N {I} less to play this character." — self_cost_reduction static.
+  const statSelfCost = /^you pay (\d+) \{I\} less to play this character\.?$/i.exec(rest);
+  if (statSelfCost) {
+    const ability: Json = {
+      type: "static",
+      effect: { type: "self_cost_reduction", amount: parseInt(statSelfCost[1], 10) },
+    };
+    if (leadingCondition) ability.condition = leadingCondition;
+    return { ability, unmatched: "" };
+  }
+
+  // "This character can't ready." — blanket ready block (ready_anytime).
+  // Bare "can't ready" with no "at the start of your turn" qualifier.
+  const statCantReady = /^This character can't ready\.?$/i.exec(rest);
+  if (statCantReady) {
+    const ability: Json = {
+      type: "static",
+      effect: { type: "cant_action_self", action: "ready_anytime" },
+    };
+    if (leadingCondition) ability.condition = leadingCondition;
+    return { ability, unmatched: "" };
+  }
+
   // "This character gets +X {S}" static
   const statGetsStat = /^This character gets ([+-]?\d+) \{(S|W|L)\}\.?$/i.exec(rest);
   if (statGetsStat) {
@@ -761,7 +1189,192 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
     return { ability, unmatched: "" };
   }
 
+  // -------- Static: filter-target stats / keywords ------------------------
+  // "Your [other] [trait-or-named-or-keyword-qualifier] characters get +N {S}."
+  const fStats = parseYourCharactersGetsStat(rest);
+  if (fStats) {
+    const ability: Json = { type: "static", effect: fStats };
+    if (leadingCondition) ability.condition = leadingCondition;
+    return { ability, unmatched: "" };
+  }
+  const fKeyword = parseYourCharactersGainKeyword(rest);
+  if (fKeyword) {
+    const ability: Json = { type: "static", effect: fKeyword };
+    if (leadingCondition) ability.condition = leadingCondition;
+    return { ability, unmatched: "" };
+  }
+
+  // -------- Activated: bare-body fallback ---------------------------------
+  // Last resort — if the text parses as an effect chain, treat as an
+  // activated ability with default [{type:"exert"}] cost. The real cost
+  // isn't in body-only rulesText so the draft will be a near-miss on
+  // non-exert costs (banish_self, pay_ink, etc.). User verifies against
+  // the card.
+  const activatedBare = tryActivatedAbility(rest, leadingCondition, { requireExplicitCost: false });
+  if (activatedBare) return { ability: activatedBare, unmatched: "" };
+
   return { ability: null, unmatched: original };
+}
+
+// Parse an activated ability shape. Handles explicit "{E} — <body>" and the
+// bare effect-chain form (treated as "[exert] — <body>"). Returns a complete
+// ability object or null if no effect chain can be parsed.
+function tryActivatedAbility(
+  text: string,
+  leadingCondition: Json | null,
+  opts: { requireExplicitCost: boolean },
+): Json | null {
+  const costMatch = /^((?:\{E\}|\d+\s*\{I\})(?:\s*,\s*(?:\{E\}|\d+\s*\{I\}))*)\s*[—–-]\s+/.exec(text);
+  let costs: Json[] | null = null;
+  let body = text;
+  if (costMatch) {
+    costs = parseCostsFromPhrase(costMatch[1]);
+    body = text.slice(costMatch[0].length);
+  } else if (opts.requireExplicitCost) {
+    return null;
+  }
+  const effects = parseEffectChain(body);
+  if (!effects || !effects.consumedAll || effects.json.length === 0) return null;
+  if (!costs) costs = [{ type: "exert" }];
+  const ability: Json = { type: "activated", costs, effects: effects.json };
+  if (leadingCondition) ability.condition = leadingCondition;
+  return ability;
+}
+
+function parseCostsFromPhrase(phrase: string): Json[] {
+  return phrase.split(/\s*,\s*/).map((part) => {
+    if (/^\{E\}$/i.test(part)) return { type: "exert" };
+    const ink = /^(\d+)\s*\{I\}$/i.exec(part);
+    if (ink) return { type: "pay_ink", amount: parseInt(ink[1], 10) };
+    return { type: "unknown", raw: part };
+  });
+}
+
+// Parse a "your (other) [qualifier] characters" filter phrase — used by the
+// static-shape matchers. Returns { filter, consumed } or null.
+function parseYourCharactersFilter(text: string): { filter: Json; consumed: number } | null {
+  // "Your characters with <Keyword>" — hasKeyword, no excludeSelf
+  const mKw = /^Your characters with (Rush|Evasive|Ward|Reckless|Bodyguard|Support|Challenger|Resist|Vanish)\b/i.exec(text);
+  if (mKw) {
+    return {
+      filter: {
+        owner: { type: "self" },
+        zone: "play",
+        cardType: ["character"],
+        hasKeyword: mKw[1].toLowerCase(),
+      },
+      consumed: mKw[0].length,
+    };
+  }
+  // "Your characters named <Name>" — hasName
+  const mName = /^Your characters named ([A-Z][\w'’\- ]*?)\b(?= gain| get)/i.exec(text);
+  if (mName) {
+    return {
+      filter: {
+        owner: { type: "self" },
+        zone: "play",
+        cardType: ["character"],
+        hasName: mName[1].trim(),
+      },
+      consumed: mName[0].length,
+    };
+  }
+  // "Your exerted characters" — isExerted: true
+  const mExerted = /^Your exerted characters/i.exec(text);
+  if (mExerted) {
+    return {
+      filter: {
+        owner: { type: "self" },
+        zone: "play",
+        cardType: ["character"],
+        isExerted: true,
+      },
+      consumed: mExerted[0].length,
+    };
+  }
+  // "Your other characters" (no trait — excludeSelf, bare plural)
+  const mOther = /^Your other characters/i.exec(text);
+  if (mOther) {
+    return {
+      filter: {
+        owner: { type: "self" },
+        zone: "play",
+        cardType: ["character"],
+        excludeSelf: true,
+      },
+      consumed: mOther[0].length,
+    };
+  }
+  // "Your characters" (no qualifier)
+  const mPlain = /^Your characters(?= get| gain)/i.exec(text);
+  if (mPlain) {
+    return {
+      filter: {
+        owner: { type: "self" },
+        zone: "play",
+        cardType: ["character"],
+      },
+      consumed: mPlain[0].length,
+    };
+  }
+  // "Your other <Trait> characters" — hasTrait + excludeSelf
+  const mTraitOther = /^Your other ([A-Z][a-zA-Z]*) characters/i.exec(text);
+  if (mTraitOther) {
+    return {
+      filter: {
+        owner: { type: "self" },
+        zone: "play",
+        cardType: ["character"],
+        hasTrait: mTraitOther[1],
+        excludeSelf: true,
+      },
+      consumed: mTraitOther[0].length,
+    };
+  }
+  // "Your <Trait> characters" — hasTrait
+  const mTrait = /^Your ([A-Z][a-zA-Z]*) characters/i.exec(text);
+  if (mTrait) {
+    return {
+      filter: {
+        owner: { type: "self" },
+        zone: "play",
+        cardType: ["character"],
+        hasTrait: mTrait[1],
+      },
+      consumed: mTrait[0].length,
+    };
+  }
+  return null;
+}
+
+function parseYourCharactersGetsStat(text: string): Json | null {
+  const f = parseYourCharactersFilter(text);
+  if (!f) return null;
+  const after = text.slice(f.consumed);
+  const mStat = /^\s+get ([+-]?\d+) \{(S|W|L)\}\.?$/i.exec(after);
+  if (!mStat) return null;
+  const stat = mStat[2].toUpperCase() === "S" ? "strength" : mStat[2].toUpperCase() === "W" ? "willpower" : "lore";
+  return {
+    type: "modify_stat",
+    stat,
+    amount: parseInt(mStat[1], 10),
+    target: { type: "all", filter: f.filter },
+  };
+}
+
+function parseYourCharactersGainKeyword(text: string): Json | null {
+  const f = parseYourCharactersFilter(text);
+  if (!f) return null;
+  const after = text.slice(f.consumed);
+  const mKw = /^\s+gain (Rush|Evasive|Ward|Reckless|Bodyguard|Support|Challenger|Resist|Vanish)(?: \+(\d+))?\.?$/i.exec(after);
+  if (!mKw) return null;
+  const out: Json = {
+    type: "grant_keyword",
+    keyword: mKw[1].toLowerCase(),
+    target: { type: "all", filter: f.filter },
+  };
+  if (mKw[2]) out.value = parseInt(mKw[2], 10);
+  return out;
 }
 
 // Parse a comma/"and"-separated chain of effects. Returns null if the first
