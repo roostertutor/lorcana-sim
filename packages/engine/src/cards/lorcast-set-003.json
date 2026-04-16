@@ -2306,7 +2306,10 @@
           {
             "type": "look_at_top",
             "count": 2,
-            "action": "reorder",
+            "action": "choose_from_top",
+            "maxToHand": 1,
+            "pickDestination": "deck_top",
+            "restPlacement": "bottom",
             "target": {
               "type": "self"
             }
