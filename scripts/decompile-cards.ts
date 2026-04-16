@@ -722,11 +722,21 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   // "this turn" scope is also dropped since static reductions are permanent
   // while the source is in play.
   cost_reduction: (e) => {
-    const filt = e.filter ? renderFilter(e.filter) : "card";
+    // Strip owner:self from the filter render — "your" reads redundantly
+    // with "you pay". Yokai Intellectual Schemer: "you pay 1 {I} less to
+    // play characters using their Shift ability", not "...next your
+    // character".
+    const filterNoOwner = e.filter ? { ...e.filter, owner: undefined } : undefined;
+    const filt = filterNoOwner ? renderFilter(filterNoOwner, { suppressOwnerSelf: true }) : "card";
     if (e.amount === 99) {
       return `you may play ${pluralizeFilter(filt)} for free`;
     }
     const amt = typeof e.amount === "number" ? `${e.amount}` : typeof e.amount === "object" ? renderAmount(e.amount) : `${e.amount ?? "?"}`;
+    // Yokai Intellectual Schemer INNOVATE: shift-scoped static cost reduction
+    // is permanent while in play, not one-shot — drop the "next...this turn".
+    if (e.appliesTo === "shift_only") {
+      return `you pay ${amt} {I} less to play ${pluralizeFilter(filt)} using their Shift ability`;
+    }
     return `you pay ${amt} {I} less for the next ${filt} you play this turn`;
   },
 
