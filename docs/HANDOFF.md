@@ -249,6 +249,74 @@ Practical caveats:
 
 ---
 
+## Strategy: mobile layout identity — what to borrow vs what to invent
+
+User compared the sandbox game board (portrait + landscape) against
+duels.ink's mobile layout. Several structural patterns were identified that
+could reclaim vertical space on phones, but the user correctly flagged the
+"at what point are we just copying" concern.
+
+**Patterns observed in duels.ink (structural, not visual):**
+- **Corner-badge lore + deck count** — small squares at zone corners instead
+  of a horizontal scoreboard strip. Saves ~20px vertical.
+- **Pips-not-fan inkwell** — `3/7` text + icons instead of a fanned card
+  strip. Saves ~40px per zone (~80px total). Tradeoff: loses "which card was
+  inked this turn" info (face-up cards in the fan show this). Middle ground:
+  pips by default, tap to expand full fan.
+- **Peek-strip hand with expand-on-tap** — only top ~30-40% of hand cards
+  visible, expand on gesture. More aggressive crop than our current 70px.
+- **Full-screen trigger resolution page** — replaces the board entirely
+  instead of overlaying a modal. Clean separation of "resolving" vs "playing."
+
+**What's already landed (GUI agent, this session):**
+- PWA manifest (standalone install, no URL bar)
+- `landscape-phone` Tailwind screen `(orientation: landscape) and (max-height: 500px)`
+- Height-adaptive play cards on phones (portrait + landscape)
+- Safe-area padding for Dynamic Island / notch
+- Sidebar hidden, gap/padding tightened, utility strip held at mobile sizes
+- Hand strip cropped to 70px in landscape-phone
+
+**What makes this app fundamentally different from duels.ink:**
+duels.ink is a pure online-play app (play Lorcana against humans/bots).
+This app is an **analytics engine** that happens to have a playable sandbox.
+Core differentiators:
+- Headless simulation of thousands of games for **deck win rates + analytics**
+- **RL-trained bot** (Actor-Critic + GAE) — not just heuristic AI
+- **Query system** for asking pattern questions across simulated games
+- **Active Effects pill** on the board (quotes source card ability text,
+  conditional evaluation) — duels.ink doesn't surface this
+- **Card injector** with qty/zone/player/set controls for sandbox testing
+- **Replay mode + undo** as first-class features
+- Per-format **ELO** (bo1/bo3 × core/infinity) for multiplayer
+- Bot type separation (algorithm / personal / crowd)
+
+The game board is a diagnostic/testing tool as much as a play surface. Design
+decisions should lean into that — e.g. showing more game-state info (active
+effects, modifier sources, stat deltas) is a strength, not clutter. duels.ink
+hides game state to reduce cognitive load; this app should SHOW game state
+because its users are deck-builders and analysts, not casual players.
+
+**Decision needed (strategy agent):**
+The user wants the mobile experience to feel like *this app's* identity, not
+a duels.ink clone — both visually and functionally. Any individual layout
+pattern above is a common TCG convention (Arena, Hearthstone, Snap all use
+variants). Adopting all of them together would feel derivative.
+
+Recommendation: pick structural changes that play to the app's strengths
+(analytics-first, information-dense, diagnostic sandbox) rather than copying
+a pure-play app's "hide everything" approach. E.g.:
+- Compact inkwell pips (biggest space win) BUT keep tap-to-expand showing
+  actual inked cards (information this app's users care about).
+- Keep the Active Effects pill prominent — it's a unique feature.
+- Invest in unique interactions that serve the analytics/testing use case
+  (card inspect on long-press, stat breakdown tooltips, quick save/load
+  accessible in landscape).
+
+Reference screenshots are in `C:\Users\Ryan\Downloads\other app screenshots\`
+(not in repo — IP-sensitive). Do not commit them.
+
+---
+
 ## GUI: each_player rendering in card text / log messages
 
 The decompiler renderer outputs "each opponent with more lore than you: they
