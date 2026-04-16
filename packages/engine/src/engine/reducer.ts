@@ -2642,6 +2642,12 @@ export function applyEffect(
     }
 
     case "reveal_hand": {
+      // Copper Hound Pup FOUND YA: "chosen player reveals their hand" —
+      // surface a chooser first, then the chosen player's substitution
+      // re-enters this case with target:self/opponent.
+      if (effect.target.type === "chosen") {
+        return surfaceChoosePlayer(state, effect, controllingPlayerId, sourceInstanceId, definitions, events);
+      }
       // CRD: "chosen opponent reveals their hand" — headless engine has full
       // knowledge; emit a hand_revealed event for UI/analytics. No state change.
       const targetPlayer: PlayerID =

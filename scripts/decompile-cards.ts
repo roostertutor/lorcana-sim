@@ -218,6 +218,8 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
                                           ? "Whenever an opponent draws a card"
                                           : "Whenever you draw a card",
   card_played: (t) => {
+    // Grammar helper: "a action" → "an action".
+    const aOr = (s: string) => /^[aeiou]/i.test(s) ? `an ${s}` : `a ${s}`;
     if (!t.filter) return "Whenever you play a card";
     // No owner filter = ANY player ("whenever another character is played")
     const hasOwnerFilter = t.filter.owner?.type;
@@ -234,7 +236,7 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
     // HERE'S THE BEST PART oracle: "Whenever you play a character, ...".
     if (t.filter.owner?.type === "self") {
       const filtNoOwner = renderFilter(t.filter, { suppressOwnerSelf: true });
-      return `Whenever you play a ${filtNoOwner}`;
+      return `Whenever you play ${aOr(filtNoOwner)}`;
     }
     // owner:opponent → "Whenever an opponent plays a character"
     // (Prince John Fraidy-Cat HELP! HELP!). The "opposing" prefix that
@@ -242,7 +244,7 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
     if (t.filter.owner?.type === "opponent") {
       const { owner: _o, ...rest } = t.filter;
       const filtNoOwner = renderFilter(rest);
-      return `Whenever an opponent plays a ${filtNoOwner}`;
+      return `Whenever an opponent plays ${aOr(filtNoOwner)}`;
     }
     return `Whenever you play ${filt}`;
   },
@@ -352,7 +354,7 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
   this_at_location:           () => "while this character is at a location",
   this_location_has_character: () => "if this location has a character at it",
   played_via_shift:           () => "if this character was played via Shift",
-  triggering_card_played_via_shift: () => "if the triggering character was played via Shift",
+  triggering_card_played_via_shift: () => "if you used Shift to play them",
 
   // ---- This-card-stat checks ------------------------------------------------
   self_stat_gte:              (c) => `if this character's ${c.stat ?? "strength"} is ${c.amount ?? 0} or more`,
@@ -788,6 +790,16 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     if (e.amount === 99) {
       return `you may play ${pluralizeFilter(filt)} for free`;
     }
+    // Owl Island TEAMWORK: "For each character you have here, you pay 1
+    // {I} less for the first action you play each turn." Count-filter
+    // dynamic amount reads as "For each X, you pay N {I} less for Y".
+    if (typeof e.amount === "object" && e.amount?.type === "count" && e.amount.filter) {
+      const cntFilter = e.amount.filter;
+      const cntPhrase = cntFilter.owner?.type === "self"
+        ? renderFilter(cntFilter, { suppressOwnerSelf: true })
+        : renderFilter(cntFilter);
+      return `For each ${cntPhrase}, you pay 1 {I} less for the first ${filt} you play each turn`;
+    }
     const amt = typeof e.amount === "number" ? `${e.amount}` : typeof e.amount === "object" ? renderAmount(e.amount) : `${e.amount ?? "?"}`;
     // Yokai Intellectual Schemer INNOVATE: shift-scoped static cost reduction
     // is permanent while in play, not one-shot — drop the "next...this turn".
@@ -1104,7 +1116,15 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
 
   // "Mill N cards" — put top N of own deck into discard. Dale Mischievous
   // Ranger pattern.
-  mill: (e) => `${maybe(e)}put the top ${e.amount ?? 1} card${plural(e.amount ?? 1)} of your deck into your discard`,
+  mill: (e) => {
+    const n = e.amount ?? 1;
+    // Mad Hatter's Teapot: "Each opponent puts the top card of their deck
+    // into their discard." — target:opponent/both flips the deck+discard
+    // possessives.
+    if (e.target?.type === "opponent") return `each opponent puts the top ${n} card${plural(n)} of their deck into their discard`;
+    if (e.target?.type === "both") return `each player puts the top ${n} card${plural(n)} of their deck into their discard`;
+    return `${maybe(e)}put the top ${n} card${plural(n)} of your deck into your discard`;
+  },
 
   // Mass inkwell exertion / readying. Mufasa Ruler of Pride Rock "exert all
   // cards in your inkwell". `mode` distinguishes the operation.
@@ -1476,6 +1496,12 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   grant_extra_ink_play: (e) => `you may play ${e.amount ?? 1} additional ink this turn`,
   put_self_under_target: (e) => `put this card under ${e.filter ? renderFilter(e.filter) : "a character"}`,
   sing_cost_bonus_target: (e) => `${renderTarget(e.target ?? {})} counts as having +${e.amount ?? 0} cost to sing songs${dur(e)}`,
+  reveal_hand: (e) => {
+    if (e.target?.type === "chosen") return "chosen player reveals their hand";
+    if (e.target?.type === "self") return "reveal your hand";
+    if (e.target?.type === "both") return "each player reveals their hand";
+    return "each opponent reveals their hand";
+  },
   top_of_deck_visible: (e) => {
     if (e.affectedPlayer?.type === "both") return "each player plays with the top card of their deck face up";
     if (e.affectedPlayer?.type === "opponent") return "opponents play with the top card of their deck face up";

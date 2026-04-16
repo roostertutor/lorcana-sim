@@ -4624,7 +4624,7 @@
           {
             "type": "reveal_hand",
             "target": {
-              "type": "opponent"
+              "type": "chosen"
             }
           }
         ]
