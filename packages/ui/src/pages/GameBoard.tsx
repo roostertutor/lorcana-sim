@@ -1180,7 +1180,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     // clipped by parent edges (e.g. when a location is the only card in play).
     const needsRotatedSlot = exerted || isLocation;
     return (
-      <div key={id} className={`shrink-0 ${needsRotatedSlot ? "w-[73px] h-[52px] sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] flex items-center justify-center overflow-hidden" : ""}`}>
+      <div key={id} className={`shrink-0 ${needsRotatedSlot ? "w-[73px] h-[52px] sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] landscape-phone:!w-auto landscape-phone:!h-full landscape-phone:!max-h-[52px] landscape-phone:!aspect-[7/5] flex items-center justify-center overflow-hidden" : ""}`}>
         {renderCardWithActions(id, "play", isOpponent)}
       </div>
     );
