@@ -482,6 +482,11 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     build: () => ({ type: "exert", target: chosenCharacter() }),
   },
   {
+    name: "ready_this_character_may",
+    pattern: /^you may ready this character/i,
+    build: () => ({ type: "ready", target: { type: "this" }, isMay: true }),
+  },
+  {
     name: "ready_chosen_character",
     pattern: /^ready chosen character/i,
     build: () => ({ type: "ready", target: chosenCharacter() }),
@@ -511,6 +516,17 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     name: "deal_damage_n",
     pattern: /^deal (\d+) damage to chosen character/i,
     build: (m) => ({ type: "deal_damage", amount: n(m[1]), target: chosenCharacter() }),
+  },
+  // "deal N damage to another chosen character" — second target in a chain
+  {
+    name: "deal_damage_may_n_another",
+    pattern: /^you may deal (\d+) damage to another chosen character/i,
+    build: (m) => ({
+      type: "deal_damage",
+      amount: n(m[1]),
+      target: chosenCharacter(),
+      isMay: true,
+    }),
   },
   // damage to this character (enters-play-with-damage shape)
   {
@@ -663,6 +679,19 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       duration: "end_of_owner_next_turn",
     }),
   },
+  // "chosen opposing character can't challenge and must quest during their
+  // next turn if able" — compound: can't challenge + forced quest. This is
+  // actually two effects in the engine; render as cant_challenge + must_quest.
+  {
+    name: "chosen_opp_cant_challenge_must_quest",
+    pattern: /^chosen opposing character can't challenge and must quest during their next turn(?: if able)?/i,
+    build: () => ({
+      type: "cant_action",
+      action: "challenge",
+      target: chosenCharacter({ opposing: true }),
+      duration: "end_of_owner_next_turn",
+    }),
+  },
   {
     name: "chosen_opp_cant_challenge_next_turn",
     pattern: /^chosen opposing character can't challenge during their next turn/i,
@@ -695,6 +724,18 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       chooser: "target_player",
     }),
   },
+  // "chosen opponent reveals their hand and discards a[n] <type> card of your choice"
+  {
+    name: "opponent_reveals_discards_your_choice",
+    pattern: /^chosen opponent reveals their hand and discards an? (\w+) card of your choice/i,
+    build: (m) => ({
+      type: "discard_from_hand",
+      amount: 1,
+      target: { type: "opponent" },
+      chooser: "controller",
+      filter: { cardType: [m[1].toLowerCase()] },
+    }),
+  },
   {
     name: "each_opponent_discards_chooses_one",
     pattern: /^each opponent chooses and discards a card/i,
@@ -715,6 +756,11 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
   },
 
   // ============= RETURN TO HAND =============================================
+  {
+    name: "return_this_card_may",
+    pattern: /^you may return this card to your hand/i,
+    build: () => ({ type: "return_to_hand", target: { type: "this" }, isMay: true }),
+  },
   {
     name: "return_this_card",
     pattern: /^return this card to your hand/i,
@@ -770,6 +816,37 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
           costAtMost: parseInt(m[1], 10),
           owner: { type: "self" },
         },
+      },
+    }),
+  },
+  // "return an action card named X from your discard to your hand"
+  {
+    name: "return_named_action_from_discard",
+    pattern: /^(?:you may )?return an action card named ([A-Z][\w''\- ]*?) from your discard to your hand/i,
+    build: (m) => ({
+      type: "return_to_hand",
+      isMay: /^you may /i.test(m[0]) || undefined,
+      target: {
+        type: "chosen",
+        filter: {
+          zone: "discard",
+          cardType: ["action"],
+          hasName: m[1].trim(),
+          owner: { type: "self" },
+        },
+      },
+    }),
+  },
+  // "return an item card from your discard to your hand"
+  {
+    name: "return_item_from_discard",
+    pattern: /^(?:you may )?return an item card from your discard to your hand/i,
+    build: (m) => ({
+      type: "return_to_hand",
+      isMay: /^you may /i.test(m[0]) || undefined,
+      target: {
+        type: "chosen",
+        filter: { zone: "discard", cardType: ["item"], owner: { type: "self" } },
       },
     }),
   },
@@ -938,7 +1015,22 @@ const CONDITION_MATCHERS: Matcher<Json>[] = [
   // also appears as a post-trigger "during your turn, " phrase that the
   // leading-condition pass already absorbs.
 
-  // characters_in_play_gte — "if you have N or more [other] characters in play"
+  // characters_in_play_gte — "if you have N or more [other] [Trait] characters in play"
+  {
+    name: "chars_in_play_gte_other_trait",
+    pattern: /^if you have (\d+) or more other ([A-Z][a-zA-Z]*) characters in play/i,
+    build: (m) => ({
+      type: "you_control_matching",
+      filter: {
+        cardType: ["character"],
+        zone: "play",
+        owner: { type: "self" },
+        hasTrait: m[2],
+        excludeSelf: true,
+        countAtLeast: parseInt(m[1], 10),
+      },
+    }),
+  },
   {
     name: "chars_in_play_gte_other",
     pattern: /^if you have (\d+) or more other characters in play/i,
@@ -982,6 +1074,21 @@ const CONDITION_MATCHERS: Matcher<Json>[] = [
       excludeSelf: true,
     }),
   },
+  // "if you have a Super or Hero character in play" — compound trait OR.
+  // Emits you_control_matching with anyOf filter (the canonical form).
+  {
+    name: "has_char_with_trait_or",
+    pattern: /^(?:if|while) you have a ([A-Z][a-zA-Z]*) or ([A-Z][a-zA-Z]*) character in play/i,
+    build: (m) => ({
+      type: "you_control_matching",
+      filter: {
+        cardType: ["character"],
+        zone: "play",
+        owner: { type: "self" },
+        anyOf: [{ hasTrait: m[1] }, { hasTrait: m[2] }],
+      },
+    }),
+  },
   {
     name: "has_char_with_trait",
     pattern: /^(?:if|while) you have a ([A-Z][a-zA-Z]*) character in play/i,
@@ -999,6 +1106,15 @@ const CONDITION_MATCHERS: Matcher<Json>[] = [
     build: () => ({
       type: "you_control_matching",
       filter: { cardType: ["location"], zone: "play", owner: { type: "self" } },
+    }),
+  },
+  // "if a <Trait> character is in play" — any player, not owner:self
+  {
+    name: "any_trait_char_in_play",
+    pattern: /^if (?:a|an) ([A-Z][a-zA-Z]*) character is in play/i,
+    build: (m) => ({
+      type: "opponent_controls_matching",
+      filter: { cardType: ["character"], zone: "play", hasTrait: m[1] },
     }),
   },
 
@@ -1096,11 +1212,13 @@ export interface CompileResult {
 
 export function compileAbility(text: string, ctx: { cardType: string }): CompileResult {
   const original = text.trim();
-  // Reminder text in parentheses is boilerplate the forward decompiler
-  // never emits (e.g. "Your other characters gain Ward. (Opponents can't
-  // choose them ...)"). Strip trailing-paren blocks up front so static
-  // matchers that anchor with `.?$` still land.
-  let rest = original.replace(/\s*\([^)]*\)\s*\.?$/, "").trim();
+  // Ravensburger data wraps keywords in angle brackets: <Rush>, <Evasive>.
+  // Normalize to plain text so our matchers work. Also strip keyword-reminder
+  // parentheticals that follow.
+  let rest = original
+    .replace(/<(Rush|Evasive|Ward|Reckless|Bodyguard|Support|Challenger|Resist|Vanish|Shift)>/gi, "$1")
+    .replace(/\s*\([^)]*\)\s*\.?$/, "")
+    .trim();
 
   // -------- Leading condition ----------------------------------------------
   // The forward decompiler emits conditions in two places: as a leading
@@ -1599,12 +1717,13 @@ function splitNamedAbilities(rulesText: string): Array<{ storyName: string; body
   const lines = rulesText.split(/\n/).map((l) => l.trim()).filter(Boolean);
   const chunks: Array<{ storyName: string; body: string }> = [];
   for (const line of lines) {
+    // Skip keyword-reminder lines: "<Rush> (...)" / "Shift 3 {I} (...)" —
+    // these are badge text from Ravensburger data, not named abilities.
+    if (/^<?\b(Rush|Evasive|Ward|Reckless|Bodyguard|Support|Challenger|Resist|Vanish|Shift)\b>?\s*(\d|\()/i.test(line)) continue;
     // STORYNAME must be 2+ uppercase words (letters/punct/digits/space), then
-    // transition to a lowercase word. Match runs until the first lowercase.
-    // Story names are ALL-CAPS with straight/curly apostrophes and punctuation,
-    // ending at the first lowercase word. Must include curly ’ for cards like
-    // "LET'S GET MOVIN'" / "EVERYONE GATHER 'ROUND".
-    const m = /^([A-Z][A-Z0-9'’ \-!,.?]*[A-Z!?'’])\s+([A-Z][a-z].*)$/.exec(line);
+    // transition to a lowercase word. Must include curly ‘ for cards like
+    // "LET’S GET MOVIN’" / "EVERYONE GATHER ‘ROUND".
+    const m = /^([A-Z][A-Z0-9’’ \-!,.?]*[A-Z!?’’])\s+([A-Z][a-z].*)$/.exec(line);
     if (m) chunks.push({ storyName: m[1].trim(), body: m[2].trim() });
     else chunks.push({ storyName: "", body: line });
   }
