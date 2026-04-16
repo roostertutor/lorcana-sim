@@ -488,6 +488,16 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
                     `${mayPrefix}draw `;
     const amt = e.amount ?? 1;
     if (typeof amt !== "number") {
+      // Count-filter dynamic amount reads better as "a card for each X"
+      // than "cards equal to the number of Xs" (Mickey Mouse Musketeer
+      // Captain MUSKETEERS UNITED: "draw a card for each character with
+      // Bodyguard you have in play").
+      if (typeof amt === "object" && amt.type === "count" && amt.filter) {
+        const filt = amt.filter.owner?.type === "self"
+          ? renderFilter(amt.filter, { suppressOwnerSelf: true }) + " you have in play"
+          : renderFilter(amt.filter);
+        return `${subject}a card for each ${filt}`;
+      }
       return `${subject}cards equal to ${renderAmount(amt)}`;
     }
     if (amt === 1) return `${subject}a card`;
@@ -551,6 +561,12 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
       }
       const sing = renderFilter(n.filter);
       return `${tgt} ${verbS(tgt, "gain", "gains")} 1 lore for each ${sing}`;
+    }
+    // Wreck-It Ralph Demolition Dude REFRESHING BREAK: "gain 1 lore for
+    // each 1 damage on him". `triggering_card_damage` string enum reads
+    // better as per-damage than "lore equal to the damage".
+    if (n === "triggering_card_damage") {
+      return `${tgt} ${verbS(tgt, "gain", "gains")} 1 lore for each 1 damage on them`;
     }
     return `${tgt} ${verbS(tgt, "gain", "gains")} lore equal to ${renderAmount(n)}`;
   },
@@ -837,7 +853,13 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
           return `${base}. Keep ${maxPick} on top. Put the rest on the ${rest} of your deck`;
         }
         if (pickDest === "inkwell_exerted") {
-          return `${base}. You may put one into your inkwell facedown and exerted`;
+          // Kida Creative Thinker: "Put one into your ink supply, face down
+          // and exerted, and the other on top of your deck." — render the
+          // restPlacement clause when rest:"top" or "bottom".
+          const restSuffix = rest === "top" ? " and the other on top of your deck"
+            : rest === "bottom" ? " and the rest on the bottom of your deck"
+            : "";
+          return `${base}. Put one into your inkwell facedown and exerted${restSuffix}`;
         }
         // pickDestination "hand" (default)
         if (maxPick === 1) {
@@ -1454,7 +1476,11 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   grant_extra_ink_play: (e) => `you may play ${e.amount ?? 1} additional ink this turn`,
   put_self_under_target: (e) => `put this card under ${e.filter ? renderFilter(e.filter) : "a character"}`,
   sing_cost_bonus_target: (e) => `${renderTarget(e.target ?? {})} counts as having +${e.amount ?? 0} cost to sing songs${dur(e)}`,
-  top_of_deck_visible: () => "the top card of your deck is played face up",
+  top_of_deck_visible: (e) => {
+    if (e.affectedPlayer?.type === "both") return "each player plays with the top card of their deck face up";
+    if (e.affectedPlayer?.type === "opponent") return "opponents play with the top card of their deck face up";
+    return "you play with the top card of your deck face up";
+  },
   each_target: (e) => {
     const inner = Array.isArray(e.effects)
       ? e.effects.map(renderEffect).filter(Boolean).join(" and ")
