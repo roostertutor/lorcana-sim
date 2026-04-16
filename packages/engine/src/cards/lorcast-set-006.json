@@ -632,6 +632,9 @@
             "type": "self"
           }
         },
+        "condition": {
+          "type": "is_your_turn"
+        },
         "effects": [
           {
             "type": "return_to_hand",
@@ -11788,6 +11791,9 @@
           "player": {
             "type": "self"
           }
+        },
+        "condition": {
+          "type": "is_your_turn"
         },
         "effects": [
           {

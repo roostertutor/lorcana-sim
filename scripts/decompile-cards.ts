@@ -1538,12 +1538,17 @@ function renderTriggered(ab: Json): string {
   // Filter empty renderings so chained effects (e.g. peek_and_set_target
   // → play_for_free with last_resolved_target) don't produce ". ." artifacts.
   const body = effects.map(renderEffect).filter(Boolean).join(", and ");
-  // oncePerTurn prefix: "Once per turn, whenever X, Y" (Taffyta Muttonfudge,
-  // Sugar Rush Speedway's ON YOUR MARKS — activated is handled separately).
+  // oncePerTurn prefix: "Once per turn, whenever X, Y" (Taffyta Muttonfudge).
+  // When condition is "during your turn", merge to "Once during your turn,"
+  // to match oracle wording (Seven Dwarfs' Mine, Zootopia Police HQ).
+  const oncePerTurnDuringYourTurn = ab.oncePerTurn && cond === "during your turn";
   const oncePrefix = ab.oncePerTurn ? "Once per turn, " : "";
   // "during opponents' turns" / "during your turn" reads best at the front.
   if (cond.startsWith("during ")) {
     const headLower = head.charAt(0).toLowerCase() + head.slice(1);
+    if (oncePerTurnDuringYourTurn) {
+      return `Once ${cond}, ${headLower}, ${body}`;
+    }
     return `${cap(cond)}, ${oncePrefix}${headLower}, ${body}`;
   }
   if (cond) return `${oncePrefix}${head}, ${cond}, ${body}`;
