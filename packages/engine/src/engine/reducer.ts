@@ -895,6 +895,13 @@ function applyEnterPlayExertion(
     if (ab.type === "static") {
       const effs = Array.isArray(ab.effect) ? ab.effect : [ab.effect];
       if (effs.some(e => e.type === "enter_play_exerted_self")) {
+        // Dale Friend in Need CHIP'S PARTNER: "enters play exerted unless
+        // you have a character named Chip in play" — honor the static's
+        // condition so the exert only applies when the condition is true
+        // (via `not(has_character_named: "Chip")`).
+        if (ab.condition && !evaluateCondition(ab.condition, state, definitions, playerId, instanceId)) {
+          break;
+        }
         state = updateInstance(state, instanceId, { isExerted: true });
         break;
       }
@@ -2548,6 +2555,21 @@ function resolveDynamicAmount(
       // that was under them". Reads the snapshot captured at banish time
       // before leave-play cleanup cleared cardsUnder.
       resolved = state.lastBanishedCardsUnderCount ?? 0;
+      break;
+    }
+    case "count_last_discarded": {
+      // The Headless Horseman WITCHING HOUR: "deal 2 damage for each action
+      // card discarded this way". Count lastDiscarded entries matching the
+      // filter, multiplied by `multiplier` (default 1).
+      const refs = state.lastDiscarded ?? [];
+      let cnt = 0;
+      for (const ref of refs) {
+        if (!amount.filter) { cnt++; continue; }
+        const inst = state.cards[ref.instanceId];
+        const d = inst ? definitions[inst.definitionId] : undefined;
+        if (inst && d && matchesFilter(inst, d, amount.filter, state, controllingPlayerId)) cnt++;
+      }
+      resolved = cnt * (amount.multiplier ?? 1);
       break;
     }
   }
@@ -4690,6 +4712,10 @@ export function applyEffect(
       }
 
       const discardMods = getGameModifiers(state, definitions);
+      // Clear lastDiscarded at the top of this dispatch so the
+      // count_last_discarded DynamicAmount sees only discards from this
+      // effect (Headless Horseman: count action discards from THIS step).
+      state = { ...state, lastDiscarded: [] };
       for (const pid of players) {
         // Magica De Spell Cruel Sorceress, Kronk Laid Back: shielded players
         // skip the discard entirely. CRD: "if an effect would cause you to
@@ -4761,6 +4787,18 @@ export function applyEffect(
             state = moveCard(state, id, pid, "discard");
           }
           state = { ...state, lastEffectResult: picked.length };
+          // Snapshot the random picks onto lastDiscarded so subsequent
+          // effects can count-by-filter (Headless Horseman WITCHING HOUR:
+          // "deal 2 damage for each action card discarded this way"). The
+          // refs accumulate across both players' discards in the same
+          // discard_from_hand dispatch when target is "both".
+          const newRefs = picked
+            .map((id) => makeResolvedRef(state, definitions, id))
+            .filter((r): r is ResolvedRef => !!r);
+          if (newRefs.length > 0) {
+            const existing = state.lastDiscarded ?? [];
+            state = { ...state, lastDiscarded: [...existing, ...newRefs] };
+          }
           if (picked.length > 0) {
             state = queueTriggersByEvent(state, "cards_discarded", pid, definitions, {});
           }

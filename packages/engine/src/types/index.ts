@@ -580,7 +580,13 @@ export type DynamicAmount =
   /** Donald Duck Fred Honeywell WELL WISHES: "draw a card for each card that
    *  was under them". Reads state.lastBanishedCardsUnderCount — the count
    *  captured at banish time before leave-play cleanup clears cardsUnder. */
-  | { type: "triggering_card_cards_under_count"; max?: number };
+  | { type: "triggering_card_cards_under_count"; max?: number }
+  /** The Headless Horseman WITCHING HOUR: "deal 2 damage for each action
+   *  card discarded this way". Counts entries in state.lastDiscarded that
+   *  match the filter, multiplied by `multiplier` (default 1). Reads the
+   *  freshest lastDiscarded snapshot (set by discard_from_hand), so should
+   *  be used immediately after the triggering discard step. */
+  | { type: "count_last_discarded"; filter?: CardFilter; multiplier?: number };
 
 export interface DrawEffect {
   type: "draw";

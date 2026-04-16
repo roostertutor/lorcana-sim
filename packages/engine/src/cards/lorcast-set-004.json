@@ -9256,22 +9256,7 @@
         "isMay": true,
         "target": {
           "type": "chosen",
-          "filter": {
-            "zone": "discard",
-            "cardType": [
-              "item"
-            ],
-            "owner": {
-              "type": "self"
-            }
-          }
-        }
-      },
-      {
-        "type": "return_to_hand",
-        "isMay": true,
-        "target": {
-          "type": "chosen",
+          "count": 2,
           "filter": {
             "zone": "discard",
             "cardType": [

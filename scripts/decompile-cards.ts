@@ -223,6 +223,14 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
       const filtNoOwner = renderFilter(t.filter, { suppressOwnerSelf: true });
       return `Whenever you play a ${filtNoOwner}`;
     }
+    // owner:opponent → "Whenever an opponent plays a character"
+    // (Prince John Fraidy-Cat HELP! HELP!). The "opposing" prefix that
+    // renderFilter emits for owner:opponent reads oddly with "play".
+    if (t.filter.owner?.type === "opponent") {
+      const { owner: _o, ...rest } = t.filter;
+      const filtNoOwner = renderFilter(rest);
+      return `Whenever an opponent plays a ${filtNoOwner}`;
+    }
     return `Whenever you play ${filt}`;
   },
   // item_played: DELETED — collapsed to card_played with cardType filter
@@ -530,7 +538,22 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     }
     return base;
   },
-  remove_damage:  (e) => `${maybe(e)}remove ${up(e)}${typeof e.amount === "number" ? e.amount : renderAmount(e.amount)} damage from ${renderTarget(e.target ?? {})}`,
+  remove_damage:  (e) => {
+    const base = `${maybe(e)}remove ${up(e)}${typeof e.amount === "number" ? e.amount : renderAmount(e.amount)} damage from ${renderTarget(e.target ?? {})}`;
+    // followUpEffects apply to the same chosen target (Penny Bolt's Person
+    // ENDURING LOYALTY: "... and they gain Resist +1"). Render the "they"-
+    // pronoun shape by rewriting each followUp's "this character" references
+    // to "they". Simplest path: render normally and prefix with "and they".
+    if (e.followUpEffects?.length) {
+      const fu = (e.followUpEffects as any[]).map((f) => {
+        const rendered = renderEffect(f);
+        // "this character" → "they" when stitched as a follow-up clause.
+        return rendered.replace(/^this character /i, "they ").replace(/^all this character /i, "they ");
+      }).join(" and ");
+      return `${base} and ${fu}`;
+    }
+    return base;
+  },
   move_damage:    (e) => {
     // CardJSON shape varies: legacy uses `from`/`to`, newer uses `source`/`destination`.
     const from = e.from ?? e.source ?? {};
@@ -713,7 +736,13 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     // count can be literal number or DynamicAmount object (Bambi Ethereal
     // Fawn: {type: "cards_under_count"}) — use renderAmount to stringify.
     const count: number | string = typeof e.count === "number" ? e.count : (typeof e.count === "object" ? renderAmount(e.count) : (e.count ?? "?"));
-    const base = `look at the top ${count} card${typeof count === "number" ? plural(count) : "s"} of your deck`;
+    // Deck ownership follows the PlayerTarget (The Fates Only One Eye
+    // looks at "each opponent's deck"). Default: your deck.
+    const deckOwn = e.target?.type === "opponent" ? "each opponent's deck"
+      : e.target?.type === "chosen" ? "chosen player's deck"
+      : e.target?.type === "both" ? "each player's deck"
+      : "your deck";
+    const base = `look at the top ${count} card${typeof count === "number" ? plural(count) : "s"} of ${deckOwn}`;
     const filter = e.filter ? renderFilter(e.filter) : "a card";
     switch (e.action) {
       case "choose_from_top": {
@@ -744,6 +773,10 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
         if (count === 2) return `${base}. Put one on the top of your deck and the other on the bottom`;
         return `${base}. Put it on either the top or the bottom of your deck`;
       case "reorder":
+        // Count:1 reorder is effectively "just peek" — no reordering possible
+        // on a single card (The Fates "look at the top card of each
+        // opponent's deck"). Drop the redundant "put them back" clause.
+        if (count === 1) return base;
         return `${base}. Put them back in any order`;
       case "peek_and_set_target": {
         // Pure chooser: peek top N, set lastResolvedTarget (via subsequent
@@ -856,7 +889,16 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   // oracle-shaped phrasing for each combination.
   move_character: (e) => {
     const may = e.isMay ? "you may " : "";
-    const who = e.character ? renderTarget(e.character) : "this character";
+    // Voyage: character "all" + maxCount:N → "up to N characters" (the
+    // "all" target would otherwise render as the entire set).
+    let who: string;
+    if (e.character?.type === "all" && e.character.maxCount) {
+      const filt = e.character.filter ? pluralizeFilter(renderFilter(e.character.filter, { suppressOwnerSelf: true })) : "characters";
+      const qual = e.character.filter?.owner?.type === "self" ? "of yours " : "";
+      who = `up to ${e.character.maxCount} ${filt} ${qual}`.trimEnd();
+    } else {
+      who = e.character ? renderTarget(e.character) : "this character";
+    }
     const where = e.location ? renderTarget(e.location) : "a location";
     return `${may}move ${who} to ${where} for free`;
   },
@@ -1375,6 +1417,16 @@ function renderAmount(a: any): string {
     if (a.type === "cards_under_count") return "the number of cards under this character";
     // Donald Duck Fred Honeywell WELL WISHES: "for each card that was under them"
     if (a.type === "triggering_card_cards_under_count") return "the number of cards that were under them";
+    // The Headless Horseman WITCHING HOUR: "deal 2 damage for each action
+    // card discarded this way" — multiplier × (count of lastDiscarded
+    // matching filter).
+    if (a.type === "count_last_discarded") {
+      const filt = a.filter ? renderFilter(a.filter) : "card";
+      const perClause = a.multiplier && a.multiplier !== 1
+        ? `${a.multiplier} per ${filt} discarded this way`
+        : `the number of ${pluralizeFilter(filt)} discarded this way`;
+      return perClause;
+    }
     return `[amount:${a.type}]`;
   }
   return "?";
@@ -1465,7 +1517,20 @@ function renderTriggered(ab: Json): string {
 
 function renderActivated(ab: Json, ctx?: { cardType?: string }): string {
   const costParts = (ab.costs ?? []).map((c: Json) => renderCost(c, ctx));
-  const effects: Json[] = [...(ab.effects ?? [])];
+  let effects: Json[] = [...(ab.effects ?? [])];
+  // Flatten a single wrapping SequentialEffect: Mrs. Potts Head Housekeeper
+  // encodes "{E}, Banish one of your items — Draw a card" as
+  // effects: [{type: sequential, costEffects: [banish], rewardEffects: [draw]}].
+  // Splat costEffects + rewardEffects into the flat effects array so the
+  // hoist loop below can promote the costEffects to the cost line.
+  if (effects.length === 1 && effects[0]?.type === "sequential") {
+    const seq = effects[0];
+    const ce = Array.isArray(seq.costEffects) ? seq.costEffects : [];
+    const re = Array.isArray(seq.rewardEffects) ? seq.rewardEffects : [];
+    if (ce.length > 0 && re.length > 0) {
+      effects = [...ce, ...re];
+    }
+  }
   // Lorcana convention: "banish one of your X" / "discard a card" written
   // as a cost in oracle text is modeled here as the FIRST effect. Hoist
   // leading cost-effects into the cost line so "{E}, Banish one of your
@@ -1634,6 +1699,10 @@ function renderTarget(t: Json): string {
     }
     case "all": {
       const f = t.filter ? pluralizeFilter(renderFilter(t.filter)) : "characters";
+      // "your X" / "opposing X" is a self-pluralizing set in oracle wording
+      // (Cogsworth: "Your characters with Reckless gain ..."). Drop the
+      // "all" prefix when an owner filter already implies the full set.
+      if (t.filter?.owner?.type) return f;
       return `all ${f}`;
     }
     case "random": {

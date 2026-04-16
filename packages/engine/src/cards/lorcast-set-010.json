@@ -10111,6 +10111,30 @@
               "type": "both"
             },
             "chooser": "random"
+          },
+          {
+            "type": "deal_damage",
+            "amount": {
+              "type": "count_last_discarded",
+              "filter": {
+                "cardType": [
+                  "action"
+                ]
+              },
+              "multiplier": 2
+            },
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
           }
         ]
       }

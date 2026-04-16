@@ -310,6 +310,13 @@
         "type": "static",
         "storyName": "CHIP'S PARTNER",
         "rulesText": "This character enters play exerted unless you have a character named Chip in play.",
+        "condition": {
+          "type": "not",
+          "condition": {
+            "type": "has_character_named",
+            "name": "Chip"
+          }
+        },
         "effect": {
           "type": "enter_play_exerted_self"
         }

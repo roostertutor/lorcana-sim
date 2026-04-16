@@ -1390,12 +1390,11 @@
         "storyName": "PLAY IT COOL",
         "rulesText": "During an opponent's turn, whenever one of your characters is banished, you may draw a card.",
         "trigger": {
-          "on": "banished_other_in_challenge",
+          "on": "is_banished",
           "filter": {
             "owner": {
               "type": "self"
             },
-            "zone": "play",
             "cardType": [
               "character"
             ]
