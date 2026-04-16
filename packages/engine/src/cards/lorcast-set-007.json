@@ -7922,6 +7922,32 @@
                 }
               }
             ]
+          },
+          {
+            "type": "conditional_on_target",
+            "target": {
+              "type": "last_resolved_target"
+            },
+            "conditionFilter": {
+              "hasName": "Maurice's Machine"
+            },
+            "ifMatchEffects": [
+              {
+                "type": "banish",
+                "isMay": true,
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "strengthAtMost": 2
+                  }
+                }
+              }
+            ],
+            "defaultEffects": []
           }
         ]
       }

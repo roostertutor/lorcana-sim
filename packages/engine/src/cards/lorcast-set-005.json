@@ -9078,15 +9078,9 @@
         "effects": [
           {
             "type": "search",
-            "filter": {
-              "zone": "deck",
-              "owner": {
-                "type": "self"
-              }
-            },
+            "filter": {},
             "zone": "deck",
-            "putInto": "deck",
-            "position": "top",
+            "putInto": "hand",
             "target": {
               "type": "self"
             }

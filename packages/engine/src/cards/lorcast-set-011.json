@@ -5869,9 +5869,7 @@
                 "cardType": [
                   "character"
                 ],
-                "maxStrength": {
-                  "type": "source_strength"
-                }
+                "strengthAtMostFromBanishedSource": true
               }
             }
           }

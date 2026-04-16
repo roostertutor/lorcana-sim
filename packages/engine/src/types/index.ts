@@ -2298,6 +2298,11 @@ export interface CardFilter {
   /** Negated keyword check — matches cards that do NOT have the keyword.
    *  Used by Tug-of-War ("each opposing character without Evasive"). */
   lacksKeyword?: Keyword;
+  /** Cap effective-strength by the pre-banish snapshot of the source's
+   *  strength (state.lastBanishedSourceStrength). Used by Wreck-it Ralph
+   *  Raging Wrecker WHO'S COMIN' WITH ME? ("banish all characters with {S}
+   *  equal to or less than the {S} he had in play"). */
+  strengthAtMostFromBanishedSource?: boolean;
   isExerted?: boolean;
   costAtMost?: number;
   /** Dynamic cost cap: `state.lastResolvedSource.cost + offset`. Used by Retro
@@ -3013,6 +3018,15 @@ export interface GameState {
    *  each card that was under them" (Donald Duck Fred Honeywell WELL WISHES)
    *  sees the count at trigger resolution time. */
   lastBanishedCardsUnderCount?: number;
+
+  /** Snapshot of the most recently banished card's effective strength
+   *  (post-modifiers, including cardsUnder bonuses) — captured before
+   *  leave-play cleanup wipes the cards-under pile. Used by the
+   *  `strengthAtMostFromBanishedSource` CardFilter flag so Wreck-it Ralph
+   *  Raging Wrecker WHO'S COMIN' WITH ME? ("banish all characters with {S}
+   *  equal to or less than the {S} he had in play") sees the live strength
+   *  before Ralph's POWERED UP bonus evaporated. */
+  lastBanishedSourceStrength?: number;
 
   /** Snapshot of the most recently revealed hand — set by the reveal_hand
    *  effect so the UI can show a modal without needing event listeners. */

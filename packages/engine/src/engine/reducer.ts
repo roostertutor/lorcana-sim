@@ -6129,6 +6129,14 @@ function zoneTransition(
         // may not initialize cardsUnder — the type is string[] but not every
         // test helper fills it in.
         state = { ...state, lastBanishedCardsUnderCount: instance.cardsUnder?.length ?? 0 };
+        // Also snapshot effective strength for Wreck-it Ralph Raging Wrecker
+        // WHO'S COMIN' WITH ME? — needs the strength he had IN PLAY
+        // (including POWERED UP cardsUnder bonus) before cleanup wipes it.
+        if (def) {
+          const banishMods = getGameModifiers(state, definitions);
+          const banishStrBonus = banishMods.statBonuses.get(instanceId)?.strength ?? 0;
+          state = { ...state, lastBanishedSourceStrength: getEffectiveStrength(instance, def, banishStrBonus, banishMods) };
+        }
         state = queueTrigger(state, "is_banished", instanceId, definitions, {});
 
         if (ctx.fromChallenge && ctx.challengeOpponentId) {

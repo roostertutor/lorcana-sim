@@ -173,6 +173,10 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
   banished_in_challenge:         (t) => {
     if (t.filter?.owner?.type === "self") return "Whenever one of your other characters is banished in a challenge";
     if (t.filter?.excludeSelf) return "Whenever another character is banished in a challenge";
+    // Ursula's Lair Eye of the Storm SLIPPERY HALLS: location-scoped filter
+    // (atLocation: "this") → "Whenever a character is banished in a
+    // challenge while here".
+    if (t.filter?.atLocation === "this") return "Whenever a character is banished in a challenge while here";
     return "When this character is challenged and banished";
   },
   banished_other_in_challenge:   (t) => t.filter ? `Whenever this character banishes ${renderFilter(t.filter)} in a challenge` : "Whenever this character banishes another character in a challenge",
@@ -401,13 +405,18 @@ const COST_RENDERERS: Record<string, Renderer> = {
   banish_self:        (_c, ctx) => `Banish this ${ctx?.cardType === "item" ? "item" : "character"}`,
   discard:            (c) => {
     const amt = c.amount ?? 1;
-    const filt = c.filter ? renderFilter(c.filter) : "card";
+    // Cost-side discard is implicitly from own hand; "your" / zone:hand on
+    // the filter read redundantly (Half Hexwell Crown A PERILOUS POWER:
+    // "Discard a card" — not "discard a your card from your hand").
+    const filterNoOwnerZone = c.filter ? { ...c.filter, zone: undefined } : undefined;
+    const filt = filterNoOwnerZone ? renderFilter(filterNoOwnerZone, { suppressOwnerSelf: true }) : "card";
     if (amt === 1) return `Choose and discard a ${filt}`;
     return `Choose and discard ${amt} ${filt}${filt.endsWith("s") ? "" : "s"}`;
   },
   discard_from_hand:  (c) => {
     const amt = c.amount ?? 1;
-    const filt = c.filter ? renderFilter(c.filter) : "card";
+    const filterNoOwnerZone = c.filter ? { ...c.filter, zone: undefined } : undefined;
+    const filt = filterNoOwnerZone ? renderFilter(filterNoOwnerZone, { suppressOwnerSelf: true }) : "card";
     if (amt === 1) return `Choose and discard a ${filt}`;
     return `Choose and discard ${amt} ${filt}${filt.endsWith("s") ? "" : "s"}`;
   },
@@ -1179,6 +1188,11 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     if (e.countSelfDamage) {
       return `${tgt} ${verbS(tgt, "get", "gets")} +${per} ${stat} for each ${per === 1 ? "1" : per} damage on ${tgt === "this character" ? "them" : tgt}`;
     }
+    // Wreck-it Ralph Raging Wrecker POWERED UP / Flynn Rider canary:
+    // "+1 {S} for each card under him" — CRD 8.4.2 cardsUnder count.
+    if (e.countCardsUnderSelf) {
+      return `${tgt} ${verbS(tgt, "get", "gets")} +${per} ${stat} for each card under ${tgt === "this character" ? "them" : tgt}`;
+    }
     const cf = e.countFilter;
     let where = "you have in play";
     if (cf?.zone === "hand") where = "in your hand";
@@ -1492,6 +1506,9 @@ function renderStatChange(e: Json): string {
   if (e.strength !== undefined) bits.push(`${signed(e.strength)} {S}`);
   if (e.willpower !== undefined) bits.push(`${signed(e.willpower)} {W}`);
   if (e.lore !== undefined) bits.push(`${signed(e.lore)} {L}`);
+  // Triton's Trident SYMBOL OF POWER: "+1 {S} this turn for each card in
+  // your hand". Resolved at apply time using hand count.
+  if (e.strengthPerCardInHand) bits.push("+1 {S} for each card in your hand");
   // gain_stats with a DynamicAmount (Rescue Rangers Away: "Chosen character
   // loses {S} equal to the number of characters you have in play"). The
   // `strengthDynamicNegate: true` flag flips sign for the "loses" wording.
@@ -1739,10 +1756,12 @@ function renderTarget(t: Json): string {
     }
     case "all": {
       const f = t.filter ? pluralizeFilter(renderFilter(t.filter)) : "characters";
-      // "your X" / "opposing X" is a self-pluralizing set in oracle wording
-      // (Cogsworth: "Your characters with Reckless gain ..."). Drop the
-      // "all" prefix when an owner filter already implies the full set.
-      if (t.filter?.owner?.type) return f;
+      // "your X" is self-pluralizing in oracle wording (Cogsworth: "Your
+      // characters with Reckless gain..."). For opposing sets, "all
+      // opposing X" is the natural wording (Milo Thatch TAKE THEM BY
+      // SURPRISE: "return all opposing characters"). Only drop "all"
+      // when owner is self.
+      if (t.filter?.owner?.type === "self") return f;
       return `all ${f}`;
     }
     case "random": {
@@ -1793,6 +1812,9 @@ function renderFilter(f: Json, opts?: { suppressOwnerSelf?: boolean }): string {
   if (f.hasDamage) bits.push("with damage");
   // Tug-of-War: "each opposing character without Evasive".
   if (f.lacksKeyword) bits.push(`without ${cap(f.lacksKeyword)}`);
+  // Wreck-it Ralph Raging Wrecker WHO'S COMIN' WITH ME?: cap by Ralph's
+  // pre-banish strength.
+  if (f.strengthAtMostFromBanishedSource) bits.push("with {S} equal to or less than the {S} he had in play");
   // Hades Double Dealer: play a character "with the same name as the
   // banished character" — nameFromLastResolvedSource pins the name to
   // state.lastResolvedSource (set by the preceding banish effect).

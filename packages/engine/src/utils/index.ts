@@ -443,6 +443,14 @@ export function matchesFilter(
     if (filter.strengthAtLeast !== undefined && str < filter.strengthAtLeast) return false;
   }
 
+  // Wreck-it Ralph Raging Wrecker WHO'S COMIN' WITH ME?: cap by the
+  // pre-banish snapshot of Ralph's strength. The snapshot is captured in
+  // zoneTransition before leave-play cleanup drops the cardsUnder bonus.
+  if (filter.strengthAtMostFromBanishedSource && state.lastBanishedSourceStrength !== undefined) {
+    const str = getEffectiveStrength(instance, definition);
+    if (str > state.lastBanishedSourceStrength) return false;
+  }
+
   if (filter.challengedThisTurn !== undefined) {
     if (filter.challengedThisTurn && !instance.challengedThisTurn) return false;
     if (!filter.challengedThisTurn && instance.challengedThisTurn) return false;
