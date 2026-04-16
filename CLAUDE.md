@@ -1,59 +1,63 @@
 # CLAUDE.md — Operating Manual for Claude Code
-# This file is auto-loaded every session. Keep it concise.
-# Do NOT duplicate content from SPEC.md, DECISIONS.md, or CRD_TRACKER.md.
+# Auto-loaded every session. Keep concise. Don't duplicate SPEC.md / DECISIONS.md / CRD_TRACKER.md.
 
 ## Project
 
-Headless Lorcana TCG analytics engine — simulates thousands of games
-to produce deck analytics and win rates. NOT a human-playable simulator.
+Headless Lorcana TCG analytics engine — simulates thousands of games to produce
+deck analytics and win rates. NOT primarily a human-playable simulator, though a
+playable sandbox exists as a thin UI layer over the engine.
 
 ## Status
 
-- engine:    done (460 passing). Run `pnpm catalog > docs/ENGINE_PRIMITIVES.md` for a live inventory of all ~80 primitives. Key additions from the 2026-04-09/10 approximation sweep + generalization pass: `resolveDirectTarget` helper (collapses 9 target-dispatch branches), `opponent_may_pay_to_avoid` cross-player chooser, `rememberedTargetIds` + `restrict_remembered_target_action`, `grant_trait_static` + pre-pass, `CardFilter.anyOf`, `challenges.defenderFilter`, `conditional_challenger_self`, `grant_keyword.valueDynamic`, `last_damage_dealt` + `last_resolved_target_strength` DynamicAmounts, `search` reducer (was missing; `tutor` collapsed into it). Generalization: `gain_lore`/`lose_lore` unified, `this_turn` temp modifiers → TimedEffect, `rest_of_turn` → `end_of_turn`, Hades migrated to `opponent_may_pay_to_avoid`, `resolveDirectTarget` extracted. Tests split: reducer.test.ts (CRD), set1-set11 + mech-gaps batch. 2026-04-16 decompiler-tail sweep: ~55 silent wiring bugs fixed (stubs, wrong-field typos like `maxStrength`/`inkColor`/`hasCardsUnder`/`notId`/`from/to`/`name`, per-instance vs player-wide action-restriction misuse, legacy key renames); new primitives include `ready_anytime` RestrictedAction, `suppress_keyword` TimedEffect + `remove_keyword_target`, `count_last_discarded`/`triggering_card_cards_under_count` DynamicAmounts, `boost_used` trigger, `players_with_most_cards_in_hand` PlayerTarget, `CardFilter.{lacksKeyword, hasNoTrait, inkable, strengthAtMostFromBanishedSource}`, `opponent_controls_matching`/`character_challenges_this_turn_eq`/`triggering_player_draws_this_turn_eq` conditions, `create_floating_trigger.attachTo "all_matching"`. RNG isolation: `applyAction` clones `state.rng` at entry for deterministic undo/replay.
-- simulator: done (47 passing). Layer 3 invariants passing. RL bot implemented (Actor-Critic + GAE). Pre-existing flake on rl.test.ts unrelated to engine work.
-- analytics: done (15 passing).
-- cli:       done. analyze, compare, query, learn.
-- server:    done (core). Hono + Supabase. Anti-cheat state filtering, per-format ELO (bo1/bo3 × core/infinity), Bo1/Bo3 match format, token auto-refresh, action logging for clone trainer. Remaining: Railway deploy, OAuth. See `docs/MULTIPLAYER.md`.
-- ui:        done. URL routing (react-router-dom), 7 screens, React+Vite. Responsive (mobile/tablet/desktop). Full-screen game board (no header/nav in-game). Multiplayer: lobby, reconnection (localStorage), shareable lobby links (`/lobby/:code`), duplicate game guard. See `docs/UI_PENDING_MECHANICS.md` for mechanics needing visualization.
-- sandbox:   done. Interactive game board with bot opponent. Replay mode + undo. Utility strip (deck tile, inkwell, discard tile). Card action popover anchored to clicked card (fixed-position, works on all breakpoints). Keyword icon badges (slate=printed, green=granted, +N stacking per CRD 8.1.2), exerted rotation, damage counter, drying overlay. Left-side status icons (damage prevention, can't challenge/ready/sing, once-per-turn, delayed trigger). Stat delta badges (bottom-right: +S/-S/+W/-W/+L/-L). Top-left info badges (dual-name, granted trait, U-Shift). Cards-under viewer (clickable, face-up/down per `isFaceDown`). Active Effects pill (scoreboard: quotes source card ability text, conditional evaluation). DnD with drop labels (Play/Ink/Shift/Sing/Challenge/Move). Alt-cost shift picker (discard N cards). Drag-to-sing. Choose-amount picker for isUpTo effects. Choose-option with card text. Location rotation. HMR session persistence + quick save/load. Card injector with qty/zone/player/set, ink/lore controls, reset board. 5-family color scheme (slate/green/red/gray/amber). See `docs/GUI_TEST_CARDS.md` for verified mechanic checklist.
-- cards:     **2146/2146 named-ability cards wired + 506 vanillas = 2652/2652 (100%) complete.** Every card across sets 1–11 + promos (P1, P2, P3, cp, DIS, D23) is implemented. Promo sets auto-synced from main sets via `scripts/sync-promo-reprints.ts` (cross-set + within-set passes).
-- gaps:      **0 stubs, 0 partial, 0 invalid fields, 0 known approximations.** Four audit scripts triangulate data quality: `pnpm card-status` (stub progress + partial detection via rulesText header counting + **JSON field validation** against types/index.ts unions — catches wrong trigger/effect/condition/cost/duration names AND CardFilter field-name typos like `maxStrength`/`inkColor`/`notId` — fields not on the `CardFilter` interface become silent no-ops at runtime), `pnpm audit-lorcast` (Lorcast API drift, scalar fields, static effect-type mismatches), `pnpm audit-approximations` (parenthetical annotation tracker), and `pnpm decompile-cards` (deterministic JSON-to-English diff — the rendered-vs-oracle similarity tail surfaces semantic mis-wirings; the bottom of the sorted output is the bug list). All four report clean across all 17 sets. Raw Lorcast API responses can be cached via `pnpm import-cards --cache` for diffing against processed card JSONs. **What the audits can't catch**: required-field structural validation (e.g. action_restriction needs `affectedPlayer`), semantic correctness (e.g. per-instance vs player-wide targeting, correct triggering_card vs last_resolved_target references), and runtime-handler bugs. Those need the decompiler-diff sweep, tests, or hands-on play.
+- **engine** — done, 460 tests passing. `pnpm catalog > docs/ENGINE_PRIMITIVES.md` dumps the live primitive inventory (~80). Tests split: `reducer.test.ts` (CRD rules), `setN.test.ts` (per-set card behavior), `mech-gaps-batch.test.ts`, `undo-rng-isolation.test.ts`, `angela-eternal-night.test.ts` (regression coverage for two silent bug classes).
+- **simulator** — done, 47 tests passing. Layer 3 data-integrity invariants enforced. RL bot implemented (Actor-Critic + GAE). `rl.test.ts` has a pre-existing flake unrelated to engine work.
+- **analytics** — done, 15 tests passing.
+- **cli** — done. Commands: `analyze`, `compare`, `query`, `learn`.
+- **server** — done (core). Hono + Supabase. Anti-cheat state filtering, per-format ELO (bo1/bo3 × core/infinity), Bo1/Bo3 match format, token auto-refresh, action logging for clone trainer. Remaining: Railway deploy, OAuth. See `docs/MULTIPLAYER.md`.
+- **ui** — done. React + Vite, react-router-dom, 7 screens, responsive (mobile/tablet/desktop). Multiplayer: lobby, reconnection (localStorage), shareable lobby links (`/lobby/:code`). See `docs/UI_PENDING_MECHANICS.md` for unvisualized mechanics.
+- **sandbox** — done. Interactive game board vs bot with replay + undo, DnD, alt-cost shift picker, card injector with qty/zone/player/set controls, HMR session persistence + quick save/load. Visual state: keyword icon badges, exerted rotation, damage counter, drying overlay, active-effects pill, card-state status icons, stat delta badges. See `docs/GUI_TEST_CARDS.md` for the verified-mechanic checklist, `docs/GAME_BOARD.md` for layout notes.
+- **cards** — **2146 named-ability cards wired + 506 vanillas = 2652/2652 (100%).** All of sets 1–11 + promos (P1, P2, P3, cp, DIS, D23). Promo sets auto-synced from main sets via `scripts/sync-promo-reprints.ts`.
+- **gaps** — 0 stubs, 0 partial, 0 invalid-fields, 0 known approximations. See the Audit section below for how the four audit scripts triangulate.
 
 ## Quick Reference
 
 ```bash
-pnpm test                # all tests
-pnpm test:watch          # TDD (engine)
-pnpm typecheck           # known errors in cli (missing @types/node) only
-pnpm dev                 # UI at localhost:5173
-pnpm import-cards        # fetch cards from Lorcast API
+pnpm test                 # all tests
+pnpm test:watch           # TDD (engine)
+pnpm typecheck            # fails on pre-existing exactOptionalPropertyTypes strictness — not from recent changes
+pnpm dev                  # UI at localhost:5173
+pnpm import-cards         # fetch cards from Lorcast API
 pnpm import-cards --cache # same + save raw API responses to .lorcast-raw/
-pnpm learn               # train RL policy (see --help)
+pnpm learn                # train RL policy (see --help)
 ```
 
-### Audit workflow
-```bash
-# After card wiring changes (run every time):
-pnpm card-status                  # stubs, partial, invalid fields, field validation
+## Audits
 
-# After re-importing from Lorcast API:
-pnpm audit-lorcast                # keyword drift, dropped values from upstream
+Four scripts triangulate data quality; all four report clean across all 17 sets.
 
-# Periodic deep review (set by set):
-pnpm decompile-cards --set 001    # semantic diff: rendered JSON vs oracle text
-```
+| Script | Covers | What it misses |
+|---|---|---|
+| `pnpm card-status` | JSON field validation: every `type`/`on` discriminator checked against `types/index.ts` unions; every CardFilter field checked against the `CardFilter` interface. Catches typos that silently no-op (`start_of_turn` vs `turn_start`, `maxStrength` vs `strengthAtMost`, `inkColor` vs `inkColors`, `hasCardsUnder` vs `hasCardUnder`, `notId` vs `excludeSelf`, `name` vs `hasName`). Extracts valid names dynamically from `types/index.ts` so it stays in sync. | Required-field structural checks (e.g. `action_restriction` requires `affectedPlayer` — missing it crashes at runtime, passes audit). |
+| `pnpm audit-lorcast` | Lorcast API drift: scalar fields, static-effect-type mismatches, keyword drops from upstream. Run after re-import. | Engine-internal wiring correctness. |
+| `pnpm audit-approximations` | Parenthetical `(approximation: ...)` annotations in rulesText. | Anything not marked with that exact phrase. |
+| `pnpm decompile-cards` | Authoritative semantic check: renders JSON ability back to English, similarity-scores against oracle text. The bottom of the sorted output is the bug list — stubs, wrong-trigger wiring, missing conditional branches, per-instance-vs-player-wide targeting, wrong destination zones, etc. Run `pnpm decompile-cards --set 001` for one set. | Handler-body runtime bugs (wrong variable names, off-by-one in reducers). Only tests or live play catch those. |
 
-## Docs (read on demand, not every session)
+**What no audit catches:** required-field structural validation, semantic correctness (e.g. `triggering_card` vs `last_resolved_target` picking the wrong one), and runtime-handler bugs. Those need the decompiler-diff sweep, tests, or hands-on play.
+
+## Docs (read on demand)
 
 | File | Purpose | When to read |
 |------|---------|-------------|
-| docs/SPEC.md | Full spec: APIs, types, build order | Starting a new package/feature |
-| docs/DECISIONS.md | Why decisions were made | Before proposing architecture changes |
-| docs/CRD_TRACKER.md | CRD v2.0.1 rule-to-engine map | Implementing/fixing game rules |
-| docs/CARD_ISSUES.md | Card implementation gaps | Importing new sets / fixing card bugs |
-| docs/RL.md | RL training architecture, policies, reward design | Touching the RL training pipeline |
-| docs/QUERY_SYSTEM.md | Query condition types, sim file format, CLI workflows | Writing or running queries |
-| docs/ANALYTICS_PHILOSOPHY.md | Why we ask certain questions, query design principles | Designing new question files |
+| `docs/SPEC.md` | Full spec: APIs, types, build order | Starting a new package/feature |
+| `docs/DECISIONS.md` | Why decisions were made | Before proposing architecture changes |
+| `docs/CRD_TRACKER.md` | CRD v2.0.1 rule-to-engine map | Implementing/fixing game rules |
+| `docs/CARD_ISSUES.md` | Card implementation gaps / history | Importing new sets, fixing card bugs |
+| `docs/ENGINE_PRIMITIVES.md` | Live primitive inventory (generated via `pnpm catalog`) | Checking what effect/trigger/condition types exist |
+| `docs/RL.md` | RL training architecture, policies, reward design | Touching the RL training pipeline |
+| `docs/QUERY_SYSTEM.md` | Query conditions, sim file format, CLI workflows | Writing or running queries |
+| `docs/ANALYTICS_PHILOSOPHY.md` | Why we ask certain questions, query design principles | Designing new question files |
+| `docs/GAME_BOARD.md` / `docs/GUI_TEST_CARDS.md` / `docs/UI_PENDING_MECHANICS.md` | UI-side references | Touching the sandbox |
+| `docs/MULTIPLAYER.md` | Server + anti-cheat + ELO design | Touching server / lobby |
 
 ---
 
@@ -62,9 +66,16 @@ pnpm decompile-cards --set 001    # semantic diff: rendered JSON vs oracle text
 ### No hallucinated cards or rules
 - ALWAYS look up card data from `lorcast-set-XXX.json` files — never guess card text, costs, stats, or abilities from training data.
 - ALWAYS cite CRD rule numbers from `docs/CRD_TRACKER.md` — never invent rules or assume how a mechanic works.
-- When planning or implementing a rule, also read the full rule text from the CRD PDF (`docs/Disney-Lorcana-Comprehensive-Rules-020526-EN-Edited.pdf`). The tracker is an index; the PDF has the complete spec with examples and edge cases.
-- When planning or implementing a card definition, also read the full rule text from the CRD PDF (`docs/Disney-Lorcana-Comprehensive-Rules-020526-EN-Edited.pdf`). The tracker is an index; the PDF has the complete spec with examples and edge cases.
-- If card data or rule text is not available, say so and look it up. Do not make things up.
+- Read the full CRD rule text from `docs/Disney-Lorcana-Comprehensive-Rules-020526-EN-Edited.pdf` when implementing a rule or a card ability that depends on one. The tracker is an index; the PDF has the complete spec with examples and edge cases.
+- If data isn't available, say so and look it up. Do not make things up.
+
+### Handler existence is not correctness
+Grep-finding a `case "X":` label doesn't prove the handler works. Before claiming a card / mechanic is correctly implemented, do at least ONE of:
+1. A test exercises the specific code path.
+2. Read the handler body end-to-end and trace the data flow.
+3. Run the card in the UI / simulator.
+
+All four audit scripts are text-shape checks — they miss runtime-handler bugs like wrong variable names in RNG calls (Fred Giant-Sized shipped broken because the text-level checks passed).
 
 ### Package boundaries — never cross
 ```
@@ -76,33 +87,26 @@ ui/          ← imports analytics only (browser, no Node APIs)
 ```
 
 ### CRD references in code
-When implementing or fixing game rules, add a CRD comment citing the rule
-number. Example: `// CRD 8.9.1: Rush bypasses drying for challenges only`.
-This links code to the authoritative rules document.
+When implementing or fixing game rules, add a CRD comment citing the rule number.
+Example: `// CRD 8.9.1: Rush bypasses drying for challenges only`.
 
 ### Testing
-- Always use `injectCard()` to set up state — never rely on random opening hand.
-- Layer 3 invariants are data integrity only (total cards = 60, no card in two zones,
-  availableInk >= 0, lore >= 0). Do NOT assert things cards can change
-  (inkwell contents, lore direction, win threshold).
-- **Test file organization** — engine tests are split:
+- Always use `injectCard()` to set up state — never rely on the random opening hand.
+- Layer 3 invariants are data integrity only (total cards = 60, no card in two zones, availableInk ≥ 0, lore ≥ 0). Do NOT assert things cards can change (inkwell contents, lore direction, win threshold).
+- **Test organization:**
   - `reducer.test.ts` — CRD rules (core mechanics, organized by §1, §2, §3, etc.)
-  - `set1.test.ts` — Set 1 card-specific tests (only unique patterns, not every card)
-  - `set2.test.ts` — Set 2 card-specific tests
-  - Future sets get their own file: `set3.test.ts`, `set4.test.ts`, etc.
-  - Shared helpers (`startGame`, `injectCard`, `giveInk`, `passTurns`, etc.) live in
-    `engine/test-helpers.ts` — import from there, don't duplicate.
-  - Test by pattern not by card — if a pattern (e.g. "enters_play → draw") is already
-    tested in Set 1, don't retest it in Set 2 with a different card. Only test new
-    patterns or unique edge cases.
+  - `setN.test.ts` — set-N card-specific tests (only unique patterns; don't retest the same pattern per card)
+  - Shared helpers (`startGame`, `injectCard`, `giveInk`, `passTurns`, etc.) live in `engine/test-helpers.ts` — import from there, don't duplicate.
+- **Pair validation tests with legal-action tests**: when `validateX` blocks an action, add a test that `getAllLegalActions` also omits it in the same scenario. The two functions were independently testable and their inconsistency caused the Reckless false-draw bug.
 
 ### Bot type separation
-`BotType = "algorithm" | "personal" | "crowd"` — never mix in aggregation.
-See SPEC.md §Bot Type Separation for details.
+`BotType = "algorithm" | "personal" | "crowd"` — never mix in aggregation. See SPEC.md §Bot Type Separation for details.
 
-### Critical bug patterns (must not reintroduce)
+---
 
-**moveCard same-player clobber:**
+## Critical bug patterns (must not reintroduce)
+
+### `moveCard` same-player clobber
 ```typescript
 // WRONG — second spread key clobbers first
 zones: { ...state.zones, [playerId]: { ...removeFrom }, [playerId]: { ...addTo } }
@@ -110,93 +114,56 @@ zones: { ...state.zones, [playerId]: { ...removeFrom }, [playerId]: { ...addTo }
 zones: { ...state.zones, [playerId]: { ...removeFrom, ...addTo } }
 ```
 
-**Trigger fizzle (CRD 6.2.3 / 1.6.1):**
-`is_banished` and `leaves_play` triggers fire even after the card left play.
-Only fizzle if the card instance doesn't exist at all.
+### Trigger fizzle (CRD 6.2.3 / 1.6.1)
+`is_banished` and `leaves_play` triggers fire even after the card left play. Only fizzle if the card instance doesn't exist at all. For info captured pre-cleanup (cards-under count, effective strength), snapshot on `state.lastBanishedX` at banish time — the instance's own fields are wiped during leave-play cleanup.
 
-**Win threshold (CRD 1.8.1.1):**
+### Win threshold (CRD 1.8.1.1)
 Never hardcode `lore >= 20`. Always use `getLoreThreshold(state, definitions)`.
 
-**"Until the start of your next turn" — caster vs owner duration:**
-Two distinct EffectDuration values, easy to confuse:
-- `end_of_owner_next_turn` — expires at end of the AFFECTED CARD'S OWNER'S next
-  turn. Use for "they / their next turn" wording (Elsa Spirit of Winter "they
-  can't ready at the start of their next turn", Iago "Reckless during their
-  next turn"). Owner-anchored.
-- `until_caster_next_turn` — expires when the CASTER starts their next turn.
-  Use for "until the start of YOUR next turn" wording (Mouse Armor, Four Dozen
-  Eggs, Cogsworth Majordomo, Lost in the Woods, Dodge). Caster-anchored,
-  requires `casterPlayerId` on the TimedEffect.
+### "Until the start of your next turn" — caster vs owner duration
+- `end_of_owner_next_turn` — expires at the end of the AFFECTED CARD'S OWNER'S next turn. Use for "they / their next turn" wording (Elsa Spirit of Winter, Iago). Owner-anchored.
+- `until_caster_next_turn` — expires when the CASTER starts their next turn. Use for "until the start of YOUR next turn" (Mouse Armor, Four Dozen Eggs, Cogsworth Majordomo). Caster-anchored; requires `casterPlayerId` on the TimedEffect.
 
-Naming the wrong one matters: `end_of_owner_next_turn` for a self-cast
-"your next turn" buff is broken — it expires at the end of the caster's OWN
-turn (effectively `this_turn`), giving zero turns of uptime past cast.
-For 2P opponent debuffs the two happen to coincide; for self-cast or 3+P
-they diverge. Always read the card's exact pronoun: "their" → owner, "your"
-→ caster.
+Naming the wrong one breaks the effect: `end_of_owner_next_turn` on a self-cast "your next turn" buff expires at end of the caster's OWN turn — zero turns of uptime. In 2P opponent debuffs the two coincide; in self-cast or 3+P they diverge. Read the exact pronoun: "their" → owner, "your" → caster.
 
-**banished_other_in_challenge turn condition:**
-Abilities that say "during your turn" on `banished_other_in_challenge` triggers require
-`"condition": { "type": "is_your_turn" }` in the card JSON. Without it the ability fires
-on the opponent's turn during mutual banishment (attacker and defender both banished).
-Later set cards without "during your turn" in their rules text correctly omit this condition.
+### `banished_other_in_challenge` turn condition
+Abilities saying "during your turn" on `banished_other_in_challenge` need `"condition": { "type": "is_your_turn" }` — otherwise they fire on the opponent's turn during mutual banishment (both characters banished at once). Later-set cards without the "during your turn" wording correctly omit this condition.
 
-**Dual-container DnD / ref ID collision (UI):**
-Never render the same React component with the same ID in two sibling containers
-toggled by `md:hidden` / `hidden md:flex`. dnd-kit and ref maps only expect each
-ID once — the hidden container overwrites the visible one, causing `getBoundingClientRect`
-to return `{0,0}`. Use a single container with responsive Tailwind classes instead:
+### Dual-container DnD / ref ID collision (UI)
+Never render the same React component with the same ID in two sibling containers toggled by `md:hidden` / `hidden md:flex`. dnd-kit and ref maps expect each ID once — the hidden container overwrites the visible one, causing `getBoundingClientRect` to return `{0,0}`. Use a single container with responsive Tailwind classes:
 ```tsx
-// WRONG — card renders twice, DnD IDs collide
-<div className="md:hidden ...">  {cards.map(id => <DraggableCard id={id} />)} </div>
-<div className="hidden md:flex">{cards.map(id => <DraggableCard id={id} />)} </div>
-// CORRECT — one container, responsive layout
+// WRONG
+<div className="md:hidden ...">   {cards.map(id => <DraggableCard id={id} />)}</div>
+<div className="hidden md:flex">{cards.map(id => <DraggableCard id={id} />)}</div>
+// CORRECT
 <div className="flex flex-col md:flex-row ...">
   {cards.map(id => <DraggableCard id={id} />)}
 </div>
 ```
 
-**No-op stubs and "approximation" annotations (data-quality failure mode):**
-A recurring pattern: cards get "wired" with a literal no-op effect (e.g.
-`modify_stat modifier:0`, `gain_lore amount:0`) or with an `(approximation: ...)`
-parenthetical comment in their rulesText, both of which slip past `pnpm card-status`
-(which only counts missing abilities, not zero-valued ones) and `pnpm audit-lorcast`
-(which only checks Lorcast API drift). They look "implemented" until someone
-diffs the rendered behavior against the oracle text.
+### No-op stubs and silent-field typos (data-quality failure mode)
+Cards look "implemented" but don't actually work:
+1. **No-op effect**: `modify_stat modifier:0`, `gain_lore amount:0`, empty `abilities: []` (when the card has named abilities per Lorcast).
+2. **`(approximation: ...)` parenthetical** in rulesText — audit-invisible stealth debt.
+3. **Invalid discriminator**: `start_of_turn` (should be `turn_start`), `banished_other_in_challenge` used for any-banish abilities (should be `is_banished`).
+4. **CardFilter field typos**: fields not on the `CardFilter` interface are silent no-ops — the predicate is skipped and the matcher returns true for everything. Common typos caught in 2026-04 sweep: `maxStrength`→`strengthAtMost`, `inkColor`→`inkColors`, `hasCardsUnder`→`hasCardUnder`, `notId`→`excludeSelf`, `name`→`hasName`, `maxCost`→`costAtMost`.
+5. **Per-instance vs player-wide targeting**: `action_restriction` with `affectedPlayer:"self"` and no filter restricts ALL your characters; use `cant_action_self` for per-instance oracle wording ("THIS character can't X").
+6. **Legacy field names**: `move_damage` once used `from`/`to`; the reducer now reads `source`/`destination` only. Any rename needs a card-JSON migration — grep for the old name across sets after a type change.
 
 Rules to prevent regression:
-- NEVER write a no-op stub to make a card "complete." If you can't implement
-  the effect, leave `abilities: []` — `pnpm card-status` will flag it and
-  the gap stays visible.
-- NEVER add `(approximation: ...)` to rulesText. The annotation is invisible to
-  every audit script and creates a permanent stealth-debt entry. Either implement
-  the effect correctly OR leave the card unwired with a tracker entry.
-- The authoritative no-op stub detector is `pnpm decompile-cards` (the
-  decompiler-diff sweep) — it renders ability JSON back to English and scores
-  similarity vs oracle text. The bottom of the sorted output is the bug list.
-- `pnpm card-status` now validates all JSON discriminator fields (trigger.on,
-  effect.type, condition.type, cost.type, duration) against the TypeScript
-  unions in types/index.ts. Cards with invalid field names show as
-  `invalid-field` category. Run after any card wiring to catch typos like
-  `start_of_turn` (should be `turn_start`) that silently no-op at runtime.
-  Run it before claiming any "100% complete" status.
-- `pnpm card-status` ALSO validates CardFilter field names (since 2026-04-16).
-  Catches typos like `maxStrength` vs `strengthAtMost`, `inkColor` vs
-  `inkColors`, `hasCardsUnder` vs `hasCardUnder`, `notId` vs `excludeSelf`,
-  `name` vs `hasName`. Fields not declared on the `CardFilter` interface are
-  silent no-ops at runtime — the filter predicate is skipped entirely and
-  the matcher returns true for everything. Extracts valid field names
-  dynamically from `types/index.ts` so it stays in sync.
-- Grep `packages/engine/src/cards -e approximation` should always return zero
-  matches. If it doesn't, something slipped through review.
+- NEVER write a no-op stub to make a card "complete." Leave `abilities: []` so `pnpm card-status` flags it.
+- NEVER add `(approximation: ...)` to rulesText. `grep packages/engine/src/cards -e approximation` should always return zero.
+- The authoritative checker is `pnpm decompile-cards` — it scores rendered ability JSON vs oracle text. The bottom of the sorted output IS the bug list.
+- Run `pnpm card-status` after any card wiring, before claiming "100% complete." Invalid-field counts MUST be 0.
 
-**Sequential effect triggeringCardInstanceId (CRD 6.1.5.1):**
-When applying `sequential` costEffects/rewardEffects via `applyEffect`, always forward `triggeringCardInstanceId`.
-When creating a `choose_may` PendingChoice for a sequential effect, store `triggeringCardInstanceId` on the choice
-so the accept path can resolve the exert correctly.
+### Sequential effect `triggeringCardInstanceId` (CRD 6.1.5.1)
+When applying `sequential` costEffects/rewardEffects via `applyEffect`, always forward `triggeringCardInstanceId`. When creating a `choose_may` PendingChoice for a sequential, store `triggeringCardInstanceId` on the choice so the accept path resolves exert correctly.
 ```typescript
-// WRONG — triggeringCardInstanceId lost, exert on triggering_card silently no-ops
+// WRONG — triggeringCardInstanceId lost; exert on triggering_card silently no-ops
 state = applyEffect(state, costEffect, sourceId, playerId, definitions, events);
 // CORRECT
 state = applyEffect(state, costEffect, sourceId, playerId, definitions, events, triggeringCardInstanceId);
 ```
+
+### RNG aliasing (deterministic replay)
+`rngNext` mutates `state.rng.s` in place for performance. `applyAction` clones `state.rng` at entry so the caller's state is never mutated — required for undo, quicksave/load, and branching-sim lookahead to preserve the seed. Do not keep a reference to a `GameState` and expect `.rng` to stay pristine; either rely on the clone inside `applyAction`, or clone yourself if you're holding past state for other reasons.
