@@ -774,7 +774,17 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   // characters with 7+ {S} can't be damaged"). `source` distinguishes
   // "all" damage vs only "challenge" damage.
   damage_prevention_static: (e) => {
-    const tgt = renderTarget(e.target ?? {});
+    const tgt = renderTarget(e.target ?? { type: "this" });
+    // chargesPerTurn variant: "the first time X would take damage, X takes
+    // no damage instead" (Shield, Resilient etc.).
+    if (e.chargesPerTurn) {
+      return `the first time ${tgt} would take damage, ${tgt} takes no damage instead`;
+    }
+    // source: "non_challenge" → "can't be dealt damage unless [they're]
+    // being challenged" (Hercules Mighty Leader EVER VIGILANT / VALIANT).
+    // source: "challenge" → "can't be damaged from challenges" (Mulan
+    // Standing Her Ground FLOWING BLADE, Dodge).
+    if (e.source === "non_challenge") return `${tgt} can't be dealt damage unless they're being challenged`;
     if (e.source === "challenge") return `${tgt} can't be damaged from challenges`;
     return `${tgt} can't be damaged`;
   },
@@ -914,12 +924,6 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   // WHO is restricted, not the target of the restriction.
   deck_rule: (e) => e.rule ?? "deck-building rule",
   prevent_damage_removal: () => "Damage counters can't be removed",
-  damage_prevention_static: (e) => {
-    const tgt = renderTarget(e.target ?? { type: "this" });
-    const src = e.source === "challenge" ? " from challenges" : e.source === "non_challenge" ? " except from challenges" : "";
-    const charges = e.chargesPerTurn ? "the first time " + tgt + " would take damage, " + tgt + " takes no damage instead" : tgt + " can't be damaged" + src;
-    return charges;
-  },
   challenge_damage_prevention: (e) => {
     const tgt = renderTarget(e.target ?? { type: "this" });
     return `${tgt} can't be damaged from challenges`;
@@ -1246,6 +1250,10 @@ function renderStatChange(e: Json): string {
   if (e.strength !== undefined) bits.push(`${signed(e.strength)} {S}`);
   if (e.willpower !== undefined) bits.push(`${signed(e.willpower)} {W}`);
   if (e.lore !== undefined) bits.push(`${signed(e.lore)} {L}`);
+  // "you may give chosen character +2 {S}" for isMay — Grandmother Fa-style.
+  if (e.isMay) {
+    return `you may give ${tgt} ${bits.join(" and ")}${dur(e)}`;
+  }
   return `${tgt} ${verbS(tgt, "get", "gets")} ${bits.join(" and ")}${dur(e)}`;
 }
 
