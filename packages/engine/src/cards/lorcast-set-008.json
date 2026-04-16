@@ -3962,10 +3962,10 @@
           {
             "type": "move_damage",
             "amount": 1,
-            "from": {
+            "source": {
               "type": "this"
             },
-            "to": {
+            "destination": {
               "type": "chosen",
               "filter": {
                 "owner": {
@@ -4027,10 +4027,10 @@
           {
             "type": "move_damage",
             "amount": 1,
-            "from": {
+            "source": {
               "type": "this"
             },
-            "to": {
+            "destination": {
               "type": "chosen",
               "filter": {
                 "owner": {

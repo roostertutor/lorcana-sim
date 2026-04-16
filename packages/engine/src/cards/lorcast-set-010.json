@@ -2798,7 +2798,7 @@
           {
             "type": "move_damage",
             "amount": 1,
-            "from": {
+            "source": {
               "type": "chosen",
               "filter": {
                 "zone": "play",
@@ -2808,7 +2808,8 @@
                 "hasDamage": true
               }
             },
-            "to": {
+            "isMay": true,
+            "destination": {
               "type": "chosen",
               "filter": {
                 "zone": "play",
@@ -2819,8 +2820,7 @@
                   "type": "opponent"
                 }
               }
-            },
-            "isMay": true
+            }
           }
         ]
       }

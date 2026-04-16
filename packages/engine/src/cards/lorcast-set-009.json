@@ -3201,14 +3201,14 @@
           {
             "type": "move_damage",
             "amount": 2,
-            "from": {
+            "source": {
               "type": "chosen",
               "filter": {
                 "zone": "play",
                 "hasDamage": true
               }
             },
-            "to": {
+            "destination": {
               "type": "chosen",
               "filter": {
                 "owner": {
@@ -3737,7 +3737,7 @@
           {
             "type": "move_damage",
             "amount": 1,
-            "from": {
+            "source": {
               "type": "chosen",
               "filter": {
                 "zone": "play",
@@ -3746,7 +3746,7 @@
                 ]
               }
             },
-            "to": {
+            "destination": {
               "type": "chosen",
               "filter": {
                 "owner": {

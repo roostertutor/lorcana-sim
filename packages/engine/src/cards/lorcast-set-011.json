@@ -2155,7 +2155,7 @@
           {
             "type": "move_damage",
             "amount": 1,
-            "from": {
+            "source": {
               "type": "chosen",
               "filter": {
                 "zone": "play",
@@ -2164,7 +2164,7 @@
                 ]
               }
             },
-            "to": {
+            "destination": {
               "type": "chosen",
               "filter": {
                 "owner": {
@@ -2564,7 +2564,7 @@
             "type": "move_damage",
             "amount": 1,
             "isMay": true,
-            "from": {
+            "source": {
               "type": "chosen",
               "filter": {
                 "zone": "play",
@@ -2573,7 +2573,7 @@
                 ]
               }
             },
-            "to": {
+            "destination": {
               "type": "chosen",
               "filter": {
                 "owner": {
