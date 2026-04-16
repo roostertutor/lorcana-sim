@@ -1368,7 +1368,19 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       onDragEnd={(e) => { setHoveredDropId(null); dnd.handleDragEnd(e); }}
       onDragCancel={() => { setHoveredDropId(null); dnd.handleDragCancel(); }}
     >
-    <div className="h-dvh overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_220px] lg:grid-cols-[1fr_280px] landscape-phone:!grid-cols-1 gap-0 md:gap-4 lg:gap-5 landscape-phone:!gap-0">
+    <div
+      className="h-dvh overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_220px] lg:grid-cols-[1fr_280px] landscape-phone:!grid-cols-1 gap-0 md:gap-4 lg:gap-5 landscape-phone:!gap-0"
+      style={{
+        // iPhone Dynamic Island / notch / home-indicator — keep content inside
+        // the safe area. viewport-fit=cover in index.html opts in; these insets
+        // are 0 on platforms without a notch. Landscape left/right insets
+        // protect against the island occupying one side in landscape.
+        paddingLeft: "env(safe-area-inset-left)",
+        paddingRight: "env(safe-area-inset-right)",
+        paddingTop: "env(safe-area-inset-top)",
+        paddingBottom: "env(safe-area-inset-bottom)",
+      }}
+    >
       {/* ======================= Main game area ======================= */}
       <div className="min-w-0 flex flex-col gap-2 min-h-0 overflow-hidden px-3 md:pl-4 md:pr-0 pt-3 pb-3 landscape-phone:!px-2 landscape-phone:!pt-1 landscape-phone:!pb-1">
 
@@ -1505,7 +1517,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                space and end up with equal effective play-area heights.
                Only the hand strip heights differ between players. ---- */}
         {p2Zones.hand.length > 0 && (
-          <div className="shrink-0 h-6 sm:h-16 landscape-phone:!h-8 overflow-hidden flex flex-nowrap items-end justify-center -mx-3 px-2 md:mx-0">
+          <div className="shrink-0 h-6 sm:h-16 landscape-phone:!h-6 overflow-hidden flex flex-nowrap items-end justify-center -mx-3 px-2 md:mx-0">
             {p2Zones.hand.map((id, i) => renderCardWithActions(id, "hand", true, i, p2Zones.hand.length, true))}
           </div>
         )}
@@ -1640,7 +1652,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               hand are the same height — no board shift when a card is drawn
               into an empty hand. max-h still allows wrapping to 2 rows for
               rare large hands (which will shift, but that's acceptable). */}
-          <div className="h-20 overflow-hidden flex flex-nowrap items-start justify-center md:h-auto md:overflow-hidden md:flex-wrap md:max-h-[260px] lg:max-h-[355px] md:p-1 md:min-h-[160px] lg:min-h-[180px] landscape-phone:!h-[110px] landscape-phone:!flex-nowrap landscape-phone:!max-h-[110px] landscape-phone:!min-h-[110px] landscape-phone:!p-0">
+          <div className="h-20 overflow-hidden flex flex-nowrap items-start justify-center md:h-auto md:overflow-hidden md:flex-wrap md:max-h-[260px] lg:max-h-[355px] md:p-1 md:min-h-[160px] lg:min-h-[180px] landscape-phone:!h-[70px] landscape-phone:!flex-nowrap landscape-phone:!max-h-[70px] landscape-phone:!min-h-[70px] landscape-phone:!p-0">
             {p1Zones.hand.length === 0 ? (
               <span className="text-gray-700 text-xs italic self-center">Empty hand</span>
             ) : (
