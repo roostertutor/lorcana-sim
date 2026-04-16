@@ -356,7 +356,7 @@ function InkwellZone({
     <div ref={setNodeRef} className={`rounded-lg border-2 transition-all duration-150 ${borderClass} relative h-full`}>
 
       {/* Card strip */}
-      <div className="h-10 sm:h-[78px] lg:h-[90px] flex flex-nowrap items-start px-1 -mt-px" style={{ clipPath: "inset(0 -9999px 0 0)" }}>
+      <div className="h-10 sm:h-[78px] lg:h-[90px] landscape-phone:!h-10 flex flex-nowrap items-start px-1 -mt-px" style={{ clipPath: "inset(0 -9999px 0 0)" }}>
         {total === 0 ? (
           <div className="flex-1 flex items-center justify-center h-full">
             <span className="text-[9px] text-gray-700 italic">No cards inked</span>
@@ -369,7 +369,7 @@ function InkwellZone({
               <div
                 key={id}
                 style={{ zIndex: i }}
-                className={`shrink-0 w-7 h-10 sm:w-14 sm:h-[78px] lg:w-16 lg:h-[90px] relative transition-all duration-200 ${i > 0 ? "-ml-3 sm:-ml-6 lg:-ml-7" : ""}`}
+                className={`shrink-0 w-7 h-10 sm:w-14 sm:h-[78px] lg:w-16 lg:h-[90px] landscape-phone:!w-7 landscape-phone:!h-10 relative transition-all duration-200 ${i > 0 ? "-ml-3 sm:-ml-6 lg:-ml-7 landscape-phone:!-ml-3" : ""}`}
               >
                 <div className="absolute top-0 left-0 origin-top-left scale-[0.538] pointer-events-none">
                   <div className={`transition-all duration-200 ${!isAvailable ? "rotate-90 grayscale brightness-75" : ""}`}>
@@ -411,12 +411,12 @@ function UtilityStrip({
   playerId?: PlayerID;
 }) {
   return (
-    <div className="shrink-0 flex items-stretch gap-1 mt-1">
+    <div className="shrink-0 flex items-stretch gap-1 mt-1 landscape-phone:!mt-0">
       {/* Deck tile */}
       <button
         onClick={onDeckClick}
         disabled={!onDeckClick}
-        className="relative w-7 h-10 sm:w-14 sm:h-[78px] lg:w-16 lg:h-[90px] shrink-0 rounded overflow-hidden disabled:cursor-default hover:enabled:brightness-110 transition-all border border-gray-800/40"
+        className="relative w-7 h-10 sm:w-14 sm:h-[78px] lg:w-16 lg:h-[90px] landscape-phone:!w-7 landscape-phone:!h-10 shrink-0 rounded overflow-hidden disabled:cursor-default hover:enabled:brightness-110 transition-all border border-gray-800/40"
       >
         {deckTopId && deckTopVisible ? (
           (() => {
@@ -454,7 +454,7 @@ function UtilityStrip({
       <button
         onClick={onDiscardClick}
         disabled={discardCount === 0}
-        className={`relative w-7 h-10 sm:w-14 sm:h-[78px] lg:w-16 lg:h-[90px] shrink-0 rounded overflow-hidden disabled:cursor-default hover:enabled:brightness-110 transition-all border ${
+        className={`relative w-7 h-10 sm:w-14 sm:h-[78px] lg:w-16 lg:h-[90px] landscape-phone:!w-7 landscape-phone:!h-10 shrink-0 rounded overflow-hidden disabled:cursor-default hover:enabled:brightness-110 transition-all border ${
           discardCount > 0 && (
             // Play from discard (Lilo Escape Artist, Pride Lands)
             Object.values(gameState.cards).some(
@@ -1368,9 +1368,9 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       onDragEnd={(e) => { setHoveredDropId(null); dnd.handleDragEnd(e); }}
       onDragCancel={() => { setHoveredDropId(null); dnd.handleDragCancel(); }}
     >
-    <div className="h-dvh overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_220px] lg:grid-cols-[1fr_280px] gap-0 md:gap-4 lg:gap-5">
+    <div className="h-dvh overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_220px] lg:grid-cols-[1fr_280px] landscape-phone:!grid-cols-1 gap-0 md:gap-4 lg:gap-5 landscape-phone:!gap-0">
       {/* ======================= Main game area ======================= */}
-      <div className="min-w-0 flex flex-col gap-2 min-h-0 overflow-hidden px-3 md:pl-4 md:pr-0 pt-3 pb-3">
+      <div className="min-w-0 flex flex-col gap-2 min-h-0 overflow-hidden px-3 md:pl-4 md:pr-0 pt-3 pb-3 landscape-phone:!px-2 landscape-phone:!pt-1 landscape-phone:!pb-1">
 
 
         {/* Replay mode banner */}
@@ -1394,7 +1394,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         )}
 
         {/* ---- Scoreboard ---- */}
-        <div className="shrink-0 rounded-xl bg-gray-900/60 border border-gray-800/50 px-3 py-2">
+        <div className="shrink-0 rounded-xl bg-gray-900/60 border border-gray-800/50 px-3 py-2 landscape-phone:!py-0.5 landscape-phone:!px-2 landscape-phone:!rounded-md">
           <div className="flex items-center gap-2">
 
             {/* Mobile compact lore scores */}
@@ -1505,13 +1505,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                space and end up with equal effective play-area heights.
                Only the hand strip heights differ between players. ---- */}
         {p2Zones.hand.length > 0 && (
-          <div className="shrink-0 h-6 sm:h-16 overflow-hidden flex flex-nowrap items-end justify-center -mx-3 px-2 md:mx-0">
+          <div className="shrink-0 h-6 sm:h-16 landscape-phone:!h-8 overflow-hidden flex flex-nowrap items-end justify-center -mx-3 px-2 md:mx-0">
             {p2Zones.hand.map((id, i) => renderCardWithActions(id, "hand", true, i, p2Zones.hand.length, true))}
           </div>
         )}
 
         {/* ---- Opponent zone ---- */}
-        <div className={`flex-1 min-h-0 flex flex-col -mx-3 px-2 md:mx-0 rounded-xl bg-gradient-to-b from-red-950/10 to-transparent border p-2 transition-colors duration-300 ${!isYourTurn ? "border-red-600/50" : "border-gray-800/30"}`}>
+        <div className={`flex-1 min-h-0 flex flex-col -mx-3 px-2 md:mx-0 rounded-xl bg-gradient-to-b from-red-950/10 to-transparent border p-2 transition-colors duration-300 landscape-phone:!p-0.5 landscape-phone:!gap-1 landscape-phone:!rounded-md ${!isYourTurn ? "border-red-600/50" : "border-gray-800/30"}`}>
           {/* Opponent utility strip */}
           <UtilityStrip
             deckCount={p2Zones.deck.length}
@@ -1542,7 +1542,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         </div>
 
         {/* ---- Play zone divider (also drop target for quest) ---- */}
-        <div className="shrink-0 flex items-center gap-2 py-0.5">
+        <div className="shrink-0 flex items-center gap-2 py-0.5 landscape-phone:!py-0">
           {/* Undo — left side */}
           <div className="w-16 flex justify-start">
             {session.canUndo && !replayData && (
@@ -1587,7 +1587,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         </div>
 
         {/* ---- Player zone ---- */}
-        <div className={`flex-1 min-h-0 flex flex-col -mx-3 px-2 md:mx-0 rounded-xl bg-gradient-to-t from-green-950/10 to-transparent border p-2 transition-colors duration-300 ${isYourTurn ? "border-green-600/50" : "border-gray-800/30"}`}>
+        <div className={`flex-1 min-h-0 flex flex-col -mx-3 px-2 md:mx-0 rounded-xl bg-gradient-to-t from-green-950/10 to-transparent border p-2 transition-colors duration-300 landscape-phone:!p-0.5 landscape-phone:!gap-1 landscape-phone:!rounded-md ${isYourTurn ? "border-green-600/50" : "border-gray-800/30"}`}>
           {/* Play zone — droppable for card play */}
           <DroppablePlayZone
             isValidTarget={!!dnd.activeId && dnd.isValidPlayZoneDrop(dnd.activeId)}
@@ -1640,7 +1640,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               hand are the same height — no board shift when a card is drawn
               into an empty hand. max-h still allows wrapping to 2 rows for
               rare large hands (which will shift, but that's acceptable). */}
-          <div className="h-20 overflow-hidden flex flex-nowrap items-start justify-center md:h-auto md:overflow-hidden md:flex-wrap md:max-h-[260px] lg:max-h-[355px] md:p-1 md:min-h-[160px] lg:min-h-[180px]">
+          <div className="h-20 overflow-hidden flex flex-nowrap items-start justify-center md:h-auto md:overflow-hidden md:flex-wrap md:max-h-[260px] lg:max-h-[355px] md:p-1 md:min-h-[160px] lg:min-h-[180px] landscape-phone:!h-[110px] landscape-phone:!flex-nowrap landscape-phone:!max-h-[110px] landscape-phone:!min-h-[110px] landscape-phone:!p-0">
             {p1Zones.hand.length === 0 ? (
               <span className="text-gray-700 text-xs italic self-center">Empty hand</span>
             ) : (
@@ -1664,7 +1664,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       </div>
 
       {/* ======================= Sidebar (Sandbox or Game Log) ======================= */}
-      <div className="hidden md:flex flex-col min-h-0 pt-3 pb-3 pr-4 gap-4">
+      <div className="hidden md:flex landscape-phone:!hidden flex-col min-h-0 pt-3 pb-3 pr-4 gap-4">
         {sandboxMode ? (
           <>
             <div className="shrink-0">

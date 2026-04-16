@@ -63,7 +63,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
     ? "w-[52px]"
     : zone === "play"
     ? "w-[52px]"
-    : "w-[88px]";
+    : "w-[88px] landscape-phone:!w-[72px]";
 
   // Play restriction check — grey out hand cards whose playRestrictions fail
   const hasFailedRestriction = zone === "hand" && (def as any).playRestrictions?.length > 0 &&

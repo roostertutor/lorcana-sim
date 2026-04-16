@@ -13,6 +13,14 @@ module.exports = {
           steel: "#94a3b8",
         },
       },
+      screens: {
+        // Custom: phone in landscape orientation (short viewport). Declared
+        // via `extend` so it appends AFTER lg in Tailwind's default cascade,
+        // letting landscape-phone: utilities win over md:/lg: at the same
+        // specificity. Tablets in landscape are 768px+ tall so they keep the
+        // existing md:/lg: sidebar layout.
+        "landscape-phone": { raw: "(orientation: landscape) and (max-height: 500px)" },
+      },
     },
   },
   plugins: [],
