@@ -2648,7 +2648,15 @@
           }
         },
         "condition": {
-          "type": "is_your_turn"
+          "type": "compound_and",
+          "conditions": [
+            {
+              "type": "is_your_turn"
+            },
+            {
+              "type": "card_left_discard_this_turn"
+            }
+          ]
         }
       }
     ],
@@ -12298,7 +12306,15 @@
           }
         },
         "condition": {
-          "type": "is_your_turn"
+          "type": "compound_and",
+          "conditions": [
+            {
+              "type": "is_your_turn"
+            },
+            {
+              "type": "card_left_discard_this_turn"
+            }
+          ]
         }
       }
     ],

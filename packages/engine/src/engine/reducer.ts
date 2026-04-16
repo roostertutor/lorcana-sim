@@ -3236,6 +3236,7 @@ export function applyEffect(
           prompt: "Choose a character to move damage from.",
           validTargets: validSources,
           pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
+          optional: effect.isMay ?? false,
         },
       };
     }

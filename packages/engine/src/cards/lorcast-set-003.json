@@ -2976,14 +2976,16 @@
           {
             "type": "move_damage",
             "amount": 2,
-            "from": {
+            "isUpTo": true,
+            "isMay": true,
+            "source": {
               "type": "chosen",
               "filter": {
                 "zone": "play",
                 "hasDamage": true
               }
             },
-            "to": {
+            "destination": {
               "type": "chosen",
               "filter": {
                 "owner": {

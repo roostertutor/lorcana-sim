@@ -779,7 +779,12 @@
         "storyName": "SWEET DREAMS",
         "rulesText": "Whenever you remove 1 or more damage from a character, ready this character. She can't quest or challenge for the rest of this turn.",
         "trigger": {
-          "on": "damage_removed_from"
+          "on": "damage_removed_from",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
         },
         "effects": [
           {
@@ -10139,9 +10144,12 @@
       {
         "type": "look_at_top",
         "count": 4,
-        "action": "reorder",
+        "action": "choose_from_top",
+        "maxToHand": 1,
+        "pickDestination": "deck_top",
+        "restPlacement": "bottom",
         "target": {
-          "type": "opponent"
+          "type": "chosen"
         }
       }
     ]
@@ -11696,7 +11704,12 @@
         "storyName": "SWEET DREAMS",
         "rulesText": "Whenever you remove 1 or more damage from a character, ready this character. She can't quest or challenge for the rest of this turn.",
         "trigger": {
-          "on": "damage_removed_from"
+          "on": "damage_removed_from",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
         },
         "effects": [
           {

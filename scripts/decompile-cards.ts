@@ -311,8 +311,20 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
   // "If you have a [filter] in play" — supersedes the legacy single-trait /
   // single-name forms when the filter is more general.
   you_control_matching:       (c) => `if you have ${c.filter ? renderFilter(c.filter) : "a character"} in play`,
-  cards_in_hand_gte:          (c) => `if you have ${c.amount ?? 0} or more cards in your hand`,
-  cards_in_hand_eq:           (c) => (c.amount ?? 0) === 0 ? "if you have no cards in your hand" : `if you have exactly ${c.amount} cards in your hand`,
+  cards_in_hand_gte:          (c) => {
+    const who = c.player?.type === "opponent" ? "an opponent has" : "you have";
+    return `if ${who} ${c.amount ?? 0} or more cards in ${c.player?.type === "opponent" ? "their" : "your"} hand`;
+  },
+  cards_in_hand_eq:           (c) => {
+    const who = c.player?.type === "opponent" ? "an opponent has" : "you have";
+    const possessive = c.player?.type === "opponent" ? "their" : "your";
+    if ((c.amount ?? 0) === 0) {
+      return c.player?.type === "opponent"
+        ? "while one or more opponents have no cards in their hands"
+        : "if you have no cards in your hand";
+    }
+    return `if ${who} exactly ${c.amount} cards in ${possessive} hand`;
+  },
   cards_in_zone_gte:          (c) => `if you have ${c.amount ?? 0} or more cards in your ${c.zone ?? "zone"}`,
   characters_in_play_gte:     (c) => {
     const n = c.amount ?? 0;
