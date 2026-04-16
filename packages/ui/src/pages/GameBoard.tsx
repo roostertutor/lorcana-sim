@@ -383,6 +383,7 @@ function InkwellZone({
                       zone="play"
                       faceDown={!isFaceUp}
                       skipRotation
+                      naturalSize
                     />
                   </div>
                 </div>
@@ -479,6 +480,7 @@ function UtilityStrip({
                 isSelected={false}
                 onClick={() => {}}
                 zone="play"
+                naturalSize
               />
             </div>
           </div>

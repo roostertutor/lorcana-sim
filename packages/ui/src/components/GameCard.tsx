@@ -41,9 +41,13 @@ interface Props {
   gameModifiers?: GameModifiers | null;
   /** Hand card is playable this turn (enough ink, no restrictions). Dims if false. */
   isPlayable?: boolean;
+  /** Force natural width-based sizing (not height-adaptive). Used by scaled
+   *  mini-previews — inkwell fan, discard-tile top card — where the parent
+   *  has no defined height so `h-full` would collapse to 0. */
+  naturalSize?: boolean;
 }
 
-export default function GameCard({ instanceId, gameState, definitions, isSelected, onClick, zone, faceDown, isTarget, isAttacker, skipRotation, onCardsUnderClick, gameModifiers: externalMods, isPlayable }: Props) {
+export default function GameCard({ instanceId, gameState, definitions, isSelected, onClick, zone, faceDown, isTarget, isAttacker, skipRotation, onCardsUnderClick, gameModifiers: externalMods, isPlayable, naturalSize }: Props) {
   const instance = gameState.cards[instanceId];
   if (!instance) return null;
   const def = definitions[instance.definitionId];
@@ -70,7 +74,9 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   // landscape-phone: !important rules beat the sm: revert so landscape phones
   // stay adaptive even though their width exceeds 640px.
   const adaptivePlayCard = "w-auto h-full max-h-[73px] min-w-[28px] sm:!h-auto sm:!max-h-none landscape-phone:!w-auto landscape-phone:!h-full landscape-phone:!max-h-[73px] landscape-phone:!min-w-[28px]";
-  const mobileWidth = (faceDown || zone === "play")
+  const mobileWidth = naturalSize
+    ? (faceDown || zone === "play" ? "w-[52px]" : "w-[88px]")
+    : (faceDown || zone === "play")
     ? adaptivePlayCard
     : "w-[88px] landscape-phone:!w-[72px]";
 
