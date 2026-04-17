@@ -168,6 +168,13 @@ export interface GameModifiers {
   skipsDrawStep: Set<import("../types/index.js").PlayerID>;
 
   /**
+   * Characters that bypass CRD 5.1.1.11 drying for QUESTS (Dash Parr Lava
+   * Runner RECORD TIME — "this character can quest the turn he's played").
+   * Parallel to the Rush keyword's challenge-only drying bypass (CRD 8.9.1).
+   */
+  canQuestTurnPlayed: Set<string>;
+
+  /**
    * Players whose deck-top card is visible to all players (Merlin's Cottage Set 5).
    * Pure information-visibility modifier — engine state doesn't change.
    * The UI consults this to render the deck top face-up.
@@ -348,6 +355,7 @@ export function getGameModifiers(
     playableFromZones: new Map(),
     loreThresholds: new Map(),
     skipsDrawStep: new Set(),
+    canQuestTurnPlayed: new Set(),
     topOfDeckVisible: new Set(),
     moveToSelfCostReductions: new Map(),
     enterPlayExerted: new Map(),
@@ -800,6 +808,13 @@ export function getGameModifiers(
         case "skip_draw_step_self": {
           // Arthur Determined Squire (Set 8): owner skips their draw step.
           modifiers.skipsDrawStep.add(instance.ownerId);
+          break;
+        }
+
+        case "can_quest_turn_played": {
+          // Dash Parr - Lava Runner (Set 12): this character bypasses the
+          // CRD 5.1.1.11 drying block for quests. Target is always `this`.
+          modifiers.canQuestTurnPlayed.add(instance.instanceId);
           break;
         }
 

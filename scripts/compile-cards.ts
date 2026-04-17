@@ -241,14 +241,17 @@ const TRIGGER_MATCHERS: Matcher<Json>[] = [
     pattern: /^Whenever this character sings a song/i,
     build: () => ({ on: "sings" }),
   },
-  // action_dealt_damage — "Whenever one of your actions deals damage to an
-  // opposing character". New in set 12 (Merida - Formidable Archer).
+  // Merida Formidable Archer STEADY AIM — "Whenever one of your actions deals
+  // damage to an opposing character". Expressed as damage_dealt_to with a
+  // sourceFilter on the damage source (the action card), so the engine doesn't
+  // need a distinct trigger type. target filter = the damaged card (opposing).
   {
     name: "action_dealt_damage_opp",
     pattern: /^Whenever one of your actions deals damage to an opposing character/i,
     build: () => ({
-      on: "action_dealt_damage",
-      filter: { owner: { type: "self" }, cardType: ["action"] },
+      on: "damage_dealt_to",
+      filter: { owner: { type: "opponent" }, zone: "play", cardType: ["character"] },
+      sourceFilter: { owner: { type: "self" }, cardType: ["action"] },
     }),
   },
   // deals_damage_in_challenge — "Whenever this character deals damage to
@@ -1531,11 +1534,15 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     }),
   },
   // "put all X cards from your discard on the bottom of your deck in any order"
+  // Bouncing Ducky REPURPOSED. Reuses the existing return_all_to_bottom_in_order
+  // effect type (precedent: Under the Sea) — the handler routes single-card
+  // results straight to the bottom and 2+ results through a choose_order
+  // PendingChoice for the controller to pick the stacking order.
   {
     name: "put_all_from_discard_to_bottom",
     pattern: /^put all ([\w ]+?) cards? from your discard on the bottom of your deck(?: in any order)?/i,
     build: (m) => ({
-      type: "move_cards_to_bottom",
+      type: "return_all_to_bottom_in_order",
       filter: { zone: "discard", owner: { type: "self" }, ...parseSimpleFilter(m[1].trim()) },
     }),
   },
@@ -2034,14 +2041,25 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
   }
 
   // "For each <filter> in your <zone>, you pay N {I} less to play this character"
+  // filterPhrase is one of: "character", "item", "location", "<Trait> character",
+  // "<Trait> item" etc. Zone is the bare noun ("discard", "hand", "inkwell").
   const statSelfCostCount = /^For each ([\w ]+?) (?:card )?in your (\w+), you pay (\d+) \{I\} less to play this character\.?$/i.exec(rest);
   if (statSelfCostCount) {
+    const filterPhrase = statSelfCostCount[1].trim();
+    const zone = statSelfCostCount[2].toLowerCase();
+    const countFilter: Record<string, unknown> = { zone, owner: { type: "self" } };
+    // Parse "<Trait> <CardType>" or just "<CardType>"
+    const m = /^(?:([A-Z][a-zA-Z]*) )?(character|item|location|action)s?$/i.exec(filterPhrase);
+    if (m) {
+      if (m[1]) countFilter.hasTrait = m[1];
+      countFilter.cardType = [m[2].toLowerCase()];
+    }
     const ability: Json = {
       type: "static",
       effect: {
         type: "self_cost_reduction",
-        amount: { type: "count", filter: { zone: statSelfCostCount[2].toLowerCase() } },
-        perCount: parseInt(statSelfCostCount[3], 10),
+        amount: { type: "count", filter: countFilter },
+        perMatch: parseInt(statSelfCostCount[3], 10),
       },
     };
     if (leadingCondition) ability.condition = leadingCondition;

@@ -16,7 +16,21 @@
     "rarity": "special",
     "rulesText": "Banish chosen character.",
     "flavorText": "Rare is the hero who can withstand a dragon’s wrath.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/1_d936dc1f2c9f0cae641dbb5584bfb0288a103641.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/1_d936dc1f2c9f0cae641dbb5584bfb0288a103641.jpg",
+    "actionEffects": [
+      {
+        "type": "banish",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      }
+    ]
   },
   {
     "id": "let-it-go",
@@ -37,7 +51,22 @@
     "rarity": "special",
     "rulesText": "(A character with cost 5 or more can {E} to sing this song for free.)\nPut chosen character into their player’s inkwell facedown and exerted.",
     "flavorText": "It’s time to see what I can do\nTo test the limits and break through",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/2_e2146eb707e1996e2ae87ecd5ce44a7edcc61a0b.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/2_e2146eb707e1996e2ae87ecd5ce44a7edcc61a0b.jpg",
+    "actionEffects": [
+      {
+        "type": "move_to_inkwell",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "enterExerted": true
+      }
+    ]
   },
   {
     "id": "cinderella-stouthearted",
@@ -65,6 +94,29 @@
         "type": "keyword",
         "keyword": "resist",
         "value": 2
+      },
+      {
+        "type": "triggered",
+        "storyName": "THE SINGING SWORD",
+        "rulesText": "Whenever you play a song, this character may challenge ready characters this turn.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "hasTrait": "Song"
+          }
+        },
+        "effects": [
+          {
+            "type": "grant_challenge_ready",
+            "target": {
+              "type": "this"
+            },
+            "duration": "this_turn"
+          }
+        ]
       }
     ],
     "setId": "C1",
@@ -100,7 +152,42 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "remove_damage",
+            "amount": 3,
+            "isUpTo": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          },
+          {
+            "type": "draw",
+            "amount": "cost_result",
+            "target": {
+              "type": "self"
+            }
+          }
+        ],
+        "storyName": "GLEAM AND GLOW",
+        "rulesText": "When you play this character, remove up to 3 damage from one of your characters. Draw a card for each 1 damage removed this way."
+      }
+    ],
     "setId": "C1",
     "number": 4,
     "rarity": "special",
@@ -134,7 +221,24 @@
     "number": 6,
     "rarity": "special",
     "rulesText": "Reveal the top 2 cards of your deck. Put revealed character cards into your hand. Put the rest on the bottom of your deck in any order.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/6_1b3b18a1144fa7c89505abdc0538fecdf227e291.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/6_1b3b18a1144fa7c89505abdc0538fecdf227e291.jpg",
+    "actionEffects": [
+      {
+        "type": "look_at_top",
+        "count": 2,
+        "action": "choose_from_top",
+        "maxToHand": 99,
+        "target": {
+          "type": "self"
+        },
+        "filter": {
+          "cardType": [
+            "character"
+          ]
+        },
+        "revealPicks": true
+      }
+    ]
   },
   {
     "id": "elsas-ice-palace-place-of-solitude",
@@ -147,7 +251,37 @@
     "cost": 3,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "ETERNAL WINTER",
+        "rulesText": "When you play this location, choose an exerted character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "remember_chosen_target",
+            "filter": {
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "isExerted": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "static",
+        "storyName": "ETERNAL WINTER",
+        "rulesText": "While this location is in play, that character can't ready at the start of their turn.",
+        "effect": {
+          "type": "restrict_remembered_target_action",
+          "action": "ready"
+        }
+      }
+    ],
     "setId": "C1",
     "number": 7,
     "rarity": "special",
@@ -183,6 +317,23 @@
       {
         "type": "keyword",
         "keyword": "ward"
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "banished_in_challenge"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "triggering_card"
+            },
+            "isMay": true
+          }
+        ],
+        "storyName": "NO TOUCHY!",
+        "rulesText": "When this character is challenged and banished, you may banish the challenging character."
       }
     ],
     "setId": "C1",
@@ -217,7 +368,94 @@
       "Hero",
       "Robot"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "THE TREATMENT IS WORKING",
+        "rulesText": "When you play this character, you may remove up to 2 damage from another chosen character of yours. Gain 1 lore for each 1 damage removed this way.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "remove_damage",
+                "amount": 2,
+                "isUpTo": true,
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "excludeSelf": true
+                  }
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "gain_lore",
+                "amount": "last_resolved_target_delta",
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "THE TREATMENT IS WORKING",
+        "rulesText": "Whenever he quests, you may remove up to 2 damage from another chosen character of yours. Gain 1 lore for each 1 damage removed this way.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "remove_damage",
+                "amount": 2,
+                "isUpTo": true,
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "excludeSelf": true
+                  }
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "gain_lore",
+                "amount": "last_resolved_target_delta",
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "C1",
     "number": 9,
     "rarity": "special",
@@ -254,6 +492,27 @@
     "rarity": "special",
     "rulesText": "(A character with cost 5 or more can {E} to sing this song for free.)\nEach player discards their hand and draws 7 cards.",
     "flavorText": "Shining, shimmering, splendid . . .",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/10_d170b8d9f5f552ad50fbe13a57d5e0f99e7506a6.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/10_d170b8d9f5f552ad50fbe13a57d5e0f99e7506a6.jpg",
+    "actionEffects": [
+      {
+        "type": "each_player",
+        "effects": [
+          {
+            "type": "discard_from_hand",
+            "amount": "all",
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "draw",
+            "amount": 7,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ]
   }
 ]

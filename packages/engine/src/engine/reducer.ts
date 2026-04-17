@@ -2703,10 +2703,10 @@ export function applyEffect(
       const resolveAmount = (amt: typeof effect.amount): number =>
         resolveDynamicAmount(amt, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, state.lastResolvedTarget?.instanceId);
       if (effect.target.type === "this") {
-        return dealDamageToCard(state, sourceInstanceId, resolveAmount(effect.amount), definitions, events, false, false, effect.asPutDamage);
+        return dealDamageToCard(state, sourceInstanceId, resolveAmount(effect.amount), definitions, events, false, false, effect.asPutDamage, sourceInstanceId);
       }
       if (effect.target.type === "triggering_card" && triggeringCardInstanceId) {
-        return dealDamageToCard(state, triggeringCardInstanceId, resolveAmount(effect.amount), definitions, events, false, false, effect.asPutDamage);
+        return dealDamageToCard(state, triggeringCardInstanceId, resolveAmount(effect.amount), definitions, events, false, false, effect.asPutDamage, sourceInstanceId);
       }
       if (effect.target.type === "chosen") {
         const choosingPlayerId = chosenChooserPlayerId(effect.target, controllingPlayerId);
@@ -2728,7 +2728,7 @@ export function applyEffect(
         const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         const amount = resolveAmount(effect.amount);
         for (const targetId of targets) {
-          state = dealDamageToCard(state, targetId, amount, definitions, events, false, false, effect.asPutDamage);
+          state = dealDamageToCard(state, targetId, amount, definitions, events, false, false, effect.asPutDamage, sourceInstanceId);
         }
         return state;
       }
@@ -5589,12 +5589,28 @@ function queueTrigger(
   eventType: string,
   sourceInstanceId: string,
   definitions: Record<string, CardDefinition>,
-  context: { triggeringPlayerId?: PlayerID; triggeringCardInstanceId?: string }
+  context: { triggeringPlayerId?: PlayerID; triggeringCardInstanceId?: string; sourceInstanceId?: string }
 ): GameState {
   const instance = state.cards[sourceInstanceId];
   if (!instance) return state;
   const def = definitions[instance.definitionId];
   if (!def) return state;
+
+  // Merida Formidable Archer STEADY AIM: damage_dealt_to triggers may include
+  // a sourceFilter on the DAMAGE source (the card whose effect caused it,
+  // e.g. the action card). Match against the source card's definition.
+  const matchSourceFilter = (
+    trigger: { sourceFilter?: CardFilter } & { on: string },
+    watcherOwnerId: PlayerID
+  ): boolean => {
+    if (!trigger.sourceFilter) return true;
+    const damageSrcId = context?.sourceInstanceId;
+    if (!damageSrcId) return false;
+    const srcInst = state.cards[damageSrcId];
+    const srcDef = srcInst ? definitions[srcInst.definitionId] : undefined;
+    if (!srcInst || !srcDef) return false;
+    return matchesFilter(srcInst, srcDef, trigger.sourceFilter, state, watcherOwnerId);
+  };
 
   // Queue self-triggers (the source card's own triggered abilities)
   // If the trigger has a filter, the source card must match it (e.g. ADORING FANS
@@ -5619,6 +5635,7 @@ function queueTrigger(
         if (!defInst || !defDef) return false;
         if (!matchesFilter(defInst, defDef, a.trigger.defenderFilter, state, instance.ownerId)) return false;
       }
+      if (!matchSourceFilter(a.trigger as { sourceFilter?: CardFilter } & { on: string }, instance.ownerId)) return false;
       return true;
     })
     .map((ability) => ({
@@ -5660,6 +5677,9 @@ function queueTrigger(
         if (!defInst || !defDef) continue;
         if (!matchesFilter(defInst, defDef, ability.trigger.defenderFilter, state, watcher.ownerId)) continue;
       }
+      // sourceFilter check for damage_dealt_to triggers — Merida Formidable
+      // Archer STEADY AIM watches "whenever ONE OF YOUR ACTIONS deals damage".
+      if (!matchSourceFilter(ability.trigger as { sourceFilter?: CardFilter } & { on: string }, watcher.ownerId)) continue;
 
       state = {
         ...state,
@@ -6441,7 +6461,12 @@ function dealDamageToCard(
   inChallenge = false,
   /** CRD: "put a damage counter on" — bypass Resist + damage immunity + damage_dealt_to triggers.
    *  Banishment from willpower still resolves. Used by Queen of Hearts Unpredictable Bully. */
-  asPutDamage = false
+  asPutDamage = false,
+  /** Source instance ID of the card whose effect is dealing the damage. Used
+   *  for source-filtered triggers (Merida Formidable Archer STEADY AIM —
+   *  "whenever one of your actions deals damage"). Undefined for direct
+   *  challenge damage or non-ability sources. */
+  sourceInstanceId?: string
 ): GameState {
   const modifiers = getGameModifiers(state, definitions);
 
@@ -6523,7 +6548,7 @@ function dealDamageToCard(
 
   // Fire damage_dealt_to trigger after damage is applied — skipped for "put damage counter".
   if (actualDamage > 0 && !asPutDamage) {
-    state = queueTrigger(state, "damage_dealt_to", instanceId, definitions, {});
+    state = queueTrigger(state, "damage_dealt_to", instanceId, definitions, { sourceInstanceId });
   }
 
   // CRD 1.8.1.4: Banish check moved to runGameStateCheck — called after every
@@ -6545,7 +6570,7 @@ function applyEffectToTarget(
   switch (effect.type) {
     case "deal_damage": {
       const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, targetInstanceId);
-      return dealDamageToCard(state, targetInstanceId, amount, definitions, events, false, false, effect.asPutDamage);
+      return dealDamageToCard(state, targetInstanceId, amount, definitions, events, false, false, effect.asPutDamage, sourceInstanceId);
     }
     case "gain_lore":
     case "lose_lore": {

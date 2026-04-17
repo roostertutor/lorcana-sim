@@ -17,6 +17,30 @@
       {
         "type": "keyword",
         "keyword": "evasive"
+      },
+      {
+        "type": "triggered",
+        "storyName": "AERIAL DUO",
+        "rulesText": "When you play this character, chosen character gains Evasive until the start of your next turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "evasive",
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "P3",
@@ -50,7 +74,60 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "WASHED AWAY",
+        "rulesText": "When you play this character, you may put chosen item into its player's inkwell facedown and exerted.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "move_to_inkwell",
+            "isMay": true,
+            "enterExerted": true,
+            "fromZone": "play",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "item"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "MAKING WAVES",
+        "rulesText": "Whenever this character quests, chosen opposing character gets -2 {S} this turn.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": -2,
+            "duration": "this_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "P3",
     "number": 2,
     "rarity": "special",
@@ -93,6 +170,63 @@
       {
         "type": "keyword",
         "keyword": "support"
+      },
+      {
+        "type": "triggered",
+        "storyName": "ROYAL SUMMONS",
+        "rulesText": "At the start of your turn, you may choose and discard a Princess or Queen character card to return a character card from your discard to your hand.",
+        "trigger": {
+          "on": "turn_start",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                },
+                "chooser": "controller",
+                "filter": {
+                  "cardType": [
+                    "character"
+                  ],
+                  "anyOf": [
+                    {
+                      "hasTrait": "Princess"
+                    },
+                    {
+                      "hasTrait": "Queen"
+                    }
+                  ]
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "discard",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
       }
     ],
     "setId": "P3",
@@ -127,7 +261,31 @@
       "Villain",
       "Dragon"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "isMay": true
+          }
+        ],
+        "storyName": "DRAGON FIRE",
+        "rulesText": "When you play this character, you may banish chosen character."
+      }
+    ],
     "setId": "P3",
     "number": 4,
     "rarity": "special",
@@ -161,7 +319,31 @@
       "Villain",
       "Dragon"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "isMay": true
+          }
+        ],
+        "storyName": "DRAGON FIRE",
+        "rulesText": "When you play this character, you may banish chosen character."
+      }
+    ],
     "setId": "P3",
     "number": 5,
     "rarity": "enchanted",
@@ -203,6 +385,31 @@
       {
         "type": "keyword",
         "keyword": "evasive"
+      },
+      {
+        "type": "triggered",
+        "storyName": "CRYSTALLIZE",
+        "rulesText": "When you play this character, exert chosen opposing character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "P3",
@@ -235,7 +442,31 @@
     "traits": [
       "Storyborn"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "POOR SOULS",
+        "rulesText": "Whenever this character is challenged, each opponent chooses and discards a card.",
+        "trigger": {
+          "on": "is_challenged"
+        },
+        "effects": [
+          {
+            "type": "each_player",
+            "scope": "opponents",
+            "effects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "P3",
     "number": 7,
     "rarity": "special",
@@ -273,7 +504,33 @@
     "rarity": "special",
     "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.) \nDeal damage to chosen character equal to the number of characters you have in play.",
     "flavorText": "Tranquil as a forest\nBut on fire within",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/8_09f60d7a5b67bafe819b285c6399baf482d23284.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/8_09f60d7a5b67bafe819b285c6399baf482d23284.jpg",
+    "actionEffects": [
+      {
+        "type": "deal_damage",
+        "amount": {
+          "type": "count",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      }
+    ]
   },
   {
     "id": "sisu-daring-visitor",
@@ -295,6 +552,32 @@
       {
         "type": "keyword",
         "keyword": "evasive"
+      },
+      {
+        "type": "triggered",
+        "storyName": "BRING ON THE HEAT!",
+        "rulesText": "When you play this character, banish chosen opposing character with 1 {S} or less.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "strengthAtMost": 1
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "P3",
@@ -360,6 +643,62 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 1,
+            "target": {
+              "type": "all",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
+              }
+            }
+          }
+        ],
+        "storyName": "ROCK THE BOAT",
+        "rulesText": "When you play this character, deal 1 damage to each opposing character."
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "banished_other_in_challenge"
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
+              }
+            },
+            "isMay": true
+          }
+        ],
+        "storyName": "PUNY PIRATE!",
+        "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character.",
+        "condition": {
+          "type": "is_your_turn"
+        }
       }
     ],
     "setId": "P3",
@@ -401,7 +740,27 @@
       "Queen",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "CALCULATING AND VAIN",
+        "rulesText": "Whenever this character quests, you may look at the top 3 cards of your deck and put them back in any order.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 3,
+            "action": "reorder",
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "P3",
     "number": 12,
     "rarity": "special",
@@ -441,6 +800,44 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "triggered",
+        "storyName": "MARINER'S MIGHT",
+        "rulesText": "Whenever this character quests, chosen Pirate character gets +2 {S} and gains \"This character takes no damage from challenges\" this turn.",
+        "trigger": {
+          "on": "quests",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasAnyTrait": [
+                  "Pirate"
+                ]
+              }
+            },
+            "strength": 2,
+            "duration": "this_turn"
+          },
+          {
+            "type": "damage_prevention_timed",
+            "target": {
+              "type": "last_resolved_target"
+            },
+            "source": "challenge",
+            "duration": "this_turn"
+          }
+        ]
       }
     ],
     "setId": "P3",
@@ -480,6 +877,30 @@
       {
         "type": "keyword",
         "keyword": "ward"
+      },
+      {
+        "type": "triggered",
+        "storyName": "CLEVER DESIGN",
+        "rulesText": "Whenever this character quests, chosen character gains Ward until the start of your next turn.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "ward",
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "P3",
@@ -515,7 +936,39 @@
       "Pirate",
       "Captain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "BOARDING PARTY",
+        "rulesText": "During your turn, whenever this character banishes a character in a challenge, your other characters get +1 {L} this turn.",
+        "trigger": {
+          "on": "banished_other_in_challenge"
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "lore": 1,
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true
+              }
+            },
+            "duration": "this_turn"
+          }
+        ]
+      }
+    ],
     "setId": "P3",
     "number": 15,
     "rarity": "special",
@@ -550,7 +1003,36 @@
       "Pirate",
       "Captain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "DISTANT SHORES",
+        "rulesText": "Whenever one of your Pirate characters quests while at a location, draw a card.",
+        "trigger": {
+          "on": "quests",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Pirate",
+            "atLocation": "any"
+          }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "P3",
     "number": 16,
     "rarity": "special",
@@ -584,7 +1066,38 @@
       "Hero",
       "Pirate"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "LAND, HO!",
+        "rulesText": "Once during your turn, whenever a card is put into your inkwell, you may return a location card from your discard to your hand.",
+        "trigger": {
+          "on": "card_put_into_inkwell",
+          "player": {
+            "type": "self"
+          }
+        },
+        "oncePerTurn": true,
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "discard",
+                "cardType": [
+                  "location"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "P3",
     "number": 17,
     "rarity": "special",
@@ -624,6 +1137,37 @@
         "type": "keyword",
         "keyword": "boost",
         "value": 2
+      },
+      {
+        "type": "static",
+        "storyName": "I NEED MORE THUNDERBOLTS!",
+        "rulesText": "While there's a card under this character, he gets +2 {S} and +2 {W}.",
+        "condition": {
+          "type": "this_has_cards_under"
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "strength",
+          "amount": 2,
+          "target": {
+            "type": "this"
+          }
+        }
+      },
+      {
+        "type": "static",
+        "rulesText": "(continued) +2 {W}.",
+        "condition": {
+          "type": "this_has_cards_under"
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "amount": 2,
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "P3",
@@ -654,7 +1198,44 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "STARTLING DISCOVERY",
+        "rulesText": "Characters gain \"{E} — Draw a card\" while here.",
+        "effect": {
+          "type": "grant_activated_ability",
+          "target": {
+            "type": "all",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "atLocation": "this"
+            }
+          },
+          "ability": {
+            "type": "activated",
+            "storyName": "RESEARCH",
+            "rulesText": "{E} — Draw a card.",
+            "costs": [
+              {
+                "type": "exert"
+              }
+            ],
+            "effects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        }
+      }
+    ],
     "setId": "P3",
     "number": 19,
     "rarity": "special",
@@ -690,7 +1271,30 @@
     "rarity": "special",
     "rulesText": "Draw a card. You may banish chosen character with <Evasive>.",
     "flavorText": "Just when you thought you'd escaped . . .",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/20_8b1b0c3ba38b771b51417e75fa9315c90927d96a.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/20_8b1b0c3ba38b771b51417e75fa9315c90927d96a.jpg",
+    "actionEffects": [
+      {
+        "type": "draw",
+        "amount": 1,
+        "target": {
+          "type": "self"
+        }
+      },
+      {
+        "type": "banish",
+        "isMay": true,
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasKeyword": "evasive"
+          }
+        }
+      }
+    ]
   },
   {
     "id": "scar-eerily-prepared",
@@ -712,6 +1316,38 @@
         "type": "keyword",
         "keyword": "boost",
         "value": 2
+      },
+      {
+        "type": "triggered",
+        "storyName": "SURVIVAL OF THE FITTEST",
+        "rulesText": "Whenever you put a card under this character, chosen opposing character gets -5 {S} this turn.",
+        "trigger": {
+          "on": "card_put_under",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": -5,
+            "duration": "this_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "P3",
@@ -747,7 +1383,26 @@
       "Queen",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "CLOSER LOOK",
+        "rulesText": "When you play this character, you may draw a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "P3",
     "number": 22,
     "rarity": "special",
@@ -790,6 +1445,20 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "static",
+        "storyName": "STRANGE HAPPENINGS",
+        "rulesText": "While this character is exerted, cards enter opponents' inkwells exerted.",
+        "condition": {
+          "type": "this_is_exerted"
+        },
+        "effect": {
+          "type": "inkwell_enters_exerted",
+          "affectedPlayer": {
+            "type": "opponent"
+          }
+        }
       }
     ],
     "setId": "P3",
@@ -834,6 +1503,20 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "static",
+        "storyName": "STRANGE HAPPENINGS",
+        "rulesText": "While this character is exerted, cards enter opponents' inkwells exerted.",
+        "condition": {
+          "type": "this_is_exerted"
+        },
+        "effect": {
+          "type": "inkwell_enters_exerted",
+          "affectedPlayer": {
+            "type": "opponent"
+          }
+        }
       }
     ],
     "setId": "P3",
@@ -868,7 +1551,62 @@
       "Dreamborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "EVEN THE SCORE",
+        "rulesText": "Whenever one of your other Emerald characters is challenged and banished, banish the challenging character.",
+        "trigger": {
+          "on": "banished_in_challenge",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true,
+            "inkColors": [
+              "emerald"
+            ]
+          }
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "triggering_card"
+            }
+          }
+        ]
+      },
+      {
+        "type": "static",
+        "storyName": "PROVIDE COVER",
+        "rulesText": "Your other Emerald characters gain Ward.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "ward",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "excludeSelf": true,
+              "inkColors": [
+                "emerald"
+              ]
+            }
+          }
+        }
+      }
+    ],
     "setId": "P3",
     "number": 25,
     "rarity": "special",
@@ -912,6 +1650,36 @@
         "type": "keyword",
         "keyword": "boost",
         "value": 2
+      },
+      {
+        "type": "triggered",
+        "storyName": "UPLIFTING AURA",
+        "rulesText": "Whenever this character quests, if there's a card under her, remove up to 3 damage from each of your characters.",
+        "trigger": {
+          "on": "quests"
+        },
+        "condition": {
+          "type": "this_has_cards_under"
+        },
+        "effects": [
+          {
+            "type": "remove_damage",
+            "amount": 3,
+            "isUpTo": true,
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "P3",
@@ -948,7 +1716,33 @@
     "rarity": "special",
     "rulesText": "Chosen opposing character can’t challenge during their next turn. Draw a card.",
     "flavorText": "“Stop! It’s Hopps and Wilde! We have questions!” %—Judy Hopps",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/27_17b07c694096e1453d3e107330c24ac85ae7856d.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/27_17b07c694096e1453d3e107330c24ac85ae7856d.jpg",
+    "actionEffects": [
+      {
+        "type": "cant_action",
+        "action": "challenge",
+        "duration": "end_of_owner_next_turn",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      },
+      {
+        "type": "draw",
+        "amount": 1,
+        "target": {
+          "type": "self"
+        }
+      }
+    ]
   },
   {
     "id": "gramma-tala-connected-to-nature",
@@ -964,7 +1758,25 @@
       "Storyborn",
       "Mentor"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "ANCESTORS' GIFT",
+        "rulesText": "For each card in your inkwell, you pay 1 {I} less to play this character.",
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": {
+            "type": "count",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "inkwell"
+            }
+          }
+        }
+      }
+    ],
     "setId": "P3",
     "number": 28,
     "rarity": "special",
@@ -1001,6 +1813,18 @@
       {
         "type": "keyword",
         "keyword": "evasive"
+      },
+      {
+        "type": "static",
+        "storyName": "UNDERDOG",
+        "rulesText": "If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
+        "condition": {
+          "type": "your_first_turn_as_underdog"
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 1
+        }
       }
     ],
     "setId": "P3",
@@ -1036,7 +1860,45 @@
       "Gargoyle",
       "Detective"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "FOREVER STRONG",
+        "rulesText": "Your characters' {S} can't be reduced below their printed value.",
+        "effect": {
+          "type": "stat_floor_printed",
+          "stat": "strength",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "STONE BY DAY",
+        "rulesText": "If you have 3 or more cards in your hand, this character can't ready.",
+        "condition": {
+          "type": "cards_in_hand_gte",
+          "amount": 3,
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "cant_action_self",
+          "action": "ready_anytime"
+        }
+      }
+    ],
     "setId": "P3",
     "number": 30,
     "rarity": "special",
@@ -1079,6 +1941,17 @@
       {
         "type": "keyword",
         "keyword": "rush"
+      },
+      {
+        "type": "static",
+        "storyName": "DYNAMIC MANEUVER",
+        "rulesText": "Whenever this character challenges, if he's at a location, he takes no damage from the challenge.",
+        "effect": {
+          "type": "challenge_damage_prevention"
+        },
+        "condition": {
+          "type": "this_at_location"
+        }
       }
     ],
     "setId": "P3",
@@ -1112,7 +1985,39 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "GET RID OF THAT",
+        "rulesText": "When you play this character, chosen opponent reveals their hand and discards a non-character card of your choice.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "reveal_hand",
+            "target": {
+              "type": "opponent"
+            }
+          },
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            },
+            "chooser": "controller",
+            "filter": {
+              "zone": "hand",
+              "cardType": [
+                "action",
+                "item"
+              ]
+            }
+          }
+        ]
+      }
+    ],
     "setId": "P3",
     "number": 32,
     "rarity": "special",
@@ -1146,7 +2051,47 @@
       "Ally",
       "Fairy"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "",
+        "rulesText": "While you have 4 or more cards in your hand, this character gains Evasive.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "cards_in_hand_gte",
+          "amount": 4,
+          "player": {
+            "type": "self"
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "",
+        "rulesText": "While you have 7 or more cards in your hand, this character gets +3 {L}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "amount": 3,
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "cards_in_hand_gte",
+          "amount": 7,
+          "player": {
+            "type": "self"
+          }
+        }
+      }
+    ],
     "setId": "P3",
     "number": 33,
     "rarity": "special",
@@ -1184,7 +2129,47 @@
       "Ally",
       "Fairy"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "",
+        "rulesText": "While you have 4 or more cards in your hand, this character gains Evasive.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "cards_in_hand_gte",
+          "amount": 4,
+          "player": {
+            "type": "self"
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "",
+        "rulesText": "While you have 7 or more cards in your hand, this character gets +3 {L}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "amount": 3,
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "cards_in_hand_gte",
+          "amount": 7,
+          "player": {
+            "type": "self"
+          }
+        }
+      }
+    ],
     "setId": "P3",
     "number": 34,
     "rarity": "enchanted",
@@ -1222,7 +2207,28 @@
       "Hero",
       "Alien"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "",
+        "rulesText": "While you have a character named Lilo in play, this character gains Challenger +3.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "challenger",
+          "value": 3,
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "has_character_named",
+          "name": "Lilo",
+          "player": {
+            "type": "self"
+          }
+        }
+      }
+    ],
     "setId": "P3",
     "number": 35,
     "rarity": "special",
@@ -1255,7 +2261,49 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "BACKUP PLAN",
+        "rulesText": "When you play this character, draw a card, then choose and discard a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "chooser": "target_player"
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "ON THE MOVE",
+        "rulesText": "When this character is challenged, return this card to your hand.",
+        "trigger": {
+          "on": "is_challenged"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "P3",
     "number": 36,
     "rarity": "special",
@@ -1294,7 +2342,36 @@
       "Princess",
       "Inventor"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "WHAT A MESS",
+        "rulesText": "During your turn, you may banish chosen item of yours to play this character for free.",
+        "activeZones": [
+          "hand"
+        ],
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effect": {
+          "type": "grant_play_for_free_self",
+          "playCosts": [
+            {
+              "type": "banish_chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "item"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
     "setId": "P3",
     "number": 37,
     "rarity": "special",
@@ -1328,7 +2405,40 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "WHERE DO I SIGN IN?",
+        "rulesText": "When you play this character, you may draw a card, then choose and discard a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              },
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                },
+                "chooser": "target_player"
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "P3",
     "number": 38,
     "rarity": "special",
@@ -1361,7 +2471,56 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "moves_to_location"
+        },
+        "storyName": "FAMILY VACATION",
+        "rulesText": "Once during your turn, whenever this character moves to a location, you may move one of your other characters to that location for free. If you do, draw a card.",
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "oncePerTurn": true,
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "move_character",
+                "character": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "excludeSelf": true
+                  }
+                },
+                "location": {
+                  "type": "triggering_card"
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "P3",
     "number": 39,
     "rarity": "special",
@@ -1394,7 +2553,31 @@
       "Hero",
       "Prince"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "FULL DANCE CARD",
+        "rulesText": "Your Princess characters get +1 {S} and +1 {W}.",
+        "effect": {
+          "type": "gain_stats",
+          "strength": 1,
+          "willpower": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Princess"
+            }
+          }
+        }
+      }
+    ],
     "setId": "P3",
     "number": 40,
     "rarity": "special",
@@ -1434,6 +2617,42 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "triggered",
+        "storyName": "ENHANCED HEALING",
+        "rulesText": "When you play this character, move up to 3 damage counters from chosen character to chosen opposing character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "move_damage",
+            "amount": 3,
+            "isUpTo": true,
+            "source": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "destination": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "P3",
@@ -1463,7 +2682,33 @@
       "Hero",
       "Alien"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "",
+        "rulesText": "Whenever this character quests, if you have 2 or more other characters in play, you may draw a card.",
+        "trigger": {
+          "on": "quests"
+        },
+        "condition": {
+          "type": "characters_in_play_gte",
+          "amount": 3,
+          "player": {
+            "type": "self"
+          }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "P3",
     "number": 42,
     "rarity": "special",
@@ -1918,7 +3163,59 @@
       "Ally",
       "Toy"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            },
+            "chooser": "controller",
+            "filter": {
+              "cardType": [
+                "action"
+              ]
+            }
+          }
+        ],
+        "storyName": "TAKE A GOOD LOOK",
+        "rulesText": "When you play this character, chosen opponent reveals their hand and discards an action card of your choice."
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "action"
+            ]
+          }
+        },
+        "effects": [
+          {
+            "type": "ready",
+            "target": {
+              "type": "this"
+            },
+            "isMay": true
+          }
+        ],
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "storyName": "COMIN' UP FAST",
+        "rulesText": "Once during your turn, whenever you play an action, you may ready this character."
+      }
+    ],
     "setId": "P3",
     "number": 49,
     "rarity": "special",
@@ -1979,7 +3276,25 @@
     "traits": [
       "Storyborn"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "banished_in_challenge"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "this"
+            },
+            "isMay": true
+          }
+        ],
+        "storyName": "COME ON OUT",
+        "rulesText": "When this character is banished in a challenge, you may return this card to your hand."
+      }
+    ],
     "setId": "P3",
     "number": 51,
     "rarity": "special",
@@ -2017,6 +3332,17 @@
       {
         "type": "keyword",
         "keyword": "rush"
+      },
+      {
+        "type": "static",
+        "effect": {
+          "type": "can_quest_turn_played",
+          "target": {
+            "type": "this"
+          }
+        },
+        "storyName": "RECORD TIME",
+        "rulesText": "This character can quest the turn he’s played."
       }
     ],
     "setId": "P3",
@@ -2057,6 +3383,61 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "play_card",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "costAtMost": 2,
+              "owner": {
+                "type": "self"
+              },
+              "zone": "hand"
+            },
+            "isMay": true
+          }
+        ],
+        "storyName": "LET'S GET MOVIN'",
+        "rulesText": "Whenever this character quests, draw a card. Then, you may play a character with cost 2 or less for free."
+      },
+      {
+        "type": "static",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "amount": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Toy",
+              "excludeSelf": true
+            }
+          }
+        },
+        "storyName": "EVERYONE GATHER 'ROUND",
+        "rulesText": "Your other Toy characters get +1 {W}."
       }
     ],
     "setId": "P3",
@@ -2102,6 +3483,61 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "play_card",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "costAtMost": 2,
+              "owner": {
+                "type": "self"
+              },
+              "zone": "hand"
+            },
+            "isMay": true
+          }
+        ],
+        "storyName": "LET'S GET MOVIN'",
+        "rulesText": "Whenever this character quests, draw a card. Then, you may play a character with cost 2 or less for free."
+      },
+      {
+        "type": "static",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "amount": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Toy",
+              "excludeSelf": true
+            }
+          }
+        },
+        "storyName": "EVERYONE GATHER 'ROUND",
+        "rulesText": "Your other Toy characters get +1 {W}."
       }
     ],
     "setId": "P3",
@@ -2146,6 +3582,41 @@
       {
         "type": "keyword",
         "keyword": "evasive"
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "move_damage",
+            "amount": 1,
+            "source": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "destination": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
+              }
+            }
+          }
+        ],
+        "storyName": "DEFLECT",
+        "rulesText": "When you play this character, you may move 1 damage from chosen character to chosen opposing character."
       }
     ],
     "setId": "P3",

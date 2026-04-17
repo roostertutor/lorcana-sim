@@ -1356,6 +1356,17 @@
       {
         "type": "keyword",
         "keyword": "rush"
+      },
+      {
+        "type": "static",
+        "effect": {
+          "type": "can_quest_turn_played",
+          "target": {
+            "type": "this"
+          }
+        },
+        "storyName": "RECORD TIME",
+        "rulesText": "This character can quest the turn he’s played."
       }
     ],
     "setId": "12",
@@ -2969,7 +2980,49 @@
       "Ally",
       "Toy"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": {
+            "type": "count",
+            "filter": {
+              "zone": "discard",
+              "owner": {
+                "type": "self"
+              },
+              "hasTrait": "Toy",
+              "cardType": ["character"]
+            }
+          },
+          "perMatch": 1
+        },
+        "storyName": "REJECTED TOYS",
+        "rulesText": "For each Toy character card in your discard, you pay 1 {I} less to play this character."
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "return_all_to_bottom_in_order",
+            "filter": {
+              "zone": "discard",
+              "owner": {
+                "type": "self"
+              },
+              "cardType": ["character"],
+              "hasTrait": "Toy"
+            }
+          }
+        ],
+        "storyName": "REPURPOSED",
+        "rulesText": "When you play this character, put all Toy character cards from your discard on the bottom of your deck in any order."
+      }
+    ],
     "setId": "12",
     "number": 120,
     "rarity": "rare",
@@ -4061,7 +4114,63 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "discard",
+                "cardType": ["action"],
+                "hasName": "Three Arrows",
+                "owner": {
+                  "type": "self"
+                }
+              }
+            }
+          }
+        ],
+        "storyName": "FULL QUIVER",
+        "rulesText": "When you play this character, you may return an action card named Three Arrows from your discard to your hand."
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "damage_dealt_to",
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            },
+            "zone": "play",
+            "cardType": ["character"]
+          },
+          "sourceFilter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": ["action"]
+          }
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 2,
+            "target": {
+              "type": "triggering_card"
+            }
+          }
+        ],
+        "storyName": "STEADY AIM",
+        "rulesText": "Whenever one of your actions deals damage to an opposing character, deal 2 damage to that character."
+      }
+    ],
     "setId": "12",
     "number": 191,
     "rarity": "legendary",
@@ -4836,7 +4945,63 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "discard",
+                "cardType": ["action"],
+                "hasName": "Three Arrows",
+                "owner": {
+                  "type": "self"
+                }
+              }
+            }
+          }
+        ],
+        "storyName": "FULL QUIVER",
+        "rulesText": "When you play this character, you may return an action card named Three Arrows from your discard to your hand."
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "damage_dealt_to",
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            },
+            "zone": "play",
+            "cardType": ["character"]
+          },
+          "sourceFilter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": ["action"]
+          }
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 2,
+            "target": {
+              "type": "triggering_card"
+            }
+          }
+        ],
+        "storyName": "STEADY AIM",
+        "rulesText": "Whenever one of your actions deals damage to an opposing character, deal 2 damage to that character."
+      }
+    ],
     "setId": "12",
     "number": 242,
     "rarity": "iconic",

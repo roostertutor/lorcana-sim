@@ -491,7 +491,6 @@ function validateQuest(
   if (instance.ownerId !== playerId) return fail("You don't own this card.");
   if (instance.zone !== "play") return fail("Card is not in play.");
   if (instance.isExerted) return fail("This character is already exerted."); // CRD 4.5.1.3
-  if (instance.isDrying) return fail("This character is still drying and cannot quest."); // CRD 5.1.1.11
 
   const def = getDefinition(state, instanceId, definitions);
   if (def.cardType !== "character") return fail("Only characters can quest."); // CRD 5.3.4
@@ -502,6 +501,11 @@ function validateQuest(
 
   // CRD 6.6.1: Unified check for quest restrictions (timed effects + statics like Gothel)
   const modifiers = getGameModifiers(state, definitions);
+  // CRD 5.1.1.11 drying, with per-card bypass for Dash Parr RECORD TIME
+  // (parallel to Rush's challenge bypass in CRD 8.9.1).
+  if (instance.isDrying && !modifiers.canQuestTurnPlayed.has(instanceId)) {
+    return fail("This character is still drying and cannot quest.");
+  }
   if (isActionRestricted(instance, def, "quest", playerId, state, modifiers)) {
     return fail("This character can't quest.");
   }

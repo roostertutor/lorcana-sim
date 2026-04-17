@@ -1618,6 +1618,7 @@ export type StaticEffect =
   | PlayableFromZoneSelfStatic
   | ModifyWinThresholdStatic
   | SkipDrawStepSelfStatic
+  | CanQuestTurnPlayedStatic
   | TopOfDeckVisibleStatic
   | MoveToSelfCostReductionStatic
   | EnterPlayExertedStatic
@@ -1949,6 +1950,18 @@ export interface TopOfDeckVisibleStatic {
  */
 export interface SkipDrawStepSelfStatic {
   type: "skip_draw_step_self";
+}
+
+/**
+ * Dash Parr - Lava Runner (Set 12) RECORD TIME: "This character can quest the
+ * turn he's played." Extends the drying exemption (already granted to Rush for
+ * challenges per CRD 8.9.1) to cover quests on the ability owner.
+ * validateQuest consults modifiers.canQuestTurnPlayed to bypass the
+ * CRD 5.1.1.11 drying block.
+ */
+export interface CanQuestTurnPlayedStatic {
+  type: "can_quest_turn_played";
+  target: CardTarget;
 }
 
 /**
@@ -2404,7 +2417,12 @@ export type TriggerEvent =
   | { on: "card_played"; filter?: CardFilter }
   // item_played: DELETED — collapsed to card_played with filter cardType:["item"]
   | { on: "banished_other_in_challenge"; filter?: CardFilter }
-  | { on: "damage_dealt_to"; filter?: CardFilter }
+  // sourceFilter: optional filter on the damage SOURCE's definition — used by
+  // Merida Formidable Archer STEADY AIM ("whenever one of your actions deals
+  // damage to an opposing character"). The target filter applies to the
+  // damaged card; the sourceFilter applies to the source card that dealt
+  // the damage.
+  | { on: "damage_dealt_to"; filter?: CardFilter; sourceFilter?: CardFilter }
   | { on: "moves_to_location"; filter?: CardFilter }
   | { on: "damage_removed_from"; filter?: CardFilter }
   | { on: "readied"; filter?: CardFilter }
