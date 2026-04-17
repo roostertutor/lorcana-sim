@@ -1457,14 +1457,9 @@
             }
           },
           {
-            "type": "conditional_on_target",
-            "target": {
-              "type": "last_resolved_target"
-            },
-            "conditionFilter": {
-              "hasName": "Tod"
-            },
-            "ifMatchEffects": [
+            "type": "self_replacement",
+            "effect": [],
+            "instead": [
               {
                 "type": "play_card",
                 "isMay": true,
@@ -1474,7 +1469,12 @@
                 "sourceZone": "hand"
               }
             ],
-            "defaultEffects": []
+            "condition": {
+              "hasName": "Tod"
+            },
+            "target": {
+              "type": "last_resolved_target"
+            }
           }
         ]
       }
@@ -2238,20 +2238,9 @@
         },
         "effects": [
           {
-            "type": "conditional_on_target",
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ],
-                "excludeSelf": true,
-                "isExerted": true
-              }
-            },
-            "conditionFilter": {},
-            "ifMatchEffects": [
+            "type": "self_replacement",
+            "effect": [],
+            "instead": [
               {
                 "type": "gain_lore",
                 "amount": {
@@ -2262,7 +2251,18 @@
                 }
               }
             ],
-            "defaultEffects": []
+            "condition": {},
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true,
+                "isExerted": true
+              }
+            }
           }
         ]
       }
@@ -7107,21 +7107,9 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/127_270f73d8bdccedfac6dfc7d174669014eacc85c3.jpg",
     "actionEffects": [
       {
-        "type": "conditional_on_target",
-        "target": {
-          "type": "chosen",
-          "filter": {
-            "zone": "play",
-            "cardType": [
-              "character"
-            ],
-            "owner": {
-              "type": "self"
-            }
-          }
-        },
-        "conditionFilter": {},
-        "ifMatchEffects": [
+        "type": "self_replacement",
+        "effect": [],
+        "instead": [
           {
             "type": "each_player",
             "scope": "opponents",
@@ -7139,7 +7127,19 @@
             ]
           }
         ],
-        "defaultEffects": []
+        "condition": {},
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "owner": {
+              "type": "self"
+            }
+          }
+        }
       },
       {
         "type": "draw",

@@ -554,13 +554,12 @@ describe("§5 Set 5 — three-mechanic batch (reveal_hand, draw-to-n, per-count 
     expect(r.success).toBe(true);
   });
 
-  it("Wreck-It Ralph - Admiral Underpants: Princess branch returns AND gains 2 lore via mixed-branch conditional_on_target", () => {
-    // Tier-1 fix: was wired as a stub return_to_hand with the lore-on-Princess
-    // branch dropped. Now uses conditional_on_target with mixed branches:
-    // defaultEffects = [return_to_hand], ifMatchEffects = [return_to_hand,
-    // gain_lore +2]. Pattern coverage: confirms gain_lore is callable as a
-    // branch effect even though dispatch passes the chosen card's instanceId
-    // (gain_lore ignores it and routes via effect.target.type=self).
+  it("Wreck-It Ralph - Admiral Underpants: Princess branch returns AND gains 2 lore via mixed-branch self_replacement", () => {
+    // Wired with self_replacement mixed branches: effect=[return_to_hand],
+    // instead=[return_to_hand, gain_lore +2]. Pattern coverage: confirms
+    // gain_lore is callable as a branch effect even though dispatch passes
+    // the chosen card's instanceId (gain_lore ignores it and routes via
+    // effect.target.type=self).
     let state = startGame();
     state = giveInk(state, "player1", 10);
     let ralphId: string, princessId: string;

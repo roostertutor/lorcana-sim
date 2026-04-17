@@ -1671,12 +1671,9 @@
             ],
             "rewardEffects": [
               {
-                "type": "conditional_on_last_discarded",
-                "filter": {
-                  "cardType": "character",
-                  "hasTrait": "Illusion"
-                },
-                "then": [
+                "type": "self_replacement",
+                "effect": [],
+                "instead": [
                   {
                     "type": "play_card",
                     "sourceZone": "discard",
@@ -1685,7 +1682,11 @@
                     },
                     "isMay": true
                   }
-                ]
+                ],
+                "condition": {
+                  "cardType": "character",
+                  "hasTrait": "Illusion"
+                }
               }
             ]
           }
@@ -1756,12 +1757,9 @@
             ],
             "rewardEffects": [
               {
-                "type": "conditional_on_last_discarded",
-                "filter": {
-                  "cardType": "character",
-                  "hasTrait": "Illusion"
-                },
-                "then": [
+                "type": "self_replacement",
+                "effect": [],
+                "instead": [
                   {
                     "type": "play_card",
                     "sourceZone": "discard",
@@ -1770,7 +1768,11 @@
                     },
                     "isMay": true
                   }
-                ]
+                ],
+                "condition": {
+                  "cardType": "character",
+                  "hasTrait": "Illusion"
+                }
               }
             ]
           }

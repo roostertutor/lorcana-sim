@@ -709,15 +709,12 @@ describe("§4 Set 4 — Noi Acrobatic Baby (damage_prevention_timed)", () => {
     expect(state.players.player1.lore).toBe(loreBefore + 1);
   });
 
-  it("The Queen - Diviner: look_at_top → conditional_on_target last_resolved_target plays cost-≤3 item for free entering exerted", () => {
-    // Tier-1 fix: was wired with bare look_at_top + the cost-≤3 free-play
-    // escalation dropped. The fix uses a NEW generalized escalation primitive:
-    // look_at_top now sets state.lastResolvedTarget when maxToHand=1, and
-    // conditional_on_target accepts target.type=last_resolved_target to read
-    // it. The chain: look_at_top picks an item to hand → conditional_on_target
-    // checks the picked item's cost ≤ 3 → ifMatchEffects play_for_free with
-    // target=this and enterExerted. This pattern is reusable for any future
-    // "if the just-revealed card matches X, do Y" wording.
+  it("The Queen - Diviner: look_at_top → self_replacement last_resolved_target plays cost-≤3 item for free entering exerted", () => {
+    // look_at_top sets state.lastResolvedTarget when maxToHand=1. A
+    // following self_replacement reads it via target:last_resolved_target,
+    // checks the picked item's cost ≤ 3 (condition filter), and runs
+    // `instead: [play_card for free]` when matched. Reusable for any
+    // "if the just-revealed card matches X, do Y instead" wording.
     let state = startGame();
     let queenId: string;
     ({ state, instanceId: queenId } = injectCard(state, "player1", "the-queen-diviner", "play", { isDrying: false }));

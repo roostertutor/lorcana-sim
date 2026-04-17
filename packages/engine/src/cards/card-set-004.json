@@ -2841,15 +2841,8 @@
             "isMay": true,
             "followUpEffects": [
               {
-                "type": "conditional_on_target",
-                "target": {
-                  "type": "last_resolved_target"
-                },
-                "conditionFilter": {
-                  "atLocation": "any"
-                },
-                "ifMatchEffects": [],
-                "defaultEffects": [
+                "type": "self_replacement",
+                "effect": [
                   {
                     "type": "cant_action",
                     "action": "ready",
@@ -2858,7 +2851,14 @@
                     },
                     "duration": "end_of_owner_next_turn"
                   }
-                ]
+                ],
+                "instead": [],
+                "condition": {
+                  "atLocation": "any"
+                },
+                "target": {
+                  "type": "last_resolved_target"
+                }
               }
             ]
           }
@@ -7314,14 +7314,17 @@
         },
         "effects": [
           {
-            "type": "conditional_on_target",
-            "target": {
-              "type": "triggering_card"
-            },
-            "conditionFilter": {
-              "strengthAtLeast": 6
-            },
-            "ifMatchEffects": [
+            "type": "self_replacement",
+            "effect": [
+              {
+                "type": "gain_lore",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ],
+            "instead": [
               {
                 "type": "gain_lore",
                 "amount": 3,
@@ -7330,15 +7333,12 @@
                 }
               }
             ],
-            "defaultEffects": [
-              {
-                "type": "gain_lore",
-                "amount": 1,
-                "target": {
-                  "type": "self"
-                }
-              }
-            ]
+            "condition": {
+              "strengthAtLeast": 6
+            },
+            "target": {
+              "type": "triggering_card"
+            }
           }
         ]
       }
@@ -8418,15 +8418,9 @@
             "revealPicks": true
           },
           {
-            "type": "conditional_on_target",
-            "target": {
-              "type": "last_resolved_target"
-            },
-            "conditionFilter": {
-              "costAtMost": 3
-            },
-            "defaultEffects": [],
-            "ifMatchEffects": [
+            "type": "self_replacement",
+            "effect": [],
+            "instead": [
               {
                 "type": "play_card",
                 "isMay": true,
@@ -8436,7 +8430,13 @@
                 },
                 "enterExerted": true
               }
-            ]
+            ],
+            "condition": {
+              "costAtMost": 3
+            },
+            "target": {
+              "type": "last_resolved_target"
+            }
           }
         ]
       }
@@ -9170,14 +9170,18 @@
         },
         "effects": [
           {
-            "type": "conditional_on_target",
-            "target": {
-              "type": "triggering_card"
-            },
-            "conditionFilter": {
-              "hasTrait": "Hero"
-            },
-            "ifMatchEffects": [
+            "type": "self_replacement",
+            "effect": [
+              {
+                "type": "remove_damage",
+                "amount": 2,
+                "isUpTo": true,
+                "target": {
+                  "type": "triggering_card"
+                }
+              }
+            ],
+            "instead": [
               {
                 "type": "remove_damage",
                 "amount": 4,
@@ -9187,16 +9191,12 @@
                 }
               }
             ],
-            "defaultEffects": [
-              {
-                "type": "remove_damage",
-                "amount": 2,
-                "isUpTo": true,
-                "target": {
-                  "type": "triggering_card"
-                }
-              }
-            ]
+            "condition": {
+              "hasTrait": "Hero"
+            },
+            "target": {
+              "type": "triggering_card"
+            }
           }
         ]
       }
@@ -11655,14 +11655,17 @@
         },
         "effects": [
           {
-            "type": "conditional_on_target",
-            "target": {
-              "type": "triggering_card"
-            },
-            "conditionFilter": {
-              "strengthAtLeast": 6
-            },
-            "ifMatchEffects": [
+            "type": "self_replacement",
+            "effect": [
+              {
+                "type": "gain_lore",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ],
+            "instead": [
               {
                 "type": "gain_lore",
                 "amount": 3,
@@ -11671,15 +11674,12 @@
                 }
               }
             ],
-            "defaultEffects": [
-              {
-                "type": "gain_lore",
-                "amount": 1,
-                "target": {
-                  "type": "self"
-                }
-              }
-            ]
+            "condition": {
+              "strengthAtLeast": 6
+            },
+            "target": {
+              "type": "triggering_card"
+            }
           }
         ]
       }
@@ -11809,15 +11809,9 @@
             "revealPicks": true
           },
           {
-            "type": "conditional_on_target",
-            "target": {
-              "type": "last_resolved_target"
-            },
-            "conditionFilter": {
-              "costAtMost": 3
-            },
-            "defaultEffects": [],
-            "ifMatchEffects": [
+            "type": "self_replacement",
+            "effect": [],
+            "instead": [
               {
                 "type": "play_card",
                 "isMay": true,
@@ -11827,7 +11821,13 @@
                 },
                 "enterExerted": true
               }
-            ]
+            ],
+            "condition": {
+              "costAtMost": 3
+            },
+            "target": {
+              "type": "last_resolved_target"
+            }
           }
         ]
       }

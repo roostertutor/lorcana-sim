@@ -3989,7 +3989,20 @@
             ],
             "rewardEffects": [
               {
-                "type": "conditional_on_target",
+                "type": "self_replacement",
+                "effect": [],
+                "instead": [
+                  {
+                    "type": "gain_lore",
+                    "amount": {
+                      "type": "target_damage"
+                    },
+                    "target": {
+                      "type": "self"
+                    }
+                  }
+                ],
+                "condition": {},
                 "target": {
                   "type": "chosen",
                   "filter": {
@@ -4001,20 +4014,7 @@
                       "type": "opponent"
                     }
                   }
-                },
-                "conditionFilter": {},
-                "ifMatchEffects": [
-                  {
-                    "type": "gain_lore",
-                    "amount": {
-                      "type": "target_damage"
-                    },
-                    "target": {
-                      "type": "self"
-                    }
-                  }
-                ],
-                "defaultEffects": []
+                }
               }
             ]
           }
@@ -5042,20 +5042,17 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set6/94_f35ff1d5521697ee0c90c8738bd3f51d87edfe87.jpg",
     "actionEffects": [
       {
-        "type": "conditional_on_target",
-        "target": {
-          "type": "chosen",
-          "filter": {
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
+        "type": "self_replacement",
+        "effect": [
+          {
+            "type": "gain_stats",
+            "strength": 2,
+            "target": {
+              "type": "this"
+            }
           }
-        },
-        "conditionFilter": {
-          "hasTrait": "Pirate"
-        },
-        "ifMatchEffects": [
+        ],
+        "instead": [
           {
             "type": "gain_stats",
             "strength": 3,
@@ -5064,15 +5061,18 @@
             }
           }
         ],
-        "defaultEffects": [
-          {
-            "type": "gain_stats",
-            "strength": 2,
-            "target": {
-              "type": "this"
-            }
+        "condition": {
+          "hasTrait": "Pirate"
+        },
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
           }
-        ]
+        }
       }
     ]
   },
@@ -9712,12 +9712,24 @@
             ],
             "rewardEffects": [
               {
-                "type": "conditional_on_last_discarded",
-                "filter": {
-                  "cardType": "character",
-                  "hasTrait": "Pirate"
-                },
-                "then": [
+                "type": "self_replacement",
+                "effect": [
+                  {
+                    "type": "deal_damage",
+                    "target": {
+                      "type": "chosen",
+                      "filter": {
+                        "zone": "play",
+                        "cardType": [
+                          "character",
+                          "location"
+                        ]
+                      }
+                    },
+                    "amount": 1
+                  }
+                ],
+                "instead": [
                   {
                     "type": "deal_damage",
                     "target": {
@@ -9733,22 +9745,10 @@
                     "amount": 3
                   }
                 ],
-                "otherwise": [
-                  {
-                    "type": "deal_damage",
-                    "target": {
-                      "type": "chosen",
-                      "filter": {
-                        "zone": "play",
-                        "cardType": [
-                          "character",
-                          "location"
-                        ]
-                      }
-                    },
-                    "amount": 1
-                  }
-                ]
+                "condition": {
+                  "cardType": "character",
+                  "hasTrait": "Pirate"
+                }
               }
             ]
           }

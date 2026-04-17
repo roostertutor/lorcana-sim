@@ -8624,7 +8624,20 @@
         ],
         "effects": [
           {
-            "type": "conditional_on_target",
+            "type": "self_replacement",
+            "effect": [],
+            "instead": [
+              {
+                "type": "gain_lore",
+                "amount": {
+                  "type": "target_lore"
+                },
+                "target": {
+                  "type": "self"
+                }
+              }
+            ],
+            "condition": {},
             "target": {
               "type": "chosen",
               "filter": {
@@ -8636,19 +8649,7 @@
                   "type": "self"
                 }
               }
-            },
-            "conditionFilter": {},
-            "ifMatchEffects": [
-              {
-                "type": "gain_lore",
-                "amount": {
-                  "type": "target_lore"
-                },
-                "target": {
-                  "type": "self"
-                }
-              }
-            ]
+            }
           }
         ]
       }

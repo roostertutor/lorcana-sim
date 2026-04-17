@@ -7454,22 +7454,9 @@
         ],
         "effects": [
           {
-            "type": "conditional_on_target",
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ],
-                "hasDamage": true
-              }
-            },
-            "conditionFilter": {},
-            "ifMatchEffects": [
+            "type": "self_replacement",
+            "effect": [],
+            "instead": [
               {
                 "type": "draw",
                 "amount": {
@@ -7485,7 +7472,21 @@
                   "type": "last_resolved_target"
                 }
               }
-            ]
+            ],
+            "condition": {},
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasDamage": true
+              }
+            }
           }
         ]
       }

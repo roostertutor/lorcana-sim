@@ -49,7 +49,7 @@ const EFFECT_TYPE_LIST: string[] = [
   "draw", "deal_damage", "remove_damage", "banish", "return_to_hand",
   "gain_lore", "gain_stats", "create_card", "search", "choose",
   "exert", "grant_keyword", "ready", "cant_action", "look_at_top",
-  "discard_from_hand", "put_into_inkwell", "conditional_on_target",
+  "discard_from_hand", "put_into_inkwell", "self_replacement",
   "play_for_free", "shuffle_into_deck", "pay_ink", "create_floating_trigger",
 ];
 
@@ -94,9 +94,9 @@ export function collectAllEffects(def: CardDefinition): Set<string> {
       if (e.type === "choose" && e.options) {
         for (const opt of e.options) walkEffects(opt);
       }
-      if (e.type === "conditional_on_target") {
-        walkEffects(e.defaultEffects);
-        walkEffects(e.ifMatchEffects);
+      if (e.type === "self_replacement") {
+        walkEffects(e.effect);
+        walkEffects(e.instead);
       }
     }
   }

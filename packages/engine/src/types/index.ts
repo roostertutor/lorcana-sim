@@ -205,7 +205,6 @@ export type Effect =
   | PutCardsUnderIntoHandEffect
   | PutCardsUnderOntoTargetEffect
   | PutCardsUnderIntoInkwellEffect
-  | ConditionalOnLastDiscardedEffect
   | OpponentChoosesYesOrNoEffect
   | ChooseNFromOpponentDiscardToBottomEffect
   | PutSelfUnderTargetEffect
@@ -225,7 +224,7 @@ export type Effect =
   | LookAtTopEffect
   | DiscardEffect
   | PutIntoInkwellEffect
-  | ConditionalOnTargetEffect
+  | SelfReplacementEffect
   | PlayCardEffect
   | ShuffleIntoDeckEffect
   | PayInkEffect
@@ -925,17 +924,37 @@ export interface OpponentChoosesYesOrNoEffect {
 }
 
 /**
- * CRD 6.1.5.1: "If <X> was discarded, [then-effects]." Reads `state.lastDiscarded`
- * (populated by the most recent choose_discard / discard_from_hand resolution),
- * checks whether any of those snapshots match `filter`, and applies `then` if
- * so (else `otherwise`). Used by Kakamora - Pirate Chief ("if a Pirate character
- * card was discarded, deal 3 damage instead of 1").
+ * CRD 6.5.6 self-replacement within a single ability: "[default effect]. If
+ * [condition], [replacement] instead." A single shape covers both target-based
+ * and state-based self-replacements.
+ *
+ * - When `target` is set: player picks once, `condition` is matched against
+ *   the resolved target. Apply `instead` on match, `effect` otherwise. Both
+ *   branches share the same target (exposed to follow-up effects via
+ *   lastResolvedTarget). Used by Vicious Betrayal (+2/+3 by Villain),
+ *   Poisoned Apple (exert/banish by Princess), Stolen Scimitar, etc.
+ * - When `target` is undefined: `condition` is matched against the most
+ *   recent `state.lastDiscarded` snapshots. Used by Kakamora Pirate Chief
+ *   ("If a Pirate character card was discarded, deal 3 damage instead of 1").
+ *
+ * Either branch list may be empty — a true no-op default or no-op
+ * replacement is valid (e.g. Consult the Spellbook: "if cost ≤ 3, may play
+ * for free" with no default action).
  */
-export interface ConditionalOnLastDiscardedEffect {
-  type: "conditional_on_last_discarded";
-  filter: CardFilter;
-  then: Effect[];
-  otherwise?: Effect[];
+export interface SelfReplacementEffect {
+  type: "self_replacement";
+  /** Default branch applied when condition is false. */
+  effect: Effect[];
+  /** Replacement branch applied when condition is true. */
+  instead: Effect[];
+  /** Filter matched against the resolved target (when `target` is set)
+   *  or against cards in state.lastDiscarded (when `target` is omitted). */
+  condition: CardFilter;
+  /** Optional shared target. Present → target-based self-replacement.
+   *  Absent → state-based (lastDiscarded). */
+  target?: CardTarget;
+  /** CRD 6.1.4: optional may — the choose_target prompt is declinable. */
+  isMay?: boolean;
 }
 
 /**
@@ -1386,23 +1405,9 @@ export interface DiscardEffect {
   filter?: CardFilter;
 }
 
-/**
- * "If target matches condition, apply ifMatch effects, otherwise apply default effects."
- * Used by: Vicious Betrayal (+2/+3), Stolen Scimitar (+1/+2), Poisoned Apple (exert/banish).
- */
-export interface ConditionalOnTargetEffect {
-  type: "conditional_on_target";
-  target: CardTarget;
-  /** Effects if target does NOT match condition */
-  defaultEffects: Effect[];
-  /** Filter to check against the chosen target */
-  conditionFilter: CardFilter;
-  /** Effects if target DOES match condition */
-  ifMatchEffects: Effect[];
-  /** CRD 6.1.4: "you may" — surfaces as optional choose_target. Used by
-   *  Seven Dwarfs' Mine "you may deal 1 damage... If Knight, deal 2 instead". */
-  isMay?: boolean;
-}
+// ConditionalOnTargetEffect → SelfReplacementEffect (with `target` set).
+// ConditionalOnLastDiscardedEffect → SelfReplacementEffect (with `target` omitted).
+// See SelfReplacementEffect above (CRD 6.5.6).
 
 /** Play a card from some source zone (hand/discard/under/deck/etc.).
  *  Defaults to FREE play (no ink cost). Set `cost: "normal"` to charge the
@@ -3060,8 +3065,8 @@ export interface GameState {
 
   /** Snapshots of cards moved to discard by the most recent choose_discard /
    *  discard_from_hand resolution. Used by Kakamora Pirate Chief ("if a Pirate
-   *  card was discarded, deal 3 damage instead of 1") via the
-   *  conditional_on_last_discarded effect. Reset on each new discard. */
+   *  card was discarded, deal 3 damage instead of 1") via self_replacement
+   *  with no target (state-based condition). Reset on each new discard. */
   lastDiscarded?: ResolvedRef[];
 
   /** Per-turn flag: any card moved out of any player's discard this turn.

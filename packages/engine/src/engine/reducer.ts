@@ -2077,8 +2077,8 @@ function applyResolveChoice(
     // Determine who is discarding (the owner of the first card chosen)
     let discardingPlayerId: PlayerID | undefined;
     // Snapshot the discarded cards BEFORE moving so the ResolvedRef captures
-    // their hand-state identity. Used by conditional_on_last_discarded
-    // (Kakamora Pirate Chief: "if a Pirate card was discarded...").
+    // their hand-state identity. Used by self_replacement (state-based, no
+    // target) for Kakamora Pirate Chief: "if a Pirate card was discarded...".
     const discardedRefs: ResolvedRef[] = [];
     for (const cardId of choice) {
       const ref = makeResolvedRef(state, definitions, cardId);
@@ -3424,27 +3424,10 @@ export function applyEffect(
       return state;
     }
 
-    case "conditional_on_last_discarded": {
-      // CRD 6.1.5.1: Apply `then` if any card in state.lastDiscarded matches
-      // the filter, else `otherwise`. Used by Kakamora Pirate Chief.
-      const refs = state.lastDiscarded ?? [];
-      let matched = false;
-      for (const ref of refs) {
-        const inst = state.cards[ref.instanceId];
-        const def = inst ? definitions[inst.definitionId] : undefined;
-        if (!inst || !def) continue;
-        if (matchesFilter(inst, def, effect.filter, state, controllingPlayerId, sourceInstanceId)) {
-          matched = true;
-          break;
-        }
-      }
-      const branch = matched ? effect.then : (effect.otherwise ?? []);
-      for (const sub of branch) {
-        state = applyEffect(state, sub, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
-        if (state.pendingChoice) return state;
-      }
-      return state;
-    }
+    // Rerouted to the self_replacement handler (see case "self_replacement").
+    // The state-based Kakamora variant (no target field) evaluates condition
+    // against state.lastDiscarded; the target-based variant surfaces a
+    // choose_target pendingChoice and resolves via applyEffectToTarget.
 
     case "put_self_under_target": {
       // CRD 8.4.2: Roo - Little Helper HOPPING IN ("Put this character facedown
@@ -4103,7 +4086,7 @@ export function applyEffect(
             state = reorderDeckTopToBottom(state, targetPlayer, rest, []);
           }
           // Set lastResolvedTarget to the picked card so a follow-up
-          // conditional_on_target with target.type=last_resolved_target can
+          // self_replacement with target.type=last_resolved_target can
           // dispatch escalation effects (Queen Diviner: "If that item costs 3
           // or less, you may play it for free instead"). Only meaningful when
           // exactly one card is picked (maxToHand=1).
@@ -4908,7 +4891,32 @@ export function applyEffect(
       return state;
     }
 
-    case "conditional_on_target": {
+    case "self_replacement": {
+      // CRD 6.5.6 self-replacement within a single ability. Two modes:
+      //  - target set: pick target, match condition against target (Vicious
+      //    Betrayal pattern). Chosen target surfaces a pendingChoice; direct
+      //    targets (this/triggering_card/last_resolved_target) resolve inline.
+      //  - target omitted: condition matches against state.lastDiscarded
+      //    (Kakamora Pirate Chief).
+      if (!effect.target) {
+        const refs = state.lastDiscarded ?? [];
+        let matched = false;
+        for (const ref of refs) {
+          const inst = state.cards[ref.instanceId];
+          const def = inst ? definitions[inst.definitionId] : undefined;
+          if (!inst || !def) continue;
+          if (matchesFilter(inst, def, effect.condition, state, controllingPlayerId, sourceInstanceId)) {
+            matched = true;
+            break;
+          }
+        }
+        const branch = matched ? effect.instead : effect.effect;
+        for (const sub of branch) {
+          state = applyEffect(state, sub, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+          if (state.pendingChoice) return state;
+        }
+        return state;
+      }
       if (effect.target.type === "chosen") {
         const validTargets = findChosenTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state; // CRD 1.7.7: no legal targets → fizzle
@@ -4925,8 +4933,8 @@ export function applyEffect(
         };
       }
       // Direct targets (last_resolved_target / this / triggering_card)
-      const directCOT = resolveDirectTarget(effect.target, state, sourceInstanceId, triggeringCardInstanceId);
-      if (directCOT) return applyEffectToTarget(state, effect, directCOT, controllingPlayerId, definitions, events, sourceInstanceId, triggeringCardInstanceId);
+      const directSR = resolveDirectTarget(effect.target, state, sourceInstanceId, triggeringCardInstanceId);
+      if (directSR) return applyEffectToTarget(state, effect, directSR, controllingPlayerId, definitions, events, sourceInstanceId, triggeringCardInstanceId);
       return state;
     }
 
@@ -6963,13 +6971,14 @@ function applyEffectToTarget(
       state = queueTriggersByEvent(state, "card_put_into_inkwell", inst.ownerId, definitions, {});
       return state;
     }
-    case "conditional_on_target": {
-      // Check if target matches the condition filter
+    case "self_replacement": {
+      // Target-resolved branch of CRD 6.5.6. Match the filter against the
+      // resolved target and apply the right branch with the same target.
       const inst = getInstance(state, targetInstanceId);
       const def = definitions[inst.definitionId];
-      const matches = def ? matchesFilter(inst, def, effect.conditionFilter, state, controllingPlayerId) : false;
-      const effects = matches ? effect.ifMatchEffects : effect.defaultEffects;
-      for (const e of effects) {
+      const matches = def ? matchesFilter(inst, def, effect.condition, state, controllingPlayerId) : false;
+      const branch = matches ? effect.instead : effect.effect;
+      for (const e of branch) {
         state = applyEffectToTarget(state, e, targetInstanceId, controllingPlayerId, definitions, events, sourceInstanceId, triggeringCardInstanceId);
       }
       return state;

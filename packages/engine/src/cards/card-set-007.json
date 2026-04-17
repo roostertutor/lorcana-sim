@@ -7903,14 +7903,9 @@
             ]
           },
           {
-            "type": "conditional_on_target",
-            "target": {
-              "type": "last_resolved_target"
-            },
-            "conditionFilter": {
-              "hasName": "Maurice's Machine"
-            },
-            "ifMatchEffects": [
+            "type": "self_replacement",
+            "effect": [],
+            "instead": [
               {
                 "type": "banish",
                 "isMay": true,
@@ -7926,7 +7921,12 @@
                 }
               }
             ],
-            "defaultEffects": []
+            "condition": {
+              "hasName": "Maurice's Machine"
+            },
+            "target": {
+              "type": "last_resolved_target"
+            }
           }
         ]
       }

@@ -4630,20 +4630,8 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set1/100_0cc2df3dc9568172eb0f5a71c5ebed48232bba3f.jpg",
     "actionEffects": [
       {
-        "type": "conditional_on_target",
-        "target": {
-          "type": "chosen",
-          "filter": {
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
-          }
-        },
-        "conditionFilter": {
-          "hasTrait": "Villain"
-        },
-        "defaultEffects": [
+        "type": "self_replacement",
+        "effect": [
           {
             "type": "gain_stats",
             "strength": 2,
@@ -4653,7 +4641,7 @@
             "duration": "this_turn"
           }
         ],
-        "ifMatchEffects": [
+        "instead": [
           {
             "type": "gain_stats",
             "strength": 3,
@@ -4662,7 +4650,19 @@
             },
             "duration": "this_turn"
           }
-        ]
+        ],
+        "condition": {
+          "hasTrait": "Villain"
+        },
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
       }
     ]
   },
@@ -4735,20 +4735,8 @@
         ],
         "effects": [
           {
-            "type": "conditional_on_target",
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ]
-              }
-            },
-            "conditionFilter": {
-              "hasName": "Aladdin"
-            },
-            "defaultEffects": [
+            "type": "self_replacement",
+            "effect": [
               {
                 "type": "gain_stats",
                 "strength": 1,
@@ -4758,7 +4746,7 @@
                 "duration": "this_turn"
               }
             ],
-            "ifMatchEffects": [
+            "instead": [
               {
                 "type": "gain_stats",
                 "strength": 2,
@@ -4767,7 +4755,19 @@
                 },
                 "duration": "this_turn"
               }
-            ]
+            ],
+            "condition": {
+              "hasName": "Aladdin"
+            },
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
           }
         ],
         "storyName": "SLASH",
@@ -6109,7 +6109,26 @@
         ],
         "effects": [
           {
-            "type": "conditional_on_target",
+            "type": "self_replacement",
+            "effect": [
+              {
+                "type": "exert",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ],
+            "instead": [
+              {
+                "type": "banish",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ],
+            "condition": {
+              "hasTrait": "Princess"
+            },
             "target": {
               "type": "chosen",
               "filter": {
@@ -6118,26 +6137,7 @@
                   "character"
                 ]
               }
-            },
-            "conditionFilter": {
-              "hasTrait": "Princess"
-            },
-            "defaultEffects": [
-              {
-                "type": "exert",
-                "target": {
-                  "type": "this"
-                }
-              }
-            ],
-            "ifMatchEffects": [
-              {
-                "type": "banish",
-                "target": {
-                  "type": "this"
-                }
-              }
-            ]
+            }
           }
         ],
         "storyName": "TAKE A BITE...",

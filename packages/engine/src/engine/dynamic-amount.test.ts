@@ -37,7 +37,7 @@ describe("DynamicAmount variants", () => {
     expect(inst.zone).toBe("discard");
   });
 
-  it("target_lore: gain_lore amount equals lore of chosen target (via conditional_on_target wrapper)", () => {
+  it("target_lore: gain_lore amount equals lore of chosen target (via self_replacement wrapper)", () => {
     let state = startGame();
     let targetId: string;
     // Minnie Beloved Princess has lore 2
@@ -47,13 +47,13 @@ describe("DynamicAmount variants", () => {
 
     const loreBefore = state.players.player1.lore;
     state = applyEffect(state, {
-      type: "conditional_on_target",
+      type: "self_replacement",
       target: { type: "chosen", filter: { zone: "play", cardType: ["character"], owner: { type: "self" } } },
-      conditionFilter: {}, // match-all
-      ifMatchEffects: [
+      condition: {}, // match-all → always the "instead" branch
+      instead: [
         { type: "gain_lore", amount: { type: "target_lore" }, target: { type: "self" } },
       ],
-      defaultEffects: [],
+      effect: [],
     } as any, srcId, "player1", CARD_DEFINITIONS, []);
 
     expect(state.pendingChoice?.type).toBe("choose_target");

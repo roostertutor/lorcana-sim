@@ -1213,13 +1213,8 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     return `${tgt === "you" ? "you draw" : tgt + " draws"} cards until ${tgt === "you" ? "you have" : "they have"} ${e.n ?? "?"} cards in hand`;
   },
 
-  // "If the discarded card was X, do A; otherwise do B." Kakamora Pirate Chief.
-  conditional_on_last_discarded: (e) => {
-    const filt = e.filter ? renderFilter(e.filter) : "matching";
-    const a = (e.then ?? []).map(renderEffect).join(" and ");
-    const b = (e.otherwise ?? []).map(renderEffect).join(" and ");
-    return `if the discarded card was a ${filt}, ${a}; otherwise ${b}`;
-  },
+  // Superseded by self_replacement (target omitted → state-based condition
+  // reads state.lastDiscarded). Renderer for the unified primitive below.
 
   // "Put all cards under this character into your hand" — Alice Well-Read Whisper.
   put_cards_under_into_hand: (e) => `put all cards under ${renderTarget(e.target ?? { type: "this" })} into your hand`,
@@ -1327,26 +1322,33 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     return `${tgt} can't be challenged`;
   },
 
-  // "Chosen X gets +2. If a Villain is chosen, they get +3 instead."
-  conditional_on_target: (e) => {
-    const tgt = renderTarget(e.target ?? {});
-    const def = (e.defaultEffects ?? []).map(renderEffect).join(" and ");
-    const alt = (e.ifMatchEffects ?? []).map(renderEffect).join(" and ");
-    // Trivial/empty conditionFilter + no defaultEffects: used as a "chain
-    // effects against a chosen target" pattern (Dinner Bell: "draw cards
-    // equal to the damage on chosen character of yours, then banish them"
-    // — banish targets last_resolved_target which is set by the chosen
-    // pick). Render as a plain sequence pinned on the chosen target.
-    const condFilterTrivial = !e.conditionFilter || Object.keys(e.conditionFilter).length === 0;
-    if (condFilterTrivial && (!e.defaultEffects || e.defaultEffects.length === 0)) {
+  // CRD 6.5.6 self-replacement. "Chosen X gets +2. If a Villain is chosen,
+  // they get +3 instead." (target set) OR "Deal 1 damage. If a Pirate was
+  // discarded, deal 3 instead." (target omitted → lastDiscarded state).
+  self_replacement: (e) => {
+    const def = (e.effect ?? []).map(renderEffect).join(" and ");
+    const alt = (e.instead ?? []).map(renderEffect).join(" and ");
+    const condFilterTrivial = !e.condition || Object.keys(e.condition).length === 0;
+
+    // State-based (no target): condition reads state.lastDiscarded.
+    if (!e.target) {
+      const filt = e.condition ? renderFilter(e.condition) : "matching";
+      return def
+        ? `if the discarded card was a ${filt}, ${alt}; otherwise ${def}`
+        : `if the discarded card was a ${filt}, ${alt}`;
+    }
+
+    const tgt = renderTarget(e.target);
+    // Degenerate: trivial condition + no default. Used as a "chain effects
+    // against a chosen target" pattern (Dinner Bell pinning last_resolved_target).
+    if (condFilterTrivial && (!e.effect || e.effect.length === 0)) {
       return alt ? `choose ${tgt} — ${alt}` : `choose ${tgt}`;
     }
-    const cond = e.conditionFilter ? renderFilter(e.conditionFilter) : "matching";
+    const cond = e.condition ? renderFilter(e.condition) : "matching";
     // Seven Dwarfs' Mine / Winter Camp Medical Tent: when target is
     // triggering_card the default branch already operates on the moved
-    // character — drop the "the triggering character:" prefix to keep
-    // the rendered text readable. "X. If they're a Knight, Y instead."
-    if (e.target?.type === "triggering_card") {
+    // character — "X. If they're a Knight, Y instead."
+    if (e.target.type === "triggering_card") {
       return `${def}. If they're ${cond.startsWith("a ") || cond.startsWith("an ") ? cond : "a " + cond}, ${alt} instead`;
     }
     return `${tgt}: ${def}. If a ${cond} is chosen, ${alt} instead`;

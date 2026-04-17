@@ -988,15 +988,9 @@
             }
           },
           {
-            "type": "conditional_on_target",
-            "target": {
-              "type": "last_resolved_target"
-            },
-            "conditionFilter": {
-              "hasTrait": "Princess"
-            },
-            "defaultEffects": [],
-            "ifMatchEffects": [
+            "type": "self_replacement",
+            "effect": [],
+            "instead": [
               {
                 "type": "gain_lore",
                 "amount": 2,
@@ -1004,7 +998,13 @@
                   "type": "self"
                 }
               }
-            ]
+            ],
+            "condition": {
+              "hasTrait": "Princess"
+            },
+            "target": {
+              "type": "last_resolved_target"
+            }
           }
         ]
       }
@@ -3170,22 +3170,9 @@
         },
         "effects": [
           {
-            "type": "conditional_on_target",
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ],
-                "owner": {
-                  "type": "self"
-                },
-                "excludeSelf": true
-              }
-            },
-            "conditionFilter": {},
-            "ifMatchEffects": [
+            "type": "self_replacement",
+            "effect": [],
+            "instead": [
               {
                 "type": "gain_lore",
                 "amount": {
@@ -3212,7 +3199,20 @@
                 }
               }
             ],
-            "defaultEffects": []
+            "condition": {},
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "self"
+                },
+                "excludeSelf": true
+              }
+            }
           }
         ]
       }
@@ -7346,20 +7346,8 @@
         ],
         "effects": [
           {
-            "type": "conditional_on_target",
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ]
-              }
-            },
-            "conditionFilter": {
-              "hasTrait": "Villain"
-            },
-            "defaultEffects": [
+            "type": "self_replacement",
+            "effect": [
               {
                 "type": "gain_stats",
                 "strength": 3,
@@ -7369,7 +7357,7 @@
                 }
               }
             ],
-            "ifMatchEffects": [
+            "instead": [
               {
                 "type": "gain_stats",
                 "strength": 4,
@@ -7378,7 +7366,19 @@
                   "type": "this"
                 }
               }
-            ]
+            ],
+            "condition": {
+              "hasTrait": "Villain"
+            },
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
           }
         ]
       }
@@ -11290,14 +11290,24 @@
         "oncePerTurn": true,
         "effects": [
           {
-            "type": "conditional_on_target",
-            "target": {
-              "type": "triggering_card"
-            },
-            "conditionFilter": {
-              "hasTrait": "Knight"
-            },
-            "ifMatchEffects": [
+            "type": "self_replacement",
+            "effect": [
+              {
+                "type": "deal_damage",
+                "amount": 1,
+                "isMay": true,
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
+              }
+            ],
+            "instead": [
               {
                 "type": "deal_damage",
                 "amount": 2,
@@ -11313,22 +11323,12 @@
                 }
               }
             ],
-            "defaultEffects": [
-              {
-                "type": "deal_damage",
-                "amount": 1,
-                "isMay": true,
-                "target": {
-                  "type": "chosen",
-                  "filter": {
-                    "zone": "play",
-                    "cardType": [
-                      "character"
-                    ]
-                  }
-                }
-              }
-            ]
+            "condition": {
+              "hasTrait": "Knight"
+            },
+            "target": {
+              "type": "triggering_card"
+            }
           }
         ]
       }
