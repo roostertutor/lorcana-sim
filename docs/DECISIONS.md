@@ -190,7 +190,7 @@ Rejected alternative: block import until all abilities are implemented.
 That would have prevented using the platform at all. Incremental is better.
 
 ### Per-set JSON files
-The importer outputs `card-set-XXX.json` (one per set) + `lorcastCards.ts`
+The importer outputs `card-set-XXX.json` (one per set) + `cardDefinitions.ts`
 (auto-generated loader that imports and merges all set files).
 Zero-padded filenames (`001`, `002`) for correct sort order beyond set 9.
 
@@ -205,7 +205,7 @@ TypeScript's JSON import inference includes `undefined` in optional
 property types, which conflicts with our strict `exactOptionalPropertyTypes`
 setting. We use `as unknown as CardDefinition[]` to bypass this — the
 data is correct at runtime, it's purely a static inference limitation.
-This is documented in lorcastCards.ts.
+This is documented in cardDefinitions.ts.
 
 ### Dual-ink card support
 `CardDefinition.inkColors: InkColor[]` — always an array, even for single-ink
@@ -218,8 +218,8 @@ Filter matching uses array intersection: a card matches if *any* of its
 ink colors are in the filter's `inkColors` array. Analytics color breakdown
 counts dual-ink cards in both color buckets.
 
-### Reprint dedup in lorcastCards.ts
-When multiple sets have the same card ID (reprints), `LORCAST_CARD_DEFINITIONS`
+### Reprint dedup in cardDefinitions.ts
+When multiple sets have the same card ID (reprints), `CARD_DEFINITIONS`
 keeps whichever copy has more manually-implemented abilities (non-keyword
 abilities + actionEffects). This is done via a `reduce` with
 `manualAbilityCount()` comparison, not `Object.fromEntries` (which would be

@@ -1,6 +1,6 @@
 import {
   applyAction,
-  LORCAST_CARD_DEFINITIONS,
+  CARD_DEFINITIONS,
   createGame,
   type GameConfig,
   type GameAction,
@@ -10,7 +10,7 @@ import {
 import { supabase } from "../db/client.js"
 
 // Card definitions are cached at startup — don't reload per request
-const definitions = LORCAST_CARD_DEFINITIONS
+const definitions = CARD_DEFINITIONS
 
 // ELO K-factor: how much each game shifts rating
 const ELO_K = 32

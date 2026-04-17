@@ -47,8 +47,8 @@ getLoreThreshold(state, definitions) → number
 
 // Card definitions
 SAMPLE_CARD_DEFINITIONS: Record<string, CardDefinition>   // 20 hand-written cards
-LORCAST_CARD_DEFINITIONS: Record<string, CardDefinition>  // imported from Lorcast API
-LORCAST_CARDS: CardDefinition[]
+CARD_DEFINITIONS: Record<string, CardDefinition>  // imported from Lorcast API
+ALL_CARDS: CardDefinition[]
 ```
 
 ### getAllLegalActions
@@ -278,7 +278,7 @@ pnpm import-cards --sets 1 --dry   # dry run, print without writing
 
 Generates per-set files in `packages/engine/src/cards/`:
 - `card-set-001.json`, `card-set-002.json`, etc. — CardDefinition arrays per set
-- `lorcastCards.ts` — auto-generated loader that imports and merges all set files
+- `cardDefinitions.ts` — auto-generated loader that imports and merges all set files
 
 Re-running the import script preserves manually-implemented abilities (non-keyword)
 on re-import.
@@ -300,7 +300,7 @@ pnpm import-cards --sets 2
 ```
 This creates `card-set-002.json` with keyword abilities auto-parsed and
 `_namedAbilityStubs` on cards that have non-keyword abilities needing implementation.
-It also regenerates `lorcastCards.ts` with the new import.
+It also regenerates `cardDefinitions.ts` with the new import.
 
 #### Step 2 — Triage new cards
 Run the verification script to see what needs work:

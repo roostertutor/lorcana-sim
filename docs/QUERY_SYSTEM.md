@@ -773,7 +773,7 @@ export function runQuery(args: QueryArgs): void {
   const raw = fs.readFileSync(args.file, "utf-8")
   const config = JSON.parse(raw) as QueryFile
 
-  const definitions = LORCAST_CARD_DEFINITIONS
+  const definitions = CARD_DEFINITIONS
   const deck = loadDeck(config.deck, definitions)
   const opponentDeck = config.opponent
     ? loadDeck(config.opponent, definitions)

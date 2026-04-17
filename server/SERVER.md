@@ -240,10 +240,10 @@ both clients receive the new state simultaneously. No polling. No custom WebSock
 // src/services/gameService.ts
 
 import { applyAction } from "@lorcana-sim/engine"  // ONLY engine import
-import { LORCAST_CARD_DEFINITIONS } from "@lorcana-sim/engine"
+import { CARD_DEFINITIONS } from "@lorcana-sim/engine"
 
 // Cached at startup — 216 cards don't change between requests
-const definitions = LORCAST_CARD_DEFINITIONS
+const definitions = CARD_DEFINITIONS
 
 export async function processAction(
   gameId: string,
