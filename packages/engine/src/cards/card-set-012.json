@@ -60,6 +60,71 @@
     ]
   },
   {
+    "id": "agustin-madrigal-exceptionally-kind",
+    "name": "Agustin Madrigal",
+    "fullName": "Agustin Madrigal - Exceptionally Kind",
+    "cardType": "character",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Mentor",
+      "Madrigal"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "support"
+      }
+    ],
+    "setId": "12",
+    "number": 6,
+    "rarity": "common",
+    "subtitle": "Exceptionally Kind",
+    "strength": 3,
+    "willpower": 6,
+    "lore": 1,
+    "rulesText": "<Support> (Whenever this character quests, you may add their {S} to another chosen character’s {S} this turn.)",
+    "flavorText": "\"I'm happy to bring these arepas to the oasis, mi vida. Just think how much more I could help if I had a gift.\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/6_5881d87f0c76644c84cb563176da77d332afae8f.jpg"
+  },
+  {
+    "id": "monterey-jack-hypnotized-by-cheese",
+    "name": "Monterey Jack",
+    "fullName": "Monterey Jack - Hypnotized by Cheese",
+    "cardType": "character",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 2,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Ally"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 12,
+    "rarity": "rare",
+    "subtitle": "Hypnotized by Cheese",
+    "strength": 0,
+    "willpower": 3,
+    "lore": 3,
+    "rulesText": "BREAK THE TRANCE This character can’t quest unless you have a character with 4 {W} or more in play.",
+    "flavorText": "\"When there’s a hint of cheddar in the air, somethin’ inside me snaps.\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/12_bcf24e29d1576da4da6770d4134d48a10c28797d.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "BREAK THE TRANCE",
+        "rulesText": "This character can’t quest unless you have a character with 4 {W} or more in play.",
+        "raw": "BREAK THE TRANCE This character can’t quest unless you have a character with 4 {W} or more in play."
+      }
+    ]
+  },
+  {
     "id": "bo-peep-caring-shepherd",
     "name": "Bo Peep",
     "fullName": "Bo Peep - Caring Shepherd",
@@ -75,10 +140,6 @@
       "Toy"
     ],
     "abilities": [
-      {
-        "type": "keyword",
-        "keyword": "bodyguard"
-      },
       {
         "type": "static",
         "effect": {
@@ -100,6 +161,10 @@
         },
         "storyName": "SOMEBODY DO SOMETHING!",
         "rulesText": "Your characters named Woody gain <Bodyguard>. (An opposing character who challenges one of your characters must choose one with Bodyguard if able.)"
+      },
+      {
+        "type": "keyword",
+        "keyword": "bodyguard"
       }
     ],
     "setId": "12",
@@ -614,6 +679,68 @@
     "rulesText": "Shift a character from your discard for free.",
     "flavorText": "\"The vine is full of flood ink. You won't believe what it can do with a little encouragement!\"\n—Isabela Madrigal",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/31_851ddff2ae9e7d8cf8d59ae24cb4e8fd1a7db5af.jpg"
+  },
+  {
+    "id": "safety-rope",
+    "name": "Safety Rope",
+    "fullName": "Safety Rope",
+    "cardType": "item",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 2,
+    "inkable": false,
+    "traits": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "turn_end"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "banish",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ],
+        "storyName": "PACK IT UP",
+        "rulesText": "At the end of your turn, you may banish this item to draw a card."
+      }
+    ],
+    "setId": "12",
+    "number": 33,
+    "rarity": "uncommon",
+    "rulesText": "GRAB HOLD! When you play this item, you may put a character card from your discard on the top of your deck.\nPACK IT UP At the end of your turn, you may banish this item to draw a card.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/33_29152063f3088eb02d5f03174f9f037e98b3d0ff.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "GRAB HOLD!",
+        "rulesText": "When you play this item, you may put a character card from your discard on the top of your deck.",
+        "raw": "GRAB HOLD! When you play this item, you may put a character card from your discard on the top of your deck."
+      },
+      {
+        "storyName": "PACK IT UP",
+        "rulesText": "At the end of your turn, you may banish this item to draw a card.",
+        "raw": "PACK IT UP At the end of your turn, you may banish this item to draw a card."
+      }
+    ]
   },
   {
     "id": "andys-room-home-base",
@@ -1218,6 +1345,61 @@
     ]
   },
   {
+    "id": "super-suit",
+    "name": "Super Suit",
+    "fullName": "Super Suit",
+    "cardType": "item",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 2,
+    "inkable": false,
+    "traits": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ],
+        "condition": {
+          "type": "has_character_with_trait",
+          "trait": "Hero",
+          "player": {
+            "type": "self"
+          }
+        },
+        "storyName": "SIMPLE, ELEGANT",
+        "rulesText": "When you play this item, if you have a Hero character in play, gain 1 lore."
+      }
+    ],
+    "setId": "12",
+    "number": 66,
+    "rarity": "uncommon",
+    "rulesText": "SIMPLE, ELEGANT When you play this item, if you have a Hero character in play, gain 1 lore.\nSUIT UP {E}, 2 {I} — If you played a Hero character this turn, draw a card.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/66_e765c780006a7936e375c9882a7dd6d9e84b2f77.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "SIMPLE, ELEGANT",
+        "rulesText": "When you play this item, if you have a Hero character in play, gain 1 lore.",
+        "raw": "SIMPLE, ELEGANT When you play this item, if you have a Hero character in play, gain 1 lore."
+      },
+      {
+        "storyName": "SUIT UP",
+        "rulesText": "{E}, 2 {I} — If you played a Hero character this turn, draw a card.",
+        "raw": "SUIT UP {E}, 2 {I} — If you played a Hero character this turn, draw a card."
+      }
+    ]
+  },
+  {
     "id": "dunbroch-family-tapestry",
     "name": "DunBroch Family Tapestry",
     "fullName": "DunBroch Family Tapestry",
@@ -1290,6 +1472,60 @@
     ]
   },
   {
+    "id": "ring-of-stones-place-of-legends",
+    "name": "Ring of Stones",
+    "fullName": "Ring of Stones - Place of Legends",
+    "cardType": "location",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [],
+    "abilities": [
+      {
+        "type": "static",
+        "effect": {
+          "type": "move_to_self_cost_reduction",
+          "amount": "all",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "exerted"
+          }
+        },
+        "storyName": "FOLLOW YOUR FATE",
+        "rulesText": "Your exerted characters can move here for free."
+      }
+    ],
+    "setId": "12",
+    "number": 68,
+    "rarity": "rare",
+    "subtitle": "Place of Legends",
+    "willpower": 7,
+    "lore": 1,
+    "moveCost": 3,
+    "rulesText": "FOLLOW YOUR FATE Your exerted characters can move here for free.\nPART THE VEIL Once during your turn, whenever a character moves here, gain 1 lore.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/68_4fbd7f5ee26b2e7ec4b56cfd816fcaa022a3ee4e.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "FOLLOW YOUR FATE",
+        "rulesText": "Your exerted characters can move here for free.",
+        "raw": "FOLLOW YOUR FATE Your exerted characters can move here for free."
+      },
+      {
+        "storyName": "PART THE VEIL",
+        "rulesText": "Once during your turn, whenever a character moves here, gain 1 lore.",
+        "raw": "PART THE VEIL Once during your turn, whenever a character moves here, gain 1 lore."
+      }
+    ]
+  },
+  {
     "id": "merida-defiant-daughter",
     "name": "Merida",
     "fullName": "Merida - Defiant Daughter",
@@ -1352,6 +1588,37 @@
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)",
     "flavorText": "\"Oh, aye, they're slippery little devils. Ye should see what they did to the garden.\"\n—Merida",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/70_df689a874789de6a6ac34364678d6bdb256bc12b.jpg"
+  },
+  {
+    "id": "tod-nimble-fox",
+    "name": "Tod",
+    "fullName": "Tod - Nimble Fox",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      }
+    ],
+    "setId": "12",
+    "number": 72,
+    "rarity": "common",
+    "subtitle": "Nimble Fox",
+    "strength": 5,
+    "willpower": 4,
+    "lore": 2,
+    "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)",
+    "flavorText": "\"Look, I counted to ten before I started climbing. You all should have found better hiding spots than the top of a tree.\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/72_d2bb6b4c955d1d976619e4c0aead6a5de70aa0ea.jpg"
   },
   {
     "id": "the-witch-wily-woodcarver",
@@ -1637,6 +1904,58 @@
     ]
   },
   {
+    "id": "joshua-sweet-field-surgeon",
+    "name": "Joshua Sweet",
+    "fullName": "Joshua Sweet - Field Surgeon",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally"
+    ],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "is_challenged"
+        },
+        "effects": [
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            },
+            "chooser": "target_player"
+          }
+        ],
+        "storyName": "NO PATIENCE",
+        "rulesText": "Whenever this character is challenged, chosen opponent chooses and discards a card."
+      }
+    ],
+    "setId": "12",
+    "number": 88,
+    "rarity": "common",
+    "subtitle": "Field Surgeon",
+    "strength": 2,
+    "willpower": 1,
+    "lore": 2,
+    "rulesText": "NO PATIENCE Whenever this character is challenged, chosen opponent chooses and discards a card.",
+    "flavorText": "\"It's barely a scratch! Get some rest and you'll be fine. No arguing—doctor's orders.\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/88_39a7b91ba29d72a4316da6ad66299a6b5566e53a.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "NO PATIENCE",
+        "rulesText": "Whenever this character is challenged, chosen opponent chooses and discards a card.",
+        "raw": "NO PATIENCE Whenever this character is challenged, chosen opponent chooses and discards a card."
+      }
+    ]
+  },
+  {
     "id": "merida-gifted-archer",
     "name": "Merida",
     "fullName": "Merida - Gifted Archer",
@@ -1770,6 +2089,118 @@
         "storyName": "YOU'RE OUT OF FASHION",
         "rulesText": "Whenever this character quests, if you played another character this turn, you may banish chosen damaged character.",
         "raw": "YOU’RE OUT OF FASHION Whenever this character quests, if you played another character this turn, you may banish chosen damaged character."
+      }
+    ]
+  },
+  {
+    "id": "strange-things",
+    "name": "Strange Things",
+    "fullName": "Strange Things",
+    "cardType": "action",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Song"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 95,
+    "rarity": "uncommon",
+    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.) \nUp to 2 chosen characters can’t quest until the start of your next turn. Draw a card.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/95_a41cce25ebae5a50743adb4fc09cdfc9a7d431a8.jpg"
+  },
+  {
+    "id": "gyro-evac",
+    "name": "Gyro-Evac",
+    "fullName": "Gyro-Evac",
+    "cardType": "item",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 3,
+    "inkable": false,
+    "traits": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "evasive",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "self"
+                }
+              }
+            },
+            "duration": "until_caster_next_turn"
+          }
+        ],
+        "storyName": "TAKE HER UP",
+        "rulesText": "{E}, 1 {I} — Chosen character of yours gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)"
+      },
+      {
+        "type": "activated",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "banish_self"
+          }
+        ],
+        "effects": [
+          {
+            "type": "each_player",
+            "scope": "all",
+            "effects": [
+              {
+                "type": "lose_lore",
+                "amount": 2,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ],
+        "storyName": "CRASH LANDING",
+        "rulesText": "{E}, Banish this item — Each player loses 2 lore."
+      }
+    ],
+    "setId": "12",
+    "number": 100,
+    "rarity": "uncommon",
+    "rulesText": "TAKE HER UP {E}, 1 {I} — Chosen character of yours gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)\nCRASH LANDING {E}, Banish this item — Each player loses 2 lore.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/100_0fd91f81a9325bf3b0411f3c46338cecfe2c9f10.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "TAKE HER UP",
+        "rulesText": "{E}, 1 {I} — Chosen character of yours gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)",
+        "raw": "TAKE HER UP {E}, 1 {I} — Chosen character of yours gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)"
+      },
+      {
+        "storyName": "CRASH LANDING",
+        "rulesText": "{E}, Banish this item — Each player loses 2 lore.",
+        "raw": "CRASH LANDING {E}, Banish this item — Each player loses 2 lore."
       }
     ]
   },
@@ -1968,6 +2399,113 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/107_6a0acff46f165733e6c9fc233c9c1a0a2c355d50.jpg"
   },
   {
+    "id": "jingle-joe-sids-toy",
+    "name": "Jingle Joe",
+    "fullName": "Jingle Joe - Sid's Toy",
+    "cardType": "character",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally",
+      "Toy"
+    ],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "is_banished",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "excludeSelf": true,
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Toy"
+          }
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "evasive",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "self"
+                }
+              }
+            },
+            "duration": "until_caster_next_turn"
+          }
+        ],
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "storyName": "TURN OUT THE LIGHT",
+        "rulesText": "During your turn, whenever one of your other Toy characters is banished, chosen character of yours gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)"
+      }
+    ],
+    "setId": "12",
+    "number": 111,
+    "rarity": "common",
+    "subtitle": "Sid's Toy",
+    "strength": 2,
+    "willpower": 3,
+    "lore": 1,
+    "rulesText": "TURN OUT THE LIGHT During your turn, whenever one of your other Toy characters is banished, chosen character of yours gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/111_3d12f724056d5db0c9abe60d89d5511d92d9de7a.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "TURN OUT THE LIGHT",
+        "rulesText": "During your turn, whenever one of your other Toy characters is banished, chosen character of yours gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)",
+        "raw": "TURN OUT THE LIGHT During your turn, whenever one of your other Toy characters is banished, chosen character of yours gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)"
+      }
+    ]
+  },
+  {
+    "id": "roller-bob-sids-toy",
+    "name": "Roller Bob",
+    "fullName": "Roller Bob - Sid's Toy",
+    "cardType": "character",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally",
+      "Toy"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 113,
+    "rarity": "uncommon",
+    "subtitle": "Sid's Toy",
+    "strength": 4,
+    "willpower": 3,
+    "lore": 1,
+    "rulesText": "TIME TO MOVE When you play this character, you may put 2 character cards from your discard on the bottom of your deck to give this character <Rush> this turn. (They can challenge the turn they’re played.)",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/113_00c2840facc9bac0090b61a7f459a2b2a2c1cd3d.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "TIME TO MOVE",
+        "rulesText": "When you play this character, you may put 2 character cards from your discard on the bottom of your deck to give this character <Rush> this turn. (They can challenge the turn they’re played.)",
+        "raw": "TIME TO MOVE When you play this character, you may put 2 character cards from your discard on the bottom of your deck to give this character <Rush> this turn. (They can challenge the turn they’re played.)"
+      }
+    ]
+  },
+  {
     "id": "hand-in-the-box-sids-toy",
     "name": "Hand-in-the-Box",
     "fullName": "Hand-in-the-Box - Sid's Toy",
@@ -2077,6 +2615,38 @@
         "raw": "BREAK IS OVER Whenever this character quests, if you played a character this turn, you may ready another chosen character. If you do, they can’t quest for the rest of this turn."
       }
     ]
+  },
+  {
+    "id": "dash-parr-super-speedy",
+    "name": "Dash Parr",
+    "fullName": "Dash Parr - Super Speedy",
+    "cardType": "character",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 5,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Super",
+      "Hero"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "rush"
+      }
+    ],
+    "setId": "12",
+    "number": 118,
+    "rarity": "uncommon",
+    "subtitle": "Super Speedy",
+    "strength": 6,
+    "willpower": 5,
+    "lore": 1,
+    "rulesText": "<Rush> (This character can challenge the turn they’re played.)",
+    "flavorText": "\"You can’t outrun your chores, young man!”\n—Helen Parr",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/118_c2bfbc90185282651bb64ed027d3c0b3cc4adc08.jpg"
   },
   {
     "id": "babyhead-leader-of-sids-toys",
@@ -2231,10 +2801,6 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "rush"
-      },
-      {
         "type": "triggered",
         "trigger": {
           "on": "quests"
@@ -2267,6 +2833,10 @@
         },
         "storyName": "ROYAL COMMAND",
         "rulesText": "Whenever this character quests, if you played another character this turn, chosen character gains <Rush> this turn. (They can challenge the turn they’re played.)"
+      },
+      {
+        "type": "keyword",
+        "keyword": "rush"
       }
     ],
     "setId": "12",
@@ -2584,6 +3154,41 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/130_c2d7effe3a463d45cf2a37e149df56e1e8d431ef.jpg"
   },
   {
+    "id": "like-a-bird-in-the-sky",
+    "name": "Like A Bird In the Sky",
+    "fullName": "Like A Bird In the Sky",
+    "cardType": "action",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [
+      "Song"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 131,
+    "rarity": "common",
+    "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.) \nChosen character gets +1 {L} and gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/131_90af5e96469c4c0603b10b074955bfefc086d9f5.jpg",
+    "actionEffects": [
+      {
+        "type": "gain_stats",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "lore": 1
+      }
+    ]
+  },
+  {
     "id": "remote-inklands-desert-ruins",
     "name": "Remote Inklands",
     "fullName": "Remote Inklands - Desert Ruins",
@@ -2669,10 +3274,6 @@
     ],
     "abilities": [
       {
-        "type": "keyword",
-        "keyword": "support"
-      },
-      {
         "type": "triggered",
         "trigger": {
           "on": "enters_play"
@@ -2718,6 +3319,10 @@
         },
         "storyName": "WELL SUPPLIED",
         "rulesText": "Your characters with <Support> get +1 {L}."
+      },
+      {
+        "type": "keyword",
+        "keyword": "support"
       }
     ],
     "setId": "12",
@@ -2889,6 +3494,86 @@
         "storyName": "THIS AND THAT",
         "rulesText": "Whenever this character quests, if you played another character this turn, you may put the top card of your deck into your inkwell facedown and exerted.",
         "raw": "THIS AND THAT Whenever this character quests, if you played another character this turn, you may put the top card of your deck into your inkwell facedown and exerted."
+      }
+    ]
+  },
+  {
+    "id": "shepherds-journal",
+    "name": "Shepherd's Journal",
+    "fullName": "Shepherd's Journal",
+    "cardType": "item",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 2,
+    "inkable": false,
+    "traits": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 1,
+            "action": "top_or_bottom",
+            "target": {
+              "type": "self"
+            },
+            "restPlacement": "discard",
+            "isMay": true
+          }
+        ],
+        "storyName": "MARGIN NOTES",
+        "rulesText": "When you play this item, you may look at the top card of your deck. Put it on either the top of your deck or into your discard."
+      }
+    ],
+    "setId": "12",
+    "number": 169,
+    "rarity": "uncommon",
+    "rulesText": "MARGIN NOTES When you play this item, you may look at the top card of your deck. Put it on either the top of your deck or into your discard.\nKEY TO THE PUZZLE 1 {I}, Banish this item — Return another item card from your discard to your hand.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/169_5ed73eb33557815048427b9d5c664ad43ef2491a.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "MARGIN NOTES",
+        "rulesText": "When you play this item, you may look at the top card of your deck. Put it on either the top of your deck or into your discard.",
+        "raw": "MARGIN NOTES When you play this item, you may look at the top card of your deck. Put it on either the top of your deck or into your discard."
+      },
+      {
+        "storyName": "KEY TO THE PUZZLE",
+        "rulesText": "1 {I}, Banish this item — Return another item card from your discard to your hand.",
+        "raw": "KEY TO THE PUZZLE 1 {I}, Banish this item — Return another item card from your discard to your hand."
+      }
+    ]
+  },
+  {
+    "id": "casa-madrigal-courtyard",
+    "name": "Casa Madrigal",
+    "fullName": "Casa Madrigal - Courtyard",
+    "cardType": "location",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [],
+    "abilities": [],
+    "setId": "12",
+    "number": 170,
+    "rarity": "common",
+    "subtitle": "Courtyard",
+    "willpower": 7,
+    "lore": 2,
+    "moveCost": 1,
+    "rulesText": "HEALING HOME Whenever a character quests while here, you may remove up to 2 damage from them. Then, you may remove up to 2 damage from this location.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/170_ea9a330338b8fea02b945d8381aefac68b3889af.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "HEALING HOME",
+        "rulesText": "Whenever a character quests while here, you may remove up to 2 damage from them. Then, you may remove up to 2 damage from this location.",
+        "raw": "HEALING HOME Whenever a character quests while here, you may remove up to 2 damage from them. Then, you may remove up to 2 damage from this location."
       }
     ]
   },
@@ -3136,6 +3821,31 @@
     ]
   },
   {
+    "id": "john-smith-skillful-explorer",
+    "name": "John Smith",
+    "fullName": "John Smith - Skillful Explorer",
+    "cardType": "character",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 1,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Hero"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 192,
+    "rarity": "rare",
+    "subtitle": "Skillful Explorer",
+    "strength": 1,
+    "willpower": 1,
+    "lore": 2,
+    "flavorText": "\"Look alive, men. There's plenty of fish in this river!\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/192_5f7c1624037a2e3b563c67fce9a0cecb5dcc8485.jpg"
+  },
+  {
     "id": "mrs-incredible-determined-rescuer",
     "name": "Mrs. Incredible",
     "fullName": "Mrs. Incredible - Determined Rescuer",
@@ -3155,11 +3865,6 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
-      },
-      {
-        "type": "keyword",
-        "keyword": "resist",
-        "value": 1
       },
       {
         "type": "static",
@@ -3222,6 +3927,11 @@
         },
         "storyName": "REGROUP",
         "rulesText": "During your turn, whenever another character is banished in a challenge, you may ready chosen Super character. If you do, they can’t quest for the rest of this turn."
+      },
+      {
+        "type": "keyword",
+        "keyword": "resist",
+        "value": 1
       }
     ],
     "setId": "12",
@@ -3314,6 +4024,64 @@
     "rarity": "rare",
     "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)\nMove a character of yours to a location for free. Then, draw cards equal to that location’s {L}.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/199_18718cc85796e4bb8689fffd3855e70bfc8a45b9.jpg"
+  },
+  {
+    "id": "plunger-crossbow",
+    "name": "Plunger Crossbow",
+    "fullName": "Plunger Crossbow",
+    "cardType": "item",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 1,
+    "inkable": true,
+    "traits": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 2
+          }
+        ],
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "chooser": "target_player"
+          }
+        ],
+        "storyName": "SUCTION TECHNOLOGY",
+        "rulesText": "{E}, 2 {I} — Draw a card, then choose and discard a card."
+      }
+    ],
+    "setId": "12",
+    "number": 200,
+    "rarity": "common",
+    "rulesText": "SUCTION TECHNOLOGY {E}, 2 {I} — Draw a card, then choose and discard a card.",
+    "flavorText": "“All right, just let me adjust the trajectory.”\n—Gadget Hackwrench",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/200_0f0064c26b9e758453b2dab1d343317c6c9c79d6.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "SUCTION TECHNOLOGY",
+        "rulesText": "{E}, 2 {I} — Draw a card, then choose and discard a card.",
+        "raw": "SUCTION TECHNOLOGY {E}, 2 {I} — Draw a card, then choose and discard a card."
+      }
+    ]
   },
   {
     "id": "syndromes-remote",
@@ -3417,6 +4185,36 @@
         "storyName": "LEARN FROM THEIR LOSSES",
         "rulesText": "Whenever a Robot character is banished, you may banish this item to discard your hand and draw 2 cards.",
         "raw": "LEARN FROM THEIR LOSSES Whenever a Robot character is banished, you may banish this item to discard your hand and draw 2 cards."
+      }
+    ]
+  },
+  {
+    "id": "club-door",
+    "name": "Club Door",
+    "fullName": "Club Door",
+    "cardType": "item",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [],
+    "abilities": [],
+    "setId": "12",
+    "number": 202,
+    "rarity": "uncommon",
+    "rulesText": "WELCOME BACK, SIR If you have a character named Fat Cat in play, you may play this card for free.\nCOOL CATS ONLY Your locations can’t be challenged by characters with cost 2 or less.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/202_89a9b62386c17b965375eec7700638157068f4eb.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "WELCOME BACK, SIR",
+        "rulesText": "If you have a character named Fat Cat in play, you may play this card for free.",
+        "raw": "WELCOME BACK, SIR If you have a character named Fat Cat in play, you may play this card for free."
+      },
+      {
+        "storyName": "COOL CATS ONLY",
+        "rulesText": "Your locations can’t be challenged by characters with cost 2 or less.",
+        "raw": "COOL CATS ONLY Your locations can’t be challenged by characters with cost 2 or less."
       }
     ]
   },

@@ -310,6 +310,20 @@ const TRIGGER_MATCHERS: Matcher<Json>[] = [
       filter: { owner: { type: "self" }, cardType: ["character"], zone: "play" },
     }),
   },
+  // "Whenever one of your other [Trait] characters is banished"
+  {
+    name: "your_other_trait_char_is_banished",
+    pattern: /^Whenever one of your other ([A-Z][a-zA-Z]*) characters is banished/i,
+    build: (m) => ({
+      on: "is_banished",
+      filter: {
+        owner: { type: "self" },
+        excludeSelf: true,
+        cardType: ["character"],
+        hasTrait: m[1],
+      },
+    }),
+  },
   // "Whenever one of your other characters is banished"
   {
     name: "your_other_char_is_banished",
@@ -493,6 +507,27 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     }),
   },
 
+  // "each player loses N lore"
+  {
+    name: "each_player_loses_lore",
+    pattern: /^each player loses (\d+) lore/i,
+    build: (m) => ({
+      type: "each_player",
+      scope: "all",
+      effects: [{ type: "lose_lore", amount: n(m[1]), target: { type: "self" } }],
+    }),
+  },
+  // "chosen opponent chooses and discards a card" — single opponent target
+  {
+    name: "chosen_opponent_discards",
+    pattern: /^chosen opponent chooses and discards (?:(\d+) cards?|a card)/i,
+    build: (m) => ({
+      type: "discard_from_hand",
+      amount: n(m[1]),
+      target: { type: "opponent" },
+      chooser: "target_player",
+    }),
+  },
   // "each opponent chooses and banishes one of their characters"
   {
     name: "each_opponent_chooses_banishes",
@@ -1318,6 +1353,34 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       target: { type: "self" },
       maxToHand: 1,
       restPlacement: "inkwell",
+    }),
+  },
+
+  // "look at the top card of your deck. Put it on either the top [of your deck]
+  // or into your discard" — top_or_discard variant
+  {
+    name: "look_at_top_or_discard",
+    pattern: /^(?:you may )?look at the top card of your deck\. Put it on either the top (?:of your deck )?or into your discard/i,
+    build: (m) => ({
+      type: "look_at_top",
+      count: 1,
+      action: "top_or_bottom",
+      target: { type: "self" },
+      restPlacement: "discard",
+      isMay: /^you may /i.test(m[0]) || undefined,
+    }),
+  },
+  // "look at the top card of your deck. Put it on either the top or the bottom
+  // of your deck" — classic top_or_bottom
+  {
+    name: "look_at_top_or_bottom",
+    pattern: /^(?:you may )?look at the top (\d+)? ?cards? of your deck\. Put (?:it|them) on (?:either )?the top or (?:the )?bottom of your deck/i,
+    build: (m) => ({
+      type: "look_at_top",
+      count: m[1] ? parseInt(m[1], 10) : 1,
+      action: "top_or_bottom",
+      target: { type: "self" },
+      isMay: /^you may /i.test(m[0]) || undefined,
     }),
   },
 
