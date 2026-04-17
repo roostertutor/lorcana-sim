@@ -9,7 +9,7 @@
 import { describe, it, expect } from "vitest";
 import { applyAction, applyEffect } from "./reducer.js";
 import {
-  LORCAST_CARD_DEFINITIONS,
+  CARD_DEFINITIONS,
   startGame,
   injectCard,
   giveInk,
@@ -18,7 +18,7 @@ import { getZone, getInstance, hasKeyword } from "../utils/index.js";
 
 describe("Batch 4 mechanics — alert-keyword (CRD 10.x)", () => {
   it("Cri-Kee Good Luck Charm has the Alert keyword wired", () => {
-    const def = LORCAST_CARD_DEFINITIONS["cri-kee-good-luck-charm"]!;
+    const def = CARD_DEFINITIONS["cri-kee-good-luck-charm"]!;
     expect(def).toBeDefined();
     expect(def.abilities?.some((a: any) => a.type === "keyword" && a.keyword === "alert")).toBe(true);
   });
@@ -28,7 +28,7 @@ describe("Batch 4 mechanics — alert-keyword (CRD 10.x)", () => {
     let alertId: string;
     ({ state, instanceId: alertId } = injectCard(state, "player1", "cri-kee-good-luck-charm", "play", { isDrying: false }));
     const inst = getInstance(state, alertId);
-    const def = LORCAST_CARD_DEFINITIONS[inst.definitionId]!;
+    const def = CARD_DEFINITIONS[inst.definitionId]!;
     expect(hasKeyword(inst, def, "alert" as any)).toBe(true);
   });
 });
@@ -49,7 +49,7 @@ describe("Batch 4 mechanics — timed-cant-be-challenged (Safe and Sound)", () =
       } as any,
       protectedId,
       "player1",
-      LORCAST_CARD_DEFINITIONS,
+      CARD_DEFINITIONS,
       [],
     );
 
@@ -61,7 +61,7 @@ describe("Batch 4 mechanics — timed-cant-be-challenged (Safe and Sound)", () =
 
 describe("Batch 4 mechanics — exert-filtered-cost (Scrump)", () => {
   it("Scrump has an activated ability with a leading exert effect targeting self characters", () => {
-    const def = LORCAST_CARD_DEFINITIONS["scrump"]!;
+    const def = CARD_DEFINITIONS["scrump"]!;
     const ability = def.abilities?.find((a: any) => a.type === "activated") as any;
     expect(ability).toBeDefined();
     const leadingExert = ability.effects[0];
@@ -85,7 +85,7 @@ describe("Batch 4 mechanics — both-players-effect (Show Me More!)", () => {
     const r = applyAction(
       state,
       { type: "PLAY_CARD", playerId: "player1", instanceId: smmId },
-      LORCAST_CARD_DEFINITIONS,
+      CARD_DEFINITIONS,
     );
     expect(r.success).toBe(true);
     state = r.newState;
@@ -106,7 +106,7 @@ describe("Batch 4 mechanics — both-players-effect (Show Me More!)", () => {
       { type: "gain_lore", amount: 2, target: { type: "both" } } as any,
       "dummy-source",
       "player1",
-      LORCAST_CARD_DEFINITIONS,
+      CARD_DEFINITIONS,
       [],
     );
     expect(state.players.player1.lore).toBe(p1Before + 2);

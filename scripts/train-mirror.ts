@@ -9,13 +9,13 @@
 
 import { readFileSync, writeFileSync, mkdirSync } from "fs";
 import { basename } from "path";
-import { LORCAST_CARD_DEFINITIONS, parseDecklist } from "@lorcana-sim/engine";
+import { CARD_DEFINITIONS, parseDecklist } from "@lorcana-sim/engine";
 import { trainPolicy, RLPolicy, RandomBot, runGame, inferRewardWeights } from "@lorcana-sim/simulator";
 import type { GameResult } from "@lorcana-sim/simulator";
 import { aggregateResults } from "@lorcana-sim/analytics";
 import type { DeckEntry } from "@lorcana-sim/engine";
 
-const definitions = LORCAST_CARD_DEFINITIONS;
+const definitions = CARD_DEFINITIONS;
 
 // ---------------------------------------------------------------------------
 // Args

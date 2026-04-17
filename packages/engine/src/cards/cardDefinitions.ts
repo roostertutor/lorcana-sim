@@ -61,7 +61,7 @@ function manualAbilityCount(c: CardDefinition): number {
 }
 
 /** For duplicate IDs (reprints), keep the copy with more implemented abilities. */
-export const LORCAST_CARD_DEFINITIONS: Record<string, CardDefinition> =
+export const CARD_DEFINITIONS: Record<string, CardDefinition> =
   cards.reduce<Record<string, CardDefinition>>((map, c) => {
     const existing = map[c.id];
     if (!existing || manualAbilityCount(c) > manualAbilityCount(existing)) {
@@ -70,4 +70,4 @@ export const LORCAST_CARD_DEFINITIONS: Record<string, CardDefinition> =
     return map;
   }, {});
 
-export const LORCAST_CARDS: CardDefinition[] = cards;
+export const ALL_CARDS: CardDefinition[] = cards;

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
-import { LORCAST_CARD_DEFINITIONS, parseDecklist, serializeDecklist } from "@lorcana-sim/engine";
+import { CARD_DEFINITIONS, parseDecklist, serializeDecklist } from "@lorcana-sim/engine";
 import type { DeckEntry } from "@lorcana-sim/engine";
 import { supabase } from "../lib/supabase.js";
 import { listDecks, saveDeck, updateDeck, deleteDeck, listDeckVersions } from "../lib/deckApi.js";
@@ -75,7 +75,7 @@ export default function DecksPage() {
   const deckReady = entries.length > 0;
 
   function handleSelectDeck(d: SavedDeck) {
-    const parsed = parseDecklist(d.decklist_text, LORCAST_CARD_DEFINITIONS);
+    const parsed = parseDecklist(d.decklist_text, CARD_DEFINITIONS);
     setSelectedDeckId(d.id);
     setDeckName(d.name);
     setEntries(parsed.entries);
@@ -94,14 +94,14 @@ export default function DecksPage() {
   }
 
   function handleRestoreVersion(v: DeckVersion) {
-    const parsed = parseDecklist(v.decklist_text, LORCAST_CARD_DEFINITIONS);
+    const parsed = parseDecklist(v.decklist_text, CARD_DEFINITIONS);
     setEntries(parsed.entries);
     setHistoryOpen(false);
   }
 
   async function handleSave() {
     if (!deckName.trim() || entries.length === 0) return;
-    const decklistText = serializeDecklist(entries, LORCAST_CARD_DEFINITIONS);
+    const decklistText = serializeDecklist(entries, CARD_DEFINITIONS);
     setSaving(true);
     setError(null);
     try {
@@ -141,7 +141,7 @@ export default function DecksPage() {
 
   // ── Dirty check ──
   const currentText = useMemo(
-    () => serializeDecklist(entries, LORCAST_CARD_DEFINITIONS),
+    () => serializeDecklist(entries, CARD_DEFINITIONS),
     [entries],
   );
   const selectedDeck = decks.find((d) => d.id === selectedDeckId);
@@ -152,7 +152,7 @@ export default function DecksPage() {
   // ── Signed-out paste state ──
   const [pasteText, setPasteText] = useState("");
   const { entries: pasteDeck, errors: pasteErrors } = useMemo(
-    () => parseDecklist(pasteText, LORCAST_CARD_DEFINITIONS),
+    () => parseDecklist(pasteText, CARD_DEFINITIONS),
     [pasteText],
   );
   const pasteTotalCards = pasteDeck.reduce((s, e) => s + e.count, 0);
@@ -209,7 +209,7 @@ export default function DecksPage() {
           </div>
 
           {pasteReady && (
-            <CompositionView deck={pasteDeck} definitions={LORCAST_CARD_DEFINITIONS} />
+            <CompositionView deck={pasteDeck} definitions={CARD_DEFINITIONS} />
           )}
         </div>
       ) : (
@@ -231,7 +231,7 @@ export default function DecksPage() {
 
             <div className="space-y-1.5">
               {decks.map((d) => {
-                const parsed = parseDecklist(d.decklist_text, LORCAST_CARD_DEFINITIONS);
+                const parsed = parseDecklist(d.decklist_text, CARD_DEFINITIONS);
                 const count = parsed.entries.reduce((s, e) => s + e.count, 0);
                 const isValid = parsed.entries.length > 0 && parsed.errors.length === 0;
                 return (
@@ -283,7 +283,7 @@ export default function DecksPage() {
               {/* Deck builder */}
               <DeckBuilder
                 entries={entries}
-                definitions={LORCAST_CARD_DEFINITIONS}
+                definitions={CARD_DEFINITIONS}
                 onChange={setEntries}
               />
 
@@ -345,10 +345,10 @@ export default function DecksPage() {
                 </div>
                 <div className="space-y-1 max-h-64 overflow-y-auto">
                   {versions.map((v, i) => {
-                    const parsed = parseDecklist(v.decklist_text, LORCAST_CARD_DEFINITIONS);
+                    const parsed = parseDecklist(v.decklist_text, CARD_DEFINITIONS);
                     const count = parsed.entries.reduce((s, e) => s + e.count, 0);
                     const isCurrent = i === 0;
-                    const currentText = serializeDecklist(entries, LORCAST_CARD_DEFINITIONS);
+                    const currentText = serializeDecklist(entries, CARD_DEFINITIONS);
                     const matchesCurrent = v.decklist_text === currentText;
                     return (
                       <button
@@ -388,7 +388,7 @@ export default function DecksPage() {
 
             {/* Composition */}
             {deckReady && (
-              <CompositionView deck={entries} definitions={LORCAST_CARD_DEFINITIONS} />
+              <CompositionView deck={entries} definitions={CARD_DEFINITIONS} />
             )}
           </div>
         </div>

@@ -8,14 +8,14 @@ import { describe, it, expect } from "vitest";
 import {
   createRng,
   cloneRng,
-  LORCAST_CARD_DEFINITIONS,
+  CARD_DEFINITIONS,
 } from "@lorcana-sim/engine";
 import { RandomBot } from "../../bots/RandomBot.js";
 import { RLPolicy } from "../policy.js";
 import { trainPolicy } from "../trainer.js";
 import { aggregateTraces } from "../testUtils.js";
 
-const definitions = LORCAST_CARD_DEFINITIONS;
+const definitions = CARD_DEFINITIONS;
 
 // Multi-cost deck: 60 cards spanning costs 1–6, all inkable
 const MULTI_COST_DECK = [

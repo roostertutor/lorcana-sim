@@ -10,7 +10,7 @@
 import { describe, it, expect } from "vitest";
 import { applyAction, getAllLegalActions } from "./reducer.js";
 import {
-  LORCAST_CARD_DEFINITIONS,
+  CARD_DEFINITIONS,
   startGame,
   injectCard,
   giveInk,
@@ -29,13 +29,13 @@ describe("Mechanic gaps batch — event-tracking-condition", () => {
 
     // No damage yet — activation should fail or not gain lore.
     expect(state.players.player1.lore).toBe(0);
-    let r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: diamondId, abilityIndex: 0 }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: diamondId, abilityIndex: 0 }, CARD_DEFINITIONS);
     // Whether or not the activate succeeds, the lore must not have moved (no damaged char yet).
     expect(r.newState.players.player1.lore).toBe(0);
 
     // Now damage the friendly char and re-activate (need to ready the diamond).
     state = { ...state, cards: { ...state.cards, [charId]: { ...state.cards[charId], damage: 1 } }, players: { ...state.players, player1: { ...state.players.player1, aCharacterWasDamagedThisTurn: true } } };
-    r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: diamondId, abilityIndex: 0 }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: diamondId, abilityIndex: 0 }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     expect(r.newState.players.player1.lore).toBe(1);
   });
@@ -46,11 +46,11 @@ describe("Mechanic gaps batch — event-tracking-condition", () => {
     let nathanielId: string;
     ({ state, instanceId: nathanielId } = injectCard(state, "player1", "nathaniel-flint-notorious-pirate", "hand"));
     // Without flag — should fail
-    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: nathanielId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: nathanielId }, CARD_DEFINITIONS);
     expect(r.success).toBe(false);
     // Set the flag (opposing char damaged this turn)
     state = { ...state, players: { ...state.players, player2: { ...state.players.player2, aCharacterWasDamagedThisTurn: true } } };
-    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: nathanielId }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: nathanielId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
   });
 });
@@ -65,14 +65,14 @@ describe("Mechanic gaps batch — conditional-cant-be-challenged", () => {
     state = { ...state, currentPlayer: "player2" };
 
     // Challenge while another exerted char in play — should fail
-    let r = applyAction(state, { type: "CHALLENGE", playerId: "player2", attackerInstanceId: attackerId, defenderInstanceId: iagoId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "CHALLENGE", playerId: "player2", attackerInstanceId: attackerId, defenderInstanceId: iagoId }, CARD_DEFINITIONS);
     expect(r.success).toBe(false);
 
     // Ready the other character (no longer exerted) → static no longer applies → Iago is now challengeable
     state = { ...state, cards: { ...state.cards, [otherId]: { ...state.cards[otherId], isExerted: false } } };
     // Sanity-check the static is gone via the modifier map
     const { getGameModifiers } = await import("./gameModifiers.js");
-    const mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    const mods = getGameModifiers(state, CARD_DEFINITIONS);
     expect(mods.cantBeChallenged.has(iagoId)).toBe(false);
   });
 });
@@ -84,7 +84,7 @@ describe("Mechanic gaps batch — restrict-sing", () => {
     ({ state, instanceId: ulfId } = injectCard(state, "player1", "ulf-mime", "play", { isDrying: false }));
     // Inject any song with cost <= ulf's cost
     ({ state, instanceId: songId } = injectCard(state, "player1", "friends-on-the-other-side", "hand"));
-    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId, singerInstanceId: ulfId }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId, singerInstanceId: ulfId }, CARD_DEFINITIONS);
     expect(r.success).toBe(false);
     expect(r.error).toMatch(/can't sing/i);
   });
@@ -106,7 +106,7 @@ describe("Mechanic gaps batch — mass-inkwell", () => {
     ({ state, instanceId: mufasaId } = injectCard(state, "player1", "mufasa-ruler-of-pride-rock", "hand"));
     expect(state.players.player1.availableInk).toBe(8);
     expect(getZone(state, "player1", "inkwell").length).toBe(8);
-    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: mufasaId }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: mufasaId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     // Mufasa cost 8 → all 8 ink exerted; trigger exerts (no-op) then returns 2 to hand.
@@ -120,7 +120,7 @@ describe("Mechanic gaps batch — mass-inkwell", () => {
     state = fillInkwell(state, "player2", 5);
     let geyserId: string;
     ({ state, instanceId: geyserId } = injectCard(state, "player1", "ink-geyser", "hand"));
-    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: geyserId }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: geyserId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(getZone(state, "player1", "inkwell").length).toBe(3);
@@ -137,12 +137,12 @@ describe("Mechanic gaps batch — grant-floating-trigger-to-target", () => {
     ({ state, instanceId: charId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
     ({ state, instanceId: victimId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false, isExerted: true }));
 
-    let r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: medallionId, abilityIndex: 0 }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: medallionId, abilityIndex: 0 }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     // First effect: gain_stats chosen — surfaces a choose_target choice.
     expect(state.pendingChoice?.type).toBe("choose_target");
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [charId] }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [charId] }, CARD_DEFINITIONS);
     state = r.newState;
     // Second effect: create_floating_trigger attachTo last_resolved_target — same character, no second prompt.
     expect(state.pendingChoice).toBeFalsy();
@@ -150,11 +150,11 @@ describe("Mechanic gaps batch — grant-floating-trigger-to-target", () => {
     expect(state.floatingTriggers?.some((ft) => ft.attachedToInstanceId === charId)).toBe(true);
     // Now the chosen char challenges → draw a card via the floating trigger.
     const handBefore = getZone(state, "player1", "hand").length;
-    r = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: charId, defenderInstanceId: victimId }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: charId, defenderInstanceId: victimId }, CARD_DEFINITIONS);
     state = r.newState;
     // Draw is `isMay: true` so it surfaces a may choice — accept it.
     if (state.pendingChoice?.type === "choose_may") {
-      r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+      r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
       state = r.newState;
     }
     expect(getZone(state, "player1", "hand").length).toBeGreaterThanOrEqual(handBefore);
@@ -163,13 +163,13 @@ describe("Mechanic gaps batch — grant-floating-trigger-to-target", () => {
 
 describe("Mechanic gaps batch — shift-variant", () => {
   it("Turbo - Royal Hack has King Candy as an additionalName so Shift can target King Candy", () => {
-    const def = LORCAST_CARD_DEFINITIONS["turbo-royal-hack"]!;
+    const def = CARD_DEFINITIONS["turbo-royal-hack"]!;
     expect(def).toBeDefined();
     expect(def.alternateNames).toContain("King Candy");
   });
 
   it("Thunderbolt - Wonder Dog: Puppy Shift surfaces as a classification_shift_self static in hand", () => {
-    const def = LORCAST_CARD_DEFINITIONS["thunderbolt-wonder-dog"]!;
+    const def = CARD_DEFINITIONS["thunderbolt-wonder-dog"]!;
     expect(def).toBeDefined();
     const cs = def.abilities?.find((a: any) => a.type === "static" && a.effect?.type === "classification_shift_self") as any;
     expect(cs).toBeDefined();
@@ -186,12 +186,12 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     ({ state, instanceId: allyId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
 
     const ally = getInstance(state, allyId);
-    const allyDef = LORCAST_CARD_DEFINITIONS[ally.definitionId]!;
+    const allyDef = CARD_DEFINITIONS[ally.definitionId]!;
     const printed = allyDef.strength ?? 0;
 
     // Apply a -5 strength debuff via TimedEffect (was tempStrengthModifier).
     state = { ...state, cards: { ...state.cards, [allyId]: { ...ally, timedEffects: [...ally.timedEffects, { type: "modify_strength" as any, amount: -5, expiresAt: "end_of_turn" as any, appliedOnTurn: 0 }] } } };
-    const mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    const mods = getGameModifiers(state, CARD_DEFINITIONS);
     const strWithFloor = getEffectiveStrength(getInstance(state, allyId), allyDef, 0, mods);
     expect(strWithFloor).toBe(printed);
 
@@ -201,7 +201,7 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
 
     // And buffs are still additive on top of the floor.
     const elisa = getInstance(state, elisaId);
-    const elisaDef = LORCAST_CARD_DEFINITIONS[elisa.definitionId]!;
+    const elisaDef = CARD_DEFINITIONS[elisa.definitionId]!;
     expect(getEffectiveStrength(elisa, elisaDef, 0, mods)).toBe(elisaDef.strength ?? 0);
   });
 
@@ -223,7 +223,7 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     state = passTurns(state, 1);
     const legal = getZone(state, "player2", "hand");
     expect(legal).toContain(actId);
-    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player2", instanceId: actId }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player2", instanceId: actId }, CARD_DEFINITIONS);
     expect(r.success).toBe(false);
 
     // Pass back to player 1 — restriction expires at the START of their next turn.
@@ -241,9 +241,9 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     // Move singer to the location.
     state = { ...state, cards: { ...state.cards, [singerId]: { ...state.cards[singerId], atLocationInstanceId: locId } } };
     // Pick a song with cost > singer.cost but <= singer.cost + 2.
-    const moanaDef = LORCAST_CARD_DEFINITIONS[state.cards[singerId].definitionId]!;
-    const songDefId = Object.keys(LORCAST_CARD_DEFINITIONS).find((id) => {
-      const d = LORCAST_CARD_DEFINITIONS[id]!;
+    const moanaDef = CARD_DEFINITIONS[state.cards[singerId].definitionId]!;
+    const songDefId = Object.keys(CARD_DEFINITIONS).find((id) => {
+      const d = CARD_DEFINITIONS[id]!;
       return d.cardType === "action"
         && (d.traits ?? []).includes("Song")
         && d.cost === moanaDef.cost + 1
@@ -252,7 +252,7 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     expect(songDefId).toBeDefined();
     ({ state, instanceId: songId } = injectCard(state, "player1", songDefId!, "hand"));
     // Without the location bonus, the singer would be too cheap; with +2 it's allowed.
-    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId, singerInstanceId: singerId }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId, singerInstanceId: singerId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
   });
 
@@ -268,7 +268,7 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     // Player2 inks a card from hand.
     const handCardId = getZone(state, "player2", "hand")[0]!;
     const inkBefore = state.players.player2.availableInk;
-    const r = applyAction(state, { type: "PLAY_INK", playerId: "player2", instanceId: handCardId }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "PLAY_INK", playerId: "player2", instanceId: handCardId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -282,7 +282,7 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     state = passTurns(state, 2);
     const handCardId2 = getZone(state, "player2", "hand")[0]!;
     const inkBefore2 = state.players.player2.availableInk;
-    const r2 = applyAction(state, { type: "PLAY_INK", playerId: "player2", instanceId: handCardId2 }, LORCAST_CARD_DEFINITIONS);
+    const r2 = applyAction(state, { type: "PLAY_INK", playerId: "player2", instanceId: handCardId2 }, CARD_DEFINITIONS);
     expect(r2.success).toBe(true);
     expect(getInstance(r2.newState, handCardId2).isExerted).toBe(false);
     expect(r2.newState.players.player2.availableInk).toBe(inkBefore2 + 1);
@@ -299,7 +299,7 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     let scrollId: string;
     ({ state, instanceId: scrollId } = injectCard(state, "player1", "sign-the-scroll", "hand"));
     const loreBefore = state.players.player1.lore;
-    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: scrollId }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: scrollId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     expect(r.newState.players.player1.lore).toBe(loreBefore + 2);
     // No pending choice — auto-resolved.
@@ -312,13 +312,13 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     let scrollId: string;
     ({ state, instanceId: scrollId } = injectCard(state, "player1", "sign-the-scroll", "hand"));
     const loreBefore = state.players.player1.lore;
-    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: scrollId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: scrollId }, CARD_DEFINITIONS);
     if (!r.success) throw new Error(`PLAY_CARD failed: ${r.error}`);
     state = r.newState;
     expect(state.pendingChoice?.type).toBe("choose_may");
     expect(state.pendingChoice?.choosingPlayerId).toBe("player2");
     // Decline.
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player2", choice: "decline" }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player2", choice: "decline" }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     expect(r.newState.players.player1.lore).toBe(loreBefore + 2);
   });
@@ -330,18 +330,18 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     ({ state, instanceId: trickeryId } = injectCard(state, "player1", "ursulas-trickery", "hand"));
     const oppHandBefore = getZone(state, "player2", "hand").length;
     const p1HandBefore = getZone(state, "player1", "hand").length;
-    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: trickeryId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: trickeryId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(state.pendingChoice?.type).toBe("choose_may");
     // Accept the may.
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player2", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player2", choice: "accept" }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     // A discard choice should be pending now.
     expect(state.pendingChoice?.type).toBe("choose_discard");
     const oppHand = getZone(state, "player2", "hand");
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player2", choice: [oppHand[0]!] }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player2", choice: [oppHand[0]!] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(getZone(state, "player2", "hand").length).toBe(oppHandBefore - 1);
@@ -360,13 +360,13 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     ({ state, instanceId: item2 } = injectCard(state, "player1", "dragon-gem", "hand"));
 
     // Quest with Geppetto — should surface a may-prompt for the sequential.
-    let r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: geppettoId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: geppettoId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(state.pendingChoice?.type).toBe("choose_may");
 
     // Accept — choose_discard with maxCount surfaces.
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(state.pendingChoice?.type).toBe("choose_discard");
@@ -374,7 +374,7 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
 
     // Discard both items.
     const loreBefore = state.players.player1.lore;
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [item1, item2] }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [item1, item2] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(state.players.player1.lore).toBe(loreBefore + 2);
@@ -409,13 +409,13 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     state = { ...state, players: { ...state.players, player1: { ...state.players.player1, extraInkPlaysGranted: 1 } } };
 
     // First ink — ONE ON THE WAY should NOT fire (count == 1).
-    let r = applyAction(state, { type: "PLAY_INK", playerId: "player1", instanceId: inkA }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "PLAY_INK", playerId: "player1", instanceId: inkA }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(state.pendingChoice).toBeNull();
 
     // Second ink — should queue a choose_may for the may-draw.
-    r = applyAction(state, { type: "PLAY_INK", playerId: "player1", instanceId: inkB }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "PLAY_INK", playerId: "player1", instanceId: inkB }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(state.pendingChoice?.type).toBe("choose_may");
@@ -429,22 +429,22 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     ({ state, instanceId: mickeyId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
 
     // Before Food Fight is played, Mickey has no granted activated abilities.
-    let mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    let mods = getGameModifiers(state, CARD_DEFINITIONS);
     expect(mods.grantedActivatedAbilities.get(mickeyId) ?? []).toEqual([]);
 
-    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: foodId }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: foodId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
     // Now Mickey should have the granted ability.
-    mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    mods = getGameModifiers(state, CARD_DEFINITIONS);
     const granted = mods.grantedActivatedAbilities.get(mickeyId) ?? [];
     expect(granted.length).toBeGreaterThan(0);
     expect(granted[0]?.storyName).toBe("FOOD FIGHT");
 
     // After passing the turn, the grant should expire.
     state = passTurns(state, 2);
-    mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    mods = getGameModifiers(state, CARD_DEFINITIONS);
     expect(mods.grantedActivatedAbilities.get(mickeyId) ?? []).toEqual([]);
   });
 
@@ -456,12 +456,12 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     // Player 1 plays an action that deals 1 damage to a chosen character: use Smash.
     let smashId: string;
     ({ state, instanceId: smashId } = injectCard(state, "player1", "smash", "hand"));
-    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: smashId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: smashId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     // Surface is choose_target — pick Iago.
     expect(state.pendingChoice?.type).toBe("choose_target");
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [iagoId] }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [iagoId] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     // Iago should now be in discard (Vanish triggered).
@@ -502,11 +502,11 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     let willieId: string;
     ({ state, instanceId: willieId } = injectCard(state, "player1", "willie-the-giant-ghost-of-christmas-present", "play", { isDrying: false }));
     // Sanity: legal action list should NOT include questing Willie.
-    let legal = getAllLegalActions(state, "player1", LORCAST_CARD_DEFINITIONS);
+    let legal = getAllLegalActions(state, "player1", CARD_DEFINITIONS);
     expect(legal.some((a) => a.type === "QUEST" && a.instanceId === willieId)).toBe(false);
     // Bump the cards-put-under counter directly, then quest should be legal.
     state = { ...state, cards: { ...state.cards, [willieId]: { ...state.cards[willieId], cardsPutUnderThisTurn: 1 } } };
-    legal = getAllLegalActions(state, "player1", LORCAST_CARD_DEFINITIONS);
+    legal = getAllLegalActions(state, "player1", CARD_DEFINITIONS);
     expect(legal.some((a) => a.type === "QUEST" && a.instanceId === willieId)).toBe(true);
   });
 
@@ -546,7 +546,7 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     ({ state, instanceId: attackerId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
     ({ state, instanceId: defenderId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false, isExerted: true }));
     // Player1 challenges with attacker.
-    const r = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: attackerId, defenderInstanceId: defenderId }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: attackerId, defenderInstanceId: defenderId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(state.players.player1.aCharacterChallengedThisTurn).toBe(true);
@@ -569,7 +569,7 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     ({ state, instanceId: victimId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false, damage: 1 }));
 
     // Quest with Cruella — condition fails (only herself in the played list), so no banish prompt.
-    let r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: cruellaId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: cruellaId }, CARD_DEFINITIONS);
     if (!r.success) throw new Error(`QUEST failed: ${r.error}`);
     expect(r.newState.pendingChoice).toBeNull();
     expect(getInstance(r.newState, victimId).zone).toBe("play");
@@ -579,7 +579,7 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     state = { ...state, cards: { ...state.cards, [cruellaId]: { ...state.cards[cruellaId], isExerted: false } } };
     ({ state, instanceId: otherId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: true }));
     state = { ...state, players: { ...state.players, player1: { ...state.players.player1, cardsPlayedThisTurn: [cruellaId, otherId] } } };
-    r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: cruellaId }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: cruellaId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     // Now there should be a may-prompt; first the yes/no, then on accept a choose_target.
     expect(r.newState.pendingChoice?.type).toBe("choose_may");
@@ -595,7 +595,7 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     state = giveInk(state, "player2", 1); // exactly 1 ink to test the discount.
     let rabbitId: string;
     ({ state, instanceId: rabbitId } = injectCard(state, "player2", "white-rabbit-late-again", "hand"));
-    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player2", instanceId: rabbitId }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player2", instanceId: rabbitId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     // After paying 1 ink, available ink should be 0.
     expect(r.newState.players.player2.availableInk).toBe(0);
@@ -606,7 +606,7 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     state = giveInk(state, "player1", 1);
     let rabbitId: string;
     ({ state, instanceId: rabbitId } = injectCard(state, "player1", "white-rabbit-late-again", "hand"));
-    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: rabbitId }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: rabbitId }, CARD_DEFINITIONS);
     // Card costs 2, player1 has 1 → should fail (no underdog discount for first player).
     expect(r.success).toBe(false);
   });
@@ -620,7 +620,7 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     state = giveInk(state, "player2", 1);
     let rabbitId: string;
     ({ state, instanceId: rabbitId } = injectCard(state, "player2", "white-rabbit-late-again", "hand"));
-    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player2", instanceId: rabbitId }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player2", instanceId: rabbitId }, CARD_DEFINITIONS);
     expect(r.success).toBe(false);
   });
 
@@ -633,8 +633,8 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     const opp = getInstance(state, oppId);
     state = { ...state, cards: { ...state.cards, [oppId]: { ...opp, timedEffects: [...opp.timedEffects, { type: "modify_strength" as any, amount: -5, expiresAt: "end_of_turn" as any, appliedOnTurn: 0 }] } } };
 
-    const mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
-    const oppDef = LORCAST_CARD_DEFINITIONS[opp.definitionId]!;
+    const mods = getGameModifiers(state, CARD_DEFINITIONS);
+    const oppDef = CARD_DEFINITIONS[opp.definitionId]!;
     // Opposing character is NOT covered by Elisa's static, so the debuff applies normally.
     expect(getEffectiveStrength(getInstance(state, oppId), oppDef, 0, mods)).toBe(0);
   });

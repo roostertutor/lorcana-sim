@@ -9,7 +9,7 @@
 
 import { readFileSync } from "fs";
 import { resolve, dirname } from "path";
-import { LORCAST_CARD_DEFINITIONS } from "@lorcana-sim/engine";
+import { CARD_DEFINITIONS } from "@lorcana-sim/engine";
 import type { StoredGameResult, StoredResultSet } from "@lorcana-sim/simulator";
 import { runSimulation, saveResults, loadResults } from "@lorcana-sim/simulator";
 import { queryResults, resolveRefs } from "@lorcana-sim/analytics";
@@ -103,7 +103,7 @@ export async function runQuery(args: QueryArgs): Promise<void> {
     const simDir = dirname(resolve(args.sim));
     const resolvePath = (p: string) => resolve(simDir, p);
 
-    const definitions = LORCAST_CARD_DEFINITIONS;
+    const definitions = CARD_DEFINITIONS;
     const deck = loadDeck(resolvePath(simConfig.me), definitions);
     const opponentDeck = simConfig.opponent
       ? loadDeck(resolvePath(simConfig.opponent), definitions)

@@ -10,7 +10,7 @@ import {
   createGame,
   getZone,
   generateId,
-  LORCAST_CARD_DEFINITIONS,
+  CARD_DEFINITIONS,
 } from "@lorcana-sim/engine";
 import type { CardInstance, GameState, PlayerID } from "@lorcana-sim/engine";
 import { GreedyBot } from "./bots/GreedyBot.js";
@@ -23,7 +23,7 @@ import type { SimGameConfig } from "./types.js";
 // HELPERS
 // ---------------------------------------------------------------------------
 
-const defs = LORCAST_CARD_DEFINITIONS;
+const defs = CARD_DEFINITIONS;
 
 const TEST_DECK = [
   { definitionId: "simba-protective-cub", count: 10 },

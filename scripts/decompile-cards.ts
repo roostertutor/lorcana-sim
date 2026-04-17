@@ -2099,7 +2099,7 @@ interface Row {
 
 function loadCards(setFilter?: string): CardJSON[] {
   // Dedupe by id, preferring reprints with more implemented abilities — same
-  // policy as packages/engine/src/cards/lorcastCards.ts. Without this,
+  // policy as packages/engine/src/cards/cardDefinitions.ts. Without this,
   // a card reprinted across 5 set files appears 5 times in the report.
   const byId = new Map<string, CardJSON>();
   const files = readdirSync(CARDS_DIR)

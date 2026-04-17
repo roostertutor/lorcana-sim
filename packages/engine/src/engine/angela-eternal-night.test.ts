@@ -4,7 +4,7 @@
 // from blocking ready.
 import { describe, it, expect } from "vitest";
 import { applyAction } from "./reducer.js";
-import { startGame, LORCAST_CARD_DEFINITIONS, injectCard } from "./test-helpers.js";
+import { startGame, CARD_DEFINITIONS, injectCard } from "./test-helpers.js";
 
 describe("Angela Night Warrior ETERNAL NIGHT", () => {
   it("baseline: Demona with 3+ cards in hand can't be effect-readied (Stone by Day blanket)", () => {
@@ -22,7 +22,7 @@ describe("Angela Night Warrior ETERNAL NIGHT", () => {
     // simplest probe: check that turn-start ready loop skips Demona).
     // Pass a full turn cycle so player1 becomes active again.
     for (let i = 0; i < 2; i++) {
-      const r = applyAction(state, { type: "PASS_TURN", playerId: state.currentPlayer }, LORCAST_CARD_DEFINITIONS);
+      const r = applyAction(state, { type: "PASS_TURN", playerId: state.currentPlayer }, CARD_DEFINITIONS);
       expect(r.success).toBe(true);
       state = r.newState;
     }
@@ -43,7 +43,7 @@ describe("Angela Night Warrior ETERNAL NIGHT", () => {
     state = s2;
 
     for (let i = 0; i < 2; i++) {
-      const r = applyAction(state, { type: "PASS_TURN", playerId: state.currentPlayer }, LORCAST_CARD_DEFINITIONS);
+      const r = applyAction(state, { type: "PASS_TURN", playerId: state.currentPlayer }, CARD_DEFINITIONS);
       expect(r.success).toBe(true);
       state = r.newState;
     }

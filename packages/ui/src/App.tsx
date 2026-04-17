@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation, useParams, Navigate } from "react-router-dom";
-import { LORCAST_CARD_DEFINITIONS } from "@lorcana-sim/engine";
+import { CARD_DEFINITIONS } from "@lorcana-sim/engine";
 import type { DeckEntry } from "@lorcana-sim/engine";
 import type { ReplayData } from "./hooks/useGameSession.js";
 import { getGameReplay, getGameInfo } from "./lib/serverApi.js";
@@ -32,7 +32,7 @@ function SoloGamePage() {
 
   return (
     <GameBoard
-      definitions={LORCAST_CARD_DEFINITIONS}
+      definitions={CARD_DEFINITIONS}
       initialDeck={deck}
       onBack={() => navigate("/multiplayer")}
     />
@@ -43,7 +43,7 @@ function SandboxGamePage() {
   const navigate = useNavigate();
   return (
     <GameBoard
-      definitions={LORCAST_CARD_DEFINITIONS}
+      definitions={CARD_DEFINITIONS}
       sandboxMode
       onBack={() => navigate("/sandbox")}
     />
@@ -96,7 +96,7 @@ function MultiplayerGamePage() {
 
   return (
     <GameBoard
-      definitions={LORCAST_CARD_DEFINITIONS}
+      definitions={CARD_DEFINITIONS}
       multiplayerGame={config}
       onBack={() => {
         localStorage.removeItem("mp-game");
@@ -274,7 +274,7 @@ function ReplayPage() {
 
   return (
     <GameBoard
-      definitions={LORCAST_CARD_DEFINITIONS}
+      definitions={CARD_DEFINITIONS}
       initialReplayData={replayData}
       onBack={() => navigate("/multiplayer")}
     />

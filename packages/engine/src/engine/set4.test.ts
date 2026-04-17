@@ -6,7 +6,7 @@ import { describe, it, expect } from "vitest";
 import { applyAction, applyEffect, getAllLegalActions } from "./reducer.js";
 import { setLore } from "./test-helpers.js";
 import {
-  LORCAST_CARD_DEFINITIONS,
+  CARD_DEFINITIONS,
   startGame,
   injectCard,
   passTurns,
@@ -28,7 +28,7 @@ describe("§4 Set 4 — Sing Together", () => {
       playerId: "player1",
       instanceId: songId,
       singerInstanceIds: [singer1Id, singer2Id],
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -49,7 +49,7 @@ describe("§4 Set 4 — Sing Together", () => {
       playerId: "player1",
       instanceId: songId,
       singerInstanceIds: [singer1Id],
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(r.success).toBe(false);
   });
 
@@ -66,7 +66,7 @@ describe("§4 Set 4 — Sing Together", () => {
       playerId: "player1",
       instanceId: songId,
       singerInstanceIds: [singer1Id, singer2Id],
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(r.success).toBe(false);
   });
 
@@ -77,17 +77,17 @@ describe("§4 Set 4 — Sing Together", () => {
     ({ state, instanceId: victimId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
 
     // Quest with Cogsworth — fires AS YOU WERE!
-    let r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: cogId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: cogId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     // Trigger surfaces choose_may
     expect(state.pendingChoice?.type).toBe("choose_may");
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     // choose_target for the chosen character
     expect(state.pendingChoice?.type).toBe("choose_target");
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [victimId] }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [victimId] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -95,7 +95,7 @@ describe("§4 Set 4 — Sing Together", () => {
     const victim = getInstance(state, victimId);
     expect(victim.timedEffects.some(te => te.type === "modify_strength" && te.amount === -2)).toBe(true);
 
-    expect(getEffectiveStrength(victim, LORCAST_CARD_DEFINITIONS[victim.definitionId]!)).toBe(1);
+    expect(getEffectiveStrength(victim, CARD_DEFINITIONS[victim.definitionId]!)).toBe(1);
 
     // Pass to opponent's turn — debuff should still be active.
     state = passTurns(state, 1);
@@ -106,7 +106,7 @@ describe("§4 Set 4 — Sing Together", () => {
     state = passTurns(state, 1);
     let v3 = getInstance(state, victimId);
     expect(v3.timedEffects.some(te => te.type === "modify_strength" && te.amount === -2)).toBe(false);
-    expect(getEffectiveStrength(v3, LORCAST_CARD_DEFINITIONS[v3.definitionId]!)).toBe(3);
+    expect(getEffectiveStrength(v3, CARD_DEFINITIONS[v3.definitionId]!)).toBe(3);
   });
 
   it("until_caster_next_turn: self-cast 'until your next turn' buffs persist through opponent's turn", () => {
@@ -123,7 +123,7 @@ describe("§4 Set 4 — Sing Together", () => {
       strength: 2,
       target: { type: "all", filter: { owner: { type: "self" }, zone: "play", cardType: ["character"] } },
       duration: "until_caster_next_turn",
-    }, "synthetic-source", "player1", LORCAST_CARD_DEFINITIONS, []);
+    }, "synthetic-source", "player1", CARD_DEFINITIONS, []);
 
     expect(getInstance(state, p1Char).timedEffects.some(te => te.type === "modify_strength" && te.amount === 2)).toBe(true);
 
@@ -156,7 +156,7 @@ describe("§4 Set 4 — Sing Together", () => {
       playerId: "player1",
       instanceId: songId,
       singerInstanceIds: [singer1, singer2],
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -174,7 +174,7 @@ describe("§4 Set 4 — Sing Together", () => {
       type: "RESOLVE_CHOICE",
       playerId: "player1",
       choice: [weakOpp1, weakOpp2],
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -198,7 +198,7 @@ describe("§4 Set 4 — Sing Together", () => {
     ({ state, instanceId: songId } = injectCard(state, "player1", "second-star-to-the-right", "hand"));
     const handBefore = getZone(state, "player1", "hand").length;
 
-    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -209,7 +209,7 @@ describe("§4 Set 4 — Sing Together", () => {
     expect(state.pendingChoice?.validTargets).toContain("player2");
 
     // Controller picks self
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "player1" }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "player1" }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -226,10 +226,10 @@ describe("§4 Set 4 — Sing Together", () => {
       type: "lose_lore",
       amount: 2,
       target: { type: "chosen" },
-    }, "synthetic-source", "player1", LORCAST_CARD_DEFINITIONS, []);
+    }, "synthetic-source", "player1", CARD_DEFINITIONS, []);
     expect(state.pendingChoice?.type).toBe("choose_player");
 
-    const r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "player2" }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "player2" }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(state.players.player2.lore).toBe(3);
@@ -242,7 +242,7 @@ describe("§4 Set 4 — Sing Together", () => {
       type: "lose_lore",
       amount: 2,
       target: { type: "chosen", excludeSelf: true },
-    }, "synthetic-source", "player1", LORCAST_CARD_DEFINITIONS, []);
+    }, "synthetic-source", "player1", CARD_DEFINITIONS, []);
     // No pendingChoice — collapsed to opponent in 2P
     expect(state.pendingChoice).toBeFalsy();
     expect(state.players.player2.lore).toBe(3);
@@ -255,10 +255,10 @@ describe("§4 Set 4 — Sing Together", () => {
     ({ state, instanceId: songId } = injectCard(state, "player1", "second-star-to-the-right", "hand"));
     const p2HandBefore = getZone(state, "player2", "hand").length;
 
-    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "player2" }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "player2" }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     // Player2 drew 5
@@ -273,21 +273,21 @@ describe("§4 Set 4 — Sing Together", () => {
     ({ state, instanceId: destId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
     ({ state, instanceId: belleId } = injectCard(state, "player1", "belle-untrained-mystic", "hand"));
 
-    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: belleId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: belleId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
     // Stage 1: pick the source (must have damage)
     expect(state.pendingChoice?.type).toBe("choose_target");
     expect(state.pendingChoice?.validTargets).toContain(sourceId);
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [sourceId] }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [sourceId] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
     // Stage 2: pick the opposing destination
     expect(state.pendingChoice?.type).toBe("choose_target");
     expect(state.pendingChoice?.validTargets).toContain(destId);
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [destId] }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [destId] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -305,7 +305,7 @@ describe("§4 Set 4 — Sing Together", () => {
 
     // Play Gaston (cost 3) — adds the cost reduction entry
     const inkBefore = state.players.player1.availableInk;
-    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: gastonId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: gastonId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(state.players.player1.availableInk).toBe(inkBefore - 3);
@@ -313,7 +313,7 @@ describe("§4 Set 4 — Sing Together", () => {
 
     // Play Mickey True Friend (cost 3) — should be reduced by 2
     const inkBeforeMickey = state.players.player1.availableInk;
-    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: otherId }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: otherId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     // Mickey cost 3 - 2 reduction = 1
@@ -339,7 +339,7 @@ describe("§4 Set 4 — Sing Together", () => {
       playerId: "player1",
       instanceId: songId,
       singerInstanceId: singer1,
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -350,7 +350,7 @@ describe("§4 Set 4 — Sing Together", () => {
     expect(state.pendingChoice?.validTargets).toContain(oppB);
 
     // Player2 picks oppA
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player2", choice: [oppA] }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player2", choice: [oppA] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -370,7 +370,7 @@ describe("§4 Set 4 — Sing Together", () => {
       playerId: "player1",
       instanceId: songId,
       singerInstanceIds: [singer1Id, singer1Id],
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(r.success).toBe(false);
   });
 
@@ -383,11 +383,11 @@ describe("§4 Set 4 — Sing Together", () => {
     // Big strength character (Mickey True Friend has str 2). Use a bigger one — Be Prepared's target? Just inject another and rely on Flynn's 2 > opponent's 0 (no opp chars).
     // No opponent characters → vacuously true (max opp = -1).
     setLore(state, "player1", 0);
-    const r = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     // Pass back to player1 — turn_start should fire NARROW ADVANTAGE.
-    const r2 = applyAction(state, { type: "PASS_TURN", playerId: "player2" }, LORCAST_CARD_DEFINITIONS);
+    const r2 = applyAction(state, { type: "PASS_TURN", playerId: "player2" }, CARD_DEFINITIONS);
     expect(r2.success).toBe(true);
     state = r2.newState;
     expect(state.players.player1.lore).toBeGreaterThanOrEqual(3);
@@ -402,11 +402,11 @@ describe("§4 Set 4 — Sing Together", () => {
     // Put my char at the location.
     state = { ...state, cards: { ...state.cards, [myCharId]: { ...state.cards[myCharId]!, atLocationInstanceId: locId } } };
     const oppInst = getInstance(state, oppCharId);
-    const oppDef = LORCAST_CARD_DEFINITIONS[oppInst.definitionId]!;
+    const oppDef = CARD_DEFINITIONS[oppInst.definitionId]!;
     const baseLore = oppDef.lore ?? 0;
     // Effective lore via modifiers: consult modifier debuff
     const { getGameModifiers } = await import("./gameModifiers.js");
-    const mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    const mods = getGameModifiers(state, CARD_DEFINITIONS);
     const bonus = mods.statBonuses.get(oppCharId)?.lore ?? 0;
     expect(baseLore + bonus).toBe(baseLore - 1);
   });
@@ -424,7 +424,7 @@ describe("§4 Set 4 — Sing Together", () => {
       playerId: "player1",
       instanceId: songId,
       singerInstanceIds: [s1, s2, s3],
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     // Song played → effect resolves → some characters moved to hand.
@@ -440,7 +440,7 @@ describe("§4 Set 4 — Sing Together", () => {
     ({ state, instanceId: mulanId } = injectCard(state, "player1", "mulan-elite-archer", "play", { isDrying: false }));
     ({ state, instanceId: defenderId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false, isExerted: true }));
     ({ state, instanceId: bystanderId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
-    const r = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: mulanId, defenderInstanceId: defenderId }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: mulanId, defenderInstanceId: defenderId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     // Triple Shot either resolved (bystander damaged) or prompted a choose_target pendingChoice.
@@ -451,7 +451,7 @@ describe("§4 Set 4 — Sing Together", () => {
 
   it("Flotsam & Jetsam Entangling Eels counts as both Flotsam and Jetsam (CRD §10.6 dual-name)", () => {
     // alternateNames on CardDefinition makes hasName filter match either name.
-    const def = LORCAST_CARD_DEFINITIONS["flotsam-jetsam-entangling-eels"];
+    const def = CARD_DEFINITIONS["flotsam-jetsam-entangling-eels"];
     expect(def).toBeDefined();
     expect(def?.alternateNames).toEqual(expect.arrayContaining(["Flotsam", "Jetsam"]));
 
@@ -479,7 +479,7 @@ describe("§4 Set 4 — Sing Together", () => {
     state = giveInk(state, "player1", 6);
 
     // Play the song (cost 3) — should trigger AMPLIFIED VOICE.
-    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -487,13 +487,13 @@ describe("§4 Set 4 — Sing Together", () => {
     expect(state.pendingChoice?.type).toBe("choose_may");
 
     // Accept — pay 2 ink.
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
     // Then choose target for the 3 damage.
     expect(state.pendingChoice?.type).toBe("choose_target");
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [victimId] }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [victimId] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -513,12 +513,12 @@ describe("§4 Set 4 — Sing Together", () => {
     ({ state, instanceId: victimId } = injectCard(state, "player2", "mr-smee-loyal-first-mate", "play", { isDrying: false }));
     state = giveInk(state, "player1", 6);
 
-    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(state.pendingChoice?.type).toBe("choose_may");
 
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "decline" }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "decline" }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -541,7 +541,7 @@ describe("§4 Set 4 — Sing Together", () => {
     // Just enough ink for the song (cost 3) and not a drop more.
     state = giveInk(state, "player1", 3);
 
-    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -570,7 +570,7 @@ describe("§4 Set 4 — Noi Acrobatic Baby (damage_prevention_timed)", () => {
       { type: "damage_prevention_timed", target: { type: "this" }, source: "challenge", duration: "this_turn" },
       noiId,
       "player1",
-      LORCAST_CARD_DEFINITIONS,
+      CARD_DEFINITIONS,
       []
     );
     // TimedEffect attached
@@ -581,7 +581,7 @@ describe("§4 Set 4 — Noi Acrobatic Baby (damage_prevention_timed)", () => {
       playerId: "player1",
       attackerInstanceId: noiId,
       defenderInstanceId: defenderId,
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     // Noi took 0 damage (defender STR 3 would have dealt 3); defender took 4
     // → banished (WP 3).
@@ -598,7 +598,7 @@ describe("§4 Set 4 — Noi Acrobatic Baby (damage_prevention_timed)", () => {
       { type: "damage_prevention_timed", target: { type: "this" }, source: "challenge", duration: "end_of_turn" },
       noiId,
       "player1",
-      LORCAST_CARD_DEFINITIONS,
+      CARD_DEFINITIONS,
       []
     );
     expect(getInstance(state, noiId).timedEffects.some(te => te.type === "damage_prevention")).toBe(true);
@@ -623,14 +623,14 @@ describe("§4 Set 4 — Noi Acrobatic Baby (damage_prevention_timed)", () => {
 
     let r = applyAction(state, {
       type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: hadesId, abilityIndex: 0,
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     // Hades exerts as a cost, then a banish choice is pending
     expect(getInstance(state, hadesId).isExerted).toBe(true);
     expect(state.pendingChoice?.type).toBe("choose_target");
     // Choose the sacrificial character
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [sacId] }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [sacId] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     // Now the play_for_free choice should be pending, restricted to Mickey (not Maleficent)
@@ -638,10 +638,10 @@ describe("§4 Set 4 — Noi Acrobatic Baby (damage_prevention_timed)", () => {
     // Valid targets = Mickey Mouse cards in hand (starter deck may contain extras).
     expect(state.pendingChoice!.validTargets).toContain(copyInHandId);
     for (const id of state.pendingChoice!.validTargets as string[]) {
-      const def = LORCAST_CARD_DEFINITIONS[state.cards[id]!.definitionId]!;
+      const def = CARD_DEFINITIONS[state.cards[id]!.definitionId]!;
       expect(def.name).toBe("Mickey Mouse");
     }
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [copyInHandId] }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [copyInHandId] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     // The sacrificed Mickey is banished; the replayed Mickey is in play.
@@ -658,18 +658,18 @@ describe("§4 Set 4 — Noi Acrobatic Baby (damage_prevention_timed)", () => {
     ({ state, instanceId: victimId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
     state = giveInk(state, "player1", 5);
 
-    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: ambushId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: ambushId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     // First: choose the character to exert
     expect(state.pendingChoice?.type).toBe("choose_target");
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [attackerId] }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [attackerId] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(getInstance(state, attackerId).isExerted).toBe(true);
     // Then: choose the damage target
     expect(state.pendingChoice?.type).toBe("choose_target");
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [victimId] }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [victimId] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     // Mickey has strength 3 + willpower 3 → victim Mickey takes 3 damage from Ambush and
@@ -690,18 +690,18 @@ describe("§4 Set 4 — Noi Acrobatic Baby (damage_prevention_timed)", () => {
     const baymaxInHand = getZone(state, "player1", "hand").find(id =>
       state.cards[id]!.definitionId === "baymax-armored-companion"
     )!;
-    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: baymaxInHand }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: baymaxInHand }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     const loreBefore = state.players.player1.lore;
     // enters_play trigger → choose_may
     expect(state.pendingChoice?.type).toBe("choose_may");
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     // Choose the damaged ally
     expect(state.pendingChoice?.type).toBe("choose_target");
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [allyId] }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [allyId] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     // Only 1 damage was actually removed even though "up to 2" → exactly 1 lore gained.
@@ -733,9 +733,9 @@ describe("§4 Set 4 — Noi Acrobatic Baby (damage_prevention_timed)", () => {
 
     // Apply the activated ability's effects directly (the {E} cost is
     // orthogonal to the engine extension under test).
-    const def = LORCAST_CARD_DEFINITIONS["the-queen-diviner"];
+    const def = CARD_DEFINITIONS["the-queen-diviner"];
     for (const e of def.abilities[0]!.effects!) {
-      state = applyEffect(state, e as any, queenId, "player1", LORCAST_CARD_DEFINITIONS, []);
+      state = applyEffect(state, e as any, queenId, "player1", CARD_DEFINITIONS, []);
     }
 
     // The cheap item should now be in play AND exerted (not in hand).
@@ -766,7 +766,7 @@ describe("§4 Set 4 — Noi Acrobatic Baby (damage_prevention_timed)", () => {
       amount: 3,
       duration: "this_turn",
       target: { type: "this" }
-    } as any, singerId, "player1", LORCAST_CARD_DEFINITIONS, []);
+    } as any, singerId, "player1", CARD_DEFINITIONS, []);
 
     // Verify the timed effect landed on the singer.
     const singerInst = getInstance(state, singerId);
@@ -799,7 +799,7 @@ describe("§4 Set 4 — Noi Acrobatic Baby (damage_prevention_timed)", () => {
     // is orthogonal to the engine extension under test). Bot path: peeks the
     // top card, "names" it correctly, applies matchAction → to_hand, then
     // gainLoreOnHit fires.
-    state = applyEffect(state, { type: "name_a_card_then_reveal", target: { type: "self" }, gainLoreOnHit: 3 } as any, brunoId, "player1", LORCAST_CARD_DEFINITIONS, []);
+    state = applyEffect(state, { type: "name_a_card_then_reveal", target: { type: "self" }, gainLoreOnHit: 3 } as any, brunoId, "player1", CARD_DEFINITIONS, []);
 
     expect(getZone(state, "player1", "hand").length).toBe(handBefore + 1);
     expect(state.players.player1.lore).toBe(loreBefore + 3);
@@ -821,7 +821,7 @@ describe("§4 Set 4 — Diablo Devoted Herald (altShiftCost discard)", () => {
 
     // One action per shift target — no per-combo fanout. The cost picker
     // surfaces as a pendingChoice after the click (same pattern as Belle/Scrooge).
-    const actions = getAllLegalActions(state, "player1", LORCAST_CARD_DEFINITIONS);
+    const actions = getAllLegalActions(state, "player1", CARD_DEFINITIONS);
     const shiftAction = actions.find(a =>
       a.type === "PLAY_CARD" &&
       a.instanceId === shiftId &&
@@ -832,13 +832,13 @@ describe("§4 Set 4 — Diablo Devoted Herald (altShiftCost discard)", () => {
     expect((shiftAction as any).altShiftCostInstanceIds).toBeUndefined();
 
     // Apply it — should surface choose_target for the discard cost.
-    let r = applyAction(state, shiftAction!, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, shiftAction!, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     expect(r.newState.pendingChoice?.type).toBe("choose_target");
     expect(r.newState.pendingChoice?.validTargets).toContain(actionId);
 
     // Pick the action card as the discard.
-    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [actionId] }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [actionId] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -865,18 +865,18 @@ describe("§4 Set 4 — Diablo Devoted Herald (altShiftCost discard)", () => {
       state = r.state;
       picks.push(r.instanceId);
     }
-    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: shiftId, shiftTargetInstanceId: baseId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: shiftId, shiftTargetInstanceId: baseId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     expect(r.newState.pendingChoice?.count).toBe(2);
 
     // 1 pick rejected (exactly 2 required).
-    let bad = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: picks.slice(0, 1) }, LORCAST_CARD_DEFINITIONS);
+    let bad = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: picks.slice(0, 1) }, CARD_DEFINITIONS);
     expect(bad.success).toBe(false);
     // 3 picks also rejected.
-    bad = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: picks }, LORCAST_CARD_DEFINITIONS);
+    bad = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: picks }, CARD_DEFINITIONS);
     expect(bad.success).toBe(false);
     // 2 picks resolve.
-    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: picks.slice(0, 2) }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: picks.slice(0, 2) }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     expect(getInstance(r.newState, picks[0]!).zone).toBe("discard");
     expect(getInstance(r.newState, picks[1]!).zone).toBe("discard");
@@ -896,7 +896,7 @@ describe("§4 Set 4 — Diablo Devoted Herald (altShiftCost discard)", () => {
     ({ state, instanceId: shiftId } = injectCard(state, "player1", "diablo-devoted-herald", "hand"));
     // No action card in hand — can't pay the cost
 
-    const actions = getAllLegalActions(state, "player1", LORCAST_CARD_DEFINITIONS);
+    const actions = getAllLegalActions(state, "player1", CARD_DEFINITIONS);
     const shiftAction = actions.find(a =>
       a.type === "PLAY_CARD" &&
       a.instanceId === shiftId &&
@@ -920,7 +920,7 @@ describe("§4 Set 4 — look_at_top up_to_n_to_hand_rest_bottom variants", () =>
     // ...actually DALD costs 8 and has Sing Together 8; pay ink directly
     const r = applyAction(state, {
       type: "PLAY_CARD", playerId: "player1", instanceId: daldId,
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
 
     // Interactive mode: should present a choose_from_revealed mandatory pick
@@ -933,7 +933,7 @@ describe("§4 Set 4 — look_at_top up_to_n_to_hand_rest_bottom variants", () =>
     const [pick1, pick2] = r.newState.pendingChoice!.validTargets!;
     const r2 = applyAction(r.newState, {
       type: "RESOLVE_CHOICE", playerId: "player1", choice: [pick1!, pick2!],
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(r2.success).toBe(true);
 
     // Both picks should be in hand (handBefore - 1 for DALD + 2 picks = handBefore + 1)
@@ -976,7 +976,7 @@ describe("§4 Set 4 — look_at_top up_to_n_to_hand_rest_bottom variants", () =>
 
     const r = applyAction(state, {
       type: "PLAY_CARD", playerId: "player1", instanceId: daldId,
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
 
     // With only 1 card in deck, look_at_top sees 1 card.
@@ -988,7 +988,7 @@ describe("§4 Set 4 — look_at_top up_to_n_to_hand_rest_bottom variants", () =>
     const pick = r.newState.pendingChoice!.validTargets![0]!;
     const r2 = applyAction(r.newState, {
       type: "RESOLVE_CHOICE", playerId: "player1", choice: [pick],
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(r2.success).toBe(true);
 
     // One card moved to hand
@@ -1007,7 +1007,7 @@ describe("§4 Set 4 — look_at_top up_to_n_to_hand_rest_bottom variants", () =>
 
     const r = applyAction(state, {
       type: "PLAY_CARD", playerId: "player1", instanceId: latfId,
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
 
     expect(r.newState.pendingChoice?.type).toBe("choose_from_revealed");
@@ -1018,7 +1018,7 @@ describe("§4 Set 4 — look_at_top up_to_n_to_hand_rest_bottom variants", () =>
     const picks = r.newState.pendingChoice!.validTargets!.slice(0, 2);
     const r2 = applyAction(r.newState, {
       type: "RESOLVE_CHOICE", playerId: "player1", choice: picks,
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(r2.success).toBe(true);
 
     // Both picks revealed (revealPicks: true → 2 card_revealed events)
@@ -1036,7 +1036,7 @@ describe("§4 Set 4 — CRD 6.1.6 excludeSelf on self-trigger", () => {
     state = giveInk(state, "player1", 5);
     let keeperId: string;
     ({ state, instanceId: keeperId } = injectCard(state, "player1", "magic-broom-illuminary-keeper", "hand"));
-    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: keeperId }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: keeperId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     // No NICE AND TIDY may choice: excludeSelf should reject self-trigger.
     expect(r.newState.pendingChoice).toBeFalsy();
@@ -1049,7 +1049,7 @@ describe("§4 Set 4 — CRD 6.1.6 excludeSelf on self-trigger", () => {
     let keeperId: string, otherId: string;
     ({ state, instanceId: keeperId } = injectCard(state, "player1", "magic-broom-illuminary-keeper", "play", { isDrying: false }));
     ({ state, instanceId: otherId } = injectCard(state, "player1", "mickey-mouse-true-friend", "hand"));
-    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: otherId }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: otherId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     expect(r.newState.pendingChoice).toBeDefined();
     expect(r.newState.pendingChoice?.choosingPlayerId).toBe("player1");

@@ -26,7 +26,7 @@ import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..");
 const OUT_DIR = join(REPO_ROOT, "packages/engine/src/cards");
-const OUT_TS = join(OUT_DIR, "lorcastCards.ts");
+const OUT_TS = join(OUT_DIR, "cardDefinitions.ts");
 
 function setJsonPath(setCode: string): string {
   const padded = setCode.padStart(3, "0");
@@ -618,7 +618,7 @@ async function main() {
     console.log(`  Wrote ${setCards.length} cards → ${outPath}`);
   }
 
-  // Regenerate lorcastCards.ts with ALL set files present on disk (not just
+  // Regenerate cardDefinitions.ts with ALL set files present on disk (not just
   // the ones we imported this run — so partial re-imports don't drop other
   // sets or promo files that still come from Lorcast importer).
   const allSetCodes = readdirSync(OUT_DIR)
@@ -659,7 +659,7 @@ function manualAbilityCount(c: CardDefinition): number {
 }
 
 /** For duplicate IDs (reprints), keep the copy with more implemented abilities. */
-export const LORCAST_CARD_DEFINITIONS: Record<string, CardDefinition> =
+export const CARD_DEFINITIONS: Record<string, CardDefinition> =
   cards.reduce<Record<string, CardDefinition>>((map, c) => {
     const existing = map[c.id];
     if (!existing || manualAbilityCount(c) > manualAbilityCount(existing)) {
@@ -668,7 +668,7 @@ export const LORCAST_CARD_DEFINITIONS: Record<string, CardDefinition> =
     return map;
   }, {});
 
-export const LORCAST_CARDS: CardDefinition[] = cards;
+export const ALL_CARDS: CardDefinition[] = cards;
 `;
 
   writeFileSync(OUT_TS, tsModule, "utf-8");

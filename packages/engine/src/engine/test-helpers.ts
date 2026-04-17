@@ -6,7 +6,7 @@
 import { expect } from "vitest";
 import { applyAction } from "../engine/reducer.js";
 import { createGame } from "../engine/initializer.js";
-import { LORCAST_CARD_DEFINITIONS } from "../cards/lorcastCards.js";
+import { CARD_DEFINITIONS } from "../cards/cardDefinitions.js";
 import { generateId, getZone } from "../utils/index.js";
 import type { CardInstance, GameState, DeckEntry } from "../index.js";
 
@@ -28,7 +28,7 @@ import type { CardInstance, GameState, DeckEntry } from "../index.js";
 // eye-of-the-fates               item                        cost 4  inkable         ↷: chosen char +1 lore this turn (SEE THE FUTURE)
 // ---------------------------------------------------------------------------
 
-export { LORCAST_CARD_DEFINITIONS };
+export { CARD_DEFINITIONS };
 
 export function buildTestDeck(cardIds: string[], fillerId = "minnie-mouse-beloved-princess"): DeckEntry[] {
   const entries: DeckEntry[] = cardIds.map((id) => ({ definitionId: id, count: 4 }));
@@ -50,10 +50,10 @@ export function startGame(
 ): GameState {
   let state = createGame(
     { player1Deck: buildTestDeck(p1Cards), player2Deck: buildTestDeck(p2Cards), seed: TEST_SEED },
-    LORCAST_CARD_DEFINITIONS
+    CARD_DEFINITIONS
   );
-  state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [] }, LORCAST_CARD_DEFINITIONS).newState;
-  state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player2", choice: [] }, LORCAST_CARD_DEFINITIONS).newState;
+  state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [] }, CARD_DEFINITIONS).newState;
+  state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player2", choice: [] }, CARD_DEFINITIONS).newState;
   return state;
 }
 
@@ -117,7 +117,7 @@ export function setLore(state: GameState, playerId: "player1" | "player2", amoun
 export function passTurns(state: GameState, count: number): GameState {
   let s = state;
   for (let i = 0; i < count; i++) {
-    const result = applyAction(s, { type: "PASS_TURN", playerId: s.currentPlayer }, LORCAST_CARD_DEFINITIONS);
+    const result = applyAction(s, { type: "PASS_TURN", playerId: s.currentPlayer }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     s = result.newState;
   }

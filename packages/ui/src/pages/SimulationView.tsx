@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from "react";
-import { LORCAST_CARD_DEFINITIONS, parseDecklist } from "@lorcana-sim/engine";
+import { CARD_DEFINITIONS, parseDecklist } from "@lorcana-sim/engine";
 import { runSimulation, RandomBot, GreedyBot } from "@lorcana-sim/simulator";
 import type { BotStrategy } from "@lorcana-sim/simulator";
 import { aggregateResults, compareDecks } from "@lorcana-sim/analytics";
@@ -45,7 +45,7 @@ function WinRateBar({ value, color = "bg-amber-500", label }: { value: number; c
 }
 
 function DeckField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
-  const { errors, entries } = useMemo(() => parseDecklist(value, LORCAST_CARD_DEFINITIONS), [value]);
+  const { errors, entries } = useMemo(() => parseDecklist(value, CARD_DEFINITIONS), [value]);
   const count = entries.reduce((s, e) => s + e.count, 0);
   return (
     <div className="flex-1 space-y-1.5">
@@ -76,8 +76,8 @@ export default function SimulationView() {
   const [mirrorStats, setMirrorStats] = useState<DeckStats | null>(null);
   const [matchupStats, setMatchupStats] = useState<MatchupStats | null>(null);
 
-  const parsed1 = useMemo(() => parseDecklist(deck1Text, LORCAST_CARD_DEFINITIONS), [deck1Text]);
-  const parsed2 = useMemo(() => parseDecklist(deck2Text, LORCAST_CARD_DEFINITIONS), [deck2Text]);
+  const parsed1 = useMemo(() => parseDecklist(deck1Text, CARD_DEFINITIONS), [deck1Text]);
+  const parsed2 = useMemo(() => parseDecklist(deck2Text, CARD_DEFINITIONS), [deck2Text]);
 
   const canRun = parsed1.entries.length > 0 && parsed1.errors.length === 0 &&
     (mode === "mirror" || (parsed2.entries.length > 0 && parsed2.errors.length === 0));
@@ -88,7 +88,7 @@ export default function SimulationView() {
     setMirrorStats(null);
     setMatchupStats(null);
     // TODO: move to a Web Worker to avoid blocking the main thread on large
-    // iteration counts. Requires serializing LORCAST_CARD_DEFINITIONS (~2MB)
+    // iteration counts. Requires serializing CARD_DEFINITIONS (~2MB)
     // and posting results back via postMessage.
     setTimeout(() => {
       try {
@@ -99,7 +99,7 @@ export default function SimulationView() {
           player2Deck: p2Deck,
           player1Strategy: bot,
           player2Strategy: bot,
-          definitions: LORCAST_CARD_DEFINITIONS,
+          definitions: CARD_DEFINITIONS,
           iterations,
         });
         if (mode === "mirror") {

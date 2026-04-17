@@ -13,7 +13,7 @@ import {
   cloneRng,
   createGame,
   getAllLegalActions,
-  LORCAST_CARD_DEFINITIONS,
+  CARD_DEFINITIONS,
 } from "@lorcana-sim/engine";
 import { RandomBot } from "../../bots/RandomBot.js";
 import { RLPolicy } from "../policy.js";
@@ -21,7 +21,7 @@ import { trainPolicy } from "../trainer.js";
 import { stateToFeatures, actionToFeatures } from "../autoTag.js";
 import { traceGame, aggregateTraces } from "../testUtils.js";
 
-const definitions = LORCAST_CARD_DEFINITIONS;
+const definitions = CARD_DEFINITIONS;
 
 const LILO_STITCH_DECK = [
   { definitionId: "lilo-making-a-wish", count: 30 },

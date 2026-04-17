@@ -6,7 +6,7 @@
 import { describe, it, expect } from "vitest";
 import { applyAction, applyEffect } from "./reducer.js";
 import {
-  LORCAST_CARD_DEFINITIONS,
+  CARD_DEFINITIONS,
   startGame,
   injectCard,
 } from "./test-helpers.js";
@@ -26,10 +26,10 @@ describe("DynamicAmount variants", () => {
       type: "deal_damage",
       amount: { type: "target_damage" },
       target: { type: "chosen", filter: { zone: "play", cardType: ["character"], owner: { type: "opponent" } } },
-    } as any, srcId, "player1", LORCAST_CARD_DEFINITIONS, []);
+    } as any, srcId, "player1", CARD_DEFINITIONS, []);
 
     expect(state.pendingChoice?.type).toBe("choose_target");
-    const r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [victimId] }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [victimId] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     // Should now have 3 + 3 = 6 damage (Mickey True Friend has willpower 3 so would be banished)
     // Check that victim was banished because 3+3 >= 3 (willpower)
@@ -54,10 +54,10 @@ describe("DynamicAmount variants", () => {
         { type: "gain_lore", amount: { type: "target_lore" }, target: { type: "self" } },
       ],
       defaultEffects: [],
-    } as any, srcId, "player1", LORCAST_CARD_DEFINITIONS, []);
+    } as any, srcId, "player1", CARD_DEFINITIONS, []);
 
     expect(state.pendingChoice?.type).toBe("choose_target");
-    const r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId] }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     expect(r.newState.players.player1.lore).toBe(loreBefore + 1);
   });
@@ -74,9 +74,9 @@ describe("DynamicAmount variants", () => {
       type: "deal_damage",
       amount: { type: "source_strength" },
       target: { type: "chosen", filter: { zone: "play", cardType: ["character"], owner: { type: "opponent" } } },
-    } as any, srcId, "player1", LORCAST_CARD_DEFINITIONS, []);
+    } as any, srcId, "player1", CARD_DEFINITIONS, []);
 
-    const r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [victimId] }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [victimId] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     // Victim had willpower 3, took 3 damage → banished
     expect(r.newState.cards[victimId]?.zone).toBe("discard");
@@ -93,7 +93,7 @@ describe("DynamicAmount variants", () => {
       type: "gain_lore",
       amount: { type: "source_lore", max: 0 },
       target: { type: "self" },
-    } as any, srcId, "player1", LORCAST_CARD_DEFINITIONS, []);
+    } as any, srcId, "player1", CARD_DEFINITIONS, []);
     // Capped to 0 — no lore gained
     expect(state.players.player1.lore).toBe(loreBefore);
 
@@ -102,7 +102,7 @@ describe("DynamicAmount variants", () => {
       type: "gain_lore",
       amount: { type: "source_lore" },
       target: { type: "self" },
-    } as any, srcId, "player1", LORCAST_CARD_DEFINITIONS, []);
+    } as any, srcId, "player1", CARD_DEFINITIONS, []);
     expect(state.players.player1.lore).toBe(loreBefore + 1);
   });
 });

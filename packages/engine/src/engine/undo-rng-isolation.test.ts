@@ -16,7 +16,7 @@
 //      different game than the original.
 import { describe, it, expect } from "vitest";
 import { applyAction } from "./reducer.js";
-import { startGame, LORCAST_CARD_DEFINITIONS, injectCard } from "./test-helpers.js";
+import { startGame, CARD_DEFINITIONS, injectCard } from "./test-helpers.js";
 
 describe("applyAction RNG isolation", () => {
   it("does not mutate the caller's rng.s array", () => {
@@ -37,7 +37,7 @@ describe("applyAction RNG isolation", () => {
     const r = applyAction(
       state,
       { type: "QUEST", playerId: "player1", instanceId: fred.instanceId },
-      LORCAST_CARD_DEFINITIONS,
+      CARD_DEFINITIONS,
     );
     expect(r.success).toBe(true);
 
@@ -63,8 +63,8 @@ describe("applyAction RNG isolation", () => {
     const initialRef = state;
     const action = { type: "QUEST" as const, playerId: "player1" as const, instanceId: fred.instanceId };
 
-    const run1 = applyAction(initialRef, action, LORCAST_CARD_DEFINITIONS);
-    const run2 = applyAction(initialRef, action, LORCAST_CARD_DEFINITIONS);
+    const run1 = applyAction(initialRef, action, CARD_DEFINITIONS);
+    const run2 = applyAction(initialRef, action, CARD_DEFINITIONS);
 
     expect(run1.success).toBe(true);
     expect(run2.success).toBe(true);

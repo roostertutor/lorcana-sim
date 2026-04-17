@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { LORCAST_CARD_DEFINITIONS, parseDecklist } from "@lorcana-sim/engine";
+import { CARD_DEFINITIONS, parseDecklist } from "@lorcana-sim/engine";
 import type { DeckEntry } from "@lorcana-sim/engine";
 import { supabase } from "../lib/supabase.js";
 import { createLobby, joinLobby, ensureProfile, getLobbyGame, getProfile, getGameHistory } from "../lib/serverApi.js";
@@ -68,7 +68,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   }, [session]);
 
   const { entries: deck, errors: deckErrors } = useMemo(
-    () => parseDecklist(deckText, LORCAST_CARD_DEFINITIONS),
+    () => parseDecklist(deckText, CARD_DEFINITIONS),
     [deckText],
   );
 
@@ -209,7 +209,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
             savedDecks.length > 0 ? (
               <div className="space-y-1.5">
                 {savedDecks.map((d) => {
-                  const parsed = parseDecklist(d.decklist_text, LORCAST_CARD_DEFINITIONS);
+                  const parsed = parseDecklist(d.decklist_text, CARD_DEFINITIONS);
                   const count = parsed.entries.reduce((s, e) => s + e.count, 0);
                   const isValid = parsed.entries.length > 0 && parsed.errors.length === 0;
                   return (

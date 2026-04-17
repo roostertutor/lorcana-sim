@@ -7,7 +7,7 @@ import { describe, it, expect } from "vitest";
 import { applyAction, applyEffect, getAllLegalActions } from "./reducer.js";
 import { getGameModifiers } from "./gameModifiers.js";
 import {
-  LORCAST_CARD_DEFINITIONS,
+  CARD_DEFINITIONS,
   startGame,
   injectCard,
   giveInk,
@@ -28,7 +28,7 @@ describe("§9 Set 9 — Max Goof Rockin' Teen (cant_action_self move)", () => {
       playerId: "player1",
       characterInstanceId: maxId,
       locationInstanceId: locId,
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(r.success).toBe(false);
     expect(r.error).toMatch(/can't move/i);
   });
@@ -45,7 +45,7 @@ describe("§9 Set 9 — Max Goof Rockin' Teen (cant_action_self move)", () => {
     ({ state, instanceId: carpetId } = injectCard(state, "player1", "magic-carpet-flying-rug", "play", { isDrying: false }));
 
     // Activate FIND THE WAY — exert + choose character + location.
-    let r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: carpetId, abilityIndex: 1 }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: carpetId, abilityIndex: 1 }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -53,13 +53,13 @@ describe("§9 Set 9 — Max Goof Rockin' Teen (cant_action_self move)", () => {
     // doesn't pre-exclude restricted characters — the restriction is enforced
     // when performMove runs).
     expect(state.pendingChoice?.type).toBe("choose_target");
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [maxId] }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [maxId] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
     // Stage 2: choose the location.
     expect(state.pendingChoice?.type).toBe("choose_target");
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [locId] }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [locId] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -80,7 +80,7 @@ describe("§9 Set 9 — Max Goof Rockin' Teen (cant_action_self move)", () => {
       playerId: "player1",
       characterInstanceId: mickeyId,
       locationInstanceId: locId,
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(getInstance(state, mickeyId).atLocationInstanceId).toBe(locId);
@@ -99,7 +99,7 @@ describe("§11 Set 11 — John Smith's Compass YOUR PATH (anyOf filter)", () => 
     let pocahontasId: string;
     ({ state, instanceId: pocahontasId } = injectCard(state, "player1", "pocahontas-peacekeeper", "deck"));
     const inst = getInstance(state, pocahontasId);
-    const def = LORCAST_CARD_DEFINITIONS["pocahontas-peacekeeper"]!;
+    const def = CARD_DEFINITIONS["pocahontas-peacekeeper"]!;
 
     // cardType character + (cost ≤ 3 OR named Pocahontas).
     // Cost-3-or-less branch FAILS (cost is 5). Pocahontas branch matches.
@@ -115,7 +115,7 @@ describe("§11 Set 11 — John Smith's Compass YOUR PATH (anyOf filter)", () => 
     let muscleId: string;
     ({ state, instanceId: muscleId } = injectCard(state, "player1", "hercules-mighty-leader", "deck"));
     const muscleInst = getInstance(state, muscleId);
-    const muscleDef = LORCAST_CARD_DEFINITIONS["hercules-mighty-leader"]!;
+    const muscleDef = CARD_DEFINITIONS["hercules-mighty-leader"]!;
     expect(matchesFilter(muscleInst, muscleDef, {
       cardType: ["character"],
       anyOf: [
@@ -128,7 +128,7 @@ describe("§11 Set 11 — John Smith's Compass YOUR PATH (anyOf filter)", () => 
     let cheapId: string;
     ({ state, instanceId: cheapId } = injectCard(state, "player1", "thomas-wide-eyed-recruit", "deck"));
     const cheapInst = getInstance(state, cheapId);
-    const cheapDef = LORCAST_CARD_DEFINITIONS["thomas-wide-eyed-recruit"]!;
+    const cheapDef = CARD_DEFINITIONS["thomas-wide-eyed-recruit"]!;
     expect(matchesFilter(cheapInst, cheapDef, {
       cardType: ["character"],
       anyOf: [
@@ -169,13 +169,13 @@ describe("§6 Set 6 — Tiana Restaurant Owner (opponent_may_pay_to_avoid)", () 
       [tianaId]: { ...state.cards[tianaId]!, isExerted: true },
     }};
 
-    const r = applyAction(state, { type: "CHALLENGE", playerId: "player2", attackerInstanceId: attackerId, defenderInstanceId: defenderId }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "CHALLENGE", playerId: "player2", attackerInstanceId: attackerId, defenderInstanceId: defenderId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
     // The challenge resolves; Tiana's trigger is now in the trigger stack.
     // Process the stack to surface the choose_may.
-    let r2 = applyAction(state, { type: "PROCESS_TRIGGERS", playerId: "player1" } as any, LORCAST_CARD_DEFINITIONS);
+    let r2 = applyAction(state, { type: "PROCESS_TRIGGERS", playerId: "player1" } as any, CARD_DEFINITIONS);
     if (r2.success) state = r2.newState;
 
     // Choose_may should be surfaced to player2 (the attacker's owner).
@@ -201,7 +201,7 @@ describe("§11 Set 11 — Graveyard of Christmas Future", () => {
       playerId: "player1",
       characterInstanceId: mickeyId,
       locationInstanceId: graveyardId,
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -225,7 +225,7 @@ describe("§11 Set 11 — Graveyard of Christmas Future", () => {
       playerId: "player1",
       characterInstanceId: mickey1Id,
       locationInstanceId: graveyardId,
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(getInstance(state, graveyardId).cardsUnder.length).toBe(1);
@@ -238,7 +238,7 @@ describe("§11 Set 11 — Graveyard of Christmas Future", () => {
     // ANOTHER CHANCE is a "may" — surfaces a choose_may pendingChoice for the controller
     expect(state.pendingChoice?.type).toBe("choose_may");
     const handSizeBeforeMay = getZone(state, "player1", "hand").length;
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -252,7 +252,7 @@ describe("§11 Set 11 — Keep the Ancient Ways (restrict_play action+item)", ()
   it("KAW actionEffects actually creates playRestrictions via applyAction", () => {
     let state = startGame();
     // Pass to player2's turn
-    state = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, LORCAST_CARD_DEFINITIONS).newState;
+    state = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, CARD_DEFINITIONS).newState;
     state = giveInk(state, "player2", 5);
     let songId: string;
     ({ state, instanceId: songId } = injectCard(state, "player2", "keep-the-ancient-ways", "hand"));
@@ -261,7 +261,7 @@ describe("§11 Set 11 — Keep the Ancient Ways (restrict_play action+item)", ()
     expect(state.players.player1.playRestrictions?.length ?? 0).toBe(0);
 
     // Player2 plays the song through applyAction (full trigger/effect path)
-    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player2", instanceId: songId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player2", instanceId: songId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -275,14 +275,14 @@ describe("§11 Set 11 — Keep the Ancient Ways (restrict_play action+item)", ()
 
   it("restriction survives PASS_TURN and blocks opponent's action play", () => {
     let state = startGame();
-    state = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, LORCAST_CARD_DEFINITIONS).newState;
+    state = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, CARD_DEFINITIONS).newState;
     state = giveInk(state, "player2", 5);
     let songId: string;
     ({ state, instanceId: songId } = injectCard(state, "player2", "keep-the-ancient-ways", "hand"));
-    state = applyAction(state, { type: "PLAY_CARD", playerId: "player2", instanceId: songId }, LORCAST_CARD_DEFINITIONS).newState;
+    state = applyAction(state, { type: "PLAY_CARD", playerId: "player2", instanceId: songId }, CARD_DEFINITIONS).newState;
 
     // Player2 passes back to player1
-    let r = applyAction(state, { type: "PASS_TURN", playerId: "player2" }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "PASS_TURN", playerId: "player2" }, CARD_DEFINITIONS);
     state = r.newState;
 
     // Restriction should still be active
@@ -292,20 +292,20 @@ describe("§11 Set 11 — Keep the Ancient Ways (restrict_play action+item)", ()
     state = giveInk(state, "player1", 10);
     let actionId: string;
     ({ state, instanceId: actionId } = injectCard(state, "player1", "be-prepared", "hand"));
-    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: actionId }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: actionId }, CARD_DEFINITIONS);
     expect(r.success).toBe(false);
     expect(r.error).toMatch(/can't play/i);
   });
 
   it("restriction blocks SUNG actions too (not just normal-pay path)", () => {
     let state = startGame();
-    state = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, LORCAST_CARD_DEFINITIONS).newState;
+    state = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, CARD_DEFINITIONS).newState;
     state = giveInk(state, "player2", 5);
     let kawId: string;
     ({ state, instanceId: kawId } = injectCard(state, "player2", "keep-the-ancient-ways", "hand"));
-    state = applyAction(state, { type: "PLAY_CARD", playerId: "player2", instanceId: kawId }, LORCAST_CARD_DEFINITIONS).newState;
+    state = applyAction(state, { type: "PLAY_CARD", playerId: "player2", instanceId: kawId }, CARD_DEFINITIONS).newState;
     // Pass back to player1
-    state = applyAction(state, { type: "PASS_TURN", playerId: "player2" }, LORCAST_CARD_DEFINITIONS).newState;
+    state = applyAction(state, { type: "PASS_TURN", playerId: "player2" }, CARD_DEFINITIONS).newState;
 
     // Player1 tries to SING an action (Sudden Chill) — should be blocked
     state = giveInk(state, "player1", 5);
@@ -317,7 +317,7 @@ describe("§11 Set 11 — Keep the Ancient Ways (restrict_play action+item)", ()
       playerId: "player1",
       instanceId: songId,
       singerInstanceId: singerId,
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(r.success).toBe(false);
     expect(r.error).toMatch(/can't play/i);
   });
@@ -329,7 +329,7 @@ describe("§11 Set 11 — Keep the Ancient Ways (restrict_play action+item)", ()
     ({ state, instanceId: peteId } = injectCard(state, "player1", "pete-games-referee", "hand"));
 
     // Play Pete through applyAction
-    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: peteId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: peteId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -352,7 +352,7 @@ describe("§11 Set 11 — Grandmother Willow Ancient Advisor (static once-per-tu
     let willowA: string;
     ({ state, instanceId: willowA } = injectCard(state, "player1", "grandmother-willow-ancient-advisor", "hand"));
     let ink = state.players.player1.availableInk;
-    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: willowA }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: willowA }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(state.players.player1.availableInk).toBe(ink - 2); // full price — Willow wasn't in play yet
@@ -361,7 +361,7 @@ describe("§11 Set 11 — Grandmother Willow Ancient Advisor (static once-per-tu
     let willowB: string;
     ({ state, instanceId: willowB } = injectCard(state, "player1", "grandmother-willow-ancient-advisor", "hand"));
     ink = state.players.player1.availableInk;
-    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: willowB }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: willowB }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(state.players.player1.availableInk).toBe(ink - 1); // discounted by 1
@@ -371,7 +371,7 @@ describe("§11 Set 11 — Grandmother Willow Ancient Advisor (static once-per-tu
     let willowC: string;
     ({ state, instanceId: willowC } = injectCard(state, "player1", "grandmother-willow-ancient-advisor", "hand"));
     ink = state.players.player1.availableInk;
-    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: willowC }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: willowC }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(state.players.player1.availableInk).toBe(ink - 1); // discounted by 1, NOT 0
@@ -385,7 +385,7 @@ describe("§11 Set 11 — Grandmother Willow Ancient Advisor (static once-per-tu
     let liloId: string;
     ({ state, instanceId: liloId } = injectCard(state, "player1", "lilo-making-a-wish", "hand"));
     ink = state.players.player1.availableInk;
-    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: liloId }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: liloId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(state.players.player1.availableInk).toBe(ink); // free (cost 1 - 3 = 0)
@@ -394,7 +394,7 @@ describe("§11 Set 11 — Grandmother Willow Ancient Advisor (static once-per-tu
     let stitchId: string;
     ({ state, instanceId: stitchId } = injectCard(state, "player1", "stitch-new-dog", "hand"));
     ink = state.players.player1.availableInk;
-    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: stitchId }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: stitchId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(state.players.player1.availableInk).toBe(ink - 1); // full price
@@ -415,7 +415,7 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     const inkBefore = state.players.player1.availableInk;
     const deckTopBefore = getZone(state, "player1", "deck")[0]!;
 
-    const r = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -432,11 +432,11 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     let flynnId: string;
     ({ state, instanceId: flynnId } = injectCard(state, "player1", "flynn-rider-spectral-scoundrel", "play", { isDrying: false }));
 
-    let r = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
-    r = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, CARD_DEFINITIONS);
     expect(r.success).toBe(false);
   });
 
@@ -447,15 +447,15 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     ({ state, instanceId: flynnId } = injectCard(state, "player1", "flynn-rider-spectral-scoundrel", "play", { isDrying: false }));
 
     // Without cards under, the static condition is false → no bonus.
-    let mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    let mods = getGameModifiers(state, CARD_DEFINITIONS);
     expect(mods.statBonuses.get(flynnId)?.strength ?? 0).toBe(0);
 
     // Boost adds a card under → static fires.
-    const r = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
-    mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    mods = getGameModifiers(state, CARD_DEFINITIONS);
     const bonus = mods.statBonuses.get(flynnId);
     expect(bonus?.strength).toBe(2);
     expect(bonus?.lore).toBe(1);
@@ -474,7 +474,7 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
       playerId: "player1",
       instanceId: shiftId,
       shiftTargetInstanceId: baseId,
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -501,7 +501,7 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
 
     // Inject a synthetic static effect by mutating the card's runtime ability list.
     // Easier: just verify cardsUnder.length grows on each Boost.
-    let r = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(getInstance(state, flynnId).cardsUnder.length).toBe(1);
@@ -509,7 +509,7 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     // Pass turns to reset boostedThisTurn, then Boost again. Re-give ink after the pass.
     state = passTurns(state, 2);
     state = giveInk(state, "player1", 5);
-    r = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(getInstance(state, flynnId).cardsUnder.length).toBe(2);
@@ -521,12 +521,12 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     let flynnId: string;
     ({ state, instanceId: flynnId } = injectCard(state, "player1", "flynn-rider-spectral-scoundrel", "play", { isDrying: false }));
     // Boost twice (across turns) to put 2 cards under
-    let r = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     state = passTurns(state, 2);
     state = giveInk(state, "player1", 5);
-    r = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(getInstance(state, flynnId).cardsUnder.length).toBe(2);
@@ -537,7 +537,7 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     state = applyEffect(state, {
       type: "put_cards_under_into_hand",
       target: { type: "this" },
-    }, flynnId, "player1", LORCAST_CARD_DEFINITIONS, []);
+    }, flynnId, "player1", CARD_DEFINITIONS, []);
 
     expect(getInstance(state, flynnId).cardsUnder.length).toBe(0);
     expect(getZone(state, "player1", "hand").length).toBe(handBefore + 2);
@@ -557,12 +557,12 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     const inkBefore = state.players.player1.availableInk;
 
     // Boost Flynn — card_put_under fires, Diary's "may pay 1 to draw" should surface a choice.
-    const r = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     // Resolve any "may" pending choice — accept it (pay 1 ink, draw 1).
     while (state.pendingChoice) {
-      state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: state.pendingChoice.choosingPlayerId, choice: "accept" }, LORCAST_CARD_DEFINITIONS).newState;
+      state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: state.pendingChoice.choosingPlayerId, choice: "accept" }, CARD_DEFINITIONS).newState;
     }
     // Ink spent: 2 (boost cost) + 1 (may reward). Hand grew by 1 net (+1 draw − 0 = +1, but the boosted card left the deck → it's now "under", not in hand).
     expect(state.players.player1.availableInk).toBe(inkBefore - 2 - 1);
@@ -576,14 +576,14 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     ({ state, instanceId: ralphId } = injectCard(state, "player1", "wreck-it-ralph-raging-wrecker", "play", { isDrying: false }));
 
     // Zero cards under → no bonus.
-    let mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    let mods = getGameModifiers(state, CARD_DEFINITIONS);
     expect(mods.statBonuses.get(ralphId)?.strength ?? 0).toBe(0);
 
     // Boost once → +1 STR.
-    let r = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: ralphId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: ralphId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
-    mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    mods = getGameModifiers(state, CARD_DEFINITIONS);
     expect(mods.statBonuses.get(ralphId)?.strength).toBe(1);
   });
 
@@ -592,9 +592,9 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     state = giveInk(state, "player1", 5);
     let flynnId: string;
     ({ state, instanceId: flynnId } = injectCard(state, "player1", "flynn-rider-spectral-scoundrel", "play", { isDrying: false }));
-    const def = LORCAST_CARD_DEFINITIONS["flynn-rider-spectral-scoundrel"]!;
+    const def = CARD_DEFINITIONS["flynn-rider-spectral-scoundrel"]!;
     expect(matchesFilter(getInstance(state, flynnId), def, { hasCardUnder: true }, state, "player1")).toBe(false);
-    state = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, LORCAST_CARD_DEFINITIONS).newState;
+    state = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, CARD_DEFINITIONS).newState;
     expect(matchesFilter(getInstance(state, flynnId), def, { hasCardUnder: true }, state, "player1")).toBe(true);
     expect(matchesFilter(getInstance(state, flynnId), def, { hasCardUnder: false }, state, "player1")).toBe(false);
   });
@@ -604,7 +604,7 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     state = giveInk(state, "player1", 5);
     let flynnId: string;
     ({ state, instanceId: flynnId } = injectCard(state, "player1", "flynn-rider-spectral-scoundrel", "play", { isDrying: false }));
-    const actions = getAllLegalActions(state, "player1", LORCAST_CARD_DEFINITIONS);
+    const actions = getAllLegalActions(state, "player1", CARD_DEFINITIONS);
     expect(actions.some(a => a.type === "BOOST_CARD" && a.instanceId === flynnId)).toBe(true);
   });
 
@@ -616,12 +616,12 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     ({ state, instanceId: flynnId } = injectCard(state, "player1", "flynn-rider-spectral-scoundrel", "play", { isDrying: false }));
     const cond = { type: "you_control_matching" as const, filter: { hasCardUnder: true } };
     // No cards under Flynn yet → false.
-    expect(evaluateCondition(cond, state, LORCAST_CARD_DEFINITIONS, "player1", flynnId)).toBe(false);
+    expect(evaluateCondition(cond, state, CARD_DEFINITIONS, "player1", flynnId)).toBe(false);
     // Boost Flynn, now has a card under him → true for controller.
-    state = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, LORCAST_CARD_DEFINITIONS).newState;
-    expect(evaluateCondition(cond, state, LORCAST_CARD_DEFINITIONS, "player1", flynnId)).toBe(true);
+    state = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, CARD_DEFINITIONS).newState;
+    expect(evaluateCondition(cond, state, CARD_DEFINITIONS, "player1", flynnId)).toBe(true);
     // Opponent does not control a card with cards-under → false for opponent.
-    expect(evaluateCondition(cond, state, LORCAST_CARD_DEFINITIONS, "player2", flynnId)).toBe(false);
+    expect(evaluateCondition(cond, state, CARD_DEFINITIONS, "player2", flynnId)).toBe(false);
   });
 
   it("Webby Vanderquack Knowledge Seeker I'VE READ ABOUT THIS: +1 {L} while own card has cards-under", () => {
@@ -632,12 +632,12 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     ({ state, instanceId: flynnId } = injectCard(state, "player1", "flynn-rider-spectral-scoundrel", "play", { isDrying: false }));
 
     // No cards under anything yet → no bonus.
-    let mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    let mods = getGameModifiers(state, CARD_DEFINITIONS);
     expect(mods.statBonuses.get(webbyId)?.lore ?? 0).toBe(0);
 
     // Boost Flynn so Flynn has cardsUnder → Webby's static fires.
-    state = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, LORCAST_CARD_DEFINITIONS).newState;
-    mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    state = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, CARD_DEFINITIONS).newState;
+    mods = getGameModifiers(state, CARD_DEFINITIONS);
     expect(mods.statBonuses.get(webbyId)?.lore).toBe(1);
   });
 
@@ -647,13 +647,13 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     let mortyId: string;
     ({ state, instanceId: mortyId } = injectCard(state, "player1", "morty-fieldmouse-tiny-tim", "play", { isDrying: false }));
     // No cards under → no bonus.
-    let mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    let mods = getGameModifiers(state, CARD_DEFINITIONS);
     expect(mods.statBonuses.get(mortyId)?.lore ?? 0).toBe(0);
     // Apply put_top_of_deck_under effect directly (Boost keyword value may not
     // be set on this card; we exercise the underlying counting path).
-    state = applyEffect(state, { type: "put_top_card_under", target: { type: "this" } } as any, mortyId, "player1", LORCAST_CARD_DEFINITIONS, []);
-    state = applyEffect(state, { type: "put_top_card_under", target: { type: "this" } } as any, mortyId, "player1", LORCAST_CARD_DEFINITIONS, []);
-    mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    state = applyEffect(state, { type: "put_top_card_under", target: { type: "this" } } as any, mortyId, "player1", CARD_DEFINITIONS, []);
+    state = applyEffect(state, { type: "put_top_card_under", target: { type: "this" } } as any, mortyId, "player1", CARD_DEFINITIONS, []);
+    mods = getGameModifiers(state, CARD_DEFINITIONS);
     expect(mods.statBonuses.get(mortyId)?.lore).toBe(2);
   });
 
@@ -687,7 +687,7 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     };
 
     const inkBefore = state.players.player1.availableInk;
-    const charDef = LORCAST_CARD_DEFINITIONS["hades-lord-of-the-underworld"]!;
+    const charDef = CARD_DEFINITIONS["hades-lord-of-the-underworld"]!;
     const charCost = charDef.cost;
 
     // Activate Cauldron's RISE AND JOIN ME! (index 1; index 0 is THE CAULDRON CALLS).
@@ -696,7 +696,7 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
       playerId: "player1",
       instanceId: cauldronId,
       abilityIndex: 1,
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -709,7 +709,7 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
         type: "RESOLVE_CHOICE",
         playerId: state.pendingChoice.choosingPlayerId,
         choice: [charId],
-      }, LORCAST_CARD_DEFINITIONS);
+      }, CARD_DEFINITIONS);
       expect(r.success).toBe(true);
       state = r.newState;
     }
@@ -727,14 +727,14 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     let aliceId: string;
     ({ state, instanceId: aliceId } = injectCard(state, "player1", "alice-well-read-whisper", "play", { isDrying: false }));
     // Seed two under-cards via the direct effect.
-    state = applyEffect(state, { type: "put_top_card_under", target: { type: "this" } } as any, aliceId, "player1", LORCAST_CARD_DEFINITIONS, []);
-    state = applyEffect(state, { type: "put_top_card_under", target: { type: "this" } } as any, aliceId, "player1", LORCAST_CARD_DEFINITIONS, []);
+    state = applyEffect(state, { type: "put_top_card_under", target: { type: "this" } } as any, aliceId, "player1", CARD_DEFINITIONS, []);
+    state = applyEffect(state, { type: "put_top_card_under", target: { type: "this" } } as any, aliceId, "player1", CARD_DEFINITIONS, []);
     const aliceBefore = getInstance(state, aliceId);
     expect(aliceBefore.cardsUnder.length).toBe(2);
     const handBefore = getZone(state, "player1", "hand").length;
 
     // Quest → put_cards_under_into_hand fires.
-    state = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: aliceId }, LORCAST_CARD_DEFINITIONS).newState;
+    state = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: aliceId }, CARD_DEFINITIONS).newState;
 
     const aliceAfter = getInstance(state, aliceId);
     expect(aliceAfter.cardsUnder.length).toBe(0);
@@ -761,13 +761,13 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
 
     // Apply FG's effect chain directly. The sequential surfaces a banish
     // chooser; resolve it picking the opposing character.
-    const def = LORCAST_CARD_DEFINITIONS["fairy-godmother-magical-benefactor"]!;
+    const def = CARD_DEFINITIONS["fairy-godmother-magical-benefactor"]!;
     const stunningTrans = def.abilities.find((a: any) => a.storyName === "STUNNING TRANSFORMATION") as any;
-    state = applyEffect(state, stunningTrans.effects[0], fgId, "player1", LORCAST_CARD_DEFINITIONS, []);
+    state = applyEffect(state, stunningTrans.effects[0], fgId, "player1", CARD_DEFINITIONS, []);
 
     // Stage 1: banish chooser surfaces.
     expect(state.pendingChoice?.type).toBe("choose_target");
-    let r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [oppCharId] }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [oppCharId] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -795,7 +795,7 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     // should NOT pick up Judy's Alert grant. With DEPUTIZE he should.
     ({ state, instanceId: mickeyId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
 
-    const mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    const mods = getGameModifiers(state, CARD_DEFINITIONS);
 
     // Pre-pass: Bogo's DEPUTIZE granted Detective to the non-Detective Mickey.
     expect(mods.grantedTraits.get(mickeyId)?.has("Detective")).toBe(true);
@@ -825,7 +825,7 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
 
     // While Hercules is READY, the other Hero is unprotected — apply damage
     // via deal_damage (non-challenge source) and confirm it lands.
-    state = applyEffect(state, { type: "deal_damage", amount: 2, target: { type: "this" } } as any, otherHeroId, "player1", LORCAST_CARD_DEFINITIONS, []);
+    state = applyEffect(state, { type: "deal_damage", amount: 2, target: { type: "this" } } as any, otherHeroId, "player1", CARD_DEFINITIONS, []);
     expect(getInstance(state, otherHeroId).damage).toBe(2);
 
     // Heal, then exert Hercules and try again — the rider should kick in and
@@ -834,7 +834,7 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
       [otherHeroId]: { ...state.cards[otherHeroId]!, damage: 0 },
       [herculesId]:  { ...state.cards[herculesId]!,  isExerted: true },
     } };
-    state = applyEffect(state, { type: "deal_damage", amount: 2, target: { type: "this" } } as any, otherHeroId, "player1", LORCAST_CARD_DEFINITIONS, []);
+    state = applyEffect(state, { type: "deal_damage", amount: 2, target: { type: "this" } } as any, otherHeroId, "player1", CARD_DEFINITIONS, []);
     expect(getInstance(state, otherHeroId).damage).toBe(0);
   });
 });
@@ -858,19 +858,19 @@ describe("§CRD 3.2.1.4 / 3.2.3.1 — turn_start trigger defers draw step", () =
     const handSizeBefore = getZone(state, "player1", "hand").length;
 
     // Accept the may
-    let r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
     // First sub-choice: discard cost — pick the Princess from hand to discard
     expect(state.pendingChoice?.type).toBe("choose_discard");
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [arielId] }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [arielId] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
     // Second sub-choice: return target — pick the Mickey from discard
     expect(state.pendingChoice?.type).toBe("choose_target");
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [mickeyDiscardId] }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [mickeyDiscardId] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -902,7 +902,7 @@ describe("§P2 Promo — Lilo Escape Artist NO PLACE I'D RATHER BE (paid play fr
       } as any,
       liloId,
       "player1",
-      LORCAST_CARD_DEFINITIONS,
+      CARD_DEFINITIONS,
       [],
     );
     expect(newState.cards[liloId]?.zone).toBe("play");
@@ -927,7 +927,7 @@ describe("§P2 Promo — Lilo Escape Artist NO PLACE I'D RATHER BE (paid play fr
     expect(inkBefore).toBeGreaterThanOrEqual(2); // need to afford Lilo
 
     // Accept the may
-    let r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -951,7 +951,7 @@ describe("§10 Set 10 — Pluto Clever Cluefinder ON THE TRAIL", () => {
     // Activate ability index 0 (ON THE TRAIL)
     let r = applyAction(state, {
       type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: plutoId, abilityIndex: 0,
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -959,7 +959,7 @@ describe("§10 Set 10 — Pluto Clever Cluefinder ON THE TRAIL", () => {
     expect(state.pendingChoice?.type).toBe("choose_target");
     expect(state.pendingChoice?.validTargets).toContain(itemId);
 
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [itemId] }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [itemId] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -978,7 +978,7 @@ describe("§10 Set 10 — Pluto Clever Cluefinder ON THE TRAIL", () => {
 
     const r = applyAction(state, {
       type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: plutoId, abilityIndex: 0,
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -1005,17 +1005,17 @@ describe("§Engine — TimedEffect.sourceStoryName attribution", () => {
     ({ state, instanceId: otherId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
 
     // Quest with The Queen — triggers Support
-    let r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: queenId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: queenId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
     // Support's "may" → accept
     expect(state.pendingChoice?.type).toBe("choose_may");
-    state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS).newState;
+    state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS).newState;
 
     // Pick recipient
     expect(state.pendingChoice?.type).toBe("choose_target");
-    state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [otherId] }, LORCAST_CARD_DEFINITIONS).newState;
+    state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [otherId] }, CARD_DEFINITIONS).newState;
 
     // The recipient (Mickey) should have a modify_strength TimedEffect
     // attributed to "Support" (NOT undefined, NOT "ROYAL SUMMONS").
@@ -1039,23 +1039,23 @@ describe("§11 Set 11 — Snow Fort static strength + Support", () => {
     ({ state } = injectCard(state, "player1", "snow-fort", "play"));
 
     // Quest with HeiHei — should trigger Support
-    const r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: heiHeiId }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: heiHeiId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
     // Support triggers a "may" choice — accept it
     expect(state.pendingChoice?.type).toBe("choose_may");
-    state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS).newState;
+    state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS).newState;
 
     // Then chooses a target — pick Mickey
     expect(state.pendingChoice?.type).toBe("choose_target");
-    state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [mickeyId] }, LORCAST_CARD_DEFINITIONS).newState;
+    state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [mickeyId] }, CARD_DEFINITIONS).newState;
 
     // Mickey should have +2 strength from support (HeiHei base 1 + Snow Fort +1 = 2),
     // plus +1 static from Snow Fort himself, so effective strength = 3 + 2 + 1 = 6.
     const mickeyInst = getInstance(state, mickeyId);
-    const mickeyDef = LORCAST_CARD_DEFINITIONS[mickeyInst.definitionId]!;
-    const mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    const mickeyDef = CARD_DEFINITIONS[mickeyInst.definitionId]!;
+    const mods = getGameModifiers(state, CARD_DEFINITIONS);
     const mickeyStr = getEffectiveStrength(
       mickeyInst,
       mickeyDef,
@@ -1079,12 +1079,12 @@ describe("§10 Set 10 — Raksha Fearless Mother ON PATROL (self-only oncePerTur
     const inkBefore = state.players.player1.availableInk;
 
     // First move: 2 - 1 = 1 ink charged.
-    let r = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: rakshaId, locationInstanceId: locA }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: rakshaId, locationInstanceId: locA }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     expect(r.newState.players.player1.availableInk).toBe(inkBefore - 1);
 
     // Second move (same turn): full cost (2 ink).
-    r = applyAction(r.newState, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: rakshaId, locationInstanceId: locB }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(r.newState, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: rakshaId, locationInstanceId: locB }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     expect(r.newState.players.player1.availableInk).toBe(inkBefore - 1 - 2);
   });
@@ -1099,7 +1099,7 @@ describe("§10 Set 10 — Raksha Fearless Mother ON PATROL (self-only oncePerTur
 
     const inkBefore = state.players.player1.availableInk;
     // Move Mickey (not Raksha) — should pay full 2 ink.
-    const r = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: otherId, locationInstanceId: locA }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: otherId, locationInstanceId: locA }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     expect(r.newState.players.player1.availableInk).toBe(inkBefore - 2);
   });
@@ -1114,7 +1114,7 @@ describe("§10 Set 10 — played_this_turn unified condition", () => {
     // 0 cards played — per CRD 6.2.1 activation succeeds but effect fizzles.
     // (Cost is only {E} — no ink/card waste on fizzle beyond the exert.)
     const loreStart = state.players.player1.lore;
-    let r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: inkcasterId, abilityIndex: 0 }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: inkcasterId, abilityIndex: 0 }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     expect(r.newState.players.player1.lore).toBe(loreStart); // fizzled
     expect(getInstance(r.newState, inkcasterId).isExerted).toBe(true);
@@ -1124,14 +1124,14 @@ describe("§10 Set 10 — played_this_turn unified condition", () => {
     let charId: string, itemId: string;
     ({ state, instanceId: charId } = injectCard(state, "player1", "mickey-mouse-true-friend", "hand"));
     ({ state, instanceId: itemId } = injectCard(state, "player1", "fishbone-quill", "hand"));
-    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: charId }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: charId }, CARD_DEFINITIONS);
     state = r.newState;
-    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: itemId }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: itemId }, CARD_DEFINITIONS);
     state = r.newState;
     expect(state.players.player1.cardsPlayedThisTurn?.length).toBeGreaterThanOrEqual(2);
     // Now activation grants lore.
     const loreBefore = state.players.player1.lore;
-    r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: inkcasterId, abilityIndex: 0 }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: inkcasterId, abilityIndex: 0 }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     expect(r.newState.players.player1.lore).toBe(loreBefore + 1);
   });
@@ -1143,7 +1143,7 @@ describe("§10 Set 10 — played_this_turn unified condition", () => {
     ({ state, instanceId: ichabodId } = injectCard(state, "player1", "ichabod-crane-bookish-schoolmaster", "play", { isDrying: false }));
     // Quest with no cost-5+ played → condition fails, no inkwell put.
     const inkBefore = getZone(state, "player1", "inkwell").length;
-    let r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: ichabodId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: ichabodId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     expect(getZone(r.newState, "player1", "inkwell").length).toBe(inkBefore);
 
@@ -1152,10 +1152,10 @@ describe("§10 Set 10 — played_this_turn unified condition", () => {
     state = giveInk(state, "player1", 10);
     let bigCharId: string;
     ({ state, instanceId: bigCharId } = injectCard(state, "player1", "moana-of-motunui", "hand"));
-    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: bigCharId }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: bigCharId }, CARD_DEFINITIONS);
     state = r.newState;
     const inkBefore2 = getZone(state, "player1", "inkwell").length;
-    r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: ichabodId }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: ichabodId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     expect(getZone(r.newState, "player1", "inkwell").length).toBe(inkBefore2 + 1);
   });
@@ -1171,10 +1171,10 @@ describe("§10 Set 10 — Cinderella Dream Come True WHATEVER YOU WISH FOR", () 
     ({ state, instanceId: cindyId } = injectCard(state, "player1", "cinderella-dream-come-true", "play", { isDrying: false }));
     // Play Mickey's Princess-trait cousin — use an actual Princess.
     ({ state, instanceId: princessId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
-    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: princessId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: princessId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     // Pass turn → triggers WHATEVER YOU WISH FOR at end of player1's turn.
-    r = applyAction(r.newState, { type: "PASS_TURN", playerId: "player1" }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(r.newState, { type: "PASS_TURN", playerId: "player1" }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     // Should now have a sequential may choice (put-hand-card-to-inkwell → draw).
     expect(r.newState.pendingChoice).toBeDefined();
@@ -1195,20 +1195,20 @@ describe("§10 Set 10 — Cinderella Dream Come True WHATEVER YOU WISH FOR", () 
     ({ state, instanceId: cindy2Id } = injectCard(state, "player1", "cinderella-dream-come-true", "play", { isDrying: false }));
     // Play a Princess this turn so the condition is satisfied.
     ({ state, instanceId: princessId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
-    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: princessId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: princessId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
 
     // Pass → both Cindy triggers fire. First creates pendingChoice.
-    r = applyAction(r.newState, { type: "PASS_TURN", playerId: "player1" }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(r.newState, { type: "PASS_TURN", playerId: "player1" }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     expect(r.newState.pendingChoice?.type).toBe("choose_may");
     // Accept the first may → it surfaces move_to_inkwell chooser.
-    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     expect(r.newState.pendingChoice?.type).toBe("choose_target");
     // Pick a hand card to inkwell.
     const hand1 = getZone(r.newState, "player1", "hand");
-    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [hand1[0]!] }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [hand1[0]!] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
 
     // Second Cindy's trigger should now surface — another choose_may.
@@ -1229,22 +1229,22 @@ describe("§10 Set 10 — Cinderella Dream Come True WHATEVER YOU WISH FOR", () 
     ({ state, instanceId: oswaldId } = injectCard(state, "player1", "oswald-the-lucky-rabbit", "play", { isDrying: false }));
     // Play a Princess so Cindy's condition is satisfied.
     ({ state, instanceId: princessId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
-    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: princessId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: princessId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
 
     // Pass → Cindy's turn_end trigger creates choose_may. Opponent cards must
     // NOT yet be readied (turn transition deferred).
-    r = applyAction(r.newState, { type: "PASS_TURN", playerId: "player1" }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(r.newState, { type: "PASS_TURN", playerId: "player1" }, CARD_DEFINITIONS);
     expect(r.newState.pendingChoice?.type).toBe("choose_may");
     expect(r.newState.currentPlayer).toBe("player1"); // still our turn
 
     // Accept Cindy's may → surfaces choose_target for inkwell cost
-    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
     expect(r.newState.pendingChoice?.type).toBe("choose_target");
     expect(r.newState.currentPlayer).toBe("player1");
     const hand = getZone(r.newState, "player1", "hand");
     // Pick a hand card → inkwell → this triggers Oswald's FAVORABLE CHANCE.
-    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [hand[0]!] }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [hand[0]!] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     // Oswald's trigger should now be the active pendingChoice (choose_may).
     expect(r.newState.pendingChoice?.type).toBe("choose_may");
@@ -1257,9 +1257,9 @@ describe("§10 Set 10 — Cinderella Dream Come True WHATEVER YOU WISH FOR", () 
     let cindyId: string, nonPrincessId: string;
     ({ state, instanceId: cindyId } = injectCard(state, "player1", "cinderella-dream-come-true", "play", { isDrying: false }));
     ({ state, instanceId: nonPrincessId } = injectCard(state, "player1", "mickey-mouse-true-friend", "hand"));
-    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: nonPrincessId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: nonPrincessId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
-    r = applyAction(r.newState, { type: "PASS_TURN", playerId: "player1" }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(r.newState, { type: "PASS_TURN", playerId: "player1" }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     expect(r.newState.pendingChoice).toBeFalsy();
   });

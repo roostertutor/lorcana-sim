@@ -10,7 +10,7 @@
 // =============================================================================
 
 import { readFileSync } from "fs";
-import { LORCAST_CARD_DEFINITIONS } from "@lorcana-sim/engine";
+import { CARD_DEFINITIONS } from "@lorcana-sim/engine";
 import type { StoredGameResult, StoredResultSet } from "@lorcana-sim/simulator";
 
 // --- CLI args ---
@@ -42,7 +42,7 @@ if (meta) {
 }
 
 // --- Helpers ---
-const defs = LORCAST_CARD_DEFINITIONS;
+const defs = CARD_DEFINITIONS;
 
 function cardName(defId: string): string {
   const d = defs[defId];

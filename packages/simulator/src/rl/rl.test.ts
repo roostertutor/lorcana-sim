@@ -9,7 +9,7 @@ import {
   createGame,
   createRng,
   cloneRng,
-  LORCAST_CARD_DEFINITIONS,
+  CARD_DEFINITIONS,
   getAllLegalActions,
 } from "@lorcana-sim/engine";
 import type { GameState, PlayerID } from "@lorcana-sim/engine";
@@ -34,7 +34,7 @@ import type { ZoneName } from "@lorcana-sim/engine";
 // TEST HELPERS
 // ---------------------------------------------------------------------------
 
-const definitions = LORCAST_CARD_DEFINITIONS;
+const definitions = CARD_DEFINITIONS;
 
 const TEST_DECK = [
   { definitionId: "simba-protective-cub", count: 10 },

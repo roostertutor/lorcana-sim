@@ -9,7 +9,7 @@
 
 import { describe, it, expect } from "vitest";
 import { applyAction, createGame, getZone } from "@lorcana-sim/engine";
-import { LORCAST_CARD_DEFINITIONS } from "@lorcana-sim/engine";
+import { CARD_DEFINITIONS } from "@lorcana-sim/engine";
 import type { GameState, PlayerID, ZoneName } from "@lorcana-sim/engine";
 import { RandomBot } from "./bots/RandomBot.js";
 import { GreedyBot } from "./bots/GreedyBot.js";
@@ -140,7 +140,7 @@ describe("Layer 3 — Engine Invariants (1000 RandomBot games)", () => {
       player2Deck: TEST_DECK,
       player1Strategy: RandomBot,
       player2Strategy: RandomBot,
-      definitions: LORCAST_CARD_DEFINITIONS,
+      definitions: CARD_DEFINITIONS,
       maxTurns: 50,
     };
 
@@ -159,16 +159,16 @@ describe("Simulation sanity checks (100 GreedyBot games)", () => {
   function runGreedyGame(): { winner: PlayerID | "draw" | null; turnNumber: number } {
     let s: GameState = createGame(
       { player1Deck: TEST_DECK, player2Deck: TEST_DECK },
-      LORCAST_CARD_DEFINITIONS
+      CARD_DEFINITIONS
     );
     // Limit by game turn number, not action count
     while (!s.isGameOver && s.turnNumber <= 50) {
       const pid: PlayerID = s.pendingChoice ? s.pendingChoice.choosingPlayerId : s.currentPlayer;
-      const action = GreedyBot.decideAction(s, pid, LORCAST_CARD_DEFINITIONS);
-      const result = applyAction(s, action, LORCAST_CARD_DEFINITIONS);
+      const action = GreedyBot.decideAction(s, pid, CARD_DEFINITIONS);
+      const result = applyAction(s, action, CARD_DEFINITIONS);
       if (result.success) s = result.newState;
       else {
-        const pass = applyAction(s, { type: "PASS_TURN", playerId: s.currentPlayer }, LORCAST_CARD_DEFINITIONS);
+        const pass = applyAction(s, { type: "PASS_TURN", playerId: s.currentPlayer }, CARD_DEFINITIONS);
         if (pass.success) s = pass.newState;
         else break;
       }
@@ -216,7 +216,7 @@ describe("Seeded RNG determinism", () => {
       player2Deck: TEST_DECK,
       player1Strategy: GreedyBot,
       player2Strategy: GreedyBot,
-      definitions: LORCAST_CARD_DEFINITIONS,
+      definitions: CARD_DEFINITIONS,
       maxTurns: 50,
       seed: SEED,
     };
@@ -237,7 +237,7 @@ describe("Seeded RNG determinism", () => {
       player2Deck: TEST_DECK,
       player1Strategy: GreedyBot,
       player2Strategy: GreedyBot,
-      definitions: LORCAST_CARD_DEFINITIONS,
+      definitions: CARD_DEFINITIONS,
       maxTurns: 50,
     };
 
@@ -264,7 +264,7 @@ describe("GameAction[] capture", () => {
       player2Deck: TEST_DECK,
       player1Strategy: GreedyBot,
       player2Strategy: GreedyBot,
-      definitions: LORCAST_CARD_DEFINITIONS,
+      definitions: CARD_DEFINITIONS,
       maxTurns: 50,
       seed: 42,
     });

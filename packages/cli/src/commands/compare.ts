@@ -5,7 +5,7 @@
 // Runs deck1 vs deck2 and prints MatchupStats.
 // =============================================================================
 
-import { LORCAST_CARD_DEFINITIONS } from "@lorcana-sim/engine";
+import { CARD_DEFINITIONS } from "@lorcana-sim/engine";
 import { runSimulation, saveResults } from "@lorcana-sim/simulator";
 import { compareDecks } from "@lorcana-sim/analytics";
 import { loadDeck } from "../loadDeck.js";
@@ -23,7 +23,7 @@ export interface CompareArgs {
 }
 
 export async function runCompare(args: CompareArgs): Promise<void> {
-  const definitions = LORCAST_CARD_DEFINITIONS;
+  const definitions = CARD_DEFINITIONS;
   const deck1 = loadDeck(args.deck1, definitions);
   const deck2 = loadDeck(args.deck2, definitions);
   const bot = resolveBot(args.bot);

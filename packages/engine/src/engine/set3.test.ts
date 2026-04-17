@@ -6,7 +6,7 @@
 import { describe, it, expect } from "vitest";
 import { applyAction, getAllLegalActions } from "../engine/reducer.js";
 import {
-  LORCAST_CARD_DEFINITIONS,
+  CARD_DEFINITIONS,
   startGame,
   injectCard,
   giveInk,
@@ -22,7 +22,7 @@ describe("§7 Set 3 — Locations", () => {
     let locId: string;
     ({ state, instanceId: locId } = injectCard(state, "player1", "never-land-mermaid-lagoon", "hand"));
 
-    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: locId }, LORCAST_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: locId }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     const inst = getInstance(result.newState, locId);
     expect(inst.zone).toBe("play");
@@ -41,7 +41,7 @@ describe("§7 Set 3 — Locations", () => {
     const result = applyAction(state, {
       type: "MOVE_CHARACTER", playerId: "player1",
       characterInstanceId: charId, locationInstanceId: locId,
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     expect(result.newState.players.player1.availableInk).toBe(inkBefore - 1);
     const c = getInstance(result.newState, charId);
@@ -57,17 +57,17 @@ describe("§7 Set 3 — Locations", () => {
     state = giveInk(state, "player1", 5);
 
     // CRD 4.7 + 1.7.5: drying does NOT prevent moving (only prevents quest/challenge/{E})
-    let r = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: charId, locationInstanceId: locId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: charId, locationInstanceId: locId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
     // CRD 4.7.2 + 4.1.1: can move from location to another location (no once-per-turn limit)
-    r = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: charId, locationInstanceId: locId2 }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: charId, locationInstanceId: locId2 }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
 
     // can't move to same location you're already at
     state = r.newState;
-    r = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: charId, locationInstanceId: locId2 }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: charId, locationInstanceId: locId2 }, CARD_DEFINITIONS);
     expect(r.success).toBe(false);
 
     // can't afford
@@ -76,7 +76,7 @@ describe("§7 Set 3 — Locations", () => {
     ({ state: state3, instanceId: charId3 } = injectCard(state3, "player1", "mickey-mouse-true-friend", "play"));
     ({ state: state3, instanceId: locId3 } = injectCard(state3, "player1", "never-land-mermaid-lagoon", "play"));
     state3 = giveInk(state3, "player1", 0);
-    const r3 = applyAction(state3, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: charId3, locationInstanceId: locId3 }, LORCAST_CARD_DEFINITIONS);
+    const r3 = applyAction(state3, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: charId3, locationInstanceId: locId3 }, CARD_DEFINITIONS);
     expect(r3.success).toBe(false);
   });
 
@@ -100,7 +100,7 @@ describe("§7 Set 3 — Locations", () => {
     const result = applyAction(state, {
       type: "CHALLENGE", playerId: "player1",
       attackerInstanceId: attackerId, defenderInstanceId: locId,
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     const atk = getInstance(result.newState, attackerId);
     expect(atk.damage).toBe(0); // location returns 0 damage
@@ -121,7 +121,7 @@ describe("§7 Set 3 — Locations", () => {
     const result = applyAction(state, {
       type: "CHALLENGE", playerId: "player1",
       attackerInstanceId: attackerId, defenderInstanceId: locId,
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
   });
 
@@ -142,7 +142,7 @@ describe("§7 Set 3 — Locations", () => {
     const result = applyAction(state, {
       type: "CHALLENGE", playerId: "player2",
       attackerInstanceId: attackerId, defenderInstanceId: locId,
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     const c = result.newState.cards[charId];
     expect(c?.atLocationInstanceId).toBeUndefined();
@@ -155,14 +155,14 @@ describe("§7 Set 3 — Locations", () => {
     ({ state, instanceId: locId } = injectCard(state, "player1", "pride-lands-pride-rock", "play"));
     ({ state, instanceId: charId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { atLocationInstanceId: locId }));
 
-    const modifiers = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    const modifiers = getGameModifiers(state, CARD_DEFINITIONS);
     const bonus = modifiers.statBonuses.get(charId)?.willpower ?? 0;
     expect(bonus).toBe(2);
 
     // a character NOT at the location does not get the bonus
     let other: string;
     ({ state, instanceId: other } = injectCard(state, "player1", "mickey-mouse-true-friend", "play"));
-    const m2 = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    const m2 = getGameModifiers(state, CARD_DEFINITIONS);
     expect(m2.statBonuses.get(other)?.willpower ?? 0).toBe(0);
   });
 
@@ -176,7 +176,7 @@ describe("§7 Set 3 — Locations", () => {
     const result = applyAction(state, {
       type: "MOVE_CHARACTER", playerId: "player1",
       characterInstanceId: cubbyId, locationInstanceId: locId,
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     const c = getInstance(result.newState, cubbyId);
     expect(c.timedEffects.filter((t: any)=>t.type==="modify_strength").reduce((s: number,t: any)=>s+(t.amount??0),0)).toBe(3);
@@ -194,7 +194,7 @@ describe("§7 Set 3 — Locations", () => {
     const result = applyAction(state, {
       type: "CHALLENGE", playerId: "player1",
       attackerInstanceId: attackerId, defenderInstanceId: locId,
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     // damage went to location, not Beast
     expect(result.newState.cards[locId]?.damage).toBe(3);
@@ -207,7 +207,7 @@ describe("§7 Set 3 — Locations", () => {
     let charId: string, locId: string;
     ({ state, instanceId: charId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play"));
     ({ state, instanceId: locId } = injectCard(state, "player1", "never-land-mermaid-lagoon", "play"));
-    const actions = getAllLegalActions(state, "player1", LORCAST_CARD_DEFINITIONS);
+    const actions = getAllLegalActions(state, "player1", CARD_DEFINITIONS);
     const moves = actions.filter(a => a.type === "MOVE_CHARACTER");
     expect(moves.length).toBeGreaterThan(0);
   });
@@ -223,7 +223,7 @@ describe("§7 Set 3 — Locations", () => {
     const loreBefore = state.players["player1"]!.lore;
 
     // Draw a card → trigger fires (player matches, exerted, your turn)
-    const result = applyAction(state, { type: "DRAW_CARD", playerId: "player1", amount: 1 }, LORCAST_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "DRAW_CARD", playerId: "player1", amount: 1 }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     expect(result.newState.players["player1"]!.lore).toBe(loreBefore + 1);
   });
@@ -237,7 +237,7 @@ describe("§7 Set 3 — Locations", () => {
 
     const loreBefore = state.players["player1"]!.lore;
 
-    const result = applyAction(state, { type: "DRAW_CARD", playerId: "player1", amount: 1 }, LORCAST_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "DRAW_CARD", playerId: "player1", amount: 1 }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     expect(result.newState.players["player1"]!.lore).toBe(loreBefore);
   });
@@ -252,7 +252,7 @@ describe("§7 Set 3 — Locations", () => {
     const loreBefore = state.players["player1"]!.lore;
 
     // Draw 3 cards in one action
-    const result = applyAction(state, { type: "DRAW_CARD", playerId: "player1", amount: 3 }, LORCAST_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "DRAW_CARD", playerId: "player1", amount: 3 }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     // Jafar fires 3 times → +3 lore
     expect(result.newState.players["player1"]!.lore).toBe(loreBefore + 3);
@@ -275,13 +275,13 @@ describe("§7 Set 3 — Locations", () => {
     state = { ...state, players: { ...state.players, player2: { ...state.players["player2"]!, lore: 5 } } };
 
     // First move — triggers, opp loses 1
-    let result = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: heiId, locationInstanceId: loc1Id }, LORCAST_CARD_DEFINITIONS);
+    let result = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: heiId, locationInstanceId: loc1Id }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     expect(result.newState.players["player2"]!.lore).toBe(4);
 
     // Second move on same turn — should NOT trigger again (once-per-turn already fired)
     state = result.newState;
-    result = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: heiId, locationInstanceId: loc2Id }, LORCAST_CARD_DEFINITIONS);
+    result = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: heiId, locationInstanceId: loc2Id }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     // Opponent's lore unchanged — HeiHei's once-per-turn already fired this turn
     expect(result.newState.players["player2"]!.lore).toBe(4);
@@ -295,11 +295,11 @@ describe("§7 Set 3 — Locations", () => {
     ({ state, instanceId: pongoId } = injectCard(state, "player1", "pongo-determined-father", "play"));
 
     // First activation succeeds
-    let result = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: pongoId, abilityIndex: 0 }, LORCAST_CARD_DEFINITIONS);
+    let result = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: pongoId, abilityIndex: 0 }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
 
     // Second activation same turn should fail (validator rejects)
-    result = applyAction(result.newState, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: pongoId, abilityIndex: 0 }, LORCAST_CARD_DEFINITIONS);
+    result = applyAction(result.newState, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: pongoId, abilityIndex: 0 }, CARD_DEFINITIONS);
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/already been used this turn/);
   });
@@ -315,7 +315,7 @@ describe("§7 Set 3 — Locations", () => {
     state = { ...state, players: { ...state.players, player2: { ...state.players["player2"]!, lore: 5 } } };
 
     // First move — triggers
-    let result = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: heiId, locationInstanceId: locId }, LORCAST_CARD_DEFINITIONS);
+    let result = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: heiId, locationInstanceId: locId }, CARD_DEFINITIONS);
     expect(result.newState.players["player2"]!.lore).toBe(4);
     state = result.newState;
 
@@ -341,7 +341,7 @@ describe("§7 Set 3 — Locations", () => {
 
     // After "leaving play" reset, second move should fire again
     state = { ...state, cards: { ...state.cards, [heiId]: { ...state.cards[heiId]!, atLocationInstanceId: undefined } } };
-    result = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: heiId, locationInstanceId: locId }, LORCAST_CARD_DEFINITIONS);
+    result = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: heiId, locationInstanceId: locId }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     expect(result.newState.players["player2"]!.lore).toBe(3);
   });
@@ -359,7 +359,7 @@ describe("§7 Set 3 — Locations", () => {
       let attackerId: string, locId: string;
       ({ state, instanceId: attackerId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
       ({ state, instanceId: locId } = injectCard(state, "player2", "never-land-mermaid-lagoon", "play", { isDrying: false }));
-      const r = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: attackerId, defenderInstanceId: locId }, LORCAST_CARD_DEFINITIONS);
+      const r = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: attackerId, defenderInstanceId: locId }, CARD_DEFINITIONS);
       expect(r.success).toBe(true);
       expect(getInstance(r.newState, locId).zone).toBe("play");
       expect(getInstance(r.newState, locId).damage).toBe(3);
@@ -374,12 +374,12 @@ describe("§7 Set 3 — Locations", () => {
       ({ state, instanceId: attackerId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
       ({ state, instanceId: locId } = injectCard(state, "player2", "never-land-mermaid-lagoon", "play", { isDrying: false }));
 
-      const playRes = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: olympusId }, LORCAST_CARD_DEFINITIONS);
+      const playRes = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: olympusId }, CARD_DEFINITIONS);
       expect(playRes.success).toBe(true);
       state = playRes.newState;
       expect(state.players.player1.turnChallengeBonuses?.length).toBe(1);
 
-      const r = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: attackerId, defenderInstanceId: locId }, LORCAST_CARD_DEFINITIONS);
+      const r = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: attackerId, defenderInstanceId: locId }, CARD_DEFINITIONS);
       expect(r.success).toBe(true);
       // Location is banished → moved to discard, damage reset to 0 by banishCard
       expect(getInstance(r.newState, locId).zone).toBe("discard");
@@ -408,10 +408,10 @@ describe("§7 Set 3 — Locations", () => {
       // Falling back: use Stitch - Carefree Surfer or any will>=5. We pick "te-kas-heart" if exists.
       // Cinderella - Gentle and Kind: strength 2, willpower 5.
       ({ state, instanceId: defId } = injectCard(state, "player2", "cinderella-gentle-and-kind", "play", { isDrying: false, isExerted: true }));
-      const playRes = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: olympusId }, LORCAST_CARD_DEFINITIONS);
+      const playRes = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: olympusId }, CARD_DEFINITIONS);
       expect(playRes.success).toBe(true);
       state = playRes.newState;
-      const r = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: attackerId, defenderInstanceId: defId }, LORCAST_CARD_DEFINITIONS);
+      const r = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: attackerId, defenderInstanceId: defId }, CARD_DEFINITIONS);
       expect(r.success).toBe(true);
       // Cinderella willpower 5. Attacker base str 3, no bonus → 3 damage, survives.
       // If the bonus erroneously applied: 3+3=6 damage, banished.
@@ -463,7 +463,7 @@ describe("§7 Set 3 — Locations", () => {
       playerId: "player1",
       instanceId: suddenChillId,
       singerInstanceId: ursulaId,
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     state = result.newState;
 
@@ -476,7 +476,7 @@ describe("§7 Set 3 — Locations", () => {
       type: "RESOLVE_CHOICE",
       playerId: "player2",
       choice: [p2Card1],
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     state = result.newState;
     expect(getInstance(state, p2Card1).zone).toBe("discard");
@@ -496,7 +496,7 @@ describe("§7 Set 3 — Locations", () => {
       type: "RESOLVE_CHOICE",
       playerId: "player1",
       choice: String(ursulaIdx),
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     state = result.newState;
 
@@ -507,7 +507,7 @@ describe("§7 Set 3 — Locations", () => {
       type: "RESOLVE_CHOICE",
       playerId: "player1",
       choice: "accept",
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     state = result.newState;
 
@@ -518,7 +518,7 @@ describe("§7 Set 3 — Locations", () => {
       type: "RESOLVE_CHOICE",
       playerId: "player2",
       choice: [p2Card2],
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     state = result.newState;
     expect(getInstance(state, p2Card2).zone).toBe("discard");
@@ -539,7 +539,7 @@ describe("§7 Set 3 — Locations", () => {
       type: "RESOLVE_CHOICE",
       playerId: "player1",
       choice: "0",
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     state = result.newState;
 
@@ -549,7 +549,7 @@ describe("§7 Set 3 — Locations", () => {
       type: "RESOLVE_CHOICE",
       playerId: "player1",
       choice: "accept",
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     state = result.newState;
 
@@ -559,7 +559,7 @@ describe("§7 Set 3 — Locations", () => {
       type: "RESOLVE_CHOICE",
       playerId: "player1",
       choice: "accept",
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     state = result.newState;
 
@@ -582,7 +582,7 @@ describe("§7 Set 3 — Locations", () => {
     ({ state, instanceId: morphId } = injectCard(state, "player1", "morph-space-goo", "hand"));
 
     // In hand → no MIMICRY modifier registered.
-    let mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    let mods = getGameModifiers(state, CARD_DEFINITIONS);
     expect(mods.mimicryTargets.has(morphId)).toBe(false);
 
     // Move Morph to play → MIMICRY now active.
@@ -598,7 +598,7 @@ describe("§7 Set 3 — Locations", () => {
         },
       },
     };
-    mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    mods = getGameModifiers(state, CARD_DEFINITIONS);
     expect(mods.mimicryTargets.has(morphId)).toBe(true);
   });
 
@@ -616,7 +616,7 @@ describe("§7 Set 3 — Locations", () => {
       playerId: "player1",
       instanceId: elsaId,
       shiftTargetInstanceId: morphId,
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     // Elsa is now in play and Morph is gone (replaced).
     expect(getInstance(r.newState, elsaId).zone).toBe("play");
@@ -630,13 +630,13 @@ describe("§7 Set 3 — Locations", () => {
     ({ state, instanceId: locId } = injectCard(state, "player1", "never-land-mermaid-lagoon", "hand"));
 
     // Play the location — should fire TAKE THE HELM and surface a may prompt for Jim moving.
-    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: locId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: locId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(state.pendingChoice?.type).toBe("choose_may");
 
     // Accept — Jim should move to the location for free.
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(getInstance(state, jimId).atLocationInstanceId).toBe(locId);
@@ -652,21 +652,21 @@ describe("§7 Set 3 — Locations", () => {
     ({ state, instanceId: carpetId } = injectCard(state, "player1", "magic-carpet-flying-rug", "play", { isDrying: false }));
 
     // Activate FIND THE WAY (exert cost → choose character + location).
-    let r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: carpetId, abilityIndex: 1 }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: carpetId, abilityIndex: 1 }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
     // Stage 1: choose the character to move.
     expect(state.pendingChoice?.type).toBe("choose_target");
     expect(state.pendingChoice?.validTargets).toContain(mickeyId);
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [mickeyId] }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [mickeyId] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
     // Stage 2: choose the location.
     expect(state.pendingChoice?.type).toBe("choose_target");
     expect(state.pendingChoice?.validTargets).toContain(locId);
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [locId] }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [locId] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -687,14 +687,14 @@ describe("§7 Set 3 — Locations", () => {
     ({ state, instanceId: voyageId } = injectCard(state, "player1", "voyage", "hand"));
 
     // Stage 0: play Voyage.
-    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: voyageId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: voyageId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
     // Stage 1: location chooser.
     expect(state.pendingChoice?.type).toBe("choose_target");
     expect(state.pendingChoice?.validTargets).toContain(locId);
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [locId] }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [locId] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
@@ -705,11 +705,11 @@ describe("§7 Set 3 — Locations", () => {
     expect(state.pendingChoice?.validTargets).toEqual(expect.arrayContaining([c1, c2, c3]));
 
     // Picking 3 must be rejected by the validator (CRD "up to 2").
-    const overpick = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [c1, c2, c3] }, LORCAST_CARD_DEFINITIONS);
+    const overpick = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [c1, c2, c3] }, CARD_DEFINITIONS);
     expect(overpick.success).toBe(false);
 
     // Picking exactly 2 succeeds; both move, the third stays put.
-    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [c1, c2] }, LORCAST_CARD_DEFINITIONS);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [c1, c2] }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(getInstance(state, c1).atLocationInstanceId).toBe(locId);
@@ -737,18 +737,18 @@ describe("§7 Set 3 — Locations", () => {
     ({ state, instanceId: itemId } = injectCard(state, "player1", "eye-of-the-fates", "hand"));
 
     // No character at the location yet → item costs full price (4).
-    let modifiers = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    let modifiers = getGameModifiers(state, CARD_DEFINITIONS);
     let reductions = modifiers.costReductions.get("player1") ?? [];
     expect(reductions.length).toBe(0);
 
     // Move Mickey to Belle's House (it has moveCost 1; give ink)
     state = giveInk(state, "player1", 5);
-    let r = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: mickeyId, locationInstanceId: belleHouseId }, LORCAST_CARD_DEFINITIONS);
+    let r = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: mickeyId, locationInstanceId: belleHouseId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
 
     // Now the static fires → cost reduction is active.
-    modifiers = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    modifiers = getGameModifiers(state, CARD_DEFINITIONS);
     reductions = modifiers.costReductions.get("player1") ?? [];
     expect(reductions.length).toBe(1);
     expect(reductions[0]?.amount).toBe(1);
@@ -763,7 +763,7 @@ describe("§7 Set 3 — Locations", () => {
     ({ state, instanceId: locId } = injectCard(state, "player1", "never-land-mermaid-lagoon", "play", { isDrying: false }));
     const loreBefore = state.players.player1.lore;
 
-    const r = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: peterId, locationInstanceId: locId }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "MOVE_CHARACTER", playerId: "player1", characterInstanceId: peterId, locationInstanceId: locId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(state.players.player1.lore).toBe(loreBefore + 1); // location lore = 1
@@ -779,7 +779,7 @@ describe("§7 Set 3 — Locations", () => {
     const topBefore = getZone(state, "player1", "deck")[0]!;
 
     // Activate INCREDIBLE ENERGY (exert + 1 ink)
-    const r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: hatId, abilityIndex: 0 }, LORCAST_CARD_DEFINITIONS);
+    const r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: hatId, abilityIndex: 0 }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     state = r.newState;
     expect(getZone(state, "player1", "hand").length).toBe(handBefore + 1);
@@ -791,7 +791,7 @@ describe("§7 Set 3 — Locations", () => {
     state = giveInk(state, "player1", 5);
     let olympusId: string;
     ({ state, instanceId: olympusId } = injectCard(state, "player1", "olympus-would-be-that-way", "hand"));
-    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: olympusId }, LORCAST_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: olympusId }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     state = result.newState;
     expect(state.players.player1.turnChallengeBonuses?.length).toBe(1);
@@ -808,13 +808,13 @@ describe("§7 Set 3 — Locations", () => {
     ({ state, instanceId: charId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
 
     // Legal-action enumeration should include Lucky Dime's activate.
-    const legal = getAllLegalActions(state, "player1", LORCAST_CARD_DEFINITIONS);
+    const legal = getAllLegalActions(state, "player1", CARD_DEFINITIONS);
     const dimeActivate = legal.filter(a => a.type === "ACTIVATE_ABILITY" && a.instanceId === dimeId);
     expect(dimeActivate.length).toBeGreaterThan(0);
 
     const activated = applyAction(state, {
       type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: dimeId, abilityIndex: 0,
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(activated.success).toBe(true);
     expect(activated.newState.pendingChoice?.type).toBe("choose_target");
     expect(activated.newState.pendingChoice?.validTargets).toContain(charId);
@@ -822,7 +822,7 @@ describe("§7 Set 3 — Locations", () => {
     const loreBefore = activated.newState.players.player1.lore;
     const resolved = applyAction(activated.newState, {
       type: "RESOLVE_CHOICE", playerId: "player1", choice: [charId],
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(resolved.success).toBe(true);
     expect(resolved.newState.players.player1.lore).toBe(loreBefore + 2);
   });

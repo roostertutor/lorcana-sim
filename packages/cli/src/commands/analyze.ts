@@ -5,7 +5,7 @@
 // Runs a simulation and prints DeckStats + DeckComposition.
 // =============================================================================
 
-import { LORCAST_CARD_DEFINITIONS } from "@lorcana-sim/engine";
+import { CARD_DEFINITIONS } from "@lorcana-sim/engine";
 import { runSimulation, saveResults } from "@lorcana-sim/simulator";
 import { aggregateResults, analyzeDeckComposition } from "@lorcana-sim/analytics";
 import { loadDeck } from "../loadDeck.js";
@@ -22,7 +22,7 @@ export interface AnalyzeArgs {
 }
 
 export async function runAnalyze(args: AnalyzeArgs): Promise<void> {
-  const definitions = LORCAST_CARD_DEFINITIONS;
+  const definitions = CARD_DEFINITIONS;
   const deck = loadDeck(args.deck, definitions);
   const bot = resolveBot(args.bot);
   const oppBot = resolveBot(args.opponentBot ?? args.bot);

@@ -6,7 +6,7 @@ import { describe, it, expect } from "vitest";
 import { applyAction } from "./reducer.js";
 import { applyMoveCostReduction } from "./validator.js";
 import {
-  LORCAST_CARD_DEFINITIONS,
+  CARD_DEFINITIONS,
   startGame,
   injectCard,
   giveInk,
@@ -23,7 +23,7 @@ describe("§P1 Promo — Jolly Roger - Hook's Ship", () => {
     let jollyId: string;
     ({ state, instanceId: jollyId } = injectCard(state, "player1", "jolly-roger-hooks-ship", "play", { isDrying: false }));
 
-    const mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    const mods = getGameModifiers(state, CARD_DEFINITIONS);
     const entries = mods.moveToSelfCostReductions.get(jollyId);
     expect(entries).toBeDefined();
     expect(entries?.length).toBe(1);
@@ -39,11 +39,11 @@ describe("§P1 Promo — Jolly Roger - Hook's Ship", () => {
     ({ state, instanceId: smeeId } = injectCard(state, "player1", "mr-smee-loyal-first-mate", "play", { isDrying: false }));
     ({ state, instanceId: mickeyId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
 
-    const mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    const mods = getGameModifiers(state, CARD_DEFINITIONS);
     const smeeInst = getInstance(state, smeeId);
-    const smeeDef = LORCAST_CARD_DEFINITIONS[smeeInst.definitionId]!;
+    const smeeDef = CARD_DEFINITIONS[smeeInst.definitionId]!;
     const mickeyInst = getInstance(state, mickeyId);
-    const mickeyDef = LORCAST_CARD_DEFINITIONS[mickeyInst.definitionId]!;
+    const mickeyDef = CARD_DEFINITIONS[mickeyInst.definitionId]!;
 
     expect(applyMoveCostReduction(2, smeeInst, smeeDef, jollyId, mods, state, "player1")).toBe(0);
     expect(applyMoveCostReduction(2, mickeyInst, mickeyDef, jollyId, mods, state, "player1")).toBe(2);
@@ -55,7 +55,7 @@ describe("§P1 Promo — Jolly Roger - Hook's Ship", () => {
     ({ state, instanceId: jollyId } = injectCard(state, "player1", "jolly-roger-hooks-ship", "play", { isDrying: false }));
     ({ state, instanceId: smeeId } = injectCard(state, "player1", "mr-smee-loyal-first-mate", "play", { isDrying: false, atLocationInstanceId: jollyId }));
 
-    const mods = getGameModifiers(state, LORCAST_CARD_DEFINITIONS);
+    const mods = getGameModifiers(state, CARD_DEFINITIONS);
     const granted = mods.grantedKeywords.get(smeeId) ?? [];
     expect(granted.some(k => k.keyword === "rush")).toBe(true);
   });

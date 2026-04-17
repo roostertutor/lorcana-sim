@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react";
 import type { CardDefinition, DeckEntry } from "@lorcana-sim/engine";
-import { parseDecklist, LORCAST_CARD_DEFINITIONS } from "@lorcana-sim/engine";
+import { parseDecklist, CARD_DEFINITIONS } from "@lorcana-sim/engine";
 import {
   runSimulation, GreedyBot, RandomBot,
 } from "@lorcana-sim/simulator";
@@ -79,7 +79,7 @@ export default function ComparisonView({ definitions }: Props) {
   const [matchup, setMatchup] = useState<MatchupStats | null>(null);
 
   function parseDeck(text: string): { entries: DeckEntry[]; errors: string[] } {
-    return parseDecklist(text, LORCAST_CARD_DEFINITIONS);
+    return parseDecklist(text, CARD_DEFINITIONS);
   }
 
   const parsed1 = parseDeck(text1);

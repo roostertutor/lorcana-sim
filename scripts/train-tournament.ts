@@ -17,7 +17,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from "fs";
 import { basename } from "path";
 import {
-  LORCAST_CARD_DEFINITIONS,
+  CARD_DEFINITIONS,
   parseDecklist,
   createRng,
   cloneRng,
@@ -34,7 +34,7 @@ import {
 import type { BotStrategy, GameResult } from "@lorcana-sim/simulator";
 import { aggregateResults } from "@lorcana-sim/analytics";
 
-const definitions = LORCAST_CARD_DEFINITIONS;
+const definitions = CARD_DEFINITIONS;
 
 // ---------------------------------------------------------------------------
 // Args

@@ -6,7 +6,7 @@
 
 import { describe, it, expect } from "vitest";
 import { applyAction, getAllLegalActions } from "../engine/reducer.js";
-import { LORCAST_CARD_DEFINITIONS, startGame, injectCard, giveInk, setLore } from "./test-helpers.js";
+import { CARD_DEFINITIONS, startGame, injectCard, giveInk, setLore } from "./test-helpers.js";
 import { getZone, getInstance } from "../utils/index.js";
 import { getGameModifiers } from "../engine/gameModifiers.js";
 
@@ -23,7 +23,7 @@ describe("§6 Set 1 Pattern Coverage", () => {
     // Give only 1 ink — not enough for base cost 2, but enough for reduced cost 1
     state = giveInk(state, "player1", 1);
 
-    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: lefouId }, LORCAST_CARD_DEFINITIONS);
+    const result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: lefouId }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     expect(getInstance(result.newState, lefouId).zone).toBe("play");
   });
@@ -40,11 +40,11 @@ describe("§6 Set 1 Pattern Coverage", () => {
     ({ state, instanceId: ink2Id } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
 
     // First ink — should succeed
-    let result = applyAction(state, { type: "PLAY_INK", playerId: "player1", instanceId: ink1Id }, LORCAST_CARD_DEFINITIONS);
+    let result = applyAction(state, { type: "PLAY_INK", playerId: "player1", instanceId: ink1Id }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
 
     // Second ink — should also succeed because Belle grants +1 extra ink play
-    result = applyAction(result.newState, { type: "PLAY_INK", playerId: "player1", instanceId: ink2Id }, LORCAST_CARD_DEFINITIONS);
+    result = applyAction(result.newState, { type: "PLAY_INK", playerId: "player1", instanceId: ink2Id }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
   });
 
@@ -60,7 +60,7 @@ describe("§6 Set 1 Pattern Coverage", () => {
 
     const result = applyAction(state, {
       type: "CHALLENGE", playerId: "player1", attackerInstanceId: attackerId, defenderInstanceId: hookId,
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(result.success).toBe(false);
   });
 
@@ -80,12 +80,12 @@ describe("§6 Set 1 Pattern Coverage", () => {
     ({ state, instanceId: questerId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play"));
 
     // Play the action
-    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: actionId }, LORCAST_CARD_DEFINITIONS);
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: actionId }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
     state = result.newState;
 
     // Now quest with the character
-    result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: questerId }, LORCAST_CARD_DEFINITIONS);
+    result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: questerId }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
 
     // Opponent should have lost 1 lore (3 → 2)
@@ -107,7 +107,7 @@ describe("§6 Set 1 Pattern Coverage", () => {
     const handBefore = getZone(state, "player1", "hand").length;
 
     // Play the item — triggers Maurice's isMay draw
-    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: itemId }, LORCAST_CARD_DEFINITIONS);
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: itemId }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
 
     // isMay → choose_may prompt
@@ -116,7 +116,7 @@ describe("§6 Set 1 Pattern Coverage", () => {
     // Accept the draw
     result = applyAction(result.newState, {
       type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept",
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
 
     // Hand: -1 for playing item, +1 for draw = net 0
@@ -137,7 +137,7 @@ describe("§6 Set 1 Pattern Coverage", () => {
     ({ state, instanceId: actionId } = injectCard(state, "player1", "hakuna-matata", "hand"));
 
     // Quest with Genie — triggers play_for_free
-    let result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: genieId }, LORCAST_CARD_DEFINITIONS);
+    let result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: genieId }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
 
     // isMay → choose_may for play_for_free
@@ -146,7 +146,7 @@ describe("§6 Set 1 Pattern Coverage", () => {
     // Accept the may
     result = applyAction(result.newState, {
       type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept",
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
 
     // After accepting, should see choose_target to pick which card to play
@@ -156,7 +156,7 @@ describe("§6 Set 1 Pattern Coverage", () => {
     // Choose the action
     result = applyAction(result.newState, {
       type: "RESOLVE_CHOICE", playerId: "player1", choice: [actionId],
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
 
     // The action should have been played from hand (moved out of hand)
@@ -180,7 +180,7 @@ describe("§6 Set 1 Pattern Coverage", () => {
     ({ state, instanceId: annaId } = injectCard(state, "player1", "anna-heir-to-arendelle", "hand"));
 
     // Play Anna — triggers enters_play with Elsa condition met
-    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: annaId }, LORCAST_CARD_DEFINITIONS);
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: annaId }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
 
     // Should prompt to choose a target
@@ -190,7 +190,7 @@ describe("§6 Set 1 Pattern Coverage", () => {
     // Choose the target
     result = applyAction(result.newState, {
       type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId],
-    }, LORCAST_CARD_DEFINITIONS);
+    }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
 
     // Target should have a cant_action timed effect for "ready"
@@ -214,7 +214,7 @@ describe("§6 Set 1 Pattern Coverage", () => {
     ({ state, instanceId: actionId } = injectCard(state, "player1", "control-your-temper", "hand"));
 
     // Play the action — Mickey's trigger fires
-    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: actionId }, LORCAST_CARD_DEFINITIONS);
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: actionId }, CARD_DEFINITIONS);
     expect(result.success).toBe(true);
 
     // Resolve all pending choices (control-your-temper has a target, then Mickey's trigger has a target)
@@ -223,12 +223,12 @@ describe("§6 Set 1 Pattern Coverage", () => {
         result = applyAction(result.newState, {
           type: "RESOLVE_CHOICE", playerId: result.newState.pendingChoice.choosingPlayerId,
           choice: [targetId],
-        }, LORCAST_CARD_DEFINITIONS);
+        }, CARD_DEFINITIONS);
       } else if (result.newState.pendingChoice.type === "choose_may") {
         result = applyAction(result.newState, {
           type: "RESOLVE_CHOICE", playerId: result.newState.pendingChoice.choosingPlayerId,
           choice: "accept",
-        }, LORCAST_CARD_DEFINITIONS);
+        }, CARD_DEFINITIONS);
       } else {
         break;
       }

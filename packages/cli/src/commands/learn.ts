@@ -6,7 +6,7 @@
 // =============================================================================
 
 import { writeFileSync, readFileSync } from "fs";
-import { LORCAST_CARD_DEFINITIONS } from "@lorcana-sim/engine";
+import { CARD_DEFINITIONS } from "@lorcana-sim/engine";
 import { trainPolicy, RLPolicy, RandomBot } from "@lorcana-sim/simulator";
 import { loadDeck } from "../loadDeck.js";
 import { resolveBot } from "../resolveBot.js";
@@ -22,7 +22,7 @@ export interface LearnArgs {
 }
 
 export function runLearn(args: LearnArgs): void {
-  const definitions = LORCAST_CARD_DEFINITIONS;
+  const definitions = CARD_DEFINITIONS;
   const deck = loadDeck(args.deck, definitions);
   const opponentDeck = args.opponent ? loadDeck(args.opponent, definitions) : deck;
   const opponent = RandomBot; // Default training opponent

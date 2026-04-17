@@ -1,11 +1,11 @@
 // =============================================================================
 // ANALYTICS TESTS
 // Sanity checks for all analytics functions.
-// Uses LORCAST_CARD_DEFINITIONS + a small test deck of real set 1 cards.
+// Uses CARD_DEFINITIONS + a small test deck of real set 1 cards.
 // =============================================================================
 
 import { describe, it, expect } from "vitest";
-import { LORCAST_CARD_DEFINITIONS } from "@lorcana-sim/engine";
+import { CARD_DEFINITIONS } from "@lorcana-sim/engine";
 import type { DeckEntry } from "@lorcana-sim/engine";
 import { runSimulation, GreedyBot } from "@lorcana-sim/simulator";
 import type { GameResult } from "@lorcana-sim/simulator";
@@ -41,7 +41,7 @@ function makeResults(n: number): GameResult[] {
     player2Deck: TEST_DECK,
     player1Strategy: GreedyBot,
     player2Strategy: GreedyBot,
-    definitions: LORCAST_CARD_DEFINITIONS,
+    definitions: CARD_DEFINITIONS,
     iterations: n,
   });
 }
@@ -93,7 +93,7 @@ describe("aggregateResults", () => {
 
 describe("analyzeDeckComposition", () => {
   it("returns correct totals for a 60-card deck", () => {
-    const comp = analyzeDeckComposition(TEST_DECK, LORCAST_CARD_DEFINITIONS);
+    const comp = analyzeDeckComposition(TEST_DECK, CARD_DEFINITIONS);
     expect(comp.totalCards).toBe(60);
     expect(comp.inkableCount).toBeGreaterThan(0);
     expect(comp.inkableCount).toBeLessThanOrEqual(60);
@@ -102,20 +102,20 @@ describe("analyzeDeckComposition", () => {
   });
 
   it("cost curve sums to total cards", () => {
-    const comp = analyzeDeckComposition(TEST_DECK, LORCAST_CARD_DEFINITIONS);
+    const comp = analyzeDeckComposition(TEST_DECK, CARD_DEFINITIONS);
     const curveSum = Object.values(comp.costCurve).reduce((a, b) => a + b, 0);
     expect(curveSum).toBe(60);
   });
 
   it("ink curve probabilities are monotonically non-decreasing", () => {
-    const comp = analyzeDeckComposition(TEST_DECK, LORCAST_CARD_DEFINITIONS);
+    const comp = analyzeDeckComposition(TEST_DECK, CARD_DEFINITIONS);
     expect(comp.inkCurveProb.turn2).toBeGreaterThanOrEqual(comp.inkCurveProb.turn1);
     expect(comp.inkCurveProb.turn3).toBeGreaterThanOrEqual(comp.inkCurveProb.turn2);
     expect(comp.inkCurveProb.turn4).toBeGreaterThanOrEqual(comp.inkCurveProb.turn3);
   });
 
   it("ink curve probabilities are between 0 and 1", () => {
-    const comp = analyzeDeckComposition(TEST_DECK, LORCAST_CARD_DEFINITIONS);
+    const comp = analyzeDeckComposition(TEST_DECK, CARD_DEFINITIONS);
     for (const v of Object.values(comp.inkCurveProb)) {
       expect(v).toBeGreaterThanOrEqual(0);
       expect(v).toBeLessThanOrEqual(1);
@@ -154,7 +154,7 @@ describe("compareDecks", () => {
 
 describe("analyzeOpeningHands", () => {
   it("returns correct shape for 100 iterations", () => {
-    const stats = analyzeOpeningHands(TEST_DECK, LORCAST_CARD_DEFINITIONS, 100);
+    const stats = analyzeOpeningHands(TEST_DECK, CARD_DEFINITIONS, 100);
     expect(stats.iterations).toBe(100);
     expect(stats.avgCost).toBeGreaterThan(0);
     expect(stats.avgInkableCount).toBeGreaterThanOrEqual(0);
@@ -164,7 +164,7 @@ describe("analyzeOpeningHands", () => {
   });
 
   it("playable-on-turn probabilities are non-decreasing", () => {
-    const stats = analyzeOpeningHands(TEST_DECK, LORCAST_CARD_DEFINITIONS, 100);
+    const stats = analyzeOpeningHands(TEST_DECK, CARD_DEFINITIONS, 100);
     const p = stats.probabilityOfPlayableOnTurn;
     expect(p[2]!).toBeGreaterThanOrEqual(p[1]!);
     expect(p[3]!).toBeGreaterThanOrEqual(p[2]!);
