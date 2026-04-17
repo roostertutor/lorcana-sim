@@ -704,7 +704,21 @@
     "rarity": "rare",
     "rulesText": "Shift a character from your discard for free.",
     "flavorText": "\"The vine is full of flood ink. You won't believe what it can do with a little encouragement!\"\n—Isabela Madrigal",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/31_851ddff2ae9e7d8cf8d59ae24cb4e8fd1a7db5af.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/31_851ddff2ae9e7d8cf8d59ae24cb4e8fd1a7db5af.jpg",
+    "actionEffects": [
+      {
+        "type": "play_card",
+        "sourceZone": "discard",
+        "filter": {
+          "zone": "discard",
+          "cardType": [
+            "character"
+          ]
+        },
+        "cost": "free",
+        "playMode": "shift"
+      }
+    ]
   },
   {
     "id": "safety-rope",
@@ -3610,7 +3624,39 @@
     "cost": 4,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "quests",
+          "filter": {
+            "atLocation": "this"
+          }
+        },
+        "effects": [
+          {
+            "type": "remove_damage",
+            "amount": 2,
+            "target": {
+              "type": "triggering_card"
+            },
+            "isUpTo": true,
+            "isMay": true
+          },
+          {
+            "type": "remove_damage",
+            "amount": 2,
+            "target": {
+              "type": "this"
+            },
+            "isUpTo": true,
+            "isMay": true
+          }
+        ],
+        "storyName": "HEALING HOME",
+        "rulesText": "Whenever a character quests while here, you may remove up to 2 damage from them. Then, you may remove up to 2 damage from this location."
+      }
+    ],
     "setId": "12",
     "number": 170,
     "rarity": "common",

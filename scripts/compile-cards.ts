@@ -809,6 +809,30 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       destination: chosenCharacter({ opposing: true }),
     }),
   },
+  // "remove up to N damage from them" — triggering_card target
+  {
+    name: "remove_damage_from_them",
+    pattern: /^(?:you may )?remove up to (\d+) damage from them/i,
+    build: (m) => ({
+      type: "remove_damage",
+      amount: n(m[1]),
+      target: { type: "triggering_card" },
+      isUpTo: true,
+      isMay: /^you may /i.test(m[0]) || undefined,
+    }),
+  },
+  // "remove up to N damage from this location/character"
+  {
+    name: "remove_damage_from_this",
+    pattern: /^(?:you may )?remove up to (\d+) damage from this (?:location|character)/i,
+    build: (m) => ({
+      type: "remove_damage",
+      amount: n(m[1]),
+      target: { type: "this" },
+      isUpTo: true,
+      isMay: /^you may /i.test(m[0]) || undefined,
+    }),
+  },
   // remove_damage — hand-wired data is split between `hasDamage:true` and
   // `cardType:["character"]` target filters. The cardType form is more
   // common so we emit that; user corrects on the minority.
@@ -1981,6 +2005,22 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
     const ability: Json = { type: "static", effect: { type: "grant_play_for_free_self" } };
     if (leadingCondition) ability.condition = leadingCondition;
     return { ability, unmatched: "" };
+  }
+
+  // "Your locations can't be challenged by characters with cost N or less."
+  const statLocationProtection = /^Your locations can't be challenged by characters with cost (\d+) or less\.?$/i.exec(rest);
+  if (statLocationProtection) {
+    return {
+      ability: {
+        type: "static",
+        effect: {
+          type: "cant_be_challenged",
+          target: { type: "all", filter: { owner: { type: "self" }, zone: "play", cardType: ["location"] } },
+          attackerFilter: { costAtMost: parseInt(statLocationProtection[1], 10), cardType: ["character"] },
+        },
+      },
+      unmatched: "",
+    };
   }
 
   // "This character can't quest unless you have a character with N {W/S} or more in play."
