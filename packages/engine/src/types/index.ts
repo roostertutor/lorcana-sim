@@ -203,9 +203,8 @@ export type Effect =
   | CantBeChallengedTimedEffect
   | DamagePreventionTimedEffect
   | PutCardsUnderIntoHandEffect
-  | MoveCardsUnderToTargetEffect
-  | MoveCardsUnderToInkwellEffect
-  | MoveAllMatchingToInkwellEffect
+  | PutCardsUnderOntoTargetEffect
+  | PutCardsUnderIntoInkwellEffect
   | ConditionalOnLastDiscardedEffect
   | OpponentChoosesYesOrNoEffect
   | ChooseNFromOpponentDiscardToBottomEffect
@@ -225,7 +224,7 @@ export type Effect =
   | MustQuestIfAbleEffect
   | LookAtTopEffect
   | DiscardEffect
-  | MoveToInkwellEffect
+  | PutIntoInkwellEffect
   | ConditionalOnTargetEffect
   | PlayCardEffect
   | ShuffleIntoDeckEffect
@@ -237,7 +236,7 @@ export type Effect =
   | GrantExtraInkPlayEffect
   | GrantChallengeReadyEffect
   | RevealHandEffect
-  | MillEffect
+  | PutTopCardsIntoDiscardEffect
   | MassInkwellEffect
   | RestrictPlayEffect
   | EachOpponentMayDiscardThenRewardEffect
@@ -481,12 +480,12 @@ export interface MassInkwellEffect {
  * Madame Medusa Diamond Lover. Distinct from `discard_from_hand` — pulls from
  * the top of the deck and queues `cards_discarded` triggers per CRD 6.2.x.
  *
- * Decks may be shorter than `amount` — natural no-op (mill min(amount, deckSize)).
+ * Decks may be shorter than `amount` — natural no-op (top min(amount, deckSize)).
  */
-export interface MillEffect {
-  type: "mill";
+export interface PutTopCardsIntoDiscardEffect {
+  type: "put_top_cards_into_discard";
   amount: DynamicAmount;
-  /** Whose deck to mill. "self" / "opponent" / "both" / "chosen". */
+  /** Whose deck. "self" / "opponent" / "both" / "chosen". */
   target: PlayerTarget;
   /** CRD 6.1.4 */
   isMay?: boolean;
@@ -849,8 +848,13 @@ export interface ReturnAllToBottomInOrderEffect {
  *  `source: { type: "state_ids", key: "lastSongSingerIds" }`. */
 // ReadySingersEffect: DELETED — use each_target instead.
 
-export interface MoveCardsUnderToTargetEffect {
-  type: "move_cards_under_to_target";
+/**
+ * Mickey Mouse Bob Cratchit: "put all cards that were under him under another
+ * chosen character or location of yours." Moves the source's cardsUnder pile
+ * onto the chosen target's cardsUnder.
+ */
+export interface PutCardsUnderOntoTargetEffect {
+  type: "put_cards_under_onto_target";
   target: CardTarget;
   isMay?: boolean;
 }
@@ -879,8 +883,8 @@ export interface PutCardsUnderIntoHandEffect {
  * inkwell, exerted. The under-cards are the controller's, not the parents'.
  * Headless bot takes all — "any number" collapses to the maximal choice.
  */
-export interface MoveCardsUnderToInkwellEffect {
-  type: "move_cards_under_to_inkwell";
+export interface PutCardsUnderIntoInkwellEffect {
+  type: "put_cards_under_into_inkwell";
   target: PlayerTarget;
   /** CRD 6.1.4: player may choose not to apply. */
   isMay?: boolean;
@@ -932,20 +936,6 @@ export interface ConditionalOnLastDiscardedEffect {
   filter: CardFilter;
   then: Effect[];
   otherwise?: Effect[];
-}
-
-/**
- * CRD 8.10.5: "Put all <X> cards from your discard into your inkwell facedown
- * and exerted" (Perdita - Determined Mother). Mass move of every card matching
- * `filter` from controller's discard to controller's inkwell, exerted. Bypasses
- * the inkable check (the cards enter facedown).
- */
-export interface MoveAllMatchingToInkwellEffect {
-  type: "move_all_matching_to_inkwell";
-  /** Filter is applied against the controller's discard zone. */
-  filter: CardFilter;
-  /** CRD 6.1.4: optional may. */
-  isMay?: boolean;
 }
 
 /**
@@ -1477,13 +1467,13 @@ export interface ShuffleIntoDeckEffect {
 }
 
 /**
- * Move a card to a player's inkwell.
+ * Put a card into a player's inkwell. Lorcana canonical verb is "put".
  * "exerted" = doesn't add available ink this turn (used next turn).
  * Some cards say "facedown" — digital engine ignores that (all inkwell cards are equal).
  */
-export interface MoveToInkwellEffect {
-  type: "move_to_inkwell";
-  /** What to move: chosen card, top of deck, self, etc. */
+export interface PutIntoInkwellEffect {
+  type: "put_into_inkwell";
+  /** What to put: chosen card, top of deck, self, or mass { all, filter }. */
   target: CardTarget;
   /** If true, enters exerted (no ink this turn). Most effects say "exerted". */
   enterExerted: boolean;

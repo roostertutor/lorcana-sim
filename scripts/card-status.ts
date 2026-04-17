@@ -576,7 +576,7 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   // (trim-hand removed: fill_hand_to.trimOnly implemented.)
   // (draw-to-n removed: DrawEffect.untilHandSize implemented — matched as
   //  fits-grammar via the "draw..until" pattern below.)
-  // (mill removed: MillEffect implemented; matched as fits-grammar below.)
+  // (put-top-cards-into-discard removed: implemented; matched as fits-grammar below.)
   // (put-on-bottom removed: put_card_on_bottom_of_deck Effect implemented; matched
   //  by FITS_GRAMMAR_PATTERNS below.)
   // Opponent-chosen banish ("each opponent chooses and banishes one of their characters")
@@ -687,10 +687,10 @@ const CAPABILITIES = new Set<string>([
   "gets_stat_while_challenging", "create_card", "search", "choose",
   "exert", "ready", "grant_keyword", "cant_action", "look_at_top",
   "discard_from_hand", "conditional_on_target", "play_for_free", "play-from-under",
-  "shuffle_into_deck", "move_to_inkwell", "grant_extra_ink_play",
+  "shuffle_into_deck", "put_into_inkwell", "grant_extra_ink_play",
   "put_card_on_bottom_of_deck", "pay_ink",
   "sequential", "create_floating_trigger_on_self",
-  "mill",
+  "put_top_cards_into_discard",
   "mass_inkwell",
   "create_floating_trigger_attached",
   "dynamic-amount",
@@ -756,9 +756,9 @@ const FITS_GRAMMAR_PATTERNS: [RegExp, string][] = [
   [/\blook at the top \d+/i, "look_at_top"],
   [/\blook at the top (card|of)\b/i, "look_at_top"],
   [/\blook at .{0,20}top card\b/i, "look_at_top"],
-  // mill: "puts the top N cards into discard"
-  [/\bputs? the top \d+ cards? .{0,30}into .{0,20}discard\b/i, "mill"],
-  [/\bputs? the top card .{0,30}into .{0,20}discard\b/i, "mill"],
+  // put_top_cards_into_discard: Lorcana canonical wording
+  [/\bputs? the top \d+ cards? .{0,30}into .{0,20}discard\b/i, "put_top_cards_into_discard"],
+  [/\bputs? the top card .{0,30}into .{0,20}discard\b/i, "put_top_cards_into_discard"],
   [/\bdiscard (a|one|chosen|\d+)/i, "discard_from_hand"],
   [/\bchoose and discard\b/i, "discard_from_hand"],
   [/\bchooses? and discards?\b/i, "discard_from_hand"],
@@ -783,7 +783,7 @@ const FITS_GRAMMAR_PATTERNS: [RegExp, string][] = [
   [/\bcan'?t challenge\b/i, "cant_action"],
   [/\bcan'?t ready\b/i, "cant_action"],
   [/\bthis character can'?t be challenged\b/i, "cant_be_challenged_static"],
-  [/\binto .{0,30}inkwell\b/i, "move_to_inkwell"],
+  [/\binto .{0,30}inkwell\b/i, "put_into_inkwell"],
   [/\bplay .{0,50}for free\b/i, "play_for_free"],
   [/\bwithout paying .{0,20}(ink )?cost\b/i, "play_for_free"],
   [/\byou may play .{0,40}from under\b/i, "play-from-under"],

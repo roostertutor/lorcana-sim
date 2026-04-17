@@ -1202,7 +1202,7 @@ describe("§10 Set 10 — Cinderella Dream Come True WHATEVER YOU WISH FOR", () 
     r = applyAction(r.newState, { type: "PASS_TURN", playerId: "player1" }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     expect(r.newState.pendingChoice?.type).toBe("choose_may");
-    // Accept the first may → it surfaces move_to_inkwell chooser.
+    // Accept the first may → it surfaces put_into_inkwell chooser.
     r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     expect(r.newState.pendingChoice?.type).toBe("choose_target");

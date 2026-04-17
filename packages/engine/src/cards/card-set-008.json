@@ -382,7 +382,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "target": {
               "type": "this"
             },
@@ -1568,7 +1568,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "isMay": true,
             "enterExerted": true,
             "fromZone": "discard",
@@ -1633,12 +1633,17 @@
         },
         "effects": [
           {
-            "type": "move_all_matching_to_inkwell",
-            "filter": {
-              "cardType": "character",
-              "hasTrait": "Puppy",
-              "zone": "discard"
+            "type": "put_into_inkwell",
+            "target": {
+              "type": "all",
+              "filter": {
+                "cardType": ["character"],
+                "hasTrait": "Puppy",
+                "zone": "discard",
+                "owner": { "type": "self" }
+              }
             },
+            "enterExerted": true,
             "isMay": true
           }
         ],
@@ -4842,7 +4847,7 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/81_25e0f1bfa276bb0f8b57d0e592405353d71b757b.jpg",
     "actionEffects": [
       {
-        "type": "move_to_inkwell",
+        "type": "put_into_inkwell",
         "enterExerted": true,
         "fromZone": "play",
         "target": {
@@ -6320,7 +6325,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "target": {
               "type": "chosen",
               "filter": {
@@ -7212,7 +7217,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "fromZone": "deck",
             "enterExerted": true,
             "target": {
@@ -9367,7 +9372,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "fromZone": "deck",
             "enterExerted": true,
             "target": {
@@ -9458,7 +9463,7 @@
         "rulesText": "When you play a Floodborn character on this card, you may put the top card of your deck into your inkwell facedown and exerted.",
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "fromZone": "deck",
             "target": {
               "type": "this"
@@ -9883,7 +9888,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "fromZone": "deck",
             "enterExerted": true,
             "target": {
@@ -10287,7 +10292,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "isMay": true,
             "enterExerted": true,
             "fromZone": "play",
@@ -10678,7 +10683,7 @@
             ],
             "rewardEffects": [
               {
-                "type": "move_to_inkwell",
+                "type": "put_into_inkwell",
                 "fromZone": "deck",
                 "enterExerted": true,
                 "target": {
@@ -12231,12 +12236,17 @@
         },
         "effects": [
           {
-            "type": "move_all_matching_to_inkwell",
-            "filter": {
-              "cardType": "character",
-              "hasTrait": "Puppy",
-              "zone": "discard"
+            "type": "put_into_inkwell",
+            "target": {
+              "type": "all",
+              "filter": {
+                "cardType": ["character"],
+                "hasTrait": "Puppy",
+                "zone": "discard",
+                "owner": { "type": "self" }
+              }
             },
+            "enterExerted": true,
             "isMay": true
           }
         ],
@@ -12646,7 +12656,7 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/213_2dae3a00efc4b096b3fd19beaa22a6be6d9eb283.jpg",
     "actionEffects": [
       {
-        "type": "move_to_inkwell",
+        "type": "put_into_inkwell",
         "enterExerted": true,
         "fromZone": "play",
         "target": {
@@ -13174,7 +13184,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "fromZone": "deck",
             "enterExerted": true,
             "target": {

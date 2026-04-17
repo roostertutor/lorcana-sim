@@ -981,8 +981,14 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     const dest = ownerIsOpponent ? "their deck" : "your deck";
     return `${may}shuffle ${renderTarget(e.target ?? {})} into ${dest}`;
   },
-  move_to_inkwell: (e) => {
+  put_into_inkwell: (e) => {
     const exerted = e.enterExerted ? " facedown and exerted" : " facedown";
+    // Perdita QUICK, EVERYONE HIDE: "put all Puppy character cards from your
+    // discard into your inkwell" — mass move via target:{type:"all", filter}.
+    if (e.target?.type === "all") {
+      const filt = e.target.filter ? renderFilter(e.target.filter) : "cards";
+      return `${maybe(e)}put all ${filt} into your inkwell${exerted}`;
+    }
     // Fishbone Quill: "put any card from your hand into your inkwell"
     if (e.target?.type === "chosen" && e.target.filter?.zone === "hand") {
       const filt = e.target.filter.cardType ? renderFilter(e.target.filter) : "card from your hand";
@@ -1115,9 +1121,8 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     return `put ${subject} on the ${position} of ${deckPossessive}`;
   },
 
-  // "Mill N cards" — put top N of own deck into discard. Dale Mischievous
-  // Ranger pattern.
-  mill: (e) => {
+  // Dale Mischievous Ranger pattern: put top N of own deck into discard.
+  put_top_cards_into_discard: (e) => {
     const n = e.amount ?? 1;
     // Mad Hatter's Teapot: "Each opponent puts the top card of their deck
     // into their discard." — target:opponent/both flips the deck+discard
@@ -1218,12 +1223,12 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
 
   // "Put all cards under this character into your hand" — Alice Well-Read Whisper.
   put_cards_under_into_hand: (e) => `put all cards under ${renderTarget(e.target ?? { type: "this" })} into your hand`,
-  move_cards_under_to_inkwell: () => `put cards from under your characters into your inkwell`,
+  put_cards_under_into_inkwell: () => `put cards from under your characters into your inkwell`,
   // Mickey Mouse Bob Cratchit A GIVING HEART: "put all cards that were under
   // him under another chosen character or location of yours". The target is
   // the destination; the source (cards-under pile) comes from the ability's
   // own source card ("this").
-  move_cards_under_to_target: (e) => {
+  put_cards_under_onto_target: (e) => {
     const may = e.isMay ? "you may " : "";
     return `${may}put all cards that were under this card under ${renderTarget(e.target ?? {})}`;
   },
@@ -1476,10 +1481,6 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   },
   prevent_discard_from_hand: () => "if an effect would cause you to discard one or more cards from your hand, you don't discard",
   inkwell_enters_exerted: () => "cards added to inkwell enter exerted",
-  move_all_matching_to_inkwell: (e) => {
-    const filt = e.filter ? renderFilter(e.filter) : "cards";
-    return `${maybe(e)}put all ${filt} into your inkwell`;
-  },
   remember_chosen_target: (e) => `choose ${e.filter ? renderFilter(e.filter) : "a character"}`,
   restrict_play: (e) => {
     const who = e.affectedPlayer?.type === "opponent" ? "opponents" : "you";

@@ -1256,15 +1256,15 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
   },
 
   // ============= PUT INTO INKWELL ===========================================
-  // Hand-wired uses `move_to_inkwell` with `fromZone:"deck"` for "top of deck"
-  // and omits fromZone with target:this for "put this card in your inkwell".
+  // `put_into_inkwell` with `fromZone:"deck"` for "top of deck" and omitted
+  // fromZone with target:this for "put this card in your inkwell".
   // `enterExerted:true` is always set for this oracle phrasing (the "facedown
   // and exerted" suffix).
   {
     name: "put_top_deck_into_inkwell",
     pattern: /^you may put the top card of your deck into your inkwell facedown and exerted/i,
     build: () => ({
-      type: "move_to_inkwell",
+      type: "put_into_inkwell",
       target: { type: "self" },
       fromZone: "deck",
       isMay: true,
@@ -1275,7 +1275,7 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     name: "put_this_into_inkwell",
     pattern: /^you may put this card into your inkwell facedown and exerted/i,
     build: () => ({
-      type: "move_to_inkwell",
+      type: "put_into_inkwell",
       target: { type: "this" },
       isMay: true,
       enterExerted: true,
@@ -1403,12 +1403,12 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     }),
   },
 
-  // ============= MILL / DECK MANIPULATION ===================================
+  // ============= DECK MANIPULATION ==========================================
   {
-    name: "mill_self_top_to_discard",
+    name: "put_top_card_of_own_deck_into_discard",
     pattern: /^(?:you may )?put the top card of your deck into your discard/i,
     build: (m) => ({
-      type: "mill",
+      type: "put_top_cards_into_discard",
       amount: 1,
       target: "self",
       isMay: /^you may /i.test(m[0]) || undefined,

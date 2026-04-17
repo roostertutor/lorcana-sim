@@ -3069,9 +3069,9 @@ describe("§8 Keywords", () => {
     state = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: shiftId, shiftTargetInstanceId: baseId }, CARD_DEFINITIONS).newState;
     expect(getInstance(state, baseId).zone).toBe("under");
 
-    // Apply move_to_inkwell directly on the shifted stack
+    // Apply put_into_inkwell directly on the shifted stack
     state = applyEffect(state, {
-      type: "move_to_inkwell",
+      type: "put_into_inkwell",
       target: { type: "this" },
       enterExerted: true,
     } as any, shiftId, "player1", CARD_DEFINITIONS, []);

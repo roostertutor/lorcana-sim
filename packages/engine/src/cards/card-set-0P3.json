@@ -84,7 +84,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "isMay": true,
             "enterExerted": true,
             "fromZone": "play",
@@ -3049,7 +3049,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "fromZone": "deck",
             "target": {
               "type": "this"

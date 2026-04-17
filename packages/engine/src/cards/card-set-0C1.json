@@ -54,7 +54,7 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/2_e2146eb707e1996e2ae87ecd5ce44a7edcc61a0b.jpg",
     "actionEffects": [
       {
-        "type": "move_to_inkwell",
+        "type": "put_into_inkwell",
         "target": {
           "type": "chosen",
           "filter": {

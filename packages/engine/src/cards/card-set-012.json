@@ -3468,7 +3468,7 @@
         },
         "effects": [
           {
-            "type": "mill",
+            "type": "put_top_cards_into_discard",
             "amount": 1,
             "target": "self"
           }
@@ -3717,7 +3717,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "target": {
               "type": "self"
             },

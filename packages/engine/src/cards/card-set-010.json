@@ -5211,7 +5211,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "fromZone": "deck",
             "enterExerted": true,
             "target": {
@@ -7848,7 +7848,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "isMay": true,
             "enterExerted": true,
             "fromZone": "play",
@@ -8294,7 +8294,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "fromZone": "deck",
             "enterExerted": true,
             "target": {
@@ -8534,7 +8534,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "isMay": true,
             "enterExerted": true,
             "fromZone": "discard",
@@ -8734,7 +8734,7 @@
             "isMay": true,
             "costEffects": [
               {
-                "type": "move_to_inkwell",
+                "type": "put_into_inkwell",
                 "target": {
                   "type": "chosen",
                   "filter": {
@@ -9084,7 +9084,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "fromZone": "deck",
             "enterExerted": true,
             "target": {
@@ -9134,7 +9134,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "target": {
               "type": "this"
             },
@@ -9296,7 +9296,7 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/164_a6d7b9cf07685d86cce7da9095cd265662687a89.jpg",
     "actionEffects": [
       {
-        "type": "move_to_inkwell",
+        "type": "put_into_inkwell",
         "enterExerted": true,
         "fromZone": "play",
         "target": {
@@ -9334,7 +9334,7 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/165_850002a114cf26e39a381404685658c8dd594299.jpg",
     "actionEffects": [
       {
-        "type": "move_to_inkwell",
+        "type": "put_into_inkwell",
         "enterExerted": true,
         "fromZone": "play",
         "target": {
@@ -9447,7 +9447,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "fromZone": "deck",
             "enterExerted": true,
             "target": {
@@ -12515,7 +12515,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "fromZone": "deck",
             "enterExerted": true,
             "target": {
@@ -12561,7 +12561,7 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/219_2a3af5f25454d0e9fdef4b83a3a310fa14c1c983.jpg",
     "actionEffects": [
       {
-        "type": "move_to_inkwell",
+        "type": "put_into_inkwell",
         "enterExerted": true,
         "fromZone": "play",
         "target": {
@@ -13251,7 +13251,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "fromZone": "deck",
             "enterExerted": true,
             "target": {
@@ -13785,7 +13785,7 @@
             "isMay": true,
             "costEffects": [
               {
-                "type": "move_to_inkwell",
+                "type": "put_into_inkwell",
                 "target": {
                   "type": "chosen",
                   "filter": {
@@ -13848,7 +13848,7 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/237_0aac51a20896098c6a6b7fbfd1c157d1ccda3eb4.jpg",
     "actionEffects": [
       {
-        "type": "move_to_inkwell",
+        "type": "put_into_inkwell",
         "enterExerted": true,
         "fromZone": "play",
         "target": {

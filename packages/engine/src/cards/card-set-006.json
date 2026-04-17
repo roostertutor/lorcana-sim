@@ -907,7 +907,7 @@
             "isMay": true,
             "costEffects": [
               {
-                "type": "mill",
+                "type": "put_top_cards_into_discard",
                 "amount": 3,
                 "target": {
                   "type": "self"
@@ -3167,7 +3167,7 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set6/60_30f9710664fc4ece8fd9f8251280279ad0f86794.jpg",
     "actionEffects": [
       {
-        "type": "mill",
+        "type": "put_top_cards_into_discard",
         "amount": 2,
         "target": {
           "type": "opponent"
@@ -3502,7 +3502,7 @@
         ],
         "effects": [
           {
-            "type": "mill",
+            "type": "put_top_cards_into_discard",
             "amount": 1,
             "target": {
               "type": "opponent"
@@ -7906,7 +7906,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "enterExerted": true,
             "target": {
               "type": "chosen",
@@ -8607,7 +8607,7 @@
             "isMay": true
           },
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "target": {
               "type": "this"
             }
@@ -9089,7 +9089,7 @@
         }
       },
       {
-        "type": "move_to_inkwell",
+        "type": "put_into_inkwell",
         "enterExerted": true,
         "target": {
           "type": "this"
@@ -9489,7 +9489,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "fromZone": "deck",
             "enterExerted": true,
             "isMay": true,
@@ -12449,7 +12449,7 @@
         }
       },
       {
-        "type": "move_to_inkwell",
+        "type": "put_into_inkwell",
         "enterExerted": true,
         "target": {
           "type": "this"

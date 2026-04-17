@@ -3109,7 +3109,7 @@
             ],
             "rewardEffects": [
               {
-                "type": "mill",
+                "type": "put_top_cards_into_discard",
                 "amount": 3,
                 "target": {
                   "type": "opponent"
@@ -9296,7 +9296,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "enterExerted": true,
             "target": {
               "type": "all",
@@ -9507,7 +9507,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "enterExerted": true,
             "isMay": true,
             "target": {
@@ -10148,7 +10148,7 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/178_573cdc6a1d38a7af69897960d512e6b4c8e41cf9.jpg",
     "actionEffects": [
       {
-        "type": "move_to_inkwell",
+        "type": "put_into_inkwell",
         "enterExerted": true,
         "target": {
           "type": "chosen",
@@ -12713,7 +12713,7 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/220_de120145ee5595f60c19a37d317817b4cc3593ab.jpg",
     "actionEffects": [
       {
-        "type": "move_to_inkwell",
+        "type": "put_into_inkwell",
         "enterExerted": true,
         "target": {
           "type": "chosen",

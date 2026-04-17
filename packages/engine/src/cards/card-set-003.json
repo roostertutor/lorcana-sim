@@ -7951,7 +7951,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "target": {
               "type": "this"
             },
@@ -8029,7 +8029,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "target": {
               "type": "this"
             },
@@ -8273,7 +8273,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "target": {
               "type": "triggering_card"
             },
@@ -8401,7 +8401,7 @@
         "type": "each_player",
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "target": {
               "type": "this"
             },
@@ -8409,7 +8409,7 @@
             "fromZone": "deck"
           },
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "target": {
               "type": "this"
             },
@@ -8417,7 +8417,7 @@
             "fromZone": "deck"
           },
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "target": {
               "type": "this"
             },
@@ -8573,7 +8573,7 @@
         ],
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "target": {
               "type": "this"
             },
@@ -8883,7 +8883,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "target": {
               "type": "triggering_card"
             },

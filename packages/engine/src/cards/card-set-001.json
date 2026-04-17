@@ -6719,7 +6719,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "target": {
               "type": "this"
             },
@@ -6772,7 +6772,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "target": {
               "type": "chosen",
               "filter": {
@@ -7122,7 +7122,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "target": {
               "type": "this"
             },
@@ -7571,7 +7571,7 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set1/163_4f979476a1bf4097c7e9020bea78fa7fd8712a4e.jpg",
     "actionEffects": [
       {
-        "type": "move_to_inkwell",
+        "type": "put_into_inkwell",
         "target": {
           "type": "chosen",
           "filter": {
@@ -7607,7 +7607,7 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set1/164_69cbe66e66e85c2e35a386da1b986eb40b5edcd6.jpg",
     "actionEffects": [
       {
-        "type": "move_to_inkwell",
+        "type": "put_into_inkwell",
         "target": {
           "type": "this"
         },
@@ -7788,7 +7788,7 @@
         ],
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "target": {
               "type": "chosen",
               "filter": {

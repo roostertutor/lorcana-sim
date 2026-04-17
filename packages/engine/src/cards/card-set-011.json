@@ -7998,7 +7998,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "isMay": true,
             "enterExerted": true,
             "fromZone": "discard",
@@ -8758,7 +8758,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "isMay": true,
             "enterExerted": true,
             "fromZone": "discard",
@@ -8827,7 +8827,7 @@
         },
         "effects": [
           {
-            "type": "move_cards_under_to_target",
+            "type": "put_cards_under_onto_target",
             "isMay": true,
             "target": {
               "type": "chosen",
@@ -9010,7 +9010,7 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/162_035adc4ba432e19cd9498a670423d346a77ccd63.jpg",
     "actionEffects": [
       {
-        "type": "move_cards_under_to_inkwell",
+        "type": "put_cards_under_into_inkwell",
         "target": {
           "type": "self"
         }
@@ -9038,7 +9038,7 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/163_faae6fbb6d7fdcb07b30e830636efcbc148e9b18.jpg",
     "actionEffects": [
       {
-        "type": "move_to_inkwell",
+        "type": "put_into_inkwell",
         "target": {
           "type": "chosen",
           "filter": {
@@ -9113,7 +9113,7 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/165_2d63f75a73b132faef609397aa9efab7523d2212.jpg",
     "actionEffects": [
       {
-        "type": "move_to_inkwell",
+        "type": "put_into_inkwell",
         "enterExerted": true,
         "fromZone": "play",
         "target": {
@@ -9286,7 +9286,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "isMay": true,
             "enterExerted": true,
             "fromZone": "deck",
@@ -12166,7 +12166,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "isMay": true,
             "enterExerted": true,
             "fromZone": "discard",
@@ -12240,7 +12240,7 @@
         },
         "effects": [
           {
-            "type": "move_cards_under_to_target",
+            "type": "put_cards_under_onto_target",
             "isMay": true,
             "target": {
               "type": "chosen",
@@ -13332,7 +13332,7 @@
         },
         "effects": [
           {
-            "type": "move_to_inkwell",
+            "type": "put_into_inkwell",
             "isMay": true,
             "enterExerted": true,
             "fromZone": "discard",

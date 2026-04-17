@@ -3321,12 +3321,12 @@ export function applyEffect(
     }
 
     // Unified handler for moving cards FROM the cardsUnder subzone TO a
-    // destination zone. Two legacy aliases route here:
-    //   put_cards_under_into_hand:    scope=this-or-chosen, destination=hand|bottom_of_deck
-    //   move_cards_under_to_inkwell:  scope=all_own, destination=inkwell+exerted (Visiting Christmas Past)
+    // destination zone. Two aliases route here:
+    //   put_cards_under_into_hand:     scope=this-or-chosen, destination=hand|bottom_of_deck
+    //   put_cards_under_into_inkwell:  scope=all_own, destination=inkwell+exerted (Visiting Christmas Past)
     case "put_cards_under_into_hand":
-    case "move_cards_under_to_inkwell": {
-      const isInkwell = effect.type === "move_cards_under_to_inkwell";
+    case "put_cards_under_into_inkwell": {
+      const isInkwell = effect.type === "put_cards_under_into_inkwell";
       // Chosen-target branch (Come Out and Fight): pause for target picking,
       // then resume via applyEffectToTarget.
       if (!isInkwell && effect.target?.type === "chosen") {
@@ -3388,7 +3388,7 @@ export function applyEffect(
     // source: { type: "state_ids", key: "lastSongSingerIds" }.
     // I2I and Fantastical and Magical now use each_target directly.
 
-    case "move_cards_under_to_target": {
+    case "put_cards_under_onto_target": {
       // Mickey Mouse Bob Cratchit: "put all cards that were under him under
       // another chosen character or location of yours."
       // Moves the source's cardsUnder pile to the chosen target's cardsUnder.
@@ -3430,24 +3430,6 @@ export function applyEffect(
       for (const sub of branch) {
         state = applyEffect(state, sub, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
         if (state.pendingChoice) return state;
-      }
-      return state;
-    }
-
-    case "move_all_matching_to_inkwell": {
-      // CRD 8.10.5: Perdita - Determined Mother — "Put all Puppy character
-      // cards from your discard into your inkwell facedown and exerted."
-      // Mass move every matching card from controller's discard to inkwell
-      // exerted. Bypasses inkable check (cards enter facedown).
-      const discard = getZone(state, controllingPlayerId, "discard");
-      for (const cid of [...discard]) {
-        const inst = state.cards[cid];
-        if (!inst) continue;
-        const def = definitions[inst.definitionId];
-        if (!def) continue;
-        if (!matchesFilter(inst, def, effect.filter, state, controllingPlayerId, sourceInstanceId)) continue;
-        state = zoneTransition(state, cid, "inkwell", definitions, events, { reason: "inked" });
-        state = updateInstance(state, cid, { isExerted: true });
       }
       return state;
     }
@@ -4211,7 +4193,7 @@ export function applyEffect(
       }
     }
 
-    case "mill": {
+    case "put_top_cards_into_discard": {
       // CRD: "Put the top N cards of <player>'s deck into their discard."
       // Each milled card fires `cards_discarded` triggers via the standard
       // moveCard → zone transition path.
@@ -4845,7 +4827,7 @@ export function applyEffect(
       return state;
     }
 
-    case "move_to_inkwell": {
+    case "put_into_inkwell": {
       const fromZone = effect.fromZone ?? "play";
 
       if (fromZone === "deck") {
@@ -4898,6 +4880,18 @@ export function applyEffect(
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           },
         };
+      }
+      if (effect.target.type === "all") {
+        // Mass move: CRD 8.10.5 "Put all <X> cards from your <zone> into your
+        // inkwell facedown and exerted." Scope is resolved by the filter's
+        // `zone`/`owner` fields. Perdita Determined Mother (discard→inkwell)
+        // is the canonical user. Bypasses inkable check (cards are facedown).
+        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        for (const id of targets) {
+          state = zoneTransition(state, id, "inkwell", definitions, events, { reason: "inked" });
+          if (effect.enterExerted) state = updateInstance(state, id, { isExerted: true });
+        }
+        return state;
       }
       return state;
     }
@@ -6927,7 +6921,7 @@ function applyEffectToTarget(
         ...(effect.charges !== undefined ? { charges: effect.charges } : {}),
       });
     }
-    case "move_to_inkwell": {
+    case "put_into_inkwell": {
       const inst = getInstance(state, targetInstanceId);
       state = zoneTransition(state, targetInstanceId, "inkwell", definitions, events, { reason: "inked" });
       if (effect.enterExerted) {
@@ -7255,8 +7249,8 @@ function applyEffectToTarget(
       };
       return addTimedEffect(state, targetInstanceId, timedEffect);
     }
-    case "move_cards_under_to_target": {
-      // Mickey Mouse Bob Cratchit: move all cards from source's cardsUnder
+    case "put_cards_under_onto_target": {
+      // Mickey Mouse Bob Cratchit: put all cards from source's cardsUnder
       // to the chosen target's cardsUnder pile.
       const sourceCard = state.cards[sourceInstanceId];
       if (!sourceCard || sourceCard.cardsUnder.length === 0) return state;
