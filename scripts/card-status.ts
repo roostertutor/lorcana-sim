@@ -274,9 +274,9 @@ function validateCardFields(card: any): FieldError[] {
     }
   });
 
-  // Check story names against Lorcast stubs — catch fabricated ability names.
-  // Only flag when stub count covers all named abilities (Lorcast sometimes
-  // omits stubs for multi-ability cards like Anna Soothing Sister).
+  // Check story names against stubs — catch fabricated ability names.
+  // Only flag when stub count covers all named abilities (the importer
+  // sometimes omits stubs for multi-ability cards like Anna Soothing Sister).
   const stubs: any[] = (card._namedAbilityStubs ?? []).filter((s: any) => s.storyName);
   const namedAbilities = (card.abilities ?? []).filter((ab: any) => ab.type !== "keyword" && ab.storyName && ab.storyName !== "");
   if (stubs.length > 0 && stubs.length >= namedAbilities.length) {
@@ -883,7 +883,7 @@ const FITS_GRAMMAR_PATTERNS: [RegExp, string][] = [
 ];
 
 function categorizeStub(rulesText: string, cardType: string): StubCategory {
-  // Normalize curly quotes/apostrophes to straight — Lorcast data uses both
+  // Normalize curly quotes/apostrophes to straight — card data uses both
   const normalized = rulesText.replace(/[\u2018\u2019\u2032]/g, "'").replace(/[\u2013\u2014]/g, "-");
   for (const [pattern, _label] of NEW_MECHANIC_PATTERNS) {
     if (pattern.test(normalized)) return "needs-new-mechanic";

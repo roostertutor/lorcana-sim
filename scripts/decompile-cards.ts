@@ -5,7 +5,7 @@
 // Walks every card in packages/engine/src/cards/lorcast-set-*.json, renders
 // its ability JSON back into English using a deterministic .toString()-style
 // pass, normalizes both sides, and scores similarity against the printed
-// `rulesText` (Lorcast oracle text). Sorts by worst match so a human reviewer
+// `rulesText` (oracle text from Ravensburger). Sorts by worst match so a human reviewer
 // can sweep the tail for wiring bugs / missed assumptions / synonymous-but-
 // technically-incorrect implementations.
 //
@@ -142,7 +142,7 @@ function renderAbility(ab: Json, ctx?: { cardType?: string }): string {
 // =============================================================================
 // PATTERN TABLES
 // -----------------------------------------------------------------------------
-// Modeled after the audit-lorcast-data.ts pattern tables (FLAG_KEYWORDS /
+// Modeled after the audit-card-data.ts pattern tables (FLAG_KEYWORDS /
 // NUMERIC_KEYWORDS). Each table maps a JSON discriminator (`type` / `on`)
 // to a render function that emits oracle-shaped English. The table itself
 // is the coverage checklist — anything not present renders as `[unknown:X]`
@@ -2099,7 +2099,7 @@ interface Row {
 
 function loadCards(setFilter?: string): CardJSON[] {
   // Dedupe by id, preferring reprints with more implemented abilities — same
-  // policy as packages/engine/src/cards/lorcastCards.ts:28-51. Without this,
+  // policy as packages/engine/src/cards/lorcastCards.ts. Without this,
   // a card reprinted across 5 set files appears 5 times in the report.
   const byId = new Map<string, CardJSON>();
   const files = readdirSync(CARDS_DIR)
@@ -2149,7 +2149,7 @@ function main() {
       card.shiftCost !== undefined ||
       card.singTogetherCost !== undefined;
     if (!oracle && !hasAbilities) continue;
-    // If oracle is empty, the comparison is meaningless — Lorcast omits
+    // If oracle is empty, the comparison is meaningless — the importer omits
     // reminder text for vanilla-keyword cards. Skip rather than score 0.0.
     if (!oracle) continue;
 
@@ -2243,7 +2243,7 @@ function writeHtml(path: string, filtered: Row[], all: Row[]) {
 <h1>Card decompiler vs. oracle text</h1>
 <p>${total} cards scored, average similarity ${avg.toFixed(2)}. Showing ${filtered.length} worst matches.</p>
 <table>
-<thead><tr><th>Score</th><th>Card</th><th>Oracle (Lorcast)</th><th>Rendered (decompiler)</th></tr></thead>
+<thead><tr><th>Score</th><th>Card</th><th>Oracle (Ravensburger)</th><th>Rendered (decompiler)</th></tr></thead>
 <tbody>
 ${rowsHtml}
 </tbody>
