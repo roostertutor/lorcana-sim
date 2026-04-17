@@ -1424,6 +1424,21 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     }),
   },
 
+  // "Shift a character from your discard for free" — play_card with shift-only
+  // mode. Like Circle of Life but restricted to shift plays. Engine needs a
+  // `playMode: "shift"` flag on play_card (not yet implemented).
+  {
+    name: "shift_from_discard_free",
+    pattern: /^Shift a character from your discard for free/i,
+    build: () => ({
+      type: "play_card",
+      sourceZone: "discard",
+      filter: { zone: "discard", cardType: ["character"] },
+      cost: "free",
+      playMode: "shift",
+    }),
+  },
+
   // ============= PUT CARD ON TOP/BOTTOM OF DECK =============================
   // "you may put a character card from your discard on the top of your deck"
   {
