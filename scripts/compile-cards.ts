@@ -187,6 +187,15 @@ const TRIGGER_MATCHERS: Matcher<Json>[] = [
     pattern: /^Whenever an opponent chooses this character for an action or ability/i,
     build: () => ({ on: "chosen_by_opponent" }),
   },
+  // is_banished with trait filter — "Whenever a <Trait> character is banished"
+  {
+    name: "is_banished_trait",
+    pattern: /^Whenever (?:a|an) ([A-Z][a-zA-Z]*) character is banished/i,
+    build: (m) => ({
+      on: "is_banished",
+      filter: { hasTrait: m[1], cardType: ["character"] },
+    }),
+  },
   // is_banished — generic fallback
   {
     name: "is_banished",
@@ -221,6 +230,42 @@ const TRIGGER_MATCHERS: Matcher<Json>[] = [
     name: "deals_damage_in_challenge",
     pattern: /^Whenever this character deals damage to another character in a challenge/i,
     build: () => ({ on: "deals_damage_in_challenge" }),
+  },
+  // challenges with owner:self + trait filter — "Whenever one of your Super
+  // characters challenges another character"
+  {
+    name: "challenges_your_trait",
+    pattern: /^Whenever one of your ([A-Z][a-zA-Z]*) characters challenges another character/i,
+    build: (m) => ({
+      on: "challenges",
+      filter: { owner: { type: "self" }, cardType: ["character"], hasTrait: m[1] },
+    }),
+  },
+  // "Whenever a character is challenged while here" — location-scoped
+  {
+    name: "challenged_while_here",
+    pattern: /^Whenever a character is challenged while here/i,
+    build: () => ({
+      on: "is_challenged",
+      filter: { atLocation: "this" },
+    }),
+  },
+  // "Whenever you pay N {I} or less to play a card/character/non-character"
+  {
+    name: "pay_cost_threshold_card",
+    pattern: /^Whenever you pay (\d+) \{I\} or less to play a (card|character|non-character)/i,
+    build: (m) => ({
+      on: "card_played",
+      filter: {
+        owner: { type: "self" },
+        ...(m[2] === "character"
+          ? { cardType: ["character"] }
+          : m[2] === "non-character"
+            ? { cardType: ["action", "item", "location"] }
+            : {}),
+        costAtMost: parseInt(m[1], 10),
+      },
+    }),
   },
   // banishes_in_challenge — hand-wired cards use `banished_other_in_challenge`
   // (synonym: both resolve to "this character banishes another"). We emit
@@ -1254,12 +1299,13 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
   const original = text.trim();
   // Ravensburger data wraps keywords in angle brackets: <Rush>, <Evasive>.
   // Also uses curly apostrophes (U+2018/2019) instead of straight ones.
-  // Normalize both so our matchers work. Strip keyword-reminder
-  // parentheticals after normalization.
+  // Normalize both so our matchers work. Strip song-cost-reminder and
+  // keyword-reminder parentheticals.
   let rest = original
     .replace(/[\u2018\u2019]/g, "'")   // curly → straight apostrophes
     .replace(/<(Rush|Evasive|Ward|Reckless|Bodyguard|Support|Challenger|Resist|Vanish|Shift)>/gi, "$1")
-    .replace(/\s*\([^)]*\)\s*\.?$/, "")
+    .replace(/^\(A character with cost \d+ or more can \{E\} to sing this song for free\.\)\s*/i, "")  // song cost reminder
+    .replace(/\s*\([^)]*\)\s*\.?$/, "")  // trailing reminder parens
     .trim();
 
   // -------- Leading condition ----------------------------------------------
@@ -1387,6 +1433,24 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
     return { ability, unmatched: "" };
   }
 
+  // "Characters get +N {stat} while here." — location static
+  const statWhileHere = /^Characters get ([+-]?\d+) \{(S|W|L)\} while here\.?$/i.exec(rest);
+  if (statWhileHere) {
+    const stat = statWhileHere[2].toUpperCase() === "S" ? "strength" : statWhileHere[2].toUpperCase() === "W" ? "willpower" : "lore";
+    return {
+      ability: {
+        type: "static",
+        effect: {
+          type: "modify_stat",
+          stat,
+          amount: parseInt(statWhileHere[1], 10),
+          target: { type: "all", filter: { atLocation: "this", cardType: ["character"] } },
+        },
+      },
+      unmatched: "",
+    };
+  }
+
   // "This character can challenge ready characters." — Namaari Morning Mist
   // shape. Granted as a static flag the reducer consults when validating
   // challenges.
@@ -1411,6 +1475,43 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
     return { ability, unmatched: "" };
   }
 
+  // "This character may enter play exerted."
+  const statMayEnterExerted = /^This character may enter play exerted\.?$/i.exec(rest);
+  if (statMayEnterExerted) {
+    const ability: Json = {
+      type: "static",
+      effect: { type: "enter_play_exerted_self", isMay: true },
+    };
+    return { ability, unmatched: "" };
+  }
+
+  // "This character also counts as being named X for Shift."
+  const statAlternateName = /^This character (?:also )?counts as being named ([A-Z][\w''\- ]*?) for Shift\.?$/i.exec(rest);
+  if (statAlternateName) {
+    // This is actually an `alternateNames` field, not an ability. Emit a
+    // marker so the compiler output can be post-processed to set the field.
+    const ability: Json = {
+      type: "__alternateNames__",
+      names: [statAlternateName[1].trim()],
+    };
+    return { ability, unmatched: "" };
+  }
+
+  // "For each <filter> in your <zone>, you pay N {I} less to play this character"
+  const statSelfCostCount = /^For each ([\w ]+?) (?:card )?in your (\w+), you pay (\d+) \{I\} less to play this character\.?$/i.exec(rest);
+  if (statSelfCostCount) {
+    const ability: Json = {
+      type: "static",
+      effect: {
+        type: "self_cost_reduction",
+        amount: { type: "count", filter: { zone: statSelfCostCount[2].toLowerCase() } },
+        perCount: parseInt(statSelfCostCount[3], 10),
+      },
+    };
+    if (leadingCondition) ability.condition = leadingCondition;
+    return { ability, unmatched: "" };
+  }
+
   // "This character can't ready." — blanket ready block (ready_anytime).
   // Bare "can't ready" with no "at the start of your turn" qualifier.
   const statCantReady = /^This character can't ready\.?$/i.exec(rest);
@@ -1419,6 +1520,32 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
       type: "static",
       effect: { type: "cant_action_self", action: "ready_anytime" },
     };
+    if (leadingCondition) ability.condition = leadingCondition;
+    return { ability, unmatched: "" };
+  }
+
+  // "This character gets +X {S} for each [filter] you have in play" — dynamic
+  const statDynamic = /^This character gets \+(\d+) \{(S|W|L)\} for each (other character|card in your hand|.*?) you have in play\.?$/i.exec(rest);
+  if (statDynamic) {
+    const amt = parseInt(statDynamic[1], 10);
+    const statChar = statDynamic[2].toUpperCase();
+    const stat = statChar === "S" ? "strength" : statChar === "W" ? "willpower" : "lore";
+    const phrase = statDynamic[3].toLowerCase();
+    let countFilter: Json;
+    if (phrase === "other character") {
+      countFilter = { cardType: ["character"], zone: "play", owner: { type: "self" }, excludeSelf: true };
+    } else if (phrase === "card in your hand") {
+      countFilter = { zone: "hand", owner: { type: "self" } };
+    } else {
+      countFilter = { zone: "play", owner: { type: "self" } };
+    }
+    const effect: Json = {
+      type: "modify_stat",
+      stat,
+      amount: { type: "count", filter: countFilter },
+      target: { type: "this" },
+    };
+    const ability: Json = { type: "static", effect };
     if (leadingCondition) ability.condition = leadingCondition;
     return { ability, unmatched: "" };
   }
@@ -1473,7 +1600,10 @@ function tryActivatedAbility(
   leadingCondition: Json | null,
   opts: { requireExplicitCost: boolean },
 ): Json | null {
-  const costMatch = /^((?:\{E\}|\d+\s*\{I\})(?:\s*,\s*(?:\{E\}|\d+\s*\{I\}))*)\s*[—–-]\s+/.exec(text);
+  // Cost phrases: {E}, N {I}, Banish this item/character/location.
+  const costAtom = `(?:\\{E\\}|\\d+\\s*\\{I\\}|Banish this (?:item|character|location))`;
+  const costRe = new RegExp(`^(${costAtom}(?:\\s*,\\s*${costAtom})*)\\s*[—–-]\\s+`, "i");
+  const costMatch = costRe.exec(text);
   let costs: Json[] | null = null;
   let body = text;
   if (costMatch) {
@@ -1495,6 +1625,7 @@ function parseCostsFromPhrase(phrase: string): Json[] {
     if (/^\{E\}$/i.test(part)) return { type: "exert" };
     const ink = /^(\d+)\s*\{I\}$/i.exec(part);
     if (ink) return { type: "pay_ink", amount: parseInt(ink[1], 10) };
+    if (/^Banish this (item|character|location)$/i.test(part)) return { type: "banish_self" };
     return { type: "unknown", raw: part };
   });
 }
@@ -1802,7 +1933,16 @@ export function compileCard(card: CardJSON): CompiledCard {
     return result;
   }
 
-  const chunks = splitNamedAbilities(card.rulesText);
+  // Prefer _namedAbilityStubs (pre-split by the importer) over our regex
+  // heuristic — the importer handles edge cases like storyNames followed by
+  // {E} cost prefixes that our splitNamedAbilities regex misses.
+  const chunks =
+    card._namedAbilityStubs && card._namedAbilityStubs.length > 0
+      ? card._namedAbilityStubs.map((s) => ({
+          storyName: s.storyName ?? "",
+          body: s.rulesText,
+        }))
+      : splitNamedAbilities(card.rulesText);
   for (const c of chunks) {
     const r = compileAbility(c.body, { cardType: card.cardType });
     result.namedResults.push({
