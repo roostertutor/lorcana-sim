@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // =============================================================================
 // CARD DATA AUDIT
-// Scans local lorcast-set-*.json files for cards whose rulesText mentions a
+// Scans local card-set-*.json files for cards whose rulesText mentions a
 // keyword that is NOT present in their abilities array, OR whose numeric
 // keyword has no value field. Reports the mismatches so we can:
 //   1. Track data drift after re-imports from Ravensburger's API.
@@ -107,7 +107,7 @@ interface Issue {
 function loadCards(): CardJSON[] {
   const out: CardJSON[] = [];
   const files = readdirSync(CARDS_DIR)
-    .filter((f) => f.startsWith("lorcast-set-") && f.endsWith(".json"));
+    .filter((f) => f.startsWith("card-set-") && f.endsWith(".json"));
   for (const f of files) {
     const cards = JSON.parse(readFileSync(join(CARDS_DIR, f), "utf-8")) as CardJSON[];
     out.push(...cards);

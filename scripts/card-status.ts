@@ -1004,7 +1004,7 @@ function hasNamedStubs(card: any): boolean {
 }
 
 const SET_FILES = readdirSync(CARDS_DIR)
-  .filter((f) => f.startsWith("lorcast-set-") && f.endsWith(".json"))
+  .filter((f) => f.startsWith("card-set-") && f.endsWith(".json"))
   .sort();
 
 const allCards: CardEntry[] = [];

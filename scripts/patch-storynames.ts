@@ -47,7 +47,7 @@ const RENAMES: Rename[] = [
 let totalPatched = 0;
 const missedRenames: Rename[] = [];
 
-for (const file of readdirSync(OUT_DIR).filter((f) => /^lorcast-set-.*\.json$/.test(f))) {
+for (const file of readdirSync(OUT_DIR).filter((f) => /^card-set-.*\.json$/.test(f))) {
   const path = join(OUT_DIR, file);
   const cards = JSON.parse(readFileSync(path, "utf8")) as Array<{
     id: string;
@@ -75,7 +75,7 @@ for (const file of readdirSync(OUT_DIR).filter((f) => /^lorcast-set-.*\.json$/.t
 
 // Report any renames that didn't find their card
 const patchedSlugs = new Set<string>();
-for (const file of readdirSync(OUT_DIR).filter((f) => /^lorcast-set-.*\.json$/.test(f))) {
+for (const file of readdirSync(OUT_DIR).filter((f) => /^card-set-.*\.json$/.test(f))) {
   const cards = JSON.parse(readFileSync(join(OUT_DIR, file), "utf8")) as Array<{
     id: string;
     abilities?: Array<{ storyName?: string }>;

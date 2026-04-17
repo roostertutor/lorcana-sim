@@ -30,7 +30,7 @@ const OUT_TS = join(OUT_DIR, "cardDefinitions.ts");
 
 function setJsonPath(setCode: string): string {
   const padded = setCode.padStart(3, "0");
-  return join(OUT_DIR, `lorcast-set-${padded}.json`);
+  return join(OUT_DIR, `card-set-${padded}.json`);
 }
 
 const API_URL = "https://www.disneylorcana.com/api/getCardApiData";
@@ -622,11 +622,11 @@ async function main() {
   // the ones we imported this run — so partial re-imports don't drop other
   // sets or promo files that still come from Lorcast importer).
   const allSetCodes = readdirSync(OUT_DIR)
-    .filter((f) => f.startsWith("lorcast-set-") && f.endsWith(".json"))
-    .map((f) => f.replace(/^lorcast-set-/, "").replace(/\.json$/, ""))
+    .filter((f) => f.startsWith("card-set-") && f.endsWith(".json"))
+    .map((f) => f.replace(/^card-set-/, "").replace(/\.json$/, ""))
     .sort();
   const setImports = allSetCodes.map((padded) =>
-    `import set${padded} from "./lorcast-set-${padded}.json" assert { type: "json" };`
+    `import set${padded} from "./card-set-${padded}.json" assert { type: "json" };`
   );
   const setSpread = allSetCodes.map((padded) => `  ...loadSet(set${padded}),`);
 

@@ -158,7 +158,7 @@ variants array with direct foil-mask + normal-map URLs, and
   affect Ravensburger's own website.
 
 **Importer:** `scripts/import-cards-rav.ts`. Produces the same
-`lorcast-set-XXX.json` shape as the Lorcast importer. Merge logic
+`card-set-XXX.json` shape as the Lorcast importer. Merge logic
 preserves hand-wired `abilities[]` and derived scalar fields on
 re-import, with a slug-alias fallback when a slug changes.
 
@@ -190,7 +190,7 @@ Rejected alternative: block import until all abilities are implemented.
 That would have prevented using the platform at all. Incremental is better.
 
 ### Per-set JSON files
-The importer outputs `lorcast-set-XXX.json` (one per set) + `lorcastCards.ts`
+The importer outputs `card-set-XXX.json` (one per set) + `lorcastCards.ts`
 (auto-generated loader that imports and merges all set files).
 Zero-padded filenames (`001`, `002`) for correct sort order beyond set 9.
 

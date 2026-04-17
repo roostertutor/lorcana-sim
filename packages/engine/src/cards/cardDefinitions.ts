@@ -6,24 +6,24 @@
 // =============================================================================
 
 import type { CardDefinition } from "../types/index.js";
-import set001 from "./lorcast-set-001.json" assert { type: "json" };
-import set002 from "./lorcast-set-002.json" assert { type: "json" };
-import set003 from "./lorcast-set-003.json" assert { type: "json" };
-import set004 from "./lorcast-set-004.json" assert { type: "json" };
-import set005 from "./lorcast-set-005.json" assert { type: "json" };
-import set006 from "./lorcast-set-006.json" assert { type: "json" };
-import set007 from "./lorcast-set-007.json" assert { type: "json" };
-import set008 from "./lorcast-set-008.json" assert { type: "json" };
-import set009 from "./lorcast-set-009.json" assert { type: "json" };
-import set010 from "./lorcast-set-010.json" assert { type: "json" };
-import set011 from "./lorcast-set-011.json" assert { type: "json" };
-import set012 from "./lorcast-set-012.json" assert { type: "json" };
-import set0C1 from "./lorcast-set-0C1.json" assert { type: "json" };
-import set0C2 from "./lorcast-set-0C2.json" assert { type: "json" };
-import set0P1 from "./lorcast-set-0P1.json" assert { type: "json" };
-import set0P2 from "./lorcast-set-0P2.json" assert { type: "json" };
-import set0P3 from "./lorcast-set-0P3.json" assert { type: "json" };
-import setD23 from "./lorcast-set-D23.json" assert { type: "json" };
+import set001 from "./card-set-001.json" assert { type: "json" };
+import set002 from "./card-set-002.json" assert { type: "json" };
+import set003 from "./card-set-003.json" assert { type: "json" };
+import set004 from "./card-set-004.json" assert { type: "json" };
+import set005 from "./card-set-005.json" assert { type: "json" };
+import set006 from "./card-set-006.json" assert { type: "json" };
+import set007 from "./card-set-007.json" assert { type: "json" };
+import set008 from "./card-set-008.json" assert { type: "json" };
+import set009 from "./card-set-009.json" assert { type: "json" };
+import set010 from "./card-set-010.json" assert { type: "json" };
+import set011 from "./card-set-011.json" assert { type: "json" };
+import set012 from "./card-set-012.json" assert { type: "json" };
+import set0C1 from "./card-set-0C1.json" assert { type: "json" };
+import set0C2 from "./card-set-0C2.json" assert { type: "json" };
+import set0P1 from "./card-set-0P1.json" assert { type: "json" };
+import set0P2 from "./card-set-0P2.json" assert { type: "json" };
+import set0P3 from "./card-set-0P3.json" assert { type: "json" };
+import setD23 from "./card-set-D23.json" assert { type: "json" };
 
 type RawCard = CardDefinition & { _namedAbilityStubs?: string[] };
 

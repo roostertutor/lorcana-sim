@@ -25,7 +25,7 @@ deck analytics, win rates, consistency metrics, and card evaluation.
 | `@lorcana-sim/analytics` | ✅ Done | Composition + simulation + comparison |
 | `@lorcana-sim/cli` | ✅ Done | analyze, compare, optimize, sweep |
 | `@lorcana-sim/ui` | ✅ Done | 7 screens, runs in-browser |
-| Card import script | ✅ Done | Per-set JSON files (`lorcast-set-XXX.json`) |
+| Card import script | ✅ Done | Per-set JSON files (`card-set-XXX.json`) |
 | Set 1 card abilities | ✅ Done | 216 entries, all abilities implemented |
 | Additional sets (2–11) | ✅ Done | Imported as keyword stubs (2504 cards); run `pnpm import-cards --sets N` to refresh |
 | PersonalBot calibration UI | ⬜ Pending | Analytics function exists, UI screen not built |
@@ -277,7 +277,7 @@ pnpm import-cards --sets 1 --dry   # dry run, print without writing
 ```
 
 Generates per-set files in `packages/engine/src/cards/`:
-- `lorcast-set-001.json`, `lorcast-set-002.json`, etc. — CardDefinition arrays per set
+- `card-set-001.json`, `card-set-002.json`, etc. — CardDefinition arrays per set
 - `lorcastCards.ts` — auto-generated loader that imports and merges all set files
 
 Re-running the import script preserves manually-implemented abilities (non-keyword)
@@ -286,7 +286,7 @@ on re-import.
 ### Current Import Status
 | Set | Code | File | Cards | Status |
 |---|---|---|---|---|
-| The First Chapter | 1 | `lorcast-set-001.json` | 216 (204 unique) | ✅ All abilities implemented |
+| The First Chapter | 1 | `card-set-001.json` | 216 (204 unique) | ✅ All abilities implemented |
 | Rise of the Floodborn | 2 | — | — | Not imported |
 | Into the Inklands | 3 | — | — | Not imported |
 | Ursula's Return | 4 | — | — | Not imported |
@@ -298,7 +298,7 @@ on re-import.
 ```bash
 pnpm import-cards --sets 2
 ```
-This creates `lorcast-set-002.json` with keyword abilities auto-parsed and
+This creates `card-set-002.json` with keyword abilities auto-parsed and
 `_namedAbilityStubs` on cards that have non-keyword abilities needing implementation.
 It also regenerates `lorcastCards.ts` with the new import.
 
@@ -306,7 +306,7 @@ It also regenerates `lorcastCards.ts` with the new import.
 Run the verification script to see what needs work:
 ```bash
 node -e "
-const cards = JSON.parse(require('fs').readFileSync('packages/engine/src/cards/lorcast-set-002.json', 'utf8'));
+const cards = JSON.parse(require('fs').readFileSync('packages/engine/src/cards/card-set-002.json', 'utf8'));
 const stubs = cards.filter(c => c._namedAbilityStubs?.length > 0);
 console.log(stubs.length + ' cards need ability implementation');
 stubs.forEach(c => console.log('  ' + c.id + ': ' + c._namedAbilityStubs.length + ' abilities'));

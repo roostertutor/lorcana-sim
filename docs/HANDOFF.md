@@ -57,7 +57,7 @@ delay, includes Iconic/Epic cards Lorcast doesn't index, and provides
    stored under their original set + number (Ravensburger's scheme) or
    duplicated under `Q1`/`Q2` with Quest-specific numbers (the app's cache
    filenames use the Quest scheme). Blocks `quest1`/`quest2` import.
-2. Filename rename — `packages/engine/src/cards/lorcast-set-*.json` →
+2. Filename rename — `packages/engine/src/cards/card-set-*.json` →
    `card-set-*.json` (name was accurate when all data came from Lorcast;
    source-neutral now). Single-purpose PR after the source swap settles.
 3. Promo migration — if/when Ravensburger exposes P1/P2/P3/cp/D23/DIS or

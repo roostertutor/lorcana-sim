@@ -53,7 +53,7 @@ const usageExamples: Record<string, string> = {};
     for (const k of Object.keys(node)) walk(node[k], card);
   }
   const { readdirSync: readdir, readFileSync: readFile } = require("fs");
-  for (const f of readdir(CARDS_DIR).filter((f: string) => f.startsWith("lorcast-set-") && f.endsWith(".json"))) {
+  for (const f of readdir(CARDS_DIR).filter((f: string) => f.startsWith("card-set-") && f.endsWith(".json"))) {
     const cards = JSON.parse(readFile(join(CARDS_DIR, f), "utf-8"));
     for (const c of cards) walk(c, c);
   }

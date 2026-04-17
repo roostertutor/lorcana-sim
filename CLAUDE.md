@@ -68,7 +68,7 @@ Four scripts triangulate data quality; all four report clean across all 17 sets.
 ## Rules (always follow)
 
 ### No hallucinated cards or rules
-- ALWAYS look up card data from `lorcast-set-XXX.json` files — never guess card text, costs, stats, or abilities from training data.
+- ALWAYS look up card data from `card-set-XXX.json` files — never guess card text, costs, stats, or abilities from training data.
 - ALWAYS cite CRD rule numbers from `docs/CRD_TRACKER.md` — never invent rules or assume how a mechanic works.
 - Read the full CRD rule text from `docs/Disney-Lorcana-Comprehensive-Rules-020526-EN-Edited.pdf` when implementing a rule or a card ability that depends on one. The tracker is an index; the PDF has the complete spec with examples and edge cases.
 - If data isn't available, say so and look it up. Do not make things up.

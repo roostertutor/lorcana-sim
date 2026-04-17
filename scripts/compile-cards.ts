@@ -1847,7 +1847,7 @@ function deepEqual(a: any, b: any): boolean {
 // =============================================================================
 
 function loadAllCards(): CardJSON[] {
-  const files = readdirSync(CARDS_DIR).filter((f) => /^lorcast-set-\d+\.json$/.test(f));
+  const files = readdirSync(CARDS_DIR).filter((f) => /^card-set-\d+\.json$/.test(f));
   const out: CardJSON[] = [];
   for (const f of files.sort()) {
     const data = JSON.parse(readFileSync(join(CARDS_DIR, f), "utf8")) as CardJSON[];

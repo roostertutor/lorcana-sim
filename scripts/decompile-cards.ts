@@ -2,7 +2,7 @@
 // =============================================================================
 // CARD DECOMPILER + ORACLE-TEXT DIFF
 // -----------------------------------------------------------------------------
-// Walks every card in packages/engine/src/cards/lorcast-set-*.json, renders
+// Walks every card in packages/engine/src/cards/card-set-*.json, renders
 // its ability JSON back into English using a deterministic .toString()-style
 // pass, normalizes both sides, and scores similarity against the printed
 // `rulesText` (oracle text from Ravensburger). Sorts by worst match so a human reviewer
@@ -2103,7 +2103,7 @@ function loadCards(setFilter?: string): CardJSON[] {
   // a card reprinted across 5 set files appears 5 times in the report.
   const byId = new Map<string, CardJSON>();
   const files = readdirSync(CARDS_DIR)
-    .filter((f) => f.startsWith("lorcast-set-") && f.endsWith(".json"));
+    .filter((f) => f.startsWith("card-set-") && f.endsWith(".json"));
   for (const f of files) {
     if (setFilter && !f.includes(setFilter)) continue;
     const cards = JSON.parse(readFileSync(join(CARDS_DIR, f), "utf-8")) as CardJSON[];

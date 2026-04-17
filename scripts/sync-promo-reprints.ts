@@ -15,7 +15,7 @@ const PROMO_SETS = ["0P1", "0P2", "0P3", "0cp", "D23", "DIS"];
 // Build a name → wired-card index from main sets.
 const wired: Record<string, any> = {};
 for (const s of MAIN_SETS) {
-  const fp = join(CARDS_DIR, `lorcast-set-${s}.json`);
+  const fp = join(CARDS_DIR, `card-set-${s}.json`);
   const cards = JSON.parse(readFileSync(fp, "utf-8"));
   for (const c of cards) {
     const hasAbilities = (c.abilities || []).some((a: any) =>
@@ -37,7 +37,7 @@ for (const s of MAIN_SETS) {
 
 let synced = 0;
 for (const s of PROMO_SETS) {
-  const fp = join(CARDS_DIR, `lorcast-set-${s}.json`);
+  const fp = join(CARDS_DIR, `card-set-${s}.json`);
   const cards = JSON.parse(readFileSync(fp, "utf-8"));
   let setSynced = 0;
   for (const c of cards) {
@@ -70,7 +70,7 @@ console.log(`\nTotal: ${synced} reprints synced from main sets to promo sets.`);
 // Within-set pass: copy from a wired variant to its sibling reprints sharing `id`.
 let withinSynced = 0;
 for (const s of [...MAIN_SETS, ...PROMO_SETS]) {
-  const fp = join(CARDS_DIR, `lorcast-set-${s}.json`);
+  const fp = join(CARDS_DIR, `card-set-${s}.json`);
   const cards = JSON.parse(readFileSync(fp, "utf-8"));
   const byId: Record<string, any[]> = {};
   for (const c of cards) {
