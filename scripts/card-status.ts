@@ -968,7 +968,11 @@ function countWiredAbilities(card: any): number {
   // playRestrictions count as a wired "ability" for cards whose only named
   // ability is the restriction itself (Mirabel, Nathaniel Flint).
   const playRestrictions = card.playRestrictions?.length ?? 0;
-  return namedAbilities + actionEffects + playRestrictions;
+  // alternateNames represents an "also counts as <Name> for Shift" ability
+  // (Incrediboy SPOILER ALERT) — a top-level card field, not an abilities[]
+  // entry. Count it as one wired ability if present.
+  const altNames = card.alternateNames?.length ? 1 : 0;
+  return namedAbilities + actionEffects + playRestrictions + altNames;
 }
 
 /**

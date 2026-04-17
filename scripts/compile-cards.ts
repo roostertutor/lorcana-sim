@@ -272,7 +272,10 @@ const TRIGGER_MATCHERS: Matcher<Json>[] = [
   {
     name: "moves_here",
     pattern: /^Whenever (?:a |you move a )character (?:moves |)here/i,
-    build: () => ({ on: "moves_to_location", filter: { atLocation: "this" } }),
+    build: () => ({
+      on: "moves_to_location",
+      filter: { zone: "play", cardType: ["character"], atLocation: "this" },
+    }),
   },
   // "Whenever a character quests while here" — location-scoped quests
   {

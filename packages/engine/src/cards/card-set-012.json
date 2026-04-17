@@ -735,6 +735,25 @@
       {
         "type": "triggered",
         "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "put_card_on_bottom_of_deck",
+            "from": "discard",
+            "position": "top",
+            "filter": {
+              "cardType": ["character"]
+            },
+            "isMay": true
+          }
+        ],
+        "storyName": "GRAB HOLD!",
+        "rulesText": "When you play this item, you may put a character card from your discard on the top of your deck."
+      },
+      {
+        "type": "triggered",
+        "trigger": {
           "on": "turn_end"
         },
         "effects": [
@@ -1419,6 +1438,32 @@
         },
         "storyName": "SIMPLE, ELEGANT",
         "rulesText": "When you play this item, if you have a Hero character in play, gain 1 lore."
+      },
+      {
+        "type": "activated",
+        "costs": [
+          { "type": "exert" },
+          { "type": "pay_ink", "amount": 2 }
+        ],
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "condition": {
+              "type": "played_this_turn",
+              "amount": 1,
+              "filter": {
+                "cardType": ["character"],
+                "hasTrait": "Hero"
+              }
+            }
+          }
+        ],
+        "storyName": "SUIT UP",
+        "rulesText": "{E}, 2 {I} — If you played a Hero character this turn, draw a card."
       }
     ],
     "setId": "12",
@@ -1541,6 +1586,32 @@
         },
         "storyName": "FOLLOW YOUR FATE",
         "rulesText": "Your exerted characters can move here for free."
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "moves_to_location",
+          "filter": {
+            "zone": "play",
+            "cardType": ["character"],
+            "atLocation": "this"
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ],
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "oncePerTurn": true,
+        "storyName": "PART THE VEIL",
+        "rulesText": "Once during your turn, whenever a character moves here, gain 1 lore."
       }
     ],
     "setId": "12",
@@ -3665,6 +3736,30 @@
         ],
         "storyName": "MARGIN NOTES",
         "rulesText": "When you play this item, you may look at the top card of your deck. Put it on either the top of your deck or into your discard."
+      },
+      {
+        "type": "activated",
+        "costs": [
+          { "type": "pay_ink", "amount": 1 },
+          { "type": "banish_self" }
+        ],
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "discard",
+                "cardType": ["item"],
+                "owner": {
+                  "type": "self"
+                }
+              }
+            }
+          }
+        ],
+        "storyName": "KEY TO THE PUZZLE",
+        "rulesText": "1 {I}, Banish this item — Return another item card from your discard to your hand."
       }
     ],
     "setId": "12",
@@ -4417,6 +4512,28 @@
         },
         "storyName": "WELCOME BACK, SIR",
         "rulesText": "If you have a character named Fat Cat in play, you may play this card for free."
+      },
+      {
+        "type": "static",
+        "effect": {
+          "type": "cant_be_challenged",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": ["location"]
+            }
+          },
+          "attackerFilter": {
+            "costAtMost": 2,
+            "cardType": ["character"]
+          }
+        },
+        "storyName": "COOL CATS ONLY",
+        "rulesText": "Your locations can’t be challenged by characters with cost 2 or less."
       }
     ],
     "setId": "12",
