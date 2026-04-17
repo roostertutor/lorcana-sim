@@ -208,70 +208,6 @@
     ]
   },
   {
-    "id": "ursula-deceiver",
-    "name": "Ursula",
-    "fullName": "Ursula - Deceiver",
-    "cardType": "character",
-    "inkColors": [
-      "emerald"
-    ],
-    "cost": 2,
-    "inkable": true,
-    "traits": [
-      "Storyborn",
-      "Villain",
-      "Sorcerer"
-    ],
-    "abilities": [
-      {
-        "type": "triggered",
-        "storyName": "YOU'LL NEVER EVEN MISS IT",
-        "rulesText": "When you play this character, chosen opponent reveals their hand and discards a song card of your choice.",
-        "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "reveal_hand",
-            "target": {
-              "type": "opponent"
-            }
-          },
-          {
-            "type": "discard_from_hand",
-            "amount": 1,
-            "target": {
-              "type": "opponent"
-            },
-            "chooser": "controller",
-            "filter": {
-              "cardType": [
-                "action"
-              ],
-              "hasTrait": "Song"
-            }
-          }
-        ]
-      }
-    ],
-    "setId": "3",
-    "number": 3,
-    "rarity": "legendary",
-    "subtitle": "Deceiver",
-    "strength": 1,
-    "willpower": 3,
-    "lore": 1,
-    "rulesText": "YOU’LL NEVER EVEN MISS IT When you play this character, chosen opponent reveals their hand and discards a song card of your choice.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/3_569cc7920299a66496b9db5894b5e1f8ab3ffa5f.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "YOU'LL NEVER EVEN MISS IT",
-        "rulesText": "When you play this character, chosen opponent reveals their hand and discards a song card of your choice.",
-        "raw": "YOU’LL NEVER EVEN MISS IT When you play this character, chosen opponent reveals their hand and discards a song card of your choice."
-      }
-    ]
-  },
-  {
     "id": "joshua-sweet-the-doctor",
     "name": "Joshua Sweet",
     "fullName": "Joshua Sweet - The Doctor",
@@ -1358,67 +1294,6 @@
     ]
   },
   {
-    "id": "kit-cloudkicker-tough-guy",
-    "name": "Kit Cloudkicker",
-    "fullName": "Kit Cloudkicker - Tough Guy",
-    "cardType": "character",
-    "inkColors": [
-      "emerald"
-    ],
-    "cost": 3,
-    "inkable": true,
-    "traits": [
-      "Storyborn",
-      "Ally"
-    ],
-    "abilities": [
-      {
-        "type": "triggered",
-        "storyName": "SKYSURFING",
-        "rulesText": "When you play this character, you may return chosen opposing character with 2 {S} or less to their player's hand.",
-        "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "return_to_hand",
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "opponent"
-                },
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ],
-                "strengthAtMost": 2
-              }
-            },
-            "isMay": true
-          }
-        ]
-      }
-    ],
-    "setId": "3",
-    "number": 26,
-    "rarity": "legendary",
-    "subtitle": "Tough Guy",
-    "strength": 2,
-    "willpower": 2,
-    "lore": 1,
-    "rulesText": "SKYSURFING When you play this character, you may return chosen opposing character with 2 {S} or less to their player’s hand.",
-    "flavorText": "“It’s been fun, guys, but I got to be going. Yahoooo!”",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/26_0714a9cfc3a2bdc343359e83ee79530f963342a5.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "SKYSURFING",
-        "rulesText": "When you play this character, you may return chosen opposing character with 2 {S} or less to their player’s hand.",
-        "raw": "SKYSURFING When you play this character, you may return chosen opposing character with 2 {S} or less to their player’s hand."
-      }
-    ]
-  },
-  {
     "id": "quick-patch",
     "name": "Quick Patch",
     "fullName": "Quick Patch",
@@ -1450,78 +1325,6 @@
           }
         },
         "isUpTo": true
-      }
-    ]
-  },
-  {
-    "id": "jolly-roger-hooks-ship",
-    "name": "Jolly Roger",
-    "fullName": "Jolly Roger - Hook's Ship",
-    "cardType": "location",
-    "inkColors": [
-      "ruby"
-    ],
-    "cost": 1,
-    "inkable": false,
-    "traits": [],
-    "abilities": [
-      {
-        "type": "static",
-        "storyName": "LOOK ALIVE, YOU SWABS!",
-        "rulesText": "Characters gain Rush while here.",
-        "effect": {
-          "type": "grant_keyword",
-          "keyword": "rush",
-          "target": {
-            "type": "all",
-            "filter": {
-              "cardType": [
-                "character"
-              ],
-              "atLocation": "this"
-            }
-          }
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "ALL HANDS ON DECK!",
-        "rulesText": "Your Pirate characters may move here for free.",
-        "effect": {
-          "type": "move_to_self_cost_reduction",
-          "amount": "all",
-          "filter": {
-            "owner": {
-              "type": "self"
-            },
-            "zone": "play",
-            "cardType": [
-              "character"
-            ],
-            "hasTrait": "Pirate"
-          }
-        }
-      }
-    ],
-    "setId": "3",
-    "number": 27,
-    "rarity": "legendary",
-    "subtitle": "Hook's Ship",
-    "willpower": 5,
-    "lore": 0,
-    "moveCost": 2,
-    "rulesText": "LOOK ALIVE, YOU SWABS! Characters gain <Rush> while here. (They can challenge the turn they’re played.)\nALL HANDS ON DECK! Your Pirate characters may move here for free.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/27_acd1cd2f118e7f81ea9599348e2163cb658c8d92.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "LOOK ALIVE, YOU SWABS!",
-        "rulesText": "Characters gain <Rush> while here. (They can challenge the turn they’re played.)",
-        "raw": "LOOK ALIVE, YOU SWABS! Characters gain <Rush> while here. (They can challenge the turn they’re played.)"
-      },
-      {
-        "storyName": "ALL HANDS ON DECK!",
-        "rulesText": "Your Pirate characters may move here for free.",
-        "raw": "ALL HANDS ON DECK! Your Pirate characters may move here for free."
       }
     ]
   },
@@ -1566,37 +1369,6 @@
             "location"
           ]
         }
-      }
-    ]
-  },
-  {
-    "id": "how-far-ill-go",
-    "name": "How Far I'll Go",
-    "fullName": "How Far I'll Go",
-    "cardType": "action",
-    "inkColors": [
-      "sapphire"
-    ],
-    "cost": 4,
-    "inkable": false,
-    "traits": [
-      "Song"
-    ],
-    "abilities": [],
-    "setId": "3",
-    "number": 28,
-    "rarity": "legendary",
-    "rulesText": "(A character with cost 4 or more can {E} to play this song for free.)\nLook at the top 2 cards of your deck. Put one into your hand and the other into your inkwell facedown and exerted.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/28_18df28e268a872e9eed7508efb18d99274c75f74.jpg",
-    "actionEffects": [
-      {
-        "type": "look_at_top",
-        "count": 2,
-        "action": "choose_from_top",
-        "target": {
-          "type": "self"
-        },
-        "maxToHand": 1
       }
     ]
   },
@@ -1658,65 +1430,6 @@
     ]
   },
   {
-    "id": "john-silver-greedy-treasure-seeker",
-    "name": "John Silver",
-    "fullName": "John Silver - Greedy Treasure Seeker",
-    "cardType": "character",
-    "inkColors": [
-      "steel"
-    ],
-    "cost": 3,
-    "inkable": true,
-    "traits": [
-      "Dreamborn",
-      "Villain",
-      "Alien",
-      "Pirate",
-      "Captain"
-    ],
-    "abilities": [
-      {
-        "type": "static",
-        "storyName": "CHART YOUR OWN COURSE",
-        "rulesText": "For each location you have in play, this character gets +1 {L}.",
-        "effect": {
-          "type": "modify_stat_per_count",
-          "stat": "lore",
-          "perCount": 1,
-          "countFilter": {
-            "owner": {
-              "type": "self"
-            },
-            "zone": "play",
-            "cardType": [
-              "location"
-            ]
-          },
-          "target": {
-            "type": "this"
-          }
-        }
-      }
-    ],
-    "setId": "3",
-    "number": 29,
-    "rarity": "legendary",
-    "subtitle": "Greedy Treasure Seeker",
-    "strength": 3,
-    "willpower": 3,
-    "lore": 1,
-    "rulesText": "CHART YOUR OWN COURSE For each location you have in play, this character gains <Resist> +1 and gets +1 {L}. (Damage dealt to them is reduced by 1.)",
-    "flavorText": "\"I was never much good at games. Always hated to lose.\"",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/29_b82e9d755443de8b2e343c3cf84605e9f421c637.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "CHART YOUR OWN COURSE",
-        "rulesText": "For each location you have in play, this character gains <Resist> +1 and gets +1 {L}. (Damage dealt to them is reduced by 1.)",
-        "raw": "CHART YOUR OWN COURSE For each location you have in play, this character gains <Resist> +1 and gets +1 {L}. (Damage dealt to them is reduced by 1.)"
-      }
-    ]
-  },
-  {
     "id": "heart-of-atlantis",
     "name": "Heart of Atlantis",
     "fullName": "Heart of Atlantis",
@@ -1761,47 +1474,6 @@
         "storyName": "LIFE GIVER",
         "rulesText": "{E} — You pay 2 {I} less for the next character you play this turn.",
         "raw": "LIFE GIVER {E} — You pay 2 {I} less for the next character you play this turn."
-      }
-    ]
-  },
-  {
-    "id": "stitch-rock-star",
-    "name": "Stitch",
-    "fullName": "Stitch - Rock Star",
-    "cardType": "character",
-    "inkColors": [
-      "amber"
-    ],
-    "cost": 6,
-    "inkable": true,
-    "traits": [
-      "Floodborn",
-      "Hero",
-      "Alien"
-    ],
-    "abilities": [
-      {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 4
-      }
-    ],
-    "setId": "3",
-    "number": 30,
-    "rarity": "enchanted",
-    "subtitle": "Rock Star",
-    "strength": 3,
-    "willpower": 5,
-    "lore": 3,
-    "shiftCost": 4,
-    "rulesText": "<Shift> 4 (You may pay 4 {I} to play this on top of one of your characters named Stitch.)\nADORING FANS Whenever you play a character with cost 2 or less, you may exert them to draw a card.",
-    "flavorText": "The best part about a beachside concert is that there’s always room for one more.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/30_ed547d4fb9a33a4fdc9a80769300601c4cf3bc71.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "ADORING FANS",
-        "rulesText": "Whenever you play a character with cost 2 or less, you may exert them to draw a card.",
-        "raw": "ADORING FANS Whenever you play a character with cost 2 or less, you may exert them to draw a card."
       }
     ]
   },
@@ -2318,59 +1990,6 @@
         "storyName": "BLIZZARD",
         "rulesText": "{E} — Exert chosen character.",
         "raw": "BLIZZARD {E} — Exert chosen character."
-      }
-    ]
-  },
-  {
-    "id": "scrooge-mcduck-uncle-moneybags",
-    "name": "Scrooge McDuck",
-    "fullName": "Scrooge McDuck - Uncle Moneybags",
-    "cardType": "character",
-    "inkColors": [
-      "sapphire"
-    ],
-    "cost": 2,
-    "inkable": true,
-    "traits": [
-      "Dreamborn",
-      "Hero"
-    ],
-    "abilities": [
-      {
-        "type": "triggered",
-        "storyName": "TREASURE FINDER",
-        "rulesText": "Whenever this character quests, you pay 1 {I} less for the next item you play this turn.",
-        "trigger": {
-          "on": "quests"
-        },
-        "effects": [
-          {
-            "type": "cost_reduction",
-            "amount": 1,
-            "filter": {
-              "cardType": [
-                "item"
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    "setId": "3",
-    "number": 39,
-    "rarity": "legendary",
-    "subtitle": "Uncle Moneybags",
-    "strength": 1,
-    "willpower": 3,
-    "lore": 1,
-    "rulesText": "TREASURE FINDER Whenever this character quests, you pay 1 {I} less for the next item you play this turn.",
-    "flavorText": "A strange new world is the perfect place to make a strange new fortune!",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/39_68132e528c7f6067d808ff5cf96ee943514e2251.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "TREASURE FINDER",
-        "rulesText": "Whenever this character quests, you pay 1 {I} less for the next item you play this turn.",
-        "raw": "TREASURE FINDER Whenever this character quests, you pay 1 {I} less for the next item you play this turn."
       }
     ]
   },

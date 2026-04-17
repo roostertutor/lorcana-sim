@@ -175,10 +175,21 @@ function mapRarity(r: string): CardDefinitionOut["rarity"] {
   return map[r.toLowerCase()] ?? "common";
 }
 
-function parseIdentifier(id: string): { number: number; setNum: string } | null {
-  const m = id.match(/(\d+)\s*\/\s*\S+\s+EN\s+(\S+)/i);
+// Known promo codes that appear as the "total" field in card_identifier.
+// When total is one of these, the card belongs to that promo set (not the
+// main set indicated by the setNum field). E.g. "5/P2 EN 7" → promo P2,
+// card 5, related to main set 7.
+const PROMO_TOTAL_CODES = new Set(["P1","P2","P3","C1","C2","C3","D23","CP","DIS"]);
+
+function parseIdentifier(id: string): { number: number; total: string; setNum: string; setId: string } | null {
+  const m = id.match(/(\d+)\s*\/\s*(\S+)\s+EN\s+(\S+)/i);
   if (!m) return null;
-  return { number: parseInt(m[1]!, 10), setNum: m[2]!.toUpperCase() };
+  const number = parseInt(m[1]!, 10);
+  const total = m[2]!.toUpperCase();
+  const setNum = m[3]!.toUpperCase();
+  // If total is a promo code, the card belongs to that promo set
+  const setId = PROMO_TOTAL_CODES.has(total) ? total : setNum;
+  return { number, total, setNum, setId };
 }
 
 /**
@@ -389,7 +400,7 @@ function mapCard(c: RavCard): CardDefinitionOut | null {
     inkable: !!c.ink_convertible,
     traits,
     abilities,
-    setId: id.setNum,
+    setId: id.setId,
     number: id.number,
     rarity: mapRarity(c.rarity),
   };
@@ -532,11 +543,12 @@ async function fetchSet(filter: string): Promise<RavCard[]> {
   for (const ink of ["amber", "amethyst", "emerald", "ruby", "sapphire", "steel"] as const) {
     for (const c of data[ink] ?? []) cards.push(c);
   }
-  // Dedup dual-ink (same card under multiple inks) by (name, subtitle, number)
+  // Dedup dual-ink (same card under multiple inks). Use the full
+  // card_identifier as key so promo reprints (same name+number but
+  // different total like P2 vs 204) aren't collapsed.
   const seen = new Map<string, RavCard>();
   for (const c of cards) {
-    const num = parseIdentifier(c.card_identifier)?.number ?? c.name;
-    const key = `${c.name}|${c.subtitle ?? ""}|${num}`;
+    const key = c.card_identifier || `${c.name}|${c.subtitle ?? ""}`;
     if (!seen.has(key)) seen.set(key, c);
   }
   return [...seen.values()];

@@ -44,70 +44,6 @@
     ]
   },
   {
-    "id": "mickey-mouse-brave-little-tailor",
-    "name": "Mickey Mouse",
-    "fullName": "Mickey Mouse - Brave Little Tailor",
-    "cardType": "character",
-    "inkColors": [
-      "ruby"
-    ],
-    "cost": 8,
-    "inkable": true,
-    "traits": [
-      "Dreamborn",
-      "Hero"
-    ],
-    "abilities": [
-      {
-        "type": "keyword",
-        "keyword": "evasive"
-      }
-    ],
-    "setId": "1",
-    "number": 1,
-    "rarity": "legendary",
-    "subtitle": "Brave Little Tailor",
-    "strength": 5,
-    "willpower": 5,
-    "lore": 4,
-    "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)",
-    "flavorText": "When defeat looms and victory hangs by a thread, a hero bolts to the rescue, patching things up through shear determination.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/1_1217b22b5c937088bfd49a72c7c226af713e557f.jpg"
-  },
-  {
-    "id": "dragon-fire",
-    "name": "Dragon Fire",
-    "fullName": "Dragon Fire",
-    "cardType": "action",
-    "inkColors": [
-      "ruby"
-    ],
-    "cost": 5,
-    "inkable": false,
-    "traits": [],
-    "abilities": [],
-    "setId": "1",
-    "number": 1,
-    "rarity": "legendary",
-    "rulesText": "Banish chosen character.",
-    "flavorText": "Rare is the hero who can withstand a dragon’s wrath.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/1_d936dc1f2c9f0cae641dbb5584bfb0288a103641.jpg",
-    "actionEffects": [
-      {
-        "type": "banish",
-        "target": {
-          "type": "chosen",
-          "filter": {
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
-          }
-        }
-      }
-    ]
-  },
-  {
     "id": "ariel-spectacular-singer",
     "name": "Ariel",
     "fullName": "Ariel - Spectacular Singer",
@@ -170,42 +106,6 @@
         "storyName": "MUSICAL DEBUT",
         "rulesText": "When you play this character, look at the top 4 cards of your deck. You may reveal a song card and put it into your hand. Put the rest on the bottom of your deck in any order.",
         "raw": "MUSICAL DEBUT When you play this character, look at the top 4 cards of your deck. You may reveal a song card and put it into your hand. Put the rest on the bottom of your deck in any order."
-      }
-    ]
-  },
-  {
-    "id": "let-it-go",
-    "name": "Let It Go",
-    "fullName": "Let It Go",
-    "cardType": "action",
-    "inkColors": [
-      "sapphire"
-    ],
-    "cost": 5,
-    "inkable": true,
-    "traits": [
-      "Song"
-    ],
-    "abilities": [],
-    "setId": "1",
-    "number": 2,
-    "rarity": "legendary",
-    "rulesText": "(A character with cost 5 or more can {E} to sing this song for free.)\nPut chosen character into their player’s inkwell facedown and exerted.",
-    "flavorText": "It’s time to see what I can do\nTo test the limits and break through",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/2_e2146eb707e1996e2ae87ecd5ce44a7edcc61a0b.jpg",
-    "actionEffects": [
-      {
-        "type": "move_to_inkwell",
-        "target": {
-          "type": "chosen",
-          "filter": {
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
-          }
-        },
-        "enterExerted": true
       }
     ]
   },
@@ -342,74 +242,6 @@
         "storyName": "AND TWO FOR TEA!",
         "rulesText": "When you play this character, you may remove up to 2 damage from each of your Musketeer characters.",
         "raw": "AND TWO FOR TEA! When you play this character, you may remove up to 2 damage from each of your Musketeer characters."
-      }
-    ]
-  },
-  {
-    "id": "rapunzel-gifted-with-healing",
-    "name": "Rapunzel",
-    "fullName": "Rapunzel - Gifted with Healing",
-    "cardType": "character",
-    "inkColors": [
-      "amber"
-    ],
-    "cost": 4,
-    "inkable": true,
-    "traits": [
-      "Storyborn",
-      "Hero",
-      "Princess"
-    ],
-    "abilities": [
-      {
-        "type": "triggered",
-        "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "remove_damage",
-            "amount": 3,
-            "isUpTo": true,
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ]
-              }
-            }
-          },
-          {
-            "type": "draw",
-            "amount": "cost_result",
-            "target": {
-              "type": "self"
-            }
-          }
-        ],
-        "storyName": "GLEAM AND GLOW",
-        "rulesText": "When you play this character, remove up to 3 damage from one of your characters. Draw a card for each 1 damage removed this way."
-      }
-    ],
-    "setId": "1",
-    "number": 4,
-    "rarity": "legendary",
-    "subtitle": "Gifted with Healing",
-    "strength": 1,
-    "willpower": 5,
-    "lore": 2,
-    "rulesText": "GLEAM AND GLOW When you play this character, remove up to 3 damage from one of your characters. Draw a card for each 1 damage removed this way.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/4_13f6e83bc0dc15ba0eb9788650ddce23f3df3fd6.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "GLEAM AND GLOW",
-        "rulesText": "When you play this character, remove up to 3 damage from one of your characters. Draw a card for each 1 damage removed this way.",
-        "raw": "GLEAM AND GLOW When you play this character, remove up to 3 damage from one of your characters. Draw a card for each 1 damage removed this way."
       }
     ]
   },
@@ -621,114 +453,6 @@
     ]
   },
   {
-    "id": "kuzco-temperamental-emperor",
-    "name": "Kuzco",
-    "fullName": "Kuzco - Temperamental Emperor",
-    "cardType": "character",
-    "inkColors": [
-      "emerald"
-    ],
-    "cost": 5,
-    "inkable": false,
-    "traits": [
-      "Storyborn",
-      "King"
-    ],
-    "abilities": [
-      {
-        "type": "keyword",
-        "keyword": "ward"
-      },
-      {
-        "type": "triggered",
-        "trigger": {
-          "on": "banished_in_challenge"
-        },
-        "effects": [
-          {
-            "type": "banish",
-            "target": {
-              "type": "triggering_card"
-            },
-            "isMay": true
-          }
-        ],
-        "storyName": "NO TOUCHY!",
-        "rulesText": "When this character is challenged and banished, you may banish the challenging character."
-      }
-    ],
-    "setId": "1",
-    "number": 8,
-    "rarity": "legendary",
-    "subtitle": "Temperamental Emperor",
-    "strength": 2,
-    "willpower": 4,
-    "lore": 3,
-    "rulesText": "<Ward> (Opponents can’t choose this character except to challenge.)\nNO TOUCHY! When this character is challenged and banished, you may banish the challenging character.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/8_ed492b373e5a8049ce3dc162683fc52b879dbc66.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "NO TOUCHY!",
-        "rulesText": "When this character is challenged and banished, you may banish the challenging character.",
-        "raw": "NO TOUCHY! When this character is challenged and banished, you may banish the challenging character."
-      }
-    ]
-  },
-  {
-    "id": "mickey-mouse-detective",
-    "name": "Mickey Mouse",
-    "fullName": "Mickey Mouse - Detective",
-    "cardType": "character",
-    "inkColors": [
-      "sapphire"
-    ],
-    "cost": 3,
-    "inkable": false,
-    "traits": [
-      "Dreamborn",
-      "Hero",
-      "Detective"
-    ],
-    "abilities": [
-      {
-        "type": "triggered",
-        "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "move_to_inkwell",
-            "target": {
-              "type": "this"
-            },
-            "enterExerted": true,
-            "fromZone": "deck",
-            "isMay": true
-          }
-        ],
-        "storyName": "GET A CLUE",
-        "rulesText": "When you play this character, you may put the top card of your deck into your inkwell facedown and exerted."
-      }
-    ],
-    "setId": "1",
-    "number": 8,
-    "rarity": "legendary",
-    "subtitle": "Detective",
-    "strength": 1,
-    "willpower": 3,
-    "lore": 1,
-    "rulesText": "GET A CLUE When you play this character, you may put the top card of your deck into your inkwell facedown and exerted.",
-    "flavorText": "Wherever the seaweed had come from, Mickey was sure of one thing: something fishy was going on.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/8_3a76af024141d7bf19b13aee1fb17571c6f80444.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "GET A CLUE",
-        "rulesText": "When you play this character, you may put the top card of your deck into your inkwell facedown and exerted.",
-        "raw": "GET A CLUE When you play this character, you may put the top card of your deck into your inkwell facedown and exerted."
-      }
-    ]
-  },
-  {
     "id": "lilo-making-a-wish",
     "name": "Lilo",
     "fullName": "Lilo - Making a Wish",
@@ -752,37 +476,6 @@
     "lore": 2,
     "flavorText": "“A falling star . . . I have to make a wish!”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set1/9_205d39935cf65005567f20ee0da223b2c47733ef.jpg"
-  },
-  {
-    "id": "heihei-boat-snack",
-    "name": "HeiHei",
-    "fullName": "HeiHei - Boat Snack",
-    "cardType": "character",
-    "inkColors": [
-      "amber"
-    ],
-    "cost": 1,
-    "inkable": true,
-    "traits": [
-      "Storyborn",
-      "Ally"
-    ],
-    "abilities": [
-      {
-        "type": "keyword",
-        "keyword": "support"
-      }
-    ],
-    "setId": "1",
-    "number": 9,
-    "rarity": "legendary",
-    "subtitle": "Boat Snack",
-    "strength": 1,
-    "willpower": 2,
-    "lore": 1,
-    "rulesText": "<Support> (Whenever this character quests, you may add their {S} to another chosen character’s {S} this turn.)",
-    "flavorText": "“Sometimes, our strengths lie beneath the surface. Far beneath, in some cases. . . .”\n—Moana",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/9_0d8b22713893ad5d9491588fe8618b1e170393c0.jpg"
   },
   {
     "id": "maximus-palace-horse",
@@ -817,126 +510,6 @@
     "lore": 1,
     "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)\n<Support> (Whenever this character quests, you may add their {S} to another chosen character’s {S} this turn.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set1/10_4d67a92c04456725f8167a0bd4ef9e7688ebfb15.jpg"
-  },
-  {
-    "id": "mickey-mouse-true-friend",
-    "name": "Mickey Mouse",
-    "fullName": "Mickey Mouse - True Friend",
-    "cardType": "character",
-    "inkColors": [
-      "amber"
-    ],
-    "cost": 3,
-    "inkable": true,
-    "traits": [
-      "Storyborn",
-      "Hero"
-    ],
-    "abilities": [],
-    "setId": "1",
-    "number": 10,
-    "rarity": "legendary",
-    "subtitle": "True Friend",
-    "strength": 3,
-    "willpower": 3,
-    "lore": 2,
-    "rulesText": "As long as he’s around, newcomers to the Great Illuminary will always get a warm welcome.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/10_30d7e69546ef091cf5e4dd6197e36f298b174af0.jpg"
-  },
-  {
-    "id": "yzma-alchemist",
-    "name": "Yzma",
-    "fullName": "Yzma - Alchemist",
-    "cardType": "character",
-    "inkColors": [
-      "amethyst"
-    ],
-    "cost": 2,
-    "inkable": true,
-    "traits": [
-      "Dreamborn",
-      "Villain",
-      "Sorcerer"
-    ],
-    "abilities": [
-      {
-        "type": "triggered",
-        "trigger": {
-          "on": "quests"
-        },
-        "effects": [
-          {
-            "type": "look_at_top",
-            "count": 1,
-            "action": "top_or_bottom",
-            "target": {
-              "type": "self"
-            }
-          }
-        ],
-        "storyName": "YOU'RE EXCUSED",
-        "rulesText": "Whenever this character quests, look at the top card of your deck. Put it on either the top or the bottom of your deck."
-      }
-    ],
-    "setId": "1",
-    "number": 10,
-    "rarity": "legendary",
-    "subtitle": "Alchemist",
-    "strength": 2,
-    "willpower": 2,
-    "lore": 1,
-    "rulesText": "YOU’RE EXCUSED Whenever this character quests, look at the top card of your deck. Put it on either the top or the bottom of your deck.",
-    "flavorText": "“When I want your opinion, I will give it to you!”",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/10_81055ce64f4d352feb1bed47f15e5b834cb87430.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "YOU'RE EXCUSED",
-        "rulesText": "Whenever this character quests, look at the top card of your deck. Put it on either the top or the bottom of your deck.",
-        "raw": "YOU’RE EXCUSED Whenever this character quests, look at the top card of your deck. Put it on either the top or the bottom of your deck."
-      }
-    ]
-  },
-  {
-    "id": "a-whole-new-world",
-    "name": "A Whole New World",
-    "fullName": "A Whole New World",
-    "cardType": "action",
-    "inkColors": [
-      "steel"
-    ],
-    "cost": 5,
-    "inkable": false,
-    "traits": [
-      "Song"
-    ],
-    "abilities": [],
-    "setId": "1",
-    "number": 10,
-    "rarity": "legendary",
-    "rulesText": "(A character with cost 5 or more can {E} to sing this song for free.)\nEach player discards their hand and draws 7 cards.",
-    "flavorText": "Shining, shimmering, splendid . . .",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/10_d170b8d9f5f552ad50fbe13a57d5e0f99e7506a6.jpg",
-    "actionEffects": [
-      {
-        "type": "each_player",
-        "effects": [
-          {
-            "type": "discard_from_hand",
-            "amount": "all",
-            "target": {
-              "type": "self"
-            }
-          },
-          {
-            "type": "draw",
-            "amount": 7,
-            "target": {
-              "type": "self"
-            }
-          }
-        ]
-      }
-    ]
   },
   {
     "id": "maximus-relentless-pursuer",
@@ -997,68 +570,6 @@
     ]
   },
   {
-    "id": "mickey-mouse-musketeer",
-    "name": "Mickey Mouse",
-    "fullName": "Mickey Mouse - Musketeer",
-    "cardType": "character",
-    "inkColors": [
-      "steel"
-    ],
-    "cost": 6,
-    "inkable": true,
-    "traits": [
-      "Dreamborn",
-      "Hero",
-      "Musketeer"
-    ],
-    "abilities": [
-      {
-        "type": "keyword",
-        "keyword": "bodyguard"
-      },
-      {
-        "type": "static",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "strength",
-          "amount": 1,
-          "target": {
-            "type": "all",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasTrait": "Musketeer",
-              "excludeSelf": true
-            }
-          }
-        },
-        "storyName": "ALL FOR ONE",
-        "rulesText": "Your other Musketeer characters get +1 {S}."
-      }
-    ],
-    "setId": "1",
-    "number": 11,
-    "rarity": "legendary",
-    "subtitle": "Musketeer",
-    "strength": 2,
-    "willpower": 7,
-    "lore": 2,
-    "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)\nALL FOR ONE Your other Musketeer characters get +1 {S}.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/11_7b94346ae8d8e842f5d576ec6dfd3a73e504b09c.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "ALL FOR ONE",
-        "rulesText": "Your other Musketeer characters get +1 {S}.",
-        "raw": "ALL FOR ONE Your other Musketeer characters get +1 {S}."
-      }
-    ]
-  },
-  {
     "id": "mickey-mouse-true-friend",
     "name": "Mickey Mouse",
     "fullName": "Mickey Mouse - True Friend",
@@ -1084,73 +595,6 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set1/12_da68c89ea3fc28a3a7396c30ab3da45e0f204eea.jpg"
   },
   {
-    "id": "goofy-musketeer",
-    "name": "Goofy",
-    "fullName": "Goofy - Musketeer",
-    "cardType": "character",
-    "inkColors": [
-      "amber"
-    ],
-    "cost": 5,
-    "inkable": true,
-    "traits": [
-      "Dreamborn",
-      "Hero",
-      "Musketeer"
-    ],
-    "abilities": [
-      {
-        "type": "keyword",
-        "keyword": "bodyguard"
-      },
-      {
-        "type": "triggered",
-        "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "remove_damage",
-            "amount": 2,
-            "target": {
-              "type": "all",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ],
-                "hasTrait": "Musketeer"
-              }
-            },
-            "isMay": true
-          }
-        ],
-        "storyName": "AND TWO FOR TEA!",
-        "rulesText": "When you play this character, you may remove up to 2 damage from each of your Musketeer characters."
-      }
-    ],
-    "setId": "1",
-    "number": 12,
-    "rarity": "legendary",
-    "subtitle": "Musketeer",
-    "strength": 3,
-    "willpower": 6,
-    "lore": 1,
-    "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)\nAND TWO FOR TEA! When you play this character, you may remove up to 2 damage from each of your Musketeer characters.",
-    "flavorText": "“En gawrsh!”",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/12_21ab1dbba3df2774f697fcd0c76fa9ae6abb55cf.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "AND TWO FOR TEA!",
-        "rulesText": "When you play this character, you may remove up to 2 damage from each of your Musketeer characters.",
-        "raw": "AND TWO FOR TEA! When you play this character, you may remove up to 2 damage from each of your Musketeer characters."
-      }
-    ]
-  },
-  {
     "id": "minnie-mouse-beloved-princess",
     "name": "Minnie Mouse",
     "fullName": "Minnie Mouse - Beloved Princess",
@@ -1174,69 +618,6 @@
     "lore": 1,
     "flavorText": "Wherever the princess goes, her musketeers are . . . well, they’re around somewhere, probably.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set1/13_21b9cc3cece2f70bd555b419aa96f59e21c94fee.jpg"
-  },
-  {
-    "id": "donald-duck-musketeer",
-    "name": "Donald Duck",
-    "fullName": "Donald Duck - Musketeer",
-    "cardType": "character",
-    "inkColors": [
-      "steel"
-    ],
-    "cost": 4,
-    "inkable": true,
-    "traits": [
-      "Dreamborn",
-      "Hero",
-      "Musketeer"
-    ],
-    "abilities": [
-      {
-        "type": "keyword",
-        "keyword": "bodyguard"
-      },
-      {
-        "type": "static",
-        "condition": {
-          "type": "is_your_turn"
-        },
-        "effect": {
-          "type": "grant_keyword",
-          "keyword": "evasive",
-          "target": {
-            "type": "all",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasTrait": "Musketeer"
-            }
-          }
-        },
-        "storyName": "STAY ALERT!",
-        "rulesText": "During your turn, your Musketeer characters gain Evasive. (They can challenge characters with Evasive.)"
-      }
-    ],
-    "setId": "1",
-    "number": 13,
-    "rarity": "legendary",
-    "subtitle": "Musketeer",
-    "strength": 2,
-    "willpower": 5,
-    "lore": 1,
-    "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)\nSTAY ALERT! During your turn, your Musketeer characters gain <Evasive>. (They can challenge characters with Evasive.)",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/13_abc137ca7e46b145a8a1a1b6705c5ebffba2ff67.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "STAY ALERT!",
-        "rulesText": "During your turn, your Musketeer characters gain <Evasive>. (They can challenge characters with Evasive.)",
-        "raw": "STAY ALERT! During your turn, your Musketeer characters gain <Evasive>. (They can challenge characters with Evasive.)"
-      }
-    ]
   },
   {
     "id": "moana-of-motunui",
@@ -1547,73 +928,6 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set1/20_b2f2a37d828a715e998f77ee0d95e49c84e54509.jpg"
   },
   {
-    "id": "genie-powers-unleashed",
-    "name": "Genie",
-    "fullName": "Genie - Powers Unleashed",
-    "cardType": "character",
-    "inkColors": [
-      "emerald"
-    ],
-    "cost": 8,
-    "inkable": false,
-    "traits": [
-      "Floodborn",
-      "Hero"
-    ],
-    "abilities": [
-      {
-        "type": "keyword",
-        "keyword": "evasive"
-      },
-      {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 6
-      },
-      {
-        "type": "triggered",
-        "trigger": {
-          "on": "quests"
-        },
-        "effects": [
-          {
-            "type": "play_card",
-            "filter": {
-              "cardType": [
-                "action"
-              ],
-              "costAtMost": 5,
-              "owner": {
-                "type": "self"
-              },
-              "zone": "hand"
-            },
-            "isMay": true
-          }
-        ],
-        "storyName": "PHENOMENAL COSMIC POWER!",
-        "rulesText": "Whenever this character quests, you may play an action with cost 5 or less for free."
-      }
-    ],
-    "setId": "1",
-    "number": 20,
-    "rarity": "legendary",
-    "subtitle": "Powers Unleashed",
-    "strength": 3,
-    "willpower": 5,
-    "lore": 3,
-    "shiftCost": 6,
-    "rulesText": "<Shift> 6 (You may pay 6 {I} to play this on top of one of your characters named Genie.)\n<Evasive> (Only characters with Evasive can challenge this character.)\nPHENOMENAL COSMIC POWER! Whenever this character quests, you may play an action with cost 5 or less for free.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/20_42490b79888660ddaa402a593f2ec927a88a122f.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "PHENOMENAL COSMIC POWER!",
-        "rulesText": "Whenever this character quests, you may play an action with cost 5 or less for free.",
-        "raw": "PHENOMENAL COSMIC POWER! Whenever this character quests, you may play an action with cost 5 or less for free."
-      }
-    ]
-  },
-  {
     "id": "stitch-carefree-surfer",
     "name": "Stitch",
     "fullName": "Stitch - Carefree Surfer",
@@ -1675,32 +989,6 @@
     ]
   },
   {
-    "id": "stitch-abomination",
-    "name": "Stitch",
-    "fullName": "Stitch - Abomination",
-    "cardType": "character",
-    "inkColors": [
-      "ruby"
-    ],
-    "cost": 6,
-    "inkable": true,
-    "traits": [
-      "Storyborn",
-      "Hero",
-      "Alien"
-    ],
-    "abilities": [],
-    "setId": "1",
-    "number": 21,
-    "rarity": "legendary",
-    "subtitle": "Abomination",
-    "strength": 4,
-    "willpower": 6,
-    "lore": 3,
-    "flavorText": "“His destructive programming is taking effect. He will be irresistibly drawn to large cities, where he will back up sewers, reverse street signs, and steal everyone's left shoe.”\n—Jumba Jookiba",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/21_f217671965746af13ac6a063b76ece7d3bd3a101.jpg"
-  },
-  {
     "id": "stitch-new-dog",
     "name": "Stitch",
     "fullName": "Stitch - New Dog",
@@ -1725,32 +1013,6 @@
     "lore": 1,
     "flavorText": "Lilo: “David! I got a new dog!”\nDavid: “Auwe! . . . You sure it’s a dog?”\nLilo: “Uh-huh. He used to be a collie before he got ran over.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set1/22_971f043169234b0cbc38aedf5373abbb37fb9df7.jpg"
-  },
-  {
-    "id": "maleficent-uninvited",
-    "name": "Maleficent",
-    "fullName": "Maleficent - Uninvited",
-    "cardType": "character",
-    "inkColors": [
-      "sapphire"
-    ],
-    "cost": 5,
-    "inkable": true,
-    "traits": [
-      "Dreamborn",
-      "Villain",
-      "Sorcerer"
-    ],
-    "abilities": [],
-    "setId": "1",
-    "number": 22,
-    "rarity": "legendary",
-    "subtitle": "Uninvited",
-    "strength": 3,
-    "willpower": 6,
-    "lore": 3,
-    "flavorText": "She had no invitation—and needed no introduction.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/22_97ff0b8fcf7660222a56df648ae3323b5abcc8f4.jpg"
   },
   {
     "id": "stitch-rock-star",
@@ -1834,32 +1096,6 @@
     ]
   },
   {
-    "id": "maui-demigod",
-    "name": "Maui",
-    "fullName": "Maui - Demigod",
-    "cardType": "character",
-    "inkColors": [
-      "steel"
-    ],
-    "cost": 8,
-    "inkable": true,
-    "traits": [
-      "Storyborn",
-      "Hero",
-      "Deity"
-    ],
-    "abilities": [],
-    "setId": "1",
-    "number": 23,
-    "rarity": "legendary",
-    "subtitle": "Demigod",
-    "strength": 8,
-    "willpower": 8,
-    "lore": 3,
-    "flavorText": "When the gods gift you a boat, you take it. The boat’s owner is optional.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/23_972659d64f29f656a75e57fe9ea225d4664bef0f.jpg"
-  },
-  {
     "id": "timon-grub-rustler",
     "name": "Timon",
     "fullName": "Timon - Grub Rustler",
@@ -1917,37 +1153,6 @@
         "raw": "TASTES LIKE CHICKEN When you play this character, you may remove up to 1 damage from chosen character."
       }
     ]
-  },
-  {
-    "id": "gaston-arrogant-hunter",
-    "name": "Gaston",
-    "fullName": "Gaston - Arrogant Hunter",
-    "cardType": "character",
-    "inkColors": [
-      "ruby"
-    ],
-    "cost": 2,
-    "inkable": true,
-    "traits": [
-      "Storyborn",
-      "Villain"
-    ],
-    "abilities": [
-      {
-        "type": "keyword",
-        "keyword": "reckless"
-      }
-    ],
-    "setId": "1",
-    "number": 24,
-    "rarity": "legendary",
-    "subtitle": "Arrogant Hunter",
-    "strength": 4,
-    "willpower": 2,
-    "lore": 0,
-    "rulesText": "<Reckless> (This character can’t quest and must challenge each turn if able.)",
-    "flavorText": "It’s not arrogance when you really <are> the best.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/24_07184a7d67ecac9b3bef748f5537fc73ed1a6ec5.jpg"
   },
   {
     "id": "be-our-guest",

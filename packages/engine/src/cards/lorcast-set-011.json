@@ -1577,57 +1577,6 @@
     ]
   },
   {
-    "id": "gramma-tala-connected-to-nature",
-    "name": "Gramma Tala",
-    "fullName": "Gramma Tala - Connected to Nature",
-    "cardType": "character",
-    "inkColors": [
-      "sapphire"
-    ],
-    "cost": 12,
-    "inkable": false,
-    "traits": [
-      "Storyborn",
-      "Mentor"
-    ],
-    "abilities": [
-      {
-        "type": "static",
-        "storyName": "ANCESTORS' GIFT",
-        "rulesText": "For each card in your inkwell, you pay 1 {I} less to play this character.",
-        "effect": {
-          "type": "self_cost_reduction",
-          "amount": {
-            "type": "count",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "inkwell"
-            }
-          }
-        }
-      }
-    ],
-    "setId": "11",
-    "number": 28,
-    "rarity": "legendary",
-    "subtitle": "Connected to Nature",
-    "strength": 6,
-    "willpower": 6,
-    "lore": 2,
-    "rulesText": "ANCESTORS’ GIFT For each card in your inkwell, you pay 1 {I} less to play this character.",
-    "flavorText": "\"Ice fishing? No, no—this is ice <feeding>!\"",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/28_578f7de00facc558f1fff8fe1c4273851ee50517.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "ANCESTORS' GIFT",
-        "rulesText": "For each card in your inkwell, you pay 1 {I} less to play this character.",
-        "raw": "ANCESTORS’ GIFT For each card in your inkwell, you pay 1 {I} less to play this character."
-      }
-    ]
-  },
-  {
     "id": "akood-et-emuti",
     "name": "Akood et Emuti",
     "fullName": "Akood et Emuti",
@@ -1667,55 +1616,6 @@
     ]
   },
   {
-    "id": "white-rabbit-late-again",
-    "name": "White Rabbit",
-    "fullName": "White Rabbit - Late Again",
-    "cardType": "character",
-    "inkColors": [
-      "emerald"
-    ],
-    "cost": 2,
-    "inkable": true,
-    "traits": [
-      "Storyborn",
-      "Ally"
-    ],
-    "abilities": [
-      {
-        "type": "keyword",
-        "keyword": "evasive"
-      },
-      {
-        "type": "static",
-        "storyName": "UNDERDOG",
-        "rulesText": "If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
-        "condition": {
-          "type": "your_first_turn_as_underdog"
-        },
-        "effect": {
-          "type": "self_cost_reduction",
-          "amount": 1
-        }
-      }
-    ],
-    "setId": "11",
-    "number": 29,
-    "rarity": "legendary",
-    "subtitle": "Late Again",
-    "strength": 2,
-    "willpower": 2,
-    "lore": 1,
-    "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nUNDERDOG If this is your first turn and you’re not the first player, you pay 1 {I} less to play this character.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/29_9c43f52e18d06b986d0edb9b600dd9a836d45a8a.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "UNDERDOG",
-        "rulesText": "If this is your first turn and you’re not the first player, you pay 1 {I} less to play this character.",
-        "raw": "UNDERDOG If this is your first turn and you’re not the first player, you pay 1 {I} less to play this character."
-      }
-    ]
-  },
-  {
     "id": "mother-will-protect-you",
     "name": "Mother Will Protect You",
     "fullName": "Mother Will Protect You",
@@ -1747,84 +1647,6 @@
           }
         },
         "duration": "until_caster_next_turn"
-      }
-    ]
-  },
-  {
-    "id": "elisa-maza-transformed-gargoyle",
-    "name": "Elisa Maza",
-    "fullName": "Elisa Maza - Transformed Gargoyle",
-    "cardType": "character",
-    "inkColors": [
-      "ruby"
-    ],
-    "cost": 3,
-    "inkable": true,
-    "traits": [
-      "Storyborn",
-      "Hero",
-      "Gargoyle",
-      "Detective"
-    ],
-    "abilities": [
-      {
-        "type": "static",
-        "storyName": "FOREVER STRONG",
-        "rulesText": "Your characters' {S} can't be reduced below their printed value.",
-        "effect": {
-          "type": "stat_floor_printed",
-          "stat": "strength",
-          "target": {
-            "type": "all",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ]
-            }
-          }
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "STONE BY DAY",
-        "rulesText": "If you have 3 or more cards in your hand, this character can't ready.",
-        "condition": {
-          "type": "cards_in_hand_gte",
-          "amount": 3,
-          "player": {
-            "type": "self"
-          }
-        },
-        "effect": {
-          "type": "cant_action_self",
-          "action": "ready_anytime"
-        }
-      }
-    ],
-    "setId": "11",
-    "number": 30,
-    "rarity": "legendary",
-    "subtitle": "Transformed Gargoyle",
-    "strength": 4,
-    "willpower": 4,
-    "lore": 1,
-    "rulesText": "FOREVER STRONG Your characters’ {S} can’t be reduced below their printed value.\nSTONE BY DAY If you have 3 or more cards in your hand, this character can’t ready.",
-    "flavorText": "“I’ll never get the hang of jumping off rooftops.”",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/30_b0fb840d90ea1bcaca3149bc8761ee87d7a65db6.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "FOREVER STRONG",
-        "rulesText": "Your characters’ {S} can’t be reduced below their printed value.",
-        "raw": "FOREVER STRONG Your characters’ {S} can’t be reduced below their printed value."
-      },
-      {
-        "storyName": "STONE BY DAY",
-        "rulesText": "If you have 3 or more cards in your hand, this character can’t ready.",
-        "raw": "STONE BY DAY If you have 3 or more cards in your hand, this character can’t ready."
       }
     ]
   },
@@ -1871,55 +1693,6 @@
     ]
   },
   {
-    "id": "beast-snowfield-troublemaker",
-    "name": "Beast",
-    "fullName": "Beast - Snowfield Troublemaker",
-    "cardType": "character",
-    "inkColors": [
-      "ruby"
-    ],
-    "cost": 2,
-    "inkable": true,
-    "traits": [
-      "Storyborn",
-      "Hero",
-      "Prince"
-    ],
-    "abilities": [
-      {
-        "type": "keyword",
-        "keyword": "rush"
-      },
-      {
-        "type": "static",
-        "storyName": "DYNAMIC MANEUVER",
-        "rulesText": "Whenever this character challenges, if he's at a location, he takes no damage from the challenge.",
-        "effect": {
-          "type": "challenge_damage_prevention"
-        },
-        "condition": {
-          "type": "this_at_location"
-        }
-      }
-    ],
-    "setId": "11",
-    "number": 31,
-    "rarity": "legendary",
-    "subtitle": "Snowfield Troublemaker",
-    "strength": 3,
-    "willpower": 1,
-    "lore": 1,
-    "rulesText": "<Rush> (This character can challenge the turn they’re played.)\nDYNAMIC MANEUVER Whenever this character challenges, if he’s at a location, he takes no damage from the challenge.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/31_a76fb0f5f761d22cd64cc72b5757fc6f16d58c53.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "DYNAMIC MANEUVER",
-        "rulesText": "Whenever this character challenges, if he’s at a location, he takes no damage from the challenge.",
-        "raw": "DYNAMIC MANEUVER Whenever this character challenges, if he’s at a location, he takes no damage from the challenge."
-      }
-    ]
-  },
-  {
     "id": "ohana-means-family",
     "name": "Ohana Means Family",
     "fullName": "Ohana Means Family",
@@ -1960,71 +1733,6 @@
         "target": {
           "type": "self"
         }
-      }
-    ]
-  },
-  {
-    "id": "timon-snowball-swiper",
-    "name": "Timon",
-    "fullName": "Timon - Snowball Swiper",
-    "cardType": "character",
-    "inkColors": [
-      "amber"
-    ],
-    "cost": 3,
-    "inkable": false,
-    "traits": [
-      "Storyborn",
-      "Ally"
-    ],
-    "abilities": [
-      {
-        "type": "triggered",
-        "storyName": "GET RID OF THAT",
-        "rulesText": "When you play this character, chosen opponent reveals their hand and discards a non-character card of your choice.",
-        "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "reveal_hand",
-            "target": {
-              "type": "opponent"
-            }
-          },
-          {
-            "type": "discard_from_hand",
-            "amount": 1,
-            "target": {
-              "type": "opponent"
-            },
-            "chooser": "controller",
-            "filter": {
-              "zone": "hand",
-              "cardType": [
-                "action",
-                "item"
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    "setId": "11",
-    "number": 32,
-    "rarity": "legendary",
-    "subtitle": "Snowball Swiper",
-    "strength": 2,
-    "willpower": 3,
-    "lore": 1,
-    "rulesText": "GET RID OF THAT When you play this character, chosen opponent reveals their hand and discards a non-character card of your choice.",
-    "flavorText": "\"Okay, Pumbaa—hit it!\"",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/32_2ad30ba45e36419e4437bc490823bff2c5ee0d4f.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "GET RID OF THAT",
-        "rulesText": "When you play this character, chosen opponent reveals their hand and discards a non-character card of your choice.",
-        "raw": "GET RID OF THAT When you play this character, chosen opponent reveals their hand and discards a non-character card of your choice."
       }
     ]
   },
@@ -2121,84 +1829,6 @@
     ]
   },
   {
-    "id": "tinker-bell-snowflake-collector",
-    "name": "Tinker Bell",
-    "fullName": "Tinker Bell - Snowflake Collector",
-    "cardType": "character",
-    "inkColors": [
-      "amethyst"
-    ],
-    "cost": 3,
-    "inkable": true,
-    "traits": [
-      "Dreamborn",
-      "Ally",
-      "Fairy"
-    ],
-    "abilities": [
-      {
-        "type": "static",
-        "storyName": "",
-        "rulesText": "While you have 4 or more cards in your hand, this character gains Evasive.",
-        "effect": {
-          "type": "grant_keyword",
-          "keyword": "evasive",
-          "target": {
-            "type": "this"
-          }
-        },
-        "condition": {
-          "type": "cards_in_hand_gte",
-          "amount": 4,
-          "player": {
-            "type": "self"
-          }
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "",
-        "rulesText": "While you have 7 or more cards in your hand, this character gets +3 {L}.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "lore",
-          "amount": 3,
-          "target": {
-            "type": "this"
-          }
-        },
-        "condition": {
-          "type": "cards_in_hand_gte",
-          "amount": 7,
-          "player": {
-            "type": "self"
-          }
-        }
-      }
-    ],
-    "setId": "11",
-    "number": 33,
-    "rarity": "legendary",
-    "subtitle": "Snowflake Collector",
-    "strength": 3,
-    "willpower": 3,
-    "lore": 1,
-    "rulesText": "FLURRY OF DELIGHT While you have 4 or more cards in your hand, this character gains <Evasive>. (Only characters with Evasive can challenge them.)\nSPECTACULAR FIND While you have 7 or more cards in your hand, this character gets +3 {L}.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/33_b4d467889866b542ab5b9e296fd12425790dcf2d.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "FLURRY OF DELIGHT",
-        "rulesText": "While you have 4 or more cards in your hand, this character gains <Evasive>. (Only characters with Evasive can challenge them.)",
-        "raw": "FLURRY OF DELIGHT While you have 4 or more cards in your hand, this character gains <Evasive>. (Only characters with Evasive can challenge them.)"
-      },
-      {
-        "storyName": "SPECTACULAR FIND",
-        "rulesText": "While you have 7 or more cards in your hand, this character gets +3 {L}.",
-        "raw": "SPECTACULAR FIND While you have 7 or more cards in your hand, this character gets +3 {L}."
-      }
-    ]
-  },
-  {
     "id": "zootopia-tundratown",
     "name": "Zootopia",
     "fullName": "Zootopia - Tundratown",
@@ -2219,84 +1849,6 @@
     "moveCost": 1,
     "flavorText": "\"Welcome to Tundratown. Please respect our hibernating inhabitants and keep noise to a minimum.\" \n—Zootopia Chamber of Commerce",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/34_1e07f06ac04d4fe8b6d627a53e3532b9fb2a9eb3.jpg"
-  },
-  {
-    "id": "tinker-bell-snowflake-collector",
-    "name": "Tinker Bell",
-    "fullName": "Tinker Bell - Snowflake Collector",
-    "cardType": "character",
-    "inkColors": [
-      "amethyst"
-    ],
-    "cost": 3,
-    "inkable": true,
-    "traits": [
-      "Dreamborn",
-      "Ally",
-      "Fairy"
-    ],
-    "abilities": [
-      {
-        "type": "static",
-        "storyName": "",
-        "rulesText": "While you have 4 or more cards in your hand, this character gains Evasive.",
-        "effect": {
-          "type": "grant_keyword",
-          "keyword": "evasive",
-          "target": {
-            "type": "this"
-          }
-        },
-        "condition": {
-          "type": "cards_in_hand_gte",
-          "amount": 4,
-          "player": {
-            "type": "self"
-          }
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "",
-        "rulesText": "While you have 7 or more cards in your hand, this character gets +3 {L}.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "lore",
-          "amount": 3,
-          "target": {
-            "type": "this"
-          }
-        },
-        "condition": {
-          "type": "cards_in_hand_gte",
-          "amount": 7,
-          "player": {
-            "type": "self"
-          }
-        }
-      }
-    ],
-    "setId": "11",
-    "number": 34,
-    "rarity": "enchanted",
-    "subtitle": "Snowflake Collector",
-    "strength": 3,
-    "willpower": 3,
-    "lore": 1,
-    "rulesText": "FLURRY OF DELIGHT While you have 4 or more cards in your hand, this character gains <Evasive>. (Only characters with Evasive can challenge them.)\nSPECTACULAR FIND While you have 7 or more cards in your hand, this character gets +3 {L}.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/34_f8a4d6956f737fee8f55bf273a90fd9101e79c9d.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "FLURRY OF DELIGHT",
-        "rulesText": "While you have 4 or more cards in your hand, this character gains <Evasive>. (Only characters with Evasive can challenge them.)",
-        "raw": "FLURRY OF DELIGHT While you have 4 or more cards in your hand, this character gains <Evasive>. (Only characters with Evasive can challenge them.)"
-      },
-      {
-        "storyName": "SPECTACULAR FIND",
-        "rulesText": "While you have 7 or more cards in your hand, this character gets +3 {L}.",
-        "raw": "SPECTACULAR FIND While you have 7 or more cards in your hand, this character gets +3 {L}."
-      }
-    ]
   },
   {
     "id": "nala-romping-in-the-snow",
@@ -2356,61 +1908,6 @@
         "storyName": "PLAYFUL SLIDE",
         "rulesText": "When you play this character, chosen character of yours gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)",
         "raw": "PLAYFUL SLIDE When you play this character, chosen character of yours gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)"
-      }
-    ]
-  },
-  {
-    "id": "stitch-high-badness-level",
-    "name": "Stitch",
-    "fullName": "Stitch - High Badness Level",
-    "cardType": "character",
-    "inkColors": [
-      "steel"
-    ],
-    "cost": 2,
-    "inkable": true,
-    "traits": [
-      "Storyborn",
-      "Hero",
-      "Alien"
-    ],
-    "abilities": [
-      {
-        "type": "static",
-        "storyName": "",
-        "rulesText": "While you have a character named Lilo in play, this character gains Challenger +3.",
-        "effect": {
-          "type": "grant_keyword",
-          "keyword": "challenger",
-          "value": 3,
-          "target": {
-            "type": "this"
-          }
-        },
-        "condition": {
-          "type": "has_character_named",
-          "name": "Lilo",
-          "player": {
-            "type": "self"
-          }
-        }
-      }
-    ],
-    "setId": "11",
-    "number": 35,
-    "rarity": "legendary",
-    "subtitle": "High Badness Level",
-    "strength": 3,
-    "willpower": 2,
-    "lore": 1,
-    "rulesText": "AMPED UP While you have a character named Lilo in play, this character gains <Challenger> +3. (They get +3 {S} while challenging.)",
-    "flavorText": "“No more caffeine for you.\"\n—Lilo",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/35_d0151d04ae5343fed9473367820fe1250fa8239b.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "AMPED UP",
-        "rulesText": "While you have a character named Lilo in play, this character gains <Challenger> +3. (They get +3 {S} while challenging.)",
-        "raw": "AMPED UP While you have a character named Lilo in play, this character gains <Challenger> +3. (They get +3 {S} while challenging.)"
       }
     ]
   },
@@ -2715,66 +2212,6 @@
     "rulesText": "<Challenger> +3 (While challenging, this character gets +3 {S}.)",
     "flavorText": "\"Not another step. I've got a shovel full of snow, and I'm not afraid to use it!\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/41_daf830329c8dde02297990a32f12d0c6bae73c5e.jpg"
-  },
-  {
-    "id": "stitch-carefree-snowboarder",
-    "name": "Stitch",
-    "fullName": "Stitch - Carefree Snowboarder",
-    "cardType": "character",
-    "inkColors": [
-      "amber"
-    ],
-    "cost": 5,
-    "inkable": true,
-    "traits": [
-      "Storyborn",
-      "Hero",
-      "Alien"
-    ],
-    "abilities": [
-      {
-        "type": "triggered",
-        "storyName": "",
-        "rulesText": "Whenever this character quests, if you have 2 or more other characters in play, you may draw a card.",
-        "trigger": {
-          "on": "quests"
-        },
-        "condition": {
-          "type": "characters_in_play_gte",
-          "amount": 3,
-          "player": {
-            "type": "self"
-          }
-        },
-        "effects": [
-          {
-            "type": "draw",
-            "amount": 1,
-            "isMay": true,
-            "target": {
-              "type": "self"
-            }
-          }
-        ]
-      }
-    ],
-    "setId": "11",
-    "number": 42,
-    "rarity": "legendary",
-    "subtitle": "Carefree Snowboarder",
-    "strength": 4,
-    "willpower": 5,
-    "lore": 2,
-    "rulesText": "BRING YOUR FRIENDS Whenever this character quests, if you have 2 or more other characters in play, you may draw a card.",
-    "flavorText": "\"First one down the mountain gets all the marshmallows for their cocoa!\"\n—Lilo",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/42_130d7eb9627df4ffb45adc7f8b755b99441e4430.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "BRING YOUR FRIENDS",
-        "rulesText": "Whenever this character quests, if you have 2 or more other characters in play, you may draw a card.",
-        "raw": "BRING YOUR FRIENDS Whenever this character quests, if you have 2 or more other characters in play, you may draw a card."
-      }
-    ]
   },
   {
     "id": "pocahontas-following-the-wind",

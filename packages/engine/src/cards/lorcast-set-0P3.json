@@ -45,18 +45,18 @@
     ],
     "setId": "P3",
     "number": 1,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "The Flying Elephant",
     "strength": 2,
     "willpower": 2,
     "lore": 1,
-    "rulesText": "AERIAL DUO When you play this character, chosen character gains Evasive until the start of your next turn.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_12b839a499554620be033f62efd21dd1.avif?1773508691",
+    "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nAERIAL DUO When you play this character, chosen character gains <Evasive> until the start of your next turn.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/1_07c90c996a1bc7e5f16f1d92c1cff54b3a00bc65.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "AERIAL DUO",
-        "rulesText": "When you play this character, chosen character gains Evasive until the start of your next turn.",
-        "raw": "AERIAL DUO When you play this character, chosen character gains Evasive until the start of your next turn."
+        "rulesText": "When you play this character, chosen character gains <Evasive> until the start of your next turn.",
+        "raw": "AERIAL DUO When you play this character, chosen character gains <Evasive> until the start of your next turn."
       }
     ]
   },
@@ -130,18 +130,18 @@
     ],
     "setId": "P3",
     "number": 2,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Accidentally Adrift",
     "strength": 2,
     "willpower": 3,
     "lore": 2,
-    "rulesText": "WASHED AWAY When you play this character, you may put chosen item into its player's inkwell facedown and exerted.\nMAKING WAVES Whenever this character quests, chosen opposing character gets -2 {S} this turn.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b1c9fb0718d647ab86e96b9b863a1d64.avif?1773508701",
+    "rulesText": "WASHED AWAY When you play this character, you may put chosen item into its player’s inkwell facedown and exerted.\nMAKING WAVES Whenever this character quests, chosen opposing character gets -2 {S} this turn.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/2_8426eb8a38d43058e2169ec64b6bd9c896ec9046.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WASHED AWAY",
-        "rulesText": "When you play this character, you may put chosen item into its player's inkwell facedown and exerted.",
-        "raw": "WASHED AWAY When you play this character, you may put chosen item into its player's inkwell facedown and exerted."
+        "rulesText": "When you play this character, you may put chosen item into its player’s inkwell facedown and exerted.",
+        "raw": "WASHED AWAY When you play this character, you may put chosen item into its player’s inkwell facedown and exerted."
       },
       {
         "storyName": "MAKING WAVES",
@@ -231,13 +231,13 @@
     ],
     "setId": "P3",
     "number": 3,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Conceited Ruler",
     "strength": 2,
     "willpower": 4,
     "lore": 1,
-    "rulesText": "ROYAL SUMMONS At the start of your turn, you may choose and discard a Princess or Queen character card to return a character card from your discard to your hand.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e1e04f6d898b4b4c9cbda6adf5c742b8.avif?1773508707",
+    "rulesText": "<Support> (Whenever this character quests, you may add their {S} to another chosen character’s {S} this turn.)\nROYAL SUMMONS At the start of your turn, you may choose and discard a Princess or Queen character card to return a character card from your discard to your hand.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/3_9300e2c889060ccd3f06b47a8bb7b7e5ae88a30c.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ROYAL SUMMONS",
@@ -288,14 +288,14 @@
     ],
     "setId": "P3",
     "number": 4,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Monstrous Dragon",
     "strength": 7,
     "willpower": 5,
     "lore": 2,
     "rulesText": "DRAGON FIRE When you play this character, you may banish chosen character.",
     "flavorText": "The ninth Rule of Villainy: When all else fails, turn into a dragon.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a79483514b7249cbb16c12a9ef1d065d.avif?1773508713",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/4_542111924cad6679fd1527d01b7c321e33d09ba4.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "DRAGON FIRE",
@@ -346,13 +346,13 @@
     ],
     "setId": "P3",
     "number": 5,
-    "rarity": "common",
+    "rarity": "enchanted",
     "subtitle": "Monstrous Dragon",
     "strength": 7,
     "willpower": 5,
     "lore": 2,
     "rulesText": "DRAGON FIRE When you play this character, you may banish chosen character.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d0844776beac4b5e839cff0cb9c31c14.avif?1773508719",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/5_96d45ae02b12c203a1d1c9ed87aedc74128b690f.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "DRAGON FIRE",
@@ -380,11 +380,11 @@
     "abilities": [
       {
         "type": "keyword",
-        "keyword": "evasive"
+        "keyword": "rush"
       },
       {
         "type": "keyword",
-        "keyword": "rush"
+        "keyword": "evasive"
       },
       {
         "type": "triggered",
@@ -414,13 +414,13 @@
     ],
     "setId": "P3",
     "number": 6,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "The Fifth Spirit",
     "strength": 2,
     "willpower": 5,
     "lore": 1,
-    "rulesText": "CRYSTALLIZE When you play this character, exert chosen opposing character.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b16f35fcfe884bc4b442745f49c0b811.avif?1773509303",
+    "rulesText": "<Rush> (This character can challenge the turn they’re played.)\n<Evasive> (Only characters with Evasive can challenge this character.)\nCRYSTALLIZE When you play this character, exert chosen opposing character.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/6_6bb7007de2eed976162bfc98f71d581f1fb9dbba.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "CRYSTALLIZE",
@@ -469,14 +469,14 @@
     ],
     "setId": "P3",
     "number": 7,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Ursula's Handiwork",
     "strength": 0,
     "willpower": 1,
     "lore": 2,
     "rulesText": "POOR SOULS Whenever this character is challenged, each opponent chooses and discards a card.",
-    "flavorText": "\"Now it's happened once or twice, someone couldn't pay the price...\"\n—Ursula",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_35060994174f4b25aa2bb6e99c05ca1e.avif?1773509304",
+    "flavorText": "\"Now it's happened once or twice, someone couldn't pay the price . . .\"\n—Ursula",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/7_7766ce1df8f13189b4e02e8d248eeb01008c7982.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "POOR SOULS",
@@ -501,22 +501,10 @@
     "abilities": [],
     "setId": "P3",
     "number": 8,
-    "rarity": "common",
-    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nDeal damage to chosen character equal to the number of characters you have in play.",
+    "rarity": "legendary",
+    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.) \nDeal damage to chosen character equal to the number of characters you have in play.",
     "flavorText": "Tranquil as a forest\nBut on fire within",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3036fc62622b43fda13f6021ab5401a5.avif?1773508732",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)",
-        "raw": "(A character with cost 3 or more can {E} to sing this song for free.)"
-      },
-      {
-        "storyName": "",
-        "rulesText": "Deal damage to chosen character equal to the number of characters you have in play.",
-        "raw": "Deal damage to chosen character equal to the number of characters you have in play."
-      }
-    ],
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/8_09f60d7a5b67bafe819b285c6399baf482d23284.jpg",
     "actionEffects": [
       {
         "type": "deal_damage",
@@ -594,14 +582,14 @@
     ],
     "setId": "P3",
     "number": 9,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Daring Visitor",
     "strength": 1,
     "willpower": 1,
     "lore": 1,
-    "rulesText": "BRING ON THE HEAT! When you play this character, banish chosen opposing character with 1 {S} or less.",
-    "flavorText": "\"Come on—what's the worst that can happen?\"",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a83a5da99ba24518860ad7da3dbe1d02.avif?1773508738",
+    "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nBRING ON THE HEAT! When you play this character, banish chosen opposing character with 1 {S} or less.",
+    "flavorText": "“Come on—what's the worst that can happen?”",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/9_67051e2c8e31467f0f24a5940dde1f66066d7403.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BRING ON THE HEAT!",
@@ -627,13 +615,13 @@
     "abilities": [],
     "setId": "P3",
     "number": 10,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "True Friend",
     "strength": 3,
     "willpower": 3,
     "lore": 2,
-    "flavorText": "As long as he's around, newcomers to the Great\nIlluminariy will always get a warm welcome.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_407481b12c5a4448a9c837d024bfbb55.avif?1773508744"
+    "rulesText": "As long as he’s around, newcomers to the Great Illuminary will always get a warm welcome.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/10_30d7e69546ef091cf5e4dd6197e36f298b174af0.jpg"
   },
   {
     "id": "tinker-bell-giant-fairy",
@@ -715,14 +703,14 @@
     ],
     "setId": "P3",
     "number": 11,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Giant Fairy",
     "strength": 4,
     "willpower": 5,
     "lore": 2,
     "shiftCost": 4,
-    "rulesText": "ROCK THE BOAT When you play this character, deal 1 damage to each opposing character.\nPUN PIRATE! During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_895798f185da459bab814e8d6241da52.avif?1773508749",
+    "rulesText": "<Shift> 4 {I} (You may pay 4 {I} to play this on top of one of your characters named Tinker Bell.)\nROCK THE BOAT When you play this character, deal 1 damage to each opposing character.\nPUNY PIRATE! During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/11_134f9ade8e5f9fc518a08ac788493da83f34c4da.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ROCK THE BOAT",
@@ -732,7 +720,7 @@
       {
         "storyName": "PUNY PIRATE!",
         "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character.",
-        "raw": "PUN PIRATE! During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character."
+        "raw": "PUNY PIRATE! During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character."
       }
     ]
   },
@@ -775,14 +763,14 @@
     ],
     "setId": "P3",
     "number": 12,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Mirror Seeker",
     "strength": 2,
     "willpower": 5,
     "lore": 1,
     "rulesText": "CALCULATING AND VAIN Whenever this character quests, you may look at the top 3 cards of your deck and put them back in any order.",
-    "flavorText": "She has only one question, and she'd better like the answer.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5f8477e82274478083db60897d3516f5.avif?1773508755",
+    "flavorText": "She has only one question, and she’d better like the answer.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/12_7b0bd446a1d33dcd75a499885ebef09510d5cd5b.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "CALCULATING AND VAIN",
@@ -854,19 +842,19 @@
     ],
     "setId": "P3",
     "number": 13,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Pirate Captain",
     "strength": 4,
     "willpower": 4,
     "lore": 2,
     "shiftCost": 3,
-    "rulesText": "MARINER'S MIGHT Whenever this character quests, chosen Pirate character gets +2 {S} and gains \"This character takes no damage from challenges\" this turn.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_8fed60626775467d90a99dbb2a5d881b.avif?1773508762",
+    "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Mickey Mouse.)\nMARINER’S MIGHT Whenever this character quests, chosen Pirate character gets +2 {S} and gains \"This character takes no damage from challenges\" this turn.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/13_33dcbe23994c265b88dcecff1a98931db84aea1a.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "MARINER'S MIGHT",
         "rulesText": "Whenever this character quests, chosen Pirate character gets +2 {S} and gains \"This character takes no damage from challenges\" this turn.",
-        "raw": "MARINER'S MIGHT Whenever this character quests, chosen Pirate character gets +2 {S} and gains \"This character takes no damage from challenges\" this turn."
+        "raw": "MARINER’S MIGHT Whenever this character quests, chosen Pirate character gets +2 {S} and gains \"This character takes no damage from challenges\" this turn."
       }
     ]
   },
@@ -917,18 +905,18 @@
     ],
     "setId": "P3",
     "number": 14,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Expert Shipwright",
     "strength": 1,
     "willpower": 4,
     "lore": 3,
-    "rulesText": "CLEVER DESIGN Whenever this character quests, chosen character gains Ward until the start of your next turn.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_45321c3501974bd39455f3cc7346f535.avif?1773508768",
+    "rulesText": "<Ward> (Opponents can’t choose this character except to challenge.)\nCLEVER DESIGN Whenever this character quests, chosen character gains <Ward> until the start of your next turn.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/14_9049b1fc44f15c15f716ed4ec9ac1119e84ff9e4.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "CLEVER DESIGN",
-        "rulesText": "Whenever this character quests, chosen character gains Ward until the start of your next turn.",
-        "raw": "CLEVER DESIGN Whenever this character quests, chosen character gains Ward until the start of your next turn."
+        "rulesText": "Whenever this character quests, chosen character gains <Ward> until the start of your next turn.",
+        "raw": "CLEVER DESIGN Whenever this character quests, chosen character gains <Ward> until the start of your next turn."
       }
     ]
   },
@@ -983,19 +971,19 @@
     ],
     "setId": "P3",
     "number": 15,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Buccaneer",
     "strength": 3,
     "willpower": 4,
     "lore": 1,
-    "rulesText": "BOARDING PARTY During your turn, whenever this character banishes another character in a challenge, your other characters get +1 {L} this turn.",
+    "rulesText": "BOARDING PARTY During your turn, whenever this character banishes a character in a challenge, your other characters get +1 {L} this turn.",
     "flavorText": "Nobody stands a chance against the daring duck of the high seas!",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_48f207edc9374126bd3ac01d43cbc2b8.avif?1773508774",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/15_8d7f8b4314c572ae2d910f68082ad96059f4a297.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BOARDING PARTY",
-        "rulesText": "During your turn, whenever this character banishes another character in a challenge, your other characters get +1 {L} this turn.",
-        "raw": "BOARDING PARTY During your turn, whenever this character banishes another character in a challenge, your other characters get +1 {L} this turn."
+        "rulesText": "During your turn, whenever this character banishes a character in a challenge, your other characters get +1 {L} this turn.",
+        "raw": "BOARDING PARTY During your turn, whenever this character banishes a character in a challenge, your other characters get +1 {L} this turn."
       }
     ]
   },
@@ -1047,14 +1035,14 @@
     ],
     "setId": "P3",
     "number": 16,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Pirate Captain",
     "strength": 3,
     "willpower": 3,
     "lore": 2,
     "rulesText": "DISTANT SHORES Whenever one of your Pirate characters quests while at a location, draw a card.",
-    "flavorText": "\"The answers we're looking for are on the other side of that maze, I just know it!\"",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7e220169e537453cbda6b634acf7af4d.avif?1773508781",
+    "flavorText": "\"The answers we’re looking for are on the other side of that maze, I just know it!\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/16_d36b4504676d8bfea054325249554182425c1c30.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "DISTANT SHORES",
@@ -1112,14 +1100,14 @@
     ],
     "setId": "P3",
     "number": 17,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Pirate Lookout",
     "strength": 3,
     "willpower": 2,
     "lore": 1,
     "rulesText": "LAND, HO! Once during your turn, whenever a card is put into your inkwell, you may return a location card from your discard to your hand.",
     "flavorText": "Minnie leaned forward. Could it be true? Was this the island at last?",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_bbd9d2a6b1194759b18eb6e58a3c3d3e.avif?1773508786",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/17_895215e20c4921c0dc472ff6d95acfcad5a8f083.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LAND, HO!",
@@ -1184,13 +1172,13 @@
     ],
     "setId": "P3",
     "number": 18,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Missing His Spark",
     "strength": 2,
     "willpower": 3,
     "lore": 2,
-    "rulesText": "I NEED MORE THUNDERBOLTS! While there’s a card under this character, he gets +2 {S} and +2 {W}.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_0f0a7394cf61476f96019519408f113f.avif?1773508792",
+    "rulesText": "<Boost> 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nI NEED MORE THUNDERBOLTS! While there’s a card under this character, he gets +2 {S} and +2 {W}.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/18_05f2682a73bf2595c3b848c824592521c0099512.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "I NEED MORE THUNDERBOLTS!",
@@ -1250,19 +1238,19 @@
     ],
     "setId": "P3",
     "number": 19,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Abandoned Laboratory",
     "willpower": 3,
     "lore": 1,
     "moveCost": 1,
-    "rulesText": "STARTLING DISCOVERY Characters gain \" — Draw a card\" while here.",
-    "flavorText": "Remember, we're looking for clues to who tore up the lorebook pages. —Elisa Maza",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_89f06111fbb14f8d9dc9e19168c30631.avif?1773508797",
+    "rulesText": "STARTLING DISCOVERY Characters gain \"{E} — Draw a card\" while here.",
+    "flavorText": "“Remember, we’re looking for clues to who tore up the lorebook pages.”\n—Elisa Maza",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/19_4820f65a3bbd1d3c03018775c2064aca051f288c.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "STARTLING DISCOVERY",
-        "rulesText": "Characters gain \" — Draw a card\" while here.",
-        "raw": "STARTLING DISCOVERY Characters gain \" — Draw a card\" while here."
+        "rulesText": "Characters gain \"{E} — Draw a card\" while here.",
+        "raw": "STARTLING DISCOVERY Characters gain \"{E} — Draw a card\" while here."
       }
     ]
   },
@@ -1280,17 +1268,10 @@
     "abilities": [],
     "setId": "P3",
     "number": 20,
-    "rarity": "common",
-    "rulesText": "Draw a card. You may banish chosen character with Evasive.",
-    "flavorText": "Just when you thought you'd escaped...",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_bee6f97742e542d2b3d1beed86b61049.avif?1773508802",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "Draw a card. You may banish chosen character with Evasive.",
-        "raw": "Draw a card. You may banish chosen character with Evasive."
-      }
-    ],
+    "rarity": "legendary",
+    "rulesText": "Draw a card. You may banish chosen character with <Evasive>.",
+    "flavorText": "Just when you thought you'd escaped . . .",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/20_8b1b0c3ba38b771b51417e75fa9315c90927d96a.jpg",
     "actionEffects": [
       {
         "type": "draw",
@@ -1371,13 +1352,13 @@
     ],
     "setId": "P3",
     "number": 21,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Eerily Prepared",
     "strength": 6,
     "willpower": 5,
     "lore": 2,
-    "rulesText": "SURVIVAL OF THE FITTEST Whenever you put a card under this character, chosen opposing character gets -5 {S} this turn.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b01f04a5debe45f7b1796f0deeabd427.avif?1773508808",
+    "rulesText": "<Boost> 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nSURVIVAL OF THE FITTEST Whenever you put a card under this character, chosen opposing character gets -5 {S} this turn.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/21_96042505247cc9caea6ca6ea0b92a79427ae0d75.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SURVIVAL OF THE FITTEST",
@@ -1424,14 +1405,14 @@
     ],
     "setId": "P3",
     "number": 22,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Exploring the Unknown",
     "strength": 1,
     "willpower": 3,
     "lore": 1,
     "rulesText": "CLOSER LOOK When you play this character, you may draw a card.",
-    "flavorText": "\"This world still has secrets to uncover.\"",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_309a0e71b66c4ba492590374f92d9598.avif?1773508813",
+    "flavorText": "“This world still has secrets to uncover.”",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/22_e45aeb9c781361f67e3abab8ee59e8cd6b7b0c0b.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "CLOSER LOOK",
@@ -1458,12 +1439,12 @@
     "abilities": [
       {
         "type": "keyword",
-        "keyword": "shift",
-        "value": 4
+        "keyword": "support"
       },
       {
         "type": "keyword",
-        "keyword": "support"
+        "keyword": "shift",
+        "value": 4
       },
       {
         "type": "static",
@@ -1482,19 +1463,19 @@
     ],
     "setId": "P3",
     "number": 23,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Paranormal Investigator",
     "strength": 4,
     "willpower": 6,
     "lore": 2,
     "shiftCost": 4,
-    "rulesText": "STRANGE HAPPENINGS While this character is exerted, cards enter opponents' inkwells exerted.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_816875e5e3f54de7bd57f8a94ed6718e.avif?1773508819",
+    "rulesText": "<Shift> 4 {I} (You may pay 4 {I} to play this on top of one of your characters named Daisy Duck.)\n<Support> (Whenever this character quests, you may add their {S} to another chosen character’s {S} this turn.)\nSTRANGE HAPPENINGS While this character is exerted, cards enter opponents’ inkwells exerted.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/23_40885d217657ebbe74c23bda7bd66478fefa0155.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "STRANGE HAPPENINGS",
-        "rulesText": "While this character is exerted, cards enter opponents' inkwells exerted.",
-        "raw": "STRANGE HAPPENINGS While this character is exerted, cards enter opponents' inkwells exerted."
+        "rulesText": "While this character is exerted, cards enter opponents’ inkwells exerted.",
+        "raw": "STRANGE HAPPENINGS While this character is exerted, cards enter opponents’ inkwells exerted."
       }
     ]
   },
@@ -1516,12 +1497,12 @@
     "abilities": [
       {
         "type": "keyword",
-        "keyword": "shift",
-        "value": 4
+        "keyword": "support"
       },
       {
         "type": "keyword",
-        "keyword": "support"
+        "keyword": "shift",
+        "value": 4
       },
       {
         "type": "static",
@@ -1540,19 +1521,19 @@
     ],
     "setId": "P3",
     "number": 24,
-    "rarity": "common",
+    "rarity": "enchanted",
     "subtitle": "Paranormal Investigator",
     "strength": 4,
     "willpower": 6,
     "lore": 2,
     "shiftCost": 4,
-    "rulesText": "STRANGE HAPPENINGS While this character is exerted, cards enter opponents' inkwells exerted.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_aaf4390b4e564f7181f334acb04b63d6.avif?1773508824",
+    "rulesText": "<Shift> 4 {I} (You may pay 4 {I} to play this on top of one of your characters named Daisy Duck.)\n<Support> (Whenever this character quests, you may add their {S} to another chosen character’s {S} this turn.)\nSTRANGE HAPPENINGS While this character is exerted, cards enter opponents’ inkwells exerted.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/24_a83fa383af201bad1d84858cdfdcceaa2b19187d.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "STRANGE HAPPENINGS",
-        "rulesText": "While this character is exerted, cards enter opponents' inkwells exerted.",
-        "raw": "STRANGE HAPPENINGS While this character is exerted, cards enter opponents' inkwells exerted."
+        "rulesText": "While this character is exerted, cards enter opponents’ inkwells exerted.",
+        "raw": "STRANGE HAPPENINGS While this character is exerted, cards enter opponents’ inkwells exerted."
       }
     ]
   },
@@ -1628,13 +1609,13 @@
     ],
     "setId": "P3",
     "number": 25,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Emerald Champion",
     "strength": 3,
     "willpower": 5,
     "lore": 2,
-    "rulesText": "EVEN THE SCORE Whenever one of your other Emerald characters is challenged and banished, banish the challenging character.\nPROVIDE COVER Your other Emerald characters gain Ward. (Opponents can’t choose them except to challenge.)",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_feda80eba5264f44b483cb6b52fafb47.avif?1773508831",
+    "rulesText": "EVEN THE SCORE Whenever one of your other Emerald characters is challenged and banished, banish the challenging character.\nPROVIDE COVER Your other Emerald characters gain <Ward>. (Opponents can’t choose them except to challenge.)",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/25_9aebfd6e6296ef4b8e397042c49905ec1f5bd147.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "EVEN THE SCORE",
@@ -1643,8 +1624,8 @@
       },
       {
         "storyName": "PROVIDE COVER",
-        "rulesText": "Your other Emerald characters gain Ward. (Opponents can’t choose them except to challenge.)",
-        "raw": "PROVIDE COVER Your other Emerald characters gain Ward. (Opponents can’t choose them except to challenge.)"
+        "rulesText": "Your other Emerald characters gain <Ward>. (Opponents can’t choose them except to challenge.)",
+        "raw": "PROVIDE COVER Your other Emerald characters gain <Ward>. (Opponents can’t choose them except to challenge.)"
       }
     ]
   },
@@ -1703,13 +1684,13 @@
     ],
     "setId": "P3",
     "number": 26,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Soothing Princess",
     "strength": 2,
     "willpower": 5,
     "lore": 2,
-    "rulesText": "UPLIFTING AURA Whenever this character quests, if there’s a card under her, remove up to 3 damage from each of your characters.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5aabca3fd6de4f3d9f7dcd53dd091739.avif?1773508836",
+    "rulesText": "<Boost> 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nUPLIFTING AURA Whenever this character quests, if there’s a card under her, remove up to 3 damage from each of your characters.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/26_0ae8f65fef2169993613b732bcb7ef8ccc3c808a.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "UPLIFTING AURA",
@@ -1732,17 +1713,10 @@
     "abilities": [],
     "setId": "P3",
     "number": 27,
-    "rarity": "common",
-    "rulesText": "Chosen opposing character can't challenge during their next turn. Draw a card.",
-    "flavorText": "\"Stop! It's Hopps and Wilde! We have questions!\"\n—Judy Hopps",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a5f4037f0c50462380ba6db7a516cd7a.avif?1773508842",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "",
-        "rulesText": "Chosen opposing character can't challenge during their next turn. Draw a card.",
-        "raw": "Chosen opposing character can't challenge during their next turn. Draw a card."
-      }
-    ],
+    "rarity": "legendary",
+    "rulesText": "Chosen opposing character can’t challenge during their next turn. Draw a card.",
+    "flavorText": "“Stop! It’s Hopps and Wilde! We have questions!” %—Judy Hopps",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/27_17b07c694096e1453d3e107330c24ac85ae7856d.jpg",
     "actionEffects": [
       {
         "type": "cant_action",
@@ -1805,19 +1779,19 @@
     ],
     "setId": "P3",
     "number": 28,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Connected to Nature",
     "strength": 6,
     "willpower": 6,
     "lore": 2,
-    "rulesText": "ANCESTORS' GIFT For each card in your inkwell, you pay 1 {I} less to play this character.",
-    "flavorText": "\"Ice fishing? No, no—this is ice feeding!\"",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4c1302eeb29742fe9d14fb23ad017fe9.avif?1773508848",
+    "rulesText": "ANCESTORS’ GIFT For each card in your inkwell, you pay 1 {I} less to play this character.",
+    "flavorText": "\"Ice fishing? No, no—this is ice <feeding>!\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/28_578f7de00facc558f1fff8fe1c4273851ee50517.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ANCESTORS' GIFT",
         "rulesText": "For each card in your inkwell, you pay 1 {I} less to play this character.",
-        "raw": "ANCESTORS' GIFT For each card in your inkwell, you pay 1 {I} less to play this character."
+        "raw": "ANCESTORS’ GIFT For each card in your inkwell, you pay 1 {I} less to play this character."
       }
     ]
   },
@@ -1855,18 +1829,18 @@
     ],
     "setId": "P3",
     "number": 29,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Late Again",
     "strength": 2,
     "willpower": 2,
     "lore": 1,
-    "rulesText": "UNDERDOG If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d3f28891b837451c8ae29c450dc77b26.avif?1773508858",
+    "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nUNDERDOG If this is your first turn and you’re not the first player, you pay 1 {I} less to play this character.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/29_9c43f52e18d06b986d0edb9b600dd9a836d45a8a.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "UNDERDOG",
-        "rulesText": "If this is your first turn and you're not the first player, you pay 1 {I} less to play this character.",
-        "raw": "UNDERDOG If this is your first turn and you're not the first player, you pay 1 {I} less to play this character."
+        "rulesText": "If this is your first turn and you’re not the first player, you pay 1 {I} less to play this character.",
+        "raw": "UNDERDOG If this is your first turn and you’re not the first player, you pay 1 {I} less to play this character."
       }
     ]
   },
@@ -1927,24 +1901,24 @@
     ],
     "setId": "P3",
     "number": 30,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Transformed Gargoyle",
     "strength": 4,
     "willpower": 4,
     "lore": 1,
-    "rulesText": "FOREVER STRONG Your characters' {S} can't be reduced below their printed value.\nSTONE BY DAY If you have 3 or more cards in your hand, this character can't ready.",
-    "flavorText": "\"I'll never get the hang of jumping off rooftops.\"",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_286c1c377513470ea77761b4c6272fb7.avif?1773508864",
+    "rulesText": "FOREVER STRONG Your characters’ {S} can’t be reduced below their printed value.\nSTONE BY DAY If you have 3 or more cards in your hand, this character can’t ready.",
+    "flavorText": "“I’ll never get the hang of jumping off rooftops.”",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/30_b0fb840d90ea1bcaca3149bc8761ee87d7a65db6.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FOREVER STRONG",
-        "rulesText": "Your characters' {S} can't be reduced below their printed value.",
-        "raw": "FOREVER STRONG Your characters' {S} can't be reduced below their printed value."
+        "rulesText": "Your characters’ {S} can’t be reduced below their printed value.",
+        "raw": "FOREVER STRONG Your characters’ {S} can’t be reduced below their printed value."
       },
       {
         "storyName": "STONE BY DAY",
-        "rulesText": "If you have 3 or more cards in your hand, this character can't ready.",
-        "raw": "STONE BY DAY If you have 3 or more cards in your hand, this character can't ready."
+        "rulesText": "If you have 3 or more cards in your hand, this character can’t ready.",
+        "raw": "STONE BY DAY If you have 3 or more cards in your hand, this character can’t ready."
       }
     ]
   },
@@ -1986,13 +1960,13 @@
     ],
     "setId": "P3",
     "number": 31,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Snowfield Troublemaker",
     "strength": 3,
     "willpower": 1,
     "lore": 1,
-    "rulesText": "DYNAMIC MANEUVER Whenever this character challenges, if he’s at a location, he takes no damage from the challenge.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_0fd3aa5df4fd4082929b9d80398e692f.avif?1773508870",
+    "rulesText": "<Rush> (This character can challenge the turn they’re played.)\nDYNAMIC MANEUVER Whenever this character challenges, if he’s at a location, he takes no damage from the challenge.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/31_a76fb0f5f761d22cd64cc72b5757fc6f16d58c53.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "DYNAMIC MANEUVER",
@@ -2050,14 +2024,14 @@
     ],
     "setId": "P3",
     "number": 32,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Snowball Swiper",
     "strength": 2,
     "willpower": 3,
     "lore": 1,
     "rulesText": "GET RID OF THAT When you play this character, chosen opponent reveals their hand and discards a non-character card of your choice.",
     "flavorText": "\"Okay, Pumbaa—hit it!\"",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c47dcf86ffa542dda6f30a0cda47c1b4.avif?1773508875",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/32_2ad30ba45e36419e4437bc490823bff2c5ee0d4f.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "GET RID OF THAT",
@@ -2124,18 +2098,18 @@
     ],
     "setId": "P3",
     "number": 33,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Snowflake Collector",
     "strength": 3,
     "willpower": 3,
     "lore": 1,
-    "rulesText": "FLURRY OF DELIGHT While you have 4 or more cards in your hand, this character gains Evasive. (Only characters with Evasive can challenge them.)\nSPECTACULAR FIND While you have 7 or more cards in your hand, this character gets +3 {L}.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e0ff247b374b43c68d645477a6d0177a.avif?1773508882",
+    "rulesText": "FLURRY OF DELIGHT While you have 4 or more cards in your hand, this character gains <Evasive>. (Only characters with Evasive can challenge them.)\nSPECTACULAR FIND While you have 7 or more cards in your hand, this character gets +3 {L}.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/33_b4d467889866b542ab5b9e296fd12425790dcf2d.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FLURRY OF DELIGHT",
-        "rulesText": "While you have 4 or more cards in your hand, this character gains Evasive. (Only characters with Evasive can challenge them.)",
-        "raw": "FLURRY OF DELIGHT While you have 4 or more cards in your hand, this character gains Evasive. (Only characters with Evasive can challenge them.)"
+        "rulesText": "While you have 4 or more cards in your hand, this character gains <Evasive>. (Only characters with Evasive can challenge them.)",
+        "raw": "FLURRY OF DELIGHT While you have 4 or more cards in your hand, this character gains <Evasive>. (Only characters with Evasive can challenge them.)"
       },
       {
         "storyName": "SPECTACULAR FIND",
@@ -2202,18 +2176,18 @@
     ],
     "setId": "P3",
     "number": 34,
-    "rarity": "common",
+    "rarity": "enchanted",
     "subtitle": "Snowflake Collector",
     "strength": 3,
     "willpower": 3,
     "lore": 1,
-    "rulesText": "FLURRY OF DELIGHT While you have 4 or more cards in your hand, this character gains Evasive. (Only characters with Evasive can challenge them.)\nSPECTACULAR FIND While you have 7 or more cards in your hand, this character gets +3 {L}.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_76e1fab92f784c07880e6c6076292ec9.avif?1773508887",
+    "rulesText": "FLURRY OF DELIGHT While you have 4 or more cards in your hand, this character gains <Evasive>. (Only characters with Evasive can challenge them.)\nSPECTACULAR FIND While you have 7 or more cards in your hand, this character gets +3 {L}.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/34_f8a4d6956f737fee8f55bf273a90fd9101e79c9d.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FLURRY OF DELIGHT",
-        "rulesText": "While you have 4 or more cards in your hand, this character gains Evasive. (Only characters with Evasive can challenge them.)",
-        "raw": "FLURRY OF DELIGHT While you have 4 or more cards in your hand, this character gains Evasive. (Only characters with Evasive can challenge them.)"
+        "rulesText": "While you have 4 or more cards in your hand, this character gains <Evasive>. (Only characters with Evasive can challenge them.)",
+        "raw": "FLURRY OF DELIGHT While you have 4 or more cards in your hand, this character gains <Evasive>. (Only characters with Evasive can challenge them.)"
       },
       {
         "storyName": "SPECTACULAR FIND",
@@ -2261,19 +2235,19 @@
     ],
     "setId": "P3",
     "number": 35,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "High Badness Level",
     "strength": 3,
     "willpower": 2,
     "lore": 1,
-    "rulesText": "AMPED UP While you have a character named Lilo in play, this character gains Challenger +3. (They get +3 {S} while challenging.)",
-    "flavorText": "\"No more caffeine for you.\"\n–Lilo",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4c09dc7e3fdc48aab378abc5e84546a4.avif?1773508893",
+    "rulesText": "AMPED UP While you have a character named Lilo in play, this character gains <Challenger> +3. (They get +3 {S} while challenging.)",
+    "flavorText": "“No more caffeine for you.\"\n—Lilo",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/35_d0151d04ae5343fed9473367820fe1250fa8239b.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "AMPED UP",
-        "rulesText": "While you have a character named Lilo in play, this character gains Challenger +3. (They get +3 {S} while challenging.)",
-        "raw": "AMPED UP While you have a character named Lilo in play, this character gains Challenger +3. (They get +3 {S} while challenging.)"
+        "rulesText": "While you have a character named Lilo in play, this character gains <Challenger> +3. (They get +3 {S} while challenging.)",
+        "raw": "AMPED UP While you have a character named Lilo in play, this character gains <Challenger> +3. (They get +3 {S} while challenging.)"
       }
     ]
   },
@@ -2336,13 +2310,13 @@
     ],
     "setId": "P3",
     "number": 36,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "S.H.U.S.H. Agent",
     "strength": 0,
     "willpower": 2,
     "lore": 2,
     "rulesText": "BACKUP PLAN When you play this character, draw a card, then choose and discard a card.\nON THE MOVE When this character is challenged, return this card to your hand. (No damage is dealt in that challenge.)",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_73f5d43fcb894f40b2d40ef10c2f0014.avif?1773508899",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/36_51c338a1fd293aa6a51d0db281d362b837f46ff2.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BACKUP PLAN",
@@ -2404,14 +2378,14 @@
     ],
     "setId": "P3",
     "number": 37,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Apprentice Inventor",
     "strength": 3,
     "willpower": 3,
     "lore": 1,
     "rulesText": "WHAT A MESS During your turn, you may banish chosen item of yours to play this character for free.",
     "flavorText": "Helping her dad keep the flying debris to a minimum.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_fcb0a2f9a4044b86bba8e0ff3ade2988.avif?1773508904",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/37_529afcda1f34e739ac9e3d9706d732f232a0079b.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WHAT A MESS",
@@ -2471,14 +2445,14 @@
     ],
     "setId": "P3",
     "number": 38,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Disguised Soldier",
     "strength": 2,
     "willpower": 1,
     "lore": 1,
     "rulesText": "WHERE DO I SIGN IN? When you play this character, you may draw a card, then choose and discard a card.",
     "flavorText": "\"Okay this is it, time to show 'em your man walk.\"\n—Mushu",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_51c56768845241c9b79c30510bf3af72.avif?1773508909",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/38_6ecb0f1c83f2a12d7fbdc578b31fff2883a734e6.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WHERE DO I SIGN IN?",
@@ -2553,13 +2527,13 @@
     ],
     "setId": "P3",
     "number": 39,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Set for Adventure",
     "strength": 2,
     "willpower": 2,
     "lore": 1,
     "rulesText": "FAMILY VACATION Once during your turn, whenever this character moves to a location, you may move one of your other characters to that location for free. If you do, draw a card.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_49df8641660c4963bc3262e345dee59d.avif?1773508919",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/39_153622ed69420106f8eaace410f9e2cfa306908a.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FAMILY VACATION",
@@ -2610,14 +2584,14 @@
     ],
     "setId": "P3",
     "number": 40,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Gracious Prince",
     "strength": 5,
     "willpower": 4,
     "lore": 1,
     "rulesText": "FULL DANCE CARD Your Princess characters get +1 {S} and +1 {W}.",
     "flavorText": "His heart warmed as the music began and the dancers took their places.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_559d04fd26174de38e6c40504c2f0b43.avif?1773508925",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/40_4aaa4b5c9966aebb9625e996be936aca338989df.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FULL DANCE CARD",
@@ -2687,22 +2661,15 @@
     ],
     "setId": "P3",
     "number": 41,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Accomplished Mystic",
     "strength": 4,
     "willpower": 4,
     "lore": 2,
     "shiftCost": 3,
-    "rulesText": "ENHANCED HEALING When you play this character, move up to 3 damage counters from chosen character to chosen opposing character.",
+    "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Belle.) %\\Enhanced Healing\\ When you play this character, move up to 3 damage counters from chosen character to chosen opposing character.",
     "flavorText": "The mixed ink had changed more than just the rose.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_384f93877f3846c198eb7edaed95a313.avif?1773508931",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "ENHANCED HEALING",
-        "rulesText": "When you play this character, move up to 3 damage counters from chosen character to chosen opposing character.",
-        "raw": "ENHANCED HEALING When you play this character, move up to 3 damage counters from chosen character to chosen opposing character."
-      }
-    ]
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/41_f8ff787532a72898c1b75f24acc5b431ae68da59.jpg"
   },
   {
     "id": "stitch-carefree-snowboarder",
@@ -2748,14 +2715,14 @@
     ],
     "setId": "P3",
     "number": 42,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Carefree Snowboarder",
     "strength": 4,
     "willpower": 5,
     "lore": 2,
     "rulesText": "BRING YOUR FRIENDS Whenever this character quests, if you have 2 or more other characters in play, you may draw a card.",
     "flavorText": "\"First one down the mountain gets all the marshmallows for their cocoa!\"\n—Lilo",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_25ef24f3f0214af5b8f944d2b5555ba8.avif?1773508937",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/42_130d7eb9627df4ffb45adc7f8b755b99441e4430.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BRING YOUR FRIENDS",
@@ -2827,19 +2794,19 @@
     ],
     "setId": "P3",
     "number": 43,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Curious Traveler",
     "strength": 3,
     "willpower": 3,
     "lore": 2,
-    "rulesText": "FAMILIAR GROUND Whenever this character quests, if you played another character this turn, chosen opposing character can't challenge and must quest during their next turn if able.",
+    "rulesText": "FAMILIAR GROUND Whenever this character quests, if you played another character this turn, chosen opposing character can’t challenge and must quest during their next turn if able.",
     "flavorText": "\"Isn't it wonderful? See if there's anything that catches your eye.\"",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_4a3d97e5bcff49c2883e5764be3fd43b.avif?1773508943",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/43_44e511f17748cfcb786b407d368c6f10d65b42bd.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FAMILIAR GROUND",
-        "rulesText": "Whenever this character quests, if you played another character this turn, chosen opposing character can't challenge and must quest during their next turn if able.",
-        "raw": "FAMILIAR GROUND Whenever this character quests, if you played another character this turn, chosen opposing character can't challenge and must quest during their next turn if able."
+        "rulesText": "Whenever this character quests, if you played another character this turn, chosen opposing character can’t challenge and must quest during their next turn if able.",
+        "raw": "FAMILIAR GROUND Whenever this character quests, if you played another character this turn, chosen opposing character can’t challenge and must quest during their next turn if able."
       }
     ]
   },
@@ -2898,14 +2865,14 @@
     ],
     "setId": "P3",
     "number": 44,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Imperious Traveler",
     "strength": 3,
     "willpower": 5,
-    "lore": 1,
+    "lore": 2,
     "rulesText": "HEED MY WORDS Whenever this character quests, if you played another character this turn, you may exert chosen opposing character.",
-    "flavorText": "\"Bind this glimmer, fiendish flowers!\"",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c4ee636a797148549fed0c816122a35d.avif?1773508950",
+    "flavorText": "“Bind this glimmer, fiendish flowers!\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/44_55ab589e7d8b7c621226e5a52af1efc2dbc52365.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "HEED MY WORDS",
@@ -2966,26 +2933,26 @@
     ],
     "setId": "P3",
     "number": 45,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Judgmental Traveler",
     "strength": 4,
     "willpower": 4,
-    "lore": 3,
-    "rulesText": "YOU'RE OUT OF FASHION Whenever this character quests, if you played another character this turn, you may banish chosen damaged character.",
-    "flavorText": "\"Can I help you? Not with your sense of style, darling.\"",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d38b2f8759444a3c99ef9b576821232a.avif?1773508957",
+    "lore": 4,
+    "rulesText": "YOU’RE OUT OF FASHION Whenever this character quests, if you played another character this turn, you may banish chosen damaged character.",
+    "flavorText": "\"Can I help you? Not with <your> sense of style, darling.\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/45_2174bdc712f0cbe06df0b79e030bd9f259e600a6.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "YOU'RE OUT OF FASHION",
         "rulesText": "Whenever this character quests, if you played another character this turn, you may banish chosen damaged character.",
-        "raw": "YOU'RE OUT OF FASHION Whenever this character quests, if you played another character this turn, you may banish chosen damaged character."
+        "raw": "YOU’RE OUT OF FASHION Whenever this character quests, if you played another character this turn, you may banish chosen damaged character."
       }
     ]
   },
   {
     "id": "queen-of-hearts-impatient-traveler",
-    "name": "Queen Of Hearts",
-    "fullName": "Queen Of Hearts - Impatient Traveler",
+    "name": "Queen of Hearts",
+    "fullName": "Queen of Hearts - Impatient Traveler",
     "cardType": "character",
     "inkColors": [
       "ruby"
@@ -3035,19 +3002,19 @@
     ],
     "setId": "P3",
     "number": 46,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Impatient Traveler",
     "strength": 4,
     "willpower": 2,
     "lore": 2,
-    "rulesText": "ROYAL COMMAND Whenever this character quests, if you played another character this turn, chosen character gains Rush this turn. (They can challenge the turn they’re played.)",
+    "rulesText": "ROYAL COMMAND Whenever this character quests, if you played another character this turn, chosen character gains <Rush> this turn. (They can challenge the turn they’re played.)",
     "flavorText": "Hours of walking in the heat had not improved her rosy disposition.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b2eea1c89b5d48689e3fe6209acaae46.avif?1773508992",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/46_5493d45687bcb41090f6e197eb33b12715ddc385.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ROYAL COMMAND",
-        "rulesText": "Whenever this character quests, if you played another character this turn, chosen character gains Rush this turn. (They can challenge the turn they’re played.)",
-        "raw": "ROYAL COMMAND Whenever this character quests, if you played another character this turn, chosen character gains Rush this turn. (They can challenge the turn they’re played.)"
+        "rulesText": "Whenever this character quests, if you played another character this turn, chosen character gains <Rush> this turn. (They can challenge the turn they’re played.)",
+        "raw": "ROYAL COMMAND Whenever this character quests, if you played another character this turn, chosen character gains <Rush> this turn. (They can challenge the turn they’re played.)"
       }
     ]
   },
@@ -3099,14 +3066,14 @@
     ],
     "setId": "P3",
     "number": 47,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Resourceful Traveler",
     "strength": 1,
     "willpower": 4,
     "lore": 2,
     "rulesText": "THIS AND THAT Whenever this character quests, if you played another character this turn, you may put the top card of your deck into your inkwell facedown and exerted.",
     "flavorText": "No matter how difficult the journey, she always takes care of her friends.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_73638e03c68946c0b7b612aac9ca9cf2.avif?1773508999",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/47_fd3bf23a2a8fca3e5008525c411fb1dc41e9d73a.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "THIS AND THAT",
@@ -3169,18 +3136,281 @@
     ],
     "setId": "P3",
     "number": 48,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Steadfast Traveler",
     "strength": 4,
     "willpower": 5,
+    "lore": 1,
     "rulesText": "WANDERING SPIRIT Whenever this character quests, if you played another character this turn, return a location card from your discard to your hand.",
-    "flavorText": "\"Sometimes the right path is not the easiest one.\"\n—Grandmother Willow",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_63c7fee49edc473da094e5835a14edc0.avif?1773509012",
+    "flavorText": "“Sometimes the right path is not the easiest one.”\n—Grandmother Willow",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/48_cd125dbc008862036917507f79ffa84fcee53e0b.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WANDERING SPIRIT",
         "rulesText": "Whenever this character quests, if you played another character this turn, return a location card from your discard to your hand.",
         "raw": "WANDERING SPIRIT Whenever this character quests, if you played another character this turn, return a location card from your discard to your hand."
+      }
+    ]
+  },
+  {
+    "id": "lenny-toy-binoculars",
+    "name": "Lenny",
+    "fullName": "Lenny - Toy Binoculars",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally",
+      "Toy"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 49,
+    "rarity": "legendary",
+    "subtitle": "Toy Binoculars",
+    "strength": 0,
+    "willpower": 2,
+    "lore": 1,
+    "rulesText": "TAKE A GOOD LOOK When you play this character, chosen opponent reveals their hand and discards an action card of your choice.\nCOMIN’ UP FAST Once during your turn, whenever you play an action, you may ready this character.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/49_eed6ab1c30e0ce2f1d222edeb5449b6990d30a33.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "TAKE A GOOD LOOK",
+        "rulesText": "When you play this character, chosen opponent reveals their hand and discards an action card of your choice.",
+        "raw": "TAKE A GOOD LOOK When you play this character, chosen opponent reveals their hand and discards an action card of your choice."
+      },
+      {
+        "storyName": "COMIN' UP FAST",
+        "rulesText": "Once during your turn, whenever you play an action, you may ready this character.",
+        "raw": "COMIN’ UP FAST Once during your turn, whenever you play an action, you may ready this character."
+      }
+    ]
+  },
+  {
+    "id": "zipper-tiny-helper",
+    "name": "Zipper",
+    "fullName": "Zipper - Tiny Helper",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 1,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 50,
+    "rarity": "legendary",
+    "subtitle": "Tiny Helper",
+    "strength": 0,
+    "willpower": 4,
+    "lore": 1,
+    "flavorText": "\"Crikey! I've seen fellas who are twice the size with half the heart as that wee dodger!\"\n—Monterey Jack",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/50_25918e8d5753b0d94c9e6ea4e274e63dc2a608ff.jpg"
+  },
+  {
+    "id": "will-o-the-wisp-forest-spirit",
+    "name": "Will o' the Wisp",
+    "fullName": "Will o' the Wisp - Forest Spirit",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 1,
+    "inkable": true,
+    "traits": [
+      "Storyborn"
+    ],
+    "abilities": [],
+    "setId": "P3",
+    "number": 51,
+    "rarity": "legendary",
+    "subtitle": "Forest Spirit",
+    "strength": 0,
+    "willpower": 3,
+    "lore": 1,
+    "rulesText": "COME ON OUT When this character is banished in a challenge, you may return this card to your hand.",
+    "flavorText": "They always come back when you need them.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/51_d31c2290b59c4176c32bebe112818c333c0b0cc8.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "COME ON OUT",
+        "rulesText": "When this character is banished in a challenge, you may return this card to your hand.",
+        "raw": "COME ON OUT When this character is banished in a challenge, you may return this card to your hand."
+      }
+    ]
+  },
+  {
+    "id": "dash-parr-lava-runner",
+    "name": "Dash Parr",
+    "fullName": "Dash Parr - Lava Runner",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 4,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Super",
+      "Hero"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "rush"
+      }
+    ],
+    "setId": "P3",
+    "number": 52,
+    "rarity": "legendary",
+    "subtitle": "Lava Runner",
+    "strength": 3,
+    "willpower": 2,
+    "lore": 2,
+    "rulesText": "<Rush> (This character can challenge the turn they’re played.)\nRECORD TIME This character can quest the turn he’s played.",
+    "flavorText": "\"Whoa! A hidden place inside the mountain!\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/52_8c643121edecbf4e72a5377825a43f5a5c075d03.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "RECORD TIME",
+        "rulesText": "This character can quest the turn he’s played.",
+        "raw": "RECORD TIME This character can quest the turn he’s played."
+      }
+    ]
+  },
+  {
+    "id": "woody-jungle-guide",
+    "name": "Woody",
+    "fullName": "Woody - Jungle Guide",
+    "cardType": "character",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 5,
+    "inkable": false,
+    "traits": [
+      "Floodborn",
+      "Hero",
+      "Toy"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      }
+    ],
+    "setId": "P3",
+    "number": 53,
+    "rarity": "legendary",
+    "subtitle": "Jungle Guide",
+    "strength": 1,
+    "willpower": 5,
+    "lore": 2,
+    "shiftCost": 3,
+    "rulesText": "<Shift> 3 {I} (You may pay 3 {I} to play this on top of one of your characters named Woody.)\nLET’S GET MOVIN’ Whenever this character quests, draw a card. Then, you may play a character with cost 2 or less for free.\nEVERYONE GATHER ’ROUND Your other Toy characters get +1 {W}.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/53_301e230ec96738fce24e0c4c72986b30502459ae.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "LET'S GET MOVIN'",
+        "rulesText": "Whenever this character quests, draw a card. Then, you may play a character with cost 2 or less for free.",
+        "raw": "LET’S GET MOVIN’ Whenever this character quests, draw a card. Then, you may play a character with cost 2 or less for free."
+      },
+      {
+        "storyName": "EVERYONE GATHER 'ROUND",
+        "rulesText": "Your other Toy characters get +1 {W}.",
+        "raw": "EVERYONE GATHER ’ROUND Your other Toy characters get +1 {W}."
+      }
+    ]
+  },
+  {
+    "id": "woody-jungle-guide",
+    "name": "Woody",
+    "fullName": "Woody - Jungle Guide",
+    "cardType": "character",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 5,
+    "inkable": false,
+    "traits": [
+      "Floodborn",
+      "Hero",
+      "Toy"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      }
+    ],
+    "setId": "P3",
+    "number": 54,
+    "rarity": "enchanted",
+    "subtitle": "Jungle Guide",
+    "strength": 1,
+    "willpower": 5,
+    "lore": 2,
+    "shiftCost": 3,
+    "rulesText": "<Shift> 3 {I} (You may pay 3 {I} to play this on top of one of your characters named Woody.)\nLET’S GET MOVIN’ Whenever this character quests, draw a card. Then, you may play a character with cost 2 or less for free.\nEVERYONE GATHER ’ROUND Your other Toy characters get +1 {W}.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/54_d8007304d2a82dcd8358f6245131b7bca40627d1.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "LET'S GET MOVIN'",
+        "rulesText": "Whenever this character quests, draw a card. Then, you may play a character with cost 2 or less for free.",
+        "raw": "LET’S GET MOVIN’ Whenever this character quests, draw a card. Then, you may play a character with cost 2 or less for free."
+      },
+      {
+        "storyName": "EVERYONE GATHER 'ROUND",
+        "rulesText": "Your other Toy characters get +1 {W}.",
+        "raw": "EVERYONE GATHER ’ROUND Your other Toy characters get +1 {W}."
+      }
+    ]
+  },
+  {
+    "id": "violet-parr-learning-new-powers",
+    "name": "Violet Parr",
+    "fullName": "Violet Parr - Learning New Powers",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Super",
+      "Hero"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      }
+    ],
+    "setId": "P3",
+    "number": 55,
+    "rarity": "legendary",
+    "subtitle": "Learning New Powers",
+    "strength": 4,
+    "willpower": 2,
+    "lore": 1,
+    "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nDEFLECT When you play this character, you may move 1 damage from chosen character to chosen opposing character.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/55_b919507ec7ad9be0c57e25013ad020151de4d33d.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "DEFLECT",
+        "rulesText": "When you play this character, you may move 1 damage from chosen character to chosen opposing character.",
+        "raw": "DEFLECT When you play this character, you may move 1 damage from chosen character to chosen opposing character."
       }
     ]
   }

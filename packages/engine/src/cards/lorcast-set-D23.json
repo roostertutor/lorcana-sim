@@ -21,13 +21,14 @@
     ],
     "setId": "D23",
     "number": 1,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Brave Little Tailor",
     "strength": 5,
     "willpower": 5,
     "lore": 4,
-    "flavorText": "When defeat looms and victory hangs by a thread, a hero bolts to the rescue, patching things up with sheer determination.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a0a1e1bb99794f04991929ced6001ae8.avif?1723596439"
+    "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)",
+    "flavorText": "When defeat looms and victory hangs by a thread, a hero bolts to the rescue, patching things up through shear determination.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/1_1217b22b5c937088bfd49a72c7c226af713e557f.jpg"
   },
   {
     "id": "cinderella-stouthearted",
@@ -48,13 +49,13 @@
     "abilities": [
       {
         "type": "keyword",
-        "keyword": "resist",
-        "value": 2
+        "keyword": "shift",
+        "value": 5
       },
       {
         "type": "keyword",
-        "keyword": "shift",
-        "value": 5
+        "keyword": "resist",
+        "value": 2
       },
       {
         "type": "triggered",
@@ -82,19 +83,19 @@
     ],
     "setId": "D23",
     "number": 2,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Stouthearted",
     "strength": 5,
     "willpower": 5,
     "lore": 3,
     "shiftCost": 5,
-    "rulesText": "THE SINGING SWORD Whenever you play a song, this character can challenge ready characters this turn.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_8de3ae21bca6455bb44da9803af19ea8.avif?1723596597",
+    "rulesText": "<Shift> 5 (You may pay 5 {I} to play this on top of one of your characters named Cinderella.)\n<Resist> +2 (Damage dealt to this character is reduced by 2.)\nTHE SINGING SWORD Whenever you play a song, this character may challenge ready characters this turn.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/2_49322180ef220a80b7cc871933665f8869559f93.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "THE SINGING SWORD",
-        "rulesText": "Whenever you play a song, this character can challenge ready characters this turn.",
-        "raw": "THE SINGING SWORD Whenever you play a song, this character can challenge ready characters this turn."
+        "rulesText": "Whenever you play a song, this character may challenge ready characters this turn.",
+        "raw": "THE SINGING SWORD Whenever you play a song, this character may challenge ready characters this turn."
       }
     ]
   },
@@ -147,18 +148,18 @@
     ],
     "setId": "D23",
     "number": 3,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Deceiver",
     "strength": 1,
     "willpower": 3,
     "lore": 1,
-    "rulesText": "YOU'LL NEVER EVEN MISS IT When you play this card, chosen opponent reveals their hand and discards a song card of your choice.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e18e96745a00405d8e927f8d4c75dc72.avif?1723596646",
+    "rulesText": "YOU’LL NEVER EVEN MISS IT When you play this character, chosen opponent reveals their hand and discards a song card of your choice.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/3_569cc7920299a66496b9db5894b5e1f8ab3ffa5f.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "YOU'LL NEVER EVEN MISS IT",
-        "rulesText": "When you play this card, chosen opponent reveals their hand and discards a song card of your choice.",
-        "raw": "YOU'LL NEVER EVEN MISS IT When you play this card, chosen opponent reveals their hand and discards a song card of your choice."
+        "rulesText": "When you play this character, chosen opponent reveals their hand and discards a song card of your choice.",
+        "raw": "YOU’LL NEVER EVEN MISS IT When you play this character, chosen opponent reveals their hand and discards a song card of your choice."
       }
     ]
   },
@@ -204,25 +205,25 @@
     ],
     "setId": "D23",
     "number": 4,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Undetected Uncle",
     "strength": 3,
     "willpower": 3,
     "lore": 1,
-    "rulesText": "YOU JUST HAVE TO SEE IT {E} – Name a card, then reveal the top card of your deck. If it’s the named card, put that card into your hand and gain 3 lore. Otherwise, put it on the top of your deck.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_8d986fbd95984691b7fe1a27a5e110bc.avif?1723596697",
+    "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nYOU JUST HAVE TO SEE IT {E} — Name a card, then reveal the top card of your deck. If it’s the named card, put that card into your hand and gain 3 lore. Otherwise, put it on the top of your deck.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/4_830c56df482cafcb991b97b1cca0f4d0f95d0ab7.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "YOU JUST HAVE TO SEE IT",
-        "rulesText": "Name a card, then reveal the top card of your deck. If it’s the named card, put that card into your hand and gain 3 lore. Otherwise, put it on the top of your deck.",
-        "raw": "YOU JUST HAVE TO SEE IT {E} – Name a card, then reveal the top card of your deck. If it’s the named card, put that card into your hand and gain 3 lore. Otherwise, put it on the top of your deck."
+        "rulesText": "{E} — Name a card, then reveal the top card of your deck. If it’s the named card, put that card into your hand and gain 3 lore. Otherwise, put it on the top of your deck.",
+        "raw": "YOU JUST HAVE TO SEE IT {E} — Name a card, then reveal the top card of your deck. If it’s the named card, put that card into your hand and gain 3 lore. Otherwise, put it on the top of your deck."
       }
     ]
   },
   {
     "id": "vanellope-von-schweetz-sugar-rush-princess",
-    "name": "Vanellope Von Schweetz",
-    "fullName": "Vanellope Von Schweetz - Sugar Rush Princess",
+    "name": "Vanellope von Schweetz",
+    "fullName": "Vanellope von Schweetz - Sugar Rush Princess",
     "cardType": "character",
     "inkColors": [
       "amber"
@@ -278,14 +279,14 @@
     ],
     "setId": "D23",
     "number": 5,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Sugar Rush Princess",
     "strength": 2,
     "willpower": 4,
     "lore": 2,
     "shiftCost": 2,
-    "rulesText": "I HEREBY DECREE Whenever you play another Princess character, all opposing characters get -1 {S} until the start of your next turn.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b2e4820cbbda4610b54f3e9c00fa4576.avif?1723596756",
+    "rulesText": "<Shift> 2 (You may pay 2 {I} to play this on top of one of your characters named Vanellope von Schweetz.)\nI HEREBY DECREE Whenever you play another Princess character, all opposing characters get -1 {S} until the start of your next turn.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/5_42d60880b0036846dc41452794caeee2849c1915.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "I HEREBY DECREE",
@@ -344,18 +345,18 @@
     ],
     "setId": "D23",
     "number": 6,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "The Lucky Rabbit",
     "strength": 2,
     "willpower": 1,
     "lore": 2,
-    "rulesText": "FAVORABLE CHANCE During your turn, whenever a card is put into your inkwell, you may reveal the top card of your deck. If it's an item card, you may play that item for free and they enter play exerted. Otherwise, put it on the bottom of your deck.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_9093f79568f941ccaf0f4708a1b74133.avif?1724349802",
+    "rulesText": "FAVORABLE CHANCE During your turn, whenever a card is put into your inkwell, reveal the top card of your deck. If it’s an item card you may play it for free, exerted. Otherwise, put it on the bottom of your deck.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/6_f8c77d582d04d29a2891cc2c2609f3347d197e78.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FAVORABLE CHANCE",
-        "rulesText": "During your turn, whenever a card is put into your inkwell, you may reveal the top card of your deck. If it's an item card, you may play that item for free and they enter play exerted. Otherwise, put it on the bottom of your deck.",
-        "raw": "FAVORABLE CHANCE During your turn, whenever a card is put into your inkwell, you may reveal the top card of your deck. If it's an item card, you may play that item for free and they enter play exerted. Otherwise, put it on the bottom of your deck."
+        "rulesText": "During your turn, whenever a card is put into your inkwell, reveal the top card of your deck. If it’s an item card you may play it for free, exerted. Otherwise, put it on the bottom of your deck.",
+        "raw": "FAVORABLE CHANCE During your turn, whenever a card is put into your inkwell, reveal the top card of your deck. If it’s an item card you may play it for free, exerted. Otherwise, put it on the bottom of your deck."
       }
     ]
   },
@@ -377,13 +378,13 @@
     "abilities": [
       {
         "type": "keyword",
-        "keyword": "resist",
-        "value": 1
+        "keyword": "shift",
+        "value": 3
       },
       {
         "type": "keyword",
-        "keyword": "shift",
-        "value": 3
+        "keyword": "resist",
+        "value": 1
       },
       {
         "type": "triggered",
@@ -423,14 +424,14 @@
     ],
     "setId": "D23",
     "number": 7,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Playful Sorcerer",
     "strength": 3,
     "willpower": 4,
     "lore": 2,
     "shiftCost": 3,
-    "rulesText": "SWEEP AWAY When you play this character, deal damage to chosen character equal to the number of Broom characters you have in play.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_db6db54405ff449ba819ed521fae7df0.avif?1774402593",
+    "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Mickey Mouse.)\n<Resist> +1 (Damage dealt to this character is reduced by 1.)\nSWEEP AWAY When you play this character, deal damage to chosen character equal to the number of Broom characters you have in play.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/7_d0fae8f0caf6fd33b168a61b95d51e2fb15d584d.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SWEEP AWAY",
@@ -482,19 +483,19 @@
     ],
     "setId": "D23",
     "number": 8,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Out of Reach",
     "strength": 3,
     "willpower": 3,
     "lore": 2,
-    "rulesText": "SELF-PRESERVATION While you have another exerted character in play, this character can't be challenged.",
-    "flavorText": "\"Nice try, chumps! Too bad I'm all the way up here!\"",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a2a3f642e4704e159e4e65233aacc2fb.avif?1774402627",
+    "rulesText": "SELF-PRESERVATION While you have another exerted character in play, this character can’t be challenged.",
+    "flavorText": "“Nice try, chumps! Too bad I’m all the way up here!”",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/8_4480c6738df12918c25fccbbedad4215fc19cbf2.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SELF-PRESERVATION",
-        "rulesText": "While you have another exerted character in play, this character can't be challenged.",
-        "raw": "SELF-PRESERVATION While you have another exerted character in play, this character can't be challenged."
+        "rulesText": "While you have another exerted character in play, this character can’t be challenged.",
+        "raw": "SELF-PRESERVATION While you have another exerted character in play, this character can’t be challenged."
       }
     ]
   },
@@ -541,14 +542,14 @@
     ],
     "setId": "D23",
     "number": 16,
-    "rarity": "common",
+    "rarity": "legendary",
     "subtitle": "Unruly Eccentric",
     "strength": 3,
     "willpower": 5,
     "lore": 2,
     "rulesText": "UNBIRTHDAY PRESENT Whenever a damaged character challenges another character, you may draw a card.",
     "flavorText": "\"Don't you care for tea?\"",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_b01c656daf06443fb63d76d9df3ff108.avif?1774402653",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/16_05961dfd4070633ba8808b9827727eca4c8aca32.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "UNBIRTHDAY PRESENT",

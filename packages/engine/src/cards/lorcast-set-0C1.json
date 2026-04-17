@@ -1,0 +1,259 @@
+[
+  {
+    "id": "dragon-fire",
+    "name": "Dragon Fire",
+    "fullName": "Dragon Fire",
+    "cardType": "action",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 5,
+    "inkable": false,
+    "traits": [],
+    "abilities": [],
+    "setId": "C1",
+    "number": 1,
+    "rarity": "legendary",
+    "rulesText": "Banish chosen character.",
+    "flavorText": "Rare is the hero who can withstand a dragon’s wrath.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/1_d936dc1f2c9f0cae641dbb5584bfb0288a103641.jpg"
+  },
+  {
+    "id": "let-it-go",
+    "name": "Let It Go",
+    "fullName": "Let It Go",
+    "cardType": "action",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Song"
+    ],
+    "abilities": [],
+    "setId": "C1",
+    "number": 2,
+    "rarity": "legendary",
+    "rulesText": "(A character with cost 5 or more can {E} to sing this song for free.)\nPut chosen character into their player’s inkwell facedown and exerted.",
+    "flavorText": "It’s time to see what I can do\nTo test the limits and break through",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/2_e2146eb707e1996e2ae87ecd5ce44a7edcc61a0b.jpg"
+  },
+  {
+    "id": "cinderella-stouthearted",
+    "name": "Cinderella",
+    "fullName": "Cinderella - Stouthearted",
+    "cardType": "character",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 7,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Hero",
+      "Princess",
+      "Knight"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 5
+      },
+      {
+        "type": "keyword",
+        "keyword": "resist",
+        "value": 2
+      }
+    ],
+    "setId": "C1",
+    "number": 3,
+    "rarity": "legendary",
+    "subtitle": "Stouthearted",
+    "strength": 5,
+    "willpower": 5,
+    "lore": 3,
+    "shiftCost": 5,
+    "rulesText": "<Shift> 5 (You may pay 5 {I} to play this on top of one of your characters named Cinderella.)\n<Resist> +2 (Damage dealt to this character is reduced by 2.)\nTHE SINGING SWORD Whenever you play a song, this character may challenge ready characters this turn.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/3_7cfc69a3eefd2016514e90f05c0f64fd17b549fb.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "THE SINGING SWORD",
+        "rulesText": "Whenever you play a song, this character may challenge ready characters this turn.",
+        "raw": "THE SINGING SWORD Whenever you play a song, this character may challenge ready characters this turn."
+      }
+    ]
+  },
+  {
+    "id": "rapunzel-gifted-with-healing",
+    "name": "Rapunzel",
+    "fullName": "Rapunzel - Gifted with Healing",
+    "cardType": "character",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero",
+      "Princess"
+    ],
+    "abilities": [],
+    "setId": "C1",
+    "number": 4,
+    "rarity": "legendary",
+    "subtitle": "Gifted with Healing",
+    "strength": 1,
+    "willpower": 5,
+    "lore": 2,
+    "rulesText": "GLEAM AND GLOW When you play this character, remove up to 3 damage from one of your characters. Draw a card for each 1 damage removed this way.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/4_13f6e83bc0dc15ba0eb9788650ddce23f3df3fd6.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "GLEAM AND GLOW",
+        "rulesText": "When you play this character, remove up to 3 damage from one of your characters. Draw a card for each 1 damage removed this way.",
+        "raw": "GLEAM AND GLOW When you play this character, remove up to 3 damage from one of your characters. Draw a card for each 1 damage removed this way."
+      }
+    ]
+  },
+  {
+    "id": "invited-to-the-ball",
+    "name": "Invited to the Ball",
+    "fullName": "Invited to the Ball",
+    "cardType": "action",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 2,
+    "inkable": false,
+    "traits": [],
+    "abilities": [],
+    "setId": "C1",
+    "number": 6,
+    "rarity": "legendary",
+    "rulesText": "Reveal the top 2 cards of your deck. Put revealed character cards into your hand. Put the rest on the bottom of your deck in any order.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/6_1b3b18a1144fa7c89505abdc0538fecdf227e291.jpg"
+  },
+  {
+    "id": "elsas-ice-palace-place-of-solitude",
+    "name": "Elsa's Ice Palace",
+    "fullName": "Elsa's Ice Palace - Place of Solitude",
+    "cardType": "location",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 3,
+    "inkable": false,
+    "traits": [],
+    "abilities": [],
+    "setId": "C1",
+    "number": 7,
+    "rarity": "legendary",
+    "subtitle": "Place of Solitude",
+    "willpower": 4,
+    "lore": 1,
+    "moveCost": 1,
+    "rulesText": "ETERNAL WINTER When you play this location, choose an exerted character. While this location is in play, that character can’t ready at the start of their turn.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/7_3324f1eaf672e4cfd71506a956b5098fea2364e4.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "ETERNAL WINTER",
+        "rulesText": "When you play this location, choose an exerted character. While this location is in play, that character can’t ready at the start of their turn.",
+        "raw": "ETERNAL WINTER When you play this location, choose an exerted character. While this location is in play, that character can’t ready at the start of their turn."
+      }
+    ]
+  },
+  {
+    "id": "kuzco-temperamental-emperor",
+    "name": "Kuzco",
+    "fullName": "Kuzco - Temperamental Emperor",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 5,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "King"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "ward"
+      }
+    ],
+    "setId": "C1",
+    "number": 8,
+    "rarity": "legendary",
+    "subtitle": "Temperamental Emperor",
+    "strength": 2,
+    "willpower": 4,
+    "lore": 3,
+    "rulesText": "<Ward> (Opponents can’t choose this character except to challenge.)\nNO TOUCHY! When this character is challenged and banished, you may banish the challenging character.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/8_ed492b373e5a8049ce3dc162683fc52b879dbc66.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "NO TOUCHY!",
+        "rulesText": "When this character is challenged and banished, you may banish the challenging character.",
+        "raw": "NO TOUCHY! When this character is challenged and banished, you may banish the challenging character."
+      }
+    ]
+  },
+  {
+    "id": "baymax-armored-companion",
+    "name": "Baymax",
+    "fullName": "Baymax - Armored Companion",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero",
+      "Robot"
+    ],
+    "abilities": [],
+    "setId": "C1",
+    "number": 9,
+    "rarity": "legendary",
+    "subtitle": "Armored Companion",
+    "strength": 2,
+    "willpower": 6,
+    "lore": 2,
+    "rulesText": "THE TREATMENT IS WORKING When you play this character and whenever he quests, you may remove up to 2 damage from another chosen character of yours. Gain 1 lore for each 1 damage removed this way.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/9_19cd83a819704f909a297aeb743e75423af34ce9.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "THE TREATMENT IS WORKING",
+        "rulesText": "When you play this character and whenever he quests, you may remove up to 2 damage from another chosen character of yours. Gain 1 lore for each 1 damage removed this way.",
+        "raw": "THE TREATMENT IS WORKING When you play this character and whenever he quests, you may remove up to 2 damage from another chosen character of yours. Gain 1 lore for each 1 damage removed this way."
+      }
+    ]
+  },
+  {
+    "id": "a-whole-new-world",
+    "name": "A Whole New World",
+    "fullName": "A Whole New World",
+    "cardType": "action",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 5,
+    "inkable": false,
+    "traits": [
+      "Song"
+    ],
+    "abilities": [],
+    "setId": "C1",
+    "number": 10,
+    "rarity": "legendary",
+    "rulesText": "(A character with cost 5 or more can {E} to sing this song for free.)\nEach player discards their hand and draws 7 cards.",
+    "flavorText": "Shining, shimmering, splendid . . .",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/10_d170b8d9f5f552ad50fbe13a57d5e0f99e7506a6.jpg"
+  }
+]

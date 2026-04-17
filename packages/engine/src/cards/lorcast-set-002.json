@@ -114,75 +114,6 @@
     ]
   },
   {
-    "id": "cinderella-stouthearted",
-    "name": "Cinderella",
-    "fullName": "Cinderella - Stouthearted",
-    "cardType": "character",
-    "inkColors": [
-      "steel"
-    ],
-    "cost": 7,
-    "inkable": true,
-    "traits": [
-      "Floodborn",
-      "Hero",
-      "Princess",
-      "Knight"
-    ],
-    "abilities": [
-      {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 5
-      },
-      {
-        "type": "keyword",
-        "keyword": "resist",
-        "value": 2
-      },
-      {
-        "type": "triggered",
-        "storyName": "THE SINGING SWORD",
-        "rulesText": "Whenever you play a song, this character may challenge ready characters this turn.",
-        "trigger": {
-          "on": "card_played",
-          "filter": {
-            "owner": {
-              "type": "self"
-            },
-            "hasTrait": "Song"
-          }
-        },
-        "effects": [
-          {
-            "type": "grant_challenge_ready",
-            "target": {
-              "type": "this"
-            },
-            "duration": "this_turn"
-          }
-        ]
-      }
-    ],
-    "setId": "2",
-    "number": 2,
-    "rarity": "legendary",
-    "subtitle": "Stouthearted",
-    "strength": 5,
-    "willpower": 5,
-    "lore": 3,
-    "shiftCost": 5,
-    "rulesText": "<Shift> 5 (You may pay 5 {I} to play this on top of one of your characters named Cinderella.)\n<Resist> +2 (Damage dealt to this character is reduced by 2.)\nTHE SINGING SWORD Whenever you play a song, this character may challenge ready characters this turn.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/2_49322180ef220a80b7cc871933665f8869559f93.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "THE SINGING SWORD",
-        "rulesText": "Whenever you play a song, this character may challenge ready characters this turn.",
-        "raw": "THE SINGING SWORD Whenever you play a song, this character may challenge ready characters this turn."
-      }
-    ]
-  },
-  {
     "id": "cinderella-ballroom-sensation",
     "name": "Cinderella",
     "fullName": "Cinderella - Ballroom Sensation",
@@ -214,75 +145,6 @@
     "rulesText": "<Singer> 3 (This character counts as cost 3 to sing songs.)",
     "flavorText": "With a magical dress and a song in her heart, she dazzled everyone at the ball.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set2/3_847c6511e7bac6c4ee42f0bbd7d5ca249a98fe9b.jpg"
-  },
-  {
-    "id": "cinderella-stouthearted",
-    "name": "Cinderella",
-    "fullName": "Cinderella - Stouthearted",
-    "cardType": "character",
-    "inkColors": [
-      "steel"
-    ],
-    "cost": 7,
-    "inkable": true,
-    "traits": [
-      "Floodborn",
-      "Hero",
-      "Princess",
-      "Knight"
-    ],
-    "abilities": [
-      {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 5
-      },
-      {
-        "type": "keyword",
-        "keyword": "resist",
-        "value": 2
-      },
-      {
-        "type": "triggered",
-        "storyName": "THE SINGING SWORD",
-        "rulesText": "Whenever you play a song, this character may challenge ready characters this turn.",
-        "trigger": {
-          "on": "card_played",
-          "filter": {
-            "owner": {
-              "type": "self"
-            },
-            "hasTrait": "Song"
-          }
-        },
-        "effects": [
-          {
-            "type": "grant_challenge_ready",
-            "target": {
-              "type": "this"
-            },
-            "duration": "this_turn"
-          }
-        ]
-      }
-    ],
-    "setId": "2",
-    "number": 3,
-    "rarity": "legendary",
-    "subtitle": "Stouthearted",
-    "strength": 5,
-    "willpower": 5,
-    "lore": 3,
-    "shiftCost": 5,
-    "rulesText": "<Shift> 5 (You may pay 5 {I} to play this on top of one of your characters named Cinderella.)\n<Resist> +2 (Damage dealt to this character is reduced by 2.)\nTHE SINGING SWORD Whenever you play a song, this character may challenge ready characters this turn.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/3_7cfc69a3eefd2016514e90f05c0f64fd17b549fb.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "THE SINGING SWORD",
-        "rulesText": "Whenever you play a song, this character may challenge ready characters this turn.",
-        "raw": "THE SINGING SWORD Whenever you play a song, this character may challenge ready characters this turn."
-      }
-    ]
   },
   {
     "id": "cobra-bubbles-just-a-social-worker",
@@ -809,74 +671,6 @@
     ]
   },
   {
-    "id": "cinderella-knight-in-training",
-    "name": "Cinderella",
-    "fullName": "Cinderella - Knight in Training",
-    "cardType": "character",
-    "inkColors": [
-      "steel"
-    ],
-    "cost": 2,
-    "inkable": true,
-    "traits": [
-      "Dreamborn",
-      "Hero",
-      "Princess",
-      "Knight"
-    ],
-    "abilities": [
-      {
-        "type": "triggered",
-        "storyName": "HAVE COURAGE",
-        "rulesText": "When you play this character, you may draw a card, then choose and discard a card.",
-        "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "sequential",
-            "isMay": true,
-            "costEffects": [],
-            "rewardEffects": [
-              {
-                "type": "draw",
-                "amount": 1,
-                "target": {
-                  "type": "self"
-                }
-              },
-              {
-                "type": "discard_from_hand",
-                "amount": 1,
-                "target": {
-                  "type": "self"
-                },
-                "chooser": "target_player"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "setId": "2",
-    "number": 14,
-    "rarity": "legendary",
-    "subtitle": "Knight in Training",
-    "strength": 2,
-    "willpower": 2,
-    "lore": 1,
-    "rulesText": "HAVE COURAGE When you play this character, you may draw a card, then choose and discard a card.",
-    "flavorText": "She's always had the heart of a champion—now she'll have the skills, too.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/14_75cabfaf0ea5d238315cbe47f22a90ae8ca7becc.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "HAVE COURAGE",
-        "rulesText": "When you play this character, you may draw a card, then choose and discard a card.",
-        "raw": "HAVE COURAGE When you play this character, you may draw a card, then choose and discard a card."
-      }
-    ]
-  },
-  {
     "id": "mulan-free-spirit",
     "name": "Mulan",
     "fullName": "Mulan - Free Spirit",
@@ -907,75 +701,6 @@
     "rulesText": "<Support> (Whenever this character quests, you may add their {S} to another chosen character’s {S} this turn.)",
     "flavorText": "Everything looks better when you’re free to be yourself.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set2/15_89dd8994653f97f0b4be02f5b65b47c38259c01d.jpg"
-  },
-  {
-    "id": "bucky-squirrel-squeak-tutor",
-    "name": "Bucky",
-    "fullName": "Bucky - Squirrel Squeak Tutor",
-    "cardType": "character",
-    "inkColors": [
-      "emerald"
-    ],
-    "cost": 3,
-    "inkable": true,
-    "traits": [
-      "Storyborn",
-      "Ally"
-    ],
-    "abilities": [
-      {
-        "type": "triggered",
-        "storyName": "SQUEAK",
-        "rulesText": "Whenever you play a Floodborn character, if you used Shift to play them, each opponent chooses and discards a card.",
-        "trigger": {
-          "on": "card_played",
-          "filter": {
-            "cardType": [
-              "character"
-            ],
-            "hasTrait": "Floodborn",
-            "owner": {
-              "type": "self"
-            }
-          }
-        },
-        "condition": {
-          "type": "triggering_card_played_via_shift"
-        },
-        "effects": [
-          {
-            "type": "each_player",
-            "scope": "opponents",
-            "effects": [
-              {
-                "type": "discard_from_hand",
-                "amount": 1,
-                "target": {
-                  "type": "self"
-                }
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "setId": "2",
-    "number": 15,
-    "rarity": "legendary",
-    "subtitle": "Squirrel Squeak Tutor",
-    "strength": 1,
-    "willpower": 1,
-    "lore": 1,
-    "rulesText": "SQUEAK Whenever you play a Floodborn character, each opponent chooses and discards a card.",
-    "flavorText": "“There’s a lot of nuance to squirrel.”\n—Kronk",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/15_e2ea8cfa4607bf59aed9f6ed7c40e640f659deaa.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "SQUEAK",
-        "rulesText": "Whenever you play a Floodborn character, each opponent chooses and discards a card.",
-        "raw": "SQUEAK Whenever you play a Floodborn character, each opponent chooses and discards a card."
-      }
-    ]
   },
   {
     "id": "mulan-reflecting",
@@ -1041,84 +766,6 @@
         "storyName": "HONOR TO THE ANCESTORS",
         "rulesText": "Whenever this character quests, you may reveal the top card of your deck. If it’s a song card, you may play it for free. Otherwise, put it on the top of your deck.",
         "raw": "HONOR TO THE ANCESTORS Whenever this character quests, you may reveal the top card of your deck. If it’s a song card, you may play it for free. Otherwise, put it on the top of your deck."
-      }
-    ]
-  },
-  {
-    "id": "minnie-mouse-wide-eyed-diver",
-    "name": "Minnie Mouse",
-    "fullName": "Minnie Mouse - Wide-Eyed Diver",
-    "cardType": "character",
-    "inkColors": [
-      "ruby"
-    ],
-    "cost": 4,
-    "inkable": true,
-    "traits": [
-      "Floodborn",
-      "Hero"
-    ],
-    "abilities": [
-      {
-        "type": "keyword",
-        "keyword": "evasive"
-      },
-      {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 2
-      },
-      {
-        "type": "triggered",
-        "storyName": "UNDERSEA ADVENTURE",
-        "rulesText": "Whenever you play a second action in a turn, this character gets +2 lore this turn.",
-        "trigger": {
-          "on": "card_played",
-          "filter": {
-            "cardType": [
-              "action"
-            ],
-            "owner": {
-              "type": "self"
-            }
-          }
-        },
-        "condition": {
-          "type": "played_this_turn",
-          "amount": 2,
-          "filter": {
-            "cardType": [
-              "action"
-            ]
-          }
-        },
-        "effects": [
-          {
-            "type": "gain_stats",
-            "lore": 2,
-            "target": {
-              "type": "this"
-            },
-            "duration": "this_turn"
-          }
-        ]
-      }
-    ],
-    "setId": "2",
-    "number": 16,
-    "rarity": "legendary",
-    "subtitle": "Wide-Eyed Diver",
-    "strength": 2,
-    "willpower": 3,
-    "lore": 1,
-    "shiftCost": 2,
-    "rulesText": "<Shift> 2 (You may pay 2 {I} to play this on top of one of your characters named Minnie Mouse.)\n<Evasive> (Only characters with Evasive can challenge this character.)\nUNDERSEA ADVENTURE Whenever you play a second action in a turn, this character gets +2 {L} this turn.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/16_cc712e95716400617a57e2740b9bcd0a760403c5.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "UNDERSEA ADVENTURE",
-        "rulesText": "Whenever you play a second action in a turn, this character gets +2 {L} this turn.",
-        "raw": "UNDERSEA ADVENTURE Whenever you play a second action in a turn, this character gets +2 {L} this turn."
       }
     ]
   },
@@ -1189,65 +836,6 @@
     ]
   },
   {
-    "id": "robin-hood-capable-fighter",
-    "name": "Robin Hood",
-    "fullName": "Robin Hood - Capable Fighter",
-    "cardType": "character",
-    "inkColors": [
-      "steel"
-    ],
-    "cost": 2,
-    "inkable": false,
-    "traits": [
-      "Dreamborn",
-      "Hero"
-    ],
-    "abilities": [
-      {
-        "type": "activated",
-        "storyName": "SKIRMISH",
-        "rulesText": "Deal 1 damage to chosen character.",
-        "costs": [
-          {
-            "type": "exert"
-          }
-        ],
-        "effects": [
-          {
-            "type": "deal_damage",
-            "amount": 1,
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ]
-              }
-            }
-          }
-        ]
-      }
-    ],
-    "setId": "2",
-    "number": 17,
-    "rarity": "legendary",
-    "subtitle": "Capable Fighter",
-    "strength": 1,
-    "willpower": 3,
-    "lore": 1,
-    "rulesText": "SKIRMISH {E} — Deal 1 damage to chosen character.",
-    "flavorText": "“Capable? You don’t know the half of it.” \n—Little John",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/17_3124c499f9568a4f2b09f32c7bd60acbc70d7a12.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "SKIRMISH",
-        "rulesText": "{E} — Deal 1 damage to chosen character.",
-        "raw": "SKIRMISH {E} — Deal 1 damage to chosen character."
-      }
-    ]
-  },
-  {
     "id": "piglet-very-small-animal",
     "name": "Piglet",
     "fullName": "Piglet - Very Small Animal",
@@ -1271,59 +859,6 @@
     "lore": 2,
     "flavorText": "For a very small animal, he has an awfully big heart.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set2/18_b73dd2a611339891b044050ad20b0ddb7a3dc6b9.jpg"
-  },
-  {
-    "id": "mickey-mouse-friendly-face",
-    "name": "Mickey Mouse",
-    "fullName": "Mickey Mouse - Friendly Face",
-    "cardType": "character",
-    "inkColors": [
-      "amber"
-    ],
-    "cost": 6,
-    "inkable": true,
-    "traits": [
-      "Storyborn",
-      "Hero"
-    ],
-    "abilities": [
-      {
-        "type": "triggered",
-        "storyName": "GLAD YOU'RE HERE!",
-        "rulesText": "Whenever this character quests, you pay 3 {I} less for the next character you play this turn.",
-        "trigger": {
-          "on": "quests"
-        },
-        "effects": [
-          {
-            "type": "cost_reduction",
-            "amount": 3,
-            "filter": {
-              "cardType": [
-                "character"
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    "setId": "2",
-    "number": 18,
-    "rarity": "legendary",
-    "subtitle": "Friendly Face",
-    "strength": 1,
-    "willpower": 6,
-    "lore": 3,
-    "rulesText": "GLAD YOU’RE HERE! Whenever this character quests, you pay 3 {I} less for the next character you play this turn.",
-    "flavorText": "\"Come on in—there’s lots to explore.\"",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/18_bc51aa12988c8daef89c41a7c3f56c4f991fddd8.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "GLAD YOU'RE HERE!",
-        "rulesText": "Whenever this character quests, you pay 3 {I} less for the next character you play this turn.",
-        "raw": "GLAD YOU’RE HERE! Whenever this character quests, you pay 3 {I} less for the next character you play this turn."
-      }
-    ]
   },
   {
     "id": "rapunzel-gifted-artist",
@@ -1387,40 +922,6 @@
         "raw": "LET YOUR POWER SHINE Whenever you remove 1 or more damage from one of your characters, you may draw a card."
       }
     ]
-  },
-  {
-    "id": "elsa-gloves-off",
-    "name": "Elsa",
-    "fullName": "Elsa - Gloves Off",
-    "cardType": "character",
-    "inkColors": [
-      "amethyst"
-    ],
-    "cost": 4,
-    "inkable": true,
-    "traits": [
-      "Storyborn",
-      "Hero",
-      "Queen",
-      "Sorcerer"
-    ],
-    "abilities": [
-      {
-        "type": "keyword",
-        "keyword": "challenger",
-        "value": 3
-      }
-    ],
-    "setId": "2",
-    "number": 19,
-    "rarity": "legendary",
-    "subtitle": "Gloves Off",
-    "strength": 3,
-    "willpower": 4,
-    "lore": 1,
-    "rulesText": "<Challenger> +3 (While challenging, this character gets +3 {S}.)",
-    "flavorText": "The power of ice may not stop the flood, but it will help protect Lorcana.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/19_92c6e3115ddf99b66da6909af0daeb693413f991.jpg"
   },
   {
     "id": "rapunzel-sunshine",
@@ -2019,69 +1520,6 @@
     ]
   },
   {
-    "id": "rapunzel-gifted-artist",
-    "name": "Rapunzel",
-    "fullName": "Rapunzel - Gifted Artist",
-    "cardType": "character",
-    "inkColors": [
-      "amber"
-    ],
-    "cost": 5,
-    "inkable": true,
-    "traits": [
-      "Floodborn",
-      "Hero",
-      "Princess"
-    ],
-    "abilities": [
-      {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 3
-      },
-      {
-        "type": "triggered",
-        "storyName": "LET YOUR POWER SHINE",
-        "rulesText": "Whenever you remove 1 or more damage from one of your characters, you may draw a card.",
-        "trigger": {
-          "on": "damage_removed_from",
-          "filter": {
-            "owner": {
-              "type": "self"
-            }
-          }
-        },
-        "effects": [
-          {
-            "type": "draw",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            },
-            "isMay": true
-          }
-        ]
-      }
-    ],
-    "setId": "2",
-    "number": 31,
-    "rarity": "legendary",
-    "subtitle": "Gifted Artist",
-    "strength": 0,
-    "willpower": 6,
-    "lore": 2,
-    "shiftCost": 3,
-    "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Rapunzel.)\nLET YOUR POWER SHINE Whenever you remove 1 or more damage from one of your characters, you may draw a card.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/31_31c1941fc556f4677491fe9d0deadf356ec3ece9.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "LET YOUR POWER SHINE",
-        "rulesText": "Whenever you remove 1 or more damage from one of your characters, you may draw a card.",
-        "raw": "LET YOUR POWER SHINE Whenever you remove 1 or more damage from one of your characters, you may draw a card."
-      }
-    ]
-  },
-  {
     "id": "zero-to-hero",
     "name": "Zero to Hero",
     "fullName": "Zero to Hero",
@@ -2120,66 +1558,6 @@
             "character"
           ]
         }
-      }
-    ]
-  },
-  {
-    "id": "pinocchio-talkative-puppet",
-    "name": "Pinocchio",
-    "fullName": "Pinocchio - Talkative Puppet",
-    "cardType": "character",
-    "inkColors": [
-      "amethyst"
-    ],
-    "cost": 2,
-    "inkable": false,
-    "traits": [
-      "Storyborn",
-      "Hero"
-    ],
-    "abilities": [
-      {
-        "type": "triggered",
-        "storyName": "TELLING LIES",
-        "rulesText": "When you play this character, you may exert chosen opposing character.",
-        "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "exert",
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "opponent"
-                },
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ]
-              }
-            },
-            "isMay": true
-          }
-        ]
-      }
-    ],
-    "setId": "2",
-    "number": 32,
-    "rarity": "legendary",
-    "subtitle": "Talkative Puppet",
-    "strength": 1,
-    "willpower": 1,
-    "lore": 1,
-    "rulesText": "TELLING LIES When you play this character, you may exert chosen opposing character.",
-    "flavorText": "“A lie keeps growing and growing until it’s as plain as the nose on your face.” \n—Blue Fairy",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/32_7a7c94c82373cd69136c9127fbba1d148f4cc74c.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "TELLING LIES",
-        "rulesText": "When you play this character, you may exert chosen opposing character.",
-        "raw": "TELLING LIES When you play this character, you may exert chosen opposing character."
       }
     ]
   },
@@ -2237,46 +1615,6 @@
         "storyName": "BRING BACK TO LIFE",
         "rulesText": "{E}, 3 {I} — Return a character card with <Support> from your discard to your hand.",
         "raw": "BRING BACK TO LIFE {E}, 3 {I} — Return a character card with <Support> from your discard to your hand."
-      }
-    ]
-  },
-  {
-    "id": "four-dozen-eggs",
-    "name": "Four Dozen Eggs",
-    "fullName": "Four Dozen Eggs",
-    "cardType": "action",
-    "inkColors": [
-      "sapphire"
-    ],
-    "cost": 4,
-    "inkable": true,
-    "traits": [
-      "Song"
-    ],
-    "abilities": [],
-    "setId": "2",
-    "number": 33,
-    "rarity": "legendary",
-    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.) \nYour characters gain <Resist> +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/33_2c216c5c8e1cbc639e27a6527d7dbcdfc2405930.jpg",
-    "actionEffects": [
-      {
-        "type": "grant_keyword",
-        "keyword": "resist",
-        "value": 2,
-        "target": {
-          "type": "all",
-          "filter": {
-            "owner": {
-              "type": "self"
-            },
-            "zone": "play",
-            "cardType": [
-              "character"
-            ]
-          }
-        },
-        "duration": "until_caster_next_turn"
       }
     ]
   },
