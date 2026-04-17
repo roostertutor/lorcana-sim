@@ -688,8 +688,6 @@ export function evaluateCondition(
 ): boolean {
   const opponent = getOpponent(controllingPlayerId);
   switch (condition.type) {
-    case "you_have_lore_gte":
-      return state.players[controllingPlayerId].lore >= condition.amount;
     case "opponent_has_lore_gte":
       return state.players[opponent].lore >= condition.amount;
     case "cards_in_hand_gte": {
@@ -768,13 +766,6 @@ export function evaluateCondition(
       const inst = state.cards[sourceInstanceId];
       return !!inst && (inst.cardsPutUnderThisTurn ?? 0) > 0;
     }
-    case "you_put_card_under_this_turn": {
-      // Player-wide aggregate: any of controller's in-play cards has cardsPutUnderThisTurn > 0.
-      return getZone(state, controllingPlayerId, "play").some((id) => {
-        const inst = state.cards[id];
-        return !!inst && (inst.cardsPutUnderThisTurn ?? 0) > 0;
-      });
-    }
     case "no_challenges_this_turn": {
       return !state.players[controllingPlayerId].aCharacterChallengedThisTurn;
     }
@@ -829,16 +820,6 @@ export function evaluateCondition(
         return matchingCount >= condition.amount;
       }
       return zoneCards.length >= condition.amount;
-    }
-    case "card_has_trait": {
-      const inst = state.cards[sourceInstanceId];
-      const def = inst ? definitions[inst.definitionId] : undefined;
-      return def ? def.traits.includes(condition.trait) : false;
-    }
-    case "card_is_type": {
-      const inst = state.cards[sourceInstanceId];
-      const def = inst ? definitions[inst.definitionId] : undefined;
-      return def ? def.cardType === condition.cardType : false;
     }
     case "self_stat_gte": {
       const inst = state.cards[sourceInstanceId];

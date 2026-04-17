@@ -150,12 +150,6 @@ export interface GameModifiers {
   classificationShifters: Map<string, string>;
 
   /**
-   * "You may play this card from {zone}" (Lilo - Escape Artist Set 6 — discard).
-   * Key = instanceId, value = set of zones the card can be played from in addition to hand.
-   */
-  playableFromZones: Map<string, Set<import("../types/index.js").ZoneName>>;
-
-  /**
    * Per-player lore threshold overrides (CRD 1.8.1.1, Donald Duck Flustered Sorcerer).
    * Key = playerId, value = the modified threshold (e.g. 25). Absent = default 20.
    * If multiple statics target the same player, the highest value wins (most restrictive).
@@ -352,7 +346,6 @@ export function getGameModifiers(
     mimicryTargets: new Set(),
     universalShifters: new Set(),
     classificationShifters: new Map(),
-    playableFromZones: new Map(),
     loreThresholds: new Map(),
     skipsDrawStep: new Set(),
     canQuestTurnPlayed: new Set(),
@@ -853,17 +846,6 @@ export function getGameModifiers(
           if (current === undefined || effect.newThreshold > current) {
             modifiers.loreThresholds.set(affectedPlayerId, effect.newThreshold);
           }
-          break;
-        }
-
-        case "playable_from_zone_self": {
-          // Lilo - Escape Artist (Set 6): this card may be played from `effect.zone`.
-          let zones = modifiers.playableFromZones.get(instance.instanceId);
-          if (!zones) {
-            zones = new Set();
-            modifiers.playableFromZones.set(instance.instanceId, zones);
-          }
-          zones.add(effect.zone);
           break;
         }
 

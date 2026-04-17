@@ -125,15 +125,10 @@ function validatePlayCard(
 
   const instance = getInstance(state, instanceId);
   if (instance.ownerId !== playerId) return fail("You don't own this card.");
-  if (instance.zone !== "hand") {
-    // CRD 4.3.2: cards are normally played from hand. An ability may grant permission
-    // to play from another zone (Lilo - Escape Artist Set 6 — discard).
-    const zoneMods = getGameModifiers(state, definitions);
-    const allowedZones = zoneMods.playableFromZones.get(instanceId);
-    if (!allowedZones || !allowedZones.has(instance.zone)) {
-      return fail("Card is not in your hand.");
-    }
-  }
+  // CRD 4.3.2: player-initiated plays are from hand. Cards that play from
+  // other zones (Lilo Escape Artist from discard at turn start) do so via
+  // triggered `play_card` effects, which bypass this validator entirely.
+  if (instance.zone !== "hand") return fail("Card is not in your hand.");
 
   const def = getDefinition(state, instanceId, definitions);
 

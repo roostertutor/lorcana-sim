@@ -1615,7 +1615,6 @@ export type StaticEffect =
   | MimicryTargetSelfStatic
   | UniversalShiftSelfStatic
   | ClassificationShiftSelfStatic
-  | PlayableFromZoneSelfStatic
   | ModifyWinThresholdStatic
   | SkipDrawStepSelfStatic
   | CanQuestTurnPlayedStatic
@@ -2003,16 +2002,6 @@ export interface UniversalShiftSelfStatic {
 export interface ClassificationShiftSelfStatic {
   type: "classification_shift_self";
   trait: string;
-}
-
-/**
- * "You may play this card from {zone}" (Lilo - Escape Artist Set 6 — discard).
- * Lives on the source instance and is active in that zone — declare
- * activeZones: [zone] so validatePlayCard's zone check consults it.
- */
-export interface PlayableFromZoneSelfStatic {
-  type: "playable_from_zone_self";
-  zone: ZoneName;
 }
 
 /**
@@ -2480,11 +2469,8 @@ export type TriggerEvent =
 // -----------------------------------------------------------------------------
 
 export type Condition =
-  | { type: "you_have_lore_gte"; amount: number }
   | { type: "opponent_has_lore_gte"; amount: number }
   | { type: "cards_in_hand_gte"; amount: number; player: PlayerTarget }
-  | { type: "card_has_trait"; trait: string }
-  | { type: "card_is_type"; cardType: CardType }
   | { type: "characters_in_play_gte"; amount: number; player: PlayerTarget; excludeSelf?: boolean; hasName?: string }
   | { type: "cards_in_hand_eq"; amount: number; player: PlayerTarget }
   | { type: "has_character_named"; name: string; player: PlayerTarget }
@@ -2575,11 +2561,6 @@ export type Condition =
   /** Set 11 (Willie the Giant Ghost of Christmas Present): true when this
    *  source instance has had at least one card placed under it this turn. */
   | { type: "this_had_card_put_under_this_turn" }
-  /** Mulan Standing Her Ground FLOWING BLADE: "If you've put a card under
-   *  one of your characters or locations this turn". Player-wide aggregate —
-   *  true if ANY of the controller's in-play cards has cardsPutUnderThisTurn
-   *  > 0. Distinct from `this_had_card_put_under_this_turn` (per-instance). */
-  | { type: "you_put_card_under_this_turn" }
   /** Chicha Dedicated Mother (Set 5): "if it's the Nth card you've put into
    *  your inkwell this turn". True iff PlayerState.inkPlaysThisTurn equals N. */
   | { type: "ink_plays_this_turn_eq"; amount: number }

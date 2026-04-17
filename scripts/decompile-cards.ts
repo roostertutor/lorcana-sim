@@ -405,12 +405,6 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
   opponent_has_lore_gte: (c) => `if an opponent has ${c.amount ?? 0} or more lore`,
   opponent_has_more_than_self: (c) => `if an opponent has more ${c.metric ?? "cards"} than you`,
 
-  // "Whenever you put a card under..." — Mulan Standing Her Ground FLOWING BLADE
-  // (condition on a static effect, so it renders as "if ... this turn").
-  you_put_card_under_this_turn: () => "if you've put a card under one of your characters or locations this turn",
-
-  // "if you have lore at least N"
-  you_have_lore_gte: (c) => `if you have ${c.amount ?? 0} or more lore`,
 };
 
 function stripIfPrefix(s: string): string {
