@@ -1073,45 +1073,6 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     }),
   },
 
-  // ============= BANISH-SELF-TO SEQUENTIAL ==================================
-  // "you may banish this item/character to X" — sequential with banish cost
-  {
-    name: "banish_self_to_effects",
-    pattern: /^you may banish this (?:item|character) to (.+)/i,
-    build: (m) => {
-      const bodyEffects = parseEffectChain(m[1]);
-      if (bodyEffects && bodyEffects.json.length > 0) {
-        return {
-          type: "sequential",
-          isMay: true,
-          costEffects: [{ type: "banish", target: { type: "this" } }],
-          rewardEffects: bodyEffects.json,
-        };
-      }
-      return { type: "__unmatched__" };
-    },
-  },
-  // "you may banish another chosen character of yours. If you do, X" — sequential
-  {
-    name: "banish_chosen_if_you_do",
-    pattern: /^you may banish another chosen character of yours\. If you do, (.+)/i,
-    build: (m) => {
-      const rewardEffects = parseEffectChain(m[1]);
-      if (rewardEffects && rewardEffects.json.length > 0) {
-        return {
-          type: "sequential",
-          isMay: true,
-          costEffects: [{
-            type: "banish",
-            target: { type: "chosen", filter: { zone: "play", cardType: ["character"], owner: { type: "self" }, excludeSelf: true } },
-          }],
-          rewardEffects: rewardEffects.json,
-        };
-      }
-      return { type: "__unmatched__" };
-    },
-  },
-
   // ============= RETURN TO HAND =============================================
   {
     name: "return_this_card_may",
@@ -1448,49 +1409,6 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     }),
   },
 
-  // "you may put N character cards from your discard on the bottom of your deck
-  // to give this character Rush this turn" — Wrong Lever / Roller Bob pattern:
-  // flat sequential (put-to-bottom cost + grant-keyword reward).
-  {
-    name: "put_from_discard_to_bottom_then_grant",
-    pattern: /^(?:you may )?put (\d+) ([\w ]+?) cards? from your discard on the bottom of your deck to give this character (Rush|Evasive|Ward|Challenger|Resist|Support)(?: \+(\d+))? this turn/i,
-    build: (m) => ({
-      type: "sequential",
-      isMay: /^you may /i.test(m[0]) || undefined,
-      costEffects: [{
-        type: "put_card_on_bottom_of_deck",
-        from: "discard",
-        amount: parseInt(m[1], 10),
-        filter: parseSimpleFilter(m[2].trim()),
-      }],
-      rewardEffects: [{
-        type: "grant_keyword",
-        keyword: m[3].toLowerCase(),
-        target: { type: "this" },
-        duration: "end_of_turn",
-        ...(m[4] ? { value: parseInt(m[4], 10) } : {}),
-      }],
-    }),
-  },
-  // "You may put a X card from your discard on the bottom of your deck to play
-  // this character for free." — Hand-in-the-Box alt play cost pattern.
-  {
-    name: "put_from_discard_to_bottom_then_play_free",
-    pattern: /^You may put (?:a |an )([\w ]+?) card from your discard on the bottom of your deck to play this character for free/i,
-    build: (m) => ({
-      type: "sequential",
-      isMay: true,
-      costEffects: [{
-        type: "put_card_on_bottom_of_deck",
-        from: "discard",
-        amount: 1,
-        filter: parseSimpleFilter(m[1].trim()),
-      }],
-      rewardEffects: [{
-        type: "grant_play_for_free_self",
-      }],
-    }),
-  },
 
   // "Move a character of yours to a location for free" — move_character
   {
@@ -1529,7 +1447,59 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     }),
   },
 
+  // ============= BANISH THIS (as a standalone cost-effect for "A to B") =====
+  {
+    name: "banish_this_item_or_char",
+    pattern: /^banish this (?:item|character|location)/i,
+    build: () => ({ type: "banish", target: { type: "this" } }),
+  },
+  // "banish another chosen character of yours"
+  {
+    name: "banish_another_chosen_yours",
+    pattern: /^banish another chosen character of yours/i,
+    build: () => ({
+      type: "banish",
+      target: {
+        type: "chosen",
+        filter: { zone: "play", cardType: ["character"], owner: { type: "self" }, excludeSelf: true },
+      },
+    }),
+  },
+  // "play this character for free" — reward side of "A to B"
+  {
+    name: "play_this_for_free",
+    pattern: /^play this character for free/i,
+    build: () => ({ type: "grant_play_for_free_self" }),
+  },
+  // "give this character Rush/Evasive/etc. this turn" — reward side
+  {
+    name: "give_this_keyword_this_turn",
+    pattern: /^give this character (Rush|Evasive|Ward|Reckless|Bodyguard|Support|Challenger|Resist|Vanish)(?: \+(\d+))? this turn/i,
+    build: (m) => {
+      const out: Json = {
+        type: "grant_keyword",
+        keyword: m[1].toLowerCase(),
+        target: { type: "this" },
+        duration: "end_of_turn",
+      };
+      if (m[2]) out.value = parseInt(m[2], 10);
+      return out;
+    },
+  },
+
   // ============= PUT CARD ON TOP/BOTTOM OF DECK =============================
+  // "put [N|a|an] X card(s) from your discard on the bottom of your deck"
+  // Unified: amount comes from the leading number or defaults to 1 for "a/an".
+  {
+    name: "put_from_discard_on_bottom",
+    pattern: /^put (?:(\d+) |(a |an ))([\w ]+?) cards? from your discard on the bottom of your deck/i,
+    build: (m) => ({
+      type: "put_card_on_bottom_of_deck",
+      from: "discard",
+      amount: m[1] ? parseInt(m[1], 10) : 1,
+      filter: parseSimpleFilter(m[3].trim()),
+    }),
+  },
   // "you may put a character card from your discard on the top of your deck"
   {
     name: "put_from_discard_on_top",
@@ -2346,6 +2316,104 @@ function parseYourCharactersFilter(text: string): { filter: Json; consumed: numb
   return null;
 }
 
+// =============================================================================
+// CRD COMPOUND SHAPES — "A to B", "A. If you do, B", "A or B"
+// -----------------------------------------------------------------------------
+// These are the three fundamental effect connectors in Lorcana. They combine
+// any cost-action with any reward-action via a structural separator. The
+// compiler detects them before the regular single-effect loop so compound
+// patterns don't need per-combo hardcoding.
+// =============================================================================
+
+/** Shape 1: "A to B" — "[you may] <cost-effect> to <reward-effects>."
+ *  The "to" keyword separates a single cost-action from one or more reward
+ *  actions. Wraps as `sequential { costEffects: [A], rewardEffects: [B] }`.
+ *  Only fires when the " to " appears mid-sentence (not "to your hand" etc.)
+ *  and both sides parse as valid effects. */
+function tryAtoB(text: string): Json | null {
+  // Strip leading "you may " — isMay scopes over the whole sequential
+  const isMay = /^you may /i.test(text);
+  const inner = isMay ? text.replace(/^you may /i, "") : text;
+
+  // Find " to " that separates cost from reward. We try each " to " position
+  // left-to-right: parse left as a single effect (cost), right as an effect
+  // chain (reward). First successful split wins.
+  let idx = 0;
+  while (true) {
+    const pos = inner.indexOf(" to ", idx);
+    if (pos < 0) break;
+    const leftText = inner.slice(0, pos);
+    const rightText = inner.slice(pos + 4); // skip " to "
+    const costEff = matchEffect(leftText);
+    if (costEff && costEff.consumed === leftText.length) {
+      const rewardEffs = parseEffectChain(rightText);
+      if (rewardEffs && rewardEffs.json.length > 0 && rewardEffs.consumedAll) {
+        return {
+          type: "sequential",
+          ...(isMay ? { isMay: true } : {}),
+          costEffects: [costEff.json],
+          rewardEffects: rewardEffs.json,
+        };
+      }
+    }
+    idx = pos + 4;
+  }
+  return null;
+}
+
+/** Shape 2: "A. If you do, B" — conditional sequential.
+ *  "[you may] <cost-effect>. If you do, <reward-effects>."
+ *  Same as "A to B" but the connector is ". If you do, ". */
+function tryAIfYouDoB(text: string): Json | null {
+  const isMay = /^you may /i.test(text);
+  const inner = isMay ? text.replace(/^you may /i, "") : text;
+
+  const sep = /\.\s*If you do,\s*/i;
+  const m = sep.exec(inner);
+  if (!m) return null;
+
+  const leftText = inner.slice(0, m.index);
+  const rightText = inner.slice(m.index + m[0].length);
+  const costEff = matchEffect(leftText);
+  if (costEff && costEff.consumed === leftText.length) {
+    const rewardEffs = parseEffectChain(rightText);
+    if (rewardEffs && rewardEffs.json.length > 0 && rewardEffs.consumedAll) {
+      return {
+        type: "sequential",
+        ...(isMay ? { isMay: true } : {}),
+        costEffects: [costEff.json],
+        rewardEffects: rewardEffs.json,
+      };
+    }
+  }
+  return null;
+}
+
+/** Shape 3: "A or B" — inline choice. "banish her or return another chosen
+ *  character of yours to your hand." Wraps as `choose { options: [[A],[B]] }`.
+ *  Tries each " or " position left-to-right; first valid split wins. */
+function tryAorB(text: string): Json | null {
+  let idx = 0;
+  while (true) {
+    const pos = text.indexOf(" or ", idx);
+    if (pos < 0) break;
+    const leftText = text.slice(0, pos);
+    const rightText = text.slice(pos + 4);
+    const leftEff = matchEffect(leftText);
+    if (leftEff && leftEff.consumed === leftText.length) {
+      const rightEffs = parseEffectChain(rightText);
+      if (rightEffs && rightEffs.json.length > 0 && rightEffs.consumedAll) {
+        return {
+          type: "choose",
+          options: [[leftEff.json], rightEffs.json],
+        };
+      }
+    }
+    idx = pos + 4;
+  }
+  return null;
+}
+
 // Simple filter parser for look_at_top / reveal_top patterns. Handles:
 // "character", "action", "song", "Toy character", "Toy character card or a
 // location card named Andy's Room".
@@ -2462,6 +2530,28 @@ function parseEffectChain(
   text: string,
 ): { json: Json[]; consumedAll: boolean; remainder: string } | null {
   let rest = text.trim();
+
+  // ---- CRD compound shapes ------------------------------------------------
+  // These three shapes are the fundamental compound-effect connectors in
+  // Lorcana. We detect them BEFORE the regular effect loop because they
+  // span multiple effects with a structural connector.
+
+  // Shape 1: "A to B" — cost-reward sequential. "you may X to Y."
+  // The "to" separates a cost-action from a reward-action.
+  const aToB = tryAtoB(rest);
+  if (aToB) return { json: [aToB], consumedAll: true, remainder: "" };
+
+  // Shape 2: "A. If you do, B" — conditional sequential. Do A; if it
+  // succeeded (was not declined), do B.
+  const aIfB = tryAIfYouDoB(rest);
+  if (aIfB) return { json: [aIfB], consumedAll: true, remainder: "" };
+
+  // Shape 3: "A or B" — inline choice. "banish her or return another chosen
+  // character of yours to your hand." Two single-effect options joined by
+  // " or ". Only fires when both sides parse as complete effects.
+  const aOrB = tryAorB(rest);
+  if (aOrB) return { json: [aOrB], consumedAll: true, remainder: "" };
+
   const effects: Json[] = [];
   while (rest.length > 0) {
     // Effect-level condition: "If <condition>, <effect>". Peel the condition
