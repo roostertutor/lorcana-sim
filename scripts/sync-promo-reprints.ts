@@ -27,7 +27,7 @@ for (const s of MAIN_SETS) {
     const hasSelfCost = c.selfCostReduction !== undefined;
     const hasAltPlayCost = c.altPlayCost !== undefined;
     if (hasAbilities || hasAction || hasAltNames || hasPlayRestrictions || hasSelfCost || hasAltPlayCost) {
-      // Match case-insensitively to tolerate Lorcast capitalization drift
+      // Match case-insensitively to tolerate upstream capitalization drift
       // (e.g. "Miserable as Usual" vs "Miserable As Usual" between sets).
       const key = c.fullName.toLowerCase();
       if (!wired[key]) wired[key] = c;

@@ -329,7 +329,7 @@ function main() {
   }
   console.log(`\nReports cover three families of drift / mis-wiring:`);
   console.log(`  1. Keyword reminder line in rulesText with no matching ability (upstream`);
-  console.log(`     data drift — see docs/LORCAST_DATA_ISSUES.md).`);
+  console.log(`     data drift — see docs/CARD_DATA_ISSUES.md).`);
   console.log(`  2. Numeric keyword whose value field doesn't match the rules text, OR`);
   console.log(`     missing required scalar (singTogetherCost / shiftCost).`);
   console.log(`  3. Static effect-type mismatches: self_cost_reduction wiping the full`);

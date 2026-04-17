@@ -234,7 +234,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
 
   // ── With image: card art fills the frame, overlays show only game state ──
   if (def.imageUrl) {
-    // Lorcast provides three sizes: small (~9KB), normal (~47KB), large (~71KB).
+    // Ravensburger provides card images at 1468x2048.
     // Board cards are displayed at 88–120px CSS width — small is sufficient.
     const boardImageUrl = def.imageUrl.replace("/digital/normal/", "/digital/small/");
     return (

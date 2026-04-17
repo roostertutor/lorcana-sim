@@ -3,7 +3,7 @@
 // One-time storyName patch for the Ravensburger migration.
 //
 // User verified 20 cards where the existing abilities[*].storyName was a
-// Lorcast paraphrase (generated heuristically from rules text, not from the
+// paraphrased storyName (generated heuristically from rules text, not from the
 // actual printed card). This script updates those storyName fields to match
 // the authoritative printed card names — same values Ravensburger's API
 // provides, so card-status audit passes on next import.

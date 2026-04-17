@@ -2739,7 +2739,7 @@ export interface CardDefinition {
   number: number;
   /** Rarity */
   rarity: "common" | "uncommon" | "rare" | "super_rare" | "legendary" | "enchanted";
-  /** Card art URL from Lorcast API (digital.normal ~480×680px). Optional — not all sets imported with images. */
+  /** Card art URL from Ravensburger API. Optional — not all sets imported with images. */
   imageUrl?: string;
 }
 

@@ -83,7 +83,7 @@ export default function DeckInput({ deckText, parseErrors, deck, onChange, onAna
       <div className="card">
         <p className="label">Card database</p>
         <p className="text-xs text-gray-500">
-          The First Chapter — 216 cards. Source: Lorcast API (lorcast.com/docs/api).
+          The First Chapter — 216 cards. Source: Ravensburger API.
           Cards with named abilities are simulated as vanilla until implemented.
         </p>
       </div>

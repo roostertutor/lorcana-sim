@@ -1,8 +1,8 @@
-# Lorcast Upstream Data Issues
+# Card Data Issues (Historical)
 
 **Scope note (post-Ravensburger migration):** This doc now only applies to
 **promo sets** (P1, P2, P3, cp, D23, DIS) — the sets still imported via
-Lorcast because Ravensburger's API doesn't expose them. Main sets 1-12
+the old Lorcast source because Ravensburger's API doesn't expose them. Main sets 1-12
 moved to Ravensburger as the primary data source (see DECISIONS.md → Card
 Data Decisions and `scripts/import-cards-rav.ts`). For Ravensburger data
 issues, see the `STORY_NAME_OVERRIDES` constant in `scripts/import-cards-rav.ts`
