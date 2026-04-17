@@ -493,7 +493,29 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     }),
   },
 
+  // "each opponent chooses and banishes one of their characters"
+  {
+    name: "each_opponent_chooses_banishes",
+    pattern: /^each opponent chooses and banishes one of their characters/i,
+    build: () => ({
+      type: "banish",
+      target: { type: "chosen", chooser: "target_player", filter: { owner: { type: "opponent" }, zone: "play", cardType: ["character"] } },
+    }),
+  },
+
   // ============= BANISH ======================================================
+  // "banish chosen character with N {S} or less" — strength-filtered banish
+  {
+    name: "banish_chosen_char_strength_filter",
+    pattern: /^banish chosen character with (\d+) \{S\} or less/i,
+    build: (m) => ({
+      type: "banish",
+      target: {
+        type: "chosen",
+        filter: { zone: "play", cardType: ["character"], strengthAtMost: parseInt(m[1], 10) },
+      },
+    }),
+  },
   {
     name: "banish_chosen_character_may",
     pattern: /^you may banish chosen character/i,
@@ -707,6 +729,29 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       destination: chosenCharacter({ opposing: true }),
     }),
   },
+  // "Move up to N damage from chosen character of yours to this character"
+  {
+    name: "move_damage_yours_to_this",
+    pattern: /^(?:you may )?[Mm]ove up to (\d+) damage (?:counters? )?from chosen character of yours to this character/i,
+    build: (m) => ({
+      type: "move_damage",
+      amount: n(m[1]),
+      isUpTo: true,
+      source: { type: "chosen", filter: { zone: "play", cardType: ["character"], owner: { type: "self" } } },
+      destination: { type: "this" },
+    }),
+  },
+  // "move all damage from this character to chosen opposing character"
+  {
+    name: "move_all_damage_this_to_opp",
+    pattern: /^move all damage from this character to chosen opposing character/i,
+    build: () => ({
+      type: "move_damage",
+      amount: "all",
+      source: { type: "this" },
+      destination: chosenCharacter({ opposing: true }),
+    }),
+  },
   {
     name: "move_damage_n",
     pattern: /^(?:you may )?move (\d+) damage from chosen character to chosen opposing character/i,
@@ -880,6 +925,16 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
   },
 
   // ============= DISCARD =====================================================
+  // "discard your hand" (all cards)
+  {
+    name: "discard_your_hand",
+    pattern: /^discard your hand/i,
+    build: () => ({
+      type: "discard_from_hand",
+      amount: "all",
+      target: { type: "self" },
+    }),
+  },
   {
     name: "choose_and_discard_n",
     pattern: /^choose and discard (\d+) cards?/i,
@@ -929,6 +984,45 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       scope: "opponents",
       effects: [{ type: "discard_from_hand", amount: n(m[1]), target: { type: "self" } }],
     }),
+  },
+
+  // ============= BANISH-SELF-TO SEQUENTIAL ==================================
+  // "you may banish this item/character to X" — sequential with banish cost
+  {
+    name: "banish_self_to_effects",
+    pattern: /^you may banish this (?:item|character) to (.+)/i,
+    build: (m) => {
+      const bodyEffects = parseEffectChain(m[1]);
+      if (bodyEffects && bodyEffects.json.length > 0) {
+        return {
+          type: "sequential",
+          isMay: true,
+          costEffects: [{ type: "banish", target: { type: "this" } }],
+          rewardEffects: bodyEffects.json,
+        };
+      }
+      return { type: "__unmatched__" };
+    },
+  },
+  // "you may banish another chosen character of yours. If you do, X" — sequential
+  {
+    name: "banish_chosen_if_you_do",
+    pattern: /^you may banish another chosen character of yours\. If you do, (.+)/i,
+    build: (m) => {
+      const rewardEffects = parseEffectChain(m[1]);
+      if (rewardEffects && rewardEffects.json.length > 0) {
+        return {
+          type: "sequential",
+          isMay: true,
+          costEffects: [{
+            type: "banish",
+            target: { type: "chosen", filter: { zone: "play", cardType: ["character"], owner: { type: "self" }, excludeSelf: true } },
+          }],
+          rewardEffects: rewardEffects.json,
+        };
+      }
+      return { type: "__unmatched__" };
+    },
   },
 
   // ============= RETURN TO HAND =============================================
@@ -1237,6 +1331,30 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       isMay: /^you may /i.test(m[0]) || undefined,
     }),
   },
+
+  // ============= SHUFFLE INTO DECK ==========================================
+  // "Each player shuffles all character cards from their discard into their deck"
+  {
+    name: "each_player_shuffles_from_discard",
+    pattern: /^Each player shuffles all ([\w ]+?) cards? from their discard into their deck/i,
+    build: (m) => ({
+      type: "each_player",
+      scope: "all",
+      effects: [{
+        type: "shuffle_into_deck",
+        target: { type: "all", filter: { zone: "discard", ...parseSimpleFilter(m[1].trim()) } },
+      }],
+    }),
+  },
+  // "put all X cards from your discard on the bottom of your deck in any order"
+  {
+    name: "put_all_from_discard_to_bottom",
+    pattern: /^put all ([\w ]+?) cards? from your discard on the bottom of your deck(?: in any order)?/i,
+    build: (m) => ({
+      type: "move_cards_to_bottom",
+      filter: { zone: "discard", owner: { type: "self" }, ...parseSimpleFilter(m[1].trim()) },
+    }),
+  },
 ];
 
 const matchEffect = makeMatcher(EFFECT_MATCHERS);
@@ -1407,6 +1525,16 @@ const CONDITION_MATCHERS: Matcher<Json>[] = [
     }),
   },
 
+  // "if N or more [other] cards were put into your discard this turn"
+  {
+    name: "cards_discarded_this_turn_gte",
+    pattern: /^if (\d+) or more (?:other )?cards were put into your discard this turn/i,
+    build: (m) => ({
+      type: "cards_discarded_this_turn_gte",
+      amount: parseInt(m[1], 10),
+    }),
+  },
+
   // your_first_turn_as_underdog — "If this is your first turn and you're not
   // the first player". Straight/curly apostrophes both accepted.
   {
@@ -1415,7 +1543,12 @@ const CONDITION_MATCHERS: Matcher<Json>[] = [
     build: () => ({ type: "your_first_turn_as_underdog" }),
   },
 
-  // this-card-state
+  // this-card-state / damage checks
+  {
+    name: "this_has_damage_gte",
+    pattern: /^if this character has (\d+) or more damage/i,
+    build: (m) => ({ type: "this_has_damage", amount: parseInt(m[1], 10) }),
+  },
   {
     name: "this_has_no_damage",
     pattern: /^if this character has no damage/i,
@@ -1587,6 +1720,45 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
     };
     if (leadingCondition) ability.condition = leadingCondition;
     return { ability, unmatched: "" };
+  }
+
+  // "Your X characters can move here for free." — location move cost reduction
+  const statMoveHereFree = /^Your (\w+) characters can move here for free\.?$/i.exec(rest);
+  if (statMoveHereFree) {
+    return {
+      ability: {
+        type: "static",
+        effect: {
+          type: "move_to_self_cost_reduction",
+          amount: "all",
+          filter: {
+            owner: { type: "self" },
+            zone: "play",
+            cardType: ["character"],
+            hasTrait: statMoveHereFree[1],
+          },
+        },
+      },
+      unmatched: "",
+    };
+  }
+
+  // "While you have only 1 character here, they get +N {W} and +N {L}."
+  const statWhileOneHere = /^While you have only 1 character here, they get ([+-]?\d+) \{(S|W|L)\} and ([+-]?\d+) \{(S|W|L)\}\.?$/i.exec(rest);
+  if (statWhileOneHere) {
+    const stat1 = statWhileOneHere[2].toUpperCase() === "S" ? "strength" : statWhileOneHere[2].toUpperCase() === "W" ? "willpower" : "lore";
+    const stat2 = statWhileOneHere[4].toUpperCase() === "S" ? "strength" : statWhileOneHere[4].toUpperCase() === "W" ? "willpower" : "lore";
+    return {
+      ability: {
+        type: "static",
+        condition: { type: "characters_here_gte", amount: 1, op: "==" },
+        effect: [
+          { type: "modify_stat", stat: stat1, amount: parseInt(statWhileOneHere[1], 10), target: { type: "all", filter: { atLocation: "this", cardType: ["character"] } } },
+          { type: "modify_stat", stat: stat2, amount: parseInt(statWhileOneHere[3], 10), target: { type: "all", filter: { atLocation: "this", cardType: ["character"] } } },
+        ],
+      },
+      unmatched: "",
+    };
   }
 
   // "Characters get +N {stat} while here." — location static
@@ -2001,6 +2173,29 @@ function parseEffectChain(
   let rest = text.trim();
   const effects: Json[] = [];
   while (rest.length > 0) {
+    // Effect-level condition: "If <condition>, <effect>". Peel the condition
+    // off and attach it to whatever effect follows. Matches the forward
+    // decompiler's `if (e.condition)` wrapper.
+    const condLead = matchCondition(rest);
+    if (condLead) {
+      const afterCond = rest.slice(condLead.consumed).replace(/^,\s*/, "");
+      const innerEff = matchEffect(afterCond);
+      if (innerEff) {
+        innerEff.json.condition = condLead.json;
+        effects.push(innerEff.json);
+        rest = afterCond.slice(innerEff.consumed);
+        const dur = parseDuration(rest, innerEff.json.type);
+        if (dur.duration) { innerEff.json.duration = dur.duration; rest = rest.slice(dur.consumed); }
+        rest = rest.trimStart();
+        const rem = /^\([^)]*\)\s*/.exec(rest);
+        if (rem) rest = rest.slice(rem[0].length);
+        if (rest === "" || rest === ".") return { json: effects, consumedAll: true, remainder: "" };
+        const sepMatch = /^(?:,\s*then\s+|\.\s+Then,?\s+|,\s*and\s+|,\s*|\.\s+and\s+|\.\s+|\s+and\s+|and\s+)/i.exec(rest);
+        if (sepMatch) { rest = rest.slice(sepMatch[0].length); continue; }
+        break;
+      }
+    }
+
     // Filter-target stat buffs — "your [filter] characters get +N {stat}
     // [this turn]". Use the same shared parser as static abilities.
     const fStat = tryFilterTargetStatEffect(rest);
@@ -2121,6 +2316,25 @@ export function compileCard(card: CardJSON): CompiledCard {
       .replace(/^\(A character with cost \d+ or more can \{E\} to sing this song for free\.\)\s*/i, "")
       .replace(/\s*\([^)]*\)\s*\.?$/, "")
       .trim();
+    // "Choose one:" modal action — parse bullet points as options
+    const chooseMatch = /^Choose one:\s*/i.exec(normalized);
+    if (chooseMatch) {
+      const body = normalized.slice(chooseMatch[0].length);
+      const bullets = body.split(/\n/).map(b => b.replace(/^[•\-]\s*/, "").trim()).filter(Boolean);
+      const options: Json[][] = [];
+      for (const bullet of bullets) {
+        const eff = parseEffectChain(bullet);
+        if (eff && eff.json.length > 0) options.push(eff.json);
+      }
+      if (options.length >= 2) {
+        result.actionEffectResult = {
+          ability: { type: "__actionEffects__", effects: [{ type: "choose", options }] },
+          unmatched: "",
+        };
+        return result;
+      }
+    }
+
     const effects = parseEffectChain(normalized);
     if (effects && effects.json.length > 0) {
       result.actionEffectResult = {
