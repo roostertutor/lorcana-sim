@@ -169,7 +169,9 @@ function mapRarity(r: string): CardDefinitionOut["rarity"] {
     super_rare: "super_rare",
     legendary: "legendary",
     enchanted: "enchanted",
-    special: "legendary", // Iconic/Epic cards — promote to legendary for engine purposes
+    special: "legendary",
+    iconic: "legendary",   // Iconic series (set 12+)
+    epic: "legendary",     // Epic series (future-proofing)
     promo: "common",
   };
   return map[r.toLowerCase()] ?? "common";
