@@ -118,7 +118,7 @@ interface CardDefinitionOut {
   flavorText?: string;
   setId: string;
   number: number;
-  rarity: "common" | "uncommon" | "rare" | "super_rare" | "legendary" | "enchanted";
+  rarity: "common" | "uncommon" | "rare" | "super_rare" | "legendary" | "enchanted" | "special" | "iconic" | "epic";
   imageUrl?: string;
   actionEffects?: object[];
   _namedAbilityStubs?: AbilityStub[];
@@ -169,9 +169,9 @@ function mapRarity(r: string): CardDefinitionOut["rarity"] {
     super_rare: "super_rare",
     legendary: "legendary",
     enchanted: "enchanted",
-    special: "legendary",
-    iconic: "legendary",   // Iconic series (set 12+)
-    epic: "legendary",     // Epic series (future-proofing)
+    special: "special",
+    iconic: "iconic",
+    epic: "epic",
     promo: "common",
   };
   return map[r.toLowerCase()] ?? "common";

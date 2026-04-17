@@ -2738,7 +2738,7 @@ export interface CardDefinition {
   /** Collector number within set */
   number: number;
   /** Rarity */
-  rarity: "common" | "uncommon" | "rare" | "super_rare" | "legendary" | "enchanted";
+  rarity: "common" | "uncommon" | "rare" | "super_rare" | "legendary" | "enchanted" | "special" | "iconic" | "epic";
   /** Card art URL from Ravensburger API. Optional — not all sets imported with images. */
   imageUrl?: string;
 }
