@@ -1326,8 +1326,9 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     name: "mill_self_top_to_discard",
     pattern: /^(?:you may )?put the top card of your deck into your discard/i,
     build: (m) => ({
-      type: "mill_self",
+      type: "mill",
       amount: 1,
+      target: "self",
       isMay: /^you may /i.test(m[0]) || undefined,
     }),
   },
