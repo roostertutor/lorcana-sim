@@ -93,7 +93,12 @@ const TRIGGER_MATCHERS: Matcher<Json>[] = [
     pattern: /^When you play this (?:character|item|location)/i,
     build: () => ({ on: "enters_play" }),
   },
-  // quests — owner:self flavor ("Whenever one of your characters quests")
+  // quests — owner:self flavor ("Whenever one of your [other] characters quests")
+  {
+    name: "quests_owner_self_other",
+    pattern: /^Whenever one of your other characters quests/i,
+    build: () => ({ on: "quests", filter: { owner: { type: "self" }, excludeSelf: true } }),
+  },
   {
     name: "quests_owner_self",
     pattern: /^Whenever one of your characters quests/i,
@@ -121,6 +126,12 @@ const TRIGGER_MATCHERS: Matcher<Json>[] = [
     name: "challenges",
     pattern: /^Whenever this character challenges another character/i,
     build: () => ({ on: "challenges" }),
+  },
+  // "Whenever an opposing character challenges" — any opponent's challenge
+  {
+    name: "challenges_opposing",
+    pattern: /^Whenever an opposing character challenges/i,
+    build: () => ({ on: "challenges", filter: { owner: { type: "opponent" }, cardType: ["character"] } }),
   },
   // turn_start
   {
@@ -229,6 +240,16 @@ const TRIGGER_MATCHERS: Matcher<Json>[] = [
     name: "sings",
     pattern: /^Whenever this character sings a song/i,
     build: () => ({ on: "sings" }),
+  },
+  // action_dealt_damage — "Whenever one of your actions deals damage to an
+  // opposing character". New in set 12 (Merida - Formidable Archer).
+  {
+    name: "action_dealt_damage_opp",
+    pattern: /^Whenever one of your actions deals damage to an opposing character/i,
+    build: () => ({
+      on: "action_dealt_damage",
+      filter: { owner: { type: "self" }, cardType: ["action"] },
+    }),
   },
   // deals_damage_in_challenge — "Whenever this character deals damage to
   // another character in a challenge" (decompiler: "deals_damage_in_challenge").
@@ -629,6 +650,27 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     name: "deal_damage_n",
     pattern: /^deal (\d+) damage to chosen character/i,
     build: (m) => ({ type: "deal_damage", amount: n(m[1]), target: chosenCharacter() }),
+  },
+  // "deal N damage to the challenging character" — triggering_card target
+  {
+    name: "deal_damage_may_triggering",
+    pattern: /^you may deal (\d+) damage to the challenging character/i,
+    build: (m) => ({
+      type: "deal_damage",
+      amount: n(m[1]),
+      target: { type: "triggering_card" },
+      isMay: true,
+    }),
+  },
+  // "deal N damage to that character" — last_resolved_target
+  {
+    name: "deal_damage_that_character",
+    pattern: /^deal (\d+) damage to that character/i,
+    build: (m) => ({
+      type: "deal_damage",
+      amount: n(m[1]),
+      target: { type: "last_resolved_target" },
+    }),
   },
   // "deal N damage to another chosen character" — second target in a chain
   {
@@ -1119,6 +1161,69 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       type: "cost_reduction",
       amount: parseInt(m[1], 10),
       filter: { cardType: ["action"] },
+    }),
+  },
+
+  // ============= LOOK AT TOP / REVEAL =======================================
+  // "look at the top N cards of your deck. You may [reveal] a X [card] and
+  // put it into your hand. Put the rest on the bottom of your deck [in any
+  // order]." — choose_from_top with filter
+  {
+    name: "look_at_top_choose_put_hand",
+    pattern: /^look at the top (\d+) cards? of your deck\. You may (?:reveal )?(?:a |an )(.+?) and put (?:it|them) into your hand\. Put the rest on the bottom of your deck(?: in any order)?/i,
+    build: (m) => ({
+      type: "look_at_top",
+      count: parseInt(m[1], 10),
+      action: "choose_from_top",
+      filter: parseSimpleFilter(m[2].trim()),
+      target: { type: "self" },
+      isMay: true,
+      maxToHand: 1,
+      revealPicks: true,
+    }),
+  },
+  // "look at the top N cards of your deck. You may put one into your hand.
+  // Put the rest on the bottom of your deck [in any order]."
+  {
+    name: "look_at_top_may_put_one",
+    pattern: /^look at the top (\d+) cards? of your deck\. You may put one into your hand\. Put the rest on the bottom of your deck(?: in any order)?/i,
+    build: (m) => ({
+      type: "look_at_top",
+      count: parseInt(m[1], 10),
+      action: "choose_from_top",
+      target: { type: "self" },
+      isMay: true,
+      maxToHand: 1,
+    }),
+  },
+  // "you may reveal the top card of your deck. If it's a [type] card, you
+  // may put it into your hand. Otherwise, put it on the bottom of your deck."
+  {
+    name: "reveal_top_conditional_hand_or_bottom",
+    pattern: /^you may reveal the top card of your deck\. If it's (?:a |an )([\w ]+?) card, you may put it into your hand\. Otherwise, put it on the bottom of your deck/i,
+    build: (m) => ({
+      type: "look_at_top",
+      count: 1,
+      action: "choose_from_top",
+      filter: parseSimpleFilter(m[1].trim()),
+      target: { type: "self" },
+      isMay: true,
+      maxToHand: 1,
+      revealPicks: true,
+    }),
+  },
+  // "Look at the top N cards of your deck. Put one into your hand and the
+  // other into your inkwell facedown and exerted." — split routing
+  {
+    name: "look_at_top_hand_and_inkwell",
+    pattern: /^Look at the top (\d+) cards? of your deck\. Put one into your hand and the other into your inkwell facedown and exerted/i,
+    build: (m) => ({
+      type: "look_at_top",
+      count: parseInt(m[1], 10),
+      action: "choose_from_top",
+      target: { type: "self" },
+      maxToHand: 1,
+      restPlacement: "inkwell",
     }),
   },
 
@@ -1778,6 +1883,35 @@ function parseYourCharactersFilter(text: string): { filter: Json; consumed: numb
   return null;
 }
 
+// Simple filter parser for look_at_top / reveal_top patterns. Handles:
+// "character", "action", "song", "Toy character", "Toy character card or a
+// location card named Andy's Room".
+function parseSimpleFilter(phrase: string): Json {
+  // Strip trailing "card" — "Toy character card" → "Toy character"
+  phrase = phrase.replace(/\s+card$/i, "").trim();
+  // Compound "X or Y" — e.g. "Toy character or a location named Andy's Room"
+  const orMatch = /^(.+?) or (?:a |an )(.+)$/i.exec(phrase);
+  if (orMatch) {
+    return { anyOf: [parseSimpleFilter(orMatch[1].trim()), parseSimpleFilter(orMatch[2].trim())] };
+  }
+  // "location [card] named X"
+  const locNamed = /^location named (.+)$/i.exec(phrase);
+  if (locNamed) return { cardType: ["location"], hasName: locNamed[1].trim() };
+  // "action [card] named X"
+  const actNamed = /^action named (.+)$/i.exec(phrase);
+  if (actNamed) return { cardType: ["action"], hasName: actNamed[1].trim() };
+  // "Trait character [card]"
+  const traitChar = /^([A-Z][a-zA-Z]*) character(?: card)?$/i.exec(phrase);
+  if (traitChar) return { cardType: ["character"], hasTrait: traitChar[1] };
+  // Bare types
+  if (/^character$/i.test(phrase)) return { cardType: ["character"] };
+  if (/^action$/i.test(phrase)) return { cardType: ["action"] };
+  if (/^item$/i.test(phrase)) return { cardType: ["item"] };
+  if (/^location$/i.test(phrase)) return { cardType: ["location"] };
+  if (/^song$/i.test(phrase)) return { cardType: ["action"], hasTrait: "Song" };
+  return {};
+}
+
 // Effect-side variant of parseYourCharactersGetsStat — consumes the whole
 // phrase length and returns it for the chain parser. When a duration is
 // present, emits `gain_stats` (the triggered-form canonical per hand-wired
@@ -1978,10 +2112,27 @@ export function compileCard(card: CardJSON): CompiledCard {
 
   if (!card.rulesText) return result;
 
-  // For actions/songs, the whole rulesText is an actionEffects body (no header).
+  // For actions/songs, the whole rulesText is an actionEffects body — parse as
+  // a bare effect chain (no trigger/static/activated wrapping).
   if (card.cardType === "action") {
-    const r = compileAbility(card.rulesText, { cardType: card.cardType });
-    result.actionEffectResult = { ability: r.ability, unmatched: r.unmatched };
+    const normalized = (card.rulesText ?? "")
+      .replace(/[\u2018\u2019]/g, "'")
+      .replace(/<(Rush|Evasive|Ward|Reckless|Bodyguard|Support|Challenger|Resist|Vanish|Shift)>/gi, "$1")
+      .replace(/^\(A character with cost \d+ or more can \{E\} to sing this song for free\.\)\s*/i, "")
+      .replace(/\s*\([^)]*\)\s*\.?$/, "")
+      .trim();
+    const effects = parseEffectChain(normalized);
+    if (effects && effects.json.length > 0) {
+      result.actionEffectResult = {
+        ability: { type: "__actionEffects__", effects: effects.json },
+        unmatched: effects.remainder,
+      };
+    } else {
+      result.actionEffectResult = {
+        ability: null,
+        unmatched: normalized,
+      };
+    }
     return result;
   }
 
