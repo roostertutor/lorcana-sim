@@ -1424,6 +1424,20 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     }),
   },
 
+  // ============= PUT CARD ON TOP/BOTTOM OF DECK =============================
+  // "you may put a character card from your discard on the top of your deck"
+  {
+    name: "put_from_discard_on_top",
+    pattern: /^(?:you may )?put (?:a |an )([\w ]+?) card from your discard on the top of your deck/i,
+    build: (m) => ({
+      type: "put_card_on_bottom_of_deck",
+      from: "discard",
+      position: "top",
+      filter: parseSimpleFilter(m[1].trim()),
+      isMay: /^you may /i.test(m[0]) || undefined,
+    }),
+  },
+
   // ============= SHUFFLE INTO DECK ==========================================
   // "Each player shuffles all character cards from their discard into their deck"
   {
