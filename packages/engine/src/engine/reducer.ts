@@ -2812,6 +2812,18 @@ export function applyEffect(
           return zoneTransition(state, triggeringCardInstanceId, "hand", definitions, events, { reason: "returned" });
         }
       }
+      if (effect.target.type === "all") {
+        // Milo Thatch TAKE THEM BY SURPRISE: "return all opposing characters
+        // to their players' hands." Mass return — each card goes to its OWN
+        // owner's hand (opposing chars come back to opponent, not controller).
+        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        for (const id of targets) {
+          const inst = state.cards[id];
+          if (!inst || inst.zone !== "play") continue;
+          state = zoneTransition(state, id, "hand", definitions, events, { reason: "returned" });
+        }
+        return state;
+      }
       return state;
     }
 
@@ -5087,6 +5099,23 @@ export function applyEffect(
         // Shuffle the source card into its owner's deck (You're Welcome pattern)
         state = zoneTransition(state, sourceInstanceId, "deck", definitions, events, { reason: "effect" });
         state = shuffleDeck(state, getInstance(state, sourceInstanceId).ownerId);
+        return state;
+      }
+      if (effect.target.type === "all") {
+        // Chernabog - Evildoer SUMMON THE SPIRITS: "shuffle all character
+        // cards from your discard into your deck." Magic Broom CLEAN THIS,
+        // CLEAN THAT: "shuffle all Broom cards from your discard into your
+        // deck." Mass version of the chosen branch.
+        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        if (targets.length === 0) return state;
+        const ownersToShuffle = new Set<PlayerID>();
+        for (const id of targets) {
+          const inst = state.cards[id];
+          if (!inst) continue;
+          state = zoneTransition(state, id, "deck", definitions, events, { reason: "effect" });
+          ownersToShuffle.add(inst.ownerId);
+        }
+        for (const owner of ownersToShuffle) state = shuffleDeck(state, owner);
         return state;
       }
       if (effect.target.type === "chosen") {

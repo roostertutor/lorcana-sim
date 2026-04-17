@@ -1,9 +1,11 @@
 // =============================================================================
 // SET 12 — Dash Parr RECORD TIME, Merida STEADY AIM, Bouncing Ducky REPURPOSED
+// Also: regression tests for target:{type:"all"} on shuffle_into_deck and
+// return_to_hand, which were silent no-ops before 2026-04.
 // =============================================================================
 
 import { describe, it, expect } from "vitest";
-import { applyAction, getAllLegalActions } from "./reducer.js";
+import { applyAction, applyEffect, getAllLegalActions } from "./reducer.js";
 import {
   CARD_DEFINITIONS,
   startGame,
@@ -219,5 +221,74 @@ describe("Set 12 — Bouncing Ducky REJECTED TOYS + REPURPOSED", () => {
     // The discard should no longer contain them
     expect(state.zones.player1.discard).not.toContain(toy1);
     expect(state.zones.player1.discard).not.toContain(toy2);
+  });
+});
+
+describe("CardTarget all-normalization — regression coverage", () => {
+  // Chernabog Evildoer SUMMON THE SPIRITS + Magic Broom CLEAN THIS, CLEAN THAT
+  // wire shuffle_into_deck with target:{type:"all",filter}. Pre-fix, the
+  // handler silently fell through for target.type==="all".
+  it("shuffle_into_deck target:{type:'all'} actually shuffles matching cards", () => {
+    let state = startGame();
+    let chernabog: string, c1: string, c2: string, action1: string;
+    ({ state, instanceId: chernabog } = injectCard(state, "player1", "chernabog-evildoer", "hand"));
+    ({ state, instanceId: c1 } = injectCard(state, "player1", "mickey-mouse-brave-little-tailor", "discard"));
+    ({ state, instanceId: c2 } = injectCard(state, "player1", "maximus-palace-horse", "discard"));
+    // An action card in discard that should NOT be shuffled (filter is character).
+    ({ state, instanceId: action1 } = injectCard(state, "player1", "fire-the-cannons", "discard"));
+    state = giveInk(state, "player1", 9);
+
+    const r = applyAction(
+      state,
+      { type: "PLAY_CARD", playerId: "player1", instanceId: chernabog },
+      CARD_DEFINITIONS
+    );
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Character cards left discard and are now in deck.
+    expect(state.cards[c1].zone).toBe("deck");
+    expect(state.cards[c2].zone).toBe("deck");
+    // Non-character stayed in discard.
+    expect(state.cards[action1].zone).toBe("discard");
+  });
+
+  // Milo Thatch TAKE THEM BY SURPRISE: "When this character is banished,
+  // return all opposing characters to their players' hands." Pre-fix the
+  // handler silently fell through for target.type==="all".
+  it("return_to_hand target:{type:'all'} returns matching cards to their owners' hands", () => {
+    let state = startGame();
+    // Directly exercise the effect via applyEffect to isolate the branch.
+    let opp1: string, opp2: string, own: string;
+    ({ state, instanceId: opp1 } = injectCard(state, "player2", "mickey-mouse-brave-little-tailor", "play", { isDrying: false }));
+    ({ state, instanceId: opp2 } = injectCard(state, "player2", "maximus-palace-horse", "play", { isDrying: false }));
+    ({ state, instanceId: own } = injectCard(state, "player1", "pumbaa-friendly-warthog", "play", { isDrying: false }));
+
+    state = applyEffect(
+      state,
+      {
+        type: "return_to_hand",
+        target: {
+          type: "all",
+          filter: {
+            owner: { type: "opponent" },
+            zone: "play",
+            cardType: ["character"],
+          },
+        },
+      } as any,
+      own,
+      "player1",
+      CARD_DEFINITIONS,
+      []
+    );
+
+    // Opponents' characters are now in their hand.
+    expect(state.cards[opp1].zone).toBe("hand");
+    expect(state.cards[opp2].zone).toBe("hand");
+    expect(state.cards[opp1].ownerId).toBe("player2");
+    expect(state.cards[opp2].ownerId).toBe("player2");
+    // Our own character unaffected.
+    expect(state.cards[own].zone).toBe("play");
   });
 });
