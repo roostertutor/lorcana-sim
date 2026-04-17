@@ -1646,13 +1646,16 @@ const CONDITION_MATCHERS: Matcher<Json>[] = [
       filter: { cardType: ["location"], zone: "play", owner: { type: "self" } },
     }),
   },
-  // "if a <Trait> character is in play" — any player, not owner:self
+  // "if a <Trait> character is in play" — no qualifier means your board,
+  // per set 4 Iduna ROYAL SCHEMES precedent ("if a Princess or Queen
+  // character is in play" → has_character_with_trait player:self).
   {
     name: "any_trait_char_in_play",
     pattern: /^if (?:a|an) ([A-Z][a-zA-Z]*) character is in play/i,
     build: (m) => ({
-      type: "opponent_controls_matching",
-      filter: { cardType: ["character"], zone: "play", hasTrait: m[1] },
+      type: "has_character_with_trait",
+      trait: m[1],
+      player: { type: "self" },
     }),
   },
 
@@ -1920,6 +1923,13 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
   // "Your X characters can move here for free." — location move cost reduction
   const statMoveHereFree = /^Your (\w+) characters can move here for free\.?$/i.exec(rest);
   if (statMoveHereFree) {
+    const qualifier = statMoveHereFree[1];
+    // "exerted" / "damaged" are states, not traits — emit the corresponding
+    // CardFilter flag rather than a hasTrait no-op.
+    const stateFilter: Record<string, unknown> =
+      qualifier.toLowerCase() === "exerted" ? { isExerted: true } :
+      qualifier.toLowerCase() === "damaged" ? { hasDamage: true } :
+      { hasTrait: qualifier };
     return {
       ability: {
         type: "static",
@@ -1930,7 +1940,7 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
             owner: { type: "self" },
             zone: "play",
             cardType: ["character"],
-            hasTrait: statMoveHereFree[1],
+            ...stateFilter,
           },
         },
       },

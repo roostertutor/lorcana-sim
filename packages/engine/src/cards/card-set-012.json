@@ -1536,7 +1536,7 @@
             "cardType": [
               "character"
             ],
-            "hasTrait": "exerted"
+            "isExerted": true
           }
         },
         "storyName": "FOLLOW YOUR FATE",
