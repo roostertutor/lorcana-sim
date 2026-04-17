@@ -173,6 +173,12 @@ const TRIGGER_MATCHERS: Matcher<Json>[] = [
     pattern: /^Whenever one of your other characters is banished in a challenge/i,
     build: () => ({ on: "banished_in_challenge", filter: { owner: { type: "self" } } }),
   },
+  // "Whenever another character is banished in a challenge" — any player
+  {
+    name: "banished_in_challenge_another",
+    pattern: /^Whenever another character is banished in a challenge/i,
+    build: () => ({ on: "banished_in_challenge", filter: { excludeSelf: true } }),
+  },
   // damage_removed_from — "Whenever you remove 1 or more damage from one of
   // your characters"
   {
@@ -530,6 +536,49 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     name: "ready_this_character_may",
     pattern: /^you may ready this character/i,
     build: () => ({ type: "ready", target: { type: "this" }, isMay: true }),
+  },
+  // "you may ready another chosen character. If you do, they can't quest
+  // for the rest of this turn." — ready with followUpEffects
+  {
+    name: "ready_another_may_cant_quest",
+    pattern: /^you may ready another chosen character\. If you do, they can't quest for the rest of this turn/i,
+    build: () => ({
+      type: "ready",
+      target: {
+        type: "chosen",
+        filter: { zone: "play", cardType: ["character"], excludeSelf: true },
+      },
+      isMay: true,
+      followUpEffects: [
+        {
+          type: "cant_action",
+          action: "quest",
+          target: { type: "last_resolved_target" },
+          duration: "rest_of_turn",
+        },
+      ],
+    }),
+  },
+  // "you may ready chosen Super character. If you do, they can't quest..."
+  {
+    name: "ready_chosen_trait_may_cant_quest",
+    pattern: /^you may ready chosen ([A-Z][a-zA-Z]*) character\. If you do, they can't quest for the rest of this turn/i,
+    build: (m) => ({
+      type: "ready",
+      target: {
+        type: "chosen",
+        filter: { zone: "play", cardType: ["character"], hasTrait: m[1] },
+      },
+      isMay: true,
+      followUpEffects: [
+        {
+          type: "cant_action",
+          action: "quest",
+          target: { type: "last_resolved_target" },
+          duration: "rest_of_turn",
+        },
+      ],
+    }),
   },
   {
     name: "ready_chosen_character",
@@ -1300,13 +1349,15 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
   // Ravensburger data wraps keywords in angle brackets: <Rush>, <Evasive>.
   // Also uses curly apostrophes (U+2018/2019) instead of straight ones.
   // Normalize both so our matchers work. Strip song-cost-reminder and
-  // keyword-reminder parentheticals.
+  // keyword-reminder parentheticals. Use normalized text for unmatched
+  // reporting so the display reflects what the matchers actually see.
   let rest = original
     .replace(/[\u2018\u2019]/g, "'")   // curly → straight apostrophes
     .replace(/<(Rush|Evasive|Ward|Reckless|Bodyguard|Support|Challenger|Resist|Vanish|Shift)>/gi, "$1")
     .replace(/^\(A character with cost \d+ or more can \{E\} to sing this song for free\.\)\s*/i, "")  // song cost reminder
     .replace(/\s*\([^)]*\)\s*\.?$/, "")  // trailing reminder parens
     .trim();
+  const normalized = rest; // for unmatched reporting
 
   // -------- Leading condition ----------------------------------------------
   // The forward decompiler emits conditions in two places: as a leading
@@ -1589,7 +1640,7 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
   const activatedBare = tryActivatedAbility(rest, leadingCondition, { requireExplicitCost: false });
   if (activatedBare) return { ability: activatedBare, unmatched: "" };
 
-  return { ability: null, unmatched: original };
+  return { ability: null, unmatched: normalized };
 }
 
 // Parse an activated ability shape. Handles explicit "{E} — <body>" and the
@@ -1858,8 +1909,9 @@ function parseEffectChain(
     if (rest === "" || rest === ".") {
       return { json: effects, consumedAll: true, remainder: "" };
     }
-    // Chain separators: ", and ", ", ", ". ", " and ", ", then ", ". Then, "
-    const sepMatch = /^(?:,\s*then\s+|\.\s+Then,?\s+|,\s*and\s+|,\s*|\.\s+and\s+|\.\s+|\s+and\s+)/i.exec(
+    // Chain separators: ", and ", ", ", ". ", " and ", ", then ", ". Then, ",
+    // "and " (after trimStart consumed leading space)
+    const sepMatch = /^(?:,\s*then\s+|\.\s+Then,?\s+|,\s*and\s+|,\s*|\.\s+and\s+|\.\s+|\s+and\s+|and\s+)/i.exec(
       rest,
     );
     if (sepMatch) {
