@@ -2552,7 +2552,44 @@
       "Ally",
       "Toy"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "put_card_on_bottom_of_deck",
+                "from": "discard",
+                "amount": 2,
+                "filter": {
+                  "cardType": [
+                    "character"
+                  ]
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "grant_keyword",
+                "keyword": "rush",
+                "target": {
+                  "type": "this"
+                },
+                "duration": "end_of_turn"
+              }
+            ]
+          }
+        ],
+        "storyName": "TIME TO MOVE",
+        "rulesText": "When you play this character, you may put 2 character cards from your discard on the bottom of your deck to give this character <Rush> this turn. (They can challenge the turn they’re played.)"
+      }
+    ],
     "setId": "12",
     "number": 113,
     "rarity": "uncommon",
@@ -2585,7 +2622,42 @@
       "Ally",
       "Toy"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "put_card_on_bottom_of_deck",
+                "from": "discard",
+                "amount": 1,
+                "filter": {
+                  "cardType": [
+                    "character"
+                  ],
+                  "hasTrait": "Toy"
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "grant_play_for_free_self"
+              }
+            ]
+          }
+        ],
+        "storyName": "SPRING-LOADED",
+        "rulesText": "You may put a Toy character card from your discard on the bottom of your deck to play this character for free."
+      }
+    ],
     "setId": "12",
     "number": 114,
     "rarity": "uncommon",
@@ -4120,7 +4192,41 @@
     "number": 199,
     "rarity": "rare",
     "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)\nMove a character of yours to a location for free. Then, draw cards equal to that location’s {L}.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/199_18718cc85796e4bb8689fffd3855e70bfc8a45b9.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/199_18718cc85796e4bb8689fffd3855e70bfc8a45b9.jpg",
+    "actionEffects": [
+      {
+        "type": "move_character",
+        "character": {
+          "type": "chosen",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ],
+            "zone": "play"
+          }
+        },
+        "location": {
+          "type": "chosen",
+          "filter": {
+            "cardType": [
+              "location"
+            ],
+            "zone": "play"
+          }
+        },
+        "cost": "free"
+      },
+      {
+        "type": "draw",
+        "amount": "last_target_location_lore",
+        "target": {
+          "type": "self"
+        }
+      }
+    ]
   },
   {
     "id": "plunger-crossbow",

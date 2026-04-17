@@ -1448,6 +1448,72 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     }),
   },
 
+  // "you may put N character cards from your discard on the bottom of your deck
+  // to give this character Rush this turn" — Wrong Lever / Roller Bob pattern:
+  // flat sequential (put-to-bottom cost + grant-keyword reward).
+  {
+    name: "put_from_discard_to_bottom_then_grant",
+    pattern: /^(?:you may )?put (\d+) ([\w ]+?) cards? from your discard on the bottom of your deck to give this character (Rush|Evasive|Ward|Challenger|Resist|Support)(?: \+(\d+))? this turn/i,
+    build: (m) => ({
+      type: "sequential",
+      isMay: /^you may /i.test(m[0]) || undefined,
+      costEffects: [{
+        type: "put_card_on_bottom_of_deck",
+        from: "discard",
+        amount: parseInt(m[1], 10),
+        filter: parseSimpleFilter(m[2].trim()),
+      }],
+      rewardEffects: [{
+        type: "grant_keyword",
+        keyword: m[3].toLowerCase(),
+        target: { type: "this" },
+        duration: "end_of_turn",
+        ...(m[4] ? { value: parseInt(m[4], 10) } : {}),
+      }],
+    }),
+  },
+  // "You may put a X card from your discard on the bottom of your deck to play
+  // this character for free." — Hand-in-the-Box alt play cost pattern.
+  {
+    name: "put_from_discard_to_bottom_then_play_free",
+    pattern: /^You may put (?:a |an )([\w ]+?) card from your discard on the bottom of your deck to play this character for free/i,
+    build: (m) => ({
+      type: "sequential",
+      isMay: true,
+      costEffects: [{
+        type: "put_card_on_bottom_of_deck",
+        from: "discard",
+        amount: 1,
+        filter: parseSimpleFilter(m[1].trim()),
+      }],
+      rewardEffects: [{
+        type: "grant_play_for_free_self",
+      }],
+    }),
+  },
+
+  // "Move a character of yours to a location for free" — move_character
+  {
+    name: "move_character_to_location_free",
+    pattern: /^Move a character of yours to a location for free/i,
+    build: () => ({
+      type: "move_character",
+      character: { type: "chosen", filter: { owner: { type: "self" }, cardType: ["character"], zone: "play" } },
+      location: { type: "chosen", filter: { cardType: ["location"], zone: "play" } },
+      cost: "free",
+    }),
+  },
+  // "draw cards equal to that location's {L}" — dynamic draw from last target
+  {
+    name: "draw_equal_to_location_lore",
+    pattern: /^draw cards equal to that location's \{L\}/i,
+    build: () => ({
+      type: "draw",
+      amount: "last_target_location_lore",
+      target: { type: "self" },
+    }),
+  },
+
   // "Shift a character from your discard for free" — play_card with shift-only
   // mode. Like Circle of Life but restricted to shift plays. Engine needs a
   // `playMode: "shift"` flag on play_card (not yet implemented).
