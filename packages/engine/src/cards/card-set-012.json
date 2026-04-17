@@ -105,7 +105,33 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "condition": {
+          "type": "not",
+          "condition": {
+            "type": "you_control_matching",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "zone": "play",
+              "owner": {
+                "type": "self"
+              },
+              "willpowerAtLeast": 4
+            }
+          }
+        },
+        "effect": {
+          "type": "cant_action_self",
+          "action": "quest"
+        },
+        "storyName": "BREAK THE TRANCE",
+        "rulesText": "This character can’t quest unless you have a character with 4 {W} or more in play."
+      }
+    ],
     "setId": "12",
     "number": 12,
     "rarity": "rare",
@@ -2110,7 +2136,32 @@
     "number": 95,
     "rarity": "uncommon",
     "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.) \nUp to 2 chosen characters can’t quest until the start of your next turn. Draw a card.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/95_a41cce25ebae5a50743adb4fc09cdfc9a7d431a8.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/95_a41cce25ebae5a50743adb4fc09cdfc9a7d431a8.jpg",
+    "actionEffects": [
+      {
+        "type": "cant_action",
+        "action": "quest",
+        "target": {
+          "type": "chosen",
+          "count": 2,
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "isUpTo": true,
+        "duration": "until_caster_next_turn"
+      },
+      {
+        "type": "draw",
+        "amount": 1,
+        "target": {
+          "type": "self"
+        }
+      }
+    ]
   },
   {
     "id": "gyro-evac",
@@ -4199,7 +4250,23 @@
     "cost": 3,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "effect": {
+          "type": "grant_play_for_free_self"
+        },
+        "condition": {
+          "type": "has_character_named",
+          "name": "Fat Cat",
+          "player": {
+            "type": "self"
+          }
+        },
+        "storyName": "WELCOME BACK, SIR",
+        "rulesText": "If you have a character named Fat Cat in play, you may play this card for free."
+      }
+    ],
     "setId": "12",
     "number": 202,
     "rarity": "uncommon",

@@ -268,6 +268,18 @@ const TRIGGER_MATCHERS: Matcher<Json>[] = [
       filter: { owner: { type: "self" }, cardType: ["character"], hasTrait: m[1] },
     }),
   },
+  // "Whenever a character moves here" — location-scoped
+  {
+    name: "moves_here",
+    pattern: /^Whenever (?:a |you move a )character (?:moves |)here/i,
+    build: () => ({ on: "moves_to_location", filter: { atLocation: "this" } }),
+  },
+  // "Whenever a character quests while here" — location-scoped quests
+  {
+    name: "quests_while_here",
+    pattern: /^Whenever a character quests while here/i,
+    build: () => ({ on: "quests", filter: { atLocation: "this" } }),
+  },
   // "Whenever a character is challenged while here" — location-scoped
   {
     name: "challenged_while_here",
@@ -894,6 +906,22 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
   },
 
   // ============= CAN'T ACTION ===============================================
+  // "Up to N chosen characters can't quest until the start of your next turn"
+  {
+    name: "up_to_n_cant_quest",
+    pattern: /^Up to (\d+) chosen characters can't quest until the start of your next turn/i,
+    build: (m) => ({
+      type: "cant_action",
+      action: "quest",
+      target: {
+        type: "chosen",
+        count: parseInt(m[1], 10),
+        filter: { zone: "play", cardType: ["character"] },
+      },
+      isUpTo: true,
+      duration: "until_caster_next_turn",
+    }),
+  },
   {
     name: "chosen_opp_cant_ready_next_turn",
     pattern: /^chosen opposing character can't ready at the start of their next turn/i,
@@ -1142,10 +1170,10 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       },
     }),
   },
-  // "return an item card from your discard to your hand"
+  // "return [another] item card from your discard to your hand"
   {
     name: "return_item_from_discard",
-    pattern: /^(?:you may )?return an item card from your discard to your hand/i,
+    pattern: /^(?:you may )?return (?:another |an )?item card from your discard to your hand/i,
     build: (m) => ({
       type: "return_to_hand",
       isMay: /^you may /i.test(m[0]) || undefined,
@@ -1565,6 +1593,16 @@ const CONDITION_MATCHERS: Matcher<Json>[] = [
       filter: { cardType: ["character"], excludeSelf: true },
     }),
   },
+  // "if you played a Trait character this turn" — with trait
+  {
+    name: "played_a_trait_character_this_turn",
+    pattern: /^if you(?:'ve| have)? played a ([A-Z][a-zA-Z]*) character this turn/i,
+    build: (m) => ({
+      type: "played_this_turn",
+      amount: 1,
+      filter: { cardType: ["character"], hasTrait: m[1] },
+    }),
+  },
   {
     name: "played_a_character_this_turn",
     pattern: /^if you(?:'ve| have)? played a character this turn/i,
@@ -1668,10 +1706,12 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
   // can't ...". Try a generic condition match first; fall back to the hard-
   // coded turn forms for phrasings the condition table doesn't cover.
   let leadingCondition: Json | null = null;
-  const leadCond = /^(?:During your turn|Once during your turn|During opponents'?\s*turns?),\s*/i.exec(rest);
+  let oncePerTurn = false;
+  const leadCond = /^(?:During your turn|Once during your turn|Once per turn|During opponents'?\s*turns?),\s*/i.exec(rest);
   if (leadCond) {
     if (/^Once\b/i.test(leadCond[0])) {
       leadingCondition = { type: "is_your_turn" };
+      oncePerTurn = true;
     } else if (/opponents/i.test(leadCond[0])) {
       leadingCondition = { type: "not", condition: { type: "is_your_turn" } };
     } else {
@@ -1729,6 +1769,7 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
         };
         const finalCond = leadingCondition ?? triggerCondition;
         if (finalCond) ability.condition = finalCond;
+        if (oncePerTurn) ability.oncePerTurn = true;
         return { ability, unmatched: "" };
       }
     }
@@ -1741,6 +1782,7 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
       };
       const finalCond = leadingCondition ?? triggerCondition;
       if (finalCond) ability.condition = finalCond;
+      if (oncePerTurn) ability.oncePerTurn = true;
       return { ability, unmatched: "" };
     }
     return { ability: null, unmatched: effects ? effects.remainder : after };
@@ -1902,6 +1944,56 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
     };
     if (leadingCondition) ability.condition = leadingCondition;
     return { ability, unmatched: "" };
+  }
+
+  // "you may play this card/item for free." — after leading condition is peeled
+  const statPlayFreeAfterCond = /^you may play this (?:card|item|character) for free\.?$/i.exec(rest);
+  if (statPlayFreeAfterCond) {
+    const ability: Json = { type: "static", effect: { type: "grant_play_for_free_self" } };
+    if (leadingCondition) ability.condition = leadingCondition;
+    return { ability, unmatched: "" };
+  }
+
+  // "This character can't quest unless you have a character with N {W/S} or more in play."
+  const statCantQuestUnless = /^This character can't quest unless you have a character with (\d+) \{(S|W)\} or more in play\.?$/i.exec(rest);
+  if (statCantQuestUnless) {
+    const statField = statCantQuestUnless[2].toUpperCase() === "S" ? "strengthAtLeast" : "willpowerAtLeast";
+    return {
+      ability: {
+        type: "static",
+        condition: {
+          type: "not",
+          condition: {
+            type: "you_control_matching",
+            filter: {
+              cardType: ["character"],
+              zone: "play",
+              owner: { type: "self" },
+              [statField]: parseInt(statCantQuestUnless[1], 10),
+            },
+          },
+        },
+        effect: { type: "cant_action_self", action: "quest" },
+      },
+      unmatched: "",
+    };
+  }
+
+  // "If you have a character named X in play, you may play this card for free."
+  const statPlayFreeIfNamed = /^If you have a character named ([A-Z][\w''\- ]*?) in play, you may play this (?:card|item) for free\.?$/i.exec(rest);
+  if (statPlayFreeIfNamed) {
+    return {
+      ability: {
+        type: "static",
+        condition: {
+          type: "has_character_named",
+          name: statPlayFreeIfNamed[1].trim(),
+          player: { type: "self" },
+        },
+        effect: { type: "grant_play_for_free_self" },
+      },
+      unmatched: "",
+    };
   }
 
   // "This character can't ready." — blanket ready block (ready_anytime).
