@@ -597,7 +597,7 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
           type: "cant_action",
           action: "quest",
           target: { type: "last_resolved_target" },
-          duration: "rest_of_turn",
+          duration: "end_of_turn",
         },
       ],
     }),
@@ -618,7 +618,7 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
           type: "cant_action",
           action: "quest",
           target: { type: "last_resolved_target" },
-          duration: "rest_of_turn",
+          duration: "end_of_turn",
         },
       ],
     }),
@@ -2513,10 +2513,170 @@ function pct(n: number, d: number): string {
 // CLI
 // =============================================================================
 
+// =============================================================================
+// --apply MODE — write compiled abilities into card JSON files
+// -----------------------------------------------------------------------------
+// For each card with empty abilities (no hand-wired effects), compiles the
+// rulesText and writes the result into the card's abilities[] / actionEffects.
+// Validates compiled JSON against engine types before writing — skips unknown
+// types and reports them. Does NOT overwrite existing hand-wired abilities.
+// =============================================================================
+
+function loadKnownEngineTypes(): { types: Set<string>; triggers: Set<string> } {
+  const typesPath = join(__dirname, "../packages/engine/src/types/index.ts");
+  const src = readFileSync(typesPath, "utf8");
+  const types = new Set<string>();
+  for (const m of src.matchAll(/type:\s*"([a-z_]+)"/g)) types.add(m[1]);
+  const triggers = new Set<string>();
+  for (const m of src.matchAll(/on:\s*"([a-z_]+)"/g)) triggers.add(m[1]);
+  return { types, triggers };
+}
+
+function validateJson(json: Json, known: { types: Set<string>; triggers: Set<string> }): string[] {
+  const issues: string[] = [];
+  function check(obj: any): void {
+    if (!obj || typeof obj !== "object") return;
+    if (Array.isArray(obj)) { obj.forEach(check); return; }
+    if (obj.type && typeof obj.type === "string" && !obj.type.startsWith("__")) {
+      if (!known.types.has(obj.type)) issues.push(`unknown type "${obj.type}"`);
+    }
+    if (obj.on && typeof obj.on === "string") {
+      if (!known.triggers.has(obj.on)) issues.push(`unknown trigger "${obj.on}"`);
+    }
+    for (const v of Object.values(obj)) {
+      if (typeof v === "object" && v !== null) check(v);
+    }
+  }
+  check(json);
+  return issues;
+}
+
+function hasHandWiredAbilities(card: CardJSON): boolean {
+  // A card has hand-wired abilities if it has any non-keyword ability entries
+  for (const ab of card.abilities ?? []) {
+    if (ab.type !== "keyword") return true;
+  }
+  if ((card.actionEffects ?? []).length > 0) return true;
+  return false;
+}
+
+function applyToSet(setId: string): void {
+  const known = loadKnownEngineTypes();
+  const fileName = `card-set-${setId.padStart(3, "0")}.json`;
+  const filePath = join(CARDS_DIR, fileName);
+  let cards: CardJSON[];
+  try {
+    cards = JSON.parse(readFileSync(filePath, "utf8"));
+  } catch {
+    console.error(`Could not read ${filePath}`);
+    return;
+  }
+
+  let wired = 0;
+  let skippedExisting = 0;
+  let skippedUnknown = 0;
+  let skippedNoMatch = 0;
+  const unknownReport: Array<{ card: string; issues: string[] }> = [];
+
+  for (const card of cards) {
+    if (hasHandWiredAbilities(card)) {
+      skippedExisting++;
+      continue;
+    }
+
+    const compiled = compileCard(card);
+
+    // --- Action cards: write to actionEffects ---------------------------------
+    if (card.cardType === "action" && compiled.actionEffectResult?.ability) {
+      const ab = compiled.actionEffectResult.ability;
+      if (ab.type === "__actionEffects__" && Array.isArray(ab.effects)) {
+        const issues = validateJson({ effects: ab.effects }, known);
+        if (issues.length > 0) {
+          skippedUnknown++;
+          unknownReport.push({ card: card.fullName, issues });
+          continue;
+        }
+        card.actionEffects = ab.effects;
+        wired++;
+        continue;
+      }
+    }
+
+    // --- Non-action cards: write to abilities[] --------------------------------
+    const newAbilities: Json[] = [];
+    // Preserve existing keyword abilities
+    for (const ab of card.abilities ?? []) {
+      if (ab.type === "keyword") newAbilities.push(ab);
+    }
+
+    let cardValid = true;
+    let hasNewAbilities = false;
+    for (const nr of compiled.namedResults) {
+      if (!nr.ability) continue;
+      // Handle markers
+      if (nr.ability.type === "__alternateNames__") {
+        card.alternateNames = nr.ability.names;
+        hasNewAbilities = true;
+        continue;
+      }
+      // Validate against engine types
+      const issues = validateJson(nr.ability, known);
+      if (issues.length > 0) {
+        cardValid = false;
+        unknownReport.push({ card: card.fullName, issues });
+        break;
+      }
+      // Add storyName and rulesText to the ability for audit trail
+      const ability = { ...nr.ability, storyName: nr.storyName, rulesText: nr.rulesText };
+      newAbilities.push(ability);
+      hasNewAbilities = true;
+    }
+
+    if (!cardValid) {
+      skippedUnknown++;
+      continue;
+    }
+    if (!hasNewAbilities) {
+      skippedNoMatch++;
+      continue;
+    }
+
+    card.abilities = newAbilities;
+    wired++;
+  }
+
+  // Write back
+  writeFileSync(filePath, JSON.stringify(cards, null, 2) + "\n");
+
+  console.log(`\n=== --apply results for set ${setId} ===`);
+  console.log(`  Wired:              ${wired} cards`);
+  console.log(`  Skipped (existing): ${skippedExisting} (already hand-wired)`);
+  console.log(`  Skipped (unknown):  ${skippedUnknown} (uses unknown engine types)`);
+  console.log(`  Skipped (no match): ${skippedNoMatch} (compiler couldn't parse)`);
+  console.log(`  Wrote:              ${filePath}`);
+  if (unknownReport.length > 0) {
+    console.log(`\n  Cards skipped due to unknown types:`);
+    for (const r of unknownReport) {
+      console.log(`    ${r.card}: ${r.issues.join(", ")}`);
+    }
+  }
+  console.log(`\n  Next: run \`pnpm card-status\` and \`pnpm decompile-cards --set ${setId}\` to validate.`);
+}
+
 function main(): void {
   const args = process.argv.slice(2);
   const setFlag = args.indexOf("--set");
   const cardFlag = args.indexOf("--card");
+  const applyMode = args.includes("--apply");
+
+  if (applyMode) {
+    if (setFlag < 0) {
+      console.error("--apply requires --set <id>. Example: pnpm compile-cards --set 12 --apply");
+      process.exit(1);
+    }
+    applyToSet(args[setFlag + 1]);
+    return;
+  }
 
   if (setFlag >= 0) {
     const setId = args[setFlag + 1];
