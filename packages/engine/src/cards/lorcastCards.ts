@@ -23,7 +23,6 @@ import set0C2 from "./lorcast-set-0C2.json" assert { type: "json" };
 import set0P1 from "./lorcast-set-0P1.json" assert { type: "json" };
 import set0P2 from "./lorcast-set-0P2.json" assert { type: "json" };
 import set0P3 from "./lorcast-set-0P3.json" assert { type: "json" };
-import set0cp from "./lorcast-set-0cp.json" assert { type: "json" };
 import setD23 from "./lorcast-set-D23.json" assert { type: "json" };
 import setDIS from "./lorcast-set-DIS.json" assert { type: "json" };
 
@@ -52,7 +51,6 @@ const cards = [
   ...loadSet(set0P1),
   ...loadSet(set0P2),
   ...loadSet(set0P3),
-  ...loadSet(set0cp),
   ...loadSet(setD23),
   ...loadSet(setDIS),
 ];
