@@ -35,6 +35,24 @@ All sets 1-12 + promos P1/P2/P3/C1/C2/D23 fetched via `scripts/import-cards-rav.
 Zero Lorcast dependency. Ravensburger transcription errors are hardcoded in `STORY_NAME_OVERRIDES`
 inside the importer (3 known cases). See `docs/DECISIONS.md` → Card Data Decisions.
 
+### Refreshing card data (new set drops / reveals)
+
+```bash
+# 1. Update card JSON (preserves hand-wired abilities)
+pnpm import-cards                       # re-imports ALL sets from Ravensburger
+pnpm import-cards --sets set12          # or just one set
+pnpm card-status                        # verify: 0 invalid, check new stubs
+
+# 2. Update card images (Desktop/Lorcana_Assets)
+cd ~/Desktop/Lorcana_Assets
+node rav-download-images.mjs set12      # downloads base + foil + normal layers
+                                        # promo cards auto-route to P1/P2/P3/etc
+```
+
+Both commands are idempotent — re-running picks up new cards without losing
+existing work. Run whenever Ravensburger adds cards to the API (typically
+same day as app release).
+
 ## Audits
 
 Four scripts triangulate data quality; all four report clean across all 17 sets.
