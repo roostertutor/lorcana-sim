@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 // =============================================================================
-// LORCAST DATA AUDIT
+// CARD DATA AUDIT
 // Scans local lorcast-set-*.json files for cards whose rulesText mentions a
 // keyword that is NOT present in their abilities array, OR whose numeric
 // keyword has no value field. Reports the mismatches so we can:
-//   1. Track upstream Lorcast API drift over time.
-//   2. Surface importer parsing gaps (Lorcast returns the keyword but our
-//      switch doesn't extract its value).
-//   3. Decide whether to file an upstream issue or extend our importer.
+//   1. Track data drift after re-imports from Ravensburger's API.
+//   2. Surface importer parsing gaps (keyword present in text but our
+//      parser doesn't extract its value).
+//   3. Decide whether to add a STORY_NAME_OVERRIDES entry or fix the parser.
 //
 // Run after re-importing or as a periodic check:
-//   pnpm tsx scripts/audit-lorcast-data.ts
-//   pnpm tsx scripts/audit-lorcast-data.ts --json   (machine-readable)
+//   pnpm audit-cards
+//   pnpm audit-cards --json   (machine-readable)
 // =============================================================================
 
 import { readdirSync, readFileSync } from "fs";
@@ -301,7 +301,7 @@ function main() {
   }
 
   if (issues.length === 0) {
-    console.log("✓ Lorcast data audit clean — no keyword/value mismatches.");
+    console.log("✓ Card data audit clean — no keyword/value mismatches.");
     return;
   }
 
@@ -313,7 +313,7 @@ function main() {
     byKind.get(key)!.push(issue);
   }
 
-  console.log(`Lorcast data audit — ${issues.length} issue(s) across ${byKind.size} pattern(s):\n`);
+  console.log(`Card data audit — ${issues.length} issue(s) across ${byKind.size} pattern(s):\n`);
   for (const [key, group] of [...byKind.entries()].sort()) {
     console.log(`  ${key}  (${group.length} card${group.length === 1 ? "" : "s"})`);
     for (const i of group.slice(0, 8)) {
@@ -328,8 +328,8 @@ function main() {
     if (group.length > 8) console.log(`    ... and ${group.length - 8} more`);
   }
   console.log(`\nReports cover three families of drift / mis-wiring:`);
-  console.log(`  1. Keyword reminder line in rulesText with no matching ability (Lorcast`);
-  console.log(`     API drift — see docs/LORCAST_DATA_ISSUES.md).`);
+  console.log(`  1. Keyword reminder line in rulesText with no matching ability (upstream`);
+  console.log(`     data drift — see docs/LORCAST_DATA_ISSUES.md).`);
   console.log(`  2. Numeric keyword whose value field doesn't match the rules text, OR`);
   console.log(`     missing required scalar (singTogetherCost / shiftCost).`);
   console.log(`  3. Static effect-type mismatches: self_cost_reduction wiping the full`);

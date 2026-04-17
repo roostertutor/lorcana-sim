@@ -26,15 +26,14 @@ pnpm test                             # all tests
 pnpm test:watch                       # TDD (engine)
 pnpm typecheck                        # fails on pre-existing exactOptionalPropertyTypes strictness — not from recent changes
 pnpm dev                              # UI at localhost:5173
-pnpm tsx scripts/import-cards-rav.ts  # fetch main sets 1-12 from Ravensburger API (authoritative; zero publish delay)
-pnpm import-cards --sets P1,P2,P3,cp,D23,DIS  # fetch promo sets from Lorcast (Ravensburger doesn't expose these)
+pnpm import-cards                     # fetch all sets + promos from Ravensburger API
 pnpm learn                            # train RL policy (see --help)
 ```
 
-Card data sources:
-- **Main sets 1-12**: Ravensburger's `disneylorcana.com/api/getCardApiData` — use `import-cards-rav.ts`. Official, zero delay, includes Iconic/Epic cards Lorcast doesn't. See `docs/DECISIONS.md` → Card Data Decisions.
-- **Promos (P1/P2/P3/cp/D23/DIS)**: Lorcast API — use legacy `import-cards`. Ravensburger doesn't expose these.
-- **Ravensburger transcription errors**: hardcoded in `STORY_NAME_OVERRIDES` inside `scripts/import-cards-rav.ts` (3 known cases). Add new entries when discovered; re-imports stay correct.
+Card data source: **Ravensburger's official API** (`disneylorcana.com/api/getCardApiData`).
+All sets 1-12 + promos P1/P2/P3/C1/C2/D23 fetched via `scripts/import-cards-rav.ts`.
+Zero Lorcast dependency. Ravensburger transcription errors are hardcoded in `STORY_NAME_OVERRIDES`
+inside the importer (3 known cases). See `docs/DECISIONS.md` → Card Data Decisions.
 
 ## Audits
 
@@ -43,7 +42,7 @@ Four scripts triangulate data quality; all four report clean across all 17 sets.
 | Script | Covers | What it misses |
 |---|---|---|
 | `pnpm card-status` | JSON field validation: every `type`/`on` discriminator checked against `types/index.ts` unions; every CardFilter field checked against the `CardFilter` interface. Catches typos that silently no-op (`start_of_turn` vs `turn_start`, `maxStrength` vs `strengthAtMost`, `inkColor` vs `inkColors`, `hasCardsUnder` vs `hasCardUnder`, `notId` vs `excludeSelf`, `name` vs `hasName`). Extracts valid names dynamically from `types/index.ts` so it stays in sync. | Required-field structural checks (e.g. `action_restriction` requires `affectedPlayer` — missing it crashes at runtime, passes audit). |
-| `pnpm audit-lorcast` | Lorcast API drift: scalar fields, static-effect-type mismatches, keyword drops from upstream. Run after re-import. | Engine-internal wiring correctness. |
+| `pnpm audit-cards` | Card data drift: scalar fields, static-effect-type mismatches, keyword drops. Run after re-import. | Engine-internal wiring correctness. |
 | `pnpm audit-approximations` | Parenthetical `(approximation: ...)` annotations in rulesText. | Anything not marked with that exact phrase. |
 | `pnpm decompile-cards` | Authoritative semantic check: renders JSON ability back to English, similarity-scores against oracle text. The bottom of the sorted output is the bug list — stubs, wrong-trigger wiring, missing conditional branches, per-instance-vs-player-wide targeting, wrong destination zones, etc. Run `pnpm decompile-cards --set 001` for one set. | Handler-body runtime bugs (wrong variable names, off-by-one in reducers). Only tests or live play catch those. |
 
