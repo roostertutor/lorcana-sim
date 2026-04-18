@@ -1901,6 +1901,10 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         const hasNextGame = !!matchNextGameId;
         const myScore = matchScore ? (myId === "player1" ? matchScore.p1 : matchScore.p2) : 0;
         const oppScore = matchScore ? (myId === "player1" ? matchScore.p2 : matchScore.p1) : 0;
+        const myLore = gameState.players[myId]?.lore ?? 0;
+        const oppId: PlayerID = myId === "player1" ? "player2" : "player1";
+        const oppLore = gameState.players[oppId]?.lore ?? 0;
+        const turnCount = gameState.turnNumber;
 
         return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
@@ -1910,6 +1914,23 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             </div>
             <div className="text-sm text-gray-400">
               {winner === myId ? "You won the game" : winner ? (multiplayerGame ? "Your opponent won" : "The bot won") : "The game ended in a draw"}
+            </div>
+            {/* Final game stats — lore totals + turn count */}
+            <div className="flex items-center justify-center gap-6 py-2 border-y border-gray-800/60">
+              <div className="text-center">
+                <div className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">You</div>
+                <div className="text-2xl font-black text-green-400 font-mono">{myLore}</div>
+              </div>
+              <div className="text-gray-700 text-lg">–</div>
+              <div className="text-center">
+                <div className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">Opp</div>
+                <div className="text-2xl font-black text-red-400 font-mono">{oppLore}</div>
+              </div>
+              <div className="h-8 w-px bg-gray-800" />
+              <div className="text-center">
+                <div className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">Turns</div>
+                <div className="text-2xl font-black text-gray-300 font-mono">{turnCount}</div>
+              </div>
             </div>
             {/* Bo3 match score */}
             {matchScore && (

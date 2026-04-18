@@ -205,11 +205,27 @@ export default function CardInspectModal({ instanceId, gameState, definitions, a
               </div>
             )}
 
-            {/* Active timed effects on this card — show source card's actual rules text */}
-            {instance && instance.timedEffects.length > 0 && (
+            {/* Active timed effects on this card — show source card's actual rules text.
+                Multiple identical triggers (e.g. Pack of Her Own firing twice in a turn)
+                are grouped with a ×N count to avoid visually duplicated rows. */}
+            {instance && instance.timedEffects.length > 0 && (() => {
+              const groups = new Map<string, { te: any; count: number }>();
+              for (const te of instance.timedEffects) {
+                const key = JSON.stringify({
+                  src: te.sourceInstanceId ?? null,
+                  story: te.sourceStoryName ?? null,
+                  kw: te.keyword ?? null,
+                  exp: te.expiresAt ?? null,
+                });
+                const existing = groups.get(key);
+                if (existing) existing.count += 1;
+                else groups.set(key, { te, count: 1 });
+              }
+              const uniqueEffects = Array.from(groups.values());
+              return (
               <div className="border-t border-gray-800 pt-2 space-y-1.5">
                 <div className="text-[9px] text-gray-600 uppercase tracking-wider font-bold">Active Effects</div>
-                {instance.timedEffects.map((te: any, i: number) => {
+                {uniqueEffects.map(({ te, count }: { te: any; count: number }, i: number) => {
                   const srcInst = te.sourceInstanceId ? gameState.cards[te.sourceInstanceId] : undefined;
                   const srcDef = srcInst ? definitions[srcInst.definitionId] : undefined;
                   // Engine stamps `sourceStoryName` on TimedEffects created
@@ -259,7 +275,12 @@ export default function CardInspectModal({ instanceId, gameState, definitions, a
                   return (
                     <div key={i} className="rounded-lg bg-gray-900 border border-gray-800 px-2.5 py-1.5">
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-[10px] font-bold text-indigo-300 truncate">{srcName}</span>
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="text-[10px] font-bold text-indigo-300 truncate">{srcName}</span>
+                          {count > 1 && (
+                            <span className="text-[9px] font-bold text-amber-300 bg-amber-900/40 rounded px-1 shrink-0">×{count}</span>
+                          )}
+                        </div>
                         <span className="text-[9px] text-gray-600 shrink-0">{duration}</span>
                       </div>
                       {srcText && (
@@ -269,7 +290,8 @@ export default function CardInspectModal({ instanceId, gameState, definitions, a
                   );
                 })}
               </div>
-            )}
+              );
+            })()}
           </div>
         )}
 

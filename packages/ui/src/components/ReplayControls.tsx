@@ -13,11 +13,9 @@ interface Props {
   session: ReplaySession;
   /** 3e-ii: Fork the current replay position into a live game */
   onTakeOver?: (state: GameState) => void;
-  /** 3e-iii: Sim 200 games from current position, compare win% */
-  onBranchAnalysis?: (state: GameState) => void;
 }
 
-export default function ReplayControls({ session, onTakeOver, onBranchAnalysis }: Props) {
+export default function ReplayControls({ session, onTakeOver }: Props) {
   const { step, totalSteps, goTo, stepBack, stepForward, isPlaying, togglePlay, playbackSpeed, setPlaybackSpeed, state } = session;
 
   const atStart = step === 0;
@@ -101,27 +99,16 @@ export default function ReplayControls({ session, onTakeOver, onBranchAnalysis }
         </button>
       </div>
 
-      {/* Fork / Branch analysis */}
-      {(onTakeOver || onBranchAnalysis) && (
+      {/* Fork */}
+      {onTakeOver && state && (
         <div className="flex items-center gap-2 pt-0.5 border-t border-gray-800/60">
-          {onTakeOver && state && (
-            <button
-              onClick={() => onTakeOver(state)}
-              className="flex-1 px-2 py-1.5 rounded text-[11px] bg-green-900/30 hover:bg-green-900/50 text-green-400 border border-green-700/40 transition-colors"
-              title="Take over from this position — play out the game yourself"
-            >
-              Take over here
-            </button>
-          )}
-          {onBranchAnalysis && state && (
-            <button
-              onClick={() => onBranchAnalysis(state)}
-              className="flex-1 px-2 py-1.5 rounded text-[11px] bg-indigo-900/30 hover:bg-indigo-900/50 text-indigo-400 border border-indigo-700/40 transition-colors"
-              title="Simulate 200 games from this position to estimate win probability"
-            >
-              Branch analysis
-            </button>
-          )}
+          <button
+            onClick={() => onTakeOver(state)}
+            className="flex-1 px-2 py-1.5 rounded text-[11px] bg-green-900/30 hover:bg-green-900/50 text-green-400 border border-green-700/40 transition-colors"
+            title="Take over from this position — play out the game yourself"
+          >
+            Take over here
+          </button>
         </div>
       )}
     </div>

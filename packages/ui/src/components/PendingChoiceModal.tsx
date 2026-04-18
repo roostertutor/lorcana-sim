@@ -228,10 +228,24 @@ export default function PendingChoiceModal({
     // CRD 2.2.2: Mulligan
     if (pendingChoice.type === "choose_mulligan") {
       const hand = pendingChoice.validTargets ?? [];
+      const onThePlay = gameState.firstPlayerId != null && gameState.firstPlayerId === myId;
+      const onTheDraw = gameState.firstPlayerId != null && gameState.firstPlayerId !== myId;
       return (
         <div className="space-y-3">
           <div>
-            <div className="text-indigo-200 text-sm font-bold mb-0.5">Opening Hand — Mulligan</div>
+            <div className="flex items-center gap-2 mb-0.5">
+              <div className="text-indigo-200 text-sm font-bold">Opening Hand — Mulligan</div>
+              {onThePlay && (
+                <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-amber-600/90 text-white">
+                  On the play
+                </span>
+              )}
+              {onTheDraw && (
+                <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-sky-600/90 text-white">
+                  On the draw
+                </span>
+              )}
+            </div>
             <div className="text-gray-400 text-xs">{pendingChoice.prompt}</div>
           </div>
           <div className="grid grid-cols-4 gap-1.5 pb-1">
@@ -411,13 +425,22 @@ export default function PendingChoiceModal({
 
     // May (accept/decline)
     if (pendingChoice.type === "choose_may") {
+      const srcId = (pendingChoice as { sourceInstanceId?: string }).sourceInstanceId;
+      const srcExists = srcId && gameState.cards[srcId];
       return (
         <div className="space-y-4">
-          <div>
-            <div className="text-gray-200 text-sm">{pendingChoice.prompt}</div>
-            {contextHints.length > 0 && (
-              <div className="text-[10px] text-gray-500 mt-0.5">{contextHints.join(" · ")}</div>
+          <div className="flex items-start gap-3">
+            {srcExists && (
+              <div className="shrink-0">
+                <CardThumb id={srcId!} onClick={() => {}} />
+              </div>
             )}
+            <div className="flex-1 min-w-0">
+              <div className="text-gray-200 text-sm">{pendingChoice.prompt}</div>
+              {contextHints.length > 0 && (
+                <div className="text-[10px] text-gray-500 mt-0.5">{contextHints.join(" · ")}</div>
+              )}
+            </div>
           </div>
           <div className="flex gap-2">
             <button
@@ -454,17 +477,27 @@ export default function PendingChoiceModal({
               const def = sourceCard ? definitions[sourceCard.definitionId] : undefined;
               const cardName = def?.fullName ?? trigger.sourceInstanceId;
               const abilityName = trigger.ability.storyName ?? "Ability";
+              const rulesText = (trigger.ability as { rulesText?: string }).rulesText;
+              const srcExists = !!sourceCard;
               return (
                 <button
                   key={idxStr}
-                  className="flex items-center gap-3 px-3 py-2.5 bg-gray-800 hover:bg-gray-700 border border-gray-600 hover:border-indigo-500 rounded-lg transition-colors text-left"
+                  className="flex items-start gap-3 px-3 py-2.5 bg-gray-800 hover:bg-gray-700 border border-gray-600 hover:border-indigo-500 rounded-lg transition-colors text-left"
                   onClick={() => onResolveChoice(idxStr)}
                 >
-                  <div className="flex-1 min-w-0">
+                  {srcExists && (
+                    <div className="shrink-0 -my-1">
+                      <CardThumb id={trigger.sourceInstanceId} onClick={() => {}} />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0 self-center">
                     <div className="text-sm font-semibold text-white truncate">{cardName}</div>
                     <div className="text-xs text-indigo-300 italic truncate">{abilityName}</div>
+                    {rulesText && (
+                      <div className="text-[10px] text-gray-400 leading-snug mt-1 line-clamp-3">{rulesText}</div>
+                    )}
                   </div>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-400 flex-shrink-0 self-center" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
                   </svg>
                 </button>
