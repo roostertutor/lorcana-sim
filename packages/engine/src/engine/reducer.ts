@@ -3030,12 +3030,14 @@ export function applyEffect(
       events.push({ type: "card_revealed", instanceId: topId, playerId: targetPlayer, sourceInstanceId });
       const matches = matchesFilter(topInst, topDef, effect.filter, state, targetPlayer);
       if (matches) {
-        // CRD 6.1.4: second "may" — "if it's X, you may Y". When matchIsMay is
-        // set, pause here with a choose_may so the controller can decline the
-        // match action (Oswald, Simba King in the Making, Chief Bogo Commanding
-        // Officer, etc.). On decline, the revealed card routes to
-        // noMatchDestination (symmetric with matchPayCost's can't-afford
-        // fallback).
+        // CRD 6.1.4: second "may" — "if it's X, [player] may Y". When
+        // matchIsMay is set, pause here with a choose_may. The chooser is the
+        // player whose deck was revealed (targetPlayer) — same as whoever
+        // will take the card into hand / play it. For self-targeting reveals
+        // (Oswald, Simba, Chief Bogo) this equals controllingPlayerId; for
+        // opponent-targeting reveals (Daisy Duck Donald's Date BIG PRIZE:
+        // "each opponent reveals... THEY may put it into their hand") this
+        // correctly hands the may-prompt to the opponent.
         if (effect.matchIsMay) {
           const sourceDef = definitions[state.cards[sourceInstanceId]?.definitionId ?? ""];
           const cardName = sourceDef?.fullName ?? sourceInstanceId;
@@ -3044,7 +3046,7 @@ export function applyEffect(
             ...state,
             pendingChoice: {
               type: "choose_may",
-              choosingPlayerId: controllingPlayerId,
+              choosingPlayerId: targetPlayer,
               prompt: `${cardName}: revealed ${revealedName}. ${effect.matchAction === "play_card" ? "Play it for free" : effect.matchAction === "to_hand" ? "Put it into your hand" : "Put it into inkwell exerted"}?`,
               optional: true,
               sourceInstanceId,

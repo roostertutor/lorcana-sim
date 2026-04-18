@@ -1035,6 +1035,49 @@ describe("§5 Set 5 — reveal_top_conditional fires card_revealed events", () =
     const revealEvents = r.events.filter(e => e.type === "card_revealed");
     expect(revealEvents.some(e => e.instanceId === opponentTopId)).toBe(true);
   });
+
+  // Oracle: "each opponent reveals the top card of their deck. If it's a
+  // character card, THEY may put it into their hand." The "may" belongs to
+  // the opponent, not the Daisy controller. Pre-fix the handler hardcoded
+  // the may-prompt's choosingPlayerId to controllingPlayerId (the Daisy
+  // side), so the wrong player would be asked.
+  it("Daisy Duck Donald's Date BIG PRIZE: the opponent is the chooser of the 'may put into hand' prompt", () => {
+    let state = startGame();
+    state.currentPlayer = "player1";
+    let daisyId: string;
+    ({ state, instanceId: daisyId } = injectCard(state, "player1", "daisy-duck-donalds-date", "play", { isDrying: false }));
+
+    // Force a character on top of player2's deck so the filter matches.
+    let oppTop: string;
+    ({ state, instanceId: oppTop } = injectCard(state, "player2", "pumbaa-friendly-warthog", "deck"));
+    state = {
+      ...state,
+      zones: {
+        ...state.zones,
+        player2: {
+          ...state.zones.player2,
+          deck: [oppTop, ...state.zones.player2.deck.filter(id => id !== oppTop)],
+        },
+      },
+    };
+
+    const r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: daisyId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // A choose_may must surface, and the chooser must be the opponent.
+    expect(r.newState.pendingChoice?.type).toBe("choose_may");
+    expect(r.newState.pendingChoice?.choosingPlayerId).toBe("player2");
+
+    // Opponent accepts → card goes to THEIR hand (not the controller's).
+    const r2 = applyAction(
+      r.newState,
+      { type: "RESOLVE_CHOICE", playerId: "player2", choice: "accept" },
+      CARD_DEFINITIONS
+    );
+    expect(r2.success).toBe(true);
+    expect(r2.newState.cards[oppTop].zone).toBe("hand");
+    expect(r2.newState.cards[oppTop].ownerId).toBe("player2");
+    expect(getZone(r2.newState, "player2", "hand")).toContain(oppTop);
+  });
 });
 
 describe("§5 Set 5 — Robin Hood Sharpshooter MY GREATEST PERFORMANCE (peek_and_set_target chain)", () => {
