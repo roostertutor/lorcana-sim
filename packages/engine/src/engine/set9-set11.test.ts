@@ -515,7 +515,7 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     expect(getInstance(state, flynnId).cardsUnder.length).toBe(2);
   });
 
-  it("put_cards_under_into_hand: drains cardsUnder pile to owner's hand", () => {
+  it("drain_cards_under to hand: drains cardsUnder pile to owner's hand", () => {
     let state = startGame();
     state = giveInk(state, "player1", 5);
     let flynnId: string;
@@ -535,8 +535,8 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     const underIds = [...getInstance(state, flynnId).cardsUnder];
 
     state = applyEffect(state, {
-      type: "put_cards_under_into_hand",
-      target: { type: "this" },
+      type: "drain_cards_under",
+      destination: "hand",
     }, flynnId, "player1", CARD_DEFINITIONS, []);
 
     expect(getInstance(state, flynnId).cardsUnder.length).toBe(0);
@@ -721,7 +721,7 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     expect(getInstance(state, cauldronId).cardsUnder).not.toContain(charId);
   });
 
-  it("Alice Well-Read Whisper MYSTICAL INSIGHT: quest triggers put_cards_under_into_hand", () => {
+  it("Alice Well-Read Whisper MYSTICAL INSIGHT: quest triggers drain_cards_under (to hand)", () => {
     let state = startGame();
     state = giveInk(state, "player1", 5);
     let aliceId: string;
@@ -733,7 +733,7 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     expect(aliceBefore.cardsUnder.length).toBe(2);
     const handBefore = getZone(state, "player1", "hand").length;
 
-    // Quest → put_cards_under_into_hand fires.
+    // Quest → drain_cards_under (to hand) fires.
     state = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: aliceId }, CARD_DEFINITIONS).newState;
 
     const aliceAfter = getInstance(state, aliceId);

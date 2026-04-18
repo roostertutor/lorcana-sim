@@ -1941,10 +1941,8 @@
         },
         "effects": [
           {
-            "type": "put_cards_under_into_hand",
-            "target": {
-              "type": "this"
-            }
+            "type": "drain_cards_under",
+            "destination": "hand"
           }
         ]
       }
@@ -3368,8 +3366,8 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/62_0f86f63f37f456b330a432ba64b3475307335078.jpg",
     "actionEffects": [
       {
-        "type": "put_cards_under_into_hand",
-        "target": {
+        "type": "drain_cards_under",
+        "source": {
           "type": "chosen",
           "filter": {
             "zone": "play",
@@ -7533,10 +7531,8 @@
         },
         "effects": [
           {
-            "type": "put_cards_under_into_hand",
-            "target": {
-              "type": "this"
-            },
+            "type": "drain_cards_under",
+            "destination": "hand",
             "isMay": true
           },
           {
@@ -8827,22 +8823,25 @@
         },
         "effects": [
           {
-            "type": "put_cards_under_onto_target",
-            "isMay": true,
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "play",
-                "cardType": [
-                  "character",
-                  "location"
-                ],
-                "excludeSelf": true
+            "type": "drain_cards_under",
+            "destination": {
+              "type": "target_pile",
+              "target": {
+                "type": "chosen",
+                "filter": {
+                  "owner": {
+                    "type": "self"
+                  },
+                  "zone": "play",
+                  "cardType": [
+                    "character",
+                    "location"
+                  ],
+                  "excludeSelf": true
+                }
               }
-            }
+            },
+            "isMay": true
           }
         ]
       }
@@ -9010,10 +9009,9 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/162_035adc4ba432e19cd9498a670423d346a77ccd63.jpg",
     "actionEffects": [
       {
-        "type": "put_cards_under_into_inkwell",
-        "target": {
-          "type": "self"
-        }
+        "type": "drain_cards_under",
+        "source": "all_own",
+        "destination": "inkwell"
       }
     ]
   },
@@ -9301,22 +9299,47 @@
         "storyName": "SUDDEN SPIN",
         "rulesText": "{E}, Banish this item — Remove up to 2 damage from chosen character. If a character named Darkwing Duck is chosen, remove up to 4 damage instead.",
         "costs": [
-          { "type": "exert" },
-          { "type": "banish_self" }
+          {
+            "type": "exert"
+          },
+          {
+            "type": "banish_self"
+          }
         ],
         "effects": [
           {
             "type": "self_replacement",
             "target": {
               "type": "chosen",
-              "filter": { "zone": "play", "cardType": ["character"] }
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
             },
-            "condition": { "hasName": "Darkwing Duck" },
+            "condition": {
+              "hasName": "Darkwing Duck"
+            },
             "effect": [
-              { "type": "remove_damage", "amount": 2, "isUpTo": true, "target": { "type": "this" } }
+              {
+                "type": "remove_damage",
+                "amount": 2,
+                "isUpTo": true,
+                "target": {
+                  "type": "this"
+                }
+              }
             ],
             "instead": [
-              { "type": "remove_damage", "amount": 4, "isUpTo": true, "target": { "type": "this" } }
+              {
+                "type": "remove_damage",
+                "amount": 4,
+                "isUpTo": true,
+                "target": {
+                  "type": "this"
+                }
+              }
             ]
           }
         ]
@@ -10919,21 +10942,39 @@
         "target": {
           "type": "chosen",
           "filter": {
-            "owner": { "type": "opponent" },
+            "owner": {
+              "type": "opponent"
+            },
             "zone": "play",
-            "cardType": ["character"]
+            "cardType": [
+              "character"
+            ]
           }
         },
         "condition": {
           "type": "has_character_named",
           "name": "Darkwing Duck",
-          "player": { "type": "self" }
+          "player": {
+            "type": "self"
+          }
         },
         "effect": [
-          { "type": "deal_damage", "amount": 2, "target": { "type": "this" } }
+          {
+            "type": "deal_damage",
+            "amount": 2,
+            "target": {
+              "type": "this"
+            }
+          }
         ],
         "instead": [
-          { "type": "deal_damage", "amount": 3, "target": { "type": "this" } }
+          {
+            "type": "deal_damage",
+            "amount": 3,
+            "target": {
+              "type": "this"
+            }
+          }
         ]
       }
     ]
@@ -12243,22 +12284,25 @@
         },
         "effects": [
           {
-            "type": "put_cards_under_onto_target",
-            "isMay": true,
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "play",
-                "cardType": [
-                  "character",
-                  "location"
-                ],
-                "excludeSelf": true
+            "type": "drain_cards_under",
+            "destination": {
+              "type": "target_pile",
+              "target": {
+                "type": "chosen",
+                "filter": {
+                  "owner": {
+                    "type": "self"
+                  },
+                  "zone": "play",
+                  "cardType": [
+                    "character",
+                    "location"
+                  ],
+                  "excludeSelf": true
+                }
               }
-            }
+            },
+            "isMay": true
           }
         ]
       }

@@ -2,8 +2,24 @@
   "session": "2026-04-17",
   "baselineCommit": "fcb7006",
   "viewports": {
-    "mobile": { "device": "iPhone 13", "width": 390, "height": 844 },
     "desktop": { "width": 1440, "height": 900 }
   },
-  "surfaces": []
+  "filenameConvention": "us-<surface>.png (ours) / other-<surface>.png (duels)",
+  "surfaces": [
+    { "id": "landing-lobby-list-lobby-detail", "bucket": "chrome", "read": "O", "captured": true },
+    { "id": "victory-screen", "bucket": "chrome", "read": "O-info-poor", "captured": true },
+    { "id": "mulligan", "bucket": "chrome", "read": "G", "captured": true },
+    { "id": "deckbuilder", "bucket": "chrome", "read": "Weak", "captured": true },
+    { "id": "board-turn1", "bucket": "mixed", "read": "G", "captured": true },
+    { "id": "board-midgame", "bucket": "mixed", "read": "G", "captured": true },
+    { "id": "challenge-mode-toast", "bucket": "mixed", "read": "O", "captured": true },
+    { "id": "card-inspect-modal", "bucket": "mixed", "read": "O", "captured": true },
+    { "id": "discard-viewer", "bucket": "mixed", "read": "G", "captured": true },
+    { "id": "hand-reveal", "bucket": "mixed", "read": "O", "captured": true },
+    { "id": "resolving-triggered-abilities", "bucket": "mixed", "read": "Weak", "captured": true },
+    { "id": "choice-picker-1", "bucket": "mixed", "read": "Weak", "captured": true },
+    { "id": "choice-picker-2", "bucket": "mixed", "read": "O-spare", "captured": true },
+    { "id": "choice-picker-3", "bucket": "mixed", "read": "O", "captured": true },
+    { "id": "replay-scrubber", "bucket": "signature", "read": "O", "captured": true }
+  ]
 }

@@ -293,6 +293,101 @@ describe("CardTarget all-normalization — regression coverage", () => {
   });
 });
 
+describe("inkwell-write trigger audit — regression coverage", () => {
+  // Setup: drop Chip 'n' Dale Recovery Rangers as a watcher. Their SEARCH AND
+  // RESCUE triggers on `card_put_into_inkwell` (self). Depending on whether
+  // we reach the probe via applyEffect (synchronous, triggerStack only gets
+  // populated) or applyAction (processTriggerStack runs and surfaces the may
+  // prompt), the proof lives in a different place. Either presence is
+  // sufficient to prove the event propagated.
+  const watcherActivated = (state: any, watcherId: string): boolean => {
+    if (state.pendingChoice?.type === "choose_may" && state.pendingChoice?.sourceInstanceId === watcherId) {
+      return true;
+    }
+    return state.triggerStack.some((t: any) =>
+      t.ability?.trigger?.on === "card_put_into_inkwell" && t.sourceInstanceId === watcherId
+    );
+  };
+
+  // Perdita Determined Mother QUICK, EVERYONE HIDE:
+  // "Put all Puppy character cards from your discard into your inkwell."
+  // My target:{type:"all"} fold silently dropped the trigger before this fix.
+  it("Perdita target:all queues card_put_into_inkwell after draining discard", () => {
+    let state = startGame();
+    // Advance so it's player1's turn (Chip 'n' Dale's trigger is gated by
+    // is_your_turn). startGame ends in player1's main phase already.
+    let chipId: string, puppy1: string, puppy2: string;
+    ({ state, instanceId: chipId } = injectCard(state, "player1", "chip-n-dale-recovery-rangers", "play", { isDrying: false }));
+    // Rolly has the Puppy trait (Perdita herself does not).
+    ({ state, instanceId: puppy1 } = injectCard(state, "player1", "rolly-hungry-pup", "discard"));
+    ({ state, instanceId: puppy2 } = injectCard(state, "player1", "rolly-hungry-pup", "discard"));
+    state = applyEffect(
+      state,
+      {
+        type: "put_into_inkwell",
+        target: {
+          type: "all",
+          filter: {
+            owner: { type: "self" },
+            zone: "discard",
+            cardType: ["character"],
+            hasTrait: "Puppy",
+          },
+        },
+        enterExerted: true,
+      } as any,
+      "",
+      "player1",
+      CARD_DEFINITIONS,
+      []
+    );
+    expect(state.zones.player1.inkwell).toContain(puppy1);
+    expect(state.zones.player1.inkwell).toContain(puppy2);
+    expect(watcherActivated(state, chipId)).toBe(true);
+  });
+
+  // Visiting Christmas Past: "Put any number of cards from under your
+  // characters and locations into your inkwell facedown and exerted."
+  // Pre-fix: raw state mutation bypassed trigger firing entirely.
+  it("drain_cards_under → inkwell queues card_put_into_inkwell (Visiting Christmas Past path)", () => {
+    let state = startGame();
+    let chipId: string, parent: string, under: string;
+    ({ state, instanceId: chipId } = injectCard(state, "player1", "chip-n-dale-recovery-rangers", "play", { isDrying: false }));
+    ({ state, instanceId: parent } = injectCard(state, "player1", "pumbaa-friendly-warthog", "play", { isDrying: false }));
+    ({ state, instanceId: under } = injectCard(state, "player1", "pumbaa-friendly-warthog", "under"));
+    state = { ...state, cards: { ...state.cards, [parent]: { ...state.cards[parent], cardsUnder: [under] } } };
+
+    state = applyEffect(
+      state,
+      { type: "drain_cards_under", source: "all_own", destination: "inkwell" } as any,
+      "",
+      "player1",
+      CARD_DEFINITIONS,
+      []
+    );
+    expect(state.cards[under].zone).toBe("inkwell");
+    expect(state.cards[parent].cardsUnder).toEqual([]);
+    expect(watcherActivated(state, chipId)).toBe(true);
+  });
+
+  // Kida Creative Thinker KEY TO THE PUZZLE: activated look_at_top with
+  // pickDestination:"inkwell_exerted" path was missing the trigger.
+  it("look_at_top pickDestination:inkwell_exerted queues card_put_into_inkwell (Kida path)", () => {
+    let state = startGame();
+    let chipId: string, kida: string;
+    ({ state, instanceId: chipId } = injectCard(state, "player1", "chip-n-dale-recovery-rangers", "play", { isDrying: false }));
+    ({ state, instanceId: kida } = injectCard(state, "player1", "kida-creative-thinker", "play", { isDrying: false }));
+
+    const r = applyAction(
+      state,
+      { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: kida, abilityIndex: 1 },
+      CARD_DEFINITIONS
+    );
+    expect(r.success).toBe(true);
+    expect(watcherActivated(r.newState, chipId)).toBe(true);
+  });
+});
+
 describe("self_replacement — 3 silent bugs fixed after CRD 6.5.6 fold", () => {
   // The Terror That Flaps in the Night (set 11 action):
   // "Deal 2 damage to chosen opposing character. If you have a character

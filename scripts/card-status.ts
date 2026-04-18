@@ -682,7 +682,7 @@ const CAPABILITIES = new Set<string>([
   "draw", "deal_damage", "remove_damage", "banish", "return_to_hand",
   "gain_lore", "lose_lore", "gain_stats", "grant_cost_reduction",
   "move_damage", "put_top_card_under", "return_all_to_bottom_in_order",
-  "put_cards_under_into_hand", "cant_be_challenged_timed",
+  "drain_cards_under", "cant_be_challenged_timed",
   "reveal_top_conditional", "name_a_card_then_reveal", "move_character",
   "gets_stat_while_challenging", "create_card", "search", "choose",
   "exert", "ready", "grant_keyword", "cant_action", "look_at_top",
@@ -877,9 +877,9 @@ const FITS_GRAMMAR_PATTERNS: [RegExp, string][] = [
   // cards_under_count DynamicAmount variant for effects.
   [/\bfor each card under\b/i, "modify_stat_per_count"],
   [/\bnumber of cards under\b/i, "modify_stat_per_count"],
-  // "Put all cards from under [this/her] into your hand" → put_cards_under_into_hand
-  [/\bput all cards from under\b/i, "put_cards_under_into_hand"],
-  [/\bcards from under .{0,20}into .{0,15}hand\b/i, "put_cards_under_into_hand"],
+  // "Put all cards from under [this/her] into your hand" → drain_cards_under
+  [/\bput all cards from under\b/i, "drain_cards_under"],
+  [/\bcards from under .{0,20}into .{0,15}hand\b/i, "drain_cards_under"],
 ];
 
 function categorizeStub(rulesText: string, cardType: string): StubCategory {

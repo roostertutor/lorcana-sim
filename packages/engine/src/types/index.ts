@@ -202,9 +202,7 @@ export type Effect =
   | RevealTopConditionalEffect
   | CantBeChallengedTimedEffect
   | DamagePreventionTimedEffect
-  | PutCardsUnderIntoHandEffect
-  | PutCardsUnderOntoTargetEffect
-  | PutCardsUnderIntoInkwellEffect
+  | DrainCardsUnderEffect
   | OpponentChoosesYesOrNoEffect
   | ChooseNFromOpponentDiscardToBottomEffect
   | PutSelfUnderTargetEffect
@@ -837,44 +835,40 @@ export interface ReturnAllToBottomInOrderEffect {
 // ReadySingersEffect: DELETED — use each_target instead.
 
 /**
- * Mickey Mouse Bob Cratchit: "put all cards that were under him under another
- * chosen character or location of yours." Moves the source's cardsUnder pile
- * onto the chosen target's cardsUnder.
+ * CRD 8.4.2 / 8.10.5: drain a parent's cardsUnder pile to a destination zone
+ * or another parent's pile. Unified across the 3 shapes used in the card pool:
+ *
+ *   source=this,    destination=hand             — Alice Well-Read Whisper
+ *   source=this,    destination=target_pile      — Mickey Bob Cratchit
+ *   source=chosen,  destination=hand|bottom_of_deck — Come Out and Fight
+ *   source=all_own, destination=inkwell          — Visiting Christmas Past
+ *
+ * The handler fires the canonical cross-card trigger per destination:
+ *   - inkwell      → card_put_into_inkwell (Oswald, Chicha)
+ *   - target_pile  → card_put_under (Willie, Lady Tremaine)
+ *   - hand / bottom_of_deck → no CRD-defined trigger (hand-return triggers
+ *     are for play→hand per CRD 8.2.x, not under→hand).
  */
-export interface PutCardsUnderOntoTargetEffect {
-  type: "put_cards_under_onto_target";
-  target: CardTarget;
-  isMay?: boolean;
-}
-
-export interface PutCardsUnderIntoHandEffect {
-  type: "put_cards_under_into_hand";
-  /** Which card's under-pile to drain. "this" = the source instance,
-   *  "chosen" = player picks a target whose under-pile is drained
-   *  (Come Out and Fight: "chosen character, item, or location"). */
-  target: { type: "this" } | { type: "chosen"; filter: CardFilter };
-  /** Where the drained cards go. Defaults to "hand".
-   *  "bottom_of_deck" = bottom of the target's owner's deck in random order
-   *  (Come Out and Fight). */
-  destination?: "hand" | "bottom_of_deck";
-  /** CRD 6.1.4: player may choose not to apply this effect. When part of a
-   *  triggered ability with multiple effects (Graveyard of Christmas Future:
-   *  "may put all cards... If you do, banish this location") the may gates the
-   *  whole sequence — declining skips both this and any subsequent effects. */
-  isMay?: boolean;
-}
-
-/**
- * CRD 8.4.2 / 8.10.5: "Put any number of cards from under your characters and
- * locations into your inkwell facedown and exerted" (Visiting Christmas Past).
- * Drains every matching in-play card's `cardsUnder` pile into the controller's
- * inkwell, exerted. The under-cards are the controller's, not the parents'.
- * Headless bot takes all — "any number" collapses to the maximal choice.
- */
-export interface PutCardsUnderIntoInkwellEffect {
-  type: "put_cards_under_into_inkwell";
-  target: PlayerTarget;
-  /** CRD 6.1.4: player may choose not to apply. */
+export interface DrainCardsUnderEffect {
+  type: "drain_cards_under";
+  /** Which parent card(s) to drain.
+   *  - "this":       the source instance (default if omitted).
+   *  - "all_own":    every in-play card the controller owns with cardsUnder.
+   *  - { chosen }:   player picks an in-play card matching `filter`. */
+  source?: "this" | "all_own" | { type: "chosen"; filter: CardFilter };
+  /** Destination for drained cards.
+   *  - "hand":           each under-card to its owner's hand.
+   *  - "bottom_of_deck": each under-card to its owner's deck bottom, random order.
+   *  - "inkwell":        controller's inkwell, exerted.
+   *  - { target_pile }:  another chosen parent's cardsUnder (Bob Cratchit). */
+  destination:
+    | "hand"
+    | "bottom_of_deck"
+    | "inkwell"
+    | { type: "target_pile"; target: CardTarget };
+  /** CRD 6.1.4: player may choose not to apply. When part of a triggered
+   *  ability with multiple effects (Graveyard of Christmas Future), declining
+   *  skips the whole sequence. */
   isMay?: boolean;
 }
 

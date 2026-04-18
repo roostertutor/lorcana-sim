@@ -2183,6 +2183,8 @@ function applyResolveChoice(
       } else if (pickDestination === "inkwell_exerted") {
         state = zoneTransition(state, chosenId, "inkwell", definitions, events, { reason: "inked" });
         state = updateInstance(state, chosenId, { isExerted: true });
+        // CRD 6.2: fire card_put_into_inkwell so Oswald et al. pick it up.
+        state = queueTriggersByEvent(state, "card_put_into_inkwell", cardOwner, definitions, {});
       } else if (pickDestination === "discard") {
         state = moveCard(state, chosenId, cardOwner, "discard");
       }
@@ -2288,6 +2290,8 @@ function applyResolveChoice(
         if (matchAction === "to_inkwell_exerted") {
           state = zoneTransition(state, topId, "inkwell", definitions, events, { reason: "inked" });
           state = updateInstance(state, topId, { isExerted: true });
+          // CRD 6.2: fire card_put_into_inkwell so cross-card watchers see it.
+          state = queueTriggersByEvent(state, "card_put_into_inkwell", playerId, definitions, {});
         } else {
           state = moveCard(state, topId, playerId, "hand");
         }
@@ -3332,17 +3336,16 @@ export function applyEffect(
       return state;
     }
 
-    // Unified handler for moving cards FROM the cardsUnder subzone TO a
-    // destination zone. Two aliases route here:
-    //   put_cards_under_into_hand:     scope=this-or-chosen, destination=hand|bottom_of_deck
-    //   put_cards_under_into_inkwell:  scope=all_own, destination=inkwell+exerted (Visiting Christmas Past)
-    case "put_cards_under_into_hand":
-    case "put_cards_under_into_inkwell": {
-      const isInkwell = effect.type === "put_cards_under_into_inkwell";
-      // Chosen-target branch (Come Out and Fight): pause for target picking,
-      // then resume via applyEffectToTarget.
-      if (!isInkwell && effect.target?.type === "chosen") {
-        const validTargets = findChosenTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+    // Unified CRD 8.4.2 / 8.10.5 handler: drain cardsUnder pile(s) to a
+    // destination. Replaces the 3 legacy primitives (into_hand / into_inkwell
+    // / onto_target). The source field chooses which parent's pile to drain;
+    // the destination field decides routing + which cross-card triggers to
+    // fire.
+    case "drain_cards_under": {
+      const src = effect.source ?? "this";
+      // Chosen source: surface pendingChoice, resume in applyEffectToTarget.
+      if (typeof src === "object" && src.type === "chosen") {
+        const validTargets = findChosenTargets(state, src.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state;
         return {
           ...state,
@@ -3356,8 +3359,28 @@ export function applyEffect(
           },
         };
       }
-      const destination = isInkwell ? "inkwell" : "hand";
-      const parentIds: string[] = isInkwell
+      // Target-pile destination with chosen target: surface pendingChoice to
+      // pick the receiving parent. Resumes in applyEffectToTarget.
+      if (typeof effect.destination === "object" && effect.destination.type === "target_pile") {
+        const destTarget = effect.destination.target;
+        if (destTarget.type === "chosen") {
+          const validTargets = findValidTargets(state, destTarget.filter, controllingPlayerId, definitions, sourceInstanceId);
+          if (validTargets.length === 0) return state;
+          return {
+            ...state,
+            pendingChoice: {
+              type: "choose_target",
+              choosingPlayerId: controllingPlayerId,
+              prompt: "Choose a card or location to move cards under.",
+              validTargets,
+              pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
+              optional: effect.isMay ?? false,
+            },
+          };
+        }
+      }
+      // Direct source: "this" or "all_own".
+      const parentIds: string[] = src === "all_own"
         ? getZone(state, controllingPlayerId, "play").filter(id => {
             const p = state.cards[id];
             return p && p.cardsUnder.length > 0;
@@ -3365,34 +3388,7 @@ export function applyEffect(
         : (state.cards[sourceInstanceId]?.cardsUnder.length ?? 0) > 0
           ? [sourceInstanceId]
           : [];
-      for (const parentId of parentIds) {
-        const parent = state.cards[parentId];
-        if (!parent || parent.cardsUnder.length === 0) continue;
-        const destZone: ZoneName = destination === "inkwell" ? "inkwell" : "hand";
-        for (const id of [...parent.cardsUnder]) {
-          const u = state.cards[id];
-          if (!u) continue;
-          // Destination owner: hand goes to the CARD's owner (Alice returns
-          // cards to their original owners); inkwell goes to the CONTROLLER
-          // (Visiting Christmas Past inks into your own inkwell).
-          const destOwner = isInkwell ? controllingPlayerId : u.ownerId;
-          state = {
-            ...state,
-            cards: {
-              ...state.cards,
-              [id]: { ...u, zone: destZone, ...(isInkwell ? { isExerted: true } : {}) },
-            },
-            zones: {
-              ...state.zones,
-              [destOwner]: {
-                ...state.zones[destOwner],
-                [destZone]: [...state.zones[destOwner][destZone], id],
-              },
-            },
-          };
-        }
-        state = updateInstance(state, parentId, { cardsUnder: [] });
-      }
+      state = drainCardsUnderFrom(state, parentIds, effect.destination, controllingPlayerId, definitions, events);
       return state;
     }
 
@@ -3400,29 +3396,8 @@ export function applyEffect(
     // source: { type: "state_ids", key: "lastSongSingerIds" }.
     // I2I and Fantastical and Magical now use each_target directly.
 
-    case "put_cards_under_onto_target": {
-      // Mickey Mouse Bob Cratchit: "put all cards that were under him under
-      // another chosen character or location of yours."
-      // Moves the source's cardsUnder pile to the chosen target's cardsUnder.
-      if (effect.target.type === "chosen") {
-        const validTargets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
-        if (validTargets.length === 0) return state; // fizzle
-        return {
-          ...state,
-          pendingChoice: {
-            type: "choose_target",
-            choosingPlayerId: controllingPlayerId,
-            prompt: "Choose a character or location to move cards under.",
-            validTargets,
-            optional: !!effect.isMay,
-            pendingEffect: effect,
-            sourceInstanceId,
-            triggeringCardInstanceId,
-          },
-        };
-      }
-      return state;
-    }
+    // put_cards_under_onto_target: folded into drain_cards_under with
+    // destination:{type:"target_pile",target}.
 
     // Rerouted to the self_replacement handler (see case "self_replacement").
     // The state-based Kakamora variant (no target field) evaluates condition
@@ -4064,6 +4039,7 @@ export function applyEffect(
             }
           }
           // Apply pickDestination: move picked cards to their destination.
+          let inkwellTriggerPending = false;
           for (const id of picked) {
             if (pickDestination === "hand") {
               state = moveCard(state, id, targetPlayer, "hand");
@@ -4071,6 +4047,7 @@ export function applyEffect(
               // Kida Creative Thinker: picked goes to inkwell facedown exerted.
               state = zoneTransition(state, id, "inkwell", definitions, events, { reason: "inked" });
               state = updateInstance(state, id, { isExerted: true });
+              inkwellTriggerPending = true;
             } else if (pickDestination === "discard") {
               // Mad Hatter Eccentric Host: picked card goes to target player's discard.
               state = moveCard(state, id, targetPlayer, "discard");
@@ -4078,6 +4055,11 @@ export function applyEffect(
             // "deck_top": chosen card stays in deck — no move needed. With
             // restPlacement: "bottom", removing the rest from deck naturally
             // leaves the chosen card at the top (Ursula's Cauldron, Merlin Turtle).
+          }
+          // CRD 6.2: fire card_put_into_inkwell once after all picks moved,
+          // so cross-card watchers (Oswald etc.) wake up on Kida-style paths.
+          if (inkwellTriggerPending) {
+            state = queueTriggersByEvent(state, "card_put_into_inkwell", targetPlayer, definitions, {});
           }
           // restPlacement default "bottom". For "top" the cards remain in
           // place after the picked ones are removed (or not, for deck_top
@@ -4874,9 +4856,18 @@ export function applyEffect(
         // `zone`/`owner` fields. Perdita Determined Mother (discard→inkwell)
         // is the canonical user. Bypasses inkable check (cards are facedown).
         const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        const receivingPlayers = new Set<PlayerID>();
         for (const id of targets) {
+          const inst = state.cards[id];
+          if (!inst) continue;
           state = zoneTransition(state, id, "inkwell", definitions, events, { reason: "inked" });
           if (effect.enterExerted) state = updateInstance(state, id, { isExerted: true });
+          receivingPlayers.add(inst.ownerId);
+        }
+        // CRD 6.2: fire card_put_into_inkwell per receiving player so cross-
+        // card watchers (Oswald, Chicha Dedicated Mother, etc.) pick it up.
+        for (const pid of receivingPlayers) {
+          state = queueTriggersByEvent(state, "card_put_into_inkwell", pid, definitions, {});
         }
         return state;
       }
@@ -5582,6 +5573,8 @@ function applyRevealMatchAction(
     case "to_inkwell_exerted": {
       state = zoneTransition(state, revealedInstanceId, "inkwell", definitions, events, { reason: "inked" });
       state = updateInstance(state, revealedInstanceId, { isExerted: true });
+      // CRD 6.2: fire card_put_into_inkwell for cross-card watchers (Oswald etc.).
+      state = queueTriggersByEvent(state, "card_put_into_inkwell", targetPlayer, definitions, {});
       break;
     }
   }
@@ -6671,41 +6664,17 @@ function applyEffectToTarget(
       const position: "top" | "bottom" = effect.position ?? "bottom";
       return moveCard(state, targetInstanceId, inst.ownerId, "deck", position);
     }
-    case "put_cards_under_into_hand": {
-      // Come Out and Fight: resolution path for chosen target. Drain the
-      // chosen card's under-pile into the configured destination. Cards go
-      // to their original owner's zone ("their player's deck / hand").
-      const parent = state.cards[targetInstanceId];
-      if (!parent || parent.cardsUnder.length === 0) return state;
-      const destination = effect.destination ?? "hand";
-      let underIds = [...parent.cardsUnder];
-      if (destination === "bottom_of_deck") {
-        // "In a random order" — shuffle drained cards before appending.
-        for (let i = underIds.length - 1; i > 0; i--) {
-          const j = rngNextInt(state.rng, i + 1);
-          [underIds[i], underIds[j]] = [underIds[j]!, underIds[i]!];
-        }
+    case "drain_cards_under": {
+      // Resolution path for both chosen-source (Come Out and Fight: "drain
+      // the chosen parent's under-pile") and chosen-target-pile destination
+      // (Bob Cratchit: "put cards under the chosen target"). Distinguished
+      // by whether effect.destination is a target_pile with chosen target.
+      if (typeof effect.destination === "object" && effect.destination.type === "target_pile") {
+        // targetInstanceId is the RECEIVING parent. Drain source's own pile.
+        return drainCardsUnderFrom(state, [sourceInstanceId], effect.destination, controllingPlayerId, definitions, events, targetInstanceId);
       }
-      const destZoneName: ZoneName = destination === "bottom_of_deck" ? "deck" : "hand";
-      for (const id of underIds) {
-        const u = state.cards[id];
-        if (!u) continue;
-        state = {
-          ...state,
-          cards: {
-            ...state.cards,
-            [id]: { ...u, zone: destZoneName },
-          },
-          zones: {
-            ...state.zones,
-            [u.ownerId]: {
-              ...state.zones[u.ownerId],
-              [destZoneName]: [...state.zones[u.ownerId][destZoneName], id],
-            },
-          },
-        };
-      }
-      return updateInstance(state, targetInstanceId, { cardsUnder: [] });
+      // Chosen-source resolution: drain the chosen parent into destination.
+      return drainCardsUnderFrom(state, [targetInstanceId], effect.destination, controllingPlayerId, definitions, events);
     }
     case "put_top_card_under": {
       // CRD 8.4.2: Resolution path for chosen-target variant. Top card of the
@@ -7301,27 +7270,98 @@ function applyEffectToTarget(
       };
       return addTimedEffect(state, targetInstanceId, timedEffect);
     }
-    case "put_cards_under_onto_target": {
-      // Mickey Mouse Bob Cratchit: put all cards from source's cardsUnder
-      // to the chosen target's cardsUnder pile.
-      const sourceCard = state.cards[sourceInstanceId];
-      if (!sourceCard || sourceCard.cardsUnder.length === 0) return state;
-      const targetCard = state.cards[targetInstanceId];
-      if (!targetCard) return state;
-      const movedIds = [...sourceCard.cardsUnder];
-      state = {
-        ...state,
-        cards: {
-          ...state.cards,
-          [sourceInstanceId]: { ...sourceCard, cardsUnder: [] },
-          [targetInstanceId]: { ...targetCard, cardsUnder: [...targetCard.cardsUnder, ...movedIds] },
-        },
-      };
-      return state;
-    }
+    // put_cards_under_onto_target: folded into drain_cards_under. The
+    // resolution of chosen receiving target happens in the drain_cards_under
+    // case above with destination:{type:"target_pile",target}.
     default:
       return state;
   }
+}
+
+/**
+ * Drain cardsUnder piles from a list of parent instances to the destination.
+ * Routes each under-card to its OWN owner's zone (hand / deck bottom) or to
+ * the controller's inkwell; queues the canonical cross-card trigger per
+ * destination (card_put_into_inkwell / card_put_under). `parentIds` is the
+ * caller-resolved parent list (source resolution lives with the caller).
+ * `destTargetId` is required when destination is target_pile (already-resolved
+ * target).
+ */
+function drainCardsUnderFrom(
+  state: GameState,
+  parentIds: string[],
+  destination:
+    | "hand"
+    | "bottom_of_deck"
+    | "inkwell"
+    | { type: "target_pile"; target: CardTarget },
+  controllingPlayerId: PlayerID,
+  definitions: Record<string, CardDefinition>,
+  _events: GameEvent[],
+  destTargetId?: string,
+): GameState {
+  const isInkwell = destination === "inkwell";
+  const isTargetPile = typeof destination === "object" && destination.type === "target_pile";
+  const isBottomOfDeck = destination === "bottom_of_deck";
+  const receivingPlayers = new Set<PlayerID>();
+
+  for (const parentId of parentIds) {
+    const parent = state.cards[parentId];
+    if (!parent || parent.cardsUnder.length === 0) continue;
+    let underIds = [...parent.cardsUnder];
+    if (isBottomOfDeck) {
+      for (let i = underIds.length - 1; i > 0; i--) {
+        const j = rngNextInt(state.rng, i + 1);
+        [underIds[i], underIds[j]] = [underIds[j]!, underIds[i]!];
+      }
+    }
+    for (const id of underIds) {
+      const u = state.cards[id];
+      if (!u) continue;
+      if (isTargetPile && destTargetId) {
+        // Attach to target's cardsUnder; keep card's zone as "under".
+        const targetCard = state.cards[destTargetId];
+        if (!targetCard) continue;
+        state = {
+          ...state,
+          cards: {
+            ...state.cards,
+            [id]: { ...u, zone: "under" },
+            [destTargetId]: { ...targetCard, cardsUnder: [...targetCard.cardsUnder, id] },
+          },
+        };
+      } else {
+        const destZone: ZoneName = isInkwell ? "inkwell" : isBottomOfDeck ? "deck" : "hand";
+        const destOwner = isInkwell ? controllingPlayerId : u.ownerId;
+        const updatedCard = { ...u, zone: destZone, ...(isInkwell ? { isExerted: true } : {}) };
+        const zoneKey = destZone as keyof typeof state.zones[typeof destOwner];
+        state = {
+          ...state,
+          cards: { ...state.cards, [id]: updatedCard },
+          zones: {
+            ...state.zones,
+            [destOwner]: {
+              ...state.zones[destOwner],
+              [zoneKey]: [...(state.zones[destOwner][zoneKey] as string[]), id],
+            },
+          },
+        };
+        if (isInkwell) receivingPlayers.add(destOwner);
+      }
+    }
+    state = updateInstance(state, parentId, { cardsUnder: [] });
+  }
+  // CRD 6.2: fire card_put_into_inkwell per receiving player (Oswald, Chicha).
+  for (const pid of receivingPlayers) {
+    state = queueTriggersByEvent(state, "card_put_into_inkwell", pid, definitions, {});
+  }
+  // CRD 6.2: for target_pile, fire card_put_under on the receiving parent.
+  if (isTargetPile && destTargetId) {
+    state = queueTrigger(state, "card_put_under", destTargetId, definitions, {
+      triggeringPlayerId: controllingPlayerId,
+    });
+  }
+  return state;
 }
 
 /**

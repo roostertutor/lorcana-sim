@@ -1216,16 +1216,31 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   // Superseded by self_replacement (target omitted → state-based condition
   // reads state.lastDiscarded). Renderer for the unified primitive below.
 
-  // "Put all cards under this character into your hand" — Alice Well-Read Whisper.
-  put_cards_under_into_hand: (e) => `put all cards under ${renderTarget(e.target ?? { type: "this" })} into your hand`,
-  put_cards_under_into_inkwell: () => `put cards from under your characters into your inkwell`,
-  // Mickey Mouse Bob Cratchit A GIVING HEART: "put all cards that were under
-  // him under another chosen character or location of yours". The target is
-  // the destination; the source (cards-under pile) comes from the ability's
-  // own source card ("this").
-  put_cards_under_onto_target: (e) => {
+  // CRD 8.4.2 / 8.10.5 drain cards-under. One renderer covers all four shapes:
+  //   source=this,    destination=hand            — Alice Well-Read Whisper
+  //   source=this,    destination=target_pile     — Mickey Bob Cratchit
+  //   source=chosen,  destination=hand|bottom_of_deck — Come Out and Fight
+  //   source=all_own, destination=inkwell         — Visiting Christmas Past
+  drain_cards_under: (e) => {
     const may = e.isMay ? "you may " : "";
-    return `${may}put all cards that were under this card under ${renderTarget(e.target ?? {})}`;
+    const src = e.source ?? "this";
+    let srcPhrase: string;
+    if (src === "all_own") {
+      srcPhrase = "cards from under your characters and locations";
+    } else if (typeof src === "object" && src.type === "chosen") {
+      srcPhrase = `all cards under chosen ${renderFilter(src.filter ?? {})}`;
+    } else {
+      srcPhrase = "all cards that were under this card";
+    }
+    const dest = e.destination;
+    if (typeof dest === "object" && dest.type === "target_pile") {
+      return `${may}put ${srcPhrase} under ${renderTarget(dest.target ?? {})}`;
+    }
+    const destPhrase =
+      dest === "inkwell" ? "your inkwell"
+      : dest === "bottom_of_deck" ? "the bottom of their owners' decks"
+      : "your hand";
+    return `${may}put ${srcPhrase} into ${destPhrase}`;
   },
 
   // ---- NEW: shapes added in the second pass --------------------------------
