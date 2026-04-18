@@ -176,40 +176,74 @@ console.log("# Engine Primitive Catalog");
 console.log(`Generated: ${new Date().toISOString().slice(0, 10)}`);
 console.log(`Source: types/index.ts, reducer.ts, gameModifiers.ts, utils/index.ts`);
 
-// 1. Effect types
-section("Effect Types");
+// 1. Effect types — split into two tables: leaves (direct state mutations)
+//    and combinators (higher-order effects that take other Effects as params).
+//    The combinator set is a closed list of discriminators whose interfaces
+//    contain at least one `Effect` or `Effect[]` field. Updated by hand when
+//    a new combinator lands.
+const COMBINATOR_DISCRIMINATORS = new Set<string>([
+  "sequential",                       // cost → reward (CRD 6.1.5)
+  "each_player",                      // quantifier: per-player iteration
+  "each_target",                      // quantifier: per-instance iteration
+  "choose",                           // selection: player picks one branch
+  "self_replacement",                 // selection: default vs instead (CRD 6.5.6)
+  "create_floating_trigger",          // deferral: fire on future event
+  "create_delayed_trigger",           // deferral: fire at future boundary
+  "opponent_chooses_yes_or_no",       // selection: opponent binary pick
+  "each_opponent_may_discard_then_reward", // selection w/ reward branch
+  "opponent_may_pay_to_avoid",        // selection: opponent accept/reject
+  "conditional_on_last_discarded",    // (historic — folded into self_replacement)
+  "conditional_on_target",            // (historic — folded into self_replacement)
+  "conditional_on_player_state",      // (historic — folded into self_replacement)
+]);
+
+function emitEffectTable(label: string, note: string, interfaceNames: string[], predicate: (disc: string) => boolean) {
+  section(label);
+  if (note) console.log(note + "\n");
+  const rows: string[][] = [];
+  for (const iface of interfaceNames) {
+    const lineIdx = typesLines.findIndex(l => l.includes(`export interface ${iface}`));
+    if (lineIdx === -1) continue;
+    for (let k = lineIdx; k < Math.min(typesLines.length, lineIdx + 5); k++) {
+      const tm = typesLines[k]!.match(/type:\s*"([^"]+)"/);
+      if (tm) {
+        const disc = tm[1]!;
+        if (!predicate(disc)) break;
+        const info = findInterfaceFields(types, disc);
+        const reducerCases = findCaseLines(reducer, disc);
+        const count = usageCounts[disc] ?? 0;
+        const example = usageExamples[disc] ?? "—";
+        rows.push([
+          `\`${disc}\``,
+          info ? info.fields.join(", ") : "",
+          String(count),
+          example,
+          `types:${lineIdx + 1}`,
+          reducerCases.length > 0 ? reducerCases.map(l => `reducer:${l}`).join(", ") : "—",
+        ]);
+        break;
+      }
+    }
+  }
+  table(["Discriminator", "Fields", "Uses", "Example card", "Type def", "Reducer case(s)"], rows);
+}
+
 {
-  // Find the Effect union
   const unionMatch = types.match(/export type Effect\s*=[\s\S]*?;/);
   if (unionMatch) {
     const interfaceNames = [...unionMatch[0].matchAll(/(\w+Effect)\b/g)].map(m => m[1]!);
-    const rows: string[][] = [];
-    for (const iface of interfaceNames) {
-      // Find the interface
-      const lineIdx = typesLines.findIndex(l => l.includes(`export interface ${iface}`));
-      if (lineIdx === -1) continue;
-      // Find the type discriminator
-      for (let k = lineIdx; k < Math.min(typesLines.length, lineIdx + 5); k++) {
-        const tm = typesLines[k]!.match(/type:\s*"([^"]+)"/);
-        if (tm) {
-          const disc = tm[1]!;
-          const info = findInterfaceFields(types, disc);
-          const reducerCases = findCaseLines(reducer, disc);
-          const count = usageCounts[disc] ?? 0;
-          const example = usageExamples[disc] ?? "—";
-          rows.push([
-            `\`${disc}\``,
-            info ? info.fields.join(", ") : "",
-            String(count),
-            example,
-            `types:${lineIdx + 1}`,
-            reducerCases.length > 0 ? reducerCases.map(l => `reducer:${l}`).join(", ") : "—",
-          ]);
-          break;
-        }
-      }
-    }
-    table(["Discriminator", "Fields", "Uses", "Example card", "Type def", "Reducer case(s)"], rows);
+    emitEffectTable(
+      "Effect Types (Leaf)",
+      "Direct state mutations — draw, damage, banish, etc. One effect produces one state change. For higher-order effects that wrap other Effects, see the Combinator Effects section.",
+      interfaceNames,
+      (disc) => !COMBINATOR_DISCRIMINATORS.has(disc)
+    );
+    emitEffectTable(
+      "Combinator Effects",
+      "Higher-order effects: they take one or more Effects as parameters and schedule them under a (possibly rebound) context. Four flavors:\n\n- **Sequence** — `sequential` runs cost → reward in order (CRD 6.1.5).\n- **Quantifier / iteration** — `each_player`, `each_target` distribute inner effects over a set; \"each opponent does X\" / \"for each Y, do Z\".\n- **Selection** — `choose`, `self_replacement`, `opponent_chooses_yes_or_no`, `each_opponent_may_discard_then_reward`, `opponent_may_pay_to_avoid` dispatch between branches.\n- **Deferral** — `create_floating_trigger`, `create_delayed_trigger` schedule inner effects to fire later.\n\nUnlike leaf effects, combinators pass their inner effects through `applyEffect` recursively, sometimes with a rebound `controllingPlayerId` (each_player) or `triggeringCardInstanceId` (each_target).",
+      interfaceNames,
+      (disc) => COMBINATOR_DISCRIMINATORS.has(disc)
+    );
   }
 }
 

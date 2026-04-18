@@ -74,7 +74,7 @@ Four scripts triangulate data quality; all four report clean across all 17 sets.
 | `docs/DECISIONS.md` | Why decisions were made | Before proposing architecture changes |
 | `docs/CRD_TRACKER.md` | CRD v2.0.1 rule-to-engine map | Implementing/fixing game rules |
 | `docs/CARD_ISSUES.md` | Card implementation gaps / history | Importing new sets, fixing card bugs |
-| `docs/ENGINE_PRIMITIVES.md` | Live primitive inventory (generated via `pnpm catalog`) | Checking what effect/trigger/condition types exist |
+| `docs/ENGINE_PRIMITIVES.md` | Live primitive inventory (generated via `pnpm catalog`). Effect types split into *leaf* (direct state mutations) and *combinator* (higher-order — wrap other effects, e.g. `sequential`, `each_player`, `each_target`, `choose`, `self_replacement`, `create_floating_trigger`). | Checking what effect/trigger/condition types exist |
 | `docs/RL.md` | RL training architecture, policies, reward design | Touching the RL training pipeline |
 | `docs/QUERY_SYSTEM.md` | Query conditions, sim file format, CLI workflows | Writing or running queries |
 | `docs/ANALYTICS_PHILOSOPHY.md` | Why we ask certain questions, query design principles | Designing new question files |
