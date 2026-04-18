@@ -3382,38 +3382,13 @@
             "duration": "this_turn"
           },
           {
-            "type": "conditional_on_player_state",
+            "type": "self_replacement",
+            "effect": [],
+            "instead": [],
             "condition": {
               "type": "has_character_named",
               "name": "Belle"
-            },
-            "effects": [
-              {
-                "type": "move_damage",
-                "amount": 3,
-                "isUpTo": true,
-                "isMay": true,
-                "source": {
-                  "type": "chosen",
-                  "filter": {
-                    "zone": "play",
-                    "hasDamage": true
-                  }
-                },
-                "destination": {
-                  "type": "chosen",
-                  "filter": {
-                    "owner": {
-                      "type": "opponent"
-                    },
-                    "zone": "play",
-                    "cardType": [
-                      "character"
-                    ]
-                  }
-                }
-              }
-            ]
+            }
           }
         ]
       }

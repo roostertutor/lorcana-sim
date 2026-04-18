@@ -9263,21 +9263,24 @@
         ],
         "effects": [
           {
-            "type": "conditional_on_player_state",
-            "condition": {
-              "type": "you_control_matching",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ],
-                "hasTrait": "Robot"
+            "type": "self_replacement",
+            "effect": [
+              {
+                "type": "remove_damage",
+                "amount": 1,
+                "isUpTo": true,
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
               }
-            },
-            "thenEffects": [
+            ],
+            "instead": [
               {
                 "type": "remove_damage",
                 "amount": 3,
@@ -9293,22 +9296,19 @@
                 }
               }
             ],
-            "elseEffects": [
-              {
-                "type": "remove_damage",
-                "amount": 1,
-                "isUpTo": true,
-                "target": {
-                  "type": "chosen",
-                  "filter": {
-                    "zone": "play",
-                    "cardType": [
-                      "character"
-                    ]
-                  }
-                }
+            "condition": {
+              "type": "you_control_matching",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Robot"
               }
-            ]
+            }
           }
         ]
       }

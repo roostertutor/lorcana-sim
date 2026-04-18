@@ -1322,16 +1322,22 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     return `${tgt} can't be challenged`;
   },
 
-  // CRD 6.5.6 self-replacement. "Chosen X gets +2. If a Villain is chosen,
-  // they get +3 instead." (target set) OR "Deal 1 damage. If a Pirate was
-  // discarded, deal 3 instead." (target omitted → lastDiscarded state).
+  // CRD 6.5.6 self-replacement. Three dispatch modes:
+  //   - target set + CardFilter condition: "Chosen X gets +2. If Villain, +3 instead" (Vicious Betrayal).
+  //   - no target + Condition (has `type`): "Gain 2. If you have 10 {S} in play, gain 5 instead" (Turbo).
+  //   - no target + CardFilter: "Deal 1. If a Pirate was discarded, 3 instead" (Kakamora).
   self_replacement: (e) => {
     const def = (e.effect ?? []).map(renderEffect).join(" and ");
     const alt = (e.instead ?? []).map(renderEffect).join(" and ");
     const condFilterTrivial = !e.condition || Object.keys(e.condition).length === 0;
 
-    // State-based (no target): condition reads state.lastDiscarded.
     if (!e.target) {
+      // Condition (game-state check) vs CardFilter (lastDiscarded).
+      const isCondition = e.condition && typeof e.condition === "object" && typeof e.condition.type === "string";
+      if (isCondition) {
+        const cond = renderCondition(e.condition);
+        return def ? `${cond}, ${alt}; otherwise ${def}` : `${cond}, ${alt}`;
+      }
       const filt = e.condition ? renderFilter(e.condition) : "matching";
       return def
         ? `if the discarded card was a ${filt}, ${alt}; otherwise ${def}`
@@ -1434,13 +1440,8 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
 
   // ---- Batch additions from decompiler review (30 missing renderers) --------
 
-  conditional_on_player_state: (e) => {
-    const cond = renderCondition(e.condition ?? {});
-    const then = (e.thenEffects ?? []).map(renderEffect).join(" and ");
-    const els = (e.elseEffects ?? []).map(renderEffect).join(" and ");
-    if (els) return `${cond}, ${then}; otherwise ${els}`;
-    return `${cond}, ${then}`;
-  },
+  // conditional_on_player_state: folded into self_replacement (target omitted,
+  // condition is a Condition). Renderer handled in the self_replacement case.
   opponent_may_pay_to_avoid: (e) => {
     const accept = renderEffect(e.acceptEffect ?? {});
     const reject = renderEffect(e.rejectEffect ?? {});

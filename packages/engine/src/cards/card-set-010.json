@@ -1383,23 +1383,16 @@
         "chooser": "target_player"
       },
       {
-        "type": "conditional_on_player_state",
+        "type": "self_replacement",
+        "effect": [],
+        "instead": [],
         "condition": {
           "type": "has_character_with_trait",
           "trait": "Detective",
           "player": {
             "type": "self"
           }
-        },
-        "effects": [
-          {
-            "type": "gain_lore",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            }
-          }
-        ]
+        }
       }
     ]
   },
@@ -7442,7 +7435,17 @@
         }
       },
       {
-        "type": "conditional_on_player_state",
+        "type": "self_replacement",
+        "effect": [],
+        "instead": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ],
         "condition": {
           "type": "you_control_matching",
           "filter": {
@@ -7452,17 +7455,7 @@
             ],
             "hasName": "Sleepy Hollow"
           }
-        },
-        "thenEffects": [
-          {
-            "type": "draw",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            }
-          }
-        ],
-        "elseEffects": []
+        }
       }
     ]
   },
@@ -7493,24 +7486,23 @@
             "target": {
               "type": "chosen",
               "filter": {
-                "owner": {
-                  "type": "self"
-                },
+                "owner": { "type": "self" },
                 "zone": "play",
-                "cardType": [
-                  "character"
-                ]
+                "cardType": ["character"]
               }
             }
           }
         ],
         "rewardEffects": [
           {
-            "type": "draw",
-            "amount": 2,
-            "target": {
-              "type": "self"
-            }
+            "type": "self_replacement",
+            "condition": { "type": "last_banished_had_cards_under" },
+            "effect": [
+              { "type": "draw", "amount": 2, "target": { "type": "self" } }
+            ],
+            "instead": [
+              { "type": "draw", "amount": 3, "target": { "type": "self" } }
+            ]
           }
         ]
       }
@@ -8892,15 +8884,24 @@
         ],
         "effects": [
           {
-            "type": "conditional_on_player_state",
-            "condition": {
-              "type": "has_character_with_trait",
-              "trait": "Detective",
-              "player": {
-                "type": "self"
+            "type": "self_replacement",
+            "effect": [
+              {
+                "type": "search",
+                "zone": "discard",
+                "filter": {
+                  "cardType": [
+                    "item"
+                  ]
+                },
+                "target": {
+                  "type": "self"
+                },
+                "putInto": "deck",
+                "position": "top"
               }
-            },
-            "thenEffects": [
+            ],
+            "instead": [
               {
                 "type": "return_to_hand",
                 "target": {
@@ -8917,22 +8918,13 @@
                 }
               }
             ],
-            "elseEffects": [
-              {
-                "type": "search",
-                "zone": "discard",
-                "filter": {
-                  "cardType": [
-                    "item"
-                  ]
-                },
-                "target": {
-                  "type": "self"
-                },
-                "putInto": "deck",
-                "position": "top"
+            "condition": {
+              "type": "has_character_with_trait",
+              "trait": "Detective",
+              "player": {
+                "type": "self"
               }
-            ]
+            }
           }
         ]
       }

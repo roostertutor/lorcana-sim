@@ -9298,29 +9298,26 @@
       },
       {
         "type": "activated",
-        "storyName": "",
-        "rulesText": "{E}, Banish this item — Remove up to 2 damage from chosen character.",
+        "storyName": "SUDDEN SPIN",
+        "rulesText": "{E}, Banish this item — Remove up to 2 damage from chosen character. If a character named Darkwing Duck is chosen, remove up to 4 damage instead.",
         "costs": [
-          {
-            "type": "exert"
-          },
-          {
-            "type": "banish_self"
-          }
+          { "type": "exert" },
+          { "type": "banish_self" }
         ],
         "effects": [
           {
-            "type": "remove_damage",
-            "amount": 2,
+            "type": "self_replacement",
             "target": {
               "type": "chosen",
-              "filter": {
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ]
-              }
-            }
+              "filter": { "zone": "play", "cardType": ["character"] }
+            },
+            "condition": { "hasName": "Darkwing Duck" },
+            "effect": [
+              { "type": "remove_damage", "amount": 2, "isUpTo": true, "target": { "type": "this" } }
+            ],
+            "instead": [
+              { "type": "remove_damage", "amount": 4, "isUpTo": true, "target": { "type": "this" } }
+            ]
           }
         ]
       }
@@ -9370,15 +9367,24 @@
         ],
         "effects": [
           {
-            "type": "conditional_on_player_state",
-            "condition": {
-              "type": "has_character_named",
-              "name": "Darkwing Duck",
-              "player": {
-                "type": "self"
+            "type": "self_replacement",
+            "effect": [
+              {
+                "type": "gain_stats",
+                "strength": -1,
+                "duration": "this_turn",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
               }
-            },
-            "thenEffects": [
+            ],
+            "instead": [
               {
                 "type": "gain_stats",
                 "strength": -2,
@@ -9394,22 +9400,13 @@
                 }
               }
             ],
-            "elseEffects": [
-              {
-                "type": "gain_stats",
-                "strength": -1,
-                "duration": "this_turn",
-                "target": {
-                  "type": "chosen",
-                  "filter": {
-                    "zone": "play",
-                    "cardType": [
-                      "character"
-                    ]
-                  }
-                }
+            "condition": {
+              "type": "has_character_named",
+              "name": "Darkwing Duck",
+              "player": {
+                "type": "self"
               }
-            ]
+            }
           }
         ]
       }
@@ -10918,20 +10915,26 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/197_5fa163ed23edd53f1e90a30fd397993f64bd40d1.jpg",
     "actionEffects": [
       {
-        "type": "deal_damage",
-        "amount": 2,
+        "type": "self_replacement",
         "target": {
           "type": "chosen",
           "filter": {
-            "owner": {
-              "type": "opponent"
-            },
+            "owner": { "type": "opponent" },
             "zone": "play",
-            "cardType": [
-              "character"
-            ]
+            "cardType": ["character"]
           }
-        }
+        },
+        "condition": {
+          "type": "has_character_named",
+          "name": "Darkwing Duck",
+          "player": { "type": "self" }
+        },
+        "effect": [
+          { "type": "deal_damage", "amount": 2, "target": { "type": "this" } }
+        ],
+        "instead": [
+          { "type": "deal_damage", "amount": 3, "target": { "type": "this" } }
+        ]
       }
     ]
   },

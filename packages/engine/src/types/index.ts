@@ -241,7 +241,6 @@ export type Effect =
   | EachOpponentMayDiscardThenRewardEffect
   | GrantActivatedAbilityTimedEffect
   | FillHandToEffect
-  | ConditionalOnPlayerStateEffect
   | OpponentMayPayToAvoidEffect
   | RememberChosenTargetEffect
   | SingCostBonusTargetEffect
@@ -358,18 +357,8 @@ export interface EachTargetEffect {
   minCount?: number;
 }
 
-/**
- * Desperate Plan: "If you have no cards in your hand, draw until you have 3.
- * Otherwise, choose and discard any number of cards, then draw that many."
- * Branches on a player-state condition. The condition is evaluated against
- * the controlling player at apply time.
- */
-export interface ConditionalOnPlayerStateEffect {
-  type: "conditional_on_player_state";
-  condition: Condition;
-  thenEffects: Effect[];
-  elseEffects: Effect[];
-}
+// ConditionalOnPlayerStateEffect → SelfReplacementEffect (with `condition:
+// Condition` and no `target`). See SelfReplacementEffect above (CRD 6.5.6).
 
 // ChosenOpposingMayBottomOrRewardEffect: DELETED — migrated to the generic
 // OpponentMayPayToAvoidEffect. Hades now uses a no-op chooser (sets
@@ -925,21 +914,22 @@ export interface OpponentChoosesYesOrNoEffect {
 
 /**
  * CRD 6.5.6 self-replacement within a single ability: "[default effect]. If
- * [condition], [replacement] instead." A single shape covers both target-based
- * and state-based self-replacements.
+ * [condition], [replacement] instead." One shape covers three dispatch modes:
  *
- * - When `target` is set: player picks once, `condition` is matched against
- *   the resolved target. Apply `instead` on match, `effect` otherwise. Both
- *   branches share the same target (exposed to follow-up effects via
- *   lastResolvedTarget). Used by Vicious Betrayal (+2/+3 by Villain),
- *   Poisoned Apple (exert/banish by Princess), Stolen Scimitar, etc.
- * - When `target` is undefined: `condition` is matched against the most
- *   recent `state.lastDiscarded` snapshots. Used by Kakamora Pirate Chief
- *   ("If a Pirate character card was discarded, deal 3 damage instead of 1").
+ * - `target` set, `condition` is a CardFilter → target-based. Player picks
+ *   once, filter matches against the resolved target. Vicious Betrayal
+ *   (+2/+3 by Villain), Poisoned Apple (exert/banish by Princess).
+ * - `target` absent, `condition` is a CardFilter → state-based. Filter
+ *   matches against `state.lastDiscarded`. Kakamora Pirate Chief ("If a
+ *   Pirate was discarded, deal 3 instead of 1").
+ * - `target` absent, `condition` is a Condition (has `type` field) →
+ *   game-state check via evaluateCondition. Turbo Royal Hack ("If 10 {S}
+ *   or more in play, gain 5 instead"), Hidden Trap BLINDING CLOUD ("If you
+ *   have Darkwing Duck in play, -2 instead").
  *
- * Either branch list may be empty — a true no-op default or no-op
- * replacement is valid (e.g. Consult the Spellbook: "if cost ≤ 3, may play
- * for free" with no default action).
+ * Either branch list may be empty — a no-op default or no-op replacement
+ * is valid (Consult the Spellbook: "if cost ≤ 3, may play for free" with
+ * no default action).
  */
 export interface SelfReplacementEffect {
   type: "self_replacement";
@@ -947,11 +937,11 @@ export interface SelfReplacementEffect {
   effect: Effect[];
   /** Replacement branch applied when condition is true. */
   instead: Effect[];
-  /** Filter matched against the resolved target (when `target` is set)
-   *  or against cards in state.lastDiscarded (when `target` is omitted). */
-  condition: CardFilter;
-  /** Optional shared target. Present → target-based self-replacement.
-   *  Absent → state-based (lastDiscarded). */
+  /** Condition to evaluate. Distinguished at runtime by the presence of a
+   *  `type` field: Condition variants have one, CardFilter does not. */
+  condition: CardFilter | Condition;
+  /** Optional shared target. When present, the CardFilter variant of
+   *  `condition` is matched against the resolved target. */
   target?: CardTarget;
   /** CRD 6.1.4: optional may — the choose_target prompt is declinable. */
   isMay?: boolean;
@@ -2556,6 +2546,10 @@ export type Condition =
   /** Set 11 (Willie the Giant Ghost of Christmas Present): true when this
    *  source instance has had at least one card placed under it this turn. */
   | { type: "this_had_card_put_under_this_turn" }
+  /** Set 10 (Time to Go!): "If that character had a card under them, draw
+   *  3 cards instead." True iff state.lastBanishedCardsUnderCount > 0.
+   *  Use immediately after a banish step so the snapshot is fresh. */
+  | { type: "last_banished_had_cards_under" }
   /** Chicha Dedicated Mother (Set 5): "if it's the Nth card you've put into
    *  your inkwell this turn". True iff PlayerState.inkPlaysThisTurn equals N. */
   | { type: "ink_plays_this_turn_eq"; amount: number }

@@ -55,3 +55,7 @@ decompile-all.json
 # Raw Lorcast API response cache (pnpm import-cards --cache)
 .lorcast-raw/
 packages/engine/src/cards/.lorcast-raw/
+
+# UI audit screenshots — keep manifest + notes in git, images regenerable
+docs/ui-audit/**/*.png
+docs/ui-audit/**/*.jpg

@@ -292,3 +292,90 @@ describe("CardTarget all-normalization — regression coverage", () => {
     expect(state.cards[own].zone).toBe("play");
   });
 });
+
+describe("self_replacement — 3 silent bugs fixed after CRD 6.5.6 fold", () => {
+  // The Terror That Flaps in the Night (set 11 action):
+  // "Deal 2 damage to chosen opposing character. If you have a character
+  // named Darkwing Duck in play, deal 3 damage instead."
+  // Was wired as plain deal_damage 2; the Condition-gated 3-damage branch
+  // was dropped. Now self_replacement with target:chosen + condition:
+  // has_character_named. Exercises target-set + Condition-based dispatch.
+  it("The Terror That Flaps: Darkwing Duck in play → 3 damage instead of 2", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let terrorId: string, victimId: string;
+    ({ state, instanceId: terrorId } = injectCard(state, "player1", "the-terror-that-flaps-in-the-night", "hand"));
+    ({ state, instanceId: victimId } = injectCard(state, "player2", "maximus-palace-horse", "play", { isDrying: false }));
+    // Drop a Darkwing Duck into player1's play to flip the condition.
+    ({ state } = injectCard(state, "player1", "darkwing-duck-drake-mallard", "play", { isDrying: false }));
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: terrorId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [victimId] }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(r.newState.cards[victimId].damage).toBe(3);
+  });
+
+  it("The Terror That Flaps: no Darkwing → 2 damage (default branch)", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let terrorId: string, victimId: string;
+    ({ state, instanceId: terrorId } = injectCard(state, "player1", "the-terror-that-flaps-in-the-night", "hand"));
+    ({ state, instanceId: victimId } = injectCard(state, "player2", "maximus-palace-horse", "play", { isDrying: false }));
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: terrorId }, CARD_DEFINITIONS);
+    state = r.newState;
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [victimId] }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(r.newState.cards[victimId].damage).toBe(2);
+  });
+
+  // Time to Go! (set 10 action):
+  // "Banish chosen character of yours to draw 2 cards. If that character had
+  // a card under them, draw 3 cards instead."
+  // Exercises the new last_banished_had_cards_under Condition reading
+  // state.lastBanishedCardsUnderCount snapshot.
+  it("Time to Go!: banishing a character with cardsUnder draws 3 instead of 2", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 3);
+    let timeId: string, victimId: string, underId: string;
+    ({ state, instanceId: timeId } = injectCard(state, "player1", "time-to-go", "hand"));
+    ({ state, instanceId: victimId } = injectCard(state, "player1", "pumbaa-friendly-warthog", "play", { isDrying: false }));
+    ({ state, instanceId: underId } = injectCard(state, "player1", "pumbaa-friendly-warthog", "under"));
+    // Attach underId to victim's cardsUnder pile.
+    state = {
+      ...state,
+      cards: { ...state.cards, [victimId]: { ...state.cards[victimId], cardsUnder: [underId] } },
+    };
+    const handBefore = state.zones.player1.hand.length;
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: timeId }, CARD_DEFINITIONS);
+    state = r.newState;
+    // Banish's chosen target prompt.
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [victimId] }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // 3 drawn (had cards under) — minus 1 Time to Go! card that left hand.
+    expect(state.zones.player1.hand.length).toBe(handBefore - 1 + 3);
+  });
+
+  it("Time to Go!: banishing a character with no cardsUnder draws 2 (default)", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 3);
+    let timeId: string, victimId: string;
+    ({ state, instanceId: timeId } = injectCard(state, "player1", "time-to-go", "hand"));
+    ({ state, instanceId: victimId } = injectCard(state, "player1", "pumbaa-friendly-warthog", "play", { isDrying: false }));
+    const handBefore = state.zones.player1.hand.length;
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: timeId }, CARD_DEFINITIONS);
+    state = r.newState;
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [victimId] }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // 2 drawn — minus 1 Time to Go! card.
+    expect(state.zones.player1.hand.length).toBe(handBefore - 1 + 2);
+  });
+});

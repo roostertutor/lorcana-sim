@@ -1,0 +1,9 @@
+{
+  "session": "2026-04-17",
+  "baselineCommit": "fcb7006",
+  "viewports": {
+    "mobile": { "device": "iPhone 13", "width": 390, "height": 844 },
+    "desktop": { "width": 1440, "height": 900 }
+  },
+  "surfaces": []
+}

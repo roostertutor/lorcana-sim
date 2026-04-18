@@ -766,6 +766,11 @@ export function evaluateCondition(
       const inst = state.cards[sourceInstanceId];
       return !!inst && (inst.cardsPutUnderThisTurn ?? 0) > 0;
     }
+    case "last_banished_had_cards_under": {
+      // CRD snapshot: lastBanishedCardsUnderCount is captured at banish time
+      // before leave-play cleanup wipes cardsUnder on the instance.
+      return (state.lastBanishedCardsUnderCount ?? 0) > 0;
+    }
     case "no_challenges_this_turn": {
       return !state.players[controllingPlayerId].aCharacterChallengedThisTurn;
     }

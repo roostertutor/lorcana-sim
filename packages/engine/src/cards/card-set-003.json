@@ -3316,16 +3316,9 @@
         ],
         "effects": [
           {
-            "type": "conditional_on_player_state",
-            "condition": {
-              "type": "characters_in_play_gte",
-              "amount": 1,
-              "player": {
-                "type": "self"
-              },
-              "hasName": "Jafar"
-            },
-            "thenEffects": [
+            "type": "self_replacement",
+            "effect": [],
+            "instead": [
               {
                 "type": "draw",
                 "amount": 2,
@@ -3334,19 +3327,19 @@
                 }
               }
             ],
-            "elseEffects": []
-          },
-          {
-            "type": "conditional_on_player_state",
             "condition": {
               "type": "characters_in_play_gte",
               "amount": 1,
               "player": {
                 "type": "self"
               },
-              "hasName": "Genie"
-            },
-            "thenEffects": [
+              "hasName": "Jafar"
+            }
+          },
+          {
+            "type": "self_replacement",
+            "effect": [],
+            "instead": [
               {
                 "type": "return_to_hand",
                 "target": {
@@ -3361,7 +3354,14 @@
                 }
               }
             ],
-            "elseEffects": []
+            "condition": {
+              "type": "characters_in_play_gte",
+              "amount": 1,
+              "player": {
+                "type": "self"
+              },
+              "hasName": "Genie"
+            }
           }
         ]
       }

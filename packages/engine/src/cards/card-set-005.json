@@ -1827,7 +1827,28 @@
             }
           },
           {
-            "type": "conditional_on_player_state",
+            "type": "self_replacement",
+            "effect": [],
+            "instead": [
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character",
+                      "item",
+                      "location"
+                    ],
+                    "owner": {
+                      "type": "opponent"
+                    },
+                    "costAtMost": 3
+                  }
+                }
+              }
+            ],
             "condition": {
               "type": "characters_in_play_gte",
               "amount": 2,
@@ -1835,8 +1856,12 @@
                 "type": "self"
               },
               "hasName": "Maleficent"
-            },
-            "thenEffects": [
+            }
+          },
+          {
+            "type": "self_replacement",
+            "effect": [],
+            "instead": [
               {
                 "type": "return_to_hand",
                 "target": {
@@ -1856,10 +1881,6 @@
                 }
               }
             ],
-            "elseEffects": []
-          },
-          {
-            "type": "conditional_on_player_state",
             "condition": {
               "type": "characters_in_play_gte",
               "amount": 3,
@@ -1867,8 +1888,12 @@
                 "type": "self"
               },
               "hasName": "Maleficent"
-            },
-            "thenEffects": [
+            }
+          },
+          {
+            "type": "self_replacement",
+            "effect": [],
+            "instead": [
               {
                 "type": "return_to_hand",
                 "target": {
@@ -1888,10 +1913,6 @@
                 }
               }
             ],
-            "elseEffects": []
-          },
-          {
-            "type": "conditional_on_player_state",
             "condition": {
               "type": "characters_in_play_gte",
               "amount": 4,
@@ -1899,28 +1920,7 @@
                 "type": "self"
               },
               "hasName": "Maleficent"
-            },
-            "thenEffects": [
-              {
-                "type": "return_to_hand",
-                "target": {
-                  "type": "chosen",
-                  "filter": {
-                    "zone": "play",
-                    "cardType": [
-                      "character",
-                      "item",
-                      "location"
-                    ],
-                    "owner": {
-                      "type": "opponent"
-                    },
-                    "costAtMost": 3
-                  }
-                }
-              }
-            ],
-            "elseEffects": []
+            }
           }
         ]
       }
@@ -5863,32 +5863,20 @@
         },
         "effects": [
           {
-            "type": "conditional_on_player_state",
-            "condition": {
-              "type": "you_control_matching",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "play",
-                "cardType": [
-                  "character"
+            "type": "self_replacement",
+            "effect": [
+              {
+                "type": "self_replacement",
+                "effect": [],
+                "instead": [
+                  {
+                    "type": "gain_lore",
+                    "amount": 2,
+                    "target": {
+                      "type": "self"
+                    }
+                  }
                 ],
-                "strengthAtLeast": 10
-              }
-            },
-            "thenEffects": [
-              {
-                "type": "gain_lore",
-                "amount": 5,
-                "target": {
-                  "type": "self"
-                }
-              }
-            ],
-            "elseEffects": [
-              {
-                "type": "conditional_on_player_state",
                 "condition": {
                   "type": "you_control_matching",
                   "filter": {
@@ -5901,19 +5889,31 @@
                     ],
                     "strengthAtLeast": 5
                   }
-                },
-                "thenEffects": [
-                  {
-                    "type": "gain_lore",
-                    "amount": 2,
-                    "target": {
-                      "type": "self"
-                    }
-                  }
-                ],
-                "elseEffects": []
+                }
               }
-            ]
+            ],
+            "instead": [
+              {
+                "type": "gain_lore",
+                "amount": 5,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ],
+            "condition": {
+              "type": "you_control_matching",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "strengthAtLeast": 10
+              }
+            }
           }
         ]
       }

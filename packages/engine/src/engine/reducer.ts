@@ -4311,16 +4311,8 @@ export function applyEffect(
       };
     }
 
-    case "conditional_on_player_state": {
-      // Desperate Plan: branch on a player-state condition.
-      const condMet = evaluateCondition(effect.condition, state, definitions, controllingPlayerId, sourceInstanceId);
-      const branch = condMet ? effect.thenEffects : effect.elseEffects;
-      for (const sub of branch) {
-        state = applyEffect(state, sub, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
-        if (state.pendingChoice) return state;
-      }
-      return state;
-    }
+    // Rerouted to self_replacement (target omitted, condition is a
+    // Condition — dispatched via evaluateCondition).
 
     case "each_player": {
       // CRD 6.1.4 + 7.7.4: apply inner effects once per matching player in
@@ -4892,22 +4884,33 @@ export function applyEffect(
     }
 
     case "self_replacement": {
-      // CRD 6.5.6 self-replacement within a single ability. Two modes:
-      //  - target set: pick target, match condition against target (Vicious
-      //    Betrayal pattern). Chosen target surfaces a pendingChoice; direct
-      //    targets (this/triggering_card/last_resolved_target) resolve inline.
-      //  - target omitted: condition matches against state.lastDiscarded
-      //    (Kakamora Pirate Chief).
+      // CRD 6.5.6 self-replacement within a single ability. Three modes
+      // distinguished by (target, condition shape):
+      //  - target set + condition is CardFilter: pick target, match filter
+      //    against target (Vicious Betrayal). Chosen target surfaces a
+      //    pendingChoice; direct targets resolve inline below.
+      //  - target absent + condition is a Condition (has `type` field):
+      //    evaluate via evaluateCondition (Turbo Royal Hack, Hidden Trap).
+      //  - target absent + condition is a CardFilter: match against
+      //    state.lastDiscarded (Kakamora Pirate Chief).
       if (!effect.target) {
-        const refs = state.lastDiscarded ?? [];
-        let matched = false;
-        for (const ref of refs) {
-          const inst = state.cards[ref.instanceId];
-          const def = inst ? definitions[inst.definitionId] : undefined;
-          if (!inst || !def) continue;
-          if (matchesFilter(inst, def, effect.condition, state, controllingPlayerId, sourceInstanceId)) {
-            matched = true;
-            break;
+        const cond = effect.condition as any;
+        let matched: boolean;
+        if (cond && typeof cond === "object" && typeof cond.type === "string") {
+          // Condition discriminator present → game-state check.
+          matched = evaluateCondition(cond, state, definitions, controllingPlayerId, sourceInstanceId);
+        } else {
+          // CardFilter → check against state.lastDiscarded.
+          const refs = state.lastDiscarded ?? [];
+          matched = false;
+          for (const ref of refs) {
+            const inst = state.cards[ref.instanceId];
+            const def = inst ? definitions[inst.definitionId] : undefined;
+            if (!inst || !def) continue;
+            if (matchesFilter(inst, def, cond, state, controllingPlayerId, sourceInstanceId)) {
+              matched = true;
+              break;
+            }
           }
         }
         const branch = matched ? effect.instead : effect.effect;
@@ -6972,11 +6975,22 @@ function applyEffectToTarget(
       return state;
     }
     case "self_replacement": {
-      // Target-resolved branch of CRD 6.5.6. Match the filter against the
-      // resolved target and apply the right branch with the same target.
-      const inst = getInstance(state, targetInstanceId);
-      const def = definitions[inst.definitionId];
-      const matches = def ? matchesFilter(inst, def, effect.condition, state, controllingPlayerId) : false;
+      // Target-resolved branch of CRD 6.5.6. Two sub-modes:
+      //  - condition is a CardFilter: match against the resolved target
+      //    (Vicious Betrayal: "if Villain is chosen").
+      //  - condition is a Condition (has `type` field): evaluate as game
+      //    state check, target is shared across branches but not inspected
+      //    by the condition (Terror That Flaps: pick opposing char, THEN
+      //    check "if you have Darkwing Duck in play").
+      const cond = effect.condition as any;
+      let matches: boolean;
+      if (cond && typeof cond === "object" && typeof cond.type === "string") {
+        matches = evaluateCondition(cond, state, definitions, controllingPlayerId, sourceInstanceId);
+      } else {
+        const inst = getInstance(state, targetInstanceId);
+        const def = definitions[inst.definitionId];
+        matches = def ? matchesFilter(inst, def, cond, state, controllingPlayerId) : false;
+      }
       const branch = matches ? effect.instead : effect.effect;
       for (const e of branch) {
         state = applyEffectToTarget(state, e, targetInstanceId, controllingPlayerId, definitions, events, sourceInstanceId, triggeringCardInstanceId);

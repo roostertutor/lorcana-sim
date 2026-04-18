@@ -11827,25 +11827,8 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/201_dfb52fe834c389df9a4e03bdf20296d88e85e2b5.jpg",
     "actionEffects": [
       {
-        "type": "conditional_on_player_state",
-        "condition": {
-          "type": "cards_in_hand_eq",
-          "amount": 0,
-          "player": {
-            "type": "self"
-          }
-        },
-        "thenEffects": [
-          {
-            "type": "draw",
-            "amount": 3,
-            "untilHandSize": 3,
-            "target": {
-              "type": "self"
-            }
-          }
-        ],
-        "elseEffects": [
+        "type": "self_replacement",
+        "effect": [
           {
             "type": "sequential",
             "costEffects": [
@@ -11868,7 +11851,24 @@
               }
             ]
           }
-        ]
+        ],
+        "instead": [
+          {
+            "type": "draw",
+            "amount": 3,
+            "untilHandSize": 3,
+            "target": {
+              "type": "self"
+            }
+          }
+        ],
+        "condition": {
+          "type": "cards_in_hand_eq",
+          "amount": 0,
+          "player": {
+            "type": "self"
+          }
+        }
       }
     ]
   },
@@ -13355,25 +13355,8 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/222_634db077cd3e81e180fc49393945ab9298b324e7.jpg",
     "actionEffects": [
       {
-        "type": "conditional_on_player_state",
-        "condition": {
-          "type": "cards_in_hand_eq",
-          "amount": 0,
-          "player": {
-            "type": "self"
-          }
-        },
-        "thenEffects": [
-          {
-            "type": "draw",
-            "amount": 3,
-            "untilHandSize": 3,
-            "target": {
-              "type": "self"
-            }
-          }
-        ],
-        "elseEffects": [
+        "type": "self_replacement",
+        "effect": [
           {
             "type": "sequential",
             "costEffects": [
@@ -13396,7 +13379,24 @@
               }
             ]
           }
-        ]
+        ],
+        "instead": [
+          {
+            "type": "draw",
+            "amount": 3,
+            "untilHandSize": 3,
+            "target": {
+              "type": "self"
+            }
+          }
+        ],
+        "condition": {
+          "type": "cards_in_hand_eq",
+          "amount": 0,
+          "player": {
+            "type": "self"
+          }
+        }
       }
     ]
   },
