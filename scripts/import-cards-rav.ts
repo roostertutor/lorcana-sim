@@ -436,9 +436,9 @@ function normName(s: string): string {
     .replace(/[^a-z0-9]/g, "");
 }
 
-function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { preserved: number; keywordsRescued: number; reslugged: number } {
+function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { preserved: number; keywordsRescued: number; reslugged: number; carriedOver: number } {
   const outPath = setJsonPath(setCode);
-  if (!existsSync(outPath)) return { preserved: 0, keywordsRescued: 0, reslugged: 0 };
+  if (!existsSync(outPath)) return { preserved: 0, keywordsRescued: 0, reslugged: 0, carriedOver: 0 };
 
   const existing: CardDefinitionOut[] = JSON.parse(readFileSync(outPath, "utf-8"));
   const existingById = new Map(existing.map((c) => [c.id, c]));
@@ -513,7 +513,23 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { pr
     }
   }
 
-  return { preserved, keywordsRescued, reslugged };
+  // Carry over existing cards NOT present in the incoming batch. Partial
+  // imports (e.g. `--sets set12`) only fetch cards for the specified filter;
+  // any promo/shared file (P1/P2/P3/C1/C2/D23) also receives a slice in the
+  // same run. Without this carry-over, those files get truncated to just the
+  // slice (42-card P3 wipe bug from 2026-04-18). Matches on id, with a
+  // (number, normName) fallback to survive slug renames.
+  let carriedOver = 0;
+  const incomingById = new Set(newCards.map((c) => c.id));
+  const incomingByKey = new Set(newCards.map((c) => `${c.number}|${normName(c.fullName)}`));
+  for (const prev of existing) {
+    if (incomingById.has(prev.id)) continue;
+    if (incomingByKey.has(`${prev.number}|${normName(prev.fullName)}`)) continue;
+    newCards.push(prev);
+    carriedOver++;
+  }
+
+  return { preserved, keywordsRescued, reslugged, carriedOver };
 }
 
 // =============================================================================
@@ -608,11 +624,12 @@ async function main() {
 
   for (const [setCode, setCards] of cardsBySet) {
     const outPath = setJsonPath(setCode);
-    const { preserved, keywordsRescued, reslugged } = mergeWithExisting(setCode, setCards);
-    if (preserved > 0 || keywordsRescued > 0 || reslugged > 0) {
+    const { preserved, keywordsRescued, reslugged, carriedOver } = mergeWithExisting(setCode, setCards);
+    if (preserved > 0 || keywordsRescued > 0 || reslugged > 0 || carriedOver > 0) {
       console.log(`  Preserved manual abilities on ${preserved} card(s) in set ${setCode}` +
         (keywordsRescued > 0 ? `; rescued ${keywordsRescued} keyword field(s)` : "") +
-        (reslugged > 0 ? `; ${reslugged} card(s) matched via renamed slug` : "") + ".");
+        (reslugged > 0 ? `; ${reslugged} card(s) matched via renamed slug` : "") +
+        (carriedOver > 0 ? `; carried over ${carriedOver} card(s) not in this batch` : "") + ".");
     }
     // Sort by number for stable diff
     setCards.sort((a, b) => (a.number ?? 0) - (b.number ?? 0));
