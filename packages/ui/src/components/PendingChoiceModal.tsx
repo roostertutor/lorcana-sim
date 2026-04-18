@@ -3,6 +3,21 @@ import type { PendingChoice, PlayerID, GameState, CardDefinition } from "@lorcan
 import { getEffectiveStrength } from "@lorcana-sim/engine";
 import { buildLabelMap } from "../utils/buildLabelMap.js";
 import GameCard from "./GameCard.js";
+import CardTextRender from "./CardTextRender.js";
+
+// A/B toggle: structured text rendering vs. card art. Persisted across sessions.
+const CARD_DISPLAY_KEY = "card-display-mode";
+function useCardDisplayMode(): [("art" | "text"), (m: "art" | "text") => void] {
+  const [mode, setMode] = React.useState<"art" | "text">(() => {
+    if (typeof window === "undefined") return "art";
+    return (localStorage.getItem(CARD_DISPLAY_KEY) as "art" | "text") ?? "art";
+  });
+  const update = React.useCallback((m: "art" | "text") => {
+    setMode(m);
+    if (typeof window !== "undefined") localStorage.setItem(CARD_DISPLAY_KEY, m);
+  }, []);
+  return [mode, update];
+}
 
 interface Props {
   pendingChoice: PendingChoice;
@@ -28,6 +43,8 @@ export default function PendingChoiceModal({
   // State for choose_amount picker (must be top-level per rules of hooks)
   const [chooseAmountValue, setChooseAmountValue] = React.useState(0);
   const chooseAmountMax = (pendingChoice as any).max ?? 0;
+  // A/B toggle for card display style in this modal (art image vs. structured text).
+  const [displayMode, setDisplayMode] = useCardDisplayMode();
   React.useEffect(() => {
     if (pendingChoice.type === "choose_amount") {
       setChooseAmountValue((pendingChoice as any).max ?? 0);
@@ -432,7 +449,11 @@ export default function PendingChoiceModal({
       return (
         <div className="space-y-4">
           <div className="flex items-start gap-3">
-            {srcImg && (
+            {srcDef && displayMode === "text" ? (
+              <div className="shrink-0 w-[200px]">
+                <CardTextRender def={srcDef} />
+              </div>
+            ) : srcImg ? (
               <img
                 src={srcImg}
                 alt={srcDef?.fullName ?? ""}
@@ -440,7 +461,7 @@ export default function PendingChoiceModal({
                 loading="lazy"
                 decoding="async"
               />
-            )}
+            ) : null}
             <div className="flex-1 min-w-0">
               <div className="text-gray-200 text-sm">{pendingChoice.prompt}</div>
               {contextHints.length > 0 && (
@@ -491,7 +512,11 @@ export default function PendingChoiceModal({
                   className="flex items-center gap-3 px-3 py-2.5 bg-gray-800 hover:bg-gray-700 border border-gray-600 hover:border-indigo-500 rounded-lg transition-colors text-left"
                   onClick={() => onResolveChoice(idxStr)}
                 >
-                  {cardImg && (
+                  {def && displayMode === "text" ? (
+                    <div className="shrink-0 w-[180px]">
+                      <CardTextRender def={def} compact />
+                    </div>
+                  ) : cardImg ? (
                     <img
                       src={cardImg}
                       alt={cardName}
@@ -499,11 +524,11 @@ export default function PendingChoiceModal({
                       loading="lazy"
                       decoding="async"
                     />
-                  )}
+                  ) : null}
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-semibold text-white truncate">{cardName}</div>
                     <div className="text-xs text-indigo-300 italic truncate">{abilityName}</div>
-                    {rulesText && (
+                    {rulesText && displayMode === "art" && (
                       <div className="text-[10px] text-gray-400 leading-snug mt-1 line-clamp-3">{rulesText}</div>
                     )}
                   </div>
@@ -698,10 +723,28 @@ export default function PendingChoiceModal({
                       rounded-t-2xl sm:rounded-2xl
                       p-5 pb-[max(env(safe-area-inset-bottom,0px),20px)]
                       shadow-2xl">
-        {/* Panel header row: drag handle (mobile) + hide button */}
-        <div className="flex items-center justify-between mb-3">
+        {/* Panel header row: drag handle (mobile) + A/B toggle + hide button */}
+        <div className="flex items-center justify-between mb-3 gap-2">
           <div className="w-10 h-1 bg-gray-700 rounded-full sm:hidden" />
           <div className="hidden sm:block" /> {/* spacer */}
+          {/* A/B toggle: art vs structured text rendering. Only visible on surfaces
+              that render card previews (choose_may + choose_trigger today). */}
+          {(pendingChoice.type === "choose_may" || pendingChoice.type === "choose_trigger") && (
+            <div className="flex items-center text-[10px] rounded-full border border-gray-700 bg-gray-900 overflow-hidden">
+              <button
+                onClick={() => setDisplayMode("art")}
+                className={`px-2 py-1 transition-colors ${displayMode === "art" ? "bg-indigo-600 text-white" : "text-gray-500 hover:text-gray-300"}`}
+              >
+                Art
+              </button>
+              <button
+                onClick={() => setDisplayMode("text")}
+                className={`px-2 py-1 transition-colors ${displayMode === "text" ? "bg-indigo-600 text-white" : "text-gray-500 hover:text-gray-300"}`}
+              >
+                Text
+              </button>
+            </div>
+          )}
           <button
             className="flex items-center gap-1 px-2.5 py-1 text-[10px] text-gray-500 hover:text-gray-300 bg-gray-800/60 hover:bg-gray-700/60 rounded-full border border-gray-700 transition-colors"
             onClick={onHide}
