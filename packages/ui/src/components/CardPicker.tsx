@@ -83,6 +83,14 @@ export default function CardPicker({ entries, definitions, onChange }: Props) {
 
   const inspectDef = inspectId ? definitions[inspectId] : null;
 
+  // Cap the grid at MAX_VISIBLE to keep mount time + DOM node count bounded.
+  // 2652 tiles × (art + stepper + maybe variant chip row) was jank-y even
+  // with `content-visibility: auto`. Filters narrow the set quickly;
+  // un-filtered browsing is rarely the user's goal anyway.
+  const MAX_VISIBLE = 200;
+  const shownCards = visibleCards.slice(0, MAX_VISIBLE);
+  const truncated = visibleCards.length > MAX_VISIBLE;
+
   return (
     <div className="space-y-3">
       <CardFilterBar
@@ -96,7 +104,7 @@ export default function CardPicker({ entries, definitions, onChange }: Props) {
           {hasAnyFilter(filters) ? "No cards match these filters." : "No cards available."}
         </div>
       ) : (
-        // Bounded scroll area so the 2652-card grid doesn't push the deck
+        // Bounded scroll area so the capped grid doesn't push the deck
         // editor below the fold. Filter bar above stays fixed with this.
         <div className="max-h-[60vh] overflow-y-auto pr-1 -mr-1 rounded-lg">
           <div
@@ -107,7 +115,7 @@ export default function CardPicker({ entries, definitions, onChange }: Props) {
               containIntrinsicSize: "0 200px",
             }}
           >
-            {visibleCards.map((def) => {
+            {shownCards.map((def) => {
               const entry = entries.find((e) => e.definitionId === def.id);
               return (
                 <CardTile
@@ -123,6 +131,13 @@ export default function CardPicker({ entries, definitions, onChange }: Props) {
               );
             })}
           </div>
+          {truncated && (
+            <div className="text-center text-xs text-gray-500 py-3">
+              Showing first {MAX_VISIBLE.toLocaleString()} of{" "}
+              <span className="text-gray-300 font-mono">{visibleCards.length.toLocaleString()}</span>.
+              Use filters to narrow the list.
+            </div>
+          )}
         </div>
       )}
 
