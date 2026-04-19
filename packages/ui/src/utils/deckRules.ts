@@ -4,7 +4,7 @@
 // the UI just reads def.maxCopies (default 4 if unset).
 // =============================================================================
 
-import type { CardDefinition, DeckEntry } from "@lorcana-sim/engine";
+import type { CardDefinition, DeckEntry, InkColor } from "@lorcana-sim/engine";
 
 /** Standard 4-copy rule unless the card has an exception (Dalmatian Puppy = 99,
  *  Glass Slipper = 2, Microbots = any). */
@@ -19,6 +19,35 @@ export function countById(
   const map = new Map<string, number>();
   for (const e of entries) map.set(e.definitionId, e.count);
   return map;
+}
+
+/** Unique ink colors represented across a deck. Order is stable (follows
+ *  the canonical order, not insertion order) so the gem row renders
+ *  consistently regardless of which card was added first. Legal decks have
+ *  1-2 inks; sandbox / illegal decks may have more, up to all 6. */
+const INK_ORDER: InkColor[] = ["amber", "amethyst", "emerald", "ruby", "sapphire", "steel"];
+
+/** Tailwind bg-* class per ink color — shared by gem dots across the UI so
+ *  the palette stays consistent between deck tiles, filter bar, etc. */
+export const INK_COLOR_CLASS: Record<InkColor, string> = {
+  amber: "bg-amber-500",
+  amethyst: "bg-purple-500",
+  emerald: "bg-emerald-500",
+  ruby: "bg-red-500",
+  sapphire: "bg-blue-500",
+  steel: "bg-gray-400",
+};
+export function deckInkColors(
+  entries: DeckEntry[],
+  definitions: Record<string, CardDefinition>,
+): InkColor[] {
+  const present = new Set<InkColor>();
+  for (const e of entries) {
+    const def = definitions[e.definitionId];
+    if (!def) continue;
+    for (const c of def.inkColors) present.add(c);
+  }
+  return INK_ORDER.filter((c) => present.has(c));
 }
 
 /** The image URL for a specific entry — respects the entry's variant

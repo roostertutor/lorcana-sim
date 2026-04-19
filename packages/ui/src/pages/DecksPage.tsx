@@ -11,7 +11,7 @@ import { supabase } from "../lib/supabase.js";
 import { listDecks } from "../lib/deckApi.js";
 import type { SavedDeck } from "../lib/deckApi.js";
 import CompositionView from "./CompositionView.js";
-import { resolveBoxCard } from "../utils/deckRules.js";
+import { resolveBoxCard, deckInkColors } from "../utils/deckRules.js";
 
 const SAMPLE_DECKLIST = `# Sample deck — The First Chapter (set 1)
 4 HeiHei - Boat Snack
@@ -141,7 +141,9 @@ export default function DecksPage() {
           ) : (
             <div
               className="grid gap-3"
-              style={{ gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}
+              // 160px min gives mobile (~390px wide) a 2-column grid instead
+              // of one big full-width tile per deck.
+              style={{ gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))" }}
             >
               {/* "+ New Deck" tile — always first. Matches 5:4 tile aspect of
                    the deck tiles (art-crop) so the grid reads uniformly. */}
@@ -160,6 +162,7 @@ export default function DecksPage() {
                 const count = parsed.entries.reduce((s, e) => s + e.count, 0);
                 const isValid = parsed.entries.length > 0 && parsed.errors.length === 0;
                 const boxCard = resolveBoxCard(parsed.entries, d.box_card_id, CARD_DEFINITIONS);
+                const inks = deckInkColors(parsed.entries, CARD_DEFINITIONS);
                 return (
                   <Link
                     key={d.id}
@@ -180,7 +183,10 @@ export default function DecksPage() {
                       </div>
                     )}
 
-                    {/* Bottom overlay: name + count + date */}
+                    {/* Bottom overlay: ink icons + name + count + date. Ink
+                         icons are inlined here (not over the cost pip) — the
+                         pip extends past the card's black border so a small
+                         badge can't cover it cleanly; we just embrace it. */}
                     <div className="relative mt-auto bg-gradient-to-t from-black/95 via-black/80 to-transparent pt-5 pb-2 px-3">
                       <div className="flex items-start justify-between gap-2">
                         <span className="text-sm font-bold text-white line-clamp-2 drop-shadow">{d.name}</span>
@@ -192,8 +198,21 @@ export default function DecksPage() {
                           <span className="text-[10px] text-red-400 shrink-0 drop-shadow">invalid</span>
                         )}
                       </div>
-                      <div className="text-[9px] text-gray-400 mt-0.5 drop-shadow">
-                        {new Date(d.updated_at).toLocaleDateString()}
+                      <div className="flex items-center justify-between gap-2 mt-0.5">
+                        <div className="flex items-center gap-0.5">
+                          {inks.map((c) => (
+                            <img
+                              key={c}
+                              src={`/icons/ink/${c}.svg`}
+                              alt={c}
+                              title={c}
+                              className="w-4 h-4 drop-shadow"
+                            />
+                          ))}
+                        </div>
+                        <div className="text-[9px] text-gray-400 drop-shadow">
+                          {new Date(d.updated_at).toLocaleDateString()}
+                        </div>
                       </div>
                     </div>
                   </Link>

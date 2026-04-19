@@ -326,3 +326,35 @@ what's happening at apply time (e.g. "player1 played Tangle → player2 lost
 1 lore"), the log is already player-qualified via `appendLog`. No change
 expected, but if any UI surfaces rulesText rendered by the decompiler, the
 new wording is ready for it.
+
+## GUI: MTGA-style "shortened" card rendering in play zones
+
+Idea for the board: crop cards in play to ~top half of the source image so
+only art + name + stats show, hiding the unreadable rules-text block. MTGA
+and old Pixelborn Lorcana do this; duels.ink keeps the full card. Matches
+the "chrome that differentiates vs content forced by genre" distinction in
+`feedback_visual_identity.md` — this is chrome, we can diverge.
+
+**Realistic vertical-space gains** (measured against current card sizes in
+`GameCard.tsx`):
+- Desktop play card (`lg:w-[120px]`, 168px full): crop at 5:3.5 → 84px. Save
+  ~84px per row × 2 play zones = ~168px reclaimed (~15-20% of a 900px
+  viewport).
+- Mobile play card (`w-[52px]`, 73px full): crop at 5:3.5 → 36px. Save
+  ~37px per row × 2 = ~74px (~10% of an 844px iPhone viewport).
+- MTGA-style 5:4.5 (keeps stats bar, drops only the rules-text block):
+  roughly half the savings — ~80px desktop, ~35px mobile.
+
+**What has to come with it:**
+- Hover/long-press preview flow must show the full card so users can still
+  read rules when they need to (covered by the pending "hover preview on
+  play-zone cards" + "long-press mobile equivalent" items discussed but
+  not yet scheduled).
+- Re-place keyword icons, damage counters, drying overlay, stat-delta
+  badges for the shorter card.
+- Consistent identification: card name must stay visible at the top of the
+  cropped tile so hand→play recognition doesn't break.
+
+Out of scope for the current deckbuilder stack — this is a GameBoard /
+play-zone change. Pick up when the deckbuilder work lands and there's a
+dedicated session for board chrome.
