@@ -276,8 +276,11 @@ export default function DeckBuilderPage() {
         )}
 
         {/* Deck editor — fixed 340px when picker is open, max-w-2xl centered
-             when it's hidden so the editor + search take a comfortable row. */}
-        <div className={`${pickerOpen ? "lg:w-[340px] shrink-0" : "flex-1 max-w-2xl mx-auto"} space-y-6`}>
+             when it's hidden so the editor + search take a comfortable row.
+             min-w-0 so any wide descendant (long deck names, version dates,
+             etc.) can truncate instead of forcing page-level horizontal
+             scroll on mobile. */}
+        <div className={`${pickerOpen ? "lg:w-[340px] shrink-0" : "flex-1 max-w-2xl mx-auto"} min-w-0 space-y-6`}>
           <div className="card space-y-3">
             {/* Box preview + deck name */}
             {(() => {
