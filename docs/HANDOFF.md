@@ -479,8 +479,17 @@ tiles currently don't indicate whether a deck can be played in Core.
      check — needs the variant-collapse bug fixed to be correct.
 3. UI (GUI agent lane):
    - Per-deck `format` field stored on `decks` table (new column,
-     `"core" | "infinity"` with `"infinity"` default).
+     `"core" | "infinity"` with **`"core"` default** — most new decks
+     target the competitive format; Infinity is an explicit opt-in for
+     experienced players who want access to older cards).
    - Format picker in `DeckBuilderPage` (next to deck name).
+   - **Auto-apply format as a CardPicker filter.** Selecting `"core"`
+     on the deck pre-applies a hidden "Core-legal" filter on the card
+     browser so the user can't see (and accidentally add) non-Core
+     cards. Selecting `"infinity"` removes the filter. The filter is
+     implicit (not a user-toggleable chip) so it never conflicts with
+     the declared format. Banlist cards for the active format get
+     hidden too.
    - Badge on `DecksPage` tiles showing declared format + a warning
      glyph when the deck fails its own format's legality check.
    - In `DeckBuilderPage`, surface the issues list inline (e.g.
