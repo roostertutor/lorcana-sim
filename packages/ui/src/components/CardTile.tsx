@@ -2,11 +2,12 @@
 // CardTile — single card in the deckbuilder picker grid.
 // Card art on top (click to inspect), [−] N/max [+] stepper below.
 // Variant editing lives on the deck row (DeckBuilder.DeckRow), not here —
-// the tile's only responsibilities are add/remove and display. Tile art
-// still swaps to match whatever variant the deck entry has set.
+// the tile's only responsibilities are add/remove and display. The tile
+// always shows the default (regular) art so the browser is a stable
+// reference catalog regardless of what's in the deck.
 // =============================================================================
 
-import type { CardDefinition, CardVariantType } from "@lorcana-sim/engine";
+import type { CardDefinition } from "@lorcana-sim/engine";
 
 interface Props {
   def: CardDefinition;
@@ -14,8 +15,6 @@ interface Props {
   qty: number;
   /** Maximum copies allowed for this card. */
   maxCopies: number;
-  /** Current variant on the deck entry (drives the tile's image display). */
-  variant?: CardVariantType;
   /** Called when the user changes the quantity (± 1 via stepper). */
   onSetQty: (qty: number) => void;
   /** Called when the user clicks the art to inspect. */
@@ -23,7 +22,7 @@ interface Props {
 }
 
 export default function CardTile({
-  def, qty, maxCopies, variant, onSetQty, onInspect,
+  def, qty, maxCopies, onSetQty, onInspect,
 }: Props) {
   const inDeck = qty > 0;
   const atMax = qty >= maxCopies;
@@ -31,12 +30,9 @@ export default function CardTile({
   // actually building a 99-copy deck, and the "any number" flavor reads better.
   const maxLabel = maxCopies >= 99 ? "∞" : String(maxCopies);
 
-  // Image: if the entry has a selected variant, use that variant's art. Else
-  // fall back to def.imageUrl (which == variants[0].imageUrl by construction).
-  const variantMatch = variant
-    ? def.variants?.find((v) => v.type === variant)
-    : undefined;
-  const displayImageUrl = variantMatch?.imageUrl ?? def.imageUrl ?? "";
+  // Browser tile always shows def.imageUrl (= the default / regular variant).
+  // Variant selection belongs to the deck entry and renders on the deck row.
+  const displayImageUrl = def.imageUrl ?? "";
 
   return (
     <div className={`relative rounded-md overflow-hidden border transition-colors ${

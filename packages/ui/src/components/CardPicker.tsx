@@ -111,20 +111,16 @@ export default function CardPicker({ entries, definitions, onChange }: Props) {
               containIntrinsicSize: "0 200px",
             }}
           >
-            {shownCards.map((def) => {
-              const entry = entries.find((e) => e.definitionId === def.id);
-              return (
-                <CardTile
-                  key={def.id}
-                  def={def}
-                  qty={qtyById.get(def.id) ?? 0}
-                  maxCopies={getMaxCopies(def)}
-                  variant={entry?.variant}
-                  onSetQty={(n) => setCardQty(def, n)}
-                  onInspect={() => setInspectId(def.id)}
-                />
-              );
-            })}
+            {shownCards.map((def) => (
+              <CardTile
+                key={def.id}
+                def={def}
+                qty={qtyById.get(def.id) ?? 0}
+                maxCopies={getMaxCopies(def)}
+                onSetQty={(n) => setCardQty(def, n)}
+                onInspect={() => setInspectId(def.id)}
+              />
+            ))}
           </div>
           {truncated && (
             <div className="text-center text-xs text-gray-500 py-3">
