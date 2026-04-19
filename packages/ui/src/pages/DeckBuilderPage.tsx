@@ -6,6 +6,7 @@
 // =============================================================================
 
 import { useState, useEffect, useMemo, useCallback } from "react";
+import type { MouseEvent } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { CARD_DEFINITIONS, parseDecklist, serializeDecklist } from "@lorcana-sim/engine";
 import type { DeckEntry, CardVariantType } from "@lorcana-sim/engine";
@@ -114,6 +115,29 @@ export default function DeckBuilderPage() {
       || Object.keys(currentMetadata).length > 0;
   const deckReady = entries.length > 0;
 
+  // Guard against losing unsaved changes when the user closes the tab, hits
+  // refresh, or clicks away. The beforeunload handler covers tab-close +
+  // refresh (browser shows a generic "Leave site?" prompt). The Link click
+  // handler below covers in-app nav to the My Decks page. BrowserRouter
+  // doesn't support useBlocker so we guard the two common exits explicitly.
+  useEffect(() => {
+    if (!isDirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      // Required for some browsers — value is ignored in modern ones.
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isDirty]);
+
+  function handleBackClick(e: MouseEvent) {
+    if (!isDirty) return;
+    if (!window.confirm("You have unsaved changes. Discard and leave?")) {
+      e.preventDefault();
+    }
+  }
+
   function handleRestoreVersion(v: DeckVersion) {
     const parsed = parseDecklist(v.decklist_text, CARD_DEFINITIONS);
     // Versions don't store card_metadata — carry the current deck's metadata
@@ -200,6 +224,7 @@ export default function DeckBuilderPage() {
       <div className="flex items-center gap-3">
         <Link
           to="/"
+          onClick={handleBackClick}
           className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
         >
           ← My Decks
