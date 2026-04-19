@@ -23,12 +23,25 @@ export default function CardPicker({ entries, definitions, onChange }: Props) {
 
   const qtyById = React.useMemo(() => countById(entries), [entries]);
 
+  // All traits across the definition set, sorted alphabetically. Computed
+  // once per definitions change — the advanced filter trait search scans
+  // this list; don't walk 2138 defs on every keystroke.
+  const allTraits = React.useMemo(() => {
+    const set = new Set<string>();
+    for (const def of Object.values(definitions)) {
+      for (const t of def.traits) set.add(t);
+    }
+    return Array.from(set).sort();
+  }, [definitions]);
+
   // Filtered + sorted card list. Sort by (setId asc, number asc).
   const visibleCards = React.useMemo(() => {
     const q = filters.query.trim().toLowerCase();
     const hasCostFilter = filters.costs.size > 0;
     const hasInkFilter = filters.inks.size > 0;
     const hasTypeFilter = filters.types.size > 0;
+    const hasRarityFilter = filters.rarities.size > 0;
+    const hasTraitFilter = filters.traits.size > 0;
 
     const result: CardDefinition[] = [];
     for (const def of Object.values(definitions)) {
@@ -39,6 +52,15 @@ export default function CardPicker({ entries, definitions, onChange }: Props) {
       }
       if (hasInkFilter && !def.inkColors.some((c: InkColor) => filters.inks.has(c))) continue;
       if (hasTypeFilter && !filters.types.has(def.cardType)) continue;
+      if (hasRarityFilter && !filters.rarities.has(def.rarity)) continue;
+      // Trait filter: card must have ALL selected traits (AND-within-category).
+      if (hasTraitFilter) {
+        let allMatch = true;
+        for (const t of filters.traits) {
+          if (!def.traits.includes(t)) { allMatch = false; break; }
+        }
+        if (!allMatch) continue;
+      }
       result.push(def);
     }
     result.sort((a, b) => {
@@ -88,6 +110,7 @@ export default function CardPicker({ entries, definitions, onChange }: Props) {
         filters={filters}
         onChange={setFilters}
         matchCount={visibleCards.length}
+        allTraits={allTraits}
       />
 
       {!filterActive ? (
