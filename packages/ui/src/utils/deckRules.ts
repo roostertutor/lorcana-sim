@@ -50,6 +50,24 @@ export function deckInkColors(
   return INK_ORDER.filter((c) => present.has(c));
 }
 
+/** Apply persisted variant choices from a card_metadata map onto parsed
+ *  DeckEntry[]. decklist_text is intentionally vanilla for external-tool
+ *  interop (Inkable, Dreamborn, etc.), so variants live in the sibling
+ *  JSONB column and get joined here. Any surface that renders deck art
+ *  from a parsed decklist needs to hydrate first or it'll fall back to
+ *  the regular variant. */
+export function hydrateVariants<T extends { definitionId: string; variant?: string }>(
+  entries: T[],
+  metadata: Record<string, { variant?: string }> | null | undefined,
+): T[] {
+  if (!metadata) return entries;
+  return entries.map((e) => {
+    const meta = metadata[e.definitionId];
+    if (meta?.variant) return { ...e, variant: meta.variant };
+    return e;
+  });
+}
+
 /** The image URL for a specific entry — respects the entry's variant
  *  selection, falls back to the card definition's default imageUrl. */
 export function resolveEntryImageUrl(

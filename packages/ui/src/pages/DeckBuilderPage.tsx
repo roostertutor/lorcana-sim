@@ -15,24 +15,7 @@ import type { SavedDeck, DeckVersion, CardMetadata } from "../lib/deckApi.js";
 import CompositionView from "./CompositionView.js";
 import DeckBuilder from "../components/DeckBuilder.js";
 import CardPicker from "../components/CardPicker.js";
-import { resolveBoxCard, resolveEntryImageUrl } from "../utils/deckRules.js";
-
-/** Apply persisted variant choices from the card_metadata map onto parsed
- *  DeckEntry[]. decklist_text is intentionally vanilla for external-tool
- *  interop, so variants live in the sibling JSONB column and get joined here. */
-function hydrateVariants(
-  entries: DeckEntry[],
-  metadata: Record<string, CardMetadata> | undefined,
-): DeckEntry[] {
-  if (!metadata) return entries;
-  return entries.map((e) => {
-    const meta = metadata[e.definitionId];
-    if (meta?.variant) {
-      return { ...e, variant: meta.variant as CardVariantType };
-    }
-    return e;
-  });
-}
+import { resolveBoxCard, resolveEntryImageUrl, hydrateVariants } from "../utils/deckRules.js";
 
 /** Build the card_metadata map for persistence from the current entries.
  *  Only cards with a non-default variant appear — regular (the default) is

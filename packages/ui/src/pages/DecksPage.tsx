@@ -11,7 +11,7 @@ import { supabase } from "../lib/supabase.js";
 import { listDecks } from "../lib/deckApi.js";
 import type { SavedDeck } from "../lib/deckApi.js";
 import CompositionView from "./CompositionView.js";
-import { resolveBoxCard, deckInkColors } from "../utils/deckRules.js";
+import { resolveBoxCard, deckInkColors, hydrateVariants } from "../utils/deckRules.js";
 
 const SAMPLE_DECKLIST = `# Sample deck — The First Chapter (set 1)
 4 HeiHei - Boat Snack
@@ -159,10 +159,15 @@ export default function DecksPage() {
                    only the illustration shows (no name banner / stats / text). */}
               {decks.map((d) => {
                 const parsed = parseDecklist(d.decklist_text, CARD_DEFINITIONS);
-                const count = parsed.entries.reduce((s, e) => s + e.count, 0);
-                const isValid = parsed.entries.length > 0 && parsed.errors.length === 0;
-                const boxCard = resolveBoxCard(parsed.entries, d.box_card_id, CARD_DEFINITIONS);
-                const inks = deckInkColors(parsed.entries, CARD_DEFINITIONS);
+                // Hydrate variants from card_metadata so the box art reflects
+                // the enchanted / promo / etc. art the user picked in the
+                // builder. Without this, entries have no variant field and
+                // resolveBoxCard falls back to def.imageUrl (regular).
+                const hydrated = hydrateVariants(parsed.entries, d.card_metadata);
+                const count = hydrated.reduce((s, e) => s + e.count, 0);
+                const isValid = hydrated.length > 0 && parsed.errors.length === 0;
+                const boxCard = resolveBoxCard(hydrated, d.box_card_id, CARD_DEFINITIONS);
+                const inks = deckInkColors(hydrated, CARD_DEFINITIONS);
                 return (
                   <Link
                     key={d.id}
