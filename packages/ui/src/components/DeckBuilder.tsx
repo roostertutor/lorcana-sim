@@ -40,9 +40,9 @@ const GROUP_STORAGE_KEY = "deck-group-mode";
 
 function useGroupMode(): [GroupMode, (m: GroupMode) => void] {
   const [mode, setMode] = useState<GroupMode>(() => {
-    if (typeof window === "undefined") return "cost";
+    if (typeof window === "undefined") return "type";
     const saved = localStorage.getItem(GROUP_STORAGE_KEY);
-    return saved === "type" || saved === "none" || saved === "cost" ? saved : "cost";
+    return saved === "type" || saved === "none" || saved === "cost" ? saved : "type";
   });
   const update = (m: GroupMode) => {
     setMode(m);
@@ -320,19 +320,26 @@ export default function DeckBuilder({ entries, definitions, onChange }: Props) {
             <span className="text-green-400">✓ 60</span>
           )}
           {sortedRows.length > 0 && (
-            <label className="flex items-center gap-1 text-[10px] text-gray-600">
-              Group:
-              <select
-                value={groupMode}
-                onChange={(e) => setGroupMode(e.target.value as GroupMode)}
-                className="bg-gray-900 border border-gray-800 rounded px-1 py-0.5 text-[10px] text-gray-300 focus:outline-none focus:border-gray-700"
-                title="How to group cards in the deck list"
-              >
-                <option value="cost">Cost</option>
-                <option value="type">Type</option>
-                <option value="none">None</option>
-              </select>
-            </label>
+            <div className="flex items-center gap-1 text-[10px] text-gray-600">
+              <span>Group:</span>
+              {/* Segmented buttons — avoid native <select> which triggers the
+                   iOS OS wheel picker. Three fixed options, all visible. */}
+              <div className="flex items-center rounded-md border border-gray-800 bg-gray-900 overflow-hidden">
+                {(["type", "cost", "none"] as const).map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => setGroupMode(m)}
+                    className={`px-1.5 py-0.5 text-[10px] font-medium transition-colors ${
+                      groupMode === m
+                        ? "bg-amber-600 text-white"
+                        : "text-gray-500 hover:bg-gray-800 hover:text-gray-300"
+                    }`}
+                  >
+                    {m === "none" ? "None" : m.charAt(0).toUpperCase() + m.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
         </div>
       </div>
