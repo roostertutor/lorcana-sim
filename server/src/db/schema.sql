@@ -104,5 +104,10 @@ ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS p2_wins INTEGER NOT NULL DEFAULT 0;
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS elo_ratings JSONB NOT NULL DEFAULT
   '{"bo1_core": 1200, "bo1_infinity": 1200, "bo3_core": 1200, "bo3_infinity": 1200}'::jsonb;
 
+-- Deck box art: the CardDefinition id whose image visually represents this
+-- deck in lists + deck-title chrome. Null means "derive from first entry in
+-- the decklist". User-selectable from within the deck's own cards.
+ALTER TABLE decks ADD COLUMN IF NOT EXISTS box_card_id TEXT;
+
 -- Enable Supabase Realtime on the games table
 ALTER TABLE games REPLICA IDENTITY FULL;

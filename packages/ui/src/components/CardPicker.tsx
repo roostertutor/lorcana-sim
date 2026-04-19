@@ -83,24 +83,28 @@ export default function CardPicker({ entries, definitions, onChange }: Props) {
           {hasAnyFilter(filters) ? "No cards match these filters." : "No cards available."}
         </div>
       ) : (
-        <div
-          className="grid gap-2"
-          style={{
-            gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))",
-            contentVisibility: "auto",
-            containIntrinsicSize: "0 200px",
-          }}
-        >
-          {visibleCards.map((def) => (
-            <CardTile
-              key={def.id}
-              def={def}
-              qty={qtyById.get(def.id) ?? 0}
-              maxCopies={getMaxCopies(def)}
-              onSetQty={(n) => setCardQty(def, n)}
-              onInspect={() => setInspectId(def.id)}
-            />
-          ))}
+        // Bounded scroll area so the 2652-card grid doesn't push the deck
+        // editor below the fold. Filter bar above stays fixed with this.
+        <div className="max-h-[60vh] overflow-y-auto pr-1 -mr-1 rounded-lg">
+          <div
+            className="grid gap-2"
+            style={{
+              gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))",
+              contentVisibility: "auto",
+              containIntrinsicSize: "0 200px",
+            }}
+          >
+            {visibleCards.map((def) => (
+              <CardTile
+                key={def.id}
+                def={def}
+                qty={qtyById.get(def.id) ?? 0}
+                maxCopies={getMaxCopies(def)}
+                onSetQty={(n) => setCardQty(def, n)}
+                onInspect={() => setInspectId(def.id)}
+              />
+            ))}
+          </div>
         </div>
       )}
 

@@ -4,6 +4,8 @@ export interface SavedDeck {
   id: string
   name: string
   decklist_text: string
+  /** User-chosen box art: CardDefinition.id. Null = derive from first entry. */
+  box_card_id: string | null
   created_at: string
   updated_at: string
 }
@@ -18,7 +20,7 @@ export interface DeckVersion {
 export async function listDecks(): Promise<SavedDeck[]> {
   const { data, error } = await supabase
     .from("decks")
-    .select("id, name, decklist_text, created_at, updated_at")
+    .select("id, name, decklist_text, box_card_id, created_at, updated_at")
     .order("updated_at", { ascending: false })
 
   if (error) throw new Error(error.message)
@@ -54,7 +56,7 @@ export async function saveDeck(name: string, decklistText: string): Promise<Save
       { user_id: user.id, name, decklist_text: decklistText },
       { onConflict: "user_id,name" },
     )
-    .select("id, name, decklist_text, created_at, updated_at")
+    .select("id, name, decklist_text, box_card_id, created_at, updated_at")
     .single()
 
   if (error) throw new Error(error.message)
@@ -63,12 +65,12 @@ export async function saveDeck(name: string, decklistText: string): Promise<Save
   return data as SavedDeck
 }
 
-export async function updateDeck(id: string, updates: { name?: string; decklist_text?: string }): Promise<SavedDeck> {
+export async function updateDeck(id: string, updates: { name?: string; decklist_text?: string; box_card_id?: string | null }): Promise<SavedDeck> {
   const { data, error } = await supabase
     .from("decks")
     .update(updates)
     .eq("id", id)
-    .select("id, name, decklist_text, created_at, updated_at")
+    .select("id, name, decklist_text, box_card_id, created_at, updated_at")
     .single()
 
   if (error) throw new Error(error.message)

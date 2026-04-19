@@ -5,6 +5,7 @@ import type { DeckEntry } from "@lorcana-sim/engine";
 import type { ReplayData } from "./hooks/useGameSession.js";
 import { getGameReplay, getGameInfo } from "./lib/serverApi.js";
 import DecksPage from "./pages/DecksPage.js";
+import DeckBuilderPage from "./pages/DeckBuilderPage.js";
 import SimulationView from "./pages/SimulationView.js";
 import SandboxLobby from "./pages/SandboxLobby.js";
 import GameBoard from "./pages/GameBoard.js";
@@ -290,6 +291,8 @@ export default function App() {
     <Routes>
       {/* Tab pages */}
       <Route path="/" element={<TabPage tab="decks"><DecksPage /></TabPage>} />
+      <Route path="/decks/new" element={<TabPage tab="decks"><DeckBuilderPage /></TabPage>} />
+      <Route path="/decks/:id" element={<TabPage tab="decks"><DeckBuilderPage /></TabPage>} />
       <Route path="/multiplayer" element={<MultiplayerPage />} />
 
       {/* Lobby join via URL — /lobby/ABC123 */}

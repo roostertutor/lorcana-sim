@@ -5,16 +5,7 @@
 // max-copies value (4, 2, 99, …).
 // =============================================================================
 
-import type { CardDefinition, InkColor } from "@lorcana-sim/engine";
-
-const INK_DOT: Record<InkColor, string> = {
-  amber: "bg-amber-500",
-  amethyst: "bg-purple-500",
-  emerald: "bg-emerald-500",
-  ruby: "bg-red-500",
-  sapphire: "bg-blue-500",
-  steel: "bg-gray-400",
-};
+import type { CardDefinition } from "@lorcana-sim/engine";
 
 interface Props {
   def: CardDefinition;
@@ -39,9 +30,10 @@ export default function CardTile({ def, qty, maxCopies, onSetQty, onInspect }: P
     <div className={`relative rounded-md overflow-hidden border transition-colors ${
       inDeck ? "border-amber-500/60 shadow-md shadow-amber-900/20" : "border-gray-800 hover:border-gray-600"
     }`}>
-      {/* Art — click to inspect */}
+      {/* Art — click to inspect. Cost pip + ink-color frame are already in
+          the Ravensburger card image; no overlays needed. */}
       <button
-        className="block w-full aspect-[5/7] bg-gray-900 cursor-pointer group relative"
+        className="block w-full aspect-[5/7] bg-gray-900 cursor-pointer group"
         onClick={onInspect}
         title={def.fullName}
       >
@@ -58,16 +50,6 @@ export default function CardTile({ def, qty, maxCopies, onSetQty, onInspect }: P
             {def.fullName}
           </div>
         )}
-        {/* Cost badge — top-left */}
-        <div className="absolute top-1 left-1 w-6 h-6 rounded-full bg-gray-950/85 border border-gray-700 flex items-center justify-center text-white font-black text-[11px] shadow">
-          {def.cost}
-        </div>
-        {/* Ink color dots — top-right */}
-        <div className="absolute top-1 right-1 flex gap-0.5">
-          {def.inkColors.map((c) => (
-            <span key={c} className={`w-2 h-2 rounded-full ${INK_DOT[c]} ring-1 ring-gray-950/60`} />
-          ))}
-        </div>
       </button>
 
       {/* Qty stepper — [−] N/max [+]. Matches DeckBuilder row editor pattern. */}
