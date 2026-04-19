@@ -39,6 +39,7 @@
     "rulesText": "TELL EVERYBODY During opponents’ turns, you can’t lose lore.",
     "flavorText": "“I mean, I don’t want to brag or nothing, but I got some moves.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/1_91b50444e296a71032e64adb2e9fca7c927a8063.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/1_91b50444e296a71032e64adb2e9fca7c927a8063.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "TELL EVERYBODY",
@@ -70,7 +71,8 @@
     "willpower": 4,
     "lore": 1,
     "flavorText": "The Lorcana Hide-and-Seek Championship was hers for the taking.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/2_ed85908acc08221e7603aa06d31580284154e73f.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/2_ed85908acc08221e7603aa06d31580284154e73f.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/2_ed85908acc08221e7603aa06d31580284154e73f.jpg"
   },
   {
     "id": "prince-naveen-ukulele-player",
@@ -128,6 +130,7 @@
     "lore": 2,
     "rulesText": "<Singer> 6 (This character counts as cost 6 to sing songs.)\nIT’S BEAUTIFUL, NO? When you play this character, you may play a song with cost 6 or less for free.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/3_1d8e41a55b2c5d0da57ddc0080bc3fa9a130ceb8.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/3_1d8e41a55b2c5d0da57ddc0080bc3fa9a130ceb8.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "IT'S BEAUTIFUL, NO?",
@@ -165,7 +168,8 @@
     "lore": 1,
     "rulesText": "<Support> (Whenever this character quests, you may add their {S} to another chosen character’s {S} this turn.)",
     "flavorText": "\"Let's find some nice twigs, eh? I could use a snack!\"",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/4_afeb28175e39dd8d76e4590076b7123995534ef6.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/4_afeb28175e39dd8d76e4590076b7123995534ef6.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/4_afeb28175e39dd8d76e4590076b7123995534ef6.jpg"
   },
   {
     "id": "kenai-big-brother",
@@ -214,6 +218,7 @@
     "rulesText": "BROTHERS FOREVER While this character is exerted, your characters named Koda can’t be challenged.",
     "flavorText": "“You have to look after your little brother, no matter how big a pain he is.”\n—Kenai",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/5_d38d7bfbe14933bb88cf0e42ff58dd8b6cabe66e.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/5_d38d7bfbe14933bb88cf0e42ff58dd8b6cabe66e.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BROTHERS FOREVER",
@@ -247,7 +252,8 @@
     "willpower": 2,
     "lore": 1,
     "flavorText": "“Look, the code may say I’m a princess, but I know who I really am . . . .”",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/6_d3adda047c4d76aae9f126f995286c67e2ffda03.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/6_d3adda047c4d76aae9f126f995286c67e2ffda03.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/6_d3adda047c4d76aae9f126f995286c67e2ffda03.jpg"
   },
   {
     "id": "tuke-northern-moose",
@@ -272,7 +278,8 @@
     "willpower": 4,
     "lore": 1,
     "flavorText": "\"I'd love a snack, but I'm kinda tied up right now.\"",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/7_a9fb809180e0756f426bfcb3c2c80358932363ad.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/7_a9fb809180e0756f426bfcb3c2c80358932363ad.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/7_a9fb809180e0756f426bfcb3c2c80358932363ad.jpg"
   },
   {
     "id": "lilo-junior-cake-decorator",
@@ -303,7 +310,8 @@
     "lore": 1,
     "rulesText": "<Support> (Whenever this character quests, you may add their {S} to another chosen character’s {S} this turn.)",
     "flavorText": "“Peanut butter and pineapple! This’ll be the best cake ever!”",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/8_06364397ab219892c634bfee743191d405da634e.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/8_06364397ab219892c634bfee743191d405da634e.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/8_06364397ab219892c634bfee743191d405da634e.jpg"
   },
   {
     "id": "vanellope-von-schweetz-candy-mechanic",
@@ -363,6 +371,7 @@
     "rulesText": "YOU’VE GOT TO PAY TO PLAY Whenever this character quests, chosen opposing character gets -1 {S} until the start of your next turn.",
     "flavorText": "“I’ll take whatever you’ve got . . . as long as it’s got sugar in it.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/9_ca22b8df0a821b5a574802af6cbf303beb770c97.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/9_ca22b8df0a821b5a574802af6cbf303beb770c97.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "YOU'VE GOT TO PAY TO PLAY",
@@ -400,7 +409,8 @@
     "lore": 1,
     "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)",
     "flavorText": "“Golly, this place is going to take some real fixing!”",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/10_50d958b366e670e7b3c9a917043deec10cadfe20.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/10_50d958b366e670e7b3c9a917043deec10cadfe20.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/10_50d958b366e670e7b3c9a917043deec10cadfe20.jpg"
   },
   {
     "id": "gazelle-pop-star",
@@ -432,7 +442,8 @@
     "lore": 2,
     "rulesText": "<Singer> 5 (This character counts as cost 5 to sing songs.)",
     "flavorText": "“Good evening, Lorcana! We’re here tonight to celebrate what’s possible when we stand together as one.”",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/11_f673421f2db9821cecd1841a58d95c295d278480.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/11_f673421f2db9821cecd1841a58d95c295d278480.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/11_f673421f2db9821cecd1841a58d95c295d278480.jpg"
   },
   {
     "id": "fix-it-felix-jr-niceland-steward",
@@ -487,6 +498,7 @@
     "shiftCost": 3,
     "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Fix-It Felix, Jr.)\nBUILDING TOGETHER Your locations get +2 {W}.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/12_7a9e2642a1165411341c5c511c9dd04136c5883b.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/12_7a9e2642a1165411341c5c511c9dd04136c5883b.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BUILDING TOGETHER",
@@ -546,6 +558,7 @@
     "lore": 3,
     "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)\nSONG OF THE HERD For each song card in your discard, you pay 1 {I} less to play this character.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/13_54a5cf1664bdd59fa7bcc4b5c8ee0773cada8b0f.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/13_54a5cf1664bdd59fa7bcc4b5c8ee0773cada8b0f.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SONG OF THE HERD",
@@ -580,6 +593,7 @@
     "rulesText": "NOT WITHOUT MY FAMILY You can’t play this character unless you have 5 or more characters in play.",
     "flavorText": "“There’s nothing we can’t accomplish together!”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/14_1db57561d63003cf8ec0e66f55ad05852932f796.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/14_1db57561d63003cf8ec0e66f55ad05852932f796.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "NOT WITHOUT MY FAMILY",
@@ -660,6 +674,7 @@
     "shiftCost": 4,
     "rulesText": "<Shift> 4 (You may pay 4 {I} to play this on top of one of your characters named Minnie Mouse.)\nPARADE ORDER When you play this character, if you used <Shift> to play her, you may search your deck for a character card and reveal that card to all players. Shuffle your deck and put that card on top of it.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/15_0c6bb18f8d9024415934e652cffc5ba03d9dd29f.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/15_0c6bb18f8d9024415934e652cffc5ba03d9dd29f.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "PARADE ORDER",
@@ -717,6 +732,7 @@
     "lore": 2,
     "rulesText": "BIG PRIZE Whenever this character quests, each opponent reveals the top card of their deck. If it’s a character card, they may put it into their hand. Otherwise, they put it on the bottom of their deck.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/16_f2ca72a2430774c1e4904d419a35ab482bcbbbea.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/16_f2ca72a2430774c1e4904d419a35ab482bcbbbea.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BIG PRIZE",
@@ -780,6 +796,7 @@
     "rulesText": "OH, MY LAND! When you play this character, if you have a location in play, draw a card.",
     "flavorText": "“I don’t think I’ve ever seen anything as sweet as this.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/17_8271eec0f26b8e0e0190ba788056b58fdf5e7b94.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/17_8271eec0f26b8e0e0190ba788056b58fdf5e7b94.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "OH, MY LAND!",
@@ -812,7 +829,8 @@
     "willpower": 4,
     "lore": 2,
     "flavorText": "“Investigate every part of the Illuminary, find the chromicons, restore the Illuminary, how hard can it—wait, what was that noise?”",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/18_a4d708f327088fb305ac986abaec023a1c2ea80b.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/18_a4d708f327088fb305ac986abaec023a1c2ea80b.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/18_a4d708f327088fb305ac986abaec023a1c2ea80b.jpg"
   },
   {
     "id": "vanellope-von-schweetz-sugar-rush-princess",
@@ -884,6 +902,7 @@
     "shiftCost": 2,
     "rulesText": "<Shift> 2 (You may pay 2 {I} to play this on top of one of your characters named Vanellope von Schweetz.)\nI HEREBY DECREE Whenever you play another Princess character, all opposing characters get -1 {S} until the start of your next turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/19_1051e2424833a2ce7b33b3441f67978911408290.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/19_1051e2424833a2ce7b33b3441f67978911408290.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "I HEREBY DECREE",
@@ -941,6 +960,7 @@
     "rulesText": "FAN FAVORITE Whenever you play a song, gain 1 lore.",
     "flavorText": "\"Thank you! Now here's a little ditty for our floodborn friends that we call 'Martin and the Flood.'\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/20_835119862d294ea8cdf9eb9d9f1cd0761f0fe93c.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/20_835119862d294ea8cdf9eb9d9f1cd0761f0fe93c.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FAN FAVORITE",
@@ -1019,6 +1039,7 @@
     "rulesText": "I’VE GOT THE COOLEST FRIEND When you play this character, return a character card from your discard to your hand. If that card is a Princess character card, gain 2 lore.",
     "flavorText": "If he must give a victory speech, he’ll keep it brief.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/21_787a0c8afc23eb0aa2b87ec279ef6b6d6b32a67b.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/21_787a0c8afc23eb0aa2b87ec279ef6b6d6b32a67b.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "I'VE GOT THE COOLEST FRIEND",
@@ -1080,6 +1101,7 @@
     "rulesText": "IF IT PLEASES THE LADY When you play this character, chosen opposing character gets -5 {S} until the start of your next turn.",
     "flavorText": "\"And who might you be, my knight and champion?\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/22_eaa8da68f7d7ecff055ae902ad09242b25f0f8a6.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/22_eaa8da68f7d7ecff055ae902ad09242b25f0f8a6.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "IF IT PLEASES THE LADY",
@@ -1166,6 +1188,7 @@
     "lore": 2,
     "rulesText": "REINDEER GAMES When you play this character, you may ready chosen character. They can’t quest or challenge for the rest of this turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/23_4edfb8866d9042269037e9eac7f6db05d0a62609.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/23_4edfb8866d9042269037e9eac7f6db05d0a62609.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "REINDEER GAMES",
@@ -1224,6 +1247,7 @@
     "rulesText": "PATCH THEM UP Whenever this character quests, you may remove up to 2 damage from chosen character.",
     "flavorText": "“Oh my! Is that part of the Illuminary? I have to go help!”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/24_6fe79e8fcc6ef950ba00332808640c5eb47fdd0e.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/24_6fe79e8fcc6ef950ba00332808640c5eb47fdd0e.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "PATCH THEM UP",
@@ -1252,6 +1276,7 @@
     "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.) \nRemove up to 3 damage from chosen character and ready them. They can’t quest or challenge for the rest of this turn.",
     "flavorText": "I want to try even though I could fail",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/25_d72512ed39b91eb9a03cf2d62e9c46fdc5df1dbd.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/25_d72512ed39b91eb9a03cf2d62e9c46fdc5df1dbd.jpg",
     "actionEffects": [
       {
         "type": "remove_damage",
@@ -1329,6 +1354,7 @@
     "rulesText": "Remove up to 4 damage from chosen character. Draw a card.",
     "flavorText": "“The heart is not so easily changed, but the head can be persuaded.”\n—Grand Pabbie",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/26_a133fc7969cc385871bf1d5861ce0b6cc399b8d6.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/26_a133fc7969cc385871bf1d5861ce0b6cc399b8d6.jpg",
     "actionEffects": [
       {
         "type": "remove_damage",
@@ -1371,6 +1397,7 @@
     "rulesText": "Play a character with cost 5 or less from your discard for free.",
     "flavorText": "Not all that is lost is gone forever.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/27_b815e054f482552f95648e47d4d057d61006994d.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/27_b815e054f482552f95648e47d4d057d61006994d.jpg",
     "actionEffects": [
       {
         "type": "play_card",
@@ -1407,6 +1434,7 @@
     "rarity": "super_rare",
     "rulesText": "(A character with cost 6 or more can {E} to sing this song for free.) \nName a card. Return all character cards with that name from your discard to your hand.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/28_b5cd19ea95ce5d53c0ea223662a0381754fdb83c.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/28_b5cd19ea95ce5d53c0ea223662a0381754fdb83c.jpg",
     "actionEffects": [
       {
         "type": "name_a_card_then_reveal",
@@ -1434,6 +1462,7 @@
     "rarity": "uncommon",
     "rulesText": "Reveal the top 2 cards of your deck. Put revealed character cards into your hand. Put the rest on the bottom of your deck in any order.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/29_d3ba5dee7efda107ae15db705a0eda64503d42e7.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/29_d3ba5dee7efda107ae15db705a0eda64503d42e7.jpg",
     "actionEffects": [
       {
         "type": "look_at_top",
@@ -1496,6 +1525,7 @@
     "rarity": "common",
     "rulesText": "RENEWING ESSENCE {E} — Remove up to 2 damage from chosen character.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/30_1ec6c0b27c3062bdc45376bba571e517457e2410.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/30_1ec6c0b27c3062bdc45376bba571e517457e2410.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "RENEWING ESSENCE",
@@ -1596,6 +1626,7 @@
     "rarity": "rare",
     "rulesText": "SYMBOL OF NOBILITY At the start of your turn, if you have a Princess or Queen character in play, gain 1 lore.\nROYAL SEARCH {E}, 2 {I} — Reveal the top card of your deck. If it’s a Princess or Queen character card, you may put it into your hand. Otherwise, put it on the top of your deck.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/31_3d122d9007200afa8f963336d3f6aa3a30cd1376.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/31_3d122d9007200afa8f963336d3f6aa3a30cd1376.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SYMBOL OF NOBILITY",
@@ -1657,6 +1688,7 @@
     "rulesText": "AMBER LIGHT {E} — Remove up to 1 damage from each of your characters.",
     "flavorText": "\"Comfort the weak and weary.\"\n—Inscription",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/32_6d96f56267694c5e9902e6972666bbab875a7e55.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/32_6d96f56267694c5e9902e6972666bbab875a7e55.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "AMBER LIGHT",
@@ -1708,6 +1740,7 @@
     "rulesText": "SAFE AND SOUND Characters get +3 {W} while here.",
     "flavorText": "\"It's a scary world out there.\" \n—Mother Gothel",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/33_4d00ea6a401225f3e5782967cf1ca2f5e378ef22.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/33_4d00ea6a401225f3e5782967cf1ca2f5e378ef22.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SAFE AND SOUND",
@@ -1770,6 +1803,7 @@
     "moveCost": 2,
     "rulesText": "OUR HUMBLE HOME While you have 3 or more characters here, you may banish this location to play a character from your discard for free.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/34_72ff98b8de316164ac55042c72e12ad18464fbb0.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/34_72ff98b8de316164ac55042c72e12ad18464fbb0.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "OUR HUMBLE HOME",
@@ -1935,6 +1969,7 @@
     "shiftCost": 6,
     "rulesText": "<Shift> 6 (You may pay 6 {I} to play this on top of one of your characters named Maleficent.)\nLISTEN WELL, ALL OF YOU When you play this character, for each of your characters named Maleficent in play, return a chosen opposing character, item, or location with cost 3 or less to their player’s hand.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/35_7b8bee02252ad3bb7c45cba4fb9dd379c4381c03.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/35_7b8bee02252ad3bb7c45cba4fb9dd379c4381c03.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LISTEN WELL, ALL OF YOU",
@@ -2004,6 +2039,7 @@
     "lore": 1,
     "rulesText": "TURNING TIDES When you play this character, you may move up to 2 damage counters from chosen character to chosen opposing character.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/36_2f6996b80e112f03176a46d9e49e991ace8c79fc.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/36_2f6996b80e112f03176a46d9e49e991ace8c79fc.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "TURNING TIDES",
@@ -2062,6 +2098,7 @@
     "rulesText": "TIME TO MOVE IT! When you play this character, chosen character gains <Rush> this turn. (They can challenge the turn they’re played.)",
     "flavorText": "\"Step to it! Time is of the essence.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/37_2c237c0c9bb84d2387a293bf05a57f83aefeffb2.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/37_2c237c0c9bb84d2387a293bf05a57f83aefeffb2.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "TIME TO MOVE IT!",
@@ -2139,6 +2176,7 @@
     "rulesText": "GIVE ME TIME TO THINK When you play this character and when he leaves play, look at the top 2 cards of your deck. Put one on the top of your deck and the other on the bottom.",
     "flavorText": "“Don’t rush me, now—this is important.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/38_dfd4b3eb18dd12512a867eefa9c51e17d5a91164.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/38_dfd4b3eb18dd12512a867eefa9c51e17d5a91164.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "GIVE ME TIME TO THINK",
@@ -2176,7 +2214,8 @@
     "lore": 2,
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)",
     "flavorText": "\"Hmph. What does an owl have to do to get a little peace and quiet around here?\"",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/39_c9a512ef1c7d46049da27c7446769797d836ff0b.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/39_c9a512ef1c7d46049da27c7446769797d836ff0b.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/39_c9a512ef1c7d46049da27c7446769797d836ff0b.jpg"
   },
   {
     "id": "bruni-fire-salamander",
@@ -2225,6 +2264,7 @@
     "lore": 2,
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nPARTING GIFT When this character is banished, you may draw a card.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/40_b011932b8e2706f1a606ae9933cb4aa8da90cec6.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/40_b011932b8e2706f1a606ae9933cb4aa8da90cec6.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "PARTING GIFT",
@@ -2276,6 +2316,7 @@
     "rulesText": "UNEARTHED When you play this character, each opponent draws a card.",
     "flavorText": "Who woke up the big guy?",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/41_0108a399a6725f627754abaa3e9cb6be4e30d17e.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/41_0108a399a6725f627754abaa3e9cb6be4e30d17e.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "UNEARTHED",
@@ -2325,6 +2366,7 @@
     "lore": 2,
     "rulesText": "RECURRING GUST When this character is banished in a challenge, return this card to your hand.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/42_e1ef878f40e6d6d87d5221f398bbc4f293c93cc2.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/42_e1ef878f40e6d6d87d5221f398bbc4f293c93cc2.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "RECURRING GUST",
@@ -2356,7 +2398,8 @@
     "willpower": 4,
     "lore": 1,
     "flavorText": "“Oh me, oh my! Did a piece just fall off the Illuminary?! I’ve got to tell someone before it’s too late, late, late!\"",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/43_9b650cec5f8e8369b2800f167e24eb092a05ee13.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/43_9b650cec5f8e8369b2800f167e24eb092a05ee13.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/43_9b650cec5f8e8369b2800f167e24eb092a05ee13.jpg"
   },
   {
     "id": "madam-mim-elephant",
@@ -2460,6 +2503,7 @@
     "lore": 1,
     "rulesText": "A LITTLE GAME When you play this character, banish her or return another chosen character of yours to your hand.\nSNEAKY MOVE At the start of your turn, you may move up to 2 damage counters from this character to chosen opposing character.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/44_8ab1c674d917235f6894605aca0582e3ef9e2739.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/44_8ab1c674d917235f6894605aca0582e3ef9e2739.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "A LITTLE GAME",
@@ -2497,7 +2541,8 @@
     "willpower": 8,
     "lore": 3,
     "flavorText": "“This is just a warm-up, folks! Wait ’til you see the big finale!”",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/45_89f6499fbd6e075304afa9ddfce680a627537705.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/45_89f6499fbd6e075304afa9ddfce680a627537705.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/45_89f6499fbd6e075304afa9ddfce680a627537705.jpg"
   },
   {
     "id": "anna-mystical-majesty",
@@ -2557,6 +2602,7 @@
     "shiftCost": 4,
     "rulesText": "<Shift> 4 (You may pay 4 {I} to play this on top of one of your characters named Anna.)\nEXCEPTIONAL POWER When you play this character, exert all opposing characters.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/46_c3137f071d828bf9c6931321b9ba041367dac77a.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/46_c3137f071d828bf9c6931321b9ba041367dac77a.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "EXCEPTIONAL POWER",
@@ -2604,7 +2650,8 @@
     "lore": 2,
     "shiftCost": 3,
     "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Archimedes.)\n<Evasive> (Only characters with Evasive can challenge this character.)\n<Challenger> +3 (While challenging, this character gets +3 {S}.)",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/47_413771b580e9b41b96ebc61eeacc78cd833cfd90.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/47_413771b580e9b41b96ebc61eeacc78cd833cfd90.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/47_413771b580e9b41b96ebc61eeacc78cd833cfd90.jpg"
   },
   {
     "id": "elsa-the-fifth-spirit",
@@ -2666,6 +2713,7 @@
     "lore": 1,
     "rulesText": "<Rush> (This character can challenge the turn they’re played.)\n<Evasive> (Only characters with Evasive can challenge this character.)\nCRYSTALLIZE When you play this character, exert chosen opposing character.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/48_66cf8d61421590ac36d6509408670b0a3ea46241.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/48_66cf8d61421590ac36d6509408670b0a3ea46241.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "CRYSTALLIZE",
@@ -2724,6 +2772,7 @@
     "rulesText": "PHENOMENAL SHOWMAN While this character is exerted, opposing characters can’t ready at the start of their turn.",
     "flavorText": "“Keep your eyes on me, folks! It's time for a little prestidigitation!”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/49_33209fb254badf038ed121d41b36effd4a3579aa.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/49_33209fb254badf038ed121d41b36effd4a3579aa.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "PHENOMENAL SHOWMAN",
@@ -2783,6 +2832,7 @@
     "lore": 3,
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nCLEAR THE PATH For each exerted character opponents have in play, you pay 1 {I} less to play this character.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/50_39c71e4cf75c4c2015bcc76d8a8b260889057948.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/50_39c71e4cf75c4c2015bcc76d8a8b260889057948.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "CLEAR THE PATH",
@@ -2858,6 +2908,7 @@
     "lore": 2,
     "rulesText": "WHAT AN AWKWARD SITUATION Whenever this character quests, you may choose and discard a card to return chosen character, item, or location with cost 3 or less to their player’s hand.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/51_ee8a4f826cd7cff987ef3684d5fa53795f80f335.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/51_ee8a4f826cd7cff987ef3684d5fa53795f80f335.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WHAT AN AWKWARD SITUATION",
@@ -2888,7 +2939,8 @@
     "willpower": 6,
     "lore": 1,
     "flavorText": "The great beast breached the surface of the Azurite Sea, and the cry went out, “Monstro! Monstro!\"",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/52_daf324aa034a5e3ea2644edb64935e8a8aa2e7a7.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/52_daf324aa034a5e3ea2644edb64935e8a8aa2e7a7.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/52_daf324aa034a5e3ea2644edb64935e8a8aa2e7a7.jpg"
   },
   {
     "id": "magica-de-spell-cruel-sorceress",
@@ -2930,6 +2982,7 @@
     "lore": 1,
     "rulesText": "PLAYING WITH POWER During opponents’ turns, if an effect would cause you to discard one or more cards from your hand, you don’t discard.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/53_8db0c830525efb1a73ab8a3c3a09d5bc4c02b972.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/53_8db0c830525efb1a73ab8a3c3a09d5bc4c02b972.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "PLAYING WITH POWER",
@@ -2962,7 +3015,8 @@
     "willpower": 2,
     "lore": 2,
     "flavorText": "\"Evidently my invitation was lost. How dreadful. Here, let me help with the decorations . . .\"",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/54_c81c6b62ab2f3513f92641041c08fc31d2f51da9.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/54_c81c6b62ab2f3513f92641041c08fc31d2f51da9.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/54_c81c6b62ab2f3513f92641041c08fc31d2f51da9.jpg"
   },
   {
     "id": "rafiki-shaman-duelist",
@@ -3013,6 +3067,7 @@
     "lore": 2,
     "rulesText": "<Rush> (This character can challenge the turn they’re played.)\nSURPRISING SKILL When you play this character, he gains <Challenger> +4 this turn. (They get +4 {S} while challenging.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/55_84dad924be6c1b8da5bffaef9fe5e9847eeb5198.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/55_84dad924be6c1b8da5bffaef9fe5e9847eeb5198.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SURPRISING SKILL",
@@ -3075,6 +3130,7 @@
     "rulesText": "GROWING POWERS When you play this character, each opponent chooses and exerts one of their ready characters.",
     "flavorText": "“Okay, I can totally move small stuff. I need something bigger . . . Where's Kristoff's sled?”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/56_9e690b1189e20cff2e7b5a867a77c151ae12800c.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/56_9e690b1189e20cff2e7b5a867a77c151ae12800c.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "GROWING POWERS",
@@ -3137,6 +3193,7 @@
     "rulesText": "PLEASING THE QUEEN {E} — Chosen exerted character can’t ready at the start of their next turn.",
     "flavorText": "\"By order of the king. You heard what she said!\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/57_fb7b54167ad762060ebaed9aac7c499cdeba6a11.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/57_fb7b54167ad762060ebaed9aac7c499cdeba6a11.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "PLEASING THE QUEEN",
@@ -3226,6 +3283,7 @@
     "lore": 1,
     "rulesText": "IMITATE Whenever this character quests, you may gain lore equal to the {L} of chosen other character of yours. Return that character to your hand.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/58_2e8b7ac6f253f0f4d067b1639ab514b19f7e2391.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/58_2e8b7ac6f253f0f4d067b1639ab514b19f7e2391.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "IMITATE",
@@ -3252,6 +3310,7 @@
     "rulesText": "Draw a card. Chosen character gains <Challenger> +2 this turn. (They get +2 {S} while challenging.)",
     "flavorText": "Suddenly, Basil felt a strong desire to find the broken crown.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/59_8c9e2a2ff170e2ad38bdd005294c7eab081270bb.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/59_8c9e2a2ff170e2ad38bdd005294c7eab081270bb.jpg",
     "actionEffects": [
       {
         "type": "draw",
@@ -3295,6 +3354,7 @@
     "rulesText": "Draw 3 cards.",
     "flavorText": "“Three wishes, comin' right up!\"\n—Iago",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/60_a89e22acc249bedebf3657650d0a508ebe5a5879.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/60_a89e22acc249bedebf3657650d0a508ebe5a5879.jpg",
     "actionEffects": [
       {
         "type": "draw",
@@ -3324,6 +3384,7 @@
     "rarity": "rare",
     "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nShuffle chosen card from your discard into your deck. Reveal the top card of your deck. If it has the same name as the chosen card, you may play the revealed card for free. Otherwise, put it into your hand.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/61_ef4b557ac549fb9eac06da2d94629bb13ac26dab.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/61_ef4b557ac549fb9eac06da2d94629bb13ac26dab.jpg",
     "actionEffects": [
       {
         "type": "sequential",
@@ -3375,6 +3436,7 @@
     "rulesText": "Gain 2 lore.",
     "flavorText": "“Just think! All this knowledge was under our noses the whole time. We only had to look in the right place.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/62_743db753199dd45c458e7bbf215bbd2059474e44.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/62_743db753199dd45c458e7bbf215bbd2059474e44.jpg",
     "actionEffects": [
       {
         "type": "gain_lore",
@@ -3403,6 +3465,7 @@
     "rulesText": "Chosen character gains <Challenger> +3 and  \"When this character is banished in a challenge, return this card to your hand\" this turn. (They get +3 {S} while challenging.)",
     "flavorText": "\"You've got some power in your corner now!\"\n—Genie",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/63_7829b0acd08be3586dc230733f4f066760a3ac44.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/63_7829b0acd08be3586dc230733f4f066760a3ac44.jpg",
     "actionEffects": [
       {
         "type": "grant_keyword",
@@ -3485,6 +3548,7 @@
     "rarity": "common",
     "rulesText": "EXTRACT OF AMETHYST 2 {I}, Banish this item — Return chosen character, item, or location with cost 3 or less to their player’s hand.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/64_3db19023e4a8bdd66c7712334cbb8f872bfb88b8.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/64_3db19023e4a8bdd66c7712334cbb8f872bfb88b8.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "EXTRACT OF AMETHYST",
@@ -3573,6 +3637,7 @@
     "rulesText": "AN UNEXPECTED FIND {E}, 2 {I}  — Draw a card.\nA PERILOUS POWER {E}, 2 {I}, Discard a card — Exert chosen character.",
     "flavorText": "The broken crown holds dark and mysterious powers.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/65_1f92c03c8535b72af4670a98a1e74476cdd7d07c.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/65_1f92c03c8535b72af4670a98a1e74476cdd7d07c.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "AN UNEXPECTED FIND",
@@ -3630,6 +3695,7 @@
     "rulesText": "AMETHYST LIGHT {E} — Each player may draw a card.",
     "flavorText": "“Seek not power for its own sake.” \n—Inscription",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/66_da053377edc61f8df48ad1db1b25a77ddcf2b5bf.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/66_da053377edc61f8df48ad1db1b25a77ddcf2b5bf.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "AMETHYST LIGHT",
@@ -3689,6 +3755,7 @@
     "moveCost": 1,
     "rulesText": "ETERNAL WINTER When you play this location, choose an exerted character. While this location is in play, that character can’t ready at the start of their turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/67_de7ec5e4b1649d5e413c6d4e99a828d5e7bb97a2.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/67_de7ec5e4b1649d5e413c6d4e99a828d5e7bb97a2.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ETERNAL WINTER",
@@ -3744,6 +3811,7 @@
     "moveCost": 1,
     "rulesText": "LOST IN A BOOK Whenever a character is banished while here, you may draw a card.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/68_91daea26cfb4fd209a6df7c07333335479c445b8.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/68_91daea26cfb4fd209a6df7c07333335479c445b8.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LOST IN A BOOK",
@@ -3803,6 +3871,7 @@
     "lore": 4,
     "rulesText": "<Ward> (Opponents can’t choose this character except to challenge.)\nTAG ME IN! For each 1 damage on opposing characters, you pay 1 {I} less to play this character.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/69_1199c5523fefc1bb61d1f47babacef302890e118.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/69_1199c5523fefc1bb61d1f47babacef302890e118.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "TAG ME IN!",
@@ -3853,6 +3922,7 @@
     "lore": 1,
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nEASY PICKINGS While challenging a damaged character, this character gets +2 {S}.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/70_154808a7737e4d5661a67cc922373d1794063985.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/70_154808a7737e4d5661a67cc922373d1794063985.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "EASY PICKINGS",
@@ -3884,7 +3954,8 @@
     "willpower": 4,
     "lore": 1,
     "flavorText": "“You’re in for a real treat, Rob. Tonight's house special is my famous outlaw grub. Made from the finest whatever we could find!”",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/71_16c8c94d6c4af40e861d00855bb0b8a8f7610201.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/71_16c8c94d6c4af40e861d00855bb0b8a8f7610201.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/71_16c8c94d6c4af40e861d00855bb0b8a8f7610201.jpg"
   },
   {
     "id": "zazu-advisor-to-mufasa",
@@ -3915,7 +3986,8 @@
     "lore": 2,
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)",
     "flavorText": "“Oh, I guess one quick spin through the lights won't hurt.\"",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/72_e4ad64807331e8da13a996516b39074434ad2b51.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/72_e4ad64807331e8da13a996516b39074434ad2b51.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/72_e4ad64807331e8da13a996516b39074434ad2b51.jpg"
   },
   {
     "id": "ulf-mime",
@@ -3952,6 +4024,7 @@
     "rulesText": "SILENT PERFORMANCE This character can’t {E} to sing songs.",
     "flavorText": "His performances are unspeakably good.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/73_d0c9f4b4e7de2f0eb93003f4d8882b88ae671fe3.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/73_d0c9f4b4e7de2f0eb93003f4d8882b88ae671fe3.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SILENT PERFORMANCE",
@@ -4012,6 +4085,7 @@
     "rulesText": "CAUSE A PANIC When you play this character, you may deal 2 damage to chosen damaged character.",
     "flavorText": "“A-heh, heh, heh, heh, heh, hee, hee, heeeee.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/74_6059344bdd0dcb9682243ad28fcd68490243f54f.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/74_6059344bdd0dcb9682243ad28fcd68490243f54f.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "CAUSE A PANIC",
@@ -4057,6 +4131,7 @@
     "rulesText": "FIDDLE FADDLE While being challenged, this character gets +2 {S}.",
     "flavorText": "\"Don't fuss, dear! A flick of the wrist will turn these briars into something beautiful.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/75_cb8ef7a77113152c5ef76c2e20ade1a79b39af0b.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/75_cb8ef7a77113152c5ef76c2e20ade1a79b39af0b.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FIDDLE FADDLE",
@@ -4128,6 +4203,7 @@
     "rulesText": "RAY OF HOPE When you play this character, you may pay 1 {I} to give chosen character +2 {S} this turn.",
     "flavorText": "\"The most beautiful color is blue!\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/76_e2db0795b732d956e6a1ede69676b43eedf90850.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/76_e2db0795b732d956e6a1ede69676b43eedf90850.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "RAY OF HOPE",
@@ -4192,6 +4268,7 @@
     "rulesText": "TRICK SHOT When you play this character, if an opponent has a damaged character in play, gain 1 lore.",
     "flavorText": "“For a second there, I thought this might be a real challenge.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/77_a1206df8eb51fada7f30b19c653200c890598ef9.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/77_a1206df8eb51fada7f30b19c653200c890598ef9.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "TRICK SHOT",
@@ -4224,7 +4301,8 @@
     "willpower": 7,
     "lore": 2,
     "flavorText": "“The secret to a good cake is combining everything just right. Every ingredient is important, but the magic is in how they work together.”",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/78_c3ac4d1b9e5fe4b626b18f76ffb8a1ed51c78b73.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/78_c3ac4d1b9e5fe4b626b18f76ffb8a1ed51c78b73.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/78_c3ac4d1b9e5fe4b626b18f76ffb8a1ed51c78b73.jpg"
   },
   {
     "id": "iago-fake-flamingo",
@@ -4287,6 +4365,7 @@
     "lore": 1,
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nIN DISGUISE Whenever this character quests, you pay 2 {I} less for the next action you play this turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/79_87107ec273c18b119589f73b8e2a50c4cc60a972.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/79_87107ec273c18b119589f73b8e2a50c4cc60a972.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "IN DISGUISE",
@@ -4319,7 +4398,8 @@
     "willpower": 2,
     "lore": 2,
     "flavorText": "He won’t turn down a quick bite before dinner.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/80_40f8e9417d5db04ab1afbc1a0084b96b22b415d0.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/80_40f8e9417d5db04ab1afbc1a0084b96b22b415d0.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/80_40f8e9417d5db04ab1afbc1a0084b96b22b415d0.jpg"
   },
   {
     "id": "ed-hysterical-partygoer",
@@ -4362,6 +4442,7 @@
     "rulesText": "ROWDY GUEST Damaged characters can’t challenge this character.",
     "flavorText": "As far as he's concerned, there's no such thing as bad taste.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/81_b9ffeea3402c120bf06b2efe338290ef505a1f8d.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/81_b9ffeea3402c120bf06b2efe338290ef505a1f8d.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ROWDY GUEST",
@@ -4436,6 +4517,7 @@
     "lore": 2,
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nDO SAY HELLO TO MR. ARROW When you play this character, you may pay 3 {I} to banish chosen damaged character.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/82_d013d0eed7b3757af006f0f3b80b82cd14219460.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/82_d013d0eed7b3757af006f0f3b80b82cd14219460.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "DO SAY HELLO TO MR. ARROW",
@@ -4531,6 +4613,7 @@
     "lore": 3,
     "rulesText": "SLAYER OF DRAGONS When you play this character, banish chosen opposing Dragon character.\nPRESSING THE ADVANTAGE Whenever he challenges a damaged character, ready this character after the challenge.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/83_0b2262111f51962dd63dce5c7f30d97deb126c12.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/83_0b2262111f51962dd63dce5c7f30d97deb126c12.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SLAYER OF DRAGONS",
@@ -4600,6 +4683,7 @@
     "shiftCost": 5,
     "rulesText": "<Shift> 5 (You may pay 5 {I} to play this on top of one of your characters named Clarabelle.)\nKEEP IN STEP At the end of your turn, if chosen opponent has more cards in their hand than you, you may draw cards until you have the same number.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/84_17c39e812bdf2de29d23f7f585595962c8c78640.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/84_17c39e812bdf2de29d23f7f585595962c8c78640.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "KEEP IN STEP",
@@ -4708,6 +4792,7 @@
     "lore": 2,
     "rulesText": "ROYAL RESOLUTION When you play this character, you may pay 2 {I} to choose one:\n• Each opponent chooses and discards a card.\n• Chosen character gets +2 {S} this turn.\n• Banish chosen damaged character.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/85_2119be96546516d6c831298c0a53edc496411854.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/85_2119be96546516d6c831298c0a53edc496411854.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ROYAL RESOLUTION",
@@ -4775,6 +4860,7 @@
     "lore": 1,
     "rulesText": "BUTTERFINGERS When you play this character, you may pay 2 {I} to banish chosen item.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/86_d9311cc90f32f38b84454faf9ac76f0b38b3e294.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/86_d9311cc90f32f38b84454faf9ac76f0b38b3e294.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BUTTERFINGERS",
@@ -4834,6 +4920,7 @@
     "rulesText": "HERE KITTY, KITTY, KITTY When you play this character, you may exert chosen damaged character.",
     "flavorText": "\"What do we got here, a little snack pack?\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/87_b7f829ef58ccb84a23f5964c66de51738e46ed04.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/87_b7f829ef58ccb84a23f5964c66de51738e46ed04.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "HERE KITTY, KITTY, KITTY",
@@ -4896,6 +4983,7 @@
     "shiftCost": 3,
     "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Robin Hood.)\nCLEVER PLAN This character gets +1 {L} for each opposing damaged character in play.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/88_0252c37bc6e0463fdc037d2994b1e76e5f5450cd.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/88_0252c37bc6e0463fdc037d2994b1e76e5f5450cd.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "CLEVER PLAN",
@@ -4964,6 +5052,7 @@
     "rulesText": "MOTHER KNOWS BEST When you play this character, you may pay 3 {I} to return chosen character to their player’s hand.",
     "flavorText": "“A beautiful lady never stands meekly at the back of the line.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/89_5417e0ac59d5cacb99613c49bda64e3fc5e1559c.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/89_5417e0ac59d5cacb99613c49bda64e3fc5e1559c.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "MOTHER KNOWS BEST",
@@ -5019,6 +5108,7 @@
     "rulesText": "ONE STEP BEHIND When you play this character, if an opponent has more cards in their hand than you, you may draw a card.",
     "flavorText": "\"Golly! Those dancers can really moo-ve!”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/90_a458b73fc178ce54daf2d5c79d9f60ae4bfefc75.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/90_a458b73fc178ce54daf2d5c79d9f60ae4bfefc75.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ONE STEP BEHIND",
@@ -5107,6 +5197,7 @@
     "lore": 1,
     "rulesText": "STICK AROUND FOR DINNER This character gets +1 {S} for each other Hyena character you have in play.\nWHAT HAVE WE GOT HERE? Whenever one of your Hyena characters challenges a damaged character, gain 2 lore.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/91_855e456b88c754f7a26db0b02f30781da891f140.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/91_855e456b88c754f7a26db0b02f30781da891f140.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "STICK AROUND FOR DINNER",
@@ -5177,6 +5268,7 @@
     "shiftCost": 4,
     "rulesText": "<Shift> 4 (You may pay 4 {I} to play this on top of one of your characters named Mother Gothel.)\nTHE WORLD IS DARK When you play this character, each opponent chooses one of their characters and returns that card to their hand.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/92_af5271b79eee5c4a4c1820245b7ea1029df9e795.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/92_af5271b79eee5c4a4c1820245b7ea1029df9e795.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "THE WORLD IS DARK",
@@ -5244,6 +5336,7 @@
     "lore": 1,
     "rulesText": "<Ward> (Opponents can’t choose this character except to challenge.)\nLIFE’S NOT FAIR, IS IT? Whenever one of your characters challenges a damaged character, you may draw a card.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/93_fb7b6051fdf8731b070f5f2156bad19df6b0b286.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/93_fb7b6051fdf8731b070f5f2156bad19df6b0b286.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LIFE'S NOT FAIR, IS IT?",
@@ -5270,6 +5363,7 @@
     "rulesText": "Draw 3 cards, then put 2 cards from your hand on the top of your deck in any order.",
     "flavorText": "“A security device! Easily defeated, of course. Once I make room for the crown, I . . . can . . . bring . . . it . . . to . . . him.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/94_130274a1091a9b9f1dbccd0bec8e969f6febd3c2.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/94_130274a1091a9b9f1dbccd0bec8e969f6febd3c2.jpg",
     "actionEffects": [
       {
         "type": "draw",
@@ -5303,6 +5397,7 @@
     "rulesText": "Draw a card. Chosen character gains <Reckless> during their next turn. (They can’t quest and must challenge if able.)",
     "flavorText": "“I think someone is targeting predators on purpose and making them go savage!”\n—Judy Hopps",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/95_6fffdc389b5954053874d05f8e9590fa660a0f65.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/95_6fffdc389b5954053874d05f8e9590fa660a0f65.jpg",
     "actionEffects": [
       {
         "type": "draw",
@@ -5347,6 +5442,7 @@
     "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.) \nShuffle chosen character, item, or location into their player’s deck. That player draws 2 cards.",
     "flavorText": "I make everything happen!",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/96_63fdd4cf79394aad42b967ff5df98a0d2f51ac01.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/96_63fdd4cf79394aad42b967ff5df98a0d2f51ac01.jpg",
     "actionEffects": [
       {
         "type": "shuffle_into_deck",
@@ -5388,6 +5484,7 @@
     "rarity": "rare",
     "rulesText": "If chosen opponent has more cards in their hand than you, draw cards until you have the same number.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/97_ec084f1c85a2d833edf79fd41bd67fe14261dba3.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/97_ec084f1c85a2d833edf79fd41bd67fe14261dba3.jpg",
     "actionEffects": [
       {
         "type": "draw",
@@ -5454,6 +5551,7 @@
     "rarity": "rare",
     "rulesText": "YOU LOOK REGAL If you have a character named Prince John in play, you pay 1 {I} less to play this item.\nA FEELING OF POWER At the end of each opponent’s turn, if they have more than 3 cards in their hand, they discard until they have 3 cards in their hand.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/98_d5e6f5161c7fe23f7823e5e5a1790e929295d4df.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/98_d5e6f5161c7fe23f7823e5e5a1790e929295d4df.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "YOU LOOK REGAL",
@@ -5518,6 +5616,7 @@
     "rarity": "common",
     "rulesText": "EXTRACT OF EMERALD 2 {I}, Banish this item — Your characters gain <Ward> until the start of your next turn. (Opponents can’t choose them except to challenge.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/99_10301d1b4b4ec11fabbb45d144696cc7366cc0f9.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/99_10301d1b4b4ec11fabbb45d144696cc7366cc0f9.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "EXTRACT OF EMERALD",
@@ -5583,6 +5682,7 @@
     "rulesText": "EMERALD LIGHT During opponents’ turns, whenever one of your characters is banished, you may return chosen character to their player’s hand.",
     "flavorText": "“Trust in the winds of change.” \n—Inscription",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/100_c81e1759aa2a42df4659cb0ea92592148c668dab.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/100_c81e1759aa2a42df4659cb0ea92592148c668dab.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "EMERALD LIGHT",
@@ -5695,6 +5795,7 @@
     "moveCost": 2,
     "rulesText": "FOREST HOME Your characters named Robin Hood may move here for free.\nFAMILIAR TERRAIN Characters gain <Ward> and \"{E}, 1 {I} — Deal 2 damage to chosen damaged character\" while here. (Opponents can’t choose them except to challenge.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/101_1b2a370b64cd68c52f62054e72018f335fd64e47.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/101_1b2a370b64cd68c52f62054e72018f335fd64e47.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FOREST HOME",
@@ -5752,6 +5853,7 @@
     "moveCost": 1,
     "rulesText": "SNACK TIME Opposing damaged characters gain <Reckless>. (They can’t quest and must challenge if able.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/102_e92e45f7f73db76504644e782a06fba479310e1f.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/102_e92e45f7f73db76504644e782a06fba479310e1f.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SNACK TIME",
@@ -5784,7 +5886,8 @@
     "willpower": 2,
     "lore": 2,
     "flavorText": "“There’s not a glimmer that can keep up with me. You might as well quit now.”",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/103_fce941e32ebd247bb9c3b90250868dce79d370aa.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/103_fce941e32ebd247bb9c3b90250868dce79d370aa.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/103_fce941e32ebd247bb9c3b90250868dce79d370aa.jpg"
   },
   {
     "id": "wreck-it-ralph-demolition-dude",
@@ -5828,6 +5931,7 @@
     "lore": 1,
     "rulesText": "REFRESHING BREAK Whenever you ready this character, gain 1 lore for each 1 damage on him.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/104_5e6432860dc81d3dbdbcb3165d19d37119fed8e7.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/104_5e6432860dc81d3dbdbcb3165d19d37119fed8e7.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "REFRESHING BREAK",
@@ -5928,6 +6032,7 @@
     "rulesText": "ROYALLY BIG REWARDS At the end of your turn, if you have any characters in play with 5 {S} or more, gain 2 lore. If you have any in play with 10 {S} or more, gain 5 lore instead.",
     "flavorText": "It's easy to get carried away when it comes to tug-of-war.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/105_7a2a949b2506b8ea09348e79a834e3bf1225cd26.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/105_7a2a949b2506b8ea09348e79a834e3bf1225cd26.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ROYALLY BIG REWARDS",
@@ -5966,6 +6071,7 @@
     "lore": 1,
     "rulesText": "<Rush> (This character can challenge the turn they’re played.)\nGAME JUMP This character also counts as being named King Candy for <Shift>.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/106_f7f6f188c5c4725624975b142b5c94911f808d3f.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/106_f7f6f188c5c4725624975b142b5c94911f808d3f.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "GAME JUMP",
@@ -6052,6 +6158,7 @@
     "shiftCost": 4,
     "rulesText": "<Shift> 4 (You may pay 4 {I} to play this on top of one of your characters named Donald Duck.)\nHUMBLE PIE When you play this character, if you used <Shift> to play him, each opponent loses 2 lore.\nRAGING DUCK While an opponent has 10 or more lore, this character gets +6 {S}.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/107_bcda589e7c810cf001fbb70f26d03af15cbc5b60.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/107_bcda589e7c810cf001fbb70f26d03af15cbc5b60.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "HUMBLE PIE",
@@ -6089,7 +6196,8 @@
     "willpower": 4,
     "lore": 1,
     "flavorText": "Ingredients: Butter, sugar, unsweetened chocolate, vanilla, and arrogance.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/108_26cb2b3ceaf13f3dbbe70871a3d92754ca83f1a9.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/108_26cb2b3ceaf13f3dbbe70871a3d92754ca83f1a9.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/108_26cb2b3ceaf13f3dbbe70871a3d92754ca83f1a9.jpg"
   },
   {
     "id": "scar-betrayer",
@@ -6140,6 +6248,7 @@
     "rulesText": "LONG LIVE THE KING When you play this character, you may banish chosen character named Mufasa.",
     "flavorText": "The second Rule of Villainy: Never settle for second place.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/109_a1af0d4771620cbec97b60931f5cc6e69a8a34ed.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/109_a1af0d4771620cbec97b60931f5cc6e69a8a34ed.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LONG LIVE THE KING",
@@ -6178,7 +6287,8 @@
     "lore": 1,
     "rulesText": "<Rush> (This character can challenge the turn they’re played.)",
     "flavorText": "When it comes to racing, she never gets cold feet.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/110_e5d60b6979bb61483903b1029f7c3169ecad8f1e.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/110_e5d60b6979bb61483903b1029f7c3169ecad8f1e.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/110_e5d60b6979bb61483903b1029f7c3169ecad8f1e.jpg"
   },
   {
     "id": "daisy-duck-spotless-food-fighter",
@@ -6209,7 +6319,8 @@
     "lore": 1,
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)",
     "flavorText": "She has an unblemished record.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/111_d7f2eff1361049555e6c3c2ec78aa089ec6655b4.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/111_d7f2eff1361049555e6c3c2ec78aa089ec6655b4.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/111_d7f2eff1361049555e6c3c2ec78aa089ec6655b4.jpg"
   },
   {
     "id": "mickey-mouse-enthusiastic-dancer",
@@ -6257,6 +6368,7 @@
     "rulesText": "PERFECT PARTNERS While you have a character named Minnie Mouse in play, this character gets +2 {S}.",
     "flavorText": "He loves to share the spotlight with a star like Minnie.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/112_a50884659495f48eaa11a7bd3185770897effb61.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/112_a50884659495f48eaa11a7bd3185770897effb61.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "PERFECT PARTNERS",
@@ -6310,6 +6422,7 @@
     "rulesText": "NOTHING CAN STAND IN MY WAY While this character has damage, he gets +2 {S}.",
     "flavorText": "“The world’s most diabolical genius should never suffer such indignities!”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/113_5da665512e610f26b5b2b40056f06b2e9a32a3ea.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/113_5da665512e610f26b5b2b40056f06b2e9a32a3ea.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "NOTHING CAN STAND IN MY WAY",
@@ -6380,6 +6493,7 @@
     "rulesText": "SHOWSTOPPER When you play this character, if you have a location in play, each opponent loses 1 lore.",
     "flavorText": "“Never lose sight of where you’re going. Second place.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/114_3e3cc6d697fc94490ed7967abfc4b927d4e032a8.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/114_3e3cc6d697fc94490ed7967abfc4b927d4e032a8.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SHOWSTOPPER",
@@ -6410,7 +6524,8 @@
     "willpower": 5,
     "lore": 2,
     "flavorText": "\"You'll pay for what you've done! I'll track you all the way to the Azurite Sea if I have to!\"",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/115_0947c93155f26d49f174434e09e77c91ba795e3f.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/115_0947c93155f26d49f174434e09e77c91ba795e3f.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/115_0947c93155f26d49f174434e09e77c91ba795e3f.jpg"
   },
   {
     "id": "pete-steamboat-rival",
@@ -6469,6 +6584,7 @@
     "lore": 2,
     "rulesText": "SCRAM! When you play this character, if you have another character named Pete in play, you may banish chosen opposing character.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/116_76b2860c2e1277e06ed9ab251a27a8f29eff8765.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/116_76b2860c2e1277e06ed9ab251a27a8f29eff8765.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SCRAM!",
@@ -6527,6 +6643,7 @@
     "shiftCost": 2,
     "rulesText": "<Shift> 2 (You may pay 2 {I} to play this on top of one of your characters named Taffyta Muttonfudge.)\nNEW ROSTER Once per turn, when this character moves to a location, gain 2 lore.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/117_b857847abeeb29cef2adae2b4b46033ab5e3886d.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/117_b857847abeeb29cef2adae2b4b46033ab5e3886d.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "NEW ROSTER",
@@ -6602,6 +6719,7 @@
     "lore": 2,
     "rulesText": "MY GREATEST PERFORMANCE Whenever this character quests, look at the top 4 cards of your deck. You may reveal an action card with cost 6 or less and play it for free. Put the rest in your discard.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/118_b4658f5325e967b5837f1358c94849d608d01b12.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/118_b4658f5325e967b5837f1358c94849d608d01b12.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "MY GREATEST PERFORMANCE",
@@ -6661,6 +6779,7 @@
     "lore": 2,
     "rulesText": "<Rush> (This character can challenge the turn they’re played.)\nA MAN AMONG MEN! For each damaged character you have in play, you pay 2 {I} less to play this character.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/119_2f196de33d548350b8b4b898f87fb6662b4b2a56.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/119_2f196de33d548350b8b4b898f87fb6662b4b2a56.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "A MAN AMONG MEN!",
@@ -6692,7 +6811,8 @@
     "willpower": 3,
     "lore": 1,
     "flavorText": "His half-baked scheme to whisk away the food almost worked. But in the end, he got his just desserts.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/120_0e0cb7942c547bd8bb95f25fc9bbe47db0552826.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/120_0e0cb7942c547bd8bb95f25fc9bbe47db0552826.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/120_0e0cb7942c547bd8bb95f25fc9bbe47db0552826.jpg"
   },
   {
     "id": "arthur-novice-sparrow",
@@ -6723,7 +6843,8 @@
     "lore": 0,
     "rulesText": "<Reckless> (This character can’t quest and must challenge each turn if able.)",
     "flavorText": "\"Hold it, boy. Not so fast.\"\n—Merlin",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/121_a0da07087e999d76d42fa97f2c3f3fa80d7a1a3d.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/121_a0da07087e999d76d42fa97f2c3f3fa80d7a1a3d.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/121_a0da07087e999d76d42fa97f2c3f3fa80d7a1a3d.jpg"
   },
   {
     "id": "donald-duck-daisys-date",
@@ -6774,6 +6895,7 @@
     "rulesText": "PLUCKY PLAY Whenever this character challenges another character, each opponent loses 1 lore.",
     "flavorText": "He keeps his eye on the prize.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/122_8ff669f7f41b75242692917e5944e0714356769d.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/122_8ff669f7f41b75242692917e5944e0714356769d.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "PLUCKY PLAY",
@@ -6840,6 +6962,7 @@
     "shiftCost": 4,
     "rulesText": "<Shift> 4 (You may pay 4 {I} to play this on top of one of your characters named Ratigan.)\n<Evasive> (Only characters with Evasive can challenge this character.)\nDELIGHTFULLY WICKED Your damaged characters get +2 {S}.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/123_ee118f765a4a4552e0ee4e1ede0b66d397087586.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/123_ee118f765a4a4552e0ee4e1ede0b66d397087586.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "DELIGHTFULLY WICKED",
@@ -6897,6 +7020,7 @@
     "lore": 2,
     "rulesText": "<Rush> (This character can challenge the turn they’re played.)\nPIXLEXIA When you play this character, she gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/124_ca8b0249f53e639fd714a387b97fce716a7f879e.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/124_ca8b0249f53e639fd714a387b97fce716a7f879e.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "PIXLEXIA",
@@ -6955,6 +7079,7 @@
     "lore": 1,
     "rulesText": "I LAUGH IN THE FACE OF DANGER When you play this character, chosen character gets +2 {S} this turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/125_810de2dfde271e7b7d7db13825330ad90c00de0d.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/125_810de2dfde271e7b7d7db13825330ad90c00de0d.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "I LAUGH IN THE FACE OF DANGER",
@@ -7019,6 +7144,7 @@
     "rulesText": "DANCE-OFF Whenever this character or one of your characters named Mickey Mouse challenges another character, gain 1 lore.",
     "flavorText": "She doesn't seek the spotlight—the spotlight seeks her.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/126_185e721984b7426ba1de5a6152f62823e1343e2b.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/126_185e721984b7426ba1de5a6152f62823e1343e2b.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "DANCE-OFF",
@@ -7045,6 +7171,7 @@
     "rulesText": "Deal 1 damage to chosen character of yours. They gain <Rush> and get +1 {S} this turn. (They can challenge the turn they’re played.)",
     "flavorText": "Tink darted from the shattered lantern in the blink of an eye.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/127_250e175a82cd0e32e667b155efcb725d07088cf6.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/127_250e175a82cd0e32e667b155efcb725d07088cf6.jpg",
     "actionEffects": [
       {
         "type": "deal_damage",
@@ -7115,6 +7242,7 @@
     "rarity": "common",
     "rulesText": "Ready chosen character of yours. They can’t quest for the rest of this turn. If a Villain character is chosen, gain 1 lore.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/128_18838f0c1b3f3f7b41cef6babe410c9008349527.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/128_18838f0c1b3f3f7b41cef6babe410c9008349527.jpg",
     "actionEffects": [
       {
         "type": "ready",
@@ -7172,6 +7300,7 @@
     "rulesText": "(A character with cost 7 or more can {E} to sing this song for free.)  \nReady all your characters. They can’t quest for the rest of this turn.",
     "flavorText": "Let's call it a night",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/129_ff5c998d335b77b53d0944408533a19f70f91453.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/129_ff5c998d335b77b53d0944408533a19f70f91453.jpg",
     "actionEffects": [
       {
         "type": "ready",
@@ -7227,6 +7356,7 @@
     "rulesText": "Banish chosen character of yours to banish chosen character.",
     "flavorText": "Hades: “Listen, kid. If I'm gettin’ banished back to the lorebook, you're going with me.”\nHercules: “We’ll see about that.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/130_5ed2c272441dc6924e7b5e3f0c3a7001205f0054.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/130_5ed2c272441dc6924e7b5e3f0c3a7001205f0054.jpg",
     "actionEffects": [
       {
         "type": "banish",
@@ -7275,6 +7405,7 @@
     "rulesText": "Your characters get +2 {S} this turn.\nWhenever one of your characters with <Reckless> challenges another character this turn, gain 2 lore.",
     "flavorText": "“Don’t forget, the purple unicorn is mine!”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/131_ccda4248e6c6969510e41d9c87051df35b0441d2.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/131_ccda4248e6c6969510e41d9c87051df35b0441d2.jpg",
     "actionEffects": [
       {
         "type": "gain_stats",
@@ -7388,6 +7519,7 @@
     "rarity": "common",
     "rulesText": "VILE CONCOCTION 1 {I}, Banish this item — Chosen character gets +3 {S} this turn. If a Villain character is chosen, they get +4 {S} instead.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/132_8cf945d867582d2fb9b08866abc6cd3c9de917cb.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/132_8cf945d867582d2fb9b08866abc6cd3c9de917cb.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "VILE CONCOCTION",
@@ -7451,6 +7583,7 @@
     "rarity": "rare",
     "rulesText": "POWER APPOINTED At the start of your turn, if you have a character in play with more {S} than each opposing character in play, each opponent loses 1 lore and you gain lore equal to the lore lost.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/133_a4199d3d57f8b271b61f1759a8f267aaa26aaf04.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/133_a4199d3d57f8b271b61f1759a8f267aaa26aaf04.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "POWER APPOINTED",
@@ -7504,6 +7637,7 @@
     "rulesText": "RUBY LIGHT {E} — Chosen character gets +1 {S} this turn.",
     "flavorText": "“Leave fear behind.”\n—Inscription",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/134_9239ad400bedb23eadb2efc5fe7552b6e409bafa.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/134_9239ad400bedb23eadb2efc5fe7552b6e409bafa.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "RUBY LIGHT",
@@ -7588,6 +7722,7 @@
     "moveCost": 0,
     "rulesText": "ON YOUR MARKS! Once per turn, you may {E} chosen character here and deal them 1 damage to move them to another location for free.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/135_77e5fdd2bac2f17ec19e107ead87100319cc0d82.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/135_77e5fdd2bac2f17ec19e107ead87100319cc0d82.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ON YOUR MARKS!",
@@ -7634,6 +7769,7 @@
     "moveCost": 1,
     "rulesText": "MISFITS’ REVELRY While you have a damaged character here, this location gets +2 {L}.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/136_040b86935fa96e2bb545cbacdc8e54cbe8007783.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/136_040b86935fa96e2bb545cbacdc8e54cbe8007783.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "MISFITS' REVELRY",
@@ -7667,7 +7803,8 @@
     "willpower": 2,
     "lore": 1,
     "flavorText": "“My sweet subjects, I can without a pinch of hesitation assure you that I have never been so happy.”",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/137_4f07dd29f01e93b3f36a4ac32780fce1513b46e9.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/137_4f07dd29f01e93b3f36a4ac32780fce1513b46e9.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/137_4f07dd29f01e93b3f36a4ac32780fce1513b46e9.jpg"
   },
   {
     "id": "chaca-impressive-daughter",
@@ -7692,7 +7829,8 @@
     "willpower": 3,
     "lore": 2,
     "flavorText": "\"Look, look! My tooth is even looser today!\"",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/138_a9cea75e1a6680ca587af770c6553398ab1bf458.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/138_a9cea75e1a6680ca587af770c6553398ab1bf458.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/138_a9cea75e1a6680ca587af770c6553398ab1bf458.jpg"
   },
   {
     "id": "the-queen-cruelest-of-all",
@@ -7725,7 +7863,8 @@
     "lore": 1,
     "rulesText": "<Ward> (Opponents can’t choose this character except to challenge.)",
     "flavorText": "She'd seen what the ink could do for other glimmers. What could it do for her?",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/139_4134b038b39888751f986f1ebb4b75c88116e7ef.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/139_4134b038b39888751f986f1ebb4b75c88116e7ef.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/139_4134b038b39888751f986f1ebb4b75c88116e7ef.jpg"
   },
   {
     "id": "scrooge-mcduck-afficionado-of-antiquities",
@@ -7750,7 +7889,8 @@
     "willpower": 5,
     "lore": 2,
     "flavorText": "\"The secret room should be right here! Ach, I cannot believe I paid a whole penny for this map.\"",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/140_b357e47a35f4d03f85a9a3dd26843953ce552e8d.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/140_b357e47a35f4d03f85a9a3dd26843953ce552e8d.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/140_b357e47a35f4d03f85a9a3dd26843953ce552e8d.jpg"
   },
   {
     "id": "prince-john-opportunistic-briber",
@@ -7805,6 +7945,7 @@
     "rulesText": "TAXES NEVER FAIL ME Whenever you play an item, this character gets +2 {S} this turn.",
     "flavorText": "\"Of <course> I'm on the list. Check under 'PJ.'\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/141_97c576f40f5cf487f49a1fd3c2311986b156971e.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/141_97c576f40f5cf487f49a1fd3c2311986b156971e.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "TAXES NEVER FAIL ME",
@@ -7863,6 +8004,7 @@
     "rulesText": "LONG LIVE THE KING! Your characters named Arthur gain <Resist> +1. (Damage dealt to them is reduced by 1.)",
     "flavorText": "“A little rest and relaxation will do wonders for your health, boy.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/142_f2160fc3e8872116bb2234a8ccf9e5cb97e53552.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/142_f2160fc3e8872116bb2234a8ccf9e5cb97e53552.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LONG LIVE THE KING!",
@@ -7960,6 +8102,7 @@
     "lore": 2,
     "rulesText": "HELPFUL SUPPLIES At the start of your turn, If you have an item in play, gain 1 lore.\nPERFECT DIRECTIONS At the start of your turn, if you have a location in play, gain 1 lore.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/143_1a3e0ec39e90176291f6280922d8e36e096acc24.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/143_1a3e0ec39e90176291f6280922d8e36e096acc24.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "HELPFUL SUPPLIES",
@@ -8034,6 +8177,7 @@
     "shiftCost": 3,
     "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named The Queen.)\n<Ward> (Opponents can’t choose this character except to challenge.)\nREFLECTIONS OF VANITY For each other character named The Queen you have in play, this character gets +1 {L}.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/144_2bfe3af454e4797d38518b7eb133f4faf73caadc.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/144_2bfe3af454e4797d38518b7eb133f4faf73caadc.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "REFLECTIONS OF VANITY",
@@ -8092,6 +8236,7 @@
     "lore": 4,
     "rulesText": "<Support> (Whenever this character quests, you may add their {S} to another chosen character’s {S} this turn.)\nEVERY LITTLE BIT HELPS For each item you have in play, you pay 1 {I} less to play this character.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/145_ada42d3915fc35068e3723dcbc07ca26f9d29d94.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/145_ada42d3915fc35068e3723dcbc07ca26f9d29d94.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "EVERY LITTLE BIT HELPS",
@@ -8162,6 +8307,7 @@
     "lore": 1,
     "rulesText": "<Support> (Whenever this character quests, you may add their {S} to another chosen character’s {S} this turn.)\nONE ON THE WAY During your turn, when you put a card into your inkwell, if it’s the second card you’ve put into your inkwell this turn, you may draw a card.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/146_50bdfc2eed644f4bfae1ba231742e4e73635a287.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/146_50bdfc2eed644f4bfae1ba231742e4e73635a287.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ONE ON THE WAY",
@@ -8223,6 +8369,7 @@
     "rulesText": "BEAUTIFUL, LOVELY TAXES {E} — Play an item from your hand or discard with cost 5 or less for free, exerted.",
     "flavorText": "A villainous schemer from day to night.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/147_335326806ed87c263f102d24ffc3648c4d7d169e.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/147_335326806ed87c263f102d24ffc3648c4d7d169e.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BEAUTIFUL, LOVELY TAXES",
@@ -8289,6 +8436,7 @@
     "lore": 2,
     "rulesText": "<Ward> (Opponents can’t choose this character except to challenge.)\nGATHERER OF THE WICKED When you play this character, look at the top 3 cards of your deck. You may reveal any number of character cards named The Queen and put them into your hand. Put the rest on the bottom of your deck in any order.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/148_3459ab4a43bc9681e519abe75cddbc8009b08ae4.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/148_3459ab4a43bc9681e519abe75cddbc8009b08ae4.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "GATHERER OF THE WICKED",
@@ -8381,6 +8529,7 @@
     "lore": 2,
     "rulesText": "OUTPLACEMENT When you play this character, you may put chosen item or location into its player’s inkwell facedown and exerted.\nBY INVITE ONLY 4 {I} — Your other characters gain <Resist> +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/149_a43c13933a9b2835fa9fa7fd96c5f918180c7e5f.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/149_a43c13933a9b2835fa9fa7fd96c5f918180c7e5f.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "OUTPLACEMENT",
@@ -8462,6 +8611,7 @@
     "lore": 4,
     "rulesText": "A DELICATE BALANCE When you play this character, exert all cards in your inkwell, then return 2 cards at random from your inkwell to your hand.\nEVERYTHING THE LIGHT TOUCHES Whenever this character quests, ready all cards in your inkwell.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/150_54e52d32300e0f21420511844471b6b2ecbf5069.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/150_54e52d32300e0f21420511844471b6b2ecbf5069.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "A DELICATE BALANCE",
@@ -8498,7 +8648,8 @@
     "willpower": 4,
     "lore": 3,
     "flavorText": "\"So you see, there’s a dark void at the edge of Lorcana. A complete absence of electromagnetic radiation! What’s it made of? I don’t know! The light’s just gone. Kaput!\"",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/151_dbb2c707781c824ec1b23e286e25355e5b0d857a.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/151_dbb2c707781c824ec1b23e286e25355e5b0d857a.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/151_dbb2c707781c824ec1b23e286e25355e5b0d857a.jpg"
   },
   {
     "id": "minnie-mouse-quick-thinking-inventor",
@@ -8551,6 +8702,7 @@
     "rulesText": "CAKE CATAPULT When you play this character, chosen character gets -2 {S} this turn.",
     "flavorText": "This puts the Frosting Flinger 2000 to shame.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/152_f477386bc10093355cd0e847881dd559ad6893e7.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/152_f477386bc10093355cd0e847881dd559ad6893e7.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "CAKE CATAPULT",
@@ -8589,7 +8741,8 @@
     "lore": 1,
     "rulesText": "<Support> (Whenever this character quests, you may add their {S} to another chosen character’s {S} this turn.)",
     "flavorText": "\"This case is as good as solved!\"\n—Basil",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/153_f678cff10bdf89e33ea34c4cedd2f9fc496562e0.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/153_f678cff10bdf89e33ea34c4cedd2f9fc496562e0.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/153_f678cff10bdf89e33ea34c4cedd2f9fc496562e0.jpg"
   },
   {
     "id": "king-candy-sweet-abomination",
@@ -8652,6 +8805,7 @@
     "shiftCost": 3,
     "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named King Candy.)\nCHANGING THE CODE When you play this character, you may draw 2 cards, then put a card from your hand on the bottom of your deck.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/154_424a165c4e1ee66e80fb17deaa0ff5b25eeb3bf4.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/154_424a165c4e1ee66e80fb17deaa0ff5b25eeb3bf4.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "CHANGING THE CODE",
@@ -8706,6 +8860,7 @@
     "rulesText": "BAFFLING MYSTERY When you play this character, you may put the top card of your deck into your inkwell facedown and exerted.",
     "flavorText": "\"There's just gotta be one of those chromi-thingies around here somewhere!\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/155_0f9e6753983de8bb9ef263b6809f8a94b822171c.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/155_0f9e6753983de8bb9ef263b6809f8a94b822171c.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BAFFLING MYSTERY",
@@ -8764,6 +8919,7 @@
     "lore": 1,
     "rulesText": "YOUR BROTHERS NEED GUIDANCE When you play this character, you may remove up to 1 damage from chosen character or location.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/156_93afb3e850b7f7ad57cddeb284e4752ebeb08d25.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/156_93afb3e850b7f7ad57cddeb284e4752ebeb08d25.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "YOUR BROTHERS NEED GUIDANCE",
@@ -8823,6 +8979,7 @@
     "rulesText": "MEASURE ME AGAIN When you play this character, you may put a card from your hand into your inkwell facedown and exerted.",
     "flavorText": "“Mom, Mom! I think I’m still growing!”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/157_c16fff6a33aaa0b0738257c8502cb8da9b1f54b4.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/157_c16fff6a33aaa0b0738257c8502cb8da9b1f54b4.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "MEASURE ME AGAIN",
@@ -8889,6 +9046,7 @@
     "lore": 2,
     "rulesText": "<Ward> (Opponents can’t choose this character except to challenge.)\nUSHERED INTO THE PARTY When you play this character, your other characters gain <Ward> until the start of your next turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/158_9c61c4ff014c1a047843b337c0c5aa7948880146.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/158_9c61c4ff014c1a047843b337c0c5aa7948880146.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "USHERED INTO THE PARTY",
@@ -8951,6 +9109,7 @@
     "shiftCost": 5,
     "rulesText": "<Shift> 5 (You may pay 5 {I} to play this on top of one of your characters named Merlin.)\nOVERDEVELOPED BRAIN When you play this character, if you used <Shift> to play him, you may search your deck for any card, put that card into your hand, then shuffle your deck.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/159_02e7ce1b9d19279236e6ab0fe1d200b3420c2e73.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/159_02e7ce1b9d19279236e6ab0fe1d200b3420c2e73.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "OVERDEVELOPED BRAIN",
@@ -8977,6 +9136,7 @@
     "rulesText": "Look at the top 5 cards of your deck. Put one into your hand and the rest on the bottom of your deck in any order.",
     "flavorText": "“We must repair the Illuminary before it’s too late. And we’ll need these devices, these chromicons, to fix it.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/160_483a9b047f15199b7c96e38c5e6197d8033beb11.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/160_483a9b047f15199b7c96e38c5e6197d8033beb11.jpg",
     "actionEffects": [
       {
         "type": "look_at_top",
@@ -9007,6 +9167,7 @@
     "rulesText": "Banish any number of your items, then draw a card for each item banished this way.",
     "flavorText": "\"I am King! King! King!\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/161_b889f54721eba02e59e5c41f4061dc3a9929141c.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/161_b889f54721eba02e59e5c41f4061dc3a9929141c.jpg",
     "actionEffects": [
       {
         "type": "banish",
@@ -9052,6 +9213,7 @@
     "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)  \nRemove up to 2 damage from any number of chosen characters.",
     "flavorText": "Ever just as sure\nAs the sun will rise",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/162_6992b85da968ff9828a7bacf2c383340fba7cab0.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/162_6992b85da968ff9828a7bacf2c383340fba7cab0.jpg",
     "actionEffects": [
       {
         "type": "remove_damage",
@@ -9088,6 +9250,7 @@
     "rulesText": "Put chosen item or location into its player’s inkwell facedown and exerted.",
     "flavorText": "Fauna: \"Oh my! We dropped some . . .\"\nMerryweather: \"You mean <you> dropped some!\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/163_afa8f5653a6f2a9c6c8a3ee0a1f2834b6cf76994.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/163_afa8f5653a6f2a9c6c8a3ee0a1f2834b6cf76994.jpg",
     "actionEffects": [
       {
         "type": "put_into_inkwell",
@@ -9124,6 +9287,7 @@
     "rulesText": "Put chosen character of yours into your inkwell facedown and exerted.",
     "flavorText": "\"Pretty pathetic, huh?\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/164_aa00ff6e1bcee2616f0ce129971a01e70847fbec.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/164_aa00ff6e1bcee2616f0ce129971a01e70847fbec.jpg",
     "actionEffects": [
       {
         "type": "put_into_inkwell",
@@ -9199,6 +9363,7 @@
     "rulesText": "CONGRATULATIONS, SOLDIER {E}, 2 {I}, Banish this item — Chosen character of yours gets +2 {L} this turn.",
     "flavorText": "\"You have etched in the rock of virtue a legacy beyond compare.\"\n—General Hologram",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/165_c66387d87677bf9b8cffa2a5005848ff704820eb.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/165_c66387d87677bf9b8cffa2a5005848ff704820eb.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "CONGRATULATIONS, SOLDIER",
@@ -9258,6 +9423,7 @@
     "rulesText": "FIND WHAT’S HIDDEN {E}, 2 {I} — Look at the top 3 cards of your deck. You may reveal an item card and put it into your hand. Put the rest on the bottom of your deck in any order.",
     "flavorText": "“I say, a piece of the Hexwell Crown!” —Basil",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/166_dcbbbde661eaaf1853214d364f722bfc7d1c2a84.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/166_dcbbbde661eaaf1853214d364f722bfc7d1c2a84.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FIND WHAT'S HIDDEN",
@@ -9316,6 +9482,7 @@
     "rulesText": "HOCKETY POCKETY {E}, 1 {I} — Return an item card from your discard to your hand.",
     "flavorText": "“What a way to pack!”\n—Arthur",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/167_d731d61c1a3ce3071e467367b0986aee6fa3bbb9.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/167_d731d61c1a3ce3071e467367b0986aee6fa3bbb9.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "HOCKETY POCKETY",
@@ -9394,6 +9561,7 @@
     "rulesText": "POWERING UP This item enters play exerted.\nSAPPHIRE LIGHT {E}, 2 {I}, Banish one of your items — Gain 2 lore.",
     "flavorText": "\"Knowledge is eternal.\"\n—Inscription",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/168_78932fb72e20a0b51a28c9270b557446e980b0f9.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/168_78932fb72e20a0b51a28c9270b557446e980b0f9.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "POWERING UP",
@@ -9470,6 +9638,7 @@
     "rulesText": "WARM WELCOME Characters with <Support> get +1 {L} and +2 {W} while here.",
     "flavorText": "Every surface glows with the joy of celebration.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/169_6b8f23437297115a19f5a80a159b43617fa5f71b.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/169_6b8f23437297115a19f5a80a159b43617fa5f71b.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WARM WELCOME",
@@ -9511,6 +9680,7 @@
     "moveCost": 1,
     "rulesText": "KNOWLEDGE IS POWER Each player plays with the top card of their deck face up.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/170_684e330d94c4d294fa14b442410012e2837a5f9c.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/170_684e330d94c4d294fa14b442410012e2837a5f9c.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "KNOWLEDGE IS POWER",
@@ -9569,6 +9739,7 @@
     "rulesText": "HEAVE HO! When you play this character, you may deal 2 damage to chosen character.",
     "flavorText": "He’s not the biggest glimmer on the team, but he still packs a wallop.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/171_88f6fef9930f0e8f8cbc7464b0b3922209178609.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/171_88f6fef9930f0e8f8cbc7464b0b3922209178609.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "HEAVE HO!",
@@ -9631,6 +9802,7 @@
     "rulesText": "<Challenger> +7 (While challenging, this character gets +7 {S}.)\nINTIMIDATING GAZE Opposing characters with cost 4 or less can’t challenge.",
     "flavorText": "\"No one will keep me from the broken crown!\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/172_18a42fa85c08704d8fcbb1402b76946e9252e3b3.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/172_18a42fa85c08704d8fcbb1402b76946e9252e3b3.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "INTIMIDATING GAZE",
@@ -9687,6 +9859,7 @@
     "rulesText": "FACE THE PAST During your turn, whenever this character banishes another character in a challenge, you may draw a card.",
     "flavorText": "“This is my kingdom. If I don’t fight for it, who will?”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/173_99976cffcedb9eb4642eca2e4493a79a04414c6a.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/173_99976cffcedb9eb4642eca2e4493a79a04414c6a.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FACE THE PAST",
@@ -9717,7 +9890,8 @@
     "willpower": 2,
     "lore": 1,
     "flavorText": "“The Illuminary can’t handle this much groove! We have to keep the noise down or it’ll fall apart for sure!”",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/174_10963535689f43fe71a8cb0554654ad9d2657e57.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/174_10963535689f43fe71a8cb0554654ad9d2657e57.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/174_10963535689f43fe71a8cb0554654ad9d2657e57.jpg"
   },
   {
     "id": "royal-guard-bovine-protector",
@@ -9741,7 +9915,8 @@
     "willpower": 7,
     "lore": 1,
     "flavorText": "\"Hey, I've been turned into a cow. Can I go home?\"",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/175_b897356f9ddc817913345c31e6b91f3560141fcc.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/175_b897356f9ddc817913345c31e6b91f3560141fcc.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/175_b897356f9ddc817913345c31e6b91f3560141fcc.jpg"
   },
   {
     "id": "mickey-mouse-food-fight-defender",
@@ -9773,7 +9948,8 @@
     "lore": 1,
     "rulesText": "<Resist> +1 (Damage dealt to this character is reduced by 1.)",
     "flavorText": "Underestimating him is a recipe for disaster.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/176_4d01a4c0f59df36cd8a18b0b441d26109629658f.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/176_4d01a4c0f59df36cd8a18b0b441d26109629658f.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/176_4d01a4c0f59df36cd8a18b0b441d26109629658f.jpg"
   },
   {
     "id": "sleepy-sluggish-knight",
@@ -9805,7 +9981,8 @@
     "willpower": 4,
     "lore": 1,
     "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/177_2f4daf92f40cccd15736c814817bb89b70055f96.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/177_2f4daf92f40cccd15736c814817bb89b70055f96.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/177_2f4daf92f40cccd15736c814817bb89b70055f96.jpg"
   },
   {
     "id": "kronk-unlicensed-investigator",
@@ -9837,7 +10014,8 @@
     "lore": 1,
     "rulesText": "<Challenger> +1 (While challenging, this character gets +1 {S}.)",
     "flavorText": "\"Maybe <this> one's a chromicon. Probably not. I really should have paid more attention when that wizard guy was talking . . .\"",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/178_62864ef55a89e3d0a4133e816765e6c05abfc05f.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/178_62864ef55a89e3d0a4133e816765e6c05abfc05f.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/178_62864ef55a89e3d0a4133e816765e6c05abfc05f.jpg"
   },
   {
     "id": "heihei-protective-rooster",
@@ -9868,7 +10046,8 @@
     "lore": 2,
     "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)",
     "flavorText": "Who’s the \"boat snack\" now?!",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/179_0eb42219a2658c37aafcfed868f6242093687b63.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/179_0eb42219a2658c37aafcfed868f6242093687b63.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/179_0eb42219a2658c37aafcfed868f6242093687b63.jpg"
   },
   {
     "id": "sneezy-noisy-knight",
@@ -9923,6 +10102,7 @@
     "lore": 1,
     "rulesText": "HEADWIND When you play this character, chosen Knight character gains <Challenger> +2 this turn. (They get +2 {S} while challenging.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/180_deece49f2eb747454635bda4de22d028be3bb240.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/180_deece49f2eb747454635bda4de22d028be3bb240.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "HEADWIND",
@@ -9990,6 +10170,7 @@
     "lore": 1,
     "rulesText": "STRONGER TOGETHER When you play this character, if you have another Knight character in play, you may deal 1 damage to chosen character or location.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/181_35304622f518a62de0a427bfbcfec36485739f39.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/181_35304622f518a62de0a427bfbcfec36485739f39.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "STRONGER TOGETHER",
@@ -10039,6 +10220,7 @@
     "lore": 3,
     "rulesText": "<Resist> +3 (Damage dealt to this character is reduced by 3.)\nI DON’T HAVE ANY OTHER CHOICE For each opposing character banished in a challenge this turn, you pay 2 {I} less to play this character.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/182_9a8894249f167de9480a3e8b03293bfdebe7b375.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/182_9a8894249f167de9480a3e8b03293bfdebe7b375.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "I DON'T HAVE ANY OTHER CHOICE",
@@ -10101,6 +10283,7 @@
     "rulesText": "NATURAL LEADER This character gains <Resist> +1 for each other Knight character you have in play. (Damage dealt to this character is reduced by 1 for each other Knight.)",
     "flavorText": "Friendship is the best armor of all.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/183_6f513e3a00a526b04615a9d0d50cb02ce56a2e6b.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/183_6f513e3a00a526b04615a9d0d50cb02ce56a2e6b.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "NATURAL LEADER",
@@ -10171,6 +10354,7 @@
     "rulesText": "I’M WARNING YOU! During your turn, whenever one of your characters banishes another character in a challenge, you may deal 1 damage to chosen character.",
     "flavorText": "\"What do you mean, 'not on the list'?! I told you to <always> put me on the list!\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/184_99436d7a19a9fe61aefd7d78e62ead2a17013db7.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/184_99436d7a19a9fe61aefd7d78e62ead2a17013db7.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "I'M WARNING YOU!",
@@ -10238,6 +10422,7 @@
     "shiftCost": 5,
     "rulesText": "<Shift> 5 (You may pay 5 {I} to play this on top of one of your characters named Kronk.)\nARE YOU ON THE LIST? During your turn, whenever this character banishes another character in a challenge, you may play a character with cost 5 or less for free.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/185_2346f11f998787daf4d42ed48ca5ea7e40e1f118.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/185_2346f11f998787daf4d42ed48ca5ea7e40e1f118.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ARE YOU ON THE LIST?",
@@ -10312,6 +10497,7 @@
     "lore": 1,
     "rulesText": "BOON OF RESILIENCE While one of your Knight characters is at a location, that character gains <Resist> +2. (Damage dealt to them is reduced by 2.)\nBURST OF SPEED During your turn, this character gains <Evasive>. (They can challenge characters with Evasive.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/186_8d22954081c1fe6a8ab260e4bbb6e108d7b8f65d.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/186_8d22954081c1fe6a8ab260e4bbb6e108d7b8f65d.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BOON OF RESILIENCE",
@@ -10379,6 +10565,7 @@
     "rulesText": "RE-PETE {E} – Reveal the top card of your deck. If it’s a character card named Pete, you may play it for free.",
     "flavorText": "He'll have you seeing double.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/187_3510d6af259ab1d0bbd150b66e138fcbce4d8d1e.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/187_3510d6af259ab1d0bbd150b66e138fcbce4d8d1e.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "RE-PETE",
@@ -10410,7 +10597,8 @@
     "willpower": 10,
     "lore": 3,
     "flavorText": "“Well, by Jove. Don’t just stand there. Raise a glass to my son Kay . . . and may we be rid of the trickster wizard Marvin, or whatever his blasted name was.”",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/188_4b9b2cf6340c96f3e065f667d7c28ce0b5bc2334.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/188_4b9b2cf6340c96f3e065f667d7c28ce0b5bc2334.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/188_4b9b2cf6340c96f3e065f667d7c28ce0b5bc2334.jpg"
   },
   {
     "id": "bashful-adoring-knight",
@@ -10458,6 +10646,7 @@
     "lore": 1,
     "rulesText": "IMPRESS THE PRINCESS While you have a character named Snow White in play, this character gains <Bodyguard>. (An opposing character who challenges one of your characters must choose one with Bodyguard if able.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/189_a5cd35aa42b04bc824751a8eaace0a0cb0581797.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/189_a5cd35aa42b04bc824751a8eaace0a0cb0581797.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "IMPRESS THE PRINCESS",
@@ -10489,7 +10678,8 @@
     "willpower": 2,
     "lore": 2,
     "flavorText": "\"That boy's got real spark. Lots of spirit. Throws himself heart and soul into everything he does.”\n —Merlin",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/190_fe40220c1bf8c5acba7cc984b8a0271019060dbc.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/190_fe40220c1bf8c5acba7cc984b8a0271019060dbc.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/190_fe40220c1bf8c5acba7cc984b8a0271019060dbc.jpg"
   },
   {
     "id": "happy-lively-knight",
@@ -10533,6 +10723,7 @@
     "lore": 1,
     "rulesText": "BURST OF SPEED During your turn, this character gains <Evasive>. (They can challenge characters with Evasive.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/191_0fbf2db1b2408ea69c8fcbc8d2baa6de7308681c.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/191_0fbf2db1b2408ea69c8fcbc8d2baa6de7308681c.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BURST OF SPEED",
@@ -10597,6 +10788,7 @@
     "shiftCost": 4,
     "rulesText": "<Shift> 4 (You may pay 4 {I} to play this on top of one of your characters named Simba.)\nFEARSOME ROAR When you play this character, you may banish chosen item or location.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/192_9567fbc7701338eccefd2d1e5782637583429bc1.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/192_9567fbc7701338eccefd2d1e5782637583429bc1.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FEARSOME ROAR",
@@ -10665,6 +10857,7 @@
     "lore": 1,
     "rulesText": "DRASTIC MEASURES When you play this character, you may discard your hand to draw 2 cards.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/193_d0021af1b16105fdd0bfcda04da89694c817889f.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/193_d0021af1b16105fdd0bfcda04da89694c817889f.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "DRASTIC MEASURES",
@@ -10746,6 +10939,7 @@
     "shiftCost": 5,
     "rulesText": "<Shift> 5 (You may pay 5 {I} to play this on top of one of your characters named Arthur.)\nKNIGHTED BY THE KING When you play this character, chosen character gains <Challenger> +2 and <Resist> +2 and can challenge ready characters this turn. (They get +2 {S} while challenging. Damage dealt to them is reduced by 2.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/194_1ec7850d4b06661499ed09f045069342e199cce1.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/194_1ec7850d4b06661499ed09f045069342e199cce1.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "KNIGHTED BY THE KING",
@@ -10799,6 +10993,7 @@
     "rulesText": "BLOW THE WHISTLE When you play this character, opponents can’t play actions until the start of your next turn.",
     "flavorText": "“It ain’t cheatin’ if you’re the one makin' the rules.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/195_5c2f5c4fb88891829ea80d6aa45f792080517c4f.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/195_5c2f5c4fb88891829ea80d6aa45f792080517c4f.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BLOW THE WHISTLE",
@@ -10824,6 +11019,7 @@
     "rarity": "rare",
     "rulesText": "Choose one:\n• Deal 1 damage to each opposing character without <Evasive>.\n• Deal 3 damage to each opposing character with <Evasive>.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/196_7cdba9bdcb0a23afc53346d0ccbb6386f7bf32ea.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/196_7cdba9bdcb0a23afc53346d0ccbb6386f7bf32ea.jpg",
     "actionEffects": [
       {
         "type": "choose",
@@ -10891,6 +11087,7 @@
     "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nChosen character can’t challenge during their next turn. Draw a card.",
     "flavorText": "Stuck in the same place I’ve always been . . .",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/197_df645c5915ceb54f85a58917cde1f0de3946b276.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/197_df645c5915ceb54f85a58917cde1f0de3946b276.jpg",
     "actionEffects": [
       {
         "type": "cant_action",
@@ -10932,6 +11129,7 @@
     "rarity": "common",
     "rulesText": "Chosen character gains <Resist> +1 and <Evasive> this turn. (Damage dealt to them is reduced by 1. They can challenge characters with Evasive.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/198_666c7cf20f1a466e35dada67e22c0fd18749212b.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/198_666c7cf20f1a466e35dada67e22c0fd18749212b.jpg",
     "actionEffects": [
       {
         "type": "grant_keyword",
@@ -10982,6 +11180,7 @@
     "rulesText": "Your characters gain \"{E}, 1 {I} — Deal 1 damage to chosen character\" this turn.",
     "flavorText": "“Gawrsh, who ordered the . . . upside-down CAA-AA-AKE?”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/199_e7af94380c732a4bd82dd716fbd8289e3db514a6.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/199_e7af94380c732a4bd82dd716fbd8289e3db514a6.jpg",
     "actionEffects": [
       {
         "type": "grant_activated_ability_timed",
@@ -11071,6 +11270,7 @@
     "rarity": "common",
     "rulesText": "DEFLECT Banish this item — Chosen character gains <Resist> +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/200_0b379600ffed4250103eba5ebb78851f4a02912a.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/200_0b379600ffed4250103eba5ebb78851f4a02912a.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "DEFLECT",
@@ -11124,6 +11324,7 @@
     "rarity": "rare",
     "rulesText": "WELL CRAFTED {E} — Chosen character gains <Resist> +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/201_986ddc0e28b7b2478d96da2f97e611ee76c88df8.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/201_986ddc0e28b7b2478d96da2f97e611ee76c88df8.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WELL CRAFTED",
@@ -11176,6 +11377,7 @@
     "rulesText": "STEEL LIGHT {E} — Deal 1 damage to chosen character.",
     "flavorText": "\"Strong in will, strong in battle.\"\n—Inscription",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/202_0e7fde43bffb0b8a3111571b8629e7397802aa1e.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/202_0e7fde43bffb0b8a3111571b8629e7397802aa1e.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "STEEL LIGHT",
@@ -11250,6 +11452,7 @@
     "moveCost": 2,
     "rulesText": "THERE’S NO ONE I’D RATHER BE THAN ME Villain characters gain \"{E}, 3 {I} — Play a character with the same name as this character for free\" while here.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/203_3c16f28595a9bedebdd75dd65e8dbffa9b448282.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/203_3c16f28595a9bedebdd75dd65e8dbffa9b448282.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "THERE'S NO ONE I'D RATHER BE THAN ME",
@@ -11342,6 +11545,7 @@
     "moveCost": 2,
     "rulesText": "MOUNTAIN DEFENSE During your turn, the first time you move a character here, you may deal 1 damage to chosen character. If the moved character is a Knight, deal 2 damage instead.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/204_b7a1ca2b244bd6fe7e6a8eb283dee088bbe97d6c.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set5/204_b7a1ca2b244bd6fe7e6a8eb283dee088bbe97d6c.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "MOUNTAIN DEFENSE",
