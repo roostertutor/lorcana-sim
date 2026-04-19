@@ -35,6 +35,22 @@ interface Props {
   onChange: (entries: DeckEntry[]) => void;
 }
 
+type GroupMode = "cost" | "type" | "none";
+const GROUP_STORAGE_KEY = "deck-group-mode";
+
+function useGroupMode(): [GroupMode, (m: GroupMode) => void] {
+  const [mode, setMode] = useState<GroupMode>(() => {
+    if (typeof window === "undefined") return "cost";
+    const saved = localStorage.getItem(GROUP_STORAGE_KEY);
+    return saved === "type" || saved === "none" || saved === "cost" ? saved : "cost";
+  });
+  const update = (m: GroupMode) => {
+    setMode(m);
+    if (typeof window !== "undefined") localStorage.setItem(GROUP_STORAGE_KEY, m);
+  };
+  return [mode, update];
+}
+
 export default function DeckBuilder({ entries, definitions, onChange }: Props) {
   const [query, setQuery] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
@@ -42,6 +58,7 @@ export default function DeckBuilder({ entries, definitions, onChange }: Props) {
   const [showImportExport, setShowImportExport] = useState<"import" | "export" | null>(null);
   const [importText, setImportText] = useState("");
   const [importErrors, setImportErrors] = useState<string[]>([]);
+  const [groupMode, setGroupMode] = useGroupMode();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const totalCards = entries.reduce((s, e) => s + e.count, 0);
@@ -152,6 +169,52 @@ export default function DeckBuilder({ entries, definitions, onChange }: Props) {
       });
   }, [entries, definitions]);
 
+  // ── Grouped view — bucket sortedRows per groupMode ──
+  const groupedRows = useMemo(() => {
+    if (groupMode === "none") {
+      return sortedRows.length > 0
+        ? [{ label: null, count: sortedRows.reduce((s, r) => s + r.entry.count, 0), rows: sortedRows }]
+        : [];
+    }
+    const buckets = new Map<string, typeof sortedRows>();
+    const order: string[] = [];
+    for (const row of sortedRows) {
+      let key: string;
+      if (groupMode === "cost") {
+        const c = row.def!.cost;
+        key = c >= 8 ? "8+" : String(c);
+      } else {
+        // type
+        key = row.def!.cardType;
+      }
+      if (!buckets.has(key)) {
+        buckets.set(key, []);
+        order.push(key);
+      }
+      buckets.get(key)!.push(row);
+    }
+    // Stable order: cost asc for cost-grouping; canonical type order for
+    // type-grouping (characters first — they're the bulk of most decks).
+    if (groupMode === "cost") {
+      order.sort((a, b) => {
+        const an = a === "8+" ? 8 : Number(a);
+        const bn = b === "8+" ? 8 : Number(b);
+        return an - bn;
+      });
+    } else {
+      const TYPE_ORDER = ["character", "action", "item", "location"];
+      order.sort((a, b) => TYPE_ORDER.indexOf(a) - TYPE_ORDER.indexOf(b));
+    }
+    return order.map((key) => {
+      const rows = buckets.get(key)!;
+      const count = rows.reduce((s, r) => s + r.entry.count, 0);
+      const label = groupMode === "cost"
+        ? `Cost ${key}`
+        : key.charAt(0).toUpperCase() + key.slice(1) + (rows.length === 1 ? "" : "s");
+      return { label, count, rows };
+    });
+  }, [sortedRows, groupMode]);
+
   return (
     <div className="space-y-3">
       {/* Add card search */}
@@ -242,33 +305,60 @@ export default function DeckBuilder({ entries, definitions, onChange }: Props) {
         )}
       </div>
 
-      {/* Card count summary */}
-      <div className="flex items-center justify-between text-xs">
+      {/* Card count summary + group-by toggle */}
+      <div className="flex items-center justify-between text-xs gap-2">
         <span className="text-gray-500">
           {totalCards} cards, {entries.length} unique
         </span>
-        {totalCards !== 60 && totalCards > 0 && (
-          <span className={totalCards < 60 ? "text-yellow-500" : "text-red-400"}>
-            {totalCards < 60 ? `${60 - totalCards} more for legal deck` : `${totalCards - 60} over legal deck`}
-          </span>
-        )}
-        {totalCards === 60 && (
-          <span className="text-green-400">✓ Legal deck size</span>
-        )}
+        <div className="flex items-center gap-2 shrink-0">
+          {totalCards !== 60 && totalCards > 0 && (
+            <span className={totalCards < 60 ? "text-yellow-500" : "text-red-400"}>
+              {totalCards < 60 ? `${60 - totalCards} to 60` : `${totalCards - 60} over 60`}
+            </span>
+          )}
+          {totalCards === 60 && (
+            <span className="text-green-400">✓ 60</span>
+          )}
+          {sortedRows.length > 0 && (
+            <label className="flex items-center gap-1 text-[10px] text-gray-600">
+              Group:
+              <select
+                value={groupMode}
+                onChange={(e) => setGroupMode(e.target.value as GroupMode)}
+                className="bg-gray-900 border border-gray-800 rounded px-1 py-0.5 text-[10px] text-gray-300 focus:outline-none focus:border-gray-700"
+                title="How to group cards in the deck list"
+              >
+                <option value="cost">Cost</option>
+                <option value="type">Type</option>
+                <option value="none">None</option>
+              </select>
+            </label>
+          )}
+        </div>
       </div>
 
-      {/* Rows */}
+      {/* Rows — grouped into sections per groupMode, or flat when mode=none */}
       {sortedRows.length > 0 ? (
-        <div className="space-y-1">
-          {sortedRows.map(({ entry, def }) => (
-            <DeckRow
-              key={entry.definitionId}
-              entry={entry}
-              def={def!}
-              onIncrement={() => adjustQty(entry.definitionId, 1)}
-              onDecrement={() => adjustQty(entry.definitionId, -1)}
-              onCycleVariant={() => cycleVariant(entry.definitionId)}
-            />
+        <div className="space-y-2">
+          {groupedRows.map((group) => (
+            <div key={group.label ?? "flat"} className="space-y-1">
+              {group.label && (
+                <div className="flex items-center gap-2 px-1 pt-1 text-[10px] uppercase tracking-wider font-bold text-gray-500">
+                  <span>{group.label}</span>
+                  <span className="text-gray-700 font-mono">{group.count}</span>
+                </div>
+              )}
+              {group.rows.map(({ entry, def }) => (
+                <DeckRow
+                  key={entry.definitionId}
+                  entry={entry}
+                  def={def!}
+                  onIncrement={() => adjustQty(entry.definitionId, 1)}
+                  onDecrement={() => adjustQty(entry.definitionId, -1)}
+                  onCycleVariant={() => cycleVariant(entry.definitionId)}
+                />
+              ))}
+            </div>
           ))}
         </div>
       ) : (
