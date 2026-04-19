@@ -109,5 +109,13 @@ ALTER TABLE profiles ADD COLUMN IF NOT EXISTS elo_ratings JSONB NOT NULL DEFAULT
 -- the decklist". User-selectable from within the deck's own cards.
 ALTER TABLE decks ADD COLUMN IF NOT EXISTS box_card_id TEXT;
 
+-- Per-card enrichment that doesn't round-trip through vanilla decklist_text
+-- (kept plain for interop with external tools — Inkable, Dreamborn, etc.).
+-- Shape: { "<definitionId>": { variant?: "enchanted" | "iconic" | "epic" | "promo" | "special", … } }
+-- Omitted cards default to no enrichment (regular variant). Intentionally
+-- wide so future fields (foil preference, per-card notes, tags) nest under
+-- the same key without another migration.
+ALTER TABLE decks ADD COLUMN IF NOT EXISTS card_metadata JSONB NOT NULL DEFAULT '{}'::jsonb;
+
 -- Enable Supabase Realtime on the games table
 ALTER TABLE games REPLICA IDENTITY FULL;
