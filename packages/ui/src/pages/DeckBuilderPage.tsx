@@ -332,6 +332,7 @@ export default function DeckBuilderPage() {
                 entries={entries}
                 definitions={CARD_DEFINITIONS}
                 onChange={setEntries}
+                deckName={deckName}
               />
             </div>
 

@@ -5,9 +5,11 @@
 // =============================================================================
 
 import React, { useState, useMemo, useRef, useEffect } from "react";
+import { toPng } from "html-to-image";
 import type { CardDefinition, DeckEntry, InkColor, CardVariantType } from "@lorcana-sim/engine";
 import { parseDecklist, serializeDecklist } from "@lorcana-sim/engine";
 import { getMaxCopies } from "../utils/deckRules.js";
+import DeckExportPanel from "./DeckExportPanel.js";
 
 const INK_COLOR_CLASS: Record<string, string> = {
   amber: "bg-amber-600 text-amber-100",
@@ -33,6 +35,8 @@ interface Props {
   entries: DeckEntry[];
   definitions: Record<string, CardDefinition>;
   onChange: (entries: DeckEntry[]) => void;
+  /** Used in the PNG export header. Falls back to "Untitled Deck" when blank. */
+  deckName?: string;
 }
 
 type GroupMode = "cost" | "type" | "none";
@@ -51,7 +55,7 @@ function useGroupMode(): [GroupMode, (m: GroupMode) => void] {
   return [mode, update];
 }
 
-export default function DeckBuilder({ entries, definitions, onChange }: Props) {
+export default function DeckBuilder({ entries, definitions, onChange, deckName = "" }: Props) {
   const [query, setQuery] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [highlightedIdx, setHighlightedIdx] = useState(0);
@@ -60,7 +64,28 @@ export default function DeckBuilder({ entries, definitions, onChange }: Props) {
   const [importErrors, setImportErrors] = useState<string[]>([]);
   const [groupMode, setGroupMode] = useGroupMode();
   const [groupMenuOpen, setGroupMenuOpen] = useState(false);
+  const [exportingImage, setExportingImage] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const exportPanelRef = useRef<HTMLDivElement>(null);
+
+  async function handleExportImage() {
+    if (!exportPanelRef.current) return;
+    setExportingImage(true);
+    try {
+      // pixelRatio: 2 → 2× resolution for crisp rendering on retina.
+      const dataUrl = await toPng(exportPanelRef.current, { pixelRatio: 2 });
+      const filename = `${(deckName || "deck").replace(/[^a-z0-9-]+/gi, "-").toLowerCase()}.png`;
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = filename;
+      a.click();
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error("Image export failed:", err);
+    } finally {
+      setExportingImage(false);
+    }
+  }
 
   const totalCards = entries.reduce((s, e) => s + e.count, 0);
 
@@ -460,14 +485,22 @@ export default function DeckBuilder({ entries, definitions, onChange }: Props) {
                   value={serializeDecklist(entries, definitions)}
                   onClick={(e) => (e.target as HTMLTextAreaElement).select()}
                 />
-                <div className="flex items-center justify-end gap-2">
+                <div className="flex items-center justify-end gap-2 flex-wrap">
                   <button
                     className="btn-ghost text-xs py-2 px-3"
                     onClick={() => {
                       navigator.clipboard.writeText(serializeDecklist(entries, definitions));
                     }}
                   >
-                    Copy
+                    Copy text
+                  </button>
+                  <button
+                    className="btn-ghost text-xs py-2 px-3 disabled:opacity-40"
+                    onClick={handleExportImage}
+                    disabled={exportingImage || entries.length === 0}
+                    title="Download a shareable PNG of this deck"
+                  >
+                    {exportingImage ? "Rendering…" : "Download image"}
                   </button>
                   <button
                     className="py-2 px-4 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-bold transition-colors"
@@ -481,6 +514,23 @@ export default function DeckBuilder({ entries, definitions, onChange }: Props) {
           </div>
         </div>
       )}
+
+      {/* Off-screen panel used as the source for html-to-image PNG export.
+           Always rendered so the ref is available when the user clicks
+           "Download image"; positioned far off-screen so it's never
+           visible and pointer-events:none so it can't steal interaction. */}
+      <div
+        style={{
+          position: "fixed",
+          left: "-10000px",
+          top: 0,
+          pointerEvents: "none",
+          opacity: 0,
+        }}
+        aria-hidden
+      >
+        <DeckExportPanel ref={exportPanelRef} deckName={deckName} entries={entries} definitions={definitions} />
+      </div>
     </div>
   );
 }
