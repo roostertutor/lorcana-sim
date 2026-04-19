@@ -83,13 +83,17 @@ export default function CardPicker({ entries, definitions, onChange }: Props) {
 
   const inspectDef = inspectId ? definitions[inspectId] : null;
 
-  // Cap the grid at MAX_VISIBLE to keep mount time + DOM node count bounded.
-  // 2652 tiles × (art + stepper + maybe variant chip row) was jank-y even
-  // with `content-visibility: auto`. Filters narrow the set quickly;
-  // un-filtered browsing is rarely the user's goal anyway.
+  // Moxfield-style search-first UX: don't render tiles until the user picks
+  // at least one filter or types a search query. Avoids mounting 2652 cards
+  // worth of DOM on entry and nudges users toward the filter workflow which
+  // is how most real deckbuilding happens anyway.
+  const filterActive = hasAnyFilter(filters);
+  // Cap the grid at MAX_VISIBLE for the rare case where a filter still
+  // matches thousands (e.g. one ink color returns ~450). Keeps mount cost
+  // bounded even in worst-case filter combinations.
   const MAX_VISIBLE = 200;
-  const shownCards = visibleCards.slice(0, MAX_VISIBLE);
-  const truncated = visibleCards.length > MAX_VISIBLE;
+  const shownCards = filterActive ? visibleCards.slice(0, MAX_VISIBLE) : [];
+  const truncated = filterActive && visibleCards.length > MAX_VISIBLE;
 
   return (
     <div className="space-y-3">
@@ -99,9 +103,14 @@ export default function CardPicker({ entries, definitions, onChange }: Props) {
         matchCount={visibleCards.length}
       />
 
-      {visibleCards.length === 0 ? (
+      {!filterActive ? (
+        <div className="text-center py-12 text-sm text-gray-500 border border-dashed border-gray-800 rounded-lg space-y-1">
+          <div>Pick a filter or type a card name to browse.</div>
+          <div className="text-xs text-gray-600">{Object.keys(definitions).length.toLocaleString()} cards available.</div>
+        </div>
+      ) : visibleCards.length === 0 ? (
         <div className="text-center py-10 text-sm text-gray-600 border border-dashed border-gray-800 rounded-lg">
-          {hasAnyFilter(filters) ? "No cards match these filters." : "No cards available."}
+          No cards match these filters.
         </div>
       ) : (
         // Bounded scroll area so the capped grid doesn't push the deck
