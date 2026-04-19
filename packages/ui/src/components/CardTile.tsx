@@ -74,10 +74,10 @@ export default function CardTile({
         >
           −
         </button>
-        <div className={`px-2 py-1 text-[11px] font-mono font-bold tabular-nums text-center min-w-[44px] ${
+        <div className={`px-2 py-1 text-[11px] font-mono font-bold tabular-nums text-center min-w-[24px] ${
           inDeck ? "text-amber-400" : "text-gray-600"
         }`}>
-          {qty}<span className="text-gray-600">/{maxLabel}</span>
+          {qty}
         </div>
         <button
           onClick={(e) => { e.stopPropagation(); if (!atMax) onSetQty(qty + 1); }}

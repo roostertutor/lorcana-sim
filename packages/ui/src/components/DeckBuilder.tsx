@@ -500,6 +500,9 @@ interface RowProps {
 function DeckRow({ entry, def, onIncrement, onDecrement, onCycleVariant }: RowProps) {
   const max = getMaxCopies(def);
   const atMax = entry.count >= max;
+  // Only used in the + button's disabled tooltip — the N/max display is
+  // dropped from the inline stepper to reclaim horizontal space. Users hit
+  // the disabled + to discover the cap on the rare non-4 cards.
   const maxLabel = max >= 99 ? "∞" : String(max);
   // Primary ink icon — most Lorcana characters are mono-ink; dual-ink shows
   // the first color here. The full ink set is still visible in the browser
@@ -559,8 +562,8 @@ function DeckRow({ entry, def, onIncrement, onDecrement, onCycleVariant }: RowPr
         >
           −
         </button>
-        <span className="px-1.5 text-[11px] font-mono font-bold tabular-nums text-amber-400 min-w-[38px] text-center">
-          {entry.count}<span className="text-gray-600">/{maxLabel}</span>
+        <span className="px-1.5 text-[11px] font-mono font-bold tabular-nums text-amber-400 min-w-[18px] text-center">
+          {entry.count}
         </span>
         <button
           className={`w-6 h-6 rounded text-sm font-bold transition-colors active:scale-95 ${
