@@ -443,27 +443,69 @@ tag today — there's no engine-side enforcement and no Core-legal-sets
 list. The deckbuilder doesn't surface format legality either; My Decks
 tiles currently don't indicate whether a deck can be played in Core.
 
+**Why this matters:**
+- **Separates multiplayer queues.** Core players should only match other
+  Core players. Lobby creation needs to validate host and guest decks
+  against the declared `game_format` before the match starts. Today it's
+  an honor-system tag.
+- **Each format has its own banlist.** Beyond the set-list cut, both
+  Core and Infinity occasionally ban specific cards (Bucky - Squirrel
+  Squeak Tutor in early Core, for example). Enforcement needs a
+  per-format banlist, not just a set filter.
+- **Reprint legality.** A card is Core-legal if **any printing** of it is
+  in the Core set range. Example: `captain-hook-forceful-duelist` was
+  printed in set 1 (out of Core) AND set 8 (in Core) — the card is
+  Core-legal because the set 8 printing exists. The user can even play
+  their physical set 1 copy; the card (by definitionId) is legal. This
+  ties directly into the "variant collapse" bug above — until variants
+  preserve all printings, the legality check can't inspect them all.
+
 **What's needed:**
-1. Engine: export a `CORE_LEGAL_SETS: Set<string>` constant listing the
-   Core-rotation setIds (currently — per Ravensburger — the latest four
-   main sets; rotates over time so this is a maintenance-required value).
-2. Helper `isCoreLegal(entries, definitions)`: every entry's `def.setId`
-   is in `CORE_LEGAL_SETS`. Returns a boolean.
-3. UI: badge on each deck tile in `DecksPage` reading "Core + Infinity"
-   (passes the check) vs "Infinity only" (one or more entries from a
-   non-Core set). Also surface in `DeckBuilderPage` so the editor can
-   warn the user as they add non-Core cards.
-4. Optional: user-picker for target format on a deck so the UI can warn
-   when a deck tagged "Core" drifts out of legality. Lower priority —
-   auto-derive is fine for MVP.
+1. Engine: export format config as typed constants, e.g.:
+   ```ts
+   export const CORE_LEGAL_SETS = new Set(["5", "6", "7", "8", "9", "10", "11", "12"]);
+   export const CORE_BANLIST    = new Set<string>([/* defIds */]);
+   export const INFINITY_BANLIST = new Set<string>([/* rarely used, but hook */]);
+   ```
+   Source of truth: Ravensburger's Disney Lorcana TCG Organized Play
+   rules; update on rotation (currently set 5-12 per user as of
+   2026-04-19, rotates periodically).
+2. Helper `isLegalFor(entries, definitions, format): { ok, issues }`.
+   For each entry:
+   - If format === "infinity": only check the INFINITY_BANLIST.
+   - If format === "core": card is legal iff (a) NOT in CORE_BANLIST
+     AND (b) at least one of its printings (canonical `setId` or any
+     variant's `setId`) is in `CORE_LEGAL_SETS`. This is the reprint
+     check — needs the variant-collapse bug fixed to be correct.
+3. UI (GUI agent lane):
+   - Per-deck `format` field stored on `decks` table (new column,
+     `"core" | "infinity"` with `"infinity"` default).
+   - Format picker in `DeckBuilderPage` (next to deck name).
+   - Badge on `DecksPage` tiles showing declared format + a warning
+     glyph when the deck fails its own format's legality check.
+   - In `DeckBuilderPage`, surface the issues list inline (e.g.
+     "Mirabel Madrigal — not Core legal, banned in Core") so the user
+     can fix.
+4. Server: lobby creation should reject a deck whose declared format
+   doesn't match its contents' legality (once the engine check exists).
+   Prevents Core queue from getting Infinity-only decks mid-match.
+
+**Implementation order suggestion:**
+- Engine: ship the constants + `isLegalFor` helper.
+- UI: add the `format` column + picker + badge (field-based, no
+  validation yet — users self-declare).
+- UI: wire the `isLegalFor` check into the badge + inline-issues.
+- Server: add the lobby-side validation.
 
 **Where this was discussed:** GUI session that shipped the deckbuilder
 rebuild (see `a0cfb67`, `42be9ea`). Scope was kept narrow to UI work;
 format legality was flagged as a feature needing engine + UI coordination.
 
-**Scope:** engine constant + helper is trivial. The Core set list has to
-be maintained whenever Ravensburger rotates (annually-ish), so document
-the source of truth (their official site) alongside the constant.
+**Scope:** engine constant + helper is trivial-ish but the reprint-check
+depends on the variant-collapse fix above. The Core set list + banlists
+have to be maintained whenever Ravensburger rotates or bans a card, so
+document the source of truth alongside the constants and keep the
+rotation cadence in the comment.
 
 ## GUI: MTGA-style "shortened" card rendering in play zones
 
