@@ -342,12 +342,29 @@ keep these for a future polish pass:
 
    Also: each row has too much horizontal content for the narrow
    340px-or-so column — cost badge + truncated name + ink dots +
-   [−][N][+] + ✕. Consolidate options: drop the cost badge (implied
-   when grouped by cost), collapse [−][N][+] into a single tappable
-   `×N` pill that increments on tap and shows a small −/+ popover
-   on long-press, or right-align qty controls and let the row
-   breathe more. Trade-off: touch targets must stay tappable on
-   mobile.
+   [−][N][+] + ✕.
+
+   Concrete target (duels.ink row for reference):
+   `cost | color symbol | long-truncated-name (e.g. "Scrooge McDuck -
+   Afficio...") | variant picker | [−] X/Y [+]`. No ✕ — removal is
+   implicit when [−] takes qty from 1 to 0. Name gets more
+   horizontal room because the trailing stepper is compact and the
+   row drops the ink dots pair in favor of a single color symbol
+   (we already ship proper Lorcana ink icons at
+   `packages/ui/public/icons/ink/`).
+
+   Minimum changes to match that target in our DeckBuilder row:
+   - Drop the trailing ✕ button (− at qty 1 removes the entry).
+   - Replace ink-dot pair with a single ink icon per card (we have
+     them — `/icons/ink/<color>.svg`).
+   - Move qty to `X/Y` format (matches CardTile stepper already).
+   - Pull stats/meta off its own line — put it inline or drop it
+     since stats are visible in inspect.
+   - Surface the variant picker per-row (currently only on the
+     CardTile in the browser grid) so users see deck-level variant
+     choices at a glance.
+   All optional, but together they'd dramatically reduce row
+   clutter and improve name legibility in the narrow column.
 2. **Export options.** Today we have plaintext export (round-trips with
    Inkable / Dreamborn). Useful additions:
    - **Image export** — render the deck list as a PNG for sharing /
