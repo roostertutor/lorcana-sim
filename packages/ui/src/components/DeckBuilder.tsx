@@ -124,17 +124,6 @@ export default function DeckBuilder({ entries, definitions, onChange }: Props) {
       });
   }, [entries, definitions]);
 
-  // ── Cost curve — bucket deck by cost (1..7, 8+) ──
-  const costCurve = useMemo(() => {
-    const buckets: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
-    for (const row of sortedRows) {
-      const bucket = row.def!.cost >= 8 ? 8 : Math.max(1, row.def!.cost);
-      buckets[bucket] = (buckets[bucket] ?? 0) + row.entry.count;
-    }
-    const max = Math.max(1, ...Object.values(buckets));
-    return { buckets, max };
-  }, [sortedRows]);
-
   return (
     <div className="space-y-3">
       {/* Add card search */}
@@ -239,28 +228,6 @@ export default function DeckBuilder({ entries, definitions, onChange }: Props) {
           <span className="text-green-400">✓ Legal deck size</span>
         )}
       </div>
-
-      {/* Cost curve — inline bar chart */}
-      {sortedRows.length > 0 && (
-        <div className="flex items-end gap-1 h-10 px-0.5">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((cost) => {
-            const count = costCurve.buckets[cost] ?? 0;
-            const pct = (count / costCurve.max) * 100;
-            return (
-              <div key={cost} className="flex-1 flex flex-col items-center gap-0.5">
-                <div className="flex-1 w-full flex items-end">
-                  <div
-                    className={`w-full rounded-t-sm transition-all ${count > 0 ? "bg-amber-600/70" : "bg-gray-800"}`}
-                    style={{ height: count > 0 ? `${pct}%` : "2px" }}
-                    title={`Cost ${cost === 8 ? "8+" : cost}: ${count} card${count === 1 ? "" : "s"}`}
-                  />
-                </div>
-                <div className="text-[9px] font-mono text-gray-600">{cost === 8 ? "8+" : cost}</div>
-              </div>
-            );
-          })}
-        </div>
-      )}
 
       {/* Rows */}
       {sortedRows.length > 0 ? (
