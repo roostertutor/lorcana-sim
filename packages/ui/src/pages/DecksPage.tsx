@@ -6,6 +6,7 @@ import { listDecks, saveDeck, updateDeck, deleteDeck, listDeckVersions } from ".
 import type { SavedDeck, DeckVersion } from "../lib/deckApi.js";
 import CompositionView from "./CompositionView.js";
 import DeckBuilder from "../components/DeckBuilder.js";
+import CardPicker from "../components/CardPicker.js";
 
 const SAMPLE_DECKLIST = `# Sample deck — The First Chapter (set 1)
 4 HeiHei - Boat Snack
@@ -280,12 +281,29 @@ export default function DecksPage() {
                 onChange={(e) => setDeckName(e.target.value)}
               />
 
-              {/* Deck builder */}
-              <DeckBuilder
-                entries={entries}
-                definitions={CARD_DEFINITIONS}
-                onChange={setEntries}
-              />
+              {/* Card picker — browsable grid with filters */}
+              <div className="pt-2 border-t border-gray-800">
+                <div className="text-[10px] text-gray-500 uppercase tracking-wider font-bold mb-2">
+                  Browse cards
+                </div>
+                <CardPicker
+                  entries={entries}
+                  definitions={CARD_DEFINITIONS}
+                  onChange={setEntries}
+                />
+              </div>
+
+              {/* Deck builder — current deck list + quick-add + cost curve */}
+              <div className="pt-2 border-t border-gray-800">
+                <div className="text-[10px] text-gray-500 uppercase tracking-wider font-bold mb-2">
+                  Your deck
+                </div>
+                <DeckBuilder
+                  entries={entries}
+                  definitions={CARD_DEFINITIONS}
+                  onChange={setEntries}
+                />
+              </div>
 
               {/* Action buttons */}
               <div className="flex items-center gap-2 pt-1">

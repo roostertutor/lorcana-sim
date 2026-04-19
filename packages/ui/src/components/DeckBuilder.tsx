@@ -7,6 +7,7 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import type { CardDefinition, DeckEntry } from "@lorcana-sim/engine";
 import { parseDecklist, serializeDecklist } from "@lorcana-sim/engine";
+import { getMaxCopies } from "../utils/deckRules.js";
 
 const INK_COLOR_CLASS: Record<string, string> = {
   amber: "bg-amber-600 text-amber-100",
@@ -54,10 +55,11 @@ export default function DeckBuilder({ entries, definitions, onChange }: Props) {
 
   // ── Entry operations ──
   function addCard(def: CardDefinition) {
+    const max = getMaxCopies(def);
     const existing = entries.findIndex((e) => e.definitionId === def.id);
     if (existing >= 0) {
       const current = entries[existing]!;
-      if (current.count >= 4) return; // enforce 4-copy limit
+      if (current.count >= max) return;
       const next = [...entries];
       next[existing] = { ...current, count: current.count + 1 };
       onChange(next);
@@ -73,7 +75,9 @@ export default function DeckBuilder({ entries, definitions, onChange }: Props) {
     const idx = entries.findIndex((e) => e.definitionId === definitionId);
     if (idx < 0) return;
     const current = entries[idx]!;
-    const newCount = Math.max(0, Math.min(4, current.count + delta));
+    const def = definitions[definitionId];
+    const max = def ? getMaxCopies(def) : 4;
+    const newCount = Math.max(0, Math.min(max, current.count + delta));
     if (newCount === 0) {
       onChange(entries.filter((_, i) => i !== idx));
     } else {
@@ -119,6 +123,17 @@ export default function DeckBuilder({ entries, definitions, onChange }: Props) {
         return a.def!.fullName.localeCompare(b.def!.fullName);
       });
   }, [entries, definitions]);
+
+  // ── Cost curve — bucket deck by cost (1..7, 8+) ──
+  const costCurve = useMemo(() => {
+    const buckets: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
+    for (const row of sortedRows) {
+      const bucket = row.def!.cost >= 8 ? 8 : Math.max(1, row.def!.cost);
+      buckets[bucket] = (buckets[bucket] ?? 0) + row.entry.count;
+    }
+    const max = Math.max(1, ...Object.values(buckets));
+    return { buckets, max };
+  }, [sortedRows]);
 
   return (
     <div className="space-y-3">
@@ -176,7 +191,8 @@ export default function DeckBuilder({ entries, definitions, onChange }: Props) {
           <div className="absolute z-30 top-full left-0 right-0 mt-1 rounded-lg border border-gray-700 bg-gray-900 shadow-xl overflow-hidden max-h-80 overflow-y-auto">
             {searchResults.map((d, i) => {
               const existing = entries.find((e) => e.definitionId === d.id);
-              const atMax = existing && existing.count >= 4;
+              const max = getMaxCopies(d);
+              const atMax = existing && existing.count >= max;
               return (
                 <button
                   key={d.id}
@@ -200,7 +216,7 @@ export default function DeckBuilder({ entries, definitions, onChange }: Props) {
                     ))}
                   </div>
                   {existing && (
-                    <span className="text-xs text-amber-400 font-mono shrink-0">{existing.count}/4</span>
+                    <span className="text-xs text-amber-400 font-mono shrink-0">{existing.count}/{max}</span>
                   )}
                 </button>
               );
@@ -223,6 +239,28 @@ export default function DeckBuilder({ entries, definitions, onChange }: Props) {
           <span className="text-green-400">✓ Legal deck size</span>
         )}
       </div>
+
+      {/* Cost curve — inline bar chart */}
+      {sortedRows.length > 0 && (
+        <div className="flex items-end gap-1 h-10 px-0.5">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((cost) => {
+            const count = costCurve.buckets[cost] ?? 0;
+            const pct = (count / costCurve.max) * 100;
+            return (
+              <div key={cost} className="flex-1 flex flex-col items-center gap-0.5">
+                <div className="flex-1 w-full flex items-end">
+                  <div
+                    className={`w-full rounded-t-sm transition-all ${count > 0 ? "bg-amber-600/70" : "bg-gray-800"}`}
+                    style={{ height: count > 0 ? `${pct}%` : "2px" }}
+                    title={`Cost ${cost === 8 ? "8+" : cost}: ${count} card${count === 1 ? "" : "s"}`}
+                  />
+                </div>
+                <div className="text-[9px] font-mono text-gray-600">{cost === 8 ? "8+" : cost}</div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Rows */}
       {sortedRows.length > 0 ? (
@@ -349,7 +387,8 @@ interface RowProps {
 }
 
 function DeckRow({ entry, def, onIncrement, onDecrement, onRemove }: RowProps) {
-  const atMax = entry.count >= 4;
+  const max = getMaxCopies(def);
+  const atMax = entry.count >= max;
 
   return (
     <div className="group flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
@@ -405,7 +444,7 @@ function DeckRow({ entry, def, onIncrement, onDecrement, onRemove }: RowProps) {
           }`}
           onClick={onIncrement}
           disabled={atMax}
-          title={atMax ? "Max 4 copies" : "Increase quantity"}
+          title={atMax ? `Max ${max} copies` : "Increase quantity"}
         >
           +
         </button>
