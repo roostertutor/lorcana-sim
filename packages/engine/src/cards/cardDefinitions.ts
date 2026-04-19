@@ -6,6 +6,7 @@
 // =============================================================================
 
 import type { CardDefinition } from "../types/index.js";
+import { buildCardDefinitions } from "./buildDefinitions.js";
 import set001 from "./card-set-001.json" assert { type: "json" };
 import set002 from "./card-set-002.json" assert { type: "json" };
 import set003 from "./card-set-003.json" assert { type: "json" };
@@ -53,21 +54,11 @@ const cards = [
   ...loadSet(setD23),
 ];
 
-/** Count manually-implemented abilities (non-keyword) + actionEffects on a card. */
-function manualAbilityCount(c: CardDefinition): number {
-  const nonKeyword = c.abilities.filter(a => a.type !== "keyword").length;
-  const actionFx = c.actionEffects?.length ?? 0;
-  return nonKeyword + actionFx;
-}
+const built = buildCardDefinitions(cards);
 
-/** For duplicate IDs (reprints), keep the copy with more implemented abilities. */
-export const CARD_DEFINITIONS: Record<string, CardDefinition> =
-  cards.reduce<Record<string, CardDefinition>>((map, c) => {
-    const existing = map[c.id];
-    if (!existing || manualAbilityCount(c) > manualAbilityCount(existing)) {
-      map[c.id] = c;
-    }
-    return map;
-  }, {});
+/** Canonical definition per slug. Duplicates across sets (reprints, enchanted
+ *  alt-arts, promos) collapse into one entry with `variants[]` listing the
+ *  distinct visual printings. */
+export const CARD_DEFINITIONS: Record<string, CardDefinition> = built.byId;
 
-export const ALL_CARDS: CardDefinition[] = cards;
+export const ALL_CARDS: CardDefinition[] = built.all;

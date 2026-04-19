@@ -11,6 +11,8 @@ export type {
   GameEvent,
   CardDefinition,
   CardInstance,
+  CardVariant,
+  CardVariantType,
   PlayerID,
   ZoneName,
   InkColor,

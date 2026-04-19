@@ -2728,6 +2728,44 @@ export interface CardDefinition {
   rarity: "common" | "uncommon" | "rare" | "super_rare" | "legendary" | "enchanted" | "special" | "iconic" | "epic";
   /** Card art URL from Ravensburger API. Optional — not all sets imported with images. */
   imageUrl?: string;
+  /** Foil-treatment image URL for THIS specific printing (same art with foil
+   *  overlay). Populated by the Ravensburger importer from RavVariant.Foiled.
+   *  Per-JSON-entry scalar; the cardDefinitions build step propagates it onto
+   *  the matching entry in variants[]. */
+  foilImageUrl?: string;
+  /** Alternate visual printings of this card. Populated by the cardDefinitions
+   *  build step from matching-slug entries across set JSONs. Variants share
+   *  gameplay rules and the 4-copy / maxCopies limit (CRD 1.5.3) because they
+   *  all share this CardDefinition's id. Undefined when only one printing
+   *  type exists — UI then falls back to imageUrl. */
+  variants?: CardVariant[];
+}
+
+/** Visual-printing classes. Deckbuilder picker shows one chip per distinct
+ *  type a card exposes. Foil treatment is a per-variant flag (foilImageUrl),
+ *  not a separate type. */
+export type CardVariantType =
+  | "regular"    // base printing (common / uncommon / rare / super_rare / legendary)
+  | "enchanted"  // alt-art enchanted rarity
+  | "iconic"     // iconic rarity (sets 9+)
+  | "epic"       // epic rarity (sets 9+)
+  | "promo"      // booster promo reprints (P1 / P2 / P3)
+  | "special";   // convention / event cards (D23, C1, C2, CP, DIS)
+
+export interface CardVariant {
+  type: CardVariantType;
+  imageUrl: string;
+  /** Foil-treatment URL for the same printing. Undefined when none exists. */
+  foilImageUrl?: string;
+  /** Source set — "1" / "9" / "P1" / "D23" / etc. Same values as CardDefinition.setId. */
+  setId: string;
+  /** Collector number within setId */
+  number: number;
+  /** Rarity of THIS printing (may differ from the canonical CardDefinition.rarity
+   *  if e.g. a Common was reprinted as Enchanted). */
+  rarity: CardDefinition["rarity"];
+  /** Optional human-readable source for UI tooltips ("D23 Expo 2024", etc.) */
+  label?: string;
 }
 
 // -----------------------------------------------------------------------------

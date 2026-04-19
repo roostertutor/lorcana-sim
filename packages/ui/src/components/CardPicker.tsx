@@ -6,7 +6,7 @@
 // =============================================================================
 
 import React from "react";
-import type { CardDefinition, DeckEntry, InkColor } from "@lorcana-sim/engine";
+import type { CardDefinition, DeckEntry, InkColor, CardVariantType } from "@lorcana-sim/engine";
 import CardTile from "./CardTile.js";
 import CardFilterBar, { EMPTY_FILTERS, type CardFilters, type CostBucket, hasAnyFilter } from "./CardFilterBar.js";
 import { getMaxCopies, countById } from "../utils/deckRules.js";
@@ -68,6 +68,19 @@ export default function CardPicker({ entries, definitions, onChange }: Props) {
     }
   }
 
+  function setCardVariant(def: CardDefinition, variant: CardVariantType) {
+    const existingIdx = entries.findIndex((e) => e.definitionId === def.id);
+    if (existingIdx < 0) return; // variant picker is only shown when qty > 0
+    const next = [...entries];
+    // "regular" is the implicit default — store undefined so decklist text
+    // stays clean for entries on the default printing.
+    next[existingIdx] = {
+      ...next[existingIdx]!,
+      variant: variant === "regular" ? undefined : variant,
+    };
+    onChange(next);
+  }
+
   const inspectDef = inspectId ? definitions[inspectId] : null;
 
   return (
@@ -94,16 +107,21 @@ export default function CardPicker({ entries, definitions, onChange }: Props) {
               containIntrinsicSize: "0 200px",
             }}
           >
-            {visibleCards.map((def) => (
-              <CardTile
-                key={def.id}
-                def={def}
-                qty={qtyById.get(def.id) ?? 0}
-                maxCopies={getMaxCopies(def)}
-                onSetQty={(n) => setCardQty(def, n)}
-                onInspect={() => setInspectId(def.id)}
-              />
-            ))}
+            {visibleCards.map((def) => {
+              const entry = entries.find((e) => e.definitionId === def.id);
+              return (
+                <CardTile
+                  key={def.id}
+                  def={def}
+                  qty={qtyById.get(def.id) ?? 0}
+                  maxCopies={getMaxCopies(def)}
+                  variant={entry?.variant}
+                  onSetQty={(n) => setCardQty(def, n)}
+                  onSetVariant={(v) => setCardVariant(def, v)}
+                  onInspect={() => setInspectId(def.id)}
+                />
+              );
+            })}
           </div>
         </div>
       )}

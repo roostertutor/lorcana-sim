@@ -6,6 +6,7 @@
 import type {
   CardDefinition,
   CardInstance,
+  CardVariantType,
   GameState,
   PlayerID,
   RngState,
@@ -17,6 +18,11 @@ import { createRng, rngNextInt } from "../utils/seededRng.js";
 export interface DeckEntry {
   definitionId: string;
   count: number;
+  /** Which visual printing the player wants. Matches CardVariant.type on the
+   *  resolved CardDefinition. Undefined = default (CardDefinition.imageUrl).
+   *  No runtime effect on the engine — carried for the UI to render the right
+   *  art. Variants share gameplay rules and the maxCopies limit. */
+  variant?: CardVariantType;
 }
 
 export interface GameConfig {

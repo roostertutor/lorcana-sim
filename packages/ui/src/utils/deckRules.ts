@@ -21,17 +21,42 @@ export function countById(
   return map;
 }
 
-/** Resolve the card whose art represents a deck visually.
- *  User-chosen box_card_id wins. Falls back to the first entry in the decklist
- *  (the first card added). Returns null if the deck is empty or the referenced
- *  card id isn't in definitions. */
+/** The image URL for a specific entry — respects the entry's variant
+ *  selection, falls back to the card definition's default imageUrl. */
+export function resolveEntryImageUrl(
+  entry: { definitionId: string; variant?: string },
+  def: CardDefinition,
+): string {
+  if (entry.variant) {
+    const match = def.variants?.find((v) => v.type === entry.variant);
+    if (match) return match.imageUrl;
+  }
+  return def.imageUrl ?? "";
+}
+
+/** Resolve the card whose art represents a deck visually. Returns the
+ *  display-ready { fullName, imageUrl } — imageUrl reflects the resolved
+ *  entry's variant choice. User-chosen box_card_id wins; falls back to the
+ *  first entry in the decklist. Null when the deck is empty or the
+ *  referenced id is missing from definitions. */
 export function resolveBoxCard(
   entries: DeckEntry[],
   boxCardId: string | null | undefined,
   definitions: Record<string, CardDefinition>,
-): CardDefinition | null {
-  if (boxCardId && definitions[boxCardId]) return definitions[boxCardId];
-  const first = entries[0];
-  if (first && definitions[first.definitionId]) return definitions[first.definitionId];
+): { fullName: string; imageUrl: string } | null {
+  // Identify which deck entry the box refers to (user-picked or first).
+  const entry = boxCardId
+    ? entries.find((e) => e.definitionId === boxCardId)
+    : entries[0];
+  if (entry) {
+    const def = definitions[entry.definitionId];
+    if (!def) return null;
+    return { fullName: def.fullName, imageUrl: resolveEntryImageUrl(entry, def) };
+  }
+  // box_card_id set but not in deck anymore — still render its regular art.
+  if (boxCardId && definitions[boxCardId]) {
+    const def = definitions[boxCardId];
+    return { fullName: def.fullName, imageUrl: def.imageUrl ?? "" };
+  }
   return null;
 }

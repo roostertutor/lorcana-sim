@@ -15,7 +15,7 @@ import type { SavedDeck, DeckVersion } from "../lib/deckApi.js";
 import CompositionView from "./CompositionView.js";
 import DeckBuilder from "../components/DeckBuilder.js";
 import CardPicker from "../components/CardPicker.js";
-import { resolveBoxCard } from "../utils/deckRules.js";
+import { resolveBoxCard, resolveEntryImageUrl } from "../utils/deckRules.js";
 
 export default function DeckBuilderPage() {
   const { id } = useParams<{ id: string }>();
@@ -381,6 +381,9 @@ export default function DeckBuilderPage() {
                 const def = CARD_DEFINITIONS[e.definitionId];
                 if (!def) return null;
                 const selected = boxCardId === def.id;
+                // Use the entry's chosen variant so the picker shows exactly
+                // the art that will end up on the deck tile.
+                const imgUrl = resolveEntryImageUrl(e, def);
                 return (
                   <button
                     key={e.definitionId}
@@ -389,9 +392,9 @@ export default function DeckBuilderPage() {
                       selected ? "border-amber-500" : "border-gray-800 hover:border-gray-600"
                     }`}
                   >
-                    {def.imageUrl ? (
+                    {imgUrl ? (
                       <img
-                        src={def.imageUrl.replace("/digital/normal/", "/digital/small/")}
+                        src={imgUrl.replace("/digital/normal/", "/digital/small/")}
                         alt={def.fullName}
                         className="w-full aspect-[5/7] object-cover"
                         loading="lazy"

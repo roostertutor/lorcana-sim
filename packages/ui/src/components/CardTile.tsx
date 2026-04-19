@@ -1,11 +1,23 @@
 // =============================================================================
 // CardTile — single card in the deckbuilder picker grid.
 // Card art on top (click to inspect), [−] N/max [+] stepper below.
-// Consistent with the row editor's stepper pattern and scales to any
-// max-copies value (4, 2, 99, …).
+// When the card has multiple visual printings AND qty > 0, a variant chip
+// row appears under the stepper so the user can pick enchanted / promo / etc.
 // =============================================================================
 
-import type { CardDefinition } from "@lorcana-sim/engine";
+import type { CardDefinition, CardVariantType } from "@lorcana-sim/engine";
+
+// Compact labels for the variant chip row (fits 2–3 chips comfortably on a
+// 120-ish-wide tile). Regular is the implicit default, so we don't show a
+// chip for it when it would be the only one.
+const VARIANT_LABELS: Record<CardVariantType, string> = {
+  regular: "Reg",
+  enchanted: "Ench",
+  iconic: "Icon",
+  epic: "Epic",
+  promo: "Promo",
+  special: "Spec",
+};
 
 interface Props {
   def: CardDefinition;
@@ -13,18 +25,34 @@ interface Props {
   qty: number;
   /** Maximum copies allowed for this card. */
   maxCopies: number;
+  /** Current variant selection on the deck entry (undefined = default). */
+  variant?: CardVariantType;
   /** Called when the user changes the quantity (± 1 via stepper). */
   onSetQty: (qty: number) => void;
+  /** Called when the user picks a variant chip. */
+  onSetVariant: (variant: CardVariantType) => void;
   /** Called when the user clicks the art to inspect. */
   onInspect: () => void;
 }
 
-export default function CardTile({ def, qty, maxCopies, onSetQty, onInspect }: Props) {
+export default function CardTile({
+  def, qty, maxCopies, variant, onSetQty, onSetVariant, onInspect,
+}: Props) {
   const inDeck = qty > 0;
   const atMax = qty >= maxCopies;
   // Dalmatian Puppy and Microbots both have maxCopies=99. Render as ∞ — nobody's
   // actually building a 99-copy deck, and the "any number" flavor reads better.
   const maxLabel = maxCopies >= 99 ? "∞" : String(maxCopies);
+
+  // Image: if the entry has a selected variant, use that variant's art. Else
+  // fall back to def.imageUrl (which == variants[0].imageUrl by construction).
+  const variantMatch = variant
+    ? def.variants?.find((v) => v.type === variant)
+    : undefined;
+  const displayImageUrl = variantMatch?.imageUrl ?? def.imageUrl ?? "";
+
+  // Variant chips are only worth showing when the card has ≥2 printings.
+  const hasVariantPicker = (def.variants?.length ?? 0) >= 2;
 
   return (
     <div className={`relative rounded-md overflow-hidden border transition-colors ${
@@ -37,9 +65,9 @@ export default function CardTile({ def, qty, maxCopies, onSetQty, onInspect }: P
         onClick={onInspect}
         title={def.fullName}
       >
-        {def.imageUrl ? (
+        {displayImageUrl ? (
           <img
-            src={def.imageUrl.replace("/digital/normal/", "/digital/small/")}
+            src={displayImageUrl.replace("/digital/normal/", "/digital/small/")}
             alt={def.fullName}
             className="w-full h-full object-cover group-hover:brightness-110 transition-[filter]"
             loading="lazy"
@@ -84,6 +112,31 @@ export default function CardTile({ def, qty, maxCopies, onSetQty, onInspect }: P
           +
         </button>
       </div>
+
+      {/* Variant chip row — only when the card has ≥2 printings AND the card
+          is actually in the deck. Pre-deck selection would require ephemeral
+          state; punt until someone asks for it. */}
+      {hasVariantPicker && inDeck && (
+        <div className="flex items-stretch bg-gray-900 border-t border-gray-800 overflow-x-auto">
+          {def.variants!.map((v) => {
+            const active = (variant ?? "regular") === v.type;
+            return (
+              <button
+                key={v.type}
+                onClick={(e) => { e.stopPropagation(); onSetVariant(v.type); }}
+                className={`flex-1 min-w-0 py-0.5 px-1 text-[9px] font-bold uppercase tracking-wider truncate transition-colors ${
+                  active
+                    ? "bg-amber-600 text-white"
+                    : "text-gray-500 hover:bg-gray-800 hover:text-gray-200"
+                }`}
+                title={v.label ?? `${VARIANT_LABELS[v.type]} (${v.setId} #${v.number})`}
+              >
+                {VARIANT_LABELS[v.type]}
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

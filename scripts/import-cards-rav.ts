@@ -121,6 +121,7 @@ interface CardDefinitionOut {
   number: number;
   rarity: "common" | "uncommon" | "rare" | "super_rare" | "legendary" | "enchanted" | "special" | "iconic" | "epic";
   imageUrl?: string;
+  foilImageUrl?: string;
   actionEffects?: object[];
   _namedAbilityStubs?: AbilityStub[];
 }
@@ -388,6 +389,7 @@ function mapCard(c: RavCard): CardDefinitionOut | null {
 
   const fullName = c.subtitle ? `${c.name} - ${c.subtitle}` : c.name;
   const regular = (c.variants ?? []).find((v) => v.variant_id === "Regular") ?? c.variants?.[0];
+  const foiled = (c.variants ?? []).find((v) => v.variant_id === "Foiled");
 
   const traits = [...(c.subtypes ?? [])];
   // Songs: if card_type === "actions" and has "Song" in subtypes already, good.
@@ -417,6 +419,7 @@ function mapCard(c: RavCard): CardDefinitionOut | null {
   if (cleanRulesText) out.rulesText = cleanRulesText;
   if (c.flavor_text) out.flavorText = c.flavor_text;
   if (regular?.detail_image_url) out.imageUrl = regular.detail_image_url;
+  if (foiled?.detail_image_url) out.foilImageUrl = foiled.detail_image_url;
   const finalStubs = applyStoryNameOverride(out.id, stubs);
   if (finalStubs.length > 0) out._namedAbilityStubs = finalStubs;
 
@@ -523,6 +526,7 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { pr
       "alternateNames", "playRestrictions", "altPlayCost",
       "selfCostReduction", "shiftCost", "altShiftCost",
       "moveCost", "singTogetherCost",
+      "foilImageUrl",
     ];
     for (const field of passthroughFields) {
       const prevVal = (prev as Record<string, unknown>)[field];
@@ -685,6 +689,7 @@ async function main() {
 // =============================================================================
 
 import type { CardDefinition } from "../types/index.js";
+import { buildCardDefinitions } from "./buildDefinitions.js";
 ${setImports.join("\n")}
 
 type RawCard = CardDefinition & { _namedAbilityStubs?: string[] };
@@ -698,24 +703,14 @@ const cards = [
 ${setSpread.join("\n")}
 ];
 
-/** Count manually-implemented abilities (non-keyword) + actionEffects on a card. */
-function manualAbilityCount(c: CardDefinition): number {
-  const nonKeyword = c.abilities.filter(a => a.type !== "keyword").length;
-  const actionFx = c.actionEffects?.length ?? 0;
-  return nonKeyword + actionFx;
-}
+const built = buildCardDefinitions(cards);
 
-/** For duplicate IDs (reprints), keep the copy with more implemented abilities. */
-export const CARD_DEFINITIONS: Record<string, CardDefinition> =
-  cards.reduce<Record<string, CardDefinition>>((map, c) => {
-    const existing = map[c.id];
-    if (!existing || manualAbilityCount(c) > manualAbilityCount(existing)) {
-      map[c.id] = c;
-    }
-    return map;
-  }, {});
+/** Canonical definition per slug. Duplicates across sets (reprints, enchanted
+ *  alt-arts, promos) collapse into one entry with \`variants[]\` listing the
+ *  distinct visual printings. */
+export const CARD_DEFINITIONS: Record<string, CardDefinition> = built.byId;
 
-export const ALL_CARDS: CardDefinition[] = cards;
+export const ALL_CARDS: CardDefinition[] = built.all;
 `;
 
   writeFileSync(OUT_TS, tsModule, "utf-8");
