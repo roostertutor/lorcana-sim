@@ -2576,7 +2576,8 @@
         "rulesText": "Banish this item, {E} one of your Prince characters — Search your deck for a Princess character card and reveal it to all players. Put that card into your hand and shuffle your deck.",
         "raw": "SEARCH THE KINGDOM Banish this item, {E} one of your Prince characters — Search your deck for a Princess character card and reveal it to all players. Put that card into your hand and shuffle your deck."
       }
-    ]
+    ],
+    "maxCopies": 2
   },
   {
     "id": "kuzco-temporary-whale",
@@ -11976,7 +11977,8 @@
         "rulesText": "Banish this item, {E} one of your Prince characters — Search your deck for a Princess character card and reveal it to all players. Put that card into your hand and shuffle your deck.",
         "raw": "SEARCH THE KINGDOM Banish this item, {E} one of your Prince characters — Search your deck for a Princess character card and reveal it to all players. Put that card into your hand and shuffle your deck."
       }
-    ]
+    ],
+    "maxCopies": 2
   },
   {
     "id": "donald-duck-flustered-sorcerer",

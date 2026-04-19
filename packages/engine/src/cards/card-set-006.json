@@ -9398,7 +9398,8 @@
         "rulesText": "When you play this item, chosen character gets -1 {S} this turn for each item named Microbots you have in play.",
         "raw": "INSPIRED TECH When you play this item, chosen character gets -1 {S} this turn for each item named Microbots you have in play."
       }
-    ]
+    ],
+    "maxCopies": 99
   },
   {
     "id": "jumbo-pop",

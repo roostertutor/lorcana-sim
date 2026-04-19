@@ -107,6 +107,7 @@ interface CardDefinitionOut {
   inkColors: ("amber" | "amethyst" | "emerald" | "ruby" | "sapphire" | "steel")[];
   cost: number;
   inkable: boolean;
+  maxCopies?: number;
   traits: string[];
   strength?: number;
   willpower?: number;
@@ -422,6 +423,25 @@ function mapCard(c: RavCard): CardDefinitionOut | null {
   return out;
 }
 
+// Derive maxCopies from a DeckRuleStatic ability's rule prose. Returns
+// undefined if the card has no deck_rule ability (→ standard 4-copy cap).
+//   Microbots:        "any number"      → 99 (treated as practical unlimited)
+//   Dalmatian Puppy:  "up to 99 copies" → 99
+//   Glass Slipper:    "only have 2"     → 2
+function deriveMaxCopies(card: CardDefinitionOut): number | undefined {
+  type DeckRuleAbility = { type?: string; effect?: { type?: string; rule?: string } };
+  for (const ab of card.abilities as unknown as DeckRuleAbility[]) {
+    if (ab?.effect?.type !== "deck_rule") continue;
+    const rule = ab.effect.rule ?? "";
+    if (/any number/i.test(rule)) return 99;
+    const up = rule.match(/up to (\d+) copies/i);
+    if (up) return parseInt(up[1]!, 10);
+    const only = rule.match(/only have (\d+) copies/i);
+    if (only) return parseInt(only[1]!, 10);
+  }
+  return undefined;
+}
+
 // =============================================================================
 // MERGE LOGIC (duplicated from scripts/import-cards-rav.ts — keeps hand-wired
 // abilities/keywords/fields safe across re-imports)
@@ -630,6 +650,14 @@ async function main() {
         (keywordsRescued > 0 ? `; rescued ${keywordsRescued} keyword field(s)` : "") +
         (reslugged > 0 ? `; ${reslugged} card(s) matched via renamed slug` : "") +
         (carriedOver > 0 ? `; carried over ${carriedOver} card(s) not in this batch` : "") + ".");
+    }
+    // Derive maxCopies from any deck_rule abilities now that manually-wired
+    // abilities have been merged back in. Cards without a deck_rule ability
+    // get undefined (UI falls back to the standard 4-copy cap).
+    for (const card of setCards) {
+      const mc = deriveMaxCopies(card);
+      if (mc !== undefined) card.maxCopies = mc;
+      else delete card.maxCopies;
     }
     // Sort by number for stable diff
     setCards.sort((a, b) => (a.number ?? 0) - (b.number ?? 0));

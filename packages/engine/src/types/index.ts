@@ -2670,6 +2670,11 @@ export interface CardDefinition {
   cost: number;
   /** Can this card be inked? */
   inkable: boolean;
+  /** Per-card deck-construction override derived from a DeckRuleStatic ability
+   *  (Dalmatian Puppy 99, Glass Slipper 2, Microbots unlimited). Undefined
+   *  means the default 4-copy cap applies. Populated by the importer from the
+   *  deck_rule ability's rule prose; UI reads `def.maxCopies ?? 4`. */
+  maxCopies?: number;
   /** Classification traits, e.g. ["Hero", "Princess", "Storyborn"] */
   traits: string[];
 

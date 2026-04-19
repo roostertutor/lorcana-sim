@@ -2365,7 +2365,8 @@
         "rulesText": "You may have up to 99 copies of Dalmatian Puppy – Tail Wagger in your deck.",
         "raw": "WHERE DID THEY ALL COME FROM? You may have up to 99 copies of Dalmatian Puppy – Tail Wagger in your deck."
       }
-    ]
+    ],
+    "maxCopies": 99
   },
   {
     "id": "candy-drift",
