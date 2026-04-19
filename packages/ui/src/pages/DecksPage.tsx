@@ -190,13 +190,14 @@ export default function DecksPage() {
                     <div className="relative mt-auto bg-gradient-to-t from-black/95 via-black/80 to-transparent pt-5 pb-2 px-3">
                       <div className="flex items-start justify-between gap-2">
                         <span className="text-sm font-bold text-white line-clamp-2 drop-shadow">{d.name}</span>
-                        {isValid && count === 60 ? (
-                          <span className="text-[10px] text-green-400 font-mono font-bold shrink-0 drop-shadow">{count}</span>
-                        ) : isValid ? (
-                          <span className="text-[10px] text-yellow-400 font-mono font-bold shrink-0 drop-shadow">{count}</span>
-                        ) : (
+                        {/* Only surface a badge when the deck is NOT a clean
+                             60-card build. Done decks stay unannotated; WIP
+                             and invalid decks get a visible warning. */}
+                        {!isValid ? (
                           <span className="text-[10px] text-red-400 shrink-0 drop-shadow">invalid</span>
-                        )}
+                        ) : count !== 60 ? (
+                          <span className="text-[10px] text-yellow-400 font-mono font-bold shrink-0 drop-shadow">{count}/60</span>
+                        ) : null}
                       </div>
                       <div className="flex items-center justify-between gap-2 mt-0.5">
                         <div className="flex items-center gap-0.5">

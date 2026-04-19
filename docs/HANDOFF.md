@@ -327,6 +327,36 @@ what's happening at apply time (e.g. "player1 played Tangle → player2 lost
 expected, but if any UI surfaces rulesText rendered by the decompiler, the
 new wording is ready for it.
 
+## Deckbuilder: Core-vs-Infinity format legality
+
+Multiplayer already tracks `game_format: "core" | "infinity"` on lobbies +
+ELO (`schema.sql:96`, `gameService.ts:184`), but it's just a pass-through
+tag today — there's no engine-side enforcement and no Core-legal-sets
+list. The deckbuilder doesn't surface format legality either; My Decks
+tiles currently don't indicate whether a deck can be played in Core.
+
+**What's needed:**
+1. Engine: export a `CORE_LEGAL_SETS: Set<string>` constant listing the
+   Core-rotation setIds (currently — per Ravensburger — the latest four
+   main sets; rotates over time so this is a maintenance-required value).
+2. Helper `isCoreLegal(entries, definitions)`: every entry's `def.setId`
+   is in `CORE_LEGAL_SETS`. Returns a boolean.
+3. UI: badge on each deck tile in `DecksPage` reading "Core + Infinity"
+   (passes the check) vs "Infinity only" (one or more entries from a
+   non-Core set). Also surface in `DeckBuilderPage` so the editor can
+   warn the user as they add non-Core cards.
+4. Optional: user-picker for target format on a deck so the UI can warn
+   when a deck tagged "Core" drifts out of legality. Lower priority —
+   auto-derive is fine for MVP.
+
+**Where this was discussed:** GUI session that shipped the deckbuilder
+rebuild (see `a0cfb67`, `42be9ea`). Scope was kept narrow to UI work;
+format legality was flagged as a feature needing engine + UI coordination.
+
+**Scope:** engine constant + helper is trivial. The Core set list has to
+be maintained whenever Ravensburger rotates (annually-ish), so document
+the source of truth (their official site) alongside the constant.
+
 ## GUI: MTGA-style "shortened" card rendering in play zones
 
 Idea for the board: crop cards in play to ~top half of the source image so
