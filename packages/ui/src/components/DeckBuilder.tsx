@@ -5,7 +5,7 @@
 // =============================================================================
 
 import React, { useState, useMemo, useRef, useEffect } from "react";
-import type { CardDefinition, DeckEntry, InkColor } from "@lorcana-sim/engine";
+import type { CardDefinition, DeckEntry, InkColor, CardVariantType } from "@lorcana-sim/engine";
 import { parseDecklist, serializeDecklist } from "@lorcana-sim/engine";
 import { getMaxCopies } from "../utils/deckRules.js";
 
@@ -96,6 +96,27 @@ export default function DeckBuilder({ entries, definitions, onChange }: Props) {
       next[idx] = { ...current, count: newCount };
       onChange(next);
     }
+  }
+
+  function cycleVariant(definitionId: string) {
+    const idx = entries.findIndex((e) => e.definitionId === definitionId);
+    if (idx < 0) return;
+    const def = definitions[definitionId];
+    if (!def?.variants || def.variants.length < 2) return;
+    const current = entries[idx]!;
+    // Treat undefined as "regular" — matches the default-display convention.
+    const types = def.variants.map((v) => v.type);
+    const currentType: CardVariantType = current.variant ?? "regular";
+    const currentIdx = types.indexOf(currentType);
+    const nextIdx = currentIdx < 0 ? 0 : (currentIdx + 1) % types.length;
+    const nextType = types[nextIdx]!;
+    // Store undefined for "regular" to keep the persisted metadata minimal.
+    const next = [...entries];
+    next[idx] = {
+      ...current,
+      variant: nextType === "regular" ? undefined : nextType,
+    };
+    onChange(next);
   }
 
   // ── Import / Export ──
@@ -246,6 +267,7 @@ export default function DeckBuilder({ entries, definitions, onChange }: Props) {
               def={def!}
               onIncrement={() => adjustQty(entry.definitionId, 1)}
               onDecrement={() => adjustQty(entry.definitionId, -1)}
+              onCycleVariant={() => cycleVariant(entry.definitionId)}
             />
           ))}
         </div>
@@ -356,9 +378,10 @@ interface RowProps {
   def: CardDefinition;
   onIncrement: () => void;
   onDecrement: () => void;
+  onCycleVariant: () => void;
 }
 
-function DeckRow({ entry, def, onIncrement, onDecrement }: RowProps) {
+function DeckRow({ entry, def, onIncrement, onDecrement, onCycleVariant }: RowProps) {
   const max = getMaxCopies(def);
   const atMax = entry.count >= max;
   const maxLabel = max >= 99 ? "∞" : String(max);
@@ -366,7 +389,12 @@ function DeckRow({ entry, def, onIncrement, onDecrement }: RowProps) {
   // the first color here. The full ink set is still visible in the browser
   // grid / card inspect, so row density takes priority.
   const primaryInk = def.inkColors[0] as InkColor | undefined;
-  const variantLabel = entry.variant ? VARIANT_LABELS[entry.variant] : null;
+  const hasVariantPicker = (def.variants?.length ?? 0) >= 2;
+  // Tag label: the current variant's short name. Renders only for cards
+  // with ≥2 printings. Clicking cycles through all variant types.
+  const variantLabel = hasVariantPicker
+    ? VARIANT_LABELS[entry.variant ?? "regular"]
+    : null;
 
   return (
     <div className="group flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
@@ -385,13 +413,23 @@ function DeckRow({ entry, def, onIncrement, onDecrement }: RowProps) {
         />
       )}
 
-      {/* Name — takes all remaining space, truncates */}
+      {/* Name — takes all remaining space, truncates. Variant tag (when
+           card has ≥2 printings) sits at the end of the name line and
+           cycles through available variants on click. */}
       <div className="flex-1 min-w-0 flex items-center gap-1.5">
         <span className="text-sm text-gray-200 truncate">{def.fullName}</span>
         {variantLabel && (
-          <span className="shrink-0 text-[9px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-amber-900/40 text-amber-300">
+          <button
+            onClick={onCycleVariant}
+            className={`shrink-0 text-[9px] font-bold uppercase tracking-wider px-1 py-0.5 rounded transition-colors ${
+              entry.variant
+                ? "bg-amber-600 text-white hover:bg-amber-500"
+                : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-200"
+            }`}
+            title={`Variant: ${variantLabel}. Click to cycle.`}
+          >
             {variantLabel}
-          </span>
+          </button>
         )}
       </div>
 
