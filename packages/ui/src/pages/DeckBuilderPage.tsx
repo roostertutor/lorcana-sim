@@ -117,25 +117,27 @@ export default function DeckBuilderPage() {
 
   // Guard against losing unsaved changes when the user closes the tab, hits
   // refresh, or clicks away. The beforeunload handler covers tab-close +
-  // refresh (browser shows a generic "Leave site?" prompt). The Link click
-  // handler below covers in-app nav to the My Decks page. BrowserRouter
-  // doesn't support useBlocker so we guard the two common exits explicitly.
+  // refresh (browser shows a generic "Leave site?" prompt — modern browsers
+  // block custom messages there). The in-app nav case is handled below by
+  // showing a React modal instead of window.confirm — BrowserRouter can't
+  // use useBlocker, so we intercept the Link click explicitly.
   useEffect(() => {
     if (!isDirty) return;
     const handler = (e: BeforeUnloadEvent) => {
       e.preventDefault();
-      // Required for some browsers — value is ignored in modern ones.
       e.returnValue = "";
     };
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
   }, [isDirty]);
 
+  // Pending in-app navigation path — when set, the discard-changes modal
+  // renders. Confirm → navigate there. Cancel → clear.
+  const [pendingNav, setPendingNav] = useState<string | null>(null);
   function handleBackClick(e: MouseEvent) {
     if (!isDirty) return;
-    if (!window.confirm("You have unsaved changes. Discard and leave?")) {
-      e.preventDefault();
-    }
+    e.preventDefault();
+    setPendingNav("/");
   }
 
   function handleRestoreVersion(v: DeckVersion) {
@@ -402,6 +404,41 @@ export default function DeckBuilderPage() {
       {/* Composition — full-width below */}
       {deckReady && (
         <CompositionView deck={entries} definitions={CARD_DEFINITIONS} />
+      )}
+
+      {/* Discard-changes modal — in-app alternative to window.confirm().
+           Shown when user clicks the "← My Decks" link with unsaved work. */}
+      {pendingNav && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          onClick={() => setPendingNav(null)}
+        >
+          <div
+            className="bg-gray-950 border border-gray-700 rounded-xl p-5 max-w-sm w-full space-y-4 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="space-y-1">
+              <h3 className="text-sm font-bold text-gray-100">Discard changes?</h3>
+              <p className="text-xs text-gray-400">
+                You have unsaved changes to this deck. If you leave now, they'll be lost.
+              </p>
+            </div>
+            <div className="flex items-center justify-end gap-2">
+              <button
+                className="px-3 py-2 text-xs font-medium text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+                onClick={() => setPendingNav(null)}
+              >
+                Stay
+              </button>
+              <button
+                className="px-3 py-2 text-xs font-bold text-white bg-red-700 hover:bg-red-600 rounded-lg transition-colors"
+                onClick={() => { const p = pendingNav; setPendingNav(null); navigate(p); }}
+              >
+                Discard & leave
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Box art picker modal — grid of deck's own cards, click to set */}
