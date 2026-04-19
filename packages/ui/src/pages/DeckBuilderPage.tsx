@@ -8,14 +8,44 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { CARD_DEFINITIONS, parseDecklist, serializeDecklist } from "@lorcana-sim/engine";
-import type { DeckEntry } from "@lorcana-sim/engine";
+import type { DeckEntry, CardVariantType } from "@lorcana-sim/engine";
 import { supabase } from "../lib/supabase.js";
 import { listDecks, saveDeck, updateDeck, deleteDeck, listDeckVersions } from "../lib/deckApi.js";
-import type { SavedDeck, DeckVersion } from "../lib/deckApi.js";
+import type { SavedDeck, DeckVersion, CardMetadata } from "../lib/deckApi.js";
 import CompositionView from "./CompositionView.js";
 import DeckBuilder from "../components/DeckBuilder.js";
 import CardPicker from "../components/CardPicker.js";
 import { resolveBoxCard, resolveEntryImageUrl } from "../utils/deckRules.js";
+
+/** Apply persisted variant choices from the card_metadata map onto parsed
+ *  DeckEntry[]. decklist_text is intentionally vanilla for external-tool
+ *  interop, so variants live in the sibling JSONB column and get joined here. */
+function hydrateVariants(
+  entries: DeckEntry[],
+  metadata: Record<string, CardMetadata> | undefined,
+): DeckEntry[] {
+  if (!metadata) return entries;
+  return entries.map((e) => {
+    const meta = metadata[e.definitionId];
+    if (meta?.variant) {
+      return { ...e, variant: meta.variant as CardVariantType };
+    }
+    return e;
+  });
+}
+
+/** Build the card_metadata map for persistence from the current entries.
+ *  Only cards with a non-default variant appear — regular (the default) is
+ *  represented by absence. */
+function buildCardMetadata(entries: DeckEntry[]): Record<string, CardMetadata> {
+  const out: Record<string, CardMetadata> = {};
+  for (const e of entries) {
+    if (e.variant) {
+      out[e.definitionId] = { variant: e.variant };
+    }
+  }
+  return out;
+}
 
 export default function DeckBuilderPage() {
   const { id } = useParams<{ id: string }>();
@@ -50,7 +80,9 @@ export default function DeckBuilderPage() {
     try { setVersions(await listDeckVersions(deckId)); } catch { setVersions([]); }
   }, []);
 
-  // Load the deck on mount / id change
+  // Load the deck on mount / id change. Variants live outside the vanilla
+  // decklist_text (interop with external Lorcana tools); hydrate them from
+  // the SavedDeck.card_metadata map onto the parsed DeckEntry[].
   useEffect(() => {
     if (isNew || !session) return;
     setLoading(true);
@@ -63,9 +95,10 @@ export default function DeckBuilderPage() {
           return;
         }
         const parsed = parseDecklist(found.decklist_text, CARD_DEFINITIONS);
+        const hydrated = hydrateVariants(parsed.entries, found.card_metadata);
         setOriginalDeck(found);
         setDeckName(found.name);
-        setEntries(parsed.entries);
+        setEntries(hydrated);
         setBoxCardId(found.box_card_id);
         loadVersions(found.id);
       } catch (e) {
@@ -80,16 +113,31 @@ export default function DeckBuilderPage() {
     () => serializeDecklist(entries, CARD_DEFINITIONS),
     [entries],
   );
+  const currentMetadata = useMemo(() => buildCardMetadata(entries), [entries]);
+  // card_metadata is a shallow record of shallow records — JSON-stringify diff
+  // is cheap and correct for this shape. Avoids pulling in a deepEqual dep.
+  const metadataJson = useMemo(() => JSON.stringify(currentMetadata), [currentMetadata]);
+  const originalMetadataJson = originalDeck
+    ? JSON.stringify(originalDeck.card_metadata ?? {})
+    : "{}";
   const isDirty = originalDeck
     ? originalDeck.name !== deckName
       || originalDeck.decklist_text !== currentText
       || originalDeck.box_card_id !== boxCardId
-    : deckName.trim() !== "" || entries.length > 0 || boxCardId !== null;
+      || originalMetadataJson !== metadataJson
+    : deckName.trim() !== ""
+      || entries.length > 0
+      || boxCardId !== null
+      || Object.keys(currentMetadata).length > 0;
   const deckReady = entries.length > 0;
 
   function handleRestoreVersion(v: DeckVersion) {
     const parsed = parseDecklist(v.decklist_text, CARD_DEFINITIONS);
-    setEntries(parsed.entries);
+    // Versions don't store card_metadata — carry the current deck's metadata
+    // forward so variant preferences survive a restore (only applies to ids
+    // that still exist in the restored version).
+    const hydrated = hydrateVariants(parsed.entries, originalDeck?.card_metadata);
+    setEntries(hydrated);
     setHistoryOpen(false);
   }
 
@@ -104,14 +152,21 @@ export default function DeckBuilderPage() {
           name: deckName.trim(),
           decklist_text: decklistText,
           box_card_id: boxCardId,
+          card_metadata: currentMetadata,
         });
         setOriginalDeck(updated);
         loadVersions(updated.id);
       } else {
         const created = await saveDeck(deckName.trim(), decklistText);
-        // Apply the chosen box card if user picked one before first save.
-        const final = boxCardId
-          ? await updateDeck(created.id, { box_card_id: boxCardId })
+        // saveDeck doesn't accept box_card_id / card_metadata on insert — apply
+        // them via a follow-up update when the user set either pre-save.
+        const hasExtras =
+          boxCardId !== null || Object.keys(currentMetadata).length > 0;
+        const final = hasExtras
+          ? await updateDeck(created.id, {
+              box_card_id: boxCardId,
+              card_metadata: currentMetadata,
+            })
           : created;
         setOriginalDeck(final);
         loadVersions(final.id);
