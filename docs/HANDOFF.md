@@ -383,6 +383,38 @@ keep these for a future polish pass:
    want more browsing surface area. It's a non-trivial layout refactor
    — both <DeckBuilderPage> structure and CardPicker sizing change.
 
+## Engine: variant collapse loses cross-main-set reprints with new art
+
+The current variant build logic in `buildDefinitions.ts` classifies each
+printing into one of 6 types (regular / enchanted / iconic / epic /
+promo / special) and keeps **one variant per type, most-recent setId
+winning ties**. This loses art when a card is reprinted in a newer main
+set with different art at the same rarity.
+
+Verified examples in the card data:
+- `captain-hook-forceful-duelist` — common in set 1 (#174) AND common
+  in set 8 (#186), different art. Classified as `regular` in both →
+  only set 8 art survives in `def.variants`. Set 1 art is dropped.
+- `ursula-sea-witch` — regular rarity in both set 3 and set 9 with
+  different art. Only set 9 survives.
+
+Likely more across sets 1/5 vs reprints in 8+.
+
+**Fix options** (engine-side):
+1. Allow multiple `regular` variants keyed by setId/number — change
+   the bucketing key from `type` to `type + setId`.
+2. Introduce a `reprint` CardVariantType for older same-rarity reprints.
+3. Store all printings on the CardDefinition as a flat `printings[]`
+   array and derive variant display groupings at the UI layer.
+
+**UI hook-up**: once the engine preserves both art options, the
+deckbuilder's variant picker (DeckBuilder.DeckRow + DeckEntry.variant)
+needs to distinguish "regular set 1" vs "regular set 8". Labels will
+need set identifiers — `Reg 1` / `Reg 8` or similar.
+
+Noted during the GUI session that added the deck-row variant cycler.
+No UI-side fix possible until the engine model distinguishes them.
+
 ## Deckbuilder: Core-vs-Infinity format legality
 
 Multiplayer already tracks `game_format: "core" | "infinity"` on lobbies +
