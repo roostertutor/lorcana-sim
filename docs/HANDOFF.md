@@ -358,6 +358,13 @@ keep these for a future polish pass:
      PDF export probably, or printable HTML.
 3. **Known good:** My Decks list page with deck box-art tiles reads well
    — don't re-redesign unless there's a specific complaint.
+4. **Consider: flip to browser-primary + deck-in-drawer layout** (duels
+   pattern). Currently we're editor-primary + browser-opt-in. Duels
+   treats browsing as the main activity and slides the decklist out
+   from the side. Mobile-friendly analogue: bottom sheet for the deck
+   (MTGA mobile does similar). Worth considering if users report they
+   want more browsing surface area. It's a non-trivial layout refactor
+   — both <DeckBuilderPage> structure and CardPicker sizing change.
 
 ## Deckbuilder: Core-vs-Infinity format legality
 
