@@ -339,6 +339,15 @@ keep these for a future polish pass:
    or group by cost bucket with inline cost-curve bars. MTGA groups by
    type; Moxfield lets you pick. Worth considering once more decks are
    real-world tested.
+
+   Also: each row has too much horizontal content for the narrow
+   340px-or-so column — cost badge + truncated name + ink dots +
+   [−][N][+] + ✕. Consolidate options: drop the cost badge (implied
+   when grouped by cost), collapse [−][N][+] into a single tappable
+   `×N` pill that increments on tap and shows a small −/+ popover
+   on long-press, or right-align qty controls and let the row
+   breathe more. Trade-off: touch targets must stay tappable on
+   mobile.
 2. **Export options.** Today we have plaintext export (round-trips with
    Inkable / Dreamborn). Useful additions:
    - **Image export** — render the deck list as a PNG for sharing /
