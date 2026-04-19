@@ -494,7 +494,7 @@ function DeckRow({ entry, def, onIncrement, onDecrement, onCycleVariant }: RowPr
     : null;
 
   return (
-    <div className="group flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
+    <div className="group flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
       {/* Cost */}
       <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gray-800 text-white text-xs font-black shrink-0">
         {def.cost}

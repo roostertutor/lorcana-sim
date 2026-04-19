@@ -15,7 +15,10 @@
 
 @layer components {
   .card {
-    @apply bg-gray-900 border border-gray-800 rounded-xl p-5;
+    /* Tighter padding on narrow screens so inner rows (deck list, row
+       content, composition charts) have more horizontal room. Default
+       p-5 returns at sm+ (≥640px). */
+    @apply bg-gray-900 border border-gray-800 rounded-xl p-3 sm:p-5;
   }
   .btn {
     @apply px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed;
