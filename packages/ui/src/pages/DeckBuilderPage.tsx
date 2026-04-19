@@ -134,6 +134,11 @@ export default function DeckBuilderPage() {
   // Pending in-app navigation path — when set, the discard-changes modal
   // renders. Confirm → navigate there. Cancel → clear.
   const [pendingNav, setPendingNav] = useState<string | null>(null);
+
+  // Card-picker visibility. Closed by default — editor search-autocomplete
+  // handles known-card adds for most users. Toggle opens the grid for
+  // visual discovery (and zero mount cost when it's not needed).
+  const [pickerOpen, setPickerOpen] = useState(false);
   function handleBackClick(e: MouseEvent) {
     if (!isDirty) return;
     e.preventDefault();
@@ -222,7 +227,7 @@ export default function DeckBuilderPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header: back link + deck title */}
+      {/* Header: back link + browse-cards toggle */}
       <div className="flex items-center gap-3">
         <Link
           to="/"
@@ -232,24 +237,47 @@ export default function DeckBuilderPage() {
           ← My Decks
         </Link>
         <div className="flex-1" />
+        {!pickerOpen && (
+          <button
+            onClick={() => setPickerOpen(true)}
+            className="text-xs px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg font-medium transition-colors"
+            title="Open the card browser for discovery / visual browsing"
+          >
+            + Browse cards
+          </button>
+        )}
       </div>
 
-      {/* Main: picker | editor on lg+, stacked below */}
+      {/* Main: picker | editor on lg+, stacked below. Picker is hidden by
+           default — the editor's search+autocomplete handles known-card
+           adds. Picker toggles on for discovery / visual browsing. */}
       <div className="flex flex-col lg:flex-row gap-6 min-w-0">
-        {/* Card picker — grows to fill */}
-        <div className="card flex-1 min-w-0 space-y-3">
-          <div className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">
-            Browse cards
+        {/* Card picker — rendered only when toggled open */}
+        {pickerOpen && (
+          <div className="card flex-1 min-w-0 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">
+                Browse cards
+              </div>
+              <button
+                onClick={() => setPickerOpen(false)}
+                className="text-[10px] text-gray-500 hover:text-gray-300 underline"
+                title="Hide card browser"
+              >
+                Hide
+              </button>
+            </div>
+            <CardPicker
+              entries={entries}
+              definitions={CARD_DEFINITIONS}
+              onChange={setEntries}
+            />
           </div>
-          <CardPicker
-            entries={entries}
-            definitions={CARD_DEFINITIONS}
-            onChange={setEntries}
-          />
-        </div>
+        )}
 
-        {/* Deck editor — fixed width on lg+ */}
-        <div className="lg:w-[340px] shrink-0 space-y-6">
+        {/* Deck editor — fixed 340px when picker is open, max-w-2xl centered
+             when it's hidden so the editor + search take a comfortable row. */}
+        <div className={`${pickerOpen ? "lg:w-[340px] shrink-0" : "flex-1 max-w-2xl mx-auto"} space-y-6`}>
           <div className="card space-y-3">
             {/* Box preview + deck name */}
             {(() => {
