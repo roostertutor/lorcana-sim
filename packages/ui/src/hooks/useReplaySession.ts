@@ -3,7 +3,7 @@
 // Reconstructs GameState at each step by replaying GameAction[] from seed.
 // =============================================================================
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import type { CardDefinition, GameState } from "@lorcana-sim/engine";
 import { createGame, applyAction } from "@lorcana-sim/engine";
 import type { ReplayData } from "./useGameSession.js";
@@ -33,52 +33,40 @@ export function useReplaySession(
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(800);
 
-  // Cache: states[i] = GameState after action i (states[0] = initial)
-  const statesRef = useRef<GameState[]>([]);
-  const dataRef = useRef<ReplayData | null>(null);
-
-  // Rebuild cache when data changes
-  useEffect(() => {
-    if (!data) {
-      statesRef.current = [];
-      dataRef.current = null;
-      setStep(0);
-      setIsPlaying(false);
-      return;
-    }
-
-    dataRef.current = data;
-    setStep(0);
-    setIsPlaying(false);
-
-    // Build initial state from seed
+  // Build the full state cache during render (not in an effect) so the first
+  // render with a new `data` already shows the initial state at step 0 — not
+  // the stale session.gameState with "Step 0 / 0". states[0] = initial state,
+  // states[N] = state after action N.
+  const states = useMemo<GameState[]>(() => {
+    if (!data) return [];
     const initial = createGame(
       { player1Deck: data.p1Deck, player2Deck: data.p2Deck, seed: data.seed },
       definitions,
     );
-    // Build states array: [initial, after_action_0, after_action_1, ...]
-    const states: GameState[] = [initial];
+    const built: GameState[] = [initial];
     let current = initial;
     for (const action of data.actions) {
       const result = applyAction(current, action, definitions);
-      if (result.success) {
-        current = result.newState;
-      }
-      // Push regardless — if action failed (shouldn't happen in valid replay),
-      // the previous state is repeated so the step count stays correct.
-      states.push(current);
+      if (result.success) current = result.newState;
+      // Push regardless so step indices align with the source actions array
+      // even if some action fails to apply (e.g., engine version skew).
+      built.push(current);
     }
-    statesRef.current = states;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    return built;
+  }, [data, definitions]);
+
+  // Reset step + playback whenever a new replay loads
+  useEffect(() => {
+    setStep(0);
+    setIsPlaying(false);
   }, [data]);
 
-  const totalSteps = statesRef.current.length > 0 ? statesRef.current.length - 1 : 0;
-  const state = statesRef.current[step] ?? null;
+  const totalSteps = states.length > 0 ? states.length - 1 : 0;
+  const state = states[step] ?? null;
 
   const goTo = useCallback((n: number) => {
-    const max = statesRef.current.length - 1;
-    setStep(Math.max(0, Math.min(n, max)));
-  }, []);
+    setStep(Math.max(0, Math.min(n, totalSteps)));
+  }, [totalSteps]);
 
   const stepBack = useCallback(() => {
     setStep((s) => Math.max(0, s - 1));
@@ -86,43 +74,34 @@ export function useReplaySession(
 
   const stepForward = useCallback(() => {
     setStep((s) => {
-      const max = statesRef.current.length - 1;
       const next = s + 1;
-      if (next > max) setIsPlaying(false);
-      return Math.min(next, max);
+      if (next > totalSteps) setIsPlaying(false);
+      return Math.min(next, totalSteps);
     });
-  }, []);
+  }, [totalSteps]);
 
   const togglePlay = useCallback(() => {
     setIsPlaying((p) => {
-      // If at end, restart from beginning when pressing play
-      if (!p && statesRef.current.length > 0) {
-        setStep((s) => {
-          if (s >= statesRef.current.length - 1) {
-            setStep(0);
-          }
-          return s;
-        });
-      }
+      // If paused at the end, restart from the beginning on play.
+      if (!p && totalSteps > 0 && step >= totalSteps) setStep(0);
       return !p;
     });
-  }, []);
+  }, [step, totalSteps]);
 
   // Auto-advance when playing
   useEffect(() => {
-    if (!isPlaying || statesRef.current.length === 0) return;
+    if (!isPlaying || totalSteps === 0) return;
     const id = setInterval(() => {
       setStep((s) => {
-        const max = statesRef.current.length - 1;
-        if (s >= max) {
+        if (s >= totalSteps) {
           setIsPlaying(false);
-          return max;
+          return totalSteps;
         }
         return s + 1;
       });
     }, playbackSpeed);
     return () => clearInterval(id);
-  }, [isPlaying, playbackSpeed]);
+  }, [isPlaying, playbackSpeed, totalSteps]);
 
   return {
     state,

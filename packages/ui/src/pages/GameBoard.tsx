@@ -1668,9 +1668,12 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           <ReplayControls
             session={replaySession}
             onTakeOver={(state) => {
-              // Fork: inject the replay state as the live game state
+              // Fork: install the replay state as a fresh live baseline so
+              // subsequent undos reconstruct from here, not from the original
+              // game's seed+actions (which would land back on the victory
+              // screen).
               setReplayData(null);
-              session.patchState(() => state);
+              session.forkFrom(state);
             }}
           />
         )}

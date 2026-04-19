@@ -75,6 +75,10 @@ export interface GameSession {
   selectCard: (instanceId: string | null) => void;
   resolveChoice: (choice: string | string[] | number) => void;
   patchState: (updater: (prev: GameState) => GameState) => void;
+  /** Install `state` as the new live game baseline — used by the replay
+   *  take-over fork. Resets undo history, action count, and completedGame
+   *  so subsequent undos reconstruct from this state, not the pre-fork one. */
+  forkFrom: (state: GameState) => void;
   /** Replay to N-1 actions. No-op in multiplayer or when canUndo is false. */
   undo: () => void;
   reset: () => void;
@@ -161,6 +165,10 @@ export function useGameSession(): GameSession {
   const hmrRestoredRef = useRef(false);
   // Quick save slot
   const quickSaveRef = useRef<GameState | null>(null);
+  // Post-fork flag: once the user takes over from a replay, the live state is
+  // no longer derivable from seed+actions, so HMR snapshot persistence has to
+  // pause until the next reset/startGame.
+  const isForkedRef = useRef(false);
   // Realtime channel ref for cleanup
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
@@ -176,6 +184,7 @@ export function useGameSession(): GameSession {
     setActionCount(0);
     actionHistoryRef.current = [];
     initialStateRef.current = null;
+    isForkedRef.current = false;
 
     if (config.multiplayer) {
       // Multiplayer: fetch current state from server — don't create locally
@@ -293,8 +302,10 @@ export function useGameSession(): GameSession {
     setActionCount((c) => c + 1);
     gameStateRef.current = result.newState;
     setGameState(result.newState);
-    // Persist for HMR survival
-    if (configRef.current) saveSnapshot(seedRef.current, configRef.current, actionHistoryRef.current);
+    // Persist for HMR survival. Skipped post-fork: the forked state isn't
+    // reachable from the original seed+actions, so a rebuilt snapshot would
+    // reconstruct the wrong initial state.
+    if (configRef.current && !isForkedRef.current) saveSnapshot(seedRef.current, configRef.current, actionHistoryRef.current);
     // Assemble completedGame when the game ends
     if (result.newState.isGameOver && configRef.current) {
       setCompletedGame({
@@ -420,6 +431,26 @@ export function useGameSession(): GameSession {
   }, []);
 
   // ---------------------------------------------------------------------------
+  // forkFrom — install `state` as a fresh live baseline (replay take-over)
+  // ---------------------------------------------------------------------------
+  const forkFrom = useCallback((state: GameState) => {
+    if (!configRef.current || configRef.current.multiplayer) return;
+    gameStateRef.current = state;
+    initialStateRef.current = state;
+    actionHistoryRef.current = [];
+    isForkedRef.current = true;
+    setGameState(state);
+    setActionCount(0);
+    setCompletedGame(null);
+    setError(null);
+    // Random fresh seed — the forked state is untied from the original game's
+    // seed, so any future saveSnapshot would be meaningless. We also suppress
+    // saves via isForkedRef and drop any stale persisted snapshot.
+    seedRef.current = Date.now();
+    try { sessionStorage.removeItem(SESSION_KEY); } catch { /* ignore */ }
+  }, []);
+
+  // ---------------------------------------------------------------------------
   // undo — replay to N-1 actions from the initial state snapshot
   // ---------------------------------------------------------------------------
   const undo = useCallback(() => {
@@ -458,6 +489,7 @@ export function useGameSession(): GameSession {
     seedRef.current = 0;
     initialStateRef.current = null;
     actionHistoryRef.current = [];
+    isForkedRef.current = false;
     try { sessionStorage.removeItem(SESSION_KEY); } catch { /* ignore */ }
   }, []);
 
@@ -545,6 +577,7 @@ export function useGameSession(): GameSession {
     selectCard,
     resolveChoice,
     patchState,
+    forkFrom,
     undo,
     reset,
     restoreFromSnapshot,
