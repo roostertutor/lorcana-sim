@@ -5,7 +5,7 @@
 // =============================================================================
 
 import React, { useState, useMemo, useRef, useEffect } from "react";
-import type { CardDefinition, DeckEntry } from "@lorcana-sim/engine";
+import type { CardDefinition, DeckEntry, InkColor } from "@lorcana-sim/engine";
 import { parseDecklist, serializeDecklist } from "@lorcana-sim/engine";
 import { getMaxCopies } from "../utils/deckRules.js";
 
@@ -16,6 +16,17 @@ const INK_COLOR_CLASS: Record<string, string> = {
   ruby: "bg-red-600 text-red-100",
   sapphire: "bg-blue-600 text-blue-100",
   steel: "bg-gray-500 text-gray-100",
+};
+
+// Compact variant labels for the inline per-row tag. Omit "regular" since
+// that's the implicit default and we only show the tag when variant is set.
+const VARIANT_LABELS: Record<string, string> = {
+  regular: "Reg",
+  enchanted: "Ench",
+  iconic: "Icon",
+  epic: "Epic",
+  promo: "Promo",
+  special: "Spec",
 };
 
 interface Props {
@@ -85,10 +96,6 @@ export default function DeckBuilder({ entries, definitions, onChange }: Props) {
       next[idx] = { ...current, count: newCount };
       onChange(next);
     }
-  }
-
-  function removeCard(definitionId: string) {
-    onChange(entries.filter((e) => e.definitionId !== definitionId));
   }
 
   // ── Import / Export ──
@@ -239,7 +246,6 @@ export default function DeckBuilder({ entries, definitions, onChange }: Props) {
               def={def!}
               onIncrement={() => adjustQty(entry.definitionId, 1)}
               onDecrement={() => adjustQty(entry.definitionId, -1)}
-              onRemove={() => removeCard(entry.definitionId)}
             />
           ))}
         </div>
@@ -350,81 +356,71 @@ interface RowProps {
   def: CardDefinition;
   onIncrement: () => void;
   onDecrement: () => void;
-  onRemove: () => void;
 }
 
-function DeckRow({ entry, def, onIncrement, onDecrement, onRemove }: RowProps) {
+function DeckRow({ entry, def, onIncrement, onDecrement }: RowProps) {
   const max = getMaxCopies(def);
   const atMax = entry.count >= max;
+  const maxLabel = max >= 99 ? "∞" : String(max);
+  // Primary ink icon — most Lorcana characters are mono-ink; dual-ink shows
+  // the first color here. The full ink set is still visible in the browser
+  // grid / card inspect, so row density takes priority.
+  const primaryInk = def.inkColors[0] as InkColor | undefined;
+  const variantLabel = entry.variant ? VARIANT_LABELS[entry.variant] : null;
 
   return (
-    <div className="group flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
+    <div className="group flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
       {/* Cost */}
-      <span className="flex items-center justify-center w-7 h-7 rounded-full bg-gray-800 text-white text-xs font-black shrink-0">
+      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gray-800 text-white text-xs font-black shrink-0">
         {def.cost}
       </span>
 
-      {/* Name + meta */}
-      <div className="flex-1 min-w-0">
-        <div className="text-sm text-gray-200 truncate">{def.fullName}</div>
-        <div className="flex items-center gap-1.5 text-[10px] text-gray-600">
-          <span className="capitalize">{def.cardType}</span>
-          {def.cardType === "character" && def.strength != null && (
-            <>
-              <span>&middot;</span>
-              <span>{def.strength}/{def.willpower}</span>
-              {def.lore != null && (
-                <>
-                  <span>&middot;</span>
-                  <span>{def.lore}◆</span>
-                </>
-              )}
-            </>
-          )}
-        </div>
+      {/* Ink icon — single colored gem, not the dot pair */}
+      {primaryInk && (
+        <img
+          src={`/icons/ink/${primaryInk}.svg`}
+          alt={primaryInk}
+          title={def.inkColors.join(" / ")}
+          className="w-4 h-4 shrink-0"
+        />
+      )}
+
+      {/* Name — takes all remaining space, truncates */}
+      <div className="flex-1 min-w-0 flex items-center gap-1.5">
+        <span className="text-sm text-gray-200 truncate">{def.fullName}</span>
+        {variantLabel && (
+          <span className="shrink-0 text-[9px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-amber-900/40 text-amber-300">
+            {variantLabel}
+          </span>
+        )}
       </div>
 
-      {/* Ink dots */}
-      <div className="flex gap-0.5 shrink-0">
-        {def.inkColors.map((c) => (
-          <span key={c} className={`w-2 h-2 rounded-full ${INK_COLOR_CLASS[c]?.split(" ")[0] ?? "bg-gray-600"}`} />
-        ))}
-      </div>
-
-      {/* Qty controls */}
-      <div className="flex items-center gap-1 shrink-0">
+      {/* Qty stepper — [−] N/max [+]. No trailing × because − at qty 1
+           already removes the entry (via adjustQty clamping to 0). */}
+      <div className="flex items-center gap-0.5 shrink-0">
         <button
-          className="w-6 h-6 rounded bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-200 text-xs font-bold transition-colors active:scale-95"
+          className="w-6 h-6 rounded bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-200 text-sm font-bold transition-colors active:scale-95"
           onClick={onDecrement}
-          title="Decrease quantity"
+          title={entry.count === 1 ? "Remove card" : "Decrease quantity"}
         >
           −
         </button>
-        <span className="w-5 text-center text-sm font-mono font-bold text-amber-400">
-          {entry.count}
+        <span className="px-1.5 text-[11px] font-mono font-bold tabular-nums text-amber-400 min-w-[38px] text-center">
+          {entry.count}<span className="text-gray-600">/{maxLabel}</span>
         </span>
         <button
-          className={`w-6 h-6 rounded text-xs font-bold transition-colors active:scale-95 ${
+          className={`w-6 h-6 rounded text-sm font-bold transition-colors active:scale-95 ${
             atMax
               ? "bg-gray-900 text-gray-700 cursor-not-allowed"
               : "bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-200"
           }`}
           onClick={onIncrement}
           disabled={atMax}
-          title={atMax ? `Max ${max} copies` : "Increase quantity"}
+          title={atMax ? `Max ${maxLabel} copies` : "Increase quantity"}
         >
           +
         </button>
       </div>
-
-      {/* Remove */}
-      <button
-        className="w-6 h-6 rounded text-gray-700 hover:text-red-400 hover:bg-red-950/40 transition-colors active:scale-95"
-        onClick={onRemove}
-        title="Remove card"
-      >
-        ✕
-      </button>
     </div>
   );
 }
