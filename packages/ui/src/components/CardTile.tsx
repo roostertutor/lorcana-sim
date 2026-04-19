@@ -1,7 +1,8 @@
 // =============================================================================
 // CardTile — single card in the deckbuilder picker grid.
-// Renders card art + name + cost, plus qty pills (0..maxCopies) for setting
-// deck count directly. Clicking the art opens an inspect preview.
+// Card art on top (click to inspect), [−] N/max [+] stepper below.
+// Consistent with the row editor's stepper pattern and scales to any
+// max-copies value (4, 2, 99, …).
 // =============================================================================
 
 import type { CardDefinition, InkColor } from "@lorcana-sim/engine";
@@ -21,7 +22,7 @@ interface Props {
   qty: number;
   /** Maximum copies allowed for this card. */
   maxCopies: number;
-  /** Called when the user sets the quantity via a pip. */
+  /** Called when the user changes the quantity (± 1 via stepper). */
   onSetQty: (qty: number) => void;
   /** Called when the user clicks the art to inspect. */
   onInspect: () => void;
@@ -29,10 +30,10 @@ interface Props {
 
 export default function CardTile({ def, qty, maxCopies, onSetQty, onInspect }: Props) {
   const inDeck = qty > 0;
-  // For cards like Dalmatian Puppy (99 copies), render a compact pill row
-  // that can hold up to 6 entries (0-5); quantities above 5 are handled by
-  // the deck editor row. For standard 0-4, render 5 pips.
-  const pipCount = Math.min(maxCopies, 5);
+  const atMax = qty >= maxCopies;
+  // Dalmatian Puppy and Microbots both have maxCopies=99. Render as ∞ — nobody's
+  // actually building a 99-copy deck, and the "any number" flavor reads better.
+  const maxLabel = maxCopies >= 99 ? "∞" : String(maxCopies);
 
   return (
     <div className={`relative rounded-md overflow-hidden border transition-colors ${
@@ -40,7 +41,7 @@ export default function CardTile({ def, qty, maxCopies, onSetQty, onInspect }: P
     }`}>
       {/* Art — click to inspect */}
       <button
-        className="block w-full aspect-[5/7] bg-gray-900 cursor-pointer group"
+        className="block w-full aspect-[5/7] bg-gray-900 cursor-pointer group relative"
         onClick={onInspect}
         title={def.fullName}
       >
@@ -67,36 +68,39 @@ export default function CardTile({ def, qty, maxCopies, onSetQty, onInspect }: P
             <span key={c} className={`w-2 h-2 rounded-full ${INK_DOT[c]} ring-1 ring-gray-950/60`} />
           ))}
         </div>
-        {/* "In deck" corner flag */}
-        {inDeck && (
-          <div className="absolute bottom-1 right-1 min-w-[20px] h-5 px-1 rounded-full bg-amber-500 text-gray-950 font-black text-[11px] flex items-center justify-center shadow">
-            {qty}
-          </div>
-        )}
       </button>
 
-      {/* Qty pip row — click a pip to set qty directly */}
-      <div className="flex items-stretch bg-gray-950 border-t border-gray-800">
-        {Array.from({ length: pipCount + 1 }, (_, i) => i).map((n) => (
-          <button
-            key={n}
-            onClick={(e) => { e.stopPropagation(); onSetQty(n); }}
-            className={`flex-1 py-1 text-[11px] font-mono font-bold transition-colors ${
-              n === qty
-                ? "bg-amber-600 text-white"
-                : "text-gray-500 hover:bg-gray-800 hover:text-gray-200"
-            }`}
-            title={n === 0 ? "Remove from deck" : `Set quantity to ${n}`}
-          >
-            {n}
-          </button>
-        ))}
-        {/* When maxCopies > 5, spillover indicator */}
-        {maxCopies > 5 && qty > 5 && (
-          <div className="px-1.5 flex items-center text-[10px] font-mono text-amber-300 bg-gray-900 border-l border-gray-800">
-            ×{qty}
-          </div>
-        )}
+      {/* Qty stepper — [−] N/max [+]. Matches DeckBuilder row editor pattern. */}
+      <div className="flex items-center bg-gray-950 border-t border-gray-800">
+        <button
+          onClick={(e) => { e.stopPropagation(); if (qty > 0) onSetQty(qty - 1); }}
+          disabled={qty === 0}
+          className={`flex-1 py-1.5 text-sm font-bold transition-colors ${
+            qty === 0
+              ? "text-gray-800 cursor-not-allowed"
+              : "text-gray-400 hover:bg-gray-800 hover:text-gray-200 active:scale-95"
+          }`}
+          title="Decrease quantity"
+        >
+          −
+        </button>
+        <div className={`px-2 py-1 text-[11px] font-mono font-bold tabular-nums text-center min-w-[44px] ${
+          inDeck ? "text-amber-400" : "text-gray-600"
+        }`}>
+          {qty}<span className="text-gray-600">/{maxLabel}</span>
+        </div>
+        <button
+          onClick={(e) => { e.stopPropagation(); if (!atMax) onSetQty(qty + 1); }}
+          disabled={atMax}
+          className={`flex-1 py-1.5 text-sm font-bold transition-colors ${
+            atMax
+              ? "text-gray-800 cursor-not-allowed"
+              : "text-gray-400 hover:bg-gray-800 hover:text-gray-200 active:scale-95"
+          }`}
+          title={atMax ? `Max ${maxLabel} copies` : "Increase quantity"}
+        >
+          +
+        </button>
       </div>
     </div>
   );
