@@ -493,6 +493,16 @@ the "chrome that differentiates vs content forced by genre" distinction in
 - Consistent identification: card name must stay visible at the top of the
   cropped tile so hand→play recognition doesn't break.
 
+**Consider gating the crop by viewport / orientation.** Not every surface
+needs it:
+- Landscape-phone (very short vertical): biggest win — apply the crop.
+- Portrait-phone: meaningful win, probably apply.
+- Desktop: usually vertical space isn't tight; full card fits fine.
+  Could leave as-is or apply a milder 5:4.5 crop.
+A Tailwind class like `landscape-phone:aspect-[5/3.5]` lets the crop
+only engage where it actually pays rent. Matches the existing
+`landscape-phone:` breakpoint used elsewhere in `GameCard.tsx`.
+
 Out of scope for the current deckbuilder stack — this is a GameBoard /
 play-zone change. Pick up when the deckbuilder work lands and there's a
 dedicated session for board chrome.
