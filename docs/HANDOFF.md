@@ -383,6 +383,26 @@ keep these for a future polish pass:
    want more browsing surface area. It's a non-trivial layout refactor
    — both <DeckBuilderPage> structure and CardPicker sizing change.
 
+## Deckbuilder: variant picker → icon-based dropdown (once rarity icons ship)
+
+Current deck-row variant picker cycles through available variants on
+click (`Reg → Ench → Promo → Reg …`). Works but users can't see all
+options until they click through. Text labels are cryptic for users
+unfamiliar with Lorcana's 6-variant vocabulary.
+
+When rarity icons ship (assets/icons/rarity/ or similar), swap the
+cycle-on-click for a compact popover menu:
+
+- Button shows current variant as a small icon
+- Click opens a dropdown listing all variants with icon + label
+  (e.g. 🔶 Regular · ✨ Enchanted · 🌟 Iconic · ⚜️ Epic · 🎖 Promo · 🎟 Special)
+- Click a row selects + closes
+- Same pattern as the existing group-by dropdown (DeckBuilder.tsx) and
+  saved-decks combobox, so it'll match the in-app chrome
+
+No engine changes — same `DeckEntry.variant` model. Pure UI refactor
+in `DeckBuilder.DeckRow`.
+
 ## Engine: variant collapse loses cross-main-set reprints with new art
 
 The current variant build logic in `buildDefinitions.ts` classifies each
