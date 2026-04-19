@@ -327,6 +327,29 @@ what's happening at apply time (e.g. "player1 played Tangle → player2 lost
 expected, but if any UI surfaces rulesText rendered by the decompiler, the
 new wording is ready for it.
 
+## Deckbuilder: follow-up polish for `/decks/:id`
+
+Captured during the 2026-04-19 GUI session after the MTGA-style split
++ box-art + variants stack landed. Not blocking — tile view looks good,
+keep these for a future polish pass:
+
+1. **Deck-row arrangement.** Rows currently render flat (cost asc →
+   name) inside a single scroll area. Options: group by card type
+   (characters / actions / items / locations) with collapsible headers,
+   or group by cost bucket with inline cost-curve bars. MTGA groups by
+   type; Moxfield lets you pick. Worth considering once more decks are
+   real-world tested.
+2. **Export options.** Today we have plaintext export (round-trips with
+   Inkable / Dreamborn). Useful additions:
+   - **Image export** — render the deck list as a PNG for sharing /
+     social. Use canvas or html-to-image from a formatted DOM node.
+     Creator tooling per `project_near_term_priorities.md`.
+   - **Registration sheet** — the paper form for official events, with
+     player info + card list in the Ravensburger tournament format.
+     PDF export probably, or printable HTML.
+3. **Known good:** My Decks list page with deck box-art tiles reads well
+   — don't re-redesign unless there's a specific complaint.
+
 ## Deckbuilder: Core-vs-Infinity format legality
 
 Multiplayer already tracks `game_format: "core" | "infinity"` on lobbies +
