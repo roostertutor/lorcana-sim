@@ -59,6 +59,7 @@ export default function DeckBuilder({ entries, definitions, onChange }: Props) {
   const [importText, setImportText] = useState("");
   const [importErrors, setImportErrors] = useState<string[]>([]);
   const [groupMode, setGroupMode] = useGroupMode();
+  const [groupMenuOpen, setGroupMenuOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const totalCards = entries.reduce((s, e) => s + e.count, 0);
@@ -320,25 +321,43 @@ export default function DeckBuilder({ entries, definitions, onChange }: Props) {
             <span className="text-green-400">✓ 60</span>
           )}
           {sortedRows.length > 0 && (
-            <div className="flex items-center gap-1 text-[10px] text-gray-600">
+            <div className="relative flex items-center gap-1 text-[10px] text-gray-600">
               <span>Group:</span>
-              {/* Segmented buttons — avoid native <select> which triggers the
-                   iOS OS wheel picker. Three fixed options, all visible. */}
-              <div className="flex items-center rounded-md border border-gray-800 bg-gray-900 overflow-hidden">
-                {(["type", "cost", "none"] as const).map((m) => (
-                  <button
-                    key={m}
-                    onClick={() => setGroupMode(m)}
-                    className={`px-1.5 py-0.5 text-[10px] font-medium transition-colors ${
-                      groupMode === m
-                        ? "bg-amber-600 text-white"
-                        : "text-gray-500 hover:bg-gray-800 hover:text-gray-300"
-                    }`}
-                  >
-                    {m === "none" ? "None" : m.charAt(0).toUpperCase() + m.slice(1)}
-                  </button>
-                ))}
-              </div>
+              {/* Custom dropdown — avoids the iOS native wheel picker AND
+                   keeps horizontal footprint small (only the current option
+                   shown). Opens a styled menu below on click. */}
+              <button
+                onClick={() => setGroupMenuOpen((v) => !v)}
+                className="flex items-center gap-0.5 px-1.5 py-0.5 rounded border border-gray-800 bg-gray-900 text-gray-300 hover:bg-gray-800 hover:border-gray-700 transition-colors"
+                title="Change how deck rows are grouped"
+              >
+                <span className="font-medium">
+                  {groupMode === "none" ? "None" : groupMode.charAt(0).toUpperCase() + groupMode.slice(1)}
+                </span>
+                <svg xmlns="http://www.w3.org/2000/svg" className={`w-2.5 h-2.5 transition-transform ${groupMenuOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                </svg>
+              </button>
+              {groupMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setGroupMenuOpen(false)} />
+                  <div className="absolute z-50 top-full right-0 mt-1 rounded-md border border-gray-700 bg-gray-950 shadow-xl overflow-hidden min-w-[72px]">
+                    {(["type", "cost", "none"] as const).map((m) => (
+                      <button
+                        key={m}
+                        onClick={() => { setGroupMode(m); setGroupMenuOpen(false); }}
+                        className={`w-full text-left px-2 py-1 text-[10px] font-medium transition-colors ${
+                          groupMode === m
+                            ? "bg-amber-600 text-white"
+                            : "text-gray-300 hover:bg-gray-800"
+                        }`}
+                      >
+                        {m === "none" ? "None" : m.charAt(0).toUpperCase() + m.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>
