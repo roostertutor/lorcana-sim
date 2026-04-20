@@ -2363,10 +2363,13 @@ export type Cost =
   | { type: "exert" } // Exert this card
   | { type: "pay_ink"; amount: number } // Pay X ink from inkwell
   | { type: "banish_self" } // Banish this card as cost
-  | { type: "discard"; filter: CardFilter; amount: number }; // Discard a card
-// Note: "banish one of your X" cost wording is modeled as a leading effect
-// in the activated ability's effects[] array, not a Cost type. The mechanical
-// outcome is identical and the existing banish/chosen-target machinery handles it.
+  | { type: "discard"; filter?: CardFilter; amount: number } // Discard N cards from hand (optionally filtered: e.g. character only, item only)
+  | { type: "banish_chosen"; target: CardTarget }; // Banish a chosen target — Lonely Grave: "Banish chosen character of yours"
+// Costs are processed by validateActivateAbility (feasibility) + applyActivateAbility:
+// the synchronous costs (exert/pay_ink/banish_self) are paid by payCosts(), and
+// async costs (discard / banish_chosen) are converted into leading effects in the
+// effects array so they flow through the existing pendingChoice + pendingEffectQueue
+// pipeline. Keep HANDLED_COST_TYPES in scripts/card-status.ts in sync with this union.
 
 // -----------------------------------------------------------------------------
 // TRIGGERS — When triggered abilities fire

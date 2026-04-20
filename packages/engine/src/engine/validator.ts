@@ -685,6 +685,35 @@ function validateActivateAbility(
         return fail(`Not enough ink. Need ${cost.amount}.`);
       }
     }
+    // Discard cost — feasibility check: hand contains enough matching cards.
+    // The actual prompt is surfaced in applyActivateAbility via a leading
+    // discard_from_hand effect (cost-as-effect pattern).
+    if (cost.type === "discard") {
+      const handIds = getZone(state, playerId, "hand");
+      const candidates = cost.filter
+        ? handIds.filter(id => {
+            const inst = state.cards[id];
+            const d = inst ? definitions[inst.definitionId] : undefined;
+            return !!inst && !!d && matchesFilter(inst, d, cost.filter!, state, playerId);
+          })
+        : handIds;
+      if (candidates.length < cost.amount) {
+        return fail(`Not enough matching cards in hand to discard.`);
+      }
+    }
+    // Banish-chosen cost — feasibility check: at least one valid target exists.
+    // Surfaced as a leading banish effect with target.
+    if (cost.type === "banish_chosen") {
+      const filter = cost.target.type === "chosen" ? cost.target.filter : undefined;
+      if (filter) {
+        const anyValid = Object.values(state.cards).some(inst => {
+          const d = definitions[inst.definitionId];
+          if (!d) return false;
+          return matchesFilter(inst, d, filter, state, playerId, instanceId);
+        });
+        if (!anyValid) return fail(`No valid target to banish.`);
+      }
+    }
   }
 
   return OK;

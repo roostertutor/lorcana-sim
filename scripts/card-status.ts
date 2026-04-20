@@ -100,14 +100,14 @@ function extractInterfaceFields(source: string, interfaceName: string): Set<stri
 // `hasCardUnder`, `notId` vs `excludeSelf`, etc.
 const VALID_CARDFILTER_FIELDS = extractInterfaceFields(typesSource, "CardFilter");
 
-// Cost types that have a runtime handler in `payCosts()` (reducer.ts). The
-// `Cost` TS union may declare types that the runtime doesn't actually pay —
-// e.g. `discard` cost was in the union but payCosts had no handler, silently
-// no-op'ing Angel Experiment 624 GOOD AIM. Keep this list in sync with the
-// switch arms in reducer.ts:payCosts. Additions to the union must come with
-// a runtime case OR be added here as "intentionally unimplemented" with a
-// reason — the audit forces the conversation.
-const HANDLED_COST_TYPES = new Set(["exert", "pay_ink", "banish_self"]);
+// Cost types that the runtime actually processes — either via payCosts()
+// directly (exert / pay_ink / banish_self) or via applyActivateAbility's
+// cost-as-effect prepend (discard / banish_chosen, which surface a
+// pendingChoice for the player to pick which card / target). Keep this list
+// in sync with both. Additions to the Cost union must come with a runtime
+// case OR be added here as "intentionally unimplemented" with a reason —
+// the audit forces the conversation.
+const HANDLED_COST_TYPES = new Set(["exert", "pay_ink", "banish_self", "discard", "banish_chosen"]);
 
 interface FieldError {
   path: string;

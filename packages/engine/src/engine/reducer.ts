@@ -1541,11 +1541,38 @@ function applyActivateAbility(
     }
   }
 
-  for (let i = 0; i < ability.effects.length; i++) {
-    const effect = ability.effects[i]!;
+  // Async costs (discard, banish_chosen) — payCosts only handles synchronous
+  // ones (exert, pay_ink, banish_self). For costs that require player input
+  // (which card to discard, which target to banish), prepend a synthetic
+  // effect that flows through the existing pendingChoice + pendingEffectQueue
+  // pipeline. validateActivateAbility already gated feasibility, so these
+  // can't fizzle on no-target — the prompt surfaces and the rest of the
+  // ability's effects queue behind it.
+  const leadingCostEffects: Effect[] = [];
+  for (const cost of ability.costs) {
+    if (cost.type === "discard") {
+      const discardEffect: Effect = {
+        type: "discard_from_hand",
+        target: { type: "self" },
+        amount: cost.amount,
+        chooser: "target_player",
+        ...(cost.filter ? { filter: cost.filter } : {}),
+      } as Effect;
+      leadingCostEffects.push(discardEffect);
+    }
+    if (cost.type === "banish_chosen") {
+      leadingCostEffects.push({ type: "banish", target: cost.target } as Effect);
+    }
+  }
+  const effectsToApply = leadingCostEffects.length > 0
+    ? [...leadingCostEffects, ...ability.effects]
+    : ability.effects;
+
+  for (let i = 0; i < effectsToApply.length; i++) {
+    const effect = effectsToApply[i]!;
     state = applyEffect(state, effect, instanceId, playerId, definitions, events);
     if (state.pendingChoice) {
-      const remaining = ability.effects.slice(i + 1);
+      const remaining = effectsToApply.slice(i + 1);
       if (remaining.length > 0) {
         state = { ...state, pendingEffectQueue: { effects: remaining, sourceInstanceId: instanceId, controllingPlayerId: playerId } };
       }

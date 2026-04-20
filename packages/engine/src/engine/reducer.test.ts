@@ -493,6 +493,86 @@ it("The Queen I SUMMON THEE: exerts her and draws a card (CRD 4.4.1)", () => {
     expect(resolveResult.success).toBe(true);
     expect(getZone(resolveResult.newState, "player1", "hand").length).toBe(handBefore);
   });
+
+  // Async cost handling — discard / banish_chosen costs need user input.
+  // Validated upfront in validateActivateAbility, then surfaced as leading
+  // effects in applyActivateAbility (cost-as-effect prepend).
+  describe("async costs (discard, banish_chosen)", () => {
+    it("discard cost surfaces choose_discard prompt", () => {
+      // Madam Mim Truly Marvelous: 2 ink + discard a card → gain 1 lore.
+      let state = startGame();
+      state = giveInk(state, "player1", 5);
+      let mimId: string;
+      ({ state, instanceId: mimId } = injectCard(state, "player1", "madam-mim-truly-marvelous", "play", { isDrying: false }));
+      const handBefore = getZone(state, "player1", "hand");
+      expect(handBefore.length).toBeGreaterThan(0);
+      const loreBefore = state.players.player1.lore;
+
+      const r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: mimId, abilityIndex: 0 }, CARD_DEFINITIONS);
+      expect(r.success).toBe(true);
+      // Sync costs paid: 2 ink deducted, Mim NOT exerted (no exert in cost).
+      expect(r.newState.players.player1.availableInk).toBe(3);
+      // Discard cost prompt surfaces.
+      expect(r.newState.pendingChoice?.type).toBe("choose_discard");
+
+      // Pick a card to discard.
+      const r2 = applyAction(r.newState, {
+        type: "RESOLVE_CHOICE", playerId: "player1", choice: [handBefore[0]!],
+      }, CARD_DEFINITIONS);
+      expect(r2.success).toBe(true);
+      // Effect ran: gained 1 lore.
+      expect(r2.newState.players.player1.lore).toBe(loreBefore + 1);
+    });
+
+    it("discard cost with filter (item) only allows matching cards", () => {
+      // The Wardrobe Perceptive Friend: {E}, discard an item card → draw 2.
+      let state = startGame();
+      let wardrobeId: string, itemId: string;
+      ({ state, instanceId: wardrobeId } = injectCard(state, "player1", "the-wardrobe-perceptive-friend", "play", { isDrying: false }));
+      ({ state, instanceId: itemId } = injectCard(state, "player1", "lantern", "hand"));
+
+      const r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: wardrobeId, abilityIndex: 0 }, CARD_DEFINITIONS);
+      expect(r.success).toBe(true);
+      expect(r.newState.pendingChoice?.type).toBe("choose_discard");
+      // validTargets restricted to item cards in hand.
+      expect(r.newState.pendingChoice?.validTargets).toContain(itemId);
+      // Wardrobe should be exerted (sync exert cost paid).
+      expect(getInstance(r.newState, wardrobeId).isExerted).toBe(true);
+    });
+
+    it("discard cost rejects activation when hand has no matching card", () => {
+      // The Wardrobe with no item in hand — should fail validation.
+      let state = startGame();
+      let wardrobeId: string;
+      ({ state, instanceId: wardrobeId } = injectCard(state, "player1", "the-wardrobe-perceptive-friend", "play", { isDrying: false }));
+      // Empty the hand of items by emptying hand entirely.
+      state = {
+        ...state,
+        zones: { ...state.zones, player1: { ...state.zones.player1, hand: [] } },
+      };
+      const r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: wardrobeId, abilityIndex: 0 }, CARD_DEFINITIONS);
+      expect(r.success).toBe(false);
+    });
+
+    it("banish_chosen cost surfaces choose_target prompt + rejects with no valid target", () => {
+      // Lonely Grave: {E}, banish chosen character of yours → put top card under
+      // a Boost character/location.
+      let state = startGame();
+      let graveId: string;
+      ({ state, instanceId: graveId } = injectCard(state, "player1", "lonely-grave", "play", { isDrying: false }));
+      // No friendly character to banish — should fail validation.
+      const noTarget = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: graveId, abilityIndex: 0 }, CARD_DEFINITIONS);
+      expect(noTarget.success).toBe(false);
+
+      // Now add a friendly character — activation should pause for the banish target choice.
+      let charId: string;
+      ({ state, instanceId: charId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+      void charId;
+      const r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: graveId, abilityIndex: 0 }, CARD_DEFINITIONS);
+      expect(r.success).toBe(true);
+      expect(r.newState.pendingChoice?.type).toBe("choose_target");
+    });
+  });
 });
 
 describe("§4.5 Quest", () => {
