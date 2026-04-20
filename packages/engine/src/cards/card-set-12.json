@@ -2744,7 +2744,46 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "WAIT FOR IT...",
+        "rulesText": "This character may enter play exerted to deal 3 damage to chosen damaged character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "exert",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "deal_damage",
+                "amount": 3,
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "hasDamage": true
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 78,
     "rarity": "uncommon",
@@ -2756,14 +2795,7 @@
     "rulesText": "WAIT FOR IT... This character may enter play exerted to deal 3 damage to chosen damaged character.",
     "flavorText": "\"We'll find our way back to the Illuminary if we have to fight through every plant in Lorcana.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/78_0a4ef377508049229fe5ed671fe577bd7d1d9aab.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/78_0a4ef377508049229fe5ed671fe577bd7d1d9aab.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "WAIT FOR IT...",
-        "rulesText": "This character may enter play exerted to deal 3 damage to chosen damaged character.",
-        "raw": "WAIT FOR IT... This character may enter play exerted to deal 3 damage to chosen damaged character."
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/78_0a4ef377508049229fe5ed671fe577bd7d1d9aab.jpg"
   },
   {
     "id": "lenny-toy-binoculars",
@@ -6129,7 +6161,47 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "TOUGH IT OUT",
+        "rulesText": "This character may enter play exerted to give chosen character <Resist> +2 until the start of your next turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "exert",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "grant_keyword",
+                "keyword": "resist",
+                "value": 2,
+                "duration": "until_caster_next_turn",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 181,
     "rarity": "uncommon",
@@ -6141,14 +6213,7 @@
     "rulesText": "TOUGH IT OUT This character may enter play exerted to give chosen character <Resist> +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)",
     "flavorText": "\"Clan Macintosh fears no flower, vine, or tree. We dinnae mess with shrubs, though.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/181_772f9ab54969f3a58024b5f63ed5cc3447824ed1.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/181_772f9ab54969f3a58024b5f63ed5cc3447824ed1.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "TOUGH IT OUT",
-        "rulesText": "This character may enter play exerted to give chosen character <Resist> +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)",
-        "raw": "TOUGH IT OUT This character may enter play exerted to give chosen character <Resist> +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)"
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/181_772f9ab54969f3a58024b5f63ed5cc3447824ed1.jpg"
   },
   {
     "id": "fat-cat-felonious-feline",
@@ -6326,7 +6391,47 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "FIGHTIN' TALK",
+        "rulesText": "This character may enter play exerted to give chosen character <Challenger> +3 this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "exert",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "grant_keyword",
+                "keyword": "challenger",
+                "value": 3,
+                "duration": "this_turn",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 186,
     "rarity": "uncommon",
@@ -6338,14 +6443,7 @@
     "rulesText": "FIGHTIN’ TALK This character may enter play exerted to give chosen character <Challenger> +3 this turn. (They get +3 {S} while challenging.)",
     "flavorText": "\"Ach, look at the size o' that flower! Let's clear that beastie out before it causes any trouble.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/186_74242fa481dc8df7788924b02c27b93f00c4c11c.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/186_74242fa481dc8df7788924b02c27b93f00c4c11c.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "FIGHTIN' TALK",
-        "rulesText": "This character may enter play exerted to give chosen character <Challenger> +3 this turn. (They get +3 {S} while challenging.)",
-        "raw": "FIGHTIN’ TALK This character may enter play exerted to give chosen character <Challenger> +3 this turn. (They get +3 {S} while challenging.)"
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/186_74242fa481dc8df7788924b02c27b93f00c4c11c.jpg"
   },
   {
     "id": "merida-formidable-archer",

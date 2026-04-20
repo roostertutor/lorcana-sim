@@ -700,6 +700,30 @@ describe("Set 12 — Omnidroid V.9 played_via_shift condition", () => {
   });
 });
 
+describe("Set 12 — Lord 'may enter play exerted to X' pattern", () => {
+  // "May enter play exerted to X" is Bodyguard's opt-in-exert mechanism
+  // (synthesized on-enter may-exert trigger) plus a reward effect — NOT a
+  // new play-time choice primitive. Modeled as sequential{isMay, costEffects,
+  // rewardEffects}, same shape as Judy Hopps banish-then-draw. This test
+  // guards the wiring shape across all 3 Lords.
+  it.each([
+    ["lord-macguffin-clever-swordsman", "deal_damage"],
+    ["lord-macintosh-wiry-and-high-strung", "grant_keyword"],
+    ["lord-dingwall-bullheaded", "grant_keyword"],
+  ])("%s wires enters_play → sequential(exert self, %s) with isMay", (slug, rewardType) => {
+    const def = CARD_DEFINITIONS[slug];
+    expect(def).toBeDefined();
+    const trig = def!.abilities.find((a: any) => a.type === "triggered" && a.trigger?.on === "enters_play");
+    expect(trig).toBeDefined();
+    const seq = (trig as any).effects[0];
+    expect(seq.type).toBe("sequential");
+    expect(seq.isMay).toBe(true);
+    expect(seq.costEffects[0].type).toBe("exert");
+    expect(seq.costEffects[0].target.type).toBe("this");
+    expect(seq.rewardEffects[0].type).toBe(rewardType);
+  });
+});
+
 describe("Set 12 — cards_put_into_discard_this_turn counter + condition (Helga)", () => {
   it("Helga self-cost-reduction wiring uses the new condition + primitive", () => {
     const def = CARD_DEFINITIONS["helga-sinclair-no-backup-needed"];
