@@ -10,13 +10,44 @@
 // hardcoding the rule.
 // =============================================================================
 
-import type { CardDefinition, GameState, PlayerID, StaticEffect, StaticAbility } from "../types/index.js";
+import type { CardDefinition, CardFilter, GameState, PlayerID, StaticEffect, StaticAbility } from "../types/index.js";
 import { evaluateCondition, getZone, matchesFilter } from "../utils/index.js";
 
 /** Normalize StaticAbility.effect (single or array) to a flat array. */
 function normalizeEffects(ability: StaticAbility): StaticEffect[] {
   return Array.isArray(ability.effect) ? ability.effect : [ability.effect];
 }
+
+/** Unified cost-reduction modifier covering both PLAY and MOVE actions.
+ *  Discriminated union so the type checker enforces per-kind invariants. */
+export type CostReductionModifier =
+  | {
+      kind: "play";
+      playerId: PlayerID;
+      amount: number;
+      cardFilter?: CardFilter;
+      /** "all" (default) applies to both normal and shift play; "shift_only"
+       *  scopes the discount to the Shift cost path (Yokai pattern). */
+      appliesTo?: "all" | "shift_only";
+      sourceInstanceId?: string;
+      oncePerTurnKey?: string;
+    }
+  | {
+      kind: "move";
+      playerId: PlayerID;
+      /** Number, or "all" to fully waive the move cost (Jolly Roger). */
+      amount: number | "all";
+      cardFilter?: CardFilter;
+      /** When set, only matches when the destination is this exact location
+       *  (Jolly Roger). Unset = applies to any location (Map of Treasure
+       *  Planet, Raksha). */
+      locationInstanceId?: string;
+      /** When true, only the source instance benefits (Raksha — only she
+       *  herself moves cheaper). Requires `sourceInstanceId`. */
+      selfOnly?: boolean;
+      sourceInstanceId?: string;
+      oncePerTurnKey?: string;
+    };
 
 export interface GameModifiers {
   /**
@@ -45,13 +76,30 @@ export interface GameModifiers {
   /** Keywords granted by conditional static abilities (e.g. Pascal gains Evasive, Cogsworth grants Resist +1). */
   grantedKeywords: Map<string, { keyword: import("../types/index.js").Keyword; value?: number }[]>;
 
-  /** Static cost reductions (e.g. Mickey: Broom chars cost 1 less). Key = playerId.
-   *  appliesTo limits the scope: "all" = both normal and shift (default),
-   *  "shift_only" = only when paying Shift cost (Yokai).
-   *  sourceInstanceId + oncePerTurnKey: present on once-per-turn reductions
-   *  (Grandmother Willow). After consumption, the source's oncePerTurnTriggered
-   *  flag is set so gameModifiers skips it until next turn. */
-  costReductions: Map<import("../types/index.js").PlayerID, { amount: number; filter: import("../types/index.js").CardFilter; appliesTo: "all" | "shift_only"; sourceInstanceId?: string; oncePerTurnKey?: string }[]>;
+  /** Unified static cost reductions for both PLAY and MOVE actions. One flat
+   *  array; consumers filter by `kind` and `playerId`. Replaces the old
+   *  parallel `costReductions` (play) + `moveToSelfCostReductions` (move,
+   *  per-location) + `globalMoveCostReduction` (move, player-wide) trio.
+   *
+   *  Play kind (Mickey Mouse Wayward Sorcerer, LeFou static-on-self,
+   *  Lantern, Grandmother Willow once-per-turn):
+   *  - `appliesTo`: "all" (default) or "shift_only" (Yokai-style).
+   *  - `cardFilter`: matches the card being played (undefined = any).
+   *
+   *  Move kind (Jolly Roger, Map of Treasure Planet, Raksha Fearless Mother):
+   *  - `cardFilter`: matches the character being moved (undefined = any).
+   *  - `locationInstanceId`: when set, only applies when moving to that exact
+   *    location (Jolly Roger). When unset, applies to any destination
+   *    (Map of Treasure Planet, Raksha).
+   *  - `selfOnly`: when true, only the source instance benefits (Raksha — only
+   *    Raksha herself moves cheaper).
+   *  - `amount: "all"` waives the move cost entirely (Jolly Roger).
+   *
+   *  Once-per-turn (both kinds): `sourceInstanceId` + `oncePerTurnKey`.
+   *  Consumers set `source.oncePerTurnTriggered[oncePerTurnKey] = true` after
+   *  use; `getGameModifiers` skips the entry on the next refresh until the
+   *  flag clears at turn start. */
+  costReductions: CostReductionModifier[];
 
   /** Action restrictions (quest/challenge/play/sing/ready) from static abilities. */
   actionRestrictions: {
@@ -175,13 +223,6 @@ export interface GameModifiers {
    */
   topOfDeckVisible: Set<import("../types/index.js").PlayerID>;
 
-  /**
-   * Per-location move cost reductions (Jolly Roger - Hook's Ship: "Your Pirate
-   * characters may move here for free"). Key = location instanceId, value =
-   * list of { amount, filter } entries. validateMoveCharacter / applyMoveCharacter
-   * consult this when computing the effective move cost to that location.
-   */
-  moveToSelfCostReductions: Map<string, { amount: number | "all"; filter: import("../types/index.js").CardFilter }[]>;
 
   /**
    * Per-player "force enter exerted" filters from EnterPlayExertedStatic.
@@ -301,18 +342,6 @@ export interface GameModifiers {
   allHandInkable: Set<import("../types/index.js").PlayerID>;
   /** Vision Slab: "Damage counters can't be removed." */
   preventDamageRemoval: boolean;
-  /** Map of Treasure Planet: global move cost reduction from non-locations.
-   *  Raksha Fearless Mother: per-source-self oncePerTurn variant (selfOnly +
-   *  oncePerTurnKey + sourceInstanceId set; validator filters to source's own
-   *  moves and skips when source.oncePerTurnTriggered[oncePerTurnKey] is set). */
-  globalMoveCostReduction: {
-    amount: number;
-    playerId: import("../types/index.js").PlayerID;
-    filter?: import("../types/index.js").CardFilter;
-    selfOnly?: boolean;
-    sourceInstanceId?: string;
-    oncePerTurnKey?: string;
-  }[];
   /** Captain Amelia: keyword granted to other chars only while being challenged. */
   grantKeywordWhileBeingChallenged: Map<string, { keyword: import("../types/index.js").Keyword; value?: number }[]>;
 
@@ -332,7 +361,7 @@ export function getGameModifiers(
     canChallengeReady: new Map(),
     statBonuses: new Map(),
     grantedKeywords: new Map(),
-    costReductions: new Map(),
+    costReductions: [],
     actionRestrictions: [],
     extraInkPlays: new Map(),
     damageRedirects: new Map(),
@@ -350,7 +379,6 @@ export function getGameModifiers(
     skipsDrawStep: new Set(),
     canQuestTurnPlayed: new Set(),
     topOfDeckVisible: new Set(),
-    moveToSelfCostReductions: new Map(),
     enterPlayExerted: new Map(),
     statFloorsPrinted: new Map(),
     singCostBonusHere: new Map(),
@@ -368,7 +396,6 @@ export function getGameModifiers(
     grantedTriggeredAbilities: new Map(),
     allHandInkable: new Set(),
     preventDamageRemoval: false,
-    globalMoveCostReduction: [],
     grantKeywordWhileBeingChallenged: new Map(),
   };
 
@@ -681,22 +708,21 @@ export function getGameModifiers(
           } else {
             resolvedAmount = 0;
           }
-          const entry = {
-            amount: resolvedAmount,
-            filter: effect.filter,
-            appliesTo: effect.appliesTo ?? "all" as const,
-            // Track source for once-per-turn consumption (Grandmother Willow).
-            ...(ability.oncePerTurn ? {
-              sourceInstanceId: instance.instanceId,
-              oncePerTurnKey: ability.storyName ?? ability.rulesText ?? "anon",
-            } : {}),
-          };
+          const oncePerTurnFields = ability.oncePerTurn ? {
+            sourceInstanceId: instance.instanceId,
+            oncePerTurnKey: ability.storyName ?? ability.rulesText ?? "anon",
+          } : {};
           // Determine affected players (Gantu: "each player" = both, negative amount = cost increase)
           const ap = effect.affectedPlayer ?? { type: "self" as const };
-          const addForPlayer = (pid: import("../types/index.js").PlayerID) => {
-            const existing = modifiers.costReductions.get(pid) ?? [];
-            existing.push(entry);
-            modifiers.costReductions.set(pid, existing);
+          const addForPlayer = (pid: PlayerID) => {
+            modifiers.costReductions.push({
+              kind: "play",
+              playerId: pid,
+              amount: resolvedAmount,
+              cardFilter: effect.filter,
+              appliesTo: effect.appliesTo ?? "all",
+              ...oncePerTurnFields,
+            });
           };
           if (ap.type === "both") {
             addForPlayer("player1");
@@ -813,13 +839,15 @@ export function getGameModifiers(
 
         case "move_to_self_cost_reduction": {
           // Jolly Roger - Hook's Ship: "Your Pirate characters may move here for free."
-          // Keyed on the location instance — the validator looks up the destination's id.
-          let entries = modifiers.moveToSelfCostReductions.get(instance.instanceId);
-          if (!entries) {
-            entries = [];
-            modifiers.moveToSelfCostReductions.set(instance.instanceId, entries);
-          }
-          entries.push({ amount: effect.amount, filter: effect.filter });
+          // Stored as a "move" cost reduction keyed on the location's instance —
+          // the move-cost path filters entries by locationInstanceId.
+          modifiers.costReductions.push({
+            kind: "move",
+            playerId: instance.ownerId,
+            amount: effect.amount,
+            cardFilter: effect.filter,
+            locationInstanceId: instance.instanceId,
+          });
           break;
         }
 
@@ -1067,12 +1095,13 @@ export function getGameModifiers(
           const oncePerTurnKey = effect.oncePerTurn
             ? (ability.storyName ?? ability.rulesText ?? "anon")
             : undefined;
-          modifiers.globalMoveCostReduction.push({
-            amount: effect.amount,
+          modifiers.costReductions.push({
+            kind: "move",
             playerId: instance.ownerId,
-            filter: effect.filter,
+            amount: effect.amount,
+            cardFilter: effect.filter,
             ...(effect.selfOnly ? { selfOnly: true, sourceInstanceId: instance.instanceId } : {}),
-            ...(oncePerTurnKey ? { oncePerTurnKey } : {}),
+            ...(oncePerTurnKey ? { sourceInstanceId: instance.instanceId, oncePerTurnKey } : {}),
           });
           break;
         }

@@ -83,39 +83,6 @@ delay, includes Iconic/Epic cards Lorcast doesn't index, and provides
 
 ---
 
-## Engine: unify play-cost and move-cost reduction systems (deferred cleanup)
-
-Both follow the same conceptual model — base cost + ordered stack of
-reductions, where each reduction has a CardFilter (what's eligible for the
-discount), an amount, an optional selfOnly/oncePerTurn gate, and a
-sourceInstanceId for the once-per-turn marker. They're implemented as two
-independent code paths today:
-
-- **Play**: `gameModifiers.costReductions` Map (statics like Mickey Broom),
-  `state.players[pid].costReductions` (one-shot like Lantern), `self_cost
-  _reduction` static (LeFou), once-per-turn keys (Grandmother Willow). Stacked
-  in `applyPlayCard` ~640-712.
-- **Move**: `gameModifiers.moveToSelfCostReductions` Map (location-keyed,
-  Jolly Roger), `gameModifiers.globalMoveCostReduction[]` (item-keyed, Map
-  of Treasure Planet) with optional `selfOnly` + `oncePerTurnKey` (Raksha,
-  added 4c63b82). Stacked in `applyMoveCostReduction`.
-
-Worth unifying once a third "cost reduction" mechanism appears (shift cost
-reductions? sing cost reductions?). For now ~6 play cards + ~3 move cards
-— not enough to justify the refactor. Cleanup-of-cleanup.
-
-Unified shape if/when:
-```ts
-{ kind: "play" | "move",
-  amount: number,
-  cardFilter?: CardFilter,        // card being played/moved
-  locationFilter?: CardFilter,    // move only
-  playerId: PlayerID,
-  selfOnly?: boolean,
-  sourceInstanceId?: string,
-  oncePerTurnKey?: string }
-```
-
 ---
 
 ## GUI: alt-shift cost picker — PendingChoiceModal routing for hand-card pick

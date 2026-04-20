@@ -122,9 +122,12 @@ describe("§5 Set 5 — reveal_top_conditional", () => {
     ({ state, instanceId: sherwoodId } = injectCard(state, "player1", "sherwood-forest-outlaw-hideaway", "play", { isDrying: false }));
     ({ state, instanceId: mickeyId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
     const mods = getGameModifiers(state, CARD_DEFINITIONS);
-    const entries = mods.moveToSelfCostReductions.get(sherwoodId);
-    expect(entries?.length).toBe(1);
-    expect(entries?.[0]?.filter.hasName).toBe("Robin Hood");
+    const entries = mods.costReductions.filter((r) =>
+      r.kind === "move" && r.locationInstanceId === sherwoodId
+    );
+    expect(entries.length).toBe(1);
+    const entry = entries[0]!;
+    expect(entry.kind === "move" && entry.cardFilter?.hasName).toBe("Robin Hood");
     // Mickey isn't named Robin Hood — base cost stays
     const inst = getInstance(state, mickeyId);
     const def = CARD_DEFINITIONS[inst.definitionId]!;

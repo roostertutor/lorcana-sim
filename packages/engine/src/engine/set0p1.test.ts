@@ -24,11 +24,13 @@ describe("§P1 Promo — Jolly Roger - Hook's Ship", () => {
     ({ state, instanceId: jollyId } = injectCard(state, "player1", "jolly-roger-hooks-ship", "play", { isDrying: false }));
 
     const mods = getGameModifiers(state, CARD_DEFINITIONS);
-    const entries = mods.moveToSelfCostReductions.get(jollyId);
-    expect(entries).toBeDefined();
-    expect(entries?.length).toBe(1);
-    expect(entries?.[0]?.amount).toBe("all");
-    expect(entries?.[0]?.filter.hasTrait).toBe("Pirate");
+    const entries = mods.costReductions.filter((r) =>
+      r.kind === "move" && r.locationInstanceId === jollyId
+    );
+    expect(entries.length).toBe(1);
+    const entry = entries[0]!;
+    expect(entry.amount).toBe("all");
+    expect(entry.kind === "move" && entry.cardFilter?.hasTrait).toBe("Pirate");
   });
 
   it("applyMoveCostReduction helper: Pirate gets cost reduced to 0; non-Pirate pays full", () => {

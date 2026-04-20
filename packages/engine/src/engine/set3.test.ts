@@ -738,7 +738,7 @@ describe("§7 Set 3 — Locations", () => {
 
     // No character at the location yet → item costs full price (4).
     let modifiers = getGameModifiers(state, CARD_DEFINITIONS);
-    let reductions = modifiers.costReductions.get("player1") ?? [];
+    let reductions = modifiers.costReductions.filter((r) => r.kind === "play" && r.playerId === "player1");
     expect(reductions.length).toBe(0);
 
     // Move Mickey to Belle's House (it has moveCost 1; give ink)
@@ -749,7 +749,7 @@ describe("§7 Set 3 — Locations", () => {
 
     // Now the static fires → cost reduction is active.
     modifiers = getGameModifiers(state, CARD_DEFINITIONS);
-    reductions = modifiers.costReductions.get("player1") ?? [];
+    reductions = modifiers.costReductions.filter((r) => r.kind === "play" && r.playerId === "player1");
     expect(reductions.length).toBe(1);
     expect(reductions[0]?.amount).toBe(1);
   });

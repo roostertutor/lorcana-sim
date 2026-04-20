@@ -674,19 +674,22 @@ function applyPlayCard(
     const instance = getInstance(state, instanceId);
     let cost = baseCost;
 
-    // Static cost reductions (e.g. Mickey: Broom chars cost 1 less)
-    const staticReductions = modifiers.costReductions.get(playerId) ?? [];
-    for (const red of staticReductions) {
-      if (matchesFilter(instance, def, red.filter, state, playerId)) {
-        cost -= red.amount;
-        // CRD 6.1.13: once-per-turn static reductions (Grandmother Willow) —
-        // mark the source instance so gameModifiers skips it next time.
-        if (red.sourceInstanceId && red.oncePerTurnKey) {
-          const src = getInstance(state, red.sourceInstanceId);
-          state = updateInstance(state, red.sourceInstanceId, {
-            oncePerTurnTriggered: { ...(src.oncePerTurnTriggered ?? {}), [red.oncePerTurnKey]: true },
-          });
-        }
+    // Static cost reductions (e.g. Mickey: Broom chars cost 1 less). Filter
+    // the unified modifier list to "play"-kind entries for this player.
+    const isShiftPay = !!shiftTargetInstanceId;
+    for (const red of modifiers.costReductions) {
+      if (red.kind !== "play") continue;
+      if (red.playerId !== playerId) continue;
+      if (red.appliesTo === "shift_only" && !isShiftPay) continue;
+      if (red.cardFilter && !matchesFilter(instance, def, red.cardFilter, state, playerId)) continue;
+      cost -= red.amount;
+      // CRD 6.1.13: once-per-turn static reductions (Grandmother Willow) —
+      // mark the source instance so gameModifiers skips it next time.
+      if (red.sourceInstanceId && red.oncePerTurnKey) {
+        const src = getInstance(state, red.sourceInstanceId);
+        state = updateInstance(state, red.sourceInstanceId, {
+          oncePerTurnTriggered: { ...(src.oncePerTurnTriggered ?? {}), [red.oncePerTurnKey]: true },
+        });
       }
     }
 
@@ -1363,7 +1366,8 @@ function applyMoveCharacter(
   // (Raksha — "Once during your turn, you may pay 1 {I} less to move this character").
   // We mark BEFORE deducting ink so the marker reflects the move that's about to pay.
   if (moveCost < baseCost) {
-    for (const entry of moveModifiers.globalMoveCostReduction) {
+    for (const entry of moveModifiers.costReductions) {
+      if (entry.kind !== "move") continue;
       if (entry.playerId !== playerId) continue;
       if (!entry.oncePerTurnKey || !entry.sourceInstanceId) continue;
       if (entry.selfOnly && entry.sourceInstanceId !== characterInstanceId) continue;
