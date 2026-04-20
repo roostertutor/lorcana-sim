@@ -1,14 +1,18 @@
 #!/usr/bin/env node
 // =============================================================================
 // LORCAST CARD IMPORTER (rescue importer)
-// Fetches card data from https://api.lorcast.com/v0 to fill gaps that
-// Ravensburger's official API doesn't cover:
-//   - DIS (EPCOT Festival of the Arts)  — Ravensburger returns empty
-//   - cp  (Challenge Promo)              — Ravensburger returns empty
+// Fetches card data from https://api.lorcast.com/v0 to fill the subset of
+// promo/special cards that don't appear as reprints in Ravensburger's main-set
+// responses. Ravensburger serves most promos (P1/P2/P3/C1/C2/D23) via the
+// main-set piggyback path — see PROMO_TOTAL_CODES in import-cards-rav.ts — but
+// some sets have exclusives that never appear as a main-set reprint:
+//   - DIS (EPCOT Festival of the Arts)  — exclusives not served by Ravensburger
+//   - cp  (Challenge Promo)              — exclusives not served by Ravensburger
 //   - D23 (D23 Collection)               — some unique entries
-//   - C2  (Lorcana Challenge Year 3)     — Ravensburger returns empty
-// And as a fallback for pre-release windows when Lorcast publishes main-set
-// data before Ravensburger updates.
+//   - C2  (Lorcana Challenge Year 3)     — exclusives not served by Ravensburger
+// Also a fallback for pre-release windows when Lorcast publishes main-set data
+// before Ravensburger updates; those entries get upgraded to `ravensburger` on
+// the next `pnpm import-cards` once the official API catches up.
 //
 // Usage:
 //   pnpm import-cards-lorcast                 fetch default gap sets (DIS/cp/D23/C2)
@@ -145,7 +149,9 @@ type SingleInkColor = CardDefinitionOut["inkColors"][number];
 type CardSource = NonNullable<CardDefinitionOut["_source"]>;
 const SOURCE_TIER: Record<CardSource, number> = { manual: 0, lorcast: 1, ravensburger: 2 };
 function sourceTier(s: CardSource | undefined): number {
-  return SOURCE_TIER[s ?? "ravensburger"];
+  // Missing _source means lowest priority (manual) — see import-cards-rav.ts
+  // for the full backfill → ravensburger → lorcast → manual flow.
+  return SOURCE_TIER[s ?? "manual"];
 }
 
 // =============================================================================
@@ -207,7 +213,81 @@ function mapRarity(r: string): CardDefinitionOut["rarity"] {
 const KEYWORD_LINE_PREFIXES = [
   "Singer", "Shift", "Challenger", "Bodyguard", "Rush", "Evasive",
   "Ward", "Support", "Reckless", "Resist", "Vanish", "Alert", "Boost",
+  "Sing Together",
 ];
+
+// Normalize Lorcast-shaped rulesText to Ravensburger's golden format.
+// Ravensburger is the source of truth — every importer (and any hand-entered
+// card) must produce rulesText in this shape so the stored JSON is
+// source-independent. Divergences we normalize:
+//   (1) Line-start keyword:   "Singer 5 (...)"      → "<Singer> 5 (...)"
+//   (2) Inline keyword ref:   "gain Challenger +1"  → "gain <Challenger> +1"
+//                             (but NOT inside reminder parens — Ravensburger
+//                              itself doesn't wrap keywords there)
+//   (3) Stat-modifier dash:   "gets -2 {S}"         → "gets –2 {S}" (en-dash)
+//   (4) Straight apostrophe:  "can't"               → "can’t" (curly U+2019)
+// Multi-word keywords (Sing Together) must be matched before single-word.
+const KEYWORD_NAMES_RAV_SHAPE = [
+  "Sing Together", "Bodyguard", "Challenger", "Evasive", "Reckless",
+  "Resist", "Rush", "Shift", "Singer", "Support", "Vanish", "Ward",
+  "Boost", "Alert",
+];
+
+function wrapLineStartKeyword(line: string): string {
+  for (const kw of KEYWORD_NAMES_RAV_SHAPE) {
+    const escaped = kw.replace(/ /g, "\\s+");
+    const re = new RegExp(`^${escaped}\\b`);
+    if (re.test(line)) return line.replace(re, `<${kw}>`);
+  }
+  return line;
+}
+
+// Wrap inline keyword references in `<>`, but ONLY value-bearing ones.
+// Ravensburger's convention (empirically determined from set 1 data):
+//   VALUE-BEARING (wrap):    "gain <Challenger> +1", "gain <Singer> 5",
+//                            "gain <Shift> 4 {I}", "gain <Resist> +1",
+//                            "gain <Boost> 2"
+//   VALUE-LESS (don't wrap): "gain Rush", "gains Evasive", "has Bodyguard"
+//   INSIDE REMINDER PARENS:  never wrap (see "...can challenge them.")
+// Strategy: split on parens (skip paren segments), then within non-paren
+// segments only wrap keywords that are followed by a value (+N / N / N{I}).
+const VALUE_BEARING_KEYWORDS = ["Challenger", "Singer", "Shift", "Resist", "Boost", "Sing Together"];
+function wrapInlineKeywordRefs(line: string): string {
+  const segments = line.split(/(\([^)]*\))/g);
+  return segments
+    .map((seg, i) => {
+      if (i % 2 === 1) return seg; // paren-enclosed — leave alone
+      let out = seg;
+      for (const kw of VALUE_BEARING_KEYWORDS) {
+        const escaped = kw.replace(/ /g, "\\s+");
+        // Negative lookbehind `(?<!<)` prevents re-wrapping `<Keyword>`.
+        // Positive lookahead `(?=\s*[+\d])` requires a value to follow —
+        // `+N` (Challenger/Resist), `N` (Singer/Boost), or `N {I}` (Shift).
+        const re = new RegExp(`(?<!<)\\b${escaped}\\b(?=\\s*[+\\d])`, "g");
+        out = out.replace(re, `<${kw}>`);
+      }
+      return out;
+    })
+    .join("");
+}
+
+function normalizeKeywordLineToRavShape(line: string): string {
+  return wrapInlineKeywordRefs(wrapLineStartKeyword(line));
+}
+
+// Ravensburger uses en-dash (U+2013) for negative stat modifiers and
+// activated-ability cost separators; Lorcast uses plain hyphen-minus. Only
+// transform in stat-modifier contexts (before a digit + space + {S|L|I}) to
+// avoid touching legitimate hyphens in card text (compound words, etc.).
+function normalizeDashes(text: string): string {
+  return text.replace(/ -(\d+\s*\{[SLI]\})/g, " \u2013$1");
+}
+
+// Straight apostrophe → curly right single quote. Ravensburger normalizes all
+// apostrophes to U+2019 for display fidelity. Safe universal replacement.
+function normalizeApostrophes(text: string): string {
+  return text.replace(/'/g, "\u2019");
+}
 
 function parseKeywordAbilities(
   lorcastKeywords: string[],
@@ -313,9 +393,16 @@ function mapCard(c: LorcastCard): CardDefinitionOut | null {
   if (shiftCost !== undefined) out.shiftCost = shiftCost;
   if (c.move_cost !== null) out.moveCost = c.move_cost;
   if (c.text) {
+    // Normalize to Ravensburger's rulesText shape — keyword `<>` wrapping,
+    // curly apostrophes, en-dash for stat modifiers. Previously the Lorcast
+    // importer stripped any line starting with a keyword name and kept
+    // Lorcast's raw straight-apostrophe ASCII-hyphen punctuation, making
+    // rulesText non-deterministic across sources.
     const rulesLines = c.text.split("\n").map((l) => l.trim()).filter(Boolean)
-      .filter((line) => !KEYWORD_LINE_PREFIXES.some((kw) => line.startsWith(kw)));
-    if (rulesLines.length > 0) out.rulesText = rulesLines.join("\n");
+      .map(normalizeKeywordLineToRavShape);
+    if (rulesLines.length > 0) {
+      out.rulesText = normalizeDashes(normalizeApostrophes(rulesLines.join("\n")));
+    }
   }
   if (c.flavor_text) out.flavorText = c.flavor_text;
   if (c.image_uris?.digital?.normal) out.imageUrl = c.image_uris.digital.normal;

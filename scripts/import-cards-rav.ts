@@ -12,9 +12,17 @@
 //   pnpm tsx scripts/import-cards-rav.ts --sets set1 --dry   dry run
 //
 // Supported filters: set1..set12.
-// Not exposed by the API: promo1/2/3, cp, d23, dis — use pnpm import-cards for those.
-// quest1/quest2 exist but return the same cards as the main-set filters (alt-
-// arts tagged card_sets: ["questN","setN"]), so we skip them.
+// Promos are NOT separate filters — `?filter=promo1` returns empty — but promo
+// cards (P1/P2/P3/C1/C2/D23, and reprints with `DIS` total codes) piggyback on
+// main-set responses. E.g. `?filter=set7` includes cards whose card_identifier
+// is "5/P2 EN 7" (a P2 promo related to set 7). parseIdentifier() detects these
+// via PROMO_TOTAL_CODES and routes them to the correct promo JSON file with
+// _source: "ravensburger". So Ravensburger IS the source for promos — for the
+// subset that appears as reprints. Cards exclusive to DIS / C2 / cp / D23 that
+// never appear as a main-set reprint come from Lorcast instead (see
+// import-cards-lorcast.ts).
+// quest1/quest2 exist as filters but return the same cards as the main-set
+// filters (alt-arts tagged card_sets: ["questN","setN"]), so we skip them.
 //
 // Why switch? Zero-delay data (same day as app release), richer variant info
 // (direct foil-mask URL pairing), includes Iconic/Epic cards the old source didn't
@@ -132,9 +140,15 @@ interface CardDefinitionOut {
 type CardSource = NonNullable<CardDefinitionOut["_source"]>;
 const SOURCE_TIER: Record<CardSource, number> = { manual: 0, lorcast: 1, ravensburger: 2 };
 function sourceTier(s: CardSource | undefined): number {
-  // Missing _source on pre-existing cards is treated as ravensburger (the
-  // historical default) — a Lorcast or manual pull must not overwrite them.
-  return SOURCE_TIER[s ?? "ravensburger"];
+  // Missing _source means lowest priority (manual). The full provenance flow is:
+  //   1. pnpm backfill-source-manual  — tag anything untagged as "manual"
+  //   2. pnpm import-cards             — upgrade to "ravensburger" where covered
+  //   3. pnpm import-cards-lorcast     — upgrade to "lorcast" for remaining gaps
+  //   4. anything still "manual"       — no upstream provenance; bespoke or stale
+  // So an untagged card is treated as manual and any incoming importer upgrades
+  // it. Current data has explicit _source on every card (verified), so this
+  // default only matters for newly hand-added entries.
+  return SOURCE_TIER[s ?? "manual"];
 }
 
 type SingleInkColor = CardDefinitionOut["inkColors"][number];
@@ -233,6 +247,18 @@ function canonicalizeStoryName(raw: string): string {
  * resulting pair is (name, body). If an odd tail remains (no trailing body
  * after a final `\`), it's leading plain text.
  */
+// Convert straight double quotes to curly (U+201C open / U+201D close) for
+// granted-ability text like `"When this character is banished..."`. Pairs are
+// matched greedily: odd-index quotes become open, even-index become close.
+function normalizeDoubleQuotes(text: string): string {
+  let open = true;
+  return text.replace(/"/g, () => {
+    const q = open ? "\u201C" : "\u201D";
+    open = !open;
+    return q;
+  });
+}
+
 function extractNamedAbilities(rawRulesText: string): { rulesText: string; stubs: AbilityStub[] } {
   if (!rawRulesText) return { rulesText: "", stubs: [] };
   const stubs: AbilityStub[] = [];
@@ -299,8 +325,18 @@ function extractNamedAbilities(rawRulesText: string): { rulesText: string; stubs
     cleaned += segments.join("\n");
   }
 
-  // rulesText keeps curly apostrophes for display fidelity
+  // Post-process to canonicalize Ravensburger's own data inconsistencies so
+  // the stored golden shape is self-consistent across cards:
+  //   (1) All apostrophes → curly right single quote (U+2019)
+  //   (2) Stat-modifier dashes → en-dash (U+2013) — Rav is inconsistent
+  //       between `-2 {S}` and `–2 {S}`; normalize to en-dash
+  //   (3) Straight double quotes → curly (U+201C / U+201D) for granted-ability
+  //       quote-wrapped text like `"When this character..."`
+  //   (4) Trailing whitespace before newlines — Rav data quirk on some songs
   cleaned = cleaned.replace(/'/g, "\u2019");
+  cleaned = cleaned.replace(/ -(\d+\s*\{[SLI]\})/g, " \u2013$1");
+  cleaned = normalizeDoubleQuotes(cleaned);
+  cleaned = cleaned.replace(/ +\n/g, "\n").replace(/ +$/, "");
   for (const s of stubs) {
     s.rulesText = s.rulesText.replace(/'/g, "\u2019");
     s.raw = s.raw.replace(/'/g, "\u2019");

@@ -1181,6 +1181,34 @@ for (const filename of SET_FILES) {
       }
     } else if (isImplemented(card)) {
       category = "implemented";
+    } else if (
+      card.cardType === "action" &&
+      !(card.actionEffects?.length > 0) &&
+      typeof card.rulesText === "string" &&
+      card.rulesText.trim().length > 0
+    ) {
+      // An action with non-empty rulesText but no actionEffects is a stub, not
+      // vanilla — actions without effects do nothing when played. Ravensburger
+      // and Lorcast emit `_namedAbilityStubs` only for text inside `\Name\`
+      // banners; plain-text actions (no banner) fall through without stubs.
+      // Synthesize a single stub from the card's rulesText so the normal
+      // categorization path runs. Strip leading song-keyword reminder text
+      // ("(A character with cost N or more can {E} to sing this song for free.)")
+      // so the categorizer sees the actual effect, not the keyword paren.
+      const text = card.rulesText
+        .replace(/^\(A character with cost \d+ or more can[^)]*\)\s*/i, "")
+        .trim();
+      if (text.length > 0) {
+        const stubCat = categorizeStub(text, card.cardType);
+        categorizedStubs.push({
+          storyName: "",
+          rulesText: text,
+          category: stubCat,
+        });
+        category = stubCat;
+      } else {
+        category = "vanilla";
+      }
     } else if (!hasNamedStubs(card)) {
       category = "vanilla";
     } else {

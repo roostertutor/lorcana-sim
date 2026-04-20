@@ -16,8 +16,8 @@ playable sandbox exists as a thin UI layer over the engine.
 - **server** — done (core). Hono + Supabase. Anti-cheat state filtering, per-format ELO (bo1/bo3 × core/infinity), Bo1/Bo3 match format, token auto-refresh, action logging for clone trainer. Remaining: Railway deploy, OAuth. See `docs/MULTIPLAYER.md`.
 - **ui** — done. React + Vite, react-router-dom, 7 screens, responsive (mobile/tablet/desktop). Multiplayer: lobby, reconnection (localStorage), shareable lobby links (`/lobby/:code`). See `docs/UI_PENDING_MECHANICS.md` for unvisualized mechanics.
 - **sandbox** — done. Interactive game board vs bot with replay + undo, DnD, alt-cost shift picker, card injector with qty/zone/player/set controls, HMR session persistence + quick save/load. Visual state: keyword icon badges, exerted rotation, damage counter, drying overlay, active-effects pill, card-state status icons, stat delta badges. See `docs/GUI_TEST_CARDS.md` for the verified-mechanic checklist, `docs/GAME_BOARD.md` for layout notes.
-- **cards** — **2146 named-ability cards wired + 506 vanillas = 2652/2652 (100%).** All of sets 1–11 + promos (P1, P2, P3, cp, DIS, D23). Promo sets auto-synced from main sets via `scripts/sync-promo-reprints.ts`.
-- **gaps** — 0 stubs, 0 partial, 0 invalid-fields, 0 known approximations. See the Audit section below for how the four audit scripts triangulate.
+- **cards** — **2251 named-ability cards wired + 518 vanillas = 2769/2786.** All of sets 1–11 + promos (P1, P2, P3, cp, DIS, D23) + set 12 (123 Ravensburger + 11 Lorcast pre-release entries). Promo sets auto-synced from main sets via `scripts/sync-promo-reprints.ts`.
+- **gaps** — 17 stubs in set 12: 14 fits-grammar, 1 needs-new-type (Escape Plan — bilateral inkwell-exerted), 2 unknown (Family Scattered #97 + Family's Scattered #231 — possibly the same card via alt-art). 6 of these are Ravensburger-sourced action cards that were silently shipping with `actionEffects: []` until the 2026-04-20 card-status fix (plain-text actions with no story-name banner now correctly classify as stubs instead of vanilla). 0 partial, 0 invalid-fields, 0 known approximations. See the Audit section below for how the four audit scripts triangulate.
 
 ## Quick Reference
 
@@ -30,17 +30,28 @@ pnpm import-cards                     # fetch all sets + promos from Ravensburge
 pnpm learn                            # train RL policy (see --help)
 ```
 
-Card data source: **Ravensburger's official API** (`disneylorcana.com/api/getCardApiData`).
-All sets 1-12 + promos P1/P2/P3/C1/C2/D23 fetched via `scripts/import-cards-rav.ts`.
-Zero Lorcast dependency. Ravensburger transcription errors are hardcoded in `STORY_NAME_OVERRIDES`
-inside the importer (3 known cases). See `docs/DECISIONS.md` → Card Data Decisions.
+Card data source hierarchy: **`ravensburger` > `lorcast` > `manual`** — each card
+JSON entry carries a `_source` tag; importers refuse to downgrade. Main sets 1-12
+come from **Ravensburger's official API** (`disneylorcana.com/api/getCardApiData`)
+via `pnpm import-cards` → `scripts/import-cards-rav.ts`. Promo sets that Ravensburger
+doesn't publish (DIS, C2, cp fallback) come from Lorcast via `pnpm import-cards-lorcast`
+→ `scripts/import-cards-lorcast.ts`, which only fills gaps (refuses to overwrite a
+`ravensburger`-tier entry). Cards edited by hand get `_source: "manual"` (lowest tier).
+Ravensburger transcription errors are hardcoded in `STORY_NAME_OVERRIDES` inside the
+importer (3 known cases). Individual cards can be frozen against all importers with
+`_sourceLock: true` (e.g. The Bayou, where Ravensburger's ability name is wrong).
+See `docs/DECISIONS.md` → Card Data Decisions.
 
 ### Refreshing card data (new set drops / reveals)
 
 ```bash
 # 1. Update card JSON (preserves hand-wired abilities)
-pnpm import-cards                       # re-imports ALL sets from Ravensburger
+pnpm import-cards                       # re-imports ALL main sets 1-12 from Ravensburger
 pnpm import-cards --sets set12          # or just one set
+pnpm import-cards-lorcast               # fills DIS/C2/cp exclusives Ravensburger doesn't publish
+pnpm import-cards-lorcast --sets 12     # during pre-release windows, pulls cards Lorcast has
+                                        # revealed but Ravensburger hasn't mirrored yet
+                                        # (they upgrade to "ravensburger" on the next import-cards run)
 pnpm card-status                        # verify: 0 invalid, check new stubs
 
 # 2. Update card images (Desktop/Lorcana_Assets)
@@ -49,9 +60,11 @@ node rav-download-images.mjs set12      # downloads base + foil + normal layers
                                         # promo cards auto-route to P1/P2/P3/etc
 ```
 
-Both commands are idempotent — re-running picks up new cards without losing
-existing work. Run whenever Ravensburger adds cards to the API (typically
-same day as app release).
+All commands are idempotent. The two importers enforce the
+`ravensburger > lorcast > manual` hierarchy, so running `import-cards-lorcast`
+on a repo already populated by Ravensburger is safe — only holes get filled,
+and those gaps auto-upgrade to `ravensburger` when the official API catches up.
+Run whenever Ravensburger adds cards to the API (typically same day as app release).
 
 ## Audits
 

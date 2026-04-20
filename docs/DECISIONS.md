@@ -162,11 +162,40 @@ variants array with direct foil-mask + normal-map URLs, and
 preserves hand-wired `abilities[]` and derived scalar fields on
 re-import, with a slug-alias fallback when a slug changes.
 
+### Source hierarchy: `ravensburger > lorcast > manual`
+Every card JSON entry carries an explicit `_source` tag. Both importers
+share a tier table — `{ manual: 0, lorcast: 1, ravensburger: 2 }` — and
+refuse to downgrade: a Lorcast pull will not overwrite a `ravensburger`-
+tier entry, and neither importer touches a card flagged `_sourceLock:
+true`. Missing `_source` is treated as **`manual`** (lowest tier), so a
+subsequent import upgrades any untagged card to whichever upstream
+actually covers it — Ravensburger if available, Lorcast if only Lorcast
+has it, or it stays `manual` if neither does.
+
+**`_sourceLock: true`** — individual hard freeze. Set manually on any
+card where the higher-tier source is wrong and we've hand-corrected it.
+Example: The Bayou's ability name in Ravensburger's data is incorrect,
+so we locked the Lorcast-sourced version. Any importer skips locked
+cards regardless of tier.
+
+**Re-tagging legacy data** — `pnpm backfill-source-manual` stamps
+`_source: "manual"` on any card lacking the field, intended as step 1 of
+a provenance audit:
+1. `pnpm backfill-source-manual` — mark everything "manual"
+2. `pnpm import-cards` — Ravensburger upgrades what it covers to tier 2
+3. `pnpm import-cards-lorcast` — Lorcast upgrades remaining gaps to tier 1
+4. `grep '"_source": "manual"'` — anything still "manual" has no
+   upstream provenance; review and either fix or accept as bespoke.
+
 ### Lorcast API as the fallback (promos, D23, DIS)
-`https://api.lorcast.com/v0` — Ravensburger's API returns empty for
-the promo filters (`promo1`, `promo2`, `promo3`, `cp`, `d23`, `dis`).
-Those sets stay on Lorcast via `scripts/import-cards.ts` until they
-get covered by another authoritative source.
+`https://api.lorcast.com/v0` — Ravensburger's API returns empty for the
+promo filters (`promo1`, `promo2`, `promo3`, `cp`, `d23`, `dis`). Those
+sets stay on Lorcast via `scripts/import-cards-lorcast.ts` (`pnpm
+import-cards-lorcast`). Also serves as a pre-release-window fallback
+for main sets when Lorcast publishes before Ravensburger updates —
+those entries get `_source: "lorcast"` and are automatically upgraded
+to `"ravensburger"` on the next `pnpm import-cards` once the official
+API catches up.
 
 **What we considered for card data, in order:**
 - Hand-entering cards — rejected, hundreds of cards per set
