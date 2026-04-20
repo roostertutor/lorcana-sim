@@ -1278,3 +1278,41 @@ describe("§7 Set 7 — granted-free-play alt-cost chooser (Belle, Scrooge)", ()
     expect(getInstance(r.newState, scroogeId).isDrying).toBe(true);
   });
 });
+
+describe("§8 Set 8 — Alma Madrigal Accepting Grandmother THE MIRACLE IS YOU (last_song_singers)", () => {
+  it("Sing Together: readies ALL singers from the one song event", () => {
+    // "Once during your turn, whenever one or more of your characters sings
+    // a song, you may ready those characters." For Sing Together, the
+    // multiple singers all get readied; for solo sings, just the one.
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    state.currentPlayer = "player1";
+    let almaId: string, songId: string, s1: string, s2: string;
+    ({ state, instanceId: almaId } = injectCard(state, "player1", "alma-madrigal-accepting-grandmother", "play", { isDrying: false }));
+    void almaId;
+    // a-pirates-life is Sing Together 6. Two cost-3 characters can sing it.
+    ({ state, instanceId: songId } = injectCard(state, "player1", "a-pirates-life", "hand"));
+    ({ state, instanceId: s1 } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    ({ state, instanceId: s2 } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+
+    let r = applyAction(state, {
+      type: "PLAY_CARD", playerId: "player1", instanceId: songId,
+      singerInstanceIds: [s1, s2],
+    }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Both singers exerted from singing.
+    expect(getInstance(state, s1).isExerted).toBe(true);
+    expect(getInstance(state, s2).isExerted).toBe(true);
+
+    // Alma's may-prompt for THE MIRACLE IS YOU.
+    expect(state.pendingChoice?.type).toBe("choose_may");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Both singers should be readied.
+    expect(getInstance(state, s1).isExerted).toBe(false);
+    expect(getInstance(state, s2).isExerted).toBe(false);
+  });
+});

@@ -3803,6 +3803,27 @@ export function applyEffect(
         }
         return state;
       }
+      // Alma Madrigal Accepting Grandmother THE MIRACLE IS YOU: "whenever
+      // one or more of your characters sings a song, you may ready those
+      // characters." For Sing Together (multiple singers on one song),
+      // `state.lastSongSingerIds` carries the full singer roster set in
+      // applyPlayCard:497. With oncePerTurn at the ability level, only the
+      // first sing event of the turn fires the trigger; the effect then
+      // readies ALL singers from that one song event (1 for solo sing,
+      // N for Sing Together).
+      if (effect.target.type === "last_song_singers") {
+        const singers = state.lastSongSingerIds ?? [];
+        for (const id of singers) {
+          const inst = state.cards[id];
+          if (!inst) continue;
+          const wasExerted = inst.isExerted;
+          state = updateInstance(state, id, { isExerted: false });
+          if (wasExerted) {
+            state = queueTrigger(state, "readied", id, definitions, {});
+          }
+        }
+        return state;
+      }
       // Alma Madrigal Accepting Grandmother: ready the singing character (the
       // triggering card on a sings trigger).
       if (effect.target.type === "triggering_card" && triggeringCardInstanceId) {

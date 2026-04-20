@@ -2311,7 +2311,13 @@ export type CardTarget =
    *  Sultan of Lorcana ("if an Illusion character card is discarded this way,
    *  you may play that character for free") so the play targets the EXACT
    *  discarded instance, not just any matching card in discard. */
-  | { type: "from_last_discarded" };
+  | { type: "from_last_discarded" }
+  /** All characters who sang the most recent song (state.lastSongSingerIds).
+   *  For solo sings this is a single card; for Sing Together it's the full
+   *  N-singer roster. Used by Alma Madrigal THE MIRACLE IS YOU: "ready those
+   *  characters" — needs the multi-singer set, not just the trigger's
+   *  triggering_card (which would only be one of N). */
+  | { type: "last_song_singers" };
 
 export interface CardFilter {
   owner?: PlayerTarget;
