@@ -700,6 +700,51 @@ describe("Set 12 — Omnidroid V.9 played_via_shift condition", () => {
   });
 });
 
+describe("Set 12 — Dolores Madrigal NO SECRETS (look_at_hand)", () => {
+  it("on play, snapshots the opposing hand with privateTo=controller", () => {
+    let state = startGame(["dolores-madrigal-hears-everything"]);
+    state = giveInk(state, "player1", 5);
+    // Seed the opponent's hand so we have something to look at.
+    const { state: s1 } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "hand");
+    const { state: s2, instanceId: doloresId } = injectCard(s1, "player1", "dolores-madrigal-hears-everything", "hand");
+
+    const r = applyAction(s2, { type: "PLAY_CARD", playerId: "player1", instanceId: doloresId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // Shared reveal pipeline stores lastRevealedHand; look_at_hand stamps privateTo.
+    expect(r.newState.lastRevealedHand?.playerId).toBe("player2");
+    expect(r.newState.lastRevealedHand?.privateTo).toBe("player1");
+    expect(r.newState.lastRevealedHand?.cardIds.length).toBeGreaterThan(0);
+  });
+
+  it("reveal_hand vs look_at_hand: same snapshot, only privateTo differs", () => {
+    // Contrast: reveal_hand should produce the same cardIds but no privateTo.
+    let state = startGame();
+    const source = Object.values(state.cards)[0]!;
+    // Apply a plain reveal_hand effect targeting opponent.
+    const reveal = applyEffect(
+      state,
+      { type: "reveal_hand", target: { type: "opponent" } },
+      source.instanceId,
+      "player1",
+      CARD_DEFINITIONS,
+      []
+    );
+    expect(reveal.lastRevealedHand?.privateTo).toBeUndefined();
+    // look_at_hand with same target stamps privateTo=player1.
+    const look = applyEffect(
+      state,
+      { type: "look_at_hand", target: { type: "opponent" } },
+      source.instanceId,
+      "player1",
+      CARD_DEFINITIONS,
+      []
+    );
+    expect(look.lastRevealedHand?.privateTo).toBe("player1");
+    // Snapshot should match across both paths.
+    expect(look.lastRevealedHand?.cardIds).toEqual(reveal.lastRevealedHand?.cardIds);
+  });
+});
+
 describe("Set 12 — RC Remote-Controlled Car (cant_action_self with unlockCost)", () => {
   it("RC can't quest with 0 ink; can quest after paying 1 ink", () => {
     let state = startGame(["rc-remote-controlled-car"]);

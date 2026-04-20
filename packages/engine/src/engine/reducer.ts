@@ -2710,15 +2710,15 @@ export function applyEffect(
       return applyDraw(state, targetPlayer, amount, events, definitions);
     }
 
-    case "reveal_hand": {
-      // Copper Hound Pup FOUND YA: "chosen player reveals their hand" —
-      // surface a chooser first, then the chosen player's substitution
-      // re-enters this case with target:self/opponent.
+    case "reveal_hand":
+    case "look_at_hand": {
+      // reveal_hand: public — all players see the cards (Copper Hound Pup FOUND YA).
+      // look_at_hand: private — only the controller sees (Dolores Madrigal
+      // NO SECRETS "look at chosen opponent's hand"). Same data pipeline,
+      // differ only in the privateTo flag stamped on the event + snapshot.
       if (effect.target.type === "chosen") {
         return surfaceChoosePlayer(state, effect, controllingPlayerId, sourceInstanceId, definitions, events);
       }
-      // CRD: "chosen opponent reveals their hand" — headless engine has full
-      // knowledge; emit a hand_revealed event for UI/analytics. No state change.
       const targetPlayer: PlayerID =
         effect.target.type === "opponent"
           ? getOpponent(controllingPlayerId)
@@ -2728,15 +2728,15 @@ export function applyEffect(
               ? controllingPlayerId
               : getOpponent(controllingPlayerId);
       const handCardIds = [...state.zones[targetPlayer].hand];
+      const privateTo = effect.type === "look_at_hand" ? controllingPlayerId : undefined;
       events.push({
         type: "hand_revealed",
         playerId: targetPlayer,
         cardInstanceIds: handCardIds,
         sourceInstanceId,
+        ...(privateTo ? { privateTo } : {}),
       } as GameEvent);
-      // Store on state so the UI can read it for the reveal-hand modal.
-      // Reset on next action (the reveal is a one-shot snapshot).
-      return { ...state, lastRevealedHand: { playerId: targetPlayer, cardIds: handCardIds } };
+      return { ...state, lastRevealedHand: { playerId: targetPlayer, cardIds: handCardIds, ...(privateTo ? { privateTo } : {}) } };
     }
 
     // Unified lore adjustment — gain_lore and lose_lore are aliases.

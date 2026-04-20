@@ -233,6 +233,7 @@ export type Effect =
   | GrantExtraInkPlayEffect
   | GrantChallengeReadyEffect
   | RevealHandEffect
+  | LookAtHandEffect
   | PutTopCardsIntoDiscardEffect
   | MassInkwellEffect
   | RestrictPlayEffect
@@ -493,6 +494,19 @@ export interface RevealHandEffect {
    *  "chosen player" / "chosen opponent"). */
   target: PlayerTarget;
   /** CRD 6.1.4: player may decline to reveal. */
+  isMay?: boolean;
+}
+
+/**
+ * "Look at chosen opponent's hand" — private-reveal variant. Controller
+ * sees the target's hand; the target does NOT publicly expose it to other
+ * players. Used by Dolores Madrigal Hears Everything NO SECRETS. Runtime
+ * dispatches through the same reveal code path as `reveal_hand` but stamps
+ * `privateTo: controllingPlayerId` on the event so the UI scopes visibility.
+ */
+export interface LookAtHandEffect {
+  type: "look_at_hand";
+  target: PlayerTarget;
   isMay?: boolean;
 }
 
@@ -3198,7 +3212,7 @@ export interface GameState {
 
   /** Snapshot of the most recently revealed hand — set by the reveal_hand
    *  effect so the UI can show a modal without needing event listeners. */
-  lastRevealedHand?: { playerId: PlayerID; cardIds: string[] };
+  lastRevealedHand?: { playerId: PlayerID; cardIds: string[]; privateTo?: PlayerID };
 
   /** Snapshot of cards revealed to all players during search/look_at_top effects.
    *  Set at the end of applyAction from card_revealed events so multiplayer
@@ -3569,5 +3583,5 @@ export type GameEvent =
   | { type: "card_drawn"; playerId: PlayerID; instanceId: string }
   | { type: "ability_triggered"; instanceId: string; abilityType: string }
   | { type: "card_revealed"; instanceId: string; playerId: PlayerID; sourceInstanceId: string }
-  | { type: "hand_revealed"; playerId: PlayerID; cardInstanceIds: string[]; sourceInstanceId: string }
+  | { type: "hand_revealed"; playerId: PlayerID; cardInstanceIds: string[]; sourceInstanceId: string; privateTo?: PlayerID }
   | { type: "turn_passed"; to: PlayerID };

@@ -1538,6 +1538,13 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     if (e.target?.type === "both") return "each player reveals their hand";
     return "each opponent reveals their hand";
   },
+  // Private reveal — controller sees target's hand without exposing it to
+  // other players. Dolores Madrigal NO SECRETS.
+  look_at_hand: (e) => {
+    if (e.target?.type === "chosen") return "look at chosen player's hand";
+    if (e.target?.type === "self") return "look at your hand";
+    return "look at chosen opponent's hand";
+  },
   top_of_deck_visible: (e) => {
     if (e.affectedPlayer?.type === "both") return "each player plays with the top card of their deck face up";
     if (e.affectedPlayer?.type === "opponent") return "opponents play with the top card of their deck face up";

@@ -245,7 +245,24 @@
       "Ally",
       "Madrigal"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "NO SECRETS",
+        "rulesText": "When you play this character, look at chosen opponent's hand.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "look_at_hand",
+            "target": {
+              "type": "opponent"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 9,
     "rarity": "common",
@@ -257,14 +274,7 @@
     "rulesText": "NO SECRETS When you play this character, look at chosen opponent’s hand.",
     "flavorText": "\"Amazu says he'll be back this way in a few weeks. He's stuck in the desert right now.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/9_13ccd2d2cbc6231b2ceca52f12ff8d62d1d4d82b.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/9_13ccd2d2cbc6231b2ceca52f12ff8d62d1d4d82b.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "NO SECRETS",
-        "rulesText": "When you play this character, look at chosen opponent’s hand.",
-        "raw": "NO SECRETS When you play this character, look at chosen opponent’s hand."
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/9_13ccd2d2cbc6231b2ceca52f12ff8d62d1d4d82b.jpg"
   },
   {
     "id": "monterey-jack-hypnotized-by-cheese",
