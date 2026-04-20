@@ -2392,6 +2392,13 @@ export interface CardFilter {
   strengthAtMost?: number;
   /** Match characters with effective strength ≥ N */
   strengthAtLeast?: number;
+  /** Match characters with effective willpower ≤ N */
+  willpowerAtMost?: number;
+  /** Match characters with effective willpower ≥ N. Used by Monterey Jack
+   *  Hypnotized by Cheese BREAK THE TRANCE ("character with 4 {W} or more"),
+   *  Chip Retrieval Expert ("character card with 4 {W} or more from your
+   *  discard"), Chip Team Player ("another character with 4 {W} or more"). */
+  willpowerAtLeast?: number;
   /** Match characters that were challenged this turn */
   challengedThisTurn?: boolean;
   /** CRD 8.4.2: Match characters/locations with at least one card in their

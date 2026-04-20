@@ -666,9 +666,9 @@
               "type": "self"
             },
             "hasTrait": "Toy",
-            "excludeSelf": true,
-            "countAtLeast": 2
-          }
+            "excludeSelf": true
+          },
+          "minimum": 2
         },
         "storyName": "PART OF A FAMILY",
         "rulesText": "Whenever this character quests, if you have 2 or more other Toy characters in play, you may draw a card."

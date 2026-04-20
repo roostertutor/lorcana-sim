@@ -258,6 +258,38 @@ function validateCardFields(card: any): FieldError[] {
   function walkCondition(c: any, path: string) {
     if (!c || typeof c !== "object") return;
     checkType(c, path);
+    // Validate CardFilter fields embedded in condition types like
+    // you_control_matching / opponent_controls_matching (they carry a
+    // `filter` keyed to CardFilter). Without this check, a typo like
+    // `willpowerAtLeast` in a condition filter silently made the predicate
+    // match everything — caught by this rule during the set 12 sweep.
+    if (c.filter && typeof c.filter === "object") {
+      for (const key of Object.keys(c.filter)) {
+        if (!VALID_CARDFILTER_FIELDS.has(key)) {
+          errors.push({
+            path: `${path}.filter`,
+            field: key,
+            value: JSON.stringify(c.filter[key]),
+            validValues: "not a CardFilter field — likely a typo (check types/index.ts)",
+          });
+        }
+      }
+      if (Array.isArray(c.filter.anyOf)) {
+        c.filter.anyOf.forEach((sub: any, i: number) => {
+          if (!sub || typeof sub !== "object") return;
+          for (const key of Object.keys(sub)) {
+            if (!VALID_CARDFILTER_FIELDS.has(key)) {
+              errors.push({
+                path: `${path}.filter.anyOf[${i}]`,
+                field: key,
+                value: JSON.stringify(sub[key]),
+                validValues: "not a CardFilter field — likely a typo (check types/index.ts)",
+              });
+            }
+          }
+        });
+      }
+    }
     if (c.condition) walkCondition(c.condition, path + ".condition");
     if (Array.isArray(c.conditions)) {
       c.conditions.forEach((sub: any, i: number) => walkCondition(sub, `${path}.conditions[${i}]`));

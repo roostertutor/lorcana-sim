@@ -1928,7 +1928,7 @@
             "cardType": [
               "character"
             ],
-            "name": "Antonio Madrigal"
+            "hasName": "Antonio Madrigal"
           }
         },
         "effects": [
@@ -3340,7 +3340,7 @@
             "cardType": [
               "character"
             ],
-            "name": "Hades"
+            "hasName": "Hades"
           }
         }
       }
@@ -4432,7 +4432,7 @@
             "cardType": [
               "character"
             ],
-            "name": "Elsa"
+            "hasName": "Elsa"
           }
         },
         "effects": [
@@ -5428,7 +5428,7 @@
             "cardType": [
               "character"
             ],
-            "name": "Tipo"
+            "hasName": "Tipo"
           }
         },
         "effects": [
@@ -9661,7 +9661,7 @@
             "cardType": [
               "character"
             ],
-            "name": "Elsa"
+            "hasName": "Elsa"
           }
         },
         "effects": [
