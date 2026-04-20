@@ -62,6 +62,46 @@
     ]
   },
   {
+    "id": "pedro-madrigal-family-patriarch",
+    "name": "Pedro Madrigal",
+    "fullName": "Pedro Madrigal - Family Patriarch",
+    "cardType": "character",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally",
+      "Madrigal"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 5,
+    "rarity": "uncommon",
+    "_source": "ravensburger",
+    "subtitle": "Family Patriarch",
+    "strength": 3,
+    "willpower": 3,
+    "lore": 1,
+    "rulesText": "DIFFICULT JOURNEY This character enters play with 1 damage.\nDEVOTED FAMILY When you play this character, if you have another Madrigal character in play, you may remove up to 1 damage from him.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/5_aca5031d5361c75e0dbfaadf2933f1f7d723d6b0.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/5_aca5031d5361c75e0dbfaadf2933f1f7d723d6b0.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "DIFFICULT JOURNEY",
+        "rulesText": "This character enters play with 1 damage.",
+        "raw": "DIFFICULT JOURNEY This character enters play with 1 damage."
+      },
+      {
+        "storyName": "DEVOTED FAMILY",
+        "rulesText": "When you play this character, if you have another Madrigal character in play, you may remove up to 1 damage from him.",
+        "raw": "DEVOTED FAMILY When you play this character, if you have another Madrigal character in play, you may remove up to 1 damage from him."
+      }
+    ]
+  },
+  {
     "id": "agustin-madrigal-exceptionally-kind",
     "name": "Agustin Madrigal",
     "fullName": "Agustin Madrigal - Exceptionally Kind",
@@ -94,6 +134,104 @@
     "flavorText": "\"I'm happy to bring these arepas to the oasis, mi vida. Just think how much more I could help if I had a gift.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/6_5881d87f0c76644c84cb563176da77d332afae8f.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/6_5881d87f0c76644c84cb563176da77d332afae8f.jpg"
+  },
+  {
+    "id": "alan-a-dale-loyal-bard",
+    "name": "Alan-a-Dale",
+    "fullName": "Alan-a-Dale - Loyal Bard",
+    "cardType": "character",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "singer",
+        "value": 4
+      }
+    ],
+    "setId": "12",
+    "number": 7,
+    "rarity": "common",
+    "_source": "ravensburger",
+    "subtitle": "Loyal Bard",
+    "strength": 3,
+    "willpower": 2,
+    "lore": 1,
+    "rulesText": "<Singer> 4 (This character counts as cost 4 to sing songs.)",
+    "flavorText": "\"When the vine was loomin' large\nAnd had us all feelin' down\nOl' Martin stood up, took charge\nAnd now we're Illuminary bound\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/7_c07cee6325d44af844de07479a3a2e01c7de4200.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/7_c07cee6325d44af844de07479a3a2e01c7de4200.jpg"
+  },
+  {
+    "id": "prince-eric-noble-swordsman",
+    "name": "Prince Eric",
+    "fullName": "Prince Eric - Noble Swordsman",
+    "cardType": "character",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Hero",
+      "Prince"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 8,
+    "rarity": "common",
+    "_source": "ravensburger",
+    "subtitle": "Noble Swordsman",
+    "strength": 6,
+    "willpower": 7,
+    "lore": 1,
+    "flavorText": "Of all the items in Ariel's trove, something about this particular sword called to him. He knew it was meant to be his.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/8_8b10e751eaefb574de2cc389811f4ce7bab95bd1.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/8_8b10e751eaefb574de2cc389811f4ce7bab95bd1.jpg"
+  },
+  {
+    "id": "dolores-madrigal-hears-everything",
+    "name": "Dolores Madrigal",
+    "fullName": "Dolores Madrigal - Hears Everything",
+    "cardType": "character",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally",
+      "Madrigal"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 9,
+    "rarity": "common",
+    "_source": "ravensburger",
+    "subtitle": "Hears Everything",
+    "strength": 5,
+    "willpower": 5,
+    "lore": 2,
+    "rulesText": "NO SECRETS When you play this character, look at chosen opponent’s hand.",
+    "flavorText": "\"Amazu says he'll be back this way in a few weeks. He's stuck in the desert right now.\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/9_13ccd2d2cbc6231b2ceca52f12ff8d62d1d4d82b.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/9_13ccd2d2cbc6231b2ceca52f12ff8d62d1d4d82b.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "NO SECRETS",
+        "rulesText": "When you play this character, look at chosen opponent’s hand.",
+        "raw": "NO SECRETS When you play this character, look at chosen opponent’s hand."
+      }
+    ]
   },
   {
     "id": "monterey-jack-hypnotized-by-cheese",
@@ -215,6 +353,45 @@
         "storyName": "SOMEBODY DO SOMETHING!",
         "rulesText": "Your characters named Woody gain <Bodyguard>. (An opposing character who challenges one of your characters must choose one with Bodyguard if able.)",
         "raw": "SOMEBODY DO SOMETHING! Your characters named Woody gain <Bodyguard>. (An opposing character who challenges one of your characters must choose one with Bodyguard if able.)"
+      }
+    ]
+  },
+  {
+    "id": "chip-retrieval-expert",
+    "name": "Chip",
+    "fullName": "Chip - Retrieval Expert",
+    "cardType": "character",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 4,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Hero"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 14,
+    "rarity": "uncommon",
+    "_source": "ravensburger",
+    "subtitle": "Retrieval Expert",
+    "strength": 2,
+    "willpower": 4,
+    "lore": 1,
+    "rulesText": "THERE YOU ARE! When you play this character, you may return a character card with 4 {W} or more from your discard to your hand.\nFRIENDLY ASSIST Your characters named Dale get +1 {W}.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/14_6f63535085953b8118a2664be184f39a17e79a06.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/14_6f63535085953b8118a2664be184f39a17e79a06.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "THERE YOU ARE!",
+        "rulesText": "When you play this character, you may return a character card with 4 {W} or more from your discard to your hand.",
+        "raw": "THERE YOU ARE! When you play this character, you may return a character card with 4 {W} or more from your discard to your hand."
+      },
+      {
+        "storyName": "FRIENDLY ASSIST",
+        "rulesText": "Your characters named Dale get +1 {W}.",
+        "raw": "FRIENDLY ASSIST Your characters named Dale get +1 {W}."
       }
     ]
   },
@@ -707,6 +884,41 @@
     ]
   },
   {
+    "id": "chip-team-player",
+    "name": "Chip",
+    "fullName": "Chip - Team Player",
+    "cardType": "character",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 6,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Hero"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 27,
+    "rarity": "common",
+    "_source": "ravensburger",
+    "subtitle": "Team Player",
+    "strength": 2,
+    "willpower": 7,
+    "lore": 2,
+    "rulesText": "RANGER RESOURCEFULNESS When you play this character, if you have another character with 4 {W} or more in play, you may draw a card.",
+    "flavorText": "\"Come on, Dale. You look fine! I've got a plan that you'll be perfect for!\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/27_61e610b0c99d431b50ff418db3cc8bd0e76373bb.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/27_61e610b0c99d431b50ff418db3cc8bd0e76373bb.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "RANGER RESOURCEFULNESS",
+        "rulesText": "When you play this character, if you have another character with 4 {W} or more in play, you may draw a card.",
+        "raw": "RANGER RESOURCEFULNESS When you play this character, if you have another character with 4 {W} or more in play, you may draw a card."
+      }
+    ]
+  },
+  {
     "id": "metamorphosis",
     "name": "Metamorphosis",
     "fullName": "Metamorphosis",
@@ -932,6 +1144,106 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/35_b3373aac72abf418b5ed14ad03769e820f372857.jpg"
   },
   {
+    "id": "alma-madrigal-leading-the-way",
+    "name": "Alma Madrigal",
+    "fullName": "Alma Madrigal - Leading the Way",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Mentor",
+      "Madrigal"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 36,
+    "rarity": "uncommon",
+    "_source": "ravensburger",
+    "subtitle": "Leading the Way",
+    "strength": 1,
+    "willpower": 2,
+    "lore": 1,
+    "rulesText": "PROTECTING THE FAMILY When you play this character, if you have another Madrigal character in play, you may exert chosen opposing character.",
+    "flavorText": "\"In our darkest moment, we were given a miracle.\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/36_edeb7b2da0262938ec8acf9efe96e8c350f42a2f.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/36_edeb7b2da0262938ec8acf9efe96e8c350f42a2f.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "PROTECTING THE FAMILY",
+        "rulesText": "When you play this character, if you have another Madrigal character in play, you may exert chosen opposing character.",
+        "raw": "PROTECTING THE FAMILY When you play this character, if you have another Madrigal character in play, you may exert chosen opposing character."
+      }
+    ]
+  },
+  {
+    "id": "grumpy-soreheaded-miner",
+    "name": "Grumpy",
+    "fullName": "Grumpy - Soreheaded Miner",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 7,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally",
+      "Seven Dwarfs"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 41,
+    "rarity": "common",
+    "_source": "ravensburger",
+    "subtitle": "Soreheaded Miner",
+    "strength": 7,
+    "willpower": 7,
+    "lore": 2,
+    "flavorText": "\"Watch what yer doin'. Ya nearly put me through a wall with that sneeze! Ya wanna bring the whole mine down?!\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/41_dd912d1da292180f814a8419cc2c9e61d858e58f.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/41_86d7b61554db9703acd83941c9fe54e005da0a74.jpg"
+  },
+  {
+    "id": "alma-madrigal-heart-of-the-family",
+    "name": "Alma Madrigal",
+    "fullName": "Alma Madrigal - Heart of the Family",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Mentor",
+      "Madrigal"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 45,
+    "rarity": "common",
+    "_source": "ravensburger",
+    "subtitle": "Heart of the Family",
+    "strength": 2,
+    "willpower": 4,
+    "lore": 1,
+    "rulesText": "FIND A WAY Whenever this character quests, move up to 1 damage from chosen character of yours to chosen opposing character.",
+    "flavorText": "“Everybody makes mistakes. What’s important is that we recognize them.”",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/45_8ccc4c7cd7d8deb6e48a45b6174876449597d2ad.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/45_8ccc4c7cd7d8deb6e48a45b6174876449597d2ad.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "FIND A WAY",
+        "rulesText": "Whenever this character quests, move up to 1 damage from chosen character of yours to chosen opposing character.",
+        "raw": "FIND A WAY Whenever this character quests, move up to 1 damage from chosen character of yours to chosen opposing character."
+      }
+    ]
+  },
+  {
     "id": "will-o-the-wisp-forest-spirit",
     "name": "Will o' the Wisp",
     "fullName": "Will o' the Wisp - Forest Spirit",
@@ -1133,6 +1445,46 @@
     ]
   },
   {
+    "id": "edna-mode-fashion-designer",
+    "name": "Edna Mode",
+    "fullName": "Edna Mode - Fashion Designer",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally",
+      "Inventor"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 54,
+    "rarity": "rare",
+    "_source": "ravensburger",
+    "subtitle": "Fashion Designer",
+    "strength": 2,
+    "willpower": 2,
+    "lore": 2,
+    "rulesText": "NO CAPES! When you play this character, you may return chosen item with cost 2 or less to its player’s hand. If you do, its player draws a card.\nMAKING SUPERS FABULOUS Whenever this character quests, your Super characters get +1 {L} this turn.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/54_095936119618f5173c249035dd814c980756b3f5.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/54_095936119618f5173c249035dd814c980756b3f5.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "NO CAPES!",
+        "rulesText": "When you play this character, you may return chosen item with cost 2 or less to its player’s hand. If you do, its player draws a card.",
+        "raw": "NO CAPES! When you play this character, you may return chosen item with cost 2 or less to its player’s hand. If you do, its player draws a card."
+      },
+      {
+        "storyName": "MAKING SUPERS FABULOUS",
+        "rulesText": "Whenever this character quests, your Super characters get +1 {L} this turn.",
+        "raw": "MAKING SUPERS FABULOUS Whenever this character quests, your Super characters get +1 {L} this turn."
+      }
+    ]
+  },
+  {
     "id": "maleficent-imperious-traveler",
     "name": "Maleficent",
     "fullName": "Maleficent - Imperious Traveler",
@@ -1202,6 +1554,88 @@
         "storyName": "HEED MY WORDS",
         "rulesText": "Whenever this character quests, if you played another character this turn, you may exert chosen opposing character.",
         "raw": "HEED MY WORDS Whenever this character quests, if you played another character this turn, you may exert chosen opposing character."
+      }
+    ]
+  },
+  {
+    "id": "mordu-savage-cursed-prince",
+    "name": "Mor'du",
+    "fullName": "Mor'du - Savage Cursed Prince",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Villain",
+      "Prince"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 57,
+    "rarity": "super_rare",
+    "_source": "ravensburger",
+    "subtitle": "Savage Cursed Prince",
+    "strength": 8,
+    "willpower": 8,
+    "lore": 3,
+    "rulesText": "FEROCIOUS ROAR When you play this character, exert all your characters not named Mor’du.\nROOTED BY FEAR Your characters not named Mor’du can’t ready at the start of your turn.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/57_6c8b656d987e9078fb5f36e209b2d29f52107ee1.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/57_6c8b656d987e9078fb5f36e209b2d29f52107ee1.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "FEROCIOUS ROAR",
+        "rulesText": "When you play this character, exert all your characters not named Mor’du.",
+        "raw": "FEROCIOUS ROAR When you play this character, exert all your characters not named Mor’du."
+      },
+      {
+        "storyName": "ROOTED BY FEAR",
+        "rulesText": "Your characters not named Mor’du can’t ready at the start of your turn.",
+        "raw": "ROOTED BY FEAR Your characters not named Mor’du can’t ready at the start of your turn."
+      }
+    ]
+  },
+  {
+    "id": "alma-madrigal-keeper-of-the-flame",
+    "name": "Alma Madrigal",
+    "fullName": "Alma Madrigal - Keeper of the Flame",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Mentor",
+      "Madrigal"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      }
+    ],
+    "setId": "12",
+    "number": 58,
+    "rarity": "rare",
+    "_source": "ravensburger",
+    "subtitle": "Keeper of the Flame",
+    "strength": 2,
+    "willpower": 6,
+    "lore": 2,
+    "shiftCost": 3,
+    "rulesText": "<Shift> 3 {I} (You may pay 3 {I} to play this on top of one of your characters named Alma Madrigal.)\nTHAT’S ENOUGH Whenever you remove 1 or more damage from one of your characters, you may exert chosen opposing character.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/58_f04f2aca3ce090078b90945a89a00b6651675dad.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/58_f04f2aca3ce090078b90945a89a00b6651675dad.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "THAT'S ENOUGH",
+        "rulesText": "Whenever you remove 1 or more damage from one of your characters, you may exert chosen opposing character.",
+        "raw": "THAT’S ENOUGH Whenever you remove 1 or more damage from one of your characters, you may exert chosen opposing character."
       }
     ]
   },
@@ -1428,6 +1862,41 @@
         "raw": "RECORD TIME This character can quest the turn he’s played."
       }
     ]
+  },
+  {
+    "id": "luisa-madrigal-pushing-through",
+    "name": "Luisa Madrigal",
+    "fullName": "Luisa Madrigal - Pushing Through",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 1,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally",
+      "Madrigal"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "challenger",
+        "value": 2
+      }
+    ],
+    "setId": "12",
+    "number": 62,
+    "rarity": "common",
+    "_source": "ravensburger",
+    "subtitle": "Pushing Through",
+    "strength": 0,
+    "willpower": 3,
+    "lore": 1,
+    "rulesText": "<Challenger> +2 (While challenging, this character gets +2 {S}.)",
+    "flavorText": "\"One way . . . or another . . . I'm getting . . . all of you . . . up . . . this mountain!\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/62_d2f7d65db59922d5e253ea237f1b8560afbb956a.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/62_d2f7d65db59922d5e253ea237f1b8560afbb956a.jpg"
   },
   {
     "id": "right-behind-you",
@@ -1854,6 +2323,41 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/72_d2bb6b4c955d1d976619e4c0aead6a5de70aa0ea.jpg"
   },
   {
+    "id": "helga-sinclair-no-backup-needed",
+    "name": "Helga Sinclair",
+    "fullName": "Helga Sinclair - No Backup Needed",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Villain"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 73,
+    "rarity": "common",
+    "_source": "ravensburger",
+    "subtitle": "No Backup Needed",
+    "strength": 5,
+    "willpower": 4,
+    "lore": 1,
+    "rulesText": "CRISIS MANAGEMENT If 2 or more cards were put into your discard this turn, you pay 2 {I} less to play this character.",
+    "flavorText": "\"Once again, I find myself cleaning up someone else's mess.\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/73_8042a42461c8ddde2caf0ce440c3503b78039dd2.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/73_8042a42461c8ddde2caf0ce440c3503b78039dd2.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "CRISIS MANAGEMENT",
+        "rulesText": "If 2 or more cards were put into your discard this turn, you pay 2 {I} less to play this character.",
+        "raw": "CRISIS MANAGEMENT If 2 or more cards were put into your discard this turn, you pay 2 {I} less to play this character."
+      }
+    ]
+  },
+  {
     "id": "the-witch-wily-woodcarver",
     "name": "The Witch",
     "fullName": "The Witch - Wily Woodcarver",
@@ -1909,6 +2413,78 @@
         "storyName": "UNSATISFIED CUSTOMERS",
         "rulesText": "Whenever this character is challenged, each opponent loses 1 lore.",
         "raw": "UNSATISFIED CUSTOMERS Whenever this character is challenged, each opponent loses 1 lore."
+      }
+    ]
+  },
+  {
+    "id": "rc-remote-controlled-car",
+    "name": "RC",
+    "fullName": "RC - Remote-Controlled Car",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 1,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally",
+      "Toy",
+      "Racer"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 77,
+    "rarity": "common",
+    "_source": "ravensburger",
+    "subtitle": "Remote-Controlled Car",
+    "strength": 3,
+    "willpower": 2,
+    "lore": 2,
+    "rulesText": "LOW BATTERIES This character can’t quest or challenge unless you pay 1 {I}. (You pay this cost each time.)",
+    "flavorText": "Racing around Andy's room is fun, but he <really> loves going off road.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/77_a035676fa654b7a6140995687d8c0dcdae62e8f9.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/77_a035676fa654b7a6140995687d8c0dcdae62e8f9.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "LOW BATTERIES",
+        "rulesText": "This character can’t quest or challenge unless you pay 1 {I}. (You pay this cost each time.)",
+        "raw": "LOW BATTERIES This character can’t quest or challenge unless you pay 1 {I}. (You pay this cost each time.)"
+      }
+    ]
+  },
+  {
+    "id": "lord-macguffin-clever-swordsman",
+    "name": "Lord MacGuffin",
+    "fullName": "Lord MacGuffin - Clever Swordsman",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 5,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Ally"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 78,
+    "rarity": "uncommon",
+    "_source": "ravensburger",
+    "subtitle": "Clever Swordsman",
+    "strength": 6,
+    "willpower": 4,
+    "lore": 2,
+    "rulesText": "WAIT FOR IT... This character may enter play exerted to deal 3 damage to chosen damaged character.",
+    "flavorText": "\"We'll find our way back to the Illuminary if we have to fight through every plant in Lorcana.\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/78_0a4ef377508049229fe5ed671fe577bd7d1d9aab.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/78_0a4ef377508049229fe5ed671fe577bd7d1d9aab.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "WAIT FOR IT...",
+        "rulesText": "This character may enter play exerted to deal 3 damage to chosen damaged character.",
+        "raw": "WAIT FOR IT... This character may enter play exerted to deal 3 damage to chosen damaged character."
       }
     ]
   },
@@ -2076,6 +2652,33 @@
     ]
   },
   {
+    "id": "peter-pan-searching-far-and-wide",
+    "name": "Peter Pan",
+    "fullName": "Peter Pan - Searching Far and Wide",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Hero"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 81,
+    "rarity": "uncommon",
+    "_source": "ravensburger",
+    "subtitle": "Searching Far and Wide",
+    "strength": 3,
+    "willpower": 3,
+    "lore": 2,
+    "flavorText": "\"I've already checked the whole jungle. He's got to be around here somewhere!\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/81_bdc962948195542ed524e338266c0ba248864496.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/81_c59fe181e5f0890093e2449d49a6c8d74141751c.jpg"
+  },
+  {
     "id": "donald-duck-distracted-traveler",
     "name": "Donald Duck",
     "fullName": "Donald Duck - Distracted Traveler",
@@ -2141,6 +2744,80 @@
         "storyName": "BURNING CURIOSITY",
         "rulesText": "Whenever this character quests, if you played another character this turn, each opponent chooses and discards a card.",
         "raw": "BURNING CURIOSITY Whenever this character quests, if you played another character this turn, each opponent chooses and discards a card."
+      }
+    ]
+  },
+  {
+    "id": "elinor-renowned-diplomat",
+    "name": "Elinor",
+    "fullName": "Elinor - Renowned Diplomat",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 4,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Mentor",
+      "Queen"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 86,
+    "rarity": "super_rare",
+    "_source": "ravensburger",
+    "subtitle": "Renowned Diplomat",
+    "strength": 3,
+    "willpower": 4,
+    "lore": 1,
+    "rulesText": "COORDINATED EFFORTS At the end of your turn, if you have 3 or more exerted characters in play, deal 1 damage to chosen opposing character, gain 1 lore, and draw a card.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/86_9851189608d9650dc922bd1cbc5b085cc15b4b28.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/86_9851189608d9650dc922bd1cbc5b085cc15b4b28.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "COORDINATED EFFORTS",
+        "rulesText": "At the end of your turn, if you have 3 or more exerted characters in play, deal 1 damage to chosen opposing character, gain 1 lore, and draw a card.",
+        "raw": "COORDINATED EFFORTS At the end of your turn, if you have 3 or more exerted characters in play, deal 1 damage to chosen opposing character, gain 1 lore, and draw a card."
+      }
+    ]
+  },
+  {
+    "id": "lyle-tiberius-rourke-adventurer-for-hire",
+    "name": "Lyle Tiberius Rourke",
+    "fullName": "Lyle Tiberius Rourke - Adventurer for Hire",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Villain"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 87,
+    "rarity": "uncommon",
+    "_source": "ravensburger",
+    "subtitle": "Adventurer for Hire",
+    "strength": 2,
+    "willpower": 2,
+    "lore": 1,
+    "rulesText": "EYE FOR VALUE When you play this character, you may draw a card, then choose and discard a card.\nDIRTY TRICKS At the end of your turn, if 2 or more cards were put into your discard this turn, each opponent loses 1 lore.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/87_a37943d83cee3e1b2eed382b9f2dfdbd1b435ea3.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/87_a37943d83cee3e1b2eed382b9f2dfdbd1b435ea3.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "EYE FOR VALUE",
+        "rulesText": "When you play this character, you may draw a card, then choose and discard a card.",
+        "raw": "EYE FOR VALUE When you play this character, you may draw a card, then choose and discard a card."
+      },
+      {
+        "storyName": "DIRTY TRICKS",
+        "rulesText": "At the end of your turn, if 2 or more cards were put into your discard this turn, each opponent loses 1 lore.",
+        "raw": "DIRTY TRICKS At the end of your turn, if 2 or more cards were put into your discard this turn, each opponent loses 1 lore."
       }
     ]
   },
@@ -2270,6 +2947,54 @@
     ]
   },
   {
+    "id": "buzz-lightyear-jungle-ranger",
+    "name": "Buzz Lightyear",
+    "fullName": "Buzz Lightyear - Jungle Ranger",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 7,
+    "inkable": false,
+    "traits": [
+      "Floodborn",
+      "Hero",
+      "Toy",
+      "Captain"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 5
+      }
+    ],
+    "setId": "12",
+    "number": 91,
+    "rarity": "legendary",
+    "_source": "ravensburger",
+    "subtitle": "Jungle Ranger",
+    "strength": 7,
+    "willpower": 5,
+    "lore": 2,
+    "shiftCost": 5,
+    "rulesText": "<Shift> 5 {I} (You may pay 5 {I} to play this on top of one of your characters named Buzz Lightyear.)\nTAKE CHARGE When you play this character, you may return an action card with cost 7 or less from your discard to your hand.\nADVANCED TRAINING Whenever you play an action, chosen character gets +1 {L} this turn.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/91_86b19a716112103b50b1ef6e07afcb377f36f94d.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/91_86b19a716112103b50b1ef6e07afcb377f36f94d.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "TAKE CHARGE",
+        "rulesText": "When you play this character, you may return an action card with cost 7 or less from your discard to your hand.",
+        "raw": "TAKE CHARGE When you play this character, you may return an action card with cost 7 or less from your discard to your hand."
+      },
+      {
+        "storyName": "ADVANCED TRAINING",
+        "rulesText": "Whenever you play an action, chosen character gets +1 {L} this turn.",
+        "raw": "ADVANCED TRAINING Whenever you play an action, chosen character gets +1 {L} this turn."
+      }
+    ]
+  },
+  {
     "id": "cruella-de-vil-judgmental-traveler",
     "name": "Cruella De Vil",
     "fullName": "Cruella De Vil - Judgmental Traveler",
@@ -2340,6 +3065,39 @@
     ]
   },
   {
+    "id": "the-huntsman-on-the-queens-orders",
+    "name": "The Huntsman",
+    "fullName": "The Huntsman - On the Queen's Orders",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "ward"
+      }
+    ],
+    "setId": "12",
+    "number": 94,
+    "rarity": "uncommon",
+    "_source": "ravensburger",
+    "subtitle": "On the Queen's Orders",
+    "strength": 4,
+    "willpower": 3,
+    "lore": 1,
+    "rulesText": "<Ward> (Opponents can’t choose this character except to challenge.)",
+    "flavorText": "“Even you wouldn’t be fool enough to disobey my orders a second time.”\n—The Queen",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/94_bd00510de719c060d65ed249d5c2596161959822.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/94_bd00510de719c060d65ed249d5c2596161959822.jpg"
+  },
+  {
     "id": "strange-things",
     "name": "Strange Things",
     "fullName": "Strange Things",
@@ -2384,6 +3142,26 @@
         }
       }
     ]
+  },
+  {
+    "id": "the-family-scattered",
+    "name": "The Family Scattered",
+    "fullName": "The Family Scattered",
+    "cardType": "action",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 8,
+    "inkable": false,
+    "traits": [],
+    "abilities": [],
+    "setId": "12",
+    "number": 97,
+    "rarity": "super_rare",
+    "_source": "ravensburger",
+    "rulesText": "Chosen opponent chooses 3 of their characters and returns one of those cards to their hand, puts one on the bottom of their deck, and puts one on the top of their deck.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/97_e6522d16f30211644ba3436d476751e6f825641d.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/97_e6522d16f30211644ba3436d476751e6f825641d.jpg"
   },
   {
     "id": "gyro-evac",
@@ -2647,6 +3425,66 @@
     ]
   },
   {
+    "id": "lyle-tiberius-rourke-looking-for-his-moment",
+    "name": "Lyle Tiberius Rourke",
+    "fullName": "Lyle Tiberius Rourke - Looking for His Moment",
+    "cardType": "character",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Villain"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 105,
+    "rarity": "common",
+    "_source": "ravensburger",
+    "subtitle": "Looking for His Moment",
+    "strength": 4,
+    "willpower": 4,
+    "lore": 1,
+    "flavorText": "\"You have to be ready to take advantage of any opportunity. And this vine? Looks like a pretty big opportunity.\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/105_ab371bc93defa9e00b4abe342c353af76b5b6712.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/105_ab371bc93defa9e00b4abe342c353af76b5b6712.jpg"
+  },
+  {
+    "id": "pegasus-searching-high-and-low",
+    "name": "Pegasus",
+    "fullName": "Pegasus - Searching High and Low",
+    "cardType": "character",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 6,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Ally"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      }
+    ],
+    "setId": "12",
+    "number": 106,
+    "rarity": "common",
+    "_source": "ravensburger",
+    "subtitle": "Searching High and Low",
+    "strength": 6,
+    "willpower": 7,
+    "lore": 1,
+    "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)",
+    "flavorText": "Lorcana had changed. It felt <bigger> somehow. But no matter how big it got, he was determined to find his friend.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/106_d212ad770591d18cc6e4710abc3950bbce17feaa.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/106_09db655934d8f1ef3467bc905c265fa18e6eae92.jpg"
+  },
+  {
     "id": "audrey-ramirez-gutsy-mechanic",
     "name": "Audrey Ramirez",
     "fullName": "Audrey Ramirez - Gutsy Mechanic",
@@ -2678,6 +3516,42 @@
     "flavorText": "\"I love a machine that gets me in the action even faster!\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/107_6a0acff46f165733e6c9fc233c9c1a0a2c355d50.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/107_6a0acff46f165733e6c9fc233c9c1a0a2c355d50.jpg"
+  },
+  {
+    "id": "zeus-defiant-god",
+    "name": "Zeus",
+    "fullName": "Zeus - Defiant God",
+    "cardType": "character",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "King",
+      "Deity"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 109,
+    "rarity": "uncommon",
+    "_source": "ravensburger",
+    "subtitle": "Defiant God",
+    "strength": 5,
+    "willpower": 5,
+    "lore": 3,
+    "rulesText": "IMMORTAL WOUND This character enters play with 4 damage.",
+    "flavorText": "“I am the ruler of Olympus! I refuse to be defeated by a bunch of <flowers>!”",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/109_d3520719b9bd3e6c20bfa7aeffa922d7af91df70.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/109_d3520719b9bd3e6c20bfa7aeffa922d7af91df70.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "IMMORTAL WOUND",
+        "rulesText": "This character enters play with 4 damage.",
+        "raw": "IMMORTAL WOUND This character enters play with 4 damage."
+      }
+    ]
   },
   {
     "id": "jingle-joe-sids-toy",
@@ -2976,6 +3850,33 @@
         "raw": "BREAK IS OVER Whenever this character quests, if you played a character this turn, you may ready another chosen character. If you do, they can’t quest for the rest of this turn."
       }
     ]
+  },
+  {
+    "id": "copper-big-dog",
+    "name": "Copper",
+    "fullName": "Copper - Big Dog",
+    "cardType": "character",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 6,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 116,
+    "rarity": "uncommon",
+    "_source": "ravensburger",
+    "subtitle": "Big Dog",
+    "strength": 7,
+    "willpower": 6,
+    "lore": 2,
+    "flavorText": "\"I'll clear this ol' vine out, if I have to do it one root at a time.\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/116_b7ee4b375a3128b39ed12e6aa570ab1142bc4357.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/116_b7ee4b375a3128b39ed12e6aa570ab1142bc4357.jpg"
   },
   {
     "id": "dash-parr-super-speedy",
@@ -3614,6 +4515,76 @@
     ]
   },
   {
+    "id": "hero-work",
+    "name": "Hero Work",
+    "fullName": "Hero Work",
+    "cardType": "action",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [],
+    "abilities": [],
+    "setId": "12",
+    "number": 132,
+    "rarity": "rare",
+    "_source": "ravensburger",
+    "rulesText": "Your characters get +1 {S} this turn. Your Hero characters gain \"Whenever this character challenges another character, each opponent loses 1 lore and you gain 1 lore\" this turn.",
+    "flavorText": "\"It's a whole family of Supers!\" \n—Syndrome",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/132_77b0d45ef45393cf53e4230a6e048e9097827ad1.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/132_77b0d45ef45393cf53e4230a6e048e9097827ad1.jpg"
+  },
+  {
+    "id": "dangerous-plan",
+    "name": "Dangerous Plan",
+    "fullName": "Dangerous Plan",
+    "cardType": "action",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 1,
+    "inkable": true,
+    "traits": [],
+    "abilities": [],
+    "setId": "12",
+    "number": 133,
+    "rarity": "common",
+    "_source": "ravensburger",
+    "rulesText": "Draw 2 cards. Then, discard a card at random.",
+    "flavorText": "Audrey: \"<This> was your plan?!\"\nMilo: \"I didn't anticipate the flowers, but it can still work!\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/133_8d811780de8382fc495bbdc2308bfea9208998c0.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/133_8d811780de8382fc495bbdc2308bfea9208998c0.jpg"
+  },
+  {
+    "id": "amazus-inkcaster",
+    "name": "Amazu's Inkcaster",
+    "fullName": "Amazu's Inkcaster",
+    "cardType": "item",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 2,
+    "inkable": false,
+    "traits": [],
+    "abilities": [],
+    "setId": "12",
+    "number": 134,
+    "rarity": "uncommon",
+    "_source": "ravensburger",
+    "rulesText": "ON THE HORIZON {E}, 1 {I} — Look at the top 4 cards of your deck. You may reveal a location card and put it into your hand. Put the rest on the bottom of your deck in any order.",
+    "flavorText": "\"It always points the way to new adventures.\"\n—Amazu, an Illumineer",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/134_9bc9fe599c854d14b39d29e4e8a4b8d2ddca50cd.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/134_9bc9fe599c854d14b39d29e4e8a4b8d2ddca50cd.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "ON THE HORIZON",
+        "rulesText": "{E}, 1 {I} — Look at the top 4 cards of your deck. You may reveal a location card and put it into your hand. Put the rest on the bottom of your deck in any order.",
+        "raw": "ON THE HORIZON {E}, 1 {I} — Look at the top 4 cards of your deck. You may reveal a location card and put it into your hand. Put the rest on the bottom of your deck in any order."
+      }
+    ]
+  },
+  {
     "id": "remote-inklands-desert-ruins",
     "name": "Remote Inklands",
     "fullName": "Remote Inklands - Desert Ruins",
@@ -3681,6 +4652,103 @@
         "storyName": "SUCCESSFUL EXPEDITION",
         "rulesText": "Characters get +2 {S} while here.",
         "raw": "SUCCESSFUL EXPEDITION Characters get +2 {S} while here."
+      }
+    ]
+  },
+  {
+    "id": "robin-hood-desert-wanderer",
+    "name": "Robin Hood",
+    "fullName": "Robin Hood - Desert Wanderer",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 1,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Hero"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 137,
+    "rarity": "common",
+    "_source": "ravensburger",
+    "subtitle": "Desert Wanderer",
+    "strength": 1,
+    "willpower": 3,
+    "lore": 1,
+    "flavorText": "\"I say, those glowing symbols look interesting. I think it's time to go in for a closer look!\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/137_9dab6a338564f9092fc0f9d2159991e4cd1f295a.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/137_9dab6a338564f9092fc0f9d2159991e4cd1f295a.jpg"
+  },
+  {
+    "id": "fauna-good-natured-fairy",
+    "name": "Fauna",
+    "fullName": "Fauna - Good-Natured Fairy",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 1,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally",
+      "Fairy"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "support"
+      }
+    ],
+    "setId": "12",
+    "number": 140,
+    "rarity": "common",
+    "_source": "ravensburger",
+    "subtitle": "Good-Natured Fairy",
+    "strength": 2,
+    "willpower": 1,
+    "lore": 1,
+    "rulesText": "<Support> (Whenever this character quests, you may add their {S} to another chosen character’s {S} this turn.)",
+    "flavorText": "\"Oh dear, let me help you with that.”",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/140_2a6aa34198743f1a83c6fece9ed91b4a174203aa.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/140_afb12d6e960bbb8db9c5a00589bfefc2f6e5fbb1.jpg"
+  },
+  {
+    "id": "flora-strong-willed-fairy",
+    "name": "Flora",
+    "fullName": "Flora - Strong-Willed Fairy",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally",
+      "Fairy"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 141,
+    "rarity": "rare",
+    "_source": "ravensburger",
+    "subtitle": "Strong-Willed Fairy",
+    "strength": 4,
+    "willpower": 5,
+    "lore": 2,
+    "rulesText": "LUMINOUS SHELTER When you play this character, your other characters gain <Resist> +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)",
+    "flavorText": "\"While you two finish up, I'll add protective charms. Pink, of course.\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/141_66e94a1fe266d63c6fb39be4c306bcced22b4bbf.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/141_563056e30716149789781047cf2d084246a1f936.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "LUMINOUS SHELTER",
+        "rulesText": "When you play this character, your other characters gain <Resist> +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)",
+        "raw": "LUMINOUS SHELTER When you play this character, your other characters gain <Resist> +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)"
       }
     ]
   },
@@ -3777,6 +4845,42 @@
     ]
   },
   {
+    "id": "norton-nimnul-misanthropic-genius",
+    "name": "Norton Nimnul",
+    "fullName": "Norton Nimnul - Misanthropic Genius",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 3,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Villain",
+      "Inventor"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 146,
+    "rarity": "uncommon",
+    "_source": "ravensburger",
+    "subtitle": "Misanthropic Genius",
+    "strength": 3,
+    "willpower": 3,
+    "lore": 2,
+    "rulesText": "DEVITALIZER RAY Once during your turn, whenever you play an item, chosen opposing character gets -2 {S} this turn.",
+    "flavorText": "\"Another successful test! This brilliant devitalizer ray technology will be my finest invention yet!\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/146_d855e5debaae441bbc48a5479c95375746faae18.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/146_d855e5debaae441bbc48a5479c95375746faae18.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "DEVITALIZER RAY",
+        "rulesText": "Once during your turn, whenever you play an item, chosen opposing character gets -2 {S} this turn.",
+        "raw": "DEVITALIZER RAY Once during your turn, whenever you play an item, chosen opposing character gets -2 {S} this turn."
+      }
+    ]
+  },
+  {
     "id": "gadget-hackwrench-finder-of-lost-parts",
     "name": "Gadget Hackwrench",
     "fullName": "Gadget Hackwrench - Finder of Lost Parts",
@@ -3867,6 +4971,42 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/148_07a59c08a5a9c83541039a1ab1c135921ef5b528.jpg"
   },
   {
+    "id": "dr-sara-bellum-head-of-research",
+    "name": "Dr. Sara Bellum",
+    "fullName": "Dr. Sara Bellum - Head of Research",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally",
+      "Inventor"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 152,
+    "rarity": "common",
+    "_source": "ravensburger",
+    "subtitle": "Head of Research",
+    "strength": 3,
+    "willpower": 4,
+    "lore": 1,
+    "rulesText": "SCIENTIFIC SCRUTINY When you play this character, look at the top card of your deck. Put it on either the top or the bottom of your deck.",
+    "flavorText": "\"Fascinating. What unusual markings! I can't wait to bring my findings back to S.H.U.S.H.\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/152_32aa5a21d6e698055f18ffab415d9c265eddc47c.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/152_32aa5a21d6e698055f18ffab415d9c265eddc47c.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "SCIENTIFIC SCRUTINY",
+        "rulesText": "When you play this character, look at the top card of your deck. Put it on either the top or the bottom of your deck.",
+        "raw": "SCIENTIFIC SCRUTINY When you play this character, look at the top card of your deck. Put it on either the top or the bottom of your deck."
+      }
+    ]
+  },
+  {
     "id": "cinderella-resourceful-traveler",
     "name": "Cinderella",
     "fullName": "Cinderella - Resourceful Traveler",
@@ -3929,6 +5069,156 @@
         "storyName": "THIS AND THAT",
         "rulesText": "Whenever this character quests, if you played another character this turn, you may put the top card of your deck into your inkwell facedown and exerted.",
         "raw": "THIS AND THAT Whenever this character quests, if you played another character this turn, you may put the top card of your deck into your inkwell facedown and exerted."
+      }
+    ]
+  },
+  {
+    "id": "kida-discovering-the-unknown",
+    "name": "Kida",
+    "fullName": "Kida - Discovering the Unknown",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero",
+      "Princess"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 157,
+    "rarity": "rare",
+    "_source": "ravensburger",
+    "subtitle": "Discovering the Unknown",
+    "strength": 3,
+    "willpower": 4,
+    "lore": 1,
+    "rulesText": "READ THE RUNES Whenever this character quests, if 2 or more cards were put into your discard this turn, you may put the top card of your deck into your inkwell facedown and exerted.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/157_aa0d819e4b05ae775ea6d8c04e6cb405f8acd181.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/157_aa0d819e4b05ae775ea6d8c04e6cb405f8acd181.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "READ THE RUNES",
+        "rulesText": "Whenever this character quests, if 2 or more cards were put into your discard this turn, you may put the top card of your deck into your inkwell facedown and exerted.",
+        "raw": "READ THE RUNES Whenever this character quests, if 2 or more cards were put into your discard this turn, you may put the top card of your deck into your inkwell facedown and exerted."
+      }
+    ]
+  },
+  {
+    "id": "kashekim-wise-king",
+    "name": "Kashekim",
+    "fullName": "Kashekim - Wise King",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "King"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 158,
+    "rarity": "uncommon",
+    "_source": "ravensburger",
+    "subtitle": "Wise King",
+    "strength": 4,
+    "willpower": 6,
+    "lore": 2,
+    "rulesText": "STRENGTH IN MEMORY At the end of your turn, if 2 or more cards were put into your discard this turn, you may put the top card of your deck into your inkwell facedown.",
+    "flavorText": "\"The power here is buried deep in the sands.\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/158_b7a3b500d1753c0fd0ac759e10935c87645c1c6b.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/158_b7a3b500d1753c0fd0ac759e10935c87645c1c6b.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "STRENGTH IN MEMORY",
+        "rulesText": "At the end of your turn, if 2 or more cards were put into your discard this turn, you may put the top card of your deck into your inkwell facedown.",
+        "raw": "STRENGTH IN MEMORY At the end of your turn, if 2 or more cards were put into your discard this turn, you may put the top card of your deck into your inkwell facedown."
+      }
+    ]
+  },
+  {
+    "id": "escape-plan",
+    "name": "Escape Plan",
+    "fullName": "Escape Plan",
+    "cardType": "action",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 5,
+    "inkable": false,
+    "traits": [],
+    "abilities": [],
+    "setId": "12",
+    "number": 164,
+    "rarity": "rare",
+    "_source": "ravensburger",
+    "rulesText": "You can’t play this action unless 2 or more cards were put into your discard this turn.\nEach player chooses 2 of their characters and puts them into their inkwell facedown and exerted.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/164_ac329067db5f9b76325d8716c8cd6a30a9617552.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/164_ac329067db5f9b76325d8716c8cd6a30a9617552.jpg"
+  },
+  {
+    "id": "julietas-arepas",
+    "name": "Julieta's Arepas",
+    "fullName": "Julieta's Arepas",
+    "cardType": "item",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 1,
+    "inkable": false,
+    "traits": [],
+    "abilities": [],
+    "setId": "12",
+    "number": 166,
+    "rarity": "common",
+    "_source": "ravensburger",
+    "rulesText": "FLAVORFUL CURE At the start of your turn, if you have a Madrigal character in play, remove up to 2 damage from chosen character.\nTHAT DID THE TRICK {E} — If you removed damage from a character this turn, gain 1 lore.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/166_1a56d466206002daf499fedb3c154f8b2fd2e7ef.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/166_1a56d466206002daf499fedb3c154f8b2fd2e7ef.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "FLAVORFUL CURE",
+        "rulesText": "At the start of your turn, if you have a Madrigal character in play, remove up to 2 damage from chosen character.",
+        "raw": "FLAVORFUL CURE At the start of your turn, if you have a Madrigal character in play, remove up to 2 damage from chosen character."
+      },
+      {
+        "storyName": "THAT DID THE TRICK",
+        "rulesText": "{E} — If you removed damage from a character this turn, gain 1 lore.",
+        "raw": "THAT DID THE TRICK {E} — If you removed damage from a character this turn, gain 1 lore."
+      }
+    ]
+  },
+  {
+    "id": "gadgets-goggles",
+    "name": "Gadget's Goggles",
+    "fullName": "Gadget's Goggles",
+    "cardType": "item",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [],
+    "abilities": [],
+    "setId": "12",
+    "number": 168,
+    "rarity": "uncommon",
+    "_source": "ravensburger",
+    "rulesText": "ENHANCED VISION {E}, 1 {I} — Look at the top 2 cards of your deck. Put one on the top of your deck and the other on the bottom.",
+    "flavorText": "Dale: \"Do you see anything, Gadget?\"\nGadget: \"Yeah, but I wish I didn’t.\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/168_28042d1fa77fc6172a9f4112cee8d2e0dc147c2f.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/168_28042d1fa77fc6172a9f4112cee8d2e0dc147c2f.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "ENHANCED VISION",
+        "rulesText": "{E}, 1 {I} — Look at the top 2 cards of your deck. Put one on the top of your deck and the other on the bottom.",
+        "raw": "ENHANCED VISION {E}, 1 {I} — Look at the top 2 cards of your deck. Put one on the top of your deck and the other on the bottom."
       }
     ]
   },
@@ -4223,6 +5513,116 @@
     ]
   },
   {
+    "id": "lord-macintosh-wiry-and-high-strung",
+    "name": "Lord Macintosh",
+    "fullName": "Lord Macintosh - Wiry and High-Strung",
+    "cardType": "character",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 4,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Ally"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 181,
+    "rarity": "uncommon",
+    "_source": "ravensburger",
+    "subtitle": "Wiry and High-Strung",
+    "strength": 3,
+    "willpower": 4,
+    "lore": 2,
+    "rulesText": "TOUGH IT OUT This character may enter play exerted to give chosen character <Resist> +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)",
+    "flavorText": "\"Clan Macintosh fears no flower, vine, or tree. We dinnae mess with shrubs, though.\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/181_772f9ab54969f3a58024b5f63ed5cc3447824ed1.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/181_772f9ab54969f3a58024b5f63ed5cc3447824ed1.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "TOUGH IT OUT",
+        "rulesText": "This character may enter play exerted to give chosen character <Resist> +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)",
+        "raw": "TOUGH IT OUT This character may enter play exerted to give chosen character <Resist> +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)"
+      }
+    ]
+  },
+  {
+    "id": "fat-cat-felonious-feline",
+    "name": "Fat Cat",
+    "fullName": "Fat Cat - Felonious Feline",
+    "cardType": "character",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 6,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Villain"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "resist",
+        "value": 1
+      }
+    ],
+    "setId": "12",
+    "number": 182,
+    "rarity": "common",
+    "_source": "ravensburger",
+    "subtitle": "Felonious Feline",
+    "strength": 6,
+    "willpower": 6,
+    "lore": 2,
+    "rulesText": "<Resist> +1 (Damage dealt to this character is reduced by 1.)",
+    "flavorText": "\"I'm afraid your information is out of date, my dear rodent. I know what the glyphs are for, and more importantly . . . how to use them.\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/182_bc2f3da537f78cfc7ee202fbf1399f5f38fc9d97.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/182_bc2f3da537f78cfc7ee202fbf1399f5f38fc9d97.jpg"
+  },
+  {
+    "id": "omnidroid-v-9",
+    "name": "Omnidroid",
+    "fullName": "Omnidroid - V.9",
+    "cardType": "character",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 4,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Robot"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 2
+      }
+    ],
+    "setId": "12",
+    "number": 184,
+    "rarity": "uncommon",
+    "_source": "ravensburger",
+    "subtitle": "V.9",
+    "strength": 4,
+    "willpower": 3,
+    "lore": 1,
+    "shiftCost": 2,
+    "rulesText": "<Shift> 2 {I} (You may pay 2 {I} to play this on top of one of your characters named Omnidroid.)\nENEMY DETECTED When you play this character, if you used <Shift> to play it, you may deal 2 damage to chosen character.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/184_cfcb63bc134d6cf994f2cbdf74f3ad87945b6265.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/184_0945d8f33c007f46611dbbe1b0840834fec6c81c.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "ENEMY DETECTED",
+        "rulesText": "When you play this character, if you used <Shift> to play it, you may deal 2 damage to chosen character.",
+        "raw": "ENEMY DETECTED When you play this character, if you used <Shift> to play it, you may deal 2 damage to chosen character."
+      }
+    ]
+  },
+  {
     "id": "mr-incredible-taking-out-the-trash",
     "name": "Mr. Incredible",
     "fullName": "Mr. Incredible - Taking Out the Trash",
@@ -4287,6 +5687,41 @@
         "storyName": "KA-POW!",
         "rulesText": "When you play this character, you may deal 2 damage to chosen opposing Robot or Villain character.",
         "raw": "KA-POW! When you play this character, you may deal 2 damage to chosen opposing Robot or Villain character."
+      }
+    ]
+  },
+  {
+    "id": "lord-dingwall-bullheaded",
+    "name": "Lord Dingwall",
+    "fullName": "Lord Dingwall - Bullheaded",
+    "cardType": "character",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 186,
+    "rarity": "uncommon",
+    "_source": "ravensburger",
+    "subtitle": "Bullheaded",
+    "strength": 5,
+    "willpower": 6,
+    "lore": 1,
+    "rulesText": "FIGHTIN’ TALK This character may enter play exerted to give chosen character <Challenger> +3 this turn. (They get +3 {S} while challenging.)",
+    "flavorText": "\"Ach, look at the size o' that flower! Let's clear that beastie out before it causes any trouble.\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/186_74242fa481dc8df7788924b02c27b93f00c4c11c.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/186_74242fa481dc8df7788924b02c27b93f00c4c11c.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "FIGHTIN' TALK",
+        "rulesText": "This character may enter play exerted to give chosen character <Challenger> +3 this turn. (They get +3 {S} while challenging.)",
+        "raw": "FIGHTIN’ TALK This character may enter play exerted to give chosen character <Challenger> +3 this turn. (They get +3 {S} while challenging.)"
       }
     ]
   },
@@ -4530,6 +5965,45 @@
         "storyName": "REGROUP",
         "rulesText": "During your turn, whenever another character is banished in a challenge, you may ready chosen Super character. If you do, they can’t quest for the rest of this turn.",
         "raw": "REGROUP During your turn, whenever another character is banished in a challenge, you may ready chosen Super character. If you do, they can’t quest for the rest of this turn."
+      }
+    ]
+  },
+  {
+    "id": "diablo-stone-servant",
+    "name": "Diablo",
+    "fullName": "Diablo - Stone Servant",
+    "cardType": "character",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Ally"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 196,
+    "rarity": "super_rare",
+    "_source": "ravensburger",
+    "subtitle": "Stone Servant",
+    "strength": 1,
+    "willpower": 3,
+    "lore": 1,
+    "rulesText": "CRUEL INTENT While you have a Villain character in play, this character gets +2 {S} and +1 {L}.\nVILLAINOUS BOND While this character is exerted, your Villain characters can’t be challenged.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/196_d807ab79c4644f37529e9de2d7a72080d3bf68de.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/196_d807ab79c4644f37529e9de2d7a72080d3bf68de.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "CRUEL INTENT",
+        "rulesText": "While you have a Villain character in play, this character gets +2 {S} and +1 {L}.",
+        "raw": "CRUEL INTENT While you have a Villain character in play, this character gets +2 {S} and +1 {L}."
+      },
+      {
+        "storyName": "VILLAINOUS BOND",
+        "rulesText": "While this character is exerted, your Villain characters can’t be challenged.",
+        "raw": "VILLAINOUS BOND While this character is exerted, your Villain characters can’t be challenged."
       }
     ]
   },
@@ -5007,6 +6481,66 @@
     ]
   },
   {
+    "id": "youve-got-a-friend-in-me",
+    "name": "You've Got a Friend in Me",
+    "fullName": "You've Got a Friend in Me",
+    "cardType": "action",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Song"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 225,
+    "rarity": "enchanted",
+    "_source": "ravensburger",
+    "rulesText": "Look at the top 4 cards of your deck. You may reveal up to 2 Toy character cards and put them into your hand. Put the rest on the bottom of your deck in any order.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/225_9633a5a18e148e243fe5e503484a4fd2022a2296.jpg"
+  },
+  {
+    "id": "frozone-super-cool",
+    "name": "Frozone",
+    "fullName": "Frozone - Super Cool",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 6,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Super",
+      "Hero"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "rush"
+      }
+    ],
+    "setId": "12",
+    "number": 226,
+    "rarity": "enchanted",
+    "_source": "ravensburger",
+    "subtitle": "Super Cool",
+    "strength": 6,
+    "willpower": 4,
+    "lore": 2,
+    "rulesText": "<Rush>\nJUST CHILL When you play this character, if you have another Super character in play, you may exert chosen opposing character.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/226_d92830b874e6b3b36bae92665b0cbf137382591a.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "JUST CHILL",
+        "rulesText": "When you play this character, if you have another Super character in play, you may exert chosen opposing character.",
+        "raw": "JUST CHILL When you play this character, if you have another Super character in play, you may exert chosen opposing character."
+      }
+    ]
+  },
+  {
     "id": "what-else-can-i-do",
     "name": "What Else Can I Do?",
     "fullName": "What Else Can I Do?",
@@ -5043,6 +6577,27 @@
         "restPlacement": "inkwell"
       }
     ]
+  },
+  {
+    "id": "touch-the-sky",
+    "name": "Touch the Sky",
+    "fullName": "Touch the Sky",
+    "cardType": "action",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [
+      "Song"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 240,
+    "rarity": "enchanted",
+    "_source": "ravensburger",
+    "rulesText": "Move a character of yours to a location for free. Then, draw cards equal to that location’s {L}.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/240_185d89307de4161437257494a507c87eb14c2a6f.jpg"
   },
   {
     "id": "buzz-lightyear-jungle-ranger",

@@ -346,6 +346,11 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): {
   if (!existsSync(outPath)) return { preserved: 0, keywordsRescued: 0, reslugged: 0, carriedOver: 0, manualReplaced: 0, sourceSkipped: 0 };
 
   const existing: CardDefinitionOut[] = JSON.parse(readFileSync(outPath, "utf-8"));
+  // (id, number) composite — same-slug-different-number is a legitimate
+  // variant pattern (e.g. Pegasus at #1 and #5 in C2 reprints). See the
+  // Ravensburger importer's matching block for the full rationale.
+  const existingByIdNum = new Map(existing.map((c) => [`${c.id}|${c.number}`, c]));
+  // id-only (last-wins) — for the cross-source drop check below.
   const existingById = new Map(existing.map((c) => [c.id, c]));
   const existingByNormName = new Map(
     existing.map((c) => [`${c.number}|${normName(c.fullName)}`, c])
@@ -355,10 +360,26 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): {
     if (c._source === "manual") manualByNumber.set(c.number, c);
   }
   let preserved = 0, keywordsRescued = 0, reslugged = 0, manualReplaced = 0, sourceSkipped = 0;
+  const droppedIndices = new Set<number>();
 
   for (let i = 0; i < newCards.length; i++) {
     const card = newCards[i]!;
-    let prev = existingById.get(card.id);
+
+    // Cross-source numbering divergence check: Lorcast's numbering for
+    // reprint sets (cp → C1) differs from Ravensburger's (e.g. Dragon
+    // Fire at Lorcast #25 vs Ravensburger #1 — same card, different
+    // numbering convention). When incoming is lower-tier and a same-slug
+    // higher-tier entry exists at ANY number, the incoming is redundant:
+    // drop it entirely so it doesn't create a duplicate of a card that's
+    // already covered. The existing higher-tier entry gets carried over.
+    const idOnlyMatch = existingById.get(card.id);
+    if (idOnlyMatch && sourceTier(card._source) < sourceTier(idOnlyMatch._source)) {
+      droppedIndices.add(i);
+      sourceSkipped++;
+      continue;
+    }
+
+    let prev = existingByIdNum.get(`${card.id}|${card.number}`);
     if (!prev) {
       prev = existingByNormName.get(`${card.number}|${normName(card.fullName)}`);
       if (prev) reslugged++;
@@ -434,12 +455,23 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): {
     }
   }
 
+  // Remove cards dropped by the cross-source check above. Splice in reverse
+  // index order so later indices stay valid. Mutate in-place to preserve the
+  // caller's array reference.
+  if (droppedIndices.size > 0) {
+    const sortedDropped = [...droppedIndices].sort((a, b) => b - a);
+    for (const idx of sortedDropped) newCards.splice(idx, 1);
+  }
+
   // Carry over existing cards not in this batch (same logic as rav importer).
   let carriedOver = 0;
-  const incomingById = new Set(newCards.map((c) => c.id));
+  const incomingByIdNum = new Set(newCards.map((c) => `${c.id}|${c.number}`));
   const incomingByKey = new Set(newCards.map((c) => `${c.number}|${normName(c.fullName)}`));
+  // Also track ids claimed via the cross-source drop: existing entries with
+  // these ids have been "accounted for" by the drop, so they carry over
+  // normally (no dedup needed — they were never in newCards).
   for (const prev of existing) {
-    if (incomingById.has(prev.id)) continue;
+    if (incomingByIdNum.has(`${prev.id}|${prev.number}`)) continue;
     if (incomingByKey.has(`${prev.number}|${normName(prev.fullName)}`)) continue;
     newCards.push(prev);
     carriedOver++;

@@ -476,7 +476,15 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { pr
   if (!existsSync(outPath)) return { preserved: 0, keywordsRescued: 0, reslugged: 0, carriedOver: 0, manualReplaced: 0, sourceSkipped: 0 };
 
   const existing: CardDefinitionOut[] = JSON.parse(readFileSync(outPath, "utf-8"));
-  const existingById = new Map(existing.map((c) => [c.id, c]));
+  // Primary index: (id, number) composite. Same-slug-different-number is a
+  // legitimate variant pattern (C2 reprints like Pegasus at #1 and #5 share
+  // slug but are distinct printings), so an id-only Map collapses variants
+  // under last-wins semantics. When the merge swaps prev in (hierarchy /
+  // lock), multiple incoming same-slug cards all resolve to the same Map
+  // entry and collapse to duplicates. Composite key avoids that.
+  const existingByIdNum = new Map(
+    existing.map((c) => [`${c.id}|${c.number}`, c])
+  );
   // Fallback index: (number, normalized-fullName) → card. Catches cases where
   // a slug has changed across re-imports due to apostrophe/diacritic fixes.
   const existingByNormName = new Map(
@@ -500,7 +508,7 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { pr
 
   for (let i = 0; i < newCards.length; i++) {
     const card = newCards[i]!;
-    let prev = existingById.get(card.id);
+    let prev = existingByIdNum.get(`${card.id}|${card.number}`);
     if (!prev) {
       // Slug changed across re-import — match by number + normalized name.
       prev = existingByNormName.get(`${card.number}|${normName(card.fullName)}`);
@@ -592,10 +600,10 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { pr
   // slice (42-card P3 wipe bug from 2026-04-18). Matches on id, with a
   // (number, normName) fallback to survive slug renames.
   let carriedOver = 0;
-  const incomingById = new Set(newCards.map((c) => c.id));
+  const incomingByIdNum = new Set(newCards.map((c) => `${c.id}|${c.number}`));
   const incomingByKey = new Set(newCards.map((c) => `${c.number}|${normName(c.fullName)}`));
   for (const prev of existing) {
-    if (incomingById.has(prev.id)) continue;
+    if (incomingByIdNum.has(`${prev.id}|${prev.number}`)) continue;
     if (incomingByKey.has(`${prev.number}|${normName(prev.fullName)}`)) continue;
     newCards.push(prev);
     carriedOver++;
