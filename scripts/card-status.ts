@@ -100,6 +100,42 @@ function extractInterfaceFields(source: string, interfaceName: string): Set<stri
 // `hasCardUnder`, `notId` vs `excludeSelf`, etc.
 const VALID_CARDFILTER_FIELDS = extractInterfaceFields(typesSource, "CardFilter");
 
+/** Per-effect-type field whitelist. Walks every `export interface XxxEffect {
+ *  type: "yyy"; ... }` definition in types/index.ts and maps the type literal
+ *  to the set of allowed field names. Catches typos like `mayPlay` instead of
+ *  `isMay`, or fields applied to the wrong effect type (e.g. `filter` on
+ *  effects that don't accept filters). Doesn't catch documented-but-unused
+ *  fields (e.g. `isMay` on reveal_top_conditional is in the interface but
+ *  ignored at the effect layer — caught by decompiler tail instead). */
+function buildEffectFieldMap(source: string): Map<string, Set<string>> {
+  const map = new Map<string, Set<string>>();
+  const interfaceRe = /export interface (\w+)\s*\{([\s\S]*?)\n\}/g;
+  for (const m of source.matchAll(interfaceRe)) {
+    const body = m[2]!;
+    // Find the `type: "literal"` discriminator inside this interface.
+    const typeLitMatch = body.match(/\btype:\s*"([a-z_]+)"/);
+    if (!typeLitMatch) continue;
+    const typeLit = typeLitMatch[1]!;
+    // Extract field names declared in the interface body. Same shape as
+    // extractInterfaceFields. Skip the `type` discriminator itself.
+    const fields = new Set<string>();
+    for (const fm of body.matchAll(/^\s+([a-zA-Z_][a-zA-Z0-9_]*)\??:\s/gm)) {
+      fields.add(fm[1]!);
+    }
+    // If the literal already maps to a field set (multiple interfaces sharing
+    // a discriminator), UNION the fields. This handles the BanishEffect /
+    // BanishOtherEffect / etc. pattern if any exist.
+    const existing = map.get(typeLit);
+    if (existing) {
+      for (const f of fields) existing.add(f);
+    } else {
+      map.set(typeLit, fields);
+    }
+  }
+  return map;
+}
+const EFFECT_FIELD_MAP = buildEffectFieldMap(typesSource);
+
 // Cost types that the runtime actually processes — either via payCosts()
 // directly (exert / pay_ink / banish_self) or via applyActivateAbility's
 // cost-as-effect prepend (discard / banish_chosen, which surface a
@@ -137,6 +173,24 @@ function validateCardFields(card: any): FieldError[] {
   function walkEffect(e: any, path: string) {
     if (!e || typeof e !== "object") return;
     checkType(e, path);
+    // Per-effect-type field whitelist — catches typos / wrong-effect-type
+    // fields. The Effect interface for `e.type` declares which fields are
+    // valid; anything else is a silent no-op at the runtime handler.
+    if (typeof e.type === "string") {
+      const allowed = EFFECT_FIELD_MAP.get(e.type);
+      if (allowed && allowed.size > 0) {
+        for (const key of Object.keys(e)) {
+          if (!allowed.has(key)) {
+            errors.push({
+              path,
+              field: key,
+              value: typeof e[key] === "object" ? JSON.stringify(e[key]) : String(e[key]),
+              validValues: `field not in ${e.type}'s interface — silent no-op (allowed: ${[...allowed].join(", ")})`,
+            });
+          }
+        }
+      }
+    }
     if (e.duration && typeof e.duration === "string" && !VALID_DURATIONS.has(e.duration)) {
       errors.push({ path, field: "duration", value: e.duration, validValues: `[${[...VALID_DURATIONS].join(", ")}]` });
     }
