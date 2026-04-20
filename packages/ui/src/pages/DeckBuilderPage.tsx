@@ -5,7 +5,7 @@
 // lg+; stacked below that.
 // =============================================================================
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import type { MouseEvent } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { CARD_DEFINITIONS, parseDecklist, serializeDecklist } from "@lorcana-sim/engine";
@@ -29,6 +29,41 @@ function buildCardMetadata(entries: DeckEntry[]): Record<string, CardMetadata> {
     }
   }
   return out;
+}
+
+/** Shape of a local draft — saved to localStorage so an in-progress deck
+ *  survives tab closes, refreshes, or nav without an explicit Save.
+ *  Entries already include variant (no need for separate metadata blob).
+ *  Drafts are keyed per deck id so decks have independent drafts. */
+interface DraftState {
+  deckName: string;
+  entries: DeckEntry[];
+  boxCardId: string | null;
+  savedAt: number;
+}
+
+function draftKey(id: string | undefined, isNew: boolean): string {
+  return `deck-draft-${isNew ? "new" : id}`;
+}
+
+function readDraft(key: string): DraftState | null {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (typeof parsed !== "object" || parsed === null) return null;
+    return parsed as DraftState;
+  } catch {
+    return null;
+  }
+}
+
+function writeDraft(key: string, state: DraftState) {
+  try { localStorage.setItem(key, JSON.stringify(state)); } catch { /* quota or storage disabled — skip */ }
+}
+
+function clearDraft(key: string) {
+  try { localStorage.removeItem(key); } catch { /* ignore */ }
 }
 
 export default function DeckBuilderPage() {
@@ -135,6 +170,37 @@ export default function DeckBuilderPage() {
   // renders. Confirm → navigate there. Cancel → clear.
   const [pendingNav, setPendingNav] = useState<string | null>(null);
 
+  // Local draft auto-save. Writes {deckName, entries, boxCardId} to
+  // localStorage while the deck is dirty so the user's WIP survives tab
+  // close / refresh / accidental nav. Applied once on mount (after DB
+  // load for existing decks) and cleared on successful save or discard.
+  const currentDraftKey = draftKey(id, isNew);
+  const draftAppliedRef = useRef(false);
+  // Apply draft on mount. For existing decks, wait until the DB load
+  // completes (originalDeck set) so we overlay the draft on top, not
+  // the other way around.
+  useEffect(() => {
+    if (draftAppliedRef.current) return;
+    if (!isNew && !originalDeck) return; // still loading
+    if (isNew && session === undefined) return; // auth unresolved
+    const draft = readDraft(currentDraftKey);
+    if (draft) {
+      setDeckName(draft.deckName);
+      setEntries(draft.entries);
+      setBoxCardId(draft.boxCardId);
+    }
+    draftAppliedRef.current = true;
+  }, [isNew, originalDeck, session, currentDraftKey]);
+  // Write draft when dirty. Debounced 500ms so rapid clicks don't hammer
+  // localStorage.
+  useEffect(() => {
+    if (!draftAppliedRef.current || !isDirty) return;
+    const timer = setTimeout(() => {
+      writeDraft(currentDraftKey, { deckName, entries, boxCardId, savedAt: Date.now() });
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [isDirty, deckName, entries, boxCardId, currentDraftKey]);
+
   // Card-picker visibility. Closed by default — editor search-autocomplete
   // handles known-card adds for most users. Toggle opens the grid for
   // visual discovery (and zero mount cost when it's not needed).
@@ -170,6 +236,7 @@ export default function DeckBuilderPage() {
         });
         setOriginalDeck(updated);
         loadVersions(updated.id);
+        clearDraft(currentDraftKey);
       } else {
         const created = await saveDeck(deckName.trim(), decklistText);
         // saveDeck doesn't accept box_card_id / card_metadata on insert — apply
@@ -184,6 +251,9 @@ export default function DeckBuilderPage() {
           : created;
         setOriginalDeck(final);
         loadVersions(final.id);
+        // "new" draft has done its job — clear it before navigating to the
+        // real-id URL. The per-id key starts fresh (empty).
+        clearDraft(currentDraftKey);
         // First save — switch URL from /decks/new to the real id
         navigate(`/decks/${final.id}`, { replace: true });
       }
@@ -199,6 +269,7 @@ export default function DeckBuilderPage() {
     setError(null);
     try {
       await deleteDeck(originalDeck.id);
+      clearDraft(currentDraftKey);
       navigate("/");
     } catch (e) {
       setError(String(e));
@@ -477,7 +548,7 @@ export default function DeckBuilderPage() {
               </button>
               <button
                 className="px-3 py-2 text-xs font-bold text-white bg-red-700 hover:bg-red-600 rounded-lg transition-colors"
-                onClick={() => { const p = pendingNav; setPendingNav(null); navigate(p); }}
+                onClick={() => { const p = pendingNav; clearDraft(currentDraftKey); setPendingNav(null); navigate(p); }}
               >
                 Discard & leave
               </button>
