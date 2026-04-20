@@ -8,7 +8,7 @@ import React, { useState, useMemo, useRef, useEffect } from "react";
 import { toPng } from "html-to-image";
 import type { CardDefinition, DeckEntry, InkColor, CardVariantType } from "@lorcana-sim/engine";
 import { parseDecklist, serializeDecklist } from "@lorcana-sim/engine";
-import { getMaxCopies } from "../utils/deckRules.js";
+import { getMaxCopies, formatVariantKey, resolvePrinting, printingLabels } from "../utils/deckRules.js";
 import DeckExportPanel from "./DeckExportPanel.js";
 
 const INK_COLOR_CLASS: Record<string, string> = {
@@ -141,15 +141,20 @@ export default function DeckBuilder({ entries, definitions, onChange, deckName =
     }
   }
 
-  function setVariant(definitionId: string, variant: CardVariantType) {
+  function setVariant(definitionId: string, variantKey: string) {
     const idx = entries.findIndex((e) => e.definitionId === definitionId);
     if (idx < 0) return;
     const current = entries[idx]!;
-    // Store undefined for "regular" to keep the persisted metadata minimal.
+    // Bare "regular" = newest-regular = default. Store undefined to keep
+    // the persisted metadata minimal. Compound keys (with :setId#number)
+    // and non-regular bare types are stored verbatim.
+    // DeckEntry.variant is typed as CardVariantType in the engine for
+    // safety; runtime carries compound strings for the multi-printing
+    // case. Cast here where we cross that boundary.
     const next = [...entries];
     next[idx] = {
       ...current,
-      variant: variant === "regular" ? undefined : variant,
+      variant: variantKey === "regular" ? undefined : (variantKey as CardVariantType),
     };
     onChange(next);
   }
@@ -536,7 +541,7 @@ interface RowProps {
   def: CardDefinition;
   onIncrement: () => void;
   onDecrement: () => void;
-  onSetVariant: (variant: CardVariantType) => void;
+  onSetVariant: (variantKey: string) => void;
 }
 
 function DeckRow({ entry, def, onIncrement, onDecrement, onSetVariant }: RowProps) {
@@ -547,9 +552,21 @@ function DeckRow({ entry, def, onIncrement, onDecrement, onSetVariant }: RowProp
   // the first color here. The full ink set is still visible in the browser
   // grid / card inspect, so row density takes priority.
   const primaryInk = def.inkColors[0] as InkColor | undefined;
-  const hasVariantPicker = (def.variants?.length ?? 0) >= 2;
-  const currentVariant: CardVariantType = entry.variant ?? "regular";
-  const variantLabel = hasVariantPicker ? VARIANT_LABELS[currentVariant] : null;
+
+  // Variant picker — walks printings[] (fallback variants[]) so cross-set
+  // reprints (Captain Hook set 1 + set 8) are selectable individually,
+  // not collapsed to one. printings[] has per-printing rows; variants[]
+  // is the collapsed view. Both exist on def for back-compat.
+  const printings = def.printings ?? def.variants ?? [];
+  const hasVariantPicker = printings.length >= 2;
+  const currentPrinting = resolvePrinting(def, entry.variant);
+  const labels = useMemo(
+    () => printingLabels(printings, VARIANT_LABELS),
+    [printings],
+  );
+  const currentLabel = hasVariantPicker
+    ? (currentPrinting ? labels.get(currentPrinting) : VARIANT_LABELS.regular)
+    : null;
   const [variantMenuOpen, setVariantMenuOpen] = useState(false);
 
   return (
@@ -577,8 +594,9 @@ function DeckRow({ entry, def, onIncrement, onDecrement, onSetVariant }: RowProp
       {/* Variant tag (when card has ≥2 printings) — anchored to the right
            edge of the row, just before the stepper, so badges line up
            vertically across rows instead of floating after variable-length
-           truncated names. Opens a dropdown to change the variant. */}
-      {variantLabel && (
+           truncated names. Opens a dropdown to change the variant; labels
+           disambiguate same-type cross-set reprints with the setId. */}
+      {currentLabel && (
         <div className="relative shrink-0">
           <button
             onClick={() => setVariantMenuOpen((v) => !v)}
@@ -587,9 +605,9 @@ function DeckRow({ entry, def, onIncrement, onDecrement, onSetVariant }: RowProp
                 ? "bg-amber-600 text-white hover:bg-amber-500"
                 : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-200"
             }`}
-            title={`Variant: ${variantLabel}. Click to change.`}
+            title={`Variant: ${currentLabel}. Click to change.`}
           >
-            <span>{variantLabel}</span>
+            <span>{currentLabel}</span>
             <svg xmlns="http://www.w3.org/2000/svg" className={`w-2 h-2 transition-transform ${variantMenuOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
             </svg>
@@ -597,20 +615,25 @@ function DeckRow({ entry, def, onIncrement, onDecrement, onSetVariant }: RowProp
           {variantMenuOpen && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setVariantMenuOpen(false)} />
-              <div className="absolute z-50 top-full right-0 mt-1 rounded-md border border-gray-700 bg-gray-950 shadow-xl overflow-hidden min-w-[80px]">
-                {def.variants!.map((v) => (
-                  <button
-                    key={v.type}
-                    onClick={() => { onSetVariant(v.type); setVariantMenuOpen(false); }}
-                    className={`w-full text-left px-2 py-1 text-[10px] font-medium transition-colors ${
-                      currentVariant === v.type
-                        ? "bg-amber-600 text-white"
-                        : "text-gray-300 hover:bg-gray-800"
-                    }`}
-                  >
-                    {VARIANT_LABELS[v.type]}
-                  </button>
-                ))}
+              <div className="absolute z-50 top-full right-0 mt-1 rounded-md border border-gray-700 bg-gray-950 shadow-xl overflow-hidden min-w-[100px]">
+                {printings.map((p) => {
+                  const key = formatVariantKey(p, printings);
+                  const isCurrent = currentPrinting === p;
+                  return (
+                    <button
+                      key={`${p.setId}#${p.number}`}
+                      onClick={() => { onSetVariant(key); setVariantMenuOpen(false); }}
+                      className={`w-full text-left px-2 py-1 text-[10px] font-medium transition-colors ${
+                        isCurrent
+                          ? "bg-amber-600 text-white"
+                          : "text-gray-300 hover:bg-gray-800"
+                      }`}
+                      title={`${p.type} — set ${p.setId} #${p.number}`}
+                    >
+                      {labels.get(p)}
+                    </button>
+                  );
+                })}
               </div>
             </>
           )}

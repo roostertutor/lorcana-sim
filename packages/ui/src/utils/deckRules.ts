@@ -4,7 +4,7 @@
 // the UI just reads def.maxCopies (default 4 if unset).
 // =============================================================================
 
-import type { CardDefinition, DeckEntry, InkColor } from "@lorcana-sim/engine";
+import type { CardDefinition, CardVariant, CardVariantType, DeckEntry, InkColor } from "@lorcana-sim/engine";
 
 /** Standard 4-copy rule unless the card has an exception (Dalmatian Puppy = 99,
  *  Glass Slipper = 2, Microbots = any). */
@@ -68,14 +68,98 @@ export function hydrateVariants<T extends { definitionId: string; variant?: stri
   });
 }
 
+// ─── Variant key parsing ────────────────────────────────────────────────
+// The engine's variant-collapse fix surfaces every printing on
+// CardDefinition.printings[]. Two printings can share a CardVariantType
+// (e.g., Captain Hook - Forceful Duelist has "regular" in both set 1 and
+// set 8). DeckEntry.variant is typed as CardVariantType for engine
+// type-safety, but runtime strings can carry a disambiguator —
+// "<type>:<setId>#<number>" — when the user picks a specific non-default
+// printing of a multi-printing type. A bare "enchanted" means "newest
+// enchanted printing", keeping legacy stored metadata working.
+
+export interface ParsedVariantKey {
+  type: CardVariantType;
+  /** Present only when the user picked a specific non-newest printing. */
+  setId?: string;
+  number?: number;
+}
+
+export function parseVariantKey(key: string | undefined | null): ParsedVariantKey | null {
+  if (!key) return null;
+  const m = key.match(/^([a-z_]+)(?::([^#]+)#(\d+))?$/);
+  if (!m) return null;
+  const type = m[1] as CardVariantType;
+  if (m[2] && m[3]) return { type, setId: m[2], number: parseInt(m[3], 10) };
+  return { type };
+}
+
+/** Format a specific printing as a variant key. Returns the bare type when
+ *  this printing is the newest of its type (the implied default — keeps
+ *  stored keys short and lets back-compat with legacy stored values work). */
+export function formatVariantKey(
+  printing: CardVariant,
+  allPrintings: CardVariant[],
+): string {
+  const newest = newestOfType(allPrintings, printing.type);
+  if (newest && newest.setId === printing.setId && newest.number === printing.number) {
+    return printing.type;
+  }
+  return `${printing.type}:${printing.setId}#${printing.number}`;
+}
+
+function newestOfType(printings: CardVariant[], type: CardVariantType): CardVariant | undefined {
+  // printings[] is ordered by (type-canonical-order, then newest-first
+  // within type) — the first match is newest.
+  return printings.find((p) => p.type === type);
+}
+
+/** Compact label for each printing in the variant dropdown. When a
+ *  CardVariantType has only a single printing on this card, show just
+ *  the type abbreviation ("Reg" / "Ench"). When multiple printings share
+ *  a type (cross-main-set reprints like Captain Hook set 1 + set 8),
+ *  disambiguate with the setId ("Reg 1" / "Reg 8"). */
+export function printingLabels(
+  printings: CardVariant[],
+  typeAbbrevs: Record<CardVariantType, string>,
+): Map<CardVariant, string> {
+  const countByType = new Map<CardVariantType, number>();
+  for (const p of printings) countByType.set(p.type, (countByType.get(p.type) ?? 0) + 1);
+  const labels = new Map<CardVariant, string>();
+  for (const p of printings) {
+    const base = typeAbbrevs[p.type] ?? p.type;
+    labels.set(p, (countByType.get(p.type) ?? 1) > 1 ? `${base} ${p.setId}` : base);
+  }
+  return labels;
+}
+
+/** Resolve a variant key to a specific CardVariant in the definition's
+ *  printings[]. Legacy bare-type keys → newest of that type. Compound
+ *  keys → exact (setId, number) match. Returns undefined when the key
+ *  refers to a printing not in the data (stale metadata). */
+export function resolvePrinting(
+  def: CardDefinition,
+  variantKey: string | undefined | null,
+): CardVariant | undefined {
+  const printings = def.printings ?? def.variants;
+  if (!printings || printings.length === 0) return undefined;
+  const parsed = parseVariantKey(variantKey);
+  if (!parsed) return undefined;
+  if (parsed.setId != null && parsed.number != null) {
+    return printings.find((p) => p.setId === parsed.setId && p.number === parsed.number);
+  }
+  return newestOfType(printings, parsed.type);
+}
+
 /** The image URL for a specific entry — respects the entry's variant
- *  selection, falls back to the card definition's default imageUrl. */
+ *  selection (bare type or compound set-qualified key), falls back to
+ *  the card definition's default imageUrl. */
 export function resolveEntryImageUrl(
   entry: { definitionId: string; variant?: string },
   def: CardDefinition,
 ): string {
   if (entry.variant) {
-    const match = def.variants?.find((v) => v.type === entry.variant);
+    const match = resolvePrinting(def, entry.variant);
     if (match) return match.imageUrl;
   }
   return def.imageUrl ?? "";
