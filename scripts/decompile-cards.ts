@@ -396,6 +396,7 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
   opposing_character_was_damaged_this_turn: () => "if an opposing character was damaged this turn",
   cards_put_into_discard_this_turn_atleast: (c) =>
     `if ${c.amount ?? 0} or more cards were put into your discard this turn`,
+  you_removed_damage_this_turn: () => "if you removed damage from a character this turn",
 
   // Stat / location / state checks
   this_has_damage: () => "if this character has damage",

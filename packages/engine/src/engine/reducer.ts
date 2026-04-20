@@ -1716,6 +1716,7 @@ function performTurnTransition(
         aCharacterChallengedThisTurn: false,
         opposingCharsBanishedInChallengeThisTurn: 0,
         cardsPutIntoDiscardThisTurn: 0,
+        youRemovedDamageThisTurn: false,
         timedGrantedActivatedAbilities: [],
       },
       // CRD 3.4.1.2: clear the ending player's turn-scoped conditional challenge bonuses
@@ -1733,6 +1734,7 @@ function performTurnTransition(
         aCharacterChallengedThisTurn: false,
         opposingCharsBanishedInChallengeThisTurn: 0,
         cardsPutIntoDiscardThisTurn: 0,
+        youRemovedDamageThisTurn: false,
         timedGrantedActivatedAbilities: [],
       },
     },
@@ -2904,6 +2906,7 @@ export function applyEffect(
           damage: Math.max(0, instance.damage - effect.amount),
         });
         if (actualRemoved > 0) {
+          state = markRemovedDamageThisTurn(state, controllingPlayerId);
           state = queueTrigger(state, "damage_removed_from", sourceInstanceId, definitions, {});
         }
         return state;
@@ -2938,6 +2941,7 @@ export function applyEffect(
             damage: Math.max(0, inst.damage - effect.amount),
           });
           if (actualRemoved > 0) {
+            state = markRemovedDamageThisTurn(state, controllingPlayerId);
             state = queueTrigger(state, "damage_removed_from", targetId, definitions, {});
           }
         }
@@ -6982,6 +6986,7 @@ function applyEffectToTarget(
       const deltaRef = makeResolvedRef(state, definitions, targetInstanceId, { delta: actualRemoved });
       if (deltaRef) state = { ...state, lastResolvedTarget: deltaRef };
       if (actualRemoved > 0) {
+        state = markRemovedDamageThisTurn(state, controllingPlayerId);
         const targetDef = definitions[getInstance(state, targetInstanceId).definitionId];
         const targetName = targetDef?.fullName ?? targetInstanceId;
         state = appendLog(state, {
@@ -7734,6 +7739,22 @@ function payActionUnlockCost(
   const costs = modifiers.selfActionUnlockCosts?.get(instanceId)?.get(action);
   if (!costs || costs.length === 0) return state;
   return payCosts(state, playerId, instanceId, costs, []);
+}
+
+/**
+ * Per-turn flag setter: mark that the given player removed damage from at
+ * least one character this turn. Used by Julieta's Arepas THAT DID THE TRICK
+ * activated ability. Idempotent (safe to call on every successful remove).
+ */
+function markRemovedDamageThisTurn(state: GameState, playerId: PlayerID): GameState {
+  if (state.players[playerId].youRemovedDamageThisTurn) return state;
+  return {
+    ...state,
+    players: {
+      ...state.players,
+      [playerId]: { ...state.players[playerId], youRemovedDamageThisTurn: true },
+    },
+  };
 }
 
 function updatePlayerInk(state: GameState, playerId: PlayerID, delta: number): GameState {

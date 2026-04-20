@@ -700,6 +700,47 @@ describe("Set 12 — Omnidroid V.9 played_via_shift condition", () => {
   });
 });
 
+describe("Set 12 — Julieta's Arepas THAT DID THE TRICK (you_removed_damage_this_turn)", () => {
+  it("remove_damage flips youRemovedDamageThisTurn on the acting player", () => {
+    let state = startGame();
+    expect(state.players.player1.youRemovedDamageThisTurn).toBeFalsy();
+    // Inject a damaged ally for player1 and a source to attribute the effect to.
+    const { state: s1, instanceId: allyId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { damage: 2 });
+    const { state: s2, instanceId: sourceId } = injectCard(s1, "player1", "minnie-mouse-beloved-princess", "play");
+    // Trigger the flag via the target:all path (no chooser — simpler than chosen).
+    const after = applyEffect(
+      s2,
+      { type: "remove_damage", amount: 2, target: { type: "all", filter: { owner: { type: "self" }, zone: "play", cardType: ["character"], hasDamage: true } } as any },
+      sourceId,
+      "player1",
+      CARD_DEFINITIONS,
+      []
+    );
+    expect(after.players.player1.youRemovedDamageThisTurn).toBe(true);
+    expect(after.cards[allyId]!.damage).toBe(0);
+  });
+
+  it("flag resets at turn boundary", () => {
+    let state = startGame();
+    state = {
+      ...state,
+      players: { ...state.players, player1: { ...state.players.player1, youRemovedDamageThisTurn: true } },
+    };
+    const after = passTurns(state, 2); // end turn 1, opponent turn, back around — p1 resets either at their turn_start or at PASS_TURN.
+    expect(after.players.player1.youRemovedDamageThisTurn).toBeFalsy();
+  });
+
+  it("Julieta's two abilities have distinct storyNames and expected shapes", () => {
+    const def = CARD_DEFINITIONS["julietas-arepas"];
+    expect(def).toBeDefined();
+    const names = def!.abilities.map((a: any) => a.storyName).filter(Boolean);
+    expect(names).toEqual(["FLAVORFUL CURE", "THAT DID THE TRICK"]);
+    const activated = def!.abilities.find((a: any) => a.type === "activated");
+    expect(activated).toBeDefined();
+    expect((activated as any).condition.type).toBe("you_removed_damage_this_turn");
+  });
+});
+
 describe("Set 12 — Dolores Madrigal NO SECRETS (look_at_hand)", () => {
   it("on play, snapshots the opposing hand with privateTo=controller", () => {
     let state = startGame(["dolores-madrigal-hears-everything"]);

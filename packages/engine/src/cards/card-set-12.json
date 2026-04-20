@@ -5802,6 +5802,7 @@
     "abilities": [
       {
         "type": "triggered",
+        "storyName": "FLAVORFUL CURE",
         "rulesText": "At the start of your turn, if you have a Madrigal character in play, remove up to 2 damage from chosen character.",
         "trigger": {
           "on": "turn_start"
@@ -5829,6 +5830,28 @@
             }
           }
         ]
+      },
+      {
+        "type": "activated",
+        "storyName": "THAT DID THE TRICK",
+        "rulesText": "{E} — If you removed damage from a character this turn, gain 1 lore.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "condition": {
+          "type": "you_removed_damage_this_turn"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "12",
@@ -5837,8 +5860,7 @@
     "_source": "ravensburger",
     "rulesText": "FLAVORFUL CURE At the start of your turn, if you have a Madrigal character in play, remove up to 2 damage from chosen character.\nTHAT DID THE TRICK {E} — If you removed damage from a character this turn, gain 1 lore.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/166_1a56d466206002daf499fedb3c154f8b2fd2e7ef.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/166_1a56d466206002daf499fedb3c154f8b2fd2e7ef.jpg",
-    "_namedAbilityStubs": []
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/166_1a56d466206002daf499fedb3c154f8b2fd2e7ef.jpg"
   },
   {
     "id": "gadgets-goggles",

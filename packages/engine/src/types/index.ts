@@ -2605,6 +2605,10 @@ export type Condition =
    *  pile this turn. Set-12 Madrigal theme — Helga Sinclair, Kida, Kashekim,
    *  Lyle's DIRTY TRICKS. Counter lives on PlayerState.cardsPutIntoDiscardThisTurn. */
   | { type: "cards_put_into_discard_this_turn_atleast"; amount: number }
+  /** True if the controller removed damage from any of their characters this
+   *  turn (binary, not thresholded). Used by Julieta's Arepas THAT DID THE
+   *  TRICK. Flag lives on PlayerState.youRemovedDamageThisTurn. */
+  | { type: "you_removed_damage_this_turn" }
   | { type: "opponent_character_was_banished_in_challenge_this_turn" }
   | { type: "a_character_was_banished_in_challenge_this_turn" }
   | { type: "not"; condition: Condition }
@@ -3075,6 +3079,13 @@ export interface PlayerState {
    *  Wise King (on-quest / turn-end inkwell acceleration), Lyle Tiberius Rourke
    *  DIRTY TRICKS (turn-end opponent lore-drain). Cleared at PASS_TURN. */
   cardsPutIntoDiscardThisTurn?: number;
+  /** True if a remove_damage effect resolved successfully on one of THIS
+   *  player's characters this turn (any amount; the wording "if you removed
+   *  damage from a character this turn" is binary, not thresholded). Set in
+   *  the remove_damage handler when delta > 0 for an owner:self character.
+   *  Used by Julieta's Arepas THAT DID THE TRICK activated ability.
+   *  Cleared at PASS_TURN. Mirror of aCharacterWasDamagedThisTurn. */
+  youRemovedDamageThisTurn?: boolean;
   /** Timed play restrictions affecting this player (Pete Games Referee, Keep the
    *  Ancient Ways). Each entry blocks plays of certain card types until the
    *  CASTER'S next turn begins. Multiple entries OR-combine. */

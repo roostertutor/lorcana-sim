@@ -1030,6 +1030,10 @@ export function evaluateCondition(
       const count = state.players[controllingPlayerId].cardsPutIntoDiscardThisTurn ?? 0;
       return count >= condition.amount;
     }
+    case "you_removed_damage_this_turn": {
+      // Julieta's Arepas THAT DID THE TRICK.
+      return !!state.players[controllingPlayerId].youRemovedDamageThisTurn;
+    }
     case "not": {
       return !evaluateCondition(condition.condition, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, statBonuses);
     }
