@@ -47,7 +47,11 @@ export default function DeckBuilderPage() {
 
   // Editor state
   const [originalDeck, setOriginalDeck] = useState<SavedDeck | null>(null);
-  const [deckName, setDeckName] = useState("");
+  // New decks default to "New Deck" so the save button isn't disabled by a
+  // blank name after an import. Users can clear/rename anytime; the isDirty
+  // check below treats "New Deck" on a pristine empty deck as non-dirty so
+  // the beforeunload prompt doesn't fire on a fresh /decks/new tab.
+  const [deckName, setDeckName] = useState(isNew ? "New Deck" : "");
   const [entries, setEntries] = useState<DeckEntry[]>([]);
   const [boxCardId, setBoxCardId] = useState<string | null>(null);
   const [boxPickerOpen, setBoxPickerOpen] = useState(false);
@@ -104,12 +108,16 @@ export default function DeckBuilderPage() {
   const originalMetadataJson = originalDeck
     ? JSON.stringify(originalDeck.card_metadata ?? {})
     : "{}";
+  // On a new deck, the default "New Deck" prefill counts as "clean" — it's
+  // auto-provided, not user input. Only treat the name as dirty if the user
+  // changed it to something else (including clearing it).
+  const nameIsUserEdited = deckName.trim() !== "" && deckName.trim() !== "New Deck";
   const isDirty = originalDeck
     ? originalDeck.name !== deckName
       || originalDeck.decklist_text !== currentText
       || originalDeck.box_card_id !== boxCardId
       || originalMetadataJson !== metadataJson
-    : deckName.trim() !== ""
+    : nameIsUserEdited
       || entries.length > 0
       || boxCardId !== null
       || Object.keys(currentMetadata).length > 0;
