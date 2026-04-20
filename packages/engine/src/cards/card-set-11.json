@@ -579,7 +579,7 @@
     "strength": 4,
     "willpower": 4,
     "lore": 1,
-    "rulesText": "FEARSOME SNARL {E} — Chosen opposing character gets -4 {S} until the start of your next turn.",
+    "rulesText": "FEARSOME SNARL {E} — Chosen opposing character gets –4 {S} until the start of your next turn.",
     "flavorText": "A loving mother, a cunning hunter, and a fierce warrior.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/12_802ee3fe39732543a7fb7dccc630e19aabff741e.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/12_802ee3fe39732543a7fb7dccc630e19aabff741e.jpg",
@@ -1328,7 +1328,7 @@
     "strength": 2,
     "willpower": 2,
     "lore": 1,
-    "rulesText": "YOU DON’T STAND A CHANCE When you play this character, chosen opposing character gets -2 {S} until the start of your next turn.",
+    "rulesText": "YOU DON’T STAND A CHANCE When you play this character, chosen opposing character gets –2 {S} until the start of your next turn.",
     "flavorText": "Like Zazu always says, practice makes perfect!",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/23_c2e5ff6218a79324f46cb2f5faff04f4905e0065.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/23_c2e5ff6218a79324f46cb2f5faff04f4905e0065.jpg",
@@ -1649,7 +1649,7 @@
     "number": 29,
     "rarity": "rare",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.) \nYou pay 2 {I} less for the next character you play this turn. Draw a card.",
+    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nYou pay 2 {I} less for the next character you play this turn. Draw a card.",
     "flavorText": "Alan ot agan, atoom on ataki\nOteem-ich atooca",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/29_c1863d955ec413c114b564c25c237ff69df843d8.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/29_c1863d955ec413c114b564c25c237ff69df843d8.jpg",
@@ -1690,7 +1690,7 @@
     "number": 30,
     "rarity": "common",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.) \nChosen character can’t be challenged until the start of your next turn.",
+    "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)\nChosen character can’t be challenged until the start of your next turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/30_338d932ec55a461478d9fa57390a14893a023b8b.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/30_338d932ec55a461478d9fa57390a14893a023b8b.jpg",
     "actionEffects": [
@@ -2448,7 +2448,14 @@
     "lore": 1,
     "rulesText": "<Rush> (This character can challenge the turn they’re played.)\nWEAKEN THE CAULDRON When you play this character, put up to 2 cards from chosen player’s discard on the bottom of their deck in any order.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/44_f04c4a08ff28b9002e72d97be56cd098c622d9da.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/44_f04c4a08ff28b9002e72d97be56cd098c622d9da.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/44_f04c4a08ff28b9002e72d97be56cd098c622d9da.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "WEAKEN THE CAULDRON",
+        "rulesText": "When you play this character, put up to 2 cards from chosen player’s discard on the bottom of their deck in any order.",
+        "raw": "WEAKEN THE CAULDRON When you play this character, put up to 2 cards from chosen player’s discard on the bottom of their deck in any order."
+      }
+    ]
   },
   {
     "id": "eeyore-in-the-way",
@@ -3449,7 +3456,7 @@
     "number": 61,
     "rarity": "rare",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.) \nChosen opponent chooses YES! or NO!:\n• YES! You gain 3 lore.\n• NO! They choose a character of theirs and put that card on the bottom of their deck.",
+    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nChosen opponent chooses YES! or NO!:\n• YES! You gain 3 lore.\n• NO! They choose a character of theirs and put that card on the bottom of their deck.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/61_acfd973dc3199413d2ff160b9f12269ab2fce3dd.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/61_acfd973dc3199413d2ff160b9f12269ab2fce3dd.jpg",
     "actionEffects": [
@@ -3580,7 +3587,7 @@
     "number": 64,
     "rarity": "super_rare",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.) \nEach player reveals the top card of their deck. Draw a card for each different ink type of cards revealed this way.",
+    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)\nEach player reveals the top card of their deck. Draw a card for each different ink type of cards revealed this way.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/64_4ae67a62c4588701ba78c2d196b593788d89072d.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/64_4ae67a62c4588701ba78c2d196b593788d89072d.jpg",
     "actionEffects": [
@@ -5324,7 +5331,7 @@
     "number": 94,
     "rarity": "common",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.) \nDraw 2 cards, then choose and discard a card.",
+    "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)\nDraw 2 cards, then choose and discard a card.",
     "flavorText": "Please bring honor to us\nPlease bring honor to us all",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/94_4d2b1a37126d9c4726726f83631d17edc9b932bb.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/94_4d2b1a37126d9c4726726f83631d17edc9b932bb.jpg",
@@ -5470,7 +5477,7 @@
     "number": 97,
     "rarity": "uncommon",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.) \nChoose one:\n• Draw a card. Chosen character of yours gets +1 {L} and gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)\n• Banish chosen damaged character.",
+    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)\nChoose one:\n• Draw a card. Chosen character of yours gets +1 {L} and gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)\n• Banish chosen damaged character.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/97_e4a765f635601995d7827b0800826a8338a3fa4e.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/97_e4a765f635601995d7827b0800826a8338a3fa4e.jpg",
     "actionEffects": [
@@ -7433,7 +7440,7 @@
     "number": 128,
     "rarity": "common",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.) \nChosen character gets +5 {S} this turn.",
+    "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)\nChosen character gets +5 {S} this turn.",
     "flavorText": "Once you find your center\nYou are sure to win",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/128_48e33029753961946034de35dc01c5a255807a61.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/128_48e33029753961946034de35dc01c5a255807a61.jpg",
@@ -7472,7 +7479,7 @@
     "number": 129,
     "rarity": "common",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.) \nIf a character was banished this turn, draw 2 cards.",
+    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)\nIf a character was banished this turn, draw 2 cards.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/129_efaf52d553c5ec7ccdbd8e444efb153da5081927.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/129_efaf52d553c5ec7ccdbd8e444efb153da5081927.jpg",
     "actionEffects": [
@@ -7506,7 +7513,7 @@
     "number": 130,
     "rarity": "rare",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.) \nLook at the top 4 cards of your deck. You may reveal a location card and put it into your hand. Put the rest into your discard. You pay 3 {I} less for the next location you play this turn.",
+    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nLook at the top 4 cards of your deck. You may reveal a location card and put it into your hand. Put the rest into your discard. You pay 3 {I} less for the next location you play this turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/130_8baa751cf41ccf000001bcdb1526678a42ec712c.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/130_8baa751cf41ccf000001bcdb1526678a42ec712c.jpg",
     "actionEffects": [
@@ -7556,7 +7563,7 @@
     "number": 131,
     "rarity": "uncommon",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 5 or more can {E} to sing this song for free.) \nBanish up to 2 chosen characters with 2 {S} or less.",
+    "rulesText": "(A character with cost 5 or more can {E} to sing this song for free.)\nBanish up to 2 chosen characters with 2 {S} or less.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/131_95d909217be1d9343e1018c67ad64e19361bbc5b.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/131_95d909217be1d9343e1018c67ad64e19361bbc5b.jpg",
     "actionEffects": [
@@ -9254,7 +9261,7 @@
     "strength": 3,
     "willpower": 2,
     "lore": 1,
-    "rulesText": "BAH, HUMBUG During your turn, whenever a card is put into your inkwell, chosen character gets -1 {S} this turn.",
+    "rulesText": "BAH, HUMBUG During your turn, whenever a card is put into your inkwell, chosen character gets –1 {S} this turn.",
     "flavorText": "\"You work all your life to get money, and people want you to give it away.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/160_22100749609f6b79def31659da95ca67ced3123c.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/160_22100749609f6b79def31659da95ca67ced3123c.jpg",
@@ -9406,7 +9413,7 @@
     "number": 164,
     "rarity": "common",
     "_source": "ravensburger",
-    "rulesText": "Chosen character gets -2 {S} this turn. Draw a card.",
+    "rulesText": "Chosen character gets –2 {S} this turn. Draw a card.",
     "flavorText": "\"Be off with you, spirits! Can’t a man enjoy his meal in peace?”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/164_5c11a2488ba0a6e50005e70f543f32c980703ee2.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/164_5c11a2488ba0a6e50005e70f543f32c980703ee2.jpg",
@@ -9788,7 +9795,7 @@
     "number": 169,
     "rarity": "uncommon",
     "_source": "ravensburger",
-    "rulesText": "BLINDING CLOUD {E},1 {I} — Chosen character gets -1 {S} this turn. If you have a character named Darkwing Duck in play, chosen character gets -2 {S} this turn instead.",
+    "rulesText": "BLINDING CLOUD {E},1 {I} — Chosen character gets –1 {S} this turn. If you have a character named Darkwing Duck in play, chosen character gets –2 {S} this turn instead.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/169_b1b870c3ab41f948b4c7855234bb8a655e91a16d.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/169_b1b870c3ab41f948b4c7855234bb8a655e91a16d.jpg",
     "_namedAbilityStubs": [
@@ -9878,7 +9885,7 @@
     "number": 170,
     "rarity": "uncommon",
     "_source": "ravensburger",
-    "rulesText": "ALMOST READY This item enters play exerted.\nSNAP! {E}, Banish this item — Choose one:\n• Banish chosen item.\n• Chosen opposing character gets -2 {S} this turn.",
+    "rulesText": "ALMOST READY This item enters play exerted.\nSNAP! {E}, Banish this item — Choose one:\n• Banish chosen item.\n• Chosen opposing character gets –2 {S} this turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/170_cf2ae69cda3e1cc4e705576f86d228dfb6c4389b.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/170_cf2ae69cda3e1cc4e705576f86d228dfb6c4389b.jpg",
     "_namedAbilityStubs": [
@@ -11323,7 +11330,7 @@
     "number": 196,
     "rarity": "uncommon",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.) \nOpponents can’t play actions or items until the start of your next turn.",
+    "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)\nOpponents can’t play actions or items until the start of your next turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/196_a73285b0792a9f3497ce477407791da1777d4d44.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/196_a73285b0792a9f3497ce477407791da1777d4d44.jpg",
     "actionEffects": [
@@ -11420,7 +11427,7 @@
     "number": 198,
     "rarity": "rare",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.) \nEach player shuffles their deck and then reveals the top card. Each player who reveals a character card may play that character for free. Otherwise, put the revealed cards on the bottom of their player’s deck.",
+    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)\nEach player shuffles their deck and then reveals the top card. Each player who reveals a character card may play that character for free. Otherwise, put the revealed cards on the bottom of their player’s deck.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/198_025e7834ba29b73ef7e06a9e1fab26c235a133f1.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/198_025e7834ba29b73ef7e06a9e1fab26c235a133f1.jpg",
     "actionEffects": [

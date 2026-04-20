@@ -1598,7 +1598,7 @@
     "number": 28,
     "rarity": "common",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)  \nAll opposing characters get -2 {S} until the start of your next turn.",
+    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)\nAll opposing characters get –2 {S} until the start of your next turn.",
     "flavorText": "I’m left behind, wondering if I should follow",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/28_17218cbd94b491a52b73a6c9986ffc1ffbf17947.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/28_17218cbd94b491a52b73a6c9986ffc1ffbf17947.jpg",
@@ -1692,7 +1692,7 @@
     "number": 30,
     "rarity": "uncommon",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.) \nBanish chosen character with 5 {S} or more.",
+    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nBanish chosen character with 5 {S} or more.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/30_905d54c653768b651503e28d0224fb7fabdb23f0.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/30_905d54c653768b651503e28d0224fb7fabdb23f0.jpg",
     "actionEffects": [
@@ -1729,7 +1729,7 @@
     "number": 31,
     "rarity": "common",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.) \nLook at the top 4 cards of your deck. You may reveal a character card and put it into your hand. Put the rest on the bottom of your deck in any order.",
+    "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)\nLook at the top 4 cards of your deck. You may reveal a character card and put it into your hand. Put the rest on the bottom of your deck in any order.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/31_d1d99df70ee4ad5348f0ce9fc634deebced27173.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/31_d1d99df70ee4ad5348f0ce9fc634deebced27173.jpg",
     "actionEffects": [
@@ -2640,7 +2640,7 @@
     "strength": 3,
     "willpower": 3,
     "lore": 1,
-    "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nBREAKING RECORDS {E}, 1 {I} — Draw a card and gain 1 lore.\nMAKING HISTORY Your other characters with <Evasive> gain \"{E}, 1 {I} — Draw a card and gain 1 lore.\"",
+    "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nBREAKING RECORDS {E}, 1 {I} — Draw a card and gain 1 lore.\nMAKING HISTORY Your other characters with <Evasive> gain “{E}, 1 {I} — Draw a card and gain 1 lore.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/45_6e544899ae7ed6842b52197b317826cf8b241cbc.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/45_6e544899ae7ed6842b52197b317826cf8b241cbc.jpg",
     "_namedAbilityStubs": [
@@ -3450,7 +3450,7 @@
     "number": 61,
     "rarity": "common",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.) \nReturn chosen character, item, or location with cost 2 or less to their player’s hand.",
+    "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)\nReturn chosen character, item, or location with cost 2 or less to their player’s hand.",
     "flavorText": "In pain, in need",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/61_ba0e50a09e8a1eaf04e99e7e1d5b31bf95a0cb2e.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/61_ba0e50a09e8a1eaf04e99e7e1d5b31bf95a0cb2e.jpg",
@@ -5361,7 +5361,7 @@
     "number": 94,
     "rarity": "uncommon",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.) \nChosen character gets +3 {S} and gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)",
+    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nChosen character gets +3 {S} and gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/94_54140617cef40bc6aa27978087ae66524e8fcffa.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/94_54140617cef40bc6aa27978087ae66524e8fcffa.jpg",
     "actionEffects": [
@@ -5542,7 +5542,7 @@
     "number": 98,
     "rarity": "common",
     "_source": "ravensburger",
-    "rulesText": "Choose one: \n• Banish chosen item.\n• Deal 2 damage to chosen damaged character.",
+    "rulesText": "Choose one:\n• Banish chosen item.\n• Deal 2 damage to chosen damaged character.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/98_7bcf349759748306e088cda851f1cb726e548a52.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/98_7bcf349759748306e088cda851f1cb726e548a52.jpg",
     "actionEffects": [
@@ -7504,7 +7504,7 @@
     "number": 131,
     "rarity": "common",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.) \nChosen character gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)",
+    "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)\nChosen character gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/131_4a9a537b8febce78f32188537e642feb1254d8cb.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/131_4a9a537b8febce78f32188537e642feb1254d8cb.jpg",
     "actionEffects": [
@@ -7598,7 +7598,7 @@
     "number": 133,
     "rarity": "uncommon",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.) \nEach opponent chooses and banishes one of their characters.",
+    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)\nEach opponent chooses and banishes one of their characters.",
     "flavorText": "Respected, saluted",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/133_435642c246b2f0e21dc7c73ca94c0e865b90f8ef.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/133_435642c246b2f0e21dc7c73ca94c0e865b90f8ef.jpg",
@@ -8086,7 +8086,7 @@
     "strength": 2,
     "willpower": 3,
     "lore": 2,
-    "rulesText": "WASHED AWAY When you play this character, you may put chosen item into its player’s inkwell facedown and exerted.\nMAKING WAVES Whenever this character quests, chosen opposing character gets -2 {S} this turn.",
+    "rulesText": "WASHED AWAY When you play this character, you may put chosen item into its player’s inkwell facedown and exerted.\nMAKING WAVES Whenever this character quests, chosen opposing character gets –2 {S} this turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/141_341c433864a4ce43b4a054dc092428e185b90f44.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/141_341c433864a4ce43b4a054dc092428e185b90f44.jpg",
     "_namedAbilityStubs": [
@@ -8241,7 +8241,7 @@
     "strength": 2,
     "willpower": 3,
     "lore": 1,
-    "rulesText": "OUT OF SEASON Once during your turn, whenever a character with cost 2 or less is banished, put the top card of your deck into your inkwell facedown and exerted.\nINSULTING REMARK During your turn, each opposing character with cost 2 or less gets -1 {S}.",
+    "rulesText": "OUT OF SEASON Once during your turn, whenever a character with cost 2 or less is banished, put the top card of your deck into your inkwell facedown and exerted.\nINSULTING REMARK During your turn, each opposing character with cost 2 or less gets –1 {S}.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/143_4630767f9b0648ce25e687f7ad885e4efd4baa8a.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/143_4630767f9b0648ce25e687f7ad885e4efd4baa8a.jpg",
     "_namedAbilityStubs": [
@@ -9087,7 +9087,7 @@
     "strength": 4,
     "willpower": 4,
     "lore": 2,
-    "rulesText": "HIGHBORN LADY When you play this character, chosen character gets -2 {S} this turn.",
+    "rulesText": "HIGHBORN LADY When you play this character, chosen character gets –2 {S} this turn.",
     "flavorText": "She makes every space more beautiful.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/158_10b8639e7f5a5e01307e02f112bc60f6b980aeac.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/158_10b8639e7f5a5e01307e02f112bc60f6b980aeac.jpg",
@@ -9394,7 +9394,7 @@
     "number": 164,
     "rarity": "uncommon",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.) \nYour characters gain <Resist> +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)",
+    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)\nYour characters gain <Resist> +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/164_138bbe20a00db4e16aa29469857ef1d056f53b2f.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/164_138bbe20a00db4e16aa29469857ef1d056f53b2f.jpg",
     "actionEffects": [
@@ -10011,7 +10011,7 @@
     "strength": 2,
     "willpower": 2,
     "lore": 1,
-    "rulesText": "COME ON, PEOPLE, LET’S MOVE When you play this character, your other characters gain <Challenger> +2 this turn. (They get +2 {S} while challenging.)\nGO GET ’EM Whenever this character quests, chosen Alien character gains <Challenger> +2 and \"This character can challenge ready characters\" this turn.",
+    "rulesText": "COME ON, PEOPLE, LET’S MOVE When you play this character, your other characters gain <Challenger> +2 this turn. (They get +2 {S} while challenging.)\nGO GET ’EM Whenever this character quests, chosen Alien character gains <Challenger> +2 and “This character can challenge ready characters” this turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/174_c0e0bda04ec895d21fd17276e75fb34350cd9df5.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/174_c0e0bda04ec895d21fd17276e75fb34350cd9df5.jpg",
     "_namedAbilityStubs": [
@@ -11372,7 +11372,7 @@
     "number": 197,
     "rarity": "rare",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.) \nChosen character gains <Resist> +2 until the start of your next turn. If a Hero character is chosen, they can also challenge ready characters this turn. (Damage dealt to them is reduced by 2.)",
+    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nChosen character gains <Resist> +2 until the start of your next turn. If a Hero character is chosen, they can also challenge ready characters this turn. (Damage dealt to them is reduced by 2.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/197_646a76970a031e8307b6b3d4aa006c9099334844.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/197_646a76970a031e8307b6b3d4aa006c9099334844.jpg",
     "actionEffects": [
@@ -11520,7 +11520,7 @@
     "number": 201,
     "rarity": "rare",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.) \nDeal damage to chosen character equal to the number of characters you have in play.",
+    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nDeal damage to chosen character equal to the number of characters you have in play.",
     "flavorText": "Tranquil as a forest\nBut on fire within",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/201_c352610cd00cc2487351a53ab81fe4492c65ed3f.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/201_c352610cd00cc2487351a53ab81fe4492c65ed3f.jpg",
@@ -12205,7 +12205,7 @@
     "number": 213,
     "rarity": "epic",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.) \nChosen character gets +3 {S} and gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)",
+    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nChosen character gets +3 {S} and gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/213_dc0545757a750aa3c20aadd84553e31206b2d8b5.jpg",
     "actionEffects": [
       {
@@ -12363,7 +12363,7 @@
     "number": 216,
     "rarity": "epic",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.) \nEach opponent chooses and banishes one of their characters.",
+    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)\nEach opponent chooses and banishes one of their characters.",
     "flavorText": "Respected, saluted",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/216_439a90edef4880f24bdc8473685d216ecc54ee81.jpg",
     "actionEffects": [
@@ -12461,7 +12461,7 @@
     "strength": 2,
     "willpower": 3,
     "lore": 2,
-    "rulesText": "WASHED AWAY When you play this character, you may put chosen item into its player’s inkwell facedown and exerted.\nMAKING WAVES Whenever this character quests, chosen opposing character gets -2 {S} this turn.",
+    "rulesText": "WASHED AWAY When you play this character, you may put chosen item into its player’s inkwell facedown and exerted.\nMAKING WAVES Whenever this character quests, chosen opposing character gets –2 {S} this turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/217_6901b9d89b3dc94f8bce64ce77331832e8ceeb9a.jpg",
     "_namedAbilityStubs": [
       {
@@ -12727,7 +12727,7 @@
     "number": 222,
     "rarity": "epic",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.) \nChosen character gains <Resist> +2 until the start of your next turn. If a Hero character is chosen, they can also challenge ready characters this turn. (Damage dealt to them is reduced by 2.)",
+    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nChosen character gains <Resist> +2 until the start of your next turn. If a Hero character is chosen, they can also challenge ready characters this turn. (Damage dealt to them is reduced by 2.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/222_dcf9d994ba59f50f5ce22c43cbef49e0696b37cd.jpg",
     "actionEffects": [
       {
@@ -13126,7 +13126,7 @@
     "strength": 3,
     "willpower": 3,
     "lore": 1,
-    "rulesText": "<Evasive>\nBREAKING RECORDS {E}, 1 {I} — Draw a card and gain 1 lore.\nMAKING HISTORY Your other characters with <Evasive> gain \"{E}, 1 {I} — Draw a card and gain 1 lore.\"",
+    "rulesText": "<Evasive>\nBREAKING RECORDS {E}, 1 {I} — Draw a card and gain 1 lore.\nMAKING HISTORY Your other characters with <Evasive> gain “{E}, 1 {I} — Draw a card and gain 1 lore.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/228_2ef80c526bccfc40cd2954e20236f32128b6fe9f.jpg",
     "_namedAbilityStubs": [
       {
@@ -13663,7 +13663,7 @@
     "strength": 2,
     "willpower": 3,
     "lore": 1,
-    "rulesText": "OUT OF SEASON Once during your turn, whenever a character with cost 2 or less is banished, put the top card of your deck into your inkwell facedown and exerted.\nINSULTING REMARK During your turn, each opposing character with cost 2 or less gets -1 {S}.",
+    "rulesText": "OUT OF SEASON Once during your turn, whenever a character with cost 2 or less is banished, put the top card of your deck into your inkwell facedown and exerted.\nINSULTING REMARK During your turn, each opposing character with cost 2 or less gets –1 {S}.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/236_2a2cfa3fe7a961566d3d433f355ac616fc35f490.jpg",
     "_namedAbilityStubs": [
       {
@@ -13819,7 +13819,7 @@
     "strength": 2,
     "willpower": 2,
     "lore": 1,
-    "rulesText": "COME ON, PEOPLE, LET’S MOVE When you play this character, your other characters gain <Challenger> +2 this turn.\nGO GET ’EM Whenever this character quests, chosen Alien character gains <Challenger> +2 and \"This character can challenge ready characters\" this turn.",
+    "rulesText": "COME ON, PEOPLE, LET’S MOVE When you play this character, your other characters gain <Challenger> +2 this turn.\nGO GET ’EM Whenever this character quests, chosen Alien character gains <Challenger> +2 and “This character can challenge ready characters” this turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set9/238_c5d330f00540fd6028a3ce2aaf6d5785b6bdc16c.jpg",
     "_namedAbilityStubs": [
       {

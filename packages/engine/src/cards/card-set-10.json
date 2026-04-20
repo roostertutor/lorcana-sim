@@ -1069,7 +1069,7 @@
     "strength": 4,
     "willpower": 5,
     "lore": 1,
-    "rulesText": "PERFECT TRAP When you play this character, chosen opposing character gets -1 {S} until the start of your next turn.",
+    "rulesText": "PERFECT TRAP When you play this character, chosen opposing character gets –1 {S} until the start of your next turn.",
     "flavorText": "\"If you wanna beat a ghost, you gotta think like a ghost.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/21_90e2cca148f9196d92a5cf91c37ff77f34fe7bf2.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/21_90e2cca148f9196d92a5cf91c37ff77f34fe7bf2.jpg",
@@ -1336,7 +1336,7 @@
     "willpower": 7,
     "lore": 3,
     "shiftCost": 5,
-    "rulesText": "<Shift> 5 {I} (You may pay 5 {I} to play this on top of one of your characters named Goofy.)\nHOT PURSUIT When you play this character and whenever he quests, each opposing character gets -1 {S} until the start of your next turn.",
+    "rulesText": "<Shift> 5 {I} (You may pay 5 {I} to play this on top of one of your characters named Goofy.)\nHOT PURSUIT When you play this character and whenever he quests, each opposing character gets –1 {S} until the start of your next turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/24_8a721ebe465f5ce960b10197b39dc87f8ceb859a.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/24_8a721ebe465f5ce960b10197b39dc87f8ceb859a.jpg",
     "_namedAbilityStubs": [
@@ -1467,7 +1467,7 @@
     "number": 27,
     "rarity": "uncommon",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.) \nReturn a character card from your discard to your hand.",
+    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nReturn a character card from your discard to your hand.",
     "flavorText": "Every day they're out there making DuckTales! Woo-oo!",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/27_9a436571ec3f8e15826b476bbc3e29f51d1c2aa8.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/27_9a436571ec3f8e15826b476bbc3e29f51d1c2aa8.jpg",
@@ -1507,7 +1507,7 @@
     "number": 28,
     "rarity": "common",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.) \nChosen opposing character gets -2 {S} until the start of your next turn. Draw a card.",
+    "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)\nChosen opposing character gets –2 {S} until the start of your next turn. Draw a card.",
     "flavorText": "Life is strange and vast",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/28_2d2ec053a09707e5f13526eb912a5e43e33a7b31.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/28_2d2ec053a09707e5f13526eb912a5e43e33a7b31.jpg",
@@ -3549,7 +3549,7 @@
     "number": 62,
     "rarity": "rare",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.) \nExert chosen opposing character. Move all damage counters from all other characters to that character.",
+    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)\nExert chosen opposing character. Move all damage counters from all other characters to that character.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/62_6b5c885afc206fc6bd3b715820365e1c88993c89.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/62_6b5c885afc206fc6bd3b715820365e1c88993c89.jpg",
     "actionEffects": [
@@ -3913,7 +3913,7 @@
     "willpower": 3,
     "lore": 1,
     "moveCost": 1,
-    "rulesText": "STARTLING DISCOVERY Characters gain \"{E} — Draw a card\" while here.",
+    "rulesText": "STARTLING DISCOVERY Characters gain “{E} — Draw a card” while here.",
     "flavorText": "“Remember, we’re looking for clues to who tore up the lorebook pages.”\n—Elisa Maza",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/68_a50f12321fcf05a2d15ea5f8e37e8715083a3d65.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/68_a50f12321fcf05a2d15ea5f8e37e8715083a3d65.jpg",
@@ -4856,7 +4856,7 @@
     "strength": 3,
     "willpower": 4,
     "lore": 1,
-    "rulesText": "<Boost> 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)\nI’LL BE FINE While there’s a card under this character, she gets +1 {L} and gains \"Whenever this character is challenged, each opponent chooses and discards a card.\"",
+    "rulesText": "<Boost> 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)\nI’LL BE FINE While there’s a card under this character, she gets +1 {L} and gains “Whenever this character is challenged, each opponent chooses and discards a card.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/86_c20331ae12e5e812997ba8587f6c7970ef19d10e.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/86_c20331ae12e5e812997ba8587f6c7970ef19d10e.jpg",
     "_namedAbilityStubs": [
@@ -5494,7 +5494,7 @@
     "number": 95,
     "rarity": "rare",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 6 or more can {E} to sing this song for free.) \nChoose one:\n• Each opposing character gets -1 {L} until the start of your next turn.\n• Each opponent chooses and discards 2 cards.",
+    "rulesText": "(A character with cost 6 or more can {E} to sing this song for free.)\nChoose one:\n• Each opposing character gets –1 {L} until the start of your next turn.\n• Each opponent chooses and discards 2 cards.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/95_22b77c3e002c654b87ed8a66808f43c7c3bb52b0.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/95_22b77c3e002c654b87ed8a66808f43c7c3bb52b0.jpg",
     "actionEffects": [
@@ -5764,7 +5764,7 @@
     "number": 99,
     "rarity": "uncommon",
     "_source": "ravensburger",
-    "rulesText": "BACKTRACK {E}, 1 {I} — Chosen opposing character gets -1 {L} until the start of your next turn.",
+    "rulesText": "BACKTRACK {E}, 1 {I} — Chosen opposing character gets –1 {L} until the start of your next turn.",
     "flavorText": "Nick: \"What kind of nonsense is this?\"\nJudy: \"These symbols must mean something . . .\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/99_f551cf766bf535c15cdd2350a297e51b6ea36d9d.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/99_f551cf766bf535c15cdd2350a297e51b6ea36d9d.jpg",
@@ -6071,7 +6071,14 @@
     "lore": 0,
     "rulesText": "<Reckless> (This character can’t quest and must challenge each turn if able.)\nCALL TO BATTLE Once during your turn, whenever you put a card under one of your characters or locations, you may ready chosen character. If you do, that character can’t quest for the rest of this turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/104_be50ac9fb22a64cb564ba071e0009c715a2b162b.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/104_be50ac9fb22a64cb564ba071e0009c715a2b162b.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/104_be50ac9fb22a64cb564ba071e0009c715a2b162b.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "CALL TO BATTLE",
+        "rulesText": "Once during your turn, whenever you put a card under one of your characters or locations, you may ready chosen character. If you do, that character can’t quest for the rest of this turn.",
+        "raw": "CALL TO BATTLE Once during your turn, whenever you put a card under one of your characters or locations, you may ready chosen character. If you do, that character can’t quest for the rest of this turn."
+      }
+    ]
   },
   {
     "id": "peter-pan-high-flyer",
@@ -7234,7 +7241,7 @@
     "strength": 4,
     "willpower": 4,
     "lore": 0,
-    "rulesText": "<Boost> 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)\n<Reckless> (This character can’t quest and must challenge each turn if able.)\nONLY THE BOLD While there’s a card under this character, your characters with <Reckless> gain \"{E} — Gain 1 lore.\"",
+    "rulesText": "<Boost> 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)\n<Reckless> (This character can’t quest and must challenge each turn if able.)\nONLY THE BOLD While there’s a card under this character, your characters with <Reckless> gain “{E} — Gain 1 lore.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/123_d76508c76e78e45f3c22cd01376e9d0247727f5e.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/123_d76508c76e78e45f3c22cd01376e9d0247727f5e.jpg",
     "_namedAbilityStubs": [
@@ -8435,7 +8442,7 @@
     "strength": 3,
     "willpower": 6,
     "lore": 2,
-    "rulesText": "ENSNARL When you play this character, chosen opposing character gets -3 {S} this turn.",
+    "rulesText": "ENSNARL When you play this character, chosen opposing character gets –3 {S} this turn.",
     "flavorText": "\"Well, <that> should slow you down for a minute.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/143_8fbd751d486ce62a073001642823f80dbe6fcbd6.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/143_8fbd751d486ce62a073001642823f80dbe6fcbd6.jpg",
@@ -8975,7 +8982,7 @@
     "strength": 6,
     "willpower": 5,
     "lore": 2,
-    "rulesText": "<Boost> 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nSURVIVAL OF THE FITTEST Whenever you put a card under this character, chosen opposing character gets -5 {S} this turn.",
+    "rulesText": "<Boost> 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nSURVIVAL OF THE FITTEST Whenever you put a card under this character, chosen opposing character gets –5 {S} this turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/153_700b47e2cd2d62d1e02d55cf75511b5e8ddb7ae0.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/153_700b47e2cd2d62d1e02d55cf75511b5e8ddb7ae0.jpg",
     "_namedAbilityStubs": [
@@ -9632,7 +9639,7 @@
     "number": 163,
     "rarity": "uncommon",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.) \nLook at the top 4 cards of your deck. You may reveal up to 1 character card and up to 1 item card and put them into your hand. Put the rest on the bottom of your deck in any order.",
+    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)\nLook at the top 4 cards of your deck. You may reveal up to 1 character card and up to 1 item card and put them into your hand. Put the rest on the bottom of your deck in any order.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/163_6541f7bacc74a20e44400aa584c8f7b956ad229e.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/163_6541f7bacc74a20e44400aa584c8f7b956ad229e.jpg",
     "actionEffects": [
@@ -11555,7 +11562,7 @@
     "number": 195,
     "rarity": "common",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 1 or more can {E} to sing this song for free.) \nChosen character gains <Alert> and <Challenger> +2 this turn. (They can challenge as if they had Evasive. They get +2 {S} while challenging.)",
+    "rulesText": "(A character with cost 1 or more can {E} to sing this song for free.)\nChosen character gains <Alert> and <Challenger> +2 this turn. (They can challenge as if they had Evasive. They get +2 {S} while challenging.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/195_d2e67ea24e0086a545dbe966dc347f60af9d4e3e.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/195_d2e67ea24e0086a545dbe966dc347f60af9d4e3e.jpg",
     "actionEffects": [
@@ -11655,7 +11662,7 @@
     "number": 197,
     "rarity": "uncommon",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.) \nDeal 4 damage to chosen character. Your Deity characters gain <Challenger> +2 this turn. (They get +2 {S} while challenging.)",
+    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)\nDeal 4 damage to chosen character. Your Deity characters gain <Challenger> +2 this turn. (They get +2 {S} while challenging.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/197_ec1eb456aca1ae2049c4278e7e87adef27244bf5.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/197_ec1eb456aca1ae2049c4278e7e87adef27244bf5.jpg",
     "actionEffects": [
@@ -12269,7 +12276,7 @@
     "strength": 4,
     "willpower": 5,
     "lore": 1,
-    "rulesText": "PERFECT TRAP When you play this character, chosen opposing character gets -1 {S} until the start of your next turn.",
+    "rulesText": "PERFECT TRAP When you play this character, chosen opposing character gets –1 {S} until the start of your next turn.",
     "flavorText": "\"If you wanna beat a ghost, you gotta think like a ghost.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/205_c8155f8eb7a6f9006ca31b46f8840b6514a09b78.jpg",
     "_namedAbilityStubs": [
@@ -12732,7 +12739,7 @@
     "strength": 3,
     "willpower": 4,
     "lore": 1,
-    "rulesText": "<Boost> 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)\nI’LL BE FINE While there’s a card under this character, she gets +1 {L} and gains \"Whenever this character is challenged, each opponent chooses and discards a card.\"",
+    "rulesText": "<Boost> 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)\nI’LL BE FINE While there’s a card under this character, she gets +1 {L} and gains “Whenever this character is challenged, each opponent chooses and discards a card.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/213_ee7c7778d0cdbf0cafa101958a02317b75059322.jpg",
     "_namedAbilityStubs": [
       {
@@ -12904,7 +12911,7 @@
     "strength": 4,
     "willpower": 4,
     "lore": 0,
-    "rulesText": "<Boost> 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)\n<Reckless> (This character can’t quest and must challenge each turn if able.)\nONLY THE BOLD While there’s a card under this character, your characters with <Reckless> gain \"{E} — Gain 1 lore.\"",
+    "rulesText": "<Boost> 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)\n<Reckless> (This character can’t quest and must challenge each turn if able.)\nONLY THE BOLD While there’s a card under this character, your characters with <Reckless> gain “{E} — Gain 1 lore.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/216_28045a98d207ba73fd5f48a63941745a25d82d79.jpg",
     "_namedAbilityStubs": [
       {
@@ -13176,7 +13183,7 @@
     "strength": 2,
     "willpower": 4,
     "lore": 2,
-    "rulesText": "<Boost> 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)\nEXPERT SHOT While there’s a card under this character, he gains \"Whenever this character quests, deal 1 damage to up to 2 chosen characters.\"",
+    "rulesText": "<Boost> 1 {I} (Once during your turn, you may pay 1 {I} to put the top card of your deck facedown under this character.)\nEXPERT SHOT While there’s a card under this character, he gains “Whenever this character quests, deal 1 damage to up to 2 chosen characters.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/221_a59d60cf23311bb932fcc1a3572e975973de9ff7.jpg",
     "_namedAbilityStubs": [
       {
@@ -13204,7 +13211,7 @@
     "number": 222,
     "rarity": "epic",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.) \nDeal 4 damage to chosen character. Your Deity characters gain <Challenger> +2 this turn. (They get +2 {S} while challenging.)",
+    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)\nDeal 4 damage to chosen character. Your Deity characters gain <Challenger> +2 this turn. (They get +2 {S} while challenging.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/222_a46de86b2214bcc286d34d32c069b91eee1fbad4.jpg",
     "actionEffects": [
       {
@@ -13326,7 +13333,7 @@
     "willpower": 7,
     "lore": 3,
     "shiftCost": 5,
-    "rulesText": "<Shift> 5 {I}\nHOT PURSUIT When you play this character and whenever he quests, each opposing character gets -1 {S} until the start of your next turn.",
+    "rulesText": "<Shift> 5 {I}\nHOT PURSUIT When you play this character and whenever he quests, each opposing character gets –1 {S} until the start of your next turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/223_91f040573a2260a617ebd035991c33373701ca1e.jpg",
     "_namedAbilityStubs": [
       {

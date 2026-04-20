@@ -137,7 +137,7 @@
     "strength": 2,
     "willpower": 3,
     "lore": 2,
-    "rulesText": "WASHED AWAY When you play this character, you may put chosen item into its player’s inkwell facedown and exerted.\nMAKING WAVES Whenever this character quests, chosen opposing character gets -2 {S} this turn.",
+    "rulesText": "WASHED AWAY When you play this character, you may put chosen item into its player’s inkwell facedown and exerted.\nMAKING WAVES Whenever this character quests, chosen opposing character gets –2 {S} this turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/2_8426eb8a38d43058e2169ec64b6bd9c896ec9046.jpg",
     "_namedAbilityStubs": [
       {
@@ -510,7 +510,7 @@
     "number": 8,
     "rarity": "special",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.) \nDeal damage to chosen character equal to the number of characters you have in play.",
+    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nDeal damage to chosen character equal to the number of characters you have in play.",
     "flavorText": "Tranquil as a forest\nBut on fire within",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/8_09f60d7a5b67bafe819b285c6399baf482d23284.jpg",
     "actionEffects": [
@@ -861,7 +861,7 @@
     "willpower": 4,
     "lore": 2,
     "shiftCost": 3,
-    "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Mickey Mouse.)\nMARINER’S MIGHT Whenever this character quests, chosen Pirate character gets +2 {S} and gains \"This character takes no damage from challenges\" this turn.",
+    "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Mickey Mouse.)\nMARINER’S MIGHT Whenever this character quests, chosen Pirate character gets +2 {S} and gains “This character takes no damage from challenges” this turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/13_33dcbe23994c265b88dcecff1a98931db84aea1a.jpg",
     "_namedAbilityStubs": [
       {
@@ -1262,7 +1262,7 @@
     "willpower": 3,
     "lore": 1,
     "moveCost": 1,
-    "rulesText": "STARTLING DISCOVERY Characters gain \"{E} — Draw a card\" while here.",
+    "rulesText": "STARTLING DISCOVERY Characters gain “{E} — Draw a card” while here.",
     "flavorText": "“Remember, we’re looking for clues to who tore up the lorebook pages.”\n—Elisa Maza",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/19_4820f65a3bbd1d3c03018775c2064aca051f288c.jpg",
     "_namedAbilityStubs": [
@@ -1379,7 +1379,7 @@
     "strength": 6,
     "willpower": 5,
     "lore": 2,
-    "rulesText": "<Boost> 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nSURVIVAL OF THE FITTEST Whenever you put a card under this character, chosen opposing character gets -5 {S} this turn.",
+    "rulesText": "<Boost> 2 {I} (Once during your turn, you may pay 2 {I} to put the top card of your deck facedown under this character.)\nSURVIVAL OF THE FITTEST Whenever you put a card under this character, chosen opposing character gets –5 {S} this turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/21_96042505247cc9caea6ca6ea0b92a79427ae0d75.jpg",
     "_namedAbilityStubs": [
       {

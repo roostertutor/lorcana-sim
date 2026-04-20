@@ -1418,7 +1418,7 @@
     "strength": 3,
     "willpower": 7,
     "lore": 2,
-    "rulesText": "<Puppy Shift> 3 (You may pay 3 {I} to play this on top of one of your Puppy characters.)\n<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)",
+    "rulesText": "<Puppy <Shift>> 3 (You may pay 3 {I} to play this on top of one of your Puppy characters.)\n<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/23_6f254b2f397a1467c195fd3ef6192b6d285ab9cd.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/23_6f254b2f397a1467c195fd3ef6192b6d285ab9cd.jpg",
     "shiftCost": 3
@@ -2205,7 +2205,7 @@
     "strength": 2,
     "willpower": 4,
     "lore": 1,
-    "rulesText": "TACTICAL ADVANTAGE When you play this character, you may choose and discard a card to give chosen opposing character -3 {S} until the start of your next turn.",
+    "rulesText": "TACTICAL ADVANTAGE When you play this character, you may choose and discard a card to give chosen opposing character –3 {S} until the start of your next turn.",
     "flavorText": "“Preparation and luck—you can only rely on one to win a fight!”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/36_e268e2974760a3f13dc0f0e47f5cbfdb0e903caf.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/36_e268e2974760a3f13dc0f0e47f5cbfdb0e903caf.jpg",
@@ -2294,7 +2294,7 @@
     "number": 38,
     "rarity": "common",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.) \nDraw a card. Chosen character gains <Bodyguard> until the start of your next turn. (An opposing character who challenges one of your characters must choose one with Bodyguard if able.)",
+    "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)\nDraw a card. Chosen character gains <Bodyguard> until the start of your next turn. (An opposing character who challenges one of your characters must choose one with Bodyguard if able.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/38_dc85e224df0638d48decb991f13e7cebfd607d61.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/38_dc85e224df0638d48decb991f13e7cebfd607d61.jpg",
     "actionEffects": [
@@ -2386,7 +2386,7 @@
     "number": 40,
     "rarity": "rare",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 5 or more can {E} to sing this song for free.) \nLook at the top 5 cards of your deck. You may reveal up to 1 Madrigal character card and up to 1 song card and put them into your hand. Put the rest on the top of your deck in any order.",
+    "rulesText": "(A character with cost 5 or more can {E} to sing this song for free.)\nLook at the top 5 cards of your deck. You may reveal up to 1 Madrigal character card and up to 1 song card and put them into your hand. Put the rest on the top of your deck in any order.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/40_c9f1832f22fb995b2658ab6b6273b16e36796691.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/40_c9f1832f22fb995b2658ab6b6273b16e36796691.jpg",
     "actionEffects": [
@@ -3909,7 +3909,7 @@
     "strength": 2,
     "willpower": 6,
     "lore": 1,
-    "rulesText": "<Rush> (This character can challenge the turn they’re played.)\nFORMIDABLE GLARE When you play this character, chosen character gets -3 {S} this turn.",
+    "rulesText": "<Rush> (This character can challenge the turn they’re played.)\nFORMIDABLE GLARE When you play this character, chosen character gets –3 {S} this turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/65_8b4e2116ca115c2788ac68ad0959c5d6d474a009.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/65_8b4e2116ca115c2788ac68ad0959c5d6d474a009.jpg",
     "_namedAbilityStubs": [
@@ -4815,7 +4815,7 @@
     "number": 81,
     "rarity": "common",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.) \nGain 1 lore. Draw a card.",
+    "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)\nGain 1 lore. Draw a card.",
     "flavorText": "So many stars, and everybody gets to shine",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/81_8958b2de2c76ec2182f5309b9d30c61300671736.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/81_8958b2de2c76ec2182f5309b9d30c61300671736.jpg",
@@ -6129,7 +6129,7 @@
     "strength": 5,
     "willpower": 5,
     "lore": 2,
-    "rulesText": "<Universal Shift> 4 (You may pay 4 {I} to play this on top of any one of your characters.)\nFUNCTIONALITY IMPROVED When you play this character, if you used <Shift> to play him, remove all damage from him.",
+    "rulesText": "<Universal <Shift>> 4 (You may pay 4 {I} to play this on top of any one of your characters.)\nFUNCTIONALITY IMPROVED When you play this character, if you used <Shift> to play him, remove all damage from him.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/104_f8b2a44dc47c948971321993bf4b423d66a9bb5a.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/104_f8b2a44dc47c948971321993bf4b423d66a9bb5a.jpg",
     "_namedAbilityStubs": [
@@ -6927,7 +6927,7 @@
     "number": 117,
     "rarity": "common",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 1 or more can {E} to sing this song for free.) \nChosen character gets +1 {S} this turn for each character you have in play.",
+    "rulesText": "(A character with cost 1 or more can {E} to sing this song for free.)\nChosen character gets +1 {S} this turn for each character you have in play.",
     "flavorText": "Wish that I could travel his way",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/117_193134a77ff729c71888c5f7dc8879d2c7a3493b.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/117_193134a77ff729c71888c5f7dc8879d2c7a3493b.jpg",
@@ -7355,7 +7355,14 @@
     "lore": 1,
     "rulesText": "<Rush> (This character can challenge the turn they’re played.)\nGET ’EM! Your other characters named Stabbington Brother gain <Rush>.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/125_f2d038a6ed1d66c4dd3b2a7188e2f2ad992b0fe1.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/125_f2d038a6ed1d66c4dd3b2a7188e2f2ad992b0fe1.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/125_f2d038a6ed1d66c4dd3b2a7188e2f2ad992b0fe1.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "GET 'EM!",
+        "rulesText": "Your other characters named Stabbington Brother gain <Rush>.",
+        "raw": "GET ’EM! Your other characters named Stabbington Brother gain <Rush>."
+      }
+    ]
   },
   {
     "id": "belle-mechanic-extraordinaire",
@@ -8432,7 +8439,7 @@
     "willpower": 6,
     "lore": 2,
     "shiftCost": 5,
-    "rulesText": "<Shift> 5 (You may pay 5 {I} to play this on top of one of your characters named Mulan.)\n<Evasive> (Only characters with Evasive can challenge this character.)\nEXCEPTIONAL LEADER Whenever this character challenges another character, your other characters gain \"This character can challenge ready characters\" this turn.",
+    "rulesText": "<Shift> 5 (You may pay 5 {I} to play this on top of one of your characters named Mulan.)\n<Evasive> (Only characters with Evasive can challenge this character.)\nEXCEPTIONAL LEADER Whenever this character challenges another character, your other characters gain “This character can challenge ready characters” this turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/141_63b9c50634f49bf46b9d8ba5880708e1039724a9.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/141_63b9c50634f49bf46b9d8ba5880708e1039724a9.jpg",
     "_namedAbilityStubs": [
@@ -9809,7 +9816,7 @@
     "strength": 1,
     "willpower": 2,
     "lore": 2,
-    "rulesText": "I’LL SHOW YOU Whenever this character quests, you may give chosen character -2 {S} this turn.",
+    "rulesText": "I’LL SHOW YOU Whenever this character quests, you may give chosen character –2 {S} this turn.",
     "flavorText": "\"Find yourself another Illumineer. This one's taken.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/166_2a067d4156f9be0553d3c3f9c50738be48e83425.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/166_2a067d4156f9be0553d3c3f9c50738be48e83425.jpg",
@@ -9935,7 +9942,7 @@
     "strength": 2,
     "willpower": 2,
     "lore": 1,
-    "rulesText": "JUST SO CUTE! When you play this character, chosen opposing character gets -1 {S} this turn.",
+    "rulesText": "JUST SO CUTE! When you play this character, chosen opposing character gets –1 {S} this turn.",
     "flavorText": "\"I want to play with the others! Can I, Dad? Please?\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/168_31816ebc89e7a05f27251022f7eb34c05cf9b27e.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/168_31816ebc89e7a05f27251022f7eb34c05cf9b27e.jpg",
@@ -10514,7 +10521,7 @@
     "number": 178,
     "rarity": "rare",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 5 or more can {E} to sing this song for free.) \nPut up to 2 cards from your discard into your inkwell facedown and exerted.",
+    "rulesText": "(A character with cost 5 or more can {E} to sing this song for free.)\nPut up to 2 cards from your discard into your inkwell facedown and exerted.",
     "flavorText": "Where the north wind meets the sea\nThere’s a river full of memory",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/178_573cdc6a1d38a7af69897960d512e6b4c8e41cf9.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/178_573cdc6a1d38a7af69897960d512e6b4c8e41cf9.jpg",
@@ -10579,7 +10586,7 @@
     "number": 179,
     "rarity": "uncommon",
     "_source": "ravensburger",
-    "rulesText": "BRILLIANT SHINE During your turn, whenever a card is put into your inkwell, you may give chosen character -2 {S} this turn.",
+    "rulesText": "BRILLIANT SHINE During your turn, whenever a card is put into your inkwell, you may give chosen character –2 {S} this turn.",
     "flavorText": "A single flash of light from the coil on Venturo's leg could blind any foe.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/179_47e19763a1c9cb27c928ca9de32c99b2dac12d22.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/179_47e19763a1c9cb27c928ca9de32c99b2dac12d22.jpg",
@@ -13151,7 +13158,7 @@
     "number": 220,
     "rarity": "enchanted",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 5 or more can {E} to sing this song for free.) \nPut up to 2 cards from your discard into your inkwell facedown and exerted.",
+    "rulesText": "(A character with cost 5 or more can {E} to sing this song for free.)\nPut up to 2 cards from your discard into your inkwell facedown and exerted.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/220_de120145ee5595f60c19a37d317817b4cc3593ab.jpg",
     "actionEffects": [
       {

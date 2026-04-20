@@ -290,7 +290,7 @@
     "willpower": 4,
     "lore": 2,
     "shiftCost": 2,
-    "rulesText": "<Shift> 2 (You may pay 2 {I} to play this on top of one of your characters named Vanellope von Schweetz.)\nI HEREBY DECREE Whenever you play another Princess character, all opposing characters get -1 {S} until the start of your next turn.",
+    "rulesText": "<Shift> 2 (You may pay 2 {I} to play this on top of one of your characters named Vanellope von Schweetz.)\nI HEREBY DECREE Whenever you play another Princess character, all opposing characters get –1 {S} until the start of your next turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/5_42d60880b0036846dc41452794caeee2849c1915.jpg",
     "_namedAbilityStubs": [
       {

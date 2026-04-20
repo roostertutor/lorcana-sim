@@ -1329,7 +1329,7 @@
     "number": 33,
     "rarity": "special",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.) \nYour characters gain <Resist> +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)",
+    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)\nYour characters gain <Resist> +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/33_2c216c5c8e1cbc639e27a6527d7dbcdfc2405930.jpg",
     "actionEffects": [
       {

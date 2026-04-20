@@ -905,7 +905,7 @@
     "willpower": 4,
     "lore": 2,
     "shiftCost": 3,
-    "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Mickey Mouse.)\nMARINER’S MIGHT Whenever this character quests, chosen Pirate character gets +2 {S} and gains \"This character takes no damage from challenges\" this turn.",
+    "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Mickey Mouse.)\nMARINER’S MIGHT Whenever this character quests, chosen Pirate character gets +2 {S} and gains “This character takes no damage from challenges” this turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/18_7081e1821e863d2bca0f54b5d5e4379a63737b51.jpg",
     "_namedAbilityStubs": [
       {

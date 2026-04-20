@@ -132,7 +132,19 @@
     "lore": 1,
     "rulesText": "DIFFICULT JOURNEY This character enters play with 1 damage.\nDEVOTED FAMILY When you play this character, if you have another Madrigal character in play, you may remove up to 1 damage from him.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/5_aca5031d5361c75e0dbfaadf2933f1f7d723d6b0.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/5_aca5031d5361c75e0dbfaadf2933f1f7d723d6b0.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/5_aca5031d5361c75e0dbfaadf2933f1f7d723d6b0.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "DIFFICULT JOURNEY",
+        "rulesText": "This character enters play with 1 damage.",
+        "raw": "DIFFICULT JOURNEY This character enters play with 1 damage."
+      },
+      {
+        "storyName": "DEVOTED FAMILY",
+        "rulesText": "When you play this character, if you have another Madrigal character in play, you may remove up to 1 damage from him.",
+        "raw": "DEVOTED FAMILY When you play this character, if you have another Madrigal character in play, you may remove up to 1 damage from him."
+      }
+    ]
   },
   {
     "id": "agustin-madrigal-exceptionally-kind",
@@ -274,7 +286,14 @@
     "rulesText": "NO SECRETS When you play this character, look at chosen opponent’s hand.",
     "flavorText": "\"Amazu says he'll be back this way in a few weeks. He's stuck in the desert right now.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/9_13ccd2d2cbc6231b2ceca52f12ff8d62d1d4d82b.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/9_13ccd2d2cbc6231b2ceca52f12ff8d62d1d4d82b.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/9_13ccd2d2cbc6231b2ceca52f12ff8d62d1d4d82b.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "NO SECRETS",
+        "rulesText": "When you play this character, look at chosen opponent’s hand.",
+        "raw": "NO SECRETS When you play this character, look at chosen opponent’s hand."
+      }
+    ]
   },
   {
     "id": "monterey-jack-hypnotized-by-cheese",
@@ -475,7 +494,19 @@
     "lore": 1,
     "rulesText": "THERE YOU ARE! When you play this character, you may return a character card with 4 {W} or more from your discard to your hand.\nFRIENDLY ASSIST Your characters named Dale get +1 {W}.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/14_6f63535085953b8118a2664be184f39a17e79a06.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/14_6f63535085953b8118a2664be184f39a17e79a06.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/14_6f63535085953b8118a2664be184f39a17e79a06.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "THERE YOU ARE!",
+        "rulesText": "When you play this character, you may return a character card with 4 {W} or more from your discard to your hand.",
+        "raw": "THERE YOU ARE! When you play this character, you may return a character card with 4 {W} or more from your discard to your hand."
+      },
+      {
+        "storyName": "FRIENDLY ASSIST",
+        "rulesText": "Your characters named Dale get +1 {W}.",
+        "raw": "FRIENDLY ASSIST Your characters named Dale get +1 {W}."
+      }
+    ]
   },
   {
     "id": "woody-jungle-guide",
@@ -878,7 +909,7 @@
     "strength": 3,
     "willpower": 3,
     "lore": 1,
-    "rulesText": "PART OF A FAMILY Whenever this character quests, if you have 2 or more other Toy characters in play, you may draw a card.\nYODEL-AY-HEE-HOO! Whenever you pay 2 {I} or less to play a card, chosen opposing character gets -1 {S} until the start of your next turn.",
+    "rulesText": "PART OF A FAMILY Whenever this character quests, if you have 2 or more other Toy characters in play, you may draw a card.\nYODEL-AY-HEE-HOO! Whenever you pay 2 {I} or less to play a card, chosen opposing character gets –1 {S} until the start of your next turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/20_fd7315e215a10d7e80219ccd28b6adc40f7722ae.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/20_fd7315e215a10d7e80219ccd28b6adc40f7722ae.jpg",
     "_namedAbilityStubs": [
@@ -1030,7 +1061,7 @@
     "strength": 2,
     "willpower": 3,
     "lore": 2,
-    "rulesText": "LONG JOURNEY This character may enter play exerted.\nSECRET PATH While this character is exerted, whenever one of your other characters quests, chosen opposing character gets -2 {S} until the start of your next turn.",
+    "rulesText": "LONG JOURNEY This character may enter play exerted.\nSECRET PATH While this character is exerted, whenever one of your other characters quests, chosen opposing character gets –2 {S} until the start of your next turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/26_8e33cf54f21ad6156f4a1b66a8ce12c6aceca24e.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/26_8e33cf54f21ad6156f4a1b66a8ce12c6aceca24e.jpg",
     "_namedAbilityStubs": [
@@ -1105,7 +1136,14 @@
     "rulesText": "RANGER RESOURCEFULNESS When you play this character, if you have another character with 4 {W} or more in play, you may draw a card.",
     "flavorText": "\"Come on, Dale. You look fine! I've got a plan that you'll be perfect for!\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/27_61e610b0c99d431b50ff418db3cc8bd0e76373bb.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/27_61e610b0c99d431b50ff418db3cc8bd0e76373bb.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/27_61e610b0c99d431b50ff418db3cc8bd0e76373bb.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "RANGER RESOURCEFULNESS",
+        "rulesText": "When you play this character, if you have another character with 4 {W} or more in play, you may draw a card.",
+        "raw": "RANGER RESOURCEFULNESS When you play this character, if you have another character with 4 {W} or more in play, you may draw a card."
+      }
+    ]
   },
   {
     "id": "this-growing-pressure",
@@ -1144,7 +1182,7 @@
     "number": 31,
     "rarity": "rare",
     "_source": "ravensburger",
-    "rulesText": "Shift a character from your discard for free.",
+    "rulesText": "<Shift> a character from your discard for free.",
     "flavorText": "\"The vine is full of flood ink. You won't believe what it can do with a little encouragement!\"\n—Isabela Madrigal",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/31_851ddff2ae9e7d8cf8d59ae24cb4e8fd1a7db5af.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/31_851ddff2ae9e7d8cf8d59ae24cb4e8fd1a7db5af.jpg",
@@ -1415,7 +1453,14 @@
     "rulesText": "PROTECTING THE FAMILY When you play this character, if you have another Madrigal character in play, you may exert chosen opposing character.",
     "flavorText": "\"In our darkest moment, we were given a miracle.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/36_edeb7b2da0262938ec8acf9efe96e8c350f42a2f.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/36_edeb7b2da0262938ec8acf9efe96e8c350f42a2f.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/36_edeb7b2da0262938ec8acf9efe96e8c350f42a2f.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "PROTECTING THE FAMILY",
+        "rulesText": "When you play this character, if you have another Madrigal character in play, you may exert chosen opposing character.",
+        "raw": "PROTECTING THE FAMILY When you play this character, if you have another Madrigal character in play, you may exert chosen opposing character."
+      }
+    ]
   },
   {
     "id": "grumpy-soreheaded-miner",
@@ -1511,7 +1556,14 @@
     "rulesText": "FIND A WAY Whenever this character quests, move up to 1 damage from chosen character of yours to chosen opposing character.",
     "flavorText": "“Everybody makes mistakes. What’s important is that we recognize them.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/45_8ccc4c7cd7d8deb6e48a45b6174876449597d2ad.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/45_8ccc4c7cd7d8deb6e48a45b6174876449597d2ad.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/45_8ccc4c7cd7d8deb6e48a45b6174876449597d2ad.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "FIND A WAY",
+        "rulesText": "Whenever this character quests, move up to 1 damage from chosen character of yours to chosen opposing character.",
+        "raw": "FIND A WAY Whenever this character quests, move up to 1 damage from chosen character of yours to chosen opposing character."
+      }
+    ]
   },
   {
     "id": "will-o-the-wisp-forest-spirit",
@@ -1664,7 +1716,7 @@
     "strength": 5,
     "willpower": 6,
     "lore": 1,
-    "rulesText": "FLEXIBLE THINKING At the start of your turn, you may choose one:\n• This character gains Evasive until the start of your next turn. (Only characters with Evasive can challenge them.)\n• This character gets +1 {L} this turn.",
+    "rulesText": "FLEXIBLE THINKING At the start of your turn, you may choose one:\n• This character gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)\n• This character gets +1 {L} this turn.",
     "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a7974610679d43d190ee370d23d6e0b3.avif?1776301692",
     "_namedAbilityStubs": [
       {
@@ -1839,7 +1891,19 @@
     "lore": 2,
     "rulesText": "NO CAPES! When you play this character, you may return chosen item with cost 2 or less to its player’s hand. If you do, its player draws a card.\nMAKING SUPERS FABULOUS Whenever this character quests, your Super characters get +1 {L} this turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/54_095936119618f5173c249035dd814c980756b3f5.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/54_095936119618f5173c249035dd814c980756b3f5.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/54_095936119618f5173c249035dd814c980756b3f5.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "NO CAPES!",
+        "rulesText": "When you play this character, you may return chosen item with cost 2 or less to its player’s hand. If you do, its player draws a card.",
+        "raw": "NO CAPES! When you play this character, you may return chosen item with cost 2 or less to its player’s hand. If you do, its player draws a card."
+      },
+      {
+        "storyName": "MAKING SUPERS FABULOUS",
+        "rulesText": "Whenever this character quests, your Super characters get +1 {L} this turn.",
+        "raw": "MAKING SUPERS FABULOUS Whenever this character quests, your Super characters get +1 {L} this turn."
+      }
+    ]
   },
   {
     "id": "maleficent-imperious-traveler",
@@ -1988,7 +2052,19 @@
     "lore": 3,
     "rulesText": "FEROCIOUS ROAR When you play this character, exert all your characters not named Mor’du.\nROOTED BY FEAR Your characters not named Mor’du can’t ready at the start of your turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/57_6c8b656d987e9078fb5f36e209b2d29f52107ee1.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/57_6c8b656d987e9078fb5f36e209b2d29f52107ee1.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/57_6c8b656d987e9078fb5f36e209b2d29f52107ee1.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "FEROCIOUS ROAR",
+        "rulesText": "When you play this character, exert all your characters not named Mor’du.",
+        "raw": "FEROCIOUS ROAR When you play this character, exert all your characters not named Mor’du."
+      },
+      {
+        "storyName": "ROOTED BY FEAR",
+        "rulesText": "Your characters not named Mor’du can’t ready at the start of your turn.",
+        "raw": "ROOTED BY FEAR Your characters not named Mor’du can’t ready at the start of your turn."
+      }
+    ]
   },
   {
     "id": "alma-madrigal-keeper-of-the-flame",
@@ -2053,7 +2129,14 @@
     "shiftCost": 3,
     "rulesText": "<Shift> 3 {I} (You may pay 3 {I} to play this on top of one of your characters named Alma Madrigal.)\nTHAT’S ENOUGH Whenever you remove 1 or more damage from one of your characters, you may exert chosen opposing character.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/58_f04f2aca3ce090078b90945a89a00b6651675dad.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/58_f04f2aca3ce090078b90945a89a00b6651675dad.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/58_f04f2aca3ce090078b90945a89a00b6651675dad.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "THAT'S ENOUGH",
+        "rulesText": "Whenever you remove 1 or more damage from one of your characters, you may exert chosen opposing character.",
+        "raw": "THAT’S ENOUGH Whenever you remove 1 or more damage from one of your characters, you may exert chosen opposing character."
+      }
+    ]
   },
   {
     "id": "frozone-super-cool",
@@ -2778,7 +2861,14 @@
     "rulesText": "CRISIS MANAGEMENT If 2 or more cards were put into your discard this turn, you pay 2 {I} less to play this character.",
     "flavorText": "\"Once again, I find myself cleaning up someone else's mess.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/73_8042a42461c8ddde2caf0ce440c3503b78039dd2.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/73_8042a42461c8ddde2caf0ce440c3503b78039dd2.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/73_8042a42461c8ddde2caf0ce440c3503b78039dd2.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "CRISIS MANAGEMENT",
+        "rulesText": "If 2 or more cards were put into your discard this turn, you pay 2 {I} less to play this character.",
+        "raw": "CRISIS MANAGEMENT If 2 or more cards were put into your discard this turn, you pay 2 {I} less to play this character."
+      }
+    ]
   },
   {
     "id": "the-witch-wily-woodcarver",
@@ -2931,7 +3021,14 @@
     "rulesText": "LOW BATTERIES This character can’t quest or challenge unless you pay 1 {I}. (You pay this cost each time.)",
     "flavorText": "Racing around Andy's room is fun, but he <really> loves going off road.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/77_a035676fa654b7a6140995687d8c0dcdae62e8f9.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/77_a035676fa654b7a6140995687d8c0dcdae62e8f9.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/77_a035676fa654b7a6140995687d8c0dcdae62e8f9.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "LOW BATTERIES",
+        "rulesText": "This character can’t quest or challenge unless you pay 1 {I}. (You pay this cost each time.)",
+        "raw": "LOW BATTERIES This character can’t quest or challenge unless you pay 1 {I}. (You pay this cost each time.)"
+      }
+    ]
   },
   {
     "id": "lord-macguffin-clever-swordsman",
@@ -2998,7 +3095,14 @@
     "rulesText": "WAIT FOR IT... This character may enter play exerted to deal 3 damage to chosen damaged character.",
     "flavorText": "\"We'll find our way back to the Illuminary if we have to fight through every plant in Lorcana.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/78_0a4ef377508049229fe5ed671fe577bd7d1d9aab.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/78_0a4ef377508049229fe5ed671fe577bd7d1d9aab.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/78_0a4ef377508049229fe5ed671fe577bd7d1d9aab.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "WAIT FOR IT...",
+        "rulesText": "This character may enter play exerted to deal 3 damage to chosen damaged character.",
+        "raw": "WAIT FOR IT... This character may enter play exerted to deal 3 damage to chosen damaged character."
+      }
+    ]
   },
   {
     "id": "lenny-toy-binoculars",
@@ -3419,7 +3523,14 @@
     "lore": 1,
     "rulesText": "COORDINATED EFFORTS At the end of your turn, if you have 3 or more exerted characters in play, deal 1 damage to chosen opposing character, gain 1 lore, and draw a card.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/86_9851189608d9650dc922bd1cbc5b085cc15b4b28.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/86_9851189608d9650dc922bd1cbc5b085cc15b4b28.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/86_9851189608d9650dc922bd1cbc5b085cc15b4b28.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "COORDINATED EFFORTS",
+        "rulesText": "At the end of your turn, if you have 3 or more exerted characters in play, deal 1 damage to chosen opposing character, gain 1 lore, and draw a card.",
+        "raw": "COORDINATED EFFORTS At the end of your turn, if you have 3 or more exerted characters in play, deal 1 damage to chosen opposing character, gain 1 lore, and draw a card."
+      }
+    ]
   },
   {
     "id": "lyle-tiberius-rourke-adventurer-for-hire",
@@ -3506,7 +3617,19 @@
     "lore": 1,
     "rulesText": "EYE FOR VALUE When you play this character, you may draw a card, then choose and discard a card.\nDIRTY TRICKS At the end of your turn, if 2 or more cards were put into your discard this turn, each opponent loses 1 lore.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/87_a37943d83cee3e1b2eed382b9f2dfdbd1b435ea3.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/87_a37943d83cee3e1b2eed382b9f2dfdbd1b435ea3.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/87_a37943d83cee3e1b2eed382b9f2dfdbd1b435ea3.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "EYE FOR VALUE",
+        "rulesText": "When you play this character, you may draw a card, then choose and discard a card.",
+        "raw": "EYE FOR VALUE When you play this character, you may draw a card, then choose and discard a card."
+      },
+      {
+        "storyName": "DIRTY TRICKS",
+        "rulesText": "At the end of your turn, if 2 or more cards were put into your discard this turn, each opponent loses 1 lore.",
+        "raw": "DIRTY TRICKS At the end of your turn, if 2 or more cards were put into your discard this turn, each opponent loses 1 lore."
+      }
+    ]
   },
   {
     "id": "joshua-sweet-field-surgeon",
@@ -3861,7 +3984,7 @@
     "number": 95,
     "rarity": "uncommon",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.) \nUp to 2 chosen characters can’t quest until the start of your next turn. Draw a card.",
+    "rulesText": "(A character with cost 4 or more can {E} to sing this song for free.)\nUp to 2 chosen characters can’t quest until the start of your next turn. Draw a card.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/95_a41cce25ebae5a50743adb4fc09cdfc9a7d431a8.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/95_a41cce25ebae5a50743adb4fc09cdfc9a7d431a8.jpg",
     "actionEffects": [
@@ -4335,7 +4458,14 @@
     "rulesText": "IMMORTAL WOUND This character enters play with 4 damage.",
     "flavorText": "“I am the ruler of Olympus! I refuse to be defeated by a bunch of <flowers>!”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/109_d3520719b9bd3e6c20bfa7aeffa922d7af91df70.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/109_d3520719b9bd3e6c20bfa7aeffa922d7af91df70.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/109_d3520719b9bd3e6c20bfa7aeffa922d7af91df70.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "IMMORTAL WOUND",
+        "rulesText": "This character enters play with 4 damage.",
+        "raw": "IMMORTAL WOUND This character enters play with 4 damage."
+      }
+    ]
   },
   {
     "id": "jingle-joe-sids-toy",
@@ -5313,7 +5443,7 @@
     "number": 131,
     "rarity": "common",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.) \nChosen character gets +1 {L} and gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)",
+    "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)\nChosen character gets +1 {L} and gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/131_90af5e96469c4c0603b10b074955bfefc086d9f5.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/131_90af5e96469c4c0603b10b074955bfefc086d9f5.jpg",
     "actionEffects": [
@@ -5348,7 +5478,7 @@
     "number": 132,
     "rarity": "rare",
     "_source": "ravensburger",
-    "rulesText": "Your characters get +1 {S} this turn. Your Hero characters gain \"Whenever this character challenges another character, each opponent loses 1 lore and you gain 1 lore\" this turn.",
+    "rulesText": "Your characters get +1 {S} this turn. Your Hero characters gain “Whenever this character challenges another character, each opponent loses 1 lore and you gain 1 lore” this turn.",
     "flavorText": "\"It's a whole family of Supers!\" \n—Syndrome",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/132_77b0d45ef45393cf53e4230a6e048e9097827ad1.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/132_77b0d45ef45393cf53e4230a6e048e9097827ad1.jpg"
@@ -5426,7 +5556,14 @@
     "rulesText": "ON THE HORIZON {E}, 1 {I} — Look at the top 4 cards of your deck. You may reveal a location card and put it into your hand. Put the rest on the bottom of your deck in any order.",
     "flavorText": "\"It always points the way to new adventures.\"\n—Amazu, an Illumineer",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/134_9bc9fe599c854d14b39d29e4e8a4b8d2ddca50cd.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/134_9bc9fe599c854d14b39d29e4e8a4b8d2ddca50cd.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/134_9bc9fe599c854d14b39d29e4e8a4b8d2ddca50cd.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "ON THE HORIZON",
+        "rulesText": "{E}, 1 {I} — Look at the top 4 cards of your deck. You may reveal a location card and put it into your hand. Put the rest on the bottom of your deck in any order.",
+        "raw": "ON THE HORIZON {E}, 1 {I} — Look at the top 4 cards of your deck. You may reveal a location card and put it into your hand. Put the rest on the bottom of your deck in any order."
+      }
+    ]
   },
   {
     "id": "remote-inklands-desert-ruins",
@@ -5616,7 +5753,14 @@
     "rulesText": "LUMINOUS SHELTER When you play this character, your other characters gain <Resist> +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)",
     "flavorText": "\"While you two finish up, I'll add protective charms. Pink, of course.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/141_66e94a1fe266d63c6fb39be4c306bcced22b4bbf.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/141_563056e30716149789781047cf2d084246a1f936.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/141_563056e30716149789781047cf2d084246a1f936.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "LUMINOUS SHELTER",
+        "rulesText": "When you play this character, your other characters gain <Resist> +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)",
+        "raw": "LUMINOUS SHELTER When you play this character, your other characters gain <Resist> +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)"
+      }
+    ]
   },
   {
     "id": "gadget-hackwrench-resourceful-mechanic",
@@ -5770,10 +5914,17 @@
     "strength": 3,
     "willpower": 3,
     "lore": 2,
-    "rulesText": "DEVITALIZER RAY Once during your turn, whenever you play an item, chosen opposing character gets -2 {S} this turn.",
+    "rulesText": "DEVITALIZER RAY Once during your turn, whenever you play an item, chosen opposing character gets –2 {S} this turn.",
     "flavorText": "\"Another successful test! This brilliant devitalizer ray technology will be my finest invention yet!\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/146_d855e5debaae441bbc48a5479c95375746faae18.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/146_d855e5debaae441bbc48a5479c95375746faae18.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/146_d855e5debaae441bbc48a5479c95375746faae18.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "DEVITALIZER RAY",
+        "rulesText": "Once during your turn, whenever you play an item, chosen opposing character gets -2 {S} this turn.",
+        "raw": "DEVITALIZER RAY Once during your turn, whenever you play an item, chosen opposing character gets -2 {S} this turn."
+      }
+    ]
   },
   {
     "id": "gadget-hackwrench-finder-of-lost-parts",
@@ -5910,7 +6061,14 @@
     "rulesText": "SCIENTIFIC SCRUTINY When you play this character, look at the top card of your deck. Put it on either the top or the bottom of your deck.",
     "flavorText": "\"Fascinating. What unusual markings! I can't wait to bring my findings back to S.H.U.S.H.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/152_32aa5a21d6e698055f18ffab415d9c265eddc47c.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/152_32aa5a21d6e698055f18ffab415d9c265eddc47c.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/152_32aa5a21d6e698055f18ffab415d9c265eddc47c.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "SCIENTIFIC SCRUTINY",
+        "rulesText": "When you play this character, look at the top card of your deck. Put it on either the top or the bottom of your deck.",
+        "raw": "SCIENTIFIC SCRUTINY When you play this character, look at the top card of your deck. Put it on either the top or the bottom of your deck."
+      }
+    ]
   },
   {
     "id": "cinderella-resourceful-traveler",
@@ -6028,7 +6186,14 @@
     "lore": 1,
     "rulesText": "READ THE RUNES Whenever this character quests, if 2 or more cards were put into your discard this turn, you may put the top card of your deck into your inkwell facedown and exerted.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/157_aa0d819e4b05ae775ea6d8c04e6cb405f8acd181.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/157_aa0d819e4b05ae775ea6d8c04e6cb405f8acd181.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/157_aa0d819e4b05ae775ea6d8c04e6cb405f8acd181.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "READ THE RUNES",
+        "rulesText": "Whenever this character quests, if 2 or more cards were put into your discard this turn, you may put the top card of your deck into your inkwell facedown and exerted.",
+        "raw": "READ THE RUNES Whenever this character quests, if 2 or more cards were put into your discard this turn, you may put the top card of your deck into your inkwell facedown and exerted."
+      }
+    ]
   },
   {
     "id": "kashekim-wise-king",
@@ -6079,7 +6244,14 @@
     "rulesText": "STRENGTH IN MEMORY At the end of your turn, if 2 or more cards were put into your discard this turn, you may put the top card of your deck into your inkwell facedown.",
     "flavorText": "\"The power here is buried deep in the sands.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/158_b7a3b500d1753c0fd0ac759e10935c87645c1c6b.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/158_b7a3b500d1753c0fd0ac759e10935c87645c1c6b.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/158_b7a3b500d1753c0fd0ac759e10935c87645c1c6b.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "STRENGTH IN MEMORY",
+        "rulesText": "At the end of your turn, if 2 or more cards were put into your discard this turn, you may put the top card of your deck into your inkwell facedown.",
+        "raw": "STRENGTH IN MEMORY At the end of your turn, if 2 or more cards were put into your discard this turn, you may put the top card of your deck into your inkwell facedown."
+      }
+    ]
   },
   {
     "id": "escape-plan",
@@ -6173,7 +6345,19 @@
     "_source": "ravensburger",
     "rulesText": "FLAVORFUL CURE At the start of your turn, if you have a Madrigal character in play, remove up to 2 damage from chosen character.\nTHAT DID THE TRICK {E} — If you removed damage from a character this turn, gain 1 lore.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/166_1a56d466206002daf499fedb3c154f8b2fd2e7ef.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/166_1a56d466206002daf499fedb3c154f8b2fd2e7ef.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/166_1a56d466206002daf499fedb3c154f8b2fd2e7ef.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "FLAVORFUL CURE",
+        "rulesText": "At the start of your turn, if you have a Madrigal character in play, remove up to 2 damage from chosen character.",
+        "raw": "FLAVORFUL CURE At the start of your turn, if you have a Madrigal character in play, remove up to 2 damage from chosen character."
+      },
+      {
+        "storyName": "THAT DID THE TRICK",
+        "rulesText": "{E} — If you removed damage from a character this turn, gain 1 lore.",
+        "raw": "THAT DID THE TRICK {E} — If you removed damage from a character this turn, gain 1 lore."
+      }
+    ]
   },
   {
     "id": "gadgets-goggles",
@@ -6221,7 +6405,14 @@
     "rulesText": "ENHANCED VISION {E}, 1 {I} — Look at the top 2 cards of your deck. Put one on the top of your deck and the other on the bottom.",
     "flavorText": "Dale: \"Do you see anything, Gadget?\"\nGadget: \"Yeah, but I wish I didn’t.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/168_28042d1fa77fc6172a9f4112cee8d2e0dc147c2f.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/168_28042d1fa77fc6172a9f4112cee8d2e0dc147c2f.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/168_28042d1fa77fc6172a9f4112cee8d2e0dc147c2f.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "ENHANCED VISION",
+        "rulesText": "{E}, 1 {I} — Look at the top 2 cards of your deck. Put one on the top of your deck and the other on the bottom.",
+        "raw": "ENHANCED VISION {E}, 1 {I} — Look at the top 2 cards of your deck. Put one on the top of your deck and the other on the bottom."
+      }
+    ]
   },
   {
     "id": "shepherds-journal",
@@ -6621,7 +6812,14 @@
     "rulesText": "TOUGH IT OUT This character may enter play exerted to give chosen character <Resist> +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)",
     "flavorText": "\"Clan Macintosh fears no flower, vine, or tree. We dinnae mess with shrubs, though.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/181_772f9ab54969f3a58024b5f63ed5cc3447824ed1.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/181_772f9ab54969f3a58024b5f63ed5cc3447824ed1.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/181_772f9ab54969f3a58024b5f63ed5cc3447824ed1.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "TOUGH IT OUT",
+        "rulesText": "This character may enter play exerted to give chosen character <Resist> +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)",
+        "raw": "TOUGH IT OUT This character may enter play exerted to give chosen character <Resist> +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)"
+      }
+    ]
   },
   {
     "id": "fat-cat-felonious-feline",
@@ -6715,7 +6913,14 @@
     "shiftCost": 2,
     "rulesText": "<Shift> 2 {I} (You may pay 2 {I} to play this on top of one of your characters named Omnidroid.)\nENEMY DETECTED When you play this character, if you used <Shift> to play it, you may deal 2 damage to chosen character.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/184_cfcb63bc134d6cf994f2cbdf74f3ad87945b6265.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/184_0945d8f33c007f46611dbbe1b0840834fec6c81c.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/184_0945d8f33c007f46611dbbe1b0840834fec6c81c.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "ENEMY DETECTED",
+        "rulesText": "When you play this character, if you used <Shift> to play it, you may deal 2 damage to chosen character.",
+        "raw": "ENEMY DETECTED When you play this character, if you used <Shift> to play it, you may deal 2 damage to chosen character."
+      }
+    ]
   },
   {
     "id": "mr-incredible-taking-out-the-trash",
@@ -6851,7 +7056,14 @@
     "rulesText": "FIGHTIN’ TALK This character may enter play exerted to give chosen character <Challenger> +3 this turn. (They get +3 {S} while challenging.)",
     "flavorText": "\"Ach, look at the size o' that flower! Let's clear that beastie out before it causes any trouble.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/186_74242fa481dc8df7788924b02c27b93f00c4c11c.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/186_74242fa481dc8df7788924b02c27b93f00c4c11c.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/186_74242fa481dc8df7788924b02c27b93f00c4c11c.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "FIGHTIN' TALK",
+        "rulesText": "This character may enter play exerted to give chosen character <Challenger> +3 this turn. (They get +3 {S} while challenging.)",
+        "raw": "FIGHTIN’ TALK This character may enter play exerted to give chosen character <Challenger> +3 this turn. (They get +3 {S} while challenging.)"
+      }
+    ]
   },
   {
     "id": "merida-formidable-archer",
@@ -7176,7 +7388,19 @@
     "lore": 1,
     "rulesText": "CRUEL INTENT While you have a Villain character in play, this character gets +2 {S} and +1 {L}.\nVILLAINOUS BOND While this character is exerted, your Villain characters can’t be challenged.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/196_d807ab79c4644f37529e9de2d7a72080d3bf68de.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/196_d807ab79c4644f37529e9de2d7a72080d3bf68de.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/196_d807ab79c4644f37529e9de2d7a72080d3bf68de.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "CRUEL INTENT",
+        "rulesText": "While you have a Villain character in play, this character gets +2 {S} and +1 {L}.",
+        "raw": "CRUEL INTENT While you have a Villain character in play, this character gets +2 {S} and +1 {L}."
+      },
+      {
+        "storyName": "VILLAINOUS BOND",
+        "rulesText": "While this character is exerted, your Villain characters can’t be challenged.",
+        "raw": "VILLAINOUS BOND While this character is exerted, your Villain characters can’t be challenged."
+      }
+    ]
   },
   {
     "id": "three-arrows",
