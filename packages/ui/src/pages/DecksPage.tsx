@@ -78,7 +78,11 @@ export default function DecksPage() {
         <p className="text-gray-600 text-sm mt-1">Build and manage your decklists</p>
       </div>
 
-      {session === undefined ? (
+      {/* Collapsed loading state: show a single "Loading…" while EITHER auth
+           is unresolved OR the decks fetch is in flight for a signed-in user.
+           Prevents the two-screen flash (auth "Loading…" → signed-in UI →
+           "Loading decks…") that happens on first paint. */}
+      {session === undefined || (session && loading) ? (
         <div className="card p-6 text-center text-sm text-gray-500 animate-pulse">
           Loading…
         </div>
@@ -136,9 +140,11 @@ export default function DecksPage() {
               {error}
             </div>
           )}
-          {loading ? (
-            <div className="text-sm text-gray-600 text-center py-8 animate-pulse">Loading decks…</div>
-          ) : (
+          {/* The top-level loading guard above already covered the
+               session+loading case, so by the time we're here loading=false.
+               Skip rendering the inner "Loading decks…" branch — it was
+               showing as the second flash. */}
+          {(
             <div
               className="grid gap-3"
               // 160px min gives mobile (~390px wide) a 2-column grid instead
