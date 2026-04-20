@@ -2902,6 +2902,93 @@ describe("§8 Keywords", () => {
   });
 
   // ---------------------------------------------------------------------------
+  // Bodyguard play-path coverage — Bug 4 regression. applyEnterPlayExertion
+  // (which queues Bodyguard's may-exert prompt) must run on EVERY path that
+  // moves a card from hand/deck/discard into play. Adding a new play-path
+  // and forgetting to call it silently skips Bodyguard for cards entering
+  // via that path. This parameterized test exercises every path with
+  // goofy-musketeer (vanilla Bodyguard) and asserts a choose_may surfaces.
+  //
+  // Caught Bug 4 originally: applyRevealMatchAction silently played
+  // characters via reveal-and-play (Let's Get Dangerous, Simba TIMELY
+  // ALLIANCE, Mufasa, Sisu repeats) without queuing the trigger.
+  // ---------------------------------------------------------------------------
+  describe("Bodyguard fires from every play-path (Bug 4 regression)", () => {
+    it("path 1: PLAY_CARD action (normal play from hand)", () => {
+      let state = startGame();
+      state = giveInk(state, "player1", 5);
+      let goofyId: string;
+      ({ state, instanceId: goofyId } = injectCard(state, "player1", "goofy-musketeer", "hand"));
+      const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: goofyId }, CARD_DEFINITIONS);
+      expect(r.success).toBe(true);
+      expect(r.newState.pendingChoice?.type).toBe("choose_may");
+      expect(r.newState.pendingChoice?.sourceInstanceId).toBe(goofyId);
+    });
+
+    it("path 2: applyRevealMatchAction (reveal-and-play via Let's Get Dangerous)", () => {
+      let state = startGame();
+      state = giveInk(state, "player1", 10);
+      let songId: string, goofyId: string, p2TopId: string;
+      ({ state, instanceId: songId } = injectCard(state, "player1", "lets-get-dangerous", "hand"));
+      ({ state, instanceId: goofyId } = injectCard(state, "player1", "goofy-musketeer", "deck"));
+      ({ state, instanceId: p2TopId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "deck"));
+      // Hoist to deck top.
+      state = {
+        ...state,
+        zones: {
+          ...state.zones,
+          player1: { ...state.zones.player1, deck: [goofyId, ...state.zones.player1.deck.filter(id => id !== goofyId)] },
+          player2: { ...state.zones.player2, deck: [p2TopId, ...state.zones.player2.deck.filter(id => id !== p2TopId)] },
+        },
+      };
+      let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, CARD_DEFINITIONS);
+      expect(r.success).toBe(true);
+      // Accept p1's may-play.
+      r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: r.newState.pendingChoice!.choosingPlayerId, choice: "accept" }, CARD_DEFINITIONS);
+      let nextState = r.newState;
+      // Walk choices until we see Goofy's Bodyguard prompt or exhaust.
+      let saw = false;
+      let safety = 5;
+      while (nextState.pendingChoice && safety-- > 0) {
+        if (nextState.pendingChoice.sourceInstanceId === goofyId) { saw = true; break; }
+        nextState = applyAction(nextState, { type: "RESOLVE_CHOICE", playerId: nextState.pendingChoice.choosingPlayerId, choice: "decline" }, CARD_DEFINITIONS).newState;
+      }
+      expect(saw).toBe(true);
+    });
+
+    it("path 3: play_card effect (Lilo Rock Star plays Simba Protective Cub from discard)", () => {
+      // Lilo Rock Star (set 11): "Whenever this character quests, you may play
+      // a character with cost 2 or less from your discard for free."
+      // Simba Protective Cub (set 1) is cost 2 with Bodyguard.
+      let state = startGame();
+      state = giveInk(state, "player1", 5);
+      let liloId: string, simbaId: string;
+      ({ state, instanceId: liloId } = injectCard(state, "player1", "lilo-rock-star", "play", { isDrying: false }));
+      ({ state, instanceId: simbaId } = injectCard(state, "player1", "simba-protective-cub", "discard"));
+
+      // Quest with Lilo — fires I'LL COUNT YOU IN may-prompt.
+      let r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: liloId }, CARD_DEFINITIONS);
+      expect(r.success).toBe(true);
+      expect(r.newState.pendingChoice?.type).toBe("choose_may");
+
+      // Accept the may-play.
+      r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
+      expect(r.success).toBe(true);
+      // Should now have a choose_target prompt for which character to play.
+      expect(r.newState.pendingChoice?.type).toBe("choose_target");
+      expect(r.newState.pendingChoice?.validTargets).toContain(simbaId);
+
+      // Pick Simba.
+      r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [simbaId] }, CARD_DEFINITIONS);
+      expect(r.success).toBe(true);
+      // Simba is now in play, and his Bodyguard may-exert prompt should surface.
+      expect(getInstance(r.newState, simbaId).zone).toBe("play");
+      expect(r.newState.pendingChoice?.type).toBe("choose_may");
+      expect(r.newState.pendingChoice?.sourceInstanceId).toBe(simbaId);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
   // §8.5 Challenger
   // ---------------------------------------------------------------------------
 

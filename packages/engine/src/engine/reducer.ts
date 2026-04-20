@@ -7078,6 +7078,14 @@ function applyEffectToTarget(
       else if (effect.enterExerted && (def.cardType === "item" || def.cardType === "location")) {
         state = updateInstance(state, targetInstanceId, { isExerted: true });
       }
+      // Mirror applyPlayCard: queue Bodyguard's may-enter-exerted trigger and any
+      // enter_play_exerted_self / EnterPlayExertedStatic modifiers. Without this,
+      // characters played via the play_card effect (Mufasa Among Family, Lilo
+      // Rock Star, Lady Tremaine, etc.) silently skipped Bodyguard's trigger.
+      // Caught by the parameterized Bug 4 regression suite in reducer.test.ts.
+      if (def.cardType === "character" || def.cardType === "item" || def.cardType === "location") {
+        state = applyEnterPlayExertion(state, targetInstanceId, controllingPlayerId, definitions);
+      }
       // Actions: resolve their effects and then move to discard (CRD 5.4.3).
       if (def.cardType === "action" && def.actionEffects) {
         for (const actionEffect of def.actionEffects) {
