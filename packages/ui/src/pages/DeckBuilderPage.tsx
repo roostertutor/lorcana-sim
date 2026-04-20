@@ -345,7 +345,18 @@ export default function DeckBuilderPage() {
                 disabled={!deckName.trim() || entries.length === 0 || saving || !isDirty}
                 onClick={handleSave}
               >
-                {saving ? "Saving..." : originalDeck ? "Save Changes" : "Save Deck"}
+                {saving ? "Saving..." : (
+                  <span className="inline-flex items-center gap-1.5">
+                    {/* Dirty cue — small pulsing dot on existing decks when
+                         there are unsaved changes. Not shown on new decks:
+                         the button going from disabled (empty) to enabled
+                         already communicates "something to save". */}
+                    {originalDeck && isDirty && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-200 animate-pulse" aria-hidden />
+                    )}
+                    {originalDeck ? "Save Changes" : "Save Deck"}
+                  </span>
+                )}
               </button>
 
               {originalDeck && versions.length > 0 && (
