@@ -21,11 +21,10 @@ export function countById(
   return map;
 }
 
-/** Unique ink colors represented across a deck. Order is stable (follows
- *  the canonical order, not insertion order) so the gem row renders
- *  consistently regardless of which card was added first. Legal decks have
- *  1-2 inks; sandbox / illegal decks may have more, up to all 6. */
-const INK_ORDER: InkColor[] = ["amber", "amethyst", "emerald", "ruby", "sapphire", "steel"];
+/** Canonical ink color ordering — used wherever we render the ink set
+ *  in a stable left-to-right / top-to-bottom sequence (deck tile gems,
+ *  filter chips, quick-start empty states). */
+export const INK_ORDER: InkColor[] = ["amber", "amethyst", "emerald", "ruby", "sapphire", "steel"];
 
 /** Tailwind bg-* class per ink color — shared by gem dots across the UI so
  *  the palette stays consistent between deck tiles, filter bar, etc. */

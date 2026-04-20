@@ -135,10 +135,11 @@ export default function DeckBuilderPage() {
   // renders. Confirm → navigate there. Cancel → clear.
   const [pendingNav, setPendingNav] = useState<string | null>(null);
 
-  // Card-picker visibility. Closed by default — editor search-autocomplete
-  // handles known-card adds for most users. Toggle opens the grid for
-  // visual discovery (and zero mount cost when it's not needed).
-  const [pickerOpen, setPickerOpen] = useState(false);
+  // Card-picker visibility. New decks default to open so users land on
+  // the "Start browsing" empty state instead of a dark, directionless
+  // editor. Existing decks keep it closed — known-card adds flow
+  // through the editor's search autocomplete.
+  const [pickerOpen, setPickerOpen] = useState(isNew);
   function handleBackClick(e: MouseEvent) {
     if (!isDirty) return;
     e.preventDefault();

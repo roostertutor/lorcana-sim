@@ -9,7 +9,8 @@ import React from "react";
 import type { CardDefinition, DeckEntry, InkColor } from "@lorcana-sim/engine";
 import CardTile from "./CardTile.js";
 import CardFilterBar, { EMPTY_FILTERS, type CardFilters, type CostBucket, hasAnyFilter } from "./CardFilterBar.js";
-import { getMaxCopies, countById, cardMatchScore } from "../utils/deckRules.js";
+import { getMaxCopies, countById, cardMatchScore, INK_COLOR_CLASS, INK_ORDER } from "../utils/deckRules.js";
+import type { CardType } from "@lorcana-sim/engine";
 
 interface Props {
   entries: DeckEntry[];
@@ -125,9 +126,44 @@ export default function CardPicker({ entries, definitions, onChange }: Props) {
       />
 
       {!filterActive ? (
-        <div className="text-center py-12 text-sm text-gray-500 border border-dashed border-gray-800 rounded-lg space-y-1">
-          <div>Pick a filter or type a card name to browse.</div>
-          <div className="text-xs text-gray-600">{Object.keys(definitions).length.toLocaleString()} cards available.</div>
+        <div className="py-6 px-4 border border-dashed border-gray-800 rounded-lg space-y-4 text-center">
+          <div>
+            <div className="text-sm text-gray-400">Start browsing</div>
+            <div className="text-[11px] text-gray-600 mt-0.5">
+              {Object.keys(definitions).length.toLocaleString()} cards available — pick an ink or type, or type above.
+            </div>
+          </div>
+          {/* Ink quick-start */}
+          <div>
+            <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1.5">By ink</div>
+            <div className="flex flex-wrap justify-center gap-1.5">
+              {INK_ORDER.map((ink) => (
+                <button
+                  key={ink}
+                  onClick={() => setFilters({ ...filters, inks: new Set([ink]) })}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide transition-colors bg-gray-800 text-gray-300 hover:bg-gray-700`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${INK_COLOR_CLASS[ink]}`} />
+                  {ink}
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* Type quick-start */}
+          <div>
+            <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1.5">By type</div>
+            <div className="flex flex-wrap justify-center gap-1.5">
+              {(["character", "action", "item", "location"] as CardType[]).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setFilters({ ...filters, types: new Set([t]) })}
+                  className="px-2.5 py-1 rounded-full text-[10px] font-bold transition-colors bg-gray-800 text-gray-300 hover:bg-gray-700"
+                >
+                  {t.charAt(0).toUpperCase() + t.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       ) : visibleCards.length === 0 ? (
         <div className="text-center py-10 text-sm text-gray-600 border border-dashed border-gray-800 rounded-lg">
