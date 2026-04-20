@@ -1,10 +1,12 @@
 // =============================================================================
 // CardTile — single card in the deckbuilder picker grid.
-// Card art on top (click to inspect), [−] N/max [+] stepper below.
-// Variant editing lives on the deck row (DeckBuilder.DeckRow), not here —
-// the tile's only responsibilities are add/remove and display. The tile
-// always shows the default (regular) art so the browser is a stable
-// reference catalog regardless of what's in the deck.
+// Clicking the art adds one copy to the deck (primary action, matches
+// Dreamborn). A small "ⓘ" icon in the top-right opens the full-size
+// inspect preview (secondary action, won't collide with the add click).
+// [−] N [+] stepper below handles decrement + quantity readout.
+// Variant editing lives on the deck row (DeckBuilder.DeckRow), not here.
+// The tile always shows the default (regular) art so the browser is a
+// stable reference catalog regardless of what's in the deck.
 // =============================================================================
 
 import type { CardDefinition } from "@lorcana-sim/engine";
@@ -38,27 +40,46 @@ export default function CardTile({
     <div className={`relative rounded-md overflow-hidden border transition-colors ${
       inDeck ? "border-amber-500/60 shadow-md shadow-amber-900/20" : "border-gray-800 hover:border-gray-600"
     }`}>
-      {/* Art — click to inspect. Cost pip + ink-color frame are already in
-          the Ravensburger card image; no overlays needed. */}
-      <button
-        className="block w-full aspect-[5/7] bg-gray-900 cursor-pointer group"
-        onClick={onInspect}
-        title={def.fullName}
-      >
-        {displayImageUrl ? (
-          <img
-            src={displayImageUrl.replace("/digital/normal/", "/digital/small/")}
-            alt={def.fullName}
-            className="w-full h-full object-cover group-hover:brightness-110 transition-[filter]"
-            loading="lazy"
-            decoding="async"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-700 text-xs p-2 text-center">
-            {def.fullName}
-          </div>
-        )}
-      </button>
+      {/* Art — click adds one copy (primary action). Inspect moved to
+          the ⓘ button below to match Dreamborn's click-to-add pattern. */}
+      <div className="relative">
+        <button
+          className={`block w-full aspect-[5/7] bg-gray-900 group ${
+            atMax ? "cursor-not-allowed" : "cursor-pointer"
+          }`}
+          onClick={() => { if (!atMax) onSetQty(qty + 1); }}
+          title={atMax ? `Max ${maxLabel} copies` : `Add ${def.fullName}`}
+          aria-label={`Add ${def.fullName}`}
+        >
+          {displayImageUrl ? (
+            <img
+              src={displayImageUrl.replace("/digital/normal/", "/digital/small/")}
+              alt={def.fullName}
+              className={`w-full h-full object-cover transition-[filter] ${
+                atMax ? "brightness-50" : "group-hover:brightness-110"
+              }`}
+              loading="lazy"
+              decoding="async"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-700 text-xs p-2 text-center">
+              {def.fullName}
+            </div>
+          )}
+        </button>
+        {/* Inspect (ⓘ) — absolute sibling, not nested in the add button.
+             Click lands here first (z-index above the art). */}
+        <button
+          onClick={onInspect}
+          className="absolute top-1 right-1 w-7 h-7 flex items-center justify-center rounded-full bg-black/70 backdrop-blur-sm text-gray-200 hover:text-white hover:bg-black/90 transition-colors shadow"
+          title="View card"
+          aria-label="Inspect card"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+            <path fillRule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0ZM10 8a1 1 0 0 1 1 1v4a1 1 0 1 1-2 0V9a1 1 0 0 1 1-1Zm-1-3a1 1 0 1 0 2 0 1 1 0 0 0-2 0Z" clipRule="evenodd" />
+          </svg>
+        </button>
+      </div>
 
       {/* Qty stepper — [−] N/max [+]. Matches DeckBuilder row editor pattern. */}
       <div className="flex items-center bg-gray-950 border-t border-gray-800">
