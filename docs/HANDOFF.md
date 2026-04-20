@@ -79,6 +79,71 @@ handles all card-JSON writes; the UI's only job is to POST valid data.
 
 ---
 
+## GUI agent: render `<Keyword>` tokens in rulesText as styled badges
+
+As of 2026-04-20, every card's `rulesText` in the card-set JSONs wraps
+keyword names in angle brackets — both line-start (`<Singer> 5 (reminder)`)
+and inline (`Your characters gain <Rush>`, `chosen character gains <Evasive>
+this turn`). See `scripts/lib/normalize-rules-text.ts` for the full
+convention; the wrap is enforced by both importers and the dev card-writer
+endpoint so all entry points produce identical output.
+
+Right now `CardTextRender.tsx` and `CardInspectModal.tsx` dump `rulesText`
+as plain text, so users see literal `<Rush>` brackets in card inspectors.
+Fix: add a small token renderer that splits rulesText on `<Keyword>` matches
+and wraps each match in a styled inline span.
+
+**Design intent (from user):**
+- **Keep the word visible** — don't replace `<Rush>` with just an icon. The
+  word itself must still be there, just styled. Think: the text stays
+  readable, the keyword is visually emphasized.
+- Ideal styling: keyword icon badge to the left of the word, word in bold
+  or in the accent color (e.g. `text-amber-200 font-bold`), no `<` / `>`
+  brackets in the rendered output.
+- Reminder parens are untouched by the normalizer — keywords that appear
+  inside `(...)` are plain text ("Only characters with Evasive can...") and
+  render as plain text. Don't parse inside parens.
+
+**Keyword list** (match case-sensitively, multi-word first):
+```
+Sing Together, Bodyguard, Challenger, Evasive, Reckless, Resist, Rush,
+Shift, Singer, Support, Vanish, Ward, Boost, Alert
+```
+
+**Minimum viable implementation** (suggested):
+```tsx
+function renderRulesText(text: string): ReactNode[] {
+  // Split on <Keyword> or <Multi Word Keyword>, keeping the matches.
+  const parts = text.split(/(<(?:Sing Together|Bodyguard|Challenger|Evasive|Reckless|Resist|Rush|Shift|Singer|Support|Vanish|Ward|Boost|Alert)>)/g);
+  return parts.map((part, i) => {
+    const match = part.match(/^<(.+)>$/);
+    if (match) {
+      return <span key={i} className="font-bold text-amber-200 inline-flex items-center gap-0.5">
+        <KeywordIcon name={match[1]} />
+        {match[1]}
+      </span>;
+    }
+    return part; // plain text segment (may contain \n — preserve with whitespace-pre-line)
+  });
+}
+```
+
+**Files to touch:**
+- `packages/ui/src/components/CardTextRender.tsx` (line ~125-129 — where
+  actions/items render their rulesText)
+- `packages/ui/src/components/CardInspectModal.tsx` (line ~197-201)
+- Consider extracting as `RulesTextRender.tsx` for reuse across both.
+
+**Keyword icons** — check `packages/ui/src/components/Icon.tsx` for existing
+keyword icons (`<Icon name="rush"/>` etc.). If not all 14 keywords have
+icons, either skip the icon for missing ones (text-only badge) or add them
+as a follow-up.
+
+**Do not** edit the normalizer or card JSONs. The rulesText shape is fixed;
+the UI just needs to parse and render it.
+
+---
+
 ## Card data: Ravensburger API migration landed (main sets 1-12)
 
 `scripts/import-cards-rav.ts` is the new importer for main sets (1-12). Fetches
