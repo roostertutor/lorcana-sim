@@ -1982,6 +1982,7 @@ function renderFilter(f: Json, opts?: { suppressOwnerSelf?: boolean }): string {
   bits.push(noun);
   // Trailing qualifiers
   if (f.hasName) bits.push(`named ${f.hasName}`);
+  if (f.notHasName) bits.push(`not named ${f.notHasName}`);
   if (f.costAtMost !== undefined || f.maxCost !== undefined) {
     bits.push(`with cost ${f.costAtMost ?? f.maxCost} or less`);
   }
@@ -1990,6 +1991,8 @@ function renderFilter(f: Json, opts?: { suppressOwnerSelf?: boolean }): string {
   }
   if (f.strengthAtMost !== undefined) bits.push(`with ${f.strengthAtMost} {S} or less`);
   if (f.strengthAtLeast !== undefined) bits.push(`with ${f.strengthAtLeast} {S} or more`);
+  if (f.willpowerAtMost !== undefined) bits.push(`with ${f.willpowerAtMost} {W} or less`);
+  if (f.willpowerAtLeast !== undefined) bits.push(`with ${f.willpowerAtLeast} {W} or more`);
   // Magica De Spell Thieving Sorceress: "chosen item with cost equal to or
   // less than this character's {S}" — the source's live strength is the cap.
   if (f.costAtMostFromSourceStrength) bits.push("with cost equal to or less than this character's {S}");

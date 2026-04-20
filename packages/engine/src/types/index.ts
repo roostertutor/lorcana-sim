@@ -2374,6 +2374,9 @@ export interface CardFilter {
   isSelf?: boolean;
   /** Match by card name (e.g. "Fire the Cannons!", "Te Kā") */
   hasName?: string;
+  /** Negated name match — card name must NOT equal this value. Used by
+   *  Mor'du Savage Cursed Prince ("your characters not named Mor'du"). */
+  notHasName?: string;
   /** Match cards whose name equals `state.lastResolvedSource.name`. Used by
    *  Hades Double Dealer ("play a character with the same name as the banished
    *  character"). Resolved at match time against the live state. */

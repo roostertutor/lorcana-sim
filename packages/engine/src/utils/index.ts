@@ -434,6 +434,11 @@ export function matchesFilter(
     if (definition.name !== filter.hasName && !altNames.includes(filter.hasName)) return false;
   }
 
+  if (filter.notHasName) {
+    const altNames = definition.alternateNames ?? [];
+    if (definition.name === filter.notHasName || altNames.includes(filter.notHasName)) return false;
+  }
+
   if (filter.nameFromLastResolvedSource) {
     const srcName = state.lastResolvedSource?.name;
     if (!srcName) return false;

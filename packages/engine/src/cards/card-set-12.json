@@ -76,7 +76,52 @@
       "Ally",
       "Madrigal"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "DIFFICULT JOURNEY",
+        "rulesText": "This character enters play with 1 damage.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 1,
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "DEVOTED FAMILY",
+        "rulesText": "When you play this character, if you have another Madrigal character in play, you may remove up to 1 damage from him.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "has_character_with_trait",
+          "trait": "Madrigal",
+          "player": {
+            "type": "self"
+          },
+          "excludeSelf": true
+        },
+        "effects": [
+          {
+            "type": "remove_damage",
+            "amount": 1,
+            "isUpTo": true,
+            "isMay": true,
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 5,
     "rarity": "uncommon",
@@ -87,19 +132,7 @@
     "lore": 1,
     "rulesText": "DIFFICULT JOURNEY This character enters play with 1 damage.\nDEVOTED FAMILY When you play this character, if you have another Madrigal character in play, you may remove up to 1 damage from him.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/5_aca5031d5361c75e0dbfaadf2933f1f7d723d6b0.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/5_aca5031d5361c75e0dbfaadf2933f1f7d723d6b0.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "DIFFICULT JOURNEY",
-        "rulesText": "This character enters play with 1 damage.",
-        "raw": "DIFFICULT JOURNEY This character enters play with 1 damage."
-      },
-      {
-        "storyName": "DEVOTED FAMILY",
-        "rulesText": "When you play this character, if you have another Madrigal character in play, you may remove up to 1 damage from him.",
-        "raw": "DEVOTED FAMILY When you play this character, if you have another Madrigal character in play, you may remove up to 1 damage from him."
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/5_aca5031d5361c75e0dbfaadf2933f1f7d723d6b0.jpg"
   },
   {
     "id": "agustin-madrigal-exceptionally-kind",
@@ -370,7 +403,58 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "THERE YOU ARE!",
+        "rulesText": "When you play this character, you may return a character card with 4 {W} or more from your discard to your hand.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "discard",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "self"
+                },
+                "willpowerAtLeast": 4
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "static",
+        "storyName": "FRIENDLY ASSIST",
+        "rulesText": "Your characters named Dale get +1 {W}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "amount": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasName": "Dale"
+            }
+          }
+        }
+      }
+    ],
     "setId": "12",
     "number": 14,
     "rarity": "uncommon",
@@ -381,19 +465,7 @@
     "lore": 1,
     "rulesText": "THERE YOU ARE! When you play this character, you may return a character card with 4 {W} or more from your discard to your hand.\nFRIENDLY ASSIST Your characters named Dale get +1 {W}.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/14_6f63535085953b8118a2664be184f39a17e79a06.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/14_6f63535085953b8118a2664be184f39a17e79a06.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "THERE YOU ARE!",
-        "rulesText": "When you play this character, you may return a character card with 4 {W} or more from your discard to your hand.",
-        "raw": "THERE YOU ARE! When you play this character, you may return a character card with 4 {W} or more from your discard to your hand."
-      },
-      {
-        "storyName": "FRIENDLY ASSIST",
-        "rulesText": "Your characters named Dale get +1 {W}.",
-        "raw": "FRIENDLY ASSIST Your characters named Dale get +1 {W}."
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/14_6f63535085953b8118a2664be184f39a17e79a06.jpg"
   },
   {
     "id": "woody-jungle-guide",
@@ -897,7 +969,40 @@
       "Dreamborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "RANGER RESOURCEFULNESS",
+        "rulesText": "When you play this character, if you have another character with 4 {W} or more in play, you may draw a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "zone": "play",
+            "owner": {
+              "type": "self"
+            },
+            "willpowerAtLeast": 4,
+            "excludeSelf": true
+          }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 27,
     "rarity": "common",
@@ -909,14 +1014,7 @@
     "rulesText": "RANGER RESOURCEFULNESS When you play this character, if you have another character with 4 {W} or more in play, you may draw a card.",
     "flavorText": "\"Come on, Dale. You look fine! I've got a plan that you'll be perfect for!\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/27_61e610b0c99d431b50ff418db3cc8bd0e76373bb.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/27_61e610b0c99d431b50ff418db3cc8bd0e76373bb.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "RANGER RESOURCEFULNESS",
-        "rulesText": "When you play this character, if you have another character with 4 {W} or more in play, you may draw a card.",
-        "raw": "RANGER RESOURCEFULNESS When you play this character, if you have another character with 4 {W} or more in play, you may draw a card."
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/27_61e610b0c99d431b50ff418db3cc8bd0e76373bb.jpg"
   },
   {
     "id": "metamorphosis",
@@ -1158,7 +1256,42 @@
       "Mentor",
       "Madrigal"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "PROTECTING THE FAMILY",
+        "rulesText": "When you play this character, if you have another Madrigal character in play, you may exert chosen opposing character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "has_character_with_trait",
+          "trait": "Madrigal",
+          "player": {
+            "type": "self"
+          },
+          "excludeSelf": true
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 36,
     "rarity": "uncommon",
@@ -1170,14 +1303,7 @@
     "rulesText": "PROTECTING THE FAMILY When you play this character, if you have another Madrigal character in play, you may exert chosen opposing character.",
     "flavorText": "\"In our darkest moment, we were given a miracle.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/36_edeb7b2da0262938ec8acf9efe96e8c350f42a2f.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/36_edeb7b2da0262938ec8acf9efe96e8c350f42a2f.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "PROTECTING THE FAMILY",
-        "rulesText": "When you play this character, if you have another Madrigal character in play, you may exert chosen opposing character.",
-        "raw": "PROTECTING THE FAMILY When you play this character, if you have another Madrigal character in play, you may exert chosen opposing character."
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/36_edeb7b2da0262938ec8acf9efe96e8c350f42a2f.jpg"
   },
   {
     "id": "grumpy-soreheaded-miner",
@@ -1222,7 +1348,46 @@
       "Mentor",
       "Madrigal"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "rulesText": "Whenever this character quests, move up to 1 damage from chosen character of yours to chosen opposing character.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "move_damage",
+            "amount": 1,
+            "isUpTo": true,
+            "source": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "destination": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 45,
     "rarity": "common",
@@ -1234,14 +1399,7 @@
     "rulesText": "FIND A WAY Whenever this character quests, move up to 1 damage from chosen character of yours to chosen opposing character.",
     "flavorText": "“Everybody makes mistakes. What’s important is that we recognize them.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/45_8ccc4c7cd7d8deb6e48a45b6174876449597d2ad.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/45_8ccc4c7cd7d8deb6e48a45b6174876449597d2ad.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "FIND A WAY",
-        "rulesText": "Whenever this character quests, move up to 1 damage from chosen character of yours to chosen opposing character.",
-        "raw": "FIND A WAY Whenever this character quests, move up to 1 damage from chosen character of yours to chosen opposing character."
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/45_8ccc4c7cd7d8deb6e48a45b6174876449597d2ad.jpg"
   },
   {
     "id": "will-o-the-wisp-forest-spirit",
@@ -1459,7 +1617,72 @@
       "Ally",
       "Inventor"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "rulesText": "When you play this character, you may return chosen item with cost 2 or less to its player's hand. If you do, its player draws a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "cardType": [
+                      "item"
+                    ],
+                    "zone": "play",
+                    "costAtMost": 2
+                  }
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "target_owner"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "rulesText": "Whenever this character quests, your Super characters get +1 {L} this turn.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "lore": 1,
+            "duration": "this_turn",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Super"
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 54,
     "rarity": "rare",
@@ -1470,19 +1693,7 @@
     "lore": 2,
     "rulesText": "NO CAPES! When you play this character, you may return chosen item with cost 2 or less to its player’s hand. If you do, its player draws a card.\nMAKING SUPERS FABULOUS Whenever this character quests, your Super characters get +1 {L} this turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/54_095936119618f5173c249035dd814c980756b3f5.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/54_095936119618f5173c249035dd814c980756b3f5.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "NO CAPES!",
-        "rulesText": "When you play this character, you may return chosen item with cost 2 or less to its player’s hand. If you do, its player draws a card.",
-        "raw": "NO CAPES! When you play this character, you may return chosen item with cost 2 or less to its player’s hand. If you do, its player draws a card."
-      },
-      {
-        "storyName": "MAKING SUPERS FABULOUS",
-        "rulesText": "Whenever this character quests, your Super characters get +1 {L} this turn.",
-        "raw": "MAKING SUPERS FABULOUS Whenever this character quests, your Super characters get +1 {L} this turn."
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/54_095936119618f5173c249035dd814c980756b3f5.jpg"
   },
   {
     "id": "maleficent-imperious-traveler",
@@ -1572,7 +1783,55 @@
       "Villain",
       "Prince"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "rulesText": "When you play this character, exert all your characters not named Mor'du.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "notHasName": "Mor'du"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "static",
+        "rulesText": "Your characters not named Mor'du can't ready at the start of your turn.",
+        "effect": {
+          "type": "cant_action",
+          "action": "ready",
+          "duration": "while_source_in_play",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "notHasName": "Mor'du"
+            }
+          }
+        }
+      }
+    ],
     "setId": "12",
     "number": 57,
     "rarity": "super_rare",
@@ -1583,19 +1842,7 @@
     "lore": 3,
     "rulesText": "FEROCIOUS ROAR When you play this character, exert all your characters not named Mor’du.\nROOTED BY FEAR Your characters not named Mor’du can’t ready at the start of your turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/57_6c8b656d987e9078fb5f36e209b2d29f52107ee1.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/57_6c8b656d987e9078fb5f36e209b2d29f52107ee1.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "FEROCIOUS ROAR",
-        "rulesText": "When you play this character, exert all your characters not named Mor’du.",
-        "raw": "FEROCIOUS ROAR When you play this character, exert all your characters not named Mor’du."
-      },
-      {
-        "storyName": "ROOTED BY FEAR",
-        "rulesText": "Your characters not named Mor’du can’t ready at the start of your turn.",
-        "raw": "ROOTED BY FEAR Your characters not named Mor’du can’t ready at the start of your turn."
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/57_6c8b656d987e9078fb5f36e209b2d29f52107ee1.jpg"
   },
   {
     "id": "alma-madrigal-keeper-of-the-flame",
@@ -1617,6 +1864,36 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "triggered",
+        "rulesText": "Whenever you remove 1 or more damage from one of your characters, you may exert chosen opposing character.",
+        "trigger": {
+          "on": "damage_removed_from",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "12",
@@ -1630,14 +1907,7 @@
     "shiftCost": 3,
     "rulesText": "<Shift> 3 {I} (You may pay 3 {I} to play this on top of one of your characters named Alma Madrigal.)\nTHAT’S ENOUGH Whenever you remove 1 or more damage from one of your characters, you may exert chosen opposing character.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/58_f04f2aca3ce090078b90945a89a00b6651675dad.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/58_f04f2aca3ce090078b90945a89a00b6651675dad.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "THAT'S ENOUGH",
-        "rulesText": "Whenever you remove 1 or more damage from one of your characters, you may exert chosen opposing character.",
-        "raw": "THAT’S ENOUGH Whenever you remove 1 or more damage from one of your characters, you may exert chosen opposing character."
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/58_f04f2aca3ce090078b90945a89a00b6651675dad.jpg"
   },
   {
     "id": "frozone-super-cool",
@@ -2762,7 +3032,61 @@
       "Mentor",
       "Queen"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "rulesText": "At the end of your turn, if you have 3 or more exerted characters in play, deal 1 damage to chosen opposing character, gain 1 lore, and draw a card.",
+        "trigger": {
+          "on": "turn_end"
+        },
+        "condition": {
+          "type": "cards_in_zone_gte",
+          "amount": 3,
+          "zone": "play",
+          "owner": {
+            "type": "self"
+          },
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "isExerted": true
+          }
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 1,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          },
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 86,
     "rarity": "super_rare",
@@ -2773,14 +3097,7 @@
     "lore": 1,
     "rulesText": "COORDINATED EFFORTS At the end of your turn, if you have 3 or more exerted characters in play, deal 1 damage to chosen opposing character, gain 1 lore, and draw a card.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/86_9851189608d9650dc922bd1cbc5b085cc15b4b28.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/86_9851189608d9650dc922bd1cbc5b085cc15b4b28.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "COORDINATED EFFORTS",
-        "rulesText": "At the end of your turn, if you have 3 or more exerted characters in play, deal 1 damage to chosen opposing character, gain 1 lore, and draw a card.",
-        "raw": "COORDINATED EFFORTS At the end of your turn, if you have 3 or more exerted characters in play, deal 1 damage to chosen opposing character, gain 1 lore, and draw a card."
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/86_9851189608d9650dc922bd1cbc5b085cc15b4b28.jpg"
   },
   {
     "id": "lyle-tiberius-rourke-adventurer-for-hire",
@@ -2796,7 +3113,39 @@
       "Storyborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "rulesText": "When you play this character, you may draw a card, then choose and discard a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 87,
     "rarity": "uncommon",
@@ -2809,11 +3158,6 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/87_a37943d83cee3e1b2eed382b9f2dfdbd1b435ea3.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/87_a37943d83cee3e1b2eed382b9f2dfdbd1b435ea3.jpg",
     "_namedAbilityStubs": [
-      {
-        "storyName": "EYE FOR VALUE",
-        "rulesText": "When you play this character, you may draw a card, then choose and discard a card.",
-        "raw": "EYE FOR VALUE When you play this character, you may draw a card, then choose and discard a card."
-      },
       {
         "storyName": "DIRTY TRICKS",
         "rulesText": "At the end of your turn, if 2 or more cards were put into your discard this turn, each opponent loses 1 lore.",
@@ -3591,7 +3935,25 @@
       "King",
       "Deity"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "IMMORTAL WOUND",
+        "rulesText": "This character enters play with 4 damage.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 4,
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 109,
     "rarity": "uncommon",
@@ -3603,14 +3965,7 @@
     "rulesText": "IMMORTAL WOUND This character enters play with 4 damage.",
     "flavorText": "“I am the ruler of Olympus! I refuse to be defeated by a bunch of <flowers>!”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/109_d3520719b9bd3e6c20bfa7aeffa922d7af91df70.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/109_d3520719b9bd3e6c20bfa7aeffa922d7af91df70.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "IMMORTAL WOUND",
-        "rulesText": "This character enters play with 4 damage.",
-        "raw": "IMMORTAL WOUND This character enters play with 4 damage."
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/109_d3520719b9bd3e6c20bfa7aeffa922d7af91df70.jpg"
   },
   {
     "id": "jingle-joe-sids-toy",
@@ -4626,7 +4981,40 @@
     "cost": 2,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "rulesText": "{E}, 1 {I} — Look at the top 4 cards of your deck. You may reveal a location card and put it into your hand. Put the rest on the bottom of your deck in any order.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 4,
+            "action": "choose_from_top",
+            "filter": {
+              "cardType": [
+                "location"
+              ]
+            },
+            "maxToHand": 1,
+            "pickDestination": "hand",
+            "restPlacement": "bottom",
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 134,
     "rarity": "uncommon",
@@ -4634,14 +5022,7 @@
     "rulesText": "ON THE HORIZON {E}, 1 {I} — Look at the top 4 cards of your deck. You may reveal a location card and put it into your hand. Put the rest on the bottom of your deck in any order.",
     "flavorText": "\"It always points the way to new adventures.\"\n—Amazu, an Illumineer",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/134_9bc9fe599c854d14b39d29e4e8a4b8d2ddca50cd.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/134_9bc9fe599c854d14b39d29e4e8a4b8d2ddca50cd.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "ON THE HORIZON",
-        "rulesText": "{E}, 1 {I} — Look at the top 4 cards of your deck. You may reveal a location card and put it into your hand. Put the rest on the bottom of your deck in any order.",
-        "raw": "ON THE HORIZON {E}, 1 {I} — Look at the top 4 cards of your deck. You may reveal a location card and put it into your hand. Put the rest on the bottom of your deck in any order."
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/134_9bc9fe599c854d14b39d29e4e8a4b8d2ddca50cd.jpg"
   },
   {
     "id": "remote-inklands-desert-ruins",
@@ -4790,7 +5171,36 @@
       "Ally",
       "Fairy"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "rulesText": "When you play this character, your other characters gain <Resist> +1 until the start of your next turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "resist",
+            "value": 1,
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 141,
     "rarity": "rare",
@@ -4802,14 +5212,7 @@
     "rulesText": "LUMINOUS SHELTER When you play this character, your other characters gain <Resist> +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)",
     "flavorText": "\"While you two finish up, I'll add protective charms. Pink, of course.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/141_66e94a1fe266d63c6fb39be4c306bcced22b4bbf.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/141_563056e30716149789781047cf2d084246a1f936.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "LUMINOUS SHELTER",
-        "rulesText": "When you play this character, your other characters gain <Resist> +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)",
-        "raw": "LUMINOUS SHELTER When you play this character, your other characters gain <Resist> +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)"
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/141_563056e30716149789781047cf2d084246a1f936.jpg"
   },
   {
     "id": "gadget-hackwrench-resourceful-mechanic",
@@ -4918,7 +5321,43 @@
       "Villain",
       "Inventor"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "rulesText": "Once during your turn, whenever you play an item, chosen opposing character gets -2 {S} this turn.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "item"
+            ],
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "oncePerTurn": true,
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": -2,
+            "duration": "this_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 146,
     "rarity": "uncommon",
@@ -4930,14 +5369,7 @@
     "rulesText": "DEVITALIZER RAY Once during your turn, whenever you play an item, chosen opposing character gets -2 {S} this turn.",
     "flavorText": "\"Another successful test! This brilliant devitalizer ray technology will be my finest invention yet!\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/146_d855e5debaae441bbc48a5479c95375746faae18.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/146_d855e5debaae441bbc48a5479c95375746faae18.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "DEVITALIZER RAY",
-        "rulesText": "Once during your turn, whenever you play an item, chosen opposing character gets -2 {S} this turn.",
-        "raw": "DEVITALIZER RAY Once during your turn, whenever you play an item, chosen opposing character gets -2 {S} this turn."
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/146_d855e5debaae441bbc48a5479c95375746faae18.jpg"
   },
   {
     "id": "gadget-hackwrench-finder-of-lost-parts",
@@ -5044,7 +5476,25 @@
       "Ally",
       "Inventor"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "rulesText": "When you play this character, look at the top card of your deck. Put it on either the top or the bottom of your deck.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 1,
+            "action": "top_or_bottom",
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 152,
     "rarity": "common",
@@ -5056,14 +5506,7 @@
     "rulesText": "SCIENTIFIC SCRUTINY When you play this character, look at the top card of your deck. Put it on either the top or the bottom of your deck.",
     "flavorText": "\"Fascinating. What unusual markings! I can't wait to bring my findings back to S.H.U.S.H.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/152_32aa5a21d6e698055f18ffab415d9c265eddc47c.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/152_32aa5a21d6e698055f18ffab415d9c265eddc47c.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "SCIENTIFIC SCRUTINY",
-        "rulesText": "When you play this character, look at the top card of your deck. Put it on either the top or the bottom of your deck.",
-        "raw": "SCIENTIFIC SCRUTINY When you play this character, look at the top card of your deck. Put it on either the top or the bottom of your deck."
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/152_32aa5a21d6e698055f18ffab415d9c265eddc47c.jpg"
   },
   {
     "id": "cinderella-resourceful-traveler",
@@ -5232,7 +5675,38 @@
     "cost": 1,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "rulesText": "At the start of your turn, if you have a Madrigal character in play, remove up to 2 damage from chosen character.",
+        "trigger": {
+          "on": "turn_start"
+        },
+        "condition": {
+          "type": "has_character_with_trait",
+          "trait": "Madrigal",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effects": [
+          {
+            "type": "remove_damage",
+            "amount": 2,
+            "isUpTo": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 166,
     "rarity": "common",
@@ -5240,18 +5714,7 @@
     "rulesText": "FLAVORFUL CURE At the start of your turn, if you have a Madrigal character in play, remove up to 2 damage from chosen character.\nTHAT DID THE TRICK {E} — If you removed damage from a character this turn, gain 1 lore.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/166_1a56d466206002daf499fedb3c154f8b2fd2e7ef.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/166_1a56d466206002daf499fedb3c154f8b2fd2e7ef.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "FLAVORFUL CURE",
-        "rulesText": "At the start of your turn, if you have a Madrigal character in play, remove up to 2 damage from chosen character.",
-        "raw": "FLAVORFUL CURE At the start of your turn, if you have a Madrigal character in play, remove up to 2 damage from chosen character."
-      },
-      {
-        "storyName": "THAT DID THE TRICK",
-        "rulesText": "{E} — If you removed damage from a character this turn, gain 1 lore.",
-        "raw": "THAT DID THE TRICK {E} — If you removed damage from a character this turn, gain 1 lore."
-      }
-    ]
+    "_namedAbilityStubs": []
   },
   {
     "id": "gadgets-goggles",
@@ -5264,7 +5727,34 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "rulesText": "{E}, 1 {I} — Look at the top 2 cards of your deck. Put one on the top of your deck and the other on the bottom.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 2,
+            "action": "choose_from_top",
+            "pickDestination": "deck_top",
+            "restPlacement": "bottom",
+            "maxToHand": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 168,
     "rarity": "uncommon",
@@ -5272,14 +5762,7 @@
     "rulesText": "ENHANCED VISION {E}, 1 {I} — Look at the top 2 cards of your deck. Put one on the top of your deck and the other on the bottom.",
     "flavorText": "Dale: \"Do you see anything, Gadget?\"\nGadget: \"Yeah, but I wish I didn’t.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/168_28042d1fa77fc6172a9f4112cee8d2e0dc147c2f.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/168_28042d1fa77fc6172a9f4112cee8d2e0dc147c2f.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "ENHANCED VISION",
-        "rulesText": "{E}, 1 {I} — Look at the top 2 cards of your deck. Put one on the top of your deck and the other on the bottom.",
-        "raw": "ENHANCED VISION {E}, 1 {I} — Look at the top 2 cards of your deck. Put one on the top of your deck and the other on the bottom."
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/168_28042d1fa77fc6172a9f4112cee8d2e0dc147c2f.jpg"
   },
   {
     "id": "shepherds-journal",
@@ -5659,6 +6142,32 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 2
+      },
+      {
+        "type": "triggered",
+        "rulesText": "When you play this character, if you used <Shift> to play it, you may deal 2 damage to chosen character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "played_via_shift"
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 2,
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "12",
@@ -5672,14 +6181,7 @@
     "shiftCost": 2,
     "rulesText": "<Shift> 2 {I} (You may pay 2 {I} to play this on top of one of your characters named Omnidroid.)\nENEMY DETECTED When you play this character, if you used <Shift> to play it, you may deal 2 damage to chosen character.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/184_cfcb63bc134d6cf994f2cbdf74f3ad87945b6265.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/184_0945d8f33c007f46611dbbe1b0840834fec6c81c.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "ENEMY DETECTED",
-        "rulesText": "When you play this character, if you used <Shift> to play it, you may deal 2 damage to chosen character.",
-        "raw": "ENEMY DETECTED When you play this character, if you used <Shift> to play it, you may deal 2 damage to chosen character."
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/184_0945d8f33c007f46611dbbe1b0840834fec6c81c.jpg"
   },
   {
     "id": "mr-incredible-taking-out-the-trash",
