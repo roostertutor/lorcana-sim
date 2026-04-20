@@ -30,7 +30,8 @@
           }
         }
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "let-it-go",
@@ -66,7 +67,8 @@
         },
         "enterExerted": true
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "cinderella-stouthearted",
@@ -135,7 +137,8 @@
         "rulesText": "Whenever you play a song, this character may challenge ready characters this turn.",
         "raw": "THE SINGING SWORD Whenever you play a song, this character may challenge ready characters this turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "rapunzel-gifted-with-healing",
@@ -203,7 +206,8 @@
         "rulesText": "When you play this character, remove up to 3 damage from one of your characters. Draw a card for each 1 damage removed this way.",
         "raw": "GLEAM AND GLOW When you play this character, remove up to 3 damage from one of your characters. Draw a card for each 1 damage removed this way."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "invited-to-the-ball",
@@ -238,7 +242,8 @@
         },
         "revealPicks": true
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "elsas-ice-palace-place-of-solitude",
@@ -297,7 +302,8 @@
         "rulesText": "When you play this location, choose an exerted character. While this location is in play, that character can’t ready at the start of their turn.",
         "raw": "ETERNAL WINTER When you play this location, choose an exerted character. While this location is in play, that character can’t ready at the start of their turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "kuzco-temperamental-emperor",
@@ -351,7 +357,8 @@
         "rulesText": "When this character is challenged and banished, you may banish the challenging character.",
         "raw": "NO TOUCHY! When this character is challenged and banished, you may banish the challenging character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "baymax-armored-companion",
@@ -471,7 +478,8 @@
         "rulesText": "When you play this character and whenever he quests, you may remove up to 2 damage from another chosen character of yours. Gain 1 lore for each 1 damage removed this way.",
         "raw": "THE TREATMENT IS WORKING When you play this character and whenever he quests, you may remove up to 2 damage from another chosen character of yours. Gain 1 lore for each 1 damage removed this way."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "a-whole-new-world",
@@ -513,6 +521,7 @@
           }
         ]
       }
-    ]
+    ],
+    "_source": "manual"
   }
 ]

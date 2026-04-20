@@ -58,7 +58,8 @@
         "rulesText": "When you play this character, you may reveal the top card of your deck. If it’s a character card, you may put it into your hand. Otherwise, put it on the bottom of your deck.",
         "raw": "BIRD’S-EYE VIEW When you play this character, you may reveal the top card of your deck. If it’s a character card, you may put it into your hand. Otherwise, put it on the bottom of your deck."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "agustin-madrigal-exceptionally-kind",
@@ -91,7 +92,8 @@
     "rulesText": "<Support> (Whenever this character quests, you may add their {S} to another chosen character’s {S} this turn.)",
     "flavorText": "\"I'm happy to bring these arepas to the oasis, mi vida. Just think how much more I could help if I had a gift.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/6_5881d87f0c76644c84cb563176da77d332afae8f.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/6_5881d87f0c76644c84cb563176da77d332afae8f.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/6_5881d87f0c76644c84cb563176da77d332afae8f.jpg",
+    "_source": "manual"
   },
   {
     "id": "monterey-jack-hypnotized-by-cheese",
@@ -151,7 +153,8 @@
         "rulesText": "This character can’t quest unless you have a character with 4 {W} or more in play.",
         "raw": "BREAK THE TRANCE This character can’t quest unless you have a character with 4 {W} or more in play."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "bo-peep-caring-shepherd",
@@ -212,7 +215,8 @@
         "rulesText": "Your characters named Woody gain <Bodyguard>. (An opposing character who challenges one of your characters must choose one with Bodyguard if able.)",
         "raw": "SOMEBODY DO SOMETHING! Your characters named Woody gain <Bodyguard>. (An opposing character who challenges one of your characters must choose one with Bodyguard if able.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "woody-jungle-guide",
@@ -313,7 +317,8 @@
         "rulesText": "Your other Toy characters get +1 {W}.",
         "raw": "EVERYONE GATHER ’ROUND Your other Toy characters get +1 {W}."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "bullseye-loyal-horse",
@@ -365,7 +370,8 @@
         "rulesText": "If you have a character named Woody or Jessie in play, you pay 1 {I} less to play this character.",
         "raw": "LET’S RIDE If you have a character named Woody or Jessie in play, you pay 1 {I} less to play this character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "ariel-curious-traveler",
@@ -438,7 +444,8 @@
         "rulesText": "Whenever this character quests, if you played another character this turn, chosen opposing character can’t challenge and must quest during their next turn if able.",
         "raw": "FAMILIAR GROUND Whenever this character quests, if you played another character this turn, chosen opposing character can’t challenge and must quest during their next turn if able."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "jessie-lively-cowgirl",
@@ -544,7 +551,8 @@
         "rulesText": "Whenever you pay 2 {I} or less to play a card, chosen opposing character gets -1 {S} until the start of your next turn.",
         "raw": "YODEL-AY-HEE-HOO! Whenever you pay 2 {I} or less to play a card, chosen opposing character gets -1 {S} until the start of your next turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "woody-leader-of-the-toys",
@@ -611,7 +619,8 @@
         "rulesText": "When you play this character, look at the top 4 cards of your deck. You may reveal a Toy character card or a location card named Andy’s Room and put it into your hand. Put the rest on the bottom of your deck in any order.",
         "raw": "LET’S GO HOME When you play this character, look at the top 4 cards of your deck. You may reveal a Toy character card or a location card named Andy’s Room and put it into your hand. Put the rest on the bottom of your deck in any order."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "mickey-mouse-expedition-leader",
@@ -694,7 +703,8 @@
         "rulesText": "While this character is exerted, whenever one of your other characters quests, chosen opposing character gets -2 {S} until the start of your next turn.",
         "raw": "SECRET PATH While this character is exerted, whenever one of your other characters quests, chosen opposing character gets -2 {S} until the start of your next turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "metamorphosis",
@@ -727,7 +737,8 @@
         },
         "cost": "free"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "safety-rope",
@@ -811,7 +822,8 @@
         "rulesText": "At the end of your turn, you may banish this item to draw a card.",
         "raw": "PACK IT UP At the end of your turn, you may banish this item to draw a card."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "andys-room-home-base",
@@ -882,7 +894,8 @@
         "rulesText": "While you have only 1 character here, they get +2 {W} and +1 {L}.",
         "raw": "ANDY’S FAVORITE While you have only 1 character here, they get +2 {W} and +1 {L}."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "mordu-wicked-with-pride",
@@ -915,7 +928,8 @@
     "rulesText": "<Rush> (This character can challenge the turn they’re played.)",
     "flavorText": "\"Believing that he alone should be the sole heir, a seed of selfishness grew in him like a poison.\"\n—The Witch",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/35_b3373aac72abf418b5ed14ad03769e820f372857.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/35_b3373aac72abf418b5ed14ad03769e820f372857.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/35_b3373aac72abf418b5ed14ad03769e820f372857.jpg",
+    "_source": "manual"
   },
   {
     "id": "will-o-the-wisp-forest-spirit",
@@ -966,7 +980,8 @@
         "rulesText": "When this character is banished in a challenge, you may return this card to your hand.",
         "raw": "COME ON OUT When this character is banished in a challenge, you may return this card to your hand."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "violet-parr-learning-new-powers",
@@ -1040,7 +1055,8 @@
         "rulesText": "When you play this character, you may move 1 damage from chosen character to chosen opposing character.",
         "raw": "DEFLECT When you play this character, you may move 1 damage from chosen character to chosen opposing character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "mirage-super-recruiter",
@@ -1113,7 +1129,8 @@
         "rulesText": "When you play this character, if you have a Super or Hero character in play, you may draw a card.",
         "raw": "BUSINESS ARRANGEMENT When you play this character, if you have a Super or Hero character in play, you may draw a card."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "maleficent-imperious-traveler",
@@ -1185,7 +1202,8 @@
         "rulesText": "Whenever this character quests, if you played another character this turn, you may exert chosen opposing character.",
         "raw": "HEED MY WORDS Whenever this character quests, if you played another character this turn, you may exert chosen opposing character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "frozone-super-cool",
@@ -1258,7 +1276,8 @@
         "rulesText": "When you play this character, if you have another Super character in play, you may exert chosen opposing character.",
         "raw": "JUST CHILL When you play this character, if you have another Super character in play, you may exert chosen opposing character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "luisa-madrigal-confident-climber",
@@ -1355,7 +1374,8 @@
         "rulesText": "1 {I} — Move up to 1 damage from chosen character of yours to this character. Then, if this character has 3 or more damage, move all damage from this character to chosen opposing character.",
         "raw": "I CAN TAKE IT 1 {I} — Move up to 1 damage from chosen character of yours to this character. Then, if this character has 3 or more damage, move all damage from this character to chosen opposing character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "dash-parr-lava-runner",
@@ -1406,7 +1426,8 @@
         "rulesText": "This character can quest the turn he’s played.",
         "raw": "RECORD TIME This character can quest the turn he’s played."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "right-behind-you",
@@ -1480,7 +1501,8 @@
           ]
         }
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "super-suit",
@@ -1569,7 +1591,8 @@
         "rulesText": "{E}, 2 {I} — If you played a Hero character this turn, draw a card.",
         "raw": "SUIT UP {E}, 2 {I} — If you played a Hero character this turn, draw a card."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "dunbroch-family-tapestry",
@@ -1642,7 +1665,8 @@
         "rulesText": "{E}, Banish this item — Each player shuffles all character cards from their discard into their deck.",
         "raw": "MEND THE BOND {E}, Banish this item — Each player shuffles all character cards from their discard into their deck."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "ring-of-stones-place-of-legends",
@@ -1725,7 +1749,8 @@
         "rulesText": "Once during your turn, whenever a character moves here, gain 1 lore.",
         "raw": "PART THE VEIL Once during your turn, whenever a character moves here, gain 1 lore."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "merida-defiant-daughter",
@@ -1758,7 +1783,8 @@
     "rulesText": "<Ward> (Opponents can’t choose this character except to challenge.)",
     "flavorText": "\"'Stay in camp, Merida.' 'Be an example, Merida.' What could it hurt to go out and explore? I'll stay on the vine and they'll never even know.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/69_98bf697a704c8892f260a0abec550adf941f750b.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/69_98bf697a704c8892f260a0abec550adf941f750b.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/69_98bf697a704c8892f260a0abec550adf941f750b.jpg",
+    "_source": "manual"
   },
   {
     "id": "hamish-hubert-harris-troublemaking-triplets",
@@ -1791,7 +1817,8 @@
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)",
     "flavorText": "\"Oh, aye, they're slippery little devils. Ye should see what they did to the garden.\"\n—Merida",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/70_df689a874789de6a6ac34364678d6bdb256bc12b.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/70_df689a874789de6a6ac34364678d6bdb256bc12b.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/70_df689a874789de6a6ac34364678d6bdb256bc12b.jpg",
+    "_source": "manual"
   },
   {
     "id": "tod-nimble-fox",
@@ -1823,7 +1850,8 @@
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)",
     "flavorText": "\"Look, I counted to ten before I started climbing. You all should have found better hiding spots than the top of a tree.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/72_d2bb6b4c955d1d976619e4c0aead6a5de70aa0ea.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/72_d2bb6b4c955d1d976619e4c0aead6a5de70aa0ea.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/72_d2bb6b4c955d1d976619e4c0aead6a5de70aa0ea.jpg",
+    "_source": "manual"
   },
   {
     "id": "the-witch-wily-woodcarver",
@@ -1881,7 +1909,8 @@
         "rulesText": "Whenever this character is challenged, each opponent loses 1 lore.",
         "raw": "UNSATISFIED CUSTOMERS Whenever this character is challenged, each opponent loses 1 lore."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "lenny-toy-binoculars",
@@ -1972,7 +2001,8 @@
         "rulesText": "Once during your turn, whenever you play an action, you may ready this character.",
         "raw": "COMIN’ UP FAST Once during your turn, whenever you play an action, you may ready this character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "gaetan-moliere-clever-burrower",
@@ -2042,7 +2072,8 @@
         "rulesText": "Whenever this character quests, you may draw 2 cards, then choose and discard 2 cards.",
         "raw": "UNEARTH Whenever this character quests, you may draw 2 cards, then choose and discard 2 cards."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "donald-duck-distracted-traveler",
@@ -2110,7 +2141,8 @@
         "rulesText": "Whenever this character quests, if you played another character this turn, each opponent chooses and discards a card.",
         "raw": "BURNING CURIOSITY Whenever this character quests, if you played another character this turn, each opponent chooses and discards a card."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "joshua-sweet-field-surgeon",
@@ -2163,7 +2195,8 @@
         "rulesText": "Whenever this character is challenged, chosen opponent chooses and discards a card.",
         "raw": "NO PATIENCE Whenever this character is challenged, chosen opponent chooses and discards a card."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "merida-gifted-archer",
@@ -2233,7 +2266,8 @@
         "rulesText": "While this character is exerted, whenever an opposing character challenges, you may deal 1 damage to the challenging character.",
         "raw": "FIERCE PROTECTION While this character is exerted, whenever an opposing character challenges, you may deal 1 damage to the challenging character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "cruella-de-vil-judgmental-traveler",
@@ -2302,7 +2336,8 @@
         "rulesText": "Whenever this character quests, if you played another character this turn, you may banish chosen damaged character.",
         "raw": "YOU’RE OUT OF FASHION Whenever this character quests, if you played another character this turn, you may banish chosen damaged character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "strange-things",
@@ -2347,7 +2382,8 @@
           "type": "self"
         }
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "gyro-evac",
@@ -2440,7 +2476,8 @@
         "rulesText": "{E}, Banish this item — Each player loses 2 lore.",
         "raw": "CRASH LANDING {E}, Banish this item — Each player loses 2 lore."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "meridas-bow",
@@ -2524,7 +2561,8 @@
         "rulesText": "1 {I}, Banish this item — Deal 1 damage to chosen character.",
         "raw": "FINAL ARROW 1 {I}, Banish this item — Deal 1 damage to chosen character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "pizza-planet-spaceport",
@@ -2605,7 +2643,8 @@
         "rulesText": "Whenever a character is challenged while here, each opponent loses 1 lore.",
         "raw": "HEAVILY GUARDED Whenever a character is challenged while here, each opponent loses 1 lore."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "audrey-ramirez-gutsy-mechanic",
@@ -2637,7 +2676,8 @@
     "rulesText": "<Rush> (This character can challenge the turn they’re played.)",
     "flavorText": "\"I love a machine that gets me in the action even faster!\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/107_6a0acff46f165733e6c9fc233c9c1a0a2c355d50.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/107_6a0acff46f165733e6c9fc233c9c1a0a2c355d50.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/107_6a0acff46f165733e6c9fc233c9c1a0a2c355d50.jpg",
+    "_source": "manual"
   },
   {
     "id": "jingle-joe-sids-toy",
@@ -2712,7 +2752,8 @@
         "rulesText": "During your turn, whenever one of your other Toy characters is banished, chosen character of yours gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)",
         "raw": "TURN OUT THE LIGHT During your turn, whenever one of your other Toy characters is banished, chosen character of yours gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "roller-bob-sids-toy",
@@ -2783,7 +2824,8 @@
         "rulesText": "When you play this character, you may put 2 character cards from your discard on the bottom of your deck to give this character <Rush> this turn. (They can challenge the turn they’re played.)",
         "raw": "TIME TO MOVE When you play this character, you may put 2 character cards from your discard on the bottom of your deck to give this character <Rush> this turn. (They can challenge the turn they’re played.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "hand-in-the-box-sids-toy",
@@ -2853,7 +2895,8 @@
         "rulesText": "You may put a Toy character card from your discard on the bottom of your deck to play this character for free.",
         "raw": "SPRING-LOADED You may put a Toy character card from your discard on the bottom of your deck to play this character for free."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "daisy-duck-trendy-traveler",
@@ -2931,7 +2974,8 @@
         "rulesText": "Whenever this character quests, if you played a character this turn, you may ready another chosen character. If you do, they can’t quest for the rest of this turn.",
         "raw": "BREAK IS OVER Whenever this character quests, if you played a character this turn, you may ready another chosen character. If you do, they can’t quest for the rest of this turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "dash-parr-super-speedy",
@@ -2964,7 +3008,8 @@
     "rulesText": "<Rush> (This character can challenge the turn they’re played.)",
     "flavorText": "\"You can’t outrun your chores, young man!”\n—Helen Parr",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/118_c2bfbc90185282651bb64ed027d3c0b3cc4adc08.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/118_c2bfbc90185282651bb64ed027d3c0b3cc4adc08.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/118_c2bfbc90185282651bb64ed027d3c0b3cc4adc08.jpg",
+    "_source": "manual"
   },
   {
     "id": "babyhead-leader-of-sids-toys",
@@ -3063,7 +3108,8 @@
         "rulesText": "During your turn, whenever one of your other characters is banished, draw a card.",
         "raw": "REPLACEMENT PARTS During your turn, whenever one of your other characters is banished, draw a card."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "bouncing-ducky-sids-toy",
@@ -3148,7 +3194,8 @@
         "rulesText": "When you play this character, put all Toy character cards from your discard on the bottom of your deck in any order.",
         "raw": "REPURPOSED When you play this character, put all Toy character cards from your discard on the bottom of your deck in any order."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "queen-of-hearts-impatient-traveler",
@@ -3222,7 +3269,8 @@
         "rulesText": "Whenever this character quests, if you played another character this turn, chosen character gains <Rush> this turn. (They can challenge the turn they’re played.)",
         "raw": "ROYAL COMMAND Whenever this character quests, if you played another character this turn, chosen character gains <Rush> this turn. (They can challenge the turn they’re played.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "sid-phillips-toy-surgeon",
@@ -3337,7 +3385,8 @@
         "rulesText": "During your turn, whenever a Toy character is banished, gain 2 lore.",
         "raw": "DOUBLE PRIZES! During your turn, whenever a Toy character is banished, gain 2 lore."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "mr-incredible-super-strong",
@@ -3434,7 +3483,8 @@
         "rulesText": "Whenever one of your Super characters challenges another character, draw a card.",
         "raw": "LET’S DO THIS! Whenever one of your Super characters challenges another character, draw a card."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "pterodactyl-janie-doll-sids-toy",
@@ -3503,7 +3553,8 @@
         "rulesText": "During your turn, when this character is banished, each opponent loses 1 lore and you gain 1 lore.",
         "raw": "DOUBLE TRANSPLANT During your turn, when this character is banished, each opponent loses 1 lore and you gain 1 lore."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "firefly-swarm",
@@ -3522,7 +3573,8 @@
     "rarity": "uncommon",
     "rulesText": "Choose one:\n• Banish chosen character with 2 {S} or less.\n• If 2 or more other cards were put into your discard this turn, banish chosen character.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/130_c2d7effe3a463d45cf2a37e149df56e1e8d431ef.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/130_c2d7effe3a463d45cf2a37e149df56e1e8d431ef.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/130_c2d7effe3a463d45cf2a37e149df56e1e8d431ef.jpg",
+    "_source": "manual"
   },
   {
     "id": "like-a-bird-in-the-sky",
@@ -3558,7 +3610,8 @@
         },
         "lore": 1
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "remote-inklands-desert-ruins",
@@ -3628,7 +3681,8 @@
         "rulesText": "Characters get +2 {S} while here.",
         "raw": "SUCCESSFUL EXPEDITION Characters get +2 {S} while here."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "gadget-hackwrench-resourceful-mechanic",
@@ -3719,7 +3773,8 @@
         "rulesText": "Your characters with <Support> get +1 {L}.",
         "raw": "WELL SUPPLIED Your characters with <Support> get +1 {L}."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "gadget-hackwrench-finder-of-lost-parts",
@@ -3781,7 +3836,8 @@
         "rulesText": "When this character leaves play, you may return an item card from your discard to your hand.",
         "raw": "USEFUL BITS When this character leaves play, you may return an item card from your discard to your hand."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "zipper-tiny-helper",
@@ -3807,7 +3863,8 @@
     "lore": 1,
     "flavorText": "\"Crikey! I've seen fellas who are twice the size with half the heart as that wee dodger!\"\n—Monterey Jack",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/148_07a59c08a5a9c83541039a1ab1c135921ef5b528.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/148_07a59c08a5a9c83541039a1ab1c135921ef5b528.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/148_07a59c08a5a9c83541039a1ab1c135921ef5b528.jpg",
+    "_source": "manual"
   },
   {
     "id": "cinderella-resourceful-traveler",
@@ -3872,7 +3929,8 @@
         "rulesText": "Whenever this character quests, if you played another character this turn, you may put the top card of your deck into your inkwell facedown and exerted.",
         "raw": "THIS AND THAT Whenever this character quests, if you played another character this turn, you may put the top card of your deck into your inkwell facedown and exerted."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "shepherds-journal",
@@ -3955,7 +4013,8 @@
         "rulesText": "1 {I}, Banish this item — Return another item card from your discard to your hand.",
         "raw": "KEY TO THE PUZZLE 1 {I}, Banish this item — Return another item card from your discard to your hand."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "casa-madrigal-courtyard",
@@ -4017,7 +4076,8 @@
         "rulesText": "Whenever a character quests while here, you may remove up to 2 damage from them. Then, you may remove up to 2 damage from this location.",
         "raw": "HEALING HOME Whenever a character quests while here, you may remove up to 2 damage from them. Then, you may remove up to 2 damage from this location."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "pocahontas-steadfast-traveler",
@@ -4088,7 +4148,8 @@
         "rulesText": "Whenever this character quests, if you played another character this turn, return a location card from your discard to your hand.",
         "raw": "WANDERING SPIRIT Whenever this character quests, if you played another character this turn, return a location card from your discard to your hand."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "incrediboy-buddy-pine",
@@ -4158,7 +4219,8 @@
     ],
     "alternateNames": [
       "Syndrome"
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "mr-incredible-taking-out-the-trash",
@@ -4225,7 +4287,8 @@
         "rulesText": "When you play this character, you may deal 2 damage to chosen opposing Robot or Villain character.",
         "raw": "KA-POW! When you play this character, you may deal 2 damage to chosen opposing Robot or Villain character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "merida-formidable-archer",
@@ -4326,7 +4389,8 @@
         "rulesText": "Whenever one of your actions deals damage to an opposing character, deal 2 damage to that character.",
         "raw": "STEADY AIM Whenever one of your actions deals damage to an opposing character, deal 2 damage to that character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "john-smith-skillful-explorer",
@@ -4352,7 +4416,8 @@
     "lore": 2,
     "flavorText": "\"Look alive, men. There's plenty of fish in this river!\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/192_5f7c1624037a2e3b563c67fce9a0cecb5dcc8485.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/192_5f7c1624037a2e3b563c67fce9a0cecb5dcc8485.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/192_5f7c1624037a2e3b563c67fce9a0cecb5dcc8485.jpg",
+    "_source": "manual"
   },
   {
     "id": "mrs-incredible-determined-rescuer",
@@ -4465,7 +4530,8 @@
         "rulesText": "During your turn, whenever another character is banished in a challenge, you may ready chosen Super character. If you do, they can’t quest for the rest of this turn.",
         "raw": "REGROUP During your turn, whenever another character is banished in a challenge, you may ready chosen Super character. If you do, they can’t quest for the rest of this turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "three-arrows",
@@ -4514,7 +4580,8 @@
         },
         "isMay": true
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "touch-the-sky",
@@ -4568,7 +4635,8 @@
           "type": "self"
         }
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "plunger-crossbow",
@@ -4627,7 +4695,8 @@
         "rulesText": "{E}, 2 {I} — Draw a card, then choose and discard a card.",
         "raw": "SUCTION TECHNOLOGY {E}, 2 {I} — Draw a card, then choose and discard a card."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "syndromes-remote",
@@ -4733,7 +4802,8 @@
         "rulesText": "Whenever a Robot character is banished, you may banish this item to discard your hand and draw 2 cards.",
         "raw": "LEARN FROM THEIR LOSSES Whenever a Robot character is banished, you may banish this item to discard your hand and draw 2 cards."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "club-door",
@@ -4806,7 +4876,8 @@
         "rulesText": "Your locations can’t be challenged by characters with cost 2 or less.",
         "raw": "COOL CATS ONLY Your locations can’t be challenged by characters with cost 2 or less."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "daisy-duck-trendy-traveler",
@@ -4883,7 +4954,8 @@
         "rulesText": "Whenever this character quests, if you played a character this turn, you may ready another chosen character. If you do, they can’t quest for the rest of this turn.",
         "raw": "BREAK IS OVER Whenever this character quests, if you played a character this turn, you may ready another chosen character. If you do, they can’t quest for the rest of this turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "three-arrows",
@@ -4931,7 +5003,8 @@
         },
         "isMay": true
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "what-else-can-i-do",
@@ -4968,7 +5041,8 @@
         "maxToHand": 1,
         "restPlacement": "inkwell"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "buzz-lightyear-jungle-ranger",
@@ -5073,7 +5147,8 @@
         "rulesText": "Whenever you play an action, chosen character gets +1 {L} this turn.",
         "raw": "ADVANCED TRAINING Whenever you play an action, chosen character gets +1 {L} this turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "merida-formidable-archer",
@@ -5173,6 +5248,7 @@
         "rulesText": "Whenever one of your actions deals damage to an opposing character, deal 2 damage to that character.",
         "raw": "STEADY AIM Whenever one of your actions deals damage to an opposing character, deal 2 damage to that character."
       }
-    ]
+    ],
+    "_source": "manual"
   }
 ]

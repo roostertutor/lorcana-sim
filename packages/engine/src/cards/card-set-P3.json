@@ -58,7 +58,8 @@
         "rulesText": "When you play this character, chosen character gains <Evasive> until the start of your next turn.",
         "raw": "AERIAL DUO When you play this character, chosen character gains <Evasive> until the start of your next turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "alice-accidentally-adrift",
@@ -148,7 +149,8 @@
         "rulesText": "Whenever this character quests, chosen opposing character gets -2 {S} this turn.",
         "raw": "MAKING WAVES Whenever this character quests, chosen opposing character gets -2 {S} this turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "the-queen-conceited-ruler",
@@ -244,7 +246,8 @@
         "rulesText": "At the start of your turn, you may choose and discard a Princess or Queen character card to return a character card from your discard to your hand.",
         "raw": "ROYAL SUMMONS At the start of your turn, you may choose and discard a Princess or Queen character card to return a character card from your discard to your hand."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "maleficent-monstrous-dragon",
@@ -302,7 +305,8 @@
         "rulesText": "When you play this character, you may banish chosen character.",
         "raw": "DRAGON FIRE When you play this character, you may banish chosen character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "maleficent-monstrous-dragon",
@@ -359,7 +363,8 @@
         "rulesText": "When you play this character, you may banish chosen character.",
         "raw": "DRAGON FIRE When you play this character, you may banish chosen character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "elsa-the-fifth-spirit",
@@ -427,7 +432,8 @@
         "rulesText": "When you play this character, exert chosen opposing character.",
         "raw": "CRYSTALLIZE When you play this character, exert chosen opposing character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "cursed-merfolk-ursulas-handiwork",
@@ -483,7 +489,8 @@
         "rulesText": "Whenever this character is challenged, each opponent chooses and discards a card.",
         "raw": "POOR SOULS Whenever this character is challenged, each opponent chooses and discards a card."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "strength-of-a-raging-fire",
@@ -530,7 +537,8 @@
           }
         }
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "sisu-daring-visitor",
@@ -596,7 +604,8 @@
         "rulesText": "When you play this character, banish chosen opposing character with 1 {S} or less.",
         "raw": "BRING ON THE HEAT! When you play this character, banish chosen opposing character with 1 {S} or less."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "mickey-mouse-true-friend",
@@ -621,7 +630,8 @@
     "willpower": 3,
     "lore": 2,
     "rulesText": "As long as he’s around, newcomers to the Great Illuminary will always get a warm welcome.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/10_30d7e69546ef091cf5e4dd6197e36f298b174af0.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/10_30d7e69546ef091cf5e4dd6197e36f298b174af0.jpg",
+    "_source": "manual"
   },
   {
     "id": "tinker-bell-giant-fairy",
@@ -722,7 +732,8 @@
         "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character.",
         "raw": "PUNY PIRATE! During your turn, whenever this character banishes another character in a challenge, you may deal 2 damage to chosen opposing character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "the-queen-mirror-seeker",
@@ -777,7 +788,8 @@
         "rulesText": "Whenever this character quests, you may look at the top 3 cards of your deck and put them back in any order.",
         "raw": "CALCULATING AND VAIN Whenever this character quests, you may look at the top 3 cards of your deck and put them back in any order."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "mickey-mouse-pirate-captain",
@@ -856,7 +868,8 @@
         "rulesText": "Whenever this character quests, chosen Pirate character gets +2 {S} and gains \"This character takes no damage from challenges\" this turn.",
         "raw": "MARINER’S MIGHT Whenever this character quests, chosen Pirate character gets +2 {S} and gains \"This character takes no damage from challenges\" this turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "goofy-expert-shipwright",
@@ -918,7 +931,8 @@
         "rulesText": "Whenever this character quests, chosen character gains <Ward> until the start of your next turn.",
         "raw": "CLEVER DESIGN Whenever this character quests, chosen character gains <Ward> until the start of your next turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "donald-duck-buccaneer",
@@ -985,7 +999,8 @@
         "rulesText": "During your turn, whenever this character banishes a character in a challenge, your other characters get +1 {L} this turn.",
         "raw": "BOARDING PARTY During your turn, whenever this character banishes a character in a challenge, your other characters get +1 {L} this turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "daisy-duck-pirate-captain",
@@ -1049,7 +1064,8 @@
         "rulesText": "Whenever one of your Pirate characters quests while at a location, draw a card.",
         "raw": "DISTANT SHORES Whenever one of your Pirate characters quests while at a location, draw a card."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "minnie-mouse-pirate-lookout",
@@ -1114,7 +1130,8 @@
         "rulesText": "Once during your turn, whenever a card is put into your inkwell, you may return a location card from your discard to your hand.",
         "raw": "LAND, HO! Once during your turn, whenever a card is put into your inkwell, you may return a location card from your discard to your hand."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "zeus-missing-his-spark",
@@ -1185,7 +1202,8 @@
         "rulesText": "While there’s a card under this character, he gets +2 {S} and +2 {W}.",
         "raw": "I NEED MORE THUNDERBOLTS! While there’s a card under this character, he gets +2 {S} and +2 {W}."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "the-great-illuminary-abandoned-laboratory",
@@ -1252,7 +1270,8 @@
         "rulesText": "Characters gain \"{E} — Draw a card\" while here.",
         "raw": "STARTLING DISCOVERY Characters gain \"{E} — Draw a card\" while here."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "the-horseman-strikes",
@@ -1294,7 +1313,8 @@
           }
         }
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "scar-eerily-prepared",
@@ -1366,7 +1386,8 @@
         "rulesText": "Whenever you put a card under this character, chosen opposing character gets -5 {S} this turn.",
         "raw": "SURVIVAL OF THE FITTEST Whenever you put a card under this character, chosen opposing character gets -5 {S} this turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "elsa-exploring-the-unknown",
@@ -1420,7 +1441,8 @@
         "rulesText": "When you play this character, you may draw a card.",
         "raw": "CLOSER LOOK When you play this character, you may draw a card."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "daisy-duck-paranormal-investigator",
@@ -1478,7 +1500,8 @@
         "rulesText": "While this character is exerted, cards enter opponents’ inkwells exerted.",
         "raw": "STRANGE HAPPENINGS While this character is exerted, cards enter opponents’ inkwells exerted."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "daisy-duck-paranormal-investigator",
@@ -1536,7 +1559,8 @@
         "rulesText": "While this character is exerted, cards enter opponents’ inkwells exerted.",
         "raw": "STRANGE HAPPENINGS While this character is exerted, cards enter opponents’ inkwells exerted."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "goofy-emerald-champion",
@@ -1628,7 +1652,8 @@
         "rulesText": "Your other Emerald characters gain <Ward>. (Opponents can’t choose them except to challenge.)",
         "raw": "PROVIDE COVER Your other Emerald characters gain <Ward>. (Opponents can’t choose them except to challenge.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "jasmine-soothing-princess",
@@ -1698,7 +1723,8 @@
         "rulesText": "Whenever this character quests, if there’s a card under her, remove up to 3 damage from each of your characters.",
         "raw": "UPLIFTING AURA Whenever this character quests, if there’s a card under her, remove up to 3 damage from each of your characters."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "putting-it-all-together",
@@ -1743,7 +1769,8 @@
           "type": "self"
         }
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "gramma-tala-connected-to-nature",
@@ -1794,7 +1821,8 @@
         "rulesText": "For each card in your inkwell, you pay 1 {I} less to play this character.",
         "raw": "ANCESTORS’ GIFT For each card in your inkwell, you pay 1 {I} less to play this character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "white-rabbit-late-again",
@@ -1843,7 +1871,8 @@
         "rulesText": "If this is your first turn and you’re not the first player, you pay 1 {I} less to play this character.",
         "raw": "UNDERDOG If this is your first turn and you’re not the first player, you pay 1 {I} less to play this character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "elisa-maza-transformed-gargoyle",
@@ -1921,7 +1950,8 @@
         "rulesText": "If you have 3 or more cards in your hand, this character can’t ready.",
         "raw": "STONE BY DAY If you have 3 or more cards in your hand, this character can’t ready."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "beast-snowfield-troublemaker",
@@ -1970,7 +2000,8 @@
         "rulesText": "Whenever this character challenges, if he’s at a location, he takes no damage from the challenge.",
         "raw": "DYNAMIC MANEUVER Whenever this character challenges, if he’s at a location, he takes no damage from the challenge."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "timon-snowball-swiper",
@@ -2035,7 +2066,8 @@
         "rulesText": "When you play this character, chosen opponent reveals their hand and discards a non-character card of your choice.",
         "raw": "GET RID OF THAT When you play this character, chosen opponent reveals their hand and discards a non-character card of your choice."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "tinker-bell-snowflake-collector",
@@ -2113,7 +2145,8 @@
         "rulesText": "While you have 7 or more cards in your hand, this character gets +3 {L}.",
         "raw": "SPECTACULAR FIND While you have 7 or more cards in your hand, this character gets +3 {L}."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "tinker-bell-snowflake-collector",
@@ -2191,7 +2224,8 @@
         "rulesText": "While you have 7 or more cards in your hand, this character gets +3 {L}.",
         "raw": "SPECTACULAR FIND While you have 7 or more cards in your hand, this character gets +3 {L}."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "stitch-high-badness-level",
@@ -2246,7 +2280,8 @@
         "rulesText": "While you have a character named Lilo in play, this character gains <Challenger> +3. (They get +3 {S} while challenging.)",
         "raw": "AMPED UP While you have a character named Lilo in play, this character gains <Challenger> +3. (They get +3 {S} while challenging.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "scrooge-mcduck-s-h-u-s-h-agent",
@@ -2325,7 +2360,8 @@
         "rulesText": "When this character is challenged, return this card to your hand. (No damage is dealt in that challenge.)",
         "raw": "ON THE MOVE When this character is challenged, return this card to your hand. (No damage is dealt in that challenge.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "belle-apprentice-inventor",
@@ -2389,7 +2425,8 @@
         "rulesText": "During your turn, you may banish chosen item of yours to play this character for free.",
         "raw": "WHAT A MESS During your turn, you may banish chosen item of yours to play this character for free."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "mulan-disguised-soldier",
@@ -2456,7 +2493,8 @@
         "rulesText": "When you play this character, you may draw a card, then choose and discard a card.",
         "raw": "WHERE DO I SIGN IN? When you play this character, you may draw a card, then choose and discard a card."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "goofy-set-for-adventure",
@@ -2537,7 +2575,8 @@
         "rulesText": "Once during your turn, whenever this character moves to a location, you may move one of your other characters to that location for free. If you do, draw a card.",
         "raw": "FAMILY VACATION Once during your turn, whenever this character moves to a location, you may move one of your other characters to that location for free. If you do, draw a card."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "beast-gracious-prince",
@@ -2595,7 +2634,8 @@
         "rulesText": "Your Princess characters get +1 {S} and +1 {W}.",
         "raw": "FULL DANCE CARD Your Princess characters get +1 {S} and +1 {W}."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "belle-accomplished-mystic",
@@ -2666,7 +2706,8 @@
     "shiftCost": 3,
     "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Belle.) %\\Enhanced Healing\\ When you play this character, move up to 3 damage counters from chosen character to chosen opposing character.",
     "flavorText": "The mixed ink had changed more than just the rose.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/41_f8ff787532a72898c1b75f24acc5b431ae68da59.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/41_f8ff787532a72898c1b75f24acc5b431ae68da59.jpg",
+    "_source": "manual"
   },
   {
     "id": "stitch-carefree-snowboarder",
@@ -2726,7 +2767,8 @@
         "rulesText": "Whenever this character quests, if you have 2 or more other characters in play, you may draw a card.",
         "raw": "BRING YOUR FRIENDS Whenever this character quests, if you have 2 or more other characters in play, you may draw a card."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "ariel-curious-traveler",
@@ -2805,7 +2847,8 @@
         "rulesText": "Whenever this character quests, if you played another character this turn, chosen opposing character can’t challenge and must quest during their next turn if able.",
         "raw": "FAMILIAR GROUND Whenever this character quests, if you played another character this turn, chosen opposing character can’t challenge and must quest during their next turn if able."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "maleficent-imperious-traveler",
@@ -2876,7 +2919,8 @@
         "rulesText": "Whenever this character quests, if you played another character this turn, you may exert chosen opposing character.",
         "raw": "HEED MY WORDS Whenever this character quests, if you played another character this turn, you may exert chosen opposing character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "cruella-de-vil-judgmental-traveler",
@@ -2944,7 +2988,8 @@
         "rulesText": "Whenever this character quests, if you played another character this turn, you may banish chosen damaged character.",
         "raw": "YOU’RE OUT OF FASHION Whenever this character quests, if you played another character this turn, you may banish chosen damaged character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "queen-of-hearts-impatient-traveler",
@@ -3013,7 +3058,8 @@
         "rulesText": "Whenever this character quests, if you played another character this turn, chosen character gains <Rush> this turn. (They can challenge the turn they’re played.)",
         "raw": "ROYAL COMMAND Whenever this character quests, if you played another character this turn, chosen character gains <Rush> this turn. (They can challenge the turn they’re played.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "cinderella-resourceful-traveler",
@@ -3077,7 +3123,8 @@
         "rulesText": "Whenever this character quests, if you played another character this turn, you may put the top card of your deck into your inkwell facedown and exerted.",
         "raw": "THIS AND THAT Whenever this character quests, if you played another character this turn, you may put the top card of your deck into your inkwell facedown and exerted."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "pocahontas-steadfast-traveler",
@@ -3147,7 +3194,8 @@
         "rulesText": "Whenever this character quests, if you played another character this turn, return a location card from your discard to your hand.",
         "raw": "WANDERING SPIRIT Whenever this character quests, if you played another character this turn, return a location card from your discard to your hand."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "lenny-toy-binoculars",
@@ -3237,7 +3285,8 @@
         "rulesText": "Once during your turn, whenever you play an action, you may ready this character.",
         "raw": "COMIN’ UP FAST Once during your turn, whenever you play an action, you may ready this character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "zipper-tiny-helper",
@@ -3262,7 +3311,8 @@
     "willpower": 4,
     "lore": 1,
     "flavorText": "\"Crikey! I've seen fellas who are twice the size with half the heart as that wee dodger!\"\n—Monterey Jack",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/50_25918e8d5753b0d94c9e6ea4e274e63dc2a608ff.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/50_25918e8d5753b0d94c9e6ea4e274e63dc2a608ff.jpg",
+    "_source": "manual"
   },
   {
     "id": "will-o-the-wisp-forest-spirit",
@@ -3312,7 +3362,8 @@
         "rulesText": "When this character is banished in a challenge, you may return this card to your hand.",
         "raw": "COME ON OUT When this character is banished in a challenge, you may return this card to your hand."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "dash-parr-lava-runner",
@@ -3362,7 +3413,8 @@
         "rulesText": "This character can quest the turn he’s played.",
         "raw": "RECORD TIME This character can quest the turn he’s played."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "woody-jungle-guide",
@@ -3462,7 +3514,8 @@
         "rulesText": "Your other Toy characters get +1 {W}.",
         "raw": "EVERYONE GATHER ’ROUND Your other Toy characters get +1 {W}."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "woody-jungle-guide",
@@ -3562,7 +3615,8 @@
         "rulesText": "Your other Toy characters get +1 {W}.",
         "raw": "EVERYONE GATHER ’ROUND Your other Toy characters get +1 {W}."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "violet-parr-learning-new-powers",
@@ -3635,6 +3689,7 @@
         "rulesText": "When you play this character, you may move 1 damage from chosen character to chosen opposing character.",
         "raw": "DEFLECT When you play this character, you may move 1 damage from chosen character to chosen opposing character."
       }
-    ]
+    ],
+    "_source": "manual"
   }
 ]

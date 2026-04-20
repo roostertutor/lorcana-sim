@@ -43,7 +43,8 @@
         "rulesText": "While this character is being challenged, the challenging character gets -1 {S}.",
         "raw": "SPRING THE TRAP While this character is being challenged, the challenging character gets -1 {S}."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "dewey-lovable-showoff",
@@ -69,7 +70,8 @@
     "lore": 1,
     "flavorText": "\"Snakes? Firing lasers? In a secret underground lair? No problem!\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/2_aad08999a87d6db777ecba6bcc93d791c3ea7f25.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/2_6cec6eb943b01c137a813cb8062fd5f94a7a1b7c.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/2_6cec6eb943b01c137a813cb8062fd5f94a7a1b7c.jpg",
+    "_source": "manual"
   },
   {
     "id": "huey-reliable-leader",
@@ -123,7 +125,8 @@
         "rulesText": "Whenever this character quests, you pay 1 {I} less for the next character you play this turn.",
         "raw": "I KNOW THE WAY Whenever this character quests, you pay 1 {I} less for the next character you play this turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "goofy-groundbreaking-chef",
@@ -207,7 +210,8 @@
         "rulesText": "At the end of your turn, you may remove up to 1 damage from each of your other characters. Ready each character you removed damage from this way.",
         "raw": "PLENTY TO GO AROUND At the end of your turn, you may remove up to 1 damage from each of your other characters. Ready each character you removed damage from this way."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "antonio-madrigal-friend-to-all",
@@ -277,7 +281,8 @@
         "rulesText": "Once during your turn, whenever one of your characters sings a song, you may search your deck for a character card with cost 3 or less and reveal that card to all players. Put that card into your hand and shuffle your deck.",
         "raw": "OF COURSE THEY CAN COME Once during your turn, whenever one of your characters sings a song, you may search your deck for a character card with cost 3 or less and reveal that card to all players. Put that card into your hand and shuffle your deck."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "minnie-mouse-daring-defender",
@@ -329,7 +334,8 @@
         "rulesText": "This character gets +1 {S} for each 1 damage on her.",
         "raw": "TRUE VALOR This character gets +1 {S} for each 1 damage on her."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "ludwig-von-drake-all-around-expert",
@@ -418,7 +424,8 @@
         "rulesText": "When this character is banished, you may put this card into your inkwell facedown and exerted.",
         "raw": "LASTING LEGACY When this character is banished, you may put this card into your inkwell facedown and exerted."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "charlotte-la-bouff-mardi-gras-princess",
@@ -445,7 +452,8 @@
     "lore": 1,
     "flavorText": "“Seems like only yesterday we were both little girls dreaming our fairy tale dreams, and tonight they’re finally coming true.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/8_c30b13e3678be0a6459a7d9bac3ef911b9673910.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/8_c30b13e3678be0a6459a7d9bac3ef911b9673910.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/8_c30b13e3678be0a6459a7d9bac3ef911b9673910.jpg",
+    "_source": "manual"
   },
   {
     "id": "tiana-natural-talent",
@@ -521,7 +529,8 @@
         "rulesText": "Whenever you play a song, each opposing character gets -1 {S} until the start of your next turn.",
         "raw": "CAPTIVATING MELODY Whenever you play a song, each opposing character gets -1 {S} until the start of your next turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "mirabel-madrigal-curious-child",
@@ -588,7 +597,8 @@
         "rulesText": "When you play this character, you may reveal a song card in your hand to gain 1 lore.",
         "raw": "YOU ARE A WONDER When you play this character, you may reveal a song card in your hand to gain 1 lore."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "lady-family-dog",
@@ -644,7 +654,8 @@
         "rulesText": "When you play this character, you may play a character with cost 2 or less for free.",
         "raw": "SOMEONE TO CARE FOR When you play this character, you may play a character with cost 2 or less for free."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "jim-dear-beloved-husband",
@@ -676,7 +687,8 @@
     "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)",
     "flavorText": "Family is family no matter what.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/12_57074a2f026742ac52146c1a4a9392ae034c852b.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/12_57074a2f026742ac52146c1a4a9392ae034c852b.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/12_57074a2f026742ac52146c1a4a9392ae034c852b.jpg",
+    "_source": "manual"
   },
   {
     "id": "gene-niceland-resident",
@@ -735,7 +747,8 @@
         "rulesText": "Whenever this character quests, you may remove up to 2 damage from chosen character.",
         "raw": "I GUESS YOU EARNED THIS Whenever this character quests, you may remove up to 2 damage from chosen character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "perdita-on-the-lookout",
@@ -795,7 +808,8 @@
         "rulesText": "While you have a Puppy character in play, this character gets +1 {W}.",
         "raw": "KEEPING WATCH While you have a Puppy character in play, this character gets +1 {W}."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "rhino-one-sixteenth-wolf",
@@ -857,7 +871,8 @@
         "rulesText": "When you play this character, chosen opposing character gets -1 {S} until the start of your next turn.",
         "raw": "TINY HOWL When you play this character, chosen opposing character gets -1 {S} until the start of your next turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "darling-dear-beloved-wife",
@@ -916,7 +931,8 @@
         "rulesText": "When you play this character, chosen character gets +2 {L} this turn.",
         "raw": "HOW SWEET When you play this character, chosen character gets +2 {L} this turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "the-colonel-old-sheepdog",
@@ -978,7 +994,8 @@
         "rulesText": "While you have 3 or more Puppy characters in play, this character gets +2 {S} and +2 {L}.",
         "raw": "WE’VE GOT ’EM OUTNUMBERED While you have 3 or more Puppy characters in play, this character gets +2 {S} and +2 {L}."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "chief-bogo-commanding-officer",
@@ -1052,7 +1069,8 @@
         "rulesText": "During an opponent’s turn, whenever one of your characters with <Bodyguard> is banished, you may reveal the top card of your deck. If it’s a character card with cost 5 or less, you may play that character for free. Otherwise, put it on the top of your deck.",
         "raw": "SENDING BACKUP During an opponent’s turn, whenever one of your characters with <Bodyguard> is banished, you may reveal the top card of your deck. If it’s a character card with cost 5 or less, you may play that character for free. Otherwise, put it on the top of your deck."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "pua-protective-pig",
@@ -1109,7 +1127,8 @@
         "rulesText": "When this character is banished, you may draw a card.",
         "raw": "FREE FRUIT When this character is banished, you may draw a card."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "bruno-madrigal-singing-seer",
@@ -1180,7 +1199,8 @@
         "rulesText": "Whenever this character sings a song, you may draw a card for each character you have in play.",
         "raw": "BRIGHT FUTURE Whenever this character sings a song, you may draw a card for each character you have in play."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "kaa-hypnotizing-python",
@@ -1260,7 +1280,8 @@
         "rulesText": "Whenever this character quests, chosen opposing character gets -2 {S} and gains <Reckless> until the start of your next turn. (They can’t quest and must challenge if able.)",
         "raw": "LOOK ME IN THE EYE Whenever this character quests, chosen opposing character gets -2 {S} and gains <Reckless> until the start of your next turn. (They can’t quest and must challenge if able.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "tramp-dapper-rascal",
@@ -1333,7 +1354,8 @@
         "rulesText": "During an opponent’s turn, whenever one of your characters is banished, you may draw a card.",
         "raw": "PLAY IT COOL During an opponent’s turn, whenever one of your characters is banished, you may draw a card."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "king-candy-sugar-rush-nightmare",
@@ -1397,7 +1419,8 @@
         "rulesText": "When this character is banished, you may return another Racer character card from your discard to your hand.",
         "raw": "A NEW ROSTER When this character is banished, you may return another Racer character card from your discard to your hand."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "wreck-it-ralph-big-lug",
@@ -1495,7 +1518,8 @@
         "rulesText": "When you play this character and whenever he quests, you may return a Racer character card with cost 6 or less from your discard to your hand. If you do, gain 1 lore.",
         "raw": "BACK ON TRACK When you play this character and whenever he quests, you may return a Racer character card with cost 6 or less from your discard to your hand. If you do, gain 1 lore."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "patch-playful-pup",
@@ -1561,7 +1585,8 @@
         "rulesText": "While you have another Puppy character in play, this character gets +1 {L}.",
         "raw": "PUPPY BARKING While you have another Puppy character in play, this character gets +1 {L}."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "rolly-chubby-puppy",
@@ -1628,7 +1653,8 @@
         "rulesText": "When you play this character, you may put a character card from your discard into your inkwell facedown and exerted.",
         "raw": "ADORABLE ANTICS When you play this character, you may put a character card from your discard into your inkwell facedown and exerted."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "perdita-determined-mother",
@@ -1696,7 +1722,8 @@
         "rulesText": "When you play this character, you may put all Puppy character cards from your discard into your inkwell facedown and exerted.",
         "raw": "QUICK, EVERYONE HIDE When you play this character, you may put all Puppy character cards from your discard into your inkwell facedown and exerted."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "pluto-tried-and-true",
@@ -1763,7 +1790,8 @@
         "rulesText": "While this character has no damage, he gets +2 {S} and gains <Support>. (Whenever they quest, you may add their {S} to another chosen character’s {S} this turn.)",
         "raw": "HAPPY HELPER While this character has no damage, he gets +2 {S} and gains <Support>. (Whenever they quest, you may add their {S} to another chosen character’s {S} this turn.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "bolt-down-but-not-out",
@@ -1807,7 +1835,8 @@
         "rulesText": "This character enters play exerted.",
         "raw": "NONE OF YOUR POWERS ARE WORKING This character enters play exerted."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "rhino-power-hamster",
@@ -1864,7 +1893,8 @@
         "rulesText": "While this character has no damage, he gains <Resist> +2. (Damage dealt to them is reduced by 2.)",
         "raw": "EPIC BALL OF AWESOME While this character has no damage, he gains <Resist> +2. (Damage dealt to them is reduced by 2.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "antonios-jaguar-faithful-companion",
@@ -1929,7 +1959,8 @@
         "rulesText": "When you play this character, if you have a character named Antonio Madrigal in play, gain 1 lore.",
         "raw": "YOU WANT TO GO WHERE? When you play this character, if you have a character named Antonio Madrigal in play, gain 1 lore."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "calhoun-hard-nosed-leader",
@@ -1984,7 +2015,8 @@
         "rulesText": "When this character is banished, gain 1 lore.",
         "raw": "LOOT DROP When this character is banished, gain 1 lore."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "lady-decisive-dog",
@@ -2068,7 +2100,8 @@
         "rulesText": "While this character has 3 {S} or more, she gets +2 {L}.",
         "raw": "TAKE THE LEAD While this character has 3 {S} or more, she gets +2 {L}."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "alma-madrigal-accepting-grandmother",
@@ -2131,7 +2164,8 @@
         "rulesText": "Once during your turn, whenever one or more of your characters sings a song, you may ready those characters.",
         "raw": "THE MIRACLE IS YOU Once during your turn, whenever one or more of your characters sings a song, you may ready those characters."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "clawhauser-front-desk-officer",
@@ -2168,7 +2202,8 @@
     "lore": 2,
     "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)\n<Singer> 4 (This character counts as cost 4 to sing songs.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/35_de6ee0e0a6cc943e7eb7c5d386cfbf711e6bf592.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/35_de6ee0e0a6cc943e7eb7c5d386cfbf711e6bf592.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/35_de6ee0e0a6cc943e7eb7c5d386cfbf711e6bf592.jpg",
+    "_source": "manual"
   },
   {
     "id": "joey-blue-pigeon",
@@ -2231,7 +2266,8 @@
         "rulesText": "Whenever this character quests, you may remove up to 1 damage from each of your characters with <Bodyguard>.",
         "raw": "I’VE GOT JUST THE THING Whenever this character quests, you may remove up to 1 damage from each of your characters with <Bodyguard>."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "donald-duck-coin-collector",
@@ -2336,7 +2372,8 @@
         "rulesText": "When you play this character, your other characters gain \"{E} — Draw a card\" this turn.",
         "raw": "MONEY EVERYWHERE When you play this character, your other characters gain \"{E} — Draw a card\" this turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "dalmatian-puppy-tail-wagger",
@@ -2381,7 +2418,8 @@
         "raw": "WHERE DID THEY ALL COME FROM? You may have up to 99 copies of Dalmatian Puppy – Tail Wagger in your deck."
       }
     ],
-    "maxCopies": 99
+    "maxCopies": 99,
+    "_source": "manual"
   },
   {
     "id": "candy-drift",
@@ -2441,7 +2479,8 @@
         ],
         "attachTo": "last_resolved_target"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "shes-your-person",
@@ -2505,7 +2544,8 @@
           ]
         ]
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "only-so-much-room",
@@ -2556,7 +2596,8 @@
           }
         }
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "it-means-no-worries",
@@ -2615,7 +2656,8 @@
         }
       }
     ],
-    "singTogetherCost": 9
+    "singTogetherCost": 9,
+    "_source": "manual"
   },
   {
     "id": "trials-and-tribulations",
@@ -2652,7 +2694,8 @@
           }
         }
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "the-nephews-piggy-bank",
@@ -2726,7 +2769,8 @@
         "rulesText": "{E} — Chosen character gets -1 {S} until the start of your next turn.",
         "raw": "PAYOFF {E} — Chosen character gets -1 {S} until the start of your next turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "palace-guard-spectral-sentry",
@@ -2759,7 +2803,8 @@
     "rulesText": "<Vanish> (When an opponent chooses this character for an action, banish them.)",
     "flavorText": "\"All of the power of the normal guards, with none of the insolence.\"\n—Jafar",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/45_53c6068ec4c0ecfc6f3f9116983a8bf5f9245e53.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/45_53c6068ec4c0ecfc6f3f9116983a8bf5f9245e53.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/45_53c6068ec4c0ecfc6f3f9116983a8bf5f9245e53.jpg",
+    "_source": "manual"
   },
   {
     "id": "druun-ravenous-plague",
@@ -2792,7 +2837,8 @@
     "rulesText": "<Challenger> +4 (While challenging, this character gets +4 {S}.)",
     "flavorText": "“They’ve always been here. Waiting for a moment of weakness to attack.” \n—Sisu",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/46_2dfdf98a63156050abb7c3b355a1f06a9b92e354.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/46_2dfdf98a63156050abb7c3b355a1f06a9b92e354.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/46_2dfdf98a63156050abb7c3b355a1f06a9b92e354.jpg",
+    "_source": "manual"
   },
   {
     "id": "madame-medusa-deceiving-partner",
@@ -2851,7 +2897,8 @@
         "rulesText": "When you play this character, you may deal 2 damage to another chosen character of yours to return chosen character with cost 2 or less to their player’s hand.",
         "raw": "DOUBLE-CROSS When you play this character, you may deal 2 damage to another chosen character of yours to return chosen character with cost 2 or less to their player’s hand."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "hades-ruthless-tyrant",
@@ -2924,7 +2971,8 @@
         "rulesText": "When you play this character and whenever he quests, you may deal 2 damage to another chosen character of yours to draw 2 cards.",
         "raw": "SHORT ON PATIENCE When you play this character and whenever he quests, you may deal 2 damage to another chosen character of yours to draw 2 cards."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "lena-sabrewing-pure-energy",
@@ -2989,7 +3037,8 @@
         "rulesText": "{E} — Deal 1 damage to chosen character.",
         "raw": "SUPERNATURAL VENGEANCE {E} — Deal 1 damage to chosen character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "abu-illusory-pachyderm",
@@ -3067,7 +3116,8 @@
         "rulesText": "Whenever this character quests, gain lore equal to the {L} of chosen opposing character.",
         "raw": "GRASPING TRUNK Whenever this character quests, gain lore equal to the {L} of chosen opposing character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "bruno-madrigal-single-minded",
@@ -3130,7 +3180,8 @@
         "rulesText": "When you play this character, chosen opposing character can’t ready at the start of their next turn.",
         "raw": "STANDING TALL When you play this character, chosen opposing character can’t ready at the start of their next turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "royal-guard-octopus-soldier",
@@ -3187,7 +3238,8 @@
         "rulesText": "Whenever you draw a card, this character gains <Challenger> +1 this turn. (They get +1 {S} while challenging.)",
         "raw": "HEAVILY ARMED Whenever you draw a card, this character gains <Challenger> +1 this turn. (They get +1 {S} while challenging.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "kuzco-bored-royal",
@@ -3248,7 +3300,8 @@
         "rulesText": "When you play this character, you may return chosen character, item, or location with cost 2 or less to their player’s hand.",
         "raw": "LLAMA BREATH When you play this character, you may return chosen character, item, or location with cost 2 or less to their player’s hand."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "megara-part-of-the-plan",
@@ -3309,7 +3362,8 @@
         "rulesText": "While you have a character named Hades in play, this character gains <Challenger> +2. (They get +2 {S} while challenging.)",
         "raw": "CONTENTIOUS ALLIANCE While you have a character named Hades in play, this character gains <Challenger> +2. (They get +2 {S} while challenging.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "yelana-northuldra-leader",
@@ -3368,7 +3422,8 @@
         "rulesText": "When you play this character, chosen character gains <Challenger> +2 this turn. (They get +2 {S} while challenging.)",
         "raw": "WE ONLY TRUST NATURE When you play this character, chosen character gains <Challenger> +2 this turn. (They get +2 {S} while challenging.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "ryder-fleet-footed-infiltrator",
@@ -3400,7 +3455,8 @@
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)",
     "flavorText": "\"Sheesh, what is it with this high sultan guy? Can't he put in stairs like a normal person?\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/56_0a3edc86209f673d727a8e6d9ab33fc13e5824ac.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/56_0a3edc86209f673d727a8e6d9ab33fc13e5824ac.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/56_0a3edc86209f673d727a8e6d9ab33fc13e5824ac.jpg",
+    "_source": "manual"
   },
   {
     "id": "bambi-prince-of-the-forest",
@@ -3427,7 +3483,8 @@
     "lore": 1,
     "flavorText": "As he grew older, he began to understand his responsibilities to all the creatures of the woods.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/57_4bdbf4d15c02b5d2497c50d9b84a0ec6fbf556b4.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/57_4bdbf4d15c02b5d2497c50d9b84a0ec6fbf556b4.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/57_4bdbf4d15c02b5d2497c50d9b84a0ec6fbf556b4.jpg",
+    "_source": "manual"
   },
   {
     "id": "poe-de-spell-magicas-brother",
@@ -3454,7 +3511,8 @@
     "lore": 1,
     "flavorText": "“Sister, dear, if we turn all the townspeople into frogs, who will give us our gold and turnips?”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/58_07056688954432acb51b30be595eb7c7b5b38f65.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/58_07056688954432acb51b30be595eb7c7b5b38f65.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/58_07056688954432acb51b30be595eb7c7b5b38f65.jpg",
+    "_source": "manual"
   },
   {
     "id": "madam-mim-up-to-no-good",
@@ -3481,7 +3539,8 @@
     "lore": 1,
     "flavorText": "“They think they know my tricks . . . Oh, this one’s going to be marvelously malicious!”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/59_73b501ab955c626a000c3ef4290d90c7efa49484.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/59_73b501ab955c626a000c3ef4290d90c7efa49484.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/59_73b501ab955c626a000c3ef4290d90c7efa49484.jpg",
+    "_source": "manual"
   },
   {
     "id": "elsa-fierce-protector",
@@ -3550,7 +3609,8 @@
         "rulesText": "1 {I}, Choose and discard a card — Exert chosen opposing character.",
         "raw": "ICE OVER 1 {I}, Choose and discard a card — Exert chosen opposing character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "pinocchio-strings-attached",
@@ -3610,7 +3670,8 @@
         "rulesText": "Once during your turn, whenever you ready this character, you may draw a card.",
         "raw": "GOT TO KEEP REAL QUIET Once during your turn, whenever you ready this character, you may draw a card."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "jiminy-cricket-level-headed-and-wise",
@@ -3668,7 +3729,8 @@
         "rulesText": "While this character is exerted, opposing characters with <Rush> enter play exerted.",
         "raw": "ENOUGH’S ENOUGH While this character is exerted, opposing characters with <Rush> enter play exerted."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "bambi-little-prince",
@@ -3749,7 +3811,8 @@
         "rulesText": "When an opponent plays a character, return this character to your hand.",
         "raw": "KIND OF BASHFUL When an opponent plays a character, return this character to your hand."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "monstro-infamous-whale",
@@ -3815,7 +3878,8 @@
         "rulesText": "Choose and discard a card — Ready this character. He can’t quest for the rest of this turn.",
         "raw": "FULL BREACH Choose and discard a card — Ready this character. He can’t quest for the rest of this turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "nero-fearsome-crocodile",
@@ -3881,7 +3945,8 @@
         "rulesText": "{E} — Move 1 damage counter from this character to chosen opposing character.",
         "raw": "AND MEAN {E} — Move 1 damage counter from this character to chosen opposing character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "magica-de-spell-shadow-form",
@@ -3956,7 +4021,8 @@
         "rulesText": "When you play this character, you may return another chosen character of yours to your hand to draw a card.",
         "raw": "DANCE OF DARKNESS When you play this character, you may return another chosen character of yours to your hand to draw a card."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "kuzco-impulsive-llama",
@@ -4032,7 +4098,8 @@
         "rulesText": "When you play this character, each opponent chooses one of their characters and puts that card on the bottom of their deck. Then, each opponent may draw a card.",
         "raw": "WHAT DOES THIS DO? When you play this character, each opponent chooses one of their characters and puts that card on the bottom of their deck. Then, each opponent may draw a card."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "yzma-on-edge",
@@ -4100,7 +4167,8 @@
         "rulesText": "When you play this character, if you have a card named Pull the Lever! in your discard, you may search your deck for a card named Wrong Lever! and reveal that card to all players. Put that card into your hand and shuffle your deck.",
         "raw": "WHY DO WE EVEN HAVE THAT LEVER? When you play this character, if you have a card named Pull the Lever! in your discard, you may search your deck for a card named Wrong Lever! and reveal that card to all players. Put that card into your hand and shuffle your deck."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "madam-mim-rhino",
@@ -4183,7 +4251,8 @@
         "rulesText": "When you play this character, banish her or return another chosen character of yours to your hand.",
         "raw": "MAKE WAY, COMING THROUGH! When you play this character, banish her or return another chosen character of yours to your hand."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "mother-gothel-knows-whats-best",
@@ -4278,7 +4347,8 @@
         "rulesText": "When you play this character, you may deal 2 damage to another chosen character of yours to give that character <Challenger> +1 and \"When this character is banished in a challenge, return this card to your hand\" this turn. (They get +1 {S} while challenging.)",
         "raw": "LOOK WHAT YOU’VE DONE When you play this character, you may deal 2 damage to another chosen character of yours to give that character <Challenger> +1 and \"When this character is banished in a challenge, return this card to your hand\" this turn. (They get +1 {S} while challenging.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "blue-fairy-guiding-light",
@@ -4315,7 +4385,8 @@
     "lore": 1,
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\n<Support> (Whenever this character quests, you may add their {S} to another chosen character’s {S} this turn.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/71_54bb7279891728e7a17c952cbd7aec9746e0e684.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/71_54bb7279891728e7a17c952cbd7aec9746e0e684.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/71_54bb7279891728e7a17c952cbd7aec9746e0e684.jpg",
+    "_source": "manual"
   },
   {
     "id": "anna-magical-mission",
@@ -4393,7 +4464,8 @@
         "rulesText": "Whenever this character quests, if you have a character named Elsa in play, you may draw a card.",
         "raw": "COORDINATED PLAN Whenever this character quests, if you have a character named Elsa in play, you may draw a card."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "the-sultan-royal-apparition",
@@ -4469,7 +4541,8 @@
         "rulesText": "Whenever one of your Illusion characters quests, exert chosen opposing character.",
         "raw": "COMMANDING PRESENCE Whenever one of your Illusion characters quests, exert chosen opposing character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "jafar-high-sultan-of-lorcana",
@@ -4556,7 +4629,8 @@
         "rulesText": "Whenever this character quests, you may draw a card, then choose and discard a card. If an Illusion character card is discarded this way, you may play that character for free.",
         "raw": "DARK POWER Whenever this character quests, you may draw a card, then choose and discard a card. If an Illusion character card is discarded this way, you may play that character for free."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "camilo-madrigal-center-stage",
@@ -4608,7 +4682,8 @@
         "rulesText": "When this character is banished in a challenge, return this card to your hand.",
         "raw": "ENCORE! ENCORE! When this character is banished in a challenge, return this card to your hand."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "flower-shy-skunk",
@@ -4669,7 +4744,8 @@
         "rulesText": "Whenever you play another character, look at the top card of your deck. Put it on either the top or the bottom of your deck.",
         "raw": "LOOKING FOR FRIENDS Whenever you play another character, look at the top card of your deck. Put it on either the top or the bottom of your deck."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "forest-duel",
@@ -4733,7 +4809,8 @@
           }
         ]
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "they-never-come-back",
@@ -4777,7 +4854,8 @@
           "type": "self"
         }
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "fantastical-and-magical",
@@ -4834,7 +4912,8 @@
         ]
       }
     ],
-    "singTogetherCost": 9
+    "singTogetherCost": 9,
+    "_source": "manual"
   },
   {
     "id": "pull-the-lever",
@@ -4886,7 +4965,8 @@
           ]
         ]
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "into-the-unknown",
@@ -4925,7 +5005,8 @@
           }
         }
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "everybodys-got-a-weakness",
@@ -4984,7 +5065,8 @@
           }
         ]
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "scarab",
@@ -5044,7 +5126,8 @@
         "rulesText": "{E}, 2 {I} — Return an Illusion character card from your discard to your hand.",
         "raw": "SEARCH THE SANDS {E}, 2 {I} — Return an Illusion character card from your discard to your hand."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "ice-spikes",
@@ -5141,7 +5224,8 @@
         "rulesText": "{E}, 1 {I} — Exert chosen opposing item. It can’t ready at the start of its next turn.",
         "raw": "IT’S STUCK {E}, 1 {I} — Exert chosen opposing item. It can’t ready at the start of its next turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "wilhelmina-packard-the-radio-operator",
@@ -5167,7 +5251,8 @@
     "lore": 1,
     "flavorText": "Helga: “Sounds metallic. Could be an echo off one of the rocks.”\nWilhelmina: “Do you want to do my job? Be my guest.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/85_360ef467c550593ff6f3fec72b7f6585e242905c.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/85_360ef467c550593ff6f3fec72b7f6585e242905c.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/85_360ef467c550593ff6f3fec72b7f6585e242905c.jpg",
+    "_source": "manual"
   },
   {
     "id": "basil-undercover-detective",
@@ -5248,7 +5333,8 @@
         "rulesText": "Whenever this character quests, chosen opponent discards a card at random.",
         "raw": "INTERFERE Whenever this character quests, chosen opponent discards a card at random."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "tramp-observant-guardian",
@@ -5307,7 +5393,8 @@
         "rulesText": "When you play this character, chosen character gains <Ward> until the start of your next turn. (Opponents can’t choose them except to challenge.)",
         "raw": "HOW DO I GET IN? When you play this character, chosen character gains <Ward> until the start of your next turn. (Opponents can’t choose them except to challenge.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "chaca-junior-chipmunk",
@@ -5381,7 +5468,8 @@
         "rulesText": "When you play this character, if you have a character named Tipo in play, chosen opposing character gains <Reckless> during their next turn. (They can’t quest and must challenge if able.)",
         "raw": "IN CAHOOTS When you play this character, if you have a character named Tipo in play, chosen opposing character gains <Reckless> during their next turn. (They can’t quest and must challenge if able.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "tipo-junior-chipmunk",
@@ -5413,7 +5501,8 @@
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)",
     "flavorText": "\"This is so much fun, Chaca! I want to go higher!\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/89_8af8976d364cdf9584c68d7dc8b77fcef5b8860f.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/89_8af8976d364cdf9584c68d7dc8b77fcef5b8860f.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/89_8af8976d364cdf9584c68d7dc8b77fcef5b8860f.jpg",
+    "_source": "manual"
   },
   {
     "id": "bill-the-lizard-chimney-sweep",
@@ -5470,7 +5559,8 @@
         "rulesText": "While another character in play has damage, this character gains <Evasive>. (Only characters with Evasive can challenge them.)",
         "raw": "NOTHING TO IT While another character in play has damage, this character gains <Evasive>. (Only characters with Evasive can challenge them.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "march-hare-hare-brained-eccentric",
@@ -5529,7 +5619,8 @@
         "rulesText": "When you play this character, you may deal 2 damage to chosen damaged character.",
         "raw": "LIGHT THE CANDLES When you play this character, you may deal 2 damage to chosen damaged character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "fred-major-science-enthusiast",
@@ -5587,7 +5678,8 @@
         "rulesText": "When you play this character, you may banish chosen item.",
         "raw": "SPITTING FIRE! When you play this character, you may banish chosen item."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "mad-dog-karnages-first-mate",
@@ -5639,7 +5731,8 @@
         "rulesText": "If you have a character named Don Karnage in play, you pay 1 {I} less to play this character.",
         "raw": "ARE YOU SURE THIS IS SAFE, CAPTAIN? If you have a character named Don Karnage in play, you pay 1 {I} less to play this character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "dale-bumbler",
@@ -5665,7 +5758,8 @@
     "lore": 1,
     "flavorText": "“You’re the fearless copilot who can handle any job. . . . Did I say fearless? I meant brainless!”\n—Chip",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/94_d9cdcac87116234fc9cbd461b24ba2f7206a9929.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/94_d9cdcac87116234fc9cbd461b24ba2f7206a9929.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/94_d9cdcac87116234fc9cbd461b24ba2f7206a9929.jpg",
+    "_source": "manual"
   },
   {
     "id": "louis-endearing-alligator",
@@ -5739,7 +5833,8 @@
         "rulesText": "When you play this character, chosen opposing character gains <Reckless> during their next turn. (They can’t quest and must challenge if able.)",
         "raw": "FRIENDLIER THAN HE LOOKS When you play this character, chosen opposing character gains <Reckless> during their next turn. (They can’t quest and must challenge if able.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "napoleon-clever-bloodhound",
@@ -5764,7 +5859,8 @@
     "lore": 1,
     "flavorText": "“Everyone knows that without rations, an operation'll be a failure. And this is why I outrank you, Lafayette. 'Cause I see the big picture.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/96_b6a1340dd22233648675aa542fc61d49b6ae3524.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/96_b6a1340dd22233648675aa542fc61d49b6ae3524.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/96_b6a1340dd22233648675aa542fc61d49b6ae3524.jpg",
+    "_source": "manual"
   },
   {
     "id": "chip-quick-thinker",
@@ -5817,7 +5913,8 @@
         "rulesText": "When you play this character, chosen opponent chooses and discards a card.",
         "raw": "I’LL HANDLE THIS When you play this character, chosen opponent chooses and discards a card."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "fred-giant-sized",
@@ -5878,7 +5975,8 @@
         "rulesText": "Whenever this character quests, reveal cards from the top of your deck until you reveal a Floodborn character card. Put that card into your hand and shuffle the rest into your deck.",
         "raw": "I LIKE WHERE THIS IS HEADING Whenever this character quests, reveal cards from the top of your deck until you reveal a Floodborn character card. Put that card into your hand and shuffle the rest into your deck."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "gadget-hackwrench-quirky-scientist",
@@ -5935,7 +6033,8 @@
         "rulesText": "When you play this character, if an opponent has more cards in their hand than you, you may draw a card.",
         "raw": "GOLLY! When you play this character, if an opponent has more cards in their hand than you, you may draw a card."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "raya-infiltration-expert",
@@ -6005,7 +6104,8 @@
         "rulesText": "Whenever this character quests, you may pay 2 {I} to ready another chosen character.",
         "raw": "UNCONVENTIONAL TACTICS Whenever this character quests, you may pay 2 {I} to ready another chosen character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "rapunzel-high-climber",
@@ -6071,7 +6171,8 @@
         "rulesText": "Whenever this character quests, chosen opposing character can’t quest during their next turn.",
         "raw": "WRAPPED UP Whenever this character quests, chosen opposing character can’t quest during their next turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "flynn-rider-breaking-and-entering",
@@ -6127,7 +6228,8 @@
         "rulesText": "Whenever this character is challenged, the challenging player may choose and discard a card. If they don’t, you gain 2 lore.",
         "raw": "THIS IS A VERY BIG DAY Whenever this character is challenged, the challenging player may choose and discard a card. If they don’t, you gain 2 lore."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "dormouse-easily-agitated",
@@ -6187,7 +6289,8 @@
         "rulesText": "When you play this character, you may put 1 damage counter on chosen character.",
         "raw": "VERY RUDE INDEED When you play this character, you may put 1 damage counter on chosen character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "alice-clumsy-as-can-be",
@@ -6253,7 +6356,8 @@
         "rulesText": "Whenever this character quests, put 1 damage counter on each other character.",
         "raw": "ACCIDENT PRONE Whenever this character quests, put 1 damage counter on each other character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "queen-of-hearts-haughty-monarch",
@@ -6313,7 +6417,8 @@
         "rulesText": "While there are 5 or more characters with damage in play, this character gets +3 {L}.",
         "raw": "COUNT OFF! While there are 5 or more characters with damage in play, this character gets +3 {L}."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "hiro-hamada-intuitive-thinker",
@@ -6374,7 +6479,8 @@
         "rulesText": "{E} — Ready chosen Floodborn character.",
         "raw": "LOOK FOR A NEW ANGLE {E} — Ready chosen Floodborn character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "go-go-tomago-cutting-edge",
@@ -6447,7 +6553,8 @@
         "rulesText": "When you play this character, if you used <Shift> to play her, you may put chosen character into their player’s inkwell facedown and exerted.",
         "raw": "ZERO RESISTANCE When you play this character, if you used <Shift> to play her, you may put chosen character into their player’s inkwell facedown and exerted."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "don-karnage-air-pirate-leader",
@@ -6524,7 +6631,8 @@
         "rulesText": "Whenever you play an action that isn’t a song, chosen opposing character gains <Reckless> during their next turn. (They can’t quest and must challenge if able.)",
         "raw": "SCORNFUL TAUNT Whenever you play an action that isn’t a song, chosen opposing character gains <Reckless> during their next turn. (They can’t quest and must challenge if able.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "captain-hook-the-pirate-king",
@@ -6628,7 +6736,8 @@
         "rulesText": "Once during your turn, whenever an opposing character is damaged, your Pirate characters get +2 {S} and gain <Resist> +2 this turn. (Damage dealt to them is reduced by 2.)",
         "raw": "GIVE ’EM ALL YOU GOT! Once during your turn, whenever an opposing character is damaged, your Pirate characters get +2 {S} and gain <Resist> +2 this turn. (Damage dealt to them is reduced by 2.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "maui-stubborn-trickster",
@@ -6733,7 +6842,8 @@
         "rulesText": "When this character is banished, choose one:\n• Put 2 damage counters on all opposing characters.\n• Banish all opposing items.\n• Banish all opposing locations.",
         "raw": "I’M NOT FINISHED YET When this character is banished, choose one:\n• Put 2 damage counters on all opposing characters.\n• Banish all opposing items.\n• Banish all opposing locations."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "honey-lemon-costumed-catalyst",
@@ -6804,7 +6914,8 @@
         "rulesText": "Whenever you play a Floodborn character, if you used <Shift> to play them, you may return chosen character to their player’s hand.",
         "raw": "LET’S DO THIS! Whenever you play a Floodborn character, if you used <Shift> to play them, you may return chosen character to their player’s hand."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "jock-attentive-uncle",
@@ -6870,7 +6981,8 @@
         "rulesText": "When you play this character, if you have 3 or more other characters in play, gain 2 lore.",
         "raw": "VOICE OF EXPERIENCE When you play this character, if you have 3 or more other characters in play, gain 2 lore."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "archimedes-resourceful-owl",
@@ -6972,7 +7084,8 @@
         "rulesText": "During your turn, whenever an item is banished, you may draw a card, then choose and discard a card.",
         "raw": "NOW, THAT’S NOT BAD During your turn, whenever an item is banished, you may draw a card, then choose and discard a card."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "he-who-steals-and-runs-away",
@@ -7013,7 +7126,8 @@
           "type": "self"
         }
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "stopped-chaos-in-its-tracks",
@@ -7061,7 +7175,8 @@
         }
       }
     ],
-    "singTogetherCost": 8
+    "singTogetherCost": 8,
+    "_source": "manual"
   },
   {
     "id": "wrong-lever",
@@ -7124,7 +7239,8 @@
           ]
         ]
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "undermine",
@@ -7168,7 +7284,8 @@
           }
         }
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "walk-the-plank",
@@ -7229,7 +7346,8 @@
           ]
         }
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "chem-purse",
@@ -7286,7 +7404,8 @@
         "rulesText": "Whenever you play a character, if you used <Shift> to play them, they get +4 {S} this turn.",
         "raw": "HERE’S THE BEST PART Whenever you play a character, if you used <Shift> to play them, they get +4 {S} this turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "jeweled-collar",
@@ -7343,7 +7462,8 @@
         "rulesText": "Whenever one of your characters is challenged, you may put the top card of your deck into your inkwell facedown and exerted.",
         "raw": "WELCOME EXTRAVAGANCE Whenever one of your characters is challenged, you may put the top card of your deck into your inkwell facedown and exerted."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "gloyd-orangeboar-fierce-competitor",
@@ -7409,7 +7529,8 @@
         "rulesText": "When you play this character, each opponent loses 1 lore and you gain 1 lore.",
         "raw": "PUMPKIN SPICE When you play this character, each opponent loses 1 lore and you gain 1 lore."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "honest-john-shameless-schemer",
@@ -7435,7 +7556,8 @@
     "lore": 2,
     "flavorText": "\"Say, jewels just lying around in a fancy joint like this? It would be a shame if a few went missing . . .\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/122_eb189fb80ceb96df7f9d99b14e2db72481de5f0f.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/122_eb189fb80ceb96df7f9d99b14e2db72481de5f0f.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/122_eb189fb80ceb96df7f9d99b14e2db72481de5f0f.jpg",
+    "_source": "manual"
   },
   {
     "id": "gyro-gearloose-eccentric-inventor",
@@ -7501,7 +7623,8 @@
         "rulesText": "When you play this character, chosen opposing character gets -3 {S} this turn.",
         "raw": "I’LL SHOW YOU! When you play this character, chosen opposing character gets -3 {S} this turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "vanellope-von-schweetz-spunky-speedster",
@@ -7535,7 +7658,8 @@
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)",
     "flavorText": "“I can handle anything you throw at me . . . Wait, are those <laser snakes>? This is the best track ever!”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/124_3c2d4a95240db03bbeb15b16b3c8758b916ddb89.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/124_3c2d4a95240db03bbeb15b16b3c8758b916ddb89.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/124_3c2d4a95240db03bbeb15b16b3c8758b916ddb89.jpg",
+    "_source": "manual"
   },
   {
     "id": "brutus-fearsome-crocodile",
@@ -7603,7 +7727,8 @@
         "rulesText": "During your turn, when this character is banished, if one of your characters was damaged this turn, gain 2 lore.",
         "raw": "SPITEFUL During your turn, when this character is banished, if one of your characters was damaged this turn, gain 2 lore."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "the-dodo-outlandish-storyteller",
@@ -7650,7 +7775,8 @@
         "rulesText": "This character gets +1 {S} for each 1 damage on him.",
         "raw": "EXTRAORDINARY SITUATION This character gets +1 {S} for each 1 damage on him."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "alice-courageous-keyholder",
@@ -7722,7 +7848,8 @@
         "rulesText": "When you play this character, you may ready chosen damaged character of yours. They can’t quest for the rest of this turn.",
         "raw": "THIS WAY OUT When you play this character, you may ready chosen damaged character of yours. They can’t quest for the rest of this turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "lumiere-nimble-candelabra",
@@ -7781,7 +7908,8 @@
         "rulesText": "While you have an item card in your discard, this character gains <Evasive>. (Only characters with Evasive can challenge them.)",
         "raw": "QUICK-STEP While you have an item card in your discard, this character gains <Evasive>. (Only characters with Evasive can challenge them.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "gaston-arrogant-showoff",
@@ -7841,7 +7969,8 @@
         "rulesText": "When you play this character, you may banish one of your items to give chosen character +2 {S} this turn.",
         "raw": "BREAK APART When you play this character, you may banish one of your items to give chosen character +2 {S} this turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "mushu-fast-talking-dragon",
@@ -7903,7 +8032,8 @@
         "rulesText": "{E} — Chosen character gains <Rush> this turn. (They can challenge the turn they’re played.)",
         "raw": "LET’S GET THIS SHOW ON THE ROAD {E} — Chosen character gains <Rush> this turn. (They can challenge the turn they’re played.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "cri-kee-part-of-the-team",
@@ -7965,7 +8095,8 @@
         "rulesText": "While you have 2 or more other exerted characters in play, this character gets +2 {L}.",
         "raw": "AT HER SIDE While you have 2 or more other exerted characters in play, this character gets +2 {L}."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "lafayette-sleepy-basset-hound",
@@ -7990,7 +8121,8 @@
     "lore": 1,
     "flavorText": "\"What are we guarding the kitchen for, Napoleon? There ain't no scarabs 'round here. Call me when there's somethin' serious that needs fixin'.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/132_aeb810d0c742082a87b562771e79be1736d47686.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/132_aeb810d0c742082a87b562771e79be1736d47686.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/132_aeb810d0c742082a87b562771e79be1736d47686.jpg",
+    "_source": "manual"
   },
   {
     "id": "figaro-tuxedo-cat",
@@ -8041,7 +8173,8 @@
         "rulesText": "Opposing items enter play exerted.",
         "raw": "PLAYFULNESS Opposing items enter play exerted."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "thumper-young-bunny",
@@ -8102,7 +8235,8 @@
         "rulesText": "{E} — Chosen character gets +3 {S} this turn.",
         "raw": "YOU CAN DO IT! {E} — Chosen character gets +3 {S} this turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "wreck-it-ralph-back-seat-driver",
@@ -8162,7 +8296,8 @@
         "rulesText": "When you play this character, chosen Racer character gets +4 {S} this turn.",
         "raw": "CHARGED UP When you play this character, chosen Racer character gets +4 {S} this turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "tinker-bell-insistent-fairy",
@@ -8241,7 +8376,8 @@
         "rulesText": "Whenever you play a character with 5 {S} or more, you may exert them to gain 2 lore.",
         "raw": "PAY ATTENTION Whenever you play a character with 5 {S} or more, you may exert them to gain 2 lore."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "lilo-causing-an-uproar",
@@ -8340,7 +8476,8 @@
         "rulesText": "When you play this character, ready chosen character. They can’t quest for the rest of this turn.",
         "raw": "RAAAWR! When you play this character, ready chosen character. They can’t quest for the rest of this turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "lefou-cake-thief",
@@ -8425,7 +8562,8 @@
         "rulesText": "{E}, Banish one of your items — Chosen opponent loses 1 lore and you gain 1 lore.",
         "raw": "ALL FOR ME {E}, Banish one of your items — Chosen opponent loses 1 lore and you gain 1 lore."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "lumiere-fired-up",
@@ -8496,7 +8634,8 @@
         "rulesText": "Whenever one of your items is banished, this character gets +1 {L} this turn.",
         "raw": "SACREBLEU! Whenever one of your items is banished, this character gets +1 {L} this turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "the-coachman-greedy-deceiver",
@@ -8561,7 +8700,8 @@
         "rulesText": "While 2 or more characters of yours are exerted, this character gets +2 {S} and gains <Evasive>. (Only characters with Evasive can challenge them.)",
         "raw": "WILD RIDE While 2 or more characters of yours are exerted, this character gets +2 {S} and gains <Evasive>. (Only characters with Evasive can challenge them.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "mulan-charging-ahead",
@@ -8632,7 +8772,8 @@
         "rulesText": "This character can challenge ready characters.",
         "raw": "LONG RANGE This character can challenge ready characters."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "mushu-your-worst-nightmare",
@@ -8717,7 +8858,8 @@
         "rulesText": "Whenever you play another character, they gain <Rush>, <Reckless>, and <Evasive> this turn. (They can challenge the turn they’re played. They can’t quest and must challenge if able. They can challenge characters with Evasive.)",
         "raw": "ALL FIRED UP Whenever you play another character, they gain <Rush>, <Reckless>, and <Evasive> this turn. (They can challenge the turn they’re played. They can’t quest and must challenge if able. They can challenge characters with Evasive.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "mr-snoops-betrayed-partner",
@@ -8773,7 +8915,8 @@
         "rulesText": "During your turn, when this character is banished, you may draw a card.",
         "raw": "DOUBLE-CROSSING CROOK! During your turn, when this character is banished, you may draw a card."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "friend-owl-cantankerous-neighbor",
@@ -8799,7 +8942,8 @@
     "lore": 2,
     "flavorText": "“Sand? In the forest? I’ll bet some magical miscreant’s up to no good. Well, it’s none of my concern. I’m going back to bed.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/144_88136f41b62afba04948e5408d3d1ddc37bab782.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/144_88136f41b62afba04948e5408d3d1ddc37bab782.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/144_88136f41b62afba04948e5408d3d1ddc37bab782.jpg",
+    "_source": "manual"
   },
   {
     "id": "faline-playful-fawn",
@@ -8853,7 +8997,8 @@
         "rulesText": "While you have a character in play with more {S} than each opposing character, this character gets +2 {L}.",
         "raw": "PRECOCIOUS FRIEND While you have a character in play with more {S} than each opposing character, this character gets +2 {L}."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "prince-john-fraidy-cat",
@@ -8914,7 +9059,8 @@
         "rulesText": "Whenever an opponent plays a character, deal 1 damage to this character.",
         "raw": "HELP! HELP! Whenever an opponent plays a character, deal 1 damage to this character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "nothing-we-wont-do",
@@ -8997,7 +9143,8 @@
         "duration": "end_of_turn"
       }
     ],
-    "singTogetherCost": 8
+    "singTogetherCost": 8,
+    "_source": "manual"
   },
   {
     "id": "get-out",
@@ -9047,7 +9194,8 @@
           }
         }
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "light-the-fuse",
@@ -9095,7 +9243,8 @@
           }
         }
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "twitterpated",
@@ -9131,7 +9280,8 @@
           }
         }
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "most-everyones-mad-here",
@@ -9181,7 +9331,8 @@
           }
         }
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "the-sword-of-shan-yu",
@@ -9258,7 +9409,8 @@
         "rulesText": "{E}, {E} one of your characters — Ready chosen character. They can’t quest for the rest of this turn.",
         "raw": "WORTHY WEAPON {E}, {E} one of your characters — Ready chosen character. They can’t quest for the rest of this turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "the-mouse-queen-ruler-of-mousedom",
@@ -9285,7 +9437,8 @@
     "lore": 1,
     "flavorText": "\"After that dreadful Ratigan business, I know about villains. This Jafar is certainly a villain of the highest order.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/153_a860167e59be54be85220db65c2c6851fe765305.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/153_a860167e59be54be85220db65c2c6851fe765305.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/153_a860167e59be54be85220db65c2c6851fe765305.jpg",
+    "_source": "manual"
   },
   {
     "id": "sir-pellinore-seasoned-knight",
@@ -9348,7 +9501,8 @@
         "rulesText": "Whenever this character quests, your other characters gain <Support> this turn. (Whenever they quest, you may add their {S} to another chosen character’s {S} this turn.)",
         "raw": "CODE OF HONOR Whenever this character quests, your other characters gain <Support> this turn. (Whenever they quest, you may add their {S} to another chosen character’s {S} this turn.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "anita-radcliffe-dog-lover",
@@ -9409,7 +9563,8 @@
         "rulesText": "When you play this character, you may give chosen Puppy character <Resist> +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)",
         "raw": "I’LL TAKE CARE OF YOU When you play this character, you may give chosen Puppy character <Resist> +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "olaf-recapping-the-story",
@@ -9470,7 +9625,8 @@
         "rulesText": "When you play this character, chosen opposing character gets -1 {S} this turn.",
         "raw": "ENDLESS TALE When you play this character, chosen opposing character gets -1 {S} this turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "anna-trusting-sister",
@@ -9537,7 +9693,8 @@
         "rulesText": "When you play this character, if you have a character named Elsa in play, you may put the top card of your deck into your inkwell facedown and exerted.",
         "raw": "WE CAN DO THIS TOGETHER When you play this character, if you have a character named Elsa in play, you may put the top card of your deck into your inkwell facedown and exerted."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "wasabi-always-prepared",
@@ -9570,7 +9727,8 @@
     "rulesText": "<Support> (Whenever this character quests, you may add their {S} to another chosen character’s {S} this turn.)",
     "flavorText": "“Okay, so the plan is ‘leave Wasabi to watch our backs while we steal the crown.' Good to know.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/158_638d512ab37245c8830820cfd3e5150eecea3198.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/158_638d512ab37245c8830820cfd3e5150eecea3198.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/158_638d512ab37245c8830820cfd3e5150eecea3198.jpg",
+    "_source": "manual"
   },
   {
     "id": "go-go-tomago-mechanical-engineer",
@@ -9631,7 +9789,8 @@
         "rulesText": "When you play a Floodborn character on this card, you may put the top card of your deck into your inkwell facedown and exerted.",
         "raw": "NEED THIS! When you play a Floodborn character on this card, you may put the top card of your deck into your inkwell facedown and exerted."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "the-wardrobe-perceptive-friend",
@@ -9694,7 +9853,8 @@
         "rulesText": "{E}, Choose and discard an item card — Draw 2 cards.",
         "raw": "I HAVE JUST THE THING! {E}, Choose and discard an item card — Draw 2 cards."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "mrs-potts-head-housekeeper",
@@ -9771,7 +9931,8 @@
         "rulesText": "{E}, Banish one of your items — Draw a card.",
         "raw": "CLEAN UP {E}, Banish one of your items — Draw a card."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "jasmine-resourceful-infiltrator",
@@ -9833,7 +9994,8 @@
         "rulesText": "When you play this character, you may give another chosen character <Resist> +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)",
         "raw": "JUST WHAT YOU NEED When you play this character, you may give another chosen character <Resist> +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "little-sister-responsible-rabbit",
@@ -9893,7 +10055,8 @@
         "rulesText": "When you play this character, you may remove up to 1 damage from chosen character.",
         "raw": "LET ME HELP When you play this character, you may remove up to 1 damage from chosen character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "adelaide-bonfamille-patron-of-the-arts",
@@ -9919,7 +10082,8 @@
     "lore": 1,
     "flavorText": "“Beautiful music can ennoble one’s spirit, no matter how dire things seem.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/164_4434441b88c2b1217d99ddc69b63e9f9fd7eceda.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/164_4434441b88c2b1217d99ddc69b63e9f9fd7eceda.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/164_4434441b88c2b1217d99ddc69b63e9f9fd7eceda.jpg",
+    "_source": "manual"
   },
   {
     "id": "nani-heist-mastermind",
@@ -10008,7 +10172,8 @@
         "rulesText": "Your characters named Lilo gain <Support>. (Whenever they quest, you may add their {S} to another chosen character’s {S} this turn.)",
         "raw": "IT’S UP TO YOU, LILO Your characters named Lilo gain <Support>. (Whenever they quest, you may add their {S} to another chosen character’s {S} this turn.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "stitch-experiment-626",
@@ -10109,7 +10274,8 @@
         "rulesText": "At the start of your turn, if this card is in your discard, you may choose and discard a card with {C} to play this character for free and he enters play exerted.",
         "raw": "STEALTH MODE At the start of your turn, if this card is in your discard, you may choose and discard a card with {C} to play this character for free and he enters play exerted."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "ratigan-greedy-genius",
@@ -10170,7 +10336,8 @@
         "rulesText": "At the end of your turn, if you didn’t put any cards into your inkwell this turn, banish this character.",
         "raw": "TIME RUNS OUT At the end of your turn, if you didn’t put any cards into your inkwell this turn, banish this character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "arthur-determined-squire",
@@ -10214,7 +10381,8 @@
         "rulesText": "Skip your turn’s Draw step.",
         "raw": "NO MORE BOOKS Skip your turn’s Draw step."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "bernard-over-prepared",
@@ -10281,7 +10449,8 @@
         "rulesText": "When you play this character, if you have an Ally character in play, you may draw a card.",
         "raw": "GO DOWN THERE AND INVESTIGATE When you play this character, if you have an Ally character in play, you may draw a card."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "aladdin-vigilant-guard",
@@ -10350,7 +10519,8 @@
         "rulesText": "Whenever one of your Ally characters quests, you may remove up to 2 damage from this character.",
         "raw": "SAFE PASSAGE Whenever one of your Ally characters quests, you may remove up to 2 damage from this character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "jasmine-steady-strategist",
@@ -10419,7 +10589,8 @@
         "rulesText": "Whenever this character quests, look at the top 3 cards of your deck. You may reveal an Ally character card and put it into your hand. Put the rest on the bottom of your deck in any order.",
         "raw": "ALWAYS PLANNING Whenever this character quests, look at the top 3 cards of your deck. You may reveal an Ally character card and put it into your hand. Put the rest on the bottom of your deck in any order."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "roquefort-lock-expert",
@@ -10479,7 +10650,8 @@
         "rulesText": "Whenever this character quests, you may put chosen item into its player’s inkwell facedown and exerted.",
         "raw": "SAFEKEEPING Whenever this character quests, you may put chosen item into its player’s inkwell facedown and exerted."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "jumba-jookiba-critical-scientist",
@@ -10506,7 +10678,8 @@
     "lore": 2,
     "flavorText": "“This little thing has a much more rudimentary design than if I had created it. But if you were rushing development, then this makes sense.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/173_65ae3773d13e991d1e02b6db9ff5aaf083dbb72e.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/173_65ae3773d13e991d1e02b6db9ff5aaf083dbb72e.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/173_65ae3773d13e991d1e02b6db9ff5aaf083dbb72e.jpg",
+    "_source": "manual"
   },
   {
     "id": "geppetto-skilled-craftsman",
@@ -10580,7 +10753,8 @@
         "rulesText": "Whenever this character quests, you may choose and discard any number of item cards to gain 1 lore for each item card discarded this way.",
         "raw": "SEEKING INSPIRATION Whenever this character quests, you may choose and discard any number of item cards to gain 1 lore for each item card discarded this way."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "heads-held-high",
@@ -10649,7 +10823,8 @@
         }
       }
     ],
-    "singTogetherCost": 6
+    "singTogetherCost": 6,
+    "_source": "manual"
   },
   {
     "id": "pouncing-practice",
@@ -10700,7 +10875,8 @@
           }
         }
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "down-in-new-orleans",
@@ -10737,7 +10913,8 @@
         "isMay": true,
         "revealPicks": true
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "television-set",
@@ -10796,7 +10973,8 @@
         "rulesText": "{E}, 1 {I} — Look at the top card of your deck. If it’s a Puppy character card, you may reveal it and put it into your hand. Otherwise, put it on the bottom of your deck.",
         "raw": "IS IT ON YET? {E}, 1 {I} — Look at the top card of your deck. If it’s a Puppy character card, you may reveal it and put it into your hand. Otherwise, put it on the bottom of your deck."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "belles-favorite-book",
@@ -10868,7 +11046,8 @@
         "rulesText": "{E}, Banish one of your other items — Put the top card of your deck into your inkwell facedown and exerted.",
         "raw": "CHAPTER THREE {E}, Banish one of your other items — Put the top card of your deck into your inkwell facedown and exerted."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "atlantean-crystal",
@@ -10940,7 +11119,8 @@
         "rulesText": "{E}, 2 {I} — Chosen character gains <Resist> +2 and <Support> until the start of your next turn. (Damage dealt to them is reduced by 2. Whenever they quest, you may add their {S} to another chosen character’s {S} this turn.)",
         "raw": "SHIELDING LIGHT {E}, 2 {I} — Chosen character gains <Resist> +2 and <Support> until the start of your next turn. (Damage dealt to them is reduced by 2. Whenever they quest, you may add their {S} to another chosen character’s {S} this turn.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "atitaya-fang-general",
@@ -10966,7 +11146,8 @@
     "lore": 3,
     "flavorText": "\"Spears of Fang, stand strong and tall. We are the last line of defense and we will not fall!\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/181_701556fd427823de597b56a15f795b906d9ed865.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/181_701556fd427823de597b56a15f795b906d9ed865.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/181_701556fd427823de597b56a15f795b906d9ed865.jpg",
+    "_source": "manual"
   },
   {
     "id": "bobby-purple-pigeon",
@@ -10997,7 +11178,8 @@
     "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)",
     "flavorText": "“You come at me, you get the beak, capisce?”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/182_57b39ee3ce63e2cecf953daa3d16fc73d625332d.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/182_57b39ee3ce63e2cecf953daa3d16fc73d625332d.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/182_57b39ee3ce63e2cecf953daa3d16fc73d625332d.jpg",
+    "_source": "manual"
   },
   {
     "id": "magic-carpet-phantom-rug",
@@ -11060,7 +11242,8 @@
         "rulesText": "Your other Illusion characters gain <Challenger> +1. (They get +1 {S} while challenging.)",
         "raw": "SPECTRAL FORCE Your other Illusion characters gain <Challenger> +1. (They get +1 {S} while challenging.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "prince-achmed-rival-suitor",
@@ -11119,7 +11302,8 @@
         "rulesText": "When you play this character, you may exert chosen Princess character.",
         "raw": "UNWELCOME PROPOSAL When you play this character, you may exert chosen Princess character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "dumptruck-karnages-second-mate",
@@ -11179,7 +11363,8 @@
         "rulesText": "When you play this character, you may deal 1 damage to chosen character.",
         "raw": "LET ME AT ’EM When you play this character, you may deal 1 damage to chosen character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "captain-hook-forceful-duelist",
@@ -11214,7 +11399,8 @@
     "rulesText": "<Challenger> +2 (While challenging, this character gets +2 {S}.)",
     "flavorText": "“How dare you? Arm yourself, scoundrel!\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/186_1002fc44d95f3cf307806278ac008aa39eae486b.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/186_1002fc44d95f3cf307806278ac008aa39eae486b.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/186_1002fc44d95f3cf307806278ac008aa39eae486b.jpg",
+    "_source": "manual"
   },
   {
     "id": "general-li-head-of-the-imperial-army",
@@ -11247,7 +11433,8 @@
     "rulesText": "<Resist> +1 (Damage dealt to this character is reduced by 1.)",
     "flavorText": "\"A single grain of rice can tip the scale. One man may be the difference between victory and defeat.\"\n—The Emperor",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/187_6122c9090e5d367488b3ab77155e9a90eed85805.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/187_6122c9090e5d367488b3ab77155e9a90eed85805.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/187_6122c9090e5d367488b3ab77155e9a90eed85805.jpg",
+    "_source": "manual"
   },
   {
     "id": "monterey-jack-defiant-protector",
@@ -11278,7 +11465,8 @@
     "lore": 2,
     "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/188_2121a33a34ffab89734e29f58a28d5939e22df18.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/188_2121a33a34ffab89734e29f58a28d5939e22df18.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/188_2121a33a34ffab89734e29f58a28d5939e22df18.jpg",
+    "_source": "manual"
   },
   {
     "id": "genie-satisfied-dragon",
@@ -11328,7 +11516,8 @@
         "rulesText": "During your turn, this character gains <Evasive>. (They can challenge characters with Evasive.)",
         "raw": "BUG CATCHER During your turn, this character gains <Evasive>. (They can challenge characters with Evasive.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "toby-turtle-wary-friend",
@@ -11379,7 +11568,8 @@
         "rulesText": "While this character is exerted, he gains <Resist> +1. (Damage dealt to them is reduced by 1.)",
         "raw": "HARD SHELL While this character is exerted, he gains <Resist> +1. (Damage dealt to them is reduced by 1.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "arianna-queen-of-corona",
@@ -11405,7 +11595,8 @@
     "lore": 2,
     "flavorText": "“In dark times, a crown is a weighty honor we must bear with grace and courage.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/191_cccd06d002dee4f7acb0c0d446af91e0663abd69.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/191_cccd06d002dee4f7acb0c0d446af91e0663abd69.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/191_cccd06d002dee4f7acb0c0d446af91e0663abd69.jpg",
+    "_source": "manual"
   },
   {
     "id": "zipper-flying-ranger",
@@ -11475,7 +11666,8 @@
         "rulesText": "During your turn, this character gains <Evasive>. (They can challenge characters with Evasive.)",
         "raw": "BURST OF SPEED During your turn, this character gains <Evasive>. (They can challenge characters with Evasive.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "khan-war-horse",
@@ -11501,7 +11693,8 @@
     "lore": 1,
     "flavorText": "“When the whole world changes around you, remember that Khan will always be the same—steadfast and true.”\n—Fa Zhou",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/193_8fffa6e18fe2cd18109f3134a4064aae472aaeb2.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/193_8fffa6e18fe2cd18109f3134a4064aae472aaeb2.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/193_8fffa6e18fe2cd18109f3134a4064aae472aaeb2.jpg",
+    "_source": "manual"
   },
   {
     "id": "vinnie-green-pigeon",
@@ -11567,7 +11760,8 @@
         "rulesText": "During an opponent’s turn, whenever one of your other characters is banished, gain 1 lore.",
         "raw": "LEARNING EXPERIENCE During an opponent’s turn, whenever one of your other characters is banished, gain 1 lore."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "iago-out-of-reach",
@@ -11627,7 +11821,8 @@
         "rulesText": "While you have another exerted character in play, this character can’t be challenged.",
         "raw": "SELF-PRESERVATION While you have another exerted character in play, this character can’t be challenged."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "nathaniel-flint-notorious-pirate",
@@ -11669,7 +11864,8 @@
       {
         "type": "opposing_character_was_damaged_this_turn"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "vincenzo-santorini-the-explosives-expert",
@@ -11728,7 +11924,8 @@
         "rulesText": "When you play this character, you may deal 3 damage to chosen character.",
         "raw": "I JUST LIKE TO BLOW THINGS UP When you play this character, you may deal 3 damage to chosen character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "namaari-single-minded-rival",
@@ -11854,7 +12051,8 @@
         "rulesText": "This character gets +1 {S} for each card in your discard.",
         "raw": "EXTREME FOCUS This character gets +1 {S} for each card in your discard."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "mickey-mouse-giant-mouse",
@@ -11918,7 +12116,8 @@
         "rulesText": "When this character is banished, deal 5 damage to each opposing character.",
         "raw": "THE BIGGEST STAR EVER When this character is banished, deal 5 damage to each opposing character."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "stitch-alien-troublemaker",
@@ -11982,7 +12181,8 @@
         "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may draw a card and gain 1 lore.",
         "raw": "I WIN! During your turn, whenever this character banishes another character in a challenge, you may draw a card and gain 1 lore."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "desperate-plan",
@@ -12048,7 +12248,8 @@
           }
         }
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "beyond-the-horizon",
@@ -12112,7 +12313,8 @@
         }
       }
     ],
-    "singTogetherCost": 7
+    "singTogetherCost": 7,
+    "_source": "manual"
   },
   {
     "id": "quick-shot",
@@ -12153,7 +12355,8 @@
           "type": "self"
         }
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "hamster-ball",
@@ -12212,7 +12415,8 @@
         "rulesText": "{E}, 1 {I} — Chosen character with no damage gains <Resist> +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)",
         "raw": "ROLL WITH THE PUNCHES {E}, 1 {I} — Chosen character with no damage gains <Resist> +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "lady-decisive-dog",
@@ -12295,7 +12499,8 @@
         "rulesText": "While this character has 3 {S} or more, she gets +2 {L}.",
         "raw": "TAKE THE LEAD While this character has 3 {S} or more, she gets +2 {L}."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "wreck-it-ralph-big-lug",
@@ -12392,7 +12597,8 @@
         "rulesText": "When you play this character and whenever he quests, you may return a Racer character card with cost 6 or less from your discard to your hand. If you do, gain 1 lore.",
         "raw": "BACK ON TRACK When you play this character and whenever he quests, you may return a Racer character card with cost 6 or less from your discard to your hand. If you do, gain 1 lore."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "perdita-determined-mother",
@@ -12459,7 +12665,8 @@
         "rulesText": "When you play this character, you may put all Puppy character cards from your discard into your inkwell facedown and exerted.",
         "raw": "QUICK, EVERYONE HIDE When you play this character, you may put all Puppy character cards from your discard into your inkwell facedown and exerted."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "it-means-no-worries",
@@ -12517,7 +12724,8 @@
         }
       }
     ],
-    "singTogetherCost": 9
+    "singTogetherCost": 9,
+    "_source": "manual"
   },
   {
     "id": "bambi-little-prince",
@@ -12597,7 +12805,8 @@
         "rulesText": "When an opponent plays a character, return this character to your hand.",
         "raw": "KIND OF BASHFUL When an opponent plays a character, return this character to your hand."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "kuzco-impulsive-llama",
@@ -12672,7 +12881,8 @@
         "rulesText": "When you play this character, each opponent chooses one of their characters and puts that card on the bottom of their deck. Then, each opponent may draw a card.",
         "raw": "WHAT DOES THIS DO? When you play this character, each opponent chooses one of their characters and puts that card on the bottom of their deck. Then, each opponent may draw a card."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "mother-gothel-knows-whats-best",
@@ -12766,7 +12976,8 @@
         "rulesText": "When you play this character, you may deal 2 damage to another chosen character of yours to give that character <Challenger> +1 and \"When this character is banished in a challenge, return this card to your hand\" this turn. (They get +1 {S} while challenging.)",
         "raw": "LOOK WHAT YOU’VE DONE When you play this character, you may deal 2 damage to another chosen character of yours to give that character <Challenger> +1 and \"When this character is banished in a challenge, return this card to your hand\" this turn. (They get +1 {S} while challenging.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "fantastical-and-magical",
@@ -12822,7 +13033,8 @@
         ]
       }
     ],
-    "singTogetherCost": 9
+    "singTogetherCost": 9,
+    "_source": "manual"
   },
   {
     "id": "into-the-unknown",
@@ -12860,7 +13072,8 @@
           }
         }
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "rapunzel-high-climber",
@@ -12925,7 +13138,8 @@
         "rulesText": "Whenever this character quests, chosen opposing character can’t quest during their next turn.",
         "raw": "WRAPPED UP Whenever this character quests, chosen opposing character can’t quest during their next turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "captain-hook-the-pirate-king",
@@ -13028,7 +13242,8 @@
         "rulesText": "Once during your turn, whenever an opposing character is damaged, your Pirate characters get +2 {S} and gain <Resist> +2 this turn. (Damage dealt to them is reduced by 2.)",
         "raw": "GIVE ’EM ALL YOU GOT! Once during your turn, whenever an opposing character is damaged, your Pirate characters get +2 {S} and gain <Resist> +2 this turn. (Damage dealt to them is reduced by 2.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "wrong-lever",
@@ -13090,7 +13305,8 @@
           ]
         ]
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "lilo-causing-an-uproar",
@@ -13188,7 +13404,8 @@
         "rulesText": "When you play this character, ready chosen character. They can’t quest for the rest of this turn.",
         "raw": "RAAAWR! When you play this character, ready chosen character. They can’t quest for the rest of this turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "mushu-your-worst-nightmare",
@@ -13272,7 +13489,8 @@
         "rulesText": "Whenever you play another character, they gain <Rush>, <Reckless>, and <Evasive> this turn. (They can challenge the turn they’re played. They can’t quest and must challenge if able. They can challenge characters with Evasive.)",
         "raw": "ALL FIRED UP Whenever you play another character, they gain <Rush>, <Reckless>, and <Evasive> this turn. (They can challenge the turn they’re played. They can’t quest and must challenge if able. They can challenge characters with Evasive.)"
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "the-sword-of-shan-yu",
@@ -13347,7 +13565,8 @@
         "rulesText": "{E}, {E} one of your characters — Ready chosen character. They can’t quest for the rest of this turn.",
         "raw": "WORTHY WEAPON {E}, {E} one of your characters — Ready chosen character. They can’t quest for the rest of this turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "stitch-experiment-626",
@@ -13447,7 +13666,8 @@
         "rulesText": "At the start of your turn, if this card is in your discard, you may choose and discard a card with {C} to play this character for free and he enters play exerted.",
         "raw": "STEALTH MODE At the start of your turn, if this card is in your discard, you may choose and discard a card with {C} to play this character for free and he enters play exerted."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "jasmine-steady-strategist",
@@ -13515,7 +13735,8 @@
         "rulesText": "Whenever this character quests, look at the top 3 cards of your deck. You may reveal an Ally character card and put it into your hand. Put the rest on the bottom of your deck in any order.",
         "raw": "ALWAYS PLANNING Whenever this character quests, look at the top 3 cards of your deck. You may reveal an Ally character card and put it into your hand. Put the rest on the bottom of your deck in any order."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "desperate-plan",
@@ -13579,7 +13800,8 @@
           }
         }
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "goofy-groundbreaking-chef",
@@ -13662,7 +13884,8 @@
         "rulesText": "At the end of your turn, you may remove up to 1 damage from each of your other characters. Ready each character you removed damage from this way.",
         "raw": "PLENTY TO GO AROUND At the end of your turn, you may remove up to 1 damage from each of your other characters. Ready each character you removed damage from this way."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "pinocchio-strings-attached",
@@ -13721,6 +13944,7 @@
         "rulesText": "Once during your turn, whenever you ready this character, you may draw a card.",
         "raw": "GOT TO KEEP REAL QUIET Once during your turn, whenever you ready this character, you may draw a card."
       }
-    ]
+    ],
+    "_source": "manual"
   }
 ]

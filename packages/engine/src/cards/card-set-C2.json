@@ -28,7 +28,8 @@
     "lore": 1,
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)",
     "flavorText": "“His name is Pegasus. And he’s all yours. . . .”%—Zeus",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/1_14759a518d51a11653eb125ed741e52ac648cac0.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/1_14759a518d51a11653eb125ed741e52ac648cac0.jpg",
+    "_source": "manual"
   },
   {
     "id": "elsa-ice-maker",
@@ -110,7 +111,8 @@
         "rulesText": "Whenever this character quests, you may exert chosen character. If you do and you have a character named Anna in play, the chosen character can’t ready at the start of their next turn.",
         "raw": "WINTER WALL Whenever this character quests, you may exert chosen character. If you do and you have a character named Anna in play, the chosen character can’t ready at the start of their next turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "mulan-charging-ahead",
@@ -180,7 +182,8 @@
         "rulesText": "This character can challenge ready characters.",
         "raw": "LONG RANGE This character can challenge ready characters."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "simba-pride-protector",
@@ -253,7 +256,8 @@
         "rulesText": "At the end of your turn, if this character is exerted, you may ready your other characters.",
         "raw": "UNDERSTAND THE BALANCE At the end of your turn, if this character is exerted, you may ready your other characters."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "pegasus-gift-for-hercules",
@@ -284,7 +288,8 @@
     "lore": 1,
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)",
     "flavorText": "“His name is Pegasus. And he’s all yours. . . .”%—Zeus",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/5_3da76301dd582812f5e397f290df169ab59c5683.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/5_3da76301dd582812f5e397f290df169ab59c5683.jpg",
+    "_source": "manual"
   },
   {
     "id": "elsa-ice-maker",
@@ -366,7 +371,8 @@
         "rulesText": "Whenever this character quests, you may exert chosen character. If you do and you have a character named Anna in play, the chosen character can’t ready at the start of their next turn.",
         "raw": "WINTER WALL Whenever this character quests, you may exert chosen character. If you do and you have a character named Anna in play, the chosen character can’t ready at the start of their next turn."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "mulan-charging-ahead",
@@ -436,7 +442,8 @@
         "rulesText": "This character can challenge ready characters.",
         "raw": "LONG RANGE This character can challenge ready characters."
       }
-    ]
+    ],
+    "_source": "manual"
   },
   {
     "id": "simba-pride-protector",
@@ -509,6 +516,7 @@
         "rulesText": "At the end of your turn, if this character is exerted, you may ready your other characters.",
         "raw": "UNDERSTAND THE BALANCE At the end of your turn, if this character is exerted, you may ready your other characters."
       }
-    ]
+    ],
+    "_source": "manual"
   }
 ]
