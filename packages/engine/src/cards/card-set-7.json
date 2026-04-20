@@ -7320,6 +7320,29 @@
       {
         "type": "keyword",
         "keyword": "rush"
+      },
+      {
+        "type": "static",
+        "storyName": "GET 'EM!",
+        "rulesText": "Your other characters named Stabbington Brother gain <Rush>.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "rush",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasName": "Stabbington Brother",
+              "excludeSelf": true
+            }
+          }
+        }
       }
     ],
     "setId": "7",
@@ -7332,14 +7355,7 @@
     "lore": 1,
     "rulesText": "<Rush> (This character can challenge the turn they’re played.)\nGET ’EM! Your other characters named Stabbington Brother gain <Rush>.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/125_f2d038a6ed1d66c4dd3b2a7188e2f2ad992b0fe1.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/125_f2d038a6ed1d66c4dd3b2a7188e2f2ad992b0fe1.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "GET 'EM!",
-        "rulesText": "Your other characters named Stabbington Brother gain <Rush>.",
-        "raw": "GET ’EM! Your other characters named Stabbington Brother gain <Rush>."
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set7/125_f2d038a6ed1d66c4dd3b2a7188e2f2ad992b0fe1.jpg"
   },
   {
     "id": "belle-mechanic-extraordinaire",

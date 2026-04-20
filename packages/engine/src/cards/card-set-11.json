@@ -2419,6 +2419,23 @@
       {
         "type": "keyword",
         "keyword": "rush"
+      },
+      {
+        "type": "triggered",
+        "storyName": "WEAKEN THE CAULDRON",
+        "rulesText": "When you play this character, put up to 2 cards from chosen player's discard on the bottom of their deck in any order.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "put_card_on_bottom_of_deck",
+            "from": "discard",
+            "ownerScope": "target_player",
+            "amount": 2,
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "11",
@@ -2431,14 +2448,7 @@
     "lore": 1,
     "rulesText": "<Rush> (This character can challenge the turn they’re played.)\nWEAKEN THE CAULDRON When you play this character, put up to 2 cards from chosen player’s discard on the bottom of their deck in any order.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/44_f04c4a08ff28b9002e72d97be56cd098c622d9da.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/44_f04c4a08ff28b9002e72d97be56cd098c622d9da.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "WEAKEN THE CAULDRON",
-        "rulesText": "When you play this character, put up to 2 cards from chosen player’s discard on the bottom of their deck in any order.",
-        "raw": "WEAKEN THE CAULDRON When you play this character, put up to 2 cards from chosen player’s discard on the bottom of their deck in any order."
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set11/44_f04c4a08ff28b9002e72d97be56cd098c622d9da.jpg"
   },
   {
     "id": "eeyore-in-the-way",

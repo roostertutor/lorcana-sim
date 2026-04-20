@@ -6017,6 +6017,48 @@
       {
         "type": "keyword",
         "keyword": "reckless"
+      },
+      {
+        "type": "triggered",
+        "storyName": "CALL TO BATTLE",
+        "rulesText": "Once during your turn, whenever you put a card under one of your characters or locations, you may ready chosen character. If you do, that character can't quest for the rest of this turn.",
+        "trigger": {
+          "on": "card_put_under",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "oncePerTurn": true,
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "ready",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "followUpEffects": [
+              {
+                "type": "cant_action",
+                "action": "quest",
+                "duration": "end_of_turn",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ]
+          }
+        ]
       }
     ],
     "setId": "10",
@@ -6029,14 +6071,7 @@
     "lore": 0,
     "rulesText": "<Reckless> (This character can’t quest and must challenge each turn if able.)\nCALL TO BATTLE Once during your turn, whenever you put a card under one of your characters or locations, you may ready chosen character. If you do, that character can’t quest for the rest of this turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/104_be50ac9fb22a64cb564ba071e0009c715a2b162b.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/104_be50ac9fb22a64cb564ba071e0009c715a2b162b.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "CALL TO BATTLE",
-        "rulesText": "Once during your turn, whenever you put a card under one of your characters or locations, you may ready chosen character. If you do, that character can’t quest for the rest of this turn.",
-        "raw": "CALL TO BATTLE Once during your turn, whenever you put a card under one of your characters or locations, you may ready chosen character. If you do, that character can’t quest for the rest of this turn."
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set10/104_be50ac9fb22a64cb564ba071e0009c715a2b162b.jpg"
   },
   {
     "id": "peter-pan-high-flyer",
