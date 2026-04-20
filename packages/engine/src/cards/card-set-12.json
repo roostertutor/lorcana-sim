@@ -6755,7 +6755,62 @@
       "Dreamborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "CRUEL INTENT",
+        "rulesText": "While you have a Villain character in play, this character gets +2 {S} and +1 {L}.",
+        "condition": {
+          "type": "has_character_with_trait",
+          "trait": "Villain",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": [
+          {
+            "type": "modify_stat",
+            "stat": "strength",
+            "amount": 2,
+            "target": {
+              "type": "this"
+            }
+          },
+          {
+            "type": "modify_stat",
+            "stat": "lore",
+            "amount": 1,
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      },
+      {
+        "type": "static",
+        "storyName": "VILLAINOUS BOND",
+        "rulesText": "While this character is exerted, your Villain characters can't be challenged.",
+        "condition": {
+          "type": "this_is_exerted"
+        },
+        "effect": {
+          "type": "cant_be_challenged",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Villain"
+            }
+          }
+        }
+      }
+    ],
     "setId": "12",
     "number": 196,
     "rarity": "super_rare",
@@ -6766,19 +6821,7 @@
     "lore": 1,
     "rulesText": "CRUEL INTENT While you have a Villain character in play, this character gets +2 {S} and +1 {L}.\nVILLAINOUS BOND While this character is exerted, your Villain characters can’t be challenged.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/196_d807ab79c4644f37529e9de2d7a72080d3bf68de.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/196_d807ab79c4644f37529e9de2d7a72080d3bf68de.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "CRUEL INTENT",
-        "rulesText": "While you have a Villain character in play, this character gets +2 {S} and +1 {L}.",
-        "raw": "CRUEL INTENT While you have a Villain character in play, this character gets +2 {S} and +1 {L}."
-      },
-      {
-        "storyName": "VILLAINOUS BOND",
-        "rulesText": "While this character is exerted, your Villain characters can’t be challenged.",
-        "raw": "VILLAINOUS BOND While this character is exerted, your Villain characters can’t be challenged."
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/196_d807ab79c4644f37529e9de2d7a72080d3bf68de.jpg"
   },
   {
     "id": "three-arrows",
