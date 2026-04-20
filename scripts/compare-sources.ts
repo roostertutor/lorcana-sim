@@ -19,54 +19,15 @@
 import { readFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
+import { normalizeRulesText } from "./lib/normalize-rules-text.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT_DIR = join(__dirname, "..", "packages", "engine", "src", "cards");
 
-// Must match the Lorcast importer's normalization EXACTLY.
-const KEYWORD_NAMES_RAV_SHAPE = [
-  "Sing Together", "Bodyguard", "Challenger", "Evasive", "Reckless",
-  "Resist", "Rush", "Shift", "Singer", "Support", "Vanish", "Ward",
-  "Boost", "Alert",
-];
-function wrapLineStartKeyword(line: string): string {
-  for (const kw of KEYWORD_NAMES_RAV_SHAPE) {
-    const escaped = kw.replace(/ /g, "\\s+");
-    const re = new RegExp(`^${escaped}\\b`);
-    if (re.test(line)) return line.replace(re, `<${kw}>`);
-  }
-  return line;
-}
-const VALUE_BEARING_KEYWORDS = ["Challenger", "Singer", "Shift", "Resist", "Boost", "Sing Together"];
-function wrapInlineKeywordRefs(line: string): string {
-  const segments = line.split(/(\([^)]*\))/g);
-  return segments.map((seg, i) => {
-    if (i % 2 === 1) return seg;
-    let out = seg;
-    for (const kw of VALUE_BEARING_KEYWORDS) {
-      const escaped = kw.replace(/ /g, "\\s+");
-      const re = new RegExp(`(?<!<)\\b${escaped}\\b(?=\\s*[+\\d])`, "g");
-      out = out.replace(re, `<${kw}>`);
-    }
-    return out;
-  }).join("");
-}
-function normalizeKeywordLineToRavShape(line: string): string {
-  return wrapInlineKeywordRefs(wrapLineStartKeyword(line));
-}
-function normalizeDashes(text: string): string {
-  return text.replace(/ -(\d+\s*\{[SLI]\})/g, " \u2013$1");
-}
-function normalizeApostrophes(text: string): string {
-  return text.replace(/'/g, "\u2019");
-}
-
 function lorcastRulesText(c: { text?: string | null }): string | undefined {
   if (!c.text) return undefined;
-  const lines = c.text.split("\n").map((l) => l.trim()).filter(Boolean)
-    .map(normalizeKeywordLineToRavShape);
-  if (!lines.length) return undefined;
-  return normalizeDashes(normalizeApostrophes(lines.join("\n")));
+  const normalized = normalizeRulesText(c.text);
+  return normalized || undefined;
 }
 
 interface LorcastCard {

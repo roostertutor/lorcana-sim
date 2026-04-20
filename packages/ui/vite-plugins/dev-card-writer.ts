@@ -21,6 +21,11 @@ import { readFileSync, writeFileSync, readdirSync, existsSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import type { IncomingMessage, ServerResponse } from "http";
+// Shared normalization — same golden-shape logic as scripts/import-cards-rav.ts
+// and scripts/import-cards-lorcast.ts, so manually-entered cards match the
+// same rulesText conventions (`<Keyword>` wrapping, curly apostrophes,
+// en-dash stat modifiers, etc.) as API-imported cards.
+import { normalizeRulesText } from "../../../scripts/lib/normalize-rules-text.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CARDS_DIR = join(__dirname, "..", "..", "engine", "src", "cards");
@@ -132,6 +137,19 @@ async function handleAddCard(req: IncomingMessage, res: ServerResponse): Promise
   card.traits = card.traits ?? [];
   card.abilities = card.abilities ?? [];
   card._source = "manual";
+  // Apply shared golden-shape normalization so manual entries can't drift
+  // away from what importers produce. `<Keyword>` wrapping (line-start and
+  // inline, outside reminder parens), curly apostrophes, en-dash stat
+  // modifiers, curly double quotes, trailing-whitespace strip.
+  if (typeof card.rulesText === "string" && card.rulesText.length > 0) {
+    card.rulesText = normalizeRulesText(card.rulesText);
+  }
+  if (typeof card.flavorText === "string") {
+    // Flavor text only needs apostrophe + double-quote fidelity; don't apply
+    // keyword wrapping since it's prose, not rules. Using the apostrophe and
+    // dash helpers would risk false-positives; just normalize quotes.
+    card.flavorText = card.flavorText.replace(/'/g, "\u2019");
+  }
 
   const path = join(CARDS_DIR, `card-set-${card.setId}.json`);
   let cards: CardPost[] = [];

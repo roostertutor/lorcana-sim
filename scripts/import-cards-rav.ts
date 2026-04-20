@@ -32,6 +32,13 @@
 import { writeFileSync, readFileSync, existsSync, mkdirSync, readdirSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
+import {
+  normalizeApostrophes,
+  normalizeDashes,
+  normalizeDoubleQuotes,
+  stripTrailingWhitespace,
+  normalizeKeywordLine,
+} from "./lib/normalize-rules-text.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..");
@@ -247,17 +254,8 @@ function canonicalizeStoryName(raw: string): string {
  * resulting pair is (name, body). If an odd tail remains (no trailing body
  * after a final `\`), it's leading plain text.
  */
-// Convert straight double quotes to curly (U+201C open / U+201D close) for
-// granted-ability text like `"When this character is banished..."`. Pairs are
-// matched greedily: odd-index quotes become open, even-index become close.
-function normalizeDoubleQuotes(text: string): string {
-  let open = true;
-  return text.replace(/"/g, () => {
-    const q = open ? "\u201C" : "\u201D";
-    open = !open;
-    return q;
-  });
-}
+// Post-process normalization helpers come from scripts/lib/normalize-rules-text.ts
+// and are shared with import-cards-lorcast.ts + the dev card-writer GUI endpoint.
 
 function extractNamedAbilities(rawRulesText: string): { rulesText: string; stubs: AbilityStub[] } {
   if (!rawRulesText) return { rulesText: "", stubs: [] };
@@ -326,20 +324,24 @@ function extractNamedAbilities(rawRulesText: string): { rulesText: string; stubs
   }
 
   // Post-process to canonicalize Ravensburger's own data inconsistencies so
-  // the stored golden shape is self-consistent across cards:
-  //   (1) All apostrophes → curly right single quote (U+2019)
-  //   (2) Stat-modifier dashes → en-dash (U+2013) — Rav is inconsistent
-  //       between `-2 {S}` and `–2 {S}`; normalize to en-dash
-  //   (3) Straight double quotes → curly (U+201C / U+201D) for granted-ability
-  //       quote-wrapped text like `"When this character..."`
-  //   (4) Trailing whitespace before newlines — Rav data quirk on some songs
-  cleaned = cleaned.replace(/'/g, "\u2019");
-  cleaned = cleaned.replace(/ -(\d+\s*\{[SLI]\})/g, " \u2013$1");
+  // the stored golden shape is self-consistent across cards and matches the
+  // Lorcast importer + manual GUI entries. See scripts/lib/normalize-rules-text.ts
+  // for the full convention.
+  //   (1) Curly apostrophes (U+2019)
+  //   (2) En-dash stat modifiers (Rav is inconsistent between `-2` and `–2`)
+  //   (3) Curly double quotes around granted-ability text
+  //   (4) Strip trailing whitespace before newlines
+  //   (5) Wrap inline keyword refs — Rav wraps `<Challenger> +1` but leaves
+  //       `gain Rush` unwrapped; we pick the uniform rule (always wrap outside
+  //       reminder parens) so the GUI keyword highlighter can match every token.
+  cleaned = cleaned.split("\n").map(normalizeKeywordLine).join("\n");
+  cleaned = normalizeApostrophes(cleaned);
+  cleaned = normalizeDashes(cleaned);
   cleaned = normalizeDoubleQuotes(cleaned);
-  cleaned = cleaned.replace(/ +\n/g, "\n").replace(/ +$/, "");
+  cleaned = stripTrailingWhitespace(cleaned);
   for (const s of stubs) {
-    s.rulesText = s.rulesText.replace(/'/g, "\u2019");
-    s.raw = s.raw.replace(/'/g, "\u2019");
+    s.rulesText = normalizeApostrophes(s.rulesText);
+    s.raw = normalizeApostrophes(s.raw);
   }
 
   return { rulesText: cleaned, stubs };
