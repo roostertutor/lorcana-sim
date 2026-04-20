@@ -738,6 +738,24 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     return cost;
   }, [session.gameState, definitions, gameModifiers]);
 
+  // Total effective cost of every ready, non-drying singer currently in my
+  // play zone. Used to gate the Sing Together button AND hand-card dimming:
+  // a song is only sing-together feasible if this total ≥ its singTogetherCost.
+  const totalReadySingerCost = useMemo(() => {
+    const gs = session.gameState;
+    if (!gs) return 0;
+    let total = 0;
+    for (const id of gs.zones[myId]?.play ?? []) {
+      const inst = gs.cards[id];
+      if (!inst) continue;
+      const d = definitions[inst.definitionId];
+      if (!d || d.cardType !== "character") continue;
+      if (inst.isExerted || inst.isDrying) continue;
+      total += singerEffectiveCost(id);
+    }
+    return total;
+  }, [session.gameState, myId, definitions, singerEffectiveCost]);
+
   // Eligible singers for Sing Together mode: ready, non-drying, owned
   // characters in play. Action-restriction edge cases (e.g. Ariel On Human
   // Legs) are caught by engine validation on Confirm — we don't filter them
@@ -878,37 +896,30 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     }
 
     // Sing Together (CRD 8.12): getAllLegalActions doesn't enumerate
-    // multi-singer variants, so add the button ourselves for any song in hand
-    // whose definition has a singTogetherCost. Gate on "at least one eligible
-    // singer in play" so the button doesn't tease an empty picker.
+    // multi-singer variants, so add the button ourselves for any hand song
+    // whose singTogetherCost is covered by the player's currently-ready
+    // singers' total effective cost. Gating on total cost (not just "≥1
+    // singer") avoids teasing a button you can't actually confirm.
     const myHand = gs.zones[myId]?.hand ?? [];
-    const hasAnyReadySinger = (gs.zones[myId]?.play ?? []).some(id => {
-      const inst = gs.cards[id];
-      if (!inst) return false;
-      const d = definitions[inst.definitionId];
-      if (!d || d.cardType !== "character") return false;
-      return !inst.isExerted && !inst.isDrying;
-    });
-    if (hasAnyReadySinger) {
-      for (const songId of myHand) {
-        const songInst = gs.cards[songId];
-        if (!songInst) continue;
-        const songDef = definitions[songInst.definitionId];
-        if (!songDef || !isSong(songDef) || songDef.singTogetherCost === undefined) continue;
-        add(songId, {
-          label: "Sing Together",
-          color: "bg-yellow-700 hover:bg-yellow-600 text-yellow-100",
-          onClick: (e) => {
-            e.stopPropagation();
-            cancelMode();
-            setSingTogetherCardId(songId);
-            setSingTogetherSelected([]);
-          },
-        });
-      }
+    for (const songId of myHand) {
+      const songInst = gs.cards[songId];
+      if (!songInst) continue;
+      const songDef = definitions[songInst.definitionId];
+      if (!songDef || !isSong(songDef) || songDef.singTogetherCost === undefined) continue;
+      if (totalReadySingerCost < songDef.singTogetherCost) continue;
+      add(songId, {
+        label: "Sing Together",
+        color: "bg-yellow-700 hover:bg-yellow-600 text-yellow-100",
+        onClick: (e) => {
+          e.stopPropagation();
+          cancelMode();
+          setSingTogetherCardId(songId);
+          setSingTogetherSelected([]);
+        },
+      });
     }
     return map;
-  }, [session.legalActions, session.pendingChoice, session.isGameOver, session.gameState, session, myId, definitions, cancelMode]);
+  }, [session.legalActions, session.pendingChoice, session.isGameOver, session.gameState, session, myId, definitions, cancelMode, totalReadySingerCost]);
 
   function handlePolicyUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -1272,22 +1283,15 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   }
   // Sing Together (CRD 8.12): engine doesn't enumerate multi-singer actions
   // in legalActions (N-choose-K blowup), so a song that's only playable via
-  // Sing Together would dim incorrectly. Mirror the "Sing Together" button
-  // gating — if the player has any ready singer in play, mark every hand song
-  // with singTogetherCost as playable.
-  const hasAnyReadySingerPlay = (gameState.zones[myId]?.play ?? []).some(id => {
-    const inst = gameState.cards[id];
-    if (!inst) return false;
-    const d = definitions[inst.definitionId];
-    if (!d || d.cardType !== "character") return false;
-    return !inst.isExerted && !inst.isDrying;
-  });
-  if (isYourTurn && hasAnyReadySingerPlay) {
+  // Sing Together would dim incorrectly. Mark a hand song as playable iff
+  // the total effective cost of currently-ready, non-drying singers covers
+  // its singTogetherCost — matches the button-gating logic.
+  if (isYourTurn) {
     for (const id of gameState.zones[myId]?.hand ?? []) {
       const inst = gameState.cards[id];
       if (!inst) continue;
       const d = definitions[inst.definitionId];
-      if (d && isSong(d) && d.singTogetherCost !== undefined) {
+      if (d && isSong(d) && d.singTogetherCost !== undefined && totalReadySingerCost >= d.singTogetherCost) {
         playableHandIds.add(id);
       }
     }

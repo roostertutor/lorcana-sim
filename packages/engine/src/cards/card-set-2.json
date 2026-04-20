@@ -1502,8 +1502,7 @@
           },
           "count": 2
         },
-        "duration": "this_turn",
-        "isUpTo": true
+        "duration": "this_turn"
       },
       {
         "type": "draw",

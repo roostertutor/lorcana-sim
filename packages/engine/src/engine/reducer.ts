@@ -6680,7 +6680,14 @@ function applyEffectToTarget(
   switch (effect.type) {
     case "deal_damage": {
       const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, targetInstanceId);
-      return dealDamageToCard(state, targetInstanceId, amount, definitions, events, false, false, effect.asPutDamage, sourceInstanceId);
+      state = dealDamageToCard(state, targetInstanceId, amount, definitions, events, false, false, effect.asPutDamage, sourceInstanceId);
+      // Mirror exert/ready followUpEffects pattern.
+      if ((effect as { followUpEffects?: Effect[] }).followUpEffects) {
+        for (const fu of (effect as { followUpEffects: Effect[] }).followUpEffects) {
+          state = applyEffect(state, fu, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+        }
+      }
+      return state;
     }
     case "gain_lore":
     case "lose_lore": {
@@ -6705,10 +6712,23 @@ function applyEffectToTarget(
       // "play a character with the same name as the banished character").
       const srcRef = makeResolvedRef(state, definitions, targetInstanceId);
       if (srcRef) state = { ...state, lastResolvedSource: srcRef };
-      return banishCard(state, targetInstanceId, definitions, events);
+      state = banishCard(state, targetInstanceId, definitions, events);
+      if ((effect as { followUpEffects?: Effect[] }).followUpEffects) {
+        for (const fu of (effect as { followUpEffects: Effect[] }).followUpEffects) {
+          state = applyEffect(state, fu, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+        }
+      }
+      return state;
     }
-    case "return_to_hand":
-      return zoneTransition(state, targetInstanceId, "hand", definitions, events, { reason: "returned" });
+    case "return_to_hand": {
+      state = zoneTransition(state, targetInstanceId, "hand", definitions, events, { reason: "returned" });
+      if ((effect as { followUpEffects?: Effect[] }).followUpEffects) {
+        for (const fu of (effect as { followUpEffects: Effect[] }).followUpEffects) {
+          state = applyEffect(state, fu, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+        }
+      }
+      return state;
+    }
     case "remember_chosen_target": {
       // Resolution path: write the chosen target id to the SOURCE's
       // rememberedTargetIds field. Persists until the source leaves play
@@ -6866,7 +6886,13 @@ function applyEffectToTarget(
         const override = { ...effect, strength: srcStrength, strengthEqualsSourceStrength: undefined };
         return applyGainStatsToInstance(state, targetInstanceId, override as any, controllingPlayerId, definitions, sourceInstanceId);
       }
-      return applyGainStatsToInstance(state, targetInstanceId, effect, controllingPlayerId, definitions, sourceInstanceId);
+      state = applyGainStatsToInstance(state, targetInstanceId, effect, controllingPlayerId, definitions, sourceInstanceId);
+      if ((effect as { followUpEffects?: Effect[] }).followUpEffects) {
+        for (const fu of (effect as { followUpEffects: Effect[] }).followUpEffects) {
+          state = applyEffect(state, fu, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+        }
+      }
+      return state;
     }
     case "remove_damage": {
       const instance = getInstance(state, targetInstanceId);

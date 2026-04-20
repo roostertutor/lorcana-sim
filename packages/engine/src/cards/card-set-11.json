@@ -7379,13 +7379,13 @@
             "location"
           ]
         },
-        "noMatchDestination": "discard",
         "target": {
           "type": "self"
         },
         "maxToHand": 1,
         "isMay": true,
-        "revealPicks": true
+        "revealPicks": true,
+        "restPlacement": "discard"
       },
       {
         "type": "grant_cost_reduction",
@@ -13469,13 +13469,13 @@
             "location"
           ]
         },
-        "noMatchDestination": "discard",
         "target": {
           "type": "self"
         },
         "maxToHand": 1,
         "isMay": true,
-        "revealPicks": true
+        "revealPicks": true,
+        "restPlacement": "discard"
       },
       {
         "type": "grant_cost_reduction",

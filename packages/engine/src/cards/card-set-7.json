@@ -8250,7 +8250,6 @@
         "effects": [
           {
             "type": "can_challenge_ready",
-            "duration": "this_turn",
             "target": {
               "type": "all",
               "filter": {

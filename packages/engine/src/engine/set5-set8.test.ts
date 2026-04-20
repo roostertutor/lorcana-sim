@@ -368,6 +368,30 @@ describe("§5 Set 5 — put_on_bottom_of_deck Effect", () => {
     expect(state.lastEffectResult).toBe(2);
   });
 
+  it("Stopped Chaos in Its Tracks: 'up to 2' lets the player return just 1 character (engine allows < count)", () => {
+    // Regression: GUI may force exactly 2 selections, but the engine allows
+    // 1..count. The validator caps choice.length <= count and only requires
+    // >= 1 when the prompt is non-optional and there are valid targets.
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let songId: string, t1: string, t2: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "stopped-chaos-in-its-tracks", "hand"));
+    ({ state, instanceId: t1 } = injectCard(state, "player2", "lilo-making-a-wish", "play"));
+    ({ state, instanceId: t2 } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play"));
+    void t2;
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    expect(state.pendingChoice?.count).toBe(2);
+
+    // Pick just 1 — engine MUST accept.
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [t1] }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getInstance(r.newState, t1).zone).toBe("hand");
+  });
+
   it("Hypnotic Deduction: surfaces a multi-pick chooser for the 2 cards (not auto-pick)", () => {
     // "Draw 3 cards, then put 2 cards from your hand on the top of your deck
     // in any order." Bug regression: previously the put effect auto-picked

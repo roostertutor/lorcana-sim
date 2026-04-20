@@ -10,6 +10,47 @@ Conventions:
 
 ---
 
+## GUI: "up to N" target chooser must allow submitting < N
+
+User reported "Stopped Chaos in Its Tracks forces 2 characters to be picked,
+can't choose 1." Engine verified correct: `validator.ts:974-983` caps
+`choice.length <= count` and only requires `>= 1` when the prompt is
+non-optional with valid targets. The Stopped Chaos test in
+`set5-set8.test.ts` confirms a 1-target submission is accepted by the
+engine.
+
+**Bug is GUI-side.** When `pendingChoice.count > 1`, the UI is likely
+disabling submit until exactly N are selected. Fix: allow submission
+with 1..count selections (the cap, not the exact count). Honor
+`pendingChoice.optional` for the 0-allowed case.
+
+Affects: Stopped Chaos in Its Tracks (return up to 2), and any other
+"up to N" wording (return_to_hand, exert, deal_damage, etc.) that
+sets `target.count > 1` without `count` being a strict requirement.
+
+Detection: `pnpm --filter engine test set5-set8` includes a regression
+test asserting the engine accepts choice.length === 1 for Stopped Chaos.
+
+## GUI: Sing Together must dispatch singerInstanceIds (array), not singerInstanceId
+
+Engine handles Sing Together correctly (validator.ts:275-318 +
+reducer.ts:497-518 — accepts `singerInstanceIds` array, validates
+distinct singers + total cost ≥ singTogetherCost, exerts each, fires
+sings trigger per singer). Tests in set4.test.ts cover happy path,
+under-cost, non-Sing-Together rejection.
+
+If a Sing Together song silently fails or behaves like a single-singer
+sing in the GUI, the dispatch is sending `singerInstanceId` (singular)
+instead of `singerInstanceIds: [...]`. Singular field falls through to
+the standard Singer keyword path which checks Singer value vs cost —
+fails if no chosen singer has Singer ≥ cost.
+
+Fix: GUI's "Sing" mode toggle for Sing Together songs needs multi-
+select, and the PLAY_CARD action must include `singerInstanceIds:
+[id1, id2, ...]`.
+
+---
+
 ## Engine: 52 remaining audit #4 invalid-field findings
 
 `pnpm card-status --category invalid-field --verbose` lists 52 cards

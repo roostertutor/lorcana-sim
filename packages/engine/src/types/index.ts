@@ -610,6 +610,9 @@ export interface DealDamageEffect {
   target: CardTarget;
   /** CRD 6.1.3: "up to" — player may choose 0..amount. Engine resolves at max for now. */
   isUpTo?: boolean;
+  /** Effects to run after dealing damage to the target ("deal 2, then if
+   *  banished gain a lore" / sequential follow-ups). */
+  followUpEffects?: Effect[];
   /**
    * CRD distinction: "put N damage counters on" vs "deal N damage". The former
    * does not fire `damage_dealt_to` triggers and isn't a "dealt damage" event.
@@ -640,6 +643,9 @@ export interface BanishEffect {
   target: CardTarget;
   /** CRD 6.1.4 */
   isMay?: boolean;
+  /** Effects to apply after banishing (e.g. "banish chosen char, then gain 1
+   *  lore"). Mirrors the exert/ready followUp pattern. */
+  followUpEffects?: Effect[];
 }
 
 export interface ReturnToHandEffect {
@@ -647,6 +653,8 @@ export interface ReturnToHandEffect {
   target: CardTarget;
   /** CRD 6.1.4: player may choose not to apply this effect */
   isMay?: boolean;
+  /** Effects to apply after returning to hand. */
+  followUpEffects?: Effect[];
 }
 
 export interface GainLoreEffect {
@@ -716,6 +724,9 @@ export interface GainStatsEffect {
    */
   strengthDynamic?: DynamicAmount;
   strengthDynamicNegate?: boolean;
+  /** Effects to apply to the same target after the stat bonus (e.g. "+3 STR
+   *  this turn, then grant Ward until your next turn"). */
+  followUpEffects?: Effect[];
 }
 
 /**

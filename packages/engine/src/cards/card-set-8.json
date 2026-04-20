@@ -4666,10 +4666,10 @@
         "effects": [
           {
             "type": "look_at_top",
-            "amount": 1,
             "target": {
               "type": "self"
-            }
+            },
+            "count": 1
           }
         ]
       }

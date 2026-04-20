@@ -631,8 +631,7 @@
       {
         "type": "static",
         "effect": {
-          "type": "enter_play_exerted_self",
-          "isMay": true
+          "type": "enter_play_exerted_self"
         },
         "storyName": "LONG JOURNEY",
         "rulesText": "This character may enter play exerted."
@@ -2293,7 +2292,6 @@
             ]
           }
         },
-        "isUpTo": true,
         "duration": "until_caster_next_turn"
       },
       {
