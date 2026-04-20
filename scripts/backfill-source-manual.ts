@@ -18,9 +18,10 @@
 //   pnpm backfill-source-manual --only 12         (only specified sets)
 //   pnpm backfill-source-manual --dry             (print changes, don't write)
 //
-// By default skips set 12 — another agent may be editing that file concurrently
-// and a mass edit would risk a merge conflict. Drop --skip-sets=12 once other
-// set-12 work has landed.
+// Default is to tag every set — the hierarchy (ravensburger > lorcast > manual)
+// handles provenance: a subsequent `pnpm import-cards` upgrades Ravensburger-
+// covered cards, then `pnpm import-cards-lorcast` fills the rest. Anything
+// still tagged "manual" at the end = untraceable stale data needing review.
 // =============================================================================
 
 import { readFileSync, writeFileSync, readdirSync } from "fs";
@@ -44,7 +45,7 @@ function getFlag(name: string): string | undefined {
   if (idx >= 0 && argv[idx + 1] && !argv[idx + 1]!.startsWith("--")) return argv[idx + 1];
   return undefined;
 }
-const skipSetsArg = getFlag("skip-sets") ?? "12";
+const skipSetsArg = getFlag("skip-sets") ?? "";
 const onlyArg = getFlag("only");
 const isDry = argv.includes("--dry");
 
