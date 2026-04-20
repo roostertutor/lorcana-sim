@@ -146,6 +146,46 @@ delay, includes Iconic/Epic cards Lorcast doesn't index, and provides
 
 ---
 
+## GUI: Sing Together — multi-singer selection flow
+
+Engine verified correct (validator.ts:275-318, reducer.ts:497-518, tests
+in set4.test.ts). The GUI is the missing piece — reported as broken in
+the sandbox, diagnosis is the multi-select UX.
+
+**Engine contract:**
+- Dispatch shape: `{ type: "PLAY_CARD", playerId, instanceId, singerInstanceIds: [s1, s2, ...] }`
+  — plural `singerInstanceIds` array, distinct instance ids, one per
+  singer.
+- Validation: distinct, all eligible (exerted check, can-sing), total
+  effective cost ≥ `def.singTogetherCost`.
+- Execution: exerts each singer, queues a `sings` trigger per singer,
+  logs with all singer names. No ink deducted — singing is the
+  alt-cost.
+- Non-Sing-Together songs still use the singular `singerInstanceId`
+  path (Singer keyword rules).
+
+**Likely current GUI gaps:**
+1. Sing mode only lets the user pick ONE singer → dispatches
+   `singerInstanceId` (singular). Fails Sing Together validation
+   because a single Mickey (cost 3) falls through to the Singer-keyword
+   path and his Singer value isn't 6+.
+2. Combined-cost calculator in the sing-mode toast doesn't sum across
+   multiple picked singers.
+3. Confirm button doesn't enable until total effective cost ≥
+   `singTogetherCost`.
+
+**UI needs for proper Sing Together flow:**
+- On a Sing Together card in hand, the sing picker should be
+  multi-select: tap singer 1, tap singer 2, … with a running total
+  cost shown in the toast ("2/6 — need 4 more").
+- Confirm button enables only when total ≥ singTogetherCost.
+- On confirm, dispatch with `singerInstanceIds: [s1, s2, ...]`.
+- Preserve the single-singer path for non-Sing-Together songs —
+  those keep the existing `singerInstanceId` (singular) contract.
+
+**Detection:** `def.singTogetherCost != null` switches the flow from
+single-singer to multi-singer mode in the sing picker.
+
 ---
 
 ## GUI: alt-shift cost picker — PendingChoiceModal routing for hand-card pick
