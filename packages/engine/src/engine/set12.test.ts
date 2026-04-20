@@ -474,3 +474,42 @@ describe("self_replacement — 3 silent bugs fixed after CRD 6.5.6 fold", () => 
     expect(state.zones.player1.hand.length).toBe(handBefore - 1 + 2);
   });
 });
+
+describe("§12 Set 12 — Right Behind You (conditional play_card)", () => {
+  it("with no Princess in play: only draws (conditional play branch fizzles)", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let songId: string, dwarfHand: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "right-behind-you", "hand"));
+    ({ state, instanceId: dwarfHand } = injectCard(state, "player1", "sleepy-sluggish-knight", "hand"));
+    void dwarfHand;
+    // No Seven Dwarfs / Princess in play.
+    const handBefore = state.zones.player1.hand.length;
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Drew 1, played the song (-1), no conditional may-prompt.
+    expect(state.zones.player1.hand.length).toBe(handBefore - 1 + 1);
+    expect(state.pendingChoice).toBeFalsy();
+  });
+
+  it("with Seven Dwarfs + Princess in play: surfaces may-prompt to play another Seven Dwarfs for free", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let songId: string, dwarfHand: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "right-behind-you", "hand"));
+    // Seven Dwarfs in play (Sleepy is one).
+    ({ state } = injectCard(state, "player1", "sleepy-sluggish-knight", "play", { isDrying: false }));
+    // Princess in play (Cinderella Gentle and Kind has Princess trait).
+    ({ state } = injectCard(state, "player1", "cinderella-gentle-and-kind", "play", { isDrying: false }));
+    // Another Seven Dwarfs in hand (target for the conditional play).
+    ({ state, instanceId: dwarfHand } = injectCard(state, "player1", "sleepy-sluggish-knight", "hand"));
+    void dwarfHand;
+
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Should surface a may-prompt or choose_target for the free play.
+    expect(state.pendingChoice).toBeDefined();
+  });
+});

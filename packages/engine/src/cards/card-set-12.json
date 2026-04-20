@@ -1433,6 +1433,52 @@
         "target": {
           "type": "self"
         }
+      },
+      {
+        "type": "play_card",
+        "sourceZone": "hand",
+        "filter": {
+          "owner": {
+            "type": "self"
+          },
+          "zone": "hand",
+          "cardType": [
+            "character"
+          ],
+          "hasTrait": "Seven Dwarfs"
+        },
+        "isMay": true,
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            {
+              "type": "you_control_matching",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Seven Dwarfs"
+              }
+            },
+            {
+              "type": "you_control_matching",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Princess"
+              }
+            }
+          ]
+        }
       }
     ]
   },

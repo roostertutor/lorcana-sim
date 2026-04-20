@@ -1552,6 +1552,7 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   forced_target_priority: () => "opponents must choose this character for actions and abilities if able",
   remove_named_ability: () => "remove a named ability from matching characters",
   classification_shift_self: (e) => `${e.trait ?? "?"} Shift`,
+  can_quest_turn_played: () => "this character can quest the turn they're played",
   universal_shift_self: () => "this character gains Universal Shift",
   grant_trait_static: (e) => `${renderTarget(e.target ?? {})} gains the ${e.trait ?? "?"} classification`,
   conditional_challenger_self: (e) => `while challenging ${e.defenderFilter ? renderFilter(e.defenderFilter) : "a character"}, this character gets +${e.strength ?? 0} {S}`,

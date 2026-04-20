@@ -1487,6 +1487,11 @@ export interface PlayCardEffect {
    * future cards to point at a different instance.
    */
   sourceInstanceId?: "self" | CardTarget;
+  /** Optional gating condition. Right Behind You: "If you have a Seven Dwarfs
+   *  character and a Princess character in play, you may play a Seven Dwarfs
+   *  character for free." Effect fizzles silently when false (the may-play
+   *  branch never surfaces). */
+  condition?: Condition;
 }
 
 /** Move a card from one zone into its owner's deck, then shuffle. */
