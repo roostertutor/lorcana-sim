@@ -158,6 +158,16 @@ export interface GameModifiers {
   selfActionRestrictions: Map<string, Set<import("../types/index.js").RestrictedAction>>;
 
   /**
+   * Bypass costs for restricted actions (RC Remote-Controlled Car "can't quest
+   * or challenge unless you pay 1 {I}"). Outer key = instanceId, inner key =
+   * action; value = Cost[] that must be paid when taking that action. When
+   * present alongside a matching selfActionRestrictions entry, the action is
+   * allowed iff the costs are payable. Validator checks + reducer pays the
+   * costs at action resolution time.
+   */
+  selfActionUnlockCosts: Map<string, Map<import("../types/index.js").RestrictedAction, import("../types/index.js").Cost[]>>;
+
+  /**
    * In-hand instances that may be played for free as an alternative play
    * mode (Pudge - Controls the Weather "you can play this character for
    * free"). Populated from `grant_play_for_free_self` static effects whose
@@ -370,6 +380,7 @@ export function getGameModifiers(
     damagePreventionCharges: new Map(),
     grantedActivatedAbilities: new Map(),
     selfActionRestrictions: new Map(),
+    selfActionUnlockCosts: new Map(),
     playForFreeSelf: new Map(),
     grantedShiftSelf: new Map(),
     mimicryTargets: new Set(),
@@ -886,6 +897,17 @@ export function getGameModifiers(
             modifiers.selfActionRestrictions.set(instance.instanceId, set);
           }
           set.add(effect.action);
+          // RC Remote-Controlled Car: "unless you pay 1 {I}" — store the
+          // unlock cost keyed to this action so the validator can check
+          // payability and the reducer can deduct at action time.
+          if (effect.unlockCost && effect.unlockCost.length > 0) {
+            let actionMap = modifiers.selfActionUnlockCosts.get(instance.instanceId);
+            if (!actionMap) {
+              actionMap = new Map();
+              modifiers.selfActionUnlockCosts.set(instance.instanceId, actionMap);
+            }
+            actionMap.set(effect.action, effect.unlockCost);
+          }
           break;
         }
 

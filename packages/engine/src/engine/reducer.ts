@@ -25,6 +25,7 @@ import type {
   EachPlayerEffect,
   PlayerFilter,
   PlayerMetric,
+  RestrictedAction,
 } from "../types/index.js";
 import { getGameModifiers, type GameModifiers } from "./gameModifiers.js";
 import { validateAction, applyMoveCostReduction, getEffectiveCostWithReductions } from "./validator.js";
@@ -1003,6 +1004,11 @@ function applyQuest(
   const staticBonus = modifiers.statBonuses.get(instanceId)?.lore ?? 0;
   const loreGained = getEffectiveLore(instance, def, staticBonus);
 
+  // RC Remote-Controlled Car: "can't quest unless you pay 1 {I}". The
+  // validator has confirmed the cost is payable; deduct it before the quest
+  // resolves. Paid per action, not once per turn.
+  state = payActionUnlockCost(state, playerId, instanceId, "quest", modifiers);
+
   state = exertInstance(state, instanceId, definitions);
   // Track quest count for Isabela Madrigal Golden Child's condition.
   state = {
@@ -1119,6 +1125,11 @@ function applyChallenge(
 ): GameState {
   const attackerDef = getDefinition(state, attackerInstanceId, definitions);
   const defenderDef = getDefinition(state, defenderInstanceId, definitions);
+
+  // RC Remote-Controlled Car: "can't challenge unless you pay 1 {I}". Pay
+  // the unlock cost before the challenge resolves. Validator already confirmed
+  // payability. Paid per action, not once per turn.
+  state = payActionUnlockCost(state, playerId, attackerInstanceId, "challenge", getGameModifiers(state, definitions));
 
   // Set 11 pacifist cycle: track that the attacker's owner had a character
   // challenge this turn. Used by no_challenges_this_turn condition.
@@ -7705,6 +7716,24 @@ function payCosts(
     }
   }
   return state;
+}
+
+/**
+ * Pay the unlock cost for a cant_action_self restriction, if one is present
+ * for this (instance, action) pair. Used by RC Remote-Controlled Car to pay
+ * 1 {I} every time it quests or challenges. Validator has already confirmed
+ * the cost is payable; this silently deducts it. Reuses payCosts() internally.
+ */
+function payActionUnlockCost(
+  state: GameState,
+  playerId: PlayerID,
+  instanceId: string,
+  action: RestrictedAction,
+  modifiers: { selfActionUnlockCosts?: Map<string, Map<RestrictedAction, Cost[]>> }
+): GameState {
+  const costs = modifiers.selfActionUnlockCosts?.get(instanceId)?.get(action);
+  if (!costs || costs.length === 0) return state;
+  return payCosts(state, playerId, instanceId, costs, []);
 }
 
 function updatePlayerInk(state: GameState, playerId: PlayerID, delta: number): GameState {

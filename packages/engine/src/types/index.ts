@@ -2039,6 +2039,14 @@ export interface ClassificationShiftSelfStatic {
 export interface CantActionSelfStatic {
   type: "cant_action_self";
   action: RestrictedAction;
+  /** Optional "unless you pay X" gate. When present, the restriction is
+   *  BYPASSABLE by paying these costs at action time. Used by RC
+   *  Remote-Controlled Car ("This character can't quest or challenge unless
+   *  you pay 1 {I}. (You pay this cost each time.)"). Cost is paid per action,
+   *  not once per turn. Validator + legal-action enumerator must check the
+   *  costs are payable before allowing the action; the reducer pays them
+   *  when the action resolves. */
+  unlockCost?: Cost[];
 }
 
 /**

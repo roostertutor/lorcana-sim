@@ -732,13 +732,20 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   // start of your turn") and Gargoyle STONE BY DAY ("this character can't
   // ready" — blanket, via ready_anytime).
   cant_action_self: (e) => {
-    if (e.action === "ready") return `this character can't ready at the start of your turn${dur(e)}`;
-    if (e.action === "ready_anytime") return `this character can't ready${dur(e)}`;
+    // RC Remote-Controlled Car: unlock cost bypasses the restriction.
+    // Oracle: "This character can't quest or challenge unless you pay 1 {I}."
+    const unlockSuffix = Array.isArray(e.unlockCost) && e.unlockCost.length > 0
+      ? ` unless you pay ${e.unlockCost
+          .map((c: any) => c.type === "pay_ink" ? `${c.amount} {I}` : c.type)
+          .join(" and ")}`
+      : "";
+    if (e.action === "ready") return `this character can't ready at the start of your turn${dur(e)}${unlockSuffix}`;
+    if (e.action === "ready_anytime") return `this character can't ready${dur(e)}${unlockSuffix}`;
     // Max Goof Rockin' Teen I JUST WANNA STAY HOME: "can't move to locations".
     // In Lorcana, "move" always means "move to a location", so render that
     // explicitly so the rendered text matches the oracle wording.
-    if (e.action === "move") return `this character can't move to locations${dur(e)}`;
-    return `this character can't ${e.action ?? "act"}${dur(e)}`;
+    if (e.action === "move") return `this character can't move to locations${dur(e)}${unlockSuffix}`;
+    return `this character can't ${e.action ?? "act"}${dur(e)}${unlockSuffix}`;
   },
 
   // pay_ink as an effect (e.g. Ursula's Shell Necklace nested cost-as-effect).

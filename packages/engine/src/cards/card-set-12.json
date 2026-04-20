@@ -2709,7 +2709,35 @@
       "Toy",
       "Racer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "LOW BATTERIES",
+        "rulesText": "This character can't quest or challenge unless you pay 1 {I}. (You pay this cost each time.)",
+        "effect": [
+          {
+            "type": "cant_action_self",
+            "action": "quest",
+            "unlockCost": [
+              {
+                "type": "pay_ink",
+                "amount": 1
+              }
+            ]
+          },
+          {
+            "type": "cant_action_self",
+            "action": "challenge",
+            "unlockCost": [
+              {
+                "type": "pay_ink",
+                "amount": 1
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 77,
     "rarity": "common",
@@ -2721,14 +2749,7 @@
     "rulesText": "LOW BATTERIES This character can’t quest or challenge unless you pay 1 {I}. (You pay this cost each time.)",
     "flavorText": "Racing around Andy's room is fun, but he <really> loves going off road.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/77_a035676fa654b7a6140995687d8c0dcdae62e8f9.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/77_a035676fa654b7a6140995687d8c0dcdae62e8f9.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "LOW BATTERIES",
-        "rulesText": "This character can’t quest or challenge unless you pay 1 {I}. (You pay this cost each time.)",
-        "raw": "LOW BATTERIES This character can’t quest or challenge unless you pay 1 {I}. (You pay this cost each time.)"
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/77_a035676fa654b7a6140995687d8c0dcdae62e8f9.jpg"
   },
   {
     "id": "lord-macguffin-clever-swordsman",

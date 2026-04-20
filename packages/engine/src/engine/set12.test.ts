@@ -700,6 +700,39 @@ describe("Set 12 — Omnidroid V.9 played_via_shift condition", () => {
   });
 });
 
+describe("Set 12 — RC Remote-Controlled Car (cant_action_self with unlockCost)", () => {
+  it("RC can't quest with 0 ink; can quest after paying 1 ink", () => {
+    let state = startGame(["rc-remote-controlled-car"]);
+    state = giveInk(state, "player1", 0);
+    const { state: s1, instanceId } = injectCard(state, "player1", "rc-remote-controlled-car", "play");
+
+    // 0 ink — unlock cost not payable → quest rejected.
+    const noInk = applyAction(s1, { type: "QUEST", playerId: "player1", instanceId }, CARD_DEFINITIONS);
+    expect(noInk.success).toBe(false);
+    expect(noInk.error).toMatch(/ink|quest/i);
+
+    // 1 ink — unlock payable → quest succeeds, 1 ink deducted.
+    const s2 = giveInk(s1, "player1", 1);
+    const withInk = applyAction(s2, { type: "QUEST", playerId: "player1", instanceId }, CARD_DEFINITIONS);
+    expect(withInk.success).toBe(true);
+    expect(withInk.newState.players.player1.availableInk).toBe(0);
+    expect(withInk.newState.players.player1.lore).toBeGreaterThan(0);
+  });
+
+  it("getAllLegalActions omits RC's QUEST when ink is insufficient; includes it when payable", () => {
+    let state = startGame(["rc-remote-controlled-car"]);
+    state = giveInk(state, "player1", 0);
+    const { state: s1, instanceId } = injectCard(state, "player1", "rc-remote-controlled-car", "play");
+
+    const noInkActions = getAllLegalActions(s1, "player1", CARD_DEFINITIONS);
+    expect(noInkActions.some(a => a.type === "QUEST" && a.instanceId === instanceId)).toBe(false);
+
+    const s2 = giveInk(s1, "player1", 1);
+    const withInkActions = getAllLegalActions(s2, "player1", CARD_DEFINITIONS);
+    expect(withInkActions.some(a => a.type === "QUEST" && a.instanceId === instanceId)).toBe(true);
+  });
+});
+
 describe("Set 12 — Lord 'may enter play exerted to X' pattern", () => {
   // "May enter play exerted to X" is Bodyguard's opt-in-exert mechanism
   // (synthesized on-enter may-exert trigger) plus a reward effect — NOT a

@@ -19,6 +19,7 @@ import {
   getInstance,
   getKeywordValue,
   getOpponent,
+  getSelfActionUnlockCost,
   getZone,
   hasKeyword,
   isActionRestricted,
@@ -503,7 +504,19 @@ function validateQuest(
     return fail("This character is still drying and cannot quest.");
   }
   if (isActionRestricted(instance, def, "quest", playerId, state, modifiers)) {
-    return fail("This character can't quest.");
+    // RC Remote-Controlled Car: bypassable via unlock cost. Allow the quest
+    // if the restriction has an unlock cost and the player can pay it.
+    const unlock = getSelfActionUnlockCost(instanceId, "quest", modifiers);
+    if (!unlock) return fail("This character can't quest.");
+    for (const c of unlock) {
+      if (c.type === "pay_ink" && !canAfford(state, playerId, c.amount)) {
+        return fail(`Not enough ink to unlock quest (need ${c.amount}).`);
+      }
+      // Non-ink unlock costs aren't supported yet — reject defensively.
+      if (c.type !== "pay_ink") {
+        return fail("Unlock cost type not supported.");
+      }
+    }
   }
 
   return OK;
@@ -541,7 +554,17 @@ function validateChallenge(
 
   // CRD 6.6.1: Unified check for challenge restrictions (timed effects like Frying Pan + statics like Gantu)
   if (isActionRestricted(attacker, attackerDef, "challenge", playerId, state, modifiers)) {
-    return fail("This character can't challenge.");
+    // RC: bypassable via unlock cost.
+    const unlock = getSelfActionUnlockCost(attackerInstanceId, "challenge", modifiers);
+    if (!unlock) return fail("This character can't challenge.");
+    for (const c of unlock) {
+      if (c.type === "pay_ink" && !canAfford(state, playerId, c.amount)) {
+        return fail(`Not enough ink to unlock challenge (need ${c.amount}).`);
+      }
+      if (c.type !== "pay_ink") {
+        return fail("Unlock cost type not supported.");
+      }
+    }
   }
   // Prince Charming Protector of the Realm: "each turn, only one character
   // can challenge". Global limit; check both players' per-turn flags.

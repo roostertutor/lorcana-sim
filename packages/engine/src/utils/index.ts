@@ -174,6 +174,24 @@ export function isActionRestricted(
 }
 
 /**
+ * Return the unlock cost for a restricted action, if any. Used by RC
+ * Remote-Controlled Car ("can't quest or challenge unless you pay 1 {I}") —
+ * the restriction is bypassable by paying the listed costs. The validator
+ * calls this when `isActionRestricted` is true to decide whether to allow
+ * the action; the reducer deducts the cost at action resolution time.
+ * Returns undefined when no unlock is available (the action is strictly blocked).
+ */
+export function getSelfActionUnlockCost(
+  instanceId: string,
+  action: RestrictedAction,
+  modifiers: {
+    selfActionUnlockCosts?: Map<string, Map<RestrictedAction, import("../types/index.js").Cost[]>>;
+  }
+): import("../types/index.js").Cost[] | undefined {
+  return modifiers.selfActionUnlockCosts?.get(instanceId)?.get(action);
+}
+
+/**
  * Build a ResolvedRef snapshot from a card instance. Captures identity + a
  * stat snapshot at the current moment so downstream effect steps can reference
  * the previously-resolved card even if it later moves zones or has its stats
