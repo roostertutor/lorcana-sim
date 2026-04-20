@@ -609,8 +609,10 @@ export default function PendingChoiceModal({
     // 1 valid match collapses to exactly 1).
     const targetCount = Math.max(1, Math.min(rawCap, Math.max(validSet.size, 1)));
     const isMultiTarget = targetCount > 1;
-    // Mandatory mode: must pick exactly targetCount. Optional: 1..targetCount.
-    const isMandatory = !pendingChoice.optional;
+    // CRD 6.1.3 "up to N": engine accepts 1..N when non-optional with valid
+    // targets, 0..N when optional. Confirm needs ≥1; the Skip button below
+    // handles 0-submit on optional choices. Old UI forced exactly N for
+    // non-optional, so Stopped Chaos (return up to 2) couldn't submit 1.
 
     // Split into "mine" and "opponent's" groups. When grouping is meaningful
     // (both sides represented), render them under labeled sections; otherwise
@@ -656,7 +658,7 @@ export default function PendingChoiceModal({
           <div className="text-yellow-300 text-sm font-medium">{pendingChoice.prompt}</div>
           {isMultiTarget && (
             <div className="text-[10px] text-gray-500 uppercase tracking-wider">
-              {isMandatory ? "Select" : "Select up to"} {targetCount} ({multiSelectTargets.length}/{targetCount})
+              Select up to {targetCount} ({multiSelectTargets.length}/{targetCount})
             </div>
           )}
           {contextHints.length > 0 && (
@@ -693,9 +695,11 @@ export default function PendingChoiceModal({
               className="px-4 py-2 text-xs bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg font-medium transition-colors"
               disabled={
                 isMultiTarget
-                  ? isMandatory
-                    ? multiSelectTargets.length !== targetCount
-                    : multiSelectTargets.length === 0
+                  // "up to N" — either mandatory (≥1 required) or optional:
+                  // cap already enforced on selection; just need ≥1 for Confirm.
+                  // Explicit 0-submit (skip) lives on a separate path when
+                  // optional is true and no selection exists.
+                  ? multiSelectTargets.length === 0
                   : !multiSelectTargets[0]
               }
               onClick={() => onResolveChoice(multiSelectTargets)}

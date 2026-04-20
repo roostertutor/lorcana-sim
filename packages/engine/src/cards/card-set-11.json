@@ -10538,9 +10538,9 @@
         },
         "effects": [
           {
-            "type": "gets_stat_while_challenging",
-            "strength": 2,
-            "isMay": true,
+            "type": "grant_keyword",
+            "keyword": "challenger",
+            "value": 2,
             "duration": "until_caster_next_turn",
             "target": {
               "type": "chosen",
@@ -10550,7 +10550,8 @@
                   "character"
                 ]
               }
-            }
+            },
+            "isMay": true
           },
           {
             "type": "grant_keyword",
@@ -11496,14 +11497,11 @@
         "effects": [
           {
             "type": "remember_chosen_target",
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ]
-              }
+            "filter": {
+              "zone": "play",
+              "cardType": [
+                "character"
+              ]
             }
           }
         ]

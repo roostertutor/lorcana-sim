@@ -9909,6 +9909,19 @@
             "isMay": true,
             "costEffects": [
               {
+                "type": "remember_chosen_target",
+                "filter": {
+                  "owner": {
+                    "type": "self"
+                  },
+                  "zone": "play",
+                  "cardType": [
+                    "character"
+                  ],
+                  "hasTrait": "Ally"
+                }
+              },
+              {
                 "type": "draw",
                 "amount": {
                   "type": "target_strength"
@@ -9933,20 +9946,7 @@
                   "type": "last_resolved_target"
                 }
               }
-            ],
-            "chooseTarget": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ],
-                "hasTrait": "Ally"
-              }
-            }
+            ]
           }
         ]
       }
@@ -13652,6 +13652,19 @@
             "isMay": true,
             "costEffects": [
               {
+                "type": "remember_chosen_target",
+                "filter": {
+                  "owner": {
+                    "type": "self"
+                  },
+                  "zone": "play",
+                  "cardType": [
+                    "character"
+                  ],
+                  "hasTrait": "Ally"
+                }
+              },
+              {
                 "type": "draw",
                 "amount": {
                   "type": "target_strength"
@@ -13676,20 +13689,7 @@
                   "type": "last_resolved_target"
                 }
               }
-            ],
-            "chooseTarget": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ],
-                "hasTrait": "Ally"
-              }
-            }
+            ]
           }
         ]
       }

@@ -2096,6 +2096,10 @@ export interface GrantShiftSelfStatic {
 export interface CanChallengeReadyStatic {
   type: "can_challenge_ready";
   target: CardTarget;
+  /** Optional defender restriction. Gizmoduck Suited Up: only damaged ready
+   *  defenders. Darkwing Duck Cool Under Pressure: only Villains. When unset,
+   *  the override applies to any ready defender. */
+  defenderFilter?: CardFilter;
 }
 
 /**
