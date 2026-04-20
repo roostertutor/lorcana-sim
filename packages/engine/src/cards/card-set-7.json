@@ -11528,7 +11528,8 @@
           "filter": {
             "owner": {
               "type": "self"
-            }
+            },
+            "isSelf": true
           }
         },
         "effects": [

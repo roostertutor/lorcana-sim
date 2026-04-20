@@ -10124,7 +10124,8 @@
           "filter": {
             "owner": {
               "type": "self"
-            }
+            },
+            "isSelf": true
           }
         },
         "condition": {

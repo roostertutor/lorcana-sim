@@ -176,7 +176,10 @@ export default function CardPicker({ entries, definitions, onChange }: Props) {
           <div
             className="grid gap-2"
             style={{
-              gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))",
+              // 100px min → 3 cards fit on a typical iPhone (~390px viewport
+              // minus paddings), 6-8 fit on desktop. 120px was taking only
+              // 2 cards on mobile which felt oversized.
+              gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))",
               contentVisibility: "auto",
               containIntrinsicSize: "0 200px",
             }}

@@ -231,6 +231,30 @@ function validateCardFields(card: any): FieldError[] {
           });
         }
       }
+      // "this character" trigger-clause check (Bug 3 pattern). When the trigger
+      // wording references THIS character/item/location AND the filter is just
+      // `{ owner: { type: "self" } }` (broad — matches any owned card), the
+      // cross-card trigger path fires the trigger on every owned card matching
+      // the event, not just the source. Add `isSelf: true` to scope to source.
+      // Caught Simba King in the Making's dual-trigger bug originally; this
+      // rule re-detects siblings.
+      if (ab.type === "triggered" && ab.rulesText) {
+        const keys = Object.keys(tf).filter(k => k !== "isSelf");
+        const filterIsBroad = keys.length === 1 && keys[0] === "owner" && tf.owner?.type === "self";
+        if (filterIsBroad && !tf.isSelf && !tf.excludeSelf) {
+          // Trigger clause: text before the first comma. "this character" in
+          // the EFFECT clause (e.g. "ready this character") is normal.
+          const triggerClause = (ab.rulesText.toLowerCase().split(/,\s/)[0] ?? "");
+          if (/\bthis (character|item|location)\b/.test(triggerClause)) {
+            errors.push({
+              path: `${path}.trigger.filter`,
+              field: "isSelf",
+              value: "missing",
+              validValues: `"this character" wording but filter is broad ({owner:self}) — add isSelf:true to restrict to source instance`,
+            });
+          }
+        }
+      }
     }
     // Check condition on ability
     if (ab.condition) walkCondition(ab.condition, path + ".condition");
