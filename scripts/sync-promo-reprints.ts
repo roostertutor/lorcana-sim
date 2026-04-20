@@ -9,8 +9,8 @@ import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CARDS_DIR = join(__dirname, "../packages/engine/src/cards");
 
-const MAIN_SETS = ["001", "002", "003", "004", "005", "006", "007", "008", "009", "010", "011", "012"];
-const PROMO_SETS = ["0P1", "0P2", "0P3", "0C1", "0C2", "D23"];
+const MAIN_SETS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
+const PROMO_SETS = ["P1", "P2", "P3", "C1", "C2", "D23", "DIS"];
 
 // Build a name → wired-card index from main sets.
 const wired: Record<string, any> = {};

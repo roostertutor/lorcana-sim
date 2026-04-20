@@ -2967,6 +2967,65 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "discard",
+                "cardType": [
+                  "action"
+                ],
+                "costAtMost": 7,
+                "owner": {
+                  "type": "self"
+                }
+              }
+            }
+          }
+        ],
+        "storyName": "TAKE CHARGE",
+        "rulesText": "When you play this character, you may return an action card with cost 7 or less from your discard to your hand."
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "action"
+            ]
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "lore": 1,
+            "duration": "this_turn"
+          }
+        ],
+        "storyName": "ADVANCED TRAINING",
+        "rulesText": "Whenever you play an action, chosen character gets +1 {L} this turn."
       }
     ],
     "setId": "12",
@@ -6520,6 +6579,40 @@
       {
         "type": "keyword",
         "keyword": "rush"
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
+              }
+            },
+            "isMay": true
+          }
+        ],
+        "condition": {
+          "type": "has_character_with_trait",
+          "trait": "Super",
+          "player": {
+            "type": "self"
+          },
+          "excludeSelf": true
+        },
+        "storyName": "JUST CHILL",
+        "rulesText": "When you play this character, if you have another Super character in play, you may exert chosen opposing character."
       }
     ],
     "setId": "12",
@@ -6597,7 +6690,40 @@
     "rarity": "enchanted",
     "_source": "ravensburger",
     "rulesText": "Move a character of yours to a location for free. Then, draw cards equal to that location’s {L}.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/240_185d89307de4161437257494a507c87eb14c2a6f.jpg"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/240_185d89307de4161437257494a507c87eb14c2a6f.jpg",
+    "actionEffects": [
+      {
+        "type": "move_character",
+        "character": {
+          "type": "chosen",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ],
+            "zone": "play"
+          }
+        },
+        "location": {
+          "type": "chosen",
+          "filter": {
+            "cardType": [
+              "location"
+            ],
+            "zone": "play"
+          }
+        }
+      },
+      {
+        "type": "draw",
+        "amount": "last_target_location_lore",
+        "target": {
+          "type": "self"
+        }
+      }
+    ]
   },
   {
     "id": "buzz-lightyear-jungle-ranger",

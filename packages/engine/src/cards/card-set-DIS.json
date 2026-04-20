@@ -14,7 +14,27 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "PERCEPTIVE PARTNER",
+        "rulesText": "While you have a character named Pascal in play, this character gains Ward.",
+        "condition": {
+          "type": "has_character_named",
+          "name": "Pascal",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "ward",
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "DIS",
     "number": 1,
     "rarity": "common",
@@ -54,6 +74,49 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "storyName": "HUMBLE PIE",
+        "rulesText": "When you play this character, if you used Shift to play him, each opponent loses 2 lore.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "triggering_card_played_via_shift"
+        },
+        "effects": [
+          {
+            "type": "each_player",
+            "scope": "opponents",
+            "effects": [
+              {
+                "type": "lose_lore",
+                "amount": 2,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "static",
+        "storyName": "RAGING DUCK",
+        "rulesText": "While an opponent has 10 or more lore, this character gets +6 {S}.",
+        "condition": {
+          "type": "opponent_has_lore_gte",
+          "amount": 10
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "strength",
+          "amount": 6,
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "DIS",
@@ -100,6 +163,46 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ],
+            "costAtMost": 2
+          }
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "costEffects": [
+              {
+                "type": "exert",
+                "target": {
+                  "type": "triggering_card"
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ],
+            "isMay": true
+          }
+        ],
+        "storyName": "ADORING FANS",
+        "rulesText": "Whenever you play a character with cost 2 or less, you may exert them to draw a card."
       }
     ],
     "setId": "DIS",
