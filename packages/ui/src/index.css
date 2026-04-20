@@ -6,6 +6,14 @@
   body {
     @apply bg-gray-950 text-gray-100 antialiased;
   }
+  /* Disable the iOS double-tap-zoom gesture on tap targets. Rapid taps
+     on buttons in dense UIs (deckbuilder card grid, stepper) were
+     sometimes being interpreted as pinch-zoom. `manipulation` keeps
+     single-tap + pan + pinch; drops the double-tap-to-zoom behavior
+     that causes the full-screen zoom. */
+  button, a, [role="button"] {
+    touch-action: manipulation;
+  }
 }
 
 @layer utilities {
