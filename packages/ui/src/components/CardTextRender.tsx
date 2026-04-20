@@ -7,13 +7,17 @@
 
 import type { CardDefinition, Ability, InkColor } from "@lorcana-sim/engine";
 
+// Background colors match the primary fill of each ink's SVG icon
+// (assets/icons/ink/) for visual consistency with gem indicators
+// elsewhere. /30 alpha gives a subtle tint on the ink-chip badge
+// without overpowering the text.
 const INK_COLOR_STYLES: Record<InkColor, { bg: string; text: string; label: string }> = {
-  amber: { bg: "bg-amber-600/30", text: "text-amber-200", label: "Amber" },
-  amethyst: { bg: "bg-purple-600/30", text: "text-purple-200", label: "Amethyst" },
-  emerald: { bg: "bg-emerald-600/30", text: "text-emerald-200", label: "Emerald" },
-  ruby: { bg: "bg-red-600/30", text: "text-red-200", label: "Ruby" },
-  sapphire: { bg: "bg-blue-600/30", text: "text-blue-200", label: "Sapphire" },
-  steel: { bg: "bg-gray-500/30", text: "text-gray-200", label: "Steel" },
+  amber: { bg: "bg-[#f4b223]/30", text: "text-amber-200", label: "Amber" },
+  amethyst: { bg: "bg-[#7c4182]/30", text: "text-purple-200", label: "Amethyst" },
+  emerald: { bg: "bg-[#329044]/30", text: "text-emerald-200", label: "Emerald" },
+  ruby: { bg: "bg-[#d50037]/30", text: "text-red-200", label: "Ruby" },
+  sapphire: { bg: "bg-[#0093c9]/30", text: "text-sky-200", label: "Sapphire" },
+  steel: { bg: "bg-[#97a3ae]/30", text: "text-gray-200", label: "Steel" },
 };
 
 function capitalize(s: string): string {

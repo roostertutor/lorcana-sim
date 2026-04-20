@@ -11,15 +11,6 @@ import { parseDecklist, serializeDecklist } from "@lorcana-sim/engine";
 import { getMaxCopies, formatVariantKey, resolvePrinting, printingLabels, cardMatchScore } from "../utils/deckRules.js";
 import DeckExportPanel from "./DeckExportPanel.js";
 
-const INK_COLOR_CLASS: Record<string, string> = {
-  amber: "bg-amber-600 text-amber-100",
-  amethyst: "bg-purple-600 text-purple-100",
-  emerald: "bg-emerald-600 text-emerald-100",
-  ruby: "bg-red-600 text-red-100",
-  sapphire: "bg-blue-600 text-blue-100",
-  steel: "bg-gray-500 text-gray-100",
-};
-
 // Compact variant labels for the inline per-row tag. Omit "regular" since
 // that's the implicit default and we only show the tag when variant is set.
 const VARIANT_LABELS: Record<string, string> = {
@@ -329,11 +320,16 @@ export default function DeckBuilder({ entries, definitions, onChange, deckName =
                     <div className="text-sm text-gray-200 truncate">{d.fullName}</div>
                     <div className="text-[10px] text-gray-500 capitalize">{d.cardType}</div>
                   </div>
-                  <div className="flex gap-0.5 shrink-0">
-                    {d.inkColors.map((c) => (
-                      <span key={c} className={`w-2 h-2 rounded-full ${INK_COLOR_CLASS[c]?.split(" ")[0] ?? "bg-gray-600"}`} />
-                    ))}
-                  </div>
+                  {/* Ink icon — single primary gem, matches deck row style so
+                       the autocomplete ↔ deck-list transition is consistent. */}
+                  {d.inkColors[0] && (
+                    <img
+                      src={`/icons/ink/${d.inkColors[0]}.svg`}
+                      alt={d.inkColors[0]}
+                      title={d.inkColors.join(" / ")}
+                      className="w-4 h-4 shrink-0"
+                    />
+                  )}
                   {existing && (
                     <span className="text-xs text-amber-400 font-mono shrink-0">{existing.count}/{max}</span>
                   )}

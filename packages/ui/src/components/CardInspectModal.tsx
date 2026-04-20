@@ -14,14 +14,16 @@ interface Props {
   gameModifiers?: GameModifiers | null;
 }
 
-// Ink color → badge color class
+// Ink color → badge color class. Background hex matches the primary
+// fill of each ink's SVG icon in assets/icons/ink/ so the inspect
+// badges visibly match the gems shown elsewhere in the app.
 const INK_COLOR_CLASS: Record<string, string> = {
-  amber: "bg-amber-600 text-amber-100",
-  amethyst: "bg-purple-600 text-purple-100",
-  emerald: "bg-emerald-600 text-emerald-100",
-  ruby: "bg-red-600 text-red-100",
-  sapphire: "bg-blue-600 text-blue-100",
-  steel: "bg-gray-500 text-gray-100",
+  amber: "bg-[#f4b223] text-amber-950",
+  amethyst: "bg-[#7c4182] text-purple-100",
+  emerald: "bg-[#329044] text-emerald-950",
+  ruby: "bg-[#d50037] text-red-50",
+  sapphire: "bg-[#0093c9] text-sky-950",
+  steel: "bg-[#97a3ae] text-gray-950",
 };
 
 export default function CardInspectModal({ instanceId, gameState, definitions, actions, onClose, gameModifiers }: Props) {

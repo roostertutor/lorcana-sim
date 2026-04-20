@@ -6,6 +6,7 @@
 
 import React from "react";
 import type { InkColor, CardType, CardDefinition } from "@lorcana-sim/engine";
+import { INK_COLOR_CLASS } from "../utils/deckRules.js";
 
 export type CostBucket = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8; // 8 represents "8+"
 export type Rarity = CardDefinition["rarity"];
@@ -40,13 +41,18 @@ export function hasAnyFilter(f: CardFilters): boolean {
     || f.query.trim().length > 0;
 }
 
+// Use shared INK_COLOR_CLASS (extracted from the ink SVG fills) so chip
+// backgrounds match the gem icons visually. Previous Tailwind color-scale
+// values (purple-600, red-600, blue-600) were noticeably off from the
+// Lorcana brand palette — especially Amethyst rendering as bright violet
+// instead of deep Lorcana purple.
 const INK_COLORS: Array<{ key: InkColor; label: string; bg: string }> = [
-  { key: "amber", label: "Amber", bg: "bg-amber-600" },
-  { key: "amethyst", label: "Amethyst", bg: "bg-purple-600" },
-  { key: "emerald", label: "Emerald", bg: "bg-emerald-600" },
-  { key: "ruby", label: "Ruby", bg: "bg-red-600" },
-  { key: "sapphire", label: "Sapphire", bg: "bg-blue-600" },
-  { key: "steel", label: "Steel", bg: "bg-gray-500" },
+  { key: "amber", label: "Amber", bg: INK_COLOR_CLASS.amber },
+  { key: "amethyst", label: "Amethyst", bg: INK_COLOR_CLASS.amethyst },
+  { key: "emerald", label: "Emerald", bg: INK_COLOR_CLASS.emerald },
+  { key: "ruby", label: "Ruby", bg: INK_COLOR_CLASS.ruby },
+  { key: "sapphire", label: "Sapphire", bg: INK_COLOR_CLASS.sapphire },
+  { key: "steel", label: "Steel", bg: INK_COLOR_CLASS.steel },
 ];
 
 const CARD_TYPES: Array<{ key: CardType; label: string }> = [

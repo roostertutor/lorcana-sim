@@ -26,15 +26,29 @@ export function countById(
  *  filter chips, quick-start empty states). */
 export const INK_ORDER: InkColor[] = ["amber", "amethyst", "emerald", "ruby", "sapphire", "steel"];
 
-/** Tailwind bg-* class per ink color — shared by gem dots across the UI so
- *  the palette stays consistent between deck tiles, filter bar, etc. */
+/** Tailwind bg-* class per ink color — shared by gem dots + filter chip
+ *  backgrounds across the UI so the palette stays consistent and matches
+ *  the official Lorcana ink colors. Hex values are extracted from the
+ *  `.st0` / primary fills of the ink SVGs in assets/icons/ink/ so the
+ *  chip/dot and the gem icon visibly match. */
+export const INK_COLOR_HEX: Record<InkColor, string> = {
+  amber: "#f4b223",
+  amethyst: "#7c4182",
+  emerald: "#329044",
+  ruby: "#d50037",
+  sapphire: "#0093c9",
+  steel: "#97a3ae",
+};
+
+/** Tailwind `bg-[#...]` class form of the ink hex — useful in component
+ *  className strings where inline style is awkward. */
 export const INK_COLOR_CLASS: Record<InkColor, string> = {
-  amber: "bg-amber-500",
-  amethyst: "bg-purple-500",
-  emerald: "bg-emerald-500",
-  ruby: "bg-red-500",
-  sapphire: "bg-blue-500",
-  steel: "bg-gray-400",
+  amber: "bg-[#f4b223]",
+  amethyst: "bg-[#7c4182]",
+  emerald: "bg-[#329044]",
+  ruby: "bg-[#d50037]",
+  sapphire: "bg-[#0093c9]",
+  steel: "bg-[#97a3ae]",
 };
 export function deckInkColors(
   entries: DeckEntry[],
