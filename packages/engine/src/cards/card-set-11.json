@@ -974,14 +974,16 @@
         "rulesText": "For each character you have in play, you pay 1 {I} less to play this character.",
         "effect": {
           "type": "self_cost_reduction",
-          "perCount": 1,
-          "countFilter": {
-            "cardType": [
-              "character"
-            ],
-            "zone": "play",
-            "owner": {
-              "type": "self"
+          "amount": {
+            "type": "count",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "zone": "play",
+              "owner": {
+                "type": "self"
+              }
             }
           }
         }
@@ -1544,10 +1546,7 @@
         "rulesText": "This character can't challenge.",
         "effect": {
           "type": "action_restriction",
-          "restricts": "challenge",
-          "target": {
-            "type": "this"
-          }
+          "restricts": "challenge"
         }
       }
     ],
@@ -2418,13 +2417,15 @@
         "rulesText": "For each exerted character in play, you pay 1 {I} less to play this character.",
         "effect": {
           "type": "self_cost_reduction",
-          "perCount": 1,
-          "countFilter": {
-            "cardType": [
-              "character"
-            ],
-            "zone": "play",
-            "isExerted": true
+          "amount": {
+            "type": "count",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "zone": "play",
+              "isExerted": true
+            }
           }
         }
       },
@@ -6819,14 +6820,16 @@
         "rulesText": "For each action card in your discard, you pay 1 {I} less to play this character.",
         "effect": {
           "type": "self_cost_reduction",
-          "perCount": 1,
-          "countFilter": {
-            "cardType": [
-              "action"
-            ],
-            "zone": "discard",
-            "owner": {
-              "type": "self"
+          "amount": {
+            "type": "count",
+            "filter": {
+              "cardType": [
+                "action"
+              ],
+              "zone": "discard",
+              "owner": {
+                "type": "self"
+              }
             }
           }
         }
@@ -10444,15 +10447,17 @@
         "rulesText": "For each Alien character card in your discard, you pay 1 {I} less to play this character.",
         "effect": {
           "type": "self_cost_reduction",
-          "perCount": 1,
-          "countFilter": {
-            "cardType": [
-              "character"
-            ],
-            "hasTrait": "Alien",
-            "zone": "discard",
-            "owner": {
-              "type": "self"
+          "amount": {
+            "type": "count",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Alien",
+              "zone": "discard",
+              "owner": {
+                "type": "self"
+              }
             }
           }
         }
@@ -12881,13 +12886,15 @@
         "rulesText": "For each exerted character in play, you pay 1 {I} less to play this character.",
         "effect": {
           "type": "self_cost_reduction",
-          "perCount": 1,
-          "countFilter": {
-            "cardType": [
-              "character"
-            ],
-            "zone": "play",
-            "isExerted": true
+          "amount": {
+            "type": "count",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "zone": "play",
+              "isExerted": true
+            }
           }
         }
       },

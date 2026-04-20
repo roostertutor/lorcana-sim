@@ -304,13 +304,12 @@
         "storyName": "TRUE VALOR",
         "rulesText": "This character gets +1 {S} for each 1 damage on her.",
         "effect": {
-          "type": "modify_stat_per_count",
+          "type": "modify_stat_per_damage",
           "stat": "strength",
-          "perCount": 1,
-          "countSelfDamage": true,
           "target": {
             "type": "this"
-          }
+          },
+          "perDamage": 1
         }
       }
     ],
@@ -7647,13 +7646,12 @@
         "storyName": "EXTRAORDINARY SITUATION",
         "rulesText": "This character gets +1 {S} for each 1 damage on him.",
         "effect": {
-          "type": "modify_stat_per_count",
+          "type": "modify_stat_per_damage",
           "stat": "strength",
-          "perCount": 1,
-          "countSelfDamage": true,
           "target": {
             "type": "this"
-          }
+          },
+          "perDamage": 1
         }
       }
     ],

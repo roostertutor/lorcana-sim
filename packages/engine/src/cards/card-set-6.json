@@ -9355,52 +9355,46 @@
     "actionEffects": [
       {
         "type": "choose",
-        "choices": [
-          {
-            "name": "Ready chosen item",
-            "effects": [
-              {
-                "type": "ready",
-                "target": {
-                  "type": "chosen",
-                  "filter": {
-                    "zone": "play",
-                    "cardType": [
-                      "item"
-                    ]
-                  }
+        "options": [
+          [
+            {
+              "type": "ready",
+              "target": {
+                "type": "chosen",
+                "filter": {
+                  "zone": "play",
+                  "cardType": [
+                    "item"
+                  ]
                 }
               }
-            ]
-          },
-          {
-            "name": "Ready chosen Robot character",
-            "effects": [
-              {
-                "type": "ready",
-                "target": {
-                  "type": "chosen",
-                  "filter": {
-                    "zone": "play",
-                    "cardType": [
-                      "character"
-                    ],
-                    "hasTrait": "Robot"
+            }
+          ],
+          [
+            {
+              "type": "ready",
+              "target": {
+                "type": "chosen",
+                "filter": {
+                  "zone": "play",
+                  "cardType": [
+                    "character"
+                  ],
+                  "hasTrait": "Robot"
+                }
+              },
+              "followUpEffects": [
+                {
+                  "type": "cant_action",
+                  "action": "quest",
+                  "duration": "this_turn",
+                  "target": {
+                    "type": "this"
                   }
-                },
-                "followUpEffects": [
-                  {
-                    "type": "cant_action",
-                    "action": "quest",
-                    "duration": "this_turn",
-                    "target": {
-                      "type": "this"
-                    }
-                  }
-                ]
-              }
-            ]
-          }
+                }
+              ]
+            }
+          ]
         ]
       }
     ]
@@ -11158,42 +11152,36 @@
     "actionEffects": [
       {
         "type": "choose",
-        "choices": [
-          {
-            "name": "Deal 2 damage",
-            "effects": [
-              {
-                "type": "deal_damage",
-                "amount": 2,
-                "target": {
-                  "type": "chosen",
-                  "filter": {
-                    "zone": "play",
-                    "cardType": [
-                      "character"
-                    ]
-                  }
+        "options": [
+          [
+            {
+              "type": "deal_damage",
+              "amount": 2,
+              "target": {
+                "type": "chosen",
+                "filter": {
+                  "zone": "play",
+                  "cardType": [
+                    "character"
+                  ]
                 }
               }
-            ]
-          },
-          {
-            "name": "Banish chosen item",
-            "effects": [
-              {
-                "type": "banish",
-                "target": {
-                  "type": "chosen",
-                  "filter": {
-                    "zone": "play",
-                    "cardType": [
-                      "item"
-                    ]
-                  }
+            }
+          ],
+          [
+            {
+              "type": "banish",
+              "target": {
+                "type": "chosen",
+                "filter": {
+                  "zone": "play",
+                  "cardType": [
+                    "item"
+                  ]
                 }
               }
-            ]
-          }
+            }
+          ]
         ]
       }
     ]

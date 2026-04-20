@@ -1845,9 +1845,6 @@
               "character"
             ],
             "hasName": "Gurgi"
-          },
-          "target": {
-            "type": "self"
           }
         }
       }
@@ -5839,15 +5836,15 @@
           "type": "modify_stat_per_count",
           "stat": "lore",
           "perCount": 1,
-          "countZone": "play",
-          "countOwner": {
-            "type": "both"
-          },
           "countFilter": {
             "cardType": [
               "character"
             ],
-            "atLocation": "this"
+            "atLocation": "this",
+            "zone": "play",
+            "owner": {
+              "type": "both"
+            }
           },
           "target": {
             "type": "this"
@@ -11783,14 +11780,14 @@
           "type": "modify_stat_per_count",
           "stat": "lore",
           "perCount": 1,
-          "countZone": "play",
-          "countOwner": {
-            "type": "self"
-          },
           "countFilter": {
             "cardType": [
               "location"
-            ]
+            ],
+            "zone": "play",
+            "owner": {
+              "type": "self"
+            }
           },
           "target": {
             "type": "this"
@@ -11808,9 +11805,6 @@
             "cardType": [
               "location"
             ]
-          },
-          "target": {
-            "type": "self"
           }
         },
         "condition": {

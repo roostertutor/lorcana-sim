@@ -2749,7 +2749,6 @@
         "effect": {
           "type": "modify_stat_per_count",
           "stat": "strength",
-          "amountPer": 1,
           "target": {
             "type": "this"
           },
@@ -2758,7 +2757,8 @@
               "type": "self"
             },
             "zone": "hand"
-          }
+          },
+          "perCount": 1
         }
       }
     ],

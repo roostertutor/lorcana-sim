@@ -726,8 +726,7 @@
             "character"
           ]
         },
-        "cost": "free",
-        "playMode": "shift"
+        "cost": "free"
       }
     ]
   },
@@ -4516,8 +4515,7 @@
             ],
             "zone": "play"
           }
-        },
-        "cost": "free"
+        }
       },
       {
         "type": "draw",
