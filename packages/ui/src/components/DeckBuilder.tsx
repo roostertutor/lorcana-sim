@@ -55,27 +55,46 @@ export default function DeckBuilder({ entries, definitions, onChange, deckName =
   const [importErrors, setImportErrors] = useState<string[]>([]);
   const [groupMode, setGroupMode] = useGroupMode();
   const [groupMenuOpen, setGroupMenuOpen] = useState(false);
-  const [exportingImage, setExportingImage] = useState(false);
+  // Preview-before-download — PNG is auto-rendered when the export modal
+  // opens so the user sees exactly what will be downloaded. Clicking
+  // "Download image" then saves the already-rendered data URL rather
+  // than regenerating. null while loading or not rendered yet.
+  const [exportPreviewUrl, setExportPreviewUrl] = useState<string | null>(null);
+  const [exportError, setExportError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const exportPanelRef = useRef<HTMLDivElement>(null);
 
-  async function handleExportImage() {
-    if (!exportPanelRef.current) return;
-    setExportingImage(true);
-    try {
-      // pixelRatio: 2 → 2× resolution for crisp rendering on retina.
-      const dataUrl = await toPng(exportPanelRef.current, { pixelRatio: 2 });
-      const filename = `${(deckName || "deck").replace(/[^a-z0-9-]+/gi, "-").toLowerCase()}.png`;
-      const a = document.createElement("a");
-      a.href = dataUrl;
-      a.download = filename;
-      a.click();
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error("Image export failed:", err);
-    } finally {
-      setExportingImage(false);
+  // Regenerate the preview PNG whenever the Export modal opens (or when
+  // deck contents change while it's open). Uses pixelRatio: 2 for
+  // retina-crisp rendering.
+  useEffect(() => {
+    if (showImportExport !== "export") {
+      setExportPreviewUrl(null);
+      setExportError(null);
+      return;
     }
+    if (!exportPanelRef.current) return;
+    let cancelled = false;
+    setExportPreviewUrl(null);
+    setExportError(null);
+    (async () => {
+      try {
+        const dataUrl = await toPng(exportPanelRef.current!, { pixelRatio: 2 });
+        if (!cancelled) setExportPreviewUrl(dataUrl);
+      } catch (err) {
+        if (!cancelled) setExportError(String(err));
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [showImportExport, entries, deckName]);
+
+  function handleDownloadImage() {
+    if (!exportPreviewUrl) return;
+    const filename = `${(deckName || "deck").replace(/[^a-z0-9-]+/gi, "-").toLowerCase()}.png`;
+    const a = document.createElement("a");
+    a.href = exportPreviewUrl;
+    a.download = filename;
+    a.click();
   }
 
   const totalCards = entries.reduce((s, e) => s + e.count, 0);
@@ -485,15 +504,42 @@ export default function DeckBuilder({ entries, definitions, onChange, deckName =
             ) : (
               <>
                 <p className="text-xs text-gray-500">
-                  Copy this text to share or save elsewhere.
+                  Copy the text below to share, or preview + download a PNG.
                 </p>
                 <textarea
                   readOnly
-                  className="w-full h-56 bg-gray-950 border border-gray-700 rounded-lg p-3 text-sm font-mono
+                  className="w-full h-40 bg-gray-950 border border-gray-700 rounded-lg p-3 text-sm font-mono
                              text-gray-200 focus:outline-none focus:border-amber-500 resize-none"
                   value={serializeDecklist(entries, definitions)}
                   onClick={(e) => (e.target as HTMLTextAreaElement).select()}
                 />
+                {/* Image preview — auto-rendered on modal open so the user
+                     can confirm what the PNG looks like before saving.
+                     Clicking Download uses the same data URL shown here. */}
+                {entries.length > 0 && (
+                  <div className="space-y-1">
+                    <div className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">
+                      Image preview
+                    </div>
+                    <div className="bg-gray-950 border border-gray-800 rounded-lg p-2 max-h-[50vh] overflow-auto">
+                      {exportError ? (
+                        <div className="text-xs text-red-400 py-6 text-center">
+                          Couldn't render preview: {exportError}
+                        </div>
+                      ) : exportPreviewUrl ? (
+                        <img
+                          src={exportPreviewUrl}
+                          alt="Deck export preview"
+                          className="w-full h-auto block"
+                        />
+                      ) : (
+                        <div className="text-xs text-gray-600 py-6 text-center animate-pulse">
+                          Rendering preview…
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
                 <div className="flex items-center justify-end gap-2 flex-wrap">
                   <button
                     className="btn-ghost text-xs py-2 px-3"
@@ -505,11 +551,11 @@ export default function DeckBuilder({ entries, definitions, onChange, deckName =
                   </button>
                   <button
                     className="btn-ghost text-xs py-2 px-3 disabled:opacity-40"
-                    onClick={handleExportImage}
-                    disabled={exportingImage || entries.length === 0}
-                    title="Download a shareable PNG of this deck"
+                    onClick={handleDownloadImage}
+                    disabled={!exportPreviewUrl || entries.length === 0}
+                    title="Save the preview above as a PNG"
                   >
-                    {exportingImage ? "Rendering…" : "Download image"}
+                    Download image
                   </button>
                   <button
                     className="py-2 px-4 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-bold transition-colors"
