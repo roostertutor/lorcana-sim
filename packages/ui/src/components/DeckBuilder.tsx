@@ -295,16 +295,33 @@ export default function DeckBuilder({ entries, definitions, onChange, deckName =
               const existing = entries.find((e) => e.definitionId === d.id);
               const max = getMaxCopies(d);
               const atMax = existing && existing.count >= max;
+              // Thumbnail = small card art (small variant) so you can
+              // recognize by visual without needing to read text, and
+              // distinguish same-name cards at a glance.
+              const thumbUrl = d.imageUrl?.replace("/digital/normal/", "/digital/small/");
               return (
                 <button
                   key={d.id}
-                  className={`w-full text-left px-3 py-2 flex items-center gap-2 transition-colors ${
+                  className={`w-full text-left px-2 py-1.5 flex items-center gap-2 transition-colors ${
                     i === highlightedIdx ? "bg-gray-800" : "hover:bg-gray-800"
                   } ${atMax ? "opacity-50" : ""}`}
                   onMouseEnter={() => setHighlightedIdx(i)}
                   onMouseDown={(e) => { e.preventDefault(); if (!atMax) addCard(d); }}
                   disabled={!!atMax}
                 >
+                  {thumbUrl ? (
+                    <img
+                      src={thumbUrl}
+                      alt=""
+                      className="shrink-0 w-10 h-14 object-cover rounded border border-gray-700"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : (
+                    <span className="shrink-0 w-10 h-14 rounded border border-gray-700 bg-gray-900 flex items-center justify-center text-[9px] text-gray-600 text-center p-0.5">
+                      {d.fullName}
+                    </span>
+                  )}
                   <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gray-700 text-white text-xs font-black shrink-0">
                     {d.cost}
                   </span>
