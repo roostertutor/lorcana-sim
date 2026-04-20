@@ -22,14 +22,14 @@
     "setId": "D23",
     "number": 1,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Brave Little Tailor",
     "strength": 5,
     "willpower": 5,
     "lore": 4,
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)",
     "flavorText": "When defeat looms and victory hangs by a thread, a hero bolts to the rescue, patching things up through shear determination.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/1_1217b22b5c937088bfd49a72c7c226af713e557f.jpg",
-    "_source": "manual"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/1_1217b22b5c937088bfd49a72c7c226af713e557f.jpg"
   },
   {
     "id": "cinderella-stouthearted",
@@ -85,6 +85,7 @@
     "setId": "D23",
     "number": 2,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Stouthearted",
     "strength": 5,
     "willpower": 5,
@@ -98,8 +99,7 @@
         "rulesText": "Whenever you play a song, this character may challenge ready characters this turn.",
         "raw": "THE SINGING SWORD Whenever you play a song, this character may challenge ready characters this turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "ursula-deceiver",
@@ -151,6 +151,7 @@
     "setId": "D23",
     "number": 3,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Deceiver",
     "strength": 1,
     "willpower": 3,
@@ -163,8 +164,7 @@
         "rulesText": "When you play this character, chosen opponent reveals their hand and discards a song card of your choice.",
         "raw": "YOU’LL NEVER EVEN MISS IT When you play this character, chosen opponent reveals their hand and discards a song card of your choice."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "bruno-madrigal-undetected-uncle",
@@ -209,6 +209,7 @@
     "setId": "D23",
     "number": 4,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Undetected Uncle",
     "strength": 3,
     "willpower": 3,
@@ -221,8 +222,7 @@
         "rulesText": "{E} — Name a card, then reveal the top card of your deck. If it’s the named card, put that card into your hand and gain 3 lore. Otherwise, put it on the top of your deck.",
         "raw": "YOU JUST HAVE TO SEE IT {E} — Name a card, then reveal the top card of your deck. If it’s the named card, put that card into your hand and gain 3 lore. Otherwise, put it on the top of your deck."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "vanellope-von-schweetz-sugar-rush-princess",
@@ -284,6 +284,7 @@
     "setId": "D23",
     "number": 5,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Sugar Rush Princess",
     "strength": 2,
     "willpower": 4,
@@ -297,8 +298,7 @@
         "rulesText": "Whenever you play another Princess character, all opposing characters get -1 {S} until the start of your next turn.",
         "raw": "I HEREBY DECREE Whenever you play another Princess character, all opposing characters get -1 {S} until the start of your next turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "oswald-the-lucky-rabbit",
@@ -351,6 +351,7 @@
     "setId": "D23",
     "number": 6,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "The Lucky Rabbit",
     "strength": 2,
     "willpower": 1,
@@ -363,8 +364,7 @@
         "rulesText": "During your turn, whenever a card is put into your inkwell, reveal the top card of your deck. If it’s an item card you may play it for free, exerted. Otherwise, put it on the bottom of your deck.",
         "raw": "FAVORABLE CHANCE During your turn, whenever a card is put into your inkwell, reveal the top card of your deck. If it’s an item card you may play it for free, exerted. Otherwise, put it on the bottom of your deck."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "mickey-mouse-playful-sorcerer",
@@ -431,6 +431,7 @@
     "setId": "D23",
     "number": 7,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Playful Sorcerer",
     "strength": 3,
     "willpower": 4,
@@ -444,8 +445,7 @@
         "rulesText": "When you play this character, deal damage to chosen character equal to the number of Broom characters you have in play.",
         "raw": "SWEEP AWAY When you play this character, deal damage to chosen character equal to the number of Broom characters you have in play."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "iago-out-of-reach",
@@ -491,6 +491,7 @@
     "setId": "D23",
     "number": 8,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Out of Reach",
     "strength": 3,
     "willpower": 3,
@@ -504,8 +505,7 @@
         "rulesText": "While you have another exerted character in play, this character can’t be challenged.",
         "raw": "SELF-PRESERVATION While you have another exerted character in play, this character can’t be challenged."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "mad-hatter-unruly-eccentric",
@@ -551,6 +551,7 @@
     "setId": "D23",
     "number": 16,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Unruly Eccentric",
     "strength": 3,
     "willpower": 5,
@@ -564,7 +565,6 @@
         "rulesText": "Whenever a damaged character challenges another character, you may draw a card.",
         "raw": "UNBIRTHDAY PRESENT Whenever a damaged character challenges another character, you may draw a card."
       }
-    ],
-    "_source": "manual"
+    ]
   }
 ]

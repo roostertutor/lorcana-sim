@@ -45,6 +45,7 @@
     "setId": "P2",
     "number": 1,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Gold Lover",
     "strength": 3,
     "willpower": 4,
@@ -58,8 +59,7 @@
         "rulesText": "{E} — Play an item from your hand or discard with cost 5 or less for free, exerted.",
         "raw": "BEAUTIFUL, LOVELY TAXES {E} — Play an item from your hand or discard with cost 5 or less for free, exerted."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "kristoff-reindeer-keeper",
@@ -106,6 +106,7 @@
     "setId": "P2",
     "number": 2,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Reindeer Keeper",
     "strength": 3,
     "willpower": 7,
@@ -118,8 +119,7 @@
         "rulesText": "For each song card in your discard, you pay 1 {I} less to play this character.",
         "raw": "SONG OF THE HERD For each song card in your discard, you pay 1 {I} less to play this character."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "nala-mischievous-cub",
@@ -139,13 +139,13 @@
     "setId": "P2",
     "number": 3,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Mischievous Cub",
     "strength": 0,
     "willpower": 4,
     "lore": 1,
     "flavorText": "The Lorcana Hide-and-Seek Championship was hers for the taking.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/3_9705f53212ce1d4e4289326182a7f0d0c6611aa6.jpg",
-    "_source": "manual"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/3_9705f53212ce1d4e4289326182a7f0d0c6611aa6.jpg"
   },
   {
     "id": "finders-keepers",
@@ -162,6 +162,7 @@
     "setId": "P2",
     "number": 4,
     "rarity": "special",
+    "_source": "ravensburger",
     "rulesText": "Draw 3 cards.",
     "flavorText": "“Three wishes, comin' right up!\"\n—Iago",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/4_a28c50e5eb6549dc382766bdc6fc33f5cad72008.jpg",
@@ -173,8 +174,7 @@
           "type": "self"
         }
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "chicha-dedicated-mother",
@@ -232,6 +232,7 @@
     "setId": "P2",
     "number": 5,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Dedicated Mother",
     "strength": 2,
     "willpower": 1,
@@ -244,8 +245,7 @@
         "rulesText": "During your turn, when you put a card into your inkwell, if it’s the second card you’ve put into your inkwell this turn, you may draw a card.",
         "raw": "ONE ON THE WAY During your turn, when you put a card into your inkwell, if it’s the second card you’ve put into your inkwell this turn, you may draw a card."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "stitch-team-underdog",
@@ -290,6 +290,7 @@
     "setId": "P2",
     "number": 6,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Team Underdog",
     "strength": 1,
     "willpower": 4,
@@ -303,8 +304,7 @@
         "rulesText": "When you play this character, you may deal 2 damage to chosen character.",
         "raw": "HEAVE HO! When you play this character, you may deal 2 damage to chosen character."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "mirabel-madrigal-family-gatherer",
@@ -325,6 +325,7 @@
     "setId": "P2",
     "number": 7,
     "rarity": "enchanted",
+    "_source": "ravensburger",
     "subtitle": "Family Gatherer",
     "strength": 5,
     "willpower": 5,
@@ -347,8 +348,7 @@
           "type": "self"
         }
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "stitch-alien-buccaneer",
@@ -400,6 +400,7 @@
     "setId": "P2",
     "number": 8,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Alien Buccaneer",
     "strength": 3,
     "willpower": 4,
@@ -413,8 +414,7 @@
         "rulesText": "When you play this character, if you used <Shift> to play him, you may put an action card from your discard on the top of your deck.",
         "raw": "READY FOR ACTION When you play this character, if you used <Shift> to play him, you may put an action card from your discard on the top of your deck."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "aladdin-intrepid-commander",
@@ -467,6 +467,7 @@
     "setId": "P2",
     "number": 9,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Intrepid Commander",
     "strength": 1,
     "willpower": 4,
@@ -480,8 +481,7 @@
         "rulesText": "When you play this character, your characters get +2 {S} this turn.",
         "raw": "REMEMBER YOUR TRAINING When you play this character, your characters get +2 {S} this turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "rescue-rangers-away",
@@ -498,6 +498,7 @@
     "setId": "P2",
     "number": 10,
     "rarity": "special",
+    "_source": "ravensburger",
     "rulesText": "Count the number of characters you have in play. Chosen character loses {S} equal to that number until the start of your next turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/10_bd3eac0c2118b2d31a0b51b2bb52852c31488912.jpg",
     "actionEffects": [
@@ -527,8 +528,7 @@
           }
         }
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "honey-lemon-chemical-genius",
@@ -585,6 +585,7 @@
     "setId": "P2",
     "number": 11,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Chemical Genius",
     "strength": 1,
     "willpower": 1,
@@ -598,8 +599,7 @@
         "rulesText": "When you play this character, you may pay 2 {I} to have each opponent choose and discard a card.",
         "raw": "HERE’S THE BEST PART When you play this character, you may pay 2 {I} to have each opponent choose and discard a card."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "minnie-mouse-pirate-lookout",
@@ -651,6 +651,7 @@
     "setId": "P2",
     "number": 12,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Pirate Lookout",
     "strength": 3,
     "willpower": 2,
@@ -664,8 +665,7 @@
         "rulesText": "Once during your turn, whenever a card is put into your inkwell, you may return a location card from your discard to your hand.",
         "raw": "LAND, HO! Once during your turn, whenever a card is put into your inkwell, you may return a location card from your discard to your hand."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "wasabi-methodical-engineer",
@@ -734,6 +734,7 @@
     "setId": "P2",
     "number": 13,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Methodical Engineer",
     "strength": 3,
     "willpower": 3,
@@ -751,8 +752,7 @@
         "rulesText": "During your turn, this character gains <Evasive>. (They can challenge characters with Evasive.)",
         "raw": "QUICK REFLEXES During your turn, this character gains <Evasive>. (They can challenge characters with Evasive.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "scar-heartless-hunter",
@@ -819,6 +819,7 @@
     "setId": "P2",
     "number": 14,
     "rarity": "enchanted",
+    "_source": "ravensburger",
     "subtitle": "Heartless Hunter",
     "strength": 4,
     "willpower": 2,
@@ -832,8 +833,7 @@
         "rulesText": "When you play this character, deal 2 damage to chosen character of yours to deal 2 damage to another chosen character.",
         "raw": "TEETH AND AMBITIONS When you play this character, deal 2 damage to chosen character of yours to deal 2 damage to another chosen character."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "mickey-mouse-pirate-captain",
@@ -899,6 +899,7 @@
     "setId": "P2",
     "number": 18,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Pirate Captain",
     "strength": 4,
     "willpower": 4,
@@ -912,8 +913,7 @@
         "rulesText": "Whenever this character quests, chosen Pirate character gets +2 {S} and gains \"This character takes no damage from challenges\" this turn.",
         "raw": "MARINER’S MIGHT Whenever this character quests, chosen Pirate character gets +2 {S} and gains \"This character takes no damage from challenges\" this turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "anna-ice-breaker",
@@ -968,6 +968,7 @@
     "setId": "P2",
     "number": 19,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Ice Breaker",
     "strength": 2,
     "willpower": 3,
@@ -980,8 +981,7 @@
         "rulesText": "When you play this character, chosen opposing character can’t ready at the start of their next turn.",
         "raw": "WINTER AMBUSH When you play this character, chosen opposing character can’t ready at the start of their next turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "kronk-laid-back",
@@ -1015,6 +1015,7 @@
     "setId": "P2",
     "number": 20,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Laid Back",
     "strength": 4,
     "willpower": 4,
@@ -1027,8 +1028,7 @@
         "rulesText": "If an effect would cause you to discard one or more cards, you don’t discard.",
         "raw": "I’M LOVIN’ THIS If an effect would cause you to discard one or more cards, you don’t discard."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "perdita-playful-mother",
@@ -1092,6 +1092,7 @@
     "setId": "P2",
     "number": 21,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Playful Mother",
     "strength": 1,
     "willpower": 4,
@@ -1109,8 +1110,7 @@
         "rulesText": "Your Puppy characters gain <Ward>. (Opponents can’t choose them except to challenge.)",
         "raw": "DON’T BE AFRAID Your Puppy characters gain <Ward>. (Opponents can’t choose them except to challenge.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "li-shang-newly-promoted",
@@ -1159,6 +1159,7 @@
     "setId": "P2",
     "number": 22,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Newly Promoted",
     "strength": 2,
     "willpower": 3,
@@ -1176,8 +1177,7 @@
         "rulesText": "While this character has damage, he gets +2 {S}.",
         "raw": "ENORMOUS RESPONSIBILITY While this character has damage, he gets +2 {S}."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "snow-white-fairest-in-the-land",
@@ -1210,6 +1210,7 @@
     "setId": "P2",
     "number": 23,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Fairest in the Land",
     "strength": 2,
     "willpower": 2,
@@ -1223,8 +1224,7 @@
         "rulesText": "This character can’t be challenged.",
         "raw": "HIDDEN AWAY This character can’t be challenged."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "lilo-escape-artist",
@@ -1271,6 +1271,7 @@
     "setId": "P2",
     "number": 25,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Escape Artist",
     "strength": 1,
     "willpower": 2,
@@ -1284,8 +1285,7 @@
         "rulesText": "At the start of your turn, if this card is in your discard, you may play her and she enters play exerted.",
         "raw": "NO PLACE I’D RATHER BE At the start of your turn, if this card is in your discard, you may play her and she enters play exerted."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "moana-adventurer-of-land-and-sea",
@@ -1306,13 +1306,13 @@
     "setId": "P2",
     "number": 26,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Adventurer of Land and Sea",
     "strength": 1,
     "willpower": 6,
     "lore": 1,
     "flavorText": "Moana receives a call from the ancestors to sail to new skies and reconnect people across the entire ocean.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/26_26ba867eeb259ee4382e9242e692c98a9bf7d7ff.jpg",
-    "_source": "manual"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/26_26ba867eeb259ee4382e9242e692c98a9bf7d7ff.jpg"
   },
   {
     "id": "pluto-tried-and-true",
@@ -1366,6 +1366,7 @@
     "setId": "P2",
     "number": 27,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Tried and True",
     "strength": 2,
     "willpower": 7,
@@ -1378,8 +1379,7 @@
         "rulesText": "While this character has no damage, he gets +2 {S} and gains <Support>. (Whenever they quest, you may add their {S} to another chosen character’s {S} this turn.)",
         "raw": "HAPPY HELPER While this character has no damage, he gets +2 {S} and gains <Support>. (Whenever they quest, you may add their {S} to another chosen character’s {S} this turn.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "lady-decisive-dog",
@@ -1445,6 +1445,7 @@
     "setId": "P2",
     "number": 28,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Decisive Dog",
     "strength": 0,
     "willpower": 3,
@@ -1462,8 +1463,7 @@
         "rulesText": "While this character has 3 {S} or more, she gets +2 {L}.",
         "raw": "TAKE THE LEAD While this character has 3 {S} or more, she gets +2 {L}."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "aladdin-vigilant-guard",
@@ -1519,6 +1519,7 @@
     "setId": "P2",
     "number": 29,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Vigilant Guard",
     "strength": 1,
     "willpower": 9,
@@ -1531,8 +1532,7 @@
         "rulesText": "Whenever one of your Ally characters quests, you may remove up to 2 damage from this character.",
         "raw": "SAFE PASSAGE Whenever one of your Ally characters quests, you may remove up to 2 damage from this character."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "patch-playful-pup",
@@ -1584,6 +1584,7 @@
     "setId": "P2",
     "number": 30,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Playful Pup",
     "strength": 0,
     "willpower": 2,
@@ -1597,8 +1598,7 @@
         "rulesText": "While you have another Puppy character in play, this character gets +1 {L}.",
         "raw": "PUPPY BARKING While you have another Puppy character in play, this character gets +1 {L}."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "pull-the-lever",
@@ -1616,6 +1616,7 @@
     "setId": "P2",
     "number": 31,
     "rarity": "special",
+    "_source": "ravensburger",
     "rulesText": "Choose one:\n• Draw 2 cards.\n• Each opponent chooses and discards a card.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/31_493db3c34655332ae534c0ca5c91227126d49746.jpg",
     "actionEffects": [
@@ -1649,8 +1650,7 @@
           ]
         ]
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "jafar-high-sultan-of-lorcana",
@@ -1724,6 +1724,7 @@
     "setId": "P2",
     "number": 32,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "High Sultan of Lorcana",
     "strength": 4,
     "willpower": 4,
@@ -1736,8 +1737,7 @@
         "rulesText": "Whenever this character quests, you may draw a card, then choose and discard a card. If an Illusion character card is discarded this way, you may play that character for free.",
         "raw": "DARK POWER Whenever this character quests, you may draw a card, then choose and discard a card. If an Illusion character card is discarded this way, you may play that character for free."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "jafar-high-sultan-of-lorcana",
@@ -1811,6 +1811,7 @@
     "setId": "P2",
     "number": 33,
     "rarity": "enchanted",
+    "_source": "ravensburger",
     "subtitle": "High Sultan of Lorcana",
     "strength": 4,
     "willpower": 4,
@@ -1823,8 +1824,7 @@
         "rulesText": "Whenever this character quests, you may draw a card, then choose and discard a card. If an Illusion character card is discarded this way, you may play that character for free.",
         "raw": "DARK POWER Whenever this character quests, you may draw a card, then choose and discard a card. If an Illusion character card is discarded this way, you may play that character for free."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "archimedes-resourceful-owl",
@@ -1908,6 +1908,7 @@
     "setId": "P2",
     "number": 34,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Resourceful Owl",
     "strength": 2,
     "willpower": 2,
@@ -1925,8 +1926,7 @@
         "rulesText": "During your turn, whenever an item is banished, you may draw a card, then choose and discard a card.",
         "raw": "NOW, THAT’S NOT BAD During your turn, whenever an item is banished, you may draw a card, then choose and discard a card."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "minnie-mouse-daring-defender",
@@ -1965,6 +1965,7 @@
     "setId": "P2",
     "number": 35,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Daring Defender",
     "strength": 0,
     "willpower": 8,
@@ -1977,7 +1978,6 @@
         "rulesText": "This character gets +1 {S} for each 1 damage on her.",
         "raw": "TRUE VALOR This character gets +1 {S} for each 1 damage on her."
       }
-    ],
-    "_source": "manual"
+    ]
   }
 ]

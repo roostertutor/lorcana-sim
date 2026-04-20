@@ -20,244 +20,16 @@
       }
     ],
     "setId": "C2",
-    "number": 1,
+    "number": 5,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Gift for Hercules",
     "strength": 1,
     "willpower": 1,
     "lore": 1,
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)",
     "flavorText": "“His name is Pegasus. And he’s all yours. . . .”%—Zeus",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/1_14759a518d51a11653eb125ed741e52ac648cac0.jpg",
-    "_source": "manual"
-  },
-  {
-    "id": "elsa-ice-maker",
-    "name": "Elsa",
-    "fullName": "Elsa - Ice Maker",
-    "cardType": "character",
-    "inkColors": [
-      "amethyst",
-      "sapphire"
-    ],
-    "cost": 7,
-    "inkable": false,
-    "traits": [
-      "Floodborn",
-      "Hero",
-      "Queen",
-      "Sorcerer"
-    ],
-    "abilities": [
-      {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 4
-      },
-      {
-        "type": "triggered",
-        "storyName": "WINTER WALL",
-        "rulesText": "Whenever this character quests, you may exert chosen character. If you do and you have a character named Anna in play, the chosen character can't ready at the start of their next turn.",
-        "trigger": {
-          "on": "quests"
-        },
-        "effects": [
-          {
-            "type": "exert",
-            "isMay": true,
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ]
-              }
-            },
-            "followUpEffects": [
-              {
-                "type": "cant_action",
-                "action": "ready",
-                "duration": "end_of_owner_next_turn",
-                "target": {
-                  "type": "this"
-                },
-                "condition": {
-                  "type": "has_character_named",
-                  "name": "Anna",
-                  "player": {
-                    "type": "self"
-                  }
-                }
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "setId": "C2",
-    "number": 2,
-    "rarity": "special",
-    "subtitle": "Ice Maker",
-    "strength": 5,
-    "willpower": 5,
-    "lore": 2,
-    "shiftCost": 4,
-    "rulesText": "<Shift> 4 (You may pay 4 {I} to play this on top of one of your characters named Elsa.)\nWINTER WALL Whenever this character quests, you may exert chosen character. If you do and you have a character named Anna in play, the chosen character can’t ready at the start of their next turn.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/2_f5b9e8b486e1abb86b3a1ac69e114f075f299965.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "WINTER WALL",
-        "rulesText": "Whenever this character quests, you may exert chosen character. If you do and you have a character named Anna in play, the chosen character can’t ready at the start of their next turn.",
-        "raw": "WINTER WALL Whenever this character quests, you may exert chosen character. If you do and you have a character named Anna in play, the chosen character can’t ready at the start of their next turn."
-      }
-    ],
-    "_source": "manual"
-  },
-  {
-    "id": "mulan-charging-ahead",
-    "name": "Mulan",
-    "fullName": "Mulan - Charging Ahead",
-    "cardType": "character",
-    "inkColors": [
-      "ruby",
-      "steel"
-    ],
-    "cost": 4,
-    "inkable": false,
-    "traits": [
-      "Storyborn",
-      "Hero",
-      "Princess"
-    ],
-    "abilities": [
-      {
-        "type": "keyword",
-        "keyword": "reckless"
-      },
-      {
-        "type": "static",
-        "storyName": "BURST OF SPEED",
-        "rulesText": "During your turn, this character gains Evasive.",
-        "condition": {
-          "type": "is_your_turn"
-        },
-        "effect": {
-          "type": "grant_keyword",
-          "keyword": "evasive",
-          "target": {
-            "type": "this"
-          }
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "LONG RANGE",
-        "rulesText": "This character can challenge ready characters.",
-        "effect": {
-          "type": "can_challenge_ready",
-          "target": {
-            "type": "this"
-          }
-        }
-      }
-    ],
-    "setId": "C2",
-    "number": 3,
-    "rarity": "special",
-    "subtitle": "Charging Ahead",
-    "strength": 3,
-    "willpower": 3,
-    "lore": 0,
-    "rulesText": "<Reckless> (This character can’t quest and must challenge each turn if able.)\nBURST OF SPEED During your turn, this character gains <Evasive>. (They can challenge characters with Evasive.)\nLONG RANGE This character can challenge ready characters.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/3_9367757ea03480a9aeab58ad1816f55acb53459e.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "BURST OF SPEED",
-        "rulesText": "During your turn, this character gains <Evasive>. (They can challenge characters with Evasive.)",
-        "raw": "BURST OF SPEED During your turn, this character gains <Evasive>. (They can challenge characters with Evasive.)"
-      },
-      {
-        "storyName": "LONG RANGE",
-        "rulesText": "This character can challenge ready characters.",
-        "raw": "LONG RANGE This character can challenge ready characters."
-      }
-    ],
-    "_source": "manual"
-  },
-  {
-    "id": "simba-pride-protector",
-    "name": "Simba",
-    "fullName": "Simba - Pride Protector",
-    "cardType": "character",
-    "inkColors": [
-      "amber"
-    ],
-    "cost": 5,
-    "inkable": false,
-    "traits": [
-      "Floodborn",
-      "Hero",
-      "Prince"
-    ],
-    "abilities": [
-      {
-        "type": "keyword",
-        "keyword": "shift",
-        "value": 3
-      },
-      {
-        "type": "triggered",
-        "storyName": "UNDERSTAND THE BALANCE",
-        "rulesText": "At the end of your turn, if this character is exerted, you may ready your other characters.",
-        "trigger": {
-          "on": "turn_end",
-          "player": {
-            "type": "self"
-          }
-        },
-        "condition": {
-          "type": "this_is_exerted"
-        },
-        "effects": [
-          {
-            "type": "ready",
-            "isMay": true,
-            "target": {
-              "type": "all",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ],
-                "excludeSelf": true
-              }
-            }
-          }
-        ]
-      }
-    ],
-    "setId": "C2",
-    "number": 4,
-    "rarity": "special",
-    "subtitle": "Pride Protector",
-    "strength": 4,
-    "willpower": 4,
-    "lore": 2,
-    "shiftCost": 3,
-    "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Simba.)\nUNDERSTAND THE BALANCE At the end of your turn, if this character is exerted, you may ready your other characters.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/4_aab2a1eb45417844fc433e302037ab6a61179580.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "UNDERSTAND THE BALANCE",
-        "rulesText": "At the end of your turn, if this character is exerted, you may ready your other characters.",
-        "raw": "UNDERSTAND THE BALANCE At the end of your turn, if this character is exerted, you may ready your other characters."
-      }
-    ],
-    "_source": "manual"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/5_3da76301dd582812f5e397f290df169ab59c5683.jpg"
   },
   {
     "id": "pegasus-gift-for-hercules",
@@ -282,14 +54,14 @@
     "setId": "C2",
     "number": 5,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Gift for Hercules",
     "strength": 1,
     "willpower": 1,
     "lore": 1,
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)",
     "flavorText": "“His name is Pegasus. And he’s all yours. . . .”%—Zeus",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/5_3da76301dd582812f5e397f290df169ab59c5683.jpg",
-    "_source": "manual"
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/5_3da76301dd582812f5e397f290df169ab59c5683.jpg"
   },
   {
     "id": "elsa-ice-maker",
@@ -358,6 +130,7 @@
     "setId": "C2",
     "number": 6,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Ice Maker",
     "strength": 5,
     "willpower": 5,
@@ -371,8 +144,90 @@
         "rulesText": "Whenever this character quests, you may exert chosen character. If you do and you have a character named Anna in play, the chosen character can’t ready at the start of their next turn.",
         "raw": "WINTER WALL Whenever this character quests, you may exert chosen character. If you do and you have a character named Anna in play, the chosen character can’t ready at the start of their next turn."
       }
+    ]
+  },
+  {
+    "id": "elsa-ice-maker",
+    "name": "Elsa",
+    "fullName": "Elsa - Ice Maker",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst",
+      "sapphire"
     ],
-    "_source": "manual"
+    "cost": 7,
+    "inkable": false,
+    "traits": [
+      "Floodborn",
+      "Hero",
+      "Queen",
+      "Sorcerer"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      },
+      {
+        "type": "triggered",
+        "storyName": "WINTER WALL",
+        "rulesText": "Whenever this character quests, you may exert chosen character. If you do and you have a character named Anna in play, the chosen character can't ready at the start of their next turn.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "followUpEffects": [
+              {
+                "type": "cant_action",
+                "action": "ready",
+                "duration": "end_of_owner_next_turn",
+                "target": {
+                  "type": "this"
+                },
+                "condition": {
+                  "type": "has_character_named",
+                  "name": "Anna",
+                  "player": {
+                    "type": "self"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "setId": "C2",
+    "number": 6,
+    "rarity": "special",
+    "_source": "ravensburger",
+    "subtitle": "Ice Maker",
+    "strength": 5,
+    "willpower": 5,
+    "lore": 2,
+    "shiftCost": 4,
+    "rulesText": "<Shift> 4 (You may pay 4 {I} to play this on top of one of your characters named Elsa.)\nWINTER WALL Whenever this character quests, you may exert chosen character. If you do and you have a character named Anna in play, the chosen character can’t ready at the start of their next turn.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/6_108ebdd6233ebdf6601c91552efb74fe8e3f24bc.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "WINTER WALL",
+        "rulesText": "Whenever this character quests, you may exert chosen character. If you do and you have a character named Anna in play, the chosen character can’t ready at the start of their next turn.",
+        "raw": "WINTER WALL Whenever this character quests, you may exert chosen character. If you do and you have a character named Anna in play, the chosen character can’t ready at the start of their next turn."
+      }
+    ]
   },
   {
     "id": "mulan-charging-ahead",
@@ -425,6 +280,7 @@
     "setId": "C2",
     "number": 7,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Charging Ahead",
     "strength": 3,
     "willpower": 3,
@@ -442,8 +298,78 @@
         "rulesText": "This character can challenge ready characters.",
         "raw": "LONG RANGE This character can challenge ready characters."
       }
+    ]
+  },
+  {
+    "id": "mulan-charging-ahead",
+    "name": "Mulan",
+    "fullName": "Mulan - Charging Ahead",
+    "cardType": "character",
+    "inkColors": [
+      "ruby",
+      "steel"
     ],
-    "_source": "manual"
+    "cost": 4,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Hero",
+      "Princess"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "reckless"
+      },
+      {
+        "type": "static",
+        "storyName": "BURST OF SPEED",
+        "rulesText": "During your turn, this character gains Evasive.",
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "this"
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "LONG RANGE",
+        "rulesText": "This character can challenge ready characters.",
+        "effect": {
+          "type": "can_challenge_ready",
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
+    "setId": "C2",
+    "number": 7,
+    "rarity": "special",
+    "_source": "ravensburger",
+    "subtitle": "Charging Ahead",
+    "strength": 3,
+    "willpower": 3,
+    "lore": 0,
+    "rulesText": "<Reckless> (This character can’t quest and must challenge each turn if able.)\nBURST OF SPEED During your turn, this character gains <Evasive>. (They can challenge characters with Evasive.)\nLONG RANGE This character can challenge ready characters.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/7_6fe67451f9a47f0db3bb1c4b615187f4ec6ca290.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "BURST OF SPEED",
+        "rulesText": "During your turn, this character gains <Evasive>. (They can challenge characters with Evasive.)",
+        "raw": "BURST OF SPEED During your turn, this character gains <Evasive>. (They can challenge characters with Evasive.)"
+      },
+      {
+        "storyName": "LONG RANGE",
+        "rulesText": "This character can challenge ready characters.",
+        "raw": "LONG RANGE This character can challenge ready characters."
+      }
+    ]
   },
   {
     "id": "simba-pride-protector",
@@ -503,6 +429,7 @@
     "setId": "C2",
     "number": 8,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Pride Protector",
     "strength": 4,
     "willpower": 4,
@@ -516,7 +443,243 @@
         "rulesText": "At the end of your turn, if this character is exerted, you may ready your other characters.",
         "raw": "UNDERSTAND THE BALANCE At the end of your turn, if this character is exerted, you may ready your other characters."
       }
+    ]
+  },
+  {
+    "id": "simba-pride-protector",
+    "name": "Simba",
+    "fullName": "Simba - Pride Protector",
+    "cardType": "character",
+    "inkColors": [
+      "amber"
     ],
-    "_source": "manual"
+    "cost": 5,
+    "inkable": false,
+    "traits": [
+      "Floodborn",
+      "Hero",
+      "Prince"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
+      {
+        "type": "triggered",
+        "storyName": "UNDERSTAND THE BALANCE",
+        "rulesText": "At the end of your turn, if this character is exerted, you may ready your other characters.",
+        "trigger": {
+          "on": "turn_end",
+          "player": {
+            "type": "self"
+          }
+        },
+        "condition": {
+          "type": "this_is_exerted"
+        },
+        "effects": [
+          {
+            "type": "ready",
+            "isMay": true,
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "setId": "C2",
+    "number": 8,
+    "rarity": "special",
+    "_source": "ravensburger",
+    "subtitle": "Pride Protector",
+    "strength": 4,
+    "willpower": 4,
+    "lore": 2,
+    "shiftCost": 3,
+    "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Simba.)\nUNDERSTAND THE BALANCE At the end of your turn, if this character is exerted, you may ready your other characters.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/8_8bdef61ee12642a63802b449c651e9085275b0ed.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "UNDERSTAND THE BALANCE",
+        "rulesText": "At the end of your turn, if this character is exerted, you may ready your other characters.",
+        "raw": "UNDERSTAND THE BALANCE At the end of your turn, if this character is exerted, you may ready your other characters."
+      }
+    ]
+  },
+  {
+    "id": "dragon-fire",
+    "name": "Dragon Fire",
+    "fullName": "Dragon Fire",
+    "cardType": "action",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 5,
+    "inkable": false,
+    "traits": [],
+    "abilities": [],
+    "setId": "C2",
+    "number": 9,
+    "rarity": "common",
+    "_source": "lorcast",
+    "rulesText": "Banish chosen character.",
+    "flavorText": "Rare is the hero who can withstand a dragon's wrath.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f54b0e3b38d340ffa793953c49e6cb56.avif?1776533276"
+  },
+  {
+    "id": "let-it-go",
+    "name": "Let It Go",
+    "fullName": "Let It Go",
+    "cardType": "action",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Song"
+    ],
+    "abilities": [],
+    "setId": "C2",
+    "number": 10,
+    "rarity": "common",
+    "_source": "lorcast",
+    "rulesText": "(A character with cost 5 or more can {E} to sing this song for free.)\nPut chosen character into their player's inkwell facedown and exerted.",
+    "flavorText": "It's time to see what I can do\nTo test the limits and break through",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_bd1327a61be84346b595f07ccf1df0e6.avif?1776533283"
+  },
+  {
+    "id": "stand-out",
+    "name": "Stand Out",
+    "fullName": "Stand Out",
+    "cardType": "action",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Song"
+    ],
+    "abilities": [],
+    "setId": "C2",
+    "number": 15,
+    "rarity": "common",
+    "_source": "lorcast",
+    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nChosen character gets +3 {S} and gains Evasive until the start of your next turn. (Only characters with Evasive can challenge them.)",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d0049d68c901455c94c76afdd99a2745.avif?1776533289"
+  },
+  {
+    "id": "down-in-new-orleans",
+    "name": "Down In New Orleans",
+    "fullName": "Down In New Orleans",
+    "cardType": "action",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 6,
+    "inkable": false,
+    "traits": [
+      "Song"
+    ],
+    "abilities": [],
+    "setId": "C2",
+    "number": 16,
+    "rarity": "common",
+    "_source": "lorcast",
+    "rulesText": "(A character with cost 6 or more can {E} to sing this song for free.)\nLook at the top 3 cards of your deck. You may reveal a character, item, or location card with cost 6 or less and play it for free. Put the rest on the bottom of your deck in any order.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3334bebad6e7424c80c2b8c0e157f654.avif?1776533296"
+  },
+  {
+    "id": "the-headless-horseman-cursed-rider",
+    "name": "The Headless Horseman",
+    "fullName": "The Headless Horseman - Cursed Rider",
+    "cardType": "character",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 8,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Villain"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 5
+      }
+    ],
+    "setId": "C2",
+    "number": 17,
+    "rarity": "common",
+    "_source": "lorcast",
+    "subtitle": "Cursed Rider",
+    "strength": 5,
+    "willpower": 7,
+    "lore": 2,
+    "shiftCost": 5,
+    "rulesText": "WITCHING HOUR When you play this character, each player draws 3 cards, then discards 3 cards at random. Choose an opposing character and deal 2 damage to them for each action card discarded this way.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f64c2b670af947f8bca5f1ce7a5a88d9.avif?1776533301",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "WITCHING HOUR",
+        "rulesText": "When you play this character, each player draws 3 cards, then discards 3 cards at random. Choose an opposing character and deal 2 damage to them for each action card discarded this way.",
+        "raw": "WITCHING HOUR When you play this character, each player draws 3 cards, then discards 3 cards at random. Choose an opposing character and deal 2 damage to them for each action card discarded this way."
+      }
+    ]
+  },
+  {
+    "id": "tinker-bell-insistent-fairy",
+    "name": "Tinker Bell",
+    "fullName": "Tinker Bell - Insistent Fairy",
+    "cardType": "character",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally",
+      "Fairy"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      }
+    ],
+    "setId": "C2",
+    "number": 18,
+    "rarity": "common",
+    "_source": "lorcast",
+    "subtitle": "Insistent Fairy",
+    "strength": 1,
+    "willpower": 1,
+    "lore": 1,
+    "rulesText": "PAY ATTENTION Whenever you play a character with 5 {S} or more, you may exert them to gain 2 lore.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f49776538d7247e998024421be5f5a18.avif?1776533307",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "PAY ATTENTION",
+        "rulesText": "Whenever you play a character with 5 {S} or more, you may exert them to gain 2 lore.",
+        "raw": "PAY ATTENTION Whenever you play a character with 5 {S} or more, you may exert them to gain 2 lore."
+      }
+    ]
   }
 ]

@@ -29,6 +29,7 @@
     "setId": "8",
     "number": 1,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "One Cool Duck",
     "strength": 2,
     "willpower": 3,
@@ -43,8 +44,7 @@
         "rulesText": "While this character is being challenged, the challenging character gets -1 {S}.",
         "raw": "SPRING THE TRAP While this character is being challenged, the challenging character gets -1 {S}."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "dewey-lovable-showoff",
@@ -64,14 +64,14 @@
     "setId": "8",
     "number": 2,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Lovable Showoff",
     "strength": 4,
     "willpower": 4,
     "lore": 1,
     "flavorText": "\"Snakes? Firing lasers? In a secret underground lair? No problem!\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/2_aad08999a87d6db777ecba6bcc93d791c3ea7f25.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/2_6cec6eb943b01c137a813cb8062fd5f94a7a1b7c.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/2_6cec6eb943b01c137a813cb8062fd5f94a7a1b7c.jpg"
   },
   {
     "id": "huey-reliable-leader",
@@ -111,6 +111,7 @@
     "setId": "8",
     "number": 3,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Reliable Leader",
     "strength": 2,
     "willpower": 3,
@@ -125,8 +126,7 @@
         "rulesText": "Whenever this character quests, you pay 1 {I} less for the next character you play this turn.",
         "raw": "I KNOW THE WAY Whenever this character quests, you pay 1 {I} less for the next character you play this turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "goofy-groundbreaking-chef",
@@ -196,6 +196,7 @@
     "setId": "8",
     "number": 4,
     "rarity": "legendary",
+    "_source": "ravensburger",
     "subtitle": "Groundbreaking Chef",
     "strength": 3,
     "willpower": 4,
@@ -210,8 +211,7 @@
         "rulesText": "At the end of your turn, you may remove up to 1 damage from each of your other characters. Ready each character you removed damage from this way.",
         "raw": "PLENTY TO GO AROUND At the end of your turn, you may remove up to 1 damage from each of your other characters. Ready each character you removed damage from this way."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "antonio-madrigal-friend-to-all",
@@ -268,6 +268,7 @@
     "setId": "8",
     "number": 5,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Friend to All",
     "strength": 2,
     "willpower": 2,
@@ -281,8 +282,7 @@
         "rulesText": "Once during your turn, whenever one of your characters sings a song, you may search your deck for a character card with cost 3 or less and reveal that card to all players. Put that card into your hand and shuffle your deck.",
         "raw": "OF COURSE THEY CAN COME Once during your turn, whenever one of your characters sings a song, you may search your deck for a character card with cost 3 or less and reveal that card to all players. Put that card into your hand and shuffle your deck."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "minnie-mouse-daring-defender",
@@ -321,6 +321,7 @@
     "setId": "8",
     "number": 6,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Daring Defender",
     "strength": 0,
     "willpower": 8,
@@ -334,8 +335,7 @@
         "rulesText": "This character gets +1 {S} for each 1 damage on her.",
         "raw": "TRUE VALOR This character gets +1 {S} for each 1 damage on her."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "ludwig-von-drake-all-around-expert",
@@ -406,6 +406,7 @@
     "setId": "8",
     "number": 7,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "All-Around Expert",
     "strength": 1,
     "willpower": 1,
@@ -424,8 +425,7 @@
         "rulesText": "When this character is banished, you may put this card into your inkwell facedown and exerted.",
         "raw": "LASTING LEGACY When this character is banished, you may put this card into your inkwell facedown and exerted."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "charlotte-la-bouff-mardi-gras-princess",
@@ -446,14 +446,14 @@
     "setId": "8",
     "number": 8,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Mardi Gras Princess",
     "strength": 1,
     "willpower": 3,
     "lore": 1,
     "flavorText": "“Seems like only yesterday we were both little girls dreaming our fairy tale dreams, and tonight they’re finally coming true.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/8_c30b13e3678be0a6459a7d9bac3ef911b9673910.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/8_c30b13e3678be0a6459a7d9bac3ef911b9673910.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/8_c30b13e3678be0a6459a7d9bac3ef911b9673910.jpg"
   },
   {
     "id": "tiana-natural-talent",
@@ -516,6 +516,7 @@
     "setId": "8",
     "number": 9,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Natural Talent",
     "strength": 2,
     "willpower": 4,
@@ -529,8 +530,7 @@
         "rulesText": "Whenever you play a song, each opposing character gets -1 {S} until the start of your next turn.",
         "raw": "CAPTIVATING MELODY Whenever you play a song, each opposing character gets -1 {S} until the start of your next turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "mirabel-madrigal-curious-child",
@@ -583,6 +583,7 @@
     "setId": "8",
     "number": 10,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Curious Child",
     "strength": 0,
     "willpower": 2,
@@ -597,8 +598,7 @@
         "rulesText": "When you play this character, you may reveal a song card in your hand to gain 1 lore.",
         "raw": "YOU ARE A WONDER When you play this character, you may reveal a song card in your hand to gain 1 lore."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "lady-family-dog",
@@ -640,6 +640,7 @@
     "setId": "8",
     "number": 11,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Family Dog",
     "strength": 2,
     "willpower": 2,
@@ -654,8 +655,7 @@
         "rulesText": "When you play this character, you may play a character with cost 2 or less for free.",
         "raw": "SOMEONE TO CARE FOR When you play this character, you may play a character with cost 2 or less for free."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "jim-dear-beloved-husband",
@@ -680,6 +680,7 @@
     "setId": "8",
     "number": 12,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Beloved Husband",
     "strength": 0,
     "willpower": 4,
@@ -687,8 +688,7 @@
     "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)",
     "flavorText": "Family is family no matter what.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/12_57074a2f026742ac52146c1a4a9392ae034c852b.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/12_57074a2f026742ac52146c1a4a9392ae034c852b.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/12_57074a2f026742ac52146c1a4a9392ae034c852b.jpg"
   },
   {
     "id": "gene-niceland-resident",
@@ -733,6 +733,7 @@
     "setId": "8",
     "number": 13,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Niceland Resident",
     "strength": 1,
     "willpower": 2,
@@ -747,8 +748,7 @@
         "rulesText": "Whenever this character quests, you may remove up to 2 damage from chosen character.",
         "raw": "I GUESS YOU EARNED THIS Whenever this character quests, you may remove up to 2 damage from chosen character."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "perdita-on-the-lookout",
@@ -794,6 +794,7 @@
     "setId": "8",
     "number": 14,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "On the Lookout",
     "strength": 1,
     "willpower": 4,
@@ -808,8 +809,7 @@
         "rulesText": "While you have a Puppy character in play, this character gets +1 {W}.",
         "raw": "KEEPING WATCH While you have a Puppy character in play, this character gets +1 {W}."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "rhino-one-sixteenth-wolf",
@@ -857,6 +857,7 @@
     "setId": "8",
     "number": 15,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "One-Sixteenth Wolf",
     "strength": 1,
     "willpower": 2,
@@ -871,8 +872,7 @@
         "rulesText": "When you play this character, chosen opposing character gets -1 {S} until the start of your next turn.",
         "raw": "TINY HOWL When you play this character, chosen opposing character gets -1 {S} until the start of your next turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "darling-dear-beloved-wife",
@@ -917,6 +917,7 @@
     "setId": "8",
     "number": 16,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Beloved Wife",
     "strength": 4,
     "willpower": 4,
@@ -931,8 +932,7 @@
         "rulesText": "When you play this character, chosen character gets +2 {L} this turn.",
         "raw": "HOW SWEET When you play this character, chosen character gets +2 {L} this turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "the-colonel-old-sheepdog",
@@ -980,6 +980,7 @@
     "setId": "8",
     "number": 17,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Old Sheepdog",
     "strength": 3,
     "willpower": 6,
@@ -994,8 +995,7 @@
         "rulesText": "While you have 3 or more Puppy characters in play, this character gets +2 {S} and +2 {L}.",
         "raw": "WE’VE GOT ’EM OUTNUMBERED While you have 3 or more Puppy characters in play, this character gets +2 {S} and +2 {L}."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "chief-bogo-commanding-officer",
@@ -1056,6 +1056,7 @@
     "setId": "8",
     "number": 18,
     "rarity": "legendary",
+    "_source": "ravensburger",
     "subtitle": "Commanding Officer",
     "strength": 5,
     "willpower": 5,
@@ -1069,8 +1070,7 @@
         "rulesText": "During an opponent’s turn, whenever one of your characters with <Bodyguard> is banished, you may reveal the top card of your deck. If it’s a character card with cost 5 or less, you may play that character for free. Otherwise, put it on the top of your deck.",
         "raw": "SENDING BACKUP During an opponent’s turn, whenever one of your characters with <Bodyguard> is banished, you may reveal the top card of your deck. If it’s a character card with cost 5 or less, you may play that character for free. Otherwise, put it on the top of your deck."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "pua-protective-pig",
@@ -1114,6 +1114,7 @@
     "setId": "8",
     "number": 19,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Protective Pig",
     "strength": 2,
     "willpower": 2,
@@ -1127,8 +1128,7 @@
         "rulesText": "When this character is banished, you may draw a card.",
         "raw": "FREE FRUIT When this character is banished, you may draw a card."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "bruno-madrigal-singing-seer",
@@ -1185,6 +1185,7 @@
     "setId": "8",
     "number": 20,
     "rarity": "super_rare",
+    "_source": "ravensburger",
     "subtitle": "Singing Seer",
     "strength": 3,
     "willpower": 7,
@@ -1199,8 +1200,7 @@
         "rulesText": "Whenever this character sings a song, you may draw a card for each character you have in play.",
         "raw": "BRIGHT FUTURE Whenever this character sings a song, you may draw a card for each character you have in play."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "kaa-hypnotizing-python",
@@ -1266,6 +1266,7 @@
     "setId": "8",
     "number": 21,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Hypnotizing Python",
     "strength": 3,
     "willpower": 3,
@@ -1280,8 +1281,7 @@
         "rulesText": "Whenever this character quests, chosen opposing character gets -2 {S} and gains <Reckless> until the start of your next turn. (They can’t quest and must challenge if able.)",
         "raw": "LOOK ME IN THE EYE Whenever this character quests, chosen opposing character gets -2 {S} and gains <Reckless> until the start of your next turn. (They can’t quest and must challenge if able.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "tramp-dapper-rascal",
@@ -1340,6 +1340,7 @@
     "setId": "8",
     "number": 22,
     "rarity": "super_rare",
+    "_source": "ravensburger",
     "subtitle": "Dapper Rascal",
     "strength": 2,
     "willpower": 8,
@@ -1354,8 +1355,7 @@
         "rulesText": "During an opponent’s turn, whenever one of your characters is banished, you may draw a card.",
         "raw": "PLAY IT COOL During an opponent’s turn, whenever one of your characters is banished, you may draw a card."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "king-candy-sugar-rush-nightmare",
@@ -1406,6 +1406,7 @@
     "setId": "8",
     "number": 23,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Sugar Rush Nightmare",
     "strength": 3,
     "willpower": 2,
@@ -1419,8 +1420,7 @@
         "rulesText": "When this character is banished, you may return another Racer character card from your discard to your hand.",
         "raw": "A NEW ROSTER When this character is banished, you may return another Racer character card from your discard to your hand."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "wreck-it-ralph-big-lug",
@@ -1504,6 +1504,7 @@
     "setId": "8",
     "number": 24,
     "rarity": "super_rare",
+    "_source": "ravensburger",
     "subtitle": "Big Lug",
     "strength": 7,
     "willpower": 5,
@@ -1518,8 +1519,7 @@
         "rulesText": "When you play this character and whenever he quests, you may return a Racer character card with cost 6 or less from your discard to your hand. If you do, gain 1 lore.",
         "raw": "BACK ON TRACK When you play this character and whenever he quests, you may return a Racer character card with cost 6 or less from your discard to your hand. If you do, gain 1 lore."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "patch-playful-pup",
@@ -1571,6 +1571,7 @@
     "setId": "8",
     "number": 25,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Playful Pup",
     "strength": 0,
     "willpower": 2,
@@ -1585,8 +1586,7 @@
         "rulesText": "While you have another Puppy character in play, this character gets +1 {L}.",
         "raw": "PUPPY BARKING While you have another Puppy character in play, this character gets +1 {L}."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "rolly-chubby-puppy",
@@ -1640,6 +1640,7 @@
     "setId": "8",
     "number": 26,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Chubby Puppy",
     "strength": 2,
     "willpower": 3,
@@ -1653,8 +1654,7 @@
         "rulesText": "When you play this character, you may put a character card from your discard into your inkwell facedown and exerted.",
         "raw": "ADORABLE ANTICS When you play this character, you may put a character card from your discard into your inkwell facedown and exerted."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "perdita-determined-mother",
@@ -1708,6 +1708,7 @@
     "setId": "8",
     "number": 27,
     "rarity": "super_rare",
+    "_source": "ravensburger",
     "subtitle": "Determined Mother",
     "strength": 4,
     "willpower": 6,
@@ -1722,8 +1723,7 @@
         "rulesText": "When you play this character, you may put all Puppy character cards from your discard into your inkwell facedown and exerted.",
         "raw": "QUICK, EVERYONE HIDE When you play this character, you may put all Puppy character cards from your discard into your inkwell facedown and exerted."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "pluto-tried-and-true",
@@ -1777,6 +1777,7 @@
     "setId": "8",
     "number": 28,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Tried and True",
     "strength": 2,
     "willpower": 7,
@@ -1790,8 +1791,7 @@
         "rulesText": "While this character has no damage, he gets +2 {S} and gains <Support>. (Whenever they quest, you may add their {S} to another chosen character’s {S} this turn.)",
         "raw": "HAPPY HELPER While this character has no damage, he gets +2 {S} and gains <Support>. (Whenever they quest, you may add their {S} to another chosen character’s {S} this turn.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "bolt-down-but-not-out",
@@ -1821,6 +1821,7 @@
     "setId": "8",
     "number": 29,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Down but Not Out",
     "strength": 0,
     "willpower": 4,
@@ -1835,8 +1836,7 @@
         "rulesText": "This character enters play exerted.",
         "raw": "NONE OF YOUR POWERS ARE WORKING This character enters play exerted."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "rhino-power-hamster",
@@ -1879,6 +1879,7 @@
     "setId": "8",
     "number": 30,
     "rarity": "super_rare",
+    "_source": "ravensburger",
     "subtitle": "Power Hamster",
     "strength": 4,
     "willpower": 3,
@@ -1893,8 +1894,7 @@
         "rulesText": "While this character has no damage, he gains <Resist> +2. (Damage dealt to them is reduced by 2.)",
         "raw": "EPIC BALL OF AWESOME While this character has no damage, he gains <Resist> +2. (Damage dealt to them is reduced by 2.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "antonios-jaguar-faithful-companion",
@@ -1945,6 +1945,7 @@
     "setId": "8",
     "number": 31,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Faithful Companion",
     "strength": 1,
     "willpower": 4,
@@ -1959,8 +1960,7 @@
         "rulesText": "When you play this character, if you have a character named Antonio Madrigal in play, gain 1 lore.",
         "raw": "YOU WANT TO GO WHERE? When you play this character, if you have a character named Antonio Madrigal in play, gain 1 lore."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "calhoun-hard-nosed-leader",
@@ -2002,6 +2002,7 @@
     "setId": "8",
     "number": 32,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Hard-Nosed Leader",
     "strength": 4,
     "willpower": 5,
@@ -2015,8 +2016,7 @@
         "rulesText": "When this character is banished, gain 1 lore.",
         "raw": "LOOT DROP When this character is banished, gain 1 lore."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "lady-decisive-dog",
@@ -2082,6 +2082,7 @@
     "setId": "8",
     "number": 33,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Decisive Dog",
     "strength": 0,
     "willpower": 3,
@@ -2100,8 +2101,7 @@
         "rulesText": "While this character has 3 {S} or more, she gets +2 {L}.",
         "raw": "TAKE THE LEAD While this character has 3 {S} or more, she gets +2 {L}."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "alma-madrigal-accepting-grandmother",
@@ -2150,6 +2150,7 @@
     "setId": "8",
     "number": 34,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Accepting Grandmother",
     "strength": 5,
     "willpower": 5,
@@ -2164,8 +2165,7 @@
         "rulesText": "Once during your turn, whenever one or more of your characters sings a song, you may ready those characters.",
         "raw": "THE MIRACLE IS YOU Once during your turn, whenever one or more of your characters sings a song, you may ready those characters."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "clawhauser-front-desk-officer",
@@ -2196,14 +2196,14 @@
     "setId": "8",
     "number": 35,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Front Desk Officer",
     "strength": 1,
     "willpower": 4,
     "lore": 2,
     "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)\n<Singer> 4 (This character counts as cost 4 to sing songs.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/35_de6ee0e0a6cc943e7eb7c5d386cfbf711e6bf592.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/35_de6ee0e0a6cc943e7eb7c5d386cfbf711e6bf592.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/35_de6ee0e0a6cc943e7eb7c5d386cfbf711e6bf592.jpg"
   },
   {
     "id": "joey-blue-pigeon",
@@ -2252,6 +2252,7 @@
     "setId": "8",
     "number": 36,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Blue Pigeon",
     "strength": 3,
     "willpower": 3,
@@ -2266,8 +2267,7 @@
         "rulesText": "Whenever this character quests, you may remove up to 1 damage from each of your characters with <Bodyguard>.",
         "raw": "I’VE GOT JUST THE THING Whenever this character quests, you may remove up to 1 damage from each of your characters with <Bodyguard>."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "donald-duck-coin-collector",
@@ -2354,6 +2354,7 @@
     "setId": "8",
     "number": 37,
     "rarity": "super_rare",
+    "_source": "ravensburger",
     "subtitle": "Coin Collector",
     "strength": 4,
     "willpower": 8,
@@ -2372,8 +2373,7 @@
         "rulesText": "When you play this character, your other characters gain \"{E} — Draw a card\" this turn.",
         "raw": "MONEY EVERYWHERE When you play this character, your other characters gain \"{E} — Draw a card\" this turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "dalmatian-puppy-tail-wagger",
@@ -2403,6 +2403,7 @@
     "setId": "8",
     "number": 38,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Tail Wagger",
     "strength": 2,
     "willpower": 3,
@@ -2418,8 +2419,7 @@
         "raw": "WHERE DID THEY ALL COME FROM? You may have up to 99 copies of Dalmatian Puppy – Tail Wagger in your deck."
       }
     ],
-    "maxCopies": 99,
-    "_source": "manual"
+    "maxCopies": 99
   },
   {
     "id": "candy-drift",
@@ -2437,6 +2437,7 @@
     "setId": "8",
     "number": 39,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "rulesText": "Draw a card. Chosen character of yours gets +5 {S} this turn. At the end of your turn, banish them.",
     "flavorText": "“This will overheat your engine like a sack of cinnamon candy, so you better win quick!”\n—Vanellope von Schweetz",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/39_5bddc69de1a5257439e3f3a6d1fe5289fb04204e.jpg",
@@ -2479,8 +2480,7 @@
         ],
         "attachTo": "last_resolved_target"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "shes-your-person",
@@ -2498,6 +2498,7 @@
     "setId": "8",
     "number": 40,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "rulesText": "Choose one:\n• Remove up to 3 damage from chosen character.\n• Remove up to 3 damage from each of your characters with <Bodyguard>.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/40_a5f99850936e8e0bbde2db0c1d09d5e6c86139a3.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/40_a5f99850936e8e0bbde2db0c1d09d5e6c86139a3.jpg",
@@ -2544,8 +2545,7 @@
           ]
         ]
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "only-so-much-room",
@@ -2563,6 +2563,7 @@
     "setId": "8",
     "number": 41,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "rulesText": "Return chosen character with 2 {S} or less to their player’s hand. Return a character card from your discard to your hand.",
     "flavorText": "\"Home wreckers! That’s what they are!\"\n—Tramp",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/41_004db87f51a8fcaa39fadf4653178ba08934f74d.jpg",
@@ -2596,8 +2597,7 @@
           }
         }
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "it-means-no-worries",
@@ -2626,6 +2626,7 @@
     "setId": "8",
     "number": 42,
     "rarity": "rare",
+    "_source": "ravensburger",
     "rulesText": "<Sing Together> 9 (Any number of your or your teammates’ characters with total cost 9 or more may {E} to sing this song for free.)\nReturn up to 3 character cards from your discard to your hand. You pay 2 {I} less for the next character you play this turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/42_d3b8c9c2bcf02f2ae1912235b4d83a1c0793ece4.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/42_d3b8c9c2bcf02f2ae1912235b4d83a1c0793ece4.jpg",
@@ -2656,8 +2657,7 @@
         }
       }
     ],
-    "singTogetherCost": 9,
-    "_source": "manual"
+    "singTogetherCost": 9
   },
   {
     "id": "trials-and-tribulations",
@@ -2676,6 +2676,7 @@
     "setId": "8",
     "number": 43,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)\nChosen character gets -4 {S} until the start of your next turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/43_4b745bc1bf50cd2488058cfda44e4cb20879941c.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/43_4b745bc1bf50cd2488058cfda44e4cb20879941c.jpg",
@@ -2694,8 +2695,7 @@
           }
         }
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "the-nephews-piggy-bank",
@@ -2755,6 +2755,7 @@
     "setId": "8",
     "number": 44,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "rulesText": "INSIDE JOB If you have a character named Donald Duck in play, you pay 1 {I} less to play this item.\nPAYOFF {E} — Chosen character gets -1 {S} until the start of your next turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/44_6f3c2ad1837f2a60a79c4e919fac98342d29d859.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/44_6f3c2ad1837f2a60a79c4e919fac98342d29d859.jpg",
@@ -2769,8 +2770,7 @@
         "rulesText": "{E} — Chosen character gets -1 {S} until the start of your next turn.",
         "raw": "PAYOFF {E} — Chosen character gets -1 {S} until the start of your next turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "palace-guard-spectral-sentry",
@@ -2796,6 +2796,7 @@
     "setId": "8",
     "number": 45,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Spectral Sentry",
     "strength": 1,
     "willpower": 4,
@@ -2803,8 +2804,7 @@
     "rulesText": "<Vanish> (When an opponent chooses this character for an action, banish them.)",
     "flavorText": "\"All of the power of the normal guards, with none of the insolence.\"\n—Jafar",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/45_53c6068ec4c0ecfc6f3f9116983a8bf5f9245e53.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/45_53c6068ec4c0ecfc6f3f9116983a8bf5f9245e53.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/45_53c6068ec4c0ecfc6f3f9116983a8bf5f9245e53.jpg"
   },
   {
     "id": "druun-ravenous-plague",
@@ -2830,6 +2830,7 @@
     "setId": "8",
     "number": 46,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Ravenous Plague",
     "strength": 1,
     "willpower": 5,
@@ -2837,8 +2838,7 @@
     "rulesText": "<Challenger> +4 (While challenging, this character gets +4 {S}.)",
     "flavorText": "“They’ve always been here. Waiting for a moment of weakness to attack.” \n—Sisu",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/46_2dfdf98a63156050abb7c3b355a1f06a9b92e354.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/46_2dfdf98a63156050abb7c3b355a1f06a9b92e354.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/46_2dfdf98a63156050abb7c3b355a1f06a9b92e354.jpg"
   },
   {
     "id": "madame-medusa-deceiving-partner",
@@ -2884,6 +2884,7 @@
     "setId": "8",
     "number": 47,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Deceiving Partner",
     "strength": 3,
     "willpower": 3,
@@ -2897,8 +2898,7 @@
         "rulesText": "When you play this character, you may deal 2 damage to another chosen character of yours to return chosen character with cost 2 or less to their player’s hand.",
         "raw": "DOUBLE-CROSS When you play this character, you may deal 2 damage to another chosen character of yours to return chosen character with cost 2 or less to their player’s hand."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "hades-ruthless-tyrant",
@@ -2957,6 +2957,7 @@
     "setId": "8",
     "number": 48,
     "rarity": "super_rare",
+    "_source": "ravensburger",
     "subtitle": "Ruthless Tyrant",
     "strength": 3,
     "willpower": 6,
@@ -2971,8 +2972,7 @@
         "rulesText": "When you play this character and whenever he quests, you may deal 2 damage to another chosen character of yours to draw 2 cards.",
         "raw": "SHORT ON PATIENCE When you play this character and whenever he quests, you may deal 2 damage to another chosen character of yours to draw 2 cards."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "lena-sabrewing-pure-energy",
@@ -3024,6 +3024,7 @@
     "setId": "8",
     "number": 49,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Pure Energy",
     "strength": 1,
     "willpower": 3,
@@ -3037,8 +3038,7 @@
         "rulesText": "{E} — Deal 1 damage to chosen character.",
         "raw": "SUPERNATURAL VENGEANCE {E} — Deal 1 damage to chosen character."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "abu-illusory-pachyderm",
@@ -3103,6 +3103,7 @@
     "setId": "8",
     "number": 50,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Illusory Pachyderm",
     "strength": 3,
     "willpower": 7,
@@ -3116,8 +3117,7 @@
         "rulesText": "Whenever this character quests, gain lore equal to the {L} of chosen opposing character.",
         "raw": "GRASPING TRUNK Whenever this character quests, gain lore equal to the {L} of chosen opposing character."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "bruno-madrigal-single-minded",
@@ -3166,6 +3166,7 @@
     "setId": "8",
     "number": 51,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Single-Minded",
     "strength": 3,
     "willpower": 4,
@@ -3180,8 +3181,7 @@
         "rulesText": "When you play this character, chosen opposing character can’t ready at the start of their next turn.",
         "raw": "STANDING TALL When you play this character, chosen opposing character can’t ready at the start of their next turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "royal-guard-octopus-soldier",
@@ -3225,6 +3225,7 @@
     "setId": "8",
     "number": 52,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Octopus Soldier",
     "strength": 1,
     "willpower": 2,
@@ -3238,8 +3239,7 @@
         "rulesText": "Whenever you draw a card, this character gains <Challenger> +1 this turn. (They get +1 {S} while challenging.)",
         "raw": "HEAVILY ARMED Whenever you draw a card, this character gains <Challenger> +1 this turn. (They get +1 {S} while challenging.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "kuzco-bored-royal",
@@ -3286,6 +3286,7 @@
     "setId": "8",
     "number": 53,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Bored Royal",
     "strength": 1,
     "willpower": 3,
@@ -3300,8 +3301,7 @@
         "rulesText": "When you play this character, you may return chosen character, item, or location with cost 2 or less to their player’s hand.",
         "raw": "LLAMA BREATH When you play this character, you may return chosen character, item, or location with cost 2 or less to their player’s hand."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "megara-part-of-the-plan",
@@ -3348,6 +3348,7 @@
     "setId": "8",
     "number": 54,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Part of the Plan",
     "strength": 2,
     "willpower": 5,
@@ -3362,8 +3363,7 @@
         "rulesText": "While you have a character named Hades in play, this character gains <Challenger> +2. (They get +2 {S} while challenging.)",
         "raw": "CONTENTIOUS ALLIANCE While you have a character named Hades in play, this character gains <Challenger> +2. (They get +2 {S} while challenging.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "yelana-northuldra-leader",
@@ -3409,6 +3409,7 @@
     "setId": "8",
     "number": 55,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Northuldra Leader",
     "strength": 2,
     "willpower": 3,
@@ -3422,8 +3423,7 @@
         "rulesText": "When you play this character, chosen character gains <Challenger> +2 this turn. (They get +2 {S} while challenging.)",
         "raw": "WE ONLY TRUST NATURE When you play this character, chosen character gains <Challenger> +2 this turn. (They get +2 {S} while challenging.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "ryder-fleet-footed-infiltrator",
@@ -3448,6 +3448,7 @@
     "setId": "8",
     "number": 56,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Fleet-Footed Infiltrator",
     "strength": 3,
     "willpower": 4,
@@ -3455,8 +3456,7 @@
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)",
     "flavorText": "\"Sheesh, what is it with this high sultan guy? Can't he put in stairs like a normal person?\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/56_0a3edc86209f673d727a8e6d9ab33fc13e5824ac.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/56_0a3edc86209f673d727a8e6d9ab33fc13e5824ac.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/56_0a3edc86209f673d727a8e6d9ab33fc13e5824ac.jpg"
   },
   {
     "id": "bambi-prince-of-the-forest",
@@ -3477,14 +3477,14 @@
     "setId": "8",
     "number": 57,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Prince of the Forest",
     "strength": 3,
     "willpower": 2,
     "lore": 1,
     "flavorText": "As he grew older, he began to understand his responsibilities to all the creatures of the woods.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/57_4bdbf4d15c02b5d2497c50d9b84a0ec6fbf556b4.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/57_4bdbf4d15c02b5d2497c50d9b84a0ec6fbf556b4.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/57_4bdbf4d15c02b5d2497c50d9b84a0ec6fbf556b4.jpg"
   },
   {
     "id": "poe-de-spell-magicas-brother",
@@ -3505,14 +3505,14 @@
     "setId": "8",
     "number": 58,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Magica's Brother",
     "strength": 3,
     "willpower": 4,
     "lore": 1,
     "flavorText": "“Sister, dear, if we turn all the townspeople into frogs, who will give us our gold and turnips?”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/58_07056688954432acb51b30be595eb7c7b5b38f65.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/58_07056688954432acb51b30be595eb7c7b5b38f65.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/58_07056688954432acb51b30be595eb7c7b5b38f65.jpg"
   },
   {
     "id": "madam-mim-up-to-no-good",
@@ -3533,14 +3533,14 @@
     "setId": "8",
     "number": 59,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Up to No Good",
     "strength": 4,
     "willpower": 3,
     "lore": 1,
     "flavorText": "“They think they know my tricks . . . Oh, this one’s going to be marvelously malicious!”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/59_73b501ab955c626a000c3ef4290d90c7efa49484.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/59_73b501ab955c626a000c3ef4290d90c7efa49484.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/59_73b501ab955c626a000c3ef4290d90c7efa49484.jpg"
   },
   {
     "id": "elsa-fierce-protector",
@@ -3595,6 +3595,7 @@
     "setId": "8",
     "number": 60,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Fierce Protector",
     "strength": 3,
     "willpower": 4,
@@ -3609,8 +3610,7 @@
         "rulesText": "1 {I}, Choose and discard a card — Exert chosen opposing character.",
         "raw": "ICE OVER 1 {I}, Choose and discard a card — Exert chosen opposing character."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "pinocchio-strings-attached",
@@ -3657,6 +3657,7 @@
     "setId": "8",
     "number": 61,
     "rarity": "legendary",
+    "_source": "ravensburger",
     "subtitle": "Strings Attached",
     "strength": 0,
     "willpower": 4,
@@ -3670,8 +3671,7 @@
         "rulesText": "Once during your turn, whenever you ready this character, you may draw a card.",
         "raw": "GOT TO KEEP REAL QUIET Once during your turn, whenever you ready this character, you may draw a card."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "jiminy-cricket-level-headed-and-wise",
@@ -3716,6 +3716,7 @@
     "setId": "8",
     "number": 62,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Level-Headed and Wise",
     "strength": 1,
     "willpower": 1,
@@ -3729,8 +3730,7 @@
         "rulesText": "While this character is exerted, opposing characters with <Rush> enter play exerted.",
         "raw": "ENOUGH’S ENOUGH While this character is exerted, opposing characters with <Rush> enter play exerted."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "bambi-little-prince",
@@ -3793,6 +3793,7 @@
     "setId": "8",
     "number": 63,
     "rarity": "legendary",
+    "_source": "ravensburger",
     "subtitle": "Little Prince",
     "strength": 1,
     "willpower": 1,
@@ -3811,8 +3812,7 @@
         "rulesText": "When an opponent plays a character, return this character to your hand.",
         "raw": "KIND OF BASHFUL When an opponent plays a character, return this character to your hand."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "monstro-infamous-whale",
@@ -3865,6 +3865,7 @@
     "setId": "8",
     "number": 64,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Infamous Whale",
     "strength": 6,
     "willpower": 8,
@@ -3878,8 +3879,7 @@
         "rulesText": "Choose and discard a card — Ready this character. He can’t quest for the rest of this turn.",
         "raw": "FULL BREACH Choose and discard a card — Ready this character. He can’t quest for the rest of this turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "nero-fearsome-crocodile",
@@ -3931,6 +3931,7 @@
     "setId": "8",
     "number": 65,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Fearsome Crocodile",
     "strength": 2,
     "willpower": 3,
@@ -3945,8 +3946,7 @@
         "rulesText": "{E} — Move 1 damage counter from this character to chosen opposing character.",
         "raw": "AND MEAN {E} — Move 1 damage counter from this character to chosen opposing character."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "magica-de-spell-shadow-form",
@@ -4008,6 +4008,7 @@
     "setId": "8",
     "number": 66,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Shadow Form",
     "strength": 3,
     "willpower": 3,
@@ -4021,8 +4022,7 @@
         "rulesText": "When you play this character, you may return another chosen character of yours to your hand to draw a card.",
         "raw": "DANCE OF DARKNESS When you play this character, you may return another chosen character of yours to your hand to draw a card."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "kuzco-impulsive-llama",
@@ -4084,6 +4084,7 @@
     "setId": "8",
     "number": 67,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Impulsive Llama",
     "strength": 5,
     "willpower": 5,
@@ -4098,8 +4099,7 @@
         "rulesText": "When you play this character, each opponent chooses one of their characters and puts that card on the bottom of their deck. Then, each opponent may draw a card.",
         "raw": "WHAT DOES THIS DO? When you play this character, each opponent chooses one of their characters and puts that card on the bottom of their deck. Then, each opponent may draw a card."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "yzma-on-edge",
@@ -4154,6 +4154,7 @@
     "setId": "8",
     "number": 68,
     "rarity": "super_rare",
+    "_source": "ravensburger",
     "subtitle": "On Edge",
     "strength": 3,
     "willpower": 6,
@@ -4167,8 +4168,7 @@
         "rulesText": "When you play this character, if you have a card named Pull the Lever! in your discard, you may search your deck for a card named Wrong Lever! and reveal that card to all players. Put that card into your hand and shuffle your deck.",
         "raw": "WHY DO WE EVEN HAVE THAT LEVER? When you play this character, if you have a card named Pull the Lever! in your discard, you may search your deck for a card named Wrong Lever! and reveal that card to all players. Put that card into your hand and shuffle your deck."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "madam-mim-rhino",
@@ -4237,6 +4237,7 @@
     "setId": "8",
     "number": 69,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Rhino",
     "strength": 6,
     "willpower": 5,
@@ -4251,8 +4252,7 @@
         "rulesText": "When you play this character, banish her or return another chosen character of yours to your hand.",
         "raw": "MAKE WAY, COMING THROUGH! When you play this character, banish her or return another chosen character of yours to your hand."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "mother-gothel-knows-whats-best",
@@ -4334,6 +4334,7 @@
     "setId": "8",
     "number": 70,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Knows What's Best",
     "strength": 1,
     "willpower": 3,
@@ -4347,8 +4348,7 @@
         "rulesText": "When you play this character, you may deal 2 damage to another chosen character of yours to give that character <Challenger> +1 and \"When this character is banished in a challenge, return this card to your hand\" this turn. (They get +1 {S} while challenging.)",
         "raw": "LOOK WHAT YOU’VE DONE When you play this character, you may deal 2 damage to another chosen character of yours to give that character <Challenger> +1 and \"When this character is banished in a challenge, return this card to your hand\" this turn. (They get +1 {S} while challenging.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "blue-fairy-guiding-light",
@@ -4379,14 +4379,14 @@
     "setId": "8",
     "number": 71,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Guiding Light",
     "strength": 2,
     "willpower": 2,
     "lore": 1,
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\n<Support> (Whenever this character quests, you may add their {S} to another chosen character’s {S} this turn.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/71_54bb7279891728e7a17c952cbd7aec9746e0e684.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/71_54bb7279891728e7a17c952cbd7aec9746e0e684.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/71_54bb7279891728e7a17c952cbd7aec9746e0e684.jpg"
   },
   {
     "id": "anna-magical-mission",
@@ -4450,6 +4450,7 @@
     "setId": "8",
     "number": 72,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Magical Mission",
     "strength": 3,
     "willpower": 6,
@@ -4464,8 +4465,7 @@
         "rulesText": "Whenever this character quests, if you have a character named Elsa in play, you may draw a card.",
         "raw": "COORDINATED PLAN Whenever this character quests, if you have a character named Elsa in play, you may draw a card."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "the-sultan-royal-apparition",
@@ -4528,6 +4528,7 @@
     "setId": "8",
     "number": 73,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Royal Apparition",
     "strength": 5,
     "willpower": 5,
@@ -4541,8 +4542,7 @@
         "rulesText": "Whenever one of your Illusion characters quests, exert chosen opposing character.",
         "raw": "COMMANDING PRESENCE Whenever one of your Illusion characters quests, exert chosen opposing character."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "jafar-high-sultan-of-lorcana",
@@ -4616,6 +4616,7 @@
     "setId": "8",
     "number": 74,
     "rarity": "super_rare",
+    "_source": "ravensburger",
     "subtitle": "High Sultan of Lorcana",
     "strength": 4,
     "willpower": 4,
@@ -4629,8 +4630,7 @@
         "rulesText": "Whenever this character quests, you may draw a card, then choose and discard a card. If an Illusion character card is discarded this way, you may play that character for free.",
         "raw": "DARK POWER Whenever this character quests, you may draw a card, then choose and discard a card. If an Illusion character card is discarded this way, you may play that character for free."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "camilo-madrigal-center-stage",
@@ -4668,6 +4668,7 @@
     "setId": "8",
     "number": 75,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Center Stage",
     "strength": 4,
     "willpower": 4,
@@ -4682,8 +4683,7 @@
         "rulesText": "When this character is banished in a challenge, return this card to your hand.",
         "raw": "ENCORE! ENCORE! When this character is banished in a challenge, return this card to your hand."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "flower-shy-skunk",
@@ -4730,6 +4730,7 @@
     "setId": "8",
     "number": 76,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Shy Skunk",
     "strength": 3,
     "willpower": 3,
@@ -4744,8 +4745,7 @@
         "rulesText": "Whenever you play another character, look at the top card of your deck. Put it on either the top or the bottom of your deck.",
         "raw": "LOOKING FOR FRIENDS Whenever you play another character, look at the top card of your deck. Put it on either the top or the bottom of your deck."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "forest-duel",
@@ -4762,6 +4762,7 @@
     "setId": "8",
     "number": 77,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "rulesText": "Your characters gain <Challenger> +2 and \"When this character is banished in a challenge, return this card to your hand\" this turn. (They get +2 {S} while challenging.)",
     "flavorText": "Fight with honor, win with dignity.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/77_4f676de3b01ac5e09bff758f970da3adc20e2751.jpg",
@@ -4809,8 +4810,7 @@
           }
         ]
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "they-never-come-back",
@@ -4827,6 +4827,7 @@
     "setId": "8",
     "number": 78,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "rulesText": "Up to 2 chosen characters can’t ready at the start of their next turn. Draw a card.",
     "flavorText": "\"You boys have had your fun. Now, pay for it.\"\n—The Coachman",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/78_a536cf1fc707534ce9ff7b134575801f49f15491.jpg",
@@ -4854,8 +4855,7 @@
           "type": "self"
         }
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "fantastical-and-magical",
@@ -4884,6 +4884,7 @@
     "setId": "8",
     "number": 79,
     "rarity": "rare",
+    "_source": "ravensburger",
     "rulesText": "<Sing Together> 9 (Any number of your or your teammates’ characters with total cost 9 or more may {E} to sing this song for free.)\nFor each character that sang this song, draw a card and gain 1 lore.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/79_4f6a9d5abb7ab8455c9e4339d349b584320ec7be.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/79_4f6a9d5abb7ab8455c9e4339d349b584320ec7be.jpg",
@@ -4912,8 +4913,7 @@
         ]
       }
     ],
-    "singTogetherCost": 9,
-    "_source": "manual"
+    "singTogetherCost": 9
   },
   {
     "id": "pull-the-lever",
@@ -4931,6 +4931,7 @@
     "setId": "8",
     "number": 80,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "rulesText": "Choose one:\n• Draw 2 cards.\n• Each opponent chooses and discards a card.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/80_2406b5aef7276513c3c81661726d134ad3ca90f8.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/80_2406b5aef7276513c3c81661726d134ad3ca90f8.jpg",
@@ -4965,8 +4966,7 @@
           ]
         ]
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "into-the-unknown",
@@ -4986,6 +4986,7 @@
     "setId": "8",
     "number": 81,
     "rarity": "super_rare",
+    "_source": "ravensburger",
     "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nPut chosen exerted character into their player’s inkwell facedown and exerted.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/81_25e0f1bfa276bb0f8b57d0e592405353d71b757b.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/81_25e0f1bfa276bb0f8b57d0e592405353d71b757b.jpg",
@@ -5005,8 +5006,7 @@
           }
         }
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "everybodys-got-a-weakness",
@@ -5023,6 +5023,7 @@
     "setId": "8",
     "number": 82,
     "rarity": "rare",
+    "_source": "ravensburger",
     "rulesText": "Move 1 damage counter from each damaged character you have in play to chosen opposing character. Draw a card for each damage counter moved this way.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/82_cf2ea1fc54a5bc230366db04a695687eebd4bf58.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/82_cf2ea1fc54a5bc230366db04a695687eebd4bf58.jpg",
@@ -5065,8 +5066,7 @@
           }
         ]
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "scarab",
@@ -5116,6 +5116,7 @@
     "setId": "8",
     "number": 83,
     "rarity": "common",
+    "_source": "ravensburger",
     "rulesText": "SEARCH THE SANDS {E}, 2 {I} — Return an Illusion character card from your discard to your hand.",
     "flavorText": "“If we can catch one, maybe we can recalibrate it to help us get rid of Jafar's illusions!”\n—Venturo, an Illumineer",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/83_079beb48eb8393818e25e50a67e65be612b12eb9.jpg",
@@ -5126,8 +5127,7 @@
         "rulesText": "{E}, 2 {I} — Return an Illusion character card from your discard to your hand.",
         "raw": "SEARCH THE SANDS {E}, 2 {I} — Return an Illusion character card from your discard to your hand."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "ice-spikes",
@@ -5210,6 +5210,7 @@
     "setId": "8",
     "number": 84,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "rulesText": "HOLD STILL When you play this item, exert chosen opposing character.\nIT’S STUCK {E}, 1 {I} — Exert chosen opposing item. It can’t ready at the start of its next turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/84_684ee493fd2767a14f07d6e357ab84ac673773a9.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/84_684ee493fd2767a14f07d6e357ab84ac673773a9.jpg",
@@ -5224,8 +5225,7 @@
         "rulesText": "{E}, 1 {I} — Exert chosen opposing item. It can’t ready at the start of its next turn.",
         "raw": "IT’S STUCK {E}, 1 {I} — Exert chosen opposing item. It can’t ready at the start of its next turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "wilhelmina-packard-the-radio-operator",
@@ -5245,14 +5245,14 @@
     "setId": "8",
     "number": 85,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "The Radio Operator",
     "strength": 3,
     "willpower": 4,
     "lore": 1,
     "flavorText": "Helga: “Sounds metallic. Could be an echo off one of the rocks.”\nWilhelmina: “Do you want to do my job? Be my guest.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/85_360ef467c550593ff6f3fec72b7f6585e242905c.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/85_360ef467c550593ff6f3fec72b7f6585e242905c.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/85_360ef467c550593ff6f3fec72b7f6585e242905c.jpg"
   },
   {
     "id": "basil-undercover-detective",
@@ -5315,6 +5315,7 @@
     "setId": "8",
     "number": 86,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Undercover Detective",
     "strength": 5,
     "willpower": 4,
@@ -5333,8 +5334,7 @@
         "rulesText": "Whenever this character quests, chosen opponent discards a card at random.",
         "raw": "INTERFERE Whenever this character quests, chosen opponent discards a card at random."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "tramp-observant-guardian",
@@ -5379,6 +5379,7 @@
     "setId": "8",
     "number": 87,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Observant Guardian",
     "strength": 3,
     "willpower": 3,
@@ -5393,8 +5394,7 @@
         "rulesText": "When you play this character, chosen character gains <Ward> until the start of your next turn. (Opponents can’t choose them except to challenge.)",
         "raw": "HOW DO I GET IN? When you play this character, chosen character gains <Ward> until the start of your next turn. (Opponents can’t choose them except to challenge.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "chaca-junior-chipmunk",
@@ -5455,6 +5455,7 @@
     "setId": "8",
     "number": 88,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Junior Chipmunk",
     "strength": 3,
     "willpower": 3,
@@ -5468,8 +5469,7 @@
         "rulesText": "When you play this character, if you have a character named Tipo in play, chosen opposing character gains <Reckless> during their next turn. (They can’t quest and must challenge if able.)",
         "raw": "IN CAHOOTS When you play this character, if you have a character named Tipo in play, chosen opposing character gains <Reckless> during their next turn. (They can’t quest and must challenge if able.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "tipo-junior-chipmunk",
@@ -5494,6 +5494,7 @@
     "setId": "8",
     "number": 89,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Junior Chipmunk",
     "strength": 2,
     "willpower": 2,
@@ -5501,8 +5502,7 @@
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)",
     "flavorText": "\"This is so much fun, Chaca! I want to go higher!\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/89_8af8976d364cdf9584c68d7dc8b77fcef5b8860f.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/89_8af8976d364cdf9584c68d7dc8b77fcef5b8860f.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/89_8af8976d364cdf9584c68d7dc8b77fcef5b8860f.jpg"
   },
   {
     "id": "bill-the-lizard-chimney-sweep",
@@ -5545,6 +5545,7 @@
     "setId": "8",
     "number": 90,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Chimney Sweep",
     "strength": 1,
     "willpower": 2,
@@ -5559,8 +5560,7 @@
         "rulesText": "While another character in play has damage, this character gains <Evasive>. (Only characters with Evasive can challenge them.)",
         "raw": "NOTHING TO IT While another character in play has damage, this character gains <Evasive>. (Only characters with Evasive can challenge them.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "march-hare-hare-brained-eccentric",
@@ -5605,6 +5605,7 @@
     "setId": "8",
     "number": 91,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Hare-Brained Eccentric",
     "strength": 3,
     "willpower": 4,
@@ -5619,8 +5620,7 @@
         "rulesText": "When you play this character, you may deal 2 damage to chosen damaged character.",
         "raw": "LIGHT THE CANDLES When you play this character, you may deal 2 damage to chosen damaged character."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "fred-major-science-enthusiast",
@@ -5664,6 +5664,7 @@
     "setId": "8",
     "number": 92,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Major Science Enthusiast",
     "strength": 2,
     "willpower": 3,
@@ -5678,8 +5679,7 @@
         "rulesText": "When you play this character, you may banish chosen item.",
         "raw": "SPITTING FIRE! When you play this character, you may banish chosen item."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "mad-dog-karnages-first-mate",
@@ -5717,6 +5717,7 @@
     "setId": "8",
     "number": 93,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Karnage's First Mate",
     "strength": 4,
     "willpower": 4,
@@ -5731,8 +5732,7 @@
         "rulesText": "If you have a character named Don Karnage in play, you pay 1 {I} less to play this character.",
         "raw": "ARE YOU SURE THIS IS SAFE, CAPTAIN? If you have a character named Don Karnage in play, you pay 1 {I} less to play this character."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "dale-bumbler",
@@ -5752,14 +5752,14 @@
     "setId": "8",
     "number": 94,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Bumbler",
     "strength": 1,
     "willpower": 3,
     "lore": 1,
     "flavorText": "“You’re the fearless copilot who can handle any job. . . . Did I say fearless? I meant brainless!”\n—Chip",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/94_d9cdcac87116234fc9cbd461b24ba2f7206a9929.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/94_d9cdcac87116234fc9cbd461b24ba2f7206a9929.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/94_d9cdcac87116234fc9cbd461b24ba2f7206a9929.jpg"
   },
   {
     "id": "louis-endearing-alligator",
@@ -5815,6 +5815,7 @@
     "setId": "8",
     "number": 95,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Endearing Alligator",
     "strength": 4,
     "willpower": 3,
@@ -5833,8 +5834,7 @@
         "rulesText": "When you play this character, chosen opposing character gains <Reckless> during their next turn. (They can’t quest and must challenge if able.)",
         "raw": "FRIENDLIER THAN HE LOOKS When you play this character, chosen opposing character gains <Reckless> during their next turn. (They can’t quest and must challenge if able.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "napoleon-clever-bloodhound",
@@ -5853,14 +5853,14 @@
     "setId": "8",
     "number": 96,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Clever Bloodhound",
     "strength": 3,
     "willpower": 6,
     "lore": 1,
     "flavorText": "“Everyone knows that without rations, an operation'll be a failure. And this is why I outrank you, Lafayette. 'Cause I see the big picture.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/96_b6a1340dd22233648675aa542fc61d49b6ae3524.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/96_b6a1340dd22233648675aa542fc61d49b6ae3524.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/96_b6a1340dd22233648675aa542fc61d49b6ae3524.jpg"
   },
   {
     "id": "chip-quick-thinker",
@@ -5899,6 +5899,7 @@
     "setId": "8",
     "number": 97,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Quick Thinker",
     "strength": 3,
     "willpower": 2,
@@ -5913,8 +5914,7 @@
         "rulesText": "When you play this character, chosen opponent chooses and discards a card.",
         "raw": "I’LL HANDLE THIS When you play this character, chosen opponent chooses and discards a card."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "fred-giant-sized",
@@ -5961,6 +5961,7 @@
     "setId": "8",
     "number": 98,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Giant-Sized",
     "strength": 5,
     "willpower": 6,
@@ -5975,8 +5976,7 @@
         "rulesText": "Whenever this character quests, reveal cards from the top of your deck until you reveal a Floodborn character card. Put that card into your hand and shuffle the rest into your deck.",
         "raw": "I LIKE WHERE THIS IS HEADING Whenever this character quests, reveal cards from the top of your deck until you reveal a Floodborn character card. Put that card into your hand and shuffle the rest into your deck."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "gadget-hackwrench-quirky-scientist",
@@ -6019,6 +6019,7 @@
     "setId": "8",
     "number": 99,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Quirky Scientist",
     "strength": 3,
     "willpower": 2,
@@ -6033,8 +6034,7 @@
         "rulesText": "When you play this character, if an opponent has more cards in their hand than you, you may draw a card.",
         "raw": "GOLLY! When you play this character, if an opponent has more cards in their hand than you, you may draw a card."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "raya-infiltration-expert",
@@ -6091,6 +6091,7 @@
     "setId": "8",
     "number": 100,
     "rarity": "legendary",
+    "_source": "ravensburger",
     "subtitle": "Infiltration Expert",
     "strength": 5,
     "willpower": 5,
@@ -6104,8 +6105,7 @@
         "rulesText": "Whenever this character quests, you may pay 2 {I} to ready another chosen character.",
         "raw": "UNCONVENTIONAL TACTICS Whenever this character quests, you may pay 2 {I} to ready another chosen character."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "rapunzel-high-climber",
@@ -6158,6 +6158,7 @@
     "setId": "8",
     "number": 101,
     "rarity": "legendary",
+    "_source": "ravensburger",
     "subtitle": "High Climber",
     "strength": 2,
     "willpower": 5,
@@ -6171,8 +6172,7 @@
         "rulesText": "Whenever this character quests, chosen opposing character can’t quest during their next turn.",
         "raw": "WRAPPED UP Whenever this character quests, chosen opposing character can’t quest during their next turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "flynn-rider-breaking-and-entering",
@@ -6214,6 +6214,7 @@
     "setId": "8",
     "number": 102,
     "rarity": "super_rare",
+    "_source": "ravensburger",
     "subtitle": "Breaking and Entering",
     "strength": 1,
     "willpower": 4,
@@ -6228,8 +6229,7 @@
         "rulesText": "Whenever this character is challenged, the challenging player may choose and discard a card. If they don’t, you gain 2 lore.",
         "raw": "THIS IS A VERY BIG DAY Whenever this character is challenged, the challenging player may choose and discard a card. If they don’t, you gain 2 lore."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "dormouse-easily-agitated",
@@ -6275,6 +6275,7 @@
     "setId": "8",
     "number": 103,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Easily Agitated",
     "strength": 1,
     "willpower": 2,
@@ -6289,8 +6290,7 @@
         "rulesText": "When you play this character, you may put 1 damage counter on chosen character.",
         "raw": "VERY RUDE INDEED When you play this character, you may put 1 damage counter on chosen character."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "alice-clumsy-as-can-be",
@@ -6342,6 +6342,7 @@
     "setId": "8",
     "number": 104,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Clumsy as Can Be",
     "strength": 2,
     "willpower": 6,
@@ -6356,8 +6357,7 @@
         "rulesText": "Whenever this character quests, put 1 damage counter on each other character.",
         "raw": "ACCIDENT PRONE Whenever this character quests, put 1 damage counter on each other character."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "queen-of-hearts-haughty-monarch",
@@ -6403,6 +6403,7 @@
     "setId": "8",
     "number": 105,
     "rarity": "super_rare",
+    "_source": "ravensburger",
     "subtitle": "Haughty Monarch",
     "strength": 2,
     "willpower": 3,
@@ -6417,8 +6418,7 @@
         "rulesText": "While there are 5 or more characters with damage in play, this character gets +3 {L}.",
         "raw": "COUNT OFF! While there are 5 or more characters with damage in play, this character gets +3 {L}."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "hiro-hamada-intuitive-thinker",
@@ -6466,6 +6466,7 @@
     "setId": "8",
     "number": 106,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Intuitive Thinker",
     "strength": 1,
     "willpower": 3,
@@ -6479,8 +6480,7 @@
         "rulesText": "{E} — Ready chosen Floodborn character.",
         "raw": "LOOK FOR A NEW ANGLE {E} — Ready chosen Floodborn character."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "go-go-tomago-cutting-edge",
@@ -6539,6 +6539,7 @@
     "setId": "8",
     "number": 107,
     "rarity": "super_rare",
+    "_source": "ravensburger",
     "subtitle": "Cutting Edge",
     "strength": 3,
     "willpower": 3,
@@ -6553,8 +6554,7 @@
         "rulesText": "When you play this character, if you used <Shift> to play her, you may put chosen character into their player’s inkwell facedown and exerted.",
         "raw": "ZERO RESISTANCE When you play this character, if you used <Shift> to play her, you may put chosen character into their player’s inkwell facedown and exerted."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "don-karnage-air-pirate-leader",
@@ -6618,6 +6618,7 @@
     "setId": "8",
     "number": 108,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Air Pirate Leader",
     "strength": 3,
     "willpower": 2,
@@ -6631,8 +6632,7 @@
         "rulesText": "Whenever you play an action that isn’t a song, chosen opposing character gains <Reckless> during their next turn. (They can’t quest and must challenge if able.)",
         "raw": "SCORNFUL TAUNT Whenever you play an action that isn’t a song, chosen opposing character gains <Reckless> during their next turn. (They can’t quest and must challenge if able.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "captain-hook-the-pirate-king",
@@ -6722,6 +6722,7 @@
     "setId": "8",
     "number": 109,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "The Pirate King",
     "strength": 4,
     "willpower": 5,
@@ -6736,8 +6737,7 @@
         "rulesText": "Once during your turn, whenever an opposing character is damaged, your Pirate characters get +2 {S} and gain <Resist> +2 this turn. (Damage dealt to them is reduced by 2.)",
         "raw": "GIVE ’EM ALL YOU GOT! Once during your turn, whenever an opposing character is damaged, your Pirate characters get +2 {S} and gain <Resist> +2 this turn. (Damage dealt to them is reduced by 2.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "maui-stubborn-trickster",
@@ -6829,6 +6829,7 @@
     "setId": "8",
     "number": 110,
     "rarity": "super_rare",
+    "_source": "ravensburger",
     "subtitle": "Stubborn Trickster",
     "strength": 4,
     "willpower": 4,
@@ -6842,8 +6843,7 @@
         "rulesText": "When this character is banished, choose one:\n• Put 2 damage counters on all opposing characters.\n• Banish all opposing items.\n• Banish all opposing locations.",
         "raw": "I’M NOT FINISHED YET When this character is banished, choose one:\n• Put 2 damage counters on all opposing characters.\n• Banish all opposing items.\n• Banish all opposing locations."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "honey-lemon-costumed-catalyst",
@@ -6901,6 +6901,7 @@
     "setId": "8",
     "number": 111,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Costumed Catalyst",
     "strength": 3,
     "willpower": 3,
@@ -6914,8 +6915,7 @@
         "rulesText": "Whenever you play a Floodborn character, if you used <Shift> to play them, you may return chosen character to their player’s hand.",
         "raw": "LET’S DO THIS! Whenever you play a Floodborn character, if you used <Shift> to play them, you may return chosen character to their player’s hand."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "jock-attentive-uncle",
@@ -6967,6 +6967,7 @@
     "setId": "8",
     "number": 112,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Attentive Uncle",
     "strength": 3,
     "willpower": 4,
@@ -6981,8 +6982,7 @@
         "rulesText": "When you play this character, if you have 3 or more other characters in play, gain 2 lore.",
         "raw": "VOICE OF EXPERIENCE When you play this character, if you have 3 or more other characters in play, gain 2 lore."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "archimedes-resourceful-owl",
@@ -7066,6 +7066,7 @@
     "setId": "8",
     "number": 113,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Resourceful Owl",
     "strength": 2,
     "willpower": 2,
@@ -7084,8 +7085,7 @@
         "rulesText": "During your turn, whenever an item is banished, you may draw a card, then choose and discard a card.",
         "raw": "NOW, THAT’S NOT BAD During your turn, whenever an item is banished, you may draw a card, then choose and discard a card."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "he-who-steals-and-runs-away",
@@ -7102,6 +7102,7 @@
     "setId": "8",
     "number": 114,
     "rarity": "common",
+    "_source": "ravensburger",
     "rulesText": "Banish chosen item. Draw a card.",
     "flavorText": "Lives to steal another day!",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/114_ca6babf290e1ec435ee47fea96aadc5671756867.jpg",
@@ -7126,8 +7127,7 @@
           "type": "self"
         }
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "stopped-chaos-in-its-tracks",
@@ -7156,6 +7156,7 @@
     "setId": "8",
     "number": 115,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "rulesText": "<Sing Together> 8 (Any number of your or your teammates’ characters with total cost 8 or more may {E} to sing this song for free.)\nReturn up to 2 chosen characters with 3 {S} or less each to their player’s hand.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/115_762df6e061fa8e3faa70bfa789620fb5990bf18a.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/115_762df6e061fa8e3faa70bfa789620fb5990bf18a.jpg",
@@ -7175,8 +7176,7 @@
         }
       }
     ],
-    "singTogetherCost": 8,
-    "_source": "manual"
+    "singTogetherCost": 8
   },
   {
     "id": "wrong-lever",
@@ -7193,6 +7193,7 @@
     "setId": "8",
     "number": 116,
     "rarity": "rare",
+    "_source": "ravensburger",
     "rulesText": "Choose one:\n• Return chosen character to their player’s hand.\n• Put a card named Pull the Lever! from your discard on the bottom of your deck to put chosen character on the bottom of their player’s deck.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/116_7abbbb8cd3265648a7365b76851755193fda6f27.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/116_7abbbb8cd3265648a7365b76851755193fda6f27.jpg",
@@ -7239,8 +7240,7 @@
           ]
         ]
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "undermine",
@@ -7258,6 +7258,7 @@
     "setId": "8",
     "number": 117,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "rulesText": "Chosen opponent chooses and discards a card. Chosen character gets +2 {S} this turn.",
     "flavorText": "“It's a real shame I didn't even get a chance to study it.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/117_9674c713f088e9b661cac2aa6d86cc6403465a5f.jpg",
@@ -7284,8 +7285,7 @@
           }
         }
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "walk-the-plank",
@@ -7303,6 +7303,7 @@
     "setId": "8",
     "number": 118,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "rulesText": "Your Pirate characters gain \"{E} — Banish chosen damaged character\" this turn.",
     "flavorText": "It was at this point that John decided he'd had quite enough adventure.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/118_3f8f19bd4f7219e9c8b5d0d8b9b6c8ffd509eb2a.jpg",
@@ -7346,8 +7347,7 @@
           ]
         }
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "chem-purse",
@@ -7394,6 +7394,7 @@
     "setId": "8",
     "number": 119,
     "rarity": "common",
+    "_source": "ravensburger",
     "rulesText": "HERE’S THE BEST PART Whenever you play a character, if you used <Shift> to play them, they get +4 {S} this turn.",
     "flavorText": "“Cute, but also potentially devastating. Perfect.” \n—Honey Lemon",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/119_960584354e8dcea8b364285abd322ca9bc463d39.jpg",
@@ -7404,8 +7405,7 @@
         "rulesText": "Whenever you play a character, if you used <Shift> to play them, they get +4 {S} this turn.",
         "raw": "HERE’S THE BEST PART Whenever you play a character, if you used <Shift> to play them, they get +4 {S} this turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "jeweled-collar",
@@ -7452,6 +7452,7 @@
     "setId": "8",
     "number": 120,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "rulesText": "WELCOME EXTRAVAGANCE Whenever one of your characters is challenged, you may put the top card of your deck into your inkwell facedown and exerted.",
     "flavorText": "Archazia created many wondrous things, but none as beautiful as this.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/120_f9ab6bf84bd022d4309b8e647cf16923d3a12afa.jpg",
@@ -7462,8 +7463,7 @@
         "rulesText": "Whenever one of your characters is challenged, you may put the top card of your deck into your inkwell facedown and exerted.",
         "raw": "WELCOME EXTRAVAGANCE Whenever one of your characters is challenged, you may put the top card of your deck into your inkwell facedown and exerted."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "gloyd-orangeboar-fierce-competitor",
@@ -7515,6 +7515,7 @@
     "setId": "8",
     "number": 121,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Fierce Competitor",
     "strength": 1,
     "willpower": 2,
@@ -7529,8 +7530,7 @@
         "rulesText": "When you play this character, each opponent loses 1 lore and you gain 1 lore.",
         "raw": "PUMPKIN SPICE When you play this character, each opponent loses 1 lore and you gain 1 lore."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "honest-john-shameless-schemer",
@@ -7550,14 +7550,14 @@
     "setId": "8",
     "number": 122,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Shameless Schemer",
     "strength": 7,
     "willpower": 5,
     "lore": 2,
     "flavorText": "\"Say, jewels just lying around in a fancy joint like this? It would be a shame if a few went missing . . .\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/122_eb189fb80ceb96df7f9d99b14e2db72481de5f0f.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/122_eb189fb80ceb96df7f9d99b14e2db72481de5f0f.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/122_eb189fb80ceb96df7f9d99b14e2db72481de5f0f.jpg"
   },
   {
     "id": "gyro-gearloose-eccentric-inventor",
@@ -7610,6 +7610,7 @@
     "setId": "8",
     "number": 123,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Eccentric Inventor",
     "strength": 1,
     "willpower": 3,
@@ -7623,8 +7624,7 @@
         "rulesText": "When you play this character, chosen opposing character gets -3 {S} this turn.",
         "raw": "I’LL SHOW YOU! When you play this character, chosen opposing character gets -3 {S} this turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "vanellope-von-schweetz-spunky-speedster",
@@ -7651,6 +7651,7 @@
     "setId": "8",
     "number": 124,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Spunky Speedster",
     "strength": 3,
     "willpower": 1,
@@ -7658,8 +7659,7 @@
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)",
     "flavorText": "“I can handle anything you throw at me . . . Wait, are those <laser snakes>? This is the best track ever!”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/124_3c2d4a95240db03bbeb15b16b3c8758b916ddb89.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/124_3c2d4a95240db03bbeb15b16b3c8758b916ddb89.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/124_3c2d4a95240db03bbeb15b16b3c8758b916ddb89.jpg"
   },
   {
     "id": "brutus-fearsome-crocodile",
@@ -7713,6 +7713,7 @@
     "setId": "8",
     "number": 125,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Fearsome Crocodile",
     "strength": 4,
     "willpower": 3,
@@ -7727,8 +7728,7 @@
         "rulesText": "During your turn, when this character is banished, if one of your characters was damaged this turn, gain 2 lore.",
         "raw": "SPITEFUL During your turn, when this character is banished, if one of your characters was damaged this turn, gain 2 lore."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "the-dodo-outlandish-storyteller",
@@ -7761,6 +7761,7 @@
     "setId": "8",
     "number": 126,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Outlandish Storyteller",
     "strength": 0,
     "willpower": 6,
@@ -7775,8 +7776,7 @@
         "rulesText": "This character gets +1 {S} for each 1 damage on him.",
         "raw": "EXTRAORDINARY SITUATION This character gets +1 {S} for each 1 damage on him."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "alice-courageous-keyholder",
@@ -7834,6 +7834,7 @@
     "setId": "8",
     "number": 127,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Courageous Keyholder",
     "strength": 2,
     "willpower": 4,
@@ -7848,8 +7849,7 @@
         "rulesText": "When you play this character, you may ready chosen damaged character of yours. They can’t quest for the rest of this turn.",
         "raw": "THIS WAY OUT When you play this character, you may ready chosen damaged character of yours. They can’t quest for the rest of this turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "lumiere-nimble-candelabra",
@@ -7894,6 +7894,7 @@
     "setId": "8",
     "number": 128,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Nimble Candelabra",
     "strength": 1,
     "willpower": 1,
@@ -7908,8 +7909,7 @@
         "rulesText": "While you have an item card in your discard, this character gains <Evasive>. (Only characters with Evasive can challenge them.)",
         "raw": "QUICK-STEP While you have an item card in your discard, this character gains <Evasive>. (Only characters with Evasive can challenge them.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "gaston-arrogant-showoff",
@@ -7955,6 +7955,7 @@
     "setId": "8",
     "number": 129,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Arrogant Showoff",
     "strength": 4,
     "willpower": 4,
@@ -7969,8 +7970,7 @@
         "rulesText": "When you play this character, you may banish one of your items to give chosen character +2 {S} this turn.",
         "raw": "BREAK APART When you play this character, you may banish one of your items to give chosen character +2 {S} this turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "mushu-fast-talking-dragon",
@@ -8018,6 +8018,7 @@
     "setId": "8",
     "number": 130,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Fast-Talking Dragon",
     "strength": 2,
     "willpower": 3,
@@ -8032,8 +8033,7 @@
         "rulesText": "{E} — Chosen character gains <Rush> this turn. (They can challenge the turn they’re played.)",
         "raw": "LET’S GET THIS SHOW ON THE ROAD {E} — Chosen character gains <Rush> this turn. (They can challenge the turn they’re played.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "cri-kee-part-of-the-team",
@@ -8081,6 +8081,7 @@
     "setId": "8",
     "number": 131,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Part of the Team",
     "strength": 4,
     "willpower": 3,
@@ -8095,8 +8096,7 @@
         "rulesText": "While you have 2 or more other exerted characters in play, this character gets +2 {L}.",
         "raw": "AT HER SIDE While you have 2 or more other exerted characters in play, this character gets +2 {L}."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "lafayette-sleepy-basset-hound",
@@ -8115,14 +8115,14 @@
     "setId": "8",
     "number": 132,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Sleepy Basset Hound",
     "strength": 7,
     "willpower": 4,
     "lore": 1,
     "flavorText": "\"What are we guarding the kitchen for, Napoleon? There ain't no scarabs 'round here. Call me when there's somethin' serious that needs fixin'.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/132_aeb810d0c742082a87b562771e79be1736d47686.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/132_aeb810d0c742082a87b562771e79be1736d47686.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/132_aeb810d0c742082a87b562771e79be1736d47686.jpg"
   },
   {
     "id": "figaro-tuxedo-cat",
@@ -8159,6 +8159,7 @@
     "setId": "8",
     "number": 133,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Tuxedo Cat",
     "strength": 3,
     "willpower": 3,
@@ -8173,8 +8174,7 @@
         "rulesText": "Opposing items enter play exerted.",
         "raw": "PLAYFULNESS Opposing items enter play exerted."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "thumper-young-bunny",
@@ -8221,6 +8221,7 @@
     "setId": "8",
     "number": 134,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Young Bunny",
     "strength": 0,
     "willpower": 3,
@@ -8235,8 +8236,7 @@
         "rulesText": "{E} — Chosen character gets +3 {S} this turn.",
         "raw": "YOU CAN DO IT! {E} — Chosen character gets +3 {S} this turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "wreck-it-ralph-back-seat-driver",
@@ -8282,6 +8282,7 @@
     "setId": "8",
     "number": 135,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Back Seat Driver",
     "strength": 4,
     "willpower": 2,
@@ -8296,8 +8297,7 @@
         "rulesText": "When you play this character, chosen Racer character gets +4 {S} this turn.",
         "raw": "CHARGED UP When you play this character, chosen Racer character gets +4 {S} this turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "tinker-bell-insistent-fairy",
@@ -8363,6 +8363,7 @@
     "setId": "8",
     "number": 136,
     "rarity": "legendary",
+    "_source": "ravensburger",
     "subtitle": "Insistent Fairy",
     "strength": 1,
     "willpower": 1,
@@ -8376,8 +8377,7 @@
         "rulesText": "Whenever you play a character with 5 {S} or more, you may exert them to gain 2 lore.",
         "raw": "PAY ATTENTION Whenever you play a character with 5 {S} or more, you may exert them to gain 2 lore."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "lilo-causing-an-uproar",
@@ -8458,6 +8458,7 @@
     "setId": "8",
     "number": 137,
     "rarity": "legendary",
+    "_source": "ravensburger",
     "subtitle": "Causing an Uproar",
     "strength": 4,
     "willpower": 4,
@@ -8476,8 +8477,7 @@
         "rulesText": "When you play this character, ready chosen character. They can’t quest for the rest of this turn.",
         "raw": "RAAAWR! When you play this character, ready chosen character. They can’t quest for the rest of this turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "lefou-cake-thief",
@@ -8548,6 +8548,7 @@
     "setId": "8",
     "number": 138,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Cake Thief",
     "strength": 2,
     "willpower": 2,
@@ -8562,8 +8563,7 @@
         "rulesText": "{E}, Banish one of your items — Chosen opponent loses 1 lore and you gain 1 lore.",
         "raw": "ALL FOR ME {E}, Banish one of your items — Chosen opponent loses 1 lore and you gain 1 lore."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "lumiere-fired-up",
@@ -8620,6 +8620,7 @@
     "setId": "8",
     "number": 139,
     "rarity": "super_rare",
+    "_source": "ravensburger",
     "subtitle": "Fired Up",
     "strength": 4,
     "willpower": 3,
@@ -8634,8 +8635,7 @@
         "rulesText": "Whenever one of your items is banished, this character gets +1 {L} this turn.",
         "raw": "SACREBLEU! Whenever one of your items is banished, this character gets +1 {L} this turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "the-coachman-greedy-deceiver",
@@ -8687,6 +8687,7 @@
     "setId": "8",
     "number": 140,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Greedy Deceiver",
     "strength": 2,
     "willpower": 2,
@@ -8700,8 +8701,7 @@
         "rulesText": "While 2 or more characters of yours are exerted, this character gets +2 {S} and gains <Evasive>. (Only characters with Evasive can challenge them.)",
         "raw": "WILD RIDE While 2 or more characters of yours are exerted, this character gets +2 {S} and gains <Evasive>. (Only characters with Evasive can challenge them.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "mulan-charging-ahead",
@@ -8754,6 +8754,7 @@
     "setId": "8",
     "number": 141,
     "rarity": "super_rare",
+    "_source": "ravensburger",
     "subtitle": "Charging Ahead",
     "strength": 3,
     "willpower": 3,
@@ -8772,8 +8773,7 @@
         "rulesText": "This character can challenge ready characters.",
         "raw": "LONG RANGE This character can challenge ready characters."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "mushu-your-worst-nightmare",
@@ -8844,6 +8844,7 @@
     "setId": "8",
     "number": 142,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Your Worst Nightmare",
     "strength": 4,
     "willpower": 6,
@@ -8858,8 +8859,7 @@
         "rulesText": "Whenever you play another character, they gain <Rush>, <Reckless>, and <Evasive> this turn. (They can challenge the turn they’re played. They can’t quest and must challenge if able. They can challenge characters with Evasive.)",
         "raw": "ALL FIRED UP Whenever you play another character, they gain <Rush>, <Reckless>, and <Evasive> this turn. (They can challenge the turn they’re played. They can’t quest and must challenge if able. They can challenge characters with Evasive.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "mr-snoops-betrayed-partner",
@@ -8901,6 +8901,7 @@
     "setId": "8",
     "number": 143,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Betrayed Partner",
     "strength": 3,
     "willpower": 3,
@@ -8915,8 +8916,7 @@
         "rulesText": "During your turn, when this character is banished, you may draw a card.",
         "raw": "DOUBLE-CROSSING CROOK! During your turn, when this character is banished, you may draw a card."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "friend-owl-cantankerous-neighbor",
@@ -8936,14 +8936,14 @@
     "setId": "8",
     "number": 144,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Cantankerous Neighbor",
     "strength": 2,
     "willpower": 2,
     "lore": 2,
     "flavorText": "“Sand? In the forest? I’ll bet some magical miscreant’s up to no good. Well, it’s none of my concern. I’m going back to bed.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/144_88136f41b62afba04948e5408d3d1ddc37bab782.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/144_88136f41b62afba04948e5408d3d1ddc37bab782.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/144_88136f41b62afba04948e5408d3d1ddc37bab782.jpg"
   },
   {
     "id": "faline-playful-fawn",
@@ -8984,6 +8984,7 @@
     "setId": "8",
     "number": 145,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Playful Fawn",
     "strength": 2,
     "willpower": 4,
@@ -8997,8 +8998,7 @@
         "rulesText": "While you have a character in play with more {S} than each opposing character, this character gets +2 {L}.",
         "raw": "PRECOCIOUS FRIEND While you have a character in play with more {S} than each opposing character, this character gets +2 {L}."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "prince-john-fraidy-cat",
@@ -9045,6 +9045,7 @@
     "setId": "8",
     "number": 146,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Fraidy-Cat",
     "strength": 5,
     "willpower": 5,
@@ -9059,8 +9060,7 @@
         "rulesText": "Whenever an opponent plays a character, deal 1 damage to this character.",
         "raw": "HELP! HELP! Whenever an opponent plays a character, deal 1 damage to this character."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "nothing-we-wont-do",
@@ -9089,6 +9089,7 @@
     "setId": "8",
     "number": 147,
     "rarity": "rare",
+    "_source": "ravensburger",
     "rulesText": "<Sing Together> 8 (Any number of your or your teammates’ characters with total cost 8 or more may {E} to sing this song for free.)\nReady all your characters. For the rest of this turn, they take no damage from challenges and can’t quest.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/147_f336c86deceeacbc375228a8719fdceabdce2100.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/147_f336c86deceeacbc375228a8719fdceabdce2100.jpg",
@@ -9143,8 +9144,7 @@
         "duration": "end_of_turn"
       }
     ],
-    "singTogetherCost": 8,
-    "_source": "manual"
+    "singTogetherCost": 8
   },
   {
     "id": "get-out",
@@ -9162,6 +9162,7 @@
     "setId": "8",
     "number": 148,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "rulesText": "Banish chosen character, then return an item card from your discard to your hand.",
     "flavorText": "“Leave now. Before I change my mind.”\n—The Beast",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/148_4ea26f3311c66811a30511439ac9b93cc426d272.jpg",
@@ -9194,8 +9195,7 @@
           }
         }
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "light-the-fuse",
@@ -9213,6 +9213,7 @@
     "setId": "8",
     "number": 149,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "rulesText": "Deal 1 damage to chosen character for each exerted character you have in play.",
     "flavorText": "A bold act can change the course of battle.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/149_3840cd7cebbae4d7a792e9b85207ec95a046fd81.jpg",
@@ -9243,8 +9244,7 @@
           }
         }
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "twitterpated",
@@ -9261,6 +9261,7 @@
     "setId": "8",
     "number": 150,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "rulesText": "Chosen character gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)",
     "flavorText": "A mysterious phenomenon that makes you feel both invincible and vulnerable at the same time.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/150_e21e79976afcdb2b30a0815f2412ca02372e16cc.jpg",
@@ -9280,8 +9281,7 @@
           }
         }
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "most-everyones-mad-here",
@@ -9298,6 +9298,7 @@
     "setId": "8",
     "number": 151,
     "rarity": "rare",
+    "_source": "ravensburger",
     "rulesText": "Gain lore equal to the damage on chosen character, then banish them.",
     "flavorText": "\"Well, some go this way, some go that way. But as for me, myself, personally, I prefer the shortcut.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/151_bf364e1238cf57c956b0561da39a1e5061fb128c.jpg",
@@ -9331,8 +9332,7 @@
           }
         }
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "the-sword-of-shan-yu",
@@ -9399,6 +9399,7 @@
     "setId": "8",
     "number": 152,
     "rarity": "rare",
+    "_source": "ravensburger",
     "rulesText": "WORTHY WEAPON {E}, {E} one of your characters — Ready chosen character. They can’t quest for the rest of this turn.",
     "flavorText": "\"I know what this means to you.\"\n—The Emperor",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/152_78f0d8c945a8447bf056ecf8541655485dd48eba.jpg",
@@ -9409,8 +9410,7 @@
         "rulesText": "{E}, {E} one of your characters — Ready chosen character. They can’t quest for the rest of this turn.",
         "raw": "WORTHY WEAPON {E}, {E} one of your characters — Ready chosen character. They can’t quest for the rest of this turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "the-mouse-queen-ruler-of-mousedom",
@@ -9431,14 +9431,14 @@
     "setId": "8",
     "number": 153,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Ruler of Mousedom",
     "strength": 3,
     "willpower": 6,
     "lore": 1,
     "flavorText": "\"After that dreadful Ratigan business, I know about villains. This Jafar is certainly a villain of the highest order.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/153_a860167e59be54be85220db65c2c6851fe765305.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/153_a860167e59be54be85220db65c2c6851fe765305.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/153_a860167e59be54be85220db65c2c6851fe765305.jpg"
   },
   {
     "id": "sir-pellinore-seasoned-knight",
@@ -9487,6 +9487,7 @@
     "setId": "8",
     "number": 154,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Seasoned Knight",
     "strength": 1,
     "willpower": 4,
@@ -9501,8 +9502,7 @@
         "rulesText": "Whenever this character quests, your other characters gain <Support> this turn. (Whenever they quest, you may add their {S} to another chosen character’s {S} this turn.)",
         "raw": "CODE OF HONOR Whenever this character quests, your other characters gain <Support> this turn. (Whenever they quest, you may add their {S} to another chosen character’s {S} this turn.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "anita-radcliffe-dog-lover",
@@ -9550,6 +9550,7 @@
     "setId": "8",
     "number": 155,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Dog Lover",
     "strength": 3,
     "willpower": 3,
@@ -9563,8 +9564,7 @@
         "rulesText": "When you play this character, you may give chosen Puppy character <Resist> +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)",
         "raw": "I’LL TAKE CARE OF YOU When you play this character, you may give chosen Puppy character <Resist> +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "olaf-recapping-the-story",
@@ -9611,6 +9611,7 @@
     "setId": "8",
     "number": 156,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Recapping the Story",
     "strength": 2,
     "willpower": 1,
@@ -9625,8 +9626,7 @@
         "rulesText": "When you play this character, chosen opposing character gets -1 {S} this turn.",
         "raw": "ENDLESS TALE When you play this character, chosen opposing character gets -1 {S} this turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "anna-trusting-sister",
@@ -9680,6 +9680,7 @@
     "setId": "8",
     "number": 157,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Trusting Sister",
     "strength": 2,
     "willpower": 2,
@@ -9693,8 +9694,7 @@
         "rulesText": "When you play this character, if you have a character named Elsa in play, you may put the top card of your deck into your inkwell facedown and exerted.",
         "raw": "WE CAN DO THIS TOGETHER When you play this character, if you have a character named Elsa in play, you may put the top card of your deck into your inkwell facedown and exerted."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "wasabi-always-prepared",
@@ -9720,6 +9720,7 @@
     "setId": "8",
     "number": 158,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Always Prepared",
     "strength": 3,
     "willpower": 5,
@@ -9727,8 +9728,7 @@
     "rulesText": "<Support> (Whenever this character quests, you may add their {S} to another chosen character’s {S} this turn.)",
     "flavorText": "“Okay, so the plan is ‘leave Wasabi to watch our backs while we steal the crown.' Good to know.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/158_638d512ab37245c8830820cfd3e5150eecea3198.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/158_638d512ab37245c8830820cfd3e5150eecea3198.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/158_638d512ab37245c8830820cfd3e5150eecea3198.jpg"
   },
   {
     "id": "go-go-tomago-mechanical-engineer",
@@ -9775,6 +9775,7 @@
     "setId": "8",
     "number": 159,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Mechanical Engineer",
     "strength": 1,
     "willpower": 3,
@@ -9789,8 +9790,7 @@
         "rulesText": "When you play a Floodborn character on this card, you may put the top card of your deck into your inkwell facedown and exerted.",
         "raw": "NEED THIS! When you play a Floodborn character on this card, you may put the top card of your deck into your inkwell facedown and exerted."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "the-wardrobe-perceptive-friend",
@@ -9839,6 +9839,7 @@
     "setId": "8",
     "number": 160,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Perceptive Friend",
     "strength": 3,
     "willpower": 4,
@@ -9853,8 +9854,7 @@
         "rulesText": "{E}, Choose and discard an item card — Draw 2 cards.",
         "raw": "I HAVE JUST THE THING! {E}, Choose and discard an item card — Draw 2 cards."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "mrs-potts-head-housekeeper",
@@ -9917,6 +9917,7 @@
     "setId": "8",
     "number": 161,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Head Housekeeper",
     "strength": 2,
     "willpower": 4,
@@ -9931,8 +9932,7 @@
         "rulesText": "{E}, Banish one of your items — Draw a card.",
         "raw": "CLEAN UP {E}, Banish one of your items — Draw a card."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "jasmine-resourceful-infiltrator",
@@ -9981,6 +9981,7 @@
     "setId": "8",
     "number": 162,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Resourceful Infiltrator",
     "strength": 1,
     "willpower": 2,
@@ -9994,8 +9995,7 @@
         "rulesText": "When you play this character, you may give another chosen character <Resist> +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)",
         "raw": "JUST WHAT YOU NEED When you play this character, you may give another chosen character <Resist> +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "little-sister-responsible-rabbit",
@@ -10041,6 +10041,7 @@
     "setId": "8",
     "number": 163,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Responsible Rabbit",
     "strength": 1,
     "willpower": 2,
@@ -10055,8 +10056,7 @@
         "rulesText": "When you play this character, you may remove up to 1 damage from chosen character.",
         "raw": "LET ME HELP When you play this character, you may remove up to 1 damage from chosen character."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "adelaide-bonfamille-patron-of-the-arts",
@@ -10076,14 +10076,14 @@
     "setId": "8",
     "number": 164,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Patron of the Arts",
     "strength": 2,
     "willpower": 3,
     "lore": 1,
     "flavorText": "“Beautiful music can ennoble one’s spirit, no matter how dire things seem.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/164_4434441b88c2b1217d99ddc69b63e9f9fd7eceda.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/164_4434441b88c2b1217d99ddc69b63e9f9fd7eceda.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/164_4434441b88c2b1217d99ddc69b63e9f9fd7eceda.jpg"
   },
   {
     "id": "nani-heist-mastermind",
@@ -10154,6 +10154,7 @@
     "setId": "8",
     "number": 165,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Heist Mastermind",
     "strength": 3,
     "willpower": 3,
@@ -10172,8 +10173,7 @@
         "rulesText": "Your characters named Lilo gain <Support>. (Whenever they quest, you may add their {S} to another chosen character’s {S} this turn.)",
         "raw": "IT’S UP TO YOU, LILO Your characters named Lilo gain <Support>. (Whenever they quest, you may add their {S} to another chosen character’s {S} this turn.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "stitch-experiment-626",
@@ -10256,6 +10256,7 @@
     "setId": "8",
     "number": 166,
     "rarity": "legendary",
+    "_source": "ravensburger",
     "subtitle": "Experiment 626",
     "strength": 3,
     "willpower": 3,
@@ -10274,8 +10275,7 @@
         "rulesText": "At the start of your turn, if this card is in your discard, you may choose and discard a card with {C} to play this character for free and he enters play exerted.",
         "raw": "STEALTH MODE At the start of your turn, if this card is in your discard, you may choose and discard a card with {C} to play this character for free and he enters play exerted."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "ratigan-greedy-genius",
@@ -10323,6 +10323,7 @@
     "setId": "8",
     "number": 167,
     "rarity": "legendary",
+    "_source": "ravensburger",
     "subtitle": "Greedy Genius",
     "strength": 6,
     "willpower": 7,
@@ -10336,8 +10337,7 @@
         "rulesText": "At the end of your turn, if you didn’t put any cards into your inkwell this turn, banish this character.",
         "raw": "TIME RUNS OUT At the end of your turn, if you didn’t put any cards into your inkwell this turn, banish this character."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "arthur-determined-squire",
@@ -10367,6 +10367,7 @@
     "setId": "8",
     "number": 168,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Determined Squire",
     "strength": 6,
     "willpower": 6,
@@ -10381,8 +10382,7 @@
         "rulesText": "Skip your turn’s Draw step.",
         "raw": "NO MORE BOOKS Skip your turn’s Draw step."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "bernard-over-prepared",
@@ -10435,6 +10435,7 @@
     "setId": "8",
     "number": 169,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Over-Prepared",
     "strength": 2,
     "willpower": 2,
@@ -10449,8 +10450,7 @@
         "rulesText": "When you play this character, if you have an Ally character in play, you may draw a card.",
         "raw": "GO DOWN THERE AND INVESTIGATE When you play this character, if you have an Ally character in play, you may draw a card."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "aladdin-vigilant-guard",
@@ -10506,6 +10506,7 @@
     "setId": "8",
     "number": 170,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Vigilant Guard",
     "strength": 1,
     "willpower": 9,
@@ -10519,8 +10520,7 @@
         "rulesText": "Whenever one of your Ally characters quests, you may remove up to 2 damage from this character.",
         "raw": "SAFE PASSAGE Whenever one of your Ally characters quests, you may remove up to 2 damage from this character."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "jasmine-steady-strategist",
@@ -10575,6 +10575,7 @@
     "setId": "8",
     "number": 171,
     "rarity": "super_rare",
+    "_source": "ravensburger",
     "subtitle": "Steady Strategist",
     "strength": 2,
     "willpower": 5,
@@ -10589,8 +10590,7 @@
         "rulesText": "Whenever this character quests, look at the top 3 cards of your deck. You may reveal an Ally character card and put it into your hand. Put the rest on the bottom of your deck in any order.",
         "raw": "ALWAYS PLANNING Whenever this character quests, look at the top 3 cards of your deck. You may reveal an Ally character card and put it into your hand. Put the rest on the bottom of your deck in any order."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "roquefort-lock-expert",
@@ -10636,6 +10636,7 @@
     "setId": "8",
     "number": 172,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Lock Expert",
     "strength": 2,
     "willpower": 2,
@@ -10650,8 +10651,7 @@
         "rulesText": "Whenever this character quests, you may put chosen item into its player’s inkwell facedown and exerted.",
         "raw": "SAFEKEEPING Whenever this character quests, you may put chosen item into its player’s inkwell facedown and exerted."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "jumba-jookiba-critical-scientist",
@@ -10672,14 +10672,14 @@
     "setId": "8",
     "number": 173,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Critical Scientist",
     "strength": 1,
     "willpower": 6,
     "lore": 2,
     "flavorText": "“This little thing has a much more rudimentary design than if I had created it. But if you were rushing development, then this makes sense.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/173_65ae3773d13e991d1e02b6db9ff5aaf083dbb72e.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/173_65ae3773d13e991d1e02b6db9ff5aaf083dbb72e.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/173_65ae3773d13e991d1e02b6db9ff5aaf083dbb72e.jpg"
   },
   {
     "id": "geppetto-skilled-craftsman",
@@ -10739,6 +10739,7 @@
     "setId": "8",
     "number": 174,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Skilled Craftsman",
     "strength": 4,
     "willpower": 4,
@@ -10753,8 +10754,7 @@
         "rulesText": "Whenever this character quests, you may choose and discard any number of item cards to gain 1 lore for each item card discarded this way.",
         "raw": "SEEKING INSPIRATION Whenever this character quests, you may choose and discard any number of item cards to gain 1 lore for each item card discarded this way."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "heads-held-high",
@@ -10783,6 +10783,7 @@
     "setId": "8",
     "number": 175,
     "rarity": "rare",
+    "_source": "ravensburger",
     "rulesText": "<Sing Together> 6 (Any number of your or your teammates’ characters with total cost 6 or more may {E} to sing this song for free.)\nRemove up to 3 damage from any number of chosen characters. All opposing characters get -3 {S} this turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/175_5d72d182b00644de55a65ae26d2bd0c6470aa4fd.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/175_5d72d182b00644de55a65ae26d2bd0c6470aa4fd.jpg",
@@ -10823,8 +10824,7 @@
         }
       }
     ],
-    "singTogetherCost": 6,
-    "_source": "manual"
+    "singTogetherCost": 6
   },
   {
     "id": "pouncing-practice",
@@ -10841,6 +10841,7 @@
     "setId": "8",
     "number": 176,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "rulesText": "Chosen character gets -2 {S} this turn. Chosen character of yours gains <Evasive> this turn. (They can challenge characters with Evasive.)",
     "flavorText": "\"Check out this cool trick my dad taught me!\"\n—Simba",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/176_e6dd3216e5a0da1eb2c19c3c833d28f7461bc7c6.jpg",
@@ -10875,8 +10876,7 @@
           }
         }
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "down-in-new-orleans",
@@ -10895,6 +10895,7 @@
     "setId": "8",
     "number": 177,
     "rarity": "super_rare",
+    "_source": "ravensburger",
     "rulesText": "(A character with cost 6 or more can {E} to sing this song for free.)\nLook at the top 3 cards of your deck. You may reveal a character, item, or location card with cost 6 or less and play it for free. Put the rest on the bottom of your deck in any order.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/177_4085ca9a3882b3be4ab3e05a9c175a8f22667f32.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/177_4085ca9a3882b3be4ab3e05a9c175a8f22667f32.jpg",
@@ -10913,8 +10914,7 @@
         "isMay": true,
         "revealPicks": true
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "television-set",
@@ -10963,6 +10963,7 @@
     "setId": "8",
     "number": 178,
     "rarity": "common",
+    "_source": "ravensburger",
     "rulesText": "IS IT ON YET? {E}, 1 {I} — Look at the top card of your deck. If it’s a Puppy character card, you may reveal it and put it into your hand. Otherwise, put it on the bottom of your deck.",
     "flavorText": "Thunderbolt's show was one thing all the puppies could agree on.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/178_6c7a686e16bb45e8640d02b82f1739e3e453d0ba.jpg",
@@ -10973,8 +10974,7 @@
         "rulesText": "{E}, 1 {I} — Look at the top card of your deck. If it’s a Puppy character card, you may reveal it and put it into your hand. Otherwise, put it on the bottom of your deck.",
         "raw": "IS IT ON YET? {E}, 1 {I} — Look at the top card of your deck. If it’s a Puppy character card, you may reveal it and put it into your hand. Otherwise, put it on the bottom of your deck."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "belles-favorite-book",
@@ -11036,6 +11036,7 @@
     "setId": "8",
     "number": 179,
     "rarity": "rare",
+    "_source": "ravensburger",
     "rulesText": "CHAPTER THREE {E}, Banish one of your other items — Put the top card of your deck into your inkwell facedown and exerted.",
     "flavorText": "Some stories stay with you forever.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/179_d6211504eaef872134d689f8c3e7949d78b08ae7.jpg",
@@ -11046,8 +11047,7 @@
         "rulesText": "{E}, Banish one of your other items — Put the top card of your deck into your inkwell facedown and exerted.",
         "raw": "CHAPTER THREE {E}, Banish one of your other items — Put the top card of your deck into your inkwell facedown and exerted."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "atlantean-crystal",
@@ -11110,6 +11110,7 @@
     "setId": "8",
     "number": 180,
     "rarity": "rare",
+    "_source": "ravensburger",
     "rulesText": "SHIELDING LIGHT {E}, 2 {I} — Chosen character gains <Resist> +2 and <Support> until the start of your next turn. (Damage dealt to them is reduced by 2. Whenever they quest, you may add their {S} to another chosen character’s {S} this turn.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/180_73a5eed582d9b98284622bba69afdce1c2315207.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/180_73a5eed582d9b98284622bba69afdce1c2315207.jpg",
@@ -11119,8 +11120,7 @@
         "rulesText": "{E}, 2 {I} — Chosen character gains <Resist> +2 and <Support> until the start of your next turn. (Damage dealt to them is reduced by 2. Whenever they quest, you may add their {S} to another chosen character’s {S} this turn.)",
         "raw": "SHIELDING LIGHT {E}, 2 {I} — Chosen character gains <Resist> +2 and <Support> until the start of your next turn. (Damage dealt to them is reduced by 2. Whenever they quest, you may add their {S} to another chosen character’s {S} this turn.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "atitaya-fang-general",
@@ -11140,14 +11140,14 @@
     "setId": "8",
     "number": 181,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Fang General",
     "strength": 7,
     "willpower": 7,
     "lore": 3,
     "flavorText": "\"Spears of Fang, stand strong and tall. We are the last line of defense and we will not fall!\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/181_701556fd427823de597b56a15f795b906d9ed865.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/181_701556fd427823de597b56a15f795b906d9ed865.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/181_701556fd427823de597b56a15f795b906d9ed865.jpg"
   },
   {
     "id": "bobby-purple-pigeon",
@@ -11171,6 +11171,7 @@
     "setId": "8",
     "number": 182,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Purple Pigeon",
     "strength": 4,
     "willpower": 2,
@@ -11178,8 +11179,7 @@
     "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)",
     "flavorText": "“You come at me, you get the beak, capisce?”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/182_57b39ee3ce63e2cecf953daa3d16fc73d625332d.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/182_57b39ee3ce63e2cecf953daa3d16fc73d625332d.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/182_57b39ee3ce63e2cecf953daa3d16fc73d625332d.jpg"
   },
   {
     "id": "magic-carpet-phantom-rug",
@@ -11229,6 +11229,7 @@
     "setId": "8",
     "number": 183,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Phantom Rug",
     "strength": 2,
     "willpower": 4,
@@ -11242,8 +11243,7 @@
         "rulesText": "Your other Illusion characters gain <Challenger> +1. (They get +1 {S} while challenging.)",
         "raw": "SPECTRAL FORCE Your other Illusion characters gain <Challenger> +1. (They get +1 {S} while challenging.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "prince-achmed-rival-suitor",
@@ -11288,6 +11288,7 @@
     "setId": "8",
     "number": 184,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Rival Suitor",
     "strength": 2,
     "willpower": 2,
@@ -11302,8 +11303,7 @@
         "rulesText": "When you play this character, you may exert chosen Princess character.",
         "raw": "UNWELCOME PROPOSAL When you play this character, you may exert chosen Princess character."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "dumptruck-karnages-second-mate",
@@ -11349,6 +11349,7 @@
     "setId": "8",
     "number": 185,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Karnage's Second Mate",
     "strength": 0,
     "willpower": 1,
@@ -11363,8 +11364,7 @@
         "rulesText": "When you play this character, you may deal 1 damage to chosen character.",
         "raw": "LET ME AT ’EM When you play this character, you may deal 1 damage to chosen character."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "captain-hook-forceful-duelist",
@@ -11392,6 +11392,7 @@
     "setId": "8",
     "number": 186,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Forceful Duelist",
     "strength": 1,
     "willpower": 2,
@@ -11399,8 +11400,7 @@
     "rulesText": "<Challenger> +2 (While challenging, this character gets +2 {S}.)",
     "flavorText": "“How dare you? Arm yourself, scoundrel!\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/186_1002fc44d95f3cf307806278ac008aa39eae486b.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/186_1002fc44d95f3cf307806278ac008aa39eae486b.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/186_1002fc44d95f3cf307806278ac008aa39eae486b.jpg"
   },
   {
     "id": "general-li-head-of-the-imperial-army",
@@ -11426,6 +11426,7 @@
     "setId": "8",
     "number": 187,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Head of the Imperial Army",
     "strength": 2,
     "willpower": 4,
@@ -11433,8 +11434,7 @@
     "rulesText": "<Resist> +1 (Damage dealt to this character is reduced by 1.)",
     "flavorText": "\"A single grain of rice can tip the scale. One man may be the difference between victory and defeat.\"\n—The Emperor",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/187_6122c9090e5d367488b3ab77155e9a90eed85805.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/187_6122c9090e5d367488b3ab77155e9a90eed85805.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/187_6122c9090e5d367488b3ab77155e9a90eed85805.jpg"
   },
   {
     "id": "monterey-jack-defiant-protector",
@@ -11459,14 +11459,14 @@
     "setId": "8",
     "number": 188,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Defiant Protector",
     "strength": 4,
     "willpower": 5,
     "lore": 2,
     "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/188_2121a33a34ffab89734e29f58a28d5939e22df18.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/188_2121a33a34ffab89734e29f58a28d5939e22df18.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/188_2121a33a34ffab89734e29f58a28d5939e22df18.jpg"
   },
   {
     "id": "genie-satisfied-dragon",
@@ -11503,6 +11503,7 @@
     "setId": "8",
     "number": 189,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Satisfied Dragon",
     "strength": 3,
     "willpower": 4,
@@ -11516,8 +11517,7 @@
         "rulesText": "During your turn, this character gains <Evasive>. (They can challenge characters with Evasive.)",
         "raw": "BUG CATCHER During your turn, this character gains <Evasive>. (They can challenge characters with Evasive.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "toby-turtle-wary-friend",
@@ -11554,6 +11554,7 @@
     "setId": "8",
     "number": 190,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Wary Friend",
     "strength": 0,
     "willpower": 4,
@@ -11568,8 +11569,7 @@
         "rulesText": "While this character is exerted, he gains <Resist> +1. (Damage dealt to them is reduced by 1.)",
         "raw": "HARD SHELL While this character is exerted, he gains <Resist> +1. (Damage dealt to them is reduced by 1.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "arianna-queen-of-corona",
@@ -11589,14 +11589,14 @@
     "setId": "8",
     "number": 191,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "Queen of Corona",
     "strength": 5,
     "willpower": 5,
     "lore": 2,
     "flavorText": "“In dark times, a crown is a weighty honor we must bear with grace and courage.”",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/191_cccd06d002dee4f7acb0c0d446af91e0663abd69.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/191_cccd06d002dee4f7acb0c0d446af91e0663abd69.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/191_cccd06d002dee4f7acb0c0d446af91e0663abd69.jpg"
   },
   {
     "id": "zipper-flying-ranger",
@@ -11648,6 +11648,7 @@
     "setId": "8",
     "number": 192,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "subtitle": "Flying Ranger",
     "strength": 2,
     "willpower": 4,
@@ -11666,8 +11667,7 @@
         "rulesText": "During your turn, this character gains <Evasive>. (They can challenge characters with Evasive.)",
         "raw": "BURST OF SPEED During your turn, this character gains <Evasive>. (They can challenge characters with Evasive.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "khan-war-horse",
@@ -11687,14 +11687,14 @@
     "setId": "8",
     "number": 193,
     "rarity": "common",
+    "_source": "ravensburger",
     "subtitle": "War Horse",
     "strength": 2,
     "willpower": 7,
     "lore": 1,
     "flavorText": "“When the whole world changes around you, remember that Khan will always be the same—steadfast and true.”\n—Fa Zhou",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/193_8fffa6e18fe2cd18109f3134a4064aae472aaeb2.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/193_8fffa6e18fe2cd18109f3134a4064aae472aaeb2.jpg",
-    "_source": "manual"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/193_8fffa6e18fe2cd18109f3134a4064aae472aaeb2.jpg"
   },
   {
     "id": "vinnie-green-pigeon",
@@ -11746,6 +11746,7 @@
     "setId": "8",
     "number": 194,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Green Pigeon",
     "strength": 1,
     "willpower": 4,
@@ -11760,8 +11761,7 @@
         "rulesText": "During an opponent’s turn, whenever one of your other characters is banished, gain 1 lore.",
         "raw": "LEARNING EXPERIENCE During an opponent’s turn, whenever one of your other characters is banished, gain 1 lore."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "iago-out-of-reach",
@@ -11807,6 +11807,7 @@
     "setId": "8",
     "number": 195,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Out of Reach",
     "strength": 3,
     "willpower": 3,
@@ -11821,8 +11822,7 @@
         "rulesText": "While you have another exerted character in play, this character can’t be challenged.",
         "raw": "SELF-PRESERVATION While you have another exerted character in play, this character can’t be challenged."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "nathaniel-flint-notorious-pirate",
@@ -11845,6 +11845,7 @@
     "setId": "8",
     "number": 196,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Notorious Pirate",
     "strength": 3,
     "willpower": 3,
@@ -11864,8 +11865,7 @@
       {
         "type": "opposing_character_was_damaged_this_turn"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "vincenzo-santorini-the-explosives-expert",
@@ -11910,6 +11910,7 @@
     "setId": "8",
     "number": 197,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "The Explosives Expert",
     "strength": 2,
     "willpower": 8,
@@ -11924,8 +11925,7 @@
         "rulesText": "When you play this character, you may deal 3 damage to chosen character.",
         "raw": "I JUST LIKE TO BLOW THINGS UP When you play this character, you may deal 3 damage to chosen character."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "namaari-single-minded-rival",
@@ -12033,6 +12033,7 @@
     "setId": "8",
     "number": 198,
     "rarity": "legendary",
+    "_source": "ravensburger",
     "subtitle": "Single-Minded Rival",
     "strength": 0,
     "willpower": 5,
@@ -12051,8 +12052,7 @@
         "rulesText": "This character gets +1 {S} for each card in your discard.",
         "raw": "EXTREME FOCUS This character gets +1 {S} for each card in your discard."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "mickey-mouse-giant-mouse",
@@ -12103,6 +12103,7 @@
     "setId": "8",
     "number": 199,
     "rarity": "legendary",
+    "_source": "ravensburger",
     "subtitle": "Giant Mouse",
     "strength": 10,
     "willpower": 10,
@@ -12116,8 +12117,7 @@
         "rulesText": "When this character is banished, deal 5 damage to each opposing character.",
         "raw": "THE BIGGEST STAR EVER When this character is banished, deal 5 damage to each opposing character."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "stitch-alien-troublemaker",
@@ -12167,6 +12167,7 @@
     "setId": "8",
     "number": 200,
     "rarity": "rare",
+    "_source": "ravensburger",
     "subtitle": "Alien Troublemaker",
     "strength": 3,
     "willpower": 4,
@@ -12181,8 +12182,7 @@
         "rulesText": "During your turn, whenever this character banishes another character in a challenge, you may draw a card and gain 1 lore.",
         "raw": "I WIN! During your turn, whenever this character banishes another character in a challenge, you may draw a card and gain 1 lore."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "desperate-plan",
@@ -12199,6 +12199,7 @@
     "setId": "8",
     "number": 201,
     "rarity": "rare",
+    "_source": "ravensburger",
     "rulesText": "If you have no cards in your hand, draw until you have 3 cards in your hand. Otherwise, choose and discard any number of cards, then draw that many cards.",
     "flavorText": "\"It's my decision. My choice. And you won't stop me.\"\n—Namaari",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/201_dfb52fe834c389df9a4e03bdf20296d88e85e2b5.jpg",
@@ -12248,8 +12249,7 @@
           }
         }
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "beyond-the-horizon",
@@ -12278,6 +12278,7 @@
     "setId": "8",
     "number": 202,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "rulesText": "<Sing Together> 7 (Any number of your or your teammates’ characters with total cost 7 or more may {E} to sing this song for free.)\nChoose any number of players. They discard their hands and draw 3 cards each.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/202_cc8a92e5ad79b15a74213f147c0eb67a69e397fa.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/202_cc8a92e5ad79b15a74213f147c0eb67a69e397fa.jpg",
@@ -12313,8 +12314,7 @@
         }
       }
     ],
-    "singTogetherCost": 7,
-    "_source": "manual"
+    "singTogetherCost": 7
   },
   {
     "id": "quick-shot",
@@ -12331,6 +12331,7 @@
     "setId": "8",
     "number": 203,
     "rarity": "uncommon",
+    "_source": "ravensburger",
     "rulesText": "Deal 1 damage to chosen character. Draw a card.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/203_d79ef46d125fda5bb31afd13fe6a80a784a48fe4.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/203_d79ef46d125fda5bb31afd13fe6a80a784a48fe4.jpg",
@@ -12355,8 +12356,7 @@
           "type": "self"
         }
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "hamster-ball",
@@ -12406,6 +12406,7 @@
     "setId": "8",
     "number": 204,
     "rarity": "common",
+    "_source": "ravensburger",
     "rulesText": "ROLL WITH THE PUNCHES {E}, 1 {I} — Chosen character with no damage gains <Resist> +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/204_958b1104387b7f9c0c548865fca2dd43e3d840d6.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/204_958b1104387b7f9c0c548865fca2dd43e3d840d6.jpg",
@@ -12415,8 +12416,7 @@
         "rulesText": "{E}, 1 {I} — Chosen character with no damage gains <Resist> +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)",
         "raw": "ROLL WITH THE PUNCHES {E}, 1 {I} — Chosen character with no damage gains <Resist> +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "lady-decisive-dog",
@@ -12482,6 +12482,7 @@
     "setId": "8",
     "number": 205,
     "rarity": "enchanted",
+    "_source": "ravensburger",
     "subtitle": "Decisive Dog",
     "strength": 0,
     "willpower": 3,
@@ -12499,8 +12500,7 @@
         "rulesText": "While this character has 3 {S} or more, she gets +2 {L}.",
         "raw": "TAKE THE LEAD While this character has 3 {S} or more, she gets +2 {L}."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "wreck-it-ralph-big-lug",
@@ -12584,6 +12584,7 @@
     "setId": "8",
     "number": 206,
     "rarity": "enchanted",
+    "_source": "ravensburger",
     "subtitle": "Big Lug",
     "strength": 7,
     "willpower": 5,
@@ -12597,8 +12598,7 @@
         "rulesText": "When you play this character and whenever he quests, you may return a Racer character card with cost 6 or less from your discard to your hand. If you do, gain 1 lore.",
         "raw": "BACK ON TRACK When you play this character and whenever he quests, you may return a Racer character card with cost 6 or less from your discard to your hand. If you do, gain 1 lore."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "perdita-determined-mother",
@@ -12652,6 +12652,7 @@
     "setId": "8",
     "number": 207,
     "rarity": "enchanted",
+    "_source": "ravensburger",
     "subtitle": "Determined Mother",
     "strength": 4,
     "willpower": 6,
@@ -12665,8 +12666,7 @@
         "rulesText": "When you play this character, you may put all Puppy character cards from your discard into your inkwell facedown and exerted.",
         "raw": "QUICK, EVERYONE HIDE When you play this character, you may put all Puppy character cards from your discard into your inkwell facedown and exerted."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "it-means-no-worries",
@@ -12695,6 +12695,7 @@
     "setId": "8",
     "number": 208,
     "rarity": "enchanted",
+    "_source": "ravensburger",
     "rulesText": "<Sing Together> 9 (Any number of your or your teammates’ characters with total cost 9 or more may {E} to sing this song for free.)\nReturn up to 3 character cards from your discard to your hand. You pay 2 {I} less for the next character you play this turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/208_8e7d3dd785d0266463ac01e486347d44ae3d9f21.jpg",
     "actionEffects": [
@@ -12724,8 +12725,7 @@
         }
       }
     ],
-    "singTogetherCost": 9,
-    "_source": "manual"
+    "singTogetherCost": 9
   },
   {
     "id": "bambi-little-prince",
@@ -12788,6 +12788,7 @@
     "setId": "8",
     "number": 209,
     "rarity": "enchanted",
+    "_source": "ravensburger",
     "subtitle": "Little Prince",
     "strength": 1,
     "willpower": 1,
@@ -12805,8 +12806,7 @@
         "rulesText": "When an opponent plays a character, return this character to your hand.",
         "raw": "KIND OF BASHFUL When an opponent plays a character, return this character to your hand."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "kuzco-impulsive-llama",
@@ -12868,6 +12868,7 @@
     "setId": "8",
     "number": 210,
     "rarity": "enchanted",
+    "_source": "ravensburger",
     "subtitle": "Impulsive Llama",
     "strength": 5,
     "willpower": 5,
@@ -12881,8 +12882,7 @@
         "rulesText": "When you play this character, each opponent chooses one of their characters and puts that card on the bottom of their deck. Then, each opponent may draw a card.",
         "raw": "WHAT DOES THIS DO? When you play this character, each opponent chooses one of their characters and puts that card on the bottom of their deck. Then, each opponent may draw a card."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "mother-gothel-knows-whats-best",
@@ -12964,6 +12964,7 @@
     "setId": "8",
     "number": 211,
     "rarity": "enchanted",
+    "_source": "ravensburger",
     "subtitle": "Knows What's Best",
     "strength": 1,
     "willpower": 3,
@@ -12976,8 +12977,7 @@
         "rulesText": "When you play this character, you may deal 2 damage to another chosen character of yours to give that character <Challenger> +1 and \"When this character is banished in a challenge, return this card to your hand\" this turn. (They get +1 {S} while challenging.)",
         "raw": "LOOK WHAT YOU’VE DONE When you play this character, you may deal 2 damage to another chosen character of yours to give that character <Challenger> +1 and \"When this character is banished in a challenge, return this card to your hand\" this turn. (They get +1 {S} while challenging.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "fantastical-and-magical",
@@ -13006,6 +13006,7 @@
     "setId": "8",
     "number": 212,
     "rarity": "enchanted",
+    "_source": "ravensburger",
     "rulesText": "<Sing Together> 9 (Any number of your or your teammates’ characters with total cost 9 or more may {E} to sing this song for free.)\nFor each character that sang this song, draw a card and gain 1 lore.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/212_63c700a94ed900045d74090ec4bc5ade10177633.jpg",
     "actionEffects": [
@@ -13033,8 +13034,7 @@
         ]
       }
     ],
-    "singTogetherCost": 9,
-    "_source": "manual"
+    "singTogetherCost": 9
   },
   {
     "id": "into-the-unknown",
@@ -13054,6 +13054,7 @@
     "setId": "8",
     "number": 213,
     "rarity": "enchanted",
+    "_source": "ravensburger",
     "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nPut chosen exerted character into their player’s inkwell facedown and exerted.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/213_2dae3a00efc4b096b3fd19beaa22a6be6d9eb283.jpg",
     "actionEffects": [
@@ -13072,8 +13073,7 @@
           }
         }
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "rapunzel-high-climber",
@@ -13126,6 +13126,7 @@
     "setId": "8",
     "number": 214,
     "rarity": "enchanted",
+    "_source": "ravensburger",
     "subtitle": "High Climber",
     "strength": 2,
     "willpower": 5,
@@ -13138,8 +13139,7 @@
         "rulesText": "Whenever this character quests, chosen opposing character can’t quest during their next turn.",
         "raw": "WRAPPED UP Whenever this character quests, chosen opposing character can’t quest during their next turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "captain-hook-the-pirate-king",
@@ -13229,6 +13229,7 @@
     "setId": "8",
     "number": 215,
     "rarity": "enchanted",
+    "_source": "ravensburger",
     "subtitle": "The Pirate King",
     "strength": 4,
     "willpower": 5,
@@ -13242,8 +13243,7 @@
         "rulesText": "Once during your turn, whenever an opposing character is damaged, your Pirate characters get +2 {S} and gain <Resist> +2 this turn. (Damage dealt to them is reduced by 2.)",
         "raw": "GIVE ’EM ALL YOU GOT! Once during your turn, whenever an opposing character is damaged, your Pirate characters get +2 {S} and gain <Resist> +2 this turn. (Damage dealt to them is reduced by 2.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "wrong-lever",
@@ -13260,6 +13260,7 @@
     "setId": "8",
     "number": 216,
     "rarity": "enchanted",
+    "_source": "ravensburger",
     "rulesText": "Choose one:\n• Return chosen character to their player’s hand.\n• Put a card named Pull the Lever! from your discard on the bottom of your deck to put chosen character on the bottom of their player’s deck.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/216_d3b0aa959a0808d76d2acf40d44a1a6e208d1b22.jpg",
     "actionEffects": [
@@ -13305,8 +13306,7 @@
           ]
         ]
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "lilo-causing-an-uproar",
@@ -13387,6 +13387,7 @@
     "setId": "8",
     "number": 217,
     "rarity": "enchanted",
+    "_source": "ravensburger",
     "subtitle": "Causing an Uproar",
     "strength": 4,
     "willpower": 4,
@@ -13404,8 +13405,7 @@
         "rulesText": "When you play this character, ready chosen character. They can’t quest for the rest of this turn.",
         "raw": "RAAAWR! When you play this character, ready chosen character. They can’t quest for the rest of this turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "mushu-your-worst-nightmare",
@@ -13476,6 +13476,7 @@
     "setId": "8",
     "number": 218,
     "rarity": "enchanted",
+    "_source": "ravensburger",
     "subtitle": "Your Worst Nightmare",
     "strength": 4,
     "willpower": 6,
@@ -13489,8 +13490,7 @@
         "rulesText": "Whenever you play another character, they gain <Rush>, <Reckless>, and <Evasive> this turn. (They can challenge the turn they’re played. They can’t quest and must challenge if able. They can challenge characters with Evasive.)",
         "raw": "ALL FIRED UP Whenever you play another character, they gain <Rush>, <Reckless>, and <Evasive> this turn. (They can challenge the turn they’re played. They can’t quest and must challenge if able. They can challenge characters with Evasive.)"
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "the-sword-of-shan-yu",
@@ -13557,6 +13557,7 @@
     "setId": "8",
     "number": 219,
     "rarity": "enchanted",
+    "_source": "ravensburger",
     "rulesText": "WORTHY WEAPON {E}, {E} one of your characters — Ready chosen character. They can’t quest for the rest of this turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/219_23e180184377283371f3b2f83cd2649523e3e229.jpg",
     "_namedAbilityStubs": [
@@ -13565,8 +13566,7 @@
         "rulesText": "{E}, {E} one of your characters — Ready chosen character. They can’t quest for the rest of this turn.",
         "raw": "WORTHY WEAPON {E}, {E} one of your characters — Ready chosen character. They can’t quest for the rest of this turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "stitch-experiment-626",
@@ -13649,6 +13649,7 @@
     "setId": "8",
     "number": 220,
     "rarity": "enchanted",
+    "_source": "ravensburger",
     "subtitle": "Experiment 626",
     "strength": 3,
     "willpower": 3,
@@ -13666,8 +13667,7 @@
         "rulesText": "At the start of your turn, if this card is in your discard, you may choose and discard a card with {C} to play this character for free and he enters play exerted.",
         "raw": "STEALTH MODE At the start of your turn, if this card is in your discard, you may choose and discard a card with {C} to play this character for free and he enters play exerted."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "jasmine-steady-strategist",
@@ -13722,6 +13722,7 @@
     "setId": "8",
     "number": 221,
     "rarity": "enchanted",
+    "_source": "ravensburger",
     "subtitle": "Steady Strategist",
     "strength": 2,
     "willpower": 5,
@@ -13735,8 +13736,7 @@
         "rulesText": "Whenever this character quests, look at the top 3 cards of your deck. You may reveal an Ally character card and put it into your hand. Put the rest on the bottom of your deck in any order.",
         "raw": "ALWAYS PLANNING Whenever this character quests, look at the top 3 cards of your deck. You may reveal an Ally character card and put it into your hand. Put the rest on the bottom of your deck in any order."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "desperate-plan",
@@ -13753,6 +13753,7 @@
     "setId": "8",
     "number": 222,
     "rarity": "enchanted",
+    "_source": "ravensburger",
     "rulesText": "If you have no cards in your hand, draw until you have 3 cards in your hand. Otherwise, choose and discard any number of cards, then draw that many cards.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/222_634db077cd3e81e180fc49393945ab9298b324e7.jpg",
     "actionEffects": [
@@ -13800,8 +13801,7 @@
           }
         }
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "goofy-groundbreaking-chef",
@@ -13871,6 +13871,7 @@
     "setId": "8",
     "number": 223,
     "rarity": "legendary",
+    "_source": "ravensburger",
     "subtitle": "Groundbreaking Chef",
     "strength": 3,
     "willpower": 4,
@@ -13884,8 +13885,7 @@
         "rulesText": "At the end of your turn, you may remove up to 1 damage from each of your other characters. Ready each character you removed damage from this way.",
         "raw": "PLENTY TO GO AROUND At the end of your turn, you may remove up to 1 damage from each of your other characters. Ready each character you removed damage from this way."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "pinocchio-strings-attached",
@@ -13932,6 +13932,7 @@
     "setId": "8",
     "number": 224,
     "rarity": "legendary",
+    "_source": "ravensburger",
     "subtitle": "Strings Attached",
     "strength": 0,
     "willpower": 4,
@@ -13944,7 +13945,6 @@
         "rulesText": "Once during your turn, whenever you ready this character, you may draw a card.",
         "raw": "GOT TO KEEP REAL QUIET Once during your turn, whenever you ready this character, you may draw a card."
       }
-    ],
-    "_source": "manual"
+    ]
   }
 ]

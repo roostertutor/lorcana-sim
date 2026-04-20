@@ -14,6 +14,7 @@
     "setId": "C1",
     "number": 1,
     "rarity": "special",
+    "_source": "ravensburger",
     "rulesText": "Banish chosen character.",
     "flavorText": "Rare is the hero who can withstand a dragon’s wrath.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/1_d936dc1f2c9f0cae641dbb5584bfb0288a103641.jpg",
@@ -30,8 +31,7 @@
           }
         }
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "let-it-go",
@@ -50,6 +50,7 @@
     "setId": "C1",
     "number": 2,
     "rarity": "special",
+    "_source": "ravensburger",
     "rulesText": "(A character with cost 5 or more can {E} to sing this song for free.)\nPut chosen character into their player’s inkwell facedown and exerted.",
     "flavorText": "It’s time to see what I can do\nTo test the limits and break through",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/2_e2146eb707e1996e2ae87ecd5ce44a7edcc61a0b.jpg",
@@ -67,8 +68,7 @@
         },
         "enterExerted": true
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "cinderella-stouthearted",
@@ -124,6 +124,7 @@
     "setId": "C1",
     "number": 3,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Stouthearted",
     "strength": 5,
     "willpower": 5,
@@ -137,8 +138,7 @@
         "rulesText": "Whenever you play a song, this character may challenge ready characters this turn.",
         "raw": "THE SINGING SWORD Whenever you play a song, this character may challenge ready characters this turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "rapunzel-gifted-with-healing",
@@ -194,6 +194,7 @@
     "setId": "C1",
     "number": 4,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Gifted with Healing",
     "strength": 1,
     "willpower": 5,
@@ -206,8 +207,7 @@
         "rulesText": "When you play this character, remove up to 3 damage from one of your characters. Draw a card for each 1 damage removed this way.",
         "raw": "GLEAM AND GLOW When you play this character, remove up to 3 damage from one of your characters. Draw a card for each 1 damage removed this way."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "invited-to-the-ball",
@@ -224,6 +224,7 @@
     "setId": "C1",
     "number": 6,
     "rarity": "special",
+    "_source": "ravensburger",
     "rulesText": "Reveal the top 2 cards of your deck. Put revealed character cards into your hand. Put the rest on the bottom of your deck in any order.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/6_1b3b18a1144fa7c89505abdc0538fecdf227e291.jpg",
     "actionEffects": [
@@ -242,8 +243,7 @@
         },
         "revealPicks": true
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "elsas-ice-palace-place-of-solitude",
@@ -290,6 +290,7 @@
     "setId": "C1",
     "number": 7,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Place of Solitude",
     "willpower": 4,
     "lore": 1,
@@ -302,8 +303,7 @@
         "rulesText": "When you play this location, choose an exerted character. While this location is in play, that character can’t ready at the start of their turn.",
         "raw": "ETERNAL WINTER When you play this location, choose an exerted character. While this location is in play, that character can’t ready at the start of their turn."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "kuzco-temperamental-emperor",
@@ -345,6 +345,7 @@
     "setId": "C1",
     "number": 8,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Temperamental Emperor",
     "strength": 2,
     "willpower": 4,
@@ -357,8 +358,7 @@
         "rulesText": "When this character is challenged and banished, you may banish the challenging character.",
         "raw": "NO TOUCHY! When this character is challenged and banished, you may banish the challenging character."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "baymax-armored-companion",
@@ -466,6 +466,7 @@
     "setId": "C1",
     "number": 9,
     "rarity": "special",
+    "_source": "ravensburger",
     "subtitle": "Armored Companion",
     "strength": 2,
     "willpower": 6,
@@ -478,8 +479,7 @@
         "rulesText": "When you play this character and whenever he quests, you may remove up to 2 damage from another chosen character of yours. Gain 1 lore for each 1 damage removed this way.",
         "raw": "THE TREATMENT IS WORKING When you play this character and whenever he quests, you may remove up to 2 damage from another chosen character of yours. Gain 1 lore for each 1 damage removed this way."
       }
-    ],
-    "_source": "manual"
+    ]
   },
   {
     "id": "a-whole-new-world",
@@ -498,6 +498,7 @@
     "setId": "C1",
     "number": 10,
     "rarity": "special",
+    "_source": "ravensburger",
     "rulesText": "(A character with cost 5 or more can {E} to sing this song for free.)\nEach player discards their hand and draws 7 cards.",
     "flavorText": "Shining, shimmering, splendid . . .",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/10_d170b8d9f5f552ad50fbe13a57d5e0f99e7506a6.jpg",
@@ -521,7 +522,6 @@
           }
         ]
       }
-    ],
-    "_source": "manual"
+    ]
   }
 ]
