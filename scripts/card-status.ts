@@ -100,6 +100,15 @@ function extractInterfaceFields(source: string, interfaceName: string): Set<stri
 // `hasCardUnder`, `notId` vs `excludeSelf`, etc.
 const VALID_CARDFILTER_FIELDS = extractInterfaceFields(typesSource, "CardFilter");
 
+// Cost types that have a runtime handler in `payCosts()` (reducer.ts). The
+// `Cost` TS union may declare types that the runtime doesn't actually pay —
+// e.g. `discard` cost was in the union but payCosts had no handler, silently
+// no-op'ing Angel Experiment 624 GOOD AIM. Keep this list in sync with the
+// switch arms in reducer.ts:payCosts. Additions to the union must come with
+// a runtime case OR be added here as "intentionally unimplemented" with a
+// reason — the audit forces the conversation.
+const HANDLED_COST_TYPES = new Set(["exert", "pay_ink", "banish_self"]);
+
 interface FieldError {
   path: string;
   field: string;
@@ -232,9 +241,22 @@ function validateCardFields(card: any): FieldError[] {
         errors.push({ path, field: "value", value: "undefined", validValues: "numeric value required for " + ab.keyword });
       }
     }
-    // Check costs
+    // Check costs: discriminator validity (covered by checkType) AND that
+    // the cost type has a runtime handler in payCosts(). The latter catches
+    // silent no-ops like Angel Experiment 624's `discard` cost (declared in
+    // the Cost union but never implemented in the reducer).
     if (Array.isArray(ab.costs)) {
-      ab.costs.forEach((c: any, i: number) => checkType(c, `${path}.costs[${i}]`));
+      ab.costs.forEach((c: any, i: number) => {
+        checkType(c, `${path}.costs[${i}]`);
+        if (c?.type && typeof c.type === "string" && !HANDLED_COST_TYPES.has(c.type)) {
+          errors.push({
+            path: `${path}.costs[${i}]`,
+            field: "type",
+            value: c.type,
+            validValues: `cost type has no payCosts() handler — silent no-op (handled: ${[...HANDLED_COST_TYPES].join(", ")})`,
+          });
+        }
+      });
     }
     // Check effects
     if (Array.isArray(ab.effects)) {
