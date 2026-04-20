@@ -569,51 +569,53 @@ function DeckRow({ entry, def, onIncrement, onDecrement, onSetVariant }: RowProp
         />
       )}
 
-      {/* Name — takes all remaining space, truncates. Variant tag (when
-           card has ≥2 printings) sits at the end of the name line and
-           opens a dropdown menu with all available variants on click —
-           same pattern as the group-by dropdown for consistency. */}
-      <div className="flex-1 min-w-0 flex items-center gap-1.5">
-        <span className="text-sm text-gray-200 truncate">{def.fullName}</span>
-        {variantLabel && (
-          <div className="relative shrink-0">
-            <button
-              onClick={() => setVariantMenuOpen((v) => !v)}
-              className={`flex items-center gap-0.5 text-[9px] font-bold uppercase tracking-wider px-1 py-0.5 rounded transition-colors ${
-                entry.variant
-                  ? "bg-amber-600 text-white hover:bg-amber-500"
-                  : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-200"
-              }`}
-              title={`Variant: ${variantLabel}. Click to change.`}
-            >
-              <span>{variantLabel}</span>
-              <svg xmlns="http://www.w3.org/2000/svg" className={`w-2 h-2 transition-transform ${variantMenuOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-              </svg>
-            </button>
-            {variantMenuOpen && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setVariantMenuOpen(false)} />
-                <div className="absolute z-50 top-full right-0 mt-1 rounded-md border border-gray-700 bg-gray-950 shadow-xl overflow-hidden min-w-[80px]">
-                  {def.variants!.map((v) => (
-                    <button
-                      key={v.type}
-                      onClick={() => { onSetVariant(v.type); setVariantMenuOpen(false); }}
-                      className={`w-full text-left px-2 py-1 text-[10px] font-medium transition-colors ${
-                        currentVariant === v.type
-                          ? "bg-amber-600 text-white"
-                          : "text-gray-300 hover:bg-gray-800"
-                      }`}
-                    >
-                      {VARIANT_LABELS[v.type]}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-        )}
+      {/* Name — takes all remaining space, truncates. */}
+      <div className="flex-1 min-w-0">
+        <span className="text-sm text-gray-200 truncate block">{def.fullName}</span>
       </div>
+
+      {/* Variant tag (when card has ≥2 printings) — anchored to the right
+           edge of the row, just before the stepper, so badges line up
+           vertically across rows instead of floating after variable-length
+           truncated names. Opens a dropdown to change the variant. */}
+      {variantLabel && (
+        <div className="relative shrink-0">
+          <button
+            onClick={() => setVariantMenuOpen((v) => !v)}
+            className={`flex items-center gap-0.5 text-[9px] font-bold uppercase tracking-wider px-1 py-0.5 rounded transition-colors ${
+              entry.variant
+                ? "bg-amber-600 text-white hover:bg-amber-500"
+                : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-200"
+            }`}
+            title={`Variant: ${variantLabel}. Click to change.`}
+          >
+            <span>{variantLabel}</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className={`w-2 h-2 transition-transform ${variantMenuOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+            </svg>
+          </button>
+          {variantMenuOpen && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setVariantMenuOpen(false)} />
+              <div className="absolute z-50 top-full right-0 mt-1 rounded-md border border-gray-700 bg-gray-950 shadow-xl overflow-hidden min-w-[80px]">
+                {def.variants!.map((v) => (
+                  <button
+                    key={v.type}
+                    onClick={() => { onSetVariant(v.type); setVariantMenuOpen(false); }}
+                    className={`w-full text-left px-2 py-1 text-[10px] font-medium transition-colors ${
+                      currentVariant === v.type
+                        ? "bg-amber-600 text-white"
+                        : "text-gray-300 hover:bg-gray-800"
+                    }`}
+                  >
+                    {VARIANT_LABELS[v.type]}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
       {/* Qty stepper — [−] N/max [+]. No trailing × because − at qty 1
            already removes the entry (via adjustQty clamping to 0). */}
