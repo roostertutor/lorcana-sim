@@ -367,6 +367,31 @@ describe("§5 Set 5 — put_on_bottom_of_deck Effect", () => {
     // lastEffectResult exposes the count moved
     expect(state.lastEffectResult).toBe(2);
   });
+
+  it("Hypnotic Deduction: surfaces a multi-pick chooser for the 2 cards (not auto-pick)", () => {
+    // "Draw 3 cards, then put 2 cards from your hand on the top of your deck
+    // in any order." Bug regression: previously the put effect auto-picked
+    // the first 2 hand cards with no prompt.
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let songId: string, h1: string, h2: string, h3: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "hypnotic-deduction", "hand"));
+    // Pre-stack hand with 3 known cards so we can verify the chooser sees them.
+    ({ state, instanceId: h1 } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
+    ({ state, instanceId: h2 } = injectCard(state, "player1", "mickey-mouse-true-friend", "hand"));
+    ({ state, instanceId: h3 } = injectCard(state, "player1", "lilo-making-a-wish", "hand"));
+
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Draw 3 ran. Now should be a multi-pick choose_target for 2 hand cards.
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    expect(state.pendingChoice?.count).toBe(2);
+    // All hand cards should be valid targets (the player's full hand).
+    expect(state.pendingChoice?.validTargets).toContain(h1);
+    expect(state.pendingChoice?.validTargets).toContain(h2);
+    expect(state.pendingChoice?.validTargets).toContain(h3);
+  });
 });
 
 describe("§5 Set 5 — Pride Lands Jungle Oasis (alt-source-zone: play from discard)", () => {

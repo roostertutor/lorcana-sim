@@ -5,7 +5,7 @@
 
 import React, { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import type { CardDefinition, DeckEntry, PlayerID, GameState, GameModifiers } from "@lorcana-sim/engine";
-import { parseDecklist, getGameModifiers, evaluateCondition } from "@lorcana-sim/engine";
+import { parseDecklist, getGameModifiers, evaluateCondition, hasKeyword, getKeywordValue, isSong } from "@lorcana-sim/engine";
 import {
   GreedyBot,
   RandomBot,
@@ -511,6 +511,12 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   const [challengeAttackerId, setChallengeAttackerId] = useState<string | null>(null);
   const [shiftCardId, setShiftCardId] = useState<string | null>(null);
   const [singCardId, setSingCardId] = useState<string | null>(null);
+  // Sing Together (CRD 8.12): multi-select mode — user picks any number of
+  // eligible singers whose combined effective cost ≥ singTogetherCost, then
+  // confirms. Engine doesn't enumerate these actions in legalActions (N-choose-K
+  // combinatorial blowup), so the UI constructs singerInstanceIds and dispatches.
+  const [singTogetherCardId, setSingTogetherCardId] = useState<string | null>(null);
+  const [singTogetherSelected, setSingTogetherSelected] = useState<string[]>([]);
   const [moveCharId, setMoveCharId] = useState<string | null>(null);
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [showEffects, setShowEffects] = useState(false);
@@ -567,15 +573,26 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   const [revealHandDismissed, setRevealHandDismissed] = useState(false);
   const [revealHandActionCount, setRevealHandActionCount] = useState<number | null>(null);
   const currentRevealedHand = session.gameState?.lastRevealedHand;
+  // Forward-advance gate: undo reconstructs state from scratch, giving a
+  // fresh object reference for lastRevealedHand even when the content matches
+  // what the user already dismissed. Object-ref equality alone mis-fires on
+  // undo. Gate "new reveal" detection on session.actionCount advancing
+  // forward — undo decrements the count, so the effect correctly leaves the
+  // dismissed flag in place.
+  const prevHandRevealRef = useRef<{ playerId: PlayerID; cardIds: string[] } | undefined>(undefined);
+  const prevHandRevealActionCount = useRef<number>(-1);
   useEffect(() => {
-    if (currentRevealedHand) {
+    const refChanged = currentRevealedHand !== prevHandRevealRef.current;
+    const advanced = session.actionCount > prevHandRevealActionCount.current;
+    if (currentRevealedHand && refChanged && advanced) {
       setRevealHandActionCount(session.actionCount);
       setRevealHandDismissed(false);
-    } else {
+    } else if (!currentRevealedHand) {
       setRevealHandActionCount(null);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentRevealedHand]);
+    prevHandRevealRef.current = currentRevealedHand;
+    prevHandRevealActionCount.current = session.actionCount;
+  }, [currentRevealedHand, session.actionCount]);
   // Revealed cards (search/look-at-top) — track which reveal was dismissed by key
   const [dismissedRevealKey, setDismissedRevealKey] = useState<string | null>(null);
   // Include sequenceId so back-to-back reveals of the same cards produce
@@ -599,19 +616,23 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   // actionCount of this reveal key.
   const [revealActionCount, setRevealActionCount] = useState<number | null>(null);
   const prevRevealKey = useRef<string | null>(null);
+  const prevRevealActionCount = useRef<number>(-1);
   useEffect(() => {
     if (currentRevealCardsKey !== prevRevealKey.current) {
-      if (currentRevealCardsKey !== null) {
-        // New reveal event — lock in its birth actionCount, clear any
-        // stale dismiss from a prior reveal with the same content key
-        // (e.g. post-undo re-quest producing the same engine-derived seq).
+      const advanced = session.actionCount > prevRevealActionCount.current;
+      if (currentRevealCardsKey !== null && advanced) {
+        // New reveal event arriving via forward play — lock in its birth
+        // actionCount and clear any stale dismiss. Skip this branch on undo
+        // (actionCount retreats): state reconstruction changes the key ref
+        // even when content matches, and the user's prior dismissal stands.
         setRevealActionCount(session.actionCount);
         setDismissedRevealKey(null);
-      } else {
+      } else if (currentRevealCardsKey === null) {
         setRevealActionCount(null);
       }
       prevRevealKey.current = currentRevealCardsKey;
     }
+    prevRevealActionCount.current = session.actionCount;
   }, [currentRevealCardsKey, session.actionCount]);
   const showRevealCards =
     currentRevealCardsKey !== null
@@ -649,6 +670,8 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     setChallengeAttackerId(null);
     setShiftCardId(null);
     setSingCardId(null);
+    setSingTogetherCardId(null);
+    setSingTogetherSelected([]);
     setMoveCharId(null);
   }, []);
 
@@ -691,6 +714,61 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         .map(a => (a as { singerInstanceId: string }).singerInstanceId)
     );
   }, [singCardId, session.legalActions]);
+
+  // CRD 8.12 Sing Together: effective cost of a single singer (mirrors
+  // validator.ts:300-313). Singer keyword overrides printed cost; location
+  // bonus (Atlantica Concert Hall), timed sing bonus (Naveen's Ukulele), and
+  // static per-character sing bonus (Record Player HIT PARADE) all stack.
+  const singerEffectiveCost = useCallback((singerInstanceId: string): number => {
+    const gs = session.gameState;
+    if (!gs || !gameModifiers) return 0;
+    const s = gs.cards[singerInstanceId];
+    if (!s) return 0;
+    const sDef = definitions[s.definitionId];
+    if (!sDef || sDef.cardType !== "character") return 0;
+    let cost = sDef.cost;
+    if (hasKeyword(s, sDef, "singer")) cost = getKeywordValue(s, sDef, "singer");
+    if (s.atLocationInstanceId) {
+      cost += gameModifiers.singCostBonusHere.get(s.atLocationInstanceId) ?? 0;
+    }
+    cost += (s.timedEffects ?? [])
+      .filter(t => t.type === "sing_cost_bonus")
+      .reduce((sum, t) => sum + (t.amount ?? 0), 0);
+    cost += gameModifiers.singCostBonusCharacters.get(singerInstanceId) ?? 0;
+    return cost;
+  }, [session.gameState, definitions, gameModifiers]);
+
+  // Eligible singers for Sing Together mode: ready, non-drying, owned
+  // characters in play. Action-restriction edge cases (e.g. Ariel On Human
+  // Legs) are caught by engine validation on Confirm — we don't filter them
+  // here to keep the hot path simple.
+  const singTogetherEligible = useMemo(() => {
+    const set = new Set<string>();
+    const gs = session.gameState;
+    if (!gs || !singTogetherCardId) return set;
+    for (const id of gs.zones[myId]?.play ?? []) {
+      const inst = gs.cards[id];
+      if (!inst) continue;
+      const d = definitions[inst.definitionId];
+      if (!d || d.cardType !== "character") continue;
+      if (inst.isExerted || inst.isDrying) continue;
+      set.add(id);
+    }
+    return set;
+  }, [session.gameState, singTogetherCardId, myId, definitions]);
+
+  // Running total cost of currently-selected singers (for the Confirm toast)
+  const singTogetherTotalCost = useMemo(
+    () => singTogetherSelected.reduce((sum, id) => sum + singerEffectiveCost(id), 0),
+    [singTogetherSelected, singerEffectiveCost]
+  );
+  const singTogetherRequiredCost = useMemo(() => {
+    if (!singTogetherCardId || !session.gameState) return 0;
+    const inst = session.gameState.cards[singTogetherCardId];
+    if (!inst) return 0;
+    const def = definitions[inst.definitionId];
+    return def?.singTogetherCost ?? 0;
+  }, [singTogetherCardId, session.gameState, definitions]);
 
   // Per-card action buttons — derived from legalActions
   type CardBtn = { label: string; color: string; onClick: (e: React.MouseEvent) => void };
@@ -796,6 +874,37 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           });
           break;
         }
+      }
+    }
+
+    // Sing Together (CRD 8.12): getAllLegalActions doesn't enumerate
+    // multi-singer variants, so add the button ourselves for any song in hand
+    // whose definition has a singTogetherCost. Gate on "at least one eligible
+    // singer in play" so the button doesn't tease an empty picker.
+    const myHand = gs.zones[myId]?.hand ?? [];
+    const hasAnyReadySinger = (gs.zones[myId]?.play ?? []).some(id => {
+      const inst = gs.cards[id];
+      if (!inst) return false;
+      const d = definitions[inst.definitionId];
+      if (!d || d.cardType !== "character") return false;
+      return !inst.isExerted && !inst.isDrying;
+    });
+    if (hasAnyReadySinger) {
+      for (const songId of myHand) {
+        const songInst = gs.cards[songId];
+        if (!songInst) continue;
+        const songDef = definitions[songInst.definitionId];
+        if (!songDef || !isSong(songDef) || songDef.singTogetherCost === undefined) continue;
+        add(songId, {
+          label: "Sing Together",
+          color: "bg-yellow-700 hover:bg-yellow-600 text-yellow-100",
+          onClick: (e) => {
+            e.stopPropagation();
+            cancelMode();
+            setSingTogetherCardId(songId);
+            setSingTogetherSelected([]);
+          },
+        });
       }
     }
     return map;
@@ -1161,6 +1270,28 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     if (a.type === "PLAY_CARD" && (a as any).instanceId) playableHandIds.add((a as any).instanceId);
     if (a.type === "PLAY_INK" && (a as any).instanceId) playableHandIds.add((a as any).instanceId);
   }
+  // Sing Together (CRD 8.12): engine doesn't enumerate multi-singer actions
+  // in legalActions (N-choose-K blowup), so a song that's only playable via
+  // Sing Together would dim incorrectly. Mirror the "Sing Together" button
+  // gating — if the player has any ready singer in play, mark every hand song
+  // with singTogetherCost as playable.
+  const hasAnyReadySingerPlay = (gameState.zones[myId]?.play ?? []).some(id => {
+    const inst = gameState.cards[id];
+    if (!inst) return false;
+    const d = definitions[inst.definitionId];
+    if (!d || d.cardType !== "character") return false;
+    return !inst.isExerted && !inst.isDrying;
+  });
+  if (isYourTurn && hasAnyReadySingerPlay) {
+    for (const id of gameState.zones[myId]?.hand ?? []) {
+      const inst = gameState.cards[id];
+      if (!inst) continue;
+      const d = definitions[inst.definitionId];
+      if (d && isSong(d) && d.singTogetherCost !== undefined) {
+        playableHandIds.add(id);
+      }
+    }
+  }
 
   // Helpers for readability in JSX
   function isDraggableEnabled(isOpponent: boolean) {
@@ -1245,7 +1376,9 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     const isShiftTarget = shiftTargets.has(id);
     const isSingTarget = singTargets.has(id);
     const isMoveTarget = moveTargets.has(id);
-    const isAttacker = id === challengeAttackerId || id === shiftCardId || id === moveCharId;
+    const isSingTogetherTarget = singTogetherEligible.has(id);
+    const isSingTogetherSelected = singTogetherSelected.includes(id);
+    const isAttacker = id === challengeAttackerId || id === shiftCardId || id === moveCharId || id === singTogetherCardId;
     const choiceLabel = choiceLabels.get(id);
     const plainName = getCardName(id);
     const disambigBadge = choiceLabel && choiceLabel !== plainName
@@ -1291,12 +1424,20 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         setSingCardId(null);
         return;
       }
+      // Sing Together multi-select: tapping an eligible singer toggles it
+      // in/out of the selection. Confirm/Cancel lives in the top toast.
+      if (!isOpponent && singTogetherCardId && isSingTogetherTarget) {
+        setSingTogetherSelected(prev =>
+          prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+        );
+        return;
+      }
       if (!isOpponent && moveCharId && isMoveTarget) {
         session.dispatch({ type: "MOVE_CHARACTER", playerId: myId, characterInstanceId: moveCharId, locationInstanceId: id });
         setMoveCharId(null);
         return;
       }
-      if (challengeAttackerId || shiftCardId || singCardId || moveCharId) { cancelMode(); return; }
+      if (challengeAttackerId || shiftCardId || singCardId || singTogetherCardId || moveCharId) { cancelMode(); return; }
       // Toggle: tap same card → deselect; tap different card → select it
       setInspectCardId(prev => prev === id ? null : id);
       if (inspectModalOpen) setInspectModalOpen(false);
@@ -1325,8 +1466,8 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                 gameState={gameState}
                 definitions={definitions}
                 gameModifiers={gameModifiers}
-                isSelected={false}
-                isTarget={isChallTarget || isShiftTarget || isSingTarget || isMoveTarget || isDropTarget}
+                isSelected={isSingTogetherSelected}
+                isTarget={isChallTarget || isShiftTarget || isSingTarget || isMoveTarget || isDropTarget || (isSingTogetherTarget && !isSingTogetherSelected)}
                 isAttacker={isAttacker}
                 onClick={handleClick}
                 zone={zone}
@@ -1577,14 +1718,16 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
 
           {/* Pass / Cancel — right side */}
           <div className="w-16 flex justify-end">
-            {(challengeAttackerId || shiftCardId || moveCharId) ? (
+            {(challengeAttackerId || shiftCardId || moveCharId || singTogetherCardId) ? (
               <button
                 className={`px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-xs rounded sm:rounded-md border font-medium transition-colors
                   ${challengeAttackerId
                     ? "bg-red-900/40 hover:bg-red-900/60 text-red-400 border-red-700/40"
                     : moveCharId
                       ? "bg-cyan-900/40 hover:bg-cyan-900/60 text-cyan-400 border-cyan-700/40"
-                      : "bg-purple-900/40 hover:bg-purple-900/60 text-purple-400 border-purple-700/40"}`}
+                      : singTogetherCardId
+                        ? "bg-yellow-900/40 hover:bg-yellow-900/60 text-yellow-400 border-yellow-700/40"
+                        : "bg-purple-900/40 hover:bg-purple-900/60 text-purple-400 border-purple-700/40"}`}
                 onClick={cancelMode}
               >
                 Cancel
@@ -1794,7 +1937,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           </div>
         </div>
       )}
-      {!pendingChoice && !isGameOver && isYourTurn && (challengeAttackerId || shiftCardId || singCardId || moveCharId) && (
+      {!pendingChoice && !isGameOver && isYourTurn && (challengeAttackerId || shiftCardId || singCardId || singTogetherCardId || moveCharId) && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2">
           {challengeAttackerId && (
             <div className="flex items-center gap-2 rounded-full px-3 py-1 sm:px-4 sm:py-1.5 bg-red-950/90 border border-red-700/60 text-red-300 text-xs shadow-lg">
@@ -1817,6 +1960,39 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               <button className="text-yellow-600 hover:text-yellow-300 font-bold active:scale-95" onClick={cancelMode}><Icon name="x-mark" className="w-3.5 h-3.5" /></button>
             </div>
           )}
+          {singTogetherCardId && (() => {
+            const canConfirm = singTogetherSelected.length > 0 && singTogetherTotalCost >= singTogetherRequiredCost;
+            return (
+              <div className="flex items-center gap-2 rounded-full px-3 py-1 sm:px-4 sm:py-1.5 bg-yellow-950/90 border border-yellow-700/60 text-yellow-300 text-xs shadow-lg">
+                <span className="font-bold">Sing Together</span>
+                <span className={`font-mono ${canConfirm ? "text-green-400" : "text-yellow-500"}`}>
+                  {singTogetherTotalCost}/{singTogetherRequiredCost}
+                </span>
+                <span className="hidden sm:inline text-yellow-600">— tap singers to add/remove</span>
+                <button
+                  className={`px-2 py-0.5 rounded font-bold active:scale-95 ${
+                    canConfirm
+                      ? "bg-green-700 hover:bg-green-600 text-green-100"
+                      : "bg-gray-800 text-gray-600 cursor-not-allowed"
+                  }`}
+                  disabled={!canConfirm}
+                  onClick={() => {
+                    if (!canConfirm || !singTogetherCardId) return;
+                    session.dispatch({
+                      type: "PLAY_CARD",
+                      playerId: myId,
+                      instanceId: singTogetherCardId,
+                      singerInstanceIds: [...singTogetherSelected],
+                    });
+                    cancelMode();
+                  }}
+                >
+                  Confirm
+                </button>
+                <button className="text-yellow-600 hover:text-yellow-300 font-bold active:scale-95" onClick={cancelMode}><Icon name="x-mark" className="w-3.5 h-3.5" /></button>
+              </div>
+            );
+          })()}
           {moveCharId && (
             <div className="flex items-center gap-2 rounded-full px-3 py-1 sm:px-4 sm:py-1.5 bg-cyan-950/90 border border-cyan-700/60 text-cyan-300 text-xs shadow-lg">
               <span className="font-bold">Move</span>

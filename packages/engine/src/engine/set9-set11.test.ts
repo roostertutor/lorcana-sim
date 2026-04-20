@@ -1363,6 +1363,39 @@ describe("§11 Set 11 — Let's Get Dangerous (action: each player reveals + may
   // instead of `matchIsMay: true` — engine auto-played the revealed character
   // without asking. Also previously dropped player2's reveal when player1's
   // matchIsMay created a pendingChoice.
+  it("Marching Off to Battle: condition gates the draw (only fires if a character was banished this turn)", () => {
+    // "If a character was banished this turn, draw 2 cards." Regression:
+    // draw.condition was a silent no-op; the song always drew 2.
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let songId1: string, songId2: string;
+    ({ state, instanceId: songId1 } = injectCard(state, "player1", "marching-off-to-battle", "hand"));
+    ({ state, instanceId: songId2 } = injectCard(state, "player1", "marching-off-to-battle", "hand"));
+
+    // No character banished this turn yet — playing the song should NOT draw.
+    const handBefore = getZone(state, "player1", "hand").length;
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId1 }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Hand: -1 (song played) -0 (no draw) = handBefore-1.
+    expect(getZone(state, "player1", "hand").length).toBe(handBefore - 1);
+
+    // Force a banish in challenge to flip the condition.
+    let attackerId: string, defenderId: string;
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    ({ state, instanceId: defenderId } = injectCard(state, "player2", "lilo-making-a-wish", "play", { isExerted: true }));
+    r = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: attackerId, defenderInstanceId: defenderId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Now a character was banished — playing song2 should draw 2.
+    const handAfter = getZone(state, "player1", "hand").length;
+    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId2 }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // Hand: -1 (song2 played) +2 (drew) = handAfter+1.
+    expect(getZone(r.newState, "player1", "hand").length).toBe(handAfter - 1 + 2);
+  });
+
   it("revealed Bodyguard character (Smee) still gets enter-exerted may-prompt via Let's Get Dangerous", () => {
     // Regression: applyRevealMatchAction previously called zoneTransition
     // directly without applyEnterPlayExertion, so Bodyguard's enter-trigger

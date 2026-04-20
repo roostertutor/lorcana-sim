@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import type { CardDefinition, GameState } from "@lorcana-sim/engine";
 import GameCard from "./GameCard.js";
+import CardInspectModal from "./CardInspectModal.js";
 import Icon from "./Icon.js";
 
 interface ZoneViewModalProps {
@@ -18,10 +19,17 @@ interface ZoneViewModalProps {
 }
 
 export default function ZoneViewModal({ title, cardIds, gameState, definitions, onClose, faceDown, faceDownIds, cardActions }: ZoneViewModalProps) {
+  // Zoom: tapping a card opens a full-detail inspect modal layered on top
+  // of this viewer. Face-down cards skip inspect (don't leak hidden info).
+  const [inspectId, setInspectId] = useState<string | null>(null);
+  const isInspectFaceDown = inspectId !== null
+    && ((faceDownIds ? faceDownIds.has(inspectId) : faceDown) ?? false);
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
-      onClick={onClose}
+      // Only close on direct backdrop taps; clicks inside the inspect-modal
+      // child bubble up here and must not double-dismiss.
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
         className="relative bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-2xl mx-4 max-h-[80vh] flex flex-col shadow-2xl"
@@ -52,6 +60,7 @@ export default function ZoneViewModal({ title, cardIds, gameState, definitions, 
                 const def = instance ? definitions[instance.definitionId] : undefined;
                 const zone = (instance?.zone === "play" ? "play" : "hand") as "play" | "hand";
                 const action = cardActions?.get(id);
+                const faceDownHere = faceDownIds ? faceDownIds.has(id) : faceDown;
                 return (
                   <div key={id} className="flex flex-col items-center overflow-hidden" title={def?.fullName}>
                     <div className="scale-[0.78] origin-top">
@@ -60,9 +69,9 @@ export default function ZoneViewModal({ title, cardIds, gameState, definitions, 
                         gameState={gameState}
                         definitions={definitions}
                         isSelected={false}
-                        onClick={action ? action.onClick : () => {}}
+                        onClick={() => { if (!faceDownHere) setInspectId(id); }}
                         zone={zone}
-                        faceDown={faceDownIds ? faceDownIds.has(id) : faceDown}
+                        faceDown={faceDownHere}
                       />
                     </div>
                     {action && (
@@ -80,6 +89,25 @@ export default function ZoneViewModal({ title, cardIds, gameState, definitions, 
           )}
         </div>
       </div>
+      {inspectId && !isInspectFaceDown && (() => {
+        const action = cardActions?.get(inspectId);
+        const actions = action
+          ? [{
+              label: action.label,
+              color: action.color,
+              onClick: (_e: React.MouseEvent) => { action.onClick(); setInspectId(null); },
+            }]
+          : [];
+        return (
+          <CardInspectModal
+            instanceId={inspectId}
+            gameState={gameState}
+            definitions={definitions}
+            actions={actions}
+            onClose={() => setInspectId(null)}
+          />
+        );
+      })()}
     </div>
   );
 }

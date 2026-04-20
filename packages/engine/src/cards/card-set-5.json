@@ -5375,7 +5375,17 @@
       {
         "type": "put_card_on_bottom_of_deck",
         "from": "hand",
-        "amount": 2
+        "amount": 2,
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "hand",
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "position": "top"
       }
     ]
   },

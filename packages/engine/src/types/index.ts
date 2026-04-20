@@ -492,6 +492,8 @@ export interface RevealHandEffect {
    *  surfaces a choose_player pendingChoice (only used when wording says
    *  "chosen player" / "chosen opponent"). */
   target: PlayerTarget;
+  /** CRD 6.1.4: player may decline to reveal. */
+  isMay?: boolean;
 }
 
 /** Grant "can challenge ready characters" for a duration. */
@@ -581,6 +583,10 @@ export interface DrawEffect {
   isMay?: boolean;
   /** CRD 6.1.3: "up to" — player may choose 0..amount. Engine resolves at max for now. */
   isUpTo?: boolean;
+  /** Optional gating condition. Marching Off to Battle: "If a character was
+   *  banished this turn, draw 2 cards." Effect-level condition lets a single
+   *  actionEffects entry conditionally fire without an enclosing ability. */
+  condition?: Condition;
   /**
    * "Draw cards until you have N cards in your hand" (Yzma Conniving Chemist,
    * Desperate Plan) / "until you have the same number as chosen opponent"
@@ -624,6 +630,9 @@ export interface RemoveDamageEffect {
   isUpTo?: boolean;
   /** CRD 6.1.4 */
   isMay?: boolean;
+  /** Effects to apply to each target after removing damage. Pattern shared with
+   *  ExertEffect / ReadyEffect. */
+  followUpEffects?: Effect[];
 }
 
 export interface BanishEffect {
@@ -654,6 +663,11 @@ export interface GainLoreEffect {
    */
   amount: DynamicAmount;
   target: PlayerTarget;
+  /** CRD 6.1.4: player may decline to gain lore. */
+  isMay?: boolean;
+  /** Optional gating condition. "If you control an Evasive character, gain 1
+   *  lore" pattern (Mirror, Mirror style). */
+  condition?: Condition;
 }
 
 export interface GainStatsEffect {
@@ -742,6 +756,12 @@ export interface MoveDamageEffect {
     | { type: "last_resolved_target" };
   /** Internal: stage-2 marker carrying the resolved source snapshot. */
   _resolvedSource?: ResolvedRef;
+  /** CRD 6.1.4: player may decline the entire move (the source-pick prompt
+   *  surfaces as optional). */
+  isMay?: boolean;
+  /** Optional gating condition (Luisa Madrigal: "if this character has 3 or
+   *  more damage..."). Effect fizzles silently when false. */
+  condition?: Condition;
 }
 
 /**
@@ -1148,6 +1168,10 @@ export interface GetsStatWhileChallengingEffect {
   strength: number;
   defenderFilter: CardFilter;
   duration: "this_turn";
+  /** Which character receives the bonus. Default: source ("this"). Set when
+   *  the effect targets a chosen character (e.g. "chosen character gets
+   *  Challenger +N this turn"). */
+  target?: CardTarget;
 }
 
 /**
@@ -1254,6 +1278,9 @@ export interface GrantKeywordEffect {
   isMay?: boolean;
   /** CRD 6.4.2.1: continuous static — affects newly played cards too */
   continuous?: boolean;
+  /** Effects to apply to the target after granting the keyword (e.g. grant
+   *  Resist +1, then deal 2 damage). Mirrors the exert/ready followUp pattern. */
+  followUpEffects?: Effect[];
 }
 
 /** Timed-variant "loses <keyword>". Attaches a `suppress_keyword` TimedEffect
@@ -1282,6 +1309,10 @@ export interface CantActionEffect {
   action: RestrictedAction;
   target: CardTarget;
   duration: EffectDuration;
+  /** Optional gating condition — restricts when the cant_action timed effect
+   *  applies. Used by cards that conditionally restrict actions (e.g. only
+   *  while the source has Anna in play). */
+  condition?: Condition;
 }
 
 /**

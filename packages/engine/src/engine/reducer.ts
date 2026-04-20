@@ -2621,6 +2621,11 @@ function resolveDynamicAmount(
   return resolved;
 }
 
+/** Effect types whose `condition` field is a gating predicate ("if X, do
+ *  this effect"). Listed explicitly because some effects (self_replacement)
+ *  use `condition` as a branch selector with different semantics. */
+const CONDITION_GATED_EFFECTS = new Set<string>(["draw", "gain_lore", "lose_lore", "move_damage"]);
+
 export function applyEffect(
   state: GameState,
   effect: Effect,
@@ -2630,6 +2635,22 @@ export function applyEffect(
   events: GameEvent[],
   triggeringCardInstanceId?: string
 ): GameState {
+  // CRD 6.1.7: per-effect optional gating condition. Cards like Marching Off
+  // to Battle ("If a character was banished this turn, draw 2 cards") encode
+  // this as an effect-level condition. Fizzles silently when false. Distinct
+  // from ability-level conditions (which gate the whole ability) — useful for
+  // actionEffects (no parent ability) and for one branch of a multi-effect
+  // ability that should fire conditionally without affecting siblings.
+  // Whitelisted to specific effect types because some effects (self_replacement)
+  // use a `condition` field with different semantics (branch selector, not
+  // gate) and adding generic check would skip the whole effect instead of
+  // routing to the default branch.
+  if (CONDITION_GATED_EFFECTS.has(effect.type)) {
+    const cond = (effect as { condition?: import("../types/index.js").Condition }).condition;
+    if (cond && !evaluateCondition(cond, state, definitions, controllingPlayerId, sourceInstanceId)) {
+      return state;
+    }
+  }
   switch (effect.type) {
     case "draw": {
       // "Draw until you have N in hand" — resolve target hand size, compute
@@ -3174,19 +3195,27 @@ export function applyEffect(
       // Surface a choose_target when target.type === "chosen" so a follow-up
       // step can read the picked card via state.lastResolvedTarget. Used by
       // Anna Soothing Sister WARM HEART (gain lore equal to chosen discard
-      // char's L, then bottom-deck it).
+      // char's L, then bottom-deck it). When amount > 1, the prompt becomes
+      // multi-pick (Hypnotic Deduction: "put 2 cards from your hand on top
+      // of your deck in any order").
       if (effect.target && effect.target.type === "chosen" && pool.length > 0) {
+        const pickCount = Math.min(amount, pool.length);
         return {
           ...state,
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: position === "top"
-              ? "Choose a card to put on top of its deck."
-              : "Choose a card to put on the bottom of its deck.",
+            prompt: pickCount > 1
+              ? (position === "top"
+                ? `Choose ${pickCount} cards to put on top of your deck (in chosen order).`
+                : `Choose ${pickCount} cards to put on the bottom of your deck.`)
+              : (position === "top"
+                ? "Choose a card to put on top of its deck."
+                : "Choose a card to put on the bottom of its deck."),
             validTargets: pool,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             optional: effect.isMay ?? false,
+            count: pickCount,
           },
         };
       }
