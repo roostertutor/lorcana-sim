@@ -10,6 +10,69 @@ Conventions:
 
 ---
 
+## Engine: 52 remaining audit #4 invalid-field findings
+
+`pnpm card-status --category invalid-field --verbose` lists 52 cards
+with fields not in their effect's TS interface. Each is a silent no-op
+in the runtime handler. Categorized by remediation type:
+
+**A. True engine gaps — handler should support the field but doesn't:**
+- `move_damage.isMay` (12 instances) — cards say "you MAY move N damage"
+  but the engine forces the move. Need to surface a `choose_may` prompt
+  before move_damage runs. Affected: Magica de Spell Spiteful Sorceress,
+  Morgana Macawber, Maleficent Mistress of All Evil DIVINATION,
+  Mama Odie (×2), Madam Mim Elephant, Mystical Tree Mama Odie's Home,
+  Mother Gothel Vain Sorceress, Panic High Strung Imp, Amethyst Coil,
+  Luisa Madrigal Confident Climber.
+- `gain_lore.isMay` (1) — card needs may-prompt before gaining lore.
+- `reveal_hand.isMay` (1) — same.
+- `gets_stat_while_challenging.isMay` / `.target` — handler ignores both.
+- `move_damage.condition` (1) — Luisa Madrigal "if this character has 3+
+  damage" condition; should hoist to ability-level condition.
+
+**B. Wrong-effect-type — migrate to a different effect:**
+- `modify_stat.duration` (3) — `modify_stat` is a static effect (always-on
+  while in play); cards using `duration` want timed buffs. Should use
+  `gain_stats` (timed) or `modify_stat_per_count` (static) instead.
+- `cant_action.condition` (5) — should hoist to parent ability's condition
+  (or use sequential / self_replacement for the conditional fork).
+- `draw.condition` (2) — same; hoist to ability condition.
+
+**C. followUpEffects on unsupported handlers (10 instances):**
+ExertEffect and ReadyEffect declare `followUpEffects?: Effect[]` but
+banish, return_to_hand, grant_keyword (×6), gain_stats, remove_damage,
+deal_damage do not. Migrate to `sequential` effect (costEffects =
+primary, rewardEffects = followups). Or extend the supported handlers
+to read followUpEffects (broader engine change).
+
+**D. Field name typos / removable no-ops:**
+- `look_at_top.noMatchDestination` (3) — likely meant `restPlacement`?
+  Need text inspection.
+- `sequential.chooseTarget` (2) — wrong field; sequential picks targets
+  via its sub-effects' own target shapes.
+- `put_into_inkwell.position` (2) — unsupported; remove if "default" or
+  add to interface if engine supports.
+- `gain_stats.isUpTo` (1), `cant_action.isUpTo` (1) — likely no-op;
+  remove or migrate.
+- `enter_play_exerted_self.isMay` (1) — interface only has `type`;
+  remove.
+- `can_challenge_ready.defenderFilter` (4) and `.duration` — unused.
+
+**E. Per-count related (already mostly fixed):**
+- `modify_stat_per_count.countSelfDamage` flagged but already migrated
+  to `modify_stat_per_damage`. May be additional cards left.
+
+Strategy when picking this up: tackle by category. Category D (typos /
+removals) is easiest — pure data fix. Category B (wrong-effect-type
+migration) is mechanical but needs CRD-text reading per card. Category
+A and C require engine handler extensions before the data is meaningful.
+
+The audit (`pnpm card-status --category invalid-field --verbose`) lists
+all 52 with file:line context. Re-run after each fix batch to track
+progress.
+
+---
+
 ## Card data: Ravensburger API migration landed (main sets 1-12)
 
 `scripts/import-cards-rav.ts` is the new importer for main sets (1-12). Fetches
