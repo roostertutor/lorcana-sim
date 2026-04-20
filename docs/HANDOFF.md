@@ -53,14 +53,26 @@ delay, includes Iconic/Epic cards Lorcast doesn't index, and provides
   batch surfaces.
 
 **Next moves (not yet done):**
-1. Quest card numbering — decide whether Illumineer Quest cards should be
-   stored under their original set + number (Ravensburger's scheme) or
-   duplicated under `Q1`/`Q2` with Quest-specific numbers (the app's cache
-   filenames use the Quest scheme). Blocks `quest1`/`quest2` import.
-2. Filename rename — `packages/engine/src/cards/card-set-*.json` →
-   `card-set-*.json` (name was accurate when all data came from Lorcast;
-   source-neutral now). Single-purpose PR after the source swap settles.
-3. Promo migration — if/when Ravensburger exposes P1/P2/P3/cp/D23/DIS or
+1. Quest card import (`quest1` / `quest2`). Decision captured 2026-04-19:
+   - Most cards in the Quest boxes are identical reprints of main-set
+     cards — same art, same collector number. Ravensburger returns them
+     under both `setN` and `questN` filters; dedup by slug + number.
+   - Quest-exclusives (Anna — Ensnared Sister, Piglet/Yensid at 223/204,
+     etc.) are PvE-only cards usable solely in the Illumineer's Quest
+     co-op modes (Deep Trouble = quest1, Palace Heist = quest2). They
+     are NOT legal in Core or Infinity.
+   - Store Quest-exclusives in `card-set-Q1.json` / `card-set-Q2.json`
+     with `setId: "Q1"` / `"Q2"`. Neither setId appears in
+     `CORE_LEGAL_SETS` or `INFINITY_LEGAL_SETS` → `isLegalFor` naturally
+     flags them as non-legal in constructed formats (desired).
+   - When importer enables `quest1` / `quest2`, for each returned card:
+     if the slug already exists in a main-set file AND the collector
+     number matches that set's numbering, skip (duplicate reprint).
+     Otherwise write to `card-set-Q1.json` / `card-set-Q2.json`.
+   - Co-op format support (new `GameFormat` value `"quest1" | "quest2"`
+     with Q1 / Q2 as legal sets) lands whenever the PvE mode is built;
+     see the Illumineer's Quest co-op product note below.
+2. Promo migration — if/when Ravensburger exposes P1/P2/P3/cp/D23/DIS or
    we find another authoritative source, retire `scripts/import-cards.ts`.
 
 **Validation:** `pnpm --filter engine test` (460/460) and `pnpm card-status`
@@ -246,6 +258,47 @@ Practical caveats:
 - Precedence: most-specific patterns first, to avoid over-matching.
 - Conservative thresholds — better to under-wire (leave for human) than
   silently miswire.
+
+---
+
+## Strategy: Illumineer's Quest co-op mode as a unique feature
+
+Ravensburger's Illumineer's Quest products (Deep Trouble = quest1,
+Palace Heist = quest2) are **co-op PvE** — 1-2 players vs. a scripted
+boss deck with special rules. duels.ink and every other Lorcana client
+today is PvP-only; co-op Quest mode is a product differentiator this
+app could own.
+
+Fits the strategic direction (`project_strategic_direction.md` in
+user memory): the moat is the engine + bot + analytics flywheel, and
+the product is a creator/play client that feeds the clone-trainer.
+A scripted-boss mode is a natural extension of the existing RL bot
+infrastructure — a Quest boss is just a deterministic policy with
+special "boss-only" card primitives.
+
+**What it takes to build:**
+- Engine: `GameFormat` gains `"quest1" | "quest2"` with `Q1` / `Q2`
+  as legal sets. Quest-exclusives (Anna — Ensnared Sister, etc.)
+  become playable in that mode only.
+- Engine: Quest-specific mechanics — boss deck shuffling rules,
+  "location-like" quest objectives, turn-order variants (co-op
+  side-by-side). Most are authorable as new Effect/Trigger primitives.
+- Simulator: scripted boss policy (not RL) — reads from a deck
+  script, plays a deterministic sequence. Simpler than Actor-Critic.
+- UI: co-op board layout (two teammates + boss) — a new GameBoard
+  variant. Lobby flow for pairing up vs. the boss.
+
+**Why it pays rent beyond "cool feature":**
+- Lower skill floor than PvP — onboards new Lorcana players who
+  don't want to lose to humans.
+- Scripted-boss cards exercise engine primitives that PvP decks
+  rarely use (huge AoEs, game-rule modifications), which surfaces
+  rule-coverage gaps.
+- Replays + analytics generalize — Quest games are still
+  seed-deterministic, so the creator-tool flywheel applies.
+
+Not scheduled; parked here so the idea isn't lost when the Quest
+import task actually lands.
 
 ---
 
@@ -438,87 +491,53 @@ cycle-on-click for a compact popover menu:
 No engine changes — same `DeckEntry.variant` model. Pure UI refactor
 in `DeckBuilder.DeckRow`.
 
-## Deckbuilder: Core-vs-Infinity format legality
+## Deckbuilder / server: Core-vs-Infinity format legality — UI + server hookup
+
+Engine side landed in `packages/engine/src/formats/legality.ts`:
+
+- `CORE_LEGAL_SETS` = { 5, 6, 7, 8, 9, 10, 11, 12 } (rotates — source of
+  truth is Ravensburger's Disney Lorcana TCG Organized Play rules).
+- `INFINITY_LEGAL_SETS` = sets 1-12 + all promo sets.
+- `CORE_BANLIST` = empty as of 2026-04-19.
+- `INFINITY_BANLIST` = `["hiram-flaversham-toymaker"]`.
+- `isCardLegalInFormat(def, format)` — single-card check.
+- `isLegalFor(entries, defs, format) → { ok, issues[] }` — deck-level
+  check. Reprint rule: iterates `def.printings[]` (falls back to canonical
+  `setId` + `variants[]` for cards with only one printing).
+- `LegalityIssue.reason`: `"banned" | "set_not_legal" | "unknown_card"`,
+  with a UI-ready `message` string.
 
 Multiplayer already tracks `game_format: "core" | "infinity"` on lobbies +
-ELO (`schema.sql:96`, `gameService.ts:184`), but it's just a pass-through
-tag today — there's no engine-side enforcement and no Core-legal-sets
-list. The deckbuilder doesn't surface format legality either; My Decks
-tiles currently don't indicate whether a deck can be played in Core.
+ELO (`schema.sql:96`, `gameService.ts:184`) as an honor-system tag. The
+engine helpers now let UI and server enforce it.
 
-**Why this matters:**
-- **Separates multiplayer queues.** Core players should only match other
-  Core players. Lobby creation needs to validate host and guest decks
-  against the declared `game_format` before the match starts. Today it's
-  an honor-system tag.
-- **Each format has its own banlist.** Beyond the set-list cut, both
-  Core and Infinity occasionally ban specific cards (Bucky - Squirrel
-  Squeak Tutor in early Core, for example). Enforcement needs a
-  per-format banlist, not just a set filter.
-- **Reprint legality.** A card is Core-legal if **any printing** of it is
-  in the Core set range. Example: `captain-hook-forceful-duelist` was
-  printed in set 1 (out of Core) AND set 8 (in Core) — the card is
-  Core-legal because the set 8 printing exists. The user can even play
-  their physical set 1 copy; the card (by definitionId) is legal.
-  `CardDefinition.printings[]` (landed with the variant-collapse fix)
-  is the source for this check — iterate every printing's setId against
-  `CORE_LEGAL_SETS`.
+**UI (GUI agent lane):**
+- Per-deck `format` field stored on `decks` table (new column,
+  `"core" | "infinity"` with **`"core"` default** — most new decks target
+  the competitive format; Infinity is an explicit opt-in for experienced
+  players who want access to older cards).
+- Format picker in `DeckBuilderPage` (next to deck name).
+- **Auto-apply format as a CardPicker filter.** Selecting `"core"` on
+  the deck pre-applies a hidden "Core-legal" filter on the card browser
+  (use `isCardLegalInFormat`) so users can't see (and accidentally add)
+  non-Core cards. Selecting `"infinity"` swaps to the Infinity filter
+  (hides Hiram). Implicit filter (not a user-toggleable chip) so it
+  never conflicts with the declared format.
+- Badge on `DecksPage` tiles showing declared format + a warning glyph
+  when `isLegalFor(entries, defs, format).ok` is false.
+- In `DeckBuilderPage`, surface the `issues[]` list inline (e.g.
+  "Hiram Flaversham Toymaker — banned in infinity") so the user can fix.
 
-**What's needed:**
-1. Engine: export format config as typed constants, e.g.:
-   ```ts
-   export const CORE_LEGAL_SETS = new Set(["5", "6", "7", "8", "9", "10", "11", "12"]);
-   export const CORE_BANLIST    = new Set<string>([/* defIds */]);
-   export const INFINITY_BANLIST = new Set<string>([/* rarely used, but hook */]);
-   ```
-   Source of truth: Ravensburger's Disney Lorcana TCG Organized Play
-   rules; update on rotation (currently set 5-12 per user as of
-   2026-04-19, rotates periodically).
-2. Helper `isLegalFor(entries, definitions, format): { ok, issues }`.
-   For each entry:
-   - If format === "infinity": only check the INFINITY_BANLIST.
-   - If format === "core": card is legal iff (a) NOT in CORE_BANLIST
-     AND (b) at least one of its printings (iterate `def.printings[]`
-     — falls back to canonical `setId` + `variants[]` for cards that
-     have only one printing) is in `CORE_LEGAL_SETS`.
-3. UI (GUI agent lane):
-   - Per-deck `format` field stored on `decks` table (new column,
-     `"core" | "infinity"` with **`"core"` default** — most new decks
-     target the competitive format; Infinity is an explicit opt-in for
-     experienced players who want access to older cards).
-   - Format picker in `DeckBuilderPage` (next to deck name).
-   - **Auto-apply format as a CardPicker filter.** Selecting `"core"`
-     on the deck pre-applies a hidden "Core-legal" filter on the card
-     browser so the user can't see (and accidentally add) non-Core
-     cards. Selecting `"infinity"` removes the filter. The filter is
-     implicit (not a user-toggleable chip) so it never conflicts with
-     the declared format. Banlist cards for the active format get
-     hidden too.
-   - Badge on `DecksPage` tiles showing declared format + a warning
-     glyph when the deck fails its own format's legality check.
-   - In `DeckBuilderPage`, surface the issues list inline (e.g.
-     "Mirabel Madrigal — not Core legal, banned in Core") so the user
-     can fix.
-4. Server: lobby creation should reject a deck whose declared format
-   doesn't match its contents' legality (once the engine check exists).
-   Prevents Core queue from getting Infinity-only decks mid-match.
+**Server:**
+- Lobby creation calls `isLegalFor(entries, defs, lobby.game_format)`
+  before marking the match ready. Reject with the issues list if `ok`
+  is false. Prevents Core queue from getting Infinity-only decks
+  mid-match.
 
-**Implementation order suggestion:**
-- Engine: ship the constants + `isLegalFor` helper.
-- UI: add the `format` column + picker + badge (field-based, no
-  validation yet — users self-declare).
-- UI: wire the `isLegalFor` check into the badge + inline-issues.
-- Server: add the lobby-side validation.
-
-**Where this was discussed:** GUI session that shipped the deckbuilder
-rebuild (see `a0cfb67`, `42be9ea`). Scope was kept narrow to UI work;
-format legality was flagged as a feature needing engine + UI coordination.
-
-**Scope:** engine constant + helper is trivial-ish but the reprint-check
-depends on the variant-collapse fix above. The Core set list + banlists
-have to be maintained whenever Ravensburger rotates or bans a card, so
-document the source of truth alongside the constants and keep the
-rotation cadence in the comment.
+**Maintenance:** update `CORE_LEGAL_SETS` when Ravensburger rotates
+(new set drops push the oldest out roughly once per year). Ban
+additions go in the relevant `*_BANLIST`. Source of truth is
+Ravensburger's OP rules; add a dated note alongside any change.
 
 ## GUI: MTGA-style "shortened" card rendering in play zones
 
