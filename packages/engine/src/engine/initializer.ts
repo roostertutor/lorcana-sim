@@ -49,6 +49,25 @@ function shuffle<T>(arr: T[], rng: RngState): T[] {
 }
 
 /** Parse a plaintext decklist into DeckEntries */
+/** Normalize a card name for equality comparison. Collapses punctuation
+ *  variants that differ only as code points: curly vs straight quotes
+ *  (U+2018/U+2019 → ' and U+201C/U+201D → "), en/em dashes → hyphen,
+ *  whitespace runs → single space, lowercased, trimmed.
+ *
+ *  Lorcana card names in our data use typographic curly apostrophes
+ *  (e.g. "Te Kā — Destroyer") but external decklists (Inkable, Dreamborn,
+ *  anyone who typed the name from their keyboard) use straight quotes.
+ *  Equality on the raw strings misses these valid matches. */
+function normalizeCardName(s: string): string {
+  return s
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/[\u2013\u2014]/g, "-")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
 export function parseDecklist(
   text: string,
   definitions: Record<string, CardDefinition>
@@ -70,11 +89,12 @@ export function parseDecklist(
 
     const count = parseInt(match[1]!, 10);
     const name = match[2]!.trim();
+    const normalizedName = normalizeCardName(name);
 
-    // Look up by fullName only (case-insensitive) — require exact full name
-    // to avoid ambiguity when multiple versions of a character exist
+    // Look up by fullName only (normalized for curly-vs-straight
+    // punctuation parity so external-tool pastes match our data).
     const def = Object.values(definitions).find(
-      (d) => d.fullName.toLowerCase() === name.toLowerCase()
+      (d) => normalizeCardName(d.fullName) === normalizedName
     );
 
     if (!def) {
