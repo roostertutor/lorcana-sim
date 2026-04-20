@@ -421,6 +421,13 @@ export function matchesFilter(
   if (filter.excludeSelf && sourceInstanceId && instance.instanceId === sourceInstanceId) {
     return false;
   }
+  // Inverse of excludeSelf: require the matched card to BE the source.
+  // For card_put_under triggers, this is the receiver-instance scoping: the
+  // cross-card trigger path passes the watcher's instanceId as
+  // sourceInstanceId; only the watcher whose own event fired matches.
+  if (filter.isSelf && sourceInstanceId && instance.instanceId !== sourceInstanceId) {
+    return false;
+  }
 
   if (filter.hasName) {
     const altNames = definition.alternateNames ?? [];

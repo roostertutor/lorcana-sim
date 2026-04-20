@@ -3012,10 +3012,24 @@ export function applyEffect(
       // repeatOnMatch (Sisu Uniting Dragon): loop until a non-match.
       // target "both": iterate over each player independently (Let's Get Dangerous).
       if (effect.target.type === "both") {
-        for (const pid of ["player1", "player2"] as PlayerID[]) {
-          state = applyEffect(state, { ...effect, target: { type: "self" } }, sourceInstanceId, pid, definitions, events, triggeringCardInstanceId);
-          if (state.pendingChoice) return state;
+        // Resolve player1 first; if their reveal creates a pendingChoice
+        // (matchIsMay), queue player2's reveal as a continuation so the
+        // second player isn't dropped (Let's Get Dangerous regression).
+        const player2Effect: Effect = { ...effect, target: { type: "self" as const } };
+        state = applyEffect(state, { ...effect, target: { type: "self" } }, sourceInstanceId, "player1", definitions, events, triggeringCardInstanceId);
+        if (state.pendingChoice) {
+          const existingQueue = state.pendingEffectQueue?.effects ?? [];
+          state = {
+            ...state,
+            pendingEffectQueue: {
+              effects: [player2Effect, ...existingQueue],
+              sourceInstanceId,
+              controllingPlayerId: "player2",
+            },
+          };
+          return state;
         }
+        state = applyEffect(state, player2Effect, sourceInstanceId, "player2", definitions, events, triggeringCardInstanceId);
         return state;
       }
       const targetPlayer = effect.target.type === "opponent" ? getOpponent(controllingPlayerId) : controllingPlayerId;

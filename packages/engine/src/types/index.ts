@@ -2306,6 +2306,15 @@ export interface CardFilter {
   excludeInstanceId?: string;
   /** Exclude the source card (for "other" effects — resolved at runtime) */
   excludeSelf?: boolean;
+  /** Inverse of excludeSelf: require the matched card to BE the source. Used
+   *  by triggers like Simba King in the Making's "Whenever you put a card
+   *  under THIS character" — without this flag, having two Simbas in play
+   *  fires the trigger on both copies whenever any one of them receives a
+   *  card under it (the cross-card trigger path matches `owner: self` against
+   *  any owned carrier). With `isSelf: true` the cross-card path's filter
+   *  match additionally requires `instance.instanceId === sourceInstanceId`,
+   *  which only the watcher whose own event fired can satisfy. */
+  isSelf?: boolean;
   /** Match by card name (e.g. "Fire the Cannons!", "Te Kā") */
   hasName?: string;
   /** Match cards whose name equals `state.lastResolvedSource.name`. Used by

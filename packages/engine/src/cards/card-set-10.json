@@ -955,7 +955,8 @@
           "filter": {
             "owner": {
               "type": "self"
-            }
+            },
+            "isSelf": true
           }
         },
         "effects": [
@@ -3382,7 +3383,8 @@
           "filter": {
             "owner": {
               "type": "self"
-            }
+            },
+            "isSelf": true
           }
         },
         "effects": [
@@ -5232,7 +5234,8 @@
           "filter": {
             "owner": {
               "type": "self"
-            }
+            },
+            "isSelf": true
           }
         },
         "effects": [
@@ -8755,7 +8758,8 @@
           "filter": {
             "owner": {
               "type": "self"
-            }
+            },
+            "isSelf": true
           }
         },
         "effects": [
@@ -11139,7 +11143,8 @@
           "filter": {
             "owner": {
               "type": "self"
-            }
+            },
+            "isSelf": true
           }
         },
         "effects": [
@@ -13110,7 +13115,8 @@
           "filter": {
             "owner": {
               "type": "self"
-            }
+            },
+            "isSelf": true
           }
         },
         "effects": [

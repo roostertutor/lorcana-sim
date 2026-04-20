@@ -569,6 +569,57 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     expect(getZone(state, "player1", "hand").length).toBe(handBefore + 1);
   });
 
+  it("card_put_under: 'this character' triggers (Simba King in the Making) only fire on the boosted instance", () => {
+    // Two Simba King in the Making in play. Boosting one should fire only that
+    // Simba's TIMELY ALLIANCE — not both. Regression: filter `owner: self`
+    // alone matched any owned carrier in the cross-card trigger path; added
+    // `isSelf: true` to the trigger filter to require carrier === watcher.
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let simbaA: string, simbaB: string;
+    ({ state, instanceId: simbaA } = injectCard(state, "player1", "simba-king-in-the-making", "play", { isDrying: false }));
+    ({ state, instanceId: simbaB } = injectCard(state, "player1", "simba-king-in-the-making", "play", { isDrying: false }));
+    void simbaB;
+
+    let r = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: simbaA }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Count distinct may-prompts surfaced by declining each in sequence. With
+    // the bug, BOTH Simbas trigger → two outer-may prompts. With the fix, only
+    // one Simba triggers → one outer-may prompt.
+    let mayPromptCount = 0;
+    let safety = 5;
+    while (state.pendingChoice && safety-- > 0) {
+      mayPromptCount++;
+      r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: state.pendingChoice.choosingPlayerId, choice: "decline" }, CARD_DEFINITIONS);
+      expect(r.success).toBe(true);
+      state = r.newState;
+    }
+    expect(mayPromptCount).toBe(1);
+  });
+
+  it("card_put_under: 'one of your characters' triggers (Webby's Diary) still fire as cross-card watchers", () => {
+    // Regression check: the isSelf fix above must NOT regress the cross-card
+    // pattern. Webby's Diary text is "Whenever you put a card under one of
+    // your characters or locations" — it correctly uses no isSelf and should
+    // still fire when ANOTHER card (Flynn) receives a boosted card.
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let flynnId: string, diaryId: string;
+    ({ state, instanceId: flynnId } = injectCard(state, "player1", "flynn-rider-spectral-scoundrel", "play", { isDrying: false }));
+    ({ state, instanceId: diaryId } = injectCard(state, "player1", "webbys-diary", "play", { isDrying: false }));
+    void diaryId;
+
+    const r = applyAction(state, { type: "BOOST_CARD", playerId: "player1", instanceId: flynnId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Diary's LATEST ENTRY surfaces a may-pay-1-to-draw choice.
+    expect(state.pendingChoice).toBeDefined();
+    expect(state.pendingChoice?.type).toBe("choose_may");
+  });
+
   it("CRD 8.4.2: modify_stat_per_count.countCardsUnderSelf (Wreck-it Ralph POWERED UP)", () => {
     let state = startGame();
     state = giveInk(state, "player1", 10);
@@ -1262,5 +1313,78 @@ describe("§10 Set 10 — Cinderella Dream Come True WHATEVER YOU WISH FOR", () 
     r = applyAction(r.newState, { type: "PASS_TURN", playerId: "player1" }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
     expect(r.newState.pendingChoice).toBeFalsy();
+  });
+});
+
+describe("§11 Set 11 — Angel Experiment 624 GOOD AIM (sequential may-discard → damage)", () => {
+  // Per CRD: "you may choose and discard a card to deal 2 damage" reads as a
+  // sequential MAY effect — the discard is a cost effect that must fully
+  // resolve before the damage reward fires. With an empty hand the discard
+  // can't resolve, so the damage doesn't either.
+  it("activates without a cost: surfaces a may-prompt before discard", () => {
+    let state = startGame();
+    let angelId: string, targetId: string;
+    ({ state, instanceId: angelId } = injectCard(state, "player1", "angel-experiment-624", "play", { isDrying: false }));
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    void targetId;
+    // Activate GOOD AIM (ability index 1).
+    const r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: angelId, abilityIndex: 1 }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // Should produce a sequential may-prompt — engine pauses for player decision.
+    expect(r.newState.pendingChoice).toBeDefined();
+  });
+
+  it("declining the may skips both the discard and the damage", () => {
+    let state = startGame();
+    let angelId: string, targetId: string;
+    ({ state, instanceId: angelId } = injectCard(state, "player1", "angel-experiment-624", "play", { isDrying: false }));
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
+
+    let r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: angelId, abilityIndex: 1 }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    const handBefore = getZone(state, "player1", "hand").length;
+
+    // Decline.
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "decline" }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    expect(getZone(state, "player1", "hand").length).toBe(handBefore);
+    expect(getInstance(state, targetId).damage ?? 0).toBe(0);
+  });
+});
+
+describe("§11 Set 11 — Let's Get Dangerous (action: each player reveals + may-play)", () => {
+  // "Each player shuffles their deck and then reveals the top card. Each player
+  // who reveals a character card may play that character for free. Otherwise,
+  // put the revealed cards on the bottom of their player's deck."
+  // Regression: previously wired with `isMay: true` (no-op for this effect)
+  // instead of `matchIsMay: true` — engine auto-played the revealed character
+  // without asking. Also previously dropped player2's reveal when player1's
+  // matchIsMay created a pendingChoice.
+  it("matchIsMay surfaces a per-player may-prompt after the reveal", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+
+    // Stack each player's deck top with a character so both will trigger matchIsMay.
+    // Use injectCard to put a known character in deck so we know what's revealed.
+    let songId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "lets-get-dangerous", "hand"));
+
+    // Add a character on top of each player's deck via direct state mutation
+    // through injectCard at zone "deck" — newest goes to position 0 (top).
+    let p1TopId: string, p2TopId: string;
+    ({ state, instanceId: p1TopId } = injectCard(state, "player1", "mickey-mouse-true-friend", "deck"));
+    ({ state, instanceId: p2TopId } = injectCard(state, "player2", "mickey-mouse-true-friend", "deck"));
+    void p1TopId; void p2TopId;
+
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // After playing, a pendingChoice should be active for the FIRST player's may-play.
+    expect(state.pendingChoice).toBeDefined();
+    expect(state.pendingChoice?.type).toBe("choose_may");
   });
 });
