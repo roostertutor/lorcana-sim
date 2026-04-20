@@ -11,8 +11,10 @@
 //   pnpm tsx scripts/import-cards-rav.ts --sets set1,set12   specific sets
 //   pnpm tsx scripts/import-cards-rav.ts --sets set1 --dry   dry run
 //
-// Supported filters: set1..set12, quest1, quest2.
+// Supported filters: set1..set12.
 // Not exposed by the API: promo1/2/3, cp, d23, dis — use pnpm import-cards for those.
+// quest1/quest2 exist but return the same cards as the main-set filters (alt-
+// arts tagged card_sets: ["questN","setN"]), so we skip them.
 //
 // Why switch? Zero-delay data (same day as app release), richer variant info
 // (direct foil-mask URL pairing), includes Iconic/Epic cards the old source didn't
@@ -559,19 +561,22 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { pr
 // MAIN
 // =============================================================================
 
-// Default set list — main sets + Illumineer Quests (all Ravensburger exposes)
+// Default set list — main sets only. `quest1` / `quest2` filters exist in
+// Ravensburger's API but return the same cards as the main-set filters: the
+// Illumineer's Quest product re-uses main-set cards (e.g. Piglet Pooh Pirate
+// Captain 223/204 EN 3 is a set 3 alt-art, tagged `card_sets: ["quest1",
+// "set3"]`). Importing via quest* filters duplicates data the main-set filters
+// already deliver. Truly PvE-exclusive cards (Anna — Ensnared Sister type)
+// aren't in Ravensburger's API at all — would need a separate source if ever
+// needed. See HANDOFF.md.
 const ALL_RAV_FILTERS = [
   "set1","set2","set3","set4","set5","set6","set7","set8","set9","set10","set11","set12",
-  // "quest1", "quest2" — skip for now; Quest cards are keyed by original set,
-  // which complicates merging. Enable when numbering strategy is decided.
 ];
 
 // Map Ravensburger filter → project setId (used as JSON filename)
 function ravFilterToSetId(filter: string): string {
   const m = filter.match(/^set(\d+)$/i);
   if (m) return m[1]!;
-  const q = filter.match(/^quest(\d+)$/i);
-  if (q) return "Q" + q[1]!;
   return filter.toUpperCase();
 }
 
@@ -671,10 +676,21 @@ async function main() {
   // Regenerate cardDefinitions.ts with ALL set files present on disk (not just
   // the ones we imported this run — so partial re-imports don't drop other
   // sets or promo files that still come from the old importer).
+  // Sort: numeric main sets first (in numeric order), then alphanumeric codes
+  // (promo P1/P2/P3, challenge C1/C2, convention D23) in lex order. Plain
+  // .sort() would produce "1, 10, 11, 12, 2, 3, ..." — natural-ish order is
+  // friendlier to humans reading the diff.
   const allSetCodes = readdirSync(OUT_DIR)
     .filter((f) => f.startsWith("card-set-") && f.endsWith(".json"))
     .map((f) => f.replace(/^card-set-/, "").replace(/\.json$/, ""))
-    .sort();
+    .sort((a, b) => {
+      const aNum = /^\d+$/.test(a);
+      const bNum = /^\d+$/.test(b);
+      if (aNum && bNum) return parseInt(a, 10) - parseInt(b, 10);
+      if (aNum) return -1;
+      if (bNum) return 1;
+      return a.localeCompare(b);
+    });
   const setImports = allSetCodes.map((code) =>
     `import set${code} from "./card-set-${code}.json" assert { type: "json" };`
   );

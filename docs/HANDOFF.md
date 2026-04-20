@@ -53,27 +53,30 @@ delay, includes Iconic/Epic cards Lorcast doesn't index, and provides
   batch surfaces.
 
 **Next moves (not yet done):**
-1. Quest card import (`quest1` / `quest2`). Decision captured 2026-04-19:
-   - Most cards in the Quest boxes are identical reprints of main-set
-     cards — same art, same collector number. Ravensburger returns them
-     under both `setN` and `questN` filters; dedup by slug + number.
-   - Quest-exclusives (Anna — Ensnared Sister, Piglet/Yensid at 223/204,
-     etc.) are PvE-only cards usable solely in the Illumineer's Quest
-     co-op modes (Deep Trouble = quest1, Palace Heist = quest2). They
-     are NOT legal in Core or Infinity.
-   - Store Quest-exclusives in `card-set-Q1.json` / `card-set-Q2.json`
-     with `setId: "Q1"` / `"Q2"`. Neither setId appears in
-     `CORE_LEGAL_SETS` or `INFINITY_LEGAL_SETS` → `isLegalFor` naturally
-     flags them as non-legal in constructed formats (desired).
-   - When importer enables `quest1` / `quest2`, for each returned card:
-     if the slug already exists in a main-set file AND the collector
-     number matches that set's numbering, skip (duplicate reprint).
-     Otherwise write to `card-set-Q1.json` / `card-set-Q2.json`.
-   - Co-op format support (new `GameFormat` value `"quest1" | "quest2"`
-     with Q1 / Q2 as legal sets) lands whenever the PvE mode is built;
-     see the Illumineer's Quest co-op product note below.
-2. Promo migration — if/when Ravensburger exposes P1/P2/P3/cp/D23/DIS or
+1. Promo migration — if/when Ravensburger exposes P1/P2/P3/cp/D23/DIS or
    we find another authoritative source, retire `scripts/import-cards.ts`.
+
+**Investigated and parked 2026-04-19 — Illumineer's Quest cards:**
+- Ravensburger's `quest1` / `quest2` API filters return the Quest box's
+  card list, but every card they return has a `card_sets` tag like
+  `["quest1", "set4"]` — they're normal main-set cards (just
+  distributed in the Quest box). The main-set filters already return
+  them at numbers 223-225 (past the nominal 204 total). Example:
+  Mulan Elite Archer 224/204 EN 4 is a set 4 card already in
+  `card-set-4.json`.
+- Enabling `quest1`/`quest2` filters would duplicate data already
+  pulled via `setN` filters. Kept them OFF in `ALL_RAV_FILTERS`.
+- **Truly PvE-exclusive cards** (Anna — Ensnared Sister and similar
+  boss-encounter/scripted-fight cards) exist in the physical Quest
+  product but are NOT in Ravensburger's public API. **Lorcast API
+  does carry these** — if/when we need PvE cards, re-enable
+  `scripts/import-cards.ts` (Lorcast-sourced) for quest1 / quest2
+  filters rather than trying Ravensburger. Write to
+  `card-set-Q1.json` / `card-set-Q2.json` with `setId: "Q1"` / `"Q2"`
+  — chosen so they stay out of `CORE_LEGAL_SETS` /
+  `INFINITY_LEGAL_SETS` and the co-op format (when built) can claim
+  them. Not blocking anything today; revisit when the Illumineer's
+  Quest co-op mode lands (see strategy note below).
 
 **Validation:** `pnpm --filter engine test` (460/460) and `pnpm card-status`
 (0 invalid) should stay green after any re-import.
@@ -277,9 +280,17 @@ infrastructure — a Quest boss is just a deterministic policy with
 special "boss-only" card primitives.
 
 **What it takes to build:**
+- Data: source the true PvE-exclusive cards (Anna — Ensnared Sister
+  and similar scripted-encounter cards). Ravensburger's API doesn't
+  expose them under `quest1` / `quest2` filters (those only return
+  main-set cards that happen to ship in the Quest box). **Lorcast API
+  does carry them** — use `scripts/import-cards.ts` (Lorcast-sourced)
+  as the PvE card source. Store under `card-set-Q1.json` /
+  `card-set-Q2.json` with `setId: "Q1"` / `"Q2"` — deliberately
+  outside `CORE_LEGAL_SETS` / `INFINITY_LEGAL_SETS` so they never leak
+  into constructed.
 - Engine: `GameFormat` gains `"quest1" | "quest2"` with `Q1` / `Q2`
-  as legal sets. Quest-exclusives (Anna — Ensnared Sister, etc.)
-  become playable in that mode only.
+  as legal sets. Quest-exclusives become playable in that mode only.
 - Engine: Quest-specific mechanics — boss deck shuffling rules,
   "location-like" quest objectives, turn-order variants (co-op
   side-by-side). Most are authorable as new Effect/Trigger primitives.
