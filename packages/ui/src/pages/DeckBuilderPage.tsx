@@ -276,14 +276,13 @@ export default function DeckBuilderPage() {
           </div>
         )}
 
-        {/* Deck editor — fixed 340px when picker is open, max-w-2xl centered
-             when it's hidden. On mobile we force w-full explicitly; flex-1
-             in a flex-col parent was letting intrinsic-width descendants
-             (text inputs default to size=20 min-width) force page-level
-             horizontal scroll. `lg:flex-1` restores the desktop behavior
-             where the editor grows to fill available space next to the
-             picker-open 340px column. */}
-        <div className={`${pickerOpen ? "lg:w-[340px] shrink-0" : "w-full lg:flex-1 max-w-2xl mx-auto"} min-w-0 space-y-6`}>
+        {/* Deck editor — fixed 340px when picker is open, max-w-3xl centered
+             when it's hidden. (Raised from 2xl = 672px to 3xl = 768px so
+             the editor doesn't feel cramped against the full-width
+             CompositionView below on larger desktops.) Mobile forces
+             w-full explicitly; lg:flex-1 restores desktop "fill remaining
+             space" behavior when sharing the row with the picker. */}
+        <div className={`${pickerOpen ? "lg:w-[340px] shrink-0" : "w-full lg:flex-1 max-w-3xl mx-auto"} min-w-0 space-y-6`}>
           <div className="card space-y-3">
             {/* Box preview + deck name */}
             {(() => {
@@ -447,9 +446,15 @@ export default function DeckBuilderPage() {
         </div>
       </div>
 
-      {/* Composition — full-width below */}
+      {/* Composition — width matched to the editor column above. When the
+           picker is closed the editor is centered at max-w-3xl, so the
+           composition below matches. When the picker is open the row
+           takes the full parent width, and composition follows suit —
+           no max-w constraint so the charts get the room they need. */}
       {deckReady && (
-        <CompositionView deck={entries} definitions={CARD_DEFINITIONS} />
+        <div className={pickerOpen ? "" : "max-w-3xl mx-auto"}>
+          <CompositionView deck={entries} definitions={CARD_DEFINITIONS} />
+        </div>
       )}
 
       {/* Discard-changes modal — in-app alternative to window.confirm().
