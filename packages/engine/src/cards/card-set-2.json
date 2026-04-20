@@ -9085,43 +9085,31 @@
             "type": "self"
           }
         },
-        "condition": {
-          "type": "this_has_no_damage"
-        },
         "effects": [
           {
-            "type": "draw",
-            "amount": 1,
-            "target": {
-              "type": "self"
-            }
-          }
-        ]
-      },
-      {
-        "type": "triggered",
-        "storyName": "IT'S BETTER THIS WAY",
-        "rulesText": "(Otherwise branch) he gets +4 {S} this turn.",
-        "trigger": {
-          "on": "turn_start",
-          "player": {
-            "type": "self"
-          }
-        },
-        "condition": {
-          "type": "not",
-          "condition": {
-            "type": "this_has_no_damage"
-          }
-        },
-        "effects": [
-          {
-            "type": "gain_stats",
-            "strength": 4,
-            "duration": "this_turn",
-            "target": {
-              "type": "this"
-            }
+            "type": "self_replacement",
+            "condition": {
+              "type": "this_has_no_damage"
+            },
+            "instead": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ],
+            "effect": [
+              {
+                "type": "gain_stats",
+                "strength": 4,
+                "duration": "this_turn",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ]
           }
         ]
       }
