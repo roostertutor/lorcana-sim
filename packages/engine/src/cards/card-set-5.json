@@ -4573,22 +4573,6 @@
         "storyName": "PRESSING THE ADVANTAGE",
         "rulesText": "Whenever he challenges a damaged character, ready this character after the challenge.",
         "trigger": {
-          "on": "challenges"
-        },
-        "effects": [
-          {
-            "type": "ready",
-            "target": {
-              "type": "this"
-            }
-          }
-        ]
-      },
-      {
-        "type": "triggered",
-        "storyName": "PRESSING THE ADVANTAGE",
-        "rulesText": "Whenever he challenges a damaged character, ready this character after the challenge.",
-        "trigger": {
           "on": "challenges",
           "defenderFilter": {
             "hasDamage": true

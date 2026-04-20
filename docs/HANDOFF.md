@@ -10,6 +10,34 @@ Conventions:
 
 ---
 
+## Engine: Alma Madrigal Accepting Grandmother — Sing Together "ready all singers"
+
+THE MIRACLE IS YOU: "Once during your turn, whenever **one or more** of
+your characters sings a song, you may ready **those characters**." The
+plural ("those characters") is the Sing Together hook — when 2+
+characters sing together as one song, all of them should be readyable.
+
+Current wiring splits into two triggered abilities (self-sings + other-
+sings), each `oncePerTurn: true`. Two problems:
+- Allows up to 2 readies per turn (one from each branch) — rules
+  say once per turn total.
+- For Sing Together with 2+ singers, the engine fires `sings` per
+  singer; with `oncePerTurn` only the first fires, only one singer
+  gets readied. "Those characters" semantic is lost.
+
+Proper fix needs either:
+- A new effect type that reads `state.lastSongSingerIds` (already
+  populated in reducer.ts:497) and readies the whole array, OR
+- A new target type `"last_song_singers"` for ReadyEffect, OR
+- Trigger batching so multi-singer sings fire ONE trigger with all
+  singers in context.
+
+Detected by the duplicate-storyName scan that surfaced the Beast
+Tragic Hero "two complementary triggers" bug pattern (commit 892739f).
+Beast was fixable via `self_replacement`. Alma is structurally
+different — needs new engine support.
+
+---
 
 ## Card data: Ravensburger API migration landed (main sets 1-12)
 
