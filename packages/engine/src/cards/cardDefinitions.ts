@@ -7,23 +7,23 @@
 
 import type { CardDefinition } from "../types/index.js";
 import { buildCardDefinitions } from "./buildDefinitions.js";
-import set001 from "./card-set-001.json" assert { type: "json" };
-import set002 from "./card-set-002.json" assert { type: "json" };
-import set003 from "./card-set-003.json" assert { type: "json" };
-import set004 from "./card-set-004.json" assert { type: "json" };
-import set005 from "./card-set-005.json" assert { type: "json" };
-import set006 from "./card-set-006.json" assert { type: "json" };
-import set007 from "./card-set-007.json" assert { type: "json" };
-import set008 from "./card-set-008.json" assert { type: "json" };
-import set009 from "./card-set-009.json" assert { type: "json" };
-import set010 from "./card-set-010.json" assert { type: "json" };
-import set011 from "./card-set-011.json" assert { type: "json" };
-import set012 from "./card-set-012.json" assert { type: "json" };
-import set0C1 from "./card-set-0C1.json" assert { type: "json" };
-import set0C2 from "./card-set-0C2.json" assert { type: "json" };
-import set0P1 from "./card-set-0P1.json" assert { type: "json" };
-import set0P2 from "./card-set-0P2.json" assert { type: "json" };
-import set0P3 from "./card-set-0P3.json" assert { type: "json" };
+import set1 from "./card-set-1.json" assert { type: "json" };
+import set2 from "./card-set-2.json" assert { type: "json" };
+import set3 from "./card-set-3.json" assert { type: "json" };
+import set4 from "./card-set-4.json" assert { type: "json" };
+import set5 from "./card-set-5.json" assert { type: "json" };
+import set6 from "./card-set-6.json" assert { type: "json" };
+import set7 from "./card-set-7.json" assert { type: "json" };
+import set8 from "./card-set-8.json" assert { type: "json" };
+import set9 from "./card-set-9.json" assert { type: "json" };
+import set10 from "./card-set-10.json" assert { type: "json" };
+import set11 from "./card-set-11.json" assert { type: "json" };
+import set12 from "./card-set-12.json" assert { type: "json" };
+import setC1 from "./card-set-C1.json" assert { type: "json" };
+import setC2 from "./card-set-C2.json" assert { type: "json" };
+import setP1 from "./card-set-P1.json" assert { type: "json" };
+import setP2 from "./card-set-P2.json" assert { type: "json" };
+import setP3 from "./card-set-P3.json" assert { type: "json" };
 import setD23 from "./card-set-D23.json" assert { type: "json" };
 
 type RawCard = CardDefinition & { _namedAbilityStubs?: string[] };
@@ -34,23 +34,23 @@ function loadSet(raw: unknown[]): CardDefinition[] {
 }
 
 const cards = [
-  ...loadSet(set001),
-  ...loadSet(set002),
-  ...loadSet(set003),
-  ...loadSet(set004),
-  ...loadSet(set005),
-  ...loadSet(set006),
-  ...loadSet(set007),
-  ...loadSet(set008),
-  ...loadSet(set009),
-  ...loadSet(set010),
-  ...loadSet(set011),
-  ...loadSet(set012),
-  ...loadSet(set0C1),
-  ...loadSet(set0C2),
-  ...loadSet(set0P1),
-  ...loadSet(set0P2),
-  ...loadSet(set0P3),
+  ...loadSet(set1),
+  ...loadSet(set2),
+  ...loadSet(set3),
+  ...loadSet(set4),
+  ...loadSet(set5),
+  ...loadSet(set6),
+  ...loadSet(set7),
+  ...loadSet(set8),
+  ...loadSet(set9),
+  ...loadSet(set10),
+  ...loadSet(set11),
+  ...loadSet(set12),
+  ...loadSet(setC1),
+  ...loadSet(setC2),
+  ...loadSet(setP1),
+  ...loadSet(setP2),
+  ...loadSet(setP3),
   ...loadSet(setD23),
 ];
 

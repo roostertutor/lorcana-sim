@@ -286,7 +286,7 @@ on re-import.
 ### Current Import Status
 | Set | Code | File | Cards | Status |
 |---|---|---|---|---|
-| The First Chapter | 1 | `card-set-001.json` | 216 (204 unique) | ✅ All abilities implemented |
+| The First Chapter | 1 | `card-set-1.json` | 216 (204 unique) | ✅ All abilities implemented |
 | Rise of the Floodborn | 2 | — | — | Not imported |
 | Into the Inklands | 3 | — | — | Not imported |
 | Ursula's Return | 4 | — | — | Not imported |
@@ -298,7 +298,7 @@ on re-import.
 ```bash
 pnpm import-cards --sets 2
 ```
-This creates `card-set-002.json` with keyword abilities auto-parsed and
+This creates `card-set-2.json` with keyword abilities auto-parsed and
 `_namedAbilityStubs` on cards that have non-keyword abilities needing implementation.
 It also regenerates `cardDefinitions.ts` with the new import.
 
@@ -306,7 +306,7 @@ It also regenerates `cardDefinitions.ts` with the new import.
 Run the verification script to see what needs work:
 ```bash
 node -e "
-const cards = JSON.parse(require('fs').readFileSync('packages/engine/src/cards/card-set-002.json', 'utf8'));
+const cards = JSON.parse(require('fs').readFileSync('packages/engine/src/cards/card-set-2.json', 'utf8'));
 const stubs = cards.filter(c => c._namedAbilityStubs?.length > 0);
 console.log(stubs.length + ' cards need ability implementation');
 stubs.forEach(c => console.log('  ' + c.id + ': ' + c._namedAbilityStubs.length + ' abilities'));

@@ -2973,7 +2973,7 @@ function hasHandWiredAbilities(card: CardJSON): boolean {
 
 function applyToSet(setId: string): void {
   const known = loadKnownEngineTypes();
-  const fileName = `card-set-${setId.padStart(3, "0")}.json`;
+  const fileName = `card-set-${setId}.json`;
   const filePath = join(CARDS_DIR, fileName);
   let cards: CardJSON[];
   try {

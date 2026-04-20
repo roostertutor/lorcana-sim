@@ -29,8 +29,7 @@ const OUT_DIR = join(REPO_ROOT, "packages/engine/src/cards");
 const OUT_TS = join(OUT_DIR, "cardDefinitions.ts");
 
 function setJsonPath(setCode: string): string {
-  const padded = setCode.padStart(3, "0");
-  return join(OUT_DIR, `card-set-${padded}.json`);
+  return join(OUT_DIR, `card-set-${setCode}.json`);
 }
 
 const API_URL = "https://www.disneylorcana.com/api/getCardApiData";
@@ -676,10 +675,10 @@ async function main() {
     .filter((f) => f.startsWith("card-set-") && f.endsWith(".json"))
     .map((f) => f.replace(/^card-set-/, "").replace(/\.json$/, ""))
     .sort();
-  const setImports = allSetCodes.map((padded) =>
-    `import set${padded} from "./card-set-${padded}.json" assert { type: "json" };`
+  const setImports = allSetCodes.map((code) =>
+    `import set${code} from "./card-set-${code}.json" assert { type: "json" };`
   );
-  const setSpread = allSetCodes.map((padded) => `  ...loadSet(set${padded}),`);
+  const setSpread = allSetCodes.map((code) => `  ...loadSet(set${code}),`);
 
   const tsModule = `// =============================================================================
 // CARD DEFINITIONS — loads per-set JSON files and merges them.
