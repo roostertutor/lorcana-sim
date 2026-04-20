@@ -1363,6 +1363,59 @@ describe("§11 Set 11 — Let's Get Dangerous (action: each player reveals + may
   // instead of `matchIsMay: true` — engine auto-played the revealed character
   // without asking. Also previously dropped player2's reveal when player1's
   // matchIsMay created a pendingChoice.
+  it("revealed Bodyguard character (Smee) still gets enter-exerted may-prompt via Let's Get Dangerous", () => {
+    // Regression: applyRevealMatchAction previously called zoneTransition
+    // directly without applyEnterPlayExertion, so Bodyguard's enter-trigger
+    // was silently skipped for characters played via reveal-and-play paths
+    // (Let's Get Dangerous, Simba TIMELY ALLIANCE, Mufasa, Sisu repeats).
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let songId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "lets-get-dangerous", "hand"));
+    let smeeId: string, p2TopId: string;
+    ({ state, instanceId: smeeId } = injectCard(state, "player1", "goofy-musketeer", "deck"));
+    ({ state, instanceId: p2TopId } = injectCard(state, "player2", "mickey-mouse-true-friend", "deck"));
+    void p2TopId;
+    // Hoist to deck top (injectCard appends to bottom).
+    state = {
+      ...state,
+      zones: {
+        ...state.zones,
+        player1: { ...state.zones.player1, deck: [smeeId, ...state.zones.player1.deck.filter((id) => id !== smeeId)] },
+        player2: { ...state.zones.player2, deck: [p2TopId, ...state.zones.player2.deck.filter((id) => id !== p2TopId)] },
+      },
+    };
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Accept player1's may-play (Smee).
+    expect(state.pendingChoice?.type).toBe("choose_may");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: state.pendingChoice!.choosingPlayerId, choice: "accept" }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Smee should be in play.
+    expect(getInstance(state, smeeId).zone).toBe("play");
+
+    // Walk pending choices until we either hit Smee's Bodyguard prompt or
+    // exhaust them. Bug repros as: NEVER seeing Smee's Bodyguard prompt
+    // (it was silently skipped). Player2's may-play for Mickey may surface
+    // first; decline it and continue.
+    let sawBodyguardPrompt = false;
+    let safety = 5;
+    while (state.pendingChoice && safety-- > 0) {
+      if (state.pendingChoice.sourceInstanceId === smeeId) {
+        sawBodyguardPrompt = true;
+        break;
+      }
+      r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: state.pendingChoice.choosingPlayerId, choice: "decline" }, CARD_DEFINITIONS);
+      expect(r.success).toBe(true);
+      state = r.newState;
+    }
+    expect(sawBodyguardPrompt).toBe(true);
+  });
+
   it("matchIsMay surfaces a per-player may-prompt after the reveal", () => {
     let state = startGame();
     state = giveInk(state, "player1", 10);

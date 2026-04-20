@@ -5582,6 +5582,13 @@ function applyRevealMatchAction(
       } else if (config.matchEnterExerted && (topDef.cardType === "item" || topDef.cardType === "location")) {
         state = updateInstance(state, revealedInstanceId, { isExerted: true });
       }
+      // Mirror applyPlayCard: queue Bodyguard's may-enter-exerted trigger and
+      // any enter_play_exerted_self / EnterPlayExertedStatic modifiers. Without
+      // this, characters played via reveal-and-play (Let's Get Dangerous,
+      // Simba TIMELY ALLIANCE, Mufasa, Sisu repeats) silently skipped Bodyguard.
+      if (topDef.cardType === "character" || topDef.cardType === "item" || topDef.cardType === "location") {
+        state = applyEnterPlayExertion(state, revealedInstanceId, targetPlayer, definitions);
+      }
       if (topDef.cardType === "action" && topDef.actionEffects) {
         for (const ae of topDef.actionEffects) {
           state = applyEffect(state, ae, revealedInstanceId, targetPlayer, definitions, events);
