@@ -125,6 +125,16 @@ interface CardDefinitionOut {
   foilImageUrl?: string;
   actionEffects?: object[];
   _namedAbilityStubs?: AbilityStub[];
+  _source?: "ravensburger" | "lorcast" | "manual";
+  _sourceLock?: boolean;
+}
+
+type CardSource = NonNullable<CardDefinitionOut["_source"]>;
+const SOURCE_TIER: Record<CardSource, number> = { manual: 0, lorcast: 1, ravensburger: 2 };
+function sourceTier(s: CardSource | undefined): number {
+  // Missing _source on pre-existing cards is treated as ravensburger (the
+  // historical default) — a Lorcast or manual pull must not overwrite them.
+  return SOURCE_TIER[s ?? "ravensburger"];
 }
 
 type SingleInkColor = CardDefinitionOut["inkColors"][number];
@@ -409,6 +419,7 @@ function mapCard(c: RavCard): CardDefinitionOut | null {
     setId: id.setId,
     number: id.number,
     rarity: mapRarity(c.rarity),
+    _source: "ravensburger",
   };
 
   if (c.subtitle) out.subtitle = c.subtitle;
@@ -460,9 +471,9 @@ function normName(s: string): string {
     .replace(/[^a-z0-9]/g, "");
 }
 
-function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { preserved: number; keywordsRescued: number; reslugged: number; carriedOver: number } {
+function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { preserved: number; keywordsRescued: number; reslugged: number; carriedOver: number; manualReplaced: number; sourceSkipped: number } {
   const outPath = setJsonPath(setCode);
-  if (!existsSync(outPath)) return { preserved: 0, keywordsRescued: 0, reslugged: 0, carriedOver: 0 };
+  if (!existsSync(outPath)) return { preserved: 0, keywordsRescued: 0, reslugged: 0, carriedOver: 0, manualReplaced: 0, sourceSkipped: 0 };
 
   const existing: CardDefinitionOut[] = JSON.parse(readFileSync(outPath, "utf-8"));
   const existingById = new Map(existing.map((c) => [c.id, c]));
@@ -471,18 +482,54 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { pr
   const existingByNormName = new Map(
     existing.map((c) => [`${c.number}|${normName(c.fullName)}`, c])
   );
+  // Last-resort fallback for manual entries ONLY: number alone within the set.
+  // Manual entries may have a totally-wrong guessed name/subtitle (the user
+  // added a card pre-reveal); when Ravensburger publishes, we want to replace
+  // the manual guess even though the slug + fullName don't match. Restricted
+  // to _source:"manual" so a legitimate slug rename on a ravensburger entry
+  // doesn't incorrectly collide with another card at the same number.
+  const manualByNumber = new Map<number, CardDefinitionOut>();
+  for (const c of existing) {
+    if (c._source === "manual") manualByNumber.set(c.number, c);
+  }
   let preserved = 0;
   let keywordsRescued = 0;
   let reslugged = 0;
+  let manualReplaced = 0;
+  let sourceSkipped = 0;
 
-  for (const card of newCards) {
+  for (let i = 0; i < newCards.length; i++) {
+    const card = newCards[i]!;
     let prev = existingById.get(card.id);
     if (!prev) {
       // Slug changed across re-import — match by number + normalized name.
       prev = existingByNormName.get(`${card.number}|${normName(card.fullName)}`);
       if (prev) reslugged++;
     }
+    if (!prev) {
+      // Last resort: match a pre-reveal manual entry by number alone.
+      prev = manualByNumber.get(card.number);
+      if (prev) manualReplaced++;
+    }
     if (!prev) continue;
+
+    // Hard lock: if the existing entry is _sourceLock: true, NO importer
+    // overwrites it regardless of tier. Used for cards where Ravensburger's
+    // data is wrong (e.g. The Bayou's ability name). Swap prev into newCards
+    // so the written JSON keeps the locked data.
+    if (prev._sourceLock) {
+      newCards[i] = prev;
+      sourceSkipped++;
+      continue;
+    }
+    // Hierarchy check: ravensburger > lorcast > manual. Never downgrade.
+    // (Irrelevant here since mapCard always stamps ravensburger, but the
+    // Lorcast importer shares this merge util and must honor the tier.)
+    if (sourceTier(card._source) < sourceTier(prev._source)) {
+      newCards[i] = prev;
+      sourceSkipped++;
+      continue;
+    }
 
     // 1. Preserve manually-added abilities (non-keyword: triggered, activated, static)
     const manualAbilities = prev.abilities.filter((a) => a.type !== "keyword");
@@ -554,7 +601,7 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { pr
     carriedOver++;
   }
 
-  return { preserved, keywordsRescued, reslugged, carriedOver };
+  return { preserved, keywordsRescued, reslugged, carriedOver, manualReplaced, sourceSkipped };
 }
 
 // =============================================================================
@@ -652,12 +699,14 @@ async function main() {
 
   for (const [setCode, setCards] of cardsBySet) {
     const outPath = setJsonPath(setCode);
-    const { preserved, keywordsRescued, reslugged, carriedOver } = mergeWithExisting(setCode, setCards);
-    if (preserved > 0 || keywordsRescued > 0 || reslugged > 0 || carriedOver > 0) {
+    const { preserved, keywordsRescued, reslugged, carriedOver, manualReplaced, sourceSkipped } = mergeWithExisting(setCode, setCards);
+    if (preserved > 0 || keywordsRescued > 0 || reslugged > 0 || carriedOver > 0 || manualReplaced > 0 || sourceSkipped > 0) {
       console.log(`  Preserved manual abilities on ${preserved} card(s) in set ${setCode}` +
         (keywordsRescued > 0 ? `; rescued ${keywordsRescued} keyword field(s)` : "") +
         (reslugged > 0 ? `; ${reslugged} card(s) matched via renamed slug` : "") +
-        (carriedOver > 0 ? `; carried over ${carriedOver} card(s) not in this batch` : "") + ".");
+        (carriedOver > 0 ? `; carried over ${carriedOver} card(s) not in this batch` : "") +
+        (manualReplaced > 0 ? `; replaced ${manualReplaced} manual pre-reveal entry/entries` : "") +
+        (sourceSkipped > 0 ? `; skipped ${sourceSkipped} card(s) (lower-tier source would downgrade existing data)` : "") + ".");
     }
     // Derive maxCopies from any deck_rule abilities now that manually-wired
     // abilities have been merged back in. Cards without a deck_rule ability

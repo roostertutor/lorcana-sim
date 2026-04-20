@@ -10,6 +10,75 @@ Conventions:
 
 ---
 
+## GUI agent: build `/dev/add-card` form + null-image placeholder
+
+Backend is ready; UI is the remaining half. Use case: user wants to hand-enter
+pre-release cards before Ravensburger or Lorcast publishes them, then re-imports
+later automatically upgrade the entry via the `_source` hierarchy (ravensburger >
+lorcast > manual).
+
+**Scope for this agent (UI only, no engine/card-JSON edits):**
+
+1. **New dev route** `/dev/add-card` in `packages/ui/src/App.tsx` (follow the
+   existing dev-route pattern at lines 301-307 — URL-only, no tab nav).
+2. **React form** with fields matching the POST body schema (see API contract
+   below). Client-side validation should mirror server-side. Live card preview
+   next to the form as the user types.
+3. **Card image placeholder** — update `packages/ui/src/components/CardTile.tsx`
+   and `packages/ui/src/components/CardInspectModal.tsx` to render a nicer
+   placeholder when `def.imageUrl` is falsy (currently empty div/text). Ideally
+   show: card frame, name, cost, ink color, rarity — enough to identify the
+   card while waiting for the real image.
+
+**API contract (already live, test from UI with `fetch`):**
+
+- `GET /api/dev/list-sets` → `{ sets: string[] }` — list of existing setIds.
+- `POST /api/dev/add-card` with JSON body:
+  ```ts
+  {
+    card: {
+      name: string;                    // required
+      subtitle?: string;
+      cardType: "character"|"action"|"item"|"location";  // required
+      inkColors: ("amber"|"amethyst"|"emerald"|"ruby"|"sapphire"|"steel")[]; // required, non-empty
+      cost: number;                    // required, >= 0
+      inkable: boolean;                // required
+      traits?: string[];
+      strength?: number;               // required for characters
+      willpower?: number;              // required for characters
+      lore?: number;                   // required for characters
+      shiftCost?: number;
+      moveCost?: number;
+      rulesText?: string;
+      flavorText?: string;
+      setId: string;                   // required (e.g. "12", "P1", "DIS")
+      number: number;                  // required, >= 0
+      rarity: "common"|"uncommon"|"rare"|"super_rare"|"legendary"|"enchanted"|"special"|"iconic"|"epic";
+      imageUrl?: string;               // optional — leave empty for placeholder
+      abilities?: [];                  // leave empty, wired manually in JSON
+    },
+    overwrite?: boolean  // set true to replace an existing card at same (setId,number) or id
+  }
+  ```
+  Response codes:
+  - `200 { ok: true, path, card }` — written successfully
+  - `400 { error: "validation failed", details: string[] }` — field errors
+  - `409 { error: "collision" | "source-locked" | "would-downgrade", existing }`
+    — collision (requires overwrite flag) or higher-tier entry can't be replaced
+
+**Reference patterns in the repo:**
+- `packages/ui/src/components/SandboxPanel.tsx:40-100` — existing card-injector
+  form pattern (in-memory only, doesn't POST). Useful reference for search +
+  form UX.
+- `packages/ui/src/components/CardTile.tsx:37,54-68` — current imageUrl fallback
+- `packages/ui/src/components/CardInspectModal.tsx:86-97` — current placeholder div
+
+**Do not** edit card JSONs, engine types, or the importers — those are done
+this session. The middleware at `packages/ui/vite-plugins/dev-card-writer.ts`
+handles all card-JSON writes; the UI's only job is to POST valid data.
+
+---
+
 ## Card data: Ravensburger API migration landed (main sets 1-12)
 
 `scripts/import-cards-rav.ts` is the new importer for main sets (1-12). Fetches

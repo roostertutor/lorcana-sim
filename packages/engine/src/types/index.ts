@@ -2819,6 +2819,19 @@ export interface CardDefinition {
    *  `variants[]`. Needed by the deckbuilder so users can pick e.g. the set 1
    *  vs set 8 art of a common reprint; `variants[]` alone collapses those. */
   printings?: CardVariant[];
+  /** Provenance of this card's data. Importers stamp this on write and merge
+   *  logic refuses to downgrade (ravensburger > lorcast > manual). Missing is
+   *  treated as "ravensburger" for pre-field-introduction back-compat.
+   *    - "ravensburger" — from `pnpm import-cards` (official API, main sets + promos)
+   *    - "lorcast"      — from `pnpm import-cards --source lorcast` (Quest / FotA gaps)
+   *    - "manual"       — hand-entered via /dev/add-card for cards no API publishes yet */
+  _source?: "ravensburger" | "lorcast" | "manual";
+  /** Pin this card's _source regardless of importer tier. When true, NO importer
+   *  overwrites this entry — even if a higher-tier source would. For cards where
+   *  Ravensburger's data is wrong and a lower-tier source has the correct data
+   *  (e.g. The Bayou's ability name, where Lorcast/printed card disagree with
+   *  Ravensburger). Set manually after verifying the data is correct. */
+  _sourceLock?: boolean;
 }
 
 /** Visual-printing classes. Deckbuilder picker shows one chip per distinct

@@ -14,6 +14,8 @@
     "query": "pnpm --filter cli query",
     "learn": "pnpm --filter cli learn",
     "import-cards": "tsx scripts/import-cards-rav.ts",
+    "import-cards-lorcast": "tsx scripts/import-cards-lorcast.ts",
+    "backfill-source-manual": "tsx scripts/backfill-source-manual.ts",
     "audit-cards": "tsx scripts/audit-card-data.ts",
     "catalog": "tsx scripts/catalog-primitives.ts > docs/ENGINE_PRIMITIVES.md",
     "decompile-cards": "tsx scripts/decompile-cards.ts",
