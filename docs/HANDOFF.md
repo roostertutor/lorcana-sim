@@ -438,38 +438,6 @@ cycle-on-click for a compact popover menu:
 No engine changes — same `DeckEntry.variant` model. Pure UI refactor
 in `DeckBuilder.DeckRow`.
 
-## Engine: variant collapse loses cross-main-set reprints with new art
-
-The current variant build logic in `buildDefinitions.ts` classifies each
-printing into one of 6 types (regular / enchanted / iconic / epic /
-promo / special) and keeps **one variant per type, most-recent setId
-winning ties**. This loses art when a card is reprinted in a newer main
-set with different art at the same rarity.
-
-Verified examples in the card data:
-- `captain-hook-forceful-duelist` — common in set 1 (#174) AND common
-  in set 8 (#186), different art. Classified as `regular` in both →
-  only set 8 art survives in `def.variants`. Set 1 art is dropped.
-- `ursula-sea-witch` — regular rarity in both set 3 and set 9 with
-  different art. Only set 9 survives.
-
-Likely more across sets 1/5 vs reprints in 8+.
-
-**Fix options** (engine-side):
-1. Allow multiple `regular` variants keyed by setId/number — change
-   the bucketing key from `type` to `type + setId`.
-2. Introduce a `reprint` CardVariantType for older same-rarity reprints.
-3. Store all printings on the CardDefinition as a flat `printings[]`
-   array and derive variant display groupings at the UI layer.
-
-**UI hook-up**: once the engine preserves both art options, the
-deckbuilder's variant picker (DeckBuilder.DeckRow + DeckEntry.variant)
-needs to distinguish "regular set 1" vs "regular set 8". Labels will
-need set identifiers — `Reg 1` / `Reg 8` or similar.
-
-Noted during the GUI session that added the deck-row variant cycler.
-No UI-side fix possible until the engine model distinguishes them.
-
 ## Deckbuilder: Core-vs-Infinity format legality
 
 Multiplayer already tracks `game_format: "core" | "infinity"` on lobbies +
@@ -491,9 +459,10 @@ tiles currently don't indicate whether a deck can be played in Core.
   in the Core set range. Example: `captain-hook-forceful-duelist` was
   printed in set 1 (out of Core) AND set 8 (in Core) — the card is
   Core-legal because the set 8 printing exists. The user can even play
-  their physical set 1 copy; the card (by definitionId) is legal. This
-  ties directly into the "variant collapse" bug above — until variants
-  preserve all printings, the legality check can't inspect them all.
+  their physical set 1 copy; the card (by definitionId) is legal.
+  `CardDefinition.printings[]` (landed with the variant-collapse fix)
+  is the source for this check — iterate every printing's setId against
+  `CORE_LEGAL_SETS`.
 
 **What's needed:**
 1. Engine: export format config as typed constants, e.g.:
@@ -509,9 +478,9 @@ tiles currently don't indicate whether a deck can be played in Core.
    For each entry:
    - If format === "infinity": only check the INFINITY_BANLIST.
    - If format === "core": card is legal iff (a) NOT in CORE_BANLIST
-     AND (b) at least one of its printings (canonical `setId` or any
-     variant's `setId`) is in `CORE_LEGAL_SETS`. This is the reprint
-     check — needs the variant-collapse bug fixed to be correct.
+     AND (b) at least one of its printings (iterate `def.printings[]`
+     — falls back to canonical `setId` + `variants[]` for cards that
+     have only one printing) is in `CORE_LEGAL_SETS`.
 3. UI (GUI agent lane):
    - Per-deck `format` field stored on `decks` table (new column,
      `"core" | "infinity"` with **`"core"` default** — most new decks
