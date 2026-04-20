@@ -50,6 +50,42 @@ export function deckInkColors(
   return INK_ORDER.filter((c) => present.has(c));
 }
 
+// ─── Search matching ────────────────────────────────────────────────────
+// Both the inline DeckBuilder "Add a card" autocomplete and the
+// CardPicker browser feed queries through this matcher so they behave
+// consistently. Searches against: fullName, traits[], def.rulesText,
+// and each ability's storyName + rulesText. Returns a sortable score
+// (higher = better match, -1 = no match) so results rank predictably
+// (name-prefix > name-contains > trait > ability name > rules text).
+
+/** Return a match score for `def` against query `q`. -1 = no match.
+ *  Higher = better. Use for filter + sort. */
+export function cardMatchScore(def: CardDefinition, q: string): number {
+  const query = q.trim().toLowerCase();
+  if (!query) return 0;
+  const name = def.fullName.toLowerCase();
+  if (name.startsWith(query)) return 1000 - def.fullName.length;
+  if (name.includes(query)) return 500 - def.fullName.length;
+  for (const t of def.traits) {
+    if (t.toLowerCase().includes(query)) return 300;
+  }
+  // Abilities: storyName (the BOLD ability name on the card) scores
+  // higher than rulesText so "smooth the way" finds Grandmother Willow
+  // by the ability name before it surfaces every card that says
+  // "smooth" in a rules paragraph.
+  for (const a of def.abilities) {
+    const storyName = (a as { storyName?: string }).storyName;
+    if (storyName && storyName.toLowerCase().includes(query)) return 200;
+  }
+  const defRules = (def.rulesText ?? "").toLowerCase();
+  if (defRules.includes(query)) return 100;
+  for (const a of def.abilities) {
+    const rulesText = (a as { rulesText?: string }).rulesText;
+    if (rulesText && rulesText.toLowerCase().includes(query)) return 100;
+  }
+  return -1;
+}
+
 /** Apply persisted variant choices from a card_metadata map onto parsed
  *  DeckEntry[]. decklist_text is intentionally vanilla for external-tool
  *  interop (Inkable, Dreamborn, etc.), so variants live in the sibling

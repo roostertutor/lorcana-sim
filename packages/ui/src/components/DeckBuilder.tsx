@@ -8,7 +8,7 @@ import React, { useState, useMemo, useRef, useEffect } from "react";
 import { toPng } from "html-to-image";
 import type { CardDefinition, DeckEntry, InkColor, CardVariantType } from "@lorcana-sim/engine";
 import { parseDecklist, serializeDecklist } from "@lorcana-sim/engine";
-import { getMaxCopies, formatVariantKey, resolvePrinting, printingLabels } from "../utils/deckRules.js";
+import { getMaxCopies, formatVariantKey, resolvePrinting, printingLabels, cardMatchScore } from "../utils/deckRules.js";
 import DeckExportPanel from "./DeckExportPanel.js";
 
 const INK_COLOR_CLASS: Record<string, string> = {
@@ -90,19 +90,18 @@ export default function DeckBuilder({ entries, definitions, onChange, deckName =
   const totalCards = entries.reduce((s, e) => s + e.count, 0);
 
   // ── Search results for add-card ──
+  // Uses the shared cardMatchScore so "draw" surfaces every card whose
+  // rules text mentions drawing, not just cards with "draw" in the name.
   const searchResults = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = query.trim();
     if (!q) return [];
-    return Object.values(definitions)
-      .filter((d) => d.fullName.toLowerCase().includes(q))
-      .sort((a, b) => {
-        // Exact prefix match first, then shorter names (more relevant)
-        const aStart = a.fullName.toLowerCase().startsWith(q) ? 0 : 1;
-        const bStart = b.fullName.toLowerCase().startsWith(q) ? 0 : 1;
-        if (aStart !== bStart) return aStart - bStart;
-        return a.fullName.length - b.fullName.length;
-      })
-      .slice(0, 10);
+    const scored: Array<{ d: CardDefinition; score: number }> = [];
+    for (const d of Object.values(definitions)) {
+      const score = cardMatchScore(d, q);
+      if (score >= 0) scored.push({ d, score });
+    }
+    scored.sort((a, b) => b.score - a.score);
+    return scored.slice(0, 10).map((r) => r.d);
   }, [query, definitions]);
 
   useEffect(() => { setHighlightedIdx(0); }, [query]);

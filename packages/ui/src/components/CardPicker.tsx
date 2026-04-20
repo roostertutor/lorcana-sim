@@ -9,7 +9,7 @@ import React from "react";
 import type { CardDefinition, DeckEntry, InkColor } from "@lorcana-sim/engine";
 import CardTile from "./CardTile.js";
 import CardFilterBar, { EMPTY_FILTERS, type CardFilters, type CostBucket, hasAnyFilter } from "./CardFilterBar.js";
-import { getMaxCopies, countById } from "../utils/deckRules.js";
+import { getMaxCopies, countById, cardMatchScore } from "../utils/deckRules.js";
 
 interface Props {
   entries: DeckEntry[];
@@ -34,18 +34,21 @@ export default function CardPicker({ entries, definitions, onChange }: Props) {
     return Array.from(set).sort();
   }, [definitions]);
 
-  // Filtered + sorted card list. Sort by (setId asc, number asc).
+  // Filtered + sorted card list. When a query is active, sort by match
+  // score (shared with the DeckBuilder inline autocomplete) so "draw"
+  // surfaces draw-effects from rules text, not just name hits. With no
+  // query, fall back to setId → number for a stable catalog order.
   const visibleCards = React.useMemo(() => {
-    const q = filters.query.trim().toLowerCase();
+    const q = filters.query.trim();
+    const hasQuery = q.length > 0;
     const hasCostFilter = filters.costs.size > 0;
     const hasInkFilter = filters.inks.size > 0;
     const hasTypeFilter = filters.types.size > 0;
     const hasRarityFilter = filters.rarities.size > 0;
     const hasTraitFilter = filters.traits.size > 0;
 
-    const result: CardDefinition[] = [];
+    const result: Array<{ def: CardDefinition; score: number }> = [];
     for (const def of Object.values(definitions)) {
-      if (q && !def.fullName.toLowerCase().includes(q)) continue;
       if (hasCostFilter) {
         const bucket: CostBucket = (def.cost >= 8 ? 8 : Math.max(1, def.cost)) as CostBucket;
         if (!filters.costs.has(bucket)) continue;
@@ -53,7 +56,6 @@ export default function CardPicker({ entries, definitions, onChange }: Props) {
       if (hasInkFilter && !def.inkColors.some((c: InkColor) => filters.inks.has(c))) continue;
       if (hasTypeFilter && !filters.types.has(def.cardType)) continue;
       if (hasRarityFilter && !filters.rarities.has(def.rarity)) continue;
-      // Trait filter: card must have ALL selected traits (AND-within-category).
       if (hasTraitFilter) {
         let allMatch = true;
         for (const t of filters.traits) {
@@ -61,14 +63,23 @@ export default function CardPicker({ entries, definitions, onChange }: Props) {
         }
         if (!allMatch) continue;
       }
-      result.push(def);
+      let score = 0;
+      if (hasQuery) {
+        score = cardMatchScore(def, q);
+        if (score < 0) continue;
+      }
+      result.push({ def, score });
     }
-    result.sort((a, b) => {
-      const setDiff = a.setId.localeCompare(b.setId);
-      if (setDiff !== 0) return setDiff;
-      return a.number - b.number;
-    });
-    return result;
+    if (hasQuery) {
+      result.sort((a, b) => b.score - a.score);
+    } else {
+      result.sort((a, b) => {
+        const setDiff = a.def.setId.localeCompare(b.def.setId);
+        if (setDiff !== 0) return setDiff;
+        return a.def.number - b.def.number;
+      });
+    }
+    return result.map((r) => r.def);
   }, [definitions, filters]);
 
   function setCardQty(def: CardDefinition, newQty: number) {
