@@ -580,6 +580,46 @@
     ]
   },
   {
+    "id": "isabela-madrigal-such-a-lovely-voice",
+    "name": "Isabela Madrigal",
+    "fullName": "Isabela Madrigal - Such a Lovely Voice",
+    "cardType": "character",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally",
+      "Madrigal"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "singer",
+        "value": 5
+      }
+    ],
+    "setId": "12",
+    "number": 16,
+    "rarity": "uncommon",
+    "_source": "lorcast",
+    "subtitle": "Such a Lovely Voice",
+    "strength": 3,
+    "willpower": 3,
+    "lore": 1,
+    "rulesText": "<Singer> 5 (This character counts as cost 5 to sing songs.)\nNEW MOTIF When you play this character, if you removed 1 or more damage from one of your characters this turn, gain 1 lore.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_80d82e7c2bda4d8da137d7a85a19d78f.avif?1776301642",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "NEW MOTIF",
+        "rulesText": "When you play this character, if you removed 1 or more damage from one of your characters this turn, gain 1 lore.",
+        "raw": "NEW MOTIF When you play this character, if you removed 1 or more damage from one of your characters this turn, gain 1 lore."
+      }
+    ]
+  },
+  {
     "id": "bullseye-loyal-horse",
     "name": "Bullseye",
     "fullName": "Bullseye - Loyal Horse",
@@ -703,6 +743,47 @@
         "storyName": "FAMILIAR GROUND",
         "rulesText": "Whenever this character quests, if you played another character this turn, chosen opposing character can’t challenge and must quest during their next turn if able.",
         "raw": "FAMILIAR GROUND Whenever this character quests, if you played another character this turn, chosen opposing character can’t challenge and must quest during their next turn if able."
+      }
+    ]
+  },
+  {
+    "id": "isabela-madrigal-caring-cultivator",
+    "name": "Isabela Madrigal",
+    "fullName": "Isabela Madrigal - Caring Cultivator",
+    "cardType": "character",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 6,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Ally",
+      "Madrigal"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      }
+    ],
+    "setId": "12",
+    "number": 19,
+    "rarity": "rare",
+    "_source": "lorcast",
+    "subtitle": "Caring Cultivator",
+    "strength": 4,
+    "willpower": 5,
+    "lore": 2,
+    "shiftCost": 4,
+    "rulesText": "<Shift> 4 {I} (You may pay 4 {I} to play this on top of one of your characters named Isabela Madrigal.)\nDO NO WRONG Whenever you remove damage from one of your characters, gain 1 lore for each 1 damage removed.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_36cd916ef6924852970d3b63c2666f74.avif?1776301662",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "DO NO WRONG",
+        "rulesText": "Whenever you remove damage from one of your characters, gain 1 lore for each 1 damage removed.",
+        "raw": "DO NO WRONG Whenever you remove damage from one of your characters, gain 1 lore for each 1 damage removed."
       }
     ]
   },
@@ -1025,6 +1106,27 @@
     "flavorText": "\"Come on, Dale. You look fine! I've got a plan that you'll be perfect for!\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/27_61e610b0c99d431b50ff418db3cc8bd0e76373bb.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/27_61e610b0c99d431b50ff418db3cc8bd0e76373bb.jpg"
+  },
+  {
+    "id": "this-growing-pressure",
+    "name": "This Growing Pressure",
+    "fullName": "This Growing Pressure",
+    "cardType": "action",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Song"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 29,
+    "rarity": "common",
+    "_source": "lorcast",
+    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nChosen opposing character can’t challenge and must quest during their next turn if able. Draw a card.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_aef0af5d54a84b1dadfd6351fbec3a01.avif?1776477670"
   },
   {
     "id": "metamorphosis",
@@ -1535,6 +1637,40 @@
         "storyName": "DEFLECT",
         "rulesText": "When you play this character, you may move 1 damage from chosen character to chosen opposing character.",
         "raw": "DEFLECT When you play this character, you may move 1 damage from chosen character to chosen opposing character."
+      }
+    ]
+  },
+  {
+    "id": "mrs-incredible-super-stretchy",
+    "name": "Mrs. Incredible",
+    "fullName": "Mrs. Incredible - Super Stretchy",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Super",
+      "Hero"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 49,
+    "rarity": "rare",
+    "_source": "lorcast",
+    "subtitle": "Super Stretchy",
+    "strength": 5,
+    "willpower": 6,
+    "lore": 1,
+    "rulesText": "FLEXIBLE THINKING At the start of your turn, you may choose one:\n• This character gains Evasive until the start of your next turn. (Only characters with Evasive can challenge them.)\n• This character gets +1 {L} this turn.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a7974610679d43d190ee370d23d6e0b3.avif?1776301692",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "FLEXIBLE THINKING",
+        "rulesText": "At the start of your turn, you may choose one:",
+        "raw": "FLEXIBLE THINKING At the start of your turn, you may choose one:"
       }
     ]
   },
@@ -2704,6 +2840,42 @@
     ]
   },
   {
+    "id": "the-queen-evil-ruler",
+    "name": "The Queen",
+    "fullName": "The Queen - Evil Ruler",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 1,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Villain",
+      "Queen",
+      "Sorcerer"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 75,
+    "rarity": "common",
+    "_source": "lorcast",
+    "subtitle": "Evil Ruler",
+    "strength": 2,
+    "willpower": 1,
+    "lore": 1,
+    "rulesText": "UNEQUALED CRUELTY While an opposing damaged character is in play, this character gets +2 {S}.",
+    "flavorText": "\"With such a gift to further the Council's goals, soon all will tremble before my power.\"",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_5f3231b198754189915b51adbdda3f7c.avif?1776301717",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "UNEQUALED CRUELTY",
+        "rulesText": "While an opposing damaged character is in play, this character gets +2 {S}.",
+        "raw": "UNEQUALED CRUELTY While an opposing damaged character is in play, this character gets +2 {S}."
+      }
+    ]
+  },
+  {
     "id": "rc-remote-controlled-car",
     "name": "RC",
     "fullName": "RC - Remote-Controlled Car",
@@ -3019,6 +3191,46 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/81_c59fe181e5f0890093e2449d49a6c8d74141751c.jpg"
   },
   {
+    "id": "alien-true-believer",
+    "name": "Alien",
+    "fullName": "Alien - True Believer",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 1,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally",
+      "Alien",
+      "Toy"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 83,
+    "rarity": "rare",
+    "_source": "lorcast",
+    "subtitle": "True Believer",
+    "strength": 1,
+    "willpower": 1,
+    "lore": 1,
+    "rulesText": "WE ARE ONE This character gets +1 {S} for each other Toy character you have in play.\nHE HAS BEEN CHOSEN During your turn, when this character is banished, return another character card named Alien from your discard to your hand.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_60542d49d8af40b1ada4fae11343fe06.avif?1776393475",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "WE ARE ONE",
+        "rulesText": "This character gets +1 {S} for each other Toy character you have in play.",
+        "raw": "WE ARE ONE This character gets +1 {S} for each other Toy character you have in play."
+      },
+      {
+        "storyName": "HE HAS BEEN CHOSEN",
+        "rulesText": "During your turn, when this character is banished, return another character card named Alien from your discard to your hand.",
+        "raw": "HE HAS BEEN CHOSEN During your turn, when this character is banished, return another character card named Alien from your discard to your hand."
+      }
+    ]
+  },
+  {
     "id": "donald-duck-distracted-traveler",
     "name": "Donald Duck",
     "fullName": "Donald Duck - Distracted Traveler",
@@ -3084,6 +3296,46 @@
         "storyName": "BURNING CURIOSITY",
         "rulesText": "Whenever this character quests, if you played another character this turn, each opponent chooses and discards a card.",
         "raw": "BURNING CURIOSITY Whenever this character quests, if you played another character this turn, each opponent chooses and discards a card."
+      }
+    ]
+  },
+  {
+    "id": "buzz-lightyear-on-the-way",
+    "name": "Buzz Lightyear",
+    "fullName": "Buzz Lightyear - On the Way",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero",
+      "Toy",
+      "Captain"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 85,
+    "rarity": "rare",
+    "_source": "lorcast",
+    "subtitle": "On the Way",
+    "strength": 4,
+    "willpower": 2,
+    "lore": 1,
+    "rulesText": "SECRET MISSION Whenever you pay 2 {I} or less to play a non-character, draw a card, then choose and discard a card.\nWORLD’S GREATEST TOY Whenever you pay 2 {I} or less to play a character, deal 1 damage to chosen opposing damaged character.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_e2c38bf30c48489f914581f55acd67fb.avif?1776301723",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "SECRET MISSION",
+        "rulesText": "Whenever you pay 2 {I} or less to play a non-character, draw a card, then choose and discard a card.",
+        "raw": "SECRET MISSION Whenever you pay 2 {I} or less to play a non-character, draw a card, then choose and discard a card."
+      },
+      {
+        "storyName": "WORLD'S GREATEST TOY",
+        "rulesText": "Whenever you pay 2 {I} or less to play a character, deal 1 damage to chosen opposing damaged character.",
+        "raw": "WORLD'S GREATEST TOY Whenever you pay 2 {I} or less to play a character, deal 1 damage to chosen opposing damaged character."
       }
     ]
   },
@@ -3656,6 +3908,33 @@
     "rulesText": "Chosen opponent chooses 3 of their characters and returns one of those cards to their hand, puts one on the bottom of their deck, and puts one on the top of their deck.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/97_e6522d16f30211644ba3436d476751e6f825641d.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/97_e6522d16f30211644ba3436d476751e6f825641d.jpg"
+  },
+  {
+    "id": "the-claw",
+    "name": "The Claw",
+    "fullName": "The Claw",
+    "cardType": "item",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 4,
+    "inkable": false,
+    "traits": [],
+    "abilities": [],
+    "setId": "12",
+    "number": 99,
+    "rarity": "rare",
+    "_source": "lorcast",
+    "rulesText": "THE CLAW CHOOSES {E}, 2 {I}, Banish one of your characters - Return chosen opposing character to their player’s hand.",
+    "flavorText": "\"Trust in the Claw. It shall lift us from this terrible place!\"\n- Alien",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_559113fd213144ec805c27797d7376ef.avif?1776393489",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "THE CLAW CHOOSES",
+        "rulesText": "{E}, 2 {I}, Banish one of your characters - Return chosen opposing character to their player’s hand.",
+        "raw": "THE CLAW CHOOSES {E}, 2 {I}, Banish one of your characters - Return chosen opposing character to their player’s hand."
+      }
+    ]
   },
   {
     "id": "gyro-evac",
@@ -4600,6 +4879,40 @@
         "storyName": "REPURPOSED",
         "rulesText": "When you play this character, put all Toy character cards from your discard on the bottom of your deck in any order.",
         "raw": "REPURPOSED When you play this character, put all Toy character cards from your discard on the bottom of your deck in any order."
+      }
+    ]
+  },
+  {
+    "id": "jack-jack-parr-incredible-potential",
+    "name": "Jack-jack Parr",
+    "fullName": "Jack-jack Parr - Incredible Potential",
+    "cardType": "character",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Super",
+      "Hero"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 121,
+    "rarity": "super_rare",
+    "_source": "lorcast",
+    "subtitle": "Incredible Potential",
+    "strength": 4,
+    "willpower": 4,
+    "lore": 1,
+    "rulesText": "WEIRD THINGS ARE HAPPENING At the start of your turn, you may put the top card of your deck into your discard.\nIf its card type is:\n• character, this character gets +2 {S} this turn.\n• action or item, this character gets +2 {L} this turn.\n• location, banish chosen character.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7f47cc5a26eb4220a9622e8ee83c528d.avif?1776301748",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "WEIRD THINGS ARE HAPPENING",
+        "rulesText": "At the start of your turn, you may put the top card of your deck into your discard.",
+        "raw": "WEIRD THINGS ARE HAPPENING At the start of your turn, you may put the top card of your deck into your discard."
       }
     ]
   },
@@ -6130,6 +6443,48 @@
     ]
   },
   {
+    "id": "syndrome-out-for-revenge",
+    "name": "Syndrome",
+    "fullName": "Syndrome - Out for Revenge",
+    "cardType": "character",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 6,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Super",
+      "Villain",
+      "Inventor"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      }
+    ],
+    "setId": "12",
+    "number": 172,
+    "rarity": "super_rare",
+    "_source": "lorcast",
+    "subtitle": "Out for Revenge",
+    "strength": 4,
+    "willpower": 6,
+    "lore": 2,
+    "shiftCost": 4,
+    "rulesText": "<Shift> 4 {I} (You may pay 4 {I} to play this on top of one of your characters named Syndrome.)\nGOT ME MONOLOGUING! Whenever this character quests, return a Robot character card from your discard to your hand. Then, you may play or shift a Robot character with cost 8 or less for free.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_551b17ff6ce94d239237332a2c902086.avif?1776393566",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "GOT ME MONOLOGUING!",
+        "rulesText": "Whenever this character quests, return a Robot character card from your discard to your hand. Then, you may play or shift a Robot character with cost 8 or less for free.",
+        "raw": "GOT ME MONOLOGUING! Whenever this character quests, return a Robot character card from your discard to your hand. Then, you may play or shift a Robot character with cost 8 or less for free."
+      }
+    ]
+  },
+  {
     "id": "incrediboy-buddy-pine",
     "name": "Incrediboy",
     "fullName": "Incrediboy - Buddy Pine",
@@ -7389,6 +7744,25 @@
         "raw": "JUST CHILL When you play this character, if you have another Super character in play, you may exert chosen opposing character."
       }
     ]
+  },
+  {
+    "id": "the-familys-scattered",
+    "name": "The Family's Scattered",
+    "fullName": "The Family's Scattered",
+    "cardType": "action",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 8,
+    "inkable": true,
+    "traits": [],
+    "abilities": [],
+    "setId": "12",
+    "number": 231,
+    "rarity": "enchanted",
+    "_source": "lorcast",
+    "rulesText": "Chosen opponent chooses 3 of their characters and returns one of those cards to their hand, puts one on the bottom of their deck, and puts one on the top of their deck.",
+    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c4e66047e01c49f4bedb6c185d0af90a.avif?1776301804"
   },
   {
     "id": "what-else-can-i-do",

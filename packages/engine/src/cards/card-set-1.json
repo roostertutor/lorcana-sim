@@ -1220,7 +1220,7 @@
     "number": 25,
     "rarity": "uncommon",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.) \nLook at the top 4 cards of your deck. You may reveal a character card and put it into your hand. Put the rest on the bottom of your deck in any order.",
+    "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)\nLook at the top 4 cards of your deck. You may reveal a character card and put it into your hand. Put the rest on the bottom of your deck in any order.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set1/25_70ed49868782fed4a347083366d534f041af88a6.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set1/25_70ed49868782fed4a347083366d534f041af88a6.jpg",
     "actionEffects": [
@@ -1412,7 +1412,7 @@
     "number": 30,
     "rarity": "rare",
     "_source": "ravensburger",
-    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.) \nReturn a character card from your discard to your hand.",
+    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nReturn a character card from your discard to your hand.",
     "flavorText": "What would I give\nIf I could live out of these waters?",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set1/30_74e15b02eabfce2b19b02c8f59350194a47a7edc.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set1/30_74e15b02eabfce2b19b02c8f59350194a47a7edc.jpg",
