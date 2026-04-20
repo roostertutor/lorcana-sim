@@ -327,6 +327,41 @@ what's happening at apply time (e.g. "player1 played Tangle → player2 lost
 expected, but if any UI surfaces rulesText rendered by the decompiler, the
 new wording is ready for it.
 
+## DB: soft-delete on `decks` table for post-hoc analysis
+
+Currently `deleteDeck(id)` in `packages/ui/src/lib/deckApi.ts` hard-deletes
+the row via Supabase. Once a user deletes a deck, we lose:
+- The deck's final composition before abandonment
+- The deck_versions history that had been accumulating
+- Signal about what deck ideas users tried and discarded
+
+**Suggested change** (DB/engine agent):
+1. Schema: `ALTER TABLE decks ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ;`
+2. `deleteDeck(id)` becomes a soft-delete: sets `deleted_at = NOW()` instead
+   of `DELETE FROM decks`.
+3. `listDecks` filters out rows with `deleted_at IS NOT NULL`.
+4. Consider cascading to `deck_versions`: either leave them (references
+   still resolve) or mirror a `deleted_at` column on versions too.
+
+**Why we'd want this:** the clone-trainer / analytics pivot (per
+`project_strategic_direction.md`) benefits from knowing which decks
+users *abandoned* as much as which ones they kept. Hard-deleting erases
+that signal. A soft-delete keeps the row available for backend queries
+without exposing it in the UI list.
+
+**UI-side impact:** none — `listDecks()` already returns only what it's
+given. Once the column + filter exist, the UI works unchanged.
+
+**Out of scope here:**
+- Admin UI to restore deleted decks (not needed for analytics).
+- Periodic hard-delete job for rows older than N months (compliance
+  concern that'd need product input).
+
+Noted during GUI session where the user asked whether Reset should keep
+deck history. Delete is the reset path (Delete → New Deck), but the DB
+should preserve the record for analytics even when the user removes it
+from their list.
+
 ## Deckbuilder: follow-up polish for `/decks/:id`
 
 Captured during the 2026-04-19 GUI session after the MTGA-style split
