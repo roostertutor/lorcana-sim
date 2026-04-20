@@ -110,9 +110,10 @@ export default function CardPicker({ entries, definitions, onChange }: Props) {
   // is how most real deckbuilding happens anyway.
   const filterActive = hasAnyFilter(filters);
   // Cap the grid at MAX_VISIBLE for the rare case where a filter still
-  // matches thousands (e.g. one ink color returns ~450). Keeps mount cost
-  // bounded even in worst-case filter combinations.
-  const MAX_VISIBLE = 200;
+  // matches thousands (e.g. one ink color returns ~450). 204 matches the
+  // canonical size of a Lorcana main set — once a set filter lands,
+  // filtering by "set 1" will naturally show the whole thing.
+  const MAX_VISIBLE = 204;
   const shownCards = filterActive ? visibleCards.slice(0, MAX_VISIBLE) : [];
   const truncated = filterActive && visibleCards.length > MAX_VISIBLE;
 
