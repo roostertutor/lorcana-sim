@@ -101,11 +101,26 @@ export function buildCardDefinitions(rawCards: CardDefinition[]): BuildResult {
       if (c) variants.push(toVariant(c));
     }
 
+    // Full printings list — every raw row, no per-type collapse. Same ORDER
+    // by classified type; within a type, newest setId first so the default
+    // "first matching entry" read picks the latest printing (matches the
+    // collapsed `variants[]` preference). Preserves cross-set same-rarity
+    // reprints (e.g. set 1 vs set 9 Captain Hook) that `variants[]` drops.
+    const printings: CardVariant[] = [];
+    for (const t of ORDER) {
+      const forType = group.filter((c) => classifyVariant(c) === t);
+      forType.sort((a, b) => (isNewerPrinting(a, b) ? -1 : isNewerPrinting(b, a) ? 1 : 0));
+      for (const c of forType) printings.push(toVariant(c));
+    }
+
     // Attach variants only when there's an alternative to the base printing.
     // Single-type cards stay lean — UI falls back to CardDefinition.imageUrl.
     const merged: CardDefinition = variants.length >= 2
       ? { ...canonical, variants }
       : { ...canonical };
+    // `printings[]` surfaces whenever ≥2 rows exist, even when they collapse
+    // to the same `variants[]` entry — that's the whole point.
+    if (printings.length >= 2) merged.printings = printings;
 
     // Keep the top-level imageUrl / foilImageUrl in sync with the preferred
     // variant (ORDER defines preference: regular first, then alt-arts).

@@ -2737,8 +2737,19 @@ export interface CardDefinition {
    *  build step from matching-slug entries across set JSONs. Variants share
    *  gameplay rules and the 4-copy / maxCopies limit (CRD 1.5.3) because they
    *  all share this CardDefinition's id. Undefined when only one printing
-   *  type exists — UI then falls back to imageUrl. */
+   *  type exists — UI then falls back to imageUrl.
+   *
+   *  Display-grouped: one entry per CardVariantType (newest setId wins ties).
+   *  For the complete set of every printing (including same-rarity cross-set
+   *  reprints with different art, e.g. set 1 vs set 9 Captain Hook), read
+   *  `printings[]` instead. */
   variants?: CardVariant[];
+  /** Complete list of every raw per-printing row that shares this slug — no
+   *  per-type deduping. Ordered by CardVariantType (regular → special) then
+   *  newest setId first within type. Populated by buildDefinitions alongside
+   *  `variants[]`. Needed by the deckbuilder so users can pick e.g. the set 1
+   *  vs set 8 art of a common reprint; `variants[]` alone collapses those. */
+  printings?: CardVariant[];
 }
 
 /** Visual-printing classes. Deckbuilder picker shows one chip per distinct
