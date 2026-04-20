@@ -700,6 +700,19 @@ describe("Set 12 — Omnidroid V.9 played_via_shift condition", () => {
   });
 });
 
+describe("Set 12 — cards_put_into_discard_this_turn counter + condition (Helga)", () => {
+  it("Helga self-cost-reduction wiring uses the new condition + primitive", () => {
+    const def = CARD_DEFINITIONS["helga-sinclair-no-backup-needed"];
+    expect(def).toBeDefined();
+    const staticAb = def!.abilities.find((a: any) => a.type === "static");
+    expect(staticAb).toBeDefined();
+    expect((staticAb as any).condition.type).toBe("cards_put_into_discard_this_turn_atleast");
+    expect((staticAb as any).condition.amount).toBe(2);
+    expect((staticAb as any).effect.type).toBe("self_cost_reduction");
+    expect((staticAb as any).effect.amount).toBe(2);
+  });
+});
+
 describe("Set 12 — Elinor turn_end + ≥3 exerted characters in play (wiring shape)", () => {
   // PASS_TURN under set12.test's harness triggers a framework-level issue that
   // isn't about Elinor specifically. Verifying the ability's wiring shape here

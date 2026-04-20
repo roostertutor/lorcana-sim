@@ -1007,6 +1007,11 @@ export function evaluateCondition(
       // Nathaniel Flint - Notorious Pirate: "You can't play this character unless an opposing character was damaged this turn."
       return !!state.players[opponent].aCharacterWasDamagedThisTurn;
     }
+    case "cards_put_into_discard_this_turn_atleast": {
+      // Set-12 Madrigal discard theme: Helga Sinclair, Kida, Kashekim, Lyle.
+      const count = state.players[controllingPlayerId].cardsPutIntoDiscardThisTurn ?? 0;
+      return count >= condition.amount;
+    }
     case "not": {
       return !evaluateCondition(condition.condition, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, statBonuses);
     }

@@ -394,6 +394,8 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
   // Per-turn event flags
   a_character_was_banished_in_challenge_this_turn: () => "if a character was banished in a challenge this turn",
   opposing_character_was_damaged_this_turn: () => "if an opposing character was damaged this turn",
+  cards_put_into_discard_this_turn_atleast: (c) =>
+    `if ${c.amount ?? 0} or more cards were put into your discard this turn`,
 
   // Stat / location / state checks
   this_has_damage: () => "if this character has damage",

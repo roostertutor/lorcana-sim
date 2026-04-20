@@ -2579,6 +2579,10 @@ export type Condition =
   | { type: "opponent_controls_matching"; filter: CardFilter; minimum?: number }
   | { type: "your_character_was_damaged_this_turn" }
   | { type: "opposing_character_was_damaged_this_turn" }
+  /** CRD 6.5.x: True if ≥ `amount` cards were put into the controller's discard
+   *  pile this turn. Set-12 Madrigal theme — Helga Sinclair, Kida, Kashekim,
+   *  Lyle's DIRTY TRICKS. Counter lives on PlayerState.cardsPutIntoDiscardThisTurn. */
+  | { type: "cards_put_into_discard_this_turn_atleast"; amount: number }
   | { type: "opponent_character_was_banished_in_challenge_this_turn" }
   | { type: "a_character_was_banished_in_challenge_this_turn" }
   | { type: "not"; condition: Condition }
@@ -3041,6 +3045,14 @@ export interface PlayerState {
    *  this character"). Incremented in applyChallenge when a defender is
    *  banished. Cleared at PASS_TURN. */
   opposingCharsBanishedInChallengeThisTurn?: number;
+  /** Number of cards put into THIS player's discard this turn (from any zone
+   *  transition — banish, discard from hand, mill, leaves-play cleanup).
+   *  Incremented in zoneTransition when targetZone==="discard" on the owner's
+   *  player. Used by set-12 discard-theme cards: Helga Sinclair No Backup Needed
+   *  (selfCostReduction condition), Kida Discovering The Unknown / Kashekim
+   *  Wise King (on-quest / turn-end inkwell acceleration), Lyle Tiberius Rourke
+   *  DIRTY TRICKS (turn-end opponent lore-drain). Cleared at PASS_TURN. */
+  cardsPutIntoDiscardThisTurn?: number;
   /** Timed play restrictions affecting this player (Pete Games Referee, Keep the
    *  Ancient Ways). Each entry blocks plays of certain card types until the
    *  CASTER'S next turn begins. Multiple entries OR-combine. */

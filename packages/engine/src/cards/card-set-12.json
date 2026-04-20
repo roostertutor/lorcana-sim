@@ -2606,7 +2606,21 @@
       "Storyborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "CRISIS MANAGEMENT",
+        "rulesText": "If 2 or more cards were put into your discard this turn, you pay 2 {I} less to play this character.",
+        "condition": {
+          "type": "cards_put_into_discard_this_turn_atleast",
+          "amount": 2
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 2
+        }
+      }
+    ],
     "setId": "12",
     "number": 73,
     "rarity": "common",
@@ -2618,14 +2632,7 @@
     "rulesText": "CRISIS MANAGEMENT If 2 or more cards were put into your discard this turn, you pay 2 {I} less to play this character.",
     "flavorText": "\"Once again, I find myself cleaning up someone else's mess.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/73_8042a42461c8ddde2caf0ce440c3503b78039dd2.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/73_8042a42461c8ddde2caf0ce440c3503b78039dd2.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "CRISIS MANAGEMENT",
-        "rulesText": "If 2 or more cards were put into your discard this turn, you pay 2 {I} less to play this character.",
-        "raw": "CRISIS MANAGEMENT If 2 or more cards were put into your discard this turn, you pay 2 {I} less to play this character."
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/73_8042a42461c8ddde2caf0ce440c3503b78039dd2.jpg"
   },
   {
     "id": "the-witch-wily-woodcarver",
@@ -3116,6 +3123,7 @@
     "abilities": [
       {
         "type": "triggered",
+        "storyName": "EYE FOR VALUE",
         "rulesText": "When you play this character, you may draw a card, then choose and discard a card.",
         "trigger": {
           "on": "enters_play"
@@ -3144,6 +3152,33 @@
             ]
           }
         ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "DIRTY TRICKS",
+        "rulesText": "At the end of your turn, if 2 or more cards were put into your discard this turn, each opponent loses 1 lore.",
+        "trigger": {
+          "on": "turn_end"
+        },
+        "condition": {
+          "type": "cards_put_into_discard_this_turn_atleast",
+          "amount": 2
+        },
+        "effects": [
+          {
+            "type": "each_player",
+            "scope": "opponents",
+            "effects": [
+              {
+                "type": "lose_lore",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
       }
     ],
     "setId": "12",
@@ -3156,14 +3191,7 @@
     "lore": 1,
     "rulesText": "EYE FOR VALUE When you play this character, you may draw a card, then choose and discard a card.\nDIRTY TRICKS At the end of your turn, if 2 or more cards were put into your discard this turn, each opponent loses 1 lore.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/87_a37943d83cee3e1b2eed382b9f2dfdbd1b435ea3.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/87_a37943d83cee3e1b2eed382b9f2dfdbd1b435ea3.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "DIRTY TRICKS",
-        "rulesText": "At the end of your turn, if 2 or more cards were put into your discard this turn, each opponent loses 1 lore.",
-        "raw": "DIRTY TRICKS At the end of your turn, if 2 or more cards were put into your discard this turn, each opponent loses 1 lore."
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/87_a37943d83cee3e1b2eed382b9f2dfdbd1b435ea3.jpg"
   },
   {
     "id": "joshua-sweet-field-surgeon",
@@ -5589,7 +5617,31 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "READ THE RUNES",
+        "rulesText": "Whenever this character quests, if 2 or more cards were put into your discard this turn, you may put the top card of your deck into your inkwell facedown and exerted.",
+        "trigger": {
+          "on": "quests"
+        },
+        "condition": {
+          "type": "cards_put_into_discard_this_turn_atleast",
+          "amount": 2
+        },
+        "effects": [
+          {
+            "type": "put_into_inkwell",
+            "target": {
+              "type": "this"
+            },
+            "fromZone": "deck",
+            "enterExerted": true,
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 157,
     "rarity": "rare",
@@ -5600,14 +5652,7 @@
     "lore": 1,
     "rulesText": "READ THE RUNES Whenever this character quests, if 2 or more cards were put into your discard this turn, you may put the top card of your deck into your inkwell facedown and exerted.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/157_aa0d819e4b05ae775ea6d8c04e6cb405f8acd181.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/157_aa0d819e4b05ae775ea6d8c04e6cb405f8acd181.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "READ THE RUNES",
-        "rulesText": "Whenever this character quests, if 2 or more cards were put into your discard this turn, you may put the top card of your deck into your inkwell facedown and exerted.",
-        "raw": "READ THE RUNES Whenever this character quests, if 2 or more cards were put into your discard this turn, you may put the top card of your deck into your inkwell facedown and exerted."
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/157_aa0d819e4b05ae775ea6d8c04e6cb405f8acd181.jpg"
   },
   {
     "id": "kashekim-wise-king",
@@ -5623,7 +5668,30 @@
       "Storyborn",
       "King"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "STRENGTH IN MEMORY",
+        "rulesText": "At the end of your turn, if 2 or more cards were put into your discard this turn, you may put the top card of your deck into your inkwell facedown.",
+        "trigger": {
+          "on": "turn_end"
+        },
+        "condition": {
+          "type": "cards_put_into_discard_this_turn_atleast",
+          "amount": 2
+        },
+        "effects": [
+          {
+            "type": "put_into_inkwell",
+            "target": {
+              "type": "this"
+            },
+            "fromZone": "deck",
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 158,
     "rarity": "uncommon",
@@ -5635,14 +5703,7 @@
     "rulesText": "STRENGTH IN MEMORY At the end of your turn, if 2 or more cards were put into your discard this turn, you may put the top card of your deck into your inkwell facedown.",
     "flavorText": "\"The power here is buried deep in the sands.\"",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/158_b7a3b500d1753c0fd0ac759e10935c87645c1c6b.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/158_b7a3b500d1753c0fd0ac759e10935c87645c1c6b.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "STRENGTH IN MEMORY",
-        "rulesText": "At the end of your turn, if 2 or more cards were put into your discard this turn, you may put the top card of your deck into your inkwell facedown.",
-        "raw": "STRENGTH IN MEMORY At the end of your turn, if 2 or more cards were put into your discard this turn, you may put the top card of your deck into your inkwell facedown."
-      }
-    ]
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/158_b7a3b500d1753c0fd0ac759e10935c87645c1c6b.jpg"
   },
   {
     "id": "escape-plan",
