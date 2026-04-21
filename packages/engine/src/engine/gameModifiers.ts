@@ -1216,27 +1216,6 @@ export function getGameModifiers(
     }
   }
 
-  // Turn-scoped granted TRIGGERED abilities (Hero Work: "Your Hero characters
-  // gain '[trigger]' this turn"). Parallel to timedGrantedActivatedAbilities
-  // above — same filter-match-and-attach pattern, different ability type.
-  // Consumed by the trigger scanner which already reads grantedTriggeredAbilities.
-  for (const playerId of ["player1", "player2"] as PlayerID[]) {
-    const grants = state.players[playerId].timedGrantedTriggeredAbilities ?? [];
-    if (grants.length === 0) continue;
-    for (const candidate of Object.values(state.cards)) {
-      if (candidate.zone !== "play" || candidate.ownerId !== playerId) continue;
-      const candidateDef = definitions[candidate.definitionId];
-      if (!candidateDef) continue;
-      for (const grant of grants) {
-        if (matchesFilter(candidate, candidateDef, grant.filter, state, playerId)) {
-          const existing = modifiers.grantedTriggeredAbilities.get(candidate.instanceId) ?? [];
-          existing.push(grant.ability);
-          modifiers.grantedTriggeredAbilities.set(candidate.instanceId, existing);
-        }
-      }
-    }
-  }
-
   // CRD 6.4.2.1: Apply global timed effects (continuous statics from resolved effects)
   // These affect ALL matching cards, including ones played after the effect resolved.
   if (state.globalTimedEffects) {

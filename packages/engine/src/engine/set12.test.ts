@@ -1061,8 +1061,16 @@ describe("Set 12 — Jack-jack Parr (reveal_top_switch 3-way)", () => {
   });
 });
 
-describe("Set 12 — Hero Work (timed grant_triggered_ability)", () => {
-  it("actionEffects: +1 {S} to own characters this turn + timed grant of challenge trigger to Hero-trait", () => {
+describe("Set 12 — Hero Work (create_floating_trigger for 'your X chars gain trigger this turn')", () => {
+  // Hero Work matches Forest Duel's pattern (set 8) — "Your [X] characters
+  // gain +N and '[triggered ability]' this turn." Uses the existing
+  // create_floating_trigger primitive with attachTo:"all_matching" +
+  // targetFilter, which correctly binds to current matching cards at
+  // resolution time per CRD 6.2.7.1. Earlier revision (commit 4fde647)
+  // introduced a redundant grant_triggered_ability_timed primitive with a
+  // subtle semantic bug (late entrants inherited the grant); reverted
+  // in this commit in favor of create_floating_trigger.
+  it("actionEffects: +1 {S} to own characters this turn + floating trigger for Hero-trait challenges", () => {
     const def = CARD_DEFINITIONS["hero-work"];
     expect(def).toBeDefined();
     const effects = (def as any).actionEffects;
@@ -1075,65 +1083,21 @@ describe("Set 12 — Hero Work (timed grant_triggered_ability)", () => {
     expect(effects[0].target.type).toBe("all");
     expect(effects[0].target.filter.owner.type).toBe("self");
 
-    // 2. Timed grant of triggered ability to Hero-trait own characters
-    expect(effects[1].type).toBe("grant_triggered_ability_timed");
-    expect(effects[1].filter.hasTrait).toBe("Hero");
-    expect(effects[1].filter.owner.type).toBe("self");
-    expect(effects[1].ability.type).toBe("triggered");
-    expect(effects[1].ability.trigger.on).toBe("challenges");
-    // Granted ability: each_player opponents lose 1 lore + self gain 1 lore
-    const granted = effects[1].ability.effects;
-    expect(granted).toHaveLength(2);
-    expect(granted[0].type).toBe("each_player");
-    expect(granted[0].scope).toBe("opponents");
-    expect(granted[0].effects[0].type).toBe("lose_lore");
-    expect(granted[1].type).toBe("gain_lore");
-    expect(granted[1].amount).toBe(1);
-  });
-
-  it("grant_triggered_ability_timed pushes to timedGrantedTriggeredAbilities on PlayerState", () => {
-    let state = startGame();
-    expect(state.players.player1.timedGrantedTriggeredAbilities ?? []).toEqual([]);
-    // Inject a source and apply the effect directly via applyEffect.
-    const { state: s1, instanceId: sourceId } = injectCard(state, "player1", "helga-sinclair-no-backup-needed", "play");
-    const after = applyEffect(
-      s1,
-      {
-        type: "grant_triggered_ability_timed",
-        filter: { hasTrait: "Hero" } as any,
-        ability: {
-          type: "triggered",
-          trigger: { on: "challenges" },
-          effects: [{ type: "gain_lore", amount: 1, target: { type: "self" } }],
-        } as any,
-      } as any,
-      sourceId,
-      "player1",
-      CARD_DEFINITIONS,
-      []
-    );
-    const grants = after.players.player1.timedGrantedTriggeredAbilities ?? [];
-    expect(grants).toHaveLength(1);
-    expect(grants[0]?.filter).toEqual({ hasTrait: "Hero" });
-    expect(grants[0]?.ability.trigger.on).toBe("challenges");
-  });
-
-  it("timedGrantedTriggeredAbilities resets on PASS_TURN (parity with activated variant)", () => {
-    let state = startGame();
-    state = {
-      ...state,
-      players: {
-        ...state.players,
-        player1: {
-          ...state.players.player1,
-          timedGrantedTriggeredAbilities: [
-            { filter: {} as any, ability: { type: "triggered", trigger: { on: "quests" }, effects: [] } as any },
-          ],
-        },
-      },
-    };
-    const after = passTurns(state, 2);
-    expect(after.players.player1.timedGrantedTriggeredAbilities ?? []).toEqual([]);
+    // 2. Floating trigger attached to every Hero-trait own character at
+    //    resolution time (late-entering Heroes don't inherit — CRD 6.2.7.1).
+    expect(effects[1].type).toBe("create_floating_trigger");
+    expect(effects[1].attachTo).toBe("all_matching");
+    expect(effects[1].targetFilter.hasTrait).toBe("Hero");
+    expect(effects[1].targetFilter.owner.type).toBe("self");
+    expect(effects[1].trigger.on).toBe("challenges");
+    // Trigger effects: each_player opponents lose 1 lore + self gain 1 lore
+    const trigEffects = effects[1].effects;
+    expect(trigEffects).toHaveLength(2);
+    expect(trigEffects[0].type).toBe("each_player");
+    expect(trigEffects[0].scope).toBe("opponents");
+    expect(trigEffects[0].effects[0].type).toBe("lose_lore");
+    expect(trigEffects[1].type).toBe("gain_lore");
+    expect(trigEffects[1].amount).toBe(1);
   });
 });
 

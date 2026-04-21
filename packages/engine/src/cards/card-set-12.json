@@ -5971,8 +5971,9 @@
         }
       },
       {
-        "type": "grant_triggered_ability_timed",
-        "filter": {
+        "type": "create_floating_trigger",
+        "attachTo": "all_matching",
+        "targetFilter": {
           "owner": {
             "type": "self"
           },
@@ -5982,34 +5983,31 @@
           ],
           "hasTrait": "Hero"
         },
-        "ability": {
-          "type": "triggered",
-          "trigger": {
-            "on": "challenges"
-          },
-          "effects": [
-            {
-              "type": "each_player",
-              "scope": "opponents",
-              "effects": [
-                {
-                  "type": "lose_lore",
-                  "amount": 1,
-                  "target": {
-                    "type": "self"
-                  }
+        "trigger": {
+          "on": "challenges"
+        },
+        "effects": [
+          {
+            "type": "each_player",
+            "scope": "opponents",
+            "effects": [
+              {
+                "type": "lose_lore",
+                "amount": 1,
+                "target": {
+                  "type": "self"
                 }
-              ]
-            },
-            {
-              "type": "gain_lore",
-              "amount": 1,
-              "target": {
-                "type": "self"
               }
+            ]
+          },
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
             }
-          ]
-        }
+          }
+        ]
       }
     ],
     "setId": "12",

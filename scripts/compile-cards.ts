@@ -1638,46 +1638,6 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     },
   },
 
-  // ============= HERO WORK PATTERN ==========================================
-  // "Your X characters gain '<triggered ability>' this turn." Emits a
-  // grant_triggered_ability_timed effect. The quoted inner ability is
-  // passed through matchEffect as an embedded triggered ability — compiler
-  // recursion handles the quote-wrapped inner oracle.
-  //
-  // Scope is intentionally narrow: requires "Your <trait> characters gain"
-  // (trait-filtered form). Plain "Your characters gain" without a trait is
-  // less common and would match too aggressively here.
-  {
-    name: "grant_triggered_ability_timed_trait",
-    pattern: /^your (\w+) characters gain ["“](.+?)["”] this turn/i,
-    build: (m, ctx) => {
-      const trait = m[1];
-      const innerText = m[2];
-      // The inner is a triggered ability — try to compile it into
-      // { type: "triggered", trigger, effects, ... }. If inner parsing
-      // fails, return null to let the surrounding matcher queue flag this.
-      // For the MVP we emit the inner as an opaque string placeholder
-      // when recursion fails; callers should validate via round-trip.
-      const capTrait = trait.charAt(0).toUpperCase() + trait.slice(1);
-      return {
-        type: "grant_triggered_ability_timed",
-        filter: {
-          owner: { type: "self" },
-          zone: "play",
-          cardType: ["character"],
-          hasTrait: capTrait,
-        },
-        // Inner ability emitted as a stub — the real wire-up needs manual
-        // trigger-matching (compiler's triggered-ability parsing is itself
-        // complex; matching the inner quoted oracle back through tryTriggered
-        // would be the extension for full automation).
-        ability: {
-          type: "triggered",
-          _inner_oracle: innerText,
-        },
-      };
-    },
-  },
 ];
 
 const matchEffect = makeMatcher(EFFECT_MATCHERS);

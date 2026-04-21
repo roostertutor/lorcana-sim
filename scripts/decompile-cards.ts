@@ -1209,16 +1209,6 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     return `your ${filt} gain "${inner}" this turn`;
   },
 
-  // Grants a triggered ability to a filtered set of characters until end of
-  // turn. Hero Work pattern — "Your Hero characters gain '[trigger]' this
-  // turn." Mirrors grant_activated_ability_timed but routes the inner
-  // TriggeredAbility through renderAbility.
-  grant_triggered_ability_timed: (e) => {
-    const filt = e.filter ? renderFilter(e.filter) : "characters";
-    const inner = e.ability ? renderAbility(e.ability) : "[no-ability]";
-    return `your ${filt} gain "${inner}" this turn`;
-  },
-
   // Atomic mill + switch-on-revealed-type — Jack-jack Parr WEIRD THINGS ARE
   // HAPPENING ("put top card into discard; if character, +2 S; if action/
   // item, +2 L; if location, banish chosen character"). Each case renders

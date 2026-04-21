@@ -240,7 +240,6 @@ export type Effect =
   | RestrictPlayEffect
   | EachOpponentMayDiscardThenRewardEffect
   | GrantActivatedAbilityTimedEffect
-  | GrantTriggeredAbilityTimedEffect
   | FillHandToEffect
   | OpponentMayPayToAvoidEffect
   | RememberChosenTargetEffect
@@ -390,26 +389,18 @@ export interface FillHandToEffect {
  * grant onto the controller's PlayerState.timedGrantedActivatedAbilities.
  * Consumed by getGameModifiers which merges these into grantedActivatedAbilities
  * for matching in-play cards. Cleared on PASS_TURN.
+ *
+ * Note: there is NO triggered-ability counterpart to this effect. For "Your
+ * X characters gain '[triggered ability]' this turn" oracles (Forest Duel,
+ * Fairy Godmother Mystic Armorer, Hero Work), use `create_floating_trigger`
+ * with `attachTo: "all_matching"` + `targetFilter` — it correctly binds to
+ * current matching cards at resolution time (CRD 6.2.7.1), while a grant-
+ * via-getGameModifiers approach would incorrectly capture late-entrants.
  */
 export interface GrantActivatedAbilityTimedEffect {
   type: "grant_activated_ability_timed";
   filter: CardFilter;
   ability: ActivatedAbility;
-}
-
-/**
- * Hero Work (set 12 #132): "Your Hero characters gain 'Whenever this character
- * challenges another character, each opponent loses 1 lore and you gain 1 lore'
- * this turn." Pushes a turn-scoped grant onto
- * PlayerState.timedGrantedTriggeredAbilities. Consumed by getGameModifiers
- * which merges these into grantedTriggeredAbilities for matching in-play
- * cards. Cleared on PASS_TURN. Mirrors GrantActivatedAbilityTimedEffect
- * exactly — the only difference is the ability type (triggered vs activated).
- */
-export interface GrantTriggeredAbilityTimedEffect {
-  type: "grant_triggered_ability_timed";
-  filter: CardFilter;
-  ability: TriggeredAbility;
 }
 
 /**
@@ -3181,10 +3172,6 @@ export interface PlayerState {
    *  Collector, Walk the Plank!): each entry grants `ability` to all of this
    *  player's in-play cards matching `filter`. Cleared on PASS_TURN. */
   timedGrantedActivatedAbilities?: { filter: CardFilter; ability: ActivatedAbility }[];
-  /** Turn-scoped granted triggered abilities (Hero Work: "Your Hero characters
-   *  gain '[trigger]' this turn"). Cleared on PASS_TURN. Parallel to
-   *  timedGrantedActivatedAbilities but for TriggeredAbility grants. */
-  timedGrantedTriggeredAbilities?: { filter: CardFilter; ability: TriggeredAbility }[];
 }
 
 export interface PlayRestrictionEntry {
