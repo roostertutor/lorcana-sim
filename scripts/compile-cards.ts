@@ -613,6 +613,20 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
   },
 
   // ============= EXERT / READY ==============================================
+  // Mass "exert all opposing characters" — 3× hits. Use target:all filter
+  // (zone:play, cardType:character, owner:opponent). Must come before
+  // the chosen-opposing matchers so the "all" keyword wins.
+  {
+    name: "exert_all_opposing_characters",
+    pattern: /^exert all opposing characters/i,
+    build: () => ({
+      type: "exert",
+      target: {
+        type: "all",
+        filter: { zone: "play", cardType: ["character"], owner: { type: "opponent" } },
+      },
+    }),
+  },
   {
     name: "exert_chosen_opp_character_may",
     pattern: /^you may exert chosen opposing character/i,
@@ -702,6 +716,19 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       isMay: true,
     }),
   },
+  // ORDER MATTERS: opposing variant before the generic chosen-character
+  // matchers. "you may deal N damage to chosen opposing character" — 3×
+  // hits in unmatched list 2026-04-21.
+  {
+    name: "deal_damage_may_n_opp",
+    pattern: /^you may deal (\d+) damage to chosen opposing character/i,
+    build: (m) => ({
+      type: "deal_damage",
+      amount: n(m[1]),
+      target: chosenCharacter({ opposing: true }),
+      isMay: true,
+    }),
+  },
   {
     name: "deal_damage_may_n",
     pattern: /^you may deal (\d+) damage to chosen character/i,
@@ -710,6 +737,20 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       amount: n(m[1]),
       target: chosenCharacter(),
       isMay: true,
+    }),
+  },
+  // "deal N damage to each opposing character" — mass deal via target:all
+  // opposing. Sudden Chill / Ursula's Trickery family. 3× hits.
+  {
+    name: "deal_damage_each_opposing",
+    pattern: /^deal (\d+) damage to each opposing character/i,
+    build: (m) => ({
+      type: "deal_damage",
+      amount: n(m[1]),
+      target: {
+        type: "all",
+        filter: { zone: "play", cardType: ["character"], owner: { type: "opponent" } },
+      },
     }),
   },
   {
@@ -882,6 +923,73 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     name: "this_character_gets_stat",
     pattern: /^this character gets ([+-]?\d+) \{(S|W|L)\}/i,
     build: (m) => gainStats(parseInt(m[1], 10), m[2], { type: "this" }),
+  },
+  // "each opposing character gets -N {S} until the start of your next turn"
+  // Mass stat mod — 3× hits in unmatched list. Target:all opposing characters.
+  // The duration suffix is consumed by the chain parser's withDuration(); here
+  // we emit without a duration and let the enclosing parser attach it.
+  {
+    name: "each_opposing_gets_stat",
+    pattern: /^each opposing character gets ([+-]?\d+) \{(S|W|L)\}/i,
+    build: (m) => gainStats(parseInt(m[1], 10), m[2], {
+      type: "all",
+      filter: { zone: "play", cardType: ["character"], owner: { type: "opponent" } },
+    }),
+  },
+  // "your characters get +N {S} this turn" — mass positive-stat on own chars.
+  // (Hero Work uses this but also chains a grant_keyword — handled by the
+  // outer chain parser. Standalone use: Be Our Guest follow-up etc.)
+  {
+    name: "your_characters_get_stat",
+    pattern: /^your characters get ([+-]?\d+) \{(S|W|L)\}/i,
+    build: (m) => gainStats(parseInt(m[1], 10), m[2], {
+      type: "all",
+      filter: { zone: "play", cardType: ["character"], owner: { type: "self" } },
+    }),
+  },
+  // "This character gets +1 {S} for each card in your hand." — dynamic stat
+  // via modify_stat_per_count with a hand-count filter. 3× hits. Only a few
+  // stats have this form in the existing pool (+1 per X trait, per X card).
+  {
+    name: "this_character_gets_stat_per_card_in_hand",
+    pattern: /^this character gets ([+-]?\d+) \{(S|W|L)\} for each card in your hand/i,
+    build: (m) => {
+      const perCount = parseInt(m[1], 10);
+      const stat = m[2] === "S" ? "strength" : m[2] === "W" ? "willpower" : "lore";
+      return {
+        type: "modify_stat_per_count",
+        stat,
+        perCount,
+        countFilter: { owner: { type: "self" }, zone: "hand" },
+        target: { type: "this" },
+      };
+    },
+  },
+  // "This character gets +1 {S} for each other X character you have in play"
+  // — common dynamic stat (Shenzi, Alien, etc). Already partially covered by
+  // existing patterns; adding for the "each other X" shape specifically.
+  {
+    name: "this_character_gets_stat_per_other_trait_char",
+    pattern: /^this character gets ([+-]?\d+) \{(S|W|L)\} for each other (\w+) character you have in play/i,
+    build: (m) => {
+      const perCount = parseInt(m[1], 10);
+      const stat = m[2] === "S" ? "strength" : m[2] === "W" ? "willpower" : "lore";
+      const trait = m[3];
+      const capTrait = trait.charAt(0).toUpperCase() + trait.slice(1);
+      return {
+        type: "modify_stat_per_count",
+        stat,
+        perCount,
+        countFilter: {
+          owner: { type: "self" },
+          zone: "play",
+          cardType: ["character"],
+          hasTrait: capTrait,
+          excludeSelf: true,
+        },
+        target: { type: "this" },
+      };
+    },
   },
 
   // ============= KEYWORD GRANTS =============================================
@@ -2814,12 +2922,31 @@ export function compileCard(card: CardJSON): CompiledCard {
   // For actions/songs, the whole rulesText is an actionEffects body — parse as
   // a bare effect chain (no trigger/static/activated wrapping).
   if (card.cardType === "action") {
-    const normalized = (card.rulesText ?? "")
+    let normalized = (card.rulesText ?? "")
       .replace(/[\u2018\u2019]/g, "'")
       .replace(/<(Rush|Evasive|Ward|Reckless|Bodyguard|Support|Challenger|Resist|Vanish|Shift)>/gi, "$1")
       .replace(/^\(A character with cost \d+ or more can \{E\} to sing this song for free\.\)\s*/i, "")
       .replace(/\s*\([^)]*\)\s*\.?$/, "")
       .trim();
+
+    // Extract leading playRestrictions preamble. Escape Plan: "You can't
+    // play this action unless 2 or more cards were put into your discard
+    // this turn." — the "unless X" clause is a CardDefinition.playRestrictions
+    // gate, not an actionEffect. Strip it from normalized before effect-chain
+    // parsing so the remaining body can compile cleanly.
+    const playRestrictions: Json[] = [];
+    const unlessDiscardMatch = normalized.match(/^You can'?t play this action unless (\d+) or more cards? were put into your discard this turn\.\s*/i);
+    if (unlessDiscardMatch) {
+      playRestrictions.push({
+        type: "cards_put_into_discard_this_turn_atleast",
+        amount: parseInt(unlessDiscardMatch[1], 10),
+      });
+      normalized = normalized.slice(unlessDiscardMatch[0].length).trim();
+    }
+    // Other playRestriction preambles could chain here: "You can't play this
+    // action unless you have X in play" / "unless 5 or more characters are
+    // banished this turn" / etc. Add as they appear in future sets.
+
     // "Choose one:" modal action — parse bullet points as options
     const chooseMatch = /^Choose one:\s*/i.exec(normalized);
     if (chooseMatch) {
@@ -2841,9 +2968,18 @@ export function compileCard(card: CardJSON): CompiledCard {
 
     const effects = parseEffectChain(normalized);
     if (effects && effects.json.length > 0) {
+      const ability: Json = { type: "__actionEffects__", effects: effects.json };
+      if (playRestrictions.length > 0) ability.playRestrictions = playRestrictions;
       result.actionEffectResult = {
-        ability: { type: "__actionEffects__", effects: effects.json },
+        ability,
         unmatched: effects.remainder,
+      };
+    } else if (playRestrictions.length > 0) {
+      // Restrictions extracted but body unmatched — still emit the
+      // restrictions so the manual-wiring step has a head start.
+      result.actionEffectResult = {
+        ability: { type: "__actionEffects__", effects: [], playRestrictions },
+        unmatched: normalized,
       };
     } else {
       result.actionEffectResult = {
